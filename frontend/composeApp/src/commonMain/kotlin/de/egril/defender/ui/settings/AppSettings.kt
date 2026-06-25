@@ -19,8 +19,9 @@ enum class DifficultyLevel {
     EASY,
     MEDIUM,
     HARD,
-    NIGHTMARE;
-    
+    NIGHTMARE,
+    ;
+
     companion object {
         val DEFAULT = MEDIUM
     }
@@ -32,8 +33,9 @@ enum class DifficultyLevel {
 enum class HeaderTextSize {
     SMALL,
     MEDIUM,
-    LARGE;
-    
+    LARGE,
+    ;
+
     companion object {
         val DEFAULT = SMALL
     }
@@ -43,12 +45,15 @@ enum class HeaderTextSize {
  * Accessibility font size options.
  * Controls the scale of most text in the app (except game title, level header, and defender buttons).
  */
-enum class FontSize(val scale: Float) {
+enum class FontSize(
+    val scale: Float,
+) {
     SMALL(0.85f),
     MEDIUM(1.0f),
     LARGE(1.15f),
     EXTRA_LARGE(1.30f),
-    HUGE(1.45f);
+    HUGE(1.45f),
+    ;
 
     companion object {
         val DEFAULT = MEDIUM
@@ -141,7 +146,7 @@ object AppSettings {
     private const val DEFAULT_SHORTCUT_PREV_ENEMY_TARGET = "Shift+N"
     private const val DEFAULT_SHORTCUT_BACK_TO_WORLDMAP = "Escape"
     private const val DEFAULT_SHORTCUT_TOGGLE_AUDIO = "P"
-    
+
     private val settings: Settings = Settings()
 
     /**
@@ -149,191 +154,206 @@ object AppSettings {
      * Set by GameViewModel to trigger a remote settings upload whenever settings change.
      */
     var onPersist: (() -> Unit)? = null
-    
+
     /**
      * Dark mode state - automatically saved when changed
      */
     val isDarkMode: MutableState<Boolean> = mutableStateOf(settings[KEY_DARK_MODE, false])
-    
+
     /**
      * Sound enabled state - automatically saved when changed (master control)
      */
     val isSoundEnabled: MutableState<Boolean> = mutableStateOf(settings[KEY_SOUND_ENABLED, true])
-    
+
     /**
      * Sound volume level (0.0 to 1.0) - automatically saved when changed (master volume)
      */
     val soundVolume: MutableState<Float> = mutableStateOf(settings.getFloat(KEY_SOUND_VOLUME, 0.7f))
-    
+
     /**
      * Effect sounds enabled state - automatically saved when changed
      */
     val isEffectsEnabled: MutableState<Boolean> = mutableStateOf(settings.getBoolean(KEY_EFFECTS_ENABLED, true))
-    
+
     /**
      * Effect sounds volume level (0.0 to 1.0) - automatically saved when changed
      */
     val effectsVolume: MutableState<Float> = mutableStateOf(settings.getFloat(KEY_EFFECTS_VOLUME, 0.7f))
-    
+
     /**
      * Background music enabled state - automatically saved when changed
      */
     val isMusicEnabled: MutableState<Boolean> = mutableStateOf(settings.getBoolean(KEY_MUSIC_ENABLED, true))
-    
+
     /**
      * Background music volume level (0.0 to 1.0) - automatically saved when changed
      * Default is 0.5 (quieter than effects)
      */
     val musicVolume: MutableState<Float> = mutableStateOf(settings.getFloat(KEY_MUSIC_VOLUME, 0.5f))
-    
+
     /**
      * World map music enabled state - automatically saved when changed
      */
     val isWorldMapMusicEnabled: MutableState<Boolean> = mutableStateOf(settings.getBoolean(KEY_WORLDMAP_MUSIC_ENABLED, true))
-    
+
     /**
      * World map music volume level (0.0 to 1.0) - automatically saved when changed
      * Default is 0.7 (louder than gameplay music)
      */
     val worldMapMusicVolume: MutableState<Float> = mutableStateOf(settings.getFloat(KEY_WORLDMAP_MUSIC_VOLUME, 0.7f))
-    
+
     /**
      * Gameplay music enabled state - automatically saved when changed
      */
     val isGameplayMusicEnabled: MutableState<Boolean> = mutableStateOf(settings.getBoolean(KEY_GAMEPLAY_MUSIC_ENABLED, true))
-    
+
     /**
      * Gameplay music volume level (0.0 to 1.0) - automatically saved when changed
      * Default is 0.5 (quieter than world map music)
      */
     val gameplayMusicVolume: MutableState<Float> = mutableStateOf(settings.getFloat(KEY_GAMEPLAY_MUSIC_VOLUME, 0.5f))
-    
+
     /**
      * Control pad visibility state - automatically saved when changed
      * Default is ON for mobile platforms, OFF for desktop/web
      */
-    val showControlPad: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_SHOW_CONTROL_PAD, isPlatformMobile)
-    )
-    
+    val showControlPad: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_SHOW_CONTROL_PAD, isPlatformMobile),
+        )
+
     /**
      * Game difficulty level - automatically saved when changed
      * Default is MEDIUM
      */
-    val difficulty: MutableState<DifficultyLevel> = mutableStateOf(
-        try {
-            DifficultyLevel.valueOf(settings[KEY_DIFFICULTY, DifficultyLevel.DEFAULT.name])
-        } catch (e: Exception) {
-            DifficultyLevel.DEFAULT
-        }
-    )
-    
+    val difficulty: MutableState<DifficultyLevel> =
+        mutableStateOf(
+            try {
+                DifficultyLevel.valueOf(settings[KEY_DIFFICULTY, DifficultyLevel.DEFAULT.name])
+            } catch (e: Exception) {
+                DifficultyLevel.DEFAULT
+            },
+        )
+
     /**
      * World map display style - use level cards instead of image map
      * Default is false (use image-based map)
      */
-    val useLevelCards: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_USE_LEVEL_CARDS, false)
-    )
-    
+    val useLevelCards: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_USE_LEVEL_CARDS, false),
+        )
+
     /**
      * Settings hint shown state - track if first-time settings hint has been shown
      * Default is false (hint should be shown on first run)
      */
-    val settingsHintShown: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_SETTINGS_HINT_SHOWN, false)
-    )
-    
+    val settingsHintShown: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_SETTINGS_HINT_SHOWN, false),
+        )
+
     /**
      * Accessibility banner shown state - track if first-time accessibility banner has been shown
      * Default is false (banner should be shown on first run)
      */
-    val accessibilityBannerShown: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_ACCESSIBILITY_BANNER_SHOWN, false)
-    )
+    val accessibilityBannerShown: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_ACCESSIBILITY_BANNER_SHOWN, false),
+        )
 
     /**
      * Date (YYYY-MM-DD) when the daily hint banner on the world map was last shown.
      * Empty string means it has never been shown. Used to ensure the banner appears
      * at most once per calendar day.
      */
-    val dailyHintLastShownDate: MutableState<String> = mutableStateOf(
-        settings[KEY_DAILY_HINT_LAST_SHOWN_DATE, ""]
-    )
+    val dailyHintLastShownDate: MutableState<String> =
+        mutableStateOf(
+            settings[KEY_DAILY_HINT_LAST_SHOWN_DATE, ""],
+        )
 
     /**
      * Index of the daily hint that was last shown. The next eligible hint is selected
      * starting from (lastIndex + 1) modulo hint count, so users see hints in rotation.
      */
-    val dailyHintLastIndex: MutableState<Int> = mutableStateOf(
-        settings.getInt(KEY_DAILY_HINT_LAST_INDEX, -1)
-    )
-    
+    val dailyHintLastIndex: MutableState<Int> =
+        mutableStateOf(
+            settings.getInt(KEY_DAILY_HINT_LAST_INDEX, -1),
+        )
+
     /**
      * Use tile background images - show tile images instead of solid colors
      * Default is true (tile images ON)
      */
-    val useTileImages: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_USE_TILE_IMAGES, true)
-    )
-    
+    val useTileImages: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_USE_TILE_IMAGES, true),
+        )
+
     /**
      * Use tile smooth transitions - blend adjacent tiles for smoother visual transitions
      * Only applies when useTileImages is true
      * Default is true (smooth transitions ON)
      */
-    val useTileSmoothTransitions: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_USE_TILE_SMOOTH_TRANSITIONS, true)
-    )
-    
+    val useTileSmoothTransitions: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_USE_TILE_SMOOTH_TRANSITIONS, true),
+        )
+
     /**
      * Show testing levels - show levels marked as testing only on world map
      * Default is false (testing levels hidden)
      */
-    val showTestingLevels: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_SHOW_TESTING_LEVELS, false)
-    )
-    
+    val showTestingLevels: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_SHOW_TESTING_LEVELS, false),
+        )
+
     /**
      * Use level map image - show PNG map image behind the hexagonal grid
      * Default is true (level map image ON)
      */
-    val useLevelMapImage: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_USE_LEVEL_MAP_IMAGE, true)
-    )
+    val useLevelMapImage: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_USE_LEVEL_MAP_IMAGE, true),
+        )
 
     /**
      * Show debug options - show debug icon in level header
      * Default is false (debug options hidden)
      */
-    val showDebugOptions: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_SHOW_DEBUG_OPTIONS, false)
-    )
+    val showDebugOptions: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_SHOW_DEBUG_OPTIONS, false),
+        )
 
     /**
      * Enable animations - show Lottie animations (e.g. green witch healing, barricade damage)
      * Default is true (animations ON)
      */
-    val enableAnimations: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_ENABLE_ANIMATIONS, true)
-    )
+    val enableAnimations: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_ENABLE_ANIMATIONS, true),
+        )
 
     /**
      * Enable world map animations - controls river flow and tide movement overlays on world map.
      * Default is true (animations ON)
      */
-    val enableWorldMapAnimations: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_ENABLE_WORLDMAP_ANIMATIONS, true)
-    )
+    val enableWorldMapAnimations: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_ENABLE_WORLDMAP_ANIMATIONS, true),
+        )
 
     /**
      * Check for updates on startup - query GitHub releases API for a newer version.
      * Skipped on WASM; also skipped on Android when installed via the Play Store.
      * Default is true (update check ON)
      */
-    val checkForUpdates: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_CHECK_FOR_UPDATES, true)
-    )
+    val checkForUpdates: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_CHECK_FOR_UPDATES, true),
+        )
 
     /**
      * Auto-jump to next actionable tower – when ON, the game automatically selects the
@@ -341,238 +361,268 @@ object AppSettings {
      * selects the first actionable tower at the start of each player turn.
      * Default is false (OFF).
      */
-    val autoJumpToNextTower: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_AUTO_JUMP_TO_NEXT_TOWER, false)
-    )
+    val autoJumpToNextTower: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_AUTO_JUMP_TO_NEXT_TOWER, false),
+        )
 
     /**
      * Show unit/tower background color – when ON, enemy tiles get a red background and tower
      * tiles get a blue/gray background (classic look). When OFF, tiles are see-through.
      * Default is false (OFF = transparent).
      */
-    val showUnitTowerBackground: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_SHOW_UNIT_TOWER_BACKGROUND, false)
-    )
+    val showUnitTowerBackground: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_SHOW_UNIT_TOWER_BACKGROUND, false),
+        )
 
     /**
      * Accessibility: high contrast color mode.
      */
-    val highContrastEnabled: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_HIGH_CONTRAST, false)
-    )
+    val highContrastEnabled: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_HIGH_CONTRAST, false),
+        )
 
     /**
      * Accessibility: color blind palette.
      */
-    val colorBlindPalette: MutableState<ColorBlindPalette> = mutableStateOf(
-        try {
-            ColorBlindPalette.valueOf(settings[KEY_COLOR_BLIND_PALETTE, ColorBlindPalette.OFF.name])
-        } catch (_: Exception) {
-            ColorBlindPalette.OFF
-        }
-    )
+    val colorBlindPalette: MutableState<ColorBlindPalette> =
+        mutableStateOf(
+            try {
+                ColorBlindPalette.valueOf(settings[KEY_COLOR_BLIND_PALETTE, ColorBlindPalette.OFF.name])
+            } catch (_: Exception) {
+                ColorBlindPalette.OFF
+            },
+        )
 
     /**
      * Accessibility: show captions for sound-related events.
      */
-    val captionsEnabled: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_CAPTIONS_ENABLED, false)
-    )
+    val captionsEnabled: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_CAPTIONS_ENABLED, false),
+        )
 
     /**
      * Accessibility: require hold-to-confirm for destructive actions.
      */
-    val holdToConfirmEnabled: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_HOLD_TO_CONFIRM, false)
-    )
+    val holdToConfirmEnabled: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_HOLD_TO_CONFIRM, false),
+        )
 
     /**
      * Accessibility: font size scale.
      */
-    val fontSize: MutableState<FontSize> = mutableStateOf(
-        try {
-            FontSize.valueOf(settings[KEY_FONT_SIZE, FontSize.DEFAULT.name])
-        } catch (_: Exception) {
-            FontSize.DEFAULT
-        }
-    )
+    val fontSize: MutableState<FontSize> =
+        mutableStateOf(
+            try {
+                FontSize.valueOf(settings[KEY_FONT_SIZE, FontSize.DEFAULT.name])
+            } catch (_: Exception) {
+                FontSize.DEFAULT
+            },
+        )
 
     /**
      * Accessibility: show keyboard shortcut hints on matching buttons.
      */
-    val showButtonShortcutHints: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_SHOW_BUTTON_SHORTCUT_HINTS, false)
-    )
+    val showButtonShortcutHints: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_SHOW_BUTTON_SHORTCUT_HINTS, false),
+        )
 
     /**
      * Keyboard shortcuts (remappable).
      */
-    val shortcutAttackSelectedTarget: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_ATTACK_SELECTED_TARGET, DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET],
-            DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET
+    val shortcutAttackSelectedTarget: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_ATTACK_SELECTED_TARGET, DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET],
+                DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET,
+            ),
         )
-    )
 
-    val shortcutSelectNextTower: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_SELECT_NEXT_TOWER, DEFAULT_SHORTCUT_SELECT_NEXT_TOWER],
-            DEFAULT_SHORTCUT_SELECT_NEXT_TOWER
+    val shortcutSelectNextTower: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_SELECT_NEXT_TOWER, DEFAULT_SHORTCUT_SELECT_NEXT_TOWER],
+                DEFAULT_SHORTCUT_SELECT_NEXT_TOWER,
+            ),
         )
-    )
 
-    val shortcutSelectPreviousTower: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_SELECT_PREVIOUS_TOWER, DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER],
-            DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER
+    val shortcutSelectPreviousTower: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_SELECT_PREVIOUS_TOWER, DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER],
+                DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER,
+            ),
         )
-    )
 
-    val shortcutAutoAttackEndTurn: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_AUTO_ATTACK_END_TURN, DEFAULT_SHORTCUT_AUTO_ATTACK_END_TURN],
-            DEFAULT_SHORTCUT_AUTO_ATTACK_END_TURN
+    val shortcutAutoAttackEndTurn: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_AUTO_ATTACK_END_TURN, DEFAULT_SHORTCUT_AUTO_ATTACK_END_TURN],
+                DEFAULT_SHORTCUT_AUTO_ATTACK_END_TURN,
+            ),
         )
-    )
 
-    val shortcutCheat: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_CHEAT, DEFAULT_SHORTCUT_CHEAT],
-            DEFAULT_SHORTCUT_CHEAT
+    val shortcutCheat: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_CHEAT, DEFAULT_SHORTCUT_CHEAT],
+                DEFAULT_SHORTCUT_CHEAT,
+            ),
         )
-    )
 
-    val shortcutToggleEnemyList: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_TOGGLE_ENEMY_LIST, DEFAULT_SHORTCUT_TOGGLE_ENEMY_LIST],
-            DEFAULT_SHORTCUT_TOGGLE_ENEMY_LIST
+    val shortcutToggleEnemyList: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_TOGGLE_ENEMY_LIST, DEFAULT_SHORTCUT_TOGGLE_ENEMY_LIST],
+                DEFAULT_SHORTCUT_TOGGLE_ENEMY_LIST,
+            ),
         )
-    )
 
-    val shortcutEndTurnStartBattle: MutableState<String> = mutableStateOf(
-        run {
-            val raw = settings[KEY_SHORTCUT_END_TURN_START_BATTLE, DEFAULT_SHORTCUT_END_TURN_START_BATTLE]
-            val normalized = normalizeShortcutBinding(raw, DEFAULT_SHORTCUT_END_TURN_START_BATTLE)
-            // Migrate: plain "ENTER" was the old default; upgrade to the new default "Ctrl+ENTER"
-            if (normalized == "ENTER") {
-                settings[KEY_SHORTCUT_END_TURN_START_BATTLE] = DEFAULT_SHORTCUT_END_TURN_START_BATTLE
-                normalizeShortcutBinding(DEFAULT_SHORTCUT_END_TURN_START_BATTLE, DEFAULT_SHORTCUT_END_TURN_START_BATTLE)
-            } else {
-                normalized
-            }
-        }
-    )
-
-    val shortcutSaveGame: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_SAVE_GAME, DEFAULT_SHORTCUT_SAVE_GAME],
-            DEFAULT_SHORTCUT_SAVE_GAME
+    val shortcutEndTurnStartBattle: MutableState<String> =
+        mutableStateOf(
+            run {
+                val raw = settings[KEY_SHORTCUT_END_TURN_START_BATTLE, DEFAULT_SHORTCUT_END_TURN_START_BATTLE]
+                val normalized = normalizeShortcutBinding(raw, DEFAULT_SHORTCUT_END_TURN_START_BATTLE)
+                // Migrate: plain "ENTER" was the old default; upgrade to the new default "Ctrl+ENTER"
+                if (normalized == "ENTER") {
+                    settings[KEY_SHORTCUT_END_TURN_START_BATTLE] = DEFAULT_SHORTCUT_END_TURN_START_BATTLE
+                    normalizeShortcutBinding(DEFAULT_SHORTCUT_END_TURN_START_BATTLE, DEFAULT_SHORTCUT_END_TURN_START_BATTLE)
+                } else {
+                    normalized
+                }
+            },
         )
-    )
 
-    val shortcutPanUp: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_PAN_UP, DEFAULT_SHORTCUT_PAN_UP],
-            DEFAULT_SHORTCUT_PAN_UP
+    val shortcutSaveGame: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_SAVE_GAME, DEFAULT_SHORTCUT_SAVE_GAME],
+                DEFAULT_SHORTCUT_SAVE_GAME,
+            ),
         )
-    )
 
-    val shortcutPanDown: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_PAN_DOWN, DEFAULT_SHORTCUT_PAN_DOWN],
-            DEFAULT_SHORTCUT_PAN_DOWN
+    val shortcutPanUp: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_PAN_UP, DEFAULT_SHORTCUT_PAN_UP],
+                DEFAULT_SHORTCUT_PAN_UP,
+            ),
         )
-    )
 
-    val shortcutPanLeft: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_PAN_LEFT, DEFAULT_SHORTCUT_PAN_LEFT],
-            DEFAULT_SHORTCUT_PAN_LEFT
+    val shortcutPanDown: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_PAN_DOWN, DEFAULT_SHORTCUT_PAN_DOWN],
+                DEFAULT_SHORTCUT_PAN_DOWN,
+            ),
         )
-    )
 
-    val shortcutPanRight: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_PAN_RIGHT, DEFAULT_SHORTCUT_PAN_RIGHT],
-            DEFAULT_SHORTCUT_PAN_RIGHT
+    val shortcutPanLeft: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_PAN_LEFT, DEFAULT_SHORTCUT_PAN_LEFT],
+                DEFAULT_SHORTCUT_PAN_LEFT,
+            ),
         )
-    )
+
+    val shortcutPanRight: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_PAN_RIGHT, DEFAULT_SHORTCUT_PAN_RIGHT],
+                DEFAULT_SHORTCUT_PAN_RIGHT,
+            ),
+        )
 
     /**
      * Accessibility: keyboard shortcut key for centering map on selected tower.
      */
-    val shortcutCenterSelectedTower: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_CENTER_SELECTED_TOWER, DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER],
-            DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER
+    val shortcutCenterSelectedTower: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_CENTER_SELECTED_TOWER, DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER],
+                DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER,
+            ),
         )
-    )
 
     /**
      * Accessibility: keyboard shortcut key for centering map on next spawn point.
      */
-    val shortcutCenterNextSpawnPoint: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT, DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT],
-            DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT
+    val shortcutCenterNextSpawnPoint: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT, DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT],
+                DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT,
+            ),
         )
-    )
 
-    val shortcutUpgradeSelectedTower: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_UPGRADE_SELECTED_TOWER, DEFAULT_SHORTCUT_UPGRADE_SELECTED_TOWER],
-            DEFAULT_SHORTCUT_UPGRADE_SELECTED_TOWER
+    val shortcutUpgradeSelectedTower: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_UPGRADE_SELECTED_TOWER, DEFAULT_SHORTCUT_UPGRADE_SELECTED_TOWER],
+                DEFAULT_SHORTCUT_UPGRADE_SELECTED_TOWER,
+            ),
         )
-    )
 
-    val shortcutUndoOrSellSelectedTower: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER, DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER],
-            DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER
+    val shortcutUndoOrSellSelectedTower: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER, DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER],
+                DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER,
+            ),
         )
-    )
 
-    val shortcutToggleSpellMenu: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_TOGGLE_SPELL_MENU, DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU],
-            DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU
+    val shortcutToggleSpellMenu: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_TOGGLE_SPELL_MENU, DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU],
+                DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU,
+            ),
         )
-    )
 
-    val shortcutSwitchToTowerMode: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_SWITCH_TO_TOWER_MODE, DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE],
-            DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE
+    val shortcutSwitchToTowerMode: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_SWITCH_TO_TOWER_MODE, DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE],
+                DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE,
+            ),
         )
-    )
 
-    val shortcutNextEnemyTarget: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_NEXT_ENEMY_TARGET, DEFAULT_SHORTCUT_NEXT_ENEMY_TARGET],
-            DEFAULT_SHORTCUT_NEXT_ENEMY_TARGET
+    val shortcutNextEnemyTarget: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_NEXT_ENEMY_TARGET, DEFAULT_SHORTCUT_NEXT_ENEMY_TARGET],
+                DEFAULT_SHORTCUT_NEXT_ENEMY_TARGET,
+            ),
         )
-    )
 
-    val shortcutPrevEnemyTarget: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_PREV_ENEMY_TARGET, DEFAULT_SHORTCUT_PREV_ENEMY_TARGET],
-            DEFAULT_SHORTCUT_PREV_ENEMY_TARGET
+    val shortcutPrevEnemyTarget: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_PREV_ENEMY_TARGET, DEFAULT_SHORTCUT_PREV_ENEMY_TARGET],
+                DEFAULT_SHORTCUT_PREV_ENEMY_TARGET,
+            ),
         )
-    )
 
-    val shortcutBackToWorldMap: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_BACK_TO_WORLDMAP, DEFAULT_SHORTCUT_BACK_TO_WORLDMAP],
-            DEFAULT_SHORTCUT_BACK_TO_WORLDMAP
+    val shortcutBackToWorldMap: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_BACK_TO_WORLDMAP, DEFAULT_SHORTCUT_BACK_TO_WORLDMAP],
+                DEFAULT_SHORTCUT_BACK_TO_WORLDMAP,
+            ),
         )
-    )
 
-    val shortcutToggleAudio: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_TOGGLE_AUDIO, DEFAULT_SHORTCUT_TOGGLE_AUDIO],
-            DEFAULT_SHORTCUT_TOGGLE_AUDIO
+    val shortcutToggleAudio: MutableState<String> =
+        mutableStateOf(
+            normalizeShortcutBinding(
+                settings[KEY_SHORTCUT_TOGGLE_AUDIO, DEFAULT_SHORTCUT_TOGGLE_AUDIO],
+                DEFAULT_SHORTCUT_TOGGLE_AUDIO,
+            ),
         )
-    )
 
     // Session-only debug states (not persisted)
     val showTileBorders: MutableState<Boolean> = mutableStateOf(false)
@@ -583,14 +633,15 @@ object AppSettings {
      * Level header text size - controls the size of text and icons in the game header
      * Default is SMALL (current size)
      */
-    val headerTextSize: MutableState<HeaderTextSize> = mutableStateOf(
-        try {
-            HeaderTextSize.valueOf(settings[KEY_HEADER_TEXT_SIZE, HeaderTextSize.DEFAULT.name])
-        } catch (e: Exception) {
-            HeaderTextSize.DEFAULT
-        }
-    )
-    
+    val headerTextSize: MutableState<HeaderTextSize> =
+        mutableStateOf(
+            try {
+                HeaderTextSize.valueOf(settings[KEY_HEADER_TEXT_SIZE, HeaderTextSize.DEFAULT.name])
+            } catch (e: Exception) {
+                HeaderTextSize.DEFAULT
+            },
+        )
+
     /**
      * Initialize settings on app start
      * Loads saved language preference
@@ -609,33 +660,34 @@ object AppSettings {
             }
         }
     }
-    
+
     /**
      * Check if user has chosen language on first start
      */
-    fun hasChosenLanguage(): Boolean {
-        return settings.getBoolean(KEY_LANGUAGE_CHOSEN, false)
-    }
-    
+    fun hasChosenLanguage(): Boolean = settings.getBoolean(KEY_LANGUAGE_CHOSEN, false)
+
     /**
      * Mark language as chosen (after first-time language selection)
      */
     fun markLanguageChosen() {
         settings.putBoolean(KEY_LANGUAGE_CHOSEN, true)
     }
-    
+
     /**
      * Detect and preselect platform language if supported
      * Returns the detected locale or null if not detected/supported
      */
     fun detectAndPreselectPlatformLanguage(): AppLocale? {
         try {
-            val systemLangCode = de.egril.defender.utils.getSystemLanguageCode()
+            val systemLangCode =
+                de.egril.defender.utils
+                    .getSystemLanguageCode()
             if (systemLangCode != null) {
                 // Find matching locale in supported languages
-                val matchingLocale = AppLocale.entries.find { 
-                    it.code.equals(systemLangCode, ignoreCase = true) 
-                }
+                val matchingLocale =
+                    AppLocale.entries.find {
+                        it.code.equals(systemLangCode, ignoreCase = true)
+                    }
                 if (matchingLocale != null) {
                     // Preselect but don't save yet (user needs to confirm)
                     currentLanguage.value = matchingLocale
@@ -647,7 +699,7 @@ object AppSettings {
         }
         return null
     }
-    
+
     /**
      * Save dark mode preference
      */
@@ -656,7 +708,7 @@ object AppSettings {
         settings[KEY_DARK_MODE] = enabled
         onPersist?.invoke()
     }
-    
+
     /**
      * Save language preference
      */
@@ -665,7 +717,7 @@ object AppSettings {
         settings[KEY_LANGUAGE] = locale.code
         onPersist?.invoke()
     }
-    
+
     /**
      * Save sound enabled preference
      */
@@ -674,7 +726,7 @@ object AppSettings {
         settings[KEY_SOUND_ENABLED] = enabled
         onPersist?.invoke()
     }
-    
+
     /**
      * Save sound volume preference
      */
@@ -684,7 +736,7 @@ object AppSettings {
         settings.putFloat(KEY_SOUND_VOLUME, clampedVolume)
         onPersist?.invoke()
     }
-    
+
     /**
      * Save effect sounds enabled preference
      */
@@ -693,7 +745,7 @@ object AppSettings {
         settings.putBoolean(KEY_EFFECTS_ENABLED, enabled)
         onPersist?.invoke()
     }
-    
+
     /**
      * Save effect sounds volume preference
      */
@@ -703,7 +755,7 @@ object AppSettings {
         settings.putFloat(KEY_EFFECTS_VOLUME, clampedVolume)
         onPersist?.invoke()
     }
-    
+
     /**
      * Save background music enabled preference
      */
@@ -712,7 +764,7 @@ object AppSettings {
         settings.putBoolean(KEY_MUSIC_ENABLED, enabled)
         onPersist?.invoke()
     }
-    
+
     /**
      * Save background music volume preference
      */
@@ -722,7 +774,7 @@ object AppSettings {
         settings.putFloat(KEY_MUSIC_VOLUME, clampedVolume)
         onPersist?.invoke()
     }
-    
+
     /**
      * Save world map music enabled preference
      */
@@ -731,7 +783,7 @@ object AppSettings {
         settings.putBoolean(KEY_WORLDMAP_MUSIC_ENABLED, enabled)
         onPersist?.invoke()
     }
-    
+
     /**
      * Save world map music volume preference
      */
@@ -741,7 +793,7 @@ object AppSettings {
         settings.putFloat(KEY_WORLDMAP_MUSIC_VOLUME, clampedVolume)
         onPersist?.invoke()
     }
-    
+
     /**
      * Save gameplay music enabled preference
      */
@@ -750,7 +802,7 @@ object AppSettings {
         settings.putBoolean(KEY_GAMEPLAY_MUSIC_ENABLED, enabled)
         onPersist?.invoke()
     }
-    
+
     /**
      * Save gameplay music volume preference
      */
@@ -760,7 +812,7 @@ object AppSettings {
         settings.putFloat(KEY_GAMEPLAY_MUSIC_VOLUME, clampedVolume)
         onPersist?.invoke()
     }
-    
+
     /**
      * Save control pad visibility preference
      */
@@ -769,7 +821,7 @@ object AppSettings {
         settings.putBoolean(KEY_SHOW_CONTROL_PAD, show)
         onPersist?.invoke()
     }
-    
+
     /**
      * Save difficulty preference
      */
@@ -778,7 +830,7 @@ object AppSettings {
         settings[KEY_DIFFICULTY] = level.name
         onPersist?.invoke()
     }
-    
+
     /**
      * Save world map display style preference
      */
@@ -787,7 +839,7 @@ object AppSettings {
         settings.putBoolean(KEY_USE_LEVEL_CARDS, useLevelCards)
         onPersist?.invoke()
     }
-    
+
     /**
      * Mark settings hint as shown
      */
@@ -799,7 +851,7 @@ object AppSettings {
             // localStorage quota exceeded or unavailable; in-memory state is already updated
         }
     }
-    
+
     /**
      * Mark accessibility banner as shown
      */
@@ -818,7 +870,10 @@ object AppSettings {
      * @param date YYYY-MM-DD calendar date when the banner was shown.
      * @param index Index of the hint that was selected so the next call can rotate.
      */
-    fun markDailyHintShown(date: String, index: Int) {
+    fun markDailyHintShown(
+        date: String,
+        index: Int,
+    ) {
         dailyHintLastShownDate.value = date
         dailyHintLastIndex.value = index
         try {
@@ -828,7 +883,7 @@ object AppSettings {
             // localStorage quota exceeded or unavailable; in-memory state is already updated
         }
     }
-    
+
     /**
      * Save tile background images preference
      */
@@ -837,7 +892,7 @@ object AppSettings {
         settings.putBoolean(KEY_USE_TILE_IMAGES, useTiles)
         onPersist?.invoke()
     }
-    
+
     /**
      * Save tile smooth transitions preference
      * Note: The value is saved regardless of useTileImages state, but only used when useTileImages is true
@@ -847,7 +902,7 @@ object AppSettings {
         settings.putBoolean(KEY_USE_TILE_SMOOTH_TRANSITIONS, useTransitions)
         onPersist?.invoke()
     }
-    
+
     /**
      * Save show testing levels preference
      */
@@ -856,7 +911,7 @@ object AppSettings {
         settings.putBoolean(KEY_SHOW_TESTING_LEVELS, show)
         onPersist?.invoke()
     }
-    
+
     /**
      * Save level header text size preference
      */
@@ -1137,97 +1192,98 @@ object AppSettings {
         saveShortcutToggleAudio(DEFAULT_SHORTCUT_TOGGLE_AUDIO)
     }
 
-    fun getDefaultShortcutBindings(): Map<String, String> = mapOf(
-        KEY_SHORTCUT_ATTACK_SELECTED_TARGET to DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET,
-        KEY_SHORTCUT_SELECT_NEXT_TOWER to DEFAULT_SHORTCUT_SELECT_NEXT_TOWER,
-        KEY_SHORTCUT_SELECT_PREVIOUS_TOWER to DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER,
-        KEY_SHORTCUT_AUTO_ATTACK_END_TURN to DEFAULT_SHORTCUT_AUTO_ATTACK_END_TURN,
-        KEY_SHORTCUT_CHEAT to DEFAULT_SHORTCUT_CHEAT,
-        KEY_SHORTCUT_TOGGLE_ENEMY_LIST to DEFAULT_SHORTCUT_TOGGLE_ENEMY_LIST,
-        KEY_SHORTCUT_END_TURN_START_BATTLE to DEFAULT_SHORTCUT_END_TURN_START_BATTLE,
-        KEY_SHORTCUT_SAVE_GAME to DEFAULT_SHORTCUT_SAVE_GAME,
-        KEY_SHORTCUT_PAN_UP to DEFAULT_SHORTCUT_PAN_UP,
-        KEY_SHORTCUT_PAN_DOWN to DEFAULT_SHORTCUT_PAN_DOWN,
-        KEY_SHORTCUT_PAN_LEFT to DEFAULT_SHORTCUT_PAN_LEFT,
-        KEY_SHORTCUT_PAN_RIGHT to DEFAULT_SHORTCUT_PAN_RIGHT,
-        KEY_SHORTCUT_CENTER_SELECTED_TOWER to DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER,
-        KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT to DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT,
-        KEY_SHORTCUT_UPGRADE_SELECTED_TOWER to DEFAULT_SHORTCUT_UPGRADE_SELECTED_TOWER,
-        KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER to DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER,
-        KEY_SHORTCUT_TOGGLE_SPELL_MENU to DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU,
-        KEY_SHORTCUT_SWITCH_TO_TOWER_MODE to DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE,
-        KEY_SHORTCUT_TOGGLE_AUDIO to DEFAULT_SHORTCUT_TOGGLE_AUDIO
-    )
+    fun getDefaultShortcutBindings(): Map<String, String> =
+        mapOf(
+            KEY_SHORTCUT_ATTACK_SELECTED_TARGET to DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET,
+            KEY_SHORTCUT_SELECT_NEXT_TOWER to DEFAULT_SHORTCUT_SELECT_NEXT_TOWER,
+            KEY_SHORTCUT_SELECT_PREVIOUS_TOWER to DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER,
+            KEY_SHORTCUT_AUTO_ATTACK_END_TURN to DEFAULT_SHORTCUT_AUTO_ATTACK_END_TURN,
+            KEY_SHORTCUT_CHEAT to DEFAULT_SHORTCUT_CHEAT,
+            KEY_SHORTCUT_TOGGLE_ENEMY_LIST to DEFAULT_SHORTCUT_TOGGLE_ENEMY_LIST,
+            KEY_SHORTCUT_END_TURN_START_BATTLE to DEFAULT_SHORTCUT_END_TURN_START_BATTLE,
+            KEY_SHORTCUT_SAVE_GAME to DEFAULT_SHORTCUT_SAVE_GAME,
+            KEY_SHORTCUT_PAN_UP to DEFAULT_SHORTCUT_PAN_UP,
+            KEY_SHORTCUT_PAN_DOWN to DEFAULT_SHORTCUT_PAN_DOWN,
+            KEY_SHORTCUT_PAN_LEFT to DEFAULT_SHORTCUT_PAN_LEFT,
+            KEY_SHORTCUT_PAN_RIGHT to DEFAULT_SHORTCUT_PAN_RIGHT,
+            KEY_SHORTCUT_CENTER_SELECTED_TOWER to DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER,
+            KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT to DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT,
+            KEY_SHORTCUT_UPGRADE_SELECTED_TOWER to DEFAULT_SHORTCUT_UPGRADE_SELECTED_TOWER,
+            KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER to DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER,
+            KEY_SHORTCUT_TOGGLE_SPELL_MENU to DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU,
+            KEY_SHORTCUT_SWITCH_TO_TOWER_MODE to DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE,
+            KEY_SHORTCUT_TOGGLE_AUDIO to DEFAULT_SHORTCUT_TOGGLE_AUDIO,
+        )
 
-    fun getAccessibilityPreferences(): AccessibilityPreferences {
-        return AccessibilityPreferences(
+    fun getAccessibilityPreferences(): AccessibilityPreferences =
+        AccessibilityPreferences(
             highContrastEnabled = highContrastEnabled.value,
             colorBlindPalette = colorBlindPalette.value,
             captionsEnabled = captionsEnabled.value,
             holdToConfirmEnabled = holdToConfirmEnabled.value,
-            reduceMotionEnabled = !enableAnimations.value
+            reduceMotionEnabled = !enableAnimations.value,
         )
-    }
 
     /**
      * Serialize all relevant (non-debug, non-hint) settings into a flat map for remote storage.
      * Keys match the internal KEY_* constants; values are String representations.
      */
-    fun toSettingsMap(): Map<String, String> = buildMap {
-        put(KEY_DARK_MODE, isDarkMode.value.toString())
-        put(KEY_LANGUAGE, currentLanguage.value.code)
-        put(KEY_SOUND_ENABLED, isSoundEnabled.value.toString())
-        put(KEY_SOUND_VOLUME, soundVolume.value.toString())
-        put(KEY_EFFECTS_ENABLED, isEffectsEnabled.value.toString())
-        put(KEY_EFFECTS_VOLUME, effectsVolume.value.toString())
-        put(KEY_MUSIC_ENABLED, isMusicEnabled.value.toString())
-        put(KEY_MUSIC_VOLUME, musicVolume.value.toString())
-        put(KEY_WORLDMAP_MUSIC_ENABLED, isWorldMapMusicEnabled.value.toString())
-        put(KEY_WORLDMAP_MUSIC_VOLUME, worldMapMusicVolume.value.toString())
-        put(KEY_GAMEPLAY_MUSIC_ENABLED, isGameplayMusicEnabled.value.toString())
-        put(KEY_GAMEPLAY_MUSIC_VOLUME, gameplayMusicVolume.value.toString())
-        put(KEY_SHOW_CONTROL_PAD, showControlPad.value.toString())
-        put(KEY_DIFFICULTY, difficulty.value.name)
-        put(KEY_USE_LEVEL_CARDS, useLevelCards.value.toString())
-        put(KEY_USE_TILE_IMAGES, useTileImages.value.toString())
-        put(KEY_USE_TILE_SMOOTH_TRANSITIONS, useTileSmoothTransitions.value.toString())
-        put(KEY_SHOW_TESTING_LEVELS, showTestingLevels.value.toString())
-        put(KEY_HEADER_TEXT_SIZE, headerTextSize.value.name)
-        put(KEY_USE_LEVEL_MAP_IMAGE, useLevelMapImage.value.toString())
-        put(KEY_ENABLE_ANIMATIONS, enableAnimations.value.toString())
-        put(KEY_ENABLE_WORLDMAP_ANIMATIONS, enableWorldMapAnimations.value.toString())
-        put(KEY_CHECK_FOR_UPDATES, checkForUpdates.value.toString())
-        put(KEY_AUTO_JUMP_TO_NEXT_TOWER, autoJumpToNextTower.value.toString())
-        put(KEY_SHOW_UNIT_TOWER_BACKGROUND, showUnitTowerBackground.value.toString())
-        put(KEY_HIGH_CONTRAST, highContrastEnabled.value.toString())
-        put(KEY_COLOR_BLIND_PALETTE, colorBlindPalette.value.name)
-        put(KEY_CAPTIONS_ENABLED, captionsEnabled.value.toString())
-        put(KEY_HOLD_TO_CONFIRM, holdToConfirmEnabled.value.toString())
-        put(KEY_FONT_SIZE, fontSize.value.name)
-        put(KEY_SHOW_BUTTON_SHORTCUT_HINTS, showButtonShortcutHints.value.toString())
-        put(KEY_SHORTCUT_ATTACK_SELECTED_TARGET, shortcutAttackSelectedTarget.value)
-        put(KEY_SHORTCUT_SELECT_NEXT_TOWER, shortcutSelectNextTower.value)
-        put(KEY_SHORTCUT_SELECT_PREVIOUS_TOWER, shortcutSelectPreviousTower.value)
-        put(KEY_SHORTCUT_AUTO_ATTACK_END_TURN, shortcutAutoAttackEndTurn.value)
-        put(KEY_SHORTCUT_CHEAT, shortcutCheat.value)
-        put(KEY_SHORTCUT_TOGGLE_ENEMY_LIST, shortcutToggleEnemyList.value)
-        put(KEY_SHORTCUT_END_TURN_START_BATTLE, shortcutEndTurnStartBattle.value)
-        put(KEY_SHORTCUT_SAVE_GAME, shortcutSaveGame.value)
-        put(KEY_SHORTCUT_PAN_UP, shortcutPanUp.value)
-        put(KEY_SHORTCUT_PAN_DOWN, shortcutPanDown.value)
-        put(KEY_SHORTCUT_PAN_LEFT, shortcutPanLeft.value)
-        put(KEY_SHORTCUT_PAN_RIGHT, shortcutPanRight.value)
-        put(KEY_SHORTCUT_CENTER_SELECTED_TOWER, shortcutCenterSelectedTower.value)
-        put(KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT, shortcutCenterNextSpawnPoint.value)
-        put(KEY_SHORTCUT_UPGRADE_SELECTED_TOWER, shortcutUpgradeSelectedTower.value)
-        put(KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER, shortcutUndoOrSellSelectedTower.value)
-        put(KEY_SHORTCUT_TOGGLE_SPELL_MENU, shortcutToggleSpellMenu.value)
-        put(KEY_SHORTCUT_SWITCH_TO_TOWER_MODE, shortcutSwitchToTowerMode.value)
-        put(KEY_SHORTCUT_NEXT_ENEMY_TARGET, shortcutNextEnemyTarget.value)
-        put(KEY_SHORTCUT_PREV_ENEMY_TARGET, shortcutPrevEnemyTarget.value)
-        put(KEY_SHORTCUT_BACK_TO_WORLDMAP, shortcutBackToWorldMap.value)
-        put(KEY_SHORTCUT_TOGGLE_AUDIO, shortcutToggleAudio.value)
-    }
+    fun toSettingsMap(): Map<String, String> =
+        buildMap {
+            put(KEY_DARK_MODE, isDarkMode.value.toString())
+            put(KEY_LANGUAGE, currentLanguage.value.code)
+            put(KEY_SOUND_ENABLED, isSoundEnabled.value.toString())
+            put(KEY_SOUND_VOLUME, soundVolume.value.toString())
+            put(KEY_EFFECTS_ENABLED, isEffectsEnabled.value.toString())
+            put(KEY_EFFECTS_VOLUME, effectsVolume.value.toString())
+            put(KEY_MUSIC_ENABLED, isMusicEnabled.value.toString())
+            put(KEY_MUSIC_VOLUME, musicVolume.value.toString())
+            put(KEY_WORLDMAP_MUSIC_ENABLED, isWorldMapMusicEnabled.value.toString())
+            put(KEY_WORLDMAP_MUSIC_VOLUME, worldMapMusicVolume.value.toString())
+            put(KEY_GAMEPLAY_MUSIC_ENABLED, isGameplayMusicEnabled.value.toString())
+            put(KEY_GAMEPLAY_MUSIC_VOLUME, gameplayMusicVolume.value.toString())
+            put(KEY_SHOW_CONTROL_PAD, showControlPad.value.toString())
+            put(KEY_DIFFICULTY, difficulty.value.name)
+            put(KEY_USE_LEVEL_CARDS, useLevelCards.value.toString())
+            put(KEY_USE_TILE_IMAGES, useTileImages.value.toString())
+            put(KEY_USE_TILE_SMOOTH_TRANSITIONS, useTileSmoothTransitions.value.toString())
+            put(KEY_SHOW_TESTING_LEVELS, showTestingLevels.value.toString())
+            put(KEY_HEADER_TEXT_SIZE, headerTextSize.value.name)
+            put(KEY_USE_LEVEL_MAP_IMAGE, useLevelMapImage.value.toString())
+            put(KEY_ENABLE_ANIMATIONS, enableAnimations.value.toString())
+            put(KEY_ENABLE_WORLDMAP_ANIMATIONS, enableWorldMapAnimations.value.toString())
+            put(KEY_CHECK_FOR_UPDATES, checkForUpdates.value.toString())
+            put(KEY_AUTO_JUMP_TO_NEXT_TOWER, autoJumpToNextTower.value.toString())
+            put(KEY_SHOW_UNIT_TOWER_BACKGROUND, showUnitTowerBackground.value.toString())
+            put(KEY_HIGH_CONTRAST, highContrastEnabled.value.toString())
+            put(KEY_COLOR_BLIND_PALETTE, colorBlindPalette.value.name)
+            put(KEY_CAPTIONS_ENABLED, captionsEnabled.value.toString())
+            put(KEY_HOLD_TO_CONFIRM, holdToConfirmEnabled.value.toString())
+            put(KEY_FONT_SIZE, fontSize.value.name)
+            put(KEY_SHOW_BUTTON_SHORTCUT_HINTS, showButtonShortcutHints.value.toString())
+            put(KEY_SHORTCUT_ATTACK_SELECTED_TARGET, shortcutAttackSelectedTarget.value)
+            put(KEY_SHORTCUT_SELECT_NEXT_TOWER, shortcutSelectNextTower.value)
+            put(KEY_SHORTCUT_SELECT_PREVIOUS_TOWER, shortcutSelectPreviousTower.value)
+            put(KEY_SHORTCUT_AUTO_ATTACK_END_TURN, shortcutAutoAttackEndTurn.value)
+            put(KEY_SHORTCUT_CHEAT, shortcutCheat.value)
+            put(KEY_SHORTCUT_TOGGLE_ENEMY_LIST, shortcutToggleEnemyList.value)
+            put(KEY_SHORTCUT_END_TURN_START_BATTLE, shortcutEndTurnStartBattle.value)
+            put(KEY_SHORTCUT_SAVE_GAME, shortcutSaveGame.value)
+            put(KEY_SHORTCUT_PAN_UP, shortcutPanUp.value)
+            put(KEY_SHORTCUT_PAN_DOWN, shortcutPanDown.value)
+            put(KEY_SHORTCUT_PAN_LEFT, shortcutPanLeft.value)
+            put(KEY_SHORTCUT_PAN_RIGHT, shortcutPanRight.value)
+            put(KEY_SHORTCUT_CENTER_SELECTED_TOWER, shortcutCenterSelectedTower.value)
+            put(KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT, shortcutCenterNextSpawnPoint.value)
+            put(KEY_SHORTCUT_UPGRADE_SELECTED_TOWER, shortcutUpgradeSelectedTower.value)
+            put(KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER, shortcutUndoOrSellSelectedTower.value)
+            put(KEY_SHORTCUT_TOGGLE_SPELL_MENU, shortcutToggleSpellMenu.value)
+            put(KEY_SHORTCUT_SWITCH_TO_TOWER_MODE, shortcutSwitchToTowerMode.value)
+            put(KEY_SHORTCUT_NEXT_ENEMY_TARGET, shortcutNextEnemyTarget.value)
+            put(KEY_SHORTCUT_PREV_ENEMY_TARGET, shortcutPrevEnemyTarget.value)
+            put(KEY_SHORTCUT_BACK_TO_WORLDMAP, shortcutBackToWorldMap.value)
+            put(KEY_SHORTCUT_TOGGLE_AUDIO, shortcutToggleAudio.value)
+        }
 
     /**
      * Apply settings from a remote map (downloaded from the backend).
@@ -1254,14 +1310,20 @@ object AppSettings {
             map[KEY_GAMEPLAY_MUSIC_VOLUME]?.toFloatOrNull()?.let { saveGameplayMusicVolume(it) }
             map[KEY_SHOW_CONTROL_PAD]?.toBooleanStrictOrNull()?.let { saveShowControlPad(it) }
             map[KEY_DIFFICULTY]?.let { name ->
-                try { saveDifficulty(DifficultyLevel.valueOf(name)) } catch (_: Exception) {}
+                try {
+                    saveDifficulty(DifficultyLevel.valueOf(name))
+                } catch (_: Exception) {
+                }
             }
             map[KEY_USE_LEVEL_CARDS]?.toBooleanStrictOrNull()?.let { saveUseLevelCards(it) }
             map[KEY_USE_TILE_IMAGES]?.toBooleanStrictOrNull()?.let { saveUseTileImages(it) }
             map[KEY_USE_TILE_SMOOTH_TRANSITIONS]?.toBooleanStrictOrNull()?.let { saveUseTileSmoothTransitions(it) }
             map[KEY_SHOW_TESTING_LEVELS]?.toBooleanStrictOrNull()?.let { saveShowTestingLevels(it) }
             map[KEY_HEADER_TEXT_SIZE]?.let { name ->
-                try { saveHeaderTextSize(HeaderTextSize.valueOf(name)) } catch (_: Exception) {}
+                try {
+                    saveHeaderTextSize(HeaderTextSize.valueOf(name))
+                } catch (_: Exception) {
+                }
             }
             map[KEY_USE_LEVEL_MAP_IMAGE]?.toBooleanStrictOrNull()?.let { saveUseLevelMapImage(it) }
             map[KEY_ENABLE_ANIMATIONS]?.toBooleanStrictOrNull()?.let { saveEnableAnimations(it) }
@@ -1271,12 +1333,18 @@ object AppSettings {
             map[KEY_SHOW_UNIT_TOWER_BACKGROUND]?.toBooleanStrictOrNull()?.let { saveShowUnitTowerBackground(it) }
             map[KEY_HIGH_CONTRAST]?.toBooleanStrictOrNull()?.let { saveHighContrastEnabled(it) }
             map[KEY_COLOR_BLIND_PALETTE]?.let { name ->
-                try { saveColorBlindPalette(ColorBlindPalette.valueOf(name)) } catch (_: Exception) {}
+                try {
+                    saveColorBlindPalette(ColorBlindPalette.valueOf(name))
+                } catch (_: Exception) {
+                }
             }
             map[KEY_CAPTIONS_ENABLED]?.toBooleanStrictOrNull()?.let { saveCaptionsEnabled(it) }
             map[KEY_HOLD_TO_CONFIRM]?.toBooleanStrictOrNull()?.let { saveHoldToConfirmEnabled(it) }
             map[KEY_FONT_SIZE]?.let { name ->
-                try { saveFontSize(FontSize.valueOf(name)) } catch (_: Exception) {}
+                try {
+                    saveFontSize(FontSize.valueOf(name))
+                } catch (_: Exception) {
+                }
             }
             map[KEY_SHOW_BUTTON_SHORTCUT_HINTS]?.toBooleanStrictOrNull()?.let { saveShowButtonShortcutHints(it) }
             map[KEY_SHORTCUT_ATTACK_SELECTED_TARGET]?.let { saveShortcutAttackSelectedTarget(it) }
@@ -1309,10 +1377,10 @@ object AppSettings {
     fun resetToDefaults() {
         // Reset dark mode
         saveDarkMode(false)
-        
+
         // Reset language to default
         saveLanguage(AppLocale.DEFAULT)
-        
+
         // Reset sound settings
         saveSoundEnabled(true)
         saveSoundVolume(0.7f)
@@ -1324,32 +1392,32 @@ object AppSettings {
         saveWorldMapMusicVolume(0.7f)
         saveGameplayMusicEnabled(true)
         saveGameplayMusicVolume(0.5f)
-        
+
         // Reset control pad to platform default
         saveShowControlPad(isPlatformMobile)
-        
+
         // Reset difficulty to default
         saveDifficulty(DifficultyLevel.DEFAULT)
-        
+
         // Reset world map style to image map
         saveUseLevelCards(false)
-        
+
         // Reset tile images to ON
         saveUseTileImages(true)
-        
+
         // Reset tile smooth transitions to ON
         saveUseTileSmoothTransitions(true)
-        
+
         // Reset show testing levels to OFF
         saveShowTestingLevels(false)
-        
+
         // Reset header text size to default (SMALL)
         saveHeaderTextSize(HeaderTextSize.DEFAULT)
-        
+
         // Reset animations to ON
         saveEnableAnimations(true)
         saveEnableWorldMapAnimations(true)
-        
+
         // Reset check for updates to ON
         saveCheckForUpdates(true)
 
@@ -1364,9 +1432,8 @@ object AppSettings {
         saveFontSize(FontSize.DEFAULT)
         saveShowButtonShortcutHints(false)
         resetShortcutBindings()
-        
+
         // Note: Don't reset settings hint shown state when resetting settings
         // as user has already seen it once
     }
-
 }

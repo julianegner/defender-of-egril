@@ -10,10 +10,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.ContentScale
@@ -24,21 +24,20 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
-import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
-import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.ui.common.SelectableText
+import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
-import org.jetbrains.compose.resources.painterResource
-import androidx.compose.foundation.text.selection.SelectionContainer
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 
 /**
  * The type of narrative message popup.
  */
 enum class NarrativeMessageType {
-    STORY,  // Story message with wooden frame background
-    EWHAD   // Ewhad message with dark gargoyle frame background
+    STORY, // Story message with wooden frame background
+    EWHAD, // Ewhad message with dark gargoyle frame background
 }
 
 private const val KEYBOARD_SCROLL_STEP = 150
@@ -60,29 +59,34 @@ fun NarrativeMessageDialog(
     type: NarrativeMessageType,
     title: String,
     text: String,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     Dialog(onDismissRequest = onDismiss) {
         val focusRequester = remember { FocusRequester() }
         LaunchedEffect(Unit) {
-            try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+            try {
+                focusRequester.requestFocus()
+            } catch (_: IllegalStateException) {
+            }
         }
         val isMobile = isPlatformMobile
-        val titleFontSize = when {
-            isMobile && type == NarrativeMessageType.EWHAD -> 16.sp
-            isMobile -> 15.sp
-            type == NarrativeMessageType.EWHAD -> 22.sp
-            else -> 20.sp
-        }
+        val titleFontSize =
+            when {
+                isMobile && type == NarrativeMessageType.EWHAD -> 16.sp
+                isMobile -> 15.sp
+                type == NarrativeMessageType.EWHAD -> 22.sp
+                else -> 20.sp
+            }
         val bodyFontSize = if (isMobile) 12.sp else MaterialTheme.typography.bodyMedium.fontSize
         val iconSize = if (isMobile) 56.dp else 80.dp
         val scrollState = rememberScrollState()
         val coroutineScope = rememberCoroutineScope()
 
-        val backgroundPainter = when (type) {
-            NarrativeMessageType.STORY -> painterResource(Res.drawable.story_message_background)
-            NarrativeMessageType.EWHAD -> painterResource(Res.drawable.ewhad_message_background)
-        }
+        val backgroundPainter =
+            when (type) {
+                NarrativeMessageType.STORY -> painterResource(Res.drawable.story_message_background)
+                NarrativeMessageType.EWHAD -> painterResource(Res.drawable.ewhad_message_background)
+            }
         val buttonColor = if (type == NarrativeMessageType.EWHAD) Color(0xFF4A2060) else Color(0xFF5C3A1E)
 
         // Both background images are square (500×500 and 1024×1024).
@@ -95,32 +99,35 @@ fun NarrativeMessageDialog(
         // On mobile, BoxWithConstraints fills the available popup width so the dialog scales to
         // the actual device screen size rather than using a fixed narrow value.
         BoxWithConstraints(
-            modifier = (if (isMobile) Modifier.fillMaxWidth() else Modifier.width(700.dp))
-                .focusRequester(focusRequester)
-                .focusTarget()
-                .onPreviewKeyEvent { event ->
-                    if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
-                    when (event.key) {
-                        Key.DirectionDown -> {
-                            coroutineScope.launch {
-                                scrollState.animateScrollTo((scrollState.value + KEYBOARD_SCROLL_STEP).coerceAtMost(scrollState.maxValue))
+            modifier =
+                (if (isMobile) Modifier.fillMaxWidth() else Modifier.width(700.dp))
+                    .focusRequester(focusRequester)
+                    .focusTarget()
+                    .onPreviewKeyEvent { event ->
+                        if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                        when (event.key) {
+                            Key.DirectionDown -> {
+                                coroutineScope.launch {
+                                    scrollState.animateScrollTo(
+                                        (scrollState.value + KEYBOARD_SCROLL_STEP).coerceAtMost(scrollState.maxValue),
+                                    )
+                                }
+                                true
                             }
-                            true
-                        }
-                        Key.DirectionUp -> {
-                            coroutineScope.launch {
-                                scrollState.animateScrollTo((scrollState.value - KEYBOARD_SCROLL_STEP).coerceAtLeast(0))
+                            Key.DirectionUp -> {
+                                coroutineScope.launch {
+                                    scrollState.animateScrollTo((scrollState.value - KEYBOARD_SCROLL_STEP).coerceAtLeast(0))
+                                }
+                                true
                             }
-                            true
+                            Key.Enter, Key.Escape, Key.Back -> {
+                                onDismiss()
+                                true
+                            }
+                            else -> false
                         }
-                        Key.Enter, Key.Escape, Key.Back -> {
-                            onDismiss()
-                            true
-                        }
-                        else -> false
-                    }
-                },
-            contentAlignment = Alignment.Center
+                    },
+            contentAlignment = Alignment.Center,
         ) {
             // dialogWidth equals the actual rendered width on all platforms.
             // Keep the dialog square to match the square source images.
@@ -130,42 +137,43 @@ fun NarrativeMessageDialog(
             val verticalPadding = dialogHeight * (135f / 500f)
 
             Box(
-                modifier = Modifier
-                    .width(dialogWidth)
-                    .height(dialogHeight),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .width(dialogWidth)
+                        .height(dialogHeight),
+                contentAlignment = Alignment.Center,
             ) {
                 // Background image
                 Image(
                     painter = backgroundPainter,
                     contentDescription = null,
                     modifier = Modifier.matchParentSize(),
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.FillBounds,
                 )
 
                 // Content overlaid on background – scrollable so long texts never overflow the frame
                 Column(
-                    modifier = Modifier
-                        .padding(
-                            horizontal = horizontalPadding,
-                            vertical = verticalPadding
-                        )
-                        .fillMaxWidth()
-                        .verticalScroll(scrollState),
+                    modifier =
+                        Modifier
+                            .padding(
+                                horizontal = horizontalPadding,
+                                vertical = verticalPadding,
+                            ).fillMaxWidth()
+                            .verticalScroll(scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     // Scroll hint at the top so it is visible before any scrolling
                     if (AppSettings.showButtonShortcutHints.value) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             ShortcutKeyChip(text = "Up/Down")
                             Text(
                                 text = stringResource(Res.string.keyboard_nav_scroll),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -174,11 +182,11 @@ fun NarrativeMessageDialog(
                     if (type == NarrativeMessageType.EWHAD) {
                         Box(
                             modifier = Modifier.size(iconSize),
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.Center,
                         ) {
                             EnemyTypeIcon(
                                 attackerType = AttackerType.EWHAD,
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
                             )
                         }
                     }
@@ -189,7 +197,7 @@ fun NarrativeMessageDialog(
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1A1A1A),
                         textAlign = TextAlign.Center,
-                        fontSize = titleFontSize
+                        fontSize = titleFontSize,
                     )
 
                     // Body text
@@ -198,7 +206,7 @@ fun NarrativeMessageDialog(
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF333333),
                         textAlign = TextAlign.Center,
-                        fontSize = bodyFontSize
+                        fontSize = bodyFontSize,
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -206,20 +214,20 @@ fun NarrativeMessageDialog(
                     // Dismiss button
                     Button(
                         onClick = onDismiss,
-                        colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
+                        colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
                             Text(
                                 text = stringResource(Res.string.ok),
-                                color = Color.White
+                                color = Color.White,
                             )
-                                ShortcutKeyChip(
-                                    text = "Enter",
-                                    color = Color.White.copy(alpha = 0.75f)
-                                )
+                            ShortcutKeyChip(
+                                text = "Enter",
+                                color = Color.White.copy(alpha = 0.75f),
+                            )
                         }
                     }
                 }

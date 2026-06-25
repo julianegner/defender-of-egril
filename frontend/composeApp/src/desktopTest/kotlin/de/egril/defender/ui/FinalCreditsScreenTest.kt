@@ -1,12 +1,11 @@
 package de.egril.defender.ui
 
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.input.key.Key
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -18,7 +17,6 @@ import org.junit.Test
  */
 
 class FinalCreditsScreenTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -35,7 +33,8 @@ class FinalCreditsScreenTest {
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Defender of Egril", substring = true)
+        composeTestRule
+            .onNodeWithText("Defender of Egril", substring = true)
             .assertExists()
     }
 
@@ -47,11 +46,13 @@ class FinalCreditsScreenTest {
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Developers", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Developers", substring = true, ignoreCase = true)
             .assertExists()
 
         FinalCreditsData.developers.forEach { dev ->
-            composeTestRule.onNodeWithText(dev, substring = true)
+            composeTestRule
+                .onNodeWithText(dev, substring = true)
                 .assertExists()
         }
     }
@@ -64,13 +65,16 @@ class FinalCreditsScreenTest {
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Contributors", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Contributors", substring = true, ignoreCase = true)
             .assertExists()
 
         FinalCreditsData.contributors.forEach { entry ->
-            composeTestRule.onNodeWithText(entry.name, substring = true)
+            composeTestRule
+                .onNodeWithText(entry.name, substring = true)
                 .assertExists()
-            composeTestRule.onNodeWithText(entry.contribution, substring = true)
+            composeTestRule
+                .onNodeWithText(entry.contribution, substring = true)
                 .assertExists()
         }
     }
@@ -83,7 +87,8 @@ class FinalCreditsScreenTest {
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Sound Effects", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Sound Effects", substring = true, ignoreCase = true)
             .assertExists()
     }
 
@@ -95,7 +100,8 @@ class FinalCreditsScreenTest {
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Background Music", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Background Music", substring = true, ignoreCase = true)
             .assertExists()
     }
 
@@ -107,11 +113,13 @@ class FinalCreditsScreenTest {
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Software Used", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Software Used", substring = true, ignoreCase = true)
             .assertExists()
 
         FinalCreditsData.softwareCredits.forEach { entry ->
-            composeTestRule.onNodeWithText(entry.name, substring = true)
+            composeTestRule
+                .onNodeWithText(entry.name, substring = true)
                 .assertExists()
         }
     }
@@ -124,11 +132,13 @@ class FinalCreditsScreenTest {
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Special Thanks", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Special Thanks", substring = true, ignoreCase = true)
             .assertExists()
 
         FinalCreditsData.specialThanks.forEach { entry ->
-            composeTestRule.onNodeWithText(entry.name, substring = true)
+            composeTestRule
+                .onNodeWithText(entry.name, substring = true)
                 .assertExists()
         }
     }
@@ -196,7 +206,7 @@ class FinalCreditsScreenTest {
             composeTestRule,
             "final-credits-screen",
             width = 1200,
-            height = 800
+            height = 800,
         )
     }
 }

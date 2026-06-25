@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,62 +16,64 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import de.egril.defender.model.TutorialStep
-import de.egril.defender.model.InfoType
+import com.hyperether.resources.stringResource
 import de.egril.defender.model.DefenderType
-import de.egril.defender.ui.isMobileWebBrowser
-import de.egril.defender.ui.icon.WoodIcon
+import de.egril.defender.model.InfoType
+import de.egril.defender.model.TutorialStep
 import de.egril.defender.ui.icon.DownArrowIcon
 import de.egril.defender.ui.icon.UpArrowIcon
+import de.egril.defender.ui.icon.WoodIcon
+import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.utils.isPlatformMobile
-import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
-import androidx.compose.foundation.text.selection.SelectionContainer
 
 internal data class TutorialOverlayLayout(
     val width: Dp,
     val minHeight: Dp,
     val maxHeight: Dp,
-    val compactTypography: Boolean
+    val compactTypography: Boolean,
 )
 
 internal fun calculateTutorialOverlayLayout(
     availableWidth: Dp,
     availableHeight: Dp,
     isMobileWeb: Boolean,
-    isSideOverlayVisible: Boolean
+    isSideOverlayVisible: Boolean,
 ): TutorialOverlayLayout {
     val compactLayout = isMobileWeb || availableWidth < 1100.dp || availableHeight < 760.dp
-    val preferredWidth = when {
-        // Wider on mobile web so buttons fit on a single line without word-wrapping
-        isMobileWeb && isSideOverlayVisible -> 260.dp
-        isMobileWeb -> 300.dp
-        isSideOverlayVisible -> 280.dp
-        else -> 300.dp
-    }
+    val preferredWidth =
+        when {
+            // Wider on mobile web so buttons fit on a single line without word-wrapping
+            isMobileWeb && isSideOverlayVisible -> 260.dp
+            isMobileWeb -> 300.dp
+            isSideOverlayVisible -> 280.dp
+            else -> 300.dp
+        }
 
     return when {
-        isMobileWeb -> TutorialOverlayLayout(
-            width = preferredWidth.coerceAtMost(availableWidth * 0.50f).coerceAtLeast(240.dp),
-            minHeight = 0.dp,
-            maxHeight = (availableHeight * 0.78f).coerceIn(260.dp, 520.dp),
-            compactTypography = true
-        )
+        isMobileWeb ->
+            TutorialOverlayLayout(
+                width = preferredWidth.coerceAtMost(availableWidth * 0.50f).coerceAtLeast(240.dp),
+                minHeight = 0.dp,
+                maxHeight = (availableHeight * 0.78f).coerceIn(260.dp, 520.dp),
+                compactTypography = true,
+            )
 
-        compactLayout -> TutorialOverlayLayout(
-            width = preferredWidth.coerceAtMost(availableWidth * 0.38f).coerceAtLeast(220.dp),
-            minHeight = 0.dp,
-            maxHeight = (availableHeight * 0.62f).coerceIn(220.dp, 420.dp),
-            compactTypography = true
-        )
+        compactLayout ->
+            TutorialOverlayLayout(
+                width = preferredWidth.coerceAtMost(availableWidth * 0.38f).coerceAtLeast(220.dp),
+                minHeight = 0.dp,
+                maxHeight = (availableHeight * 0.62f).coerceIn(220.dp, 420.dp),
+                compactTypography = true,
+            )
 
-        else -> TutorialOverlayLayout(
-            width = preferredWidth,
-            minHeight = 0.dp,
-            maxHeight = 400.dp,
-            compactTypography = false
-        )
+        else ->
+            TutorialOverlayLayout(
+                width = preferredWidth,
+                minHeight = 0.dp,
+                maxHeight = 400.dp,
+                compactTypography = false,
+            )
     }
 }
 
@@ -86,12 +89,13 @@ internal fun TutorialOverlay(
     onSkip: () -> Unit,
     currentInfo: InfoType = InfoType.NONE,
     onDismissInfo: (() -> Unit)? = null,
-    layout: TutorialOverlayLayout = calculateTutorialOverlayLayout(
-        availableWidth = 1200.dp,
-        availableHeight = 900.dp,
-        isMobileWeb = isMobileWebBrowser(),
-        isSideOverlayVisible = false
-    )
+    layout: TutorialOverlayLayout =
+        calculateTutorialOverlayLayout(
+            availableWidth = 1200.dp,
+            availableHeight = 900.dp,
+            isMobileWeb = isMobileWebBrowser(),
+            isSideOverlayVisible = false,
+        ),
 ) {
     // Priority: Single info > Tutorial
     // Handle info system
@@ -99,56 +103,61 @@ internal fun TutorialOverlay(
         InfoContent(infoType = currentInfo, onDismiss = onDismissInfo ?: {})
         return
     }
-    
+
     if (currentStep == TutorialStep.NONE) {
         return
     }
-    
+
     Card(
-        modifier = Modifier
-            .width(layout.width)
-            .wrapContentHeight()
-            .heightIn(min = layout.minHeight, max = layout.maxHeight)
-            .padding(8.dp)
-            .testTag("tutorialOverlayCard"),
+        modifier =
+            Modifier
+                .width(layout.width)
+                .wrapContentHeight()
+                .heightIn(min = layout.minHeight, max = layout.maxHeight)
+                .padding(8.dp)
+                .testTag("tutorialOverlayCard"),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
     ) {
         Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
+            modifier =
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             SelectionContainer {
                 Text(
                     text = getTutorialTitle(currentStep),
                     style = if (layout.compactTypography) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
 
             Box(
-                modifier = Modifier
-                    .weight(1f, fill = false)
-                    .fillMaxWidth()
+                modifier =
+                    Modifier
+                        .weight(1f, fill = false)
+                        .fillMaxWidth(),
             ) {
                 val scrollState = rememberScrollState()
                 SelectionContainer {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .verticalScroll(scrollState),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(scrollState),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Text(
                             text = getTutorialContent(currentStep),
                             style = if (layout.compactTypography) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }
@@ -157,7 +166,7 @@ internal fun TutorialOverlay(
                     UpArrowIcon(
                         size = 16.dp,
                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f),
-                        modifier = Modifier.align(Alignment.TopCenter)
+                        modifier = Modifier.align(Alignment.TopCenter),
                     )
                 }
                 // Show a subtle down-arrow when there is more content below
@@ -165,24 +174,25 @@ internal fun TutorialOverlay(
                     DownArrowIcon(
                         size = 16.dp,
                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f),
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomCenter),
                     )
                 }
             }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 if (shouldShowSkipButton(currentStep)) {
                     OutlinedButton(
                         onClick = onSkip,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                     ) {
                         Text(
                             text = stringResource(Res.string.tutorial_skip),
-                            style = MaterialTheme.typography.labelSmall
+                            style = MaterialTheme.typography.labelSmall,
                         )
                     }
                 }
@@ -190,11 +200,11 @@ internal fun TutorialOverlay(
                 Button(
                     onClick = onNext,
                     enabled = isNextEnabled,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(
                         text = getButtonText(currentStep),
-                        style = MaterialTheme.typography.labelSmall
+                        style = MaterialTheme.typography.labelSmall,
                     )
                 }
             }
@@ -203,8 +213,8 @@ internal fun TutorialOverlay(
 }
 
 @Composable
-private fun getTutorialTitle(step: TutorialStep): String {
-    return when (step) {
+private fun getTutorialTitle(step: TutorialStep): String =
+    when (step) {
         TutorialStep.WELCOME -> stringResource(Res.string.tutorial_welcome_title)
         TutorialStep.MAP_NAVIGATION -> stringResource(Res.string.tutorial_map_navigation_title)
         TutorialStep.RESOURCES -> stringResource(Res.string.tutorial_resources_title)
@@ -224,11 +234,10 @@ private fun getTutorialTitle(step: TutorialStep): String {
         TutorialStep.COMPLETE -> stringResource(Res.string.tutorial_complete_title)
         TutorialStep.NONE -> ""
     }
-}
 
 @Composable
-private fun getTutorialContent(step: TutorialStep): String {
-    return when (step) {
+private fun getTutorialContent(step: TutorialStep): String =
+    when (step) {
         TutorialStep.WELCOME -> stringResource(Res.string.tutorial_welcome)
         TutorialStep.MAP_NAVIGATION -> {
             if (isPlatformMobile || isMobileWebBrowser()) {
@@ -254,33 +263,34 @@ private fun getTutorialContent(step: TutorialStep): String {
         TutorialStep.COMPLETE -> stringResource(Res.string.tutorial_complete)
         TutorialStep.NONE -> ""
     }
-}
 
 @Composable
-private fun getButtonText(step: TutorialStep): String {
-    return when (step) {
+private fun getButtonText(step: TutorialStep): String =
+    when (step) {
         TutorialStep.COMPLETE -> stringResource(Res.string.tutorial_got_it)
         else -> stringResource(Res.string.tutorial_next)
     }
-}
 
-private fun shouldShowSkipButton(step: TutorialStep): Boolean {
-    return step in listOf(
-        TutorialStep.WELCOME,
-        TutorialStep.MAP_NAVIGATION,
-        TutorialStep.RESOURCES,
-        TutorialStep.TOWER_TYPES,
-        TutorialStep.LEGEND_INFO,
-        TutorialStep.ENEMY_LIST_INFO,
-        TutorialStep.BUILD_TOWER
-    )
-}
+private fun shouldShowSkipButton(step: TutorialStep): Boolean =
+    step in
+        listOf(
+            TutorialStep.WELCOME,
+            TutorialStep.MAP_NAVIGATION,
+            TutorialStep.RESOURCES,
+            TutorialStep.TOWER_TYPES,
+            TutorialStep.LEGEND_INFO,
+            TutorialStep.ENEMY_LIST_INFO,
+            TutorialStep.BUILD_TOWER,
+        )
 
 /**
  * Unified info content shown for single tutorial infos
  */
 @Composable
-private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
+private fun InfoContent(
+    infoType: InfoType,
+    onDismiss: () -> Unit,
+) {
     when (infoType) {
         InfoType.DRAGON_INFO -> DragonInfoContent(onDismiss)
         InfoType.GREEN_WITCH_INFO -> GreenWitchInfoContent(onDismiss)
@@ -309,7 +319,7 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
 /**
  * Reusable scrollable info card for tutorial/info dialogs.
  * Makes content scrollable to ensure buttons are visible on small screens.
- * 
+ *
  * @param title Optional title composable (displayed above the scrollable content)
  * @param containerColor Background color for the card
  * @param onDismiss Callback when the dismiss button is clicked
@@ -328,51 +338,56 @@ fun ScrollableInfoCard(
     buttonColor: Color = MaterialTheme.colorScheme.primary,
     width: Dp = 300.dp,
     maxHeight: Dp = 400.dp,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
-        modifier = Modifier
-            .width(width)
-            .heightIn(max = maxHeight)
-            .padding(8.dp),
+        modifier =
+            Modifier
+                .width(width)
+                .heightIn(max = maxHeight)
+                .padding(8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = containerColor
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        colors =
+            CardDefaults.cardColors(
+                containerColor = containerColor,
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
     ) {
         Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
+            modifier =
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             // Title (if provided)
             if (title != null) {
                 title()
             }
-            
+
             // Scrollable content area
             Column(
-                modifier = Modifier
-                    .weight(1f, fill = false)
-                    .verticalScroll(rememberScrollState()),
+                modifier =
+                    Modifier
+                        .weight(1f, fill = false)
+                        .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                content = content
+                content = content,
             )
-            
+
             // Dismiss button (always visible at the bottom)
             Button(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = buttonColor
-                )
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = buttonColor,
+                    ),
             ) {
                 Text(
                     text = buttonText,
-                    style = MaterialTheme.typography.labelSmall
+                    style = MaterialTheme.typography.labelSmall,
                 )
             }
         }
@@ -389,25 +404,25 @@ private fun DragonInfoContent(onDismiss: () -> Unit) {
             Text(
                 text = stringResource(Res.string.dragon_info_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         },
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.dragon_info_movement),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
             text = stringResource(Res.string.dragon_info_eating),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
             text = stringResource(Res.string.dragon_info_level),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -422,15 +437,15 @@ private fun GreedInfoContent(onDismiss: () -> Unit) {
             Text(
                 text = stringResource(Res.string.dragon_greed_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         },
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.dragon_greed_message),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -445,21 +460,21 @@ private fun GreenWitchInfoContent(onDismiss: () -> Unit) {
             Text(
                 text = stringResource(Res.string.green_witch_info_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = GamePlayColors.Success  // Green theme for green witch
+                color = GamePlayColors.Success, // Green theme for green witch
             )
         },
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.green_witch_info_healing),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = stringResource(Res.string.green_witch_info_strategy),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -474,25 +489,24 @@ private fun RedWitchInfoContent(onDismiss: () -> Unit) {
             Text(
                 text = stringResource(Res.string.red_witch_info_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = GamePlayColors.ErrorDark  // Red theme for red witch
+                color = GamePlayColors.ErrorDark, // Red theme for red witch
             )
         },
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.red_witch_info_disabling),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = stringResource(Res.string.red_witch_info_strategy),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
-
 
 /**
  * Dragon very greedy info dialog (greed > 5)
@@ -504,15 +518,15 @@ private fun VeryGreedyInfoContent(onDismiss: () -> Unit) {
             Text(
                 text = stringResource(Res.string.dragon_very_greedy_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         },
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.dragon_very_greedy_message),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -527,17 +541,17 @@ private fun MineWarningContent(onDismiss: () -> Unit) {
             Text(
                 text = stringResource(Res.string.mine_warning_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
             )
         },
         containerColor = MaterialTheme.colorScheme.errorContainer,
         buttonColor = MaterialTheme.colorScheme.error,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.mine_warning_message),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onErrorContainer
+            color = MaterialTheme.colorScheme.onErrorContainer,
         )
     }
 }
@@ -552,17 +566,17 @@ private fun OneHpWarningContent(onDismiss: () -> Unit) {
             Text(
                 text = stringResource(Res.string.one_hp_warning_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
             )
         },
         containerColor = MaterialTheme.colorScheme.errorContainer,
         buttonColor = MaterialTheme.colorScheme.error,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.one_hp_warning_message),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onErrorContainer
+            color = MaterialTheme.colorScheme.onErrorContainer,
         )
     }
 }
@@ -576,24 +590,25 @@ private fun MagicalTrapInfoContent(onDismiss: () -> Unit) {
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                de.egril.defender.ui.icon.PentagramIcon(size = 32.dp)
+                de.egril.defender.ui.icon
+                    .PentagramIcon(size = 32.dp)
                 Text(
                     text = stringResource(Res.string.magical_trap_tutorial_title),
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFF9C27B0)  // Purple color for magical theme
+                    color = Color(0xFF9C27B0), // Purple color for magical theme
                 )
             }
         },
-        buttonColor = Color(0xFF9C27B0),  // Purple button
+        buttonColor = Color(0xFF9C27B0), // Purple button
         width = 400.dp,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.magical_trap_tutorial_message),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -607,24 +622,25 @@ private fun ExtendedAreaInfoContent(onDismiss: () -> Unit) {
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                de.egril.defender.ui.icon.ExplosionIcon(size = 32.dp)
+                de.egril.defender.ui.icon
+                    .ExplosionIcon(size = 32.dp)
                 Text(
                     text = stringResource(Res.string.extended_area_tutorial_title),
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFFFF5722)  // Deep orange color for area attack theme
+                    color = Color(0xFFFF5722), // Deep orange color for area attack theme
                 )
             }
         },
-        buttonColor = Color(0xFFFF5722),  // Deep orange button
+        buttonColor = Color(0xFFFF5722), // Deep orange button
         width = 400.dp,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.extended_area_tutorial_message),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -638,24 +654,24 @@ private fun BarricadeInfoContent(onDismiss: () -> Unit) {
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 WoodIcon(size = 32.dp)
                 Text(
                     text = stringResource(Res.string.barricade_info_title),
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFF795548)  // Brown color for wood
+                    color = Color(0xFF795548), // Brown color for wood
                 )
             }
         },
-        buttonColor = Color(0xFF795548),  // Brown button
-        width = 600.dp,  // Increased from 400.dp to show German text without scrolling
-        onDismiss = onDismiss
+        buttonColor = Color(0xFF795548), // Brown button
+        width = 600.dp, // Increased from 400.dp to show German text without scrolling
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.barricade_info_message),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -669,24 +685,25 @@ private fun SpikeBarbsInfoContent(onDismiss: () -> Unit) {
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                de.egril.defender.ui.icon.SwordIcon(size = 32.dp)
+                de.egril.defender.ui.icon
+                    .SwordIcon(size = 32.dp)
                 Text(
                     text = stringResource(Res.string.spike_barbs_info_title),
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFF8B4513)  // SaddleBrown color for spikes
+                    color = Color(0xFF8B4513), // SaddleBrown color for spikes
                 )
             }
         },
-        buttonColor = Color(0xFF8B4513),  // SaddleBrown button
-        width = 600.dp,  // Wide to accommodate all translations
-        onDismiss = onDismiss
+        buttonColor = Color(0xFF8B4513), // SaddleBrown button
+        width = 600.dp, // Wide to accommodate all translations
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.spike_barbs_info_message),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -700,34 +717,36 @@ private fun WizardFirstUseContent(onDismiss: () -> Unit) {
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(64.dp)  // Doubled from 32.dp
-                        .background(Color.Gray, CircleShape),  // Gray background for visibility
-                    contentAlignment = Alignment.Center
+                    modifier =
+                        Modifier
+                            .size(64.dp) // Doubled from 32.dp
+                            .background(Color.Gray, CircleShape),
+                    // Gray background for visibility
+                    contentAlignment = Alignment.Center,
                 ) {
                     de.egril.defender.ui.TowerTypeIcon(
                         defenderType = DefenderType.WIZARD_TOWER,
-                        modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                        modifier = Modifier.size(56.dp), // Slightly smaller than container
                     )
                 }
                 Text(
                     text = stringResource(Res.string.wizard_first_use_title),
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFF9C27B0)  // Purple color for wizard theme
+                    color = Color(0xFF9C27B0), // Purple color for wizard theme
                 )
             }
         },
-        buttonColor = Color(0xFF9C27B0),  // Purple button
+        buttonColor = Color(0xFF9C27B0), // Purple button
         width = 400.dp,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.wizard_first_use_message),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -741,34 +760,36 @@ private fun AlchemyFirstUseContent(onDismiss: () -> Unit) {
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(64.dp)  // Doubled from 32.dp
-                        .background(Color.Gray, CircleShape),  // Gray background for visibility
-                    contentAlignment = Alignment.Center
+                    modifier =
+                        Modifier
+                            .size(64.dp) // Doubled from 32.dp
+                            .background(Color.Gray, CircleShape),
+                    // Gray background for visibility
+                    contentAlignment = Alignment.Center,
                 ) {
                     de.egril.defender.ui.TowerTypeIcon(
                         defenderType = DefenderType.ALCHEMY_TOWER,
-                        modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                        modifier = Modifier.size(56.dp), // Slightly smaller than container
                     )
                 }
                 Text(
                     text = stringResource(Res.string.alchemy_first_use_title),
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFF4CAF50)  // Green color for alchemy theme
+                    color = Color(0xFF4CAF50), // Green color for alchemy theme
                 )
             }
         },
-        buttonColor = Color(0xFF4CAF50),  // Green button
+        buttonColor = Color(0xFF4CAF50), // Green button
         width = 400.dp,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.alchemy_first_use_message),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -782,34 +803,36 @@ private fun BallistaFirstUseContent(onDismiss: () -> Unit) {
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(64.dp)  // Doubled from 32.dp
-                        .background(Color.Gray, CircleShape),  // Gray background for visibility
-                    contentAlignment = Alignment.Center
+                    modifier =
+                        Modifier
+                            .size(64.dp) // Doubled from 32.dp
+                            .background(Color.Gray, CircleShape),
+                    // Gray background for visibility
+                    contentAlignment = Alignment.Center,
                 ) {
                     de.egril.defender.ui.TowerTypeIcon(
                         defenderType = DefenderType.BALLISTA_TOWER,
-                        modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                        modifier = Modifier.size(56.dp), // Slightly smaller than container
                     )
                 }
                 Text(
                     text = stringResource(Res.string.ballista_first_use_title),
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFF795548)  // Brown color for ballista theme
+                    color = Color(0xFF795548), // Brown color for ballista theme
                 )
             }
         },
-        buttonColor = Color(0xFF795548),  // Brown button
+        buttonColor = Color(0xFF795548), // Brown button
         width = 400.dp,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.ballista_first_use_message),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -823,43 +846,45 @@ private fun MineFirstUseContent(onDismiss: () -> Unit) {
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(64.dp)  // Doubled from 32.dp
-                        .background(Color.Gray, CircleShape),  // Gray background for visibility
-                    contentAlignment = Alignment.Center
+                    modifier =
+                        Modifier
+                            .size(64.dp) // Doubled from 32.dp
+                            .background(Color.Gray, CircleShape),
+                    // Gray background for visibility
+                    contentAlignment = Alignment.Center,
                 ) {
                     de.egril.defender.ui.TowerTypeIcon(
                         defenderType = DefenderType.DWARVEN_MINE,
-                        modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                        modifier = Modifier.size(56.dp), // Slightly smaller than container
                     )
                 }
                 Text(
                     text = stringResource(Res.string.mine_first_use_title),
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFFFFD700)  // Gold color for mine theme
+                    color = Color(0xFFFFD700), // Gold color for mine theme
                 )
             }
         },
-        buttonColor = Color(0xFFFFD700),  // Gold button
+        buttonColor = Color(0xFFFFD700), // Gold button
         width = 400.dp,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.mine_first_use_message),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
-        
+
         // Add mining probabilities section
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = stringResource(Res.string.mining_probabilities),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFFFFD700)
+            color = Color(0xFFFFD700),
         )
         Spacer(modifier = Modifier.height(8.dp))
         MiningOutcomeGrid()
@@ -876,32 +901,32 @@ private fun RiverInfoContent(onDismiss: () -> Unit) {
             Text(
                 text = stringResource(Res.string.river_info_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = Color(0xFF2196F3)  // Blue color for water/river theme
+                color = Color(0xFF2196F3), // Blue color for water/river theme
             )
         },
-        buttonColor = Color(0xFF2196F3),  // Blue button
+        buttonColor = Color(0xFF2196F3), // Blue button
         width = 400.dp,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.river_info_placement),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
             text = stringResource(Res.string.river_info_movement),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
             text = stringResource(Res.string.river_info_destruction),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
             text = stringResource(Res.string.river_info_bridges),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -913,17 +938,17 @@ private fun MineOnRiverWarningContent(onDismiss: () -> Unit) {
             Text(
                 text = stringResource(Res.string.mine_on_river_warning_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = Color(0xFFFF9800)  // Orange color for warning
+                color = Color(0xFFFF9800), // Orange color for warning
             )
         },
-        buttonColor = Color(0xFFFF9800),  // Orange button
+        buttonColor = Color(0xFFFF9800), // Orange button
         width = 350.dp,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.mine_on_river_warning_message),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -938,17 +963,17 @@ private fun AutoAttackInfoContent(onDismiss: () -> Unit) {
             Text(
                 text = stringResource(Res.string.auto_attack_info_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         },
         buttonColor = MaterialTheme.colorScheme.primary,
         width = 450.dp,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         Text(
             text = stringResource(Res.string.auto_attack_info_message),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }

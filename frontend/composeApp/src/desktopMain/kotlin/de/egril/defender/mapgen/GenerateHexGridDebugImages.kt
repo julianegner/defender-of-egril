@@ -33,58 +33,62 @@ object GenerateHexGridDebugImages {
     // ---------------------------------------------------------------------------
     private const val HEX_SIZE = 40.0
     private val SQRT3 = kotlin.math.sqrt(3.0)
-    private val HEX_WIDTH = HEX_SIZE * SQRT3      // ~69.28 px  (flat-to-flat width)
-    private const val HEX_HEIGHT = HEX_SIZE * 2.0  // 80 px      (point-to-point height)
+    private val HEX_WIDTH = HEX_SIZE * SQRT3 // ~69.28 px  (flat-to-flat width)
+    private const val HEX_HEIGHT = HEX_SIZE * 2.0 // 80 px      (point-to-point height)
 
     // Row-to-row layout step: HEX_HEIGHT * 0.75 + VERTICAL_SPACING_ADJUSTMENT
     // Must match HexagonalGridConstants: VERTICAL_SPACING_ADJUSTMENT = -7f
     // Game computes: spacedBy(-hexHeight + verticalSpacing + adj) → cell-to-cell = hexHeight + spacing
     //   = 80 + (-80 + 60 + (-7)) = 80 - 27 = 53
-    private const val VERTICAL_SPACING_ADJUSTMENT = -7.0   // matches HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT
-    private val EFFECTIVE_ROW_STEP = HEX_HEIGHT * 0.75 + VERTICAL_SPACING_ADJUSTMENT  // 53 px (layout step)
+    private const val VERTICAL_SPACING_ADJUSTMENT = -7.0 // matches HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT
+    private val EFFECTIVE_ROW_STEP = HEX_HEIGHT * 0.75 + VERTICAL_SPACING_ADJUSTMENT // 53 px (layout step)
 
     // HexagonalMapView applies a per-row visual correction: .offset(y = (-(y - 1)).dp)
     // This shifts row y by -(y-1) dp from its layout position, so visual top of row y is:
     //   y * EFFECTIVE_ROW_STEP - (y - 1) = y * (EFFECTIVE_ROW_STEP - 1) + 1
     // Visual row-to-row step = EFFECTIVE_ROW_STEP - 1 = 52 px
     // Row 0 is at visual y = 1 px (not 0)
-    private val VISUAL_ROW_STEP = EFFECTIVE_ROW_STEP - 1.0  // 52 px
-    private const val ROW_ZERO_VISUAL_OFFSET = 1.0           // row 0 is shifted 1 px down
+    private val VISUAL_ROW_STEP = EFFECTIVE_ROW_STEP - 1.0 // 52 px
+    private const val ROW_ZERO_VISUAL_OFFSET = 1.0 // row 0 is shifted 1 px down
 
-    private const val HORIZONTAL_SPACING = -10.0            // matches HexagonalGridConstants.HORIZONTAL_SPACING
-    private const val ODD_ROW_OFFSET_RATIO = 0.42           // matches HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
+    private const val HORIZONTAL_SPACING = -10.0 // matches HexagonalGridConstants.HORIZONTAL_SPACING
+    private const val ODD_ROW_OFFSET_RATIO = 0.42 // matches HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
 
     // Drawing circumradius — must match HexagonShape.createOutline():
     //   radius = min(HEX_WIDTH, HEX_HEIGHT) / 2 = HEX_WIDTH / 2 ≈ 34.64
-    private val HEX_DRAW_RADIUS = HEX_WIDTH / 2.0           // ≈ 34.64 px
+    private val HEX_DRAW_RADIUS = HEX_WIDTH / 2.0 // ≈ 34.64 px
 
     // Opacity of the tile fill composite (0.0 = transparent, 1.0 = opaque)
     private const val FILL_ALPHA = 0.30f
+
     // Opacity of the hex border lines
     private const val BORDER_ALPHA = 0.80f
+
     // Stroke width for the hex border
     private const val BORDER_STROKE = 1.5f
 
     // ---------------------------------------------------------------------------
     // Tile colours — matches getTileColor() in TileUtils.kt (light and dark modes)
     // ---------------------------------------------------------------------------
-    private val TILE_COLORS_LIGHT = mapOf(
-        TileType.PATH to Color(0x8B4513),
-        TileType.BUILD_AREA to Color(0x90EE90),
-        TileType.NO_PLAY to Color(0x404040),
-        TileType.SPAWN_POINT to Color(0xFF0000),
-        TileType.TARGET to Color(0x0000FF),
-        TileType.RIVER to Color(0x4682B4)
-    )
+    private val TILE_COLORS_LIGHT =
+        mapOf(
+            TileType.PATH to Color(0x8B4513),
+            TileType.BUILD_AREA to Color(0x90EE90),
+            TileType.NO_PLAY to Color(0x404040),
+            TileType.SPAWN_POINT to Color(0xFF0000),
+            TileType.TARGET to Color(0x0000FF),
+            TileType.RIVER to Color(0x4682B4),
+        )
 
-    private val TILE_COLORS_DARK = mapOf(
-        TileType.PATH to Color(0x4A2F1A),
-        TileType.BUILD_AREA to Color(0x456C2E),
-        TileType.NO_PLAY to Color(0x1A1A1A),
-        TileType.SPAWN_POINT to Color(0x8B0000),
-        TileType.TARGET to Color(0x00008B),
-        TileType.RIVER to Color(0x1E3A5F)
-    )
+    private val TILE_COLORS_DARK =
+        mapOf(
+            TileType.PATH to Color(0x4A2F1A),
+            TileType.BUILD_AREA to Color(0x456C2E),
+            TileType.NO_PLAY to Color(0x1A1A1A),
+            TileType.SPAWN_POINT to Color(0x8B0000),
+            TileType.TARGET to Color(0x00008B),
+            TileType.RIVER to Color(0x1E3A5F),
+        )
 
     // ---------------------------------------------------------------------------
     // Geometry helpers
@@ -102,7 +106,10 @@ object GenerateHexGridDebugImages {
      * HexagonalMapView applies .offset(y = (-(y-1)).dp) per row, which compresses the visual
      * row spacing by 1 px per row while also shifting row 0 down by 1 px.
      */
-    private fun hexCenter(gx: Int, gy: Int): Pair<Double, Double> {
+    private fun hexCenter(
+        gx: Int,
+        gy: Int,
+    ): Pair<Double, Double> {
         val rowOffset = if (gy % 2 == 1) HEX_WIDTH * ODD_ROW_OFFSET_RATIO else 0.0
         val cx = gx * (HEX_WIDTH + HORIZONTAL_SPACING) + rowOffset + HEX_WIDTH / 2
         val cy = gy * VISUAL_ROW_STEP + ROW_ZERO_VISUAL_OFFSET + HEX_HEIGHT / 2
@@ -113,7 +120,10 @@ object GenerateHexGridDebugImages {
      * Computes the pixel dimensions of the game grid canvas for a map of [gridWidth] × [gridHeight]
      * tiles, using the same formula as [de.egril.defender.ui.gameplay.GameMap] `hexMapSizePx`.
      */
-    private fun gameGridSize(gridWidth: Int, gridHeight: Int): Pair<Int, Int> {
+    private fun gameGridSize(
+        gridWidth: Int,
+        gridHeight: Int,
+    ): Pair<Int, Int> {
         val oddOffset = if (gridHeight > 1) HEX_WIDTH * ODD_ROW_OFFSET_RATIO else 0.0
         val w = ceil(gridWidth * HEX_WIDTH + (gridWidth - 1) * HORIZONTAL_SPACING + oddOffset).toInt()
         val h = ceil((gridHeight - 1) * EFFECTIVE_ROW_STEP + HEX_HEIGHT).toInt()
@@ -121,15 +131,17 @@ object GenerateHexGridDebugImages {
     }
 
     /** Returns the 6 vertices of a pointy-top hexagon centred at (cx, cy). */
-    private fun hexVertices(cx: Double, cy: Double): Array<IntArray> {
-        return Array(6) { i ->
+    private fun hexVertices(
+        cx: Double,
+        cy: Double,
+    ): Array<IntArray> =
+        Array(6) { i ->
             val angle = PI * (60.0 * i - 30.0) / 180.0
             intArrayOf(
                 (cx + HEX_DRAW_RADIUS * cos(angle)).toInt(),
-                (cy + HEX_DRAW_RADIUS * sin(angle)).toInt()
+                (cy + HEX_DRAW_RADIUS * sin(angle)).toInt(),
             )
         }
-    }
 
     // ---------------------------------------------------------------------------
     // Core generator
@@ -142,7 +154,11 @@ object GenerateHexGridDebugImages {
      *
      * @return true if both variants were generated successfully.
      */
-    fun generateOne(jsonFile: File, pngFile: File, outputDir: File): Boolean {
+    fun generateOne(
+        jsonFile: File,
+        pngFile: File,
+        outputDir: File,
+    ): Boolean {
         return try {
             val json = jsonFile.readText()
             val map = EditorJsonSerializer.deserializeMap(json)
@@ -151,11 +167,12 @@ object GenerateHexGridDebugImages {
                 return false
             }
 
-            val background = ImageIO.read(pngFile)
-                ?: run {
-                    println("  ERROR: Could not read background PNG: ${pngFile.name}")
-                    return false
-                }
+            val background =
+                ImageIO.read(pngFile)
+                    ?: run {
+                        println("  ERROR: Could not read background PNG: ${pngFile.name}")
+                        return false
+                    }
 
             print("  Generating debug overlays for ${jsonFile.nameWithoutExtension}...")
 
@@ -193,7 +210,7 @@ object GenerateHexGridDebugImages {
         gridWidth: Int,
         gridHeight: Int,
         colorMap: Map<TileType, Color>,
-        outFile: File
+        outFile: File,
     ) {
         val (gameW, gameH) = gameGridSize(gridWidth, gridHeight)
 
@@ -246,7 +263,7 @@ object GenerateHexGridDebugImages {
         background: BufferedImage,
         gridWidth: Int,
         gridHeight: Int,
-        outFile: File
+        outFile: File,
     ) {
         val (gameW, gameH) = gameGridSize(gridWidth, gridHeight)
         val result = BufferedImage(gameW, gameH, BufferedImage.TYPE_INT_RGB)
@@ -275,12 +292,13 @@ object GenerateHexGridDebugImages {
     fun generateAll(
         mapsDir: File,
         outputDir: File = File(mapsDir.parentFile, "map-debug-images"),
-        forceRegenerate: Boolean = false
+        forceRegenerate: Boolean = false,
     ) {
         require(mapsDir.isDirectory) { "Maps directory not found: ${mapsDir.absolutePath}" }
 
-        val jsonFiles = mapsDir.listFiles { f -> f.extension == "json" && f.name.startsWith("map_") }
-            ?: emptyArray()
+        val jsonFiles =
+            mapsDir.listFiles { f -> f.extension == "json" && f.name.startsWith("map_") }
+                ?: emptyArray()
 
         if (jsonFiles.isEmpty()) {
             println("GenerateHexGridDebugImages: No map JSON files found in ${mapsDir.absolutePath}")
@@ -310,13 +328,16 @@ object GenerateHexGridDebugImages {
                     val darkOut = File(outputDir, "${mapId}_hex_grid_dark.png")
                     val fortressLightOut = File(outputDir, "${mapId}_light.png")
                     val sourceTime = pngFile.lastModified()
-                    val hasFortressLight = mapId != FORTRESS_MAP_ID || (
-                        fortressLightOut.exists() && fortressLightOut.lastModified() >= sourceTime
-                    )
-                    if (lightOut.exists() && darkOut.exists()
-                        && lightOut.lastModified() >= sourceTime
-                        && darkOut.lastModified() >= sourceTime
-                        && hasFortressLight
+                    val hasFortressLight =
+                        mapId != FORTRESS_MAP_ID ||
+                            (
+                                fortressLightOut.exists() && fortressLightOut.lastModified() >= sourceTime
+                            )
+                    if (lightOut.exists() &&
+                        darkOut.exists() &&
+                        lightOut.lastModified() >= sourceTime &&
+                        darkOut.lastModified() >= sourceTime &&
+                        hasFortressLight
                     ) {
                         println("  Skipping (up-to-date): ${pngFile.name}")
                         skipped++
@@ -345,18 +366,20 @@ fun main(args: Array<String>) {
     val positionalArgs = args.filter { it != "--force" }
     val force = args.any { it == "--force" }
 
-    val mapsDir = if (positionalArgs.isNotEmpty()) {
-        File(positionalArgs[0])
-    } else {
-        val projectRoot = File(System.getProperty("user.dir"))
-        File(projectRoot, "composeApp/src/commonMain/composeResources/files/repository/maps")
-    }
+    val mapsDir =
+        if (positionalArgs.isNotEmpty()) {
+            File(positionalArgs[0])
+        } else {
+            val projectRoot = File(System.getProperty("user.dir"))
+            File(projectRoot, "composeApp/src/commonMain/composeResources/files/repository/maps")
+        }
 
-    val outputDir = if (positionalArgs.size >= 2) {
-        File(positionalArgs[1])
-    } else {
-        File(mapsDir.parentFile, "map-debug-images")
-    }
+    val outputDir =
+        if (positionalArgs.size >= 2) {
+            File(positionalArgs[1])
+        } else {
+            File(mapsDir.parentFile, "map-debug-images")
+        }
 
     GenerateHexGridDebugImages.generateAll(mapsDir, outputDir = outputDir, forceRegenerate = force)
 }

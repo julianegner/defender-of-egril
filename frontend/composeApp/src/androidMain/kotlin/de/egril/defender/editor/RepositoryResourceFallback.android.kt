@@ -11,13 +11,16 @@ private const val REPOSITORY_ASSET_PREFIX =
 
 private fun buildAssetPath(path: String): String = "$REPOSITORY_ASSET_PREFIX$path"
 
-actual fun readPlatformRepositoryBytes(path: String): ByteArray? {
-    return try {
-        AndroidContextProvider.getContext().assets.open(buildAssetPath(path)).use { it.readBytes() }
+actual fun readPlatformRepositoryBytes(path: String): ByteArray? =
+    try {
+        AndroidContextProvider
+            .getContext()
+            .assets
+            .open(buildAssetPath(path))
+            .use { it.readBytes() }
     } catch (e: Exception) {
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Android AssetManager fallback could not load repository file $path: ${e.message}")
         }
         null
     }
-}

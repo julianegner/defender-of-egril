@@ -22,75 +22,77 @@ fun InitialSetupTab(
     initialData: InitialData,
     onInitialDataChange: (InitialData) -> Unit,
     map: EditorMap?,
-    availableTowers: Set<DefenderType>
+    availableTowers: Set<DefenderType>,
 ) {
     if (map == null) {
         Box(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = stringResource(Res.string.no_map_selected),
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
             )
         }
         return
     }
-    
+
     var placementMode by remember { mutableStateOf<PlacementMode?>(null) }
     var selectedDefenderType by remember { mutableStateOf(DefenderType.SPIKE_TOWER) }
     var selectedDefenderLevel by remember { mutableStateOf(1) }
     var showAllTowers by remember { mutableStateOf(false) }
     var dragonName by remember { mutableStateOf("") }
-    
+
     var selectedAttackerType by remember { mutableStateOf(AttackerType.GOBLIN) }
     var selectedAttackerLevel by remember { mutableStateOf(1) }
     var customHealth by remember { mutableStateOf<Int?>(null) }
     var attackerDragonName by remember { mutableStateOf("") }
-    
+
     var selectedTrapType by remember { mutableStateOf("DWARVEN") }
     var trapDamage by remember { mutableStateOf(10) }
-    
+
     var barricadeHealthPoints by remember { mutableStateOf(10) }
     var barricadeName by remember { mutableStateOf("") }
     var barricadeIsGate by remember { mutableStateOf(false) }
-    
-    var editBarricadeIndex by remember { mutableStateOf<Int?>(null) }  // Index of barricade being edited
-    
+
+    var editBarricadeIndex by remember { mutableStateOf<Int?>(null) } // Index of barricade being edited
+
     var selectedElement by remember { mutableStateOf<SelectedElement?>(null) }
-    
+
     Row(
         modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         // Left side: Map with placed elements
         Card(
-            modifier = Modifier
-                .weight(2f)
-                .fillMaxHeight()
+            modifier =
+                Modifier
+                    .weight(2f)
+                    .fillMaxHeight(),
         ) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
                     text = stringResource(Res.string.initial_setup_map),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
                 )
-                
+
                 if (placementMode != null) {
                     Text(
                         text = stringResource(Res.string.initial_setup_click_to_place),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 }
-                
+
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
                 ) {
                     InitialSetupMinimap(
                         map = map,
@@ -103,35 +105,52 @@ fun InitialSetupTab(
                                     if (canPlaceDefender(position, initialData, map)) {
                                         val barricadeAtPosition = initialData.barricades.find { it.position == position }
                                         val isOnTowerBase = barricadeAtPosition?.canSupportTower() == true
-                                        val newDefender = InitialDefender(
-                                            type = selectedDefenderType,
-                                            position = position,
-                                            level = selectedDefenderLevel,
-                                            dragonName = if (selectedDefenderType == DefenderType.DRAGONS_LAIR && dragonName.isNotBlank()) dragonName else null,
-                                            onTowerBase = isOnTowerBase
-                                        )
+                                        val newDefender =
+                                            InitialDefender(
+                                                type = selectedDefenderType,
+                                                position = position,
+                                                level = selectedDefenderLevel,
+                                                dragonName =
+                                                    if (selectedDefenderType == DefenderType.DRAGONS_LAIR &&
+                                                        dragonName.isNotBlank()
+                                                    ) {
+                                                        dragonName
+                                                    } else {
+                                                        null
+                                                    },
+                                                onTowerBase = isOnTowerBase,
+                                            )
                                         onInitialDataChange(initialData.copy(defenders = initialData.defenders + newDefender))
                                     }
                                 }
                                 PlacementMode.ATTACKER -> {
                                     if (canPlaceAttacker(position, initialData, map)) {
-                                        val newAttacker = InitialAttacker(
-                                            type = selectedAttackerType,
-                                            position = position,
-                                            level = selectedAttackerLevel,
-                                            currentHealth = customHealth,
-                                            dragonName = if (selectedAttackerType == AttackerType.DRAGON && attackerDragonName.isNotBlank()) attackerDragonName else null
-                                        )
+                                        val newAttacker =
+                                            InitialAttacker(
+                                                type = selectedAttackerType,
+                                                position = position,
+                                                level = selectedAttackerLevel,
+                                                currentHealth = customHealth,
+                                                dragonName =
+                                                    if (selectedAttackerType == AttackerType.DRAGON &&
+                                                        attackerDragonName.isNotBlank()
+                                                    ) {
+                                                        attackerDragonName
+                                                    } else {
+                                                        null
+                                                    },
+                                            )
                                         onInitialDataChange(initialData.copy(attackers = initialData.attackers + newAttacker))
                                     }
                                 }
                                 PlacementMode.TRAP -> {
                                     if (canPlaceTrap(position, initialData, map)) {
-                                        val newTrap = InitialTrap(
-                                            position = position,
-                                            damage = trapDamage,
-                                            type = selectedTrapType
-                                        )
+                                        val newTrap =
+                                            InitialTrap(
+                                                position = position,
+                                                damage = trapDamage,
+                                                type = selectedTrapType,
+                                            )
                                         onInitialDataChange(initialData.copy(traps = initialData.traps + newTrap))
                                     }
                                 }
@@ -142,34 +161,36 @@ fun InitialSetupTab(
                                         // Edit existing barricade
                                         editBarricadeIndex = existingIndex
                                     } else if (canPlaceBarricade(position, initialData, map)) {
-                                        val newBarricade = InitialBarricade(
-                                            position = position,
-                                            healthPoints = barricadeHealthPoints,
-                                            name = barricadeName.takeIf { it.isNotBlank() },
-                                            isGate = barricadeIsGate
-                                        )
+                                        val newBarricade =
+                                            InitialBarricade(
+                                                position = position,
+                                                healthPoints = barricadeHealthPoints,
+                                                name = barricadeName.takeIf { it.isNotBlank() },
+                                                isGate = barricadeIsGate,
+                                            )
                                         onInitialDataChange(initialData.copy(barricades = initialData.barricades + newBarricade))
                                     }
                                 }
                                 null -> {
                                     // Selection mode - find clicked element
-                                    val clickedElement = findElementAtPosition(
-                                        position,
-                                        initialData
-                                    )
+                                    val clickedElement =
+                                        findElementAtPosition(
+                                            position,
+                                            initialData,
+                                        )
                                     selectedElement = clickedElement
                                 }
                             }
-                        }
+                        },
                     )
                 }
             }
         }
-        
+
         // Right side: Element configuration sidebar
         InitialSetupSidebar(
             placementMode = placementMode,
-            onPlacementModeChange = { 
+            onPlacementModeChange = {
                 placementMode = it
                 selectedElement = null
             },
@@ -226,7 +247,7 @@ fun InitialSetupTab(
                 selectedElement = null
             },
             selectedElement = selectedElement,
-            onSelectedElementChange = { selectedElement = it }
+            onSelectedElementChange = { selectedElement = it },
         )
     }
 
@@ -247,38 +268,39 @@ fun InitialSetupTab(
                             onValueChange = { editHP = it },
                             label = { Text(stringResource(Res.string.health_points)) },
                             modifier = Modifier.fillMaxWidth(),
-                            singleLine = true
+                            singleLine = true,
                         )
                         OutlinedTextField(
                             value = editName,
                             onValueChange = { editName = it },
                             label = { Text(stringResource(Res.string.barricade_name_label)) },
                             modifier = Modifier.fillMaxWidth(),
-                            singleLine = true
+                            singleLine = true,
                         )
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Text(
                                 text = stringResource(Res.string.is_gate_label),
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
                             )
                             Switch(checked = editIsGate, onCheckedChange = { editIsGate = it })
                         }
                         val editHPValue = editHP.toIntOrNull() ?: 0
                         if (editHPValue >= InitialBarricade.TOWER_BASE_MIN_HP) {
                             Card(
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                                )
+                                colors =
+                                    CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    ),
                             ) {
                                 Text(
                                     text = stringResource(Res.string.barricade_tower_base_hint),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    modifier = Modifier.padding(8.dp)
+                                    modifier = Modifier.padding(8.dp),
                                 )
                             }
                         }
@@ -287,11 +309,12 @@ fun InitialSetupTab(
                 confirmButton = {
                     Button(onClick = {
                         val hp = editHP.toIntOrNull()?.coerceIn(1, 9999) ?: barricade.healthPoints
-                        val updated = barricade.copy(
-                            healthPoints = hp,
-                            name = editName.takeIf { it.isNotBlank() },
-                            isGate = editIsGate
-                        )
+                        val updated =
+                            barricade.copy(
+                                healthPoints = hp,
+                                name = editName.takeIf { it.isNotBlank() },
+                                isGate = editIsGate,
+                            )
                         val newList = initialData.barricades.toMutableList()
                         newList[editIdx] = updated
                         onInitialDataChange(initialData.copy(barricades = newList))
@@ -304,7 +327,7 @@ fun InitialSetupTab(
                     Button(onClick = { editBarricadeIndex = null }) {
                         Text(stringResource(Res.string.cancel))
                     }
-                }
+                },
             )
         } else {
             editBarricadeIndex = null
@@ -322,18 +345,17 @@ fun InitialSetupTab(
  */
 private fun isPositionOccupied(
     position: Position,
-    initialData: InitialData
-): Boolean {
-    return initialData.defenders.any { it.position == position } ||
-           initialData.attackers.any { it.position == position } ||
-           initialData.traps.any { it.position == position } ||
-           initialData.barricades.any { it.position == position }
-}
+    initialData: InitialData,
+): Boolean =
+    initialData.defenders.any { it.position == position } ||
+        initialData.attackers.any { it.position == position } ||
+        initialData.traps.any { it.position == position } ||
+        initialData.barricades.any { it.position == position }
 
 private fun canPlaceDefender(
     position: Position,
     initialData: InitialData,
-    map: EditorMap
+    map: EditorMap,
 ): Boolean {
     // Check if there's a barricade with HP >= 100 at this position (tower base)
     val barricadeAtPosition = initialData.barricades.find { it.position == position }
@@ -356,7 +378,7 @@ private fun canPlaceDefender(
 private fun canPlaceAttacker(
     position: Position,
     initialData: InitialData,
-    map: EditorMap
+    map: EditorMap,
 ): Boolean {
     // Must be valid tile type for attackers
     if (!isValidPlacement(position, PlacementMode.ATTACKER, map)) {
@@ -369,7 +391,7 @@ private fun canPlaceAttacker(
 private fun canPlaceTrap(
     position: Position,
     initialData: InitialData,
-    map: EditorMap
+    map: EditorMap,
 ): Boolean {
     // Must be valid tile type for traps (PATH only)
     if (!isValidPlacement(position, PlacementMode.TRAP, map)) {
@@ -382,7 +404,7 @@ private fun canPlaceTrap(
 private fun canPlaceBarricade(
     position: Position,
     initialData: InitialData,
-    map: EditorMap
+    map: EditorMap,
 ): Boolean {
     // Must be valid tile type for barricades (PATH only)
     if (!isValidPlacement(position, PlacementMode.BARRICADE, map)) {
@@ -396,15 +418,30 @@ private fun canPlaceBarricade(
  * Represents a selected element on the map
  */
 sealed class SelectedElement {
-    data class Defender(val index: Int, val defender: InitialDefender) : SelectedElement()
-    data class Attacker(val index: Int, val attacker: InitialAttacker) : SelectedElement()
-    data class Trap(val index: Int, val trap: InitialTrap) : SelectedElement()
-    data class Barricade(val index: Int, val barricade: InitialBarricade) : SelectedElement()
+    data class Defender(
+        val index: Int,
+        val defender: InitialDefender,
+    ) : SelectedElement()
+
+    data class Attacker(
+        val index: Int,
+        val attacker: InitialAttacker,
+    ) : SelectedElement()
+
+    data class Trap(
+        val index: Int,
+        val trap: InitialTrap,
+    ) : SelectedElement()
+
+    data class Barricade(
+        val index: Int,
+        val barricade: InitialBarricade,
+    ) : SelectedElement()
 }
 
 private fun findElementAtPosition(
     position: Position,
-    initialData: InitialData
+    initialData: InitialData,
 ): SelectedElement? {
     initialData.defenders.forEachIndexed { index, defender ->
         if (defender.position == position) {

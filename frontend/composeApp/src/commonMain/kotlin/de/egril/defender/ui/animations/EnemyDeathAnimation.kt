@@ -14,7 +14,10 @@ import de.egril.defender.ui.icon.CrossIcon
  * When [animate] is false, shows a static red cross symbol.
  */
 @Composable
-fun EnemyDeathAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+fun EnemyDeathAnimation(
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (animate) {
         AnimatedEnemyDeath(modifier)
     } else {
@@ -27,7 +30,7 @@ private fun AnimatedEnemyDeath(modifier: Modifier = Modifier) {
     LottieAnimation(
         animationType = AnimationType.ENEMY_DEATH,
         modifier = modifier.fillMaxSize(),
-        iterations = 1
+        iterations = 1,
     )
 }
 
@@ -35,7 +38,7 @@ private fun AnimatedEnemyDeath(modifier: Modifier = Modifier) {
 private fun StaticEnemyDeath(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         CrossIcon(size = 28.dp)
     }

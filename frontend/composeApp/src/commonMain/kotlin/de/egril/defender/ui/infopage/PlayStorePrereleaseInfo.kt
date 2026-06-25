@@ -29,11 +29,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
@@ -51,34 +51,35 @@ private const val GOOGLE_PLAY_STORE = "https://play.google.com/store/apps/detail
 fun PlayStoreInfo(linkFocusManager: LinkFocusManager? = null) {
     SelectionContainer {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
         ) {
             Text(
                 text = stringResource(Res.string.play_store_test_info_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp),
             )
             FocusableLink(
                 url = GOOGLE_PLAY_STORE,
                 text = GOOGLE_PLAY_STORE,
                 contentDesc = GOOGLE_PLAY_STORE,
-                linkFocusManager = linkFocusManager
+                linkFocusManager = linkFocusManager,
             )
             Text(
                 text = stringResource(Res.string.play_store_test_info_search_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 4.dp),
             )
             Spacer(modifier = Modifier.height(12.dp))
             Image(
                 painter = painterResource(Res.drawable.qr_code_defender_play_store),
                 contentDescription = stringResource(Res.string.play_store_qr_code_content_description),
-                modifier = Modifier.size(160.dp)
+                modifier = Modifier.size(160.dp),
             )
         }
     }
@@ -95,45 +96,55 @@ fun PlayStorePrereleaseInfo(linkFocusManager: LinkFocusManager? = null) {
  * Shows an "[Enter] to follow link" shortcut chip when focused.
  */
 @Composable
-private fun FocusableLink(url: String, text: String, contentDesc: String, linkFocusManager: LinkFocusManager? = null) {
+private fun FocusableLink(
+    url: String,
+    text: String,
+    contentDesc: String,
+    linkFocusManager: LinkFocusManager? = null,
+) {
     val uriHandler = LocalUriHandler.current
     var isFocused by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
-    val myIndex = if (linkFocusManager != null) {
-        linkFocusManager.register(focusRequester)
-    } else {
-        -1
-    }
+    val myIndex =
+        if (linkFocusManager != null) {
+            linkFocusManager.register(focusRequester)
+        } else {
+            -1
+        }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.primary,
             textDecoration = TextDecoration.Underline,
-            modifier = Modifier
-                .semantics { contentDescription = contentDesc }
-                .then(
-                    if (isFocused) Modifier.border(
-                        BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-                        RoundedCornerShape(4.dp)
-                    ).padding(4.dp)
-                    else Modifier
-                )
-                .focusRequester(focusRequester)
-                .onFocusChanged { state ->
-                    isFocused = state.isFocused
-                    if (state.isFocused && linkFocusManager != null) {
-                        linkFocusManager.updateIndex(myIndex)
-                    }
-                }
-                .focusable()
-                .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown && event.key == Key.Enter) {
-                        uriHandler.openUri(url)
-                        true
-                    } else false
-                }
-                .clickable(role = Role.Button) { uriHandler.openUri(url) }
+            modifier =
+                Modifier
+                    .semantics { contentDescription = contentDesc }
+                    .then(
+                        if (isFocused) {
+                            Modifier
+                                .border(
+                                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                                    RoundedCornerShape(4.dp),
+                                ).padding(4.dp)
+                        } else {
+                            Modifier
+                        },
+                    ).focusRequester(focusRequester)
+                    .onFocusChanged { state ->
+                        isFocused = state.isFocused
+                        if (state.isFocused && linkFocusManager != null) {
+                            linkFocusManager.updateIndex(myIndex)
+                        }
+                    }.focusable()
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown && event.key == Key.Enter) {
+                            uriHandler.openUri(url)
+                            true
+                        } else {
+                            false
+                        }
+                    }.clickable(role = Role.Button) { uriHandler.openUri(url) },
         )
         if (isFocused && AppSettings.showButtonShortcutHints.value) {
             Spacer(modifier = Modifier.width(4.dp))

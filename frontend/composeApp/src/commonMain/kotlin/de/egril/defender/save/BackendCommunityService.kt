@@ -4,13 +4,13 @@ package de.egril.defender.save
  * Metadata for a community file (map or level) from the backend.
  */
 data class CommunityFileInfo(
-    val fileType: String,       // "MAP" or "LEVEL"
+    val fileType: String, // "MAP" or "LEVEL"
     val fileId: String,
     val authorUsername: String,
     val authorId: String,
     val updatedAt: String,
     val uploadedAt: String,
-    val description: String = ""  // Optional description (only for LEVEL files)
+    val description: String = "", // Optional description (only for LEVEL files)
 )
 
 /**
@@ -24,7 +24,7 @@ data class CommunityFileData(
     val data: String,
     val updatedAt: String,
     val uploadedAt: String,
-    val description: String = ""  // Optional description (only for LEVEL files)
+    val description: String = "", // Optional description (only for LEVEL files)
 )
 
 /**
@@ -41,7 +41,13 @@ expect object BackendCommunityService {
      * @param description Optional short description (used for LEVEL files only)
      * @return true on success, false on failure
      */
-    suspend fun uploadCommunityFile(fileType: String, fileId: String, jsonData: String, token: String, description: String = ""): Boolean
+    suspend fun uploadCommunityFile(
+        fileType: String,
+        fileId: String,
+        jsonData: String,
+        token: String,
+        description: String = "",
+    ): Boolean
 
     /**
      * Fetch the list of community files metadata (without data).
@@ -56,7 +62,10 @@ expect object BackendCommunityService {
      * @param fileId The unique ID of the map or level
      * @return CommunityFileData or null if not found or on error
      */
-    suspend fun fetchCommunityFile(fileType: String, fileId: String): CommunityFileData?
+    suspend fun fetchCommunityFile(
+        fileType: String,
+        fileId: String,
+    ): CommunityFileData?
 
     /**
      * Download the server-generated PNG image for a community map.
@@ -70,7 +79,12 @@ expect object BackendCommunityService {
 // Shared helper functions
 // ---------------------------------------------------------------------------
 
-fun buildCommunityUploadJson(fileType: String, fileId: String, data: String, description: String = ""): String {
+fun buildCommunityUploadJson(
+    fileType: String,
+    fileId: String,
+    data: String,
+    description: String = "",
+): String {
     val escapedData = escapeJsonString(data)
     val escapedFileType = escapeJsonString(fileType)
     val escapedFileId = escapeJsonString(fileId)
@@ -124,7 +138,10 @@ fun parseCommunityFileDataJson(json: String): CommunityFileData? {
     return CommunityFileData(fileType, fileId, authorUsername, authorId, data, updatedAt, uploadedAt, description)
 }
 
-private fun extractJsonStringField(json: String, key: String): String? {
+private fun extractJsonStringField(
+    json: String,
+    key: String,
+): String? {
     val pattern = "\"${key}\""
     val keyIdx = json.indexOf(pattern)
     if (keyIdx < 0) return null
@@ -139,12 +156,30 @@ private fun extractJsonStringField(json: String, key: String): String? {
         val c = json[i]
         if (c == '\\' && i + 1 < json.length) {
             when (json[i + 1]) {
-                '"' -> { sb.append('"'); i += 2 }
-                '\\' -> { sb.append('\\'); i += 2 }
-                'n' -> { sb.append('\n'); i += 2 }
-                'r' -> { sb.append('\r'); i += 2 }
-                't' -> { sb.append('\t'); i += 2 }
-                else -> { sb.append(json[i + 1]); i += 2 }
+                '"' -> {
+                    sb.append('"')
+                    i += 2
+                }
+                '\\' -> {
+                    sb.append('\\')
+                    i += 2
+                }
+                'n' -> {
+                    sb.append('\n')
+                    i += 2
+                }
+                'r' -> {
+                    sb.append('\r')
+                    i += 2
+                }
+                't' -> {
+                    sb.append('\t')
+                    i += 2
+                }
+                else -> {
+                    sb.append(json[i + 1])
+                    i += 2
+                }
             }
         } else if (c == '"') {
             return sb.toString()
@@ -156,13 +191,19 @@ private fun extractJsonStringField(json: String, key: String): String? {
     return null
 }
 
-private fun findMatchingBrace(s: String, start: Int): Int {
+private fun findMatchingBrace(
+    s: String,
+    start: Int,
+): Int {
     var depth = 0
     var i = start
     while (i < s.length) {
         when (s[i]) {
             '{' -> depth++
-            '}' -> { depth--; if (depth == 0) return i }
+            '}' -> {
+                depth--
+                if (depth == 0) return i
+            }
         }
         i++
     }

@@ -3,6 +3,7 @@ package de.egril.defender.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -10,9 +11,36 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.cheat_addability_desc
+import defender_of_egril.composeapp.generated.resources.cheat_addmana_desc
+import defender_of_egril.composeapp.generated.resources.cheat_addstat_desc
+import defender_of_egril.composeapp.generated.resources.cheat_addxp_desc
+import defender_of_egril.composeapp.generated.resources.cheat_animation_desc
+import defender_of_egril.composeapp.generated.resources.cheat_bighead_smallhead_desc
+import defender_of_egril.composeapp.generated.resources.cheat_breakreminder_desc
+import defender_of_egril.composeapp.generated.resources.cheat_cash_desc
 import defender_of_egril.composeapp.generated.resources.cheat_codes_title
+import defender_of_egril.composeapp.generated.resources.cheat_crash_dialog_desc
+import defender_of_egril.composeapp.generated.resources.cheat_credits_desc
+import defender_of_egril.composeapp.generated.resources.cheat_demo_desc
+import defender_of_egril.composeapp.generated.resources.cheat_dig_dragon_desc
+import defender_of_egril.composeapp.generated.resources.cheat_dig_gems_desc
+import defender_of_egril.composeapp.generated.resources.cheat_dig_nothing_desc
+import defender_of_egril.composeapp.generated.resources.cheat_dig_treasure_desc
+import defender_of_egril.composeapp.generated.resources.cheat_emptypocket_desc
+import defender_of_egril.composeapp.generated.resources.cheat_help_desc
+import defender_of_egril.composeapp.generated.resources.cheat_lock_desc
+import defender_of_egril.composeapp.generated.resources.cheat_lockall_desc
+import defender_of_egril.composeapp.generated.resources.cheat_lockspell_desc
+import defender_of_egril.composeapp.generated.resources.cheat_mmmoney_desc
+import defender_of_egril.composeapp.generated.resources.cheat_platform_desc
+import defender_of_egril.composeapp.generated.resources.cheat_removeability_desc
+import defender_of_egril.composeapp.generated.resources.cheat_removemana_desc
+import defender_of_egril.composeapp.generated.resources.cheat_removestat_desc
+import defender_of_egril.composeapp.generated.resources.cheat_removexp_desc
 import defender_of_egril.composeapp.generated.resources.cheat_section_coins
 import defender_of_egril.composeapp.generated.resources.cheat_section_enemies
 import defender_of_egril.composeapp.generated.resources.cheat_section_general
@@ -21,44 +49,16 @@ import defender_of_egril.composeapp.generated.resources.cheat_section_mana
 import defender_of_egril.composeapp.generated.resources.cheat_section_mining
 import defender_of_egril.composeapp.generated.resources.cheat_section_spells
 import defender_of_egril.composeapp.generated.resources.cheat_section_xp_stats
-import defender_of_egril.composeapp.generated.resources.cheat_spell_types
-import defender_of_egril.composeapp.generated.resources.cheat_stat_types
-import defender_of_egril.composeapp.generated.resources.cheat_help_desc
-import defender_of_egril.composeapp.generated.resources.cheat_platform_desc
-import defender_of_egril.composeapp.generated.resources.cheat_bighead_smallhead_desc
-import defender_of_egril.composeapp.generated.resources.cheat_breakreminder_desc
 import defender_of_egril.composeapp.generated.resources.cheat_sleepreminder_desc
-import defender_of_egril.composeapp.generated.resources.cheat_demo_desc
-import defender_of_egril.composeapp.generated.resources.cheat_sticker_desc
-import defender_of_egril.composeapp.generated.resources.cheat_spinner_desc
-import defender_of_egril.composeapp.generated.resources.cheat_credits_desc
-import defender_of_egril.composeapp.generated.resources.cheat_animation_desc
-import defender_of_egril.composeapp.generated.resources.cheat_cash_desc
-import defender_of_egril.composeapp.generated.resources.cheat_crash_dialog_desc
-import defender_of_egril.composeapp.generated.resources.cheat_mmmoney_desc
-import defender_of_egril.composeapp.generated.resources.cheat_emptypocket_desc
-import defender_of_egril.composeapp.generated.resources.cheat_addmana_desc
-import defender_of_egril.composeapp.generated.resources.cheat_removemana_desc
 import defender_of_egril.composeapp.generated.resources.cheat_spawn_desc
 import defender_of_egril.composeapp.generated.resources.cheat_spawn_types
-import defender_of_egril.composeapp.generated.resources.cheat_dig_nothing_desc
-import defender_of_egril.composeapp.generated.resources.cheat_dig_treasure_desc
-import defender_of_egril.composeapp.generated.resources.cheat_dig_gems_desc
-import defender_of_egril.composeapp.generated.resources.cheat_dig_dragon_desc
-import defender_of_egril.composeapp.generated.resources.cheat_addxp_desc
-import defender_of_egril.composeapp.generated.resources.cheat_removexp_desc
-import defender_of_egril.composeapp.generated.resources.cheat_addstat_desc
-import defender_of_egril.composeapp.generated.resources.cheat_removestat_desc
-import defender_of_egril.composeapp.generated.resources.cheat_addability_desc
-import defender_of_egril.composeapp.generated.resources.cheat_removeability_desc
-import defender_of_egril.composeapp.generated.resources.cheat_unlockspell_desc
-import defender_of_egril.composeapp.generated.resources.cheat_lockspell_desc
-import defender_of_egril.composeapp.generated.resources.cheat_unlockall_desc
+import defender_of_egril.composeapp.generated.resources.cheat_spell_types
+import defender_of_egril.composeapp.generated.resources.cheat_spinner_desc
+import defender_of_egril.composeapp.generated.resources.cheat_stat_types
+import defender_of_egril.composeapp.generated.resources.cheat_sticker_desc
 import defender_of_egril.composeapp.generated.resources.cheat_unlock_desc
-import defender_of_egril.composeapp.generated.resources.cheat_lockall_desc
-import defender_of_egril.composeapp.generated.resources.cheat_lock_desc
-import com.hyperether.resources.stringResource
-import androidx.compose.foundation.text.selection.SelectionContainer
+import defender_of_egril.composeapp.generated.resources.cheat_unlockall_desc
+import defender_of_egril.composeapp.generated.resources.cheat_unlockspell_desc
 
 /**
  * Unified cheat code dialog used in both WorldMapScreen and GamePlayScreen.
@@ -70,26 +70,27 @@ fun CheatCodeDialog(
     onApplyCheatCode: (String) -> Boolean,
     showHints: Boolean = false,
     initialInput: String = "",
-    onInputChange: ((String) -> Unit)? = null
+    onInputChange: ((String) -> Unit)? = null,
 ) {
     var internalInput by remember { mutableStateOf(initialInput) }
     var errorMessage by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
-    
+
     // Use external state if callback provided, otherwise use internal state
     val cheatCodeInput = if (onInputChange != null) initialInput else internalInput
-    val handleInputChange: (String) -> Unit = if (onInputChange != null) {
-        { newValue ->
-            onInputChange(newValue)
-            errorMessage = ""
+    val handleInputChange: (String) -> Unit =
+        if (onInputChange != null) {
+            { newValue ->
+                onInputChange(newValue)
+                errorMessage = ""
+            }
+        } else {
+            { newValue ->
+                internalInput = newValue
+                errorMessage = ""
+            }
         }
-    } else {
-        { newValue ->
-            internalInput = newValue
-            errorMessage = ""
-        }
-    }
-    
+
     val invalidCheatCodeMessage = stringResource(Res.string.cheat_dialog_invalid_code)
 
     // Function to apply the cheat code
@@ -105,12 +106,12 @@ fun CheatCodeDialog(
             errorMessage = invalidCheatCodeMessage
         }
     }
-    
+
     // Request focus on the input field when dialog opens
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
-    
+
     AlertDialog(
         onDismissRequest = {
             onDismiss()
@@ -122,48 +123,50 @@ fun CheatCodeDialog(
         title = { Text(stringResource(Res.string.cheat_dialog_title)) },
         text = {
             SelectionContainer {
-            Column {
-                Text(stringResource(Res.string.cheat_dialog_enter_code))
-                Spacer(modifier = Modifier.height(8.dp))
-                TextField(
-                    value = cheatCodeInput,
-                    onValueChange = handleInputChange,
-                    singleLine = true,
-                    isError = errorMessage.isNotEmpty(),
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            applyCheat()
-                        }
-                    ),
-                    modifier = Modifier.focusRequester(focusRequester)
-                )
-                
-                if (errorMessage.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-                
-                if (showHints) {
+                Column {
+                    Text(stringResource(Res.string.cheat_dialog_enter_code))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(stringResource(Res.string.cheat_dialog_available_codes), style = MaterialTheme.typography.labelSmall)
-                    Text(stringResource(Res.string.cheat_dialog_hint_cash), style = MaterialTheme.typography.bodySmall)
-                    Text(stringResource(Res.string.cheat_dialog_hint_mmmoney), style = MaterialTheme.typography.bodySmall)
-                    Text(stringResource(Res.string.cheat_dialog_hint_emptypocket), style = MaterialTheme.typography.bodySmall)
-                    Text(stringResource(Res.string.cheat_dialog_hint_dragon), style = MaterialTheme.typography.bodySmall)
+                    TextField(
+                        value = cheatCodeInput,
+                        onValueChange = handleInputChange,
+                        singleLine = true,
+                        isError = errorMessage.isNotEmpty(),
+                        keyboardOptions =
+                            KeyboardOptions(
+                                imeAction = ImeAction.Done,
+                            ),
+                        keyboardActions =
+                            KeyboardActions(
+                                onDone = {
+                                    applyCheat()
+                                },
+                            ),
+                        modifier = Modifier.focusRequester(focusRequester),
+                    )
+
+                    if (errorMessage.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+
+                    if (showHints) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(stringResource(Res.string.cheat_dialog_available_codes), style = MaterialTheme.typography.labelSmall)
+                        Text(stringResource(Res.string.cheat_dialog_hint_cash), style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(Res.string.cheat_dialog_hint_mmmoney), style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(Res.string.cheat_dialog_hint_emptypocket), style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(Res.string.cheat_dialog_hint_dragon), style = MaterialTheme.typography.bodySmall)
+                    }
                 }
-            }
             }
         },
         confirmButton = {
             Button(
-                onClick = applyCheat
+                onClick = applyCheat,
             ) {
                 Text(stringResource(Res.string.apply))
             }
@@ -176,11 +179,11 @@ fun CheatCodeDialog(
                         internalInput = ""
                     }
                     errorMessage = ""
-                }
+                },
             ) {
                 Text(stringResource(Res.string.cancel))
             }
-        }
+        },
     )
 }
 
@@ -191,23 +194,23 @@ fun CheatCodeDialog(
 @Composable
 fun CheatCodeHelpScreen(
     onDismiss: () -> Unit,
-    isInGameplay: Boolean = false
+    isInGameplay: Boolean = false,
 ) {
     de.egril.defender.ui.gameplay.ScrollableInfoCard(
         title = {
             Text(
                 text = stringResource(Res.string.cheat_codes_title),
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
             )
         },
         onDismiss = onDismiss,
         width = 600.dp,
-        maxHeight = 600.dp
+        maxHeight = 600.dp,
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // General cheat codes
             CheatSection(stringResource(Res.string.cheat_section_general)) {
@@ -226,7 +229,7 @@ fun CheatCodeHelpScreen(
                     CheatCodeItem("animation", stringResource(Res.string.cheat_animation_desc))
                 }
             }
-            
+
             if (isInGameplay) {
                 // Gameplay cheat codes
                 CheatSection(stringResource(Res.string.cheat_section_coins)) {
@@ -234,19 +237,21 @@ fun CheatCodeHelpScreen(
                     CheatCodeItem("mmmoney", stringResource(Res.string.cheat_mmmoney_desc))
                     CheatCodeItem("emptypocket", stringResource(Res.string.cheat_emptypocket_desc))
                 }
-                
+
                 CheatSection(stringResource(Res.string.cheat_section_mana)) {
                     CheatCodeItem("addmana <amount>", stringResource(Res.string.cheat_addmana_desc))
                     CheatCodeItem("removemana <amount>", stringResource(Res.string.cheat_removemana_desc))
                 }
-                
+
                 CheatSection(stringResource(Res.string.cheat_section_enemies)) {
                     CheatCodeItem("spawn <type> <level>", stringResource(Res.string.cheat_spawn_desc))
-                    Text(stringResource(Res.string.cheat_spawn_types),
-                         style = MaterialTheme.typography.bodySmall,
-                         modifier = Modifier.padding(start = 16.dp))
+                    Text(
+                        stringResource(Res.string.cheat_spawn_types),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 16.dp),
+                    )
                 }
-                
+
                 CheatSection(stringResource(Res.string.cheat_section_mining)) {
                     CheatCodeItem("dig nothing / dig rubble", stringResource(Res.string.cheat_dig_nothing_desc))
                     CheatCodeItem("dig brass / silver / gold", stringResource(Res.string.cheat_dig_treasure_desc))
@@ -262,19 +267,23 @@ fun CheatCodeHelpScreen(
                     CheatCodeItem("addability <stat> <amount>", stringResource(Res.string.cheat_addability_desc))
                     CheatCodeItem("removestat <stat> <amount>", stringResource(Res.string.cheat_removestat_desc))
                     CheatCodeItem("removeability <stat> <amount>", stringResource(Res.string.cheat_removeability_desc))
-                    Text(stringResource(Res.string.cheat_stat_types),
-                         style = MaterialTheme.typography.bodySmall,
-                         modifier = Modifier.padding(start = 16.dp))
+                    Text(
+                        stringResource(Res.string.cheat_stat_types),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 16.dp),
+                    )
                 }
-                
+
                 CheatSection(stringResource(Res.string.cheat_section_spells)) {
                     CheatCodeItem("unlockspell <spell>", stringResource(Res.string.cheat_unlockspell_desc))
                     CheatCodeItem("lockspell <spell>", stringResource(Res.string.cheat_lockspell_desc))
-                    Text(stringResource(Res.string.cheat_spell_types),
-                         style = MaterialTheme.typography.bodySmall,
-                         modifier = Modifier.padding(start = 16.dp))
+                    Text(
+                        stringResource(Res.string.cheat_spell_types),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 16.dp),
+                    )
                 }
-                
+
                 CheatSection(stringResource(Res.string.cheat_section_levels)) {
                     CheatCodeItem("unlockall / unlock all", stringResource(Res.string.cheat_unlockall_desc))
                     CheatCodeItem("unlock / unlock <level>", stringResource(Res.string.cheat_unlock_desc))
@@ -289,19 +298,19 @@ fun CheatCodeHelpScreen(
 @Composable
 private fun CheatSection(
     title: String,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
         Column(
             verticalArrangement = Arrangement.spacedBy(6.dp),
-            content = content
+            content = content,
         )
     }
 }
@@ -309,23 +318,23 @@ private fun CheatSection(
 @Composable
 private fun CheatCodeItem(
     code: String,
-    description: String
+    description: String,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(
             text = code,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
             color = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.weight(0.5f)
+            modifier = Modifier.weight(0.5f),
         )
         Text(
             text = description,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.weight(0.5f)
+            modifier = Modifier.weight(0.5f),
         )
     }
 }

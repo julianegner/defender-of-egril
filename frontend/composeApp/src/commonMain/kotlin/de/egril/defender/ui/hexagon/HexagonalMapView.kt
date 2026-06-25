@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.Position
-import de.egril.defender.ui.mouseWheelZoom
 import de.egril.defender.ui.isMobileWebBrowser
+import de.egril.defender.ui.mouseWheelZoom
 import de.egril.defender.ui.settings.ShortcutBinding
 import de.egril.defender.ui.settings.keyToShortcutToken
 import de.egril.defender.ui.settings.parseShortcutBinding
@@ -42,45 +42,44 @@ import kotlin.math.sqrt
  * Configuration for the hexagonal map view
  */
 data class HexagonalMapConfig(
-    val hexSize: Float = 40f,  // Radius of hexagon (center to corner)
-    val enableKeyboardNavigation: Boolean = true,  // Enable arrow keys & WASD navigation
-    val enablePanNavigation: Boolean = true,  // Enable mouse drag panning
-    val enableBrushMode: Boolean = false,  // Enable brush painting mode (for editor)
+    val hexSize: Float = 40f, // Radius of hexagon (center to corner)
+    val enableKeyboardNavigation: Boolean = true, // Enable arrow keys & WASD navigation
+    val enablePanNavigation: Boolean = true, // Enable mouse drag panning
+    val enableBrushMode: Boolean = false, // Enable brush painting mode (for editor)
     val enableZoomMode: Boolean = true,
-    val keyboardPanSpeed: Float = 30f,  // Pixels to pan per key press
+    val keyboardPanSpeed: Float = 30f, // Pixels to pan per key press
     val panUpBinding: String = "W",
     val panDownBinding: String = "S",
     val panLeftBinding: String = "A",
     val panRightBinding: String = "D",
-    val dragPanSensitivity: Float = 30f,  // UNUSED: Previously used for drag pan sensitivity multiplier (removed to fix juddering)
+    val dragPanSensitivity: Float = 30f, // UNUSED: Previously used for drag pan sensitivity multiplier (removed to fix juddering)
     val minScale: Float = 0.5f,
     val maxScale: Float = 3.0f,
-    val zoomDelta: Float = 0.1f  // Amount to zoom per button press
+    val zoomDelta: Float = 0.1f, // Amount to zoom per button press
 )
 
 private data class ParsedPanBindings(
     val up: ShortcutBinding?,
     val down: ShortcutBinding?,
     val left: ShortcutBinding?,
-    val right: ShortcutBinding?
+    val right: ShortcutBinding?,
 )
 
 @Composable
-private fun rememberParsedPanBindings(config: HexagonalMapConfig): ParsedPanBindings {
-    return remember(
+private fun rememberParsedPanBindings(config: HexagonalMapConfig): ParsedPanBindings =
+    remember(
         config.panUpBinding,
         config.panDownBinding,
         config.panLeftBinding,
-        config.panRightBinding
+        config.panRightBinding,
     ) {
         ParsedPanBindings(
             up = parseShortcutBinding(config.panUpBinding),
             down = parseShortcutBinding(config.panDownBinding),
             left = parseShortcutBinding(config.panLeftBinding),
-            right = parseShortcutBinding(config.panRightBinding)
+            right = parseShortcutBinding(config.panRightBinding),
         )
     }
-}
 
 /**
  * Universal hexagonal map view with pan, zoom, and keyboard navigation support.
@@ -119,48 +118,54 @@ fun HexagonalMapView(
     backgroundContent: (@Composable BoxScope.(contentSize: IntSize) -> Unit)? = null,
     overlayContent: (@Composable BoxScope.(contentSize: IntSize) -> Unit)? = null,
     content: @Composable (
-        position: Position
-    ) -> Unit
+        position: Position,
+    ) -> Unit,
 ) {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
     val focusRequester = remember { FocusRequester() }
-    
+
     // Use rememberUpdatedState to avoid capturing stale offset values in gesture handlers
     val currentOffsetX by rememberUpdatedState(offsetX)
     val currentOffsetY by rememberUpdatedState(offsetY)
 
     // Calculate hex dimensions for pointy-top hexagons
     val sqrt3 = sqrt(3.0).toFloat()
-    val hexWidth = config.hexSize * sqrt3  // Width of hexagon (flat-to-flat)
-    val hexHeight = config.hexSize * 2f    // Height of hexagon (point-to-point)
-    val verticalSpacing = hexHeight * 0.75f  // For pointy-top hexagons
-    
+    val hexWidth = config.hexSize * sqrt3 // Width of hexagon (flat-to-flat)
+    val hexHeight = config.hexSize * 2f // Height of hexagon (point-to-point)
+    val verticalSpacing = hexHeight * 0.75f // For pointy-top hexagons
+
     // Helper function to constrain pan offsets
-    fun constrainOffsets(newOffsetX: Float, newOffsetY: Float, currentScale: Float): Pair<Float, Float> {
+    fun constrainOffsets(
+        newOffsetX: Float,
+        newOffsetY: Float,
+        currentScale: Float,
+    ): Pair<Float, Float> {
         // If content size hasn't been measured yet, don't constrain
         if (actualContentSize.width == 0 || actualContentSize.height == 0) {
             return Pair(newOffsetX, newOffsetY)
         }
-        
+
         val contentWidth = actualContentSize.width * currentScale
         val contentHeight = actualContentSize.height * currentScale
 
-        val maxOffsetX = if (contentWidth > containerSize.width) {
-            (contentWidth - containerSize.width) / 2
-        } else {
-            (containerSize.width * (currentScale - 1) / 2).coerceAtLeast(0f)
-        }
+        val maxOffsetX =
+            if (contentWidth > containerSize.width) {
+                (contentWidth - containerSize.width) / 2
+            } else {
+                (containerSize.width * (currentScale - 1) / 2).coerceAtLeast(0f)
+            }
 
-        val maxOffsetY = if (contentHeight > containerSize.height) {
-            (contentHeight - containerSize.height) / 2
-        } else {
-            (containerSize.height * (currentScale - 1) / 2).coerceAtLeast(0f)
-        }
+        val maxOffsetY =
+            if (contentHeight > containerSize.height) {
+                (contentHeight - containerSize.height) / 2
+            } else {
+                (containerSize.height * (currentScale - 1) / 2).coerceAtLeast(0f)
+            }
 
         return Pair(
             newOffsetX.coerceIn(-maxOffsetX, maxOffsetX),
-            newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
+            newOffsetY.coerceIn(-maxOffsetY, maxOffsetY),
         )
     }
 
@@ -168,11 +173,11 @@ fun HexagonalMapView(
     val parsedPanBindings = rememberParsedPanBindings(config)
     val matchesBinding: (KeyEvent, ShortcutBinding?) -> Boolean = { event, parsed ->
         parsed != null &&
-                parsed.keyToken == keyToShortcutToken(event.key) &&
-                parsed.ctrl == event.isCtrlPressed &&
-                parsed.alt == event.isAltPressed &&
-                parsed.shift == event.isShiftPressed &&
-                parsed.meta == event.isMetaPressed
+            parsed.keyToken == keyToShortcutToken(event.key) &&
+            parsed.ctrl == event.isCtrlPressed &&
+            parsed.alt == event.isAltPressed &&
+            parsed.shift == event.isShiftPressed &&
+            parsed.meta == event.isMetaPressed
     }
 
     val keyboardHandler: (KeyEvent) -> Boolean = { event ->
@@ -215,7 +220,7 @@ fun HexagonalMapView(
             focusRequester.requestFocus()
         }
     }
-    
+
     // Request focus when focusTrigger changes (e.g., after "Start Battle" button click)
     LaunchedEffect(focusTrigger) {
         if (config.enableKeyboardNavigation && focusTrigger != null) {
@@ -224,103 +229,101 @@ fun HexagonalMapView(
     }
 
     Box(
-        modifier = modifier
-            .onSizeChanged { containerSize = it }
-            .then(
-                if (config.enableKeyboardNavigation) {
-                    Modifier
-                        .focusRequester(focusRequester)
-                        .focusable()
-                        // Request focus on any pointer event to regain focus after button clicks
-                        .pointerInput(Unit) {
-                            awaitPointerEventScope {
-                                while (true) {
-                                    val event = awaitPointerEvent(PointerEventPass.Initial)
-                                    if (event.changes.any { it.pressed }) {
-                                        focusRequester.requestFocus()
+        modifier =
+            modifier
+                .onSizeChanged { containerSize = it }
+                .then(
+                    if (config.enableKeyboardNavigation) {
+                        Modifier
+                            .focusRequester(focusRequester)
+                            .focusable()
+                            // Request focus on any pointer event to regain focus after button clicks
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                                        if (event.changes.any { it.pressed }) {
+                                            focusRequester.requestFocus()
+                                        }
                                     }
+                                }
+                            }.onKeyEvent(keyboardHandler)
+                    } else {
+                        Modifier
+                    },
+                ).then(
+                    if (config.enableZoomMode) {
+                        Modifier.Companion.mouseWheelZoom(
+                            containerSize = containerSize,
+                            scale = scale,
+                            offsetX = offsetX,
+                            offsetY = offsetY,
+                            onScaleChange = onScaleChange,
+                            onOffsetChange = onOffsetChange,
+                        )
+                    } else {
+                        Modifier
+                    },
+                ).then(
+                    if (config.enablePanNavigation) {
+                        Modifier.pointerInput(Unit) {
+                            var dragStartOffsetX = 0f
+                            var dragStartOffsetY = 0f
+
+                            detectDragGestures(
+                                onDragStart = {
+                                    // Capture the current offset when drag starts using rememberUpdatedState values
+                                    dragStartOffsetX = currentOffsetX
+                                    dragStartOffsetY = currentOffsetY
+                                },
+                                onDrag = { _, dragAmount ->
+                                    // Apply pan directly without scale multiplication to avoid juddering
+                                    // dragAmount is incremental, so add to current position
+                                    val newOffsetX = dragStartOffsetX + dragAmount.x
+                                    val newOffsetY = dragStartOffsetY + dragAmount.y
+
+                                    // Update the drag start for next delta
+                                    dragStartOffsetX = newOffsetX
+                                    dragStartOffsetY = newOffsetY
+
+                                    // Constrain pan to keep content visible
+                                    val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
+                                    onOffsetChange(constrainedX, constrainedY)
+                                },
+                            )
+                        }
+                    } else {
+                        Modifier
+                    },
+                ).then(
+                    if (isPlatformMobile || isMobileWebBrowser()) {
+                        Modifier.pointerInput(Unit) {
+                            detectTransformGestures { _, _, zoom, _ ->
+                                if (zoom != 1f) {
+                                    val newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
+                                    onScaleChange(newScale)
+                                    // Re-constrain offsets after zoom
+                                    val (constrainedX, constrainedY) = constrainOffsets(offsetX, offsetY, newScale)
+                                    onOffsetChange(constrainedX, constrainedY)
                                 }
                             }
                         }
-                        .onKeyEvent(keyboardHandler)
-                } else {
-                    Modifier
-                }
-            )
-            .then(
-                if (config.enableZoomMode) {
-                    Modifier.Companion.mouseWheelZoom(
-                        containerSize = containerSize,
-                        scale = scale,
-                        offsetX = offsetX,
-                        offsetY = offsetY,
-                        onScaleChange = onScaleChange,
-                        onOffsetChange = onOffsetChange
-                    )
-                } else {
-                    Modifier
-                }
-            )
-            .then(
-                if (config.enablePanNavigation) {
-                    Modifier.pointerInput(Unit) {
-                        var dragStartOffsetX = 0f
-                        var dragStartOffsetY = 0f
-                        
-                        detectDragGestures(
-                            onDragStart = {
-                                // Capture the current offset when drag starts using rememberUpdatedState values
-                                dragStartOffsetX = currentOffsetX
-                                dragStartOffsetY = currentOffsetY
-                            },
-                            onDrag = { _, dragAmount ->
-                                // Apply pan directly without scale multiplication to avoid juddering
-                                // dragAmount is incremental, so add to current position
-                                val newOffsetX = dragStartOffsetX + dragAmount.x
-                                val newOffsetY = dragStartOffsetY + dragAmount.y
-                                
-                                // Update the drag start for next delta
-                                dragStartOffsetX = newOffsetX
-                                dragStartOffsetY = newOffsetY
-
-                                // Constrain pan to keep content visible
-                                val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
-                                onOffsetChange(constrainedX, constrainedY)
-                            }
-                        )
-                    }
-                } else {
-                    Modifier
-                }
-            )
-            .then(
-                if (isPlatformMobile || isMobileWebBrowser()) {
-                    Modifier.pointerInput(Unit) {
-                        detectTransformGestures { _, _, zoom, _ ->
-                            if (zoom != 1f) {
-                                val newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
-                                onScaleChange(newScale)
-                                // Re-constrain offsets after zoom
-                                val (constrainedX, constrainedY) = constrainOffsets(offsetX, offsetY, newScale)
-                                onOffsetChange(constrainedX, constrainedY)
-                            }
-                        }
-                    }
-                } else {
-                    Modifier
-                }
-            )
+                    } else {
+                        Modifier
+                    },
+                ),
     ) {
         // Background content (e.g., map image) at same position as hex grid
         backgroundContent?.let { bgContent ->
             Box(
-                modifier = Modifier
-                    .graphicsLayer(
-                        scaleX = scale,
-                        scaleY = scale,
-                        translationX = offsetX,
-                        translationY = offsetY
-                    )
+                modifier =
+                    Modifier
+                        .graphicsLayer(
+                            scaleX = scale,
+                            scaleY = scale,
+                            translationX = offsetX,
+                            translationY = offsetY,
+                        ),
             ) {
                 bgContent(actualContentSize)
             }
@@ -328,39 +331,43 @@ fun HexagonalMapView(
 
         // Map content with pan and zoom applied
         Column(
-            modifier = Modifier
-                .layout { measurable, constraints ->
-                    // Measure with infinite constraints to prevent compression
-                    val placeable = measurable.measure(
-                        constraints.copy(
-                            maxWidth = Constraints.Infinity,
-                            maxHeight = Constraints.Infinity
-                        )
-                    )
-                    // Capture the actual content size for pan calculations
-                    actualContentSize = IntSize(placeable.width, placeable.height)
-                    onActualContentSizeChange(actualContentSize)
-                    // Report the actual size to parent (for proper container sizing)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
-                    }
-                }
-                .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale,
-                    translationX = offsetX,
-                    translationY = offsetY
+            modifier =
+                Modifier
+                    .layout { measurable, constraints ->
+                        // Measure with infinite constraints to prevent compression
+                        val placeable =
+                            measurable.measure(
+                                constraints.copy(
+                                    maxWidth = Constraints.Infinity,
+                                    maxHeight = Constraints.Infinity,
+                                ),
+                            )
+                        // Capture the actual content size for pan calculations
+                        actualContentSize = IntSize(placeable.width, placeable.height)
+                        onActualContentSizeChange(actualContentSize)
+                        // Report the actual size to parent (for proper container sizing)
+                        layout(placeable.width, placeable.height) {
+                            placeable.place(0, 0)
+                        }
+                    }.graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offsetX,
+                        translationY = offsetY,
+                    ),
+            verticalArrangement =
+                Arrangement.spacedBy(
+                    (-hexHeight + verticalSpacing + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT).dp,
                 ),
-            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT).dp)
         ) {
             for (y in 0 until gridHeight) {
                 Row(
-                    modifier = Modifier
-                        .padding(
-                            start = if (y % 2 == 1) (hexWidth * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO).dp else 0.dp
-                        )
-                        .offset(y = (-(y - 1)).dp),
-                    horizontalArrangement = Arrangement.spacedBy(HexagonalGridConstants.HORIZONTAL_SPACING.dp)
+                    modifier =
+                        Modifier
+                            .padding(
+                                start = if (y % 2 == 1) (hexWidth * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO).dp else 0.dp,
+                            ).offset(y = (-(y - 1)).dp),
+                    horizontalArrangement = Arrangement.spacedBy(HexagonalGridConstants.HORIZONTAL_SPACING.dp),
                 ) {
                     for (x in 0 until gridWidth) {
                         val position = Position(x, y)
@@ -373,13 +380,14 @@ fun HexagonalMapView(
         // Overlay content (e.g., multi-tile spanning animations) rendered above tiles
         overlayContent?.let { ovContent ->
             Box(
-                modifier = Modifier
-                    .graphicsLayer(
-                        scaleX = scale,
-                        scaleY = scale,
-                        translationX = offsetX,
-                        translationY = offsetY
-                    )
+                modifier =
+                    Modifier
+                        .graphicsLayer(
+                            scaleX = scale,
+                            scaleY = scale,
+                            translationX = offsetX,
+                            translationY = offsetY,
+                        ),
             ) {
                 ovContent(actualContentSize)
             }
@@ -397,43 +405,43 @@ fun BaseGridCell(
     modifier: Modifier = Modifier,
     backgroundPainter: Painter? = null,
     onHover: ((Boolean) -> Unit)? = null,
-    content: @Composable BoxScope.() -> Unit = { }
+    content: @Composable BoxScope.() -> Unit = { },
 ) {
     val sqrt3 = sqrt(3.0).toFloat()
     val hexWidth = hexSize.value * sqrt3
     val hexHeight = hexSize.value * 2f
 
     Box(
-        modifier = Modifier
-            .width((hexWidth).dp)
-            .height((hexHeight).dp)
-            .clip(HexagonShape())
-            .background(backgroundColor)
-            .border(borderWidth, borderColor, HexagonShape())
-            .clickable(onClick = onClick)
-            .then(
-                if (onHover != null) {
-                    Modifier.pointerInput(Unit) {
-                        awaitPointerEventScope {
-                            while (true) {
-                                val event = awaitPointerEvent()
-                                when (event.type) {
-                                    PointerEventType.Move, PointerEventType.Enter -> {
-                                        onHover(true)
-                                    }
-                                    PointerEventType.Exit -> {
-                                        onHover(false)
+        modifier =
+            Modifier
+                .width((hexWidth).dp)
+                .height((hexHeight).dp)
+                .clip(HexagonShape())
+                .background(backgroundColor)
+                .border(borderWidth, borderColor, HexagonShape())
+                .clickable(onClick = onClick)
+                .then(
+                    if (onHover != null) {
+                        Modifier.pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent()
+                                    when (event.type) {
+                                        PointerEventType.Move, PointerEventType.Enter -> {
+                                            onHover(true)
+                                        }
+                                        PointerEventType.Exit -> {
+                                            onHover(false)
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                } else {
-                    Modifier
-                }
-            )
-            .then(modifier),
-        contentAlignment = Alignment.Center
+                    } else {
+                        Modifier
+                    },
+                ).then(modifier),
+        contentAlignment = Alignment.Center,
     ) {
         // Draw background image if provided, otherwise the background color will show
         backgroundPainter?.let { painter ->
@@ -441,7 +449,7 @@ fun BaseGridCell(
                 painter = painter,
                 contentDescription = null,
                 modifier = Modifier.matchParentSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
             )
         }
         content()

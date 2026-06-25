@@ -28,32 +28,37 @@ actual fun initializeAudioSystem() {
 }
 
 @OptIn(ExperimentalForeignApi::class)
-actual fun playSoundFile(fileName: String, volume: Float) {
+actual fun playSoundFile(
+    fileName: String,
+    volume: Float,
+) {
     GlobalScope.launch(Dispatchers.Main) {
         try {
             // Load audio data from compose resources using Res.readBytes
             val resourcePath = "files/sounds/$fileName"
-            val bytes = try {
-                Res.readBytes(resourcePath)
-            } catch (e: Exception) {
-                println("Could not load resource: $resourcePath - ${e.message}")
-                return@launch
-            }
-            
+            val bytes =
+                try {
+                    Res.readBytes(resourcePath)
+                } catch (e: Exception) {
+                    println("Could not load resource: $resourcePath - ${e.message}")
+                    return@launch
+                }
+
             // Create NSData from bytes
             val data = bytes.toNSData()
-            
+
             // Create audio player from data
-            val player = AVAudioPlayer(data = data, error = null) ?: run {
-                println("Could not create audio player for: $fileName")
-                return@launch
-            }
-            
+            val player =
+                AVAudioPlayer(data = data, error = null) ?: run {
+                    println("Could not create audio player for: $fileName")
+                    return@launch
+                }
+
             // Set volume and play
             player.volume = volume
             player.prepareToPlay()
             player.play()
-            
+
             // Cache for reuse
             audioPlayers[fileName] = player
         } catch (e: Exception) {
@@ -64,11 +69,10 @@ actual fun playSoundFile(fileName: String, volume: Float) {
 }
 
 @OptIn(ExperimentalForeignApi::class, kotlinx.cinterop.BetaInteropApi::class)
-private fun ByteArray.toNSData(): NSData {
-    return usePinned { pinned ->
+private fun ByteArray.toNSData(): NSData =
+    usePinned { pinned ->
         NSData.create(bytes = pinned.addressOf(0), length = this.size.toULong())
     }
-}
 
 actual fun releaseAudioSystem() {
     audioPlayers.values.forEach { player ->

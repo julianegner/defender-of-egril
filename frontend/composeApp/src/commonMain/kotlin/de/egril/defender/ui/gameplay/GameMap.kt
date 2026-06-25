@@ -1,10 +1,11 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,86 +17,81 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.hyperether.resources.stringResource
+import de.egril.defender.audio.GlobalSoundManager
+import de.egril.defender.audio.SoundEvent
+import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
+import de.egril.defender.ui.animations.AlchemyAttackOverlay
+import de.egril.defender.ui.animations.AlchemyIdleAnimation
+import de.egril.defender.ui.animations.ArrowAttackAnimation
+import de.egril.defender.ui.animations.BallistaAttackOverlay
 import de.egril.defender.ui.animations.BarricadeDamageAnimation
 import de.egril.defender.ui.animations.BombExplosionAnimation
+import de.egril.defender.ui.animations.BowAttackOverlay
+import de.egril.defender.ui.animations.CoinGainAnimation
 import de.egril.defender.ui.animations.CoolingAreaAnimation
-import de.egril.defender.ui.animations.InstantTowerSpellAnimation
-import de.egril.defender.ui.animations.SpellDoubleReachColor
+import de.egril.defender.ui.animations.DragonLevelChangeAnimation
+import de.egril.defender.ui.animations.DragonTargetAnimation
+import de.egril.defender.ui.animations.EnemyDeathAnimation
+import de.egril.defender.ui.animations.EnemyMoveAnimation
+import de.egril.defender.ui.animations.EnemySpawnAnimation
 import de.egril.defender.ui.animations.FearSpellAnimation
 import de.egril.defender.ui.animations.FreezeSpellAnimation
 import de.egril.defender.ui.animations.GreenWitchHealingAnimation
-import de.egril.defender.ui.animations.WaterFlowAnimation
-import de.egril.defender.ui.animations.EnemyDeathAnimation
-import de.egril.defender.ui.animations.TowerReadyPulseAnimation
-import de.egril.defender.ui.animations.CoinGainAnimation
+import de.egril.defender.ui.animations.InstantTowerSpellAnimation
+import de.egril.defender.ui.animations.MineDigAnimation
+import de.egril.defender.ui.animations.PikeAttackOverlay
+import de.egril.defender.ui.animations.SpearAttackOverlay
+import de.egril.defender.ui.animations.SpellDoubleReachColor
 import de.egril.defender.ui.animations.TowerAttackImpactAnimation
 import de.egril.defender.ui.animations.TowerConstructionCompleteAnimation
-import de.egril.defender.ui.animations.EnemySpawnAnimation
+import de.egril.defender.ui.animations.TowerReadyPulseAnimation
 import de.egril.defender.ui.animations.TrapTriggerAnimation
-import de.egril.defender.ui.animations.EnemyMoveAnimation
-import de.egril.defender.ui.animations.DragonLevelChangeAnimation
-import de.egril.defender.ui.animations.WizardIdleAnimation
-import de.egril.defender.ui.animations.AlchemyIdleAnimation
-import de.egril.defender.ui.animations.MineDigAnimation
-import de.egril.defender.ui.animations.ArrowAttackAnimation
-import de.egril.defender.ui.animations.BallistaAttackOverlay
-import de.egril.defender.ui.animations.BowAttackOverlay
-import de.egril.defender.ui.animations.SpearAttackOverlay
-import de.egril.defender.ui.animations.PikeAttackOverlay
+import de.egril.defender.ui.animations.WaterFlowAnimation
 import de.egril.defender.ui.animations.WizardAttackOverlay
-import de.egril.defender.ui.animations.AlchemyAttackOverlay
-import de.egril.defender.ui.animations.DragonTargetAnimation
-import de.egril.defender.ui.icon.CrossIcon
-import de.egril.defender.ui.icon.BombIcon
-import de.egril.defender.ui.icon.ExplosionIcon
-import de.egril.defender.ui.icon.GateIcon
-import de.egril.defender.ui.icon.HeartIcon
-import de.egril.defender.ui.icon.PlusIcon
-import de.egril.defender.ui.icon.SwordIcon
-import de.egril.defender.ui.icon.TrapIcon
-import de.egril.defender.ui.icon.WoodIcon
-import com.hyperether.resources.stringResource
+import de.egril.defender.ui.animations.WizardIdleAnimation
+import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.ui.editor.map.MapControlState
 import de.egril.defender.ui.editor.map.MapControls
-import defender_of_egril.composeapp.generated.resources.*
-import de.egril.defender.ui.icon.TestTubeIcon
-import de.egril.defender.ui.icon.enemy.EnemyIcon
-import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
-import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.ui.hexagon.BaseGridCell
 import de.egril.defender.ui.hexagon.HexagonMinimap
 import de.egril.defender.ui.hexagon.HexagonShape
-import de.egril.defender.ui.hexagon.HexagonalMapConfig
 import de.egril.defender.ui.hexagon.HexagonalGridConstants
+import de.egril.defender.ui.hexagon.HexagonalMapConfig
 import de.egril.defender.ui.hexagon.HexagonalMapView
 import de.egril.defender.ui.hexagon.MinimapConfig
+import de.egril.defender.ui.icon.BombIcon
+import de.egril.defender.ui.icon.CrossIcon
+import de.egril.defender.ui.icon.ExplosionIcon
+import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.PentagramIcon
-import de.egril.defender.ui.settings.AppSettings
-import de.egril.defender.audio.GlobalSoundManager
-import de.egril.defender.audio.SoundEvent
+import de.egril.defender.ui.icon.TestTubeIcon
+import de.egril.defender.ui.icon.TrapIcon
+import de.egril.defender.ui.icon.WoodIcon
+import de.egril.defender.ui.icon.enemy.EnemyIcon
+import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.rememberMapImageState
+import de.egril.defender.ui.settings.AppSettings
+import defender_of_egril.composeapp.generated.resources.*
 import kotlin.math.abs
+import kotlin.math.atan2
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
-import kotlin.math.atan2
-import de.egril.defender.config.LogConfig
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -113,9 +109,9 @@ fun GameGrid(
     scrollToPosition: Position? = null,
     onScrollToPositionConsumed: (() -> Unit)? = null,
     isDemoMode: Boolean = false,
-    demoHoveredPosition: Position? = null,   // overrides the local hover in demo mode
+    demoHoveredPosition: Position? = null, // overrides the local hover in demo mode
     keyboardHoveredPosition: Position? = null, // overrides the local hover for keyboard build tile selection
-    extraFocusTrigger: Int = 0
+    extraFocusTrigger: Int = 0,
 ) {
     // State for pan and zoom
     var scale by remember { mutableStateOf(1f) }
@@ -124,18 +120,22 @@ fun GameGrid(
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     var contentSize by remember { mutableStateOf(IntSize.Zero) }
     var isInitialized by remember { mutableStateOf(false) }
-    
+
     // State for hover position (for tower placement preview)
     var localHoveredPosition by remember { mutableStateOf<Position?>(null) }
     // In demo mode use the externally-driven hover; keyboard hover overrides local hover for build tile preview
     val hoveredPosition: Position? = if (isDemoMode) demoHoveredPosition else (keyboardHoveredPosition ?: localHoveredPosition)
 
-    val hexSize = 40.dp  // Radius of hexagon (center to corner)
+    val hexSize = 40.dp // Radius of hexagon (center to corner)
 
     // Initialize viewport: zoom-to-fit in demo mode, show spawn points otherwise
     LaunchedEffect(containerSize, contentSize) {
-        if (!isInitialized && containerSize.width > 0 && containerSize.height > 0 
-            && contentSize.width > 0 && contentSize.height > 0) {
+        if (!isInitialized &&
+            containerSize.width > 0 &&
+            containerSize.height > 0 &&
+            contentSize.width > 0 &&
+            contentSize.height > 0
+        ) {
             if (isDemoMode) {
                 // Zoom to 100% fit-to-screen so the entire map fills the available space
                 // (controls panel height is locked at its max so no layout jumps occur)
@@ -193,287 +193,327 @@ fun GameGrid(
     // Find the selected defender and track its actions for dependency tracking
     val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
     val selectedDefenderActions = selectedDefender?.actionsRemaining?.value
-    
-    val targetCircleMap = remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size) {
-        if (selectedTargetPosition == null || selectedDefenderId == null || selectedDefender == null) {
-            emptyMap()
-        } else {
-            val attackType = selectedDefender.type.attackType
-            
-            // Don't show target circles if the tower has no action points left
-            if (selectedDefender.actionsRemaining.value <= 0) {
+
+    val targetCircleMap =
+        remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size) {
+            if (selectedTargetPosition == null || selectedDefenderId == null || selectedDefender == null) {
                 emptyMap()
             } else {
-                val markerColor = when (attackType) {
-                    AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
-                    AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
-                    AttackType.MELEE, AttackType.RANGED -> Color.DarkGray  // DarkGray for single-target
-                    AttackType.NONE -> null  // No target circles for special structures
-                }
-                
-                if (markerColor == null) {
+                val attackType = selectedDefender.type.attackType
+
+                // Don't show target circles if the tower has no action points left
+                if (selectedDefender.actionsRemaining.value <= 0) {
                     emptyMap()
                 } else {
-                    val result = mutableMapOf<Position, TargetCircleInfo>()
-                    val areaRadius = selectedDefender.areaEffectRadius
-                    val isExtendedArea = areaRadius >= 2
-                    
-                    // Check if target position has a magical bridge (which cannot be targeted by non-area attacks)
-                    val hasMagicalBridge = gameState.isBridgeAt(selectedTargetPosition) &&
-                        gameState.getBridgeAt(selectedTargetPosition)?.type == BridgeType.MAGICAL
-                    
-                    // Check if there's an enemy at the target position
-                    val hasEnemy = gameState.attackers.any { 
-                        it.position.value == selectedTargetPosition && !it.isDefeated.value 
-                    }
-                    
-                    // Don't show target circles for non-area attacks on magical bridges UNLESS there's an enemy
-                    if (hasMagicalBridge && !hasEnemy && attackType != AttackType.AREA && attackType != AttackType.LASTING) {
+                    val markerColor =
+                        when (attackType) {
+                            AttackType.AREA -> Color(0xFFFF5722) // Deep orange/red for fireball
+                            AttackType.LASTING -> Color(0xFF4CAF50) // Green for acid
+                            AttackType.MELEE, AttackType.RANGED -> Color.DarkGray // DarkGray for single-target
+                            AttackType.NONE -> null // No target circles for special structures
+                        }
+
+                    if (markerColor == null) {
                         emptyMap()
                     } else {
-                        // Central target tile
-                        result[selectedTargetPosition] = TargetCircleInfo.CentralTarget(
-                            color = markerColor,
-                            attackType = attackType,
-                            isExtendedArea = isExtendedArea
-                        )
-                        
-                        // For AREA and LASTING attacks, add neighbor tiles that are on the path, or have bridges/enemies
-                        if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
-                            if (areaRadius == 1) {
-                                // Standard radius 1 - use getHexNeighbors
-                                val neighbors = selectedTargetPosition.getHexNeighbors()
-                                    .filter { neighbor ->
-                                        neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
-                                        neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
-                                        (gameState.level.isOnPath(neighbor) || 
-                                         gameState.isBridgeAt(neighbor) || 
-                                         gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value })
-                                    }
+                        val result = mutableMapOf<Position, TargetCircleInfo>()
+                        val areaRadius = selectedDefender.areaEffectRadius
+                        val isExtendedArea = areaRadius >= 2
 
-                                for (neighbor in neighbors) {
-                                    result[neighbor] = TargetCircleInfo.NeighborTarget(
-                                        color = markerColor,
-                                        attackType = attackType,
-                                        centerPosition = selectedTargetPosition,
-                                        thisPosition = neighbor,
-                                        distanceFromCenter = 1,
-                                        isExtendedArea = false
-                                    )
-                                }
-                            } else {
-                                // Extended radius 2 (level 20+) - use getHexNeighborsWithinRadius
-                                val allNeighbors = selectedTargetPosition.getHexNeighborsWithinRadius(
-                                    areaRadius,
-                                    gameState.level.gridWidth,
-                                    gameState.level.gridHeight
-                                ).filter { neighbor ->
-                                    gameState.level.isOnPath(neighbor) || 
-                                    gameState.isBridgeAt(neighbor) || 
-                                    gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
-                                }
-                                
-                                for (neighbor in allNeighbors) {
-                                    val distance = selectedTargetPosition.hexDistanceTo(neighbor)
-                                    result[neighbor] = TargetCircleInfo.NeighborTarget(
-                                        color = markerColor,
-                                        attackType = attackType,
-                                        centerPosition = selectedTargetPosition,
-                                        thisPosition = neighbor,
-                                        distanceFromCenter = distance,
-                                        isExtendedArea = true
-                                    )
+                        // Check if target position has a magical bridge (which cannot be targeted by non-area attacks)
+                        val hasMagicalBridge =
+                            gameState.isBridgeAt(selectedTargetPosition) &&
+                                gameState.getBridgeAt(selectedTargetPosition)?.type == BridgeType.MAGICAL
+
+                        // Check if there's an enemy at the target position
+                        val hasEnemy =
+                            gameState.attackers.any {
+                                it.position.value == selectedTargetPosition && !it.isDefeated.value
+                            }
+
+                        // Don't show target circles for non-area attacks on magical bridges UNLESS there's an enemy
+                        if (hasMagicalBridge && !hasEnemy && attackType != AttackType.AREA && attackType != AttackType.LASTING) {
+                            emptyMap()
+                        } else {
+                            // Central target tile
+                            result[selectedTargetPosition] =
+                                TargetCircleInfo.CentralTarget(
+                                    color = markerColor,
+                                    attackType = attackType,
+                                    isExtendedArea = isExtendedArea,
+                                )
+
+                            // For AREA and LASTING attacks, add neighbor tiles that are on the path, or have bridges/enemies
+                            if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
+                                if (areaRadius == 1) {
+                                    // Standard radius 1 - use getHexNeighbors
+                                    val neighbors =
+                                        selectedTargetPosition
+                                            .getHexNeighbors()
+                                            .filter { neighbor ->
+                                                neighbor.x >= 0 &&
+                                                    neighbor.x < gameState.level.gridWidth &&
+                                                    neighbor.y >= 0 &&
+                                                    neighbor.y < gameState.level.gridHeight &&
+                                                    (
+                                                        gameState.level.isOnPath(neighbor) ||
+                                                            gameState.isBridgeAt(neighbor) ||
+                                                            gameState.attackers.any {
+                                                                it.position.value == neighbor && !it.isDefeated.value
+                                                            }
+                                                    )
+                                            }
+
+                                    for (neighbor in neighbors) {
+                                        result[neighbor] =
+                                            TargetCircleInfo.NeighborTarget(
+                                                color = markerColor,
+                                                attackType = attackType,
+                                                centerPosition = selectedTargetPosition,
+                                                thisPosition = neighbor,
+                                                distanceFromCenter = 1,
+                                                isExtendedArea = false,
+                                            )
+                                    }
+                                } else {
+                                    // Extended radius 2 (level 20+) - use getHexNeighborsWithinRadius
+                                    val allNeighbors =
+                                        selectedTargetPosition
+                                            .getHexNeighborsWithinRadius(
+                                                areaRadius,
+                                                gameState.level.gridWidth,
+                                                gameState.level.gridHeight,
+                                            ).filter { neighbor ->
+                                                gameState.level.isOnPath(neighbor) ||
+                                                    gameState.isBridgeAt(neighbor) ||
+                                                    gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
+                                            }
+
+                                    for (neighbor in allNeighbors) {
+                                        val distance = selectedTargetPosition.hexDistanceTo(neighbor)
+                                        result[neighbor] =
+                                            TargetCircleInfo.NeighborTarget(
+                                                color = markerColor,
+                                                attackType = attackType,
+                                                centerPosition = selectedTargetPosition,
+                                                thisPosition = neighbor,
+                                                distanceFromCenter = distance,
+                                                isExtendedArea = true,
+                                            )
+                                    }
                                 }
                             }
+                            if (LogConfig.ENABLE_UI_LOGGING) {
+                                println("Target circle map: $result")
+                            }
+                            result
                         }
-                        if (LogConfig.ENABLE_UI_LOGGING) {
-                        println("Target circle map: $result")
-                        }
-                        result
                     }
                 }
             }
         }
-    }
 
     // Calculate spell area circle preview for ATTACK_AREA, ATTACK_AIMED, FEAR_SPELL, FEAR_SPELL_AREA, BOMB in targeting mode
     val spellAreaTargeting = gameState.spellTargeting.value
     val currentHoveredPosition = hoveredPosition
-    val spellAreaCircleMap = remember(currentHoveredPosition, spellAreaTargeting?.activeSpell) {
-        val activeSpell = spellAreaTargeting?.activeSpell
-        // All spell targeting previews use the same magic (purple) color to distinguish them from tower attacks
-        val spellColor = TargetCircleConstants.ATTACK_AREA_SPELL_COLOR
-        // Bomb uses a distinct orange/red color to represent fire/explosion
-        val bombColor = TargetCircleConstants.BOMB_SPELL_COLOR
-        val bombExplosionRange = TargetCircleConstants.BOMB_SPELL_RADIUS
-        when {
-            (activeSpell == SpellType.ATTACK_AREA || activeSpell == SpellType.ATTACK_AIMED) && currentHoveredPosition != null -> {
-                val result = mutableMapOf<Position, TargetCircleInfo>()
-                result[currentHoveredPosition] = TargetCircleInfo.CentralTarget(
-                    color = spellColor,
-                    attackType = AttackType.AREA,
-                    isExtendedArea = true
-                )
-                if (activeSpell == SpellType.ATTACK_AREA) {
-                    val allNeighbors = currentHoveredPosition.getHexNeighborsWithinRadius(
-                        TargetCircleConstants.ATTACK_AREA_SPELL_RADIUS,
-                        gameState.level.gridWidth,
-                        gameState.level.gridHeight
-                    ).filter { neighbor ->
-                        gameState.level.isOnPath(neighbor) ||
-                        gameState.isBridgeAt(neighbor) ||
-                        gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
-                    }
-                    for (neighbor in allNeighbors) {
-                        val distance = currentHoveredPosition.hexDistanceTo(neighbor)
-                        result[neighbor] = TargetCircleInfo.NeighborTarget(
+    val spellAreaCircleMap =
+        remember(currentHoveredPosition, spellAreaTargeting?.activeSpell) {
+            val activeSpell = spellAreaTargeting?.activeSpell
+            // All spell targeting previews use the same magic (purple) color to distinguish them from tower attacks
+            val spellColor = TargetCircleConstants.ATTACK_AREA_SPELL_COLOR
+            // Bomb uses a distinct orange/red color to represent fire/explosion
+            val bombColor = TargetCircleConstants.BOMB_SPELL_COLOR
+            val bombExplosionRange = TargetCircleConstants.BOMB_SPELL_RADIUS
+            when {
+                (activeSpell == SpellType.ATTACK_AREA || activeSpell == SpellType.ATTACK_AIMED) && currentHoveredPosition != null -> {
+                    val result = mutableMapOf<Position, TargetCircleInfo>()
+                    result[currentHoveredPosition] =
+                        TargetCircleInfo.CentralTarget(
                             color = spellColor,
                             attackType = AttackType.AREA,
-                            centerPosition = currentHoveredPosition,
-                            thisPosition = neighbor,
-                            distanceFromCenter = distance,
-                            isExtendedArea = true
+                            isExtendedArea = true,
                         )
+                    if (activeSpell == SpellType.ATTACK_AREA) {
+                        val allNeighbors =
+                            currentHoveredPosition
+                                .getHexNeighborsWithinRadius(
+                                    TargetCircleConstants.ATTACK_AREA_SPELL_RADIUS,
+                                    gameState.level.gridWidth,
+                                    gameState.level.gridHeight,
+                                ).filter { neighbor ->
+                                    gameState.level.isOnPath(neighbor) ||
+                                        gameState.isBridgeAt(neighbor) ||
+                                        gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
+                                }
+                        for (neighbor in allNeighbors) {
+                            val distance = currentHoveredPosition.hexDistanceTo(neighbor)
+                            result[neighbor] =
+                                TargetCircleInfo.NeighborTarget(
+                                    color = spellColor,
+                                    attackType = AttackType.AREA,
+                                    centerPosition = currentHoveredPosition,
+                                    thisPosition = neighbor,
+                                    distanceFromCenter = distance,
+                                    isExtendedArea = true,
+                                )
+                        }
+                    }
+                    result
+                }
+                activeSpell == SpellType.BOMB && currentHoveredPosition != null -> {
+                    // Show explosion range (3 hex tiles) around hovered position in orange
+                    val result = mutableMapOf<Position, TargetCircleInfo>()
+                    result[currentHoveredPosition] =
+                        TargetCircleInfo.CentralTarget(
+                            color = bombColor,
+                            attackType = AttackType.AREA,
+                            isExtendedArea = true,
+                        )
+                    val allNeighbors =
+                        currentHoveredPosition.getHexNeighborsWithinRadius(
+                            bombExplosionRange,
+                            gameState.level.gridWidth,
+                            gameState.level.gridHeight,
+                        )
+                    for (neighbor in allNeighbors) {
+                        val distance = currentHoveredPosition.hexDistanceTo(neighbor)
+                        result[neighbor] =
+                            TargetCircleInfo.NeighborTarget(
+                                color = bombColor,
+                                attackType = AttackType.AREA,
+                                centerPosition = currentHoveredPosition,
+                                thisPosition = neighbor,
+                                distanceFromCenter = distance,
+                                isExtendedArea = true,
+                            )
+                    }
+                    result
+                }
+                activeSpell == SpellType.FEAR_SPELL_AREA && currentHoveredPosition != null -> {
+                    // Area circles in magic color at radius 2 (like ATTACK_AREA)
+                    val result = mutableMapOf<Position, TargetCircleInfo>()
+                    result[currentHoveredPosition] =
+                        TargetCircleInfo.CentralTarget(
+                            color = spellColor,
+                            attackType = AttackType.AREA,
+                            isExtendedArea = true,
+                        )
+                    val allNeighbors =
+                        currentHoveredPosition
+                            .getHexNeighborsWithinRadius(
+                                TargetCircleConstants.ATTACK_AREA_SPELL_RADIUS,
+                                gameState.level.gridWidth,
+                                gameState.level.gridHeight,
+                            ).filter { neighbor ->
+                                gameState.level.isOnPath(neighbor) ||
+                                    gameState.isBridgeAt(neighbor) ||
+                                    gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
+                            }
+                    for (neighbor in allNeighbors) {
+                        val distance = currentHoveredPosition.hexDistanceTo(neighbor)
+                        result[neighbor] =
+                            TargetCircleInfo.NeighborTarget(
+                                color = spellColor,
+                                attackType = AttackType.AREA,
+                                centerPosition = currentHoveredPosition,
+                                thisPosition = neighbor,
+                                distanceFromCenter = distance,
+                                isExtendedArea = true,
+                            )
+                    }
+                    result
+                }
+                activeSpell == SpellType.COOLING_SPELL && currentHoveredPosition != null -> {
+                    // Show turquoise circles at radius 2 around hovered position, only for path/spawn tiles
+                    val coolingColor = TargetCircleConstants.COOLING_SPELL_COLOR
+                    val result = mutableMapOf<Position, TargetCircleInfo>()
+                    if (gameState.level.isEnemyTraversable(currentHoveredPosition)) {
+                        result[currentHoveredPosition] =
+                            TargetCircleInfo.CentralTarget(
+                                color = coolingColor,
+                                attackType = AttackType.AREA,
+                                isExtendedArea = true,
+                            )
+                    }
+                    val allNeighbors =
+                        currentHoveredPosition
+                            .getHexNeighborsWithinRadius(
+                                TargetCircleConstants.COOLING_SPELL_RADIUS,
+                                gameState.level.gridWidth,
+                                gameState.level.gridHeight,
+                            ).filter { neighbor ->
+                                gameState.level.isEnemyTraversable(neighbor)
+                            }
+                    for (neighbor in allNeighbors) {
+                        val distance = currentHoveredPosition.hexDistanceTo(neighbor)
+                        result[neighbor] =
+                            TargetCircleInfo.NeighborTarget(
+                                color = coolingColor,
+                                attackType = AttackType.AREA,
+                                centerPosition = currentHoveredPosition,
+                                thisPosition = neighbor,
+                                distanceFromCenter = distance,
+                                isExtendedArea = true,
+                            )
+                    }
+                    result
+                }
+                activeSpell == SpellType.FEAR_SPELL && currentHoveredPosition != null -> {
+                    // Single-target circles on hovered enemy tile in magic color (like tower attack)
+                    val enemyAtHover =
+                        gameState.attackers.find {
+                            it.position.value == currentHoveredPosition && !it.isDefeated.value
+                        }
+                    if (enemyAtHover != null) {
+                        mapOf(
+                            currentHoveredPosition to
+                                TargetCircleInfo.CentralTarget(
+                                    color = spellColor,
+                                    attackType = AttackType.RANGED,
+                                    isExtendedArea = false,
+                                ),
+                        )
+                    } else {
+                        emptyMap()
                     }
                 }
-                result
+                else -> emptyMap()
             }
-            activeSpell == SpellType.BOMB && currentHoveredPosition != null -> {
-                // Show explosion range (3 hex tiles) around hovered position in orange
-                val result = mutableMapOf<Position, TargetCircleInfo>()
-                result[currentHoveredPosition] = TargetCircleInfo.CentralTarget(
-                    color = bombColor,
-                    attackType = AttackType.AREA,
-                    isExtendedArea = true
-                )
-                val allNeighbors = currentHoveredPosition.getHexNeighborsWithinRadius(
-                    bombExplosionRange,
-                    gameState.level.gridWidth,
-                    gameState.level.gridHeight
-                )
-                for (neighbor in allNeighbors) {
-                    val distance = currentHoveredPosition.hexDistanceTo(neighbor)
-                    result[neighbor] = TargetCircleInfo.NeighborTarget(
-                        color = bombColor,
-                        attackType = AttackType.AREA,
-                        centerPosition = currentHoveredPosition,
-                        thisPosition = neighbor,
-                        distanceFromCenter = distance,
-                        isExtendedArea = true
-                    )
-                }
-                result
-            }
-            activeSpell == SpellType.FEAR_SPELL_AREA && currentHoveredPosition != null -> {
-                // Area circles in magic color at radius 2 (like ATTACK_AREA)
-                val result = mutableMapOf<Position, TargetCircleInfo>()
-                result[currentHoveredPosition] = TargetCircleInfo.CentralTarget(
-                    color = spellColor,
-                    attackType = AttackType.AREA,
-                    isExtendedArea = true
-                )
-                val allNeighbors = currentHoveredPosition.getHexNeighborsWithinRadius(
-                    TargetCircleConstants.ATTACK_AREA_SPELL_RADIUS,
-                    gameState.level.gridWidth,
-                    gameState.level.gridHeight
-                ).filter { neighbor ->
-                    gameState.level.isOnPath(neighbor) ||
-                    gameState.isBridgeAt(neighbor) ||
-                    gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
-                }
-                for (neighbor in allNeighbors) {
-                    val distance = currentHoveredPosition.hexDistanceTo(neighbor)
-                    result[neighbor] = TargetCircleInfo.NeighborTarget(
-                        color = spellColor,
-                        attackType = AttackType.AREA,
-                        centerPosition = currentHoveredPosition,
-                        thisPosition = neighbor,
-                        distanceFromCenter = distance,
-                        isExtendedArea = true
-                    )
-                }
-                result
-            }
-            activeSpell == SpellType.COOLING_SPELL && currentHoveredPosition != null -> {
-                // Show turquoise circles at radius 2 around hovered position, only for path/spawn tiles
-                val coolingColor = TargetCircleConstants.COOLING_SPELL_COLOR
-                val result = mutableMapOf<Position, TargetCircleInfo>()
-                if (gameState.level.isEnemyTraversable(currentHoveredPosition)) {
-                    result[currentHoveredPosition] = TargetCircleInfo.CentralTarget(
-                        color = coolingColor,
-                        attackType = AttackType.AREA,
-                        isExtendedArea = true
-                    )
-                }
-                val allNeighbors = currentHoveredPosition.getHexNeighborsWithinRadius(
-                    TargetCircleConstants.COOLING_SPELL_RADIUS,
-                    gameState.level.gridWidth,
-                    gameState.level.gridHeight
-                ).filter { neighbor ->
-                    gameState.level.isEnemyTraversable(neighbor)
-                }
-                for (neighbor in allNeighbors) {
-                    val distance = currentHoveredPosition.hexDistanceTo(neighbor)
-                    result[neighbor] = TargetCircleInfo.NeighborTarget(
-                        color = coolingColor,
-                        attackType = AttackType.AREA,
-                        centerPosition = currentHoveredPosition,
-                        thisPosition = neighbor,
-                        distanceFromCenter = distance,
-                        isExtendedArea = true
-                    )
-                }
-                result
-            }
-            activeSpell == SpellType.FEAR_SPELL && currentHoveredPosition != null -> {
-                // Single-target circles on hovered enemy tile in magic color (like tower attack)
-                val enemyAtHover = gameState.attackers.find {
-                    it.position.value == currentHoveredPosition && !it.isDefeated.value
-                }
-                if (enemyAtHover != null) {
-                    mapOf(currentHoveredPosition to TargetCircleInfo.CentralTarget(
-                        color = spellColor,
-                        attackType = AttackType.RANGED,
-                        isExtendedArea = false
-                    ))
-                } else {
-                    emptyMap()
-                }
-            }
-            else -> emptyMap()
         }
-    }
 
     // Calculate range circles for already-placed bombs (show explosion range, but no center rings)
     val activeBombEffects = gameState.activeSpellEffects.filter { it.spell == SpellType.BOMB && it.position != null }
-    val placedBombCircleMap = remember(activeBombEffects.map { it.position }) {
-        val bombColor = TargetCircleConstants.BOMB_SPELL_COLOR
-        val bombExplosionRange = TargetCircleConstants.BOMB_SPELL_RADIUS
-        val result = mutableMapOf<Position, TargetCircleInfo>()
-        for (effect in activeBombEffects) {
-            val bombPos = effect.position ?: continue
-            // Intentionally skip the bomb tile itself (no center rings on placed bombs)
-            val allNeighbors = bombPos.getHexNeighborsWithinRadius(
-                bombExplosionRange,
-                gameState.level.gridWidth,
-                gameState.level.gridHeight
-            )
-            for (neighbor in allNeighbors) {
-                if (!result.containsKey(neighbor)) {
-                    val distance = bombPos.hexDistanceTo(neighbor)
-                    result[neighbor] = TargetCircleInfo.NeighborTarget(
-                        color = bombColor,
-                        attackType = AttackType.AREA,
-                        centerPosition = bombPos,
-                        thisPosition = neighbor,
-                        distanceFromCenter = distance,
-                        isExtendedArea = true
+    val placedBombCircleMap =
+        remember(activeBombEffects.map { it.position }) {
+            val bombColor = TargetCircleConstants.BOMB_SPELL_COLOR
+            val bombExplosionRange = TargetCircleConstants.BOMB_SPELL_RADIUS
+            val result = mutableMapOf<Position, TargetCircleInfo>()
+            for (effect in activeBombEffects) {
+                val bombPos = effect.position ?: continue
+                // Intentionally skip the bomb tile itself (no center rings on placed bombs)
+                val allNeighbors =
+                    bombPos.getHexNeighborsWithinRadius(
+                        bombExplosionRange,
+                        gameState.level.gridWidth,
+                        gameState.level.gridHeight,
                     )
+                for (neighbor in allNeighbors) {
+                    if (!result.containsKey(neighbor)) {
+                        val distance = bombPos.hexDistanceTo(neighbor)
+                        result[neighbor] =
+                            TargetCircleInfo.NeighborTarget(
+                                color = bombColor,
+                                attackType = AttackType.AREA,
+                                centerPosition = bombPos,
+                                thisPosition = neighbor,
+                                distanceFromCenter = distance,
+                                isExtendedArea = true,
+                            )
+                    }
                 }
             }
+            result
         }
-        result
-    }
 
     val mapId = gameState.level.mapId
     val mapImageState = rememberMapImageState(mapId)
@@ -481,21 +521,22 @@ fun GameGrid(
     val useLevelMapImage = AppSettings.useLevelMapImage.value
     val hasMapImage = mapImagePainter != null && useLevelMapImage
     val isLoadingMapImage = mapImageState.isLoading
-    val hexMapSizePx = remember(gameState.level.gridWidth, gameState.level.gridHeight, hexSize) {
-        val hexSizePx = hexSize.value
-        val hexWidthPx = hexSizePx * sqrt(3.0).toFloat()
-        val hexHeightPx = hexSizePx * 2f
-        val verticalSpacingPx = hexHeightPx * 0.75f
-        val rowSpacingPx = -hexHeightPx + verticalSpacingPx + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT
-        val oddOffsetPx = hexWidthPx * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
-        val colSpacingPx = HexagonalGridConstants.HORIZONTAL_SPACING
+    val hexMapSizePx =
+        remember(gameState.level.gridWidth, gameState.level.gridHeight, hexSize) {
+            val hexSizePx = hexSize.value
+            val hexWidthPx = hexSizePx * sqrt(3.0).toFloat()
+            val hexHeightPx = hexSizePx * 2f
+            val verticalSpacingPx = hexHeightPx * 0.75f
+            val rowSpacingPx = -hexHeightPx + verticalSpacingPx + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT
+            val oddOffsetPx = hexWidthPx * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
+            val colSpacingPx = HexagonalGridConstants.HORIZONTAL_SPACING
 
-        val maxOddOffset = if (gameState.level.gridHeight > 1) oddOffsetPx else 0f
-        val widthPx = (gameState.level.gridWidth * hexWidthPx) + ((gameState.level.gridWidth - 1) * colSpacingPx) + maxOddOffset
-        val heightPx = ((gameState.level.gridHeight - 1) * (hexHeightPx + rowSpacingPx)) + hexHeightPx
+            val maxOddOffset = if (gameState.level.gridHeight > 1) oddOffsetPx else 0f
+            val widthPx = (gameState.level.gridWidth * hexWidthPx) + ((gameState.level.gridWidth - 1) * colSpacingPx) + maxOddOffset
+            val heightPx = ((gameState.level.gridHeight - 1) * (hexHeightPx + rowSpacingPx)) + hexHeightPx
 
-        widthPx.roundToInt() to heightPx.roundToInt()
-    }
+            widthPx.roundToInt() to heightPx.roundToInt()
+        }
 
     // Pre-compute position lookup maps for O(1) per-cell lookups.
     // On large maps (e.g. 80×80 = 6 400 tiles) replacing O(n) list scans with O(1) map
@@ -528,12 +569,14 @@ fun GameGrid(
     // Pre-compute the set of positions that are structurally buildable (build areas or flowing
     // river tiles). This is static for a given level — it never changes during gameplay.
     // Level.buildAreas is already a Set<Position>, so the union is O(|riverTiles|) at most.
-    val structurallyBuildablePositions = remember(gameState.level) {
-        val flowingRiver = gameState.level.riverTiles.entries
-            .filter { (_, rt) -> rt.flowDirection != RiverFlow.NONE && rt.flowDirection != RiverFlow.MAELSTROM }
-            .mapTo(mutableSetOf()) { (pos, _) -> pos }
-        gameState.level.buildAreas + flowingRiver
-    }
+    val structurallyBuildablePositions =
+        remember(gameState.level) {
+            val flowingRiver =
+                gameState.level.riverTiles.entries
+                    .filter { (_, rt) -> rt.flowDirection != RiverFlow.NONE && rt.flowDirection != RiverFlow.MAELSTROM }
+                    .mapTo(mutableSetOf()) { (pos, _) -> pos }
+            gameState.level.buildAreas + flowingRiver
+        }
 
     // Subset of structurally buildable positions that are currently unoccupied (no defender,
     // no active attacker). derivedStateOf re-evaluates when defendersByPosition or
@@ -564,8 +607,8 @@ fun GameGrid(
     // (O(1) Set.contains) instead of the previous 5-step manual check.
     val hoveredPositionIsBuildableForGrid =
         selectedDefenderType != null &&
-        hoveredPosition != null &&
-        buildableEmptyPositions.contains(hoveredPosition)
+            hoveredPosition != null &&
+            buildableEmptyPositions.contains(hoveredPosition)
 
     // Stable reference to onCellClick via rememberUpdatedState.
     //
@@ -579,319 +622,344 @@ fun GameGrid(
     //   once (inside remember(position)) and read at call-time without becoming stale.
     val onCellClickState = rememberUpdatedState(onCellClick)
 
-    Box(modifier = modifier
-        .onSizeChanged { containerSize = it }
+    Box(
+        modifier =
+            modifier
+                .onSizeChanged { containerSize = it },
     ) {
         if (useLevelMapImage && isLoadingMapImage) {
             LevelLoadingScreen(modifier = Modifier.fillMaxSize())
         } else {
-        HexagonalMapView(
-            gridWidth = gameState.level.gridWidth,
-            gridHeight = gameState.level.gridHeight,
-            config = HexagonalMapConfig(
-                hexSize = hexSize.value,
-                enableKeyboardNavigation = !isDemoMode,  // Disable keyboard navigation in demo mode
-                enablePanNavigation = !isDemoMode,        // Disable pan navigation in demo mode
-                panUpBinding = AppSettings.shortcutPanUp.value,
-                panDownBinding = AppSettings.shortcutPanDown.value,
-                panLeftBinding = AppSettings.shortcutPanLeft.value,
-                panRightBinding = AppSettings.shortcutPanRight.value,
-                minScale = if (isDemoMode) 0.2f else 0.5f  // Allow lower zoom in demo mode
-            ),
-            scale = scale,
-            offsetX = offsetX,
-            offsetY = offsetY,
-            onScaleChange = { newScale -> scale = newScale },
-            onOffsetChange = { newOffsetX, newOffsetY ->
-                offsetX = newOffsetX
-                offsetY = newOffsetY
-            },
-            onActualContentSizeChange = { newContentSize ->
-                contentSize = newContentSize
-            },
-            focusTrigger = Pair(gameState.phase.value, extraFocusTrigger),  // Request focus when game phase changes or after dialogs close
-            modifier = Modifier.fillMaxSize(),
-            backgroundContent = if (hasMapImage) { { measuredContentSize ->
-                val density = androidx.compose.ui.platform.LocalDensity.current
-                val targetWidthPx = maxOf(hexMapSizePx.first, measuredContentSize.width)
-                val targetHeightPx = maxOf(hexMapSizePx.second, measuredContentSize.height)
-                with(density) {
-                    androidx.compose.foundation.Image(
-                        painter = mapImagePainter,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .requiredWidth(targetWidthPx.toDp())
-                            .requiredHeight(targetHeightPx.toDp()),
-                        contentScale = androidx.compose.ui.layout.ContentScale.FillBounds
-                    )
-                }
-            } } else null,
-            overlayContent = { measuredContentSize ->
-                val ballistaEffects = gameState.ballistaAttackEffects.toList()
-                if (ballistaEffects.isNotEmpty()) {
-                    BallistaAttackOverlay(
-                        effects = ballistaEffects,
-                        hexSizeDp = hexSize.value,
-                        contentSize = measuredContentSize,
-                        animate = AppSettings.enableAnimations.value
-                    )
-                }
-                val bowEffects = gameState.bowAttackEffects.toList()
-                if (bowEffects.isNotEmpty()) {
-                    BowAttackOverlay(
-                        effects = bowEffects,
-                        hexSizeDp = hexSize.value,
-                        contentSize = measuredContentSize,
-                        animate = AppSettings.enableAnimations.value
-                    )
-                }
-                val spearEffects = gameState.spearAttackEffects.toList()
-                if (spearEffects.isNotEmpty()) {
-                    SpearAttackOverlay(
-                        effects = spearEffects,
-                        hexSizeDp = hexSize.value,
-                        contentSize = measuredContentSize,
-                        animate = AppSettings.enableAnimations.value
-                    )
-                }
-                val pikeEffects = gameState.pikeAttackEffects.toList()
-                if (pikeEffects.isNotEmpty()) {
-                    PikeAttackOverlay(
-                        effects = pikeEffects,
-                        hexSizeDp = hexSize.value,
-                        contentSize = measuredContentSize,
-                        animate = AppSettings.enableAnimations.value
-                    )
-                }
-                val wizardEffects = gameState.wizardAttackEffects.toList()
-                if (wizardEffects.isNotEmpty()) {
-                    WizardAttackOverlay(
-                        effects = wizardEffects,
-                        hexSizeDp = hexSize.value,
-                        contentSize = measuredContentSize,
-                        animate = AppSettings.enableAnimations.value
-                    )
-                }
-                val alchemyEffects = gameState.alchemyAttackEffects.toList()
-                if (alchemyEffects.isNotEmpty()) {
-                    AlchemyAttackOverlay(
-                        effects = alchemyEffects,
-                        hexSizeDp = hexSize.value,
-                        contentSize = measuredContentSize,
-                        animate = AppSettings.enableAnimations.value
-                    )
-                }
-            }
-        ) { position ->
-            // Pre-compute the two hover-position-dependent booleans per cell.
-            //
-            // Why Boolean parameters instead of Position:
-            //   When `hoveredPosition` changes (every mouse-move), passing it as a Position
-            //   parameter to GridCell causes ALL 6,400 cells to recompose because their
-            //   `hoveredPosition` parameter changed.  By pre-computing per-cell Booleans here
-            //   and passing those instead, only the 1-2 cells whose Boolean value actually
-            //   changed need to recompose — all others see the same `false` value as before
-            //   and are skipped by Compose's strong-skipping pass.
-            val isHovering = hoveredPosition == position
-            val isBuildingMode = selectedDefenderType != null
-
-            // Pre-compute isInPreviewRange here because it depends on hoveredPosition (which
-            // is no longer a GridCell parameter).  The expensive path runs only when
-            // hoveredPositionIsBuildableForGrid is true (i.e. a tower type is selected AND
-            // the cursor is over a valid placement tile), keeping the common case cheap.
-            val isInPreviewRange: Boolean = if (
-                !isHovering && hoveredPositionIsBuildableForGrid
-            ) {
-                val dist = hoveredPosition.distanceTo(position)
-                val minRange = selectedDefenderType.minRange
-                val maxRange = selectedDefenderType.maxRange
-                    ?.let { minOf(selectedDefenderType.baseRange, it) }
-                    ?: selectedDefenderType.baseRange
-                val onPathHere   = gameState.level.isOnPath(position)
-                val spawnHere    = gameState.level.isSpawnPoint(position)
-                val riverHere    = gameState.level.isRiverTile(position)
-                val traversable  = onPathHere || spawnHere
-                val occupiable   = onPathHere || spawnHere || riverHere
-                val areaAttack   = selectedDefenderType.attackType == AttackType.AREA ||
-                                   selectedDefenderType.attackType == AttackType.LASTING
-                val validTarget  = if (areaAttack) occupiable else traversable
-                dist >= minRange && dist <= maxRange && validTarget
-            } else false
-
-            // Per-cell booleans that replace selectedDefenderType: only ~640 buildable cells
-            // see a change when the buy button is clicked; the other ~5,760 stay at false → SKIPPED.
-
-            // showPlacementPreview: only the 1 hovered buildable cell can be true.
-            val showPlacementPreview = isHovering && isBuildingMode &&
-                buildableEmptyPositions.contains(position)
-
-            // Green-bordered buildable highlight — excludes the hovered cell (shows preview instead).
-            val isBuildableAndEmpty = isBuildingMode &&
-                buildableEmptyPositions.contains(position) &&
-                !showPlacementPreview
-
-            // Barricade tower-base highlight — only for barricade cells with HP >= 100 and no tower.
-            val canBeUsedAsTowerBase = isBuildingMode &&
-                barricadeTowerBasePositions.contains(position) &&
-                !showPlacementPreview
-
-            // previewDefenderType: non-null only for the 1 cell showing the placement preview.
-            // All other cells get null → their parameter is null both before and after a buy-button
-            // click → those cells are not marked for recomposition due to this parameter.
-            val previewDefenderType: DefenderType? = if (showPlacementPreview) selectedDefenderType else null
-
-            // Memoize the event-handler lambdas so Compose's strong-skipping can work correctly.
-            //
-            // Without memoization, `{ onCellClick(position) }` and `{ localHoveredPosition = ... }`
-            // create NEW Function0/Function1 objects on every content-lambda invocation (6,400 per
-            // GameGrid recomposition).  Compose compares GridCell parameters by identity for
-            // function types, so new objects always differ → GridCell body runs for all 6,400 cells.
-            //
-            // With remember(position):
-            //   • The same lambda object is returned on every subsequent recomposition (same position).
-            //   • All other per-cell parameters are already stable (Booleans, enums, or stable data).
-            //   • Result: Compose correctly skips GridCells whose parameters didn't change.
-            //
-            // onCellClickState (rememberUpdatedState) gives a stable State<> reference captured once;
-            // reading .value inside the lambda avoids stale-closure issues if onCellClick ever changes.
-            val cellOnClick = remember(position) { { onCellClickState.value(position) } }
-            val cellOnHoverChange = remember(position) {
-                { isHoveringChange: Boolean ->
-                    localHoveredPosition = if (isHoveringChange) position else null
-                }
-            }
-
-            GridCell(
-                position = position,
-                gameState = gameState,
-                defender = defendersByPosition[position],
-                attacker = activeAttackersByPosition[position],
-                selectedDefender = selectedDefenderForGrid,
-                isHovering = isHovering,
-                isInPreviewRange = isInPreviewRange,
-                showPlacementPreview = showPlacementPreview,
-                isBuildableAndEmpty = isBuildableAndEmpty,
-                canBeUsedAsTowerBase = canBeUsedAsTowerBase,
-                previewDefenderType = previewDefenderType,
-                // NOTE: the null guard on selectedDefenderId/selectedTargetId is critical for
-                // correctness AND performance.  Without it, `null?.id == null` evaluates to
-                // `null == null = true`, so every cell without a defender/attacker becomes
-                // "selected" (yellow borders + diagonal stripes on 6,000+ tiles) and any
-                // transition from null→id triggers a mass recomposition of all 6,000+ cells.
-                isDefenderSelected = selectedDefenderId != null &&
-                    defendersByPosition[position]?.id == selectedDefenderId,
-                isTargetSelected = selectedTargetId != null &&
-                    activeAttackersByPosition[position]?.id == selectedTargetId,
-                selectedDefenderId = selectedDefenderId,
-                selectedMineAction = selectedMineAction,
-                selectedWizardAction = selectedWizardAction,
-                selectedBarricadeAction = selectedBarricadeAction,
-                targetCircleInfo = spellAreaCircleMap[position] ?: targetCircleMap[position] ?: placedBombCircleMap[position],
-                onClick = cellOnClick,
-                hexSize = hexSize,
-                onHoverChange = cellOnHoverChange,
-                useTransparentBackground = hasMapImage
-            )
-        }
-
-        MapControls(
-            mapControlState = MapControlState(
-                zoomLevel = scale,
+            HexagonalMapView(
+                gridWidth = gameState.level.gridWidth,
+                gridHeight = gameState.level.gridHeight,
+                config =
+                    HexagonalMapConfig(
+                        hexSize = hexSize.value,
+                        enableKeyboardNavigation = !isDemoMode, // Disable keyboard navigation in demo mode
+                        enablePanNavigation = !isDemoMode, // Disable pan navigation in demo mode
+                        panUpBinding = AppSettings.shortcutPanUp.value,
+                        panDownBinding = AppSettings.shortcutPanDown.value,
+                        panLeftBinding = AppSettings.shortcutPanLeft.value,
+                        panRightBinding = AppSettings.shortcutPanRight.value,
+                        minScale = if (isDemoMode) 0.2f else 0.5f, // Allow lower zoom in demo mode
+                    ),
+                scale = scale,
                 offsetX = offsetX,
-                offsetY = offsetY
-            ),
-            onStateChange = { newState ->
-                val newScale = newState.zoomLevel
-                val (constrainedX, constrainedY) = constrainMapOffsets(
-                    newState.offsetX, 
-                    newState.offsetY, 
-                    newScale,
-                    containerSize,
-                    contentSize
-                )
-                scale = newScale
-                offsetX = constrainedX
-                offsetY = constrainedY
-            }
-        ) {
-            val density = androidx.compose.ui.platform.LocalDensity.current
-            Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                horizontalAlignment = Alignment.End
-            ) {
-                if (AppSettings.showMapSizeOverlay.value && contentSize.width > 0 && contentSize.height > 0) {
-                    val contentWidthPx = contentSize.width
-                    val contentHeightPx = contentSize.height
-                    val realWidthPx = hexMapSizePx.first
-                    val realHeightPx = hexMapSizePx.second
-                    val viewportWidthPx = containerSize.width
-                    val viewportHeightPx = containerSize.height
-                    val contentWidthDp = with(density) { contentWidthPx.toDp() }
-                    val contentHeightDp = with(density) { contentHeightPx.toDp() }
-                    val realWidthDp = with(density) { realWidthPx.toDp() }
-                    val realHeightDp = with(density) { realHeightPx.toDp() }
-                    val viewportWidthDp = with(density) { viewportWidthPx.toDp() }
-                    val viewportHeightDp = with(density) { viewportHeightPx.toDp() }
-                    Surface(
-                        tonalElevation = 2.dp,
-                        shadowElevation = 4.dp,
-                        shape = RoundedCornerShape(6.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                offsetY = offsetY,
+                onScaleChange = { newScale -> scale = newScale },
+                onOffsetChange = { newOffsetX, newOffsetY ->
+                    offsetX = newOffsetX
+                    offsetY = newOffsetY
+                },
+                onActualContentSizeChange = { newContentSize ->
+                    contentSize = newContentSize
+                },
+                focusTrigger = Pair(gameState.phase.value, extraFocusTrigger), // Request focus when game phase changes or after dialogs close
+                modifier = Modifier.fillMaxSize(),
+                backgroundContent =
+                    if (hasMapImage) {
+                        { measuredContentSize ->
+                            val density = androidx.compose.ui.platform.LocalDensity.current
+                            val targetWidthPx = maxOf(hexMapSizePx.first, measuredContentSize.width)
+                            val targetHeightPx = maxOf(hexMapSizePx.second, measuredContentSize.height)
+                            with(density) {
+                                androidx.compose.foundation.Image(
+                                    painter = mapImagePainter,
+                                    contentDescription = null,
+                                    modifier =
+                                        Modifier
+                                            .requiredWidth(targetWidthPx.toDp())
+                                            .requiredHeight(targetHeightPx.toDp()),
+                                    contentScale = androidx.compose.ui.layout.ContentScale.FillBounds,
+                                )
+                            }
+                        }
+                    } else {
+                        null
+                    },
+                overlayContent = { measuredContentSize ->
+                    val ballistaEffects = gameState.ballistaAttackEffects.toList()
+                    if (ballistaEffects.isNotEmpty()) {
+                        BallistaAttackOverlay(
+                            effects = ballistaEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
+                    val bowEffects = gameState.bowAttackEffects.toList()
+                    if (bowEffects.isNotEmpty()) {
+                        BowAttackOverlay(
+                            effects = bowEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
+                    val spearEffects = gameState.spearAttackEffects.toList()
+                    if (spearEffects.isNotEmpty()) {
+                        SpearAttackOverlay(
+                            effects = spearEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
+                    val pikeEffects = gameState.pikeAttackEffects.toList()
+                    if (pikeEffects.isNotEmpty()) {
+                        PikeAttackOverlay(
+                            effects = pikeEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
+                    val wizardEffects = gameState.wizardAttackEffects.toList()
+                    if (wizardEffects.isNotEmpty()) {
+                        WizardAttackOverlay(
+                            effects = wizardEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
+                    val alchemyEffects = gameState.alchemyAttackEffects.toList()
+                    if (alchemyEffects.isNotEmpty()) {
+                        AlchemyAttackOverlay(
+                            effects = alchemyEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
+                },
+            ) { position ->
+                // Pre-compute the two hover-position-dependent booleans per cell.
+                //
+                // Why Boolean parameters instead of Position:
+                //   When `hoveredPosition` changes (every mouse-move), passing it as a Position
+                //   parameter to GridCell causes ALL 6,400 cells to recompose because their
+                //   `hoveredPosition` parameter changed.  By pre-computing per-cell Booleans here
+                //   and passing those instead, only the 1-2 cells whose Boolean value actually
+                //   changed need to recompose — all others see the same `false` value as before
+                //   and are skipped by Compose's strong-skipping pass.
+                val isHovering = hoveredPosition == position
+                val isBuildingMode = selectedDefenderType != null
+
+                // Pre-compute isInPreviewRange here because it depends on hoveredPosition (which
+                // is no longer a GridCell parameter).  The expensive path runs only when
+                // hoveredPositionIsBuildableForGrid is true (i.e. a tower type is selected AND
+                // the cursor is over a valid placement tile), keeping the common case cheap.
+                val isInPreviewRange: Boolean =
+                    if (
+                        !isHovering && hoveredPositionIsBuildableForGrid
                     ) {
-                        Text(
-                            text = stringResource(
-                                Res.string.debug_map_size_overlay,
-                                realWidthDp.value.roundToInt(),
-                                realHeightDp.value.roundToInt(),
-                                realWidthPx,
-                                realHeightPx,
-                                contentWidthDp.value.roundToInt(),
-                                contentHeightDp.value.roundToInt(),
-                                contentWidthPx,
-                                contentHeightPx,
-                                viewportWidthDp.value.roundToInt(),
-                                viewportHeightDp.value.roundToInt(),
-                                viewportWidthPx,
-                                viewportHeightPx,
-                                offsetX.roundToInt(),
-                                offsetY.roundToInt()
-                            ),
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        val dist = hoveredPosition.distanceTo(position)
+                        val minRange = selectedDefenderType.minRange
+                        val maxRange =
+                            selectedDefenderType.maxRange
+                                ?.let { minOf(selectedDefenderType.baseRange, it) }
+                                ?: selectedDefenderType.baseRange
+                        val onPathHere = gameState.level.isOnPath(position)
+                        val spawnHere = gameState.level.isSpawnPoint(position)
+                        val riverHere = gameState.level.isRiverTile(position)
+                        val traversable = onPathHere || spawnHere
+                        val occupiable = onPathHere || spawnHere || riverHere
+                        val areaAttack =
+                            selectedDefenderType.attackType == AttackType.AREA ||
+                                selectedDefenderType.attackType == AttackType.LASTING
+                        val validTarget = if (areaAttack) occupiable else traversable
+                        dist >= minRange && dist <= maxRange && validTarget
+                    } else {
+                        false
+                    }
+
+                // Per-cell booleans that replace selectedDefenderType: only ~640 buildable cells
+                // see a change when the buy button is clicked; the other ~5,760 stay at false → SKIPPED.
+
+                // showPlacementPreview: only the 1 hovered buildable cell can be true.
+                val showPlacementPreview =
+                    isHovering &&
+                        isBuildingMode &&
+                        buildableEmptyPositions.contains(position)
+
+                // Green-bordered buildable highlight — excludes the hovered cell (shows preview instead).
+                val isBuildableAndEmpty =
+                    isBuildingMode &&
+                        buildableEmptyPositions.contains(position) &&
+                        !showPlacementPreview
+
+                // Barricade tower-base highlight — only for barricade cells with HP >= 100 and no tower.
+                val canBeUsedAsTowerBase =
+                    isBuildingMode &&
+                        barricadeTowerBasePositions.contains(position) &&
+                        !showPlacementPreview
+
+                // previewDefenderType: non-null only for the 1 cell showing the placement preview.
+                // All other cells get null → their parameter is null both before and after a buy-button
+                // click → those cells are not marked for recomposition due to this parameter.
+                val previewDefenderType: DefenderType? = if (showPlacementPreview) selectedDefenderType else null
+
+                // Memoize the event-handler lambdas so Compose's strong-skipping can work correctly.
+                //
+                // Without memoization, `{ onCellClick(position) }` and `{ localHoveredPosition = ... }`
+                // create NEW Function0/Function1 objects on every content-lambda invocation (6,400 per
+                // GameGrid recomposition).  Compose compares GridCell parameters by identity for
+                // function types, so new objects always differ → GridCell body runs for all 6,400 cells.
+                //
+                // With remember(position):
+                //   • The same lambda object is returned on every subsequent recomposition (same position).
+                //   • All other per-cell parameters are already stable (Booleans, enums, or stable data).
+                //   • Result: Compose correctly skips GridCells whose parameters didn't change.
+                //
+                // onCellClickState (rememberUpdatedState) gives a stable State<> reference captured once;
+                // reading .value inside the lambda avoids stale-closure issues if onCellClick ever changes.
+                val cellOnClick = remember(position) { { onCellClickState.value(position) } }
+                val cellOnHoverChange =
+                    remember(position) {
+                        { isHoveringChange: Boolean ->
+                            localHoveredPosition = if (isHoveringChange) position else null
+                        }
+                    }
+
+                GridCell(
+                    position = position,
+                    gameState = gameState,
+                    defender = defendersByPosition[position],
+                    attacker = activeAttackersByPosition[position],
+                    selectedDefender = selectedDefenderForGrid,
+                    isHovering = isHovering,
+                    isInPreviewRange = isInPreviewRange,
+                    showPlacementPreview = showPlacementPreview,
+                    isBuildableAndEmpty = isBuildableAndEmpty,
+                    canBeUsedAsTowerBase = canBeUsedAsTowerBase,
+                    previewDefenderType = previewDefenderType,
+                    // NOTE: the null guard on selectedDefenderId/selectedTargetId is critical for
+                    // correctness AND performance.  Without it, `null?.id == null` evaluates to
+                    // `null == null = true`, so every cell without a defender/attacker becomes
+                    // "selected" (yellow borders + diagonal stripes on 6,000+ tiles) and any
+                    // transition from null→id triggers a mass recomposition of all 6,000+ cells.
+                    isDefenderSelected =
+                        selectedDefenderId != null &&
+                            defendersByPosition[position]?.id == selectedDefenderId,
+                    isTargetSelected =
+                        selectedTargetId != null &&
+                            activeAttackersByPosition[position]?.id == selectedTargetId,
+                    selectedDefenderId = selectedDefenderId,
+                    selectedMineAction = selectedMineAction,
+                    selectedWizardAction = selectedWizardAction,
+                    selectedBarricadeAction = selectedBarricadeAction,
+                    targetCircleInfo = spellAreaCircleMap[position] ?: targetCircleMap[position] ?: placedBombCircleMap[position],
+                    onClick = cellOnClick,
+                    hexSize = hexSize,
+                    onHoverChange = cellOnHoverChange,
+                    useTransparentBackground = hasMapImage,
+                )
+            }
+
+            MapControls(
+                mapControlState =
+                    MapControlState(
+                        zoomLevel = scale,
+                        offsetX = offsetX,
+                        offsetY = offsetY,
+                    ),
+                onStateChange = { newState ->
+                    val newScale = newState.zoomLevel
+                    val (constrainedX, constrainedY) =
+                        constrainMapOffsets(
+                            newState.offsetX,
+                            newState.offsetY,
+                            newScale,
+                            containerSize,
+                            contentSize,
+                        )
+                    scale = newScale
+                    offsetX = constrainedX
+                    offsetY = constrainedY
+                },
+            ) {
+                val density = androidx.compose.ui.platform.LocalDensity.current
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalAlignment = Alignment.End,
+                ) {
+                    if (AppSettings.showMapSizeOverlay.value && contentSize.width > 0 && contentSize.height > 0) {
+                        val contentWidthPx = contentSize.width
+                        val contentHeightPx = contentSize.height
+                        val realWidthPx = hexMapSizePx.first
+                        val realHeightPx = hexMapSizePx.second
+                        val viewportWidthPx = containerSize.width
+                        val viewportHeightPx = containerSize.height
+                        val contentWidthDp = with(density) { contentWidthPx.toDp() }
+                        val contentHeightDp = with(density) { contentHeightPx.toDp() }
+                        val realWidthDp = with(density) { realWidthPx.toDp() }
+                        val realHeightDp = with(density) { realHeightPx.toDp() }
+                        val viewportWidthDp = with(density) { viewportWidthPx.toDp() }
+                        val viewportHeightDp = with(density) { viewportHeightPx.toDp() }
+                        Surface(
+                            tonalElevation = 2.dp,
+                            shadowElevation = 4.dp,
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                        ) {
+                            Text(
+                                text =
+                                    stringResource(
+                                        Res.string.debug_map_size_overlay,
+                                        realWidthDp.value.roundToInt(),
+                                        realHeightDp.value.roundToInt(),
+                                        realWidthPx,
+                                        realHeightPx,
+                                        contentWidthDp.value.roundToInt(),
+                                        contentHeightDp.value.roundToInt(),
+                                        contentWidthPx,
+                                        contentHeightPx,
+                                        viewportWidthDp.value.roundToInt(),
+                                        viewportHeightDp.value.roundToInt(),
+                                        viewportWidthPx,
+                                        viewportHeightPx,
+                                        offsetX.roundToInt(),
+                                        offsetY.roundToInt(),
+                                    ),
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            )
+                        }
+                    }
+
+                    // Minimap
+                    Box(
+                        modifier = Modifier.size(120.dp),
+                    ) {
+                        HexagonMinimap(
+                            level = gameState.level,
+                            config =
+                                MinimapConfig(
+                                    showSpawnPoints = true,
+                                    showTarget = true,
+                                    showTowers = true,
+                                    showEnemies = true,
+                                    showViewport = true,
+                                    minimapSizeDp = 120f,
+                                ),
+                            gameState = gameState,
+                            scale = scale,
+                            offsetX = offsetX,
+                            offsetY = offsetY,
+                            containerSize = containerSize,
+                            contentSize = contentSize,
+                            modifier = Modifier.fillMaxSize(),
+                            onViewportDrag = { newOffsetX, newOffsetY ->
+                                offsetX = newOffsetX
+                                offsetY = newOffsetY
+                            },
                         )
                     }
                 }
-
-                // Minimap
-                Box(
-                    modifier = Modifier.size(120.dp)
-                ) {
-                    HexagonMinimap(
-                        level = gameState.level,
-                        config = MinimapConfig(
-                            showSpawnPoints = true,
-                            showTarget = true,
-                            showTowers = true,
-                            showEnemies = true,
-                            showViewport = true,
-                            minimapSizeDp = 120f
-                        ),
-                        gameState = gameState,
-                        scale = scale,
-                        offsetX = offsetX,
-                        offsetY = offsetY,
-                        containerSize = containerSize,
-                        contentSize = contentSize,
-                        modifier = Modifier.fillMaxSize(),
-                        onViewportDrag = { newOffsetX, newOffsetY ->
-                            offsetX = newOffsetX
-                            offsetY = newOffsetY
-                        }
-                    )
-                }
             }
-        }
         } // end else !isLoadingMapImage
     }
 }
@@ -929,10 +997,10 @@ fun GridCell(
     onClick: () -> Unit,
     hexSize: androidx.compose.ui.unit.Dp = 48.dp,
     onHoverChange: ((Boolean) -> Unit)? = null,
-    useTransparentBackground: Boolean = false
+    useTransparentBackground: Boolean = false,
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
-    
+
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = gameState.level.isTargetPosition(position)
     val isOnPath = gameState.level.isOnPath(position)
@@ -942,29 +1010,30 @@ fun GridCell(
     val isEnemyTraversable = isOnPath || isSpawnPoint
     val isEnemyOccupiable = isOnPath || isSpawnPoint || isRiverTile
     // defender and attacker are now passed as parameters (pre-computed in GameGrid)
-    
+
     // Check for healing effects at this position
     val healingEffect = gameState.healingEffects.find { it.position == position }
-    
+
     // Check for damage effects at this position
     val damageEffect = gameState.damageEffects.find { it.position == position }
-    
+
     // Check for enemy death animation effect at this position
     val deathEffect = gameState.defeatedEnemyEffects.find { it.position == position }
-    
+
     // Check for coin gain animation effect at this position
     val coinGainEffect = gameState.coinGainEffects.find { it.position == position }
-    
+
     // Check for tower attack impact animation effect at this position
     val towerAttackEffect = gameState.towerAttackEffects.find { it.targetPosition == position }
-    
+
     // Check for arrow attack effect on this tile: source tile, any intermediate tile on the straight
     // path, or the target tile itself (arrow is visible the whole way to the target).
-    val arrowAttackEffect = gameState.arrowAttackEffects.let { effects ->
-        effects.find { it.sourcePosition == position }
-            ?: effects.find { it.targetPosition == position }
-            ?: effects.find { isOnArrowLinePath(it.sourcePosition, it.targetPosition, position) }
-    }
+    val arrowAttackEffect =
+        gameState.arrowAttackEffects.let { effects ->
+            effects.find { it.sourcePosition == position }
+                ?: effects.find { it.targetPosition == position }
+                ?: effects.find { isOnArrowLinePath(it.sourcePosition, it.targetPosition, position) }
+        }
     // True when this tile is the endpoint of an arrow attack (hit animation should be delayed)
     val isArrowTargetTile = gameState.arrowAttackEffects.any { it.targetPosition == position }
     // True when this tile is the endpoint of a ballista attack (hit animation should be delayed)
@@ -987,55 +1056,61 @@ fun GridCell(
     // Acid has a base radius of 1 but can extend up to 2 at high tower levels; use radius 2 here
     // to conservatively cover the maximum possible area so no affected tile shows prematurely.
     val isInAlchemyAttackArea = gameState.alchemyAttackEffects.any { it.targetPosition.hexDistanceTo(position) <= 2 }
-    
+
     // Check if a dragon is targeting the mine at this position
-    val dragonIsTargetingMine = defender != null &&
-        defender.type == DefenderType.DWARVEN_MINE &&
-        gameState.attackers.any { it.targetMineId.value == defender.id && !it.isDefeated.value }
-    
+    val dragonIsTargetingMine =
+        defender != null &&
+            defender.type == DefenderType.DWARVEN_MINE &&
+            gameState.attackers.any { it.targetMineId.value == defender.id && !it.isDefeated.value }
+
     // Check for tower construction complete animation effect at this position
     val constructionCompleteEffect = gameState.constructionCompleteEffects.find { it.position == position }
-    
+
     // Check for enemy spawn animation effect at this position
     val enemySpawnEffect = gameState.enemySpawnEffects.find { it.position == position }
-    
+
     // Check for trap trigger animation effect at this position
     val trapTriggerEffect = gameState.trapTriggerEffects.find { it.position == position }
-    
+
     // Check for enemy movement trail animation at this position
     val enemyMoveEffect = gameState.enemyMoveEffects.find { it.position == position }
-    
+
     // Check for dragon level change animation at this position
     val dragonLevelChangeEffect = gameState.dragonLevelChangeEffects.find { it.position == position }
-    
+
     // Check for mine dig animation at this position
     val mineDigEffect = gameState.mineDigEffects.find { it.position == position }
-    
+
     // Determine the tile type for background image loading
     val riverTile = gameState.level.getRiverTile(position)
     val isMaelstrom = riverTile?.flowDirection == RiverFlow.MAELSTROM
-    
-    val tileType = when {
-        isSpawnPoint -> de.egril.defender.editor.TileType.SPAWN_POINT
-        isTarget -> de.egril.defender.editor.TileType.TARGET
-        isRiverTile -> de.egril.defender.editor.TileType.RIVER
-        isOnPath -> de.egril.defender.editor.TileType.PATH
-        isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
-        else -> de.egril.defender.editor.TileType.NO_PLAY
-    }
-    
+
+    val tileType =
+        when {
+            isSpawnPoint -> de.egril.defender.editor.TileType.SPAWN_POINT
+            isTarget -> de.egril.defender.editor.TileType.TARGET
+            isRiverTile -> de.egril.defender.editor.TileType.RIVER
+            isOnPath -> de.egril.defender.editor.TileType.PATH
+            isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
+            else -> de.egril.defender.editor.TileType.NO_PLAY
+        }
+
     // Get tile background painter (will be null if images are disabled or not available)
     // Suppress tile image when unit backgrounds are ON so the colored background is visible:
     // - For enemy tiles: the red background must not be covered by the tile texture.
     // - For ready towers on build areas: use the colored tower background instead.
     // When unit backgrounds are OFF (transparent), always show the tile image so units blend into terrain.
-    val shouldShowTileImage = !(AppSettings.showUnitTowerBackground.value &&
-        (attacker != null || (defender != null && defender.isReady && isBuildArea)))
-    val tilePainter = if (shouldShowTileImage && (!useTransparentBackground || isMaelstrom)) {
-        TileImageProvider.getTilePainter(tileType, isMaelstrom = isMaelstrom)
-    } else {
-        null
-    }
+    val shouldShowTileImage =
+        !(
+            AppSettings.showUnitTowerBackground.value &&
+                (attacker != null || (defender != null && defender.isReady && isBuildArea))
+        )
+    val tilePainter =
+        if (shouldShowTileImage && (!useTransparentBackground || isMaelstrom)) {
+            TileImageProvider.getTilePainter(tileType, isMaelstrom = isMaelstrom)
+        } else {
+            null
+        }
 
     // Check for field effects at this position
     val fieldEffect = gameState.fieldEffects.find { it.position == position }
@@ -1047,8 +1122,13 @@ fun GridCell(
     val animate = AppSettings.enableAnimations.value
     var showFieldEffect by remember { mutableStateOf(false) }
     LaunchedEffect(
-        fieldEffect?.position?.x, fieldEffect?.position?.y, fieldEffect?.type, fieldEffect?.defenderId,
-        isInWizardAttackArea, isInAlchemyAttackArea, animate
+        fieldEffect?.position?.x,
+        fieldEffect?.position?.y,
+        fieldEffect?.type,
+        fieldEffect?.defenderId,
+        isInWizardAttackArea,
+        isInAlchemyAttackArea,
+        animate,
     ) {
         when {
             fieldEffect == null -> showFieldEffect = false
@@ -1056,7 +1136,7 @@ fun GridCell(
                 showFieldEffect = false
                 kotlinx.coroutines.delay(
                     GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS +
-                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
+                        GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS,
                 )
                 showFieldEffect = true
             }
@@ -1064,7 +1144,7 @@ fun GridCell(
                 showFieldEffect = false
                 kotlinx.coroutines.delay(
                     GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS +
-                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
+                        GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS,
                 )
                 showFieldEffect = true
             }
@@ -1077,177 +1157,205 @@ fun GridCell(
 
     // Check for traps at this position
     val trap = gameState.traps.find { it.position == position }
-    
+
     // Check for barricades at this position
     val barricade = gameState.barricades.find { it.position == position }
 
     // Check if this tile is in a cooling spell area (show snowflake on affected path tiles)
-    val isInCoolingArea = isEnemyTraversable && gameState.activeSpellEffects.any { effect ->
-        effect.spell == SpellType.COOLING_SPELL &&
-        effect.position != null &&
-        position.hexDistanceTo(effect.position) <= 2
-    }
+    val isInCoolingArea =
+        isEnemyTraversable &&
+            gameState.activeSpellEffects.any { effect ->
+                effect.spell == SpellType.COOLING_SPELL &&
+                    effect.position != null &&
+                    position.hexDistanceTo(effect.position) <= 2
+            }
 
     // Cooling area turns remaining (for active cooling effects on this tile)
-    val coolingAreaTurnsRemaining: Int? = if (isInCoolingArea) {
-        gameState.activeSpellEffects
-            .filter { effect ->
-                effect.spell == SpellType.COOLING_SPELL &&
-                effect.position != null &&
-                position.hexDistanceTo(effect.position) <= 2
-            }
-            .minOfOrNull { it.turnsRemaining }
-    } else null
+    val coolingAreaTurnsRemaining: Int? =
+        if (isInCoolingArea) {
+            gameState.activeSpellEffects
+                .filter { effect ->
+                    effect.spell == SpellType.COOLING_SPELL &&
+                        effect.position != null &&
+                        position.hexDistanceTo(effect.position) <= 2
+                }.minOfOrNull { it.turnsRemaining }
+        } else {
+            null
+        }
 
     // Is this tile part of a cooling spell placement preview?
-    val isCoolingSpellPreview = targetCircleInfo != null &&
-        gameState.spellTargeting.value?.activeSpell == SpellType.COOLING_SPELL
+    val isCoolingSpellPreview =
+        targetCircleInfo != null &&
+            gameState.spellTargeting.value?.activeSpell == SpellType.COOLING_SPELL
 
     // Check for active bomb spell effect at this position
-    val bombEffect = gameState.activeSpellEffects.find {
-        it.spell == SpellType.BOMB && it.position == position
-    }
+    val bombEffect =
+        gameState.activeSpellEffects.find {
+            it.spell == SpellType.BOMB && it.position == position
+        }
 
     // Check for bomb explosion visual effect at this position
-    val bombExplosion = gameState.bombExplosionEffects.find { explosion ->
-        explosion.center == position || explosion.affectedPositions.contains(position)
-    }
+    val bombExplosion =
+        gameState.bombExplosionEffects.find { explosion ->
+            explosion.center == position || explosion.affectedPositions.contains(position)
+        }
 
     // Check if this tile is a valid spell target
     val spellTargeting = gameState.spellTargeting.value
-    val isValidSpellTarget = if (spellTargeting != null) {
-        when (spellTargeting.activeSpell.targetType) {
-            de.egril.defender.model.SpellTargetType.ENEMY -> {
-                val enemyHere = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
-                enemyHere != null && spellTargeting.validTargets.contains(enemyHere)
+    val isValidSpellTarget =
+        if (spellTargeting != null) {
+            when (spellTargeting.activeSpell.targetType) {
+                de.egril.defender.model.SpellTargetType.ENEMY -> {
+                    val enemyHere = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                    enemyHere != null && spellTargeting.validTargets.contains(enemyHere)
+                }
+                de.egril.defender.model.SpellTargetType.TOWER -> {
+                    val towerHere = gameState.defenders.find { it.position.value == position }
+                    towerHere != null && spellTargeting.validTargets.contains(towerHere)
+                }
+                de.egril.defender.model.SpellTargetType.POSITION -> {
+                    spellTargeting.validTargets.contains(position)
+                }
+                else -> false
             }
-            de.egril.defender.model.SpellTargetType.TOWER -> {
-                val towerHere = gameState.defenders.find { it.position.value == position }
-                towerHere != null && spellTargeting.validTargets.contains(towerHere)
-            }
-            de.egril.defender.model.SpellTargetType.POSITION -> {
-                spellTargeting.validTargets.contains(position)
-            }
-            else -> false
-        }
-    } else false
-    val selectedDefenderForRange = selectedDefender
-    val hasDoubleReachBuff = selectedDefenderForRange?.let { sel ->
-        gameState.activeSpellEffects.any { it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == sel.id }
-    } ?: false
-    val cellIsInRange = selectedDefenderForRange?.let { sel ->
-        if (sel.position.value == position) {
-            false  // Don't highlight the defender's own cell
         } else {
-            val distance = sel.position.value.distanceTo(position)
-            val effectiveRange = if (hasDoubleReachBuff) sel.range * 2 else sel.range
-            distance >= sel.type.minRange && distance <= effectiveRange
+            false
         }
-    } ?: false
+    val selectedDefenderForRange = selectedDefender
+    val hasDoubleReachBuff =
+        selectedDefenderForRange?.let { sel ->
+            gameState.activeSpellEffects.any { it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == sel.id }
+        } ?: false
+    val cellIsInRange =
+        selectedDefenderForRange?.let { sel ->
+            if (sel.position.value == position) {
+                false // Don't highlight the defender's own cell
+            } else {
+                val distance = sel.position.value.distanceTo(position)
+                val effectiveRange = if (hasDoubleReachBuff) sel.range * 2 else sel.range
+                distance >= sel.type.minRange && distance <= effectiveRange
+            }
+        } ?: false
     // Tiles that are in range ONLY because of the double-reach spell (beyond normal range)
-    val cellIsInDoubleReachOnlyRange = if (hasDoubleReachBuff) {
-        val sel = selectedDefenderForRange
-        if (sel.position.value == position) false
-        else {
-            val distance = sel.position.value.distanceTo(position)
-            distance >= sel.type.minRange && distance > sel.range && distance <= sel.range * 2
+    val cellIsInDoubleReachOnlyRange =
+        if (hasDoubleReachBuff) {
+            val sel = selectedDefenderForRange
+            if (sel.position.value == position) {
+                false
+            } else {
+                val distance = sel.position.value.distanceTo(position)
+                distance >= sel.type.minRange && distance > sel.range && distance <= sel.range * 2
+            }
+        } else {
+            false
         }
-    } else false
-    
+
     // Calculate hover preview for trap placement
     val isHoveringForTrapPreview = isHovering
     val isTrapPlacementMode = selectedMineAction == MineAction.BUILD_TRAP || selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
-    
+
     // Check if this tile is valid for trap placement (on path, in range, no enemy, no existing trap, no field effects)
-    val isValidTrapPlacement = if (isTrapPlacementMode && isHoveringForTrapPreview && selectedDefenderId != null) {
-        selectedDefender?.let { sel ->
-            val distance = sel.position.value.distanceTo(position)
-            val hasEnemy = attacker != null
-            val hasTrap = trap != null
-            val hasFieldEffect = fieldEffect != null
-            isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect
-        } ?: false
-    } else {
-        false
-    }
-    
+    val isValidTrapPlacement =
+        if (isTrapPlacementMode && isHoveringForTrapPreview && selectedDefenderId != null) {
+            selectedDefender?.let { sel ->
+                val distance = sel.position.value.distanceTo(position)
+                val hasEnemy = attacker != null
+                val hasTrap = trap != null
+                val hasFieldEffect = fieldEffect != null
+                isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect
+            } ?: false
+        } else {
+            false
+        }
+
     val showTrapPreview = isValidTrapPlacement
-    
+
     // showPlacementPreview, isBuildableAndEmpty, and canBeUsedAsTowerBase are pre-computed
     // in GameGrid's content lambda and passed as parameters (see GameGrid { position -> } block).
 
     // Barricade placement range detection (3 tiles, yellow borders for empty path tiles)
     val isBarricadePlacement = selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE
-    val cellIsInBarricadeRange = if (isBarricadePlacement && selectedDefenderId != null) {
-        selectedDefender?.let { sel ->
-            // Check if within 3 tiles range
-            val distance = sel.position.value.distanceTo(position)
-            val isInRange = distance > 0 && distance <= 3
-            // Check if empty path tile (no defender, no attacker, can have existing barricade for reinforcement)
-            val isEmptyPath = isOnPath && defender == null && attacker == null
-            isInRange && isEmptyPath
-        } ?: false
-    } else {
-        false
-    }
-    
+    val cellIsInBarricadeRange =
+        if (isBarricadePlacement && selectedDefenderId != null) {
+            selectedDefender?.let { sel ->
+                // Check if within 3 tiles range
+                val distance = sel.position.value.distanceTo(position)
+                val isInRange = distance > 0 && distance <= 3
+                // Check if empty path tile (no defender, no attacker, can have existing barricade for reinforcement)
+                val isEmptyPath = isOnPath && defender == null && attacker == null
+                isInRange && isEmptyPath
+            } ?: false
+        } else {
+            false
+        }
+
     // Show barricade preview when hovering over valid barricade placement tile
     val showBarricadePreview = isBarricadePlacement && isHovering && cellIsInBarricadeRange
-    
+
     // Mine trap placement range detection (path tiles within range of selected mine)
     val isMineTrapPlacement = selectedMineAction == MineAction.BUILD_TRAP
-    val cellIsValidForMineTrapPlacement = if (isMineTrapPlacement && selectedDefenderId != null) {
-        selectedDefender?.let { sel ->
-            val distance = sel.position.value.distanceTo(position)
-            val isInRange = distance > 0 && distance <= sel.range
-            val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
-            isInRange && isEmptyPath
-        } ?: false
-    } else {
-        false
-    }
+    val cellIsValidForMineTrapPlacement =
+        if (isMineTrapPlacement && selectedDefenderId != null) {
+            selectedDefender?.let { sel ->
+                val distance = sel.position.value.distanceTo(position)
+                val isInRange = distance > 0 && distance <= sel.range
+                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
+                isInRange && isEmptyPath
+            } ?: false
+        } else {
+            false
+        }
 
     // Magical trap placement range detection (path tiles within range of selected wizard)
     val isMagicalTrapPlacement = selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
-    val cellIsValidForMagicalTrapPlacement = if (isMagicalTrapPlacement && selectedDefenderId != null) {
-        selectedDefender?.let { sel ->
-            val distance = sel.position.value.distanceTo(position)
-            val isInRange = distance > 0 && distance <= sel.range
-            val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
-            isInRange && isEmptyPath
-        } ?: false
-    } else {
-        false
-    }
+    val cellIsValidForMagicalTrapPlacement =
+        if (isMagicalTrapPlacement && selectedDefenderId != null) {
+            selectedDefender?.let { sel ->
+                val distance = sel.position.value.distanceTo(position)
+                val isInRange = distance > 0 && distance <= sel.range
+                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
+                isInRange && isEmptyPath
+            } ?: false
+        } else {
+            false
+        }
 
     // Base background color based on area type - ALWAYS visible
     // Build areas adjacent to path allow tower placement
-    val baseBackgroundColor = when {
-        isBuildArea -> GamePlayColors.BuildStrip  // Medium green for strips adjacent to path
-        isOnPath -> GamePlayColors.Path  // Cream/beige for enemy path
-        isRiverTile -> GamePlayColors.River  // Blue for river tiles
-        else -> GamePlayColors.NonPlayable  // Light gray for off-path areas (non-playable)
-    }
+    val baseBackgroundColor =
+        when {
+            isBuildArea -> GamePlayColors.BuildStrip // Medium green for strips adjacent to path
+            isOnPath -> GamePlayColors.Path // Cream/beige for enemy path
+            isRiverTile -> GamePlayColors.River // Blue for river tiles
+            else -> GamePlayColors.NonPlayable // Light gray for off-path areas (non-playable)
+        }
 
     // Check if attacker on this tile is frozen (freeze spell)
-    val attackerIsFrozen = attacker != null && gameState.activeSpellEffects.any {
-        it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
-    }
+    val attackerIsFrozen =
+        attacker != null &&
+            gameState.activeSpellEffects.any {
+                it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
+            }
 
     // Check if cooling spell reduces this attacker's movement to 0
-    val coolingReducesAttackerToZero = attacker != null && isInCoolingArea && run {
-        val penalizedSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
-        maxOf(0, penalizedSpeed - 1) == 0
-    }
+    val coolingReducesAttackerToZero =
+        attacker != null &&
+            isInCoolingArea &&
+            run {
+                val penalizedSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                maxOf(0, penalizedSpeed - 1) == 0
+            }
 
     // Monotonic attack trigger counter: increments on every individual attack, even when the same
     // tile is attacked multiple times in a turn (bypasses the per-tile deduplication in
     // towerAttackEffects).  Using this as a LaunchedEffect key guarantees the suppression
     // coroutine re-fires for every new attack, not just the first one per tile.
-    val towerAttackCount = if (animate)
-        gameState.attackTriggerCount.value
-    else
-        0
+    val towerAttackCount =
+        if (animate) {
+            gameState.attackTriggerCount.value
+        } else {
+            0
+        }
 
     // Suppress the red background on enemy tiles during attack animations.
     // * Directly targeted / AoE tiles: suppress for the precise projectile flight + impact window.
@@ -1258,8 +1366,12 @@ fun GridCell(
     val anyTowerAttackActive = towerAttackCount > 0
     var suppressEnemyBackground by remember { mutableStateOf(false) }
     LaunchedEffect(
-        towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition,
-        isInWizardAttackArea, isInAlchemyAttackArea, towerAttackCount, animate
+        towerAttackEffect?.turnNumber,
+        towerAttackEffect?.targetPosition,
+        isInWizardAttackArea,
+        isInAlchemyAttackArea,
+        towerAttackCount,
+        animate,
     ) {
         if (!animate || attacker == null) {
             suppressEnemyBackground = false
@@ -1270,18 +1382,19 @@ fun GridCell(
         if (hasDirectAttack || hasAoEAttack) {
             // Directly targeted or AoE tile: use precise per-tower-type timing.
             suppressEnemyBackground = true
-            val flightDelay: Long = when {
-                towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
-                towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
-                towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                else -> 0L
-            }
+            val flightDelay: Long =
+                when {
+                    towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                    towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                    isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                    else -> 0L
+                }
             kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
             suppressEnemyBackground = false
         } else if (anyTowerAttackActive) {
@@ -1290,7 +1403,7 @@ fun GridCell(
             suppressEnemyBackground = true
             kotlinx.coroutines.delay(
                 GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS +
-                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
+                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS,
             )
             suppressEnemyBackground = false
         } else {
@@ -1306,74 +1419,95 @@ fun GridCell(
     // During INITIAL_BUILDING phase, don't apply any selection tints
     // Field effects also modify the background color
     // Special case: Keep river background visible for defenders on rafts
-    val backgroundColor = when {
-        attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)  // Turquoise background for frozen/cooled-to-zero enemies
-        attacker != null && enemyBgSuppressed -> if (useTransparentBackground) Color.Transparent else baseBackgroundColor
-        attacker != null -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.Error else if (useTransparentBackground) Color.Transparent else baseBackgroundColor
-        defender != null && isRiverTile -> {
-            // Keep river blue background visible for defenders on rafts only when unit backgrounds are enabled.
-            // When unit backgrounds are off: transparent if level map is shown (shows through), otherwise river color.
-            if (!AppSettings.showUnitTowerBackground.value && useTransparentBackground) Color.Transparent else GamePlayColors.River
-        }
-        defender != null -> if (AppSettings.showUnitTowerBackground.value) {
-            when {
-                !defender.isReady -> GamePlayColors.Building
-                defender.actionsRemaining.value > 0 -> GamePlayColors.Info
-                else -> GamePlayColors.InfoLight
+    val backgroundColor =
+        when {
+            attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f) // Turquoise background for frozen/cooled-to-zero enemies
+            attacker != null && enemyBgSuppressed -> if (useTransparentBackground) Color.Transparent else baseBackgroundColor
+            attacker != null ->
+                if (AppSettings.showUnitTowerBackground.value) {
+                    GamePlayColors.Error
+                } else if (useTransparentBackground) {
+                    Color.Transparent
+                } else {
+                    baseBackgroundColor
+                }
+            defender != null && isRiverTile -> {
+                // Keep river blue background visible for defenders on rafts only when unit backgrounds are enabled.
+                // When unit backgrounds are off: transparent if level map is shown (shows through), otherwise river color.
+                if (!AppSettings.showUnitTowerBackground.value && useTransparentBackground) Color.Transparent else GamePlayColors.River
             }
+            defender != null ->
+                if (AppSettings.showUnitTowerBackground.value) {
+                    when {
+                        !defender.isReady -> GamePlayColors.Building
+                        defender.actionsRemaining.value > 0 -> GamePlayColors.Info
+                        else -> GamePlayColors.InfoLight
+                    }
+                } else {
+                    // When unit backgrounds are off: transparent if level map is shown (level map visible through tile),
+                    // otherwise use terrain color so the tower tile blends with its surroundings instead of showing
+                    // the Material theme's white surface color.
+                    if (useTransparentBackground) Color.Transparent else baseBackgroundColor
+                }
+
+            effectiveFieldEffect != null -> {
+                when (effectiveFieldEffect.type) {
+                    FieldEffectType.FIREBALL -> GamePlayColors.Warning.copy(alpha = 0.5f) // Orange tint for fireball
+                    FieldEffectType.ACID -> GamePlayColors.Success.copy(alpha = 0.6f) // Green tint for acid
+                }
+            }
+
+            trap != null -> GamePlayColors.Trap.copy(alpha = 0.6f) // Brown tint for trap
+
+            barricade != null -> Color(0xFF795548).copy(alpha = 0.5f) // Brown tint for barricade
+
+            // Bomb explosion overlay - bright orange/red when explosion is happening
+            bombExplosion != null -> Color(0xFFFF3D00).copy(alpha = 0.7f) // Bright red-orange for explosion
+
+            // Active bomb on tile - dark red/amber tint with countdown
+            bombEffect != null -> Color(0xFFFF6F00).copy(alpha = 0.4f) // Amber tint for bomb
+
+            // Barricade placement range - yellow tint for tiles in range
+            cellIsInBarricadeRange -> GamePlayColors.Yellow.copy(alpha = 0.3f) // Light yellow for barricade placement range
+
+            // Tower placement preview - highlight the hovered build tile differently than range tiles
+            showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f) // Light yellow for the build tile being hovered
+            isInPreviewRange -> GamePlayColors.Success.copy(alpha = 0.2f) // Very light green for range preview tiles
+
+            // Spell targeting highlight - purple tint for valid spell target position tiles
+            // Not shown for fear spells (target circles provide the visual indicator)
+            isValidSpellTarget &&
+                spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
+                spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> Color(0xFF9C27B0).copy(alpha = 0.25f) // Light purple for valid spell target positions
+
+            isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
+            isTargetSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
+            else -> baseBackgroundColor // No selection highlighting during placement or in initial phase
+        }
+
+    val finalBackgroundColor =
+        if (useTransparentBackground &&
+            attacker == null &&
+            defender == null &&
+            effectiveFieldEffect == null &&
+            trap == null &&
+            barricade == null &&
+            bombEffect == null &&
+            bombExplosion == null
+        ) {
+            Color.Transparent
         } else {
-            // When unit backgrounds are off: transparent if level map is shown (level map visible through tile),
-            // otherwise use terrain color so the tower tile blends with its surroundings instead of showing
-            // the Material theme's white surface color.
-            if (useTransparentBackground) Color.Transparent else baseBackgroundColor
+            backgroundColor
         }
-
-        effectiveFieldEffect != null -> {
-            when (effectiveFieldEffect.type) {
-                FieldEffectType.FIREBALL -> GamePlayColors.Warning.copy(alpha = 0.5f)  // Orange tint for fireball
-                FieldEffectType.ACID -> GamePlayColors.Success.copy(alpha = 0.6f)  // Green tint for acid
-            }
-        }
-
-        trap != null -> GamePlayColors.Trap.copy(alpha = 0.6f)  // Brown tint for trap
-        
-        barricade != null -> Color(0xFF795548).copy(alpha = 0.5f)  // Brown tint for barricade
-        
-        // Bomb explosion overlay - bright orange/red when explosion is happening
-        bombExplosion != null -> Color(0xFFFF3D00).copy(alpha = 0.7f)  // Bright red-orange for explosion
-
-        // Active bomb on tile - dark red/amber tint with countdown
-        bombEffect != null -> Color(0xFFFF6F00).copy(alpha = 0.4f)  // Amber tint for bomb
-
-        // Barricade placement range - yellow tint for tiles in range
-        cellIsInBarricadeRange -> GamePlayColors.Yellow.copy(alpha = 0.3f)  // Light yellow for barricade placement range
-        
-        // Tower placement preview - highlight the hovered build tile differently than range tiles
-        showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f)  // Light yellow for the build tile being hovered
-        isInPreviewRange -> GamePlayColors.Success.copy(alpha = 0.2f)  // Very light green for range preview tiles
-        
-        // Spell targeting highlight - purple tint for valid spell target position tiles
-        // Not shown for fear spells (target circles provide the visual indicator)
-        isValidSpellTarget &&
-            spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
-            spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> Color(0xFF9C27B0).copy(alpha = 0.25f)  // Light purple for valid spell target positions
-
-        isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
-        isTargetSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
-        else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
-    }
-
-    val finalBackgroundColor = if (useTransparentBackground && attacker == null && defender == null && effectiveFieldEffect == null && trap == null && barricade == null && bombEffect == null && bombExplosion == null) {
-        Color.Transparent
-    } else {
-        backgroundColor
-    }
 
     // Border color - use borders to indicate entities instead of background
     // For range visualization, show green border on path tiles OR river tiles in range (only if tower has actions)
-    val showRange = if (selectedDefenderId != null) {
-        selectedDefender?.isReady == true && selectedDefender.actionsRemaining.value > 0
-    } else false
+    val showRange =
+        if (selectedDefenderId != null) {
+            selectedDefender?.isReady == true && selectedDefender.actionsRemaining.value > 0
+        } else {
+            false
+        }
 
     // When placing trap, don't show green border on tiles with enemies
     val isTrapPlacement = selectedMineAction == MineAction.BUILD_TRAP || selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
@@ -1381,99 +1515,119 @@ fun GridCell(
     val canPlaceTrapHere = !hasEnemy || !isTrapPlacement
 
     // Check if defender has area attack capability
-    val hasAreaAttack = if (selectedDefenderId != null) {
-        selectedDefender?.type?.attackType == AttackType.AREA || selectedDefender?.type?.attackType == AttackType.LASTING
-    } else false
-
-    // Enemy-occupiable tiles are valid targets for area attacks; enemy-traversable for single-target
-    val isValidTargetTile = if (hasAreaAttack) {
-        isEnemyOccupiable
-    } else {
-        isEnemyTraversable
-    }
-
-    val borderColor = when {
-        // Tower placement preview - dashed borders for preview (we'll handle this with Canvas later)
-        showPlacementPreview -> GamePlayColors.Yellow  // Yellow border for hovered build tile
-        isInPreviewRange -> GamePlayColors.Success  // Green border for range preview tiles
-        
-        // Barricade and trap placement range - brown borders (light brown diagonal stripes)
-        cellIsInBarricadeRange || cellIsValidForMineTrapPlacement -> GamePlayColors.TrapPlacementHighlight  // Brown border for barricade/trap placement range
-
-        // Magical trap placement range - lilac borders
-        cellIsValidForMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight  // Lilac border for magical trap placement range
-        
-        // Buildable tile highlighting - lighter green borders with dashed line when tower type is selected
-        isBuildableAndEmpty || canBeUsedAsTowerBase -> GamePlayColors.BuildableHighlight  // Lighter green border for buildable tiles and tower bases
-        
-        // Double-reach-only tiles: thin purple solid border
-        cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> SpellDoubleReachColor
-        
-        cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
-        isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
-
-        // Spell targeting highlight - purple border for valid spell targets (enemies, towers, positions)
-        // Not shown for fear spells (target circles provide the visual indicator)
-        isValidSpellTarget &&
-            spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
-            spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> Color(0xFF9C27B0)  // Purple border for valid spell targets
-
-        isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
-        isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
-        attacker != null && !enemyBgSuppressed -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.ErrorDark else Color.Transparent  // Darker red border for enemies (only when background enabled)
-        defender != null -> if (AppSettings.showUnitTowerBackground.value) {
-            if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building
+    val hasAreaAttack =
+        if (selectedDefenderId != null) {
+            selectedDefender?.type?.attackType == AttackType.AREA || selectedDefender?.type?.attackType == AttackType.LASTING
         } else {
-            Color.Transparent
-        }  // Darker blue/gray border for towers (only when background enabled)
-        effectiveFieldEffect != null -> {
-            when (effectiveFieldEffect.type) {
-                FieldEffectType.FIREBALL -> GamePlayColors.WarningDeep  // Deep orange border for fireball
-                FieldEffectType.ACID -> GamePlayColors.Success  // Green border for acid
-            }
+            false
         }
 
-        trap != null -> GamePlayColors.Trap  // Brown border for trap
-        barricade != null -> Color(0xFF795548)  // Brown border for barricade
-        else -> Color.Transparent  // No borders for empty cells
-    }
+    // Enemy-occupiable tiles are valid targets for area attacks; enemy-traversable for single-target
+    val isValidTargetTile =
+        if (hasAreaAttack) {
+            isEnemyOccupiable
+        } else {
+            isEnemyTraversable
+        }
+
+    val borderColor =
+        when {
+            // Tower placement preview - dashed borders for preview (we'll handle this with Canvas later)
+            showPlacementPreview -> GamePlayColors.Yellow // Yellow border for hovered build tile
+            isInPreviewRange -> GamePlayColors.Success // Green border for range preview tiles
+
+            // Barricade and trap placement range - brown borders (light brown diagonal stripes)
+            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
+
+            // Magical trap placement range - lilac borders
+            cellIsValidForMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight // Lilac border for magical trap placement range
+
+            // Buildable tile highlighting - lighter green borders with dashed line when tower type is selected
+            isBuildableAndEmpty || canBeUsedAsTowerBase -> GamePlayColors.BuildableHighlight // Lighter green border for buildable tiles and tower bases
+
+            // Double-reach-only tiles: thin purple solid border
+            cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> SpellDoubleReachColor
+
+            cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success // Green border for tiles in range (path or river for area attacks)
+            isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow // Yellow border for selected defender (not during initial building)
+
+            // Spell targeting highlight - purple border for valid spell targets (enemies, towers, positions)
+            // Not shown for fear spells (target circles provide the visual indicator)
+            isValidSpellTarget &&
+                spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
+                spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> Color(0xFF9C27B0) // Purple border for valid spell targets
+
+            isSpawnPoint -> GamePlayColors.WarningDark // Darker orange border for spawn in dark mode
+            isTarget -> GamePlayColors.Success // Green border for target (adapts to dark mode automatically)
+            attacker != null && !enemyBgSuppressed -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.ErrorDark else Color.Transparent // Darker red border for enemies (only when background enabled)
+            defender != null ->
+                if (AppSettings.showUnitTowerBackground.value) {
+                    if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building
+                } else {
+                    Color.Transparent
+                } // Darker blue/gray border for towers (only when background enabled)
+            effectiveFieldEffect != null -> {
+                when (effectiveFieldEffect.type) {
+                    FieldEffectType.FIREBALL -> GamePlayColors.WarningDeep // Deep orange border for fireball
+                    FieldEffectType.ACID -> GamePlayColors.Success // Green border for acid
+                }
+            }
+
+            trap != null -> GamePlayColors.Trap // Brown border for trap
+            barricade != null -> Color(0xFF795548) // Brown border for barricade
+            else -> Color.Transparent // No borders for empty cells
+        }
 
     // Thicker borders for important elements
-    val borderWidth = when {
-        showPlacementPreview -> 6.dp  // Double thickness for hovered build tile
-        isInPreviewRange -> 3.dp  // Medium border for range preview
-        cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement -> 3.dp  // Medium border for trap/barricade placement range
-        isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp  // Medium border for buildable tiles and tower bases
-        isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
-        cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> 2.dp  // Thin purple border for double-reach-only tiles
-        cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
-        isValidSpellTarget &&
-            spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
-            spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> 4.dp  // Thick purple border for valid spell targets
-        isSpawnPoint || isTarget -> 3.dp
-        (attacker != null || defender != null) && AppSettings.showUnitTowerBackground.value -> 3.dp
-        effectiveFieldEffect != null -> 3.dp  // Thick border for field effects
-        trap != null -> 3.dp  // Thick border for trap
-        barricade != null -> 3.dp  // Thick border for barricade
-        else -> 0.dp  // No border for empty cells
-    }
-    
-    // Flag to indicate dashed border (for preview and buildable tiles)
-    val useDashedBorder = showPlacementPreview || isInPreviewRange || isBuildableAndEmpty || canBeUsedAsTowerBase ||
-                          cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement
+    val borderWidth =
+        when {
+            showPlacementPreview -> 6.dp // Double thickness for hovered build tile
+            isInPreviewRange -> 3.dp // Medium border for range preview
+            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
+            isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp // Medium border for buildable tiles and tower bases
+            isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp // Extra thick border for selected defender (not during initial building)
+            cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> 2.dp // Thin purple border for double-reach-only tiles
+            cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp // Thick border for cells in range (path or river for area attacks)
+            isValidSpellTarget &&
+                spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
+                spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> 4.dp // Thick purple border for valid spell targets
+            isSpawnPoint || isTarget -> 3.dp
+            (attacker != null || defender != null) && AppSettings.showUnitTowerBackground.value -> 3.dp
+            effectiveFieldEffect != null -> 3.dp // Thick border for field effects
+            trap != null -> 3.dp // Thick border for trap
+            barricade != null -> 3.dp // Thick border for barricade
+            else -> 0.dp // No border for empty cells
+        }
 
-    val showDiagonalStripes = isBuildableAndEmpty || canBeUsedAsTowerBase ||
-                              cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement
-    
+    // Flag to indicate dashed border (for preview and buildable tiles)
+    val useDashedBorder =
+        showPlacementPreview ||
+            isInPreviewRange ||
+            isBuildableAndEmpty ||
+            canBeUsedAsTowerBase ||
+            cellIsInBarricadeRange ||
+            cellIsValidForMineTrapPlacement ||
+            cellIsValidForMagicalTrapPlacement
+
+    val showDiagonalStripes =
+        isBuildableAndEmpty ||
+            canBeUsedAsTowerBase ||
+            cellIsInBarricadeRange ||
+            cellIsValidForMineTrapPlacement ||
+            cellIsValidForMagicalTrapPlacement
+
     // Determine if we should use gradient blending
     val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
     val useTileSmoothTransitions = de.egril.defender.ui.settings.AppSettings.useTileSmoothTransitions.value
     val shouldUseGradientBlending = useTileImages && useTileSmoothTransitions && tilePainter != null
-    
+
     // Helper function to get tile type for a position
     val getNeighborTileType: (Position) -> de.egril.defender.editor.TileType? = { pos ->
-        if (pos.x < 0 || pos.x >= gameState.level.gridWidth || 
-            pos.y < 0 || pos.y >= gameState.level.gridHeight) {
+        if (pos.x < 0 ||
+            pos.x >= gameState.level.gridWidth ||
+            pos.y < 0 ||
+            pos.y >= gameState.level.gridHeight
+        ) {
             null
         } else {
             when {
@@ -1486,40 +1640,43 @@ fun GridCell(
             }
         }
     }
-    
+
     // Pre-compute neighbor tile types for gradient blending
-    val neighborTileTypes = remember(position, gameState.defenders.size, gameState.level) {
-        if (!shouldUseGradientBlending) {
-            emptyMap()
-        } else {
-            val neighbors = position.getHexNeighbors()
-            neighbors.mapNotNull { neighborPos ->
-                val neighborType = getNeighborTileType(neighborPos)
-                if (neighborType != null) {
-                    neighborPos to neighborType
-                } else {
-                    null
-                }
-            }.toMap()
+    val neighborTileTypes =
+        remember(position, gameState.defenders.size, gameState.level) {
+            if (!shouldUseGradientBlending) {
+                emptyMap()
+            } else {
+                val neighbors = position.getHexNeighbors()
+                neighbors
+                    .mapNotNull { neighborPos ->
+                        val neighborType = getNeighborTileType(neighborPos)
+                        if (neighborType != null) {
+                            neighborPos to neighborType
+                        } else {
+                            null
+                        }
+                    }.toMap()
+            }
         }
-    }
-    
+
     // Get the actual painters for neighbors (must be done in @Composable context)
-    val neighborPainters = neighborTileTypes.mapValues { (pos, type) ->
-        // Check if there's a ready defender on this tile (build area)
-        val neighborDefender = gameState.defenders.find { it.position.value == pos }
-        val neighborIsReady = neighborDefender?.isReady == true
-        val neighborIsBuildArea = gameState.level.isBuildArea(pos)
-        val shouldShowNeighborTile = !(neighborDefender != null && neighborIsReady && neighborIsBuildArea)
-        
-        if (shouldShowNeighborTile) {
-            val neighborRiverTile = gameState.level.getRiverTile(pos)
-            val neighborIsMaelstrom = neighborRiverTile?.flowDirection == RiverFlow.MAELSTROM
-            TileImageProvider.getTilePainter(type, isMaelstrom = neighborIsMaelstrom)
-        } else {
-            null
+    val neighborPainters =
+        neighborTileTypes.mapValues { (pos, type) ->
+            // Check if there's a ready defender on this tile (build area)
+            val neighborDefender = gameState.defenders.find { it.position.value == pos }
+            val neighborIsReady = neighborDefender?.isReady == true
+            val neighborIsBuildArea = gameState.level.isBuildArea(pos)
+            val shouldShowNeighborTile = !(neighborDefender != null && neighborIsReady && neighborIsBuildArea)
+
+            if (shouldShowNeighborTile) {
+                val neighborRiverTile = gameState.level.getRiverTile(pos)
+                val neighborIsMaelstrom = neighborRiverTile?.flowDirection == RiverFlow.MAELSTROM
+                TileImageProvider.getTilePainter(type, isMaelstrom = neighborIsMaelstrom)
+            } else {
+                null
+            }
         }
-    }
 
     if (shouldUseGradientBlending) {
         GradientBlendedTileCell(
@@ -1533,7 +1690,7 @@ fun GridCell(
             onClick = onClick,
             onHover = onHoverChange,
             getNeighborTileType = getNeighborTileType,
-            getNeighborTilePainter = { pos, _ -> neighborPainters[pos] }
+            getNeighborTilePainter = { pos, _ -> neighborPainters[pos] },
         ) {
             GridCellContent(
                 position = position,
@@ -1587,7 +1744,7 @@ fun GridCell(
                 isInWizardAttackArea = isInWizardAttackArea,
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine,
-                suppressEnemyBackground = suppressEnemyBackground
+                suppressEnemyBackground = suppressEnemyBackground,
             )
         }
     } else {
@@ -1598,7 +1755,7 @@ fun GridCell(
             borderWidth = if (useDashedBorder) 0.dp else borderWidth,
             backgroundPainter = tilePainter,
             onClick = onClick,
-            onHover = onHoverChange
+            onHover = onHoverChange,
         ) {
             GridCellContent(
                 position = position,
@@ -1652,7 +1809,7 @@ fun GridCell(
                 isInWizardAttackArea = isInWizardAttackArea,
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine,
-                suppressEnemyBackground = suppressEnemyBackground
+                suppressEnemyBackground = suppressEnemyBackground,
             )
         }
     }
@@ -1716,29 +1873,34 @@ private fun BoxScope.GridCellContent(
     isInWizardAttackArea: Boolean = false,
     isInAlchemyAttackArea: Boolean = false,
     dragonIsTargetingMine: Boolean = false,
-    suppressEnemyBackground: Boolean = false
+    suppressEnemyBackground: Boolean = false,
 ) {
-        // When animations are enabled, delay updating the enemy's displayed health value until
-        // the attack animation (projectile flight + impact flash) has completed.
-        // This way the health number on the icon only changes after the impact flash, matching
-        // the visual sequence of: projectile arrives → flash → damage visible.
-        // When animations are off, or when the health changes without a tower attack (e.g. acid
-        // DOT ticks during the enemy turn), the displayed value updates immediately.
-        // For AoE attacks (wizard fireball, alchemy acid) we must also delay tiles that are in
-        // the blast area but not the exact target position — those tiles have towerAttackEffect == null
-        // but their enemy HP still changes as part of the AoE damage.
-        val isDeathEffectActive = deathEffect != null && attacker == null
-        // suppressEnemyBackground already covers all cases (targeted, AoE, and non-targeted tiles).
-        val enemyBgSuppressed = suppressEnemyBackground
-        val animationsEnabled = AppSettings.enableAnimations.value
-        var displayedHealth by remember { mutableStateOf(attacker?.currentHealth?.value ?: 0) }
-        LaunchedEffect(
-            attacker?.id, attacker?.currentHealth?.value, towerAttackEffect?.turnNumber,
-            isInWizardAttackArea, isInAlchemyAttackArea, animationsEnabled
-        ) {
-            val currentHealth = attacker?.currentHealth?.value
-            if (attacker != null && currentHealth != null) {
-                val flightDelay: Long = when {
+    // When animations are enabled, delay updating the enemy's displayed health value until
+    // the attack animation (projectile flight + impact flash) has completed.
+    // This way the health number on the icon only changes after the impact flash, matching
+    // the visual sequence of: projectile arrives → flash → damage visible.
+    // When animations are off, or when the health changes without a tower attack (e.g. acid
+    // DOT ticks during the enemy turn), the displayed value updates immediately.
+    // For AoE attacks (wizard fireball, alchemy acid) we must also delay tiles that are in
+    // the blast area but not the exact target position — those tiles have towerAttackEffect == null
+    // but their enemy HP still changes as part of the AoE damage.
+    val isDeathEffectActive = deathEffect != null && attacker == null
+    // suppressEnemyBackground already covers all cases (targeted, AoE, and non-targeted tiles).
+    val enemyBgSuppressed = suppressEnemyBackground
+    val animationsEnabled = AppSettings.enableAnimations.value
+    var displayedHealth by remember { mutableStateOf(attacker?.currentHealth?.value ?: 0) }
+    LaunchedEffect(
+        attacker?.id,
+        attacker?.currentHealth?.value,
+        towerAttackEffect?.turnNumber,
+        isInWizardAttackArea,
+        isInAlchemyAttackArea,
+        animationsEnabled,
+    ) {
+        val currentHealth = attacker?.currentHealth?.value
+        if (attacker != null && currentHealth != null) {
+            val flightDelay: Long =
+                when {
                     !animationsEnabled -> 0L
                     // Direct-target tiles: use the specific flight delay for that tower type
                     towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
@@ -1753,279 +1915,303 @@ private fun BoxScope.GridCellContent(
                     isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
                     else -> 0L
                 }
-                if (flightDelay > 0L) {
-                    kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
-                }
-                displayedHealth = currentHealth
+            if (flightDelay > 0L) {
+                kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
             }
+            displayedHealth = currentHealth
         }
+    }
 
-        when {
-            attacker != null -> {
-                // Use graphical icon for enemy units
-                // Key by id, position, level, and movementPenalty to force recomposition when any changes.
-                // currentHealth is intentionally omitted from the key so that the delayed displayedHealth
-                // state (see above) is not discarded when health changes during an attack animation.
-                key(
-                    attacker.id,
-                    attacker.position.value.x,
-                    attacker.position.value.y,
-                    attacker.level,
-                    attacker.movementPenalty.value
-                ) {
-                    // Detect freeze effect before Box so it can be used in modifier for outline
-                    val freezeEffect = gameState.activeSpellEffects.find {
+    when {
+        attacker != null -> {
+            // Use graphical icon for enemy units
+            // Key by id, position, level, and movementPenalty to force recomposition when any changes.
+            // currentHealth is intentionally omitted from the key so that the delayed displayedHealth
+            // state (see above) is not discarded when health changes during an attack animation.
+            key(
+                attacker.id,
+                attacker.position.value.x,
+                attacker.position.value.y,
+                attacker.level,
+                attacker.movementPenalty.value,
+            ) {
+                // Detect freeze effect before Box so it can be used in modifier for outline
+                val freezeEffect =
+                    gameState.activeSpellEffects.find {
                         it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
                     }
-                    // Detect if cooling spell reduces this enemy's movement to 0
-                    val coolingReducesToZero = isInCoolingArea && run {
-                        val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
-                        maxOf(0, barbsSpeed - 1) == 0
-                    }
-                    // Compute the actual tile background color so the icon can derive the correct outline color.
-                    // When unit backgrounds are OFF (transparent), pass Color.White so the icon always uses
-                    // dark outlines – matching the light-mode appearance regardless of the current theme.
-                    // When a freeze/cooling effect is active, that color takes priority.
-                    val attackerTileBackground = when {
+                // Detect if cooling spell reduces this enemy's movement to 0
+                val coolingReducesToZero =
+                    isInCoolingArea &&
+                        run {
+                            val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                            maxOf(0, barbsSpeed - 1) == 0
+                        }
+                // Compute the actual tile background color so the icon can derive the correct outline color.
+                // When unit backgrounds are OFF (transparent), pass Color.White so the icon always uses
+                // dark outlines – matching the light-mode appearance regardless of the current theme.
+                // When a freeze/cooling effect is active, that color takes priority.
+                val attackerTileBackground =
+                    when {
                         freezeEffect != null || coolingReducesToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)
                         !AppSettings.showUnitTowerBackground.value -> Color.White
                         else -> null
                     }
-                    // Derive health/level text color from effective background:
-                    // - Freeze/cooling (turquoise) or unit backgrounds ON (red) → dark enough for white text
-                    // - Unit backgrounds OFF in dark mode → dark terrain bg → white text
-                    // - Unit backgrounds OFF in light mode → light terrain bg → dark text
-                    val healthTextColor = when {
+                // Derive health/level text color from effective background:
+                // - Freeze/cooling (turquoise) or unit backgrounds ON (red) → dark enough for white text
+                // - Unit backgrounds OFF in dark mode → dark terrain bg → white text
+                // - Unit backgrounds OFF in light mode → light terrain bg → dark text
+                val healthTextColor =
+                    when {
                         freezeEffect != null || coolingReducesToZero -> Color.White
                         AppSettings.showUnitTowerBackground.value -> Color.White
                         AppSettings.isDarkMode.value -> Color.White
                         else -> Color.Black
                     }
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = if (freezeEffect != null || coolingReducesToZero)
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier =
+                        if (freezeEffect != null || coolingReducesToZero) {
                             Modifier.border(2.dp, TargetCircleConstants.COOLING_SPELL_COLOR, RoundedCornerShape(4.dp))
-                        else
+                        } else {
                             Modifier
-                    ) {
-                        EnemyIcon(attacker = attacker, backgroundColor = attackerTileBackground, healthTextColor = healthTextColor, healthOverride = displayedHealth)
-                        // Show healing effect overlay if present
-                        if (healingEffect != null) {
-                            GreenWitchHealingAnimation(
-                                animate = AppSettings.enableAnimations.value,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                        // Show freeze effect overlay
-                        if (freezeEffect != null) {
-                            FreezeSpellAnimation(
-                                animate = AppSettings.enableAnimations.value,
-                                modifier = Modifier.fillMaxSize(),
-                                animationKey = freezeEffect.attackerId
-                            )
-                        }
-                        // Show fear effect overlay (black scribble cloud at top of icon)
-                        val fearEffect = gameState.activeSpellEffects.find { effect ->
-                            (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
-                            (effect.spell == SpellType.FEAR_SPELL_AREA && effect.position != null &&
-                                attacker.position.value.hexDistanceTo(effect.position) <= 2)
-                        }
-                        if (fearEffect != null) {
-                            FearSpellAnimation(
-                                animate = AppSettings.enableAnimations.value,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                        // Show barb effect indicators if affected (show up to 5 arrows in center)
-                        if (attacker.movementPenalty.value > 0) {
-                            val barbCount = minOf(attacker.movementPenalty.value, 5)
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    repeat(barbCount) {
-                                        Box(
-                                            modifier = Modifier.graphicsLayer {
-                                                rotationZ = 10f  // Tilt +10 degrees
-                                            }
-                                        ) {
-                                            de.egril.defender.ui.icon.DownArrowIcon(
-                                                size = 12.dp,
-                                                tint = Color.Red
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            defender != null -> {
-                // Use graphical icon for towers
-                // Key by id, position, level and actionsRemaining to force recomposition when these change
-                val doubleLevelActive = gameState.activeSpellEffects.any {
-                    it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == defender.id
-                }
-                key(
-                    defender.id,
-                    defender.position.value.x,
-                    defender.position.value.y,
-                    defender.level.value,
-                    defender.actionsRemaining.value,
-                    defender.buildTimeRemaining.value,
-                    defender.isDisabled.value,
-                    defender.disabledTurnsRemaining.value,
-                    doubleLevelActive
+                        },
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        TowerIcon(defender = defender, gameState = gameState)
-                        // Show pulsing blue glow when tower is ready to act
-                        if (defender.isReady && defender.actionsRemaining.value > 0) {
-                            TowerReadyPulseAnimation(
-                                animate = AppSettings.enableAnimations.value,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                        // Show construction complete sparkle when tower just finished building
-                        if (constructionCompleteEffect != null) {
-                            TowerConstructionCompleteAnimation(
-                                animate = AppSettings.enableAnimations.value,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                        // Show idle ambient animation for wizard and alchemy towers (when built)
-                        if (defender.buildTimeRemaining.value == 0) {
-                            when (defender.type) {
-                                // Wizard idle glows only while the tower still has actions this turn
-                                DefenderType.WIZARD_TOWER -> if (defender.actionsRemaining.value > 0) WizardIdleAnimation(
-                                    animate = AppSettings.enableAnimations.value,
-                                    modifier = Modifier.fillMaxSize()
+                    EnemyIcon(
+                        attacker = attacker,
+                        backgroundColor = attackerTileBackground,
+                        healthTextColor = healthTextColor,
+                        healthOverride = displayedHealth,
+                    )
+                    // Show healing effect overlay if present
+                    if (healingEffect != null) {
+                        GreenWitchHealingAnimation(
+                            animate = AppSettings.enableAnimations.value,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                    // Show freeze effect overlay
+                    if (freezeEffect != null) {
+                        FreezeSpellAnimation(
+                            animate = AppSettings.enableAnimations.value,
+                            modifier = Modifier.fillMaxSize(),
+                            animationKey = freezeEffect.attackerId,
+                        )
+                    }
+                    // Show fear effect overlay (black scribble cloud at top of icon)
+                    val fearEffect =
+                        gameState.activeSpellEffects.find { effect ->
+                            (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
+                                (
+                                    effect.spell == SpellType.FEAR_SPELL_AREA &&
+                                        effect.position != null &&
+                                        attacker.position.value.hexDistanceTo(effect.position) <= 2
                                 )
-                                DefenderType.ALCHEMY_TOWER -> AlchemyIdleAnimation(
-                                    animate = AppSettings.enableAnimations.value,
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                                DefenderType.DWARVEN_MINE -> {
-                                    // Show dig animation on mine tile when it was just dug
-                                    if (mineDigEffect != null) {
-                                        MineDigAnimation(
-                                            animate = AppSettings.enableAnimations.value,
-                                            modifier = Modifier.fillMaxSize()
+                        }
+                    if (fearEffect != null) {
+                        FearSpellAnimation(
+                            animate = AppSettings.enableAnimations.value,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                    // Show barb effect indicators if affected (show up to 5 arrows in center)
+                    if (attacker.movementPenalty.value > 0) {
+                        val barbCount = minOf(attacker.movementPenalty.value, 5)
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                repeat(barbCount) {
+                                    Box(
+                                        modifier =
+                                            Modifier.graphicsLayer {
+                                                rotationZ = 10f // Tilt +10 degrees
+                                            },
+                                    ) {
+                                        de.egril.defender.ui.icon.DownArrowIcon(
+                                            size = 12.dp,
+                                            tint = Color.Red,
                                         )
                                     }
                                 }
-                                else -> Unit
                             }
                         }
-                        // Show Double Tower Level spell animation overlay (same animation as instant tower)
-                        if (doubleLevelActive) {
-                            InstantTowerSpellAnimation(
-                                animate = AppSettings.enableAnimations.value,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                        // Show red "XT" overlay if tower is disabled by Red Witch
-                        if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0) {
-                            Text(
-                                "${defender.disabledTurnsRemaining.value}T",
-                                style = MaterialTheme.typography.headlineMedium,
-                                color = Color.Red,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
                     }
                 }
             }
+        }
 
-            fieldEffect != null -> {
-                // Show field effect info
-                when (fieldEffect.type) {
-                    FieldEffectType.FIREBALL -> {
-                        // Show fireball symbol
-                        ExplosionIcon(size = 28.dp)
-                    }
-
-                    FieldEffectType.ACID -> {
-                        // Show acid splash with damage and duration
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            TestTubeIcon(size = 20.dp)
-                            Text(
-                                "-${fieldEffect.damage}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                "${fieldEffect.turnsRemaining}T",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = GamePlayColors.Yellow
-                            )
-                        }
-                    }
+        defender != null -> {
+            // Use graphical icon for towers
+            // Key by id, position, level and actionsRemaining to force recomposition when these change
+            val doubleLevelActive =
+                gameState.activeSpellEffects.any {
+                    it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == defender.id
                 }
-            }
-
-            trap != null -> {
-                // Show trap icon based on trap type
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    when (trap.type) {
-                        TrapType.MAGICAL -> {
-                            // Magical trap - show pentagram (no damage display)
-                            PentagramIcon(size = GamePlayConstants.TileIconSizes.Trap)
-                        }
-
-                        TrapType.DWARVEN -> {
-                            // Dwarven trap - show trap icon with damage
-                            TrapIcon(size = GamePlayConstants.TileIconSizes.Trap)
-                            Text(
-                                "-${trap.damage}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.offset(y = (-6).dp)
-                            )
-                        }
-                    }
-                }
-            }
-            
-            barricade != null -> {
-                // Show barricade with HP
-                val barricadeLocale = com.hyperether.resources.currentLanguage.value
+            key(
+                defender.id,
+                defender.position.value.x,
+                defender.position.value.y,
+                defender.level.value,
+                defender.actionsRemaining.value,
+                defender.buildTimeRemaining.value,
+                defender.isDisabled.value,
+                defender.disabledTurnsRemaining.value,
+                doubleLevelActive,
+            ) {
                 Box(contentAlignment = Alignment.Center) {
+                    TowerIcon(defender = defender, gameState = gameState)
+                    // Show pulsing blue glow when tower is ready to act
+                    if (defender.isReady && defender.actionsRemaining.value > 0) {
+                        TowerReadyPulseAnimation(
+                            animate = AppSettings.enableAnimations.value,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                    // Show construction complete sparkle when tower just finished building
+                    if (constructionCompleteEffect != null) {
+                        TowerConstructionCompleteAnimation(
+                            animate = AppSettings.enableAnimations.value,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                    // Show idle ambient animation for wizard and alchemy towers (when built)
+                    if (defender.buildTimeRemaining.value == 0) {
+                        when (defender.type) {
+                            // Wizard idle glows only while the tower still has actions this turn
+                            DefenderType.WIZARD_TOWER ->
+                                if (defender.actionsRemaining.value > 0) {
+                                    WizardIdleAnimation(
+                                        animate = AppSettings.enableAnimations.value,
+                                        modifier = Modifier.fillMaxSize(),
+                                    )
+                                }
+                            DefenderType.ALCHEMY_TOWER ->
+                                AlchemyIdleAnimation(
+                                    animate = AppSettings.enableAnimations.value,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                            DefenderType.DWARVEN_MINE -> {
+                                // Show dig animation on mine tile when it was just dug
+                                if (mineDigEffect != null) {
+                                    MineDigAnimation(
+                                        animate = AppSettings.enableAnimations.value,
+                                        modifier = Modifier.fillMaxSize(),
+                                    )
+                                }
+                            }
+                            else -> Unit
+                        }
+                    }
+                    // Show Double Tower Level spell animation overlay (same animation as instant tower)
+                    if (doubleLevelActive) {
+                        InstantTowerSpellAnimation(
+                            animate = AppSettings.enableAnimations.value,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                    // Show red "XT" overlay if tower is disabled by Red Witch
+                    if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0) {
+                        Text(
+                            "${defender.disabledTurnsRemaining.value}T",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = Color.Red,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+            }
+        }
+
+        fieldEffect != null -> {
+            // Show field effect info
+            when (fieldEffect.type) {
+                FieldEffectType.FIREBALL -> {
+                    // Show fireball symbol
+                    ExplosionIcon(size = 28.dp)
+                }
+
+                FieldEffectType.ACID -> {
+                    // Show acid splash with damage and duration
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                        verticalArrangement = Arrangement.Center,
                     ) {
-                        // Show wood/barricade symbol or gate icon with brown color
-                        if (barricade.isGate) {
-                            GateIcon(
-                                modifier = Modifier.offset(y = 10.dp),
-                                size = GamePlayConstants.TileIconSizes.Barricade
-                            )
-                        } else {
-                            WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
-                        }
+                        TestTubeIcon(size = 20.dp)
+                        Text(
+                            "-${fieldEffect.damage}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            "${fieldEffect.turnsRemaining}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = GamePlayColors.Yellow,
+                        )
+                    }
+                }
+            }
+        }
 
-                        // Show gate/barricade name (2 lines) then HP (1 line, bold)
-                        val barricadeDisplayName = barricade.name
+        trap != null -> {
+            // Show trap icon based on trap type
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                when (trap.type) {
+                    TrapType.MAGICAL -> {
+                        // Magical trap - show pentagram (no damage display)
+                        PentagramIcon(size = GamePlayConstants.TileIconSizes.Trap)
+                    }
+
+                    TrapType.DWARVEN -> {
+                        // Dwarven trap - show trap icon with damage
+                        TrapIcon(size = GamePlayConstants.TileIconSizes.Trap)
+                        Text(
+                            "-${trap.damage}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.offset(y = (-6).dp),
+                        )
+                    }
+                }
+            }
+        }
+
+        barricade != null -> {
+            // Show barricade with HP
+            val barricadeLocale = com.hyperether.resources.currentLanguage.value
+            Box(contentAlignment = Alignment.Center) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    // Show wood/barricade symbol or gate icon with brown color
+                    if (barricade.isGate) {
+                        GateIcon(
+                            modifier = Modifier.offset(y = 10.dp),
+                            size = GamePlayConstants.TileIconSizes.Barricade,
+                        )
+                    } else {
+                        WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                    }
+
+                    // Show gate/barricade name (2 lines) then HP (1 line, bold)
+                    val barricadeDisplayName =
+                        barricade.name
                             ?.takeIf { it.isNotBlank() }
                             ?.let { localizeEntityName(it, barricadeLocale) }
-                        if (!barricadeDisplayName.isNullOrBlank()) {
-                            Text(
-                                text = buildAnnotatedString{
+                    if (!barricadeDisplayName.isNullOrBlank()) {
+                        Text(
+                            text =
+                                buildAnnotatedString {
                                     withStyle(SpanStyle(color = Color.White)) {
                                         appendLine(barricadeDisplayName)
                                     }
@@ -2033,259 +2219,270 @@ private fun BoxScope.GridCellContent(
                                         appendLine("${barricade.healthPoints.value} HP")
                                     }
                                 },
-                                style = MaterialTheme.typography.labelSmall,
-                                textAlign = TextAlign.Center,
-                                minLines = 3,
-                                maxLines = 3,
-                                overflow = TextOverflow.Visible,
-                                modifier = Modifier
+                            style = MaterialTheme.typography.labelSmall,
+                            textAlign = TextAlign.Center,
+                            minLines = 3,
+                            maxLines = 3,
+                            overflow = TextOverflow.Visible,
+                            modifier =
+                                Modifier
                                     .widthIn(max = 50.dp)
-                                    .offset(y = (-32).dp)
-                            )
-                        } else {
-                            Text(
-                                "${barricade.healthPoints.value} HP",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.offset(y = (-12).dp)
-                            )
-                        }
-                    }
-                    // Show damage effect overlay if present
-                    if (damageEffect != null) {
-                        BarricadeDamageAnimation(
-                            animate = AppSettings.enableAnimations.value,
-                            modifier = Modifier.fillMaxSize()
+                                    .offset(y = (-32).dp),
+                        )
+                    } else {
+                        Text(
+                            "${barricade.healthPoints.value} HP",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.offset(y = (-12).dp),
                         )
                     }
                 }
-            }
-            
-            showBarricadePreview -> {
-                // Show see-through barricade preview when hovering
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.graphicsLayer(alpha = 0.5f)  // Semi-transparent
-                ) {
-                    // Show wood/barricade symbol with brown color
-                    WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
-                    // Show "NEW" text for new barricade preview
-                    Text(
-                        stringResource(Res.string.barricade),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFF795548),  // Brown color
-                        fontWeight = FontWeight.Bold
+                // Show damage effect overlay if present
+                if (damageEffect != null) {
+                    BarricadeDamageAnimation(
+                        animate = AppSettings.enableAnimations.value,
+                        modifier = Modifier.fillMaxSize(),
                     )
                 }
             }
+        }
 
-            bombEffect != null -> {
-                // Show bomb icon with countdown number overlaid prominently
-                Box(contentAlignment = Alignment.Center) {
-                    BombIcon(size = 36.dp)
-                    // Countdown badge in bottom-right corner of icon
-                    Box(
-                        modifier = Modifier
+        showBarricadePreview -> {
+            // Show see-through barricade preview when hovering
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.graphicsLayer(alpha = 0.5f), // Semi-transparent
+            ) {
+                // Show wood/barricade symbol with brown color
+                WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                // Show "NEW" text for new barricade preview
+                Text(
+                    stringResource(Res.string.barricade),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color(0xFF795548), // Brown color
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+
+        bombEffect != null -> {
+            // Show bomb icon with countdown number overlaid prominently
+            Box(contentAlignment = Alignment.Center) {
+                BombIcon(size = 36.dp)
+                // Countdown badge in bottom-right corner of icon
+                Box(
+                    modifier =
+                        Modifier
                             .align(Alignment.BottomEnd)
                             .offset(x = 4.dp, y = 4.dp)
                             .background(
                                 color = Color(0xFFCC0000),
-                                shape = androidx.compose.foundation.shape.CircleShape
-                            )
-                            .padding(horizontal = 4.dp, vertical = 1.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            "${bombEffect.turnsRemaining}",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color.White,
-                            fontWeight = FontWeight.ExtraBold,
-                            lineHeight = MaterialTheme.typography.labelMedium.fontSize
-                        )
-                    }
+                                shape = androidx.compose.foundation.shape.CircleShape,
+                            ).padding(horizontal = 4.dp, vertical = 1.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        "${bombEffect.turnsRemaining}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.ExtraBold,
+                        lineHeight = MaterialTheme.typography.labelMedium.fontSize,
+                    )
                 }
             }
+        }
 
-            isSpawnPoint -> {
-                // Show spawn indicator when cell is empty
-                Text(
-                    stringResource(Res.string.spawn),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = GamePlayColors.Warning
-                )
-            }
+        isSpawnPoint -> {
+            // Show spawn indicator when cell is empty
+            Text(
+                stringResource(Res.string.spawn),
+                style = MaterialTheme.typography.labelSmall,
+                color = GamePlayColors.Warning,
+            )
+        }
 
-            isTarget -> {
-                // Show target name (if set) or fallback to generic "Target" label
-                // Well-known names are translated; \n in the string gives multi-line tile display
-                // Taken targets (SINGLE_HIT) show with a red cross overlay
-                val locale = com.hyperether.resources.currentLanguage.value
-                val isTaken = gameState.takenTargets.contains(position)
-                val rawName = gameState.level.targetInfoMap[position]?.name?.takeIf { it.isNotBlank() }
-                val targetName = if (rawName != null) {
+        isTarget -> {
+            // Show target name (if set) or fallback to generic "Target" label
+            // Well-known names are translated; \n in the string gives multi-line tile display
+            // Taken targets (SINGLE_HIT) show with a red cross overlay
+            val locale = com.hyperether.resources.currentLanguage.value
+            val isTaken = gameState.takenTargets.contains(position)
+            val rawName =
+                gameState.level.targetInfoMap[position]
+                    ?.name
+                    ?.takeIf { it.isNotBlank() }
+            val targetName =
+                if (rawName != null) {
                     localizeEntityName(rawName, locale)
                 } else {
                     stringResource(Res.string.target)
                 }
-                if (isTaken) {
-                    // Show dimmed name with a red X cross on top
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = targetName,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = GamePlayColors.Success.copy(alpha = 0.3f),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.widthIn(max = 50.dp)
-                        )
-                        CrossIcon(size = 20.dp, tint = Color.Red)
-                    }
-                } else {
+            if (isTaken) {
+                // Show dimmed name with a red X cross on top
+                Box(contentAlignment = Alignment.Center) {
                     Text(
                         text = targetName,
                         style = MaterialTheme.typography.labelSmall,
-                        color = GamePlayColors.Success,
+                        color = GamePlayColors.Success.copy(alpha = 0.3f),
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.widthIn(max = 50.dp)
+                        modifier = Modifier.widthIn(max = 50.dp),
                     )
+                    CrossIcon(size = 20.dp, tint = Color.Red)
                 }
+            } else {
+                Text(
+                    text = targetName,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = GamePlayColors.Success,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.widthIn(max = 50.dp),
+                )
             }
+        }
 
-            isRiverTile -> {
-                // Check if there's a bridge at this position
-                val bridge = gameState.getBridgeAt(position)
-                if (bridge != null) {
-                    // Show bridge over river
-                    BridgeVisualization(bridge = bridge)
-                } else {
-                    // Show river flow direction arrows
-                    val riverTile = gameState.level.getRiverTile(position)
-                    if (riverTile != null) {
-                        // Don't show trap icon on maelstrom when tile images are enabled
-                        // (the tile_river_maelstrom.png image already shows the maelstrom visually)
-                        val useTileImages = AppSettings.useTileImages.value
-                        val isMaelstromWithTileImage = riverTile.flowDirection == RiverFlow.MAELSTROM && useTileImages
-                        // Don't show dot symbol on NONE (still water) tiles when the level map image is enabled
-                        val useLevelMapImage = AppSettings.useLevelMapImage.value
-                        val isNoneWithMapImage = riverTile.flowDirection == RiverFlow.NONE && useLevelMapImage
+        isRiverTile -> {
+            // Check if there's a bridge at this position
+            val bridge = gameState.getBridgeAt(position)
+            if (bridge != null) {
+                // Show bridge over river
+                BridgeVisualization(bridge = bridge)
+            } else {
+                // Show river flow direction arrows
+                val riverTile = gameState.level.getRiverTile(position)
+                if (riverTile != null) {
+                    // Don't show trap icon on maelstrom when tile images are enabled
+                    // (the tile_river_maelstrom.png image already shows the maelstrom visually)
+                    val useTileImages = AppSettings.useTileImages.value
+                    val isMaelstromWithTileImage = riverTile.flowDirection == RiverFlow.MAELSTROM && useTileImages
+                    // Don't show dot symbol on NONE (still water) tiles when the level map image is enabled
+                    val useLevelMapImage = AppSettings.useLevelMapImage.value
+                    val isNoneWithMapImage = riverTile.flowDirection == RiverFlow.NONE && useLevelMapImage
 
-                        // Show water flow animation when animations are enabled (not for NONE/MAELSTROM)
-                        val enableAnimations = AppSettings.enableAnimations.value
-                        val showWaterAnimation = enableAnimations &&
+                    // Show water flow animation when animations are enabled (not for NONE/MAELSTROM)
+                    val enableAnimations = AppSettings.enableAnimations.value
+                    val showWaterAnimation =
+                        enableAnimations &&
                             riverTile.flowDirection != RiverFlow.NONE &&
                             riverTile.flowDirection != RiverFlow.MAELSTROM
-                        if (showWaterAnimation) {
-                            WaterFlowAnimation(
-                                flowDirection = riverTile.flowDirection,
-                                flowSpeed = riverTile.flowSpeed,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
+                    if (showWaterAnimation) {
+                        WaterFlowAnimation(
+                            flowDirection = riverTile.flowDirection,
+                            flowSpeed = riverTile.flowSpeed,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
 
-                        if (!isMaelstromWithTileImage && !isNoneWithMapImage) {
-                            RiverFlowIndicator(
-                                flowDirection = riverTile.flowDirection,
-                                flowSpeed = riverTile.flowSpeed,
-                                size = 28.dp
-                            )
-                        }
+                    if (!isMaelstromWithTileImage && !isNoneWithMapImage) {
+                        RiverFlowIndicator(
+                            flowDirection = riverTile.flowDirection,
+                            flowSpeed = riverTile.flowSpeed,
+                            size = 28.dp,
+                        )
                     }
                 }
             }
         }
+    }
 
-        // Show cooling spell snowflake animation on affected tiles
-        if (isInCoolingArea) {
-            CoolingAreaAnimation(
-                animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize()
+    // Show cooling spell snowflake animation on affected tiles
+    if (isInCoolingArea) {
+        CoolingAreaAnimation(
+            animate = AppSettings.enableAnimations.value,
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+
+    // Show turns count for cooling spell (placement preview: 3, active effect: actual remaining)
+    val coolingTurns = coolingAreaTurnsRemaining ?: if (isCoolingSpellPreview) 3 else null
+    if (coolingTurns != null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter,
+        ) {
+            Text(
+                "${coolingTurns}T",
+                style = MaterialTheme.typography.labelSmall,
+                color = TargetCircleConstants.COOLING_SPELL_COLOR,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp),
             )
         }
+    }
 
-        // Show turns count for cooling spell (placement preview: 3, active effect: actual remaining)
-        val coolingTurns = coolingAreaTurnsRemaining ?: if (isCoolingSpellPreview) 3 else null
-        if (coolingTurns != null) {
-            Box(
+    // Show half-transparent tower icon on hovered build tile.
+    // previewDefenderType is non-null only for the 1 cell showing the placement preview
+    // (pre-computed in GameGrid to avoid passing selectedDefenderType to all cells).
+    if (previewDefenderType != null) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(alpha = 0.5f),
+            // 50% transparency
+            contentAlignment = Alignment.Center,
+        ) {
+            TowerTypeIcon(
+                defenderType = previewDefenderType,
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                Text(
-                    "${coolingTurns}T",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = TargetCircleConstants.COOLING_SPELL_COLOR,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-            }
+            )
         }
+    }
 
-        // Show half-transparent tower icon on hovered build tile.
-        // previewDefenderType is non-null only for the 1 cell showing the placement preview
-        // (pre-computed in GameGrid to avoid passing selectedDefenderType to all cells).
-        if (previewDefenderType != null) {
-            Box(
-                modifier = Modifier
+    // Show half-transparent trap icon on hovered path tile (when in trap placement mode)
+    if (showTrapPreview) {
+        Box(
+            modifier =
+                Modifier
                     .fillMaxSize()
-                    .graphicsLayer(alpha = 0.5f),  // 50% transparency
-                contentAlignment = Alignment.Center
-            ) {
-                TowerTypeIcon(
-                    defenderType = previewDefenderType,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-        }
-
-        // Show half-transparent trap icon on hovered path tile (when in trap placement mode)
-        if (showTrapPreview) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer(alpha = 0.5f),  // 50% transparency
-                contentAlignment = Alignment.Center
-            ) {
-                // Show different icon based on trap type
-                when {
-                    selectedMineAction == MineAction.BUILD_TRAP -> {
-                        // Dwarven trap - show trap icon
-                        TrapIcon(size = GamePlayConstants.TileIconSizes.TrapPreview)
-                    }
-                    selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP -> {
-                        // Magical trap - show pentagram icon
-                        PentagramIcon(size = GamePlayConstants.TileIconSizes.TrapPreview)
-                    }
+                    .graphicsLayer(alpha = 0.5f),
+            // 50% transparency
+            contentAlignment = Alignment.Center,
+        ) {
+            // Show different icon based on trap type
+            when {
+                selectedMineAction == MineAction.BUILD_TRAP -> {
+                    // Dwarven trap - show trap icon
+                    TrapIcon(size = GamePlayConstants.TileIconSizes.TrapPreview)
+                }
+                selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP -> {
+                    // Magical trap - show pentagram icon
+                    PentagramIcon(size = GamePlayConstants.TileIconSizes.TrapPreview)
                 }
             }
         }
+    }
 
-        // Show bomb explosion animation overlay on affected tiles (highest priority, above everything)
-        if (bombExplosion != null) {
-            BombExplosionAnimation(
-                animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize().zIndex(20f)
-            )
-        }
+    // Show bomb explosion animation overlay on affected tiles (highest priority, above everything)
+    if (bombExplosion != null) {
+        BombExplosionAnimation(
+            animate = AppSettings.enableAnimations.value,
+            modifier = Modifier.fillMaxSize().zIndex(20f),
+        )
+    }
 
-        // Show enemy death animation overlay when an enemy was just defeated here.
-        // The `attacker == null` guard avoids overlapping the death animation with a live enemy
-        // that may have moved to this tile in the same turn.
-        // When a tower attack was also recorded for this tile, delay the death animation until
-        // after the impact animation plays (~670ms, plus ~900ms arrow flight for ranged attacks),
-        // so the sequence is: pre-death icon with red bg → attack → impact → ghost → death anim.
-        //
-        // Ghost rendering: while the death effect is present (and before the death animation
-        // finishes), show the enemy unit icon without a health bar so the player can see which
-        // unit was killed.  The ghost disappears once the death animation has completed so that
-        // the coin-gain animation plays on a clean tile.
-        //
-        var showGhost by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
-            mutableStateOf(isDeathEffectActive)
-        }
-        LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
-            if (isDeathEffectActive) {
-                showGhost = true
-                val arrowDelay = when {
+    // Show enemy death animation overlay when an enemy was just defeated here.
+    // The `attacker == null` guard avoids overlapping the death animation with a live enemy
+    // that may have moved to this tile in the same turn.
+    // When a tower attack was also recorded for this tile, delay the death animation until
+    // after the impact animation plays (~670ms, plus ~900ms arrow flight for ranged attacks),
+    // so the sequence is: pre-death icon with red bg → attack → impact → ghost → death anim.
+    //
+    // Ghost rendering: while the death effect is present (and before the death animation
+    // finishes), show the enemy unit icon without a health bar so the player can see which
+    // unit was killed.  The ghost disappears once the death animation has completed so that
+    // the coin-gain animation plays on a clean tile.
+    //
+    var showGhost by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
+        mutableStateOf(isDeathEffectActive)
+    }
+    LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
+        if (isDeathEffectActive) {
+            showGhost = true
+            val arrowDelay =
+                when {
                     towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
@@ -2298,45 +2495,54 @@ private fun BoxScope.GridCellContent(
                     isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
                     else -> 0L
                 }
-                val impactDelay = if (towerAttackEffect != null || isInWizardAttackArea || isInAlchemyAttackArea) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
-                kotlinx.coroutines.delay(arrowDelay + impactDelay + GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS)
-                showGhost = false
-            } else {
-                showGhost = false
-            }
-        }
-        if (showGhost && isDeathEffectActive) {
-            EnemyTypeIcon(
-                attackerType = deathEffect.attackerType,
-                modifier = Modifier.fillMaxSize().zIndex(15f)
-            )
-            // Show level badge on top of the ghost icon when level > 1
-            if (deathEffect.attackerLevel > 1) {
-                Box(
-                    modifier = Modifier.fillMaxSize().zIndex(15f),
-                    contentAlignment = Alignment.TopCenter
+            val impactDelay =
+                if (towerAttackEffect != null ||
+                    isInWizardAttackArea ||
+                    isInAlchemyAttackArea
                 ) {
-                    Text(
-                        text = "${deathEffect.attackerLevel}",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 12.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
+                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
+                } else {
+                    0L
                 }
+            kotlinx.coroutines.delay(arrowDelay + impactDelay + GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS)
+            showGhost = false
+        } else {
+            showGhost = false
+        }
+    }
+    if (showGhost && isDeathEffectActive) {
+        EnemyTypeIcon(
+            attackerType = deathEffect.attackerType,
+            modifier = Modifier.fillMaxSize().zIndex(15f),
+        )
+        // Show level badge on top of the ghost icon when level > 1
+        if (deathEffect.attackerLevel > 1) {
+            Box(
+                modifier = Modifier.fillMaxSize().zIndex(15f),
+                contentAlignment = Alignment.TopCenter,
+            ) {
+                Text(
+                    text = "${deathEffect.attackerLevel}",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = 12.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
             }
         }
+    }
 
-        var showDeathAnimation by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
-            mutableStateOf(false)
-        }
-        LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
-            if (isDeathEffectActive) {
-                // Wait for both the projectile flight and the impact flash to finish before
-                // starting the death animation.  Also handles AoE secondary targets where
-                // towerAttackEffect is null but the tile is in the fireball/acid blast area.
-                val flightDelay = when {
+    var showDeathAnimation by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
+        mutableStateOf(false)
+    }
+    LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
+        if (isDeathEffectActive) {
+            // Wait for both the projectile flight and the impact flash to finish before
+            // starting the death animation.  Also handles AoE secondary targets where
+            // towerAttackEffect is null but the tile is in the fireball/acid blast area.
+            val flightDelay =
+                when {
                     towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
@@ -2348,31 +2554,40 @@ private fun BoxScope.GridCellContent(
                     isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
                     else -> 0L
                 }
-                val impactDelay = if (towerAttackEffect != null || isInWizardAttackArea || isInAlchemyAttackArea) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
-                if (flightDelay > 0L || impactDelay > 0L) {
-                    kotlinx.coroutines.delay(flightDelay + impactDelay)
+            val impactDelay =
+                if (towerAttackEffect != null ||
+                    isInWizardAttackArea ||
+                    isInAlchemyAttackArea
+                ) {
+                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
+                } else {
+                    0L
                 }
-                showDeathAnimation = true
-                GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)
-            } else {
-                showDeathAnimation = false
+            if (flightDelay > 0L || impactDelay > 0L) {
+                kotlinx.coroutines.delay(flightDelay + impactDelay)
             }
+            showDeathAnimation = true
+            GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)
+        } else {
+            showDeathAnimation = false
         }
-        if (showDeathAnimation && isDeathEffectActive) {
-            EnemyDeathAnimation(
-                animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize().zIndex(18f)
-            )
-        }
+    }
+    if (showDeathAnimation && isDeathEffectActive) {
+        EnemyDeathAnimation(
+            animate = AppSettings.enableAnimations.value,
+            modifier = Modifier.fillMaxSize().zIndex(18f),
+        )
+    }
 
-        // Show coin gain animation overlay after the full death-animation sequence has finished:
-        // arrowDelay + impactDelay + deathDuration + post-death pause.
-        var showCoinAnimation by remember(coinGainEffect?.turnNumber, coinGainEffect?.position) {
-            mutableStateOf(false)
-        }
-        LaunchedEffect(coinGainEffect?.turnNumber, coinGainEffect?.position, towerAttackEffect?.turnNumber) {
-            if (coinGainEffect != null) {
-                val arrowDelay = when {
+    // Show coin gain animation overlay after the full death-animation sequence has finished:
+    // arrowDelay + impactDelay + deathDuration + post-death pause.
+    var showCoinAnimation by remember(coinGainEffect?.turnNumber, coinGainEffect?.position) {
+        mutableStateOf(false)
+    }
+    LaunchedEffect(coinGainEffect?.turnNumber, coinGainEffect?.position, towerAttackEffect?.turnNumber) {
+        if (coinGainEffect != null) {
+            val arrowDelay =
+                when {
                     towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
@@ -2385,297 +2600,343 @@ private fun BoxScope.GridCellContent(
                     isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
                     else -> 0L
                 }
-                val impactDelay = if (towerAttackEffect != null || isInWizardAttackArea || isInAlchemyAttackArea) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
-                kotlinx.coroutines.delay(
-                    arrowDelay + impactDelay +
+            val impactDelay =
+                if (towerAttackEffect != null ||
+                    isInWizardAttackArea ||
+                    isInAlchemyAttackArea
+                ) {
+                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
+                } else {
+                    0L
+                }
+            kotlinx.coroutines.delay(
+                arrowDelay + impactDelay +
                     GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS +
-                    GamePlayConstants.AnimationTimings.COIN_GAIN_DELAY_AFTER_DEATH_MS
-                )
-                // Add coins to the player's total in sync with the animation so the counter
-                // visually increases when the coin animation plays, not before the attack runs.
-                // Only transfer coins that are still pending (guard against the safety flush in
-                // completeEnemyTurn() having already credited them).
-                val toAdd = minOf(coinGainEffect.amount, gameState.pendingCoinGains.value)
-                if (toAdd > 0) {
-                    gameState.pendingCoinGains.value -= toAdd
-                    gameState.coins.value += toAdd
-                }
-                showCoinAnimation = true
+                    GamePlayConstants.AnimationTimings.COIN_GAIN_DELAY_AFTER_DEATH_MS,
+            )
+            // Add coins to the player's total in sync with the animation so the counter
+            // visually increases when the coin animation plays, not before the attack runs.
+            // Only transfer coins that are still pending (guard against the safety flush in
+            // completeEnemyTurn() having already credited them).
+            val toAdd = minOf(coinGainEffect.amount, gameState.pendingCoinGains.value)
+            if (toAdd > 0) {
+                gameState.pendingCoinGains.value -= toAdd
+                gameState.coins.value += toAdd
+            }
+            showCoinAnimation = true
+        } else {
+            showCoinAnimation = false
+        }
+    }
+    if (showCoinAnimation && coinGainEffect != null) {
+        CoinGainAnimation(
+            amount = coinGainEffect.amount,
+            animate = AppSettings.enableAnimations.value,
+            modifier = Modifier.fillMaxSize().zIndex(19f),
+        )
+    }
+
+    // Show tower attack impact overlay when this tile was attacked.
+    // When a projectile is targeting this tile the hit animation is delayed
+    // so the projectile visibly arrives before the impact flash.
+    var showHitAnimation by remember(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition) {
+        mutableStateOf(
+            towerAttackEffect != null &&
+                !isArrowTargetTile &&
+                !isBallistaTargetTile &&
+                !isBowTargetTile &&
+                !isSpearTargetTile &&
+                !isPikeTargetTile &&
+                !isWizardTargetTile &&
+                !isAlchemyTargetTile,
+        )
+    }
+    LaunchedEffect(
+        towerAttackEffect?.turnNumber,
+        towerAttackEffect?.targetPosition,
+        isArrowTargetTile,
+        isBallistaTargetTile,
+        isBowTargetTile,
+        isSpearTargetTile,
+        isPikeTargetTile,
+        isWizardTargetTile,
+        isAlchemyTargetTile,
+    ) {
+        when {
+            towerAttackEffect != null && isArrowTargetTile -> {
+                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
+                showHitAnimation = true
+            }
+            towerAttackEffect != null && isBallistaTargetTile -> {
+                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS)
+                showHitAnimation = true
+            }
+            towerAttackEffect != null && isBowTargetTile -> {
+                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
+                showHitAnimation = true
+            }
+            towerAttackEffect != null && isSpearTargetTile -> {
+                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
+                showHitAnimation = true
+            }
+            towerAttackEffect != null && isPikeTargetTile -> {
+                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS)
+                showHitAnimation = true
+            }
+            towerAttackEffect != null && isWizardTargetTile -> {
+                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS)
+                showHitAnimation = true
+            }
+            towerAttackEffect != null && isAlchemyTargetTile -> {
+                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS)
+                showHitAnimation = true
+            }
+            towerAttackEffect != null -> {
+                showHitAnimation = true
+            }
+            else -> {
+                showHitAnimation = false
+            }
+        }
+    }
+    if (showHitAnimation && towerAttackEffect != null) {
+        TowerAttackImpactAnimation(
+            animate = AppSettings.enableAnimations.value,
+            modifier = Modifier.fillMaxSize().zIndex(17f),
+        )
+    }
+
+    // Show enemy spawn portal overlay when an enemy just appeared at this position
+    if (enemySpawnEffect != null) {
+        EnemySpawnAnimation(
+            animate = AppSettings.enableAnimations.value,
+            modifier = Modifier.fillMaxSize().zIndex(16f),
+        )
+    }
+
+    // Show trap trigger overlay when a trap was triggered at this position.
+    // Uses a high z-index (21) to be visible even when the death animation is also showing
+    // (which happens when the trap kills the enemy in the same turn).
+    if (trapTriggerEffect != null) {
+        TrapTriggerAnimation(
+            animate = AppSettings.enableAnimations.value,
+            modifier = Modifier.fillMaxSize().zIndex(21f),
+        )
+    }
+
+    // Show enemy movement trail when an enemy just left this tile during the enemy turn
+    if (enemyMoveEffect != null && attacker == null) {
+        EnemyMoveAnimation(
+            animate = AppSettings.enableAnimations.value,
+            modifier = Modifier.fillMaxSize().zIndex(13f),
+        )
+    }
+
+    // Show dragon level change flash on the dragon's tile when its level changed
+    if (dragonLevelChangeEffect != null) {
+        DragonLevelChangeAnimation(
+            animate = AppSettings.enableAnimations.value,
+            isLevelUp = dragonLevelChangeEffect.isLevelUp,
+            modifier = Modifier.fillMaxSize().zIndex(14f),
+        )
+    }
+
+    // Show arrow/bolt projectile on the source tower tile for ranged attacks
+    if (arrowAttackEffect != null) {
+        val dx = (arrowAttackEffect.targetPosition.x - arrowAttackEffect.sourcePosition.x).toFloat()
+        val dy = (arrowAttackEffect.targetPosition.y - arrowAttackEffect.sourcePosition.y).toFloat()
+        val angle =
+            if (dx == 0f && dy == 0f) {
+                0f
             } else {
-                showCoinAnimation = false
+                (atan2(dy.toDouble(), dx.toDouble()) * GamePlayConstants.AnimationTimings.RADIANS_TO_DEGREES).toFloat()
             }
-        }
-        if (showCoinAnimation && coinGainEffect != null) {
-            CoinGainAnimation(
-                amount = coinGainEffect.amount,
-                animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize().zIndex(19f)
-            )
-        }
+        ArrowAttackAnimation(
+            animate = AppSettings.enableAnimations.value,
+            directionAngle = angle,
+            isTargetTile = isArrowTargetTile,
+            modifier = Modifier.fillMaxSize().zIndex(18f),
+        )
+    }
 
-        // Show tower attack impact overlay when this tile was attacked.
-        // When a projectile is targeting this tile the hit animation is delayed
-        // so the projectile visibly arrives before the impact flash.
-        var showHitAnimation by remember(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition) {
-            mutableStateOf(towerAttackEffect != null && !isArrowTargetTile && !isBallistaTargetTile && !isBowTargetTile && !isSpearTargetTile && !isPikeTargetTile && !isWizardTargetTile && !isAlchemyTargetTile)
-        }
-        LaunchedEffect(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition, isArrowTargetTile, isBallistaTargetTile, isBowTargetTile, isSpearTargetTile, isPikeTargetTile, isWizardTargetTile, isAlchemyTargetTile) {
-            when {
-                towerAttackEffect != null && isArrowTargetTile -> {
-                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
-                    showHitAnimation = true
+    // Show per-tile Lottie arrow animation at the bow attack target tile when the volley arrives.
+    // Uses showHitAnimation as the delay trigger (already delayed by ARROW_FLIGHT_DELAY_MS) so
+    // the arrow lands visually at the same time the impact flash fires.
+    if (showHitAnimation && isBowTargetTile) {
+        val bowEffect = gameState.bowAttackEffects.find { it.targetPosition == position }
+        if (bowEffect != null) {
+            val dx = (bowEffect.targetPosition.x - bowEffect.sourcePosition.x).toFloat()
+            val dy = (bowEffect.targetPosition.y - bowEffect.sourcePosition.y).toFloat()
+            val angle =
+                if (dx == 0f && dy == 0f) {
+                    0f
+                } else {
+                    (atan2(dy.toDouble(), dx.toDouble()) * GamePlayConstants.AnimationTimings.RADIANS_TO_DEGREES).toFloat()
                 }
-                towerAttackEffect != null && isBallistaTargetTile -> {
-                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS)
-                    showHitAnimation = true
-                }
-                towerAttackEffect != null && isBowTargetTile -> {
-                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
-                    showHitAnimation = true
-                }
-                towerAttackEffect != null && isSpearTargetTile -> {
-                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
-                    showHitAnimation = true
-                }
-                towerAttackEffect != null && isPikeTargetTile -> {
-                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS)
-                    showHitAnimation = true
-                }
-                towerAttackEffect != null && isWizardTargetTile -> {
-                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS)
-                    showHitAnimation = true
-                }
-                towerAttackEffect != null && isAlchemyTargetTile -> {
-                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS)
-                    showHitAnimation = true
-                }
-                towerAttackEffect != null -> {
-                    showHitAnimation = true
-                }
-                else -> {
-                    showHitAnimation = false
-                }
-            }
-        }
-        if (showHitAnimation && towerAttackEffect != null) {
-            TowerAttackImpactAnimation(
-                animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize().zIndex(17f)
-            )
-        }
-
-        // Show enemy spawn portal overlay when an enemy just appeared at this position
-        if (enemySpawnEffect != null) {
-            EnemySpawnAnimation(
-                animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize().zIndex(16f)
-            )
-        }
-
-        // Show trap trigger overlay when a trap was triggered at this position.
-        // Uses a high z-index (21) to be visible even when the death animation is also showing
-        // (which happens when the trap kills the enemy in the same turn).
-        if (trapTriggerEffect != null) {
-            TrapTriggerAnimation(
-                animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize().zIndex(21f)
-            )
-        }
-
-        // Show enemy movement trail when an enemy just left this tile during the enemy turn
-        if (enemyMoveEffect != null && attacker == null) {
-            EnemyMoveAnimation(
-                animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize().zIndex(13f)
-            )
-        }
-
-        // Show dragon level change flash on the dragon's tile when its level changed
-        if (dragonLevelChangeEffect != null) {
-            DragonLevelChangeAnimation(
-                animate = AppSettings.enableAnimations.value,
-                isLevelUp = dragonLevelChangeEffect.isLevelUp,
-                modifier = Modifier.fillMaxSize().zIndex(14f)
-            )
-        }
-
-        // Show arrow/bolt projectile on the source tower tile for ranged attacks
-        if (arrowAttackEffect != null) {
-            val dx = (arrowAttackEffect.targetPosition.x - arrowAttackEffect.sourcePosition.x).toFloat()
-            val dy = (arrowAttackEffect.targetPosition.y - arrowAttackEffect.sourcePosition.y).toFloat()
-            val angle = if (dx == 0f && dy == 0f) 0f
-                else (atan2(dy.toDouble(), dx.toDouble()) * GamePlayConstants.AnimationTimings.RADIANS_TO_DEGREES).toFloat()
             ArrowAttackAnimation(
                 animate = AppSettings.enableAnimations.value,
                 directionAngle = angle,
-                isTargetTile = isArrowTargetTile,
-                modifier = Modifier.fillMaxSize().zIndex(18f)
+                isTargetTile = true,
+                modifier = Modifier.fillMaxSize().zIndex(18f),
             )
         }
+    }
 
-        // Show per-tile Lottie arrow animation at the bow attack target tile when the volley arrives.
-        // Uses showHitAnimation as the delay trigger (already delayed by ARROW_FLIGHT_DELAY_MS) so
-        // the arrow lands visually at the same time the impact flash fires.
-        if (showHitAnimation && isBowTargetTile) {
-            val bowEffect = gameState.bowAttackEffects.find { it.targetPosition == position }
-            if (bowEffect != null) {
-                val dx = (bowEffect.targetPosition.x - bowEffect.sourcePosition.x).toFloat()
-                val dy = (bowEffect.targetPosition.y - bowEffect.sourcePosition.y).toFloat()
-                val angle = if (dx == 0f && dy == 0f) 0f
-                    else (atan2(dy.toDouble(), dx.toDouble()) * GamePlayConstants.AnimationTimings.RADIANS_TO_DEGREES).toFloat()
-                ArrowAttackAnimation(
-                    animate = AppSettings.enableAnimations.value,
-                    directionAngle = angle,
-                    isTargetTile = true,
-                    modifier = Modifier.fillMaxSize().zIndex(18f)
-                )
-            }
-        }
+    // Show dragon-targeting warning animation on mines that a dragon is approaching
+    if (dragonIsTargetingMine) {
+        DragonTargetAnimation(
+            animate = AppSettings.enableAnimations.value,
+            modifier = Modifier.fillMaxSize().zIndex(12f),
+        )
+    }
 
-        // Show dragon-targeting warning animation on mines that a dragon is approaching
-        if (dragonIsTargetingMine) {
-            DragonTargetAnimation(
-                animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize().zIndex(12f)
-            )
-        }
-
-        // Show small bomb countdown overlay when an enemy is on the same bomb tile
-        if (bombEffect != null && attacker != null) {
+    // Show small bomb countdown overlay when an enemy is on the same bomb tile
+    if (bombEffect != null && attacker != null) {
+        Box(
+            modifier = Modifier.fillMaxSize().zIndex(15f),
+            contentAlignment = Alignment.BottomEnd,
+        ) {
             Box(
-                modifier = Modifier.fillMaxSize().zIndex(15f),
-                contentAlignment = Alignment.BottomEnd
-            ) {
-                Box(
-                    modifier = Modifier
+                modifier =
+                    Modifier
                         .padding(2.dp)
                         .background(
                             color = Color(0xFFCC0000),
-                            shape = androidx.compose.foundation.shape.CircleShape
-                        )
-                        .padding(horizontal = 3.dp, vertical = 1.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        "${bombEffect.turnsRemaining}",
-                        fontSize = 10.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.ExtraBold
+                            shape = androidx.compose.foundation.shape.CircleShape,
+                        ).padding(horizontal = 3.dp, vertical = 1.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    "${bombEffect.turnsRemaining}",
+                    fontSize = 10.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+            }
+        }
+    }
+
+    // Draw target circles AFTER other content so they appear on top
+    // Inner circles on central target tile, outer ring segments on neighbor tiles
+    targetCircleInfo?.let { info ->
+        Canvas(
+            modifier =
+                Modifier
+                    .matchParentSize()
+                    .zIndex(11f),
+        ) {
+            when (info) {
+                is TargetCircleInfo.CentralTarget -> {
+                    // Draw 3 inner circles on the central target tile
+                    val centerX = size.width / 2
+                    val centerY = size.height / 2
+                    val center = Offset(centerX, centerY)
+
+                    // Filled inner circle
+                    drawCircle(
+                        color = info.color,
+                        radius = TargetCircleConstants.INNER_CIRCLE_1_RADIUS,
+                        center = center,
+                    )
+
+                    // Two stroke circles
+                    drawCircle(
+                        color = info.color,
+                        radius = TargetCircleConstants.INNER_CIRCLE_2_RADIUS,
+                        center = center,
+                        style =
+                            Stroke(
+                                width = TargetCircleConstants.INNER_CIRCLE_STROKE_WIDTH,
+                            ),
+                    )
+
+                    drawCircle(
+                        color = info.color,
+                        radius = TargetCircleConstants.INNER_CIRCLE_3_RADIUS,
+                        center = center,
+                        style =
+                            Stroke(
+                                width = TargetCircleConstants.INNER_CIRCLE_STROKE_WIDTH,
+                            ),
                     )
                 }
-            }
-        }
 
-        // Draw target circles AFTER other content so they appear on top
-        // Inner circles on central target tile, outer ring segments on neighbor tiles
-        targetCircleInfo?.let { info ->
-            Canvas(
-                modifier = Modifier
-                    .matchParentSize()
-                    .zIndex(11f)
-            ) {
-                when (info) {
-                    is TargetCircleInfo.CentralTarget -> {
-                        // Draw 3 inner circles on the central target tile
-                        val centerX = size.width / 2
-                        val centerY = size.height / 2
-                        val center = Offset(centerX, centerY)
-
-                        // Filled inner circle
-                        drawCircle(
-                            color = info.color,
-                            radius = TargetCircleConstants.INNER_CIRCLE_1_RADIUS,
-                            center = center
-                        )
-
-                        // Two stroke circles
-                        drawCircle(
-                            color = info.color,
-                            radius = TargetCircleConstants.INNER_CIRCLE_2_RADIUS,
-                            center = center,
-                            style = Stroke(
-                                width = TargetCircleConstants.INNER_CIRCLE_STROKE_WIDTH
-                            )
-                        )
-
-                        drawCircle(
-                            color = info.color,
-                            radius = TargetCircleConstants.INNER_CIRCLE_3_RADIUS,
-                            center = center,
-                            style = Stroke(
-                                width = TargetCircleConstants.INNER_CIRCLE_STROKE_WIDTH
-                            )
-                        )
-                    }
-
-                    is TargetCircleInfo.NeighborTarget -> {
-                        // Draw outer ring segments on neighbor tiles (only for AREA and LASTING)
-                        if (info.attackType == AttackType.AREA || info.attackType == AttackType.LASTING) {
-                            // Use different radii based on distance from center
-                            // Distance 2 (extended area for level 20+) uses larger radii
-                            val radius1 = if (info.distanceFromCenter >= 2)
+                is TargetCircleInfo.NeighborTarget -> {
+                    // Draw outer ring segments on neighbor tiles (only for AREA and LASTING)
+                    if (info.attackType == AttackType.AREA || info.attackType == AttackType.LASTING) {
+                        // Use different radii based on distance from center
+                        // Distance 2 (extended area for level 20+) uses larger radii
+                        val radius1 =
+                            if (info.distanceFromCenter >= 2) {
                                 TargetCircleConstants.EXTENDED_OUTER_CIRCLE_1_RADIUS
-                            else
+                            } else {
                                 TargetCircleConstants.OUTER_CIRCLE_1_RADIUS
-                            val radius2 = if (info.distanceFromCenter >= 2)
+                            }
+                        val radius2 =
+                            if (info.distanceFromCenter >= 2) {
                                 TargetCircleConstants.EXTENDED_OUTER_CIRCLE_2_RADIUS
-                            else
+                            } else {
                                 TargetCircleConstants.OUTER_CIRCLE_2_RADIUS
-                            val radius3 = if (info.distanceFromCenter >= 2)
+                            }
+                        val radius3 =
+                            if (info.distanceFromCenter >= 2) {
                                 TargetCircleConstants.EXTENDED_OUTER_CIRCLE_3_RADIUS
-                            else
+                            } else {
                                 TargetCircleConstants.OUTER_CIRCLE_3_RADIUS
+                            }
 
-                            // Draw 3 concentric arc segments
-                            CircularSegmentDrawer.drawArcSegment(
-                                drawScope = this,
-                                color = info.color,
-                                radius = radius1,
-                                strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
-                                centerPos = info.centerPosition,
-                                neighborPos = info.thisPosition,
-                                hexSize = hexSize.value
-                            )
+                        // Draw 3 concentric arc segments
+                        CircularSegmentDrawer.drawArcSegment(
+                            drawScope = this,
+                            color = info.color,
+                            radius = radius1,
+                            strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
+                            centerPos = info.centerPosition,
+                            neighborPos = info.thisPosition,
+                            hexSize = hexSize.value,
+                        )
 
-                            CircularSegmentDrawer.drawArcSegment(
-                                drawScope = this,
-                                color = info.color,
-                                radius = radius2,
-                                strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
-                                centerPos = info.centerPosition,
-                                neighborPos = info.thisPosition,
-                                hexSize = hexSize.value
-                            )
+                        CircularSegmentDrawer.drawArcSegment(
+                            drawScope = this,
+                            color = info.color,
+                            radius = radius2,
+                            strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
+                            centerPos = info.centerPosition,
+                            neighborPos = info.thisPosition,
+                            hexSize = hexSize.value,
+                        )
 
-                            CircularSegmentDrawer.drawArcSegment(
-                                drawScope = this,
-                                color = info.color,
-                                radius = radius3,
-                                strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
-                                centerPos = info.centerPosition,
-                                neighborPos = info.thisPosition,
-                                hexSize = hexSize.value
-                            )
-                        }
+                        CircularSegmentDrawer.drawArcSegment(
+                            drawScope = this,
+                            color = info.color,
+                            radius = radius3,
+                            strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
+                            centerPos = info.centerPosition,
+                            neighborPos = info.thisPosition,
+                            hexSize = hexSize.value,
+                        )
                     }
                 }
             }
         }
+    }
 
-        // Draw dashed border for tower placement preview
-        if (useDashedBorder) {
-            Canvas(
-                modifier = Modifier
+    // Draw dashed border for tower placement preview
+    if (useDashedBorder) {
+        Canvas(
+            modifier =
+                Modifier
                     .matchParentSize()
-                    .zIndex(12f)
-            ) {
-                val sqrt3 = sqrt(3.0).toFloat()
-                val centerX = size.width / 2f
-                val centerY = size.height / 2f
-                val radius = minOf(size.width, size.height) / 2f
+                    .zIndex(12f),
+        ) {
+            val sqrt3 = sqrt(3.0).toFloat()
+            val centerX = size.width / 2f
+            val centerY = size.height / 2f
+            val radius = minOf(size.width, size.height) / 2f
 
-                // Create hexagon path
-                val path = Path().apply {
+            // Create hexagon path
+            val path =
+                Path().apply {
                     // Top point
                     moveTo(centerX, centerY - radius)
                     // Top-right
@@ -2692,35 +2953,39 @@ private fun BoxScope.GridCellContent(
                     close()
                 }
 
-                // Draw dashed border
-                drawPath(
-                    path = path,
-                    color = borderColor,
-                    style = Stroke(
+            // Draw dashed border
+            drawPath(
+                path = path,
+                color = borderColor,
+                style =
+                    Stroke(
                         width = borderWidth.toPx(),
-                        pathEffect = PathEffect.dashPathEffect(
-                            intervals = floatArrayOf(10f, 5f),  // 10px dash, 5px gap
-                            phase = 0f
-                        )
-                    )
-                )
-            }
+                        pathEffect =
+                            PathEffect.dashPathEffect(
+                                intervals = floatArrayOf(10f, 5f), // 10px dash, 5px gap
+                                phase = 0f,
+                            ),
+                    ),
+            )
         }
+    }
 
-        // Draw diagonal stripes for buildable tiles, tower bases, and placement tiles (trap/barricade/magical trap)
-        if (showDiagonalStripes) {
-            Canvas(
-                modifier = Modifier
+    // Draw diagonal stripes for buildable tiles, tower bases, and placement tiles (trap/barricade/magical trap)
+    if (showDiagonalStripes) {
+        Canvas(
+            modifier =
+                Modifier
                     .matchParentSize()
-                    .zIndex(11f)  // Below the dashed border
-            ) {
-                val sqrt3 = sqrt(3.0).toFloat()
-                val centerX = size.width / 2f
-                val centerY = size.height / 2f
-                val radius = minOf(size.width, size.height) / 2f
+                    .zIndex(11f), // Below the dashed border
+        ) {
+            val sqrt3 = sqrt(3.0).toFloat()
+            val centerX = size.width / 2f
+            val centerY = size.height / 2f
+            val radius = minOf(size.width, size.height) / 2f
 
-                // Create hexagon clip path
-                val hexPath = Path().apply {
+            // Create hexagon clip path
+            val hexPath =
+                Path().apply {
                     moveTo(centerX, centerY - radius)
                     lineTo(centerX + radius * sqrt3 / 2f, centerY - radius / 2f)
                     lineTo(centerX + radius * sqrt3 / 2f, centerY + radius / 2f)
@@ -2729,36 +2994,37 @@ private fun BoxScope.GridCellContent(
                     lineTo(centerX - radius * sqrt3 / 2f, centerY - radius / 2f)
                     close()
                 }
-                
-                // Draw diagonal stripes with clipping
-                drawContext.canvas.save()
-                drawContext.canvas.clipPath(hexPath)
-                
-                // Draw diagonal stripes
-                val stripeWidth = 8f
-                val stripeSpacing = 16f
-                val totalSpacing = stripeWidth + stripeSpacing
-                val diagonalLength = size.width + size.height
-                
-                // Start from top-right, go to bottom-left (90 degree rotation)
-                var offset = -diagonalLength
-                while (offset < diagonalLength) {
-                    drawLine(
-                        color = borderColor.copy(alpha = 0.8f),  // 80% opacity
-                        start = Offset(size.width - offset, 0f),
-                        end = Offset(size.width - offset - size.height, size.height),
-                        strokeWidth = stripeWidth
-                    )
-                    offset += totalSpacing
-                }
-                
-                drawContext.canvas.restore()
-            }
-        }
 
-        // Debug overlay: tile borders by type
-        if (AppSettings.showTileBorders.value) {
-            val debugBorderColor = when {
+            // Draw diagonal stripes with clipping
+            drawContext.canvas.save()
+            drawContext.canvas.clipPath(hexPath)
+
+            // Draw diagonal stripes
+            val stripeWidth = 8f
+            val stripeSpacing = 16f
+            val totalSpacing = stripeWidth + stripeSpacing
+            val diagonalLength = size.width + size.height
+
+            // Start from top-right, go to bottom-left (90 degree rotation)
+            var offset = -diagonalLength
+            while (offset < diagonalLength) {
+                drawLine(
+                    color = borderColor.copy(alpha = 0.8f), // 80% opacity
+                    start = Offset(size.width - offset, 0f),
+                    end = Offset(size.width - offset - size.height, size.height),
+                    strokeWidth = stripeWidth,
+                )
+                offset += totalSpacing
+            }
+
+            drawContext.canvas.restore()
+        }
+    }
+
+    // Debug overlay: tile borders by type
+    if (AppSettings.showTileBorders.value) {
+        val debugBorderColor =
+            when {
                 isSpawnPoint -> Color(0xFFFF4400)
                 isTarget -> Color(0xFF00DD00)
                 isRiverTile -> Color(0xFF0066FF)
@@ -2766,30 +3032,32 @@ private fun BoxScope.GridCellContent(
                 gameState.level.isBuildArea(position) -> Color(0xFF44BB44)
                 else -> Color(0xFF888888)
             }
-            Box(
-                modifier = Modifier
+        Box(
+            modifier =
+                Modifier
                     .matchParentSize()
-                    .border(2.dp, debugBorderColor, HexagonShape())
-            )
-        }
+                    .border(2.dp, debugBorderColor, HexagonShape()),
+        )
+    }
 
-        // Debug overlay: tile position text
-        if (AppSettings.showTilePositions.value) {
-            Box(
-                modifier = Modifier
+    // Debug overlay: tile position text
+    if (AppSettings.showTilePositions.value) {
+        Box(
+            modifier =
+                Modifier
                     .background(Color.White.copy(alpha = 0.8f))
                     .padding(1.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "${position.x},${position.y}",
-                    fontSize = 8.sp,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = "${position.x},${position.y}",
+                fontSize = 8.sp,
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+            )
         }
     }
+}
 
 /**
  * Visualize a bridge over a river tile
@@ -2798,7 +3066,7 @@ private fun BoxScope.GridCellContent(
 fun BridgeVisualization(bridge: Bridge) {
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         // Draw bridge arc
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -2806,53 +3074,64 @@ fun BridgeVisualization(bridge: Bridge) {
             val centerY = size.height / 2
             val arcWidth = size.width * 0.8f
             val arcHeight = size.height * 0.4f
-            
+
             // Bridge color based on type
-            val bridgeColor = when (bridge.type) {
-                BridgeType.WOODEN -> Color(0xFF8B4513)  // Brown
-                BridgeType.STONE -> Color(0xFF808080)   // Gray
-                BridgeType.MAGICAL -> Color(0xFFFF00FF) // Magenta/purple for magical
-            }
-            
+            val bridgeColor =
+                when (bridge.type) {
+                    BridgeType.WOODEN -> Color(0xFF8B4513) // Brown
+                    BridgeType.STONE -> Color(0xFF808080) // Gray
+                    BridgeType.MAGICAL -> Color(0xFFFF00FF) // Magenta/purple for magical
+                }
+
             // Draw half arc (bridge shape) - opening at bottom
             drawArc(
                 color = bridgeColor,
-                startAngle = 180f,  // Start from bottom-left
-                sweepAngle = 180f,  // Draw top half
+                startAngle = 180f, // Start from bottom-left
+                sweepAngle = 180f, // Draw top half
                 useCenter = false,
-                topLeft = androidx.compose.ui.geometry.Offset(
-                    centerX - arcWidth / 2,
-                    centerY - arcHeight / 2
-                ),
-                size = androidx.compose.ui.geometry.Size(arcWidth, arcHeight),
-                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 6f)
+                topLeft =
+                    androidx.compose.ui.geometry.Offset(
+                        centerX - arcWidth / 2,
+                        centerY - arcHeight / 2,
+                    ),
+                size =
+                    androidx.compose.ui.geometry
+                        .Size(arcWidth, arcHeight),
+                style =
+                    androidx.compose.ui.graphics.drawscope
+                        .Stroke(width = 6f),
             )
-            
+
             // For magical bridges, add sparkle effect above the arc
             if (bridge.type == BridgeType.MAGICAL) {
                 // Draw sparkles around the arc (top side)
-                val sparklePositions = listOf(
-                    androidx.compose.ui.geometry.Offset(centerX - arcWidth / 3, centerY - arcHeight / 2 + 5),
-                    androidx.compose.ui.geometry.Offset(centerX, centerY - arcHeight / 2),
-                    androidx.compose.ui.geometry.Offset(centerX + arcWidth / 3, centerY - arcHeight / 2 + 5)
-                )
+                val sparklePositions =
+                    listOf(
+                        androidx.compose.ui.geometry
+                            .Offset(centerX - arcWidth / 3, centerY - arcHeight / 2 + 5),
+                        androidx.compose.ui.geometry
+                            .Offset(centerX, centerY - arcHeight / 2),
+                        androidx.compose.ui.geometry
+                            .Offset(centerX + arcWidth / 3, centerY - arcHeight / 2 + 5),
+                    )
                 sparklePositions.forEach { pos ->
                     drawCircle(
                         color = Color.White,
                         radius = 2f,
-                        center = pos
+                        center = pos,
                     )
                 }
             }
         }
-        
+
         // Display health or turn count below the arc
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 4.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 4.dp),
         ) {
             when (bridge.type) {
                 BridgeType.WOODEN, BridgeType.STONE -> {
@@ -2862,7 +3141,7 @@ fun BridgeVisualization(bridge: Bridge) {
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 13.sp,
                         color = Color.White,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                 }
                 BridgeType.MAGICAL -> {
@@ -2871,8 +3150,8 @@ fun BridgeVisualization(bridge: Bridge) {
                         text = "${bridge.turnsRemaining.value}T",
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 13.sp,
-                        color = Color(0xFFFFFF00),  // Yellow
-                        fontWeight = FontWeight.Bold
+                        color = Color(0xFFFFFF00), // Yellow
+                        fontWeight = FontWeight.Bold,
                     )
                 }
             }
@@ -2886,7 +3165,11 @@ fun BridgeVisualization(bridge: Bridge) {
  * (excluding the source and target tiles themselves).
  * Uses linear interpolation over grid coordinates to determine intermediate tiles.
  */
-private fun isOnArrowLinePath(source: Position, target: Position, pos: Position): Boolean {
+private fun isOnArrowLinePath(
+    source: Position,
+    target: Position,
+    pos: Position,
+): Boolean {
     val dx = target.x - source.x
     val dy = target.y - source.y
     val steps = maxOf(abs(dx), abs(dy))

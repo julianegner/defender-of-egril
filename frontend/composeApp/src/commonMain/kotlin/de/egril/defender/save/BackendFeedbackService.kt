@@ -13,63 +13,74 @@ data class FeedbackSubmitRequest(
     val currentSettingsJson: String?,
     val gameStateJson: String?,
     val gameLog: String?,
-    val attachments: List<FeedbackAttachmentData> = emptyList()
+    val attachments: List<FeedbackAttachmentData> = emptyList(),
 )
 
 data class FeedbackAttachmentData(
     val filename: String,
     val mimeType: String,
-    val base64Content: String
+    val base64Content: String,
 )
 
 expect object BackendFeedbackService {
-    suspend fun submitFeedback(request: FeedbackSubmitRequest, token: String?): Int?
+    suspend fun submitFeedback(
+        request: FeedbackSubmitRequest,
+        token: String?,
+    ): Int?
 }
 
-internal fun buildFeedbackUploadJson(request: FeedbackSubmitRequest): String = buildString {
-    val currentPlatform = de.egril.defender.utils.getPlatform()
-    val platform = de.egril.defender.utils.getClientPlatformName()
-    val platformLong = currentPlatform.name
-    val osName = currentPlatform.osName
-    val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
-    val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
+internal fun buildFeedbackUploadJson(request: FeedbackSubmitRequest): String =
+    buildString {
+        val currentPlatform =
+            de.egril.defender.utils
+                .getPlatform()
+        val platform =
+            de.egril.defender.utils
+                .getClientPlatformName()
+        val platformLong = currentPlatform.name
+        val osName = currentPlatform.osName
+        val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
+        val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
 
-    append("{")
-    append("\"feedbackId\":\"${escapeJsonString(request.feedbackId)}\",")
-    append("\"feedbackType\":\"${escapeJsonString(request.feedbackType)}\",")
-    append("\"bugTypes\":[${request.bugTypes.joinToString(",") { "\"${escapeJsonString(it)}\"" }}],")
-    append("\"message\":\"${escapeJsonString(request.message)}\",")
-    appendNullableString("contactEmail", request.contactEmail)
-    append(',')
-    appendNullableString("sourceContext", request.sourceContext)
-    append(',')
-    appendNullableString("userLanguage", request.userLanguage)
-    append(',')
-    appendNullableString("gameLevelName", request.gameLevelName)
-    append(',')
-    appendNullableInt("gameTurnNumber", request.gameTurnNumber)
-    append(',')
-    appendNullableString("currentSettingsJson", request.currentSettingsJson)
-    append(',')
-    appendNullableString("gameStateJson", request.gameStateJson)
-    append(',')
-    appendNullableString("gameLog", request.gameLog)
-    append(',')
-    append("\"attachments\":[")
-    request.attachments.forEachIndexed { index, attachment ->
-        if (index > 0) append(',')
         append("{")
-        append("\"filename\":\"${escapeJsonString(attachment.filename)}\",")
-        append("\"mimeType\":\"${escapeJsonString(attachment.mimeType)}\",")
-        append("\"base64Content\":\"${escapeJsonString(attachment.base64Content)}\"")
+        append("\"feedbackId\":\"${escapeJsonString(request.feedbackId)}\",")
+        append("\"feedbackType\":\"${escapeJsonString(request.feedbackType)}\",")
+        append("\"bugTypes\":[${request.bugTypes.joinToString(",") { "\"${escapeJsonString(it)}\"" }}],")
+        append("\"message\":\"${escapeJsonString(request.message)}\",")
+        appendNullableString("contactEmail", request.contactEmail)
+        append(',')
+        appendNullableString("sourceContext", request.sourceContext)
+        append(',')
+        appendNullableString("userLanguage", request.userLanguage)
+        append(',')
+        appendNullableString("gameLevelName", request.gameLevelName)
+        append(',')
+        appendNullableInt("gameTurnNumber", request.gameTurnNumber)
+        append(',')
+        appendNullableString("currentSettingsJson", request.currentSettingsJson)
+        append(',')
+        appendNullableString("gameStateJson", request.gameStateJson)
+        append(',')
+        appendNullableString("gameLog", request.gameLog)
+        append(',')
+        append("\"attachments\":[")
+        request.attachments.forEachIndexed { index, attachment ->
+            if (index > 0) append(',')
+            append("{")
+            append("\"filename\":\"${escapeJsonString(attachment.filename)}\",")
+            append("\"mimeType\":\"${escapeJsonString(attachment.mimeType)}\",")
+            append("\"base64Content\":\"${escapeJsonString(attachment.base64Content)}\"")
+            append("}")
+        }
+        append("],")
+        appendClientInfo(platform, platformLong, versionName, commitHash, osName)
         append("}")
     }
-    append("],")
-    appendClientInfo(platform, platformLong, versionName, commitHash, osName)
-    append("}")
-}
 
-private fun StringBuilder.appendNullableString(key: String, value: String?) {
+private fun StringBuilder.appendNullableString(
+    key: String,
+    value: String?,
+) {
     if (value == null) {
         append("\"$key\":null")
     } else {
@@ -77,7 +88,10 @@ private fun StringBuilder.appendNullableString(key: String, value: String?) {
     }
 }
 
-private fun StringBuilder.appendNullableInt(key: String, value: Int?) {
+private fun StringBuilder.appendNullableInt(
+    key: String,
+    value: Int?,
+) {
     if (value == null) {
         append("\"$key\":null")
     } else {

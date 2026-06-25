@@ -1,7 +1,7 @@
 package de.egril.defender.editor
 
-import de.egril.defender.utils.runBlockingCompat
 import de.egril.defender.config.LogConfig
+import de.egril.defender.utils.runBlockingCompat
 
 /**
  * Manages repository data operations, including detection and restoration.
@@ -16,13 +16,13 @@ object RepositoryManager {
      * Set by GameViewModel to reload world map data after the user acknowledges the result.
      */
     var onDataRestored: (() -> Unit)? = null
-    
+
     /**
      * Restore game data from repository.
      * This will:
      * 1. Backup current gamedata folder to gamedata-N (where N is the lowest available number)
      * 2. Copy repository files to a new gamedata folder
-     * 
+     *
      * @return The absolute path to the backup folder, or null if restoration failed
      */
     suspend fun restoreFromRepository(): String? {
@@ -32,10 +32,10 @@ object RepositoryManager {
                 println("No repository files found")
                 return null
             }
-            
+
             // Find the next available backup folder name
             val backupFolderName = findNextBackupFolderName()
-            
+
             // Backup current gamedata if it exists
             if (fileStorage.fileExists(GAMEDATA_DIR)) {
                 val renamed = fileStorage.renameDirectory(GAMEDATA_DIR, backupFolderName)
@@ -44,18 +44,18 @@ object RepositoryManager {
                     return null
                 }
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Backed up gamedata to $backupFolderName")
+                    println("Backed up gamedata to $backupFolderName")
                 }
             }
-            
+
             // Create new gamedata directory
             fileStorage.createDirectory(GAMEDATA_DIR)
             fileStorage.createDirectory("$GAMEDATA_DIR/maps")
             fileStorage.createDirectory("$GAMEDATA_DIR/levels")
-            
+
             // Load and save repository files
             val success = RepositoryLoader.loadAndSaveRepositoryFiles(fileStorage)
-            
+
             if (!success) {
                 println("Failed to load repository files")
                 // Try to restore backup if loading failed
@@ -76,23 +76,22 @@ object RepositoryManager {
             return fileStorage.getAbsolutePath(backupFolderName)
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Error restoring from repository: ${e.message}")
+                println("Error restoring from repository: ${e.message}")
             }
             e.printStackTrace()
             return null
         }
     }
-    
+
     /**
      * Restore game data from repository synchronously.
      * This is a blocking wrapper around the suspending function.
      */
-    fun restoreFromRepositoryBlocking(): String? {
-        return runBlockingCompat {
+    fun restoreFromRepositoryBlocking(): String? =
+        runBlockingCompat {
             restoreFromRepository()
         }
-    }
-    
+
     /**
      * Copy user and community subdirectories from a backup folder to the current gamedata
      * directory. This preserves player-created maps/levels and community-downloaded content
@@ -125,14 +124,12 @@ object RepositoryManager {
         }
         return "$GAMEDATA_BACKUP_PREFIX$counter"
     }
-    
+
     /**
      * Check if repository files exist
      */
-    suspend fun hasRepositoryFiles(): Boolean {
-        return RepositoryLoader.hasRepositoryFiles()
-    }
-    
+    suspend fun hasRepositoryFiles(): Boolean = RepositoryLoader.hasRepositoryFiles()
+
     /**
      * Data class to hold information about new repository files
      */
@@ -141,9 +138,9 @@ object RepositoryManager {
         val newLevels: List<String>,
         val hasNewSequence: Boolean,
         val hasNewWorldMap: Boolean,
-        val worldMapData: WorldMapData? = null  // Cache the loaded worldmap data to avoid redundant loading
+        val worldMapData: WorldMapData? = null, // Cache the loaded worldmap data to avoid redundant loading
     )
-    
+
     /**
      * Detect new map and level files in repository that are not in gamedata/official.
      * Returns null immediately if the stored version already matches the bundled version.
@@ -177,35 +174,35 @@ object RepositoryManager {
                 val worldMapExists = fileStorage.readFile("$GAMEDATA_DIR/official/worldmap.json") != null
                 if (officialMapFiles.isNotEmpty() && worldMapExists) {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("Repository data is up to date (version $storedVersion), no sync needed")
+                        println("Repository data is up to date (version $storedVersion), no sync needed")
                     }
                     return null
                 }
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                if (officialMapFiles.isEmpty()) {
-                    println("Version matches ($storedVersion) but official maps are missing - checking for updates")
-                } else {
-                    println("Version matches ($storedVersion) but worldmap.json is missing - checking for updates")
-                }
+                    if (officialMapFiles.isEmpty()) {
+                        println("Version matches ($storedVersion) but official maps are missing - checking for updates")
+                    } else {
+                        println("Version matches ($storedVersion) but worldmap.json is missing - checking for updates")
+                    }
                 }
                 // Fall through to the full update check below
             }
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println(
-                "Repository data changed (stored version: $storedVersion, bundled version: $bundledVersion, " +
-                    "stored fingerprint: $storedFingerprint, bundled fingerprint: $bundledFingerprint) - " +
-                    "checking for updates"
-            )
+                println(
+                    "Repository data changed (stored version: $storedVersion, bundled version: $bundledVersion, " +
+                        "stored fingerprint: $storedFingerprint, bundled fingerprint: $bundledFingerprint) - " +
+                        "checking for updates",
+                )
             }
-            
+
             // Check if official gamedata exists
             if (!fileStorage.fileExists("$GAMEDATA_DIR/official")) {
                 println("Official gamedata directory doesn't exist - all repository files are new")
                 // All files are new if official gamedata doesn't exist
                 val sequence = RepositoryLoader.loadSequence()
                 if (sequence == null) return null
-                
+
                 // Load all map IDs and level IDs from sequence
                 val levelIds = sequence.sequence
                 val mapIds = mutableSetOf<String>()
@@ -215,99 +212,107 @@ object RepositoryManager {
                         mapIds.add(level.mapId)
                     }
                 }
-                
+
                 return NewRepositoryData(
                     newMaps = mapIds.toList(),
                     newLevels = levelIds,
                     hasNewSequence = true,
                     hasNewWorldMap = true,
-                    worldMapData = RepositoryLoader.loadWorldMapData()
+                    worldMapData = RepositoryLoader.loadWorldMapData(),
                 )
             }
-            
+
             // Compare repository files with official gamedata files
-            val existingMaps = fileStorage.listFiles("$GAMEDATA_DIR/official/maps")
-                .filter { it.endsWith(".json") }
-                .map { it.removeSuffix(".json") }
-                .toSet()
-            
-            val existingLevels = fileStorage.listFiles("$GAMEDATA_DIR/official/levels")
-                .filter { it.endsWith(".json") }
-                .map { it.removeSuffix(".json") }
-                .toSet()
-            
+            val existingMaps =
+                fileStorage
+                    .listFiles("$GAMEDATA_DIR/official/maps")
+                    .filter { it.endsWith(".json") }
+                    .map { it.removeSuffix(".json") }
+                    .toSet()
+
+            val existingLevels =
+                fileStorage
+                    .listFiles("$GAMEDATA_DIR/official/levels")
+                    .filter { it.endsWith(".json") }
+                    .map { it.removeSuffix(".json") }
+                    .toSet()
+
             // Load repository sequence to get all level and map IDs
             val repoSequence = RepositoryLoader.loadSequence()
             if (repoSequence == null) {
                 println("Could not load repository sequence")
                 return null
             }
-            
+
             // Track new maps and levels
             val newMaps = mutableSetOf<String>()
             val newLevels = mutableListOf<String>()
-            
+
             // Check each level in repository sequence
             for (levelId in repoSequence.sequence) {
                 // Check if level is new
                 if (!existingLevels.contains(levelId)) {
                     newLevels.add(levelId)
                 }
-                
+
                 // Load level to get map ID
                 val level = RepositoryLoader.loadLevel(levelId)
                 if (level != null && !existingMaps.contains(level.mapId)) {
                     newMaps.add(level.mapId)
                 }
             }
-            
+
             // Check if sequence is different
             val currentSequenceJson = fileStorage.readFile("$GAMEDATA_DIR/official/sequence.json")
             val currentSequence = currentSequenceJson?.let { EditorJsonSerializer.deserializeSequence(it) }
-            val hasNewSequence = currentSequence == null || 
-                currentSequence.sequence != repoSequence.sequence
-            
+            val hasNewSequence =
+                currentSequence == null ||
+                    currentSequence.sequence != repoSequence.sequence
+
             // Check if worldmap is different
             val currentWorldMapJson = fileStorage.readFile("$GAMEDATA_DIR/official/worldmap.json")
             val repoWorldMapData = RepositoryLoader.loadWorldMapData()
-            val hasNewWorldMap = if (repoWorldMapData != null) {
-                val currentWorldMapData = currentWorldMapJson?.let { EditorJsonSerializer.deserializeWorldMapData(it) }
-                currentWorldMapData == null || currentWorldMapData != repoWorldMapData
-            } else {
-                false
-            }
-            
+            val hasNewWorldMap =
+                if (repoWorldMapData != null) {
+                    val currentWorldMapData = currentWorldMapJson?.let { EditorJsonSerializer.deserializeWorldMapData(it) }
+                    currentWorldMapData == null || currentWorldMapData != repoWorldMapData
+                } else {
+                    false
+                }
+
             // Return null if no new files found
             if (newMaps.isEmpty() && newLevels.isEmpty() && !hasNewSequence && !hasNewWorldMap) {
                 println("No new repository files detected")
                 return null
             }
-            
+
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Detected new repository files: ${newMaps.size} maps, ${newLevels.size} levels, sequence changed: $hasNewSequence, worldmap changed: $hasNewWorldMap")
+                println(
+                    "Detected new repository files: ${newMaps.size} maps, ${newLevels.size} levels, sequence changed: $hasNewSequence, worldmap changed: $hasNewWorldMap",
+                )
             }
             return NewRepositoryData(
                 newMaps = newMaps.toList(),
                 newLevels = newLevels,
                 hasNewSequence = hasNewSequence,
                 hasNewWorldMap = hasNewWorldMap,
-                worldMapData = repoWorldMapData  // Cache the loaded worldmap data
+                worldMapData = repoWorldMapData, // Cache the loaded worldmap data
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Error detecting new repository files: ${e.message}")
+                println("Error detecting new repository files: ${e.message}")
             }
             e.printStackTrace()
             return null
         }
     }
-    
+
     /**
      * Sync all official content from repository to gamedata.
      * When any difference is detected (new files, changed sequence, changed worldmap,
      * or updated level/map content), all official content is refreshed from the repository.
      * User data in gamedata/user/ is never touched.
-     * 
+     *
      * @return true if sync was performed and successful
      */
     suspend fun syncNewRepositoryFiles(): Boolean {
@@ -320,9 +325,11 @@ object RepositoryManager {
             }
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Repository changes detected (${newData.newMaps.size} new maps, " +
-                "${newData.newLevels.size} new levels, sequence changed: ${newData.hasNewSequence}, " +
-                "worldmap changed: ${newData.hasNewWorldMap}) - performing full official content sync")
+                println(
+                    "Repository changes detected (${newData.newMaps.size} new maps, " +
+                        "${newData.newLevels.size} new levels, sequence changed: ${newData.hasNewSequence}, " +
+                        "worldmap changed: ${newData.hasNewWorldMap}) - performing full official content sync",
+                )
             }
 
             // Ensure official gamedata directories exist
@@ -330,49 +337,47 @@ object RepositoryManager {
             fileStorage.createDirectory("$GAMEDATA_DIR/official")
             fileStorage.createDirectory("$GAMEDATA_DIR/official/maps")
             fileStorage.createDirectory("$GAMEDATA_DIR/official/levels")
-            
+
             // Do a full sync of all official content from repository.
             // This covers new files, updated files (same ID, changed content), sequence, and worldmap.
             val success = RepositoryLoader.loadAndSaveRepositoryFiles(fileStorage)
-            
+
             if (!success) {
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Full official content sync failed")
+                    println("Full official content sync failed")
                 }
                 return false
             }
 
             // Invalidate EditorStorage caches so the world map reload reads fresh data
             EditorStorage.clearOfficialDataCache()
-            
+
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Successfully synced all official content from repository")
+                println("Successfully synced all official content from repository")
             }
             return true
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Error syncing repository files: ${e.message}")
+                println("Error syncing repository files: ${e.message}")
             }
             e.printStackTrace()
             return false
         }
     }
-    
+
     /**
      * Sync new files from repository synchronously.
      */
-    fun syncNewRepositoryFilesBlocking(): Boolean {
-        return runBlockingCompat {
+    fun syncNewRepositoryFilesBlocking(): Boolean =
+        runBlockingCompat {
             syncNewRepositoryFiles()
         }
-    }
-    
+
     /**
      * Detect new repository files synchronously.
      */
-    fun detectNewRepositoryFilesBlocking(): NewRepositoryData? {
-        return runBlockingCompat {
+    fun detectNewRepositoryFilesBlocking(): NewRepositoryData? =
+        runBlockingCompat {
             detectNewRepositoryFiles()
         }
-    }
 }

@@ -13,11 +13,15 @@ import platform.Foundation.dataUsingEncoding
 import kotlin.coroutines.resume
 
 private val feedbackBackendUrl: String
-    get() = NSProcessInfo.processInfo.environment["ANALYTICS_BACKEND_URL"] as? String
-        ?: "http://localhost:8080"
+    get() =
+        NSProcessInfo.processInfo.environment["ANALYTICS_BACKEND_URL"] as? String
+            ?: "http://localhost:8080"
 
 actual object BackendFeedbackService {
-    actual suspend fun submitFeedback(request: FeedbackSubmitRequest, token: String?): Int? =
+    actual suspend fun submitFeedback(
+        request: FeedbackSubmitRequest,
+        token: String?,
+    ): Int? =
         suspendCancellableCoroutine { continuation ->
             val url = NSURL.URLWithString("$feedbackBackendUrl/api/feedback")
             if (url == null) {
@@ -30,12 +34,15 @@ actual object BackendFeedbackService {
             if (!token.isNullOrBlank()) {
                 httpRequest.setValue("Bearer $token", forHTTPHeaderField = "Authorization")
             }
-            httpRequest.HTTPBody = NSString.create(string = buildFeedbackUploadJson(request))
-                .dataUsingEncoding(NSUTF8StringEncoding)
+            httpRequest.HTTPBody =
+                NSString
+                    .create(string = buildFeedbackUploadJson(request))
+                    .dataUsingEncoding(NSUTF8StringEncoding)
 
-            NSURLSession.sharedSession.dataTaskWithRequest(httpRequest) { _, response, _ ->
-                val statusCode = (response as? NSHTTPURLResponse)?.statusCode?.toInt()
-                continuation.resume(if (statusCode != null && statusCode in 200..299) null else (statusCode ?: -1))
-            }.resume()
+            NSURLSession.sharedSession
+                .dataTaskWithRequest(httpRequest) { _, response, _ ->
+                    val statusCode = (response as? NSHTTPURLResponse)?.statusCode?.toInt()
+                    continuation.resume(if (statusCode != null && statusCode in 200..299) null else (statusCode ?: -1))
+                }.resume()
         }
 }

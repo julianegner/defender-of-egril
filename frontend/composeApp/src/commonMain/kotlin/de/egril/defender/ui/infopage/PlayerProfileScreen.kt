@@ -4,6 +4,7 @@ package de.egril.defender.ui.infopage
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,21 +23,20 @@ import de.egril.defender.model.Achievement
 import de.egril.defender.model.AchievementDefinitions
 import de.egril.defender.save.PlayerProfile
 import de.egril.defender.ui.ProfileTabScrollbar
-import de.egril.defender.ui.getLocalizedName
-import de.egril.defender.ui.getLocalizedDescription
+import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.getLocalizedDescription
+import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.icon.UnlockIcon
+import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
-import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.utils.formatTimestamp
 import de.egril.defender.utils.isPlatformMobile
-import de.egril.defender.ui.isMobileWebBrowser
 import defender_of_egril.composeapp.generated.resources.*
-import androidx.compose.foundation.text.selection.SelectionContainer
 import kotlinx.coroutines.launch
 
 /**
@@ -57,11 +57,11 @@ fun PlayerProfileScreen(
     onIamLogout: () -> Unit = {},
     onManageAccount: () -> Unit = {},
     onAlwaysLoginChanged: (Boolean) -> Unit = {},
-    onUseRemoteSettingsChanged: (Boolean) -> Unit = {}
+    onUseRemoteSettingsChanged: (Boolean) -> Unit = {},
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = MaterialTheme.colorScheme.background,
     ) {
         val focusRequester = remember { FocusRequester() }
         val scope = rememberCoroutineScope()
@@ -75,117 +75,129 @@ fun PlayerProfileScreen(
         val tabScrollState = rememberScrollState()
 
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .focusRequester(focusRequester)
-                .focusTarget()
-                .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown) {
-                        when {
-                            // Escape / Back → go back
-                            event.key == Key.Escape || event.key == Key.Back -> {
-                                onBack()
-                                true
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .focusRequester(focusRequester)
+                    .focusTarget()
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown) {
+                            when {
+                                // Escape / Back → go back
+                                event.key == Key.Escape || event.key == Key.Back -> {
+                                    onBack()
+                                    true
+                                }
+                                // Left/Right arrows → switch tabs
+                                event.key == Key.DirectionLeft && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                    if (selectedTabIndex > 0) selectedTabIndex--
+                                    true
+                                }
+                                event.key == Key.DirectionRight && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                    if (selectedTabIndex < 1) selectedTabIndex++
+                                    true
+                                }
+                                // Period (.) → Open feedback
+                                event.key == Key.Period && !event.isCtrlPressed -> {
+                                    triggerFeedback = true
+                                    true
+                                }
+                                // Comma (,) → Open settings
+                                event.key == Key.Comma && !event.isCtrlPressed -> {
+                                    triggerSettings = true
+                                    true
+                                }
+                                // K → Toggle collapse/expand header
+                                event.key == Key.K && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                    headerCollapsed = !headerCollapsed
+                                    true
+                                }
+                                // E → Edit player name
+                                event.key == Key.E && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                    onEditName()
+                                    true
+                                }
+                                // A → Toggle always log in
+                                event.key == Key.A && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                    onAlwaysLoginChanged(!playerProfile.alwaysLogin)
+                                    true
+                                }
+                                // R → Toggle use remote settings
+                                event.key == Key.R && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                    onUseRemoteSettingsChanged(!playerProfile.useRemoteSettings)
+                                    true
+                                }
+                                // S → Switch player
+                                event.key == Key.S && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                    onSelectPlayer()
+                                    true
+                                }
+                                // M → Manage account
+                                event.key == Key.M && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                    onManageAccount()
+                                    true
+                                }
+                                // L → Logout
+                                event.key == Key.L && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                    onIamLogout()
+                                    true
+                                }
+                                // Up/Down arrows → scroll tab content
+                                event.key == Key.DirectionUp && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                    scope.launch { tabScrollState.animateScrollTo((tabScrollState.value - 120).coerceAtLeast(0)) }
+                                    true
+                                }
+                                event.key == Key.DirectionDown && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                    scope.launch {
+                                        tabScrollState.animateScrollTo(
+                                            (tabScrollState.value + 120).coerceAtMost(tabScrollState.maxValue),
+                                        )
+                                    }
+                                    true
+                                }
+                                else -> false
                             }
-                            // Left/Right arrows → switch tabs
-                            event.key == Key.DirectionLeft && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                                if (selectedTabIndex > 0) selectedTabIndex--
-                                true
-                            }
-                            event.key == Key.DirectionRight && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                                if (selectedTabIndex < 1) selectedTabIndex++
-                                true
-                            }
-                            // Period (.) → Open feedback
-                            event.key == Key.Period && !event.isCtrlPressed -> {
-                                triggerFeedback = true
-                                true
-                            }
-                            // Comma (,) → Open settings
-                            event.key == Key.Comma && !event.isCtrlPressed -> {
-                                triggerSettings = true
-                                true
-                            }
-                            // K → Toggle collapse/expand header
-                            event.key == Key.K && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                                headerCollapsed = !headerCollapsed
-                                true
-                            }
-                            // E → Edit player name
-                            event.key == Key.E && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                                onEditName()
-                                true
-                            }
-                            // A → Toggle always log in
-                            event.key == Key.A && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                                onAlwaysLoginChanged(!playerProfile.alwaysLogin)
-                                true
-                            }
-                            // R → Toggle use remote settings
-                            event.key == Key.R && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                                onUseRemoteSettingsChanged(!playerProfile.useRemoteSettings)
-                                true
-                            }
-                            // S → Switch player
-                            event.key == Key.S && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                                onSelectPlayer()
-                                true
-                            }
-                            // M → Manage account
-                            event.key == Key.M && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                                onManageAccount()
-                                true
-                            }
-                            // L → Logout
-                            event.key == Key.L && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                                onIamLogout()
-                                true
-                            }
-                            // Up/Down arrows → scroll tab content
-                            event.key == Key.DirectionUp && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                                scope.launch { tabScrollState.animateScrollTo((tabScrollState.value - 120).coerceAtLeast(0)) }
-                                true
-                            }
-                            event.key == Key.DirectionDown && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                                scope.launch { tabScrollState.animateScrollTo((tabScrollState.value + 120).coerceAtMost(tabScrollState.maxValue)) }
-                                true
-                            }
-                            else -> false
+                        } else {
+                            false
                         }
-                    } else false
-                }
+                    },
         ) {
             LaunchedEffect(Unit) {
-                try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+                try {
+                    focusRequester.requestFocus()
+                } catch (_: IllegalStateException) {
+                }
             }
-            
+
             Column(
                 modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 // Header: toggle between full and compact view
 
                 if (headerCollapsed) {
                     // Compact single-row header: name | remote account | XP | ability points
-                    val remoteAccountName = if (iamState.isAuthenticated && iamState.username != null) {
-                        iamState.username
-                    } else {
-                        playerProfile.remoteUsername
-                    }
+                    val remoteAccountName =
+                        if (iamState.isAuthenticated && iamState.username != null) {
+                            iamState.username
+                        } else {
+                            playerProfile.remoteUsername
+                        }
                     val stats = playerProfile.abilities
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         // Player name and info on the LEFT, taking remaining space
                         Row(
                             modifier = Modifier.weight(1f),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             SelectionContainer {
                                 // Player name
@@ -193,41 +205,44 @@ fun PlayerProfileScreen(
                                     text = playerProfile.name,
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = MaterialTheme.colorScheme.primary,
                                 )
                                 if (remoteAccountName != null) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(2.dp),
                                     ) {
                                         UnlockIcon(size = 12.dp)
                                         Text(
                                             text = remoteAccountName,
                                             style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.secondary
+                                            color = MaterialTheme.colorScheme.secondary,
                                         )
                                     }
                                 }
                                 // XP
                                 Text(
-                                    text = stringResource(
-                                        Res.string.xp_progress,
-                                        stats.totalXP,
-                                        de.egril.defender.model.PlayerAbilities.getXPForNextLevel(stats.level)
-                                    ),
+                                    text =
+                                        stringResource(
+                                            Res.string.xp_progress,
+                                            stats.totalXP,
+                                            de.egril.defender.model.PlayerAbilities
+                                                .getXPForNextLevel(stats.level),
+                                        ),
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                                 // Available ability points
                                 if (stats.availableAbilityPoints > 0) {
                                     Text(
-                                        text = stringResource(
-                                            Res.string.available_stat_points,
-                                            stats.availableAbilityPoints
-                                        ),
+                                        text =
+                                            stringResource(
+                                                Res.string.available_stat_points,
+                                                stats.availableAbilityPoints,
+                                            ),
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = MaterialTheme.colorScheme.primary,
                                     )
                                 }
                             }
@@ -235,11 +250,11 @@ fun PlayerProfileScreen(
                         // Expand button
                         TextButton(
                             onClick = { headerCollapsed = false },
-                            modifier = Modifier.defaultMinSize(minHeight = 28.dp)
+                            modifier = Modifier.defaultMinSize(minHeight = 28.dp),
                         ) {
                             Text(
                                 text = stringResource(Res.string.expand),
-                                style = MaterialTheme.typography.labelSmall
+                                style = MaterialTheme.typography.labelSmall,
                             )
                             if (AppSettings.showButtonShortcutHints.value) {
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -249,11 +264,11 @@ fun PlayerProfileScreen(
                         // Switch player button
                         OutlinedButton(
                             onClick = onSelectPlayer,
-                            modifier = Modifier.defaultMinSize(minHeight = 28.dp)
+                            modifier = Modifier.defaultMinSize(minHeight = 28.dp),
                         ) {
                             Text(
                                 text = stringResource(Res.string.switch_player),
-                                style = MaterialTheme.typography.bodySmall
+                                style = MaterialTheme.typography.bodySmall,
                             )
                             if (AppSettings.showButtonShortcutHints.value) {
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -264,12 +279,12 @@ fun PlayerProfileScreen(
                         FeedbackButton(
                             shortcutKey = ".",
                             triggerOpen = triggerFeedback,
-                            onTriggerHandled = { triggerFeedback = false }
+                            onTriggerHandled = { triggerFeedback = false },
                         )
                         SettingsButton(
                             shortcutKey = ",",
                             triggerOpen = triggerSettings,
-                            onTriggerHandled = { triggerSettings = false }
+                            onTriggerHandled = { triggerSettings = false },
                         )
                     }
                 } else {
@@ -278,11 +293,12 @@ fun PlayerProfileScreen(
                     val headerBottomPadding = if (isMobileUI) 8.dp else 24.dp
                     val headerButtonHeight = if (isMobileUI) 28.dp else 36.dp
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = headerBottomPadding),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = headerBottomPadding),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         // Title on the LEFT, centered in remaining space
                         Text(
@@ -290,16 +306,16 @@ fun PlayerProfileScreen(
                             style = if (isMobileUI) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displayMedium,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         )
                         // Collapse button
                         TextButton(
                             onClick = { headerCollapsed = true },
-                            modifier = Modifier.defaultMinSize(minHeight = headerButtonHeight)
+                            modifier = Modifier.defaultMinSize(minHeight = headerButtonHeight),
                         ) {
                             Text(
                                 text = stringResource(Res.string.collapse),
-                                style = MaterialTheme.typography.labelSmall
+                                style = MaterialTheme.typography.labelSmall,
                             )
                             if (AppSettings.showButtonShortcutHints.value) {
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -309,11 +325,11 @@ fun PlayerProfileScreen(
                         // Switch player button
                         OutlinedButton(
                             onClick = onSelectPlayer,
-                            modifier = Modifier.defaultMinSize(minHeight = headerButtonHeight)
+                            modifier = Modifier.defaultMinSize(minHeight = headerButtonHeight),
                         ) {
                             Text(
                                 text = stringResource(Res.string.switch_player),
-                                style = MaterialTheme.typography.bodySmall
+                                style = MaterialTheme.typography.bodySmall,
                             )
                             if (AppSettings.showButtonShortcutHints.value) {
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -324,23 +340,24 @@ fun PlayerProfileScreen(
                         FeedbackButton(
                             shortcutKey = ".",
                             triggerOpen = triggerFeedback,
-                            onTriggerHandled = { triggerFeedback = false }
+                            onTriggerHandled = { triggerFeedback = false },
                         )
                         SettingsButton(
                             shortcutKey = ",",
                             triggerOpen = triggerSettings,
-                            onTriggerHandled = { triggerSettings = false }
+                            onTriggerHandled = { triggerSettings = false },
                         )
                     }
                 }
-                
+
                 // Scrollable content
-                
+
                 Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                 ) {
                     if (!headerCollapsed) {
                         // Cards: side-by-side on landscape, stacked+scrollable on portrait
@@ -351,13 +368,14 @@ fun PlayerProfileScreen(
                                     // Mobile/portrait: stacked, scrollable
                                     val cardsScrollState = rememberScrollState()
                                     Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .verticalScroll(cardsScrollState)
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .verticalScroll(cardsScrollState),
                                     ) {
                                         PlayerInfoCard(
                                             playerProfile = playerProfile,
-                                            onEditName = onEditName
+                                            onEditName = onEditName,
                                         )
                                         Spacer(modifier = Modifier.height(12.dp))
                                         UserAccountCard(
@@ -369,7 +387,7 @@ fun PlayerProfileScreen(
                                             alwaysLogin = playerProfile.alwaysLogin,
                                             onAlwaysLoginChanged = onAlwaysLoginChanged,
                                             useRemoteSettings = playerProfile.useRemoteSettings,
-                                            onUseRemoteSettingsChanged = onUseRemoteSettingsChanged
+                                            onUseRemoteSettingsChanged = onUseRemoteSettingsChanged,
                                         )
                                     }
                                 } else {
@@ -377,12 +395,12 @@ fun PlayerProfileScreen(
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                        verticalAlignment = Alignment.Top
+                                        verticalAlignment = Alignment.Top,
                                     ) {
                                         Box(modifier = Modifier.weight(0.3f)) {
                                             PlayerInfoCard(
                                                 playerProfile = playerProfile,
-                                                onEditName = onEditName
+                                                onEditName = onEditName,
                                             )
                                         }
                                         Box(modifier = Modifier.weight(0.7f)) {
@@ -395,7 +413,7 @@ fun PlayerProfileScreen(
                                                 alwaysLogin = playerProfile.alwaysLogin,
                                                 onAlwaysLoginChanged = onAlwaysLoginChanged,
                                                 useRemoteSettings = playerProfile.useRemoteSettings,
-                                                onUseRemoteSettingsChanged = onUseRemoteSettingsChanged
+                                                onUseRemoteSettingsChanged = onUseRemoteSettingsChanged,
                                             )
                                         }
                                     }
@@ -407,45 +425,52 @@ fun PlayerProfileScreen(
                     } else {
                         Spacer(modifier = Modifier.height(4.dp))
                     }
-                    
+
                     // Tabs (only show if stats callback is provided)
                     if (onNavigateToStats != null) {
                         PrimaryTabRow(
                             selectedTabIndex = selectedTabIndex,
                             containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurface
+                            contentColor = MaterialTheme.colorScheme.onSurface,
                         ) {
                             Tab(
                                 selected = selectedTabIndex == 0,
                                 onClick = { selectedTabIndex = 0 },
                                 text = {
-                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                            ShortcutKeyChip(text = "\u2190", color = LocalContentColor.current.copy(alpha = 0.6f))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    ) {
+                                        ShortcutKeyChip(text = "\u2190", color = LocalContentColor.current.copy(alpha = 0.6f))
                                         Text(stringResource(Res.string.achievements))
                                     }
-                                }
+                                },
                             )
                             Tab(
                                 selected = selectedTabIndex == 1,
                                 onClick = { selectedTabIndex = 1 },
                                 text = {
-                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    ) {
                                         Text(stringResource(Res.string.abilities))
-                                            ShortcutKeyChip(text = "\u2192", color = LocalContentColor.current.copy(alpha = 0.6f))
+                                        ShortcutKeyChip(text = "\u2192", color = LocalContentColor.current.copy(alpha = 0.6f))
                                     }
-                                }
+                                },
                             )
                         }
-                        
+
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         // Tab content (scrollable) with vertical scrollbar
                         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                             Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .verticalScroll(tabScrollState)
-                                    .padding(end = 12.dp)
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .verticalScroll(tabScrollState)
+                                        .padding(end = 12.dp),
                             ) {
                                 when (selectedTabIndex) {
                                     0 -> {
@@ -458,20 +483,21 @@ fun PlayerProfileScreen(
                                             StatsAndAbilitiesContent(
                                                 playerProfile = playerProfile,
                                                 onUpgradeAbility = onUpgradeAbility,
-                                                onUnlockSpell = onUnlockSpell
+                                                onUnlockSpell = onUnlockSpell,
                                             )
                                         } else {
                                             // Fallback to button if callbacks not provided
                                             Button(
                                                 onClick = onNavigateToStats,
                                                 modifier = Modifier.fillMaxWidth().height(56.dp),
-                                                colors = ButtonDefaults.buttonColors(
-                                                    containerColor = MaterialTheme.colorScheme.secondary
-                                                )
+                                                colors =
+                                                    ButtonDefaults.buttonColors(
+                                                        containerColor = MaterialTheme.colorScheme.secondary,
+                                                    ),
                                             ) {
                                                 Text(
                                                     text = stringResource(Res.string.abilities),
-                                                    style = MaterialTheme.typography.titleMedium
+                                                    style = MaterialTheme.typography.titleMedium,
                                                 )
                                             }
                                         }
@@ -484,10 +510,11 @@ fun PlayerProfileScreen(
                         // No stats callback - just show achievements directly (old behavior)
                         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                             Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .verticalScroll(tabScrollState)
-                                    .padding(end = 12.dp)
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .verticalScroll(tabScrollState)
+                                        .padding(end = 12.dp),
                             ) {
                                 AchievementsListDirect(achievements = playerProfile.achievements)
                             }
@@ -495,14 +522,15 @@ fun PlayerProfileScreen(
                         }
                     }
                 }
-                
+
                 // Back button
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = onBack,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
                 ) {
                     Text(stringResource(Res.string.back))
                     if (AppSettings.showButtonShortcutHints.value) {
@@ -517,30 +545,30 @@ fun PlayerProfileScreen(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         // Left/Right → Switch tab
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             ShortcutKeyChip(text = "\u2190/\u2192")
                             Text(
                                 text = stringResource(Res.string.keyboard_nav_switch_tab),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                         // Up/Down → Scroll
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             ShortcutKeyChip(text = "\u2191/\u2193")
                             Text(
                                 text = stringResource(Res.string.keyboard_nav_scroll),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -556,46 +584,48 @@ fun PlayerProfileScreen(
 @Composable
 private fun PlayerInfoCard(
     playerProfile: PlayerProfile,
-    onEditName: () -> Unit
+    onEditName: () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
         ) {
             // Player Name with edit button
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(Res.string.player_name),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
                         text = playerProfile.name,
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
-                
+
                 OutlinedButton(
                     onClick = onEditName,
-                    modifier = Modifier.defaultMinSize(minHeight = 36.dp)
+                    modifier = Modifier.defaultMinSize(minHeight = 36.dp),
                 ) {
                     Text(
                         text = stringResource(Res.string.edit),
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
                     )
                     if (AppSettings.showButtonShortcutHints.value) {
                         Spacer(modifier = Modifier.width(4.dp))
@@ -603,87 +633,89 @@ private fun PlayerInfoCard(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider()
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Created date
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
                     text = stringResource(Res.string.player_created),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = formatTimestamp(playerProfile.createdAt),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Last played date
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
                     text = stringResource(Res.string.player_last_played),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = formatTimestamp(playerProfile.lastPlayedAt),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Achievements count
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
                     text = stringResource(Res.string.achievements_earned),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = "${playerProfile.achievements.size} / ${AchievementDefinitions.allAchievements.size}",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Available ability points
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
                     text = stringResource(Res.string.available_stat_points_label),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = "${playerProfile.abilities.availableAbilityPoints}",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (playerProfile.abilities.availableAbilityPoints > 0)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.onSurface
+                    color =
+                        if (playerProfile.abilities.availableAbilityPoints > 0) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
                 )
             }
         }
@@ -697,27 +729,28 @@ private fun PlayerInfoCard(
 private fun AchievementsListDirect(achievements: List<Achievement>) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         if (achievements.isEmpty()) {
             // No achievements yet
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
             ) {
                 Text(
                     text = stringResource(Res.string.no_achievements_yet),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(20.dp)
+                    modifier = Modifier.padding(20.dp),
                 )
             }
         } else {
             // Show achievements directly
             val sortedAchievements = achievements.sortedByDescending { it.earnedAt }
-            
+
             sortedAchievements.forEach { achievement ->
                 AchievementItem(achievement = achievement)
             }
@@ -732,110 +765,117 @@ private fun AchievementsListDirect(achievements: List<Achievement>) {
 private fun StatsAndAbilitiesContent(
     playerProfile: PlayerProfile,
     onUpgradeAbility: (de.egril.defender.model.AbilityType) -> Unit,
-    onUnlockSpell: (de.egril.defender.model.SpellType) -> Unit
+    onUnlockSpell: (de.egril.defender.model.SpellType) -> Unit,
 ) {
     val stats = playerProfile.abilities
-    
+
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         // Player Level Info
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            )
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                ),
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = stringResource(Res.string.player_level, stats.level),
                     style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 // XP Progress
-                val currentLevelXP = de.egril.defender.model.PlayerAbilities.getXPForLevel(stats.level)
-                val nextLevelXP = de.egril.defender.model.PlayerAbilities.getXPForNextLevel(stats.level)
+                val currentLevelXP =
+                    de.egril.defender.model.PlayerAbilities
+                        .getXPForLevel(stats.level)
+                val nextLevelXP =
+                    de.egril.defender.model.PlayerAbilities
+                        .getXPForNextLevel(stats.level)
                 val progressInLevel = stats.totalXP - currentLevelXP
                 val requiredForLevel = nextLevelXP - currentLevelXP
                 val progress = if (requiredForLevel > 0) progressInLevel.toFloat() / requiredForLevel.toFloat() else 1f
-                
+
                 Column(modifier = Modifier.fillMaxWidth()) {
                     LinearProgressIndicator(
                         progress = { progress },
-                        modifier = Modifier.fillMaxWidth().height(12.dp)
+                        modifier = Modifier.fillMaxWidth().height(12.dp),
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = stringResource(Res.string.xp_progress, progressInLevel, requiredForLevel),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                 }
             }
         }
-        
+
         // Available ability points
         if (stats.availableAbilityPoints > 0) {
             Text(
                 text = stringResource(Res.string.available_stat_points, stats.availableAbilityPoints),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         }
-        
+
         // Abilities Section Header
         Text(
             text = stringResource(Res.string.abilities),
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
         // Info text: changes do not affect savegames
         Text(
             text = stringResource(Res.string.abilities_savegame_info),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(vertical = 4.dp)
+            modifier = Modifier.padding(vertical = 4.dp),
         )
         // Keyboard navigation hint for abilities/spells
         if (AppSettings.showButtonShortcutHints.value && stats.availableAbilityPoints > 0) {
             Surface(
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                shape =
+                    androidx.compose.foundation.shape
+                        .RoundedCornerShape(8.dp),
             ) {
                 Row(
                     modifier = Modifier.padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     ShortcutKeyChip(text = "Tab")
                     Text(
                         text = stringResource(Res.string.keyboard_nav_next),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     ShortcutKeyChip(text = "Enter")
                     Text(
                         text = stringResource(Res.string.keyboard_nav_upgrade),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
         }
-        
+
         // Ability Cards Grid (3 columns)
         var showConstructionInfo by remember { mutableStateOf(false) }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Box(modifier = Modifier.weight(1f)) {
                 de.egril.defender.ui.AbilityCardGrid(
@@ -844,7 +884,10 @@ private fun StatsAndAbilitiesContent(
                     effect = stringResource(Res.string.stat_health_effect, stats.getBonusHealth()),
                     canUpgrade = stats.availableAbilityPoints > 0,
                     onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.HEALTH) },
-                    icon = { de.egril.defender.ui.icon.HeartIcon(size = 32.dp) }
+                    icon = {
+                        de.egril.defender.ui.icon
+                            .HeartIcon(size = 32.dp)
+                    },
                 )
             }
             Box(modifier = Modifier.weight(1f)) {
@@ -854,7 +897,10 @@ private fun StatsAndAbilitiesContent(
                     effect = stringResource(Res.string.stat_treasury_effect, stats.getBonusStartCoins()),
                     canUpgrade = stats.availableAbilityPoints > 0,
                     onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.TREASURY) },
-                    icon = { de.egril.defender.ui.icon.MoneyIcon(size = 32.dp) }
+                    icon = {
+                        de.egril.defender.ui.icon
+                            .MoneyIcon(size = 32.dp)
+                    },
                 )
             }
             Box(modifier = Modifier.weight(1f)) {
@@ -864,26 +910,34 @@ private fun StatsAndAbilitiesContent(
                     effect = stringResource(Res.string.stat_income_effect, stats.incomeAbility * 10),
                     canUpgrade = stats.availableAbilityPoints > 0,
                     onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.INCOME) },
-                    icon = { de.egril.defender.ui.icon.MoneyIcon(size = 32.dp) }
+                    icon = {
+                        de.egril.defender.ui.icon
+                            .MoneyIcon(size = 32.dp)
+                    },
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Box(modifier = Modifier.weight(1f)) {
                 de.egril.defender.ui.AbilityCardWithInfoGrid(
                     name = stringResource(Res.string.stat_construction),
                     currentLevel = stats.constructionAbility,
-                    effect = de.egril.defender.ui.buildConstructionEffect(stats.constructionAbility),
+                    effect =
+                        de.egril.defender.ui
+                            .buildConstructionEffect(stats.constructionAbility),
                     canUpgrade = stats.availableAbilityPoints > 0,
                     onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.CONSTRUCTION) },
-                    icon = { de.egril.defender.ui.icon.HammerIcon(size = 32.dp) },
-                    onShowInfo = { showConstructionInfo = true }
+                    icon = {
+                        de.egril.defender.ui.icon
+                            .HammerIcon(size = 32.dp)
+                    },
+                    onShowInfo = { showConstructionInfo = true },
                 )
             }
             Box(modifier = Modifier.weight(1f)) {
@@ -893,39 +947,42 @@ private fun StatsAndAbilitiesContent(
                     effect = stringResource(Res.string.stat_mana_effect, stats.getMaxMana()),
                     canUpgrade = stats.availableAbilityPoints > 0,
                     onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.MANA) },
-                    icon = { de.egril.defender.ui.icon.StarIcon(size = 32.dp) }
+                    icon = {
+                        de.egril.defender.ui.icon
+                            .StarIcon(size = 32.dp)
+                    },
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
         }
-        
+
         if (showConstructionInfo) {
             de.egril.defender.ui.ConstructionInfoDialog(
-                onDismiss = { showConstructionInfo = false }
+                onDismiss = { showConstructionInfo = false },
             )
         }
-        
+
         Spacer(modifier = Modifier.height(4.dp))
-        
+
         // Spells Section
         Text(
             text = stringResource(Res.string.spells),
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
-        
+
         Text(
             text = stringResource(Res.string.spells_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 3.dp)
+            modifier = Modifier.padding(bottom = 3.dp),
         )
-        
+
         // Spells Grid (3 columns)
         de.egril.defender.model.SpellType.values().toList().chunked(3).forEach { chunk ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 chunk.forEach { spell ->
                     val isUnlocked = stats.isSpellUnlocked(spell)
@@ -934,7 +991,7 @@ private fun StatsAndAbilitiesContent(
                             spell = spell,
                             isUnlocked = isUnlocked,
                             canUnlock = !isUnlocked && stats.availableAbilityPoints > 0,
-                            onUnlock = { onUnlockSpell(spell) }
+                            onUnlock = { onUnlockSpell(spell) },
                         )
                     }
                 }
@@ -953,27 +1010,29 @@ private fun StatsAndAbilitiesContent(
 @Composable
 private fun AchievementItem(achievement: Achievement) {
     val info = AchievementDefinitions.getInfo(achievement.id)
-    
+
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             // Trophy icon
             TrophyIcon(
                 size = 32.dp,
-                tint = MaterialTheme.colorScheme.tertiary
+                tint = MaterialTheme.colorScheme.tertiary,
             )
-            
+
             // Achievement info
             Column(modifier = Modifier.weight(1f)) {
                 // Achievement name
@@ -981,21 +1040,21 @@ private fun AchievementItem(achievement: Achievement) {
                     text = achievement.id.getLocalizedName(),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
-                
+
                 // Achievement description
                 Text(
                     text = achievement.id.getLocalizedDescription(),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                
+
                 // Earned date
                 Text(
                     text = stringResource(Res.string.earned_on, formatTimestamp(achievement.earnedAt)),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -1016,57 +1075,60 @@ private fun UserAccountCard(
     alwaysLogin: Boolean = false,
     onAlwaysLoginChanged: (Boolean) -> Unit = {},
     useRemoteSettings: Boolean = true,
-    onUseRemoteSettingsChanged: (Boolean) -> Unit = {}
+    onUseRemoteSettingsChanged: (Boolean) -> Unit = {},
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
                 text = stringResource(Res.string.user_account),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             if (iamState.isAuthenticated) {
                 // Three-column layout when wide enough: names | action buttons | toggles
                 // Stacked layout on narrow widths
-                val fullName = listOfNotNull(iamState.firstName, iamState.lastName)
-                    .filter { it.isNotBlank() }
-                    .joinToString(" ")
-                    .takeIf { it.isNotBlank() }
+                val fullName =
+                    listOfNotNull(iamState.firstName, iamState.lastName)
+                        .filter { it.isNotBlank() }
+                        .joinToString(" ")
+                        .takeIf { it.isNotBlank() }
                 BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                     val isWide = maxWidth >= 560.dp
                     if (isWide) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.Top
+                            verticalAlignment = Alignment.Top,
                         ) {
                             // Column 1: User names
                             Column(
                                 modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
                             ) {
                                 iamState.username?.let { username ->
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                                     ) {
                                         UnlockIcon(size = 14.dp)
                                         Text(
                                             text = username,
                                             style = MaterialTheme.typography.bodyMedium,
                                             fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onSurface
+                                            color = MaterialTheme.colorScheme.onSurface,
                                         )
                                     }
                                 }
@@ -1074,30 +1136,30 @@ private fun UserAccountCard(
                                     Text(
                                         text = fullName,
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
                                 iamState.email?.let { email ->
                                     Text(
                                         text = email,
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
                             }
                             // Column 2: Action buttons
                             Column(
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
                             ) {
                                 OutlinedButton(
                                     onClick = onManageAccount,
-                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp)
+                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp),
                                 ) {
                                     ToolsIcon(size = 14.dp)
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
                                         text = stringResource(Res.string.iam_manage_account),
-                                        style = MaterialTheme.typography.bodySmall
+                                        style = MaterialTheme.typography.bodySmall,
                                     )
                                     if (AppSettings.showButtonShortcutHints.value) {
                                         Spacer(modifier = Modifier.width(4.dp))
@@ -1106,13 +1168,13 @@ private fun UserAccountCard(
                                 }
                                 OutlinedButton(
                                     onClick = onIamLogout,
-                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp)
+                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp),
                                 ) {
                                     LockIcon(size = 14.dp)
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
                                         text = stringResource(Res.string.iam_logout),
-                                        style = MaterialTheme.typography.bodySmall
+                                        style = MaterialTheme.typography.bodySmall,
                                     )
                                     if (AppSettings.showButtonShortcutHints.value) {
                                         Spacer(modifier = Modifier.width(4.dp))
@@ -1126,7 +1188,7 @@ private fun UserAccountCard(
                                 onAlwaysLoginChanged = onAlwaysLoginChanged,
                                 useRemoteSettings = useRemoteSettings,
                                 onUseRemoteSettingsChanged = onUseRemoteSettingsChanged,
-                                spreadAcrossWidth = false
+                                spreadAcrossWidth = false,
                             )
                         }
                     } else {
@@ -1135,14 +1197,14 @@ private fun UserAccountCard(
                             iamState.username?.let { username ->
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                                 ) {
                                     UnlockIcon(size = 14.dp)
                                     Text(
                                         text = username,
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface
+                                        color = MaterialTheme.colorScheme.onSurface,
                                     )
                                 }
                             }
@@ -1150,26 +1212,26 @@ private fun UserAccountCard(
                                 Text(
                                     text = fullName,
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
                             iamState.email?.let { email ->
                                 Text(
                                     text = email,
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 OutlinedButton(
                                     onClick = onManageAccount,
-                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp)
+                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp),
                                 ) {
                                     ToolsIcon(size = 14.dp)
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
                                         text = stringResource(Res.string.iam_manage_account),
-                                        style = MaterialTheme.typography.bodySmall
+                                        style = MaterialTheme.typography.bodySmall,
                                     )
                                     if (AppSettings.showButtonShortcutHints.value) {
                                         Spacer(modifier = Modifier.width(4.dp))
@@ -1178,13 +1240,13 @@ private fun UserAccountCard(
                                 }
                                 OutlinedButton(
                                     onClick = onIamLogout,
-                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp)
+                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp),
                                 ) {
                                     LockIcon(size = 14.dp)
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
                                         text = stringResource(Res.string.iam_logout),
-                                        style = MaterialTheme.typography.bodySmall
+                                        style = MaterialTheme.typography.bodySmall,
                                     )
                                     if (AppSettings.showButtonShortcutHints.value) {
                                         Spacer(modifier = Modifier.width(4.dp))
@@ -1198,7 +1260,7 @@ private fun UserAccountCard(
                                 onAlwaysLoginChanged = onAlwaysLoginChanged,
                                 useRemoteSettings = useRemoteSettings,
                                 onUseRemoteSettingsChanged = onUseRemoteSettingsChanged,
-                                spreadAcrossWidth = true
+                                spreadAcrossWidth = true,
                             )
                         }
                     }
@@ -1207,16 +1269,16 @@ private fun UserAccountCard(
                 OutlinedButton(
                     onClick = {},
                     modifier = Modifier.height(36.dp),
-                    enabled = false
+                    enabled = false,
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(14.dp),
-                        strokeWidth = 2.dp
+                        strokeWidth = 2.dp,
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = stringResource(Res.string.iam_login_waiting),
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
                 HorizontalDivider()
@@ -1225,18 +1287,18 @@ private fun UserAccountCard(
                     onAlwaysLoginChanged = onAlwaysLoginChanged,
                     useRemoteSettings = useRemoteSettings,
                     onUseRemoteSettingsChanged = onUseRemoteSettingsChanged,
-                    spreadAcrossWidth = true
+                    spreadAcrossWidth = true,
                 )
             } else {
                 OutlinedButton(
                     onClick = onIamLogin,
-                    modifier = Modifier.height(36.dp)
+                    modifier = Modifier.height(36.dp),
                 ) {
                     UnlockIcon(size = 14.dp)
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = stringResource(Res.string.iam_login),
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
                 HorizontalDivider()
@@ -1245,7 +1307,7 @@ private fun UserAccountCard(
                     onAlwaysLoginChanged = onAlwaysLoginChanged,
                     useRemoteSettings = useRemoteSettings,
                     onUseRemoteSettingsChanged = onUseRemoteSettingsChanged,
-                    spreadAcrossWidth = true
+                    spreadAcrossWidth = true,
                 )
             }
         }
@@ -1265,7 +1327,7 @@ private fun AccountSettingToggles(
     onAlwaysLoginChanged: (Boolean) -> Unit,
     useRemoteSettings: Boolean,
     onUseRemoteSettingsChanged: (Boolean) -> Unit,
-    spreadAcrossWidth: Boolean = false
+    spreadAcrossWidth: Boolean = false,
 ) {
     val rowModifier = if (spreadAcrossWidth) Modifier.fillMaxWidth() else Modifier
     val rowArrangement = if (spreadAcrossWidth) Arrangement.SpaceBetween else Arrangement.spacedBy(8.dp)
@@ -1273,43 +1335,43 @@ private fun AccountSettingToggles(
         Row(
             modifier = rowModifier,
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = rowArrangement
+            horizontalArrangement = rowArrangement,
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
                     text = stringResource(Res.string.always_log_in),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
-                    ShortcutKeyChip(text = "A")
+                ShortcutKeyChip(text = "A")
             }
             Switch(
                 checked = alwaysLogin,
-                onCheckedChange = { onAlwaysLoginChanged(it) }
+                onCheckedChange = { onAlwaysLoginChanged(it) },
             )
         }
         Row(
             modifier = rowModifier,
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = rowArrangement
+            horizontalArrangement = rowArrangement,
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
                     text = stringResource(Res.string.use_remote_settings),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
-                    ShortcutKeyChip(text = "R")
+                ShortcutKeyChip(text = "R")
             }
             Switch(
                 checked = useRemoteSettings,
-                onCheckedChange = { onUseRemoteSettingsChanged(it) }
+                onCheckedChange = { onUseRemoteSettingsChanged(it) },
             )
         }
     }

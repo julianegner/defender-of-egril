@@ -11,32 +11,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
-import de.egril.defender.model.PlayerAbilities
 import de.egril.defender.model.AbilityType
+import de.egril.defender.model.PlayerAbilities
 import de.egril.defender.model.SpellType
 import de.egril.defender.save.PlayerProfile
-import de.egril.defender.ui.icon.HeartIcon
-import de.egril.defender.ui.icon.MoneyIcon
-import de.egril.defender.ui.icon.HammerIcon
-import de.egril.defender.ui.icon.StarIcon
-import de.egril.defender.ui.icon.InfoIcon
-import de.egril.defender.ui.isMobileWebBrowser
-import de.egril.defender.ui.settings.SettingsButton
-import de.egril.defender.ui.settings.AppSettings
-import de.egril.defender.ui.settings.isShortcutBindingPressed
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.gameplay.ScrollableInfoCard
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.gameplay.SpellTargetIcon
+import de.egril.defender.ui.icon.HammerIcon
+import de.egril.defender.ui.icon.HeartIcon
+import de.egril.defender.ui.icon.InfoIcon
+import de.egril.defender.ui.icon.MoneyIcon
+import de.egril.defender.ui.icon.StarIcon
+import de.egril.defender.ui.isMobileWebBrowser
+import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.settings.isShortcutBindingPressed
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -51,73 +49,76 @@ fun AbilitiesUpgradeScreen(
     onBack: () -> Unit,
     onContinueToNextLevel: (() -> Unit)? = null,
     nextLevelName: String? = null,
-    onCheatCode: ((String) -> Boolean)? = null
+    onCheatCode: ((String) -> Boolean)? = null,
 ) {
     val abilities = playerProfile.abilities
     var showCheatDialog by remember { mutableStateOf(false) }
 
     Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown) {
-                    when {
-                        event.key == Key.Back || event.key == Key.Escape -> {
-                            onBack()
-                            true
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when {
+                            event.key == Key.Back || event.key == Key.Escape -> {
+                                onBack()
+                                true
+                            }
+                            isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) && onCheatCode != null -> {
+                                showCheatDialog = true
+                                true
+                            }
+                            else -> false
                         }
-                        isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) && onCheatCode != null -> {
-                            showCheatDialog = true
-                            true
-                        }
-                        else -> false
+                    } else {
+                        false
                     }
-                } else {
-                    false
-                }
-            },
-        color = MaterialTheme.colorScheme.background
+                },
+        color = MaterialTheme.colorScheme.background,
     ) {
         val isMobileUI = isPlatformMobile || isMobileWebBrowser()
         Box(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
+            modifier = Modifier.fillMaxSize().padding(16.dp),
         ) {
             // Settings and Feedback buttons in top-right corner
             Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 FeedbackButton()
                 SettingsButton()
             }
-            
+
             Column(
                 modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 // Header
                 Text(
                     text = stringResource(Res.string.abilities),
                     style = if (isMobileUI) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.displayMedium,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
-                
+
                 Spacer(modifier = Modifier.height(if (isMobileUI) 8.dp else 16.dp))
-                
+
                 // XP and Level Info
                 PlayerLevelInfo(abilities)
-                
+
                 Spacer(modifier = Modifier.height(if (isMobileUI) 12.dp else 24.dp))
-                
+
                 // Scrollable content
                 Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                        .fillMaxWidth()
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                            .fillMaxWidth(),
                 ) {
                     // Available ability points
                     if (abilities.availableAbilityPoints > 0) {
@@ -126,31 +127,31 @@ fun AbilitiesUpgradeScreen(
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(bottom = 16.dp)
+                            modifier = Modifier.padding(bottom = 16.dp),
                         )
                     }
-                    
+
                     // Abilities Section
                     Text(
                         text = stringResource(Res.string.abilities),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 8.dp),
                     )
-                    
+
                     // Info text: changes do not affect savegames
                     Text(
                         text = stringResource(Res.string.abilities_savegame_info),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(bottom = 12.dp)
+                        modifier = Modifier.padding(bottom = 12.dp),
                     )
-                    
+
                     // Abilities Grid (3 columns)
                     var showConstructionInfo by remember { mutableStateOf(false) }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Box(modifier = Modifier.weight(1f)) {
                             AbilityCardGrid(
@@ -159,7 +160,7 @@ fun AbilitiesUpgradeScreen(
                                 effect = stringResource(Res.string.stat_health_effect, abilities.getBonusHealth()),
                                 canUpgrade = abilities.availableAbilityPoints > 0,
                                 onUpgrade = { onUpgradeAbility(AbilityType.HEALTH) },
-                                icon = { HeartIcon(size = 32.dp) }
+                                icon = { HeartIcon(size = 32.dp) },
                             )
                         }
                         Box(modifier = Modifier.weight(1f)) {
@@ -169,7 +170,7 @@ fun AbilitiesUpgradeScreen(
                                 effect = stringResource(Res.string.stat_treasury_effect, abilities.getBonusStartCoins()),
                                 canUpgrade = abilities.availableAbilityPoints > 0,
                                 onUpgrade = { onUpgradeAbility(AbilityType.TREASURY) },
-                                icon = { MoneyIcon(size = 32.dp) }
+                                icon = { MoneyIcon(size = 32.dp) },
                             )
                         }
                         Box(modifier = Modifier.weight(1f)) {
@@ -179,16 +180,16 @@ fun AbilitiesUpgradeScreen(
                                 effect = stringResource(Res.string.stat_income_effect, abilities.incomeAbility * 10),
                                 canUpgrade = abilities.availableAbilityPoints > 0,
                                 onUpgrade = { onUpgradeAbility(AbilityType.INCOME) },
-                                icon = { MoneyIcon(size = 32.dp) }
+                                icon = { MoneyIcon(size = 32.dp) },
                             )
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Box(modifier = Modifier.weight(1f)) {
                             AbilityCardWithInfoGrid(
@@ -198,7 +199,7 @@ fun AbilitiesUpgradeScreen(
                                 canUpgrade = abilities.availableAbilityPoints > 0,
                                 onUpgrade = { onUpgradeAbility(AbilityType.CONSTRUCTION) },
                                 icon = { HammerIcon(size = 32.dp) },
-                                onShowInfo = { showConstructionInfo = true }
+                                onShowInfo = { showConstructionInfo = true },
                             )
                         }
                         Box(modifier = Modifier.weight(1f)) {
@@ -208,40 +209,40 @@ fun AbilitiesUpgradeScreen(
                                 effect = stringResource(Res.string.stat_mana_effect, abilities.getMaxMana()),
                                 canUpgrade = abilities.availableAbilityPoints > 0,
                                 onUpgrade = { onUpgradeAbility(AbilityType.MANA) },
-                                icon = { StarIcon(size = 32.dp) }
+                                icon = { StarIcon(size = 32.dp) },
                             )
                         }
                         Spacer(modifier = Modifier.weight(1f))
                     }
-                    
+
                     if (showConstructionInfo) {
                         ConstructionInfoDialog(
-                            onDismiss = { showConstructionInfo = false }
+                            onDismiss = { showConstructionInfo = false },
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.height(24.dp))
-                    
+
                     // Spells Section
                     Text(
                         text = stringResource(Res.string.spells),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 8.dp),
                     )
-                    
+
                     Text(
                         text = stringResource(Res.string.spells_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(bottom = 16.dp)
+                        modifier = Modifier.padding(bottom = 16.dp),
                     )
-                    
+
                     // Spells Grid (3 columns)
                     SpellType.values().toList().chunked(3).forEach { chunk ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             chunk.forEach { spell ->
                                 val isUnlocked = abilities.isSpellUnlocked(spell)
@@ -250,7 +251,7 @@ fun AbilitiesUpgradeScreen(
                                         spell = spell,
                                         isUnlocked = isUnlocked,
                                         canUnlock = !isUnlocked && abilities.availableAbilityPoints > 0,
-                                        onUnlock = { onUnlockSpell(spell) }
+                                        onUnlock = { onUnlockSpell(spell) },
                                     )
                                 }
                             }
@@ -261,7 +262,7 @@ fun AbilitiesUpgradeScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
-                
+
                 // Back button and optional "Continue with Next Level" button
                 Spacer(modifier = Modifier.height(16.dp))
                 if (onContinueToNextLevel != null && nextLevelName != null) {
@@ -271,28 +272,28 @@ fun AbilitiesUpgradeScreen(
                         continueFocusRequester.requestFocus()
                     }
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         OutlinedButton(
                             onClick = onBack,
-                            modifier = Modifier.width(if (isMobileUI) 140.dp else 200.dp).height(if (isMobileUI) 44.dp else 50.dp)
+                            modifier = Modifier.width(if (isMobileUI) 140.dp else 200.dp).height(if (isMobileUI) 44.dp else 50.dp),
                         ) {
                             Text(stringResource(Res.string.back_to_world_map))
                         }
                         Button(
                             onClick = onContinueToNextLevel,
-                            modifier = Modifier.height(if (isMobileUI) 44.dp else 50.dp).focusRequester(continueFocusRequester)
+                            modifier = Modifier.height(if (isMobileUI) 44.dp else 50.dp).focusRequester(continueFocusRequester),
                         ) {
                             Text(stringResource(Res.string.continue_with_level, nextLevelName))
                         }
                     }
                 } else {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         Button(
                             onClick = onBack,
-                            modifier = Modifier.width(if (isMobileUI) 140.dp else 200.dp).height(if (isMobileUI) 44.dp else 50.dp)
+                            modifier = Modifier.width(if (isMobileUI) 140.dp else 200.dp).height(if (isMobileUI) 44.dp else 50.dp),
                         ) {
                             Text(stringResource(Res.string.back))
                         }
@@ -306,7 +307,7 @@ fun AbilitiesUpgradeScreen(
         if (showCheatDialog && onCheatCode != null) {
             CheatCodeDialog(
                 onDismiss = { showCheatDialog = false },
-                onApplyCheatCode = onCheatCode
+                onApplyCheatCode = onCheatCode,
             )
         }
     }
@@ -316,41 +317,42 @@ fun AbilitiesUpgradeScreen(
 private fun PlayerLevelInfo(abilities: PlayerAbilities) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+            ),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = stringResource(Res.string.player_level, abilities.level),
                 style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // XP Progress Bar
             val currentLevelXP = PlayerAbilities.getXPForLevel(abilities.level)
             val nextLevelXP = PlayerAbilities.getXPForNextLevel(abilities.level)
             val progressInLevel = abilities.totalXP - currentLevelXP
             val requiredForLevel = nextLevelXP - currentLevelXP
             val progress = if (requiredForLevel > 0) progressInLevel.toFloat() / requiredForLevel.toFloat() else 1f
-            
+
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 LinearProgressIndicator(
                     progress = { progress },
-                    modifier = Modifier.fillMaxWidth().height(12.dp)
+                    modifier = Modifier.fillMaxWidth().height(12.dp),
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = stringResource(Res.string.xp_progress, progressInLevel, requiredForLevel),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
         }
@@ -365,53 +367,53 @@ internal fun AbilityCard(
     effect: String,
     canUpgrade: Boolean,
     onUpgrade: () -> Unit,
-    icon: @Composable () -> Unit
+    icon: @Composable () -> Unit,
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             // Icon
             Box(
                 modifier = Modifier.size(48.dp),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 icon()
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             // Info
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 Text(
                     text = name,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = stringResource(Res.string.stat_level_effect, currentLevel, effect),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(8.dp))
-            
+
             // Upgrade button
             Button(
                 onClick = onUpgrade,
                 enabled = canUpgrade,
-                modifier = Modifier.width(80.dp)
+                modifier = Modifier.width(80.dp),
             ) {
                 Text("+")
             }
@@ -428,43 +430,43 @@ internal fun AbilityCardWithInfo(
     canUpgrade: Boolean,
     onUpgrade: () -> Unit,
     icon: @Composable () -> Unit,
-    onShowInfo: () -> Unit
+    onShowInfo: () -> Unit,
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             // Icon
             Box(
                 modifier = Modifier.size(48.dp),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 icon()
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             // Info
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = name,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     // Info icon button
                     val infoLabel = stringResource(Res.string.info)
                     IconButton(
                         onClick = onShowInfo,
-                        modifier = Modifier.size(24.dp).semantics { contentDescription = infoLabel }
+                        modifier = Modifier.size(24.dp).semantics { contentDescription = infoLabel },
                     ) {
                         InfoIcon(size = 16.dp)
                     }
@@ -472,22 +474,22 @@ internal fun AbilityCardWithInfo(
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = stringResource(Res.string.stat_level_effect, currentLevel, effect),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(8.dp))
-            
+
             // Upgrade button
             Button(
                 onClick = onUpgrade,
                 enabled = canUpgrade,
-                modifier = Modifier.width(80.dp)
+                modifier = Modifier.width(80.dp),
             ) {
                 Text("+")
             }
@@ -496,85 +498,83 @@ internal fun AbilityCardWithInfo(
 }
 
 @Composable
-internal fun ConstructionInfoDialog(
-    onDismiss: () -> Unit
-) {
+internal fun ConstructionInfoDialog(onDismiss: () -> Unit) {
     ScrollableInfoCard(
         title = {
             Text(
                 text = stringResource(Res.string.stat_construction),
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         },
         onDismiss = onDismiss,
-        width = 900.dp  // 3x wider than default (300dp)
+        width = 900.dp, // 3x wider than default (300dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
                 text = stringResource(Res.string.construction_info_intro),
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
             )
-            
+
             // Level 1
             Row(verticalAlignment = Alignment.Top) {
                 Text(
                     text = "• ",
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
                 Column {
                     Text(
                         text = stringResource(Res.string.construction_level_1_title),
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                     Text(
                         text = stringResource(Res.string.construction_level_1_desc),
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
             }
-            
+
             // Level 2
             Row(verticalAlignment = Alignment.Top) {
                 Text(
                     text = "• ",
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
                 Column {
                     Text(
                         text = stringResource(Res.string.construction_level_2_title),
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                     Text(
                         text = stringResource(Res.string.construction_level_2_desc),
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
             }
-            
+
             // Level 3
             Row(verticalAlignment = Alignment.Top) {
                 Text(
                     text = "• ",
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
                 Column {
                     Text(
                         text = stringResource(Res.string.construction_level_3_title),
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                     Text(
                         text = stringResource(Res.string.construction_level_3_desc),
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
             }
@@ -587,61 +587,62 @@ internal fun SpellCard(
     spell: SpellType,
     isUnlocked: Boolean,
     canUnlock: Boolean,
-    onUnlock: () -> Unit
+    onUnlock: () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = if (isUnlocked) {
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            )
-        } else {
-            CardDefaults.cardColors()
-        }
+        colors =
+            if (isUnlocked) {
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                )
+            } else {
+                CardDefaults.cardColors()
+            },
     ) {
         Row(
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     SpellTargetIcon(spell = spell, size = 20.dp)
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = spell.getLocalizedName(),
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                     if (isUnlocked) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = stringResource(Res.string.spell_unlocked),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
                 Text(
                     text = stringResource(Res.string.spell_mana_cost, spell.manaCost),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = spell.getLocalizedDescription(),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
-            
+
             if (!isUnlocked) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
                     onClick = onUnlock,
                     enabled = canUnlock,
-                    modifier = Modifier.width(100.dp)
+                    modifier = Modifier.width(100.dp),
                 ) {
                     Text(stringResource(Res.string.unlock))
                 }
@@ -651,14 +652,13 @@ internal fun SpellCard(
 }
 
 @Composable
-internal fun buildConstructionEffect(level: Int): String {
-    return when {
+internal fun buildConstructionEffect(level: Int): String =
+    when {
         level >= 3 -> stringResource(Res.string.stat_construction_effect_level3)
         level >= 2 -> stringResource(Res.string.stat_construction_effect_level2)
         level >= 1 -> stringResource(Res.string.stat_construction_effect_level1)
         else -> stringResource(Res.string.stat_construction_effect_none)
     }
-}
 
 /**
  * Compact ability card for 3-column grid layout
@@ -670,23 +670,29 @@ internal fun AbilityCardGrid(
     effect: String,
     canUpgrade: Boolean,
     onUpgrade: () -> Unit,
-    icon: @Composable () -> Unit
+    icon: @Composable () -> Unit,
 ) {
     var isFocused by remember { mutableStateOf(false) }
     Card(
-        modifier = Modifier.fillMaxWidth()
-            .then(
-                if (isFocused && canUpgrade) Modifier.border(
-                    2.dp,
-                    MaterialTheme.colorScheme.primary,
-                    MaterialTheme.shapes.medium
-                ) else Modifier
-            )
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .then(
+                    if (isFocused && canUpgrade) {
+                        Modifier.border(
+                            2.dp,
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.shapes.medium,
+                        )
+                    } else {
+                        Modifier
+                    },
+                ),
     ) {
         Column(
             modifier = Modifier.padding(8.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Box(modifier = Modifier.size(36.dp), contentAlignment = Alignment.Center) {
                 icon()
@@ -695,20 +701,23 @@ internal fun AbilityCardGrid(
                 text = name,
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Text(
                 text = stringResource(Res.string.stat_level_effect, currentLevel, effect),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Button(
                 onClick = onUpgrade,
                 enabled = canUpgrade,
-                modifier = Modifier.fillMaxWidth().height(32.dp)
-                    .onFocusChanged { isFocused = it.isFocused },
-                contentPadding = PaddingValues(0.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(32.dp)
+                        .onFocusChanged { isFocused = it.isFocused },
+                contentPadding = PaddingValues(0.dp),
             ) {
                 Text("+", style = MaterialTheme.typography.titleMedium)
                 if (isFocused && canUpgrade && AppSettings.showButtonShortcutHints.value) {
@@ -731,23 +740,29 @@ internal fun AbilityCardWithInfoGrid(
     canUpgrade: Boolean,
     onUpgrade: () -> Unit,
     icon: @Composable () -> Unit,
-    onShowInfo: () -> Unit
+    onShowInfo: () -> Unit,
 ) {
     var isFocused by remember { mutableStateOf(false) }
     Card(
-        modifier = Modifier.fillMaxWidth()
-            .then(
-                if (isFocused && canUpgrade) Modifier.border(
-                    2.dp,
-                    MaterialTheme.colorScheme.primary,
-                    MaterialTheme.shapes.medium
-                ) else Modifier
-            )
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .then(
+                    if (isFocused && canUpgrade) {
+                        Modifier.border(
+                            2.dp,
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.shapes.medium,
+                        )
+                    } else {
+                        Modifier
+                    },
+                ),
     ) {
         Column(
             modifier = Modifier.padding(8.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Box(modifier = Modifier.size(36.dp), contentAlignment = Alignment.Center) {
                 icon()
@@ -757,12 +772,12 @@ internal fun AbilityCardWithInfoGrid(
                     text = name,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
                 val infoLabel = stringResource(Res.string.info)
                 IconButton(
                     onClick = onShowInfo,
-                    modifier = Modifier.size(20.dp).semantics { contentDescription = infoLabel }
+                    modifier = Modifier.size(20.dp).semantics { contentDescription = infoLabel },
                 ) {
                     InfoIcon(size = 12.dp)
                 }
@@ -771,14 +786,17 @@ internal fun AbilityCardWithInfoGrid(
                 text = stringResource(Res.string.stat_level_effect, currentLevel, effect),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Button(
                 onClick = onUpgrade,
                 enabled = canUpgrade,
-                modifier = Modifier.fillMaxWidth().height(32.dp)
-                    .onFocusChanged { isFocused = it.isFocused },
-                contentPadding = PaddingValues(0.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(32.dp)
+                        .onFocusChanged { isFocused = it.isFocused },
+                contentPadding = PaddingValues(0.dp),
             ) {
                 Text("+", style = MaterialTheme.typography.titleMedium)
                 if (isFocused && canUpgrade && AppSettings.showButtonShortcutHints.value) {
@@ -798,66 +816,76 @@ internal fun SpellCardGrid(
     spell: SpellType,
     isUnlocked: Boolean,
     canUnlock: Boolean,
-    onUnlock: () -> Unit
+    onUnlock: () -> Unit,
 ) {
     var isFocused by remember { mutableStateOf(false) }
     Card(
-        modifier = Modifier.fillMaxWidth()
-            .height(170.dp)
-            .then(
-                if (isFocused && canUnlock) Modifier.border(
-                    2.dp,
-                    MaterialTheme.colorScheme.primary,
-                    MaterialTheme.shapes.medium
-                ) else Modifier
-            ),
-        colors = if (isUnlocked) {
-            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
-        } else {
-            CardDefaults.cardColors()
-        }
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(170.dp)
+                .then(
+                    if (isFocused && canUnlock) {
+                        Modifier.border(
+                            2.dp,
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.shapes.medium,
+                        )
+                    } else {
+                        Modifier
+                    },
+                ),
+        colors =
+            if (isUnlocked) {
+                CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+            } else {
+                CardDefaults.cardColors()
+            },
     ) {
         Column(
             modifier = Modifier.padding(8.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             SpellTargetIcon(spell = spell, size = 28.dp)
             Text(
                 text = spell.getLocalizedName(),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Text(
                 text = stringResource(Res.string.spell_mana_cost, spell.manaCost),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
                 text = spell.getLocalizedDescription(),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             if (isUnlocked) {
                 Text(
                     text = stringResource(Res.string.spell_unlocked),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
             } else {
                 Button(
                     onClick = onUnlock,
                     enabled = canUnlock,
-                    modifier = Modifier.fillMaxWidth().height(32.dp)
-                        .onFocusChanged { isFocused = it.isFocused },
-                    contentPadding = PaddingValues(0.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(32.dp)
+                            .onFocusChanged { isFocused = it.isFocused },
+                    contentPadding = PaddingValues(0.dp),
                 ) {
                     Text(
                         stringResource(Res.string.unlock),
-                        style = MaterialTheme.typography.labelSmall
+                        style = MaterialTheme.typography.labelSmall,
                     )
                     if (isFocused && canUnlock && AppSettings.showButtonShortcutHints.value) {
                         Spacer(modifier = Modifier.width(4.dp))

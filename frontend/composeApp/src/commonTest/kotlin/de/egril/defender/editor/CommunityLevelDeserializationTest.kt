@@ -8,7 +8,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -21,7 +20,6 @@ import kotlin.test.assertTrue
  * The test covers the complete path from raw JSON → EditorMap / EditorLevel → isReadyToPlay.
  */
 class CommunityLevelDeserializationTest {
-
     // -----------------------------------------------------------------------
     // Helpers that build minimal valid JSON
     // -----------------------------------------------------------------------
@@ -32,10 +30,15 @@ class CommunityLevelDeserializationTest {
         name: String = "Test Map",
         isCommunity: Boolean = false,
         isOfficial: Boolean = false,
-        author: String = ""
+        author: String = "",
     ): String {
-        val authorJson = if (author.isNotEmpty()) """,
-  "author": "$author"""" else ""
+        val authorJson =
+            if (author.isNotEmpty()) {
+                """,
+  "author": "$author""""
+            } else {
+                ""
+            }
         val data = """{
   "id": "$id",
   "name": "$name",
@@ -65,7 +68,7 @@ class CommunityLevelDeserializationTest {
         id: String,
         mapId: String,
         title: String = "Test Level",
-        isCommunity: Boolean = false
+        isCommunity: Boolean = false,
     ): String {
         val data = """{
   "id": "$id",
@@ -217,21 +220,23 @@ class CommunityLevelDeserializationTest {
 
     @Test
     fun testMapRoundTripForOfficialMap() {
-        val original = EditorMap(
-            id = "round_trip_map",
-            name = "Round Trip",
-            width = 5,
-            height = 1,
-            tiles = mapOf(
-                "0,0" to TileType.SPAWN_POINT,
-                "1,0" to TileType.PATH,
-                "2,0" to TileType.PATH,
-                "3,0" to TileType.PATH,
-                "4,0" to TileType.TARGET
-            ),
-            readyToUse = true,
-            isOfficial = true
-        )
+        val original =
+            EditorMap(
+                id = "round_trip_map",
+                name = "Round Trip",
+                width = 5,
+                height = 1,
+                tiles =
+                    mapOf(
+                        "0,0" to TileType.SPAWN_POINT,
+                        "1,0" to TileType.PATH,
+                        "2,0" to TileType.PATH,
+                        "3,0" to TileType.PATH,
+                        "4,0" to TileType.TARGET,
+                    ),
+                readyToUse = true,
+                isOfficial = true,
+            )
 
         val json = EditorJsonSerializer.serializeMap(original)
         val restored = EditorJsonSerializer.deserializeMap(json)
@@ -247,24 +252,26 @@ class CommunityLevelDeserializationTest {
 
     @Test
     fun testMapRoundTripForCommunityMap() {
-        val original = EditorMap(
-            id = "community_round_trip_map",
-            name = "Community Round Trip",
-            width = 5,
-            height = 1,
-            tiles = mapOf(
-                "0,0" to TileType.SPAWN_POINT,
-                "1,0" to TileType.PATH,
-                "2,0" to TileType.PATH,
-                "3,0" to TileType.PATH,
-                "4,0" to TileType.TARGET
-            ),
-            readyToUse = true,
-            isOfficial = false,
-            isCommunity = true,
-            author = "community_author",
-            communityAuthorUsername = "community_author"
-        )
+        val original =
+            EditorMap(
+                id = "community_round_trip_map",
+                name = "Community Round Trip",
+                width = 5,
+                height = 1,
+                tiles =
+                    mapOf(
+                        "0,0" to TileType.SPAWN_POINT,
+                        "1,0" to TileType.PATH,
+                        "2,0" to TileType.PATH,
+                        "3,0" to TileType.PATH,
+                        "4,0" to TileType.TARGET,
+                    ),
+                readyToUse = true,
+                isOfficial = false,
+                isCommunity = true,
+                author = "community_author",
+                communityAuthorUsername = "community_author",
+            )
 
         val json = EditorJsonSerializer.serializeMap(original)
         val restored = EditorJsonSerializer.deserializeMap(json)
@@ -278,20 +285,22 @@ class CommunityLevelDeserializationTest {
 
     @Test
     fun testLevelRoundTripForCommunityLevel() {
-        val original = EditorLevel(
-            id = "community_level_rt",
-            mapId = "community_map_rt",
-            title = "Community Level RT",
-            subtitle = "subtitle",
-            startCoins = 100,
-            startHealthPoints = 10,
-            enemySpawns = listOf(
-                EditorEnemySpawn(AttackerType.GOBLIN, 1, 1, Position(0, 0))
-            ),
-            availableTowers = setOf(DefenderType.SPIKE_TOWER),
-            isCommunity = true,
-            communityAuthorUsername = "the_author"
-        )
+        val original =
+            EditorLevel(
+                id = "community_level_rt",
+                mapId = "community_map_rt",
+                title = "Community Level RT",
+                subtitle = "subtitle",
+                startCoins = 100,
+                startHealthPoints = 10,
+                enemySpawns =
+                    listOf(
+                        EditorEnemySpawn(AttackerType.GOBLIN, 1, 1, Position(0, 0)),
+                    ),
+                availableTowers = setOf(DefenderType.SPIKE_TOWER),
+                isCommunity = true,
+                communityAuthorUsername = "the_author",
+            )
 
         val json = EditorJsonSerializer.serializeLevel(original)
         val restored = EditorJsonSerializer.deserializeLevel(json)
@@ -317,20 +326,22 @@ class CommunityLevelDeserializationTest {
      */
     @Test
     fun testMapWithClosingBraceInNameDeserializesCorrectly() {
-        val mapWithBraceName = EditorMap(
-            id = "brace_map",
-            name = "Map {with} braces}",  // contains '}' — previously broke the parser
-            width = 5,
-            height = 1,
-            tiles = mapOf(
-                "0,0" to TileType.SPAWN_POINT,
-                "1,0" to TileType.PATH,
-                "2,0" to TileType.PATH,
-                "3,0" to TileType.PATH,
-                "4,0" to TileType.TARGET
-            ),
-            readyToUse = true
-        )
+        val mapWithBraceName =
+            EditorMap(
+                id = "brace_map",
+                name = "Map {with} braces}", // contains '}' — previously broke the parser
+                width = 5,
+                height = 1,
+                tiles =
+                    mapOf(
+                        "0,0" to TileType.SPAWN_POINT,
+                        "1,0" to TileType.PATH,
+                        "2,0" to TileType.PATH,
+                        "3,0" to TileType.PATH,
+                        "4,0" to TileType.TARGET,
+                    ),
+                readyToUse = true,
+            )
 
         val json = EditorJsonSerializer.serializeMap(mapWithBraceName)
         val restored = EditorJsonSerializer.deserializeMap(json)
@@ -345,21 +356,23 @@ class CommunityLevelDeserializationTest {
 
     @Test
     fun testMapWithClosingBraceInAuthorDeserializesCorrectly() {
-        val mapWithBraceAuthor = EditorMap(
-            id = "brace_author_map",
-            name = "Normal Name",
-            author = "Author}Name",  // contains '}' in author field
-            width = 5,
-            height = 1,
-            tiles = mapOf(
-                "0,0" to TileType.SPAWN_POINT,
-                "1,0" to TileType.PATH,
-                "2,0" to TileType.PATH,
-                "3,0" to TileType.PATH,
-                "4,0" to TileType.TARGET
-            ),
-            readyToUse = true
-        )
+        val mapWithBraceAuthor =
+            EditorMap(
+                id = "brace_author_map",
+                name = "Normal Name",
+                author = "Author}Name", // contains '}' in author field
+                width = 5,
+                height = 1,
+                tiles =
+                    mapOf(
+                        "0,0" to TileType.SPAWN_POINT,
+                        "1,0" to TileType.PATH,
+                        "2,0" to TileType.PATH,
+                        "3,0" to TileType.PATH,
+                        "4,0" to TileType.TARGET,
+                    ),
+                readyToUse = true,
+            )
 
         val json = EditorJsonSerializer.serializeMap(mapWithBraceAuthor)
         val restored = EditorJsonSerializer.deserializeMap(json)
@@ -373,20 +386,22 @@ class CommunityLevelDeserializationTest {
     fun testMapWithSpecialCharsInNameDeserializesCorrectly() {
         // Map name containing characters that could confuse naive parsers:
         // curly braces inside the name value
-        val mapWithSpecialName = EditorMap(
-            id = "special_chars_map",
-            name = "Map {with} curly {braces}",
-            width = 5,
-            height = 1,
-            tiles = mapOf(
-                "0,0" to TileType.SPAWN_POINT,
-                "1,0" to TileType.PATH,
-                "2,0" to TileType.PATH,
-                "3,0" to TileType.PATH,
-                "4,0" to TileType.TARGET
-            ),
-            readyToUse = true
-        )
+        val mapWithSpecialName =
+            EditorMap(
+                id = "special_chars_map",
+                name = "Map {with} curly {braces}",
+                width = 5,
+                height = 1,
+                tiles =
+                    mapOf(
+                        "0,0" to TileType.SPAWN_POINT,
+                        "1,0" to TileType.PATH,
+                        "2,0" to TileType.PATH,
+                        "3,0" to TileType.PATH,
+                        "4,0" to TileType.TARGET,
+                    ),
+                readyToUse = true,
+            )
 
         val json = EditorJsonSerializer.serializeMap(mapWithSpecialName)
         val restored = EditorJsonSerializer.deserializeMap(json)
@@ -518,43 +533,68 @@ class CommunityLevelDeserializationTest {
     @Test
     fun testLevelIsReadyToPlayChecks() {
         // Missing towers → not ready
-        val noTowers = EditorLevel(
-            id = "l1", mapId = "m1", title = "T", startCoins = 100, startHealthPoints = 10,
-            enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
-            availableTowers = emptySet()
-        )
+        val noTowers =
+            EditorLevel(
+                id = "l1",
+                mapId = "m1",
+                title = "T",
+                startCoins = 100,
+                startHealthPoints = 10,
+                enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+                availableTowers = emptySet(),
+            )
         assertFalse(noTowers.isReadyToPlay(), "Level with no towers must not be ready")
 
         // Missing enemies → not ready
-        val noEnemies = EditorLevel(
-            id = "l2", mapId = "m1", title = "T", startCoins = 100, startHealthPoints = 10,
-            enemySpawns = emptyList(),
-            availableTowers = setOf(DefenderType.SPIKE_TOWER)
-        )
+        val noEnemies =
+            EditorLevel(
+                id = "l2",
+                mapId = "m1",
+                title = "T",
+                startCoins = 100,
+                startHealthPoints = 10,
+                enemySpawns = emptyList(),
+                availableTowers = setOf(DefenderType.SPIKE_TOWER),
+            )
         assertFalse(noEnemies.isReadyToPlay(), "Level with no enemies must not be ready")
 
         // Zero coins → not ready
-        val noCoins = EditorLevel(
-            id = "l3", mapId = "m1", title = "T", startCoins = 0, startHealthPoints = 10,
-            enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
-            availableTowers = setOf(DefenderType.SPIKE_TOWER)
-        )
+        val noCoins =
+            EditorLevel(
+                id = "l3",
+                mapId = "m1",
+                title = "T",
+                startCoins = 0,
+                startHealthPoints = 10,
+                enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+                availableTowers = setOf(DefenderType.SPIKE_TOWER),
+            )
         assertFalse(noCoins.isReadyToPlay(), "Level with 0 coins must not be ready")
 
         // Zero health points → not ready
-        val noHp = EditorLevel(
-            id = "l4", mapId = "m1", title = "T", startCoins = 100, startHealthPoints = 0,
-            enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
-            availableTowers = setOf(DefenderType.SPIKE_TOWER)
-        )
+        val noHp =
+            EditorLevel(
+                id = "l4",
+                mapId = "m1",
+                title = "T",
+                startCoins = 100,
+                startHealthPoints = 0,
+                enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+                availableTowers = setOf(DefenderType.SPIKE_TOWER),
+            )
         assertFalse(noHp.isReadyToPlay(), "Level with 0 HP must not be ready")
 
         // All fields OK → ready
-        val ready = EditorLevel(
-            id = "l5", mapId = "m1", title = "T", startCoins = 100, startHealthPoints = 10,
-            enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
-            availableTowers = setOf(DefenderType.SPIKE_TOWER)
-        )
+        val ready =
+            EditorLevel(
+                id = "l5",
+                mapId = "m1",
+                title = "T",
+                startCoins = 100,
+                startHealthPoints = 10,
+                enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+                availableTowers = setOf(DefenderType.SPIKE_TOWER),
+            )
         assertTrue(ready.isReadyToPlay(), "Level with all valid fields must be ready")
     }
 

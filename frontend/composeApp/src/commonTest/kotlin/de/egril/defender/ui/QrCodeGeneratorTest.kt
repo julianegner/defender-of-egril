@@ -7,7 +7,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class QrCodeGeneratorTest {
-
     @Test
     fun generatesCorrectMatrixSizeForVersion1() {
         // 3 bytes → version 1 M (capacity 16 bytes)
@@ -33,8 +32,10 @@ class QrCodeGeneratorTest {
         val url = "https://auth.egril.de/realms/egril/device?user_code=WXYZ-1234"
         val matrix = QrCodeGenerator.generate(url)
         val size = matrix.size
-        assertTrue(size == 21 || size == 25 || size == 29 || size == 33 || size == 37,
-            "Unexpected matrix size $size")
+        assertTrue(
+            size == 21 || size == 25 || size == 29 || size == 33 || size == 37,
+            "Unexpected matrix size $size",
+        )
     }
 
     @Test

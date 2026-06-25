@@ -31,14 +31,14 @@ fun EnemyIcon(
     modifier: Modifier = Modifier,
     healthTextColor: Color = Color.White,
     backgroundColor: Color? = null,
-    healthOverride: Int? = null
+    healthOverride: Int? = null,
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
 
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         // Draw enemy graphics first (will be behind text)
         val headScale = if (BigHeadMode.isEnabled.value) 2f else 1f
@@ -46,7 +46,7 @@ fun EnemyIcon(
             val centerX = size.width / 2
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
-            
+
             when (attacker.type) {
                 AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
@@ -61,7 +61,7 @@ fun EnemyIcon(
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
             }
         }
-        
+
         // Level number at top center - only if level > 1
         if (attacker.level.value > 1) {
             Text(
@@ -70,12 +70,13 @@ fun EnemyIcon(
                 fontSize = 12.sp,
                 color = healthTextColor,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 8.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 8.dp),
             )
         }
-        
+
         // Health number at bottom center - 10dp from bottom edge (hidden for Ewhad)
         if (attacker.type != AttackerType.EWHAD) {
             Text(
@@ -84,9 +85,10 @@ fun EnemyIcon(
                 fontSize = 13.sp,
                 color = healthTextColor,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 10.dp)  // 10dp from bottom as requested
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 10.dp), // 10dp from bottom as requested
             )
         }
     }
@@ -99,14 +101,14 @@ fun EnemyIcon(
 fun EnemyTypeIcon(
     attackerType: AttackerType,
     modifier: Modifier = Modifier,
-    backgroundColor: Color? = null
+    backgroundColor: Color? = null,
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
 
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         // Draw enemy graphics
         val headScale = if (BigHeadMode.isEnabled.value) 2f else 1f
@@ -114,7 +116,7 @@ fun EnemyTypeIcon(
             val centerX = size.width / 2
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
-            
+
             when (attackerType) {
                 AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)

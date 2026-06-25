@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CrashReportDialog(
     crash: CrashInfo,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     var sendInfo by remember(crash.crashId) { mutableStateOf(true) }
@@ -74,24 +74,28 @@ fun CrashReportDialog(
         if (sendInfo) {
             submitting = true
             scope.launch {
-                val settingsJson = runCatching {
-                    serializeSettingsJson(AppSettings.toSettingsMap())
-                }.getOrNull()
-                val gameLog = runCatching {
-                    de.egril.defender.config.GameLogBuffer.getFormattedLogs()
-                }.getOrNull()
+                val settingsJson =
+                    runCatching {
+                        serializeSettingsJson(AppSettings.toSettingsMap())
+                    }.getOrNull()
+                val gameLog =
+                    runCatching {
+                        de.egril.defender.config.GameLogBuffer
+                            .getFormattedLogs()
+                    }.getOrNull()
                 val token = runCatching { IamService.getToken() }.getOrNull()
                 runCatching {
                     BackendCrashService.submitCrashReport(
-                        request = CrashReportSubmitRequest(
-                            crashId = crash.crashId,
-                            errorType = crash.errorType,
-                            errorMessage = crash.errorMessage,
-                            stackTrace = crash.stackTrace,
-                            gameLog = gameLog,
-                            settingsJson = settingsJson
-                        ),
-                        token = token
+                        request =
+                            CrashReportSubmitRequest(
+                                crashId = crash.crashId,
+                                errorType = crash.errorType,
+                                errorMessage = crash.errorMessage,
+                                stackTrace = crash.stackTrace,
+                                gameLog = gameLog,
+                                settingsJson = settingsJson,
+                            ),
+                        token = token,
                     )
                 }
                 onDismiss()
@@ -103,92 +107,104 @@ fun CrashReportDialog(
 
     Dialog(
         onDismissRequest = { /* modal: must press OK */ },
-        properties = DialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = false
-        )
+        properties =
+            DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false,
+            ),
     ) {
         Surface(
-            modifier = Modifier
-                .widthIn(min = 320.dp, max = 560.dp)
-                .focusRequester(focusRequester)
-                .focusTarget()
-                .onPreviewKeyEvent { event ->
-                    if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
-                    when (event.key) {
-                        Key.Enter, Key.NumPadEnter, Key.O -> { confirm(); true }
-                        Key.Escape -> { confirm(); true }
-                        Key.S -> { sendInfo = !sendInfo; true }
-                        else -> false
-                    }
-                },
+            modifier =
+                Modifier
+                    .widthIn(min = 320.dp, max = 560.dp)
+                    .focusRequester(focusRequester)
+                    .focusTarget()
+                    .onPreviewKeyEvent { event ->
+                        if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                        when (event.key) {
+                            Key.Enter, Key.NumPadEnter, Key.O -> {
+                                confirm()
+                                true
+                            }
+                            Key.Escape -> {
+                                confirm()
+                                true
+                            }
+                            Key.S -> {
+                                sendInfo = !sendInfo
+                                true
+                            }
+                            else -> false
+                        }
+                    },
             shape = RoundedCornerShape(12.dp),
             tonalElevation = 6.dp,
-            color = MaterialTheme.colorScheme.surface
+            color = MaterialTheme.colorScheme.surface,
         ) {
             Column(
                 modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
                     text = stringResource(Res.string.crash_dialog_title),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
                 )
                 Text(
                     text = stringResource(Res.string.crash_dialog_message),
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
                 )
                 // Show the error type and message in a selectable, scrollable
                 // block so users can copy it for their own records.
-                val errorPreview = buildString {
-                    append(crash.errorType)
-                    if (!crash.errorMessage.isNullOrBlank()) {
-                        append(": ")
-                        append(crash.errorMessage)
+                val errorPreview =
+                    buildString {
+                        append(crash.errorType)
+                        if (!crash.errorMessage.isNullOrBlank()) {
+                            append(": ")
+                            append(crash.errorMessage)
+                        }
                     }
-                }
                 SelectionContainer {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 160.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                shape = RoundedCornerShape(6.dp)
-                            )
-                            .padding(8.dp)
-                            .verticalScroll(rememberScrollState())
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 160.dp)
+                                .background(
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = RoundedCornerShape(6.dp),
+                                ).padding(8.dp)
+                                .verticalScroll(rememberScrollState()),
                     ) {
                         Text(
                             text = errorPreview,
                             fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
 
                 // "Send error information" checkbox row, toggleable via S.
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .toggleable(
-                            value = sendInfo,
-                            onValueChange = { sendInfo = it },
-                            role = Role.Checkbox,
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        )
-                        .padding(vertical = 4.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .toggleable(
+                                value = sendInfo,
+                                onValueChange = { sendInfo = it },
+                                role = Role.Checkbox,
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ).padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Checkbox(checked = sendInfo, onCheckedChange = null)
                     Text(
                         text = stringResource(Res.string.crash_dialog_send_info_checkbox),
                         modifier = Modifier.weight(1f),
-                        fontSize = 13.sp
+                        fontSize = 13.sp,
                     )
                     ShortcutKeyChip(text = "S")
                 }
@@ -196,23 +212,23 @@ fun CrashReportDialog(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (submitting) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp
+                            strokeWidth = 2.dp,
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                     }
                     Button(
                         onClick = confirm,
                         enabled = !submitting,
-                        modifier = Modifier.defaultMinSize(minHeight = 40.dp)
+                        modifier = Modifier.defaultMinSize(minHeight = 40.dp),
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
                             Text(stringResource(Res.string.ok))
                             ShortcutKeyChip(text = "O", color = Color.White)

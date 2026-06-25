@@ -22,7 +22,7 @@ fun screenToHexGridPosition(
     offsetX: Float,
     offsetY: Float,
     zoomLevel: Float,
-    hexSize: Float
+    hexSize: Float,
 ): Position? {
     // Adjust for pan and zoom to get content-space coordinates
     val px = (pointerPos.x - offsetX) / zoomLevel
@@ -33,12 +33,12 @@ fun screenToHexGridPosition(
     val hexWidth = hexSize * sqrt3
     val hexHeight = (hexSize * 2f)
     val verticalSpacing = hexHeight * 0.75f
-    
+
     // Layout spacing (using HexagonalGridConstants to match HexagonalMapView.kt)
-    val rowSpacing = -hexHeight + verticalSpacing + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT  // -27.0 for hexSize=40
+    val rowSpacing = -hexHeight + verticalSpacing + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT // -27.0 for hexSize=40
     val colSpacing = HexagonalGridConstants.HORIZONTAL_SPACING
     val oddRowOffset = hexWidth * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
-    
+
     // Calculate row (y) from vertical position
     // Formula (accounting for Row.offset modifier and Arrangement.spacedBy):
     // Each row is placed at: y * (hexHeight + rowSpacing)
@@ -49,18 +49,19 @@ fun screenToHexGridPosition(
     // Reverse: y = (yPixel - 1 - hexHeight/2) / (hexHeight + rowSpacing - 1)
     val yApprox = (py - 1f - hexHeight / 2f) / (hexHeight + rowSpacing - 1f)
     val y = kotlin.math.round(yApprox).toInt()
-    
+
     // Calculate column (x) from horizontal position, accounting for odd row offset
     // Formula (even row): xPixel = x * (hexWidth + colSpacing) + hexWidth/2
     // Formula (odd row):  xPixel = oddRowOffset + x * (hexWidth + colSpacing) + hexWidth/2
     val halfHexWidth = hexWidth * 0.5f
 
-    val xApprox = if (y % 2 == 0) {
-        (px - halfHexWidth) / (hexWidth + colSpacing)
-    } else {
-        (px - oddRowOffset - halfHexWidth) / (hexWidth + colSpacing)
-    }
+    val xApprox =
+        if (y % 2 == 0) {
+            (px - halfHexWidth) / (hexWidth + colSpacing)
+        } else {
+            (px - oddRowOffset - halfHexWidth) / (hexWidth + colSpacing)
+        }
     val x = kotlin.math.round(xApprox).toInt()
-    
+
     return Position(x, y)
 }

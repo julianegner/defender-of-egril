@@ -1,8 +1,8 @@
 package de.egril.defender.editor
 
+import de.egril.defender.config.LogConfig
 import de.egril.defender.utils.JsonUtils
 import defender_of_egril.composeapp.generated.resources.Res
-import de.egril.defender.config.LogConfig
 
 /**
  * Loads pre-built maps and levels from the repository directory in resources.
@@ -13,8 +13,8 @@ object RepositoryLoader {
     private const val FNV1A_64_OFFSET_BASIS = 1469598103934665603UL
     private const val FNV1A_64_PRIME = 1099511628211UL
 
-    private suspend fun readRepositoryBytes(path: String): ByteArray {
-        return try {
+    private suspend fun readRepositoryBytes(path: String): ByteArray =
+        try {
             Res.readBytes("files/repository/$path")
         } catch (primaryException: Exception) {
             val fallbackBytes = readPlatformRepositoryBytes(path)
@@ -27,15 +27,13 @@ object RepositoryLoader {
                 throw primaryException
             }
         }
-    }
 
-    private suspend fun readRepositoryBytesOrNull(path: String): ByteArray? {
-        return try {
+    private suspend fun readRepositoryBytesOrNull(path: String): ByteArray? =
+        try {
             readRepositoryBytes(path)
         } catch (_: Exception) {
             null
         }
-    }
 
     /**
      * Builds a stable repository fingerprint using FNV-1a over each file path and file payload.
@@ -47,7 +45,10 @@ object RepositoryLoader {
     private class RepositoryFingerprintBuilder {
         private var hash = FNV1A_64_OFFSET_BASIS
 
-        fun addFile(path: String, bytes: ByteArray) {
+        fun addFile(
+            path: String,
+            bytes: ByteArray,
+        ) {
             update(path.encodeToByteArray())
             update(byteArrayOf(0))
             update(bytes)
@@ -69,12 +70,13 @@ object RepositoryLoader {
             // Keep this file order stable so identical repository content always produces the same
             // fingerprint across app launches and updates.
             val sequenceBytes = readRepositoryBytes("sequence.json")
-            val sequence = EditorJsonSerializer.deserializeSequence(sequenceBytes.decodeToString()) ?: run {
-                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("Could not deserialize repository sequence while building fingerprint")
+            val sequence =
+                EditorJsonSerializer.deserializeSequence(sequenceBytes.decodeToString()) ?: run {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                        println("Could not deserialize repository sequence while building fingerprint")
+                    }
+                    return null
                 }
-                return null
-            }
             val builder = RepositoryFingerprintBuilder()
             builder.addFile("sequence.json", sequenceBytes)
 
@@ -87,12 +89,13 @@ object RepositoryLoader {
                 val levelPath = "levels/$levelId.json"
                 val levelBytes = readRepositoryBytes(levelPath)
                 builder.addFile(levelPath, levelBytes)
-                val level = EditorJsonSerializer.deserializeLevel(levelBytes.decodeToString()) ?: run {
-                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                        println("Could not deserialize repository level $levelId while building fingerprint")
+                val level =
+                    EditorJsonSerializer.deserializeLevel(levelBytes.decodeToString()) ?: run {
+                        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                            println("Could not deserialize repository level $levelId while building fingerprint")
+                        }
+                        return null
                     }
-                    return null
-                }
                 mapIds.add(level.mapId)
             }
 
@@ -111,141 +114,135 @@ object RepositoryLoader {
             null
         }
     }
-    
+
     /**
      * Check if repository files exist in resources
      */
-    suspend fun hasRepositoryFiles(): Boolean {
-        return try {
+    suspend fun hasRepositoryFiles(): Boolean =
+        try {
             // Try to read the sequence file to see if repository exists
             val bytes = readRepositoryBytes("sequence.json")
             bytes.isNotEmpty()
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Repository files not found: ${e.message}")
+                println("Repository files not found: ${e.message}")
             }
             false
         }
-    }
-    
+
     /**
      * Load version from repository
      */
-    suspend fun loadVersion(): String? {
-        return try {
+    suspend fun loadVersion(): String? =
+        try {
             val bytes = readRepositoryBytes("version.txt")
             bytes.decodeToString().trim()
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Could not load version from repository: ${e.message}")
+                println("Could not load version from repository: ${e.message}")
             }
             null
         }
-    }
 
     /**
      * Load sequence from repository
      */
-    suspend fun loadSequence(): LevelSequence? {
-        return try {
+    suspend fun loadSequence(): LevelSequence? =
+        try {
             val bytes = readRepositoryBytes("sequence.json")
             val json = bytes.decodeToString()
             EditorJsonSerializer.deserializeSequence(json)
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Could not load sequence from repository: ${e.message}")
+                println("Could not load sequence from repository: ${e.message}")
             }
             null
         }
-    }
-    
+
     /**
      * Load a map from repository
      */
-    suspend fun loadMap(mapId: String): EditorMap? {
-        return try {
+    suspend fun loadMap(mapId: String): EditorMap? =
+        try {
             val bytes = readRepositoryBytes("maps/$mapId.json")
             val json = bytes.decodeToString()
             EditorJsonSerializer.deserializeMap(json)
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Could not load map $mapId from repository: ${e.message}")
+                println("Could not load map $mapId from repository: ${e.message}")
             }
             null
         }
-    }
-    
+
     /**
      * Load a level from repository
      */
-    suspend fun loadLevel(levelId: String): EditorLevel? {
-        return try {
+    suspend fun loadLevel(levelId: String): EditorLevel? =
+        try {
             val bytes = readRepositoryBytes("levels/$levelId.json")
             val json = bytes.decodeToString()
             EditorJsonSerializer.deserializeLevel(json)
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Could not load level $levelId from repository: ${e.message}")
+                println("Could not load level $levelId from repository: ${e.message}")
             }
             null
         }
-    }
-    
+
     /**
      * Load dragon names from repository
      */
-    suspend fun loadDragonNames(): List<String>? {
-        return try {
+    suspend fun loadDragonNames(): List<String>? =
+        try {
             val bytes = readRepositoryBytes("dragon_names.json")
             val json = bytes.decodeToString()
             parseDragonNames(json)
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Could not load dragon names from repository: ${e.message}")
+                println("Could not load dragon names from repository: ${e.message}")
             }
             null
         }
-    }
-    
+
     /**
      * Load world map data from repository
      */
-    suspend fun loadWorldMapData(): WorldMapData? {
-        return try {
+    suspend fun loadWorldMapData(): WorldMapData? =
+        try {
             val bytes = readRepositoryBytes("worldmap.json")
             val json = bytes.decodeToString()
             EditorJsonSerializer.deserializeWorldMapData(json)
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Could not load worldmap.json from repository: ${e.message}")
+                println("Could not load worldmap.json from repository: ${e.message}")
             }
             null
         }
-    }
-    
+
     /**
      * Parse dragon names from JSON.
      * Supports both old format (plain {"names": [...]}) and new format with metadata wrapper.
      */
-    private fun parseDragonNames(json: String): List<String>? {
-        return try {
+    private fun parseDragonNames(json: String): List<String>? =
+        try {
             // Handle new metadata wrapper format
             val dataJson = EditorJsonSerializer.extractDataSection(json)
             // Extract the names array from JSON
             val namesSection = dataJson.substringAfter("\"names\": [").substringBefore("]")
-            val names = JsonUtils.splitJsonArray(namesSection)
-                .map { it.trim().removeSurrounding("\"") }
-                .filter { it.isNotBlank() }
-            
+            val names =
+                JsonUtils
+                    .splitJsonArray(namesSection)
+                    .map { it.trim().removeSurrounding("\"") }
+                    .filter { it.isNotBlank() }
+
             if (names.isEmpty()) null else names
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Error parsing dragon names: ${e.message}")
+                println("Error parsing dragon names: ${e.message}")
             }
             null
         }
-    }
-    
+
     /**
      * Refreshes the official worldmap.json in [storage] from the bundled repository resources.
      * This is called in the fast path to ensure the worldmap stays current even when a full
@@ -258,7 +255,7 @@ object RepositoryLoader {
             val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
             storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Refreshed official worldmap.json from repository (fast path)")
+                println("Refreshed official worldmap.json from repository (fast path)")
             }
         }
     }
@@ -284,7 +281,7 @@ object RepositoryLoader {
             if (storedMap.mapToolingInfo != bundledMap.mapToolingInfo) {
                 storage.writeFile(
                     "gamedata/official/maps/$mapId.json",
-                    EditorJsonSerializer.serializeMap(bundledMap.copy(isOfficial = true))
+                    EditorJsonSerializer.serializeMap(bundledMap.copy(isOfficial = true)),
                 )
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Refreshed official map tooling info for $mapId from repository (fast path)")
@@ -302,11 +299,11 @@ object RepositoryLoader {
      */
     suspend fun loadAndSaveRepositoryFiles(
         storage: FileStorage,
-        onProgress: ((loaded: Int, total: Int, filename: String) -> Unit)? = null
+        onProgress: ((loaded: Int, total: Int, filename: String) -> Unit)? = null,
     ): Boolean {
         return try {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Loading repository files...")
+                println("Loading repository files...")
             }
 
             // Fast path: skip full reload if stored version matches bundled version
@@ -328,7 +325,7 @@ object RepositoryLoader {
                 val officialMapFiles = storage.listFiles("gamedata/official/maps")
                 if (officialMapFiles.isNotEmpty()) {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("Repository data is up to date (version $storedVersion), skipping reload")
+                        println("Repository data is up to date (version $storedVersion), skipping reload")
                     }
                     // Always refresh worldmap.json from the bundled repository to ensure it stays
                     // current. It may have been lost due to a storage quota overflow, or modified
@@ -338,17 +335,17 @@ object RepositoryLoader {
                     return true
                 }
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Version matches ($storedVersion) but official maps are missing - performing full sync to restore data")
+                    println("Version matches ($storedVersion) but official maps are missing - performing full sync to restore data")
                 }
                 // Fall through to full sync below
             }
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println(
-                "Repository data changed (stored version: $storedVersion, bundled version: $bundledVersion, " +
-                    "stored fingerprint: $storedFingerprint, bundled fingerprint: $bundledFingerprint) - " +
-                    "reloading all official data"
-            )
+                println(
+                    "Repository data changed (stored version: $storedVersion, bundled version: $bundledVersion, " +
+                        "stored fingerprint: $storedFingerprint, bundled fingerprint: $bundledFingerprint) - " +
+                        "reloading all official data",
+                )
             }
 
             // Load sequence first
@@ -357,18 +354,18 @@ object RepositoryLoader {
                 println("Repository sequence is empty or invalid")
                 return false
             }
-            
+
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Found ${sequence.sequence.size} levels in repository sequence")
+                println("Found ${sequence.sequence.size} levels in repository sequence")
             }
 
             // Estimated total: levels (N) + maps upper-bound (N, since each level may need a unique map) + 1 worldmap file
-            val estimatedTotal = sequence.sequence.size * 2 + 1  // N levels + N maps (max) + 1 worldmap
+            val estimatedTotal = sequence.sequence.size * 2 + 1 // N levels + N maps (max) + 1 worldmap
             var loaded = 0
 
             // Track which maps we need to load
             val mapsToLoad = mutableSetOf<String>()
-            
+
             // Load all levels in the sequence
             var successCount = 0
             for (levelId in sequence.sequence) {
@@ -379,7 +376,7 @@ object RepositoryLoader {
                     val levelJson = EditorJsonSerializer.serializeLevel(officialLevel)
                     storage.writeFile("gamedata/official/levels/$levelId.json", levelJson)
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("Loaded and saved official level: $levelId")
+                        println("Loaded and saved official level: $levelId")
                     }
 
                     // Track the map ID
@@ -387,7 +384,7 @@ object RepositoryLoader {
                     successCount++
                 } else {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("WARNING: Could not load level $levelId from repository")
+                        println("WARNING: Could not load level $levelId from repository")
                     }
                 }
                 loaded++
@@ -396,8 +393,8 @@ object RepositoryLoader {
 
             // Now that we know the actual number of unique maps, compute the real total:
             // N levels + M unique maps + 1 worldmap file (M ≤ N since maps are shared across levels)
-            val actualTotal = sequence.sequence.size + mapsToLoad.size + 1  // N levels + M maps + 1 worldmap
-            
+            val actualTotal = sequence.sequence.size + mapsToLoad.size + 1 // N levels + M maps + 1 worldmap
+
             // Load all required maps
             var mapCount = 0
             for (mapId in mapsToLoad) {
@@ -415,7 +412,7 @@ object RepositoryLoader {
                         val pngBytes = readRepositoryBytes("maps/$mapId.png")
                         storage.writeBinaryFile("gamedata/official/maps/$mapId.png", pngBytes)
                         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                        println("Loaded and saved official map image: $mapId.png")
+                            println("Loaded and saved official map image: $mapId.png")
                         }
                     } catch (e: Exception) {
                         // PNG might not exist, that's OK
@@ -429,12 +426,12 @@ object RepositoryLoader {
                 loaded++
                 onProgress?.invoke(loaded, actualTotal, "$mapId.json")
             }
-            
+
             // Always save sequence to official directory from repository to keep it up to date
             val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
             storage.writeFile("gamedata/official/sequence.json", sequenceJson)
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Saved official sequence")
+                println("Saved official sequence")
             }
 
             // Always load and save world map data from repository to official directory
@@ -443,29 +440,29 @@ object RepositoryLoader {
                 val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
                 storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Loaded and saved official worldmap.json from repository")
+                    println("Loaded and saved official worldmap.json from repository")
                 }
             } else {
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("No worldmap.json in repository, skipping")
+                    println("No worldmap.json in repository, skipping")
                 }
             }
             loaded++
             onProgress?.invoke(loaded, actualTotal, "worldmap.json")
-            
+
             // Save version file (use bundledVersion if available, otherwise fall back to hardcoded)
             storage.writeFile("gamedata/version.txt", bundledVersion ?: "10")
             if (bundledFingerprint != null) {
                 storage.writeFile(STORED_FINGERPRINT_FILE, bundledFingerprint)
             }
-            
+
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Repository files loaded successfully: $successCount levels, $mapCount maps")
+                println("Repository files loaded successfully: $successCount levels, $mapCount maps")
             }
             successCount > 0
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Error loading repository files: ${e.message}")
+                println("Error loading repository files: ${e.message}")
             }
             e.printStackTrace()
             false
@@ -491,11 +488,11 @@ object RepositoryLoader {
     suspend fun loadAndSaveRepositoryFilesWithPriority(
         storage: FileStorage,
         onFirstLevelReady: suspend () -> Unit,
-        onProgress: ((loaded: Int, total: Int, filename: String) -> Unit)? = null
+        onProgress: ((loaded: Int, total: Int, filename: String) -> Unit)? = null,
     ): Boolean {
         return try {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Loading repository files with priority for first level...")
+                println("Loading repository files with priority for first level...")
             }
 
             // Fast path: if data is already up to date, signal ready immediately.
@@ -512,7 +509,7 @@ object RepositoryLoader {
                 val officialMapFiles = storage.listFiles("gamedata/official/maps")
                 if (officialMapFiles.isNotEmpty()) {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("Repository data is up to date (version $storedVersion), signalling ready immediately")
+                        println("Repository data is up to date (version $storedVersion), signalling ready immediately")
                     }
                     // Always refresh worldmap.json from the bundled repository to ensure it stays
                     // current. It may have been lost due to a storage quota overflow, or modified
@@ -523,17 +520,17 @@ object RepositoryLoader {
                     return true
                 }
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Version matches ($storedVersion) but official maps are missing - performing full sync to restore data")
+                    println("Version matches ($storedVersion) but official maps are missing - performing full sync to restore data")
                 }
                 // Fall through to full sync below
             }
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println(
-                "Repository data changed (stored version: $storedVersion, bundled version: $bundledVersion, " +
-                    "stored fingerprint: $storedFingerprint, bundled fingerprint: $bundledFingerprint) - " +
-                    "priority load for first level then loading remaining data"
-            )
+                println(
+                    "Repository data changed (stored version: $storedVersion, bundled version: $bundledVersion, " +
+                        "stored fingerprint: $storedFingerprint, bundled fingerprint: $bundledFingerprint) - " +
+                        "priority load for first level then loading remaining data",
+                )
             }
 
             val sequence = loadSequence()
@@ -543,7 +540,7 @@ object RepositoryLoader {
             }
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Found ${sequence.sequence.size} levels in repository sequence (priority mode)")
+                println("Found ${sequence.sequence.size} levels in repository sequence (priority mode)")
             }
 
             // Save sequence and worldmap first so they are available after onFirstLevelReady().
@@ -555,7 +552,7 @@ object RepositoryLoader {
                 val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
                 storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Saved official worldmap.json (priority phase)")
+                    println("Saved official worldmap.json (priority phase)")
                 }
             }
 
@@ -571,10 +568,10 @@ object RepositoryLoader {
                 val officialLevel = priorityLevel.copy(isOfficial = true)
                 storage.writeFile(
                     "gamedata/official/levels/$priorityLevelId.json",
-                    EditorJsonSerializer.serializeLevel(officialLevel)
+                    EditorJsonSerializer.serializeLevel(officialLevel),
                 )
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Loaded and saved priority level: $priorityLevelId")
+                    println("Loaded and saved priority level: $priorityLevelId")
                 }
                 priorityMapId = priorityLevel.mapId
                 val map = loadMap(priorityMapId)
@@ -582,7 +579,7 @@ object RepositoryLoader {
                     val officialMap = map.copy(isOfficial = true)
                     storage.writeFile(
                         "gamedata/official/maps/$priorityMapId.json",
-                        EditorJsonSerializer.serializeMap(officialMap)
+                        EditorJsonSerializer.serializeMap(officialMap),
                     )
                     try {
                         val pngBytes = readRepositoryBytes("maps/$priorityMapId.png")
@@ -591,7 +588,7 @@ object RepositoryLoader {
                         // PNG might not exist, that's OK
                     }
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("Loaded and saved priority map: $priorityMapId")
+                        println("Loaded and saved priority map: $priorityMapId")
                     }
                 }
             }
@@ -612,16 +609,16 @@ object RepositoryLoader {
                     val officialLevel = level.copy(isOfficial = true)
                     storage.writeFile(
                         "gamedata/official/levels/$levelId.json",
-                        EditorJsonSerializer.serializeLevel(officialLevel)
+                        EditorJsonSerializer.serializeLevel(officialLevel),
                     )
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("Loaded and saved official level: $levelId")
+                        println("Loaded and saved official level: $levelId")
                     }
                     mapsToLoad.add(level.mapId)
                     successCount++
                 } else {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("WARNING: Could not load level $levelId from repository")
+                        println("WARNING: Could not load level $levelId from repository")
                     }
                 }
                 loaded++
@@ -642,24 +639,24 @@ object RepositoryLoader {
                     val officialMap = map.copy(isOfficial = true)
                     storage.writeFile(
                         "gamedata/official/maps/$mapId.json",
-                        EditorJsonSerializer.serializeMap(officialMap)
+                        EditorJsonSerializer.serializeMap(officialMap),
                     )
                     try {
                         val pngBytes = readRepositoryBytes("maps/$mapId.png")
                         storage.writeBinaryFile("gamedata/official/maps/$mapId.png", pngBytes)
                         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                        println("Loaded and saved official map image: $mapId.png")
+                            println("Loaded and saved official map image: $mapId.png")
                         }
                     } catch (_: Exception) {
                         // PNG might not exist, that's OK
                     }
                     mapCount++
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("Loaded and saved official map: $mapId")
+                        println("Loaded and saved official map: $mapId")
                     }
                 } else {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("WARNING: Could not load map $mapId from repository")
+                        println("WARNING: Could not load map $mapId from repository")
                     }
                 }
                 loaded++
@@ -673,12 +670,12 @@ object RepositoryLoader {
             }
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Repository files loaded successfully (priority mode): $successCount levels, $mapCount maps")
+                println("Repository files loaded successfully (priority mode): $successCount levels, $mapCount maps")
             }
             successCount > 0
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Error loading repository files (priority mode): ${e.message}")
+                println("Error loading repository files (priority mode): ${e.message}")
             }
             e.printStackTrace()
             false

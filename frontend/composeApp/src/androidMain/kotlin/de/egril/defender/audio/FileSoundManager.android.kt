@@ -42,50 +42,56 @@ fun initializeAndroidAudio(context: Context) {
     soundIds.clear()
 
     appContext = context.applicationContext
-    
-    soundPool = SoundPool.Builder()
-        .setMaxStreams(10)
-        .setAudioAttributes(
-            AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_GAME)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build()
-        )
-        .build()
+
+    soundPool =
+        SoundPool
+            .Builder()
+            .setMaxStreams(10)
+            .setAudioAttributes(
+                AudioAttributes
+                    .Builder()
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build(),
+            ).build()
 }
 
-actual fun playSoundFile(fileName: String, volume: Float) {
+actual fun playSoundFile(
+    fileName: String,
+    volume: Float,
+) {
     if (isAppInBackground) return
     val pool = soundPool ?: return
     val context = appContext ?: return
-    
+
     GlobalScope.launch(Dispatchers.Main) {
         try {
             // Get or load sound ID
-            val soundId = soundIds.getOrPut(fileName) {
-                try {
-                    // Load from compose resources using Res.readBytes
-                    val resourcePath = "files/sounds/$fileName"
-                    val bytes = Res.readBytes(resourcePath)
-                    
-                    // Write to temp file for SoundPool
-                    val tempFile = File(context.cacheDir, fileName)
-                    FileOutputStream(tempFile).use { it.write(bytes) }
-                    
-                    // Load into SoundPool
-                    val id = pool.load(tempFile.absolutePath, 1)
-                    
-                    // Clean up temp file after loading
-                    tempFile.delete()
-                    
-                    id
-                } catch (e: Exception) {
-                    println("Could not load sound: $fileName - ${e.message}")
-                    e.printStackTrace()
-                    -1
+            val soundId =
+                soundIds.getOrPut(fileName) {
+                    try {
+                        // Load from compose resources using Res.readBytes
+                        val resourcePath = "files/sounds/$fileName"
+                        val bytes = Res.readBytes(resourcePath)
+
+                        // Write to temp file for SoundPool
+                        val tempFile = File(context.cacheDir, fileName)
+                        FileOutputStream(tempFile).use { it.write(bytes) }
+
+                        // Load into SoundPool
+                        val id = pool.load(tempFile.absolutePath, 1)
+
+                        // Clean up temp file after loading
+                        tempFile.delete()
+
+                        id
+                    } catch (e: Exception) {
+                        println("Could not load sound: $fileName - ${e.message}")
+                        e.printStackTrace()
+                        -1
+                    }
                 }
-            }
-            
+
             if (soundId > 0) {
                 pool.play(soundId, volume, volume, 1, 0, 1.0f)
             }

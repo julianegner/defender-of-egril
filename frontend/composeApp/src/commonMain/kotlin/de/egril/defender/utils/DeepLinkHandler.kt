@@ -8,18 +8,27 @@ import de.egril.defender.ui.infopage.InfoTab
  * Supports data-privacy, info-page, tutorial, demo, and settings routes on web platform.
  */
 sealed class DeepLink {
-    data class DataPrivacy(val language: AppLocale) : DeepLink()
-    data class InfoPage(val tab: InfoTab) : DeepLink()
+    data class DataPrivacy(
+        val language: AppLocale,
+    ) : DeepLink()
+
+    data class InfoPage(
+        val tab: InfoTab,
+    ) : DeepLink()
+
     object Tutorial : DeepLink()
+
     object Demo : DeepLink()
+
     object Settings : DeepLink()
+
     object None : DeepLink()
 }
 
 enum class MobileOrientationOverlayMode {
     NONE,
     LANDSCAPE_REQUIRED,
-    PORTRAIT_REQUIRED
+    PORTRAIT_REQUIRED,
 }
 
 /**
@@ -58,41 +67,43 @@ expect fun setMobileOrientationOverlayMode(mode: MobileOrientationOverlayMode)
 /**
  * Maps an InfoTab to its URL slug.
  */
-fun InfoTab.toUrlSlug(): String = when (this) {
-    InfoTab.INSTALLATION -> "installation"
-    InfoTab.HOW_TO_PLAY -> "how-to-play"
-    InfoTab.AUDIO_LICENSES -> "audio-licenses"
-    InfoTab.LICENSE -> "license"
-    InfoTab.KEYBOARD_SHORTCUTS -> "keyboard-shortcuts"
-    InfoTab.BACKEND -> "backend"
-    InfoTab.FEEDBACK -> "feedback"
-    InfoTab.EDITOR_HOWTO -> "editor-howto"
-    InfoTab.DOWNLOAD -> "download"
-}
+fun InfoTab.toUrlSlug(): String =
+    when (this) {
+        InfoTab.INSTALLATION -> "installation"
+        InfoTab.HOW_TO_PLAY -> "how-to-play"
+        InfoTab.AUDIO_LICENSES -> "audio-licenses"
+        InfoTab.LICENSE -> "license"
+        InfoTab.KEYBOARD_SHORTCUTS -> "keyboard-shortcuts"
+        InfoTab.BACKEND -> "backend"
+        InfoTab.FEEDBACK -> "feedback"
+        InfoTab.EDITOR_HOWTO -> "editor-howto"
+        InfoTab.DOWNLOAD -> "download"
+    }
 
 /**
  * Parses a URL slug back into an InfoTab, or returns null for unknown slugs.
  * "data-privacy" is accepted as an alias for the backend/account-privacy tab.
  */
-fun infoTabFromSlug(slug: String): InfoTab? = when (slug.lowercase()) {
-    "installation" -> InfoTab.INSTALLATION
-    "how-to-play" -> InfoTab.HOW_TO_PLAY
-    "audio-licenses" -> InfoTab.AUDIO_LICENSES
-    "license" -> InfoTab.LICENSE
-    "keyboard-shortcuts" -> InfoTab.KEYBOARD_SHORTCUTS
-    "backend", "data-privacy" -> InfoTab.BACKEND
-    "feedback" -> InfoTab.FEEDBACK
-    "editor-howto" -> InfoTab.EDITOR_HOWTO
-    "download" -> InfoTab.DOWNLOAD
-    else -> null
-}
+fun infoTabFromSlug(slug: String): InfoTab? =
+    when (slug.lowercase()) {
+        "installation" -> InfoTab.INSTALLATION
+        "how-to-play" -> InfoTab.HOW_TO_PLAY
+        "audio-licenses" -> InfoTab.AUDIO_LICENSES
+        "license" -> InfoTab.LICENSE
+        "keyboard-shortcuts" -> InfoTab.KEYBOARD_SHORTCUTS
+        "backend", "data-privacy" -> InfoTab.BACKEND
+        "feedback" -> InfoTab.FEEDBACK
+        "editor-howto" -> InfoTab.EDITOR_HOWTO
+        "download" -> InfoTab.DOWNLOAD
+        else -> null
+    }
 
 /**
  * Parses and validates language codes for deep links.
  * Supports: en, de, fr, es, it (matching AppLocale values)
  */
-fun parseLanguageFromCode(code: String?): AppLocale? {
-    return when (code?.lowercase()) {
+fun parseLanguageFromCode(code: String?): AppLocale? =
+    when (code?.lowercase()) {
         "en" -> AppLocale.DEFAULT
         "de" -> AppLocale.DE
         "fr" -> AppLocale.FR
@@ -100,7 +111,6 @@ fun parseLanguageFromCode(code: String?): AppLocale? {
         "it" -> AppLocale.IT
         else -> AppLocale.DEFAULT
     }
-}
 
 /**
  * Parses a URL path into a DeepLink.
@@ -116,7 +126,6 @@ fun parseLanguageFromCode(code: String?): AppLocale? {
  * @return The parsed DeepLink, or DeepLink.None if not a recognized route
  */
 fun parseDeepLink(path: String): DeepLink {
-
     println("Parsing deep link from path: $path")
 
     val trimmedPath = path.trim('/').lowercase()
@@ -132,11 +141,11 @@ fun parseDeepLink(path: String): DeepLink {
             }
         }
     } else if (trimmedPath.startsWith("data-privacy")) {
-            val lang = detectSupportedLanguage()
-            val locale = parseLanguageFromCode(lang)
-            if (locale != null) {
-                return DeepLink.DataPrivacy(locale)
-            }
+        val lang = detectSupportedLanguage()
+        val locale = parseLanguageFromCode(lang)
+        if (locale != null) {
+            return DeepLink.DataPrivacy(locale)
+        }
     }
 
     // Check if it's the tutorial deep link

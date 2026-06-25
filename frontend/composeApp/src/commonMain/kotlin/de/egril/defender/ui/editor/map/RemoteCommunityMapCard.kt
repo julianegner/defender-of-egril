@@ -21,64 +21,66 @@ import defender_of_egril.composeapp.generated.resources.Res
 fun RemoteCommunityMapCard(
     fileInfo: CommunityFileInfo,
     isDownloading: Boolean,
-    onDownload: () -> Unit
+    onDownload: () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(12.dp).padding(top = 24.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(4f)) {
-                    val displayName = fileInfo.fileId
-                        .replace('_', ' ')
-                        .split(' ')
-                        .joinToString(" ") { word -> word.replaceFirstChar { it.uppercaseChar() } }
+                    val displayName =
+                        fileInfo.fileId
+                            .replace('_', ' ')
+                            .split(' ')
+                            .joinToString(" ") { word -> word.replaceFirstChar { it.uppercaseChar() } }
                     SelectableText(
                         text = displayName,
-                        style = MaterialTheme.typography.titleSmall
+                        style = MaterialTheme.typography.titleSmall,
                     )
                     SelectableText(
                         text = stringResource(Res.string.map_file_id, fileInfo.fileId),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     if (fileInfo.authorUsername.isNotEmpty()) {
                         SelectableText(
                             text = fileInfo.authorUsername,
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
 
                 // Placeholder for minimap area – remote maps have no local data to render
                 Box(
-                    modifier = Modifier
-                        .weight(6f)
-                        .height(160.dp),
-                    contentAlignment = Alignment.Center
+                    modifier =
+                        Modifier
+                            .weight(6f)
+                            .height(160.dp),
+                    contentAlignment = Alignment.Center,
                 ) {
                     if (isDownloading) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             CircularProgressIndicator(modifier = Modifier.size(32.dp))
                             Text(
                                 text = stringResource(Res.string.community_downloading_level),
-                                style = MaterialTheme.typography.bodySmall
+                                style = MaterialTheme.typography.bodySmall,
                             )
                         }
                     } else {
                         Text(
                             text = stringResource(Res.string.community_tap_to_download),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -87,7 +89,7 @@ fun RemoteCommunityMapCard(
 
                 Button(
                     onClick = onDownload,
-                    enabled = !isDownloading
+                    enabled = !isDownloading,
                 ) {
                     Text(stringResource(Res.string.download_button))
                 }
@@ -95,17 +97,18 @@ fun RemoteCommunityMapCard(
 
             // "remote" badge in upper right corner
             Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp),
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 SavefileLocationChip(
                     label = stringResource(Res.string.savefile_chip_remote),
                     color = MaterialTheme.colorScheme.primary,
                     onColor = MaterialTheme.colorScheme.onPrimary,
-                    isMobile = false
+                    isMobile = false,
                 )
             }
         }

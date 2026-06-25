@@ -1,8 +1,8 @@
 package de.egril.defender.ui.infopage
 
 import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.junit4.createComposeRule
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.ui.ScreenshotTestUtils
@@ -12,7 +12,6 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class KeyboardShortcutsInfoTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -37,7 +36,8 @@ class KeyboardShortcutsInfoTest {
             composeTestRule.onNodeWithText("Down").assertExists()
             composeTestRule.onNodeWithText("Left").assertExists()
             composeTestRule.onNodeWithText("Right").assertExists()
-            composeTestRule.onAllNodesWithText("KEY:", substring = true, ignoreCase = false)
+            composeTestRule
+                .onAllNodesWithText("KEY:", substring = true, ignoreCase = false)
                 .assertCountEquals(0)
             // Verify keyboard-only workflow guide section is present
             composeTestRule.onNodeWithText("Keyboard-only Gameplay Guide").assertExists()
@@ -49,7 +49,7 @@ class KeyboardShortcutsInfoTest {
                 composeTestRule = composeTestRule,
                 filename = "keyboard-shortcuts-workflow-guide",
                 width = 1200,
-                height = 900
+                height = 900,
             )
         } finally {
             AppSettings.resetToDefaults()
@@ -78,7 +78,7 @@ class KeyboardShortcutsInfoTest {
                     composeTestRule = composeTestRule,
                     filename = "keyboard-shortcuts-remapped-keys",
                     width = 1200,
-                    height = 900
+                    height = 900,
                 )
             } catch (_: Throwable) {
                 // screenshot capture can fail in multi-root desktop test environments
@@ -98,7 +98,8 @@ class KeyboardShortcutsInfoTest {
             }
 
             composeTestRule.waitForIdle()
-            composeTestRule.onNodeWithTag("shortcut-binding-center-selected")
+            composeTestRule
+                .onNodeWithTag("shortcut-binding-center-selected")
                 .performClick()
 
             composeTestRule.onNodeWithTag("shortcut-capture-target").performKeyInput {
@@ -110,7 +111,8 @@ class KeyboardShortcutsInfoTest {
             composeTestRule.waitForIdle()
             composeTestRule.onNodeWithText("Ctrl+S").assertExists()
 
-            composeTestRule.onNodeWithText("Reset all shortcut bindings", substring = true, ignoreCase = true)
+            composeTestRule
+                .onNodeWithText("Reset all shortcut bindings", substring = true, ignoreCase = true)
                 .performClick()
             composeTestRule.waitForIdle()
             composeTestRule.onNodeWithText("R").assertExists()

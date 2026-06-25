@@ -2,7 +2,6 @@ package de.egril.defender.mapgen
 
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.TileType
-import de.egril.defender.model.RiverFlow
 import kotlin.math.ceil
 import kotlin.math.exp
 import kotlin.math.floor
@@ -21,21 +20,22 @@ import kotlin.math.sqrt
  * 3) Hillshade + outline + colormap sampling
  */
 object MapImageGenerator {
-
     // --- Hex grid geometry (from hexgrid.ts.txt) ---
     private const val HEX_SIZE = 40.0
     private val SQRT3 = sqrt(3.0)
-    private val HEX_WIDTH = HEX_SIZE * SQRT3                 // ~69.28 px
-    private const val HEX_HEIGHT = HEX_SIZE * 2.0            // 80 px
-    private const val VERTICAL_SPACING = HEX_HEIGHT * 0.75   // 60 px
+    private val HEX_WIDTH = HEX_SIZE * SQRT3 // ~69.28 px
+    private const val HEX_HEIGHT = HEX_SIZE * 2.0 // 80 px
+    private const val VERTICAL_SPACING = HEX_HEIGHT * 0.75 // 60 px
     private const val HORIZONTAL_SPACING = -10.0
     private const val ODD_ROW_OFFSET_RATIO = 0.42
+
     // Nudge river tile centers north when blending so water stays aligned with
     // hexes and doesn't bleed into southern neighbours.
-    private const val RIVER_Y_BIAS = -HEX_HEIGHT * 0.5       // -40 px
+    private const val RIVER_Y_BIAS = -HEX_HEIGHT * 0.5 // -40 px
     private const val PADDING = 20.0
+
     // Slightly lower sigma to sharpen biome transitions while keeping soft edges
-    private val BLEND_SIGMA = HEX_WIDTH * 0.45               // ~31.2 px
+    private val BLEND_SIGMA = HEX_WIDTH * 0.45 // ~31.2 px
 
     // --- Rendering constants (mapgen4 style) ---
     private const val SHADING_SCALE = 70.0
@@ -53,19 +53,20 @@ object MapImageGenerator {
         val elevation: Double,
         val moisture: Double,
         val noiseAmp: Double,
-        val blendWeight: Double = 1.0
+        val blendWeight: Double = 1.0,
     )
 
     private val DEFAULT_BIOME = Biome(0.60, 0.0, 0.45)
-    private val TILE_BIOME: Map<TileType, Biome> = mapOf(
-        TileType.NO_PLAY to Biome(0.60, 0.0, 0.45),
-        // Lower blend weight reduces how far river blue bleeds into adjacent path tiles
-        TileType.RIVER to Biome(-0.30, 0.0, 0.05, blendWeight = 0.6),
-        TileType.PATH to Biome(0.06, 0.08, 0.04),
-        TileType.BUILD_AREA to Biome(0.05, 1.00, 0.04),
-        TileType.SPAWN_POINT to Biome(0.06, 0.08, 0.04),
-        TileType.TARGET to Biome(0.06, 0.08, 0.04)
-    )
+    private val TILE_BIOME: Map<TileType, Biome> =
+        mapOf(
+            TileType.NO_PLAY to Biome(0.60, 0.0, 0.45),
+            // Lower blend weight reduces how far river blue bleeds into adjacent path tiles
+            TileType.RIVER to Biome(-0.30, 0.0, 0.05, blendWeight = 0.6),
+            TileType.PATH to Biome(0.06, 0.08, 0.04),
+            TileType.BUILD_AREA to Biome(0.05, 1.00, 0.04),
+            TileType.SPAWN_POINT to Biome(0.06, 0.08, 0.04),
+            TileType.TARGET to Biome(0.06, 0.08, 0.04),
+        )
 
     // --- Colormap (from colormap.ts.txt) ---
     private const val COLORMAP_WIDTH = 64
@@ -80,26 +81,28 @@ object MapImageGenerator {
                 val e = 2.0 * x / COLORMAP_WIDTH - 1.0
                 val m = y.toDouble() / COLORMAP_HEIGHT
 
-                val (r, g, b) = when {
-                    x == COLORMAP_WIDTH / 2 - 1 -> Triple(48, 120, 160)
-                    x == COLORMAP_WIDTH / 2 - 2 -> Triple(48, 100, 150)
-                    x == COLORMAP_WIDTH / 2 - 3 -> Triple(48, 80, 140)
-                    e < 0.0 -> Triple(
-                        (48 + 48 * e).roundToInt(),
-                        (64 + 64 * e).roundToInt(),
-                        (127 + 127 * e).roundToInt()
-                    )
-                    else -> {
-                        val mAdjusted = m * (1 - e)
-                        var rr = 210 - 100 * mAdjusted
-                        var gg = 185 - 45 * mAdjusted
-                        var bb = 139 - 45 * mAdjusted
-                        rr = 255 * e + rr * (1 - e)
-                        gg = 255 * e + gg * (1 - e)
-                        bb = 255 * e + bb * (1 - e)
-                        Triple(rr.roundToInt(), gg.roundToInt(), bb.roundToInt())
+                val (r, g, b) =
+                    when {
+                        x == COLORMAP_WIDTH / 2 - 1 -> Triple(48, 120, 160)
+                        x == COLORMAP_WIDTH / 2 - 2 -> Triple(48, 100, 150)
+                        x == COLORMAP_WIDTH / 2 - 3 -> Triple(48, 80, 140)
+                        e < 0.0 ->
+                            Triple(
+                                (48 + 48 * e).roundToInt(),
+                                (64 + 64 * e).roundToInt(),
+                                (127 + 127 * e).roundToInt(),
+                            )
+                        else -> {
+                            val mAdjusted = m * (1 - e)
+                            var rr = 210 - 100 * mAdjusted
+                            var gg = 185 - 45 * mAdjusted
+                            var bb = 139 - 45 * mAdjusted
+                            rr = 255 * e + rr * (1 - e)
+                            gg = 255 * e + gg * (1 - e)
+                            bb = 255 * e + bb * (1 - e)
+                            Triple(rr.roundToInt(), gg.roundToInt(), bb.roundToInt())
+                        }
                     }
-                }
 
                 pixels[p++] = r
                 pixels[p++] = g
@@ -110,7 +113,10 @@ object MapImageGenerator {
         return pixels
     }
 
-    private fun sampleColormap(elevation: Double, moisture: Double): Triple<Int, Int, Int> {
+    private fun sampleColormap(
+        elevation: Double,
+        moisture: Double,
+    ): Triple<Int, Int, Int> {
         val e = elevation.coerceIn(-1.0, 1.0)
         val m = moisture.coerceIn(0.0, 1.0)
         val x = min(COLORMAP_WIDTH - 1, floor((e + 1) / 2 * COLORMAP_WIDTH).toInt())
@@ -120,14 +126,20 @@ object MapImageGenerator {
     }
 
     // --- Geometry helpers ---
-    fun hexCenter(gx: Int, gy: Int): Pair<Double, Double> {
+    fun hexCenter(
+        gx: Int,
+        gy: Int,
+    ): Pair<Double, Double> {
         val rowOffset = if (gy % 2 == 1) HEX_WIDTH * ODD_ROW_OFFSET_RATIO else 0.0
         val cx = gx * (HEX_WIDTH + HORIZONTAL_SPACING) + rowOffset + HEX_WIDTH / 2 + PADDING
         val cy = gy * VERTICAL_SPACING + HEX_HEIGHT / 2 + PADDING
         return Pair(cx, cy)
     }
 
-    fun imageSize(gridWidth: Int, gridHeight: Int): Pair<Int, Int> {
+    fun imageSize(
+        gridWidth: Int,
+        gridHeight: Int,
+    ): Pair<Int, Int> {
         val lastCol = gridWidth - 1
         val lastRow = gridHeight - 1
         val maxRowOffset = if (lastRow % 2 == 1) HEX_WIDTH * ODD_ROW_OFFSET_RATIO else 0.0
@@ -220,7 +232,9 @@ object MapImageGenerator {
 
         // Pass 2: hillshading + outline + colormap
         val pixels = IntArray(imgW * imgH)
-        val lx = LIGHT[0]; val ly = LIGHT[1]; val lz = LIGHT[2]
+        val lx = LIGHT[0]
+        val ly = LIGHT[1]
+        val lz = LIGHT[2]
         for (py in 0 until imgH) {
             for (px in 0 until imgW) {
                 val i = py * imgW + px
@@ -233,8 +247,10 @@ object MapImageGenerator {
                 val iU = if (py > 0) i - imgW else i
                 val iD = if (py < imgH - 1) i + imgW else i
 
-                val eL = elevMap[iL]; val eR = elevMap[iR]
-                val eU = elevMap[iU]; val eD = elevMap[iD]
+                val eL = elevMap[iL]
+                val eR = elevMap[iR]
+                val eU = elevMap[iU]
+                val eD = elevMap[iD]
 
                 val gx = (eR - eL) * 0.5 * SHADING_SCALE
                 val gy = (eD - eU) * 0.5 * SHADING_SCALE
@@ -286,20 +302,34 @@ object MapImageGenerator {
 // ---------------------------------------------------------------------------
 // Spatial grid (hex lookup in O(1) for Gaussian blend)
 // ---------------------------------------------------------------------------
-private class SpatialGrid(private val cellSize: Double, imageWidth: Int) {
+private class SpatialGrid(
+    private val cellSize: Double,
+    imageWidth: Int,
+) {
     private val gridW = ceil(imageWidth / cellSize).toInt() + 2
     private val cells = HashMap<Int, MutableList<Int>>()
 
-    private fun key(cx: Int, cy: Int): Int = cy * gridW + cx
+    private fun key(
+        cx: Int,
+        cy: Int,
+    ): Int = cy * gridW + cx
 
-    fun insert(x: Double, y: Double, idx: Int) {
+    fun insert(
+        x: Double,
+        y: Double,
+        idx: Int,
+    ) {
         val cx = floor(x / cellSize).toInt()
         val cy = floor(y / cellSize).toInt()
         val k = key(cx, cy)
         cells.getOrPut(k) { mutableListOf() }.add(idx)
     }
 
-    fun query(px: Double, py: Double, r: Int): List<Int> {
+    fun query(
+        px: Double,
+        py: Double,
+        r: Int,
+    ): List<Int> {
         val result = ArrayList<Int>()
         val cx = floor(px / cellSize).toInt()
         val cy = floor(py / cellSize).toInt()
@@ -315,8 +345,13 @@ private class SpatialGrid(private val cellSize: Double, imageWidth: Int) {
 // ---------------------------------------------------------------------------
 // Simplex noise (2D) with deterministic permutation from supplied random()
 // ---------------------------------------------------------------------------
-private class SimplexNoise2D(private val perm: IntArray) {
-    fun noise(xin: Double, yin: Double): Double {
+private class SimplexNoise2D(
+    private val perm: IntArray,
+) {
+    fun noise(
+        xin: Double,
+        yin: Double,
+    ): Double {
         val root3 = sqrt(3.0)
         val F2 = 0.5 * (root3 - 1.0)
         val G2 = (3.0 - root3) / 6.0
@@ -343,32 +378,55 @@ private class SimplexNoise2D(private val perm: IntArray) {
         val gi1 = perm[ii + i1 + perm[jj + j1]] % 12
         val gi2 = perm[ii + 1 + perm[jj + 1]] % 12
 
-        val n0 = if (x0 * x0 + y0 * y0 < 0.5) {
-            val t0 = 0.5 - x0 * x0 - y0 * y0
-            t0 * t0 * t0 * t0 * dot(grad3[gi0], x0, y0)
-        } else 0.0
+        val n0 =
+            if (x0 * x0 + y0 * y0 < 0.5) {
+                val t0 = 0.5 - x0 * x0 - y0 * y0
+                t0 * t0 * t0 * t0 * dot(grad3[gi0], x0, y0)
+            } else {
+                0.0
+            }
 
-        val n1 = if (x1 * x1 + y1 * y1 < 0.5) {
-            val t1 = 0.5 - x1 * x1 - y1 * y1
-            t1 * t1 * t1 * t1 * dot(grad3[gi1], x1, y1)
-        } else 0.0
+        val n1 =
+            if (x1 * x1 + y1 * y1 < 0.5) {
+                val t1 = 0.5 - x1 * x1 - y1 * y1
+                t1 * t1 * t1 * t1 * dot(grad3[gi1], x1, y1)
+            } else {
+                0.0
+            }
 
-        val n2 = if (x2 * x2 + y2 * y2 < 0.5) {
-            val t2 = 0.5 - x2 * x2 - y2 * y2
-            t2 * t2 * t2 * t2 * dot(grad3[gi2], x2, y2)
-        } else 0.0
+        val n2 =
+            if (x2 * x2 + y2 * y2 < 0.5) {
+                val t2 = 0.5 - x2 * x2 - y2 * y2
+                t2 * t2 * t2 * t2 * dot(grad3[gi2], x2, y2)
+            } else {
+                0.0
+            }
 
         return 70.0 * (n0 + n1 + n2)
     }
 
-    private fun dot(g: IntArray, x: Double, y: Double): Double = g[0] * x + g[1] * y
+    private fun dot(
+        g: IntArray,
+        x: Double,
+        y: Double,
+    ): Double = g[0] * x + g[1] * y
 
     companion object {
-        private val grad3 = arrayOf(
-            intArrayOf(1, 1), intArrayOf(-1, 1), intArrayOf(1, -1), intArrayOf(-1, -1),
-            intArrayOf(1, 0), intArrayOf(-1, 0), intArrayOf(1, 0), intArrayOf(-1, 0),
-            intArrayOf(0, 1), intArrayOf(0, -1), intArrayOf(0, 1), intArrayOf(0, -1)
-        )
+        private val grad3 =
+            arrayOf(
+                intArrayOf(1, 1),
+                intArrayOf(-1, 1),
+                intArrayOf(1, -1),
+                intArrayOf(-1, -1),
+                intArrayOf(1, 0),
+                intArrayOf(-1, 0),
+                intArrayOf(1, 0),
+                intArrayOf(-1, 0),
+                intArrayOf(0, 1),
+                intArrayOf(0, -1),
+                intArrayOf(0, 1),
+                intArrayOf(0, -1),
+            )
 
         fun fromRandom(random: () -> Double): SimplexNoise2D {
             val p = IntArray(256) { it }

@@ -14,7 +14,7 @@ import kotlinx.serialization.json.Json
 data class RemoteSavefileInfo(
     val saveId: String,
     val data: String,
-    val updatedAt: String
+    val updatedAt: String,
 )
 
 /**
@@ -23,7 +23,6 @@ data class RemoteSavefileInfo(
  * Implementations are platform-specific but the interface is shared across all platforms.
  */
 expect object BackendSaveService {
-
     /**
      * Upload a savefile to the backend.
      * Returns true on success, false on failure (e.g. not authenticated, network error).
@@ -32,7 +31,11 @@ expect object BackendSaveService {
      * @param jsonData Raw JSON content of the savefile
      * @param token   Bearer token for authentication (from [de.egril.defender.iam.IamService.getToken])
      */
-    suspend fun uploadSavefile(saveId: String, jsonData: String, token: String): Boolean
+    suspend fun uploadSavefile(
+        saveId: String,
+        jsonData: String,
+        token: String,
+    ): Boolean
 
     /**
      * Fetch the list of savefiles for the authenticated user from the backend.
@@ -50,18 +53,19 @@ expect object BackendSaveService {
 private val json = Json { ignoreUnknownKeys = true }
 
 /** Escapes a string for safe embedding as a JSON string value. */
-internal fun escapeJsonString(s: String): String = buildString {
-    for (c in s) {
-        when (c) {
-            '"' -> append("\\\"")
-            '\\' -> append("\\\\")
-            '\n' -> append("\\n")
-            '\r' -> append("\\r")
-            '\t' -> append("\\t")
-            else -> append(c)
+internal fun escapeJsonString(s: String): String =
+    buildString {
+        for (c in s) {
+            when (c) {
+                '"' -> append("\\\"")
+                '\\' -> append("\\\\")
+                '\n' -> append("\\n")
+                '\r' -> append("\\r")
+                '\t' -> append("\\t")
+                else -> append(c)
+            }
         }
     }
-}
 
 /**
  * Appends the shared client information JSON fields (platform, platformLong, versionName,
@@ -80,7 +84,7 @@ internal fun StringBuilder.appendClientInfo(
     platformLong: String,
     versionName: String,
     commitHash: String,
-    osName: String?
+    osName: String?,
 ) {
     append("\"platform\":\"${escapeJsonString(platform)}\",")
     append("\"platformLong\":\"${escapeJsonString(platformLong)}\",")
@@ -92,27 +96,34 @@ internal fun StringBuilder.appendClientInfo(
 }
 
 /** Builds the JSON payload for a savefile upload request. */
-internal fun buildUploadJson(saveId: String, jsonData: String): String = buildString {
-    val currentPlatform = de.egril.defender.utils.getPlatform()
-    val platform = de.egril.defender.utils.getClientPlatformName()
-    val platformLong = currentPlatform.name
-    val osName = currentPlatform.osName
-    val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
-    val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
-    append("{")
-    append("\"saveId\":\"${escapeJsonString(saveId)}\",")
-    append("\"data\":\"${escapeJsonString(jsonData)}\",")
-    appendClientInfo(platform, platformLong, versionName, commitHash, osName)
-    append("}")
-}
+internal fun buildUploadJson(
+    saveId: String,
+    jsonData: String,
+): String =
+    buildString {
+        val currentPlatform =
+            de.egril.defender.utils
+                .getPlatform()
+        val platform =
+            de.egril.defender.utils
+                .getClientPlatformName()
+        val platformLong = currentPlatform.name
+        val osName = currentPlatform.osName
+        val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
+        val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
+        append("{")
+        append("\"saveId\":\"${escapeJsonString(saveId)}\",")
+        append("\"data\":\"${escapeJsonString(jsonData)}\",")
+        appendClientInfo(platform, platformLong, versionName, commitHash, osName)
+        append("}")
+    }
 
 /**
  * Parses a JSON array of [RemoteSavefileInfo] objects returned by GET /api/savefiles.
  */
-internal fun parseRemoteSavefilesJson(responseJson: String): List<RemoteSavefileInfo> {
-    return try {
+internal fun parseRemoteSavefilesJson(responseJson: String): List<RemoteSavefileInfo> =
+    try {
         json.decodeFromString<List<RemoteSavefileInfo>>(responseJson)
     } catch (_: Exception) {
         emptyList()
     }
-}

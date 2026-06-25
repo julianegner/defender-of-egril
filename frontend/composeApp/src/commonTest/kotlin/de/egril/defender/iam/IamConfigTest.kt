@@ -10,7 +10,6 @@ import kotlin.test.assertTrue
  * without requiring a running Keycloak instance.
  */
 class IamConfigTest {
-
     @Test
     fun `realm is egril`() {
         assertEquals("egril", IamConfig.REALM)
@@ -26,7 +25,7 @@ class IamConfigTest {
         val url = IamConfig.authUrl
         assertTrue(
             url.contains("/realms/${IamConfig.REALM}/protocol/openid-connect/auth"),
-            "authUrl should contain the expected OIDC authorization path, but was: $url"
+            "authUrl should contain the expected OIDC authorization path, but was: $url",
         )
     }
 
@@ -35,7 +34,7 @@ class IamConfigTest {
         val url = IamConfig.tokenUrl
         assertTrue(
             url.contains("/realms/${IamConfig.REALM}/protocol/openid-connect/token"),
-            "tokenUrl should contain the expected OIDC token path, but was: $url"
+            "tokenUrl should contain the expected OIDC token path, but was: $url",
         )
     }
 
@@ -44,7 +43,7 @@ class IamConfigTest {
         val url = IamConfig.logoutUrl
         assertTrue(
             url.contains("/realms/${IamConfig.REALM}/protocol/openid-connect/logout"),
-            "logoutUrl should contain the expected OIDC logout path, but was: $url"
+            "logoutUrl should contain the expected OIDC logout path, but was: $url",
         )
     }
 }

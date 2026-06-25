@@ -1,6 +1,4 @@
 package de.egril.defender.ui.animations
-import io.github.alexzhirkevich.compottie.Compottie
-
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -12,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.alexzhirkevich.compottie.Compottie
 
 /**
  * Healing overlay for enemies affected by the Green Witch healing ability.
@@ -19,7 +18,10 @@ import androidx.compose.ui.unit.dp
  * When [animate] is false, shows three static green "+" symbols.
  */
 @Composable
-fun GreenWitchHealingAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+fun GreenWitchHealingAnimation(
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (animate) {
         AnimatedGreenWitchHealing(modifier)
     } else {
@@ -32,7 +34,7 @@ private fun AnimatedGreenWitchHealing(modifier: Modifier = Modifier) {
     LottieAnimation(
         animationType = AnimationType.GREEN_WITCH_HEALING,
         modifier = modifier.fillMaxSize(),
-        iterations = Compottie.IterateForever
+        iterations = Compottie.IterateForever,
     )
 }
 
@@ -40,14 +42,14 @@ private fun AnimatedGreenWitchHealing(modifier: Modifier = Modifier) {
 private fun StaticGreenWitchHealing(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         // Large + symbol at center
         Text(
             "+",
             style = MaterialTheme.typography.headlineLarge,
             color = Color(0xFF4CAF50),
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
         // Medium + symbol - offset left and higher
         Text(
@@ -55,7 +57,7 @@ private fun StaticGreenWitchHealing(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.headlineMedium,
             color = Color(0xFF4CAF50),
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.offset(x = (-12).dp, y = (-8).dp)
+            modifier = Modifier.offset(x = (-12).dp, y = (-8).dp),
         )
         // Small + symbol - offset right and even higher
         Text(
@@ -63,7 +65,7 @@ private fun StaticGreenWitchHealing(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.headlineSmall,
             color = Color(0xFF4CAF50),
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.offset(x = 12.dp, y = (-16).dp)
+            modifier = Modifier.offset(x = 12.dp, y = (-16).dp),
         )
     }
 }

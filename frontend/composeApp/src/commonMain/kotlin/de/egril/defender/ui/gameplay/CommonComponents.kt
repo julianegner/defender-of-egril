@@ -31,8 +31,8 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.coins
 import defender_of_egril.composeapp.generated.resources.health
 import defender_of_egril.composeapp.generated.resources.spells
-import defender_of_egril.composeapp.generated.resources.turn
 import defender_of_egril.composeapp.generated.resources.tooltip_enemies_on_map_and_planned
+import defender_of_egril.composeapp.generated.resources.turn
 
 /**
  * Reusable expandable card component with collapse/expand functionality.
@@ -51,11 +51,11 @@ fun ExpandableCard(
     subtitle: String? = null,
     defaultExpanded: Boolean = false,
     forceExpanded: Boolean = false,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     var isExpanded by remember { mutableStateOf(defaultExpanded) }
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
-    
+
     // Force expansion when forceExpanded is true
     LaunchedEffect(forceExpanded) {
         if (forceExpanded) {
@@ -69,21 +69,27 @@ fun ExpandableCard(
             Row(
                 modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 if (isExpanded) {
-                    TriangleDownIcon(size = GamePlayConstants.IconSizes.Large, tint = if (isDarkMode) androidx.compose.ui.graphics.Color.White else androidx.compose.ui.graphics.Color.Black)
+                    TriangleDownIcon(
+                        size = GamePlayConstants.IconSizes.Large,
+                        tint = if (isDarkMode) androidx.compose.ui.graphics.Color.White else androidx.compose.ui.graphics.Color.Black,
+                    )
                 } else {
-                    TriangleLeftIcon(size = GamePlayConstants.IconSizes.Large, tint = if (isDarkMode) androidx.compose.ui.graphics.Color.White else androidx.compose.ui.graphics.Color.Black)
+                    TriangleLeftIcon(
+                        size = GamePlayConstants.IconSizes.Large,
+                        tint = if (isDarkMode) androidx.compose.ui.graphics.Color.White else androidx.compose.ui.graphics.Color.Black,
+                    )
                 }
             }
-            
+
             // Optional subtitle (always visible)
             if (subtitle != null) {
                 Text(
                     subtitle,
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
                 )
             }
 
@@ -113,11 +119,11 @@ fun IconTextRow(
     modifier: Modifier = Modifier,
     iconSize: Dp = GamePlayConstants.IconSizes.Small,
     spacerWidth: Dp = GamePlayConstants.Spacing.IconText,
-    textStyle: TextStyle = MaterialTheme.typography.bodySmall
+    textStyle: TextStyle = MaterialTheme.typography.bodySmall,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
+        modifier = modifier,
     ) {
         icon(iconSize)
         Spacer(modifier = Modifier.width(spacerWidth))
@@ -144,31 +150,31 @@ fun GameStatsDisplay(
     turn: Int,
     activeEnemyCount: Int,
     remainingEnemyCount: Int,
-    currentMana: Int? = null,  // Optional mana display (null if not using mana)
-    maxMana: Int? = null,  // Optional max mana (null if not using mana)
+    currentMana: Int? = null, // Optional mana display (null if not using mana)
+    maxMana: Int? = null, // Optional max mana (null if not using mana)
     iconSize: Dp = GamePlayConstants.IconSizes.Large,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     onCoinsClick: (() -> Unit)? = null,
     onEnemyCountClick: (() -> Unit)? = null,
-    onManaClick: (() -> Unit)? = null  // Optional callback when mana is clicked
+    onManaClick: (() -> Unit)? = null, // Optional callback when mana is clicked
 ) {
-
     // Coins (clickable if callback provided)
     TooltipWrapper(text = stringResource(Res.string.coins)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = if (onCoinsClick != null) {
-                Modifier.clickable(onClick = onCoinsClick)
-            } else {
-                Modifier
-            }
+            modifier =
+                if (onCoinsClick != null) {
+                    Modifier.clickable(onClick = onCoinsClick)
+                } else {
+                    Modifier
+                },
         ) {
             MoneyIcon(size = iconSize)
             Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
             Text("$coins", style = textStyle)
         }
     }
-        
+
     // Health
     TooltipWrapper(text = stringResource(Res.string.health)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -177,34 +183,35 @@ fun GameStatsDisplay(
             Text("$health", style = textStyle)
         }
     }
-    
+
     // Mana (only show if mana values are provided)
     if (currentMana != null && maxMana != null && maxMana > 0) {
         TooltipWrapper(text = stringResource(Res.string.spells)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = if (onManaClick != null) {
-                    Modifier.clickable(onClick = onManaClick)
-                } else {
-                    Modifier
-                }
+                modifier =
+                    if (onManaClick != null) {
+                        Modifier.clickable(onClick = onManaClick)
+                    } else {
+                        Modifier
+                    },
             ) {
                 de.egril.defender.ui.icon.PentagramIcon(
                     size = iconSize,
-                    color = Color(0xFF9C27B0)  // Purple for mana
+                    color = Color(0xFF9C27B0), // Purple for mana
                 )
                 Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
                 Text("$currentMana/$maxMana", style = textStyle)
                 if (AppSettings.showButtonShortcutHints.value && onManaClick != null) {
                     Spacer(modifier = Modifier.width(6.dp))
                     ShortcutKeyChip(
-                        text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleSpellMenu.value)
+                        text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleSpellMenu.value),
                     )
                 }
             }
         }
     }
-        
+
     // Turn
     TooltipWrapper(text = stringResource(Res.string.turn)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -218,11 +225,12 @@ fun GameStatsDisplay(
     TooltipWrapper(text = stringResource(Res.string.tooltip_enemies_on_map_and_planned)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = if (onEnemyCountClick != null) {
-                Modifier.clickable(onClick = onEnemyCountClick)
-            } else {
-                Modifier
-            }
+            modifier =
+                if (onEnemyCountClick != null) {
+                    Modifier.clickable(onClick = onEnemyCountClick)
+                } else {
+                    Modifier
+                },
         ) {
             EnemyTypeIcon(AttackerType.GOBLIN, modifier = Modifier.size(iconSize + 4.dp))
             Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
@@ -230,7 +238,7 @@ fun GameStatsDisplay(
             if (AppSettings.showButtonShortcutHints.value && onEnemyCountClick != null) {
                 Spacer(modifier = Modifier.width(6.dp))
                 ShortcutKeyChip(
-                    text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleEnemyList.value)
+                    text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleEnemyList.value),
                 )
             }
         }
@@ -253,10 +261,11 @@ fun ShortcutKeyChip(
 ) {
     if (!AppSettings.showButtonShortcutHints.value) return
     Box(
-        modifier = modifier
-            .border(width = 1.dp, color = color, shape = RoundedCornerShape(0.dp))
-            .padding(horizontal = 4.dp, vertical = 1.dp),
-        contentAlignment = Alignment.Center
+        modifier =
+            modifier
+                .border(width = 1.dp, color = color, shape = RoundedCornerShape(0.dp))
+                .padding(horizontal = 4.dp, vertical = 1.dp),
+        contentAlignment = Alignment.Center,
     ) {
         if (containsArrowUnicode(text)) {
             ArrowChipContent(text = text, color = color)
@@ -281,20 +290,21 @@ private val ARROW_UNICODE_CHARS = setOf('\u2190', '\u2191', '\u2192', '\u2193', 
  * Returns true if the text contains any arrow unicode characters that need
  * to be rendered as material symbol icons for wasm compatibility.
  */
-private fun containsArrowUnicode(text: String): Boolean {
-    return text.any { it in ARROW_UNICODE_CHARS }
-}
+private fun containsArrowUnicode(text: String): Boolean = text.any { it in ARROW_UNICODE_CHARS }
 
 /**
  * Renders chip content that may contain arrow unicode characters as Material Symbol icons.
  * Non-arrow characters (like "/" separators) are rendered as text.
  */
 @Composable
-private fun ArrowChipContent(text: String, color: Color) {
+private fun ArrowChipContent(
+    text: String,
+    color: Color,
+) {
     val iconSize = with(LocalDensity.current) { 10.sp.toDp() }
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         for (char in text) {
             val arrowIcon = charToArrowIcon(char)
@@ -302,7 +312,7 @@ private fun ArrowChipContent(text: String, color: Color) {
                 dev.vicart.compose.material.symbols.FilledSymbol(
                     icon = arrowIcon,
                     size = iconSize,
-                    tint = color
+                    tint = color,
                 )
             } else {
                 Text(
@@ -320,11 +330,12 @@ private fun ArrowChipContent(text: String, color: Color) {
  * Maps a unicode arrow character to its corresponding Material Symbol icon,
  * or null if the character is not an arrow.
  */
-private fun charToArrowIcon(char: Char): String? = when (char) {
-    '\u2190' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_BACK
-    '\u2191' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_UPWARD
-    '\u2192' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_FORWARD
-    '\u2193' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_DOWNWARD
-    '\u25C0' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_BACK
-    else -> null
-}
+private fun charToArrowIcon(char: Char): String? =
+    when (char) {
+        '\u2190' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_BACK
+        '\u2191' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_UPWARD
+        '\u2192' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_FORWARD
+        '\u2193' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_DOWNWARD
+        '\u25C0' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_BACK
+        else -> null
+    }

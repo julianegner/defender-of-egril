@@ -1,11 +1,11 @@
 package de.egril.defender.save
 
 import androidx.compose.runtime.mutableStateOf
+import de.egril.defender.config.LogConfig
 import de.egril.defender.editor.getFileStorage
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.utils.currentTimeMillis
-import de.egril.defender.config.LogConfig
 
 /**
  * File-based storage for save games
@@ -14,20 +14,20 @@ import de.egril.defender.config.LogConfig
  */
 object SaveFileStorage {
     private val fileStorage = getFileStorage()
-    
+
     private const val SAVEFILES_DIR = "savefiles"
     private const val LEVEL_PROGRESS_FILE = "savefiles/level_progress.json"
-    
+
     // Cache levels to avoid reloading on every call to getAllSavedGames()
     private var cachedLevels: List<Level>? = null
-    
+
     // Current player ID - null means use legacy directory structure
     private var currentPlayerId: String? = null
-    
+
     init {
         fileStorage.createDirectory(SAVEFILES_DIR)
     }
-    
+
     /**
      * Set the current player context
      * All save/load operations will use this player's directory
@@ -35,52 +35,52 @@ object SaveFileStorage {
     fun setCurrentPlayer(playerId: String?) {
         currentPlayerId = playerId
     }
-    
+
     /**
      * Get the current player ID
      */
     fun getCurrentPlayer(): String? = currentPlayerId
-    
+
     /**
      * Get the savefiles directory for the current player
      */
-    private fun getSavefilesDir(): String {
-        return if (currentPlayerId != null) {
+    private fun getSavefilesDir(): String =
+        if (currentPlayerId != null) {
             PlayerProfileStorage.getPlayerSavefilesDirectory(currentPlayerId!!)
         } else {
             SAVEFILES_DIR
         }
-    }
-    
+
     /**
      * Get the level progress file path for the current player
      */
-    private fun getLevelProgressFile(): String {
-        return if (currentPlayerId != null) {
+    private fun getLevelProgressFile(): String =
+        if (currentPlayerId != null) {
             PlayerProfileStorage.getPlayerLevelProgressFile(currentPlayerId!!)
         } else {
             LEVEL_PROGRESS_FILE
         }
-    }
-    
+
     /**
      * Save world map status
      */
     fun saveWorldMapStatus(worldLevels: List<WorldLevel>) {
-        val statusMap = worldLevels.mapNotNull { worldLevel ->
-            // Only save levels that have an editorLevelId
-            if (worldLevel.level.editorLevelId == null) {
-                println("WARNING: Skipping level ${worldLevel.level.id} (${worldLevel.level.name}) - no editorLevelId")
-            }
-            worldLevel.level.editorLevelId?.let { editorLevelId ->
-                editorLevelId to worldLevel.status
-            }
-        }.toMap()
+        val statusMap =
+            worldLevels
+                .mapNotNull { worldLevel ->
+                    // Only save levels that have an editorLevelId
+                    if (worldLevel.level.editorLevelId == null) {
+                        println("WARNING: Skipping level ${worldLevel.level.id} (${worldLevel.level.name}) - no editorLevelId")
+                    }
+                    worldLevel.level.editorLevelId?.let { editorLevelId ->
+                        editorLevelId to worldLevel.status
+                    }
+                }.toMap()
         val worldMapSave = WorldMapSave(statusMap)
         val json = SaveJsonSerializer.serializeWorldMapSave(worldMapSave)
         fileStorage.writeFile(getLevelProgressFile(), json)
     }
-    
+
     /**
      * Load world map status
      */
@@ -89,20 +89,24 @@ object SaveFileStorage {
         val worldMapSave = SaveJsonSerializer.deserializeWorldMapSave(json)
         return worldMapSave?.levelStatuses
     }
-    
+
     /**
      * Save current game state
      * @param saveId Optional save ID. If not provided, generates a timestamp-based ID.
      *               Use fixed ID like "autosave_game" for autosaves to overwrite previous autosaves.
      */
-    fun saveGameState(gameState: GameState, comment: String? = null, saveId: String? = null): String {
+    fun saveGameState(
+        gameState: GameState,
+        comment: String? = null,
+        saveId: String? = null,
+    ): String {
         val actualSaveId = saveId ?: "savegame_${currentTimeMillis()}"
         val savedGame = convertGameStateToSavedGame(gameState, actualSaveId, comment)
         val json = SaveJsonSerializer.serializeSavedGame(savedGame)
         fileStorage.writeFile("${getSavefilesDir()}/$actualSaveId.json", json)
         return actualSaveId
     }
-    
+
     /**
      * Load a saved game
      */
@@ -110,17 +114,17 @@ object SaveFileStorage {
         val json = fileStorage.readFile("${getSavefilesDir()}/$saveId.json") ?: return null
         return SaveJsonSerializer.deserializeSavedGame(json)
     }
-    
+
     /**
      * Get all saved games (metadata only)
      */
     fun getAllSavedGames(): List<SaveGameMetadata> {
         val files = fileStorage.listFiles(getSavefilesDir())
         val savedGames = mutableListOf<SaveGameMetadata>()
-        
+
         for (filename in files) {
             if (!filename.endsWith(".json") || filename == "level_progress.json") continue
-            
+
             val json = fileStorage.readFile("${getSavefilesDir()}/$filename")
             if (json != null) {
                 val savedGame = SaveJsonSerializer.deserializeSavedGame(json)
@@ -129,7 +133,7 @@ object SaveFileStorage {
                 }
             }
         }
-        
+
         return savedGames.sortedByDescending { it.timestamp }
     }
 
@@ -140,27 +144,30 @@ object SaveFileStorage {
     fun buildMetadataFromSavedGame(savedGame: SavedGame): SaveGameMetadata {
         val levels = cachedLevels ?: LevelData.createLevels().also { cachedLevels = it }
 
-        val defenderCounts = savedGame.defenders
-            .filter { it.buildTimeRemaining == 0 }
-            .groupingBy { it.type }
-            .eachCount()
+        val defenderCounts =
+            savedGame.defenders
+                .filter { it.buildTimeRemaining == 0 }
+                .groupingBy { it.type }
+                .eachCount()
 
-        val attackerCounts = savedGame.attackers
-            .filter { !it.isDefeated }
-            .groupingBy { it.type }
-            .eachCount()
+        val attackerCounts =
+            savedGame.attackers
+                .filter { !it.isDefeated }
+                .groupingBy { it.type }
+                .eachCount()
 
         val level = levels.find { it.id == savedGame.levelId }
-        val remainingSpawnCounts = if (level != null) {
-            val spawnPlan = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves)
-            spawnPlan
-                .filter { it.spawnTurn > savedGame.turnNumber }
-                .map { it.attackerType }
-                .groupingBy { it }
-                .eachCount()
-        } else {
-            savedGame.attackersToSpawn.groupingBy { it }.eachCount()
-        }
+        val remainingSpawnCounts =
+            if (level != null) {
+                val spawnPlan = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves)
+                spawnPlan
+                    .filter { it.spawnTurn > savedGame.turnNumber }
+                    .map { it.attackerType }
+                    .groupingBy { it }
+                    .eachCount()
+            } else {
+                savedGame.attackersToSpawn.groupingBy { it }.eachCount()
+            }
 
         return SaveGameMetadata(
             id = savedGame.id,
@@ -182,31 +189,29 @@ object SaveFileStorage {
             defenderPositions = savedGame.defenders,
             attackerPositions = savedGame.attackers,
             barricadePositions = savedGame.barricades,
-            mapId = savedGame.mapId
+            mapId = savedGame.mapId,
         )
     }
-    
+
     /**
      * Delete a saved game
      */
     fun deleteSavedGame(saveId: String) {
         fileStorage.deleteFile("${getSavefilesDir()}/$saveId.json")
     }
-    
+
     /**
      * Get the JSON content of a saved game for export
      */
-    fun getSaveGameJson(saveId: String): String? {
-        return fileStorage.readFile("${getSavefilesDir()}/$saveId.json")
-    }
-    
+    fun getSaveGameJson(saveId: String): String? = fileStorage.readFile("${getSavefilesDir()}/$saveId.json")
+
     /**
      * Get all saved games as a map of filename to JSON content
      */
     fun getAllSaveGamesJson(): Map<String, String> {
         val files = fileStorage.listFiles(getSavefilesDir())
         val result = mutableMapOf<String, String>()
-        
+
         files.forEach { filename ->
             if (filename.endsWith(".json") && filename != "level_progress.json") {
                 val content = fileStorage.readFile("${getSavefilesDir()}/$filename")
@@ -215,15 +220,19 @@ object SaveFileStorage {
                 }
             }
         }
-        
+
         return result
     }
-    
+
     /**
      * Import a save game from JSON content
      * @return true if import was successful
      */
-    fun importSaveGame(filename: String, jsonContent: String, overwrite: Boolean = false): Boolean {
+    fun importSaveGame(
+        filename: String,
+        jsonContent: String,
+        overwrite: Boolean = false,
+    ): Boolean {
         return try {
             // Validate JSON by trying to deserialize
             val savedGame = SaveJsonSerializer.deserializeSavedGame(jsonContent)
@@ -231,114 +240,123 @@ object SaveFileStorage {
                 println("Invalid save game JSON: $filename")
                 return false
             }
-            
+
             // Check if file already exists
             val targetPath = "${getSavefilesDir()}/$filename"
             if (fileStorage.fileExists(targetPath) && !overwrite) {
                 println("Save game already exists: $filename")
                 return false
             }
-            
+
             // Write the file
             fileStorage.writeFile(targetPath, jsonContent)
             true
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-            println("Error importing save game $filename: ${e.message}")
+                println("Error importing save game $filename: ${e.message}")
             }
             e.printStackTrace()
             false
         }
     }
-    
+
     /**
      * Check if a save game with the given filename exists
      */
-    fun saveGameExists(filename: String): Boolean {
-        return fileStorage.fileExists("${getSavefilesDir()}/$filename")
-    }
-    
+    fun saveGameExists(filename: String): Boolean = fileStorage.fileExists("${getSavefilesDir()}/$filename")
+
     /**
      * Convert GameState to SavedGame
      */
-    private fun convertGameStateToSavedGame(gameState: GameState, saveId: String, comment: String? = null): SavedGame {
-        val defenders = gameState.defenders.map { defender ->
-            SavedDefender(
-                id = defender.id,
-                type = defender.type,
-                position = defender.position.value,
-                level = defender.level.value,
-                buildTimeRemaining = defender.buildTimeRemaining.value,
-                placedOnTurn = defender.placedOnTurn,
-                actionsRemaining = defender.actionsRemaining.value,
-                dragonName = defender.dragonName,
-                raftId = defender.raftId.value,
-                towerBaseBarricadeId = defender.towerBaseBarricadeId.value
-            )
-        }
-        
-        val attackers = gameState.attackers.map { attacker ->
-            SavedAttacker(
-                id = attacker.id,
-                type = attacker.type,
-                position = attacker.position.value,
-                level = attacker.level.value,
-                currentHealth = attacker.currentHealth.value,
-                isDefeated = attacker.isDefeated.value,
-                dragonName = attacker.dragonName,
-                movementPenalty = attacker.movementPenalty.value
-            )
-        }
-        
-        val fieldEffects = gameState.fieldEffects.map { effect ->
-            SavedFieldEffect(
-                position = effect.position,
-                type = effect.type,
-                damage = effect.damage,
-                turnsRemaining = effect.turnsRemaining,
-                defenderId = effect.defenderId,
-                attackerId = effect.attackerId
-            )
-        }
-        
-        val traps = gameState.traps.map { trap ->
-            SavedTrap(
-                position = trap.position,
-                damage = trap.damage,
-                defenderId = trap.defenderId,
-                type = trap.type.name
-            )
-        }
-        
-        val rafts = gameState.rafts.map { raft ->
-            SavedRaft(
-                id = raft.id,
-                defenderId = raft.defenderId,
-                position = raft.currentPosition.value
-            )
-        }
-        
-        val barricades = gameState.barricades.map { barricade ->
-            SavedBarricade(
-                position = barricade.position,
-                healthPoints = barricade.healthPoints.value,
-                defenderId = barricade.defenderId,
-                id = barricade.id,
-                supportedTowerId = barricade.supportedTowerId.value
-            )
-        }
-        
-        val spellEffects = gameState.activeSpellEffects.map { effect ->
-            SavedSpellEffect(
-                spell = effect.spell.name,
-                position = effect.position,
-                defenderId = effect.defenderId,
-                attackerId = effect.attackerId,
-                turnsRemaining = effect.turnsRemaining,
-                castTurn = effect.castTurn
-            )
-        }
-        
+    private fun convertGameStateToSavedGame(
+        gameState: GameState,
+        saveId: String,
+        comment: String? = null,
+    ): SavedGame {
+        val defenders =
+            gameState.defenders.map { defender ->
+                SavedDefender(
+                    id = defender.id,
+                    type = defender.type,
+                    position = defender.position.value,
+                    level = defender.level.value,
+                    buildTimeRemaining = defender.buildTimeRemaining.value,
+                    placedOnTurn = defender.placedOnTurn,
+                    actionsRemaining = defender.actionsRemaining.value,
+                    dragonName = defender.dragonName,
+                    raftId = defender.raftId.value,
+                    towerBaseBarricadeId = defender.towerBaseBarricadeId.value,
+                )
+            }
+
+        val attackers =
+            gameState.attackers.map { attacker ->
+                SavedAttacker(
+                    id = attacker.id,
+                    type = attacker.type,
+                    position = attacker.position.value,
+                    level = attacker.level.value,
+                    currentHealth = attacker.currentHealth.value,
+                    isDefeated = attacker.isDefeated.value,
+                    dragonName = attacker.dragonName,
+                    movementPenalty = attacker.movementPenalty.value,
+                )
+            }
+
+        val fieldEffects =
+            gameState.fieldEffects.map { effect ->
+                SavedFieldEffect(
+                    position = effect.position,
+                    type = effect.type,
+                    damage = effect.damage,
+                    turnsRemaining = effect.turnsRemaining,
+                    defenderId = effect.defenderId,
+                    attackerId = effect.attackerId,
+                )
+            }
+
+        val traps =
+            gameState.traps.map { trap ->
+                SavedTrap(
+                    position = trap.position,
+                    damage = trap.damage,
+                    defenderId = trap.defenderId,
+                    type = trap.type.name,
+                )
+            }
+
+        val rafts =
+            gameState.rafts.map { raft ->
+                SavedRaft(
+                    id = raft.id,
+                    defenderId = raft.defenderId,
+                    position = raft.currentPosition.value,
+                )
+            }
+
+        val barricades =
+            gameState.barricades.map { barricade ->
+                SavedBarricade(
+                    position = barricade.position,
+                    healthPoints = barricade.healthPoints.value,
+                    defenderId = barricade.defenderId,
+                    id = barricade.id,
+                    supportedTowerId = barricade.supportedTowerId.value,
+                )
+            }
+
+        val spellEffects =
+            gameState.activeSpellEffects.map { effect ->
+                SavedSpellEffect(
+                    spell = effect.spell.name,
+                    position = effect.position,
+                    defenderId = effect.defenderId,
+                    attackerId = effect.attackerId,
+                    turnsRemaining = effect.turnsRemaining,
+                    castTurn = effect.castTurn,
+                )
+            }
+
         return SavedGame(
             id = saveId,
             timestamp = currentTimeMillis(),
@@ -358,23 +376,26 @@ object SaveFileStorage {
             fieldEffects = fieldEffects,
             traps = traps,
             comment = comment,
-            mapId = gameState.level.mapId,  // Save the map ID for verification on load
+            mapId = gameState.level.mapId, // Save the map ID for verification on load
             rafts = rafts,
             nextRaftId = gameState.nextRaftId.value,
             barricades = barricades,
-            worldMapSave = null,  // Don't automatically include world map - only on explicit export
+            worldMapSave = null, // Don't automatically include world map - only on explicit export
             currentMana = gameState.currentMana.value,
             maxMana = gameState.maxMana.value,
-            spellEffects = spellEffects
+            spellEffects = spellEffects,
         )
     }
-    
+
     /**
      * Convert SavedGame back to GameState
      */
-    fun convertSavedGameToGameState(savedGame: SavedGame, level: Level): GameState {
+    fun convertSavedGameToGameState(
+        savedGame: SavedGame,
+        level: Level,
+    ): GameState {
         val gameState = GameState(level = level)
-        
+
         // Restore basic state
         gameState.phase.value = savedGame.phase
         gameState.coins.value = savedGame.coins
@@ -385,117 +406,132 @@ object SaveFileStorage {
         gameState.spawnCounter.value = savedGame.spawnCounter
         gameState.turnNumber.value = savedGame.turnNumber
         gameState.nextRaftId.value = savedGame.nextRaftId
-        
+
         // Restore mana
         gameState.currentMana.value = savedGame.currentMana
         gameState.maxMana.value = savedGame.maxMana
-        
+
         // Restore rafts first
         gameState.rafts.clear()
         for (savedRaft in savedGame.rafts) {
-            val raft = Raft(
-                id = savedRaft.id,
-                defenderId = savedRaft.defenderId,
-                currentPosition = mutableStateOf(savedRaft.position)
-            )
+            val raft =
+                Raft(
+                    id = savedRaft.id,
+                    defenderId = savedRaft.defenderId,
+                    currentPosition = mutableStateOf(savedRaft.position),
+                )
             gameState.rafts.add(raft)
         }
-        
+
         // Restore defenders
         gameState.defenders.clear()
         for (savedDefender in savedGame.defenders) {
-            val defender = Defender(
-                id = savedDefender.id,
-                type = savedDefender.type,
-                position = mutableStateOf(savedDefender.position),
-                placedOnTurn = savedDefender.placedOnTurn,
-                dragonName = savedDefender.dragonName
-            )
+            val defender =
+                Defender(
+                    id = savedDefender.id,
+                    type = savedDefender.type,
+                    position = mutableStateOf(savedDefender.position),
+                    placedOnTurn = savedDefender.placedOnTurn,
+                    dragonName = savedDefender.dragonName,
+                )
             defender.level.value = savedDefender.level
             defender.buildTimeRemaining.value = savedDefender.buildTimeRemaining
             defender.actionsRemaining.value = savedDefender.actionsRemaining
-            defender.raftId.value = savedDefender.raftId  // Restore raft linkage
-            defender.towerBaseBarricadeId.value = savedDefender.towerBaseBarricadeId  // Restore tower base linkage
+            defender.raftId.value = savedDefender.raftId // Restore raft linkage
+            defender.towerBaseBarricadeId.value = savedDefender.towerBaseBarricadeId // Restore tower base linkage
             gameState.defenders.add(defender)
         }
-        
+
         // Restore attackers
         gameState.attackers.clear()
         for (savedAttacker in savedGame.attackers) {
-            val attacker = Attacker(
-                id = savedAttacker.id,
-                type = savedAttacker.type,
-                position = mutableStateOf(savedAttacker.position),
-                level = mutableStateOf(savedAttacker.level),
-                dragonName = savedAttacker.dragonName
-            )
+            val attacker =
+                Attacker(
+                    id = savedAttacker.id,
+                    type = savedAttacker.type,
+                    position = mutableStateOf(savedAttacker.position),
+                    level = mutableStateOf(savedAttacker.level),
+                    dragonName = savedAttacker.dragonName,
+                )
             attacker.currentHealth.value = savedAttacker.currentHealth
             attacker.isDefeated.value = savedAttacker.isDefeated
             attacker.movementPenalty.value = savedAttacker.movementPenalty
             gameState.attackers.add(attacker)
         }
-        
+
         // Restore attackers to spawn
         gameState.attackersToSpawn.clear()
         gameState.attackersToSpawn.addAll(savedGame.attackersToSpawn)
-        
+
         // Restore field effects
         gameState.fieldEffects.clear()
-        gameState.fieldEffects.addAll(savedGame.fieldEffects.map { effect ->
-            FieldEffect(
-                position = effect.position,
-                type = effect.type,
-                damage = effect.damage,
-                turnsRemaining = effect.turnsRemaining,
-                defenderId = effect.defenderId,
-                attackerId = effect.attackerId
-            )
-        })
-        
+        gameState.fieldEffects.addAll(
+            savedGame.fieldEffects.map { effect ->
+                FieldEffect(
+                    position = effect.position,
+                    type = effect.type,
+                    damage = effect.damage,
+                    turnsRemaining = effect.turnsRemaining,
+                    defenderId = effect.defenderId,
+                    attackerId = effect.attackerId,
+                )
+            },
+        )
+
         // Restore traps
         gameState.traps.clear()
-        gameState.traps.addAll(savedGame.traps.map { trap ->
-            Trap(
-                position = trap.position,
-                damage = trap.damage,
-                defenderId = trap.defenderId,
-                type = try { TrapType.valueOf(trap.type) } catch (e: Exception) { TrapType.DWARVEN }
-            )
-        })
-        
+        gameState.traps.addAll(
+            savedGame.traps.map { trap ->
+                Trap(
+                    position = trap.position,
+                    damage = trap.damage,
+                    defenderId = trap.defenderId,
+                    type =
+                        try {
+                            TrapType.valueOf(trap.type)
+                        } catch (e: Exception) {
+                            TrapType.DWARVEN
+                        },
+                )
+            },
+        )
+
         // Restore barricades
         gameState.barricades.clear()
-        
+
         // First pass: determine the max barricade ID from saved data
         val maxSavedBarricadeId = savedGame.barricades.maxOfOrNull { it.id } ?: 0
-        
+
         // Set nextBarricadeId to be higher than any existing ID
         if (maxSavedBarricadeId >= gameState.nextBarricadeId.value) {
             gameState.nextBarricadeId.value = maxSavedBarricadeId + 1
         }
-        
+
         // Second pass: restore barricades, assigning new IDs to those with ID <= 0 (old saves)
-        gameState.barricades.addAll(savedGame.barricades.map { barricade ->
-            Barricade(
-                id = if (barricade.id > 0) barricade.id else gameState.nextBarricadeId.value++,
-                position = barricade.position,
-                healthPoints = mutableStateOf(barricade.healthPoints),
-                defenderId = barricade.defenderId,
-                supportedTowerId = mutableStateOf(barricade.supportedTowerId)
-            )
-        })
-        
+        gameState.barricades.addAll(
+            savedGame.barricades.map { barricade ->
+                Barricade(
+                    id = if (barricade.id > 0) barricade.id else gameState.nextBarricadeId.value++,
+                    position = barricade.position,
+                    healthPoints = mutableStateOf(barricade.healthPoints),
+                    defenderId = barricade.defenderId,
+                    supportedTowerId = mutableStateOf(barricade.supportedTowerId),
+                )
+            },
+        )
+
         // Restore active spell effects (e.g. bombs placed before save)
         gameState.activeSpellEffects.clear()
         for (savedEffect in savedGame.spellEffects) {
-            val spellType = try {
-                SpellType.valueOf(savedEffect.spell)
-            } catch (e: Exception) {
-                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                    println("Warning: Unknown spell type '${savedEffect.spell}' in saved spell effect, skipping")
+            val spellType =
+                try {
+                    SpellType.valueOf(savedEffect.spell)
+                } catch (e: Exception) {
+                    if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                        println("Warning: Unknown spell type '${savedEffect.spell}' in saved spell effect, skipping")
+                    }
+                    continue
                 }
-                continue
-            }
             gameState.activeSpellEffects.add(
                 ActiveSpellEffect(
                     spell = spellType,
@@ -503,41 +539,43 @@ object SaveFileStorage {
                     defenderId = savedEffect.defenderId,
                     attackerId = savedEffect.attackerId,
                     turnsRemaining = savedEffect.turnsRemaining,
-                    castTurn = savedEffect.castTurn
-                )
+                    castTurn = savedEffect.castTurn,
+                ),
             )
         }
-        
+
         return gameState
     }
-    
+
     /**
      * Get save game JSON with world map included (for game data transfer)
      */
     fun getSaveGameWithWorldMapJson(saveId: String): String? {
         val json = fileStorage.readFile("${getSavefilesDir()}/$saveId.json") ?: return null
         val savedGame = SaveJsonSerializer.deserializeSavedGame(json) ?: return null
-        
+
         // Add current world map status
-        val worldMapSave = loadWorldMapStatus()?.let { statusMap ->
-            WorldMapSave(statusMap)
-        }
-        
+        val worldMapSave =
+            loadWorldMapStatus()?.let { statusMap ->
+                WorldMapSave(statusMap)
+            }
+
         val savedGameWithWorldMap = savedGame.copy(worldMapSave = worldMapSave)
         return SaveJsonSerializer.serializeSavedGame(savedGameWithWorldMap)
     }
-    
+
     /**
      * Export just the world map progress (game state without level data)
      */
     fun exportWorldMapProgress(): String {
-        val worldMapSave = loadWorldMapStatus()?.let { statusMap ->
-            WorldMapSave(statusMap)
-        } ?: WorldMapSave(emptyMap())
-        
+        val worldMapSave =
+            loadWorldMapStatus()?.let { statusMap ->
+                WorldMapSave(statusMap)
+            } ?: WorldMapSave(emptyMap())
+
         return SaveJsonSerializer.serializeWorldMapSave(worldMapSave)
     }
-    
+
     /**
      * Import world map progress from JSON
      * Returns a WorldMapSave if different from current, null if identical or error
@@ -545,27 +583,31 @@ object SaveFileStorage {
     fun importWorldMapProgress(json: String): WorldMapSave? {
         val importedWorldMap = SaveJsonSerializer.deserializeWorldMapSave(json) ?: return null
         val currentWorldMap = loadWorldMapStatus() ?: emptyMap()
-        
+
         // Check if different
         if (importedWorldMap.levelStatuses != currentWorldMap) {
             return importedWorldMap
         }
-        
+
         return null // Identical, no need to import
     }
-    
+
     /**
      * Apply imported world map progress
      */
-    fun applyWorldMapProgress(worldMapSave: WorldMapSave, worldLevels: List<WorldLevel>): List<WorldLevel> {
-        val updatedWorldLevels = worldLevels.map { worldLevel ->
-            val status = worldMapSave.levelStatuses[worldLevel.level.editorLevelId]
-            if (status != null) {
-                worldLevel.copy(status = status)
-            } else {
-                worldLevel
+    fun applyWorldMapProgress(
+        worldMapSave: WorldMapSave,
+        worldLevels: List<WorldLevel>,
+    ): List<WorldLevel> {
+        val updatedWorldLevels =
+            worldLevels.map { worldLevel ->
+                val status = worldMapSave.levelStatuses[worldLevel.level.editorLevelId]
+                if (status != null) {
+                    worldLevel.copy(status = status)
+                } else {
+                    worldLevel
+                }
             }
-        }
         saveWorldMapStatus(updatedWorldLevels)
         return updatedWorldLevels
     }
@@ -574,9 +616,7 @@ object SaveFileStorage {
     // Level Handoff (connected levels)
     // -------------------------------------------------------------------------
 
-    private fun getHandoffFilePath(toLevelEditorId: String): String {
-        return "${getSavefilesDir()}/handoff_${toLevelEditorId}.json"
-    }
+    private fun getHandoffFilePath(toLevelEditorId: String): String = "${getSavefilesDir()}/handoff_$toLevelEditorId.json"
 
     /**
      * Save a level handoff state so the player can carry it into the next connected level.
@@ -607,7 +647,5 @@ object SaveFileStorage {
     /**
      * Check whether a handoff save exists for the given level.
      */
-    fun hasLevelHandoff(toLevelEditorId: String): Boolean {
-        return fileStorage.fileExists(getHandoffFilePath(toLevelEditorId))
-    }
+    fun hasLevelHandoff(toLevelEditorId: String): Boolean = fileStorage.fileExists(getHandoffFilePath(toLevelEditorId))
 }

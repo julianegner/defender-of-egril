@@ -19,7 +19,6 @@ import java.net.URLDecoder
  *   `composeResources/files/sounds/background/README.md`.
  */
 object CreditsExtractor {
-
     /**
      * Extracts human developer names from git history using `git shortlog --summary --numbered --email`.
      *
@@ -35,18 +34,23 @@ object CreditsExtractor {
      */
     fun extractDevelopers(projectRoot: File): Set<String> {
         return try {
-            val process = ProcessBuilder(
-                "git", "shortlog", "--summary", "--numbered", "--email"
-            )
-                .directory(projectRoot)
-                .redirectErrorStream(true)
-                .start()
+            val process =
+                ProcessBuilder(
+                    "git",
+                    "shortlog",
+                    "--summary",
+                    "--numbered",
+                    "--email",
+                ).directory(projectRoot)
+                    .redirectErrorStream(true)
+                    .start()
             val output = process.inputStream.bufferedReader().readText()
             process.waitFor()
 
             // Line format: "   N\tName <email>"
             val nameEmailPattern = Regex("""^(.*?)\s*<([^>]+)>$""")
-            output.lines()
+            output
+                .lines()
                 .mapNotNull { line ->
                     val afterTab = line.substringAfter("\t", "").trim()
                     val match = nameEmailPattern.find(afterTab) ?: return@mapNotNull null
@@ -59,8 +63,7 @@ object CreditsExtractor {
                         name.isEmpty() -> null
                         else -> name
                     }
-                }
-                .toSet()
+                }.toSet()
         } catch (e: Exception) {
             emptySet()
         }
@@ -75,14 +78,16 @@ object CreditsExtractor {
      * Returns a set of author names exactly as they appear in the Freesound URLs.
      */
     fun extractSoundEffectAuthors(projectRoot: File): Set<String> {
-        val readmeFile = File(
-            projectRoot,
-            "composeApp/src/commonMain/composeResources/files/sounds/README.md"
-        )
+        val readmeFile =
+            File(
+                projectRoot,
+                "composeApp/src/commonMain/composeResources/files/sounds/README.md",
+            )
         if (!readmeFile.exists()) return emptySet()
 
         val pattern = Regex("""https://freesound\.org/people/([^/]+)/sounds/""")
-        return readmeFile.readLines()
+        return readmeFile
+            .readLines()
             .flatMap { line -> pattern.findAll(line).map { it.groupValues[1] } }
             .filter { it.isNotEmpty() }
             .map { URLDecoder.decode(it, "UTF-8") }
@@ -100,10 +105,11 @@ object CreditsExtractor {
      * source is also validated.
      */
     fun extractBackgroundMusicAuthors(projectRoot: File): Set<String> {
-        val readmeFile = File(
-            projectRoot,
-            "composeApp/src/commonMain/composeResources/files/sounds/background/README.md"
-        )
+        val readmeFile =
+            File(
+                projectRoot,
+                "composeApp/src/commonMain/composeResources/files/sounds/background/README.md",
+            )
         if (!readmeFile.exists()) return emptySet()
 
         val content = readmeFile.readText()

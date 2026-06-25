@@ -13,25 +13,26 @@ fun Modifier.a11ySemantics(
     role: Role? = null,
     label: String? = null,
     stateDescription: String? = null,
-    liveRegionMode: LiveRegionMode? = null
-): Modifier = semantics {
-    if (!label.isNullOrBlank()) {
-        contentDescription = label
+    liveRegionMode: LiveRegionMode? = null,
+): Modifier =
+    semantics {
+        if (!label.isNullOrBlank()) {
+            contentDescription = label
+        }
+        if (!stateDescription.isNullOrBlank()) {
+            this.stateDescription = stateDescription
+        }
+        if (role != null) {
+            this.role = role
+        }
+        if (liveRegionMode != null) {
+            this.liveRegion = liveRegionMode
+        }
     }
-    if (!stateDescription.isNullOrBlank()) {
-        this.stateDescription = stateDescription
-    }
-    if (role != null) {
-        this.role = role
-    }
-    if (liveRegionMode != null) {
-        this.liveRegion = liveRegionMode
-    }
-}
 
 fun Modifier.requireContentDescription(
     contentDescription: String?,
-    decorative: Boolean = false
+    decorative: Boolean = false,
 ): Modifier {
     // Intentionally debug-only check; no-op in release builds.
     if (!decorative && contentDescription.isNullOrBlank()) {

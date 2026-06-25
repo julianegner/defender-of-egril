@@ -10,7 +10,8 @@ private external fun getBrowserUserAgent(): String?
  * Extracts the browser name and full version from the User-Agent string.
  * Detection order: Edge → Chrome → Firefox → Safari → fallback to raw UA.
  */
-@JsFun("""() => {
+@JsFun(
+    """() => {
     try {
         var ua = navigator.userAgent;
         var edg = ua.match(/Edg\/([0-9.]+)/);
@@ -23,14 +24,16 @@ private external fun getBrowserUserAgent(): String?
         if (safari) return "Safari/" + safari[1];
         return ua;
     } catch (e) { return null; }
-}""")
+}""",
+)
 private external fun getBrowserInfo(): String?
 
 /**
  * Extracts the operating system name from the browser User-Agent string.
  * Detection order: Android → iOS → Windows → macOS → ChromeOS → Linux → null.
  */
-@JsFun("""() => {
+@JsFun(
+    """() => {
     try {
         var ua = navigator.userAgent;
         var android = ua.match(/Android ([0-9.]+)/);
@@ -52,10 +55,11 @@ private external fun getBrowserInfo(): String?
         if (ua.indexOf("Linux") >= 0) return "Linux";
         return null;
     } catch (e) { return null; }
-}""")
+}""",
+)
 private external fun getBrowserOsName(): String?
 
-class WasmPlatform: Platform {
+class WasmPlatform : Platform {
     override val name: String = getBrowserUserAgent()?.let { "Web with Kotlin/Wasm $it" } ?: "Web with Kotlin/Wasm"
     override val isAndroidTV: Boolean = false
     override val isSteamDeckGamingMode: Boolean = false
@@ -69,9 +73,7 @@ actual fun getPlatform(): Platform = WasmPlatform()
 @JsFun("() => { try { return navigator.language.split('-')[0].toLowerCase(); } catch (e) { return null; } }")
 private external fun getBrowserLanguage(): String?
 
-actual fun getSystemLanguageCode(): String? {
-    return getBrowserLanguage()
-}
+actual fun getSystemLanguageCode(): String? = getBrowserLanguage()
 
 actual fun getCurrentUsername(): String = ""
 

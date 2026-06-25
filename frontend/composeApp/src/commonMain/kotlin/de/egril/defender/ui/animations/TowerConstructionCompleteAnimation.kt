@@ -16,7 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
  * When [animate] is false, shows a static gold check-mark symbol.
  */
 @Composable
-fun TowerConstructionCompleteAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+fun TowerConstructionCompleteAnimation(
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (animate) {
         AnimatedTowerConstructionComplete(modifier)
     } else {
@@ -29,7 +32,7 @@ private fun AnimatedTowerConstructionComplete(modifier: Modifier = Modifier) {
     LottieAnimation(
         animationType = AnimationType.TOWER_CONSTRUCTION_COMPLETE,
         modifier = modifier.fillMaxSize(),
-        iterations = 1
+        iterations = 1,
     )
 }
 
@@ -37,14 +40,14 @@ private fun AnimatedTowerConstructionComplete(modifier: Modifier = Modifier) {
 private fun StaticTowerConstructionComplete(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         // "\u2713" is a single-character symbol, not a translatable string
         Text(
             "\u2713",
             style = MaterialTheme.typography.headlineSmall,
             color = Color(0xFFFFD700),
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
     }
 }

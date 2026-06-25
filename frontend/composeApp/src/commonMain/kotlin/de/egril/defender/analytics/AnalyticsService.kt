@@ -10,4 +10,9 @@ val backendUrl: String = "https://defender-backend.egril.de"
  * @param turnNumber The current game turn number when applicable
  * @param difficulty The selected game difficulty (e.g. BABY, EASY, MEDIUM, HARD, NIGHTMARE), optional
  */
-expect fun reportEvent(eventType: GameEventType, levelName: String?, turnNumber: Int? = null, difficulty: String? = null)
+expect fun reportEvent(
+    eventType: GameEventType,
+    levelName: String?,
+    turnNumber: Int? = null,
+    difficulty: String? = null,
+)

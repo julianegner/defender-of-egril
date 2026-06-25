@@ -10,13 +10,13 @@ object WindowCloseHandler {
      * Should return true if there are unsaved changes, false otherwise.
      */
     private var unsavedChangesChecker: (() -> Boolean)? = null
-    
+
     /**
      * Callback to save the game.
      * Allows platform-specific code to trigger a save before exiting.
      */
     private var saveGameCallback: (() -> Unit)? = null
-    
+
     /**
      * Callback to check if official data has been modified.
      * Returns true if official data has been modified, false otherwise.
@@ -42,21 +42,21 @@ object WindowCloseHandler {
     fun setUnsavedChangesChecker(checker: (() -> Boolean)?) {
         unsavedChangesChecker = checker
     }
-    
+
     /**
      * Set the callback to save the game.
      */
     fun setSaveGameCallback(callback: (() -> Unit)?) {
         saveGameCallback = callback
     }
-    
+
     /**
      * Set the callback to check if official data has been modified.
      */
     fun setOfficialDataChangedChecker(checker: (() -> Boolean)?) {
         officialDataChangedChecker = checker
     }
-    
+
     /**
      * Set the callback to save the game state when the app goes to the background.
      */
@@ -93,22 +93,18 @@ object WindowCloseHandler {
      * Check if there are unsaved changes.
      * Returns true if there are unsaved changes, false otherwise.
      */
-    fun hasUnsavedChanges(): Boolean {
-        return unsavedChangesChecker?.invoke() ?: false
-    }
-    
+    fun hasUnsavedChanges(): Boolean = unsavedChangesChecker?.invoke() ?: false
+
     /**
      * Save the game (if save callback is available).
      */
     fun saveGame() {
         saveGameCallback?.invoke()
     }
-    
+
     /**
      * Check if official data has been modified.
      * Returns true if official data has been modified, false otherwise.
      */
-    fun hasOfficialDataChanged(): Boolean {
-        return officialDataChangedChecker?.invoke() ?: false
-    }
+    fun hasOfficialDataChanged(): Boolean = officialDataChangedChecker?.invoke() ?: false
 }

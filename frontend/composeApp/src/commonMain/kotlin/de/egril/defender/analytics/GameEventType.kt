@@ -6,7 +6,9 @@ package de.egril.defender.analytics
  * Each entry carries the [apiValue] string that is written to the API so the
  * wire format stays stable regardless of future enum renames.
  */
-enum class GameEventType(val apiValue: String) {
+enum class GameEventType(
+    val apiValue: String,
+) {
     APP_STARTED("APP_STARTED"),
     APP_CLOSED("APP_CLOSED"),
     TUTORIAL_DEEP_LINK("TUTORIAL_DEEP_LINK"),
@@ -15,5 +17,5 @@ enum class GameEventType(val apiValue: String) {
     LEVEL_WON("LEVEL_WON"),
     LEVEL_LOST("LEVEL_LOST"),
     LEVEL_LEFT("LEVEL_LEFT"),
-    GAME_WON("GAME_WON")
+    GAME_WON("GAME_WON"),
 }

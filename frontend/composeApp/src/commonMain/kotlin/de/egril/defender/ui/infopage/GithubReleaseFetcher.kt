@@ -13,7 +13,7 @@ const val GITHUB_RELEASES_API_URL =
  */
 data class GithubReleaseAsset(
     val name: String,
-    val downloadUrl: String
+    val downloadUrl: String,
 )
 
 /**
@@ -21,7 +21,7 @@ data class GithubReleaseAsset(
  */
 data class GithubRelease(
     val tagName: String,
-    val assets: List<GithubReleaseAsset>
+    val assets: List<GithubReleaseAsset>,
 )
 
 /**
@@ -47,13 +47,15 @@ internal fun parseGithubReleasesJson(json: String): List<GithubRelease>? {
         Json.parseToJsonElement(json).jsonArray.mapNotNull { element ->
             val obj = element.jsonObject
             val tagName = obj["tag_name"]?.jsonPrimitive?.content ?: return@mapNotNull null
-            val assets = obj["assets"]?.jsonArray?.mapNotNull { assetElement ->
-                val assetObj = assetElement.jsonObject
-                val name = assetObj["name"]?.jsonPrimitive?.content ?: return@mapNotNull null
-                val url = assetObj["browser_download_url"]?.jsonPrimitive?.content
-                    ?: return@mapNotNull null
-                GithubReleaseAsset(name, url)
-            } ?: emptyList()
+            val assets =
+                obj["assets"]?.jsonArray?.mapNotNull { assetElement ->
+                    val assetObj = assetElement.jsonObject
+                    val name = assetObj["name"]?.jsonPrimitive?.content ?: return@mapNotNull null
+                    val url =
+                        assetObj["browser_download_url"]?.jsonPrimitive?.content
+                            ?: return@mapNotNull null
+                    GithubReleaseAsset(name, url)
+                } ?: emptyList()
             GithubRelease(tagName, assets)
         }
     } catch (_: Exception) {

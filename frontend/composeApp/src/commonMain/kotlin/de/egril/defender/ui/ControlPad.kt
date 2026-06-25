@@ -5,8 +5,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
-import dev.vicart.compose.material.symbols.FilledSymbol
-import dev.vicart.compose.material.symbols.MaterialSymbols
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,6 +13,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbols
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,55 +30,57 @@ fun ControlPad(
     onDown: () -> Unit,
     onLeft: () -> Unit,
     onRight: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    
+
     Box(
-        modifier = modifier
-            .size(120.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)),
-        contentAlignment = Alignment.Center
+        modifier =
+            modifier
+                .size(120.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)),
+        contentAlignment = Alignment.Center,
     ) {
         // Up button (top quadrant)
         DirectionalButton(
             iconName = MaterialSymbols.KEYBOARD_ARROW_UP,
             contentDescription = "Up",
             onAction = onUp,
-            modifier = Modifier.align(Alignment.TopCenter)
+            modifier = Modifier.align(Alignment.TopCenter),
         )
-        
+
         // Down button (bottom quadrant)
         DirectionalButton(
             iconName = MaterialSymbols.KEYBOARD_ARROW_DOWN,
             contentDescription = "Down",
             onAction = onDown,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.BottomCenter),
         )
-        
+
         // Left button (left quadrant)
         DirectionalButton(
             iconName = MaterialSymbols.KEYBOARD_ARROW_LEFT,
             contentDescription = "Left",
             onAction = onLeft,
-            modifier = Modifier.align(Alignment.CenterStart)
+            modifier = Modifier.align(Alignment.CenterStart),
         )
-        
+
         // Right button (right quadrant)
         DirectionalButton(
             iconName = MaterialSymbols.KEYBOARD_ARROW_RIGHT,
             contentDescription = "Right",
             onAction = onRight,
-            modifier = Modifier.align(Alignment.CenterEnd)
+            modifier = Modifier.align(Alignment.CenterEnd),
         )
-        
+
         // Center dot/indicator
         Box(
-            modifier = Modifier
-                .size(20.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+            modifier =
+                Modifier
+                    .size(20.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
         )
     }
 }
@@ -91,19 +93,19 @@ private fun DirectionalButton(
     iconName: String,
     contentDescription: String,
     onAction: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     ContinuousActionButton(
         onAction = onAction,
         initialDelay = 300,
         repeatDelay = 50,
-        modifier = modifier.size(60.dp, 60.dp)
+        modifier = modifier.size(60.dp, 60.dp),
     ) {
         FilledSymbol(
             icon = iconName,
             size = 32.dp,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.semantics { this.contentDescription = contentDescription }
+            modifier = Modifier.semantics { this.contentDescription = contentDescription },
         )
     }
 }
@@ -116,37 +118,39 @@ private fun DirectionalButton(
 fun ZoomControls(
     onZoomIn: () -> Unit,
     onZoomOut: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    
+
     Column(
-        modifier = modifier
-            .width(60.dp)
-            .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            modifier
+                .width(60.dp)
+                .clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Zoom in button (+)
         ZoomButton(
             iconName = MaterialSymbols.ADD,
             contentDescription = "Zoom In",
-            onAction = onZoomIn
+            onAction = onZoomIn,
         )
-        
+
         // Divider
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(2.dp)
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(2.dp)
+                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
         )
-        
+
         // Zoom out button (-)
         ZoomButton(
             iconName = MaterialSymbols.REMOVE,
             contentDescription = "Zoom Out",
-            onAction = onZoomOut
+            onAction = onZoomOut,
         )
     }
 }
@@ -158,21 +162,22 @@ fun ZoomControls(
 private fun ZoomButton(
     iconName: String,
     contentDescription: String,
-    onAction: () -> Unit
+    onAction: () -> Unit,
 ) {
     ContinuousActionButton(
         onAction = onAction,
         initialDelay = 300,
         repeatDelay = 100,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(60.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(60.dp),
     ) {
         FilledSymbol(
             icon = iconName,
             size = 32.dp,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.semantics { this.contentDescription = contentDescription }
+            modifier = Modifier.semantics { this.contentDescription = contentDescription },
         )
     }
 }
@@ -194,34 +199,36 @@ private fun ContinuousActionButton(
     initialDelay: Long = 300,
     repeatDelay: Long = 100,
     modifier: Modifier = Modifier,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var pressJob by remember { mutableStateOf<Job?>(null) }
     // Use rememberUpdatedState to always get the latest callback without recreating the gesture handler
     val currentOnAction by rememberUpdatedState(onAction)
-    
+
     Box(
-        modifier = modifier
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = {
-                        // Start continuous action
-                        pressJob = coroutineScope.launch {
-                            currentOnAction() // First action immediately
-                            delay(initialDelay) // Initial delay before repeat
-                            while (true) {
-                                currentOnAction()
-                                delay(repeatDelay) // Repeat delay
-                            }
-                        }
-                        tryAwaitRelease()
-                        pressJob?.cancel()
-                        pressJob = null
-                    }
-                )
-            },
+        modifier =
+            modifier
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onPress = {
+                            // Start continuous action
+                            pressJob =
+                                coroutineScope.launch {
+                                    currentOnAction() // First action immediately
+                                    delay(initialDelay) // Initial delay before repeat
+                                    while (true) {
+                                        currentOnAction()
+                                        delay(repeatDelay) // Repeat delay
+                                    }
+                                }
+                            tryAwaitRelease()
+                            pressJob?.cancel()
+                            pressJob = null
+                        },
+                    )
+                },
         contentAlignment = Alignment.Center,
-        content = content
+        content = content,
     )
 }

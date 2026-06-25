@@ -14,5 +14,5 @@ expect fun Modifier.mouseWheelZoom(
     offsetX: Float,
     offsetY: Float,
     onScaleChange: (Float) -> Unit,
-    onOffsetChange: (Float, Float) -> Unit
+    onOffsetChange: (Float, Float) -> Unit,
 ): Modifier

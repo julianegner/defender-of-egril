@@ -21,7 +21,7 @@ import defender_of_egril.composeapp.generated.resources.*
 /**
  * Grid view of level cards - alternative to the image-based world map.
  * Displays all levels as clickable cards in a responsive grid layout.
- * 
+ *
  * @param worldLevels List of all levels to display
  * @param onLevelSelected Callback when a level is selected
  * @param showUserLevelsTab If true, shows tabs to filter between Official, Community, and User Levels
@@ -42,84 +42,99 @@ fun LevelCardsView(
     remoteCommunityLevels: List<CommunityFileInfo> = emptyList(),
     downloadingLevelId: String? = null,
     onDownloadRemoteLevel: ((CommunityFileInfo) -> Unit)? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
-    
+
     // IDs of locally-downloaded community levels so we can exclude them from the remote-only list
-    val localCommunityLevelIds = remember(worldLevels) {
-        worldLevels
-            .mapNotNull { it.level.editorLevelId }
-            .filter { id ->
-                de.egril.defender.editor.EditorStorage.getCommunityLevel(id)?.isCommunity == true
-            }
-            .toSet()
-    }
+    val localCommunityLevelIds =
+        remember(worldLevels) {
+            worldLevels
+                .mapNotNull { it.level.editorLevelId }
+                .filter { id ->
+                    de.egril.defender.editor.EditorStorage
+                        .getCommunityLevel(id)
+                        ?.isCommunity == true
+                }.toSet()
+        }
 
     // Remote-only levels: server has them but they are not yet downloaded locally
-    val remoteOnlyLevels = remember(remoteCommunityLevels, localCommunityLevelIds) {
-        remoteCommunityLevels.filter { it.fileId !in localCommunityLevelIds }
-    }
+    val remoteOnlyLevels =
+        remember(remoteCommunityLevels, localCommunityLevelIds) {
+            remoteCommunityLevels.filter { it.fileId !in localCommunityLevelIds }
+        }
 
     // Filter levels based on tab selection or direct filter
-    val filteredLevels = remember(worldLevels, selectedTabIndex, showUserLevelsTab, filterToUserLevelsOnly, filterToCommunityOnly) {
-        when {
-            filterToCommunityOnly -> {
-                // Direct filter: only community levels
-                worldLevels.filter { worldLevel ->
-                    worldLevel.level.isCommunity
-                }
-            }
-            filterToUserLevelsOnly -> {
-                // Direct filter: only user levels (not official, not community)
-                worldLevels.filter { worldLevel ->
-                    val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
-                        ?: de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
-                    editorLevel?.isOfficial == false && editorLevel.isCommunity == false
-                }
-            }
-            showUserLevelsTab -> {
-                when (selectedTabIndex) {
-                    0 -> {
-                        // Official tab
-                        worldLevels.filter { worldLevel ->
-                            val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
-                                ?: de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
-                            editorLevel?.isOfficial == true
-                        }
-                    }
-                    1 -> {
-                        // Community tab – locally-downloaded community levels
-                        worldLevels.filter { worldLevel ->
-                            worldLevel.level.isCommunity
-                        }
-                    }
-                    else -> {
-                        // User Levels tab
-                        worldLevels.filter { worldLevel ->
-                            val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
-                                ?: de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
-                            editorLevel?.isOfficial == false && editorLevel.isCommunity == false
-                        }
+    val filteredLevels =
+        remember(worldLevels, selectedTabIndex, showUserLevelsTab, filterToUserLevelsOnly, filterToCommunityOnly) {
+            when {
+                filterToCommunityOnly -> {
+                    // Direct filter: only community levels
+                    worldLevels.filter { worldLevel ->
+                        worldLevel.level.isCommunity
                     }
                 }
-            }
-            else -> {
-                // No filtering
-                worldLevels
+                filterToUserLevelsOnly -> {
+                    // Direct filter: only user levels (not official, not community)
+                    worldLevels.filter { worldLevel ->
+                        val editorLevel =
+                            de.egril.defender.editor.EditorStorage
+                                .getLevel(worldLevel.level.editorLevelId ?: "")
+                                ?: de.egril.defender.editor.EditorStorage
+                                    .getCommunityLevel(worldLevel.level.editorLevelId ?: "")
+                        editorLevel?.isOfficial == false && editorLevel.isCommunity == false
+                    }
+                }
+                showUserLevelsTab -> {
+                    when (selectedTabIndex) {
+                        0 -> {
+                            // Official tab
+                            worldLevels.filter { worldLevel ->
+                                val editorLevel =
+                                    de.egril.defender.editor.EditorStorage
+                                        .getLevel(worldLevel.level.editorLevelId ?: "")
+                                        ?: de.egril.defender.editor.EditorStorage
+                                            .getCommunityLevel(worldLevel.level.editorLevelId ?: "")
+                                editorLevel?.isOfficial == true
+                            }
+                        }
+                        1 -> {
+                            // Community tab – locally-downloaded community levels
+                            worldLevels.filter { worldLevel ->
+                                worldLevel.level.isCommunity
+                            }
+                        }
+                        else -> {
+                            // User Levels tab
+                            worldLevels.filter { worldLevel ->
+                                val editorLevel =
+                                    de.egril.defender.editor.EditorStorage
+                                        .getLevel(worldLevel.level.editorLevelId ?: "")
+                                        ?: de.egril.defender.editor.EditorStorage
+                                            .getCommunityLevel(worldLevel.level.editorLevelId ?: "")
+                                editorLevel?.isOfficial == false && editorLevel.isCommunity == false
+                            }
+                        }
+                    }
+                }
+                else -> {
+                    // No filtering
+                    worldLevels
+                }
             }
         }
-    }
 
     // Which remote-only levels to show (only in community tab)
-    val showRemoteOnly = filterToCommunityOnly ||
-        (showUserLevelsTab && selectedTabIndex == 1)
-    
+    val showRemoteOnly =
+        filterToCommunityOnly ||
+            (showUserLevelsTab && selectedTabIndex == 1)
+
     Column(
-        modifier = modifier.accessibilityVisualFilter(
-            highContrastEnabled = AppSettings.highContrastEnabled.value,
-            colorBlindPalette = AppSettings.colorBlindPalette.value
-        )
+        modifier =
+            modifier.accessibilityVisualFilter(
+                highContrastEnabled = AppSettings.highContrastEnabled.value,
+                colorBlindPalette = AppSettings.colorBlindPalette.value,
+            ),
     ) {
         // Show tabs if requested
         if (showUserLevelsTab) {
@@ -127,38 +142,38 @@ fun LevelCardsView(
                 Tab(
                     selected = selectedTabIndex == 0,
                     onClick = { selectedTabIndex = 0 },
-                    text = { Text(stringResource(Res.string.official)) }
+                    text = { Text(stringResource(Res.string.official)) },
                 )
                 Tab(
                     selected = selectedTabIndex == 1,
                     onClick = { selectedTabIndex = 1 },
-                    text = { Text(stringResource(Res.string.community_levels)) }
+                    text = { Text(stringResource(Res.string.community_levels)) },
                 )
                 Tab(
                     selected = selectedTabIndex == 2,
                     onClick = { selectedTabIndex = 2 },
-                    text = { Text(stringResource(Res.string.user_levels)) }
+                    text = { Text(stringResource(Res.string.user_levels)) },
                 )
             }
         }
-        
+
         // Level cards grid
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 350.dp),
             contentPadding = PaddingValues(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             // Locally-downloaded levels
             items(filteredLevels) { worldLevel ->
                 LevelCard(
                     worldLevel = worldLevel,
-                    onClick = { 
+                    onClick = {
                         if (worldLevel.status != LevelStatus.LOCKED) {
                             onLevelSelected(worldLevel.level.id)
                         }
-                    }
+                    },
                 )
             }
             // Remote-only community levels (shown in community tab only)
@@ -167,7 +182,7 @@ fun LevelCardsView(
                     RemoteCommunityLevelCard(
                         fileInfo = fileInfo,
                         isDownloading = fileInfo.fileId == downloadingLevelId,
-                        onClick = { onDownloadRemoteLevel?.invoke(fileInfo) }
+                        onClick = { onDownloadRemoteLevel?.invoke(fileInfo) },
                     )
                 }
             }

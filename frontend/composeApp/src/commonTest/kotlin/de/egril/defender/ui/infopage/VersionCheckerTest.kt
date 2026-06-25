@@ -2,12 +2,11 @@ package de.egril.defender.ui.infopage
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class VersionCheckerTest {
-
     // ---------------------------------------------------------------------------
     // compareVersions
     // ---------------------------------------------------------------------------
@@ -50,7 +49,8 @@ class VersionCheckerTest {
 
     @Test
     fun `parseGithubReleasesJson parses single release with assets`() {
-        val json = """
+        val json =
+            """
             [
               {
                 "tag_name": "v1.2.3",
@@ -59,7 +59,7 @@ class VersionCheckerTest {
                 ]
               }
             ]
-        """.trimIndent()
+            """.trimIndent()
 
         val releases = parseGithubReleasesJson(json)
         assertNotNull(releases)
@@ -72,12 +72,13 @@ class VersionCheckerTest {
 
     @Test
     fun `parseGithubReleasesJson parses multiple releases`() {
-        val json = """
+        val json =
+            """
             [
               { "tag_name": "v2.0.0", "assets": [] },
               { "tag_name": "v1.9.0", "assets": [] }
             ]
-        """.trimIndent()
+            """.trimIndent()
 
         val releases = parseGithubReleasesJson(json)
         assertNotNull(releases)
@@ -94,12 +95,13 @@ class VersionCheckerTest {
 
     @Test
     fun `parseGithubReleasesJson skips releases missing tag_name`() {
-        val json = """
+        val json =
+            """
             [
               { "assets": [] },
               { "tag_name": "v1.0.0", "assets": [] }
             ]
-        """.trimIndent()
+            """.trimIndent()
 
         val releases = parseGithubReleasesJson(json)
         assertNotNull(releases)
@@ -109,7 +111,8 @@ class VersionCheckerTest {
 
     @Test
     fun `parseGithubReleasesJson skips assets missing required fields`() {
-        val json = """
+        val json =
+            """
             [
               {
                 "tag_name": "v1.0.0",
@@ -120,7 +123,7 @@ class VersionCheckerTest {
                 ]
               }
             ]
-        """.trimIndent()
+            """.trimIndent()
 
         val releases = parseGithubReleasesJson(json)
         assertNotNull(releases)

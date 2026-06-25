@@ -5,10 +5,18 @@
 extends: default
 
 rules:
-  # GitHub Actions workflows and docker-compose files often have long lines
-  line-length:
-    max: 160
-    level: warning
+  # Disabled: GitHub Actions workflows, docker-compose and config files often
+  # omit the YAML document-start marker "---".
+  document-start: disable
+
+  # Disabled: GitHub Actions workflows and docker-compose files often have long
+  # lines (e.g. multi-step shell commands, filter regexes).
+  line-length: disable
+
+  # Disabled: commented-out YAML blocks in workflow files don't always follow
+  # comment indentation or spacing conventions.
+  comments: disable
+  comments-indentation: disable
 
   # Allow both true/false and yes/no as boolean values
   truthy:

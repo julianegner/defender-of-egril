@@ -12,8 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalUriHandler
-import kotlin.math.ceil
-import kotlin.math.floor
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -21,10 +19,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.hyperether.resources.stringResource
 import de.egril.defender.iam.DeviceAuthState
 import de.egril.defender.ui.common.QrCodeGenerator
-import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import kotlin.math.ceil
+import kotlin.math.floor
 
 /**
  * Dialog shown during the Device Authorization Grant (RFC 8628) login flow.
@@ -38,7 +38,7 @@ import defender_of_egril.composeapp.generated.resources.*
 @Composable
 fun DeviceAuthLoginDialog(
     deviceAuthState: DeviceAuthState,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
 ) {
     val uriHandler = LocalUriHandler.current
     val clickUrl = deviceAuthState.verificationUriComplete ?: deviceAuthState.verificationUri
@@ -47,18 +47,18 @@ fun DeviceAuthLoginDialog(
         Surface(
             modifier = Modifier.widthIn(max = 420.dp),
             shape = MaterialTheme.shapes.medium,
-            color = MaterialTheme.colorScheme.surface
+            color = MaterialTheme.colorScheme.surface,
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 Text(
                     text = stringResource(Res.string.iam_device_login_title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
 
                 CircularProgressIndicator(modifier = Modifier.size(32.dp))
@@ -67,7 +67,7 @@ fun DeviceAuthLoginDialog(
                     text = stringResource(Res.string.iam_device_login_instruction),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 // Verification URL – shows the complete URL (pre-filled with user code) as a
@@ -79,7 +79,7 @@ fun DeviceAuthLoginDialog(
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center,
                     textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable { uriHandler.openUri(clickUrl) }
+                    modifier = Modifier.clickable { uriHandler.openUri(clickUrl) },
                 )
 
                 // QR code so the user can scan the complete URL on another device.
@@ -99,7 +99,7 @@ fun DeviceAuthLoginDialog(
                                 drawRect(
                                     color = darkColor,
                                     topLeft = Offset(left, top),
-                                    size = Size(right - left, bottom - top)
+                                    size = Size(right - left, bottom - top),
                                 )
                             }
                         }
@@ -109,30 +109,31 @@ fun DeviceAuthLoginDialog(
                 // User code label + code
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(
                         text = stringResource(Res.string.iam_device_login_code_label),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     SelectionContainer {
                         Text(
                             text = deviceAuthState.userCode,
-                            style = MaterialTheme.typography.headlineMedium.copy(
-                                fontFamily = FontFamily.Monospace,
-                                letterSpacing = 4.sp
-                            ),
+                            style =
+                                MaterialTheme.typography.headlineMedium.copy(
+                                    fontFamily = FontFamily.Monospace,
+                                    letterSpacing = 4.sp,
+                                ),
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
                         )
                     }
                 }
 
                 OutlinedButton(
                     onClick = onCancel,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(stringResource(Res.string.iam_device_login_cancel))
                 }
@@ -140,4 +141,3 @@ fun DeviceAuthLoginDialog(
         }
     }
 }
-

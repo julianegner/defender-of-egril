@@ -43,33 +43,35 @@ fun WaypointConnectionCard(
     targets: List<Position>,
     isInCircular: Boolean,
     isUnconnected: Boolean,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isInCircular) {
-                MaterialTheme.colorScheme.errorContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor =
+                    if (isInCircular) {
+                        MaterialTheme.colorScheme.errorContainer
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    },
+            ),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             // Header row with delete button
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 PositionText(waypoint.position, MaterialTheme.typography.titleMedium)
                 val deleteLabel = stringResource(Res.string.delete)
                 IconButton(
                     onClick = onDelete,
-                    modifier = Modifier.semantics { contentDescription = deleteLabel }
+                    modifier = Modifier.semantics { contentDescription = deleteLabel },
                 ) {
                     TrashIcon(size = 20.dp)
                 }
@@ -78,19 +80,19 @@ fun WaypointConnectionCard(
             // Source position info
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (spawnPoints.contains(waypoint.position)) {
                     Text(
                         text = stringResource(Res.string.spawn_point_text),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 } else if (validWaypointPositions.contains(waypoint.position)) {
                     Text(
                         text = stringResource(Res.string.waypoint),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.secondary,
                     )
                 }
             }
@@ -98,14 +100,14 @@ fun WaypointConnectionCard(
             // Arrow indicator with warning circle if needed
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (isInCircular) {
                     RedCircleIcon(size = 14.dp)
                 }
                 RightArrowIcon(
                     size = 20.dp,
-                    tint = if (isInCircular) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = if (isInCircular) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 PositionText(waypoint.nextTargetPosition, MaterialTheme.typography.bodyLarge)
 
@@ -119,14 +121,16 @@ fun WaypointConnectionCard(
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = stringResource(Res.string.waypoint_position_format,
-                            waypoint.nextTargetPosition.x,
-                            waypoint.nextTargetPosition.y
-                        ),
-                        style = MaterialTheme.typography.bodyMedium
+                        text =
+                            stringResource(
+                                Res.string.waypoint_position_format,
+                                waypoint.nextTargetPosition.x,
+                                waypoint.nextTargetPosition.y,
+                            ),
+                        style = MaterialTheme.typography.bodyMedium,
                     )
 
                     // Warning icons
@@ -142,13 +146,13 @@ fun WaypointConnectionCard(
                     Text(
                         text = stringResource(Res.string.target_text),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.tertiary
+                        color = MaterialTheme.colorScheme.tertiary,
                     )
                 } else if (validWaypointPositions.contains(waypoint.nextTargetPosition)) {
                     Text(
                         text = stringResource(Res.string.waypoint),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.secondary,
                     )
                 }
             }
@@ -156,31 +160,31 @@ fun WaypointConnectionCard(
             // Warning messages section
             if (isInCircular || isUnconnected) {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     if (isInCircular) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             WarningIcon(size = 12.dp)
                             Text(
                                 text = stringResource(Res.string.circular_dependency_warning),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error
+                                color = MaterialTheme.colorScheme.error,
                             )
                         }
                     }
                     if (isUnconnected) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             WarningIcon(size = 12.dp)
                             Text(
                                 text = stringResource(Res.string.unconnected_waypoint_warning),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error
+                                color = MaterialTheme.colorScheme.error,
                             )
                         }
                     }
@@ -194,9 +198,12 @@ fun WaypointConnectionCard(
  * Helper composable to display a position using the standard format
  */
 @Composable
-private fun PositionText(position: Position, style: androidx.compose.ui.text.TextStyle) {
+private fun PositionText(
+    position: Position,
+    style: androidx.compose.ui.text.TextStyle,
+) {
     Text(
         text = stringResource(Res.string.waypoint_position_format, position.x, position.y),
-        style = style
+        style = style,
     )
 }

@@ -46,14 +46,15 @@ fun WaypointChainNode(
     isUnconnected: Boolean,
     indentLevel: Int,
     onDelete: (() -> Unit)?,
-    onConnect: (() -> Unit)? = null
+    onConnect: (() -> Unit)? = null,
 ) {
     Row(
-        modifier = Modifier.Companion
-            .fillMaxWidth()
-            .padding(start = (indentLevel * 16).dp),
+        modifier =
+            Modifier.Companion
+                .fillMaxWidth()
+                .padding(start = (indentLevel * 16).dp),
         verticalAlignment = Alignment.Companion.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         DepthIndicator(indentLevel, isInCircular)
 
@@ -65,13 +66,13 @@ fun WaypointChainNode(
             // Warning messages
             if (isInCircular) {
                 WarningRow(
-                    message = stringResource(Res.string.circular_dependency_warning)
+                    message = stringResource(Res.string.circular_dependency_warning),
                 )
             }
             if (isUnconnected) {
                 if (!isSpawn) {
                     WarningRow(
-                        message = stringResource(Res.string.unconnected_waypoint_warning)
+                        message = stringResource(Res.string.unconnected_waypoint_warning),
                     )
                 }
 
@@ -84,7 +85,7 @@ fun WaypointChainNode(
             val deleteLabel = stringResource(Res.string.delete)
             IconButton(
                 onClick = onDelete,
-                modifier = Modifier.semantics { contentDescription = deleteLabel }
+                modifier = Modifier.semantics { contentDescription = deleteLabel },
             ) {
                 TrashIcon(size = 20.dp)
             }
@@ -93,19 +94,22 @@ fun WaypointChainNode(
 }
 
 @Composable
-private fun DepthIndicator(indentLevel: Int, isInCircular: Boolean) {
+private fun DepthIndicator(
+    indentLevel: Int,
+    isInCircular: Boolean,
+) {
     // Arrow indicator (except for first node)
     if (indentLevel > 0) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(2.dp),
-            verticalAlignment = Alignment.Companion.CenterVertically
+            verticalAlignment = Alignment.Companion.CenterVertically,
         ) {
             if (isInCircular) {
                 RedCircleIcon(size = 12.dp)
             }
             RightArrowIcon(
                 size = 14.dp,
-                tint = if (isInCircular) Color.Companion.Red else Color.Companion.Black
+                tint = if (isInCircular) Color.Companion.Red else Color.Companion.Black,
             )
         }
     }
@@ -115,21 +119,21 @@ private fun DepthIndicator(indentLevel: Int, isInCircular: Boolean) {
 private fun PositionAndTypeRow(
     position: Position,
     isInCircular: Boolean,
-    isUnconnected: Boolean
+    isUnconnected: Boolean,
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalAlignment = Alignment.Companion.CenterVertically
+        verticalAlignment = Alignment.Companion.CenterVertically,
     ) {
         Text(
             text = stringResource(Res.string.waypoint_position_format, position.x, position.y),
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
         )
 
         // Warning icons
         if (isInCircular || isUnconnected) {
             WarningIcon(
-                size = 14.dp
+                size = 14.dp,
             )
         }
     }
@@ -141,11 +145,11 @@ private fun ConnectButton(onConnect: (() -> Unit)?) {
         Button(
             onClick = onConnect,
             modifier = Modifier.Companion.height(32.dp),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
         ) {
             Text(
                 text = stringResource(Res.string.connect),
-                style = MaterialTheme.typography.labelSmall
+                style = MaterialTheme.typography.labelSmall,
             )
         }
     }
@@ -154,40 +158,43 @@ private fun ConnectButton(onConnect: (() -> Unit)?) {
 @Composable
 fun WarningRow(
     message: String,
-    color: Color = MaterialTheme.colorScheme.error
+    color: Color = MaterialTheme.colorScheme.error,
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalAlignment = Alignment.Companion.CenterVertically
+        verticalAlignment = Alignment.Companion.CenterVertically,
     ) {
         WarningIcon(size = 12.dp)
         Text(
             text = message,
             style = MaterialTheme.typography.labelSmall,
-            color = color
+            color = color,
         )
     }
 }
 
 @Composable
-private fun WaypointTypeLabel(isSpawn: Boolean, isTarget: Boolean) {
+private fun WaypointTypeLabel(
+    isSpawn: Boolean,
+    isTarget: Boolean,
+) {
     if (isSpawn) {
         Text(
             text = stringResource(Res.string.spawn_point_text),
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
     } else if (isTarget) {
         Text(
             text = stringResource(Res.string.target_text),
             style = MaterialTheme.typography.labelSmall,
-            color = Color.Companion.Green
+            color = Color.Companion.Green,
         )
     } else {
         Text(
             text = stringResource(Res.string.waypoint),
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.secondary
+            color = MaterialTheme.colorScheme.secondary,
         )
     }
 }

@@ -86,3 +86,4 @@ egril-realm-backup-*.json
 megalinter-reports/
 mega-linter.log
 
+ktlint

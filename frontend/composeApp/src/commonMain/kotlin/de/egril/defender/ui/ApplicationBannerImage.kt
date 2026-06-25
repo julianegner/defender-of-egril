@@ -21,15 +21,13 @@ import org.jetbrains.compose.resources.painterResource
  * @param modifier Modifier applied to the [Image].
  */
 @Composable
-fun ApplicationBannerImage(
-    modifier: Modifier = Modifier
-) {
+fun ApplicationBannerImage(modifier: Modifier = Modifier) {
     val isDarkMode = AppSettings.isDarkMode.value
     val painter = painterResource(if (isDarkMode) Res.drawable.banner_dark else Res.drawable.banner_light)
     Image(
         painter = painter,
         contentDescription = null,
         modifier = modifier.fillMaxWidth(),
-        contentScale = ContentScale.Fit
+        contentScale = ContentScale.Fit,
     )
 }

@@ -14,7 +14,6 @@ import org.junit.Rule
 import org.junit.Test
 
 class LottieAnimationToggleTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -37,7 +36,7 @@ class LottieAnimationToggleTest {
         composeTestRule.setContent {
             LottieAnimation(
                 animationType = AnimationType.ENEMY_SPAWN,
-                modifier = Modifier.size(80.dp)
+                modifier = Modifier.size(80.dp),
             )
         }
 

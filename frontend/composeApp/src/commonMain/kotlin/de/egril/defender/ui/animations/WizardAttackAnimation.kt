@@ -16,10 +16,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.Position
 import de.egril.defender.model.WizardAttackEffect
-import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import de.egril.defender.ui.gameplay.GamePlayConstants
+import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import kotlinx.coroutines.delay
-import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -49,7 +48,7 @@ fun WizardAttackOverlay(
     effects: List<WizardAttackEffect>,
     hexSizeDp: Float,
     contentSize: IntSize,
-    animate: Boolean
+    animate: Boolean,
 ) {
     val pixelDensity = LocalDensity.current.density
     val hexSizePx = hexSizeDp * pixelDensity
@@ -67,7 +66,7 @@ fun WizardAttackOverlay(
                 rowVerticalAdjPx = rowVerticalAdjPx,
                 contentWidth = contentWidth,
                 contentHeight = contentHeight,
-                animate = animate
+                animate = animate,
             )
         }
     }
@@ -81,7 +80,7 @@ private fun SingleFireballOverlay(
     rowVerticalAdjPx: Float,
     contentWidth: Dp,
     contentHeight: Dp,
-    animate: Boolean
+    animate: Boolean,
 ) {
     val hexWidthPx = hexSizePx * sqrt(3f)
     val hexHeightPx = hexSizePx * 2f
@@ -104,10 +103,11 @@ private fun SingleFireballOverlay(
         if (animate) {
             overallProgress.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS.toInt(),
-                    easing = LinearEasing
-                )
+                animationSpec =
+                    tween(
+                        durationMillis = GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS.toInt(),
+                        easing = LinearEasing,
+                    ),
             )
         } else {
             overallProgress.snapTo(1f)
@@ -125,7 +125,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawFireball(
     progress: Float,
     sourceCenter: Offset,
     targetCenter: Offset,
-    hexSizePx: Float
+    hexSizePx: Float,
 ) {
     val ballRadius = hexSizePx * 0.28f
 
@@ -138,19 +138,19 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawFireball(
         drawCircle(
             color = Color(0xFFAA44FF).copy(alpha = glowAlpha * 0.40f),
             radius = hexSizePx * (0.65f + fp * 0.40f),
-            center = sourceCenter
+            center = sourceCenter,
         )
         // Mid orange ring
         drawCircle(
             color = Color(0xFFFF8800).copy(alpha = glowAlpha * 0.45f),
             radius = hexSizePx * (0.40f + fp * 0.25f),
-            center = sourceCenter
+            center = sourceCenter,
         )
         // Inner white-hot flash
         drawCircle(
             color = Color(0xFFFFFFFF).copy(alpha = glowAlpha * 0.60f),
             radius = hexSizePx * (0.18f + fp * 0.15f),
-            center = sourceCenter
+            center = sourceCenter,
         )
     } else if (progress < 1f) {
         // Phase 2: Fireball in flight with trailing flame tail
@@ -178,82 +178,94 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawFireball(
         // Draw layered flame trail (from tip toward ball center)
         // Each layer is slightly offset perpendicular to add width and realism.
         // Use sinusoidal offsets keyed on flyProgress to create flickering edges.
-        val flickerT = flyProgress * 6f  // phase for flicker
+        val flickerT = flyProgress * 6f // phase for flicker
 
         // Outer flame layer (dark red, widest)
         drawFlameTrail(
             ballCenter = ballCenter,
-            nx = nx, ny = ny, px = px, py = py,
+            nx = nx,
+            ny = ny,
+            px = px,
+            py = py,
             tailLength = tailLength,
             halfWidth = ballRadius * 1.30f,
             color = Color(0xAACC1100),
             segments = 6,
             flickerT = flickerT,
-            flickerAmp = 0.18f
+            flickerAmp = 0.18f,
         )
         // Mid flame layer (orange)
         drawFlameTrail(
             ballCenter = ballCenter,
-            nx = nx, ny = ny, px = px, py = py,
+            nx = nx,
+            ny = ny,
+            px = px,
+            py = py,
             tailLength = tailLength * 0.75f,
             halfWidth = ballRadius * 1.00f,
             color = Color(0xBBFF5500),
             segments = 6,
             flickerT = flickerT + 1f,
-            flickerAmp = 0.14f
+            flickerAmp = 0.14f,
         )
         // Inner flame layer (orange-yellow)
         drawFlameTrail(
             ballCenter = ballCenter,
-            nx = nx, ny = ny, px = px, py = py,
+            nx = nx,
+            ny = ny,
+            px = px,
+            py = py,
             tailLength = tailLength * 0.50f,
             halfWidth = ballRadius * 0.70f,
             color = Color(0xCCFF9900),
             segments = 5,
             flickerT = flickerT + 2f,
-            flickerAmp = 0.10f
+            flickerAmp = 0.10f,
         )
         // Bright core trail (yellow, narrow)
         drawFlameTrail(
             ballCenter = ballCenter,
-            nx = nx, ny = ny, px = px, py = py,
+            nx = nx,
+            ny = ny,
+            px = px,
+            py = py,
             tailLength = tailLength * 0.28f,
             halfWidth = ballRadius * 0.38f,
             color = Color(0xDDFFDD00),
             segments = 4,
             flickerT = flickerT + 3f,
-            flickerAmp = 0.06f
+            flickerAmp = 0.06f,
         )
 
         // Fireball outer glow (dark red halo)
         drawCircle(
             color = Color(0xBBCC2200),
             radius = ballRadius * 1.55f,
-            center = ballCenter
+            center = ballCenter,
         )
         // Fireball body (orange-red)
         drawCircle(
             color = Color(0xFFFF4400),
             radius = ballRadius * 1.25f,
-            center = ballCenter
+            center = ballCenter,
         )
         // Fireball mid layer (orange)
         drawCircle(
             color = Color(0xFFFF8800),
             radius = ballRadius * 0.90f,
-            center = ballCenter
+            center = ballCenter,
         )
         // Fireball inner layer (yellow)
         drawCircle(
             color = Color(0xFFFFCC00),
             radius = ballRadius * 0.62f,
-            center = ballCenter
+            center = ballCenter,
         )
         // Fireball core (white-hot)
         drawCircle(
             color = Color(0xFFFFFFFF),
             radius = ballRadius * 0.35f,
-            center = Offset(ballCenter.x - nx * ballRadius * 0.10f, ballCenter.y - ny * ballRadius * 0.10f)
+            center = Offset(ballCenter.x - nx * ballRadius * 0.10f, ballCenter.y - ny * ballRadius * 0.10f),
         )
     }
 }
@@ -273,13 +285,16 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawFireball(
  */
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawFlameTrail(
     ballCenter: Offset,
-    nx: Float, ny: Float, px: Float, py: Float,
+    nx: Float,
+    ny: Float,
+    px: Float,
+    py: Float,
     tailLength: Float,
     halfWidth: Float,
     color: Color,
     segments: Int,
     flickerT: Float,
-    flickerAmp: Float
+    flickerAmp: Float,
 ) {
     if (tailLength < 0.01f || segments < 2) return
 
@@ -291,10 +306,10 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawFlameTrail(
     val leftPoints = mutableListOf<Offset>()
     val rightPoints = mutableListOf<Offset>()
     for (i in 0..segments) {
-        val t = i.toFloat() / segments  // 0 = ball end, 1 = tip
+        val t = i.toFloat() / segments // 0 = ball end, 1 = tip
         val cx = ballCenter.x - nx * tailLength * t
         val cy = ballCenter.y - ny * tailLength * t
-        val width = halfWidth * (1f - t)  // taper to zero at tip
+        val width = halfWidth * (1f - t) // taper to zero at tip
         val flicker = sin((flickerT + t * kotlin.math.PI.toFloat() * 2f).toDouble()).toFloat() * flickerAmp * halfWidth * (1f - t)
         leftPoints.add(Offset(cx + px * (width + flicker), cy + py * (width + flicker)))
         rightPoints.add(Offset(cx - px * (width - flicker), cy - py * (width - flicker)))

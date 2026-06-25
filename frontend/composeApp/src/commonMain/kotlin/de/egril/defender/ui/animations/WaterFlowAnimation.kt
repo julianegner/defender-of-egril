@@ -1,10 +1,9 @@
 package de.egril.defender.ui.animations
-import io.github.alexzhirkevich.compottie.Compottie
-
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import de.egril.defender.model.RiverFlow
+import io.github.alexzhirkevich.compottie.Compottie
 
 /**
  * Water flow animation for river tiles.
@@ -21,24 +20,29 @@ import de.egril.defender.model.RiverFlow
  * @param flowSpeed the river flow speed (1 = normal, 2 = double speed animation)
  */
 @Composable
-fun WaterFlowAnimation(flowDirection: RiverFlow, flowSpeed: Int = 1, modifier: Modifier = Modifier) {
+fun WaterFlowAnimation(
+    flowDirection: RiverFlow,
+    flowSpeed: Int = 1,
+    modifier: Modifier = Modifier,
+) {
     // Rotation angle for the animation based on flow direction.
     // Base animation flows WEST (right to left, 0° rotation).
     // Positive rotation = clockwise in screen coordinates (y-down).
-    val rotationDeg: Float = when (flowDirection) {
-        RiverFlow.WEST       ->   0f
-        RiverFlow.NORTH_WEST ->  60f   // NW = 240° screen angle; (240-180) = 60°
-        RiverFlow.SOUTH_WEST -> 300f   // SW = 120° screen angle; (120-180) = -60° = 300°
-        RiverFlow.EAST       -> 180f   // mirror: flow left-to-right
-        RiverFlow.NORTH_EAST -> 120f   // mirror of NW equivalent: (300-180) = 120°
-        RiverFlow.SOUTH_EAST -> 240f   // mirror of SW equivalent: (60-180) = -120° = 240°
-        RiverFlow.NONE, RiverFlow.MAELSTROM -> return  // no animation
-    }
+    val rotationDeg: Float =
+        when (flowDirection) {
+            RiverFlow.WEST -> 0f
+            RiverFlow.NORTH_WEST -> 60f // NW = 240° screen angle; (240-180) = 60°
+            RiverFlow.SOUTH_WEST -> 300f // SW = 120° screen angle; (120-180) = -60° = 300°
+            RiverFlow.EAST -> 180f // mirror: flow left-to-right
+            RiverFlow.NORTH_EAST -> 120f // mirror of NW equivalent: (300-180) = 120°
+            RiverFlow.SOUTH_EAST -> 240f // mirror of SW equivalent: (60-180) = -120° = 240°
+            RiverFlow.NONE, RiverFlow.MAELSTROM -> return // no animation
+        }
 
     LottieAnimation(
         animationType = AnimationType.WATER_FLOW,
         modifier = modifier.graphicsLayer { rotationZ = rotationDeg },
         iterations = Compottie.IterateForever,
-        speed = if (flowSpeed >= 2) 2f else 1f
+        speed = if (flowSpeed >= 2) 2f else 1f,
     )
 }

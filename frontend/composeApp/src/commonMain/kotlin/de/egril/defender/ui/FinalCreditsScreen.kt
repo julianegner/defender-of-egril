@@ -13,11 +13,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -49,16 +49,22 @@ private const val SCROLL_DURATION_MS = 60_000
 const val FINAL_CREDITS_TRANSITION_DELAY_MS = 5_000L
 
 // ── Background image animation constants ─────────────────────────────────────
+
 /** How long each image fades in (ms). */
 private const val IMAGE_FADE_IN_MS = 1_200
+
 /** How long each image stays fully visible (ms). 1.6× the original 5 000 ms. */
 private const val IMAGE_HOLD_MS = 8_000
+
 /** How long each image fades out (ms). */
 private const val IMAGE_FADE_OUT_MS = 1_200
+
 /** Total lifetime of one image (ms). */
 private const val IMAGE_TOTAL_MS = (IMAGE_FADE_IN_MS + IMAGE_HOLD_MS + IMAGE_FADE_OUT_MS).toLong()
+
 /** How often a new image slot is started (ms). Keeps 1-3 images visible simultaneously. */
 private const val IMAGE_SPAWN_INTERVAL_MS = 2_500L
+
 /** Maximum number of images visible at the same time. */
 private const val MAX_SIMULTANEOUS_IMAGES = 3
 
@@ -82,68 +88,70 @@ private const val MAX_SIMULTANEOUS_IMAGES = 3
 private data class ImageSlot(
     val widthFraction: Float,
     val offsetXFraction: Float,
-    val offsetYFraction: Float
+    val offsetYFraction: Float,
 )
 
-private val IMAGE_SLOTS = listOf(
-    ImageSlot(0.42f, 0.03f, 0.05f),   // A – upper-left,  large
-    ImageSlot(0.40f, 0.56f, 0.56f),   // B – lower-right, large
-    ImageSlot(0.34f, 0.62f, 0.06f),   // C – upper-right, medium
-    ImageSlot(0.36f, 0.04f, 0.58f),   // D – lower-left,  medium
-    ImageSlot(0.28f, 0.06f, 0.08f),   // A – upper-left,  small
-    ImageSlot(0.30f, 0.64f, 0.62f),   // B – lower-right, small
-    ImageSlot(0.38f, 0.58f, 0.05f),   // C – upper-right, large
-    ImageSlot(0.40f, 0.03f, 0.54f),   // D – lower-left,  large
-)
+private val IMAGE_SLOTS =
+    listOf(
+        ImageSlot(0.42f, 0.03f, 0.05f), // A – upper-left,  large
+        ImageSlot(0.40f, 0.56f, 0.56f), // B – lower-right, large
+        ImageSlot(0.34f, 0.62f, 0.06f), // C – upper-right, medium
+        ImageSlot(0.36f, 0.04f, 0.58f), // D – lower-left,  medium
+        ImageSlot(0.28f, 0.06f, 0.08f), // A – upper-left,  small
+        ImageSlot(0.30f, 0.64f, 0.62f), // B – lower-right, small
+        ImageSlot(0.38f, 0.58f, 0.05f), // C – upper-right, large
+        ImageSlot(0.40f, 0.03f, 0.54f), // D – lower-left,  large
+    )
 
 /**
  * Maps a drawable resource name (without extension) to a [DrawableResource].
  * Returns null for unknown names.
  */
-private fun drawableResourceByName(name: String): DrawableResource? = when (name) {
-    "world_map_background" -> Res.drawable.world_map_background
-    "dragon_destroying_mine" -> Res.drawable.dragon_destroying_mine
-    "ewhad_message_background" -> Res.drawable.ewhad_message_background
-    "story_message_background" -> Res.drawable.story_message_background
-    "location_fortress" -> Res.drawable.location_fortress
-    "location_round_tower" -> Res.drawable.location_round_tower
-    "location_square_tower" -> Res.drawable.location_square_tower
-    "location_forest" -> Res.drawable.location_forest
-    "location_village" -> Res.drawable.location_village
-    "location_city" -> Res.drawable.location_city
-    "location_prison" -> Res.drawable.location_prison
-    "location_prison2" -> Res.drawable.location_prison2
-    "location_dance" -> Res.drawable.location_dance
-    "location_cross" -> Res.drawable.location_cross
-    "location_scroll" -> Res.drawable.location_scroll
-    "location_creek" -> Res.drawable.location_creek
-    "location_creek_valley" -> Res.drawable.location_creek_valley
-    "location_maelstrom" -> Res.drawable.location_maelstrom
-    "location_river" -> Res.drawable.location_river
-    "location_spiral" -> Res.drawable.location_spiral
-    "location_woods" -> Res.drawable.location_woods
-    "location_start" -> Res.drawable.location_start
-    "gate" -> Res.drawable.gate
-    "barricade" -> Res.drawable.barricade
-    "trap" -> Res.drawable.trap
-    "bomb" -> Res.drawable.bomb
-    "dig_outcome_gold" -> Res.drawable.dig_outcome_gold
-    "dig_outcome_diamond" -> Res.drawable.dig_outcome_diamond
-    "dig_outcome_gem_blue" -> Res.drawable.dig_outcome_gem_blue
-    "dig_outcome_gem_green" -> Res.drawable.dig_outcome_gem_green
-    "dig_outcome_gem_red" -> Res.drawable.dig_outcome_gem_red
-    "dig_outcome_brass" -> Res.drawable.dig_outcome_brass
-    "dig_outcome_silver" -> Res.drawable.dig_outcome_silver
-    "dig_outcome_dragon" -> Res.drawable.dig_outcome_dragon
-    "dig_outcome_rubble" -> Res.drawable.dig_outcome_rubble
-    else -> null
-}
+private fun drawableResourceByName(name: String): DrawableResource? =
+    when (name) {
+        "world_map_background" -> Res.drawable.world_map_background
+        "dragon_destroying_mine" -> Res.drawable.dragon_destroying_mine
+        "ewhad_message_background" -> Res.drawable.ewhad_message_background
+        "story_message_background" -> Res.drawable.story_message_background
+        "location_fortress" -> Res.drawable.location_fortress
+        "location_round_tower" -> Res.drawable.location_round_tower
+        "location_square_tower" -> Res.drawable.location_square_tower
+        "location_forest" -> Res.drawable.location_forest
+        "location_village" -> Res.drawable.location_village
+        "location_city" -> Res.drawable.location_city
+        "location_prison" -> Res.drawable.location_prison
+        "location_prison2" -> Res.drawable.location_prison2
+        "location_dance" -> Res.drawable.location_dance
+        "location_cross" -> Res.drawable.location_cross
+        "location_scroll" -> Res.drawable.location_scroll
+        "location_creek" -> Res.drawable.location_creek
+        "location_creek_valley" -> Res.drawable.location_creek_valley
+        "location_maelstrom" -> Res.drawable.location_maelstrom
+        "location_river" -> Res.drawable.location_river
+        "location_spiral" -> Res.drawable.location_spiral
+        "location_woods" -> Res.drawable.location_woods
+        "location_start" -> Res.drawable.location_start
+        "gate" -> Res.drawable.gate
+        "barricade" -> Res.drawable.barricade
+        "trap" -> Res.drawable.trap
+        "bomb" -> Res.drawable.bomb
+        "dig_outcome_gold" -> Res.drawable.dig_outcome_gold
+        "dig_outcome_diamond" -> Res.drawable.dig_outcome_diamond
+        "dig_outcome_gem_blue" -> Res.drawable.dig_outcome_gem_blue
+        "dig_outcome_gem_green" -> Res.drawable.dig_outcome_gem_green
+        "dig_outcome_gem_red" -> Res.drawable.dig_outcome_gem_red
+        "dig_outcome_brass" -> Res.drawable.dig_outcome_brass
+        "dig_outcome_silver" -> Res.drawable.dig_outcome_silver
+        "dig_outcome_dragon" -> Res.drawable.dig_outcome_dragon
+        "dig_outcome_rubble" -> Res.drawable.dig_outcome_rubble
+        else -> null
+    }
 
 /** An active background image being animated. */
 private class AnimatedBackgroundImage(
     val resource: DrawableResource,
     val slot: ImageSlot,
-    val id: Int
+    val id: Int,
 ) {
     val alpha = Animatable(0f)
 }
@@ -166,7 +174,7 @@ private class AnimatedBackgroundImage(
 @Composable
 fun FinalCreditsScreen(
     onDismiss: () -> Unit,
-    animationsEnabled: Boolean = true
+    animationsEnabled: Boolean = true,
 ) {
     val scrollState = rememberScrollState()
     val focusRequester = remember { FocusRequester() }
@@ -175,14 +183,15 @@ fun FinalCreditsScreen(
     LaunchedEffect(Unit) {
         de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
             de.egril.defender.audio.BackgroundMusic.FINAL_CREDITS,
-            loop = true
+            loop = true,
         )
     }
 
     // Stop background music when leaving final credits
     DisposableEffect(Unit) {
         onDispose {
-            de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+            de.egril.defender.audio.GlobalBackgroundMusicManager
+                .stopMusic()
         }
     }
 
@@ -192,36 +201,40 @@ fun FinalCreditsScreen(
             delay(500)
             scrollState.animateScrollTo(
                 value = scrollState.maxValue,
-                animationSpec = tween(durationMillis = SCROLL_DURATION_MS, easing = LinearEasing)
+                animationSpec = tween(durationMillis = SCROLL_DURATION_MS, easing = LinearEasing),
             )
         }
     }
 
     LaunchedEffect(Unit) {
-        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {
+        try {
+            focusRequester.requestFocus()
+        } catch (_: IllegalStateException) {
             // The node may not yet be attached when first composed; keyboard dismissal
             // still works once focus settles and pointer dismissal always remains available.
         }
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(CREDITS_BACKGROUND_COLOR)
-            .focusRequester(focusRequester)
-            .focusTarget()
-            .onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown) {
-                    when (event.key) {
-                        Key.Enter, Key.NumPadEnter, Key.Escape, Key.Back -> {
-                            onDismiss()
-                            true
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(CREDITS_BACKGROUND_COLOR)
+                .focusRequester(focusRequester)
+                .focusTarget()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when (event.key) {
+                            Key.Enter, Key.NumPadEnter, Key.Escape, Key.Back -> {
+                                onDismiss()
+                                true
+                            }
+                            else -> false
                         }
-                        else -> false
+                    } else {
+                        false
                     }
-                } else false
-            }
-            .clickable { onDismiss() }
+                }.clickable { onDismiss() },
     ) {
         // ── Lower layer: animated background images ───────────────────────────
         if (animationsEnabled) {
@@ -232,11 +245,12 @@ fun FinalCreditsScreen(
         // Bottom padding reserves space for the "Click anywhere" hint so credits
         // text never scrolls behind it.
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 48.dp)
-                .verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 48.dp)
+                    .verticalScroll(scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.height(600.dp))
             CreditsTitle()
@@ -260,12 +274,13 @@ fun FinalCreditsScreen(
         // Hint at the bottom
         Text(
             text = stringResource(Res.string.credits_click_to_skip),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp)
-                .alpha(0.5f),
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp)
+                    .alpha(0.5f),
             color = CREDITS_TEXT_COLOR,
-            fontSize = 12.sp
+            fontSize = 12.sp,
         )
     }
 }
@@ -277,9 +292,10 @@ fun FinalCreditsScreen(
  */
 @Composable
 private fun CreditsAnimatedBackground() {
-    val imageResources = remember {
-        FinalCreditsData.backgroundImageNames.mapNotNull { drawableResourceByName(it) }
-    }
+    val imageResources =
+        remember {
+            FinalCreditsData.backgroundImageNames.mapNotNull { drawableResourceByName(it) }
+        }
     val activeImages = remember { mutableStateListOf<AnimatedBackgroundImage>() }
     val scope = rememberCoroutineScope()
 
@@ -303,12 +319,12 @@ private fun CreditsAnimatedBackground() {
                 scope.launch {
                     display.alpha.animateTo(
                         0.25f,
-                        animationSpec = tween(IMAGE_FADE_IN_MS, easing = LinearEasing)
+                        animationSpec = tween(IMAGE_FADE_IN_MS, easing = LinearEasing),
                     )
                     delay(IMAGE_HOLD_MS.toLong())
                     display.alpha.animateTo(
                         0f,
-                        animationSpec = tween(IMAGE_FADE_OUT_MS, easing = LinearEasing)
+                        animationSpec = tween(IMAGE_FADE_OUT_MS, easing = LinearEasing),
                     )
                     activeImages.remove(display)
                 }
@@ -331,12 +347,13 @@ private fun CreditsAnimatedBackground() {
             Image(
                 painter = painterResource(img.resource),
                 contentDescription = null,
-                modifier = Modifier
-                    .offset(x = offsetX, y = offsetY)
-                    .width(imageWidth)
-                    .heightIn(max = maxImageHeight)
-                    .alpha(img.alpha.value),
-                contentScale = ContentScale.FillWidth
+                modifier =
+                    Modifier
+                        .offset(x = offsetX, y = offsetY)
+                        .width(imageWidth)
+                        .heightIn(max = maxImageHeight)
+                        .alpha(img.alpha.value),
+                contentScale = ContentScale.FillWidth,
             )
         }
     }
@@ -349,7 +366,7 @@ private fun CreditsTitle() {
         color = CREDITS_TITLE_COLOR,
         fontSize = 40.sp,
         fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
     )
     Spacer(modifier = Modifier.height(8.dp))
     Text(
@@ -357,7 +374,7 @@ private fun CreditsTitle() {
         color = CREDITS_SUB_TEXT_COLOR,
         fontSize = 18.sp,
         fontStyle = FontStyle.Italic,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
     )
 }
 
@@ -367,7 +384,7 @@ private fun CreditsSectionHeader(title: String) {
     HorizontalDivider(
         color = CREDITS_SECTION_COLOR.copy(alpha = 0.4f),
         thickness = 1.dp,
-        modifier = Modifier.fillMaxWidth(0.6f)
+        modifier = Modifier.fillMaxWidth(0.6f),
     )
     Spacer(modifier = Modifier.height(8.dp))
     Text(
@@ -375,13 +392,13 @@ private fun CreditsSectionHeader(title: String) {
         color = CREDITS_SECTION_COLOR,
         fontSize = 22.sp,
         fontWeight = FontWeight.SemiBold,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
     )
     Spacer(modifier = Modifier.height(8.dp))
     HorizontalDivider(
         color = CREDITS_SECTION_COLOR.copy(alpha = 0.4f),
         thickness = 1.dp,
-        modifier = Modifier.fillMaxWidth(0.6f)
+        modifier = Modifier.fillMaxWidth(0.6f),
     )
     Spacer(modifier = Modifier.height(16.dp))
 }
@@ -394,7 +411,7 @@ private fun CreditsDeveloperSection() {
             text = name,
             color = CREDITS_TEXT_COLOR,
             fontSize = 18.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(6.dp))
     }
@@ -409,13 +426,13 @@ private fun CreditsSoundEffectsSection() {
             color = CREDITS_TEXT_COLOR,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Text(
             text = entry.description,
             color = CREDITS_SUB_TEXT_COLOR,
             fontSize = 13.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(10.dp))
     }
@@ -430,13 +447,13 @@ private fun CreditsBackgroundMusicSection() {
             color = CREDITS_TEXT_COLOR,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Text(
             text = entry.description,
             color = CREDITS_SUB_TEXT_COLOR,
             fontSize = 13.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(10.dp))
     }
@@ -450,7 +467,7 @@ private fun CreditsContributorsSection() {
             text = "${entry.name} – ${entry.contribution}",
             color = CREDITS_TEXT_COLOR,
             fontSize = 18.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(6.dp))
     }
@@ -465,13 +482,13 @@ private fun CreditsSoftwareSection() {
             color = CREDITS_TEXT_COLOR,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Text(
             text = entry.description,
             color = CREDITS_SUB_TEXT_COLOR,
             fontSize = 13.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(10.dp))
     }
@@ -486,13 +503,13 @@ private fun CreditsSpecialThanksSection() {
             color = CREDITS_TEXT_COLOR,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Text(
             text = entry.reason,
             color = CREDITS_SUB_TEXT_COLOR,
             fontSize = 13.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(10.dp))
     }
@@ -505,6 +522,6 @@ private fun CreditsThankYou() {
         color = CREDITS_TITLE_COLOR,
         fontSize = 24.sp,
         fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
     )
 }

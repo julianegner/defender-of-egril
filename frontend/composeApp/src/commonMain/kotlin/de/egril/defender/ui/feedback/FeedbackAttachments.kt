@@ -7,7 +7,7 @@ package de.egril.defender.ui.feedback
 data class FeedbackAttachment(
     val filename: String,
     val mimeType: String,
-    val base64Content: String
+    val base64Content: String,
 )
 
 /**

@@ -23,7 +23,6 @@ import org.junit.Rule
 import org.junit.Test
 
 class MobileWebOverlayScreenshotTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -36,33 +35,36 @@ class MobileWebOverlayScreenshotTest {
     fun captureMobileWebTutorialAndAchievementLayouts() {
         composeTestRule.setContent {
             MaterialTheme {
-                val tutorialLayout = calculateTutorialOverlayLayout(
-                    availableWidth = 900.dp,
-                    availableHeight = 480.dp,
-                    isMobileWeb = true,
-                    isSideOverlayVisible = false
-                )
-                val achievementLayout = calculateAchievementNotificationLayout(
-                    availableWidth = 900.dp,
-                    availableHeight = 480.dp,
-                    isPlatformMobileDevice = false,
-                    isMobileWeb = true
-                )
+                val tutorialLayout =
+                    calculateTutorialOverlayLayout(
+                        availableWidth = 900.dp,
+                        availableHeight = 480.dp,
+                        isMobileWeb = true,
+                        isSideOverlayVisible = false,
+                    )
+                val achievementLayout =
+                    calculateAchievementNotificationLayout(
+                        availableWidth = 900.dp,
+                        availableHeight = 480.dp,
+                        isPlatformMobileDevice = false,
+                        isMobileWeb = true,
+                    )
 
                 Row(
-                    modifier = Modifier
-                        .width(900.dp)
-                        .height(480.dp)
-                        .background(Color(0xFF111111))
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier =
+                        Modifier
+                            .width(900.dp)
+                            .height(480.dp)
+                            .background(Color(0xFF111111))
+                            .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     TutorialOverlay(
                         currentStep = TutorialStep.BUILD_TOWER,
                         isNextEnabled = true,
                         onNext = {},
                         onSkip = {},
-                        layout = tutorialLayout
+                        layout = tutorialLayout,
                     )
 
                     AchievementNotificationCard(
@@ -72,7 +74,7 @@ class MobileWebOverlayScreenshotTest {
                         nameStyle = MaterialTheme.typography.titleMedium,
                         descriptionStyle = MaterialTheme.typography.bodySmall,
                         onDismiss = {},
-                        modifier = Modifier.padding(top = 8.dp)
+                        modifier = Modifier.padding(top = 8.dp),
                     )
                 }
             }
@@ -83,7 +85,7 @@ class MobileWebOverlayScreenshotTest {
             composeTestRule,
             "mobile-web-overlays-responsive",
             width = 900,
-            height = 480
+            height = 480,
         )
     }
 }

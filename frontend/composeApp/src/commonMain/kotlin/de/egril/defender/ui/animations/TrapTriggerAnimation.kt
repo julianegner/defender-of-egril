@@ -16,7 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
  * When [animate] is false, shows a static orange "!" symbol.
  */
 @Composable
-fun TrapTriggerAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+fun TrapTriggerAnimation(
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (animate) {
         AnimatedTrapTrigger(modifier)
     } else {
@@ -29,7 +32,7 @@ private fun AnimatedTrapTrigger(modifier: Modifier = Modifier) {
     LottieAnimation(
         animationType = AnimationType.TRAP_TRIGGER,
         modifier = modifier.fillMaxSize(),
-        iterations = 1
+        iterations = 1,
     )
 }
 
@@ -37,14 +40,14 @@ private fun AnimatedTrapTrigger(modifier: Modifier = Modifier) {
 private fun StaticTrapTrigger(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         // "!" is a single-character symbol, not a translatable string
         Text(
             "!",
             style = MaterialTheme.typography.headlineMedium,
             color = Color(0xFFFF6F00),
-            fontWeight = FontWeight.ExtraBold
+            fontWeight = FontWeight.ExtraBold,
         )
     }
 }

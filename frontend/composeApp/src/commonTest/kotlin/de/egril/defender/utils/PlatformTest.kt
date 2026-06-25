@@ -1,19 +1,18 @@
 package de.egril.defender.utils
 
 import kotlin.test.Test
-import kotlin.test.assertNotNull
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class PlatformTest {
-    
     @Test
     fun testPlatformHasName() {
         val platform = getPlatform()
         assertNotNull(platform.name, "Platform name should not be null")
         assertTrue(platform.name.isNotEmpty(), "Platform name should not be empty")
     }
-    
+
     @Test
     fun testPlatformHasAndroidTVProperty() {
         val platform = getPlatform()
@@ -48,7 +47,7 @@ class PlatformTest {
         // In CI / unit-test environments we are never on an Android TV or Steam Deck gaming mode
         assertFalse(isLimitedInputDevice, "isLimitedInputDevice should be false in the test environment")
     }
-    
+
     @Test
     fun testPlatformDetectionHelpers() {
         // Test that platform detection helpers work
@@ -57,13 +56,13 @@ class PlatformTest {
         val isIos = isPlatformIos
         val isDesktop = isPlatformDesktop
         val isMobile = isPlatformMobile
-        
+
         // At least one platform should be detected
         assertTrue(
             isWasm || isAndroid || isIos || isDesktop,
-            "At least one platform should be detected"
+            "At least one platform should be detected",
         )
-        
+
         // Mobile should be true if Android or iOS
         if (isAndroid || isIos) {
             assertTrue(isMobile, "Mobile should be true for Android or iOS")

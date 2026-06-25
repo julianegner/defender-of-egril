@@ -1,13 +1,13 @@
 package de.egril.defender.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
-import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Dialog that displays platform information.
@@ -17,26 +17,26 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 fun PlatformInfoDialog(
     platformInfo: String,
     windowSize: String,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.platform_information_title)) },
         text = {
             SelectionContainer {
-            Column {
-                Text(stringResource(Res.string.platform_information_label))
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(platformInfo, style = MaterialTheme.typography.bodyLarge)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(windowSize, style = MaterialTheme.typography.bodyLarge)
-            }
+                Column {
+                    Text(stringResource(Res.string.platform_information_label))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(platformInfo, style = MaterialTheme.typography.bodyLarge)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(windowSize, style = MaterialTheme.typography.bodyLarge)
+                }
             }
         },
         confirmButton = {
             Button(onClick = onDismiss) {
                 Text(stringResource(Res.string.close))
             }
-        }
+        },
     )
 }

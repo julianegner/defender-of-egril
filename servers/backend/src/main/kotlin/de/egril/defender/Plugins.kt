@@ -11,11 +11,13 @@ import org.slf4j.event.Level
 
 fun Application.configurePlugins() {
     install(ContentNegotiation) {
-        json(Json {
-            prettyPrint = true
-            isLenient = true
-            ignoreUnknownKeys = true
-        })
+        json(
+            Json {
+                prettyPrint = true
+                isLenient = true
+                ignoreUnknownKeys = true
+            },
+        )
     }
     install(CallLogging) {
         level = Level.INFO

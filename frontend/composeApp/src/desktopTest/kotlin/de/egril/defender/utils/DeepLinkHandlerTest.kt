@@ -13,7 +13,6 @@ import kotlin.test.assertNull
  * IMPORTANT: When adding new deep links or InfoTab entries, add corresponding tests here.
  */
 class DeepLinkHandlerTest {
-
     // ---------------------------------------------------------------
     // parseDeepLink – data-privacy routes
     // ---------------------------------------------------------------

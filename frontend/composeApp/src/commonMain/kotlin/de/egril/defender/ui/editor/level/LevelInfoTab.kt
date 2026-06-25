@@ -32,9 +32,9 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.ui.editor.map.MapSelectionCard
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.allow_auto_attack
+import defender_of_egril.composeapp.generated.resources.author_optional
 import defender_of_egril.composeapp.generated.resources.auto_attack_info_message
 import defender_of_egril.composeapp.generated.resources.auto_attack_info_title
-import defender_of_egril.composeapp.generated.resources.author_optional
 import defender_of_egril.composeapp.generated.resources.community_description_optional
 import defender_of_egril.composeapp.generated.resources.connected_to_previous_level
 import defender_of_egril.composeapp.generated.resources.level_title
@@ -44,13 +44,13 @@ import defender_of_egril.composeapp.generated.resources.start_coins
 import defender_of_egril.composeapp.generated.resources.start_hp
 import defender_of_egril.composeapp.generated.resources.subtitle_optional
 import defender_of_egril.composeapp.generated.resources.test_level
-import defender_of_egril.composeapp.generated.resources.user_map_not_allowed_title
 import defender_of_egril.composeapp.generated.resources.user_map_not_allowed_message
+import defender_of_egril.composeapp.generated.resources.user_map_not_allowed_title
 
 /**
  * Tab 1: Level Info (title, subtitle, map, coins, HP)
- * 
- * Layout: Title and Subtitle input fields on the left, level toggles (Test Level, Allow Auto-Attack, etc.) 
+ *
+ * Layout: Title and Subtitle input fields on the left, level toggles (Test Level, Allow Auto-Attack, etc.)
  * in a bordered container on the right. This container will grow vertically as more toggles are added.
  */
 @Composable
@@ -77,50 +77,50 @@ fun LevelInfoTab(
     connectedToPreviousLevel: Boolean,
     onConnectedToPreviousLevelChange: (Boolean) -> Unit,
     isOfficial: Boolean = false,
-    canEnableConnectedToPreviousLevel: Boolean = true
+    canEnableConnectedToPreviousLevel: Boolean = true,
 ) {
     var showAutoAttackInfo by remember { mutableStateOf(false) }
     var showUserMapNotAllowedDialog by remember { mutableStateOf(false) }
-    
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         // Title, Subtitle, and Level Toggles Row
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.Top,
             ) {
                 // Left side: Title and Subtitle fields in a column
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     OutlinedTextField(
                         value = title,
                         onValueChange = onTitleChange,
                         label = { Text(stringResource(Res.string.level_title)) },
                         enabled = !isOfficial || de.egril.defender.OfficialEditMode.enabled,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
-                    
+
                     OutlinedTextField(
                         value = subtitle,
                         onValueChange = onSubtitleChange,
                         label = { Text(stringResource(Res.string.subtitle_optional)) },
                         enabled = !isOfficial || de.egril.defender.OfficialEditMode.enabled,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
-                    
+
                     OutlinedTextField(
                         value = author,
                         onValueChange = onAuthorChange,
                         label = { Text(stringResource(Res.string.author_optional)) },
                         enabled = !isOfficial || de.egril.defender.OfficialEditMode.enabled,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
 
                     OutlinedTextField(
@@ -129,46 +129,46 @@ fun LevelInfoTab(
                         label = { Text(stringResource(Res.string.community_description_optional)) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 2,
-                        maxLines = 4
+                        maxLines = 4,
                     )
                 }
-                
+
                 // Right side: Level Toggles Container
                 // This container holds all level-related toggles and will grow as more toggles are added
                 Column(
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.outline,
-                            shape = MaterialTheme.shapes.small
-                        )
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier =
+                        Modifier
+                            .padding(top = 8.dp)
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outline,
+                                shape = MaterialTheme.shapes.small,
+                            ).padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     // Test Level toggle
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Text(
                             text = stringResource(Res.string.test_level),
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                         Switch(
                             checked = testingOnly,
-                            onCheckedChange = onTestingOnlyChange
+                            onCheckedChange = onTestingOnlyChange,
                         )
                     }
-                    
+
                     // Allow Auto-Attack toggle
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Text(
                             text = stringResource(Res.string.allow_auto_attack),
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                         Switch(
                             checked = allowAutoAttack,
@@ -178,34 +178,34 @@ fun LevelInfoTab(
                                     showAutoAttackInfo = true
                                 }
                                 onAllowAutoAttackChange(newValue)
-                            }
+                            },
                         )
                     }
-                    
+
                     // Connected to previous level toggle
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Text(
                             text = stringResource(Res.string.connected_to_previous_level),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = if (canEnableConnectedToPreviousLevel) {
-                                MaterialTheme.colorScheme.onSurface
-                            } else {
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                            }
+                            color =
+                                if (canEnableConnectedToPreviousLevel) {
+                                    MaterialTheme.colorScheme.onSurface
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                                },
                         )
                         Switch(
                             checked = connectedToPreviousLevel,
                             onCheckedChange = onConnectedToPreviousLevelChange,
-                            enabled = canEnableConnectedToPreviousLevel
+                            enabled = canEnableConnectedToPreviousLevel,
                         )
                     }
                 }
             }
         }
-
 
         // Map selection with mini-maps using a grid layout
         // Shows 8 columns and 2 visible rows, with scrolling to load more
@@ -214,24 +214,26 @@ fun LevelInfoTab(
                 Text(
                     text = "${stringResource(Res.string.map_label)}:",
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
                 )
 
                 // Height for 2 rows of MapSelectionCards (each card is approximately 160dp tall)
                 // Including spacing between items
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(8),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(340.dp), // Height for ~2 rows with spacing
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(340.dp),
+                    // Height for ~2 rows with spacing
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(4.dp)
+                    contentPadding = PaddingValues(4.dp),
                 ) {
                     items(maps) { map ->
                         // For official levels, user maps should be disabled
                         val isMapEnabled = !isOfficial || map.isOfficial
-                        
+
                         MapSelectionCard(
                             map = map,
                             isSelected = selectedMapId == map.id,
@@ -240,7 +242,7 @@ fun LevelInfoTab(
                             onDisabledClick = {
                                 // Show dialog when clicking on disabled user map
                                 showUserMapNotAllowedDialog = true
-                            }
+                            },
                         )
                     }
                 }
@@ -251,24 +253,24 @@ fun LevelInfoTab(
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 OutlinedTextField(
                     value = startCoins,
                     onValueChange = { if (it.all { c -> c.isDigit() }) onStartCoinsChange(it) },
                     label = { Text(stringResource(Res.string.start_coins)) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 OutlinedTextField(
                     value = startHP,
                     onValueChange = { if (it.all { c -> c.isDigit() }) onStartHPChange(it) },
                     label = { Text(stringResource(Res.string.start_hp)) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
     }
-    
+
     // Info dialog for auto-attack feature
     if (showAutoAttackInfo) {
         AlertDialog(
@@ -279,10 +281,10 @@ fun LevelInfoTab(
                 Button(onClick = { showAutoAttackInfo = false }) {
                     Text(stringResource(Res.string.ok))
                 }
-            }
+            },
         )
     }
-    
+
     // Dialog for user map not allowed in official levels
     if (showUserMapNotAllowedDialog) {
         AlertDialog(
@@ -293,7 +295,7 @@ fun LevelInfoTab(
                 Button(onClick = { showUserMapNotAllowedDialog = false }) {
                     Text(stringResource(Res.string.ok))
                 }
-            }
+            },
         )
     }
 }

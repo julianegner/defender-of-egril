@@ -10,16 +10,22 @@ interface FileExportImport {
      * @param content Content of the file
      * @return true if export was successful
      */
-    suspend fun exportFile(filename: String, content: String): Boolean
-    
+    suspend fun exportFile(
+        filename: String,
+        content: String,
+    ): Boolean
+
     /**
      * Export multiple save files as a ZIP archive
      * @param zipFilename Name of the ZIP file
      * @param files Map of filename to content
      * @return true if export was successful
      */
-    suspend fun exportZip(zipFilename: String, files: Map<String, String>): Boolean
-    
+    suspend fun exportZip(
+        zipFilename: String,
+        files: Map<String, String>,
+    ): Boolean
+
     /**
      * Import save files from user-selected location
      * Can be individual JSON files or ZIP archives
@@ -33,7 +39,7 @@ interface FileExportImport {
  */
 data class ImportedFile(
     val filename: String,
-    val content: String
+    val content: String,
 )
 
 /**

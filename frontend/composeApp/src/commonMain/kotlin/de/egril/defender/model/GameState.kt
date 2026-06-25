@@ -1,24 +1,24 @@
 package de.egril.defender.model
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.mutableStateListOf
 import de.egril.defender.ui.settings.DifficultyLevel
 
 enum class GamePhase {
-    INITIAL_BUILDING,  // Initial building phase - towers build instantly
-    PLAYER_TURN,       // Player can place/upgrade towers and attack
-    ENEMY_TURN         // Enemies move
+    INITIAL_BUILDING, // Initial building phase - towers build instantly
+    PLAYER_TURN, // Player can place/upgrade towers and attack
+    ENEMY_TURN, // Enemies move
 }
 
 enum class FieldEffectType {
-    FIREBALL,      // Visual effect for wizard fireball area
-    ACID           // Visual effect for alchemy acid with duration
+    FIREBALL, // Visual effect for wizard fireball area
+    ACID, // Visual effect for alchemy acid with duration
 }
 
 enum class HealingEffectType {
-    GREEN_WITCH    // Visual effect for green witch healing
+    GREEN_WITCH, // Visual effect for green witch healing
 }
 
 /**
@@ -26,7 +26,7 @@ enum class HealingEffectType {
  */
 data class SpellTargetingState(
     val activeSpell: SpellType,
-    val validTargets: Set<Any> = emptySet()  // Can be Position, Attacker, or Defender depending on spell type
+    val validTargets: Set<Any> = emptySet(), // Can be Position, Attacker, or Defender depending on spell type
 )
 
 data class FieldEffect(
@@ -34,130 +34,130 @@ data class FieldEffect(
     val type: FieldEffectType,
     val damage: Int,
     var turnsRemaining: Int,
-    val defenderId: Int,  // Track which tower created this effect
-    val attackerId: Int? = null  // For DOT effects, track which enemy has the effect
+    val defenderId: Int, // Track which tower created this effect
+    val attackerId: Int? = null, // For DOT effects, track which enemy has the effect
 )
 
 data class HealingEffect(
     val position: Position,
     val type: HealingEffectType,
     val healAmount: Int,
-    val turnNumber: Int  // Track which turn this healing occurred for display timing
+    val turnNumber: Int, // Track which turn this healing occurred for display timing
 )
 
 data class DamageEffect(
     val position: Position,
     val damageAmount: Int,
-    val turnNumber: Int  // Track which turn this damage occurred for display timing
+    val turnNumber: Int, // Track which turn this damage occurred for display timing
 )
 
 data class BombExplosionEffect(
-    val center: Position,        // Center of the explosion
-    val affectedPositions: List<Position>,  // All affected tile positions
-    val turnNumber: Int          // Turn when this explosion occurred
+    val center: Position, // Center of the explosion
+    val affectedPositions: List<Position>, // All affected tile positions
+    val turnNumber: Int, // Turn when this explosion occurred
 )
 
 data class EnemyDeathEffect(
-    val position: Position,           // Position where the enemy was defeated
-    val turnNumber: Int,              // Turn when this defeat occurred
-    val attackerType: AttackerType,   // Type of the defeated enemy (for ghost rendering during animation)
-    val attackerLevel: Int            // Level of the defeated enemy (for level badge during animation)
+    val position: Position, // Position where the enemy was defeated
+    val turnNumber: Int, // Turn when this defeat occurred
+    val attackerType: AttackerType, // Type of the defeated enemy (for ghost rendering during animation)
+    val attackerLevel: Int, // Level of the defeated enemy (for level badge during animation)
 )
 
 data class CoinGainEffect(
-    val position: Position,      // Position of the defeated enemy that awarded coins
-    val amount: Int,             // Amount of coins gained
-    val turnNumber: Int          // Turn when this coin gain occurred
+    val position: Position, // Position of the defeated enemy that awarded coins
+    val amount: Int, // Amount of coins gained
+    val turnNumber: Int, // Turn when this coin gain occurred
 )
 
 data class TowerAttackEffect(
-    val targetPosition: Position,  // Position of the attacked tile
-    val turnNumber: Int            // Turn when this attack occurred
+    val targetPosition: Position, // Position of the attacked tile
+    val turnNumber: Int, // Turn when this attack occurred
 )
 
 data class TowerConstructionEffect(
-    val position: Position,        // Position of the tower that finished building
-    val turnNumber: Int            // Turn when construction completed
+    val position: Position, // Position of the tower that finished building
+    val turnNumber: Int, // Turn when construction completed
 )
 
 data class EnemySpawnEffect(
-    val position: Position,        // Spawn position of the newly appeared enemy
-    val turnNumber: Int            // Turn when this spawn occurred
+    val position: Position, // Spawn position of the newly appeared enemy
+    val turnNumber: Int, // Turn when this spawn occurred
 )
 
 data class TrapTriggerEffect(
-    val position: Position,        // Position of the trap that was triggered
-    val turnNumber: Int            // Turn when this trap triggered
+    val position: Position, // Position of the trap that was triggered
+    val turnNumber: Int, // Turn when this trap triggered
 )
 
 data class EnemyMoveEffect(
-    val position: Position,        // Tile that the enemy just vacated (movement trail)
-    val turnNumber: Int            // Turn when this movement occurred
+    val position: Position, // Tile that the enemy just vacated (movement trail)
+    val turnNumber: Int, // Turn when this movement occurred
 )
 
 data class DragonLevelChangeEffect(
-    val position: Position,        // Dragon's position when its level changed
-    val isLevelUp: Boolean,        // true = dragon gained levels (ate units), false = lost levels (took damage)
-    val turnNumber: Int            // Turn when this change occurred
+    val position: Position, // Dragon's position when its level changed
+    val isLevelUp: Boolean, // true = dragon gained levels (ate units), false = lost levels (took damage)
+    val turnNumber: Int, // Turn when this change occurred
 )
 
 data class MineDigEffect(
-    val position: Position,        // Position of the mine that was dug
-    val turnNumber: Int            // Turn when digging occurred
+    val position: Position, // Position of the mine that was dug
+    val turnNumber: Int, // Turn when digging occurred
 )
 
 data class ArrowAttackEffect(
-    val sourcePosition: Position,  // Tower's tile (source of the arrow)
-    val targetPosition: Position,  // Target tile
-    val turnNumber: Int            // Turn when this attack occurred
+    val sourcePosition: Position, // Tower's tile (source of the arrow)
+    val targetPosition: Position, // Target tile
+    val turnNumber: Int, // Turn when this attack occurred
 )
 
 data class BallistaAttackEffect(
-    val sourcePosition: Position,  // Ballista tower's tile
-    val targetPosition: Position,  // Target tile
-    val turnNumber: Int            // Turn when this attack occurred
+    val sourcePosition: Position, // Ballista tower's tile
+    val targetPosition: Position, // Target tile
+    val turnNumber: Int, // Turn when this attack occurred
 )
 
 data class BowAttackEffect(
-    val sourcePosition: Position,  // Bow tower's tile
-    val targetPosition: Position,  // Target tile
-    val turnNumber: Int            // Turn when this attack occurred
+    val sourcePosition: Position, // Bow tower's tile
+    val targetPosition: Position, // Target tile
+    val turnNumber: Int, // Turn when this attack occurred
 )
 
 data class SpearAttackEffect(
-    val sourcePosition: Position,  // Spear tower's tile
-    val targetPosition: Position,  // Target tile
-    val turnNumber: Int            // Turn when this attack occurred
+    val sourcePosition: Position, // Spear tower's tile
+    val targetPosition: Position, // Target tile
+    val turnNumber: Int, // Turn when this attack occurred
 )
 
 data class PikeAttackEffect(
-    val sourcePosition: Position,  // Pike (spike) tower's tile
-    val targetPosition: Position,  // Target tile
-    val turnNumber: Int            // Turn when this attack occurred
+    val sourcePosition: Position, // Pike (spike) tower's tile
+    val targetPosition: Position, // Target tile
+    val turnNumber: Int, // Turn when this attack occurred
 )
 
 data class WizardAttackEffect(
-    val sourcePosition: Position,  // Wizard tower's tile
-    val targetPosition: Position,  // Target tile
-    val turnNumber: Int            // Turn when this attack occurred
+    val sourcePosition: Position, // Wizard tower's tile
+    val targetPosition: Position, // Target tile
+    val turnNumber: Int, // Turn when this attack occurred
 )
 
 data class AlchemyAttackEffect(
-    val sourcePosition: Position,  // Alchemy tower's tile
-    val targetPosition: Position,  // Target tile
-    val turnNumber: Int            // Turn when this attack occurred
+    val sourcePosition: Position, // Alchemy tower's tile
+    val targetPosition: Position, // Target tile
+    val turnNumber: Int, // Turn when this attack occurred
 )
 
 /**
  * Types of in-game event messages that are shown to the player.
  */
 enum class GameMessageType {
-    TARGET_TAKEN,      // A SINGLE_HIT target was captured by an enemy
-    GATE_DESTROYED,    // A named gate barricade was destroyed
-    EWHAD_ENTERS,      // Ewhad has entered the battlefield
-    EWHAD_RETREATS,    // Ewhad has retreated (health reached 0, not final stand)
-    EWHAD_DEFEATED,    // Ewhad is defeated (health reached 0, final stand level)
-    STORY_INTRO        // Story narrative shown at the start of a level (name = editorLevelId)
+    TARGET_TAKEN, // A SINGLE_HIT target was captured by an enemy
+    GATE_DESTROYED, // A named gate barricade was destroyed
+    EWHAD_ENTERS, // Ewhad has entered the battlefield
+    EWHAD_RETREATS, // Ewhad has retreated (health reached 0, not final stand)
+    EWHAD_DEFEATED, // Ewhad is defeated (health reached 0, final stand level)
+    STORY_INTRO, // Story narrative shown at the start of a level (name = editorLevelId)
 }
 
 /**
@@ -167,7 +167,7 @@ enum class GameMessageType {
  */
 data class GameMessage(
     val type: GameMessageType,
-    val name: String? = null
+    val name: String? = null,
 )
 
 data class GameState(
@@ -190,59 +190,60 @@ data class GameState(
     val fieldEffects: SnapshotStateList<FieldEffect> = mutableStateListOf(), // Track active field effects
     val healingEffects: SnapshotStateList<HealingEffect> = mutableStateListOf(), // Track active healing effects
     val damageEffects: SnapshotStateList<DamageEffect> = mutableStateListOf(), // Track barricade damage effects
-    val traps: SnapshotStateList<Trap> = mutableStateListOf(),  // Track active traps
-    val barricades: SnapshotStateList<Barricade> = mutableStateListOf(),  // Track active barricades
-    val bridges: SnapshotStateList<Bridge> = mutableStateListOf(),  // Track active bridges
-    val rafts: SnapshotStateList<Raft> = mutableStateListOf(),  // Track active rafts (towers on rivers)
-    val bombExplosionEffects: SnapshotStateList<BombExplosionEffect> = mutableStateListOf(),  // Track bomb explosion visual effects
-    val defeatedEnemyEffects: SnapshotStateList<EnemyDeathEffect> = mutableStateListOf(),  // Track enemy death visual effects
-    val coinGainEffects: SnapshotStateList<CoinGainEffect> = mutableStateListOf(),  // Track coin gain visual effects
-    val pendingCoinGains: MutableState<Int> = mutableStateOf(0),  // Coins earned this turn not yet credited (added by UI when coin animation plays; flushed by completeEnemyTurn as safety net)
-    val towerAttackEffects: SnapshotStateList<TowerAttackEffect> = mutableStateListOf(),  // Track tower attack impact visual effects
-    val attackTriggerCount: MutableState<Int> = mutableStateOf(0),  // Monotonically-increasing counter, incremented on every attack (bypasses per-tile deduplication)
-    val constructionCompleteEffects: SnapshotStateList<TowerConstructionEffect> = mutableStateListOf(),  // Track tower construction complete visual effects
-    val enemySpawnEffects: SnapshotStateList<EnemySpawnEffect> = mutableStateListOf(),  // Track enemy spawn portal visual effects
-    val trapTriggerEffects: SnapshotStateList<TrapTriggerEffect> = mutableStateListOf(),  // Track trap trigger visual effects
-    val enemyMoveEffects: SnapshotStateList<EnemyMoveEffect> = mutableStateListOf(),  // Track enemy movement trail visual effects
-    val dragonLevelChangeEffects: SnapshotStateList<DragonLevelChangeEffect> = mutableStateListOf(),  // Track dragon level change visual effects
-    val mineDigEffects: SnapshotStateList<MineDigEffect> = mutableStateListOf(),  // Track dwarven mine digging visual effects
-    val arrowAttackEffects: SnapshotStateList<ArrowAttackEffect> = mutableStateListOf(),  // Track arrow/bolt projectile effects for Bow and Spear towers
-    val ballistaAttackEffects: SnapshotStateList<BallistaAttackEffect> = mutableStateListOf(),  // Track ballista projectile overlay effects
-    val bowAttackEffects: SnapshotStateList<BowAttackEffect> = mutableStateListOf(),  // Track bow arrow volley overlay effects
-    val spearAttackEffects: SnapshotStateList<SpearAttackEffect> = mutableStateListOf(),  // Track spear throw overlay effects
-    val pikeAttackEffects: SnapshotStateList<PikeAttackEffect> = mutableStateListOf(),  // Track pike extend overlay effects
-    val wizardAttackEffects: SnapshotStateList<WizardAttackEffect> = mutableStateListOf(),  // Track wizard fireball overlay effects
-    val alchemyAttackEffects: SnapshotStateList<AlchemyAttackEffect> = mutableStateListOf(),  // Track alchemy acid vial overlay effects
-    val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM,  // Track difficulty for this game session
-    val tutorialState: MutableState<TutorialState> = mutableStateOf(
-        // Enable tutorial only for the tutorial level (id=1, title contains "Welcome")
-        if (level.id == 1 && level.name.contains("Welcome", ignoreCase = true)) {
-            TutorialState(isActive = true, currentStep = TutorialStep.WELCOME)
-        } else {
-            TutorialState(isActive = false, currentStep = TutorialStep.NONE)
-        }
-    ),
-    val infoState: MutableState<InfoState> = mutableStateOf(InfoState()),  // Single tutorial infos system
-    val destroyedMinePositions: SnapshotStateList<Position> = mutableStateListOf(),  // Positions where mines have been destroyed
-    val mineWarnings: SnapshotStateList<Int> = mutableStateListOf(),  // Mine IDs with active warnings (dragon about to destroy)
-    val xpEarnedThisLevel: MutableState<Int> = mutableStateOf(0),  // XP earned during this level (awarded on completion; 20% on loss)
-    val currentMana: MutableState<Int> = mutableStateOf(0),  // Current mana (for spellcasting)
-    val maxMana: MutableState<Int> = mutableStateOf(0),  // Maximum mana (based on player stats)
-    val activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = mutableStateListOf(),  // Active spell effects
-    val incomeMultiplier: Double = 1.0,  // Income multiplier from player stats (default 1.0, e.g. 1.2 for 20% bonus)
-    val constructionLevel: Int = 0,  // Construction level from player stats (0-3+, gates tower abilities)
-    val spellTargeting: MutableState<SpellTargetingState?> = mutableStateOf(null),  // Active spell targeting state (null when not targeting)
-    val instantTowerSpellActive: MutableState<Boolean> = mutableStateOf(false),  // True when Instant Tower spell is active (waiting for next tower placement)
+    val traps: SnapshotStateList<Trap> = mutableStateListOf(), // Track active traps
+    val barricades: SnapshotStateList<Barricade> = mutableStateListOf(), // Track active barricades
+    val bridges: SnapshotStateList<Bridge> = mutableStateListOf(), // Track active bridges
+    val rafts: SnapshotStateList<Raft> = mutableStateListOf(), // Track active rafts (towers on rivers)
+    val bombExplosionEffects: SnapshotStateList<BombExplosionEffect> = mutableStateListOf(), // Track bomb explosion visual effects
+    val defeatedEnemyEffects: SnapshotStateList<EnemyDeathEffect> = mutableStateListOf(), // Track enemy death visual effects
+    val coinGainEffects: SnapshotStateList<CoinGainEffect> = mutableStateListOf(), // Track coin gain visual effects
+    val pendingCoinGains: MutableState<Int> = mutableStateOf(0), // Coins earned this turn not yet credited (added by UI when coin animation plays; flushed by completeEnemyTurn as safety net)
+    val towerAttackEffects: SnapshotStateList<TowerAttackEffect> = mutableStateListOf(), // Track tower attack impact visual effects
+    val attackTriggerCount: MutableState<Int> = mutableStateOf(0), // Monotonically-increasing counter, incremented on every attack (bypasses per-tile deduplication)
+    val constructionCompleteEffects: SnapshotStateList<TowerConstructionEffect> = mutableStateListOf(), // Track tower construction complete visual effects
+    val enemySpawnEffects: SnapshotStateList<EnemySpawnEffect> = mutableStateListOf(), // Track enemy spawn portal visual effects
+    val trapTriggerEffects: SnapshotStateList<TrapTriggerEffect> = mutableStateListOf(), // Track trap trigger visual effects
+    val enemyMoveEffects: SnapshotStateList<EnemyMoveEffect> = mutableStateListOf(), // Track enemy movement trail visual effects
+    val dragonLevelChangeEffects: SnapshotStateList<DragonLevelChangeEffect> = mutableStateListOf(), // Track dragon level change visual effects
+    val mineDigEffects: SnapshotStateList<MineDigEffect> = mutableStateListOf(), // Track dwarven mine digging visual effects
+    val arrowAttackEffects: SnapshotStateList<ArrowAttackEffect> = mutableStateListOf(), // Track arrow/bolt projectile effects for Bow and Spear towers
+    val ballistaAttackEffects: SnapshotStateList<BallistaAttackEffect> = mutableStateListOf(), // Track ballista projectile overlay effects
+    val bowAttackEffects: SnapshotStateList<BowAttackEffect> = mutableStateListOf(), // Track bow arrow volley overlay effects
+    val spearAttackEffects: SnapshotStateList<SpearAttackEffect> = mutableStateListOf(), // Track spear throw overlay effects
+    val pikeAttackEffects: SnapshotStateList<PikeAttackEffect> = mutableStateListOf(), // Track pike extend overlay effects
+    val wizardAttackEffects: SnapshotStateList<WizardAttackEffect> = mutableStateListOf(), // Track wizard fireball overlay effects
+    val alchemyAttackEffects: SnapshotStateList<AlchemyAttackEffect> = mutableStateListOf(), // Track alchemy acid vial overlay effects
+    val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM, // Track difficulty for this game session
+    val tutorialState: MutableState<TutorialState> =
+        mutableStateOf(
+            // Enable tutorial only for the tutorial level (id=1, title contains "Welcome")
+            if (level.id == 1 && level.name.contains("Welcome", ignoreCase = true)) {
+                TutorialState(isActive = true, currentStep = TutorialStep.WELCOME)
+            } else {
+                TutorialState(isActive = false, currentStep = TutorialStep.NONE)
+            },
+        ),
+    val infoState: MutableState<InfoState> = mutableStateOf(InfoState()), // Single tutorial infos system
+    val destroyedMinePositions: SnapshotStateList<Position> = mutableStateListOf(), // Positions where mines have been destroyed
+    val mineWarnings: SnapshotStateList<Int> = mutableStateListOf(), // Mine IDs with active warnings (dragon about to destroy)
+    val xpEarnedThisLevel: MutableState<Int> = mutableStateOf(0), // XP earned during this level (awarded on completion; 20% on loss)
+    val currentMana: MutableState<Int> = mutableStateOf(0), // Current mana (for spellcasting)
+    val maxMana: MutableState<Int> = mutableStateOf(0), // Maximum mana (based on player stats)
+    val activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = mutableStateListOf(), // Active spell effects
+    val incomeMultiplier: Double = 1.0, // Income multiplier from player stats (default 1.0, e.g. 1.2 for 20% bonus)
+    val constructionLevel: Int = 0, // Construction level from player stats (0-3+, gates tower abilities)
+    val spellTargeting: MutableState<SpellTargetingState?> = mutableStateOf(null), // Active spell targeting state (null when not targeting)
+    val instantTowerSpellActive: MutableState<Boolean> = mutableStateOf(false), // True when Instant Tower spell is active (waiting for next tower placement)
     // SINGLE_HIT target tracking
-    val takenTargets: SnapshotStateList<Position> = mutableStateListOf(),  // Positions of taken SINGLE_HIT targets
-    val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf()  // Messages queued for display
+    val takenTargets: SnapshotStateList<Position> = mutableStateListOf(), // Positions of taken SINGLE_HIT targets
+    val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf(), // Messages queued for display
 ) {
     fun isLevelWon(): Boolean {
         // Check if all planned spawns have occurred and all enemies are defeated
         val allSpawned = spawnPlan.all { it.spawnTurn <= turnNumber.value }
         return allSpawned && attackers.all { it.isDefeated.value }
     }
-    
+
     fun isLevelLost(): Boolean {
         if (healthPoints.value <= 0) return true
         // Level is also lost when all SINGLE_HIT targets have been taken
@@ -255,16 +256,12 @@ data class GameState(
      * Returns true if [position] is a target that can still be reached by enemies.
      * Taken SINGLE_HIT targets are excluded.
      */
-    fun isActiveTargetPosition(position: Position): Boolean {
-        return level.isTargetPosition(position) && !takenTargets.contains(position)
-    }
+    fun isActiveTargetPosition(position: Position): Boolean = level.isTargetPosition(position) && !takenTargets.contains(position)
 
     /**
      * Returns the active (non-taken) target positions.
      */
-    fun getActiveTargetPositions(): List<Position> {
-        return level.targetPositions.filter { !takenTargets.contains(it) }
-    }
+    fun getActiveTargetPositions(): List<Position> = level.targetPositions.filter { !takenTargets.contains(it) }
 
     /**
      * When a SINGLE_HIT target at [takenPosition] is taken, redirect all enemies
@@ -272,7 +269,7 @@ data class GameState(
      */
     fun retargetEnemiesFromTakenTarget(takenPosition: Position) {
         val remaining = getActiveTargetPositions()
-        if (remaining.isEmpty()) return  // No active targets left – level will be lost
+        if (remaining.isEmpty()) return // No active targets left – level will be lost
         for (enemy in attackers) {
             if (enemy.isDefeated.value) continue
             if (enemy.currentTarget?.value == takenPosition) {
@@ -287,25 +284,21 @@ data class GameState(
      * Returns the effective next waypoint target, redirecting to the nearest active target
      * if the waypoint's next target is a taken SINGLE_HIT target.
      */
-    fun resolveWaypointNextTarget(waypointNextTarget: Position, from: Position): Position {
-        return if (takenTargets.contains(waypointNextTarget)) {
+    fun resolveWaypointNextTarget(
+        waypointNextTarget: Position,
+        from: Position,
+    ): Position =
+        if (takenTargets.contains(waypointNextTarget)) {
             getActiveTargetPositions().minByOrNull { from.distanceTo(it) } ?: waypointNextTarget
         } else {
             waypointNextTarget
         }
-    }
-    
-    fun canPlaceDefender(type: DefenderType): Boolean {
-        return coins.value >= type.baseCost && level.availableTowers.contains(type)
-    }
-    
-    fun canUpgradeDefender(defender: Defender): Boolean {
-        return coins.value >= defender.upgradeCost
-    }
-    
-    fun hasActionsRemaining(): Boolean {
-        return actionsRemainingThisTurn.value > 0
-    }
+
+    fun canPlaceDefender(type: DefenderType): Boolean = coins.value >= type.baseCost && level.availableTowers.contains(type)
+
+    fun canUpgradeDefender(defender: Defender): Boolean = coins.value >= defender.upgradeCost
+
+    fun hasActionsRemaining(): Boolean = actionsRemainingThisTurn.value > 0
 
     fun getRemainingEnemyCount(): Int {
         val totalSpawned = this.nextAttackerId.value - 1
@@ -317,43 +310,39 @@ data class GameState(
         // Count only non-defeated enemies that are NOT building bridges
         return this.attackers.count { !it.isDefeated.value && !it.isBuildingBridge.value }
     }
-    
+
     /**
      * Check if a position is covered by any active bridge
      */
-    fun isBridgeAt(position: Position): Boolean {
-        return bridges.any { bridge ->
+    fun isBridgeAt(position: Position): Boolean =
+        bridges.any { bridge ->
             bridge.isActive && bridge.coversPosition(position)
         }
-    }
-    
+
     /**
      * Get the bridge at a position, if any
      */
-    fun getBridgeAt(position: Position): Bridge? {
-        return bridges.find { bridge ->
+    fun getBridgeAt(position: Position): Bridge? =
+        bridges.find { bridge ->
             bridge.isActive && bridge.coversPosition(position)
         }
-    }
-    
+
     /**
      * Check if a position has a raft
      */
-    fun isRaftAt(position: Position): Boolean {
-        return rafts.any { raft ->
+    fun isRaftAt(position: Position): Boolean =
+        rafts.any { raft ->
             raft.isActive && raft.currentPosition.value == position
         }
-    }
-    
+
     /**
      * Get the raft at a position, if any
      */
-    fun getRaftAt(position: Position): Raft? {
-        return rafts.find { raft ->
+    fun getRaftAt(position: Position): Raft? =
+        rafts.find { raft ->
             raft.isActive && raft.currentPosition.value == position
         }
-    }
-    
+
     /**
      * Check if there are defenders with unused action points and enemies in range
      * Used to show end turn confirmation dialog
@@ -361,14 +350,15 @@ data class GameState(
     fun hasDefendersWithUnusedActions(): Boolean {
         // Get active attackers (not defeated, not building bridges)
         val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
-        
+
         return defenders.any { defender ->
-            if (!defender.isReady || 
-                defender.actionsRemaining.value <= 0 || 
-                defender.isDisabled.value) {
+            if (!defender.isReady ||
+                defender.actionsRemaining.value <= 0 ||
+                defender.isDisabled.value
+            ) {
                 return@any false
             }
-            
+
             // Special handling for different tower types
             when (defender.type) {
                 DefenderType.DWARVEN_MINE -> {
@@ -387,7 +377,7 @@ data class GameState(
             }
         }
     }
-    
+
     /**
      * Get defenders that can be tabbed to: have action points left and either are mines
      * or have at least one enemy within attack range. Sorted by position (top-to-bottom,
@@ -395,23 +385,25 @@ data class GameState(
      */
     fun getActionableTowersForTab(): List<Defender> {
         val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
-        return defenders.filter { defender ->
-            if (!defender.isReady ||
-                defender.actionsRemaining.value <= 0 ||
-                defender.isDisabled.value) {
-                return@filter false
-            }
-            when (defender.type) {
-                DefenderType.DWARVEN_MINE -> true
-                else -> {
-                    if (defender.type.attackType == AttackType.NONE) {
-                        false
-                    } else {
-                        activeAttackers.any { attacker -> defender.canAttack(attacker) }
+        return defenders
+            .filter { defender ->
+                if (!defender.isReady ||
+                    defender.actionsRemaining.value <= 0 ||
+                    defender.isDisabled.value
+                ) {
+                    return@filter false
+                }
+                when (defender.type) {
+                    DefenderType.DWARVEN_MINE -> true
+                    else -> {
+                        if (defender.type.attackType == AttackType.NONE) {
+                            false
+                        } else {
+                            activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                        }
                     }
                 }
-            }
-        }.sortedWith(compareBy({ it.position.value.y }, { it.position.value.x }))
+            }.sortedWith(compareBy({ it.position.value.y }, { it.position.value.x }))
     }
 
     /**
@@ -422,14 +414,15 @@ data class GameState(
     fun hasDefendersForAutoAttack(): Boolean {
         val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
         if (activeAttackers.isEmpty()) return false
-        
+
         return defenders.any { defender ->
-            if (!defender.isReady || 
-                defender.actionsRemaining.value <= 0 || 
-                defender.isDisabled.value) {
+            if (!defender.isReady ||
+                defender.actionsRemaining.value <= 0 ||
+                defender.isDisabled.value
+            ) {
                 return@any false
             }
-            
+
             // Only count towers that can do regular auto-attacks
             // Exclude mines (no attack) and wizard towers level 10+ (have trap ability that needs manual placement)
             // Alchemy towers CAN auto-attack (they check acid immunity like wizard towers check fireball immunity)
@@ -444,7 +437,7 @@ data class GameState(
             }
         }
     }
-    
+
     /**
      * Check if there are defenders with special actions that cannot be automated effectively.
      * Returns a list of defender types that have remaining special actions.
@@ -452,12 +445,12 @@ data class GameState(
     fun getDefenderTypesWithSpecialActions(): List<DefenderType> {
         val typesWithActions = mutableSetOf<DefenderType>()
         val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
-        
+
         defenders.forEach { defender ->
             if (!defender.isReady || defender.actionsRemaining.value <= 0 || defender.isDisabled.value) {
                 return@forEach
             }
-            
+
             when {
                 // Dwarven mines with digging actions
                 defender.type == DefenderType.DWARVEN_MINE -> {
@@ -479,10 +472,10 @@ data class GameState(
                 }
             }
         }
-        
+
         return typesWithActions.toList()
     }
-    
+
     /**
      * Initialize pre-placed defenders, attackers, traps, and barricades from level configuration.
      * This should be called right after GameState creation to set up the initial level state.
@@ -490,33 +483,35 @@ data class GameState(
     fun initializePrePlacedElements() {
         // Get initial data using the helper method that handles both old and new formats
         val initialData = level.getEffectiveInitialData()
-        
+
         // Place initial barricades FIRST (before defenders so we can link them)
         for (initialBarricade in initialData.barricades) {
-            val barricade = Barricade(
-                id = nextBarricadeId.value++,
-                position = initialBarricade.position,
-                healthPoints = mutableStateOf(initialBarricade.healthPoints),
-                defenderId = 0,  // Pre-placed barricades don't belong to any specific defender
-                isGate = initialBarricade.isGate,
-                name = initialBarricade.name
-            )
+            val barricade =
+                Barricade(
+                    id = nextBarricadeId.value++,
+                    position = initialBarricade.position,
+                    healthPoints = mutableStateOf(initialBarricade.healthPoints),
+                    defenderId = 0, // Pre-placed barricades don't belong to any specific defender
+                    isGate = initialBarricade.isGate,
+                    name = initialBarricade.name,
+                )
             barricades.add(barricade)
         }
-        
+
         // Place initial defenders
         for (initialDefender in initialData.defenders) {
-            val defender = Defender(
-                id = nextDefenderId.value,
-                type = initialDefender.type,
-                position = mutableStateOf(initialDefender.position),
-                placedOnTurn = 0,  // Placed before the game starts
-                dragonName = initialDefender.dragonName
-            )
+            val defender =
+                Defender(
+                    id = nextDefenderId.value,
+                    type = initialDefender.type,
+                    position = mutableStateOf(initialDefender.position),
+                    placedOnTurn = 0, // Placed before the game starts
+                    dragonName = initialDefender.dragonName,
+                )
             defender.level.value = initialDefender.level
-            defender.buildTimeRemaining.value = 0  // Already built
-            defender.actionsRemaining.value = 0  // No actions in initial phase
-            
+            defender.buildTimeRemaining.value = 0 // Already built
+            defender.actionsRemaining.value = 0 // No actions in initial phase
+
             // If this defender should be on a tower base, find the barricade at the same position
             if (initialDefender.onTowerBase) {
                 val barricadeAtPosition = barricades.find { it.position == initialDefender.position }
@@ -525,20 +520,21 @@ data class GameState(
                     barricadeAtPosition.supportedTowerId.value = defender.id
                 }
             }
-            
+
             defenders.add(defender)
             nextDefenderId.value++
         }
-        
+
         // Place initial attackers
         for (initialAttacker in initialData.attackers) {
-            val attacker = Attacker(
-                id = nextAttackerId.value,
-                type = initialAttacker.type,
-                position = mutableStateOf(initialAttacker.position),
-                level = mutableStateOf(initialAttacker.level),
-                dragonName = initialAttacker.dragonName
-            )
+            val attacker =
+                Attacker(
+                    id = nextAttackerId.value,
+                    type = initialAttacker.type,
+                    position = mutableStateOf(initialAttacker.position),
+                    level = mutableStateOf(initialAttacker.level),
+                    dragonName = initialAttacker.dragonName,
+                )
             // Set custom health if specified, otherwise use default for level
             val health = initialAttacker.currentHealth ?: (initialAttacker.type.health * initialAttacker.level)
             attacker.currentHealth.value = health
@@ -546,22 +542,24 @@ data class GameState(
             attackers.add(attacker)
             nextAttackerId.value++
         }
-        
+
         // Place initial traps
         for (initialTrap in initialData.traps) {
-            val trapType = try {
-                TrapType.valueOf(initialTrap.type)
-            } catch (e: Exception) {
-                TrapType.DWARVEN
-            }
+            val trapType =
+                try {
+                    TrapType.valueOf(initialTrap.type)
+                } catch (e: Exception) {
+                    TrapType.DWARVEN
+                }
             // We need a defender ID for the trap, but there may not be one
             // Use defenderId = 0 to indicate it's a pre-placed trap
-            val trap = Trap(
-                position = initialTrap.position,
-                damage = initialTrap.damage,
-                defenderId = 0,  // Pre-placed traps don't belong to any specific defender
-                type = trapType
-            )
+            val trap =
+                Trap(
+                    position = initialTrap.position,
+                    damage = initialTrap.damage,
+                    defenderId = 0, // Pre-placed traps don't belong to any specific defender
+                    type = trapType,
+                )
             traps.add(trap)
         }
     }

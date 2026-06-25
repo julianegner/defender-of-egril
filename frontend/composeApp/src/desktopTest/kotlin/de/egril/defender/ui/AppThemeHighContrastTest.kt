@@ -5,7 +5,6 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class AppThemeHighContrastTest {
-
     @Test
     fun highContrastLightSchemeUsesMaxContrastBackgroundAndText() {
         assertEquals(Color(0xFFFFFFFF), AppTheme.highContrastLightColorScheme.background)
@@ -22,4 +21,3 @@ class AppThemeHighContrastTest {
         assertEquals(Color(0xFFFFFFFF), AppTheme.highContrastDarkColorScheme.onSurface)
     }
 }
-

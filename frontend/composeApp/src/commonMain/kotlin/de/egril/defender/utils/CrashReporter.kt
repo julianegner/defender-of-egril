@@ -19,7 +19,7 @@ data class CrashInfo(
     val errorType: String,
     val errorMessage: String?,
     val stackTrace: String?,
-    val capturedAtMillis: Long
+    val capturedAtMillis: Long,
 )
 
 /**
@@ -42,13 +42,14 @@ object CrashReporter {
      */
     fun report(throwable: Throwable) {
         if (current.value != null) return
-        val info = CrashInfo(
-            crashId = generateCrashUuid(),
-            errorType = (throwable::class.qualifiedName ?: throwable::class.simpleName ?: "UnknownError"),
-            errorMessage = throwable.message,
-            stackTrace = runCatching { throwable.stackTraceToString() }.getOrNull(),
-            capturedAtMillis = currentTimeMillis()
-        )
+        val info =
+            CrashInfo(
+                crashId = generateCrashUuid(),
+                errorType = (throwable::class.qualifiedName ?: throwable::class.simpleName ?: "UnknownError"),
+                errorMessage = throwable.message,
+                stackTrace = runCatching { throwable.stackTraceToString() }.getOrNull(),
+                capturedAtMillis = currentTimeMillis(),
+            )
         // Best-effort: also record it in the in-memory game log so the
         // attached log already contains the error if the user later opens
         // the feedback form.
@@ -60,15 +61,20 @@ object CrashReporter {
      * Convenience overload for non-`Throwable` failure sources (e.g. coming
      * from JS / Wasm hosts where only a string is available).
      */
-    fun report(errorType: String, errorMessage: String?, stackTrace: String? = null) {
+    fun report(
+        errorType: String,
+        errorMessage: String?,
+        stackTrace: String? = null,
+    ) {
         if (current.value != null) return
-        current.value = CrashInfo(
-            crashId = generateCrashUuid(),
-            errorType = errorType,
-            errorMessage = errorMessage,
-            stackTrace = stackTrace,
-            capturedAtMillis = currentTimeMillis()
-        )
+        current.value =
+            CrashInfo(
+                crashId = generateCrashUuid(),
+                errorType = errorType,
+                errorMessage = errorMessage,
+                stackTrace = stackTrace,
+                capturedAtMillis = currentTimeMillis(),
+            )
     }
 
     fun clear() {
@@ -84,12 +90,13 @@ object CrashReporter {
  * Intended for wrapping anything that could lead to the app crashing –
  * event handlers, side-effects, JSON parsing, file I/O, etc.
  */
-inline fun <T> safeRun(block: () -> T): T? = try {
-    block()
-} catch (t: Throwable) {
-    CrashReporter.report(t)
-    null
-}
+inline fun <T> safeRun(block: () -> T): T? =
+    try {
+        block()
+    } catch (t: Throwable) {
+        CrashReporter.report(t)
+        null
+    }
 
 internal fun generateCrashUuid(): String {
     val bytes = ByteArray(16) { Random.Default.nextInt(256).toByte() }

@@ -8,8 +8,10 @@ import org.w3c.xhr.XMLHttpRequest
 import kotlin.coroutines.resume
 
 actual object BackendSettingsService {
-
-    actual suspend fun uploadSettings(settingsJson: String, token: String): Boolean =
+    actual suspend fun uploadSettings(
+        settingsJson: String,
+        token: String,
+    ): Boolean =
         suspendCancellableCoroutine { continuation ->
             try {
                 val xhr = XMLHttpRequest()

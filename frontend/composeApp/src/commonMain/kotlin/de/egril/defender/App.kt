@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import de.egril.defender.iam.initPlatformIam
 import de.egril.defender.ui.*
 import de.egril.defender.ui.animations.AnimationTestScreen
 import de.egril.defender.ui.editor.level.LevelEditorScreen
@@ -21,655 +22,705 @@ import de.egril.defender.utils.WindowCloseHandler
 import de.egril.defender.utils.setMobileOrientationOverlayMode
 import kotlinx.coroutines.delay
 
-import de.egril.defender.iam.initPlatformIam
-
 /**
  * Maps app screens to the mobile browser orientation overlay behavior:
  * - Gameplay requires landscape orientation.
  * - Main menu and info pages prefer portrait orientation.
  * - All other screens do not force an orientation hint.
  */
-internal fun mobileOrientationOverlayModeForScreen(screen: Screen): MobileOrientationOverlayMode = when (screen) {
-    is Screen.GamePlay -> MobileOrientationOverlayMode.LANDSCAPE_REQUIRED
-    is Screen.MainMenu,
-    is Screen.InstallationInfo,
-    is Screen.InstallationInfoAtTab -> MobileOrientationOverlayMode.PORTRAIT_REQUIRED
-    else -> MobileOrientationOverlayMode.NONE
-}
+internal fun mobileOrientationOverlayModeForScreen(screen: Screen): MobileOrientationOverlayMode =
+    when (screen) {
+        is Screen.GamePlay -> MobileOrientationOverlayMode.LANDSCAPE_REQUIRED
+        is Screen.MainMenu,
+        is Screen.InstallationInfo,
+        is Screen.InstallationInfoAtTab,
+        -> MobileOrientationOverlayMode.PORTRAIT_REQUIRED
+        else -> MobileOrientationOverlayMode.NONE
+    }
 
 @Composable
 fun App() {
     de.egril.defender.ui.crash.ErrorBoundary {
-    // Initialize settings, sound, and IAM on app start
-    LaunchedEffect(Unit) {
-        AppSettings.initialize()
-        de.egril.defender.audio.GlobalSoundManager.initialize()
-        de.egril.defender.audio.GlobalBackgroundMusicManager.initialize()
-        initPlatformIam()
-    }
-    
-    // Observe dark mode state
-    val isDarkMode by AppSettings.isDarkMode
-    val highContrastEnabled by AppSettings.highContrastEnabled
-    val colorBlindPalette by AppSettings.colorBlindPalette
-    
-    // Use custom color schemes with softer dark mode colors
-    val baseColorScheme = if (highContrastEnabled) {
-        if (isDarkMode) AppTheme.highContrastDarkColorScheme else AppTheme.highContrastLightColorScheme
-    } else {
-        if (isDarkMode) AppTheme.darkColorScheme else AppTheme.lightColorScheme
-    }
-    val colorScheme = AppTheme.applyColorBlindPalette(baseColorScheme, colorBlindPalette)
-    
-    MaterialTheme(colorScheme = colorScheme) {
-        // Apply accessibility font size scaling via LocalDensity
-        val fontSizeScale by AppSettings.fontSize
-        val currentDensity = LocalDensity.current
-        val scaledDensity = remember(currentDensity, fontSizeScale) {
-            Density(
-                density = currentDensity.density,
-                fontScale = currentDensity.fontScale * fontSizeScale.scale
-            )
-        }
-        CompositionLocalProvider(LocalDensity provides scaledDensity) {
-        // Track repository data error
-        var repositoryDataError by remember { mutableStateOf<de.egril.defender.editor.MissingRepositoryDataException?>(null) }
-        
-        // Try to create ViewModel, catch repository data errors
-        val viewModel = remember {
-            try {
-                GameViewModel()
-            } catch (e: de.egril.defender.editor.MissingRepositoryDataException) {
-                repositoryDataError = e
-                null
-            }
-        }
-        
-        // Show error dialog if repository data is missing
-        if (repositoryDataError != null) {
-            MissingRepositoryDataDialog(
-                missingCategories = repositoryDataError!!.missingCategories,
-                onDismiss = {
-                    // Cannot dismiss - this is a fatal error
-                    // User needs to reinstall or restore data
-                }
-            )
-            return@CompositionLocalProvider
-        }
-        
-        // Null check for viewModel (should not happen if no exception was thrown)
-        if (viewModel == null) {
-            return@CompositionLocalProvider
-        }
-        
-        val currentScreen by viewModel.currentScreen.collectAsState()
-        val worldLevels by viewModel.worldLevels.collectAsState()
-        val gameState by viewModel.gameState.collectAsState()
-        val savedGames by viewModel.savedGames.collectAsState()
-        val isLoadingRemoteSaves by viewModel.isLoadingRemoteSaves.collectAsState()
-        val cheatDigOutcome by viewModel.cheatDigOutcome.collectAsState()
-        val showPlatformInfo by viewModel.showPlatformInfo.collectAsState()
-        val showCheatHelp by viewModel.showCheatHelp.collectAsState()
-        val needsPlayerSelection by viewModel.needsPlayerSelection.collectAsState()
-        val currentPlayer by viewModel.currentPlayer.collectAsState()
-        val allPlayers by viewModel.allPlayers.collectAsState()
-        val worldMapConflict by viewModel.worldMapConflict.collectAsState()
-        val specialActionsRemaining by viewModel.specialActionsRemaining.collectAsState()
-        val reminderMessage by viewModel.reminderMessage.collectAsState()
-        val newAchievement by viewModel.newAchievement.collectAsState()
-        val showMagicPanel by viewModel.showMagicPanel.collectAsState()
-        val selectedSpell by viewModel.selectedSpell.collectAsState()
-        val pendingSpellCast by viewModel.pendingSpellCast.collectAsState()
-        val showSpellTargetConfirmation by viewModel.showSpellTargetConfirmation.collectAsState()
-        val showFreezeImmuneWarning by viewModel.showFreezeImmuneWarning.collectAsState()
-        val pendingScrollToPosition by viewModel.pendingScrollToPosition.collectAsState()
-        val pendingGameMessage by viewModel.pendingGameMessage.collectAsState()
-        val isDemoMode by viewModel.isDemoMode.collectAsState()
-        val demoSelectedDefenderType by viewModel.demoSelectedDefenderType.collectAsState()
-        val demoHoveredPosition by viewModel.demoHoveredPosition.collectAsState()
-        val demoSelectedDefenderId by viewModel.demoSelectedDefenderId.collectAsState()
-        val demoSelectedTargetPosition by viewModel.demoSelectedTargetPosition.collectAsState()
-        val newVersionAvailable by viewModel.newVersionAvailable.collectAsState()
-        val isDataLoaded by viewModel.isDataLoaded.collectAsState()
-        val loadingProgress by viewModel.loadingProgress.collectAsState()
-        val pendingTutorialDeepLink by viewModel.pendingTutorialDeepLink.collectAsState()
-        val pendingSettingsDeepLink by viewModel.pendingSettingsDeepLink.collectAsState()
-        val pendingDemoDeepLink by viewModel.pendingDemoDeepLink.collectAsState()
-
-        val remoteCommunityLevelsMeta by viewModel.remoteCommunityLevelsMeta.collectAsState()
-        val remoteCommunityMapsMeta by viewModel.remoteCommunityMapsMeta.collectAsState()
-        var downloadingMapId by remember { mutableStateOf<String?>(null) }
-        val checkForUpdates by AppSettings.checkForUpdates
-        LaunchedEffect(Unit) {
-            if (checkForUpdates) {
-                viewModel.checkForUpdates()
-            }
-        }
-
-        // Observe IAM state for login/logout UI updates
-        val iamState by de.egril.defender.iam.IamService.state
-        val iamLoginInProgress by de.egril.defender.iam.IamService.loginInProgress
-        val iamDeviceAuthState by de.egril.defender.iam.IamService.deviceAuthState
-
-        // Refresh saved games whenever authentication state changes (login/logout/session restore).
-        // This ensures remote saves appear immediately after the user logs in or after the
-        // platform IAM SDK restores an existing session on startup.
-        LaunchedEffect(iamState.isAuthenticated) {
-            viewModel.onAuthStateChanged()
-        }
-
-
+        // Initialize settings, sound, and IAM on app start
         LaunchedEffect(Unit) {
             AppSettings.initialize()
-            de.egril.defender.audio.GlobalSoundManager.initialize()
-            de.egril.defender.audio.GlobalBackgroundMusicManager.initialize()
+            de.egril.defender.audio.GlobalSoundManager
+                .initialize()
+            de.egril.defender.audio.GlobalBackgroundMusicManager
+                .initialize()
             initPlatformIam()
-
-            // Handle deep links on app startup (web/WASM only)
-            viewModel.handleDeepLink()
         }
 
-        // "Always log in" is now a per-player preference stored in PlayerProfile.
-        // Auto-login only fires when:
-        //   1. the current player has alwaysLogin = true, AND
-        //   2. the player has a linked remote account (remoteUsername != null), AND
-        //   3. we are not already authenticated or in the middle of a login flow.
-        val alwaysLogin = currentPlayer?.alwaysLogin ?: false
-        val hasRemoteAccount = currentPlayer?.remoteUsername != null
+        // Observe dark mode state
+        val isDarkMode by AppSettings.isDarkMode
+        val highContrastEnabled by AppSettings.highContrastEnabled
+        val colorBlindPalette by AppSettings.colorBlindPalette
 
-        // If "always log in" is enabled, automatically start the login flow when the
-        // authentication state changes (e.g. on startup or after logging out).
-        // We only check alwaysLogin, hasRemoteAccount, and isAuthenticated as keys so that
-        // cancelling a login attempt does not immediately restart the flow.
-        LaunchedEffect(alwaysLogin, hasRemoteAccount, iamState.isAuthenticated) {
-            if (alwaysLogin && hasRemoteAccount && !iamState.isAuthenticated && !iamLoginInProgress) {
-                de.egril.defender.iam.IamService.login()
-            }
-        }
-
-        // Show player selection dialog if needed
-        var showPlayerSelection by remember { mutableStateOf(false) }
-        var showCreatePlayer by remember { mutableStateOf(false) }
-        var showEditPlayer by remember { mutableStateOf(false) }
-        
-        // Show initial language chooser dialog on first start
-        var showInitialLanguageChooser by remember { mutableStateOf(false) }
-        
-        // On first launch, check if we need to show language chooser first
-        LaunchedEffect(needsPlayerSelection) {
-            if (needsPlayerSelection) {
-                // Check if language has been chosen before
-                if (!AppSettings.hasChosenLanguage()) {
-                    // First time - show language chooser first
-                    showInitialLanguageChooser = true
-                } else {
-                    // Language already chosen - auto-create a default player
-                    viewModel.createDefaultPlayer()
-                }
-            }
-        }
-
-        // When arriving via /tutorial deep link, start the tutorial level as soon as
-        // data is loaded and a player profile exists (player created by the flow above).
-        LaunchedEffect(pendingTutorialDeepLink, isDataLoaded, needsPlayerSelection) {
-            if (pendingTutorialDeepLink && isDataLoaded && !needsPlayerSelection) {
-                if (!AppSettings.hasChosenLanguage()) {
-                    // Language not chosen yet – show the chooser; tutorial will start
-                    // after the player is created by the language-chooser callback.
-                    showInitialLanguageChooser = true
-                } else {
-                    viewModel.startTutorialLevel()
-                }
-            }
-        }
-
-        // When arriving via /demo deep link, start demo mode as soon as data is loaded
-        // and a player profile exists (player created by the flow above).
-        LaunchedEffect(pendingDemoDeepLink, isDataLoaded, needsPlayerSelection) {
-            if (pendingDemoDeepLink && isDataLoaded && !needsPlayerSelection) {
-                viewModel.startDemoMode()
-            }
-        }
-        
-        // Register official data change checker for window close handling
-        // This runs once at app start and checks if OfficialEditMode is enabled
-        LaunchedEffect(Unit) {
-            if (de.egril.defender.OfficialEditMode.enabled) {
-                WindowCloseHandler.setOfficialDataChangedChecker { 
-                    de.egril.defender.editor.OfficialDataChangeTracker.hasModifiedOfficialData()
-                }
-            }
-            WindowCloseHandler.setAppCloseCallback { viewModel.reportAppClosed() }
-        }
-        
-        // Register unsaved changes checker for window close handling
-        LaunchedEffect(currentScreen) {
-            setMobileOrientationOverlayMode(mobileOrientationOverlayModeForScreen(currentScreen))
-            when (currentScreen) {
-                is Screen.GamePlay -> {
-                    WindowCloseHandler.setUnsavedChangesChecker { viewModel.hasUnsavedChanges() }
-                    WindowCloseHandler.setSaveGameCallback { viewModel.saveCurrentGame() }
-                    WindowCloseHandler.setBackgroundSaveCallback { viewModel.saveGameOnBackground() }
-                }
-                else -> {
-                    WindowCloseHandler.setUnsavedChangesChecker(null)
-                    WindowCloseHandler.setSaveGameCallback(null)
-                    WindowCloseHandler.setBackgroundSaveCallback(null)
-                }
-            }
-        }
-        
-        // Initial language chooser dialog (first start only)
-        if (showInitialLanguageChooser) {
-            de.egril.defender.ui.settings.InitialLanguageChooserDialog(
-                onLanguageSelected = {
-                    showInitialLanguageChooser = false
-                    viewModel.createDefaultPlayer()
-                }
-            )
-        }
-        
-        // Player selection dialogs
-        if (showCreatePlayer) {
-            CreatePlayerDialog(
-                showCancelButton = currentPlayer != null,
-                onCreatePlayer = { name ->
-                    val success = viewModel.createPlayer(name)
-                    if (success) {
-                        showCreatePlayer = false
-                    }
-                },
-                onDismiss = {
-                    // Only allow dismiss if we already have a player
-                    if (currentPlayer != null) {
-                        showCreatePlayer = false
-                    }
-                }
-            )
-        }
-        
-        if (showPlayerSelection) {
-            SelectPlayerDialog(
-                players = allPlayers,
-                currentPlayerId = currentPlayer?.id,
-                onSelectPlayer = { playerId ->
-                    val newPlayerHasRemoteAccount = allPlayers.find { it.id == playerId }?.remoteUsername != null
-                    if (iamState.isAuthenticated) {
-                        // Any player switch while authenticated: revoke the Keycloak session
-                        // server-side via HTTP POST. This terminates the server-side session
-                        // without occupying the PKCE callback port, so a subsequent login for
-                        // the new player can proceed immediately.
-                        de.egril.defender.iam.IamService.logoutBackchannel()
-                    } else if (!newPlayerHasRemoteAccount) {
-                        // Not authenticated but switching to a player with no remote account:
-                        // clear any stale local state just in case.
-                        de.egril.defender.iam.IamService.logoutLocal()
-                    }
-                    // Note: when not authenticated and switching to a player WITH a remote
-                    // account, we do nothing here. Any stale session that might silently
-                    // re-authenticate is caught by the guard in GameViewModel.onAuthStateChanged.
-                    viewModel.switchPlayer(playerId)
-                    showPlayerSelection = false
-                },
-                onCreateNewPlayer = {
-                    showPlayerSelection = false
-                    showCreatePlayer = true
-                },
-                onDeletePlayer = { playerId ->
-                    viewModel.deletePlayer(playerId)
-                },
-                onDismiss = { showPlayerSelection = false }
-            )
-        }
-        
-        if (showEditPlayer) {
-            PlayerNameDialog(
-                initialName = currentPlayer?.name ?: "",
-                isEdit = true,
-                onSave = { newName ->
-                    val success = viewModel.renameCurrentPlayer(newName)
-                    if (success) {
-                        showEditPlayer = false
-                    }
-                },
-                onDismiss = { showEditPlayer = false }
-            )
-        }
-        
-        // World map conflict dialog
-        worldMapConflict?.let { conflict ->
-            de.egril.defender.ui.loadgame.WorldMapConflictDialog(
-                conflict = conflict,
-                onUseSavedVersion = { viewModel.resolveWorldMapConflict(useSavedVersion = true) },
-                onUseCurrentVersion = { viewModel.resolveWorldMapConflict(useSavedVersion = false) },
-                onCancel = { viewModel.cancelWorldMapConflict() }
-            )
-        }
-
-        // Level handoff dialog (connected levels)
-        val pendingLevelHandoff by viewModel.pendingLevelHandoff.collectAsState()
-        pendingLevelHandoff?.let { handoff ->
-            val handoffWorldLevel = worldLevels.find { it.level.editorLevelId == handoff.toLevelEditorId }
-            if (handoffWorldLevel != null) {
-                de.egril.defender.ui.worldmap.LevelHandoffDialog(
-                    worldLevel = handoffWorldLevel,
-                    handoff = handoff,
-                    onStartFresh = { viewModel.startLevelFresh() },
-                    onStartWithHandoff = { viewModel.startLevelWithHandoff() },
-                    onDismiss = { viewModel.dismissLevelHandoff() }
-                )
+        // Use custom color schemes with softer dark mode colors
+        val baseColorScheme =
+            if (highContrastEnabled) {
+                if (isDarkMode) AppTheme.highContrastDarkColorScheme else AppTheme.highContrastLightColorScheme
             } else {
-                viewModel.dismissLevelHandoff()
+                if (isDarkMode) AppTheme.darkColorScheme else AppTheme.lightColorScheme
             }
-        }
-        
-        // Achievement notification dialog
-        AchievementNotificationDialog(
-            achievement = newAchievement,
-            onDismiss = { viewModel.clearAchievementNotification() }
-        )
+        val colorScheme = AppTheme.applyColorBlindPalette(baseColorScheme, colorBlindPalette)
 
-        // New version available dialog (shown once at start-up)
-        newVersionAvailable?.let { info ->
-            NewVersionDialog(
-                info = info,
-                onDismiss = { viewModel.dismissNewVersionNotification() }
-            )
-        }
-
-        // Device Authorization Grant dialog – shown while the polling loop is active
-        iamDeviceAuthState?.let { deviceAuth ->
-            DeviceAuthLoginDialog(
-                deviceAuthState = deviceAuth,
-                onCancel = { de.egril.defender.iam.IamService.logoutLocal() }
-            )
-        }
-
-        when (val screen = currentScreen) {
-            is Screen.MainMenu -> {
-                MainMenuScreen(
-                    onStartGame = { viewModel.navigateToWorldMap() },
-                    onContinueGame = { viewModel.continueFromAutosave() },
-                    hasAutosave = viewModel.hasAutosave(),
-                    onShowRules = { viewModel.navigateToRules() },
-                    onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
-                    onShowDownloadInfo = { viewModel.navigateToDownloadInfo() },
-                    onShowBackendInfo = { viewModel.navigateToBackendInfo() },
-                    onEditPlayerName = { viewModel.navigateToPlayerProfile() },
-                    currentPlayerName = currentPlayer?.name,
-                    iamState = iamState,
-                    iamLoginInProgress = iamLoginInProgress,
-                    onIamLogin = { de.egril.defender.iam.IamService.login() },
-                    onIamLogout = { de.egril.defender.iam.IamService.logout() },
-                    onIamLoginCancel = { de.egril.defender.iam.IamService.logoutLocal() },
-                    openSettingsInitially = pendingSettingsDeepLink,
-                    settingsInitialTab = SettingsTab.GENERAL,
-                    onSettingsInitialOpenHandled = { viewModel.clearPendingSettingsDeepLink() },
-                    isDataLoaded = isDataLoaded,
-                    loadingProgress = loadingProgress
-                )
-            }
-            
-            is Screen.WorldMap -> {
-                WorldMapScreen(
-                    worldLevels = worldLevels,
-                    onLevelSelected = { levelId -> viewModel.startLevel(levelId) },
-                    onBackToMenu = { viewModel.navigateToMainMenu() },
-                    onShowRules = { viewModel.navigateToRules() },
-                    onOpenEditor = { viewModel.navigateToLevelEditor() },
-                    onLoadGame = { viewModel.navigateToLoadGame() },
-                    onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) },
-                    onReloadWorldMap = { viewModel.reloadWorldMap() },
-                    onDownloadCommunityContent = { viewModel.downloadCommunityContent() },
-                    remoteCommunityLevels = remoteCommunityLevelsMeta,
-                    onDownloadCommunityLevel = { fileInfo, onComplete ->
-                        viewModel.downloadCommunityLevelOnDemand(fileInfo, onComplete)
-                    },
-                    onSwitchPlayer = { showPlayerSelection = true },
-                    onEditPlayerName = { viewModel.navigateToPlayerProfile() },
-                    currentPlayerName = currentPlayer?.name,
-                    iamState = iamState,
-                    showPlatformInfo = showPlatformInfo,
-                    onClearPlatformInfo = { viewModel.clearPlatformInfo() },
-                    showCheatHelp = showCheatHelp,
-                    onClearCheatHelp = { viewModel.clearCheatHelp() }
-                )
-            }
-            
-            is Screen.Rules -> {
-                RulesScreen(
-                    onBack = { viewModel.navigateToMainMenu() }
-                )
-            }
-            
-            is Screen.InstallationInfo -> {
-                InfoPageScreen(
-                    onBack = { viewModel.navigateToMainMenu() }
-                )
-            }
-            
-            is Screen.InstallationInfoAtTab -> {
-                InfoPageScreen(
-                    onBack = { viewModel.navigateToMainMenu() },
-                    initialTab = screen.initialTab
-                )
-            }
-            
-            is Screen.PlayerProfile -> {
-                currentPlayer?.let { profile ->
-                    de.egril.defender.ui.infopage.PlayerProfileScreen(
-                        playerProfile = profile,
-                        onBack = { viewModel.navigateToMainMenu() },
-                        onEditName = { showEditPlayer = true },
-                        onSelectPlayer = { showPlayerSelection = true },
-                        onNavigateToStats = { viewModel.navigateToStatsUpgrade() },
-                        onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
-                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
-                        iamState = iamState,
-                        iamLoginInProgress = iamLoginInProgress,
-                        onIamLogin = { de.egril.defender.iam.IamService.login() },
-                        onIamLogout = { de.egril.defender.iam.IamService.logout() },
-                        onManageAccount = { de.egril.defender.iam.IamService.openAccountConsole() },
-                        onAlwaysLoginChanged = { value -> viewModel.setAlwaysLogin(value) },
-                        onUseRemoteSettingsChanged = { value -> viewModel.setUseRemoteSettings(value) }
+        MaterialTheme(colorScheme = colorScheme) {
+            // Apply accessibility font size scaling via LocalDensity
+            val fontSizeScale by AppSettings.fontSize
+            val currentDensity = LocalDensity.current
+            val scaledDensity =
+                remember(currentDensity, fontSizeScale) {
+                    Density(
+                        density = currentDensity.density,
+                        fontScale = currentDensity.fontScale * fontSizeScale.scale,
                     )
                 }
-            }
+            CompositionLocalProvider(LocalDensity provides scaledDensity) {
+                // Track repository data error
+                var repositoryDataError by remember { mutableStateOf<de.egril.defender.editor.MissingRepositoryDataException?>(null) }
 
-            is Screen.StatsUpgrade -> {
-                currentPlayer?.let { profile ->
-                    AbilitiesUpgradeScreen(
-                        playerProfile = profile,
-                        onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
-                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
-                        onBack = { viewModel.navigateToPlayerProfile() },
-                        onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) }
-                    )
-                }
-            }
-
-            is Screen.StatsUpgradeWithNextLevel -> {
-                currentPlayer?.let { profile ->
-                    AbilitiesUpgradeScreen(
-                        playerProfile = profile,
-                        onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
-                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
-                        onBack = { viewModel.navigateToWorldMap() },
-                        onContinueToNextLevel = { viewModel.startLevel(screen.nextLevelId) },
-                        nextLevelName = screen.nextLevelName,
-                        onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) }
-                    )
-                }
-            }
-            
-            is Screen.LevelEditor -> {
-                LevelEditorScreen(
-                    onBack = { viewModel.navigateToWorldMap() },
-                    remoteCommunityMaps = remoteCommunityMapsMeta,
-                    downloadingMapId = downloadingMapId,
-                    onDownloadRemoteMap = { fileInfo ->
-                        downloadingMapId = fileInfo.fileId
-                        viewModel.downloadCommunityMapOnDemand(fileInfo) { _ ->
-                            downloadingMapId = null
+                // Try to create ViewModel, catch repository data errors
+                val viewModel =
+                    remember {
+                        try {
+                            GameViewModel()
+                        } catch (e: de.egril.defender.editor.MissingRepositoryDataException) {
+                            repositoryDataError = e
+                            null
                         }
                     }
-                )
-            }
-            
-            is Screen.LoadGame -> {
-                LoadGameScreen(
-                    savedGames = savedGames,
-                    isLoadingRemoteSaves = isLoadingRemoteSaves,
-                    onLoadGame = { saveId -> viewModel.loadGame(saveId) },
-                    onDeleteGame = { saveId -> viewModel.deleteSavedGame(saveId) },
-                    onDownloadGame = { saveId, includeGameState -> viewModel.downloadSaveGame(saveId, includeGameState) },
-                    onDownloadAll = { includeGameState -> viewModel.downloadAllSaveGames(includeGameState) },
-                    onExportGameProgress = { viewModel.downloadGameState() },
-                    onImportGameProgress = { json -> viewModel.importWorldMapProgress(json) },
-                    onUpload = {
-                        // Trigger refresh of saved games list after upload
-                        viewModel.navigateToLoadGame()
-                    },
-                    onBack = { viewModel.navigateToWorldMap() }
-                )
-            }
-            
-            is Screen.GamePlay -> {
-                gameState?.let { state ->
-                    GamePlayScreen(
-                        gameState = state,
-                        onPlaceDefender = { type, pos -> viewModel.placeDefender(type, pos) },
-                        onUpgradeDefender = { id -> viewModel.upgradeDefender(id) },
-                        onUndoTower = { id -> viewModel.undoTower(id) },
-                        onSellTower = { id -> viewModel.sellTower(id) },
-                        onStartFirstPlayerTurn = { viewModel.startFirstPlayerTurn() },
-                        onDefenderAttack = { defenderId, targetId -> viewModel.defenderAttack(defenderId, targetId) },
-                        onDefenderAttackPosition = { defenderId, targetPos -> viewModel.defenderAttackPosition(defenderId, targetPos) },
-                        onEndPlayerTurn = { viewModel.endPlayerTurn() },
-                        onAutoAttackAndEndTurn = { viewModel.autoAttackAndEndTurn() },
-                        onGetAutoAttackTarget = { id -> viewModel.getAutoAttackTargetPosition(id) },
-                        onBackToMap = { viewModel.navigateToWorldMap() },
-                        onSaveGame = { comment -> viewModel.saveCurrentGame(comment) },
-                        onCheatCode = { code -> viewModel.applyCheatCode(code) },
-                        onMineDig = { mineId -> viewModel.performMineDig(mineId) },
-                        onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) },
-                        onWizardPlaceMagicalTrap = { wizardId, trapPos -> viewModel.performWizardPlaceMagicalTrap(wizardId, trapPos) },
-                        onWizardGenerateMana = { wizardId -> viewModel.performWizardGenerateMana(wizardId) },
-                        onBuildBarricade = { towerId, barricadePos -> viewModel.performBuildBarricade(towerId, barricadePos) },
-                        onRemoveBarricade = { barricadePos -> viewModel.performRemoveBarricade(barricadePos) },
-                        cheatDigOutcome = cheatDigOutcome,
-                        onClearCheatDigOutcome = { viewModel.clearCheatDigOutcome() },
-                        showPlatformInfo = showPlatformInfo,
-                        onClearPlatformInfo = { viewModel.clearPlatformInfo() },
-                        showCheatHelp = showCheatHelp,
-                        onClearCheatHelp = { viewModel.clearCheatHelp() },
-                        hasUnsavedChanges = { viewModel.hasUnsavedChanges() },
-                        specialActionsRemaining = specialActionsRemaining,
-                        onClearSpecialActionsWarning = { viewModel.clearSpecialActionsWarning() },
-                        reminderMessage = reminderMessage,
-                        onClearReminderMessage = { viewModel.clearReminderMessage() },
-                        // Magic panel callbacks
-                        showMagicPanel = showMagicPanel,
-                        playerStats = currentPlayer?.abilities ?: de.egril.defender.model.PlayerAbilities(),
-                        selectedSpell = selectedSpell,
-                        onOpenMagicPanel = { viewModel.openMagicPanel() },
-                        onCloseMagicPanel = { viewModel.closeMagicPanel() },
-                        onCastSpell = { spell -> viewModel.setPendingSpell(spell) },
-                        onCancelInstantTowerSpell = { viewModel.cancelInstantTowerSpell() },
-                        pendingSpellCast = pendingSpellCast,
-                        onConfirmSpellCast = {
-                            viewModel.pendingSpellCast.value?.let { spell ->
-                                viewModel.castSpell(spell)
-                            }
+
+                // Show error dialog if repository data is missing
+                if (repositoryDataError != null) {
+                    MissingRepositoryDataDialog(
+                        missingCategories = repositoryDataError!!.missingCategories,
+                        onDismiss = {
+                            // Cannot dismiss - this is a fatal error
+                            // User needs to reinstall or restore data
                         },
-                        onCancelSpellCast = { viewModel.cancelPendingSpell() },
-                        onSelectSpellTarget = { target -> viewModel.selectSpellTarget(target) },
-                        onExitSpellTargeting = { viewModel.exitSpellTargetingMode() },
-                        // Post-target confirmation callbacks
-                        showSpellTargetConfirmation = showSpellTargetConfirmation,
-                        onConfirmTargetSpell = { viewModel.confirmSpellCast() },
-                        onDismissTargetConfirmation = { viewModel.dismissSpellConfirmation() },
-                        showFreezeImmuneWarning = showFreezeImmuneWarning,
-                        onDismissFreezeWarning = { viewModel.dismissFreezeImmuneWarning() },
-                        scrollToPosition = pendingScrollToPosition,
-                        onScrollToPositionConsumed = { viewModel.clearPendingScrollPosition() },
-                        pendingGameMessage = pendingGameMessage,
-                        onDismissGameMessage = { viewModel.dismissGameMessage() },
-                        isDemoMode = isDemoMode,
-                        onStopDemoMode = { viewModel.stopDemoMode() },
-                        demoSelectedDefenderType = demoSelectedDefenderType,
-                        demoHoveredPosition = demoHoveredPosition,
-                        demoSelectedDefenderId = demoSelectedDefenderId,
-                        demoSelectedTargetPosition = demoSelectedTargetPosition
+                    )
+                    return@CompositionLocalProvider
+                }
+
+                // Null check for viewModel (should not happen if no exception was thrown)
+                if (viewModel == null) {
+                    return@CompositionLocalProvider
+                }
+
+                val currentScreen by viewModel.currentScreen.collectAsState()
+                val worldLevels by viewModel.worldLevels.collectAsState()
+                val gameState by viewModel.gameState.collectAsState()
+                val savedGames by viewModel.savedGames.collectAsState()
+                val isLoadingRemoteSaves by viewModel.isLoadingRemoteSaves.collectAsState()
+                val cheatDigOutcome by viewModel.cheatDigOutcome.collectAsState()
+                val showPlatformInfo by viewModel.showPlatformInfo.collectAsState()
+                val showCheatHelp by viewModel.showCheatHelp.collectAsState()
+                val needsPlayerSelection by viewModel.needsPlayerSelection.collectAsState()
+                val currentPlayer by viewModel.currentPlayer.collectAsState()
+                val allPlayers by viewModel.allPlayers.collectAsState()
+                val worldMapConflict by viewModel.worldMapConflict.collectAsState()
+                val specialActionsRemaining by viewModel.specialActionsRemaining.collectAsState()
+                val reminderMessage by viewModel.reminderMessage.collectAsState()
+                val newAchievement by viewModel.newAchievement.collectAsState()
+                val showMagicPanel by viewModel.showMagicPanel.collectAsState()
+                val selectedSpell by viewModel.selectedSpell.collectAsState()
+                val pendingSpellCast by viewModel.pendingSpellCast.collectAsState()
+                val showSpellTargetConfirmation by viewModel.showSpellTargetConfirmation.collectAsState()
+                val showFreezeImmuneWarning by viewModel.showFreezeImmuneWarning.collectAsState()
+                val pendingScrollToPosition by viewModel.pendingScrollToPosition.collectAsState()
+                val pendingGameMessage by viewModel.pendingGameMessage.collectAsState()
+                val isDemoMode by viewModel.isDemoMode.collectAsState()
+                val demoSelectedDefenderType by viewModel.demoSelectedDefenderType.collectAsState()
+                val demoHoveredPosition by viewModel.demoHoveredPosition.collectAsState()
+                val demoSelectedDefenderId by viewModel.demoSelectedDefenderId.collectAsState()
+                val demoSelectedTargetPosition by viewModel.demoSelectedTargetPosition.collectAsState()
+                val newVersionAvailable by viewModel.newVersionAvailable.collectAsState()
+                val isDataLoaded by viewModel.isDataLoaded.collectAsState()
+                val loadingProgress by viewModel.loadingProgress.collectAsState()
+                val pendingTutorialDeepLink by viewModel.pendingTutorialDeepLink.collectAsState()
+                val pendingSettingsDeepLink by viewModel.pendingSettingsDeepLink.collectAsState()
+                val pendingDemoDeepLink by viewModel.pendingDemoDeepLink.collectAsState()
+
+                val remoteCommunityLevelsMeta by viewModel.remoteCommunityLevelsMeta.collectAsState()
+                val remoteCommunityMapsMeta by viewModel.remoteCommunityMapsMeta.collectAsState()
+                var downloadingMapId by remember { mutableStateOf<String?>(null) }
+                val checkForUpdates by AppSettings.checkForUpdates
+                LaunchedEffect(Unit) {
+                    if (checkForUpdates) {
+                        viewModel.checkForUpdates()
+                    }
+                }
+
+                // Observe IAM state for login/logout UI updates
+                val iamState by de.egril.defender.iam.IamService.state
+                val iamLoginInProgress by de.egril.defender.iam.IamService.loginInProgress
+                val iamDeviceAuthState by de.egril.defender.iam.IamService.deviceAuthState
+
+                // Refresh saved games whenever authentication state changes (login/logout/session restore).
+                // This ensures remote saves appear immediately after the user logs in or after the
+                // platform IAM SDK restores an existing session on startup.
+                LaunchedEffect(iamState.isAuthenticated) {
+                    viewModel.onAuthStateChanged()
+                }
+
+                LaunchedEffect(Unit) {
+                    AppSettings.initialize()
+                    de.egril.defender.audio.GlobalSoundManager
+                        .initialize()
+                    de.egril.defender.audio.GlobalBackgroundMusicManager
+                        .initialize()
+                    initPlatformIam()
+
+                    // Handle deep links on app startup (web/WASM only)
+                    viewModel.handleDeepLink()
+                }
+
+                // "Always log in" is now a per-player preference stored in PlayerProfile.
+                // Auto-login only fires when:
+                //   1. the current player has alwaysLogin = true, AND
+                //   2. the player has a linked remote account (remoteUsername != null), AND
+                //   3. we are not already authenticated or in the middle of a login flow.
+                val alwaysLogin = currentPlayer?.alwaysLogin ?: false
+                val hasRemoteAccount = currentPlayer?.remoteUsername != null
+
+                // If "always log in" is enabled, automatically start the login flow when the
+                // authentication state changes (e.g. on startup or after logging out).
+                // We only check alwaysLogin, hasRemoteAccount, and isAuthenticated as keys so that
+                // cancelling a login attempt does not immediately restart the flow.
+                LaunchedEffect(alwaysLogin, hasRemoteAccount, iamState.isAuthenticated) {
+                    if (alwaysLogin && hasRemoteAccount && !iamState.isAuthenticated && !iamLoginInProgress) {
+                        de.egril.defender.iam.IamService
+                            .login()
+                    }
+                }
+
+                // Show player selection dialog if needed
+                var showPlayerSelection by remember { mutableStateOf(false) }
+                var showCreatePlayer by remember { mutableStateOf(false) }
+                var showEditPlayer by remember { mutableStateOf(false) }
+
+                // Show initial language chooser dialog on first start
+                var showInitialLanguageChooser by remember { mutableStateOf(false) }
+
+                // On first launch, check if we need to show language chooser first
+                LaunchedEffect(needsPlayerSelection) {
+                    if (needsPlayerSelection) {
+                        // Check if language has been chosen before
+                        if (!AppSettings.hasChosenLanguage()) {
+                            // First time - show language chooser first
+                            showInitialLanguageChooser = true
+                        } else {
+                            // Language already chosen - auto-create a default player
+                            viewModel.createDefaultPlayer()
+                        }
+                    }
+                }
+
+                // When arriving via /tutorial deep link, start the tutorial level as soon as
+                // data is loaded and a player profile exists (player created by the flow above).
+                LaunchedEffect(pendingTutorialDeepLink, isDataLoaded, needsPlayerSelection) {
+                    if (pendingTutorialDeepLink && isDataLoaded && !needsPlayerSelection) {
+                        if (!AppSettings.hasChosenLanguage()) {
+                            // Language not chosen yet – show the chooser; tutorial will start
+                            // after the player is created by the language-chooser callback.
+                            showInitialLanguageChooser = true
+                        } else {
+                            viewModel.startTutorialLevel()
+                        }
+                    }
+                }
+
+                // When arriving via /demo deep link, start demo mode as soon as data is loaded
+                // and a player profile exists (player created by the flow above).
+                LaunchedEffect(pendingDemoDeepLink, isDataLoaded, needsPlayerSelection) {
+                    if (pendingDemoDeepLink && isDataLoaded && !needsPlayerSelection) {
+                        viewModel.startDemoMode()
+                    }
+                }
+
+                // Register official data change checker for window close handling
+                // This runs once at app start and checks if OfficialEditMode is enabled
+                LaunchedEffect(Unit) {
+                    if (de.egril.defender.OfficialEditMode.enabled) {
+                        WindowCloseHandler.setOfficialDataChangedChecker {
+                            de.egril.defender.editor.OfficialDataChangeTracker
+                                .hasModifiedOfficialData()
+                        }
+                    }
+                    WindowCloseHandler.setAppCloseCallback { viewModel.reportAppClosed() }
+                }
+
+                // Register unsaved changes checker for window close handling
+                LaunchedEffect(currentScreen) {
+                    setMobileOrientationOverlayMode(mobileOrientationOverlayModeForScreen(currentScreen))
+                    when (currentScreen) {
+                        is Screen.GamePlay -> {
+                            WindowCloseHandler.setUnsavedChangesChecker { viewModel.hasUnsavedChanges() }
+                            WindowCloseHandler.setSaveGameCallback { viewModel.saveCurrentGame() }
+                            WindowCloseHandler.setBackgroundSaveCallback { viewModel.saveGameOnBackground() }
+                        }
+                        else -> {
+                            WindowCloseHandler.setUnsavedChangesChecker(null)
+                            WindowCloseHandler.setSaveGameCallback(null)
+                            WindowCloseHandler.setBackgroundSaveCallback(null)
+                        }
+                    }
+                }
+
+                // Initial language chooser dialog (first start only)
+                if (showInitialLanguageChooser) {
+                    de.egril.defender.ui.settings.InitialLanguageChooserDialog(
+                        onLanguageSelected = {
+                            showInitialLanguageChooser = false
+                            viewModel.createDefaultPlayer()
+                        },
                     )
                 }
-            }
-            
-            is Screen.LevelComplete -> {
-                LevelCompleteScreen(
-                    levelId = screen.levelId,
-                    won = screen.won,
-                    isLastLevel = screen.isLastLevel,
-                    xpEarned = screen.xpEarned,
-                    newPlayerLevel = screen.newPlayerLevel,
-                    playerLevelGained = screen.playerLevelGained,
-                    abilityPointsGained = screen.abilityPointsGained,
-                    onRestart = { viewModel.restartLevel() },
-                    onBackToMap = { viewModel.navigateToWorldMap() },
-                    onNextLevel = if (screen.nextLevelId != null && screen.nextLevelName != null) {
-                        { viewModel.navigateToNextLevel(screen.nextLevelId, screen.nextLevelName) }
-                    } else {
-                        null
-                    },
-                    onShowFinalCredits = if (screen.isLastLevel && screen.won) {
-                        { viewModel.navigateToFinalCredits() }
-                    } else {
-                        null
-                    },
-                    isDemoMode = isDemoMode,
-                    onStopDemoMode = if (isDemoMode) {{ viewModel.stopDemoMode() }} else null
-                )
-            }
-            
-            is Screen.FinalCredits -> {
-                FinalCreditsScreen(
-                    onDismiss = { viewModel.navigateToWorldMap() }
-                )
-            }
-            
-            is Screen.Sticker -> {
-                StickerScreen(
-                    onBack = { viewModel.navigateToWorldMap() }
-                )
-            }
-            
-            is Screen.LoadingSpinnerDemo -> {
-                LaunchedEffect(Unit) {
-                    delay(30_000L)
-                    viewModel.navigateToWorldMap()
+
+                // Player selection dialogs
+                if (showCreatePlayer) {
+                    CreatePlayerDialog(
+                        showCancelButton = currentPlayer != null,
+                        onCreatePlayer = { name ->
+                            val success = viewModel.createPlayer(name)
+                            if (success) {
+                                showCreatePlayer = false
+                            }
+                        },
+                        onDismiss = {
+                            // Only allow dismiss if we already have a player
+                            if (currentPlayer != null) {
+                                showCreatePlayer = false
+                            }
+                        },
+                    )
                 }
-                LevelLoadingScreen(modifier = Modifier.fillMaxSize())
-            }
 
-            is Screen.TutorialDeepLink -> {
-                // Show the loading screen while data is loading / player is being set up.
-                // The LaunchedEffect above will call startTutorialLevel() once everything is ready.
-                LevelLoadingScreen(modifier = Modifier.fillMaxSize())
-            }
+                if (showPlayerSelection) {
+                    SelectPlayerDialog(
+                        players = allPlayers,
+                        currentPlayerId = currentPlayer?.id,
+                        onSelectPlayer = { playerId ->
+                            val newPlayerHasRemoteAccount = allPlayers.find { it.id == playerId }?.remoteUsername != null
+                            if (iamState.isAuthenticated) {
+                                // Any player switch while authenticated: revoke the Keycloak session
+                                // server-side via HTTP POST. This terminates the server-side session
+                                // without occupying the PKCE callback port, so a subsequent login for
+                                // the new player can proceed immediately.
+                                de.egril.defender.iam.IamService
+                                    .logoutBackchannel()
+                            } else if (!newPlayerHasRemoteAccount) {
+                                // Not authenticated but switching to a player with no remote account:
+                                // clear any stale local state just in case.
+                                de.egril.defender.iam.IamService
+                                    .logoutLocal()
+                            }
+                            // Note: when not authenticated and switching to a player WITH a remote
+                            // account, we do nothing here. Any stale session that might silently
+                            // re-authenticate is caught by the guard in GameViewModel.onAuthStateChanged.
+                            viewModel.switchPlayer(playerId)
+                            showPlayerSelection = false
+                        },
+                        onCreateNewPlayer = {
+                            showPlayerSelection = false
+                            showCreatePlayer = true
+                        },
+                        onDeletePlayer = { playerId ->
+                            viewModel.deletePlayer(playerId)
+                        },
+                        onDismiss = { showPlayerSelection = false },
+                    )
+                }
 
-            is Screen.DemoDeepLink -> {
-                // Show the loading screen while data is loading / player is being set up.
-                // The LaunchedEffect above will call startDemoMode() once everything is ready.
-                LevelLoadingScreen(modifier = Modifier.fillMaxSize())
-            }
+                if (showEditPlayer) {
+                    PlayerNameDialog(
+                        initialName = currentPlayer?.name ?: "",
+                        isEdit = true,
+                        onSave = { newName ->
+                            val success = viewModel.renameCurrentPlayer(newName)
+                            if (success) {
+                                showEditPlayer = false
+                            }
+                        },
+                        onDismiss = { showEditPlayer = false },
+                    )
+                }
 
-            is Screen.AnimationTest -> {
-                AnimationTestScreen(
-                    onBack = { viewModel.navigateToWorldMap() }
+                // World map conflict dialog
+                worldMapConflict?.let { conflict ->
+                    de.egril.defender.ui.loadgame.WorldMapConflictDialog(
+                        conflict = conflict,
+                        onUseSavedVersion = { viewModel.resolveWorldMapConflict(useSavedVersion = true) },
+                        onUseCurrentVersion = { viewModel.resolveWorldMapConflict(useSavedVersion = false) },
+                        onCancel = { viewModel.cancelWorldMapConflict() },
+                    )
+                }
+
+                // Level handoff dialog (connected levels)
+                val pendingLevelHandoff by viewModel.pendingLevelHandoff.collectAsState()
+                pendingLevelHandoff?.let { handoff ->
+                    val handoffWorldLevel = worldLevels.find { it.level.editorLevelId == handoff.toLevelEditorId }
+                    if (handoffWorldLevel != null) {
+                        de.egril.defender.ui.worldmap.LevelHandoffDialog(
+                            worldLevel = handoffWorldLevel,
+                            handoff = handoff,
+                            onStartFresh = { viewModel.startLevelFresh() },
+                            onStartWithHandoff = { viewModel.startLevelWithHandoff() },
+                            onDismiss = { viewModel.dismissLevelHandoff() },
+                        )
+                    } else {
+                        viewModel.dismissLevelHandoff()
+                    }
+                }
+
+                // Achievement notification dialog
+                AchievementNotificationDialog(
+                    achievement = newAchievement,
+                    onDismiss = { viewModel.clearAchievementNotification() },
                 )
-            }
+
+                // New version available dialog (shown once at start-up)
+                newVersionAvailable?.let { info ->
+                    NewVersionDialog(
+                        info = info,
+                        onDismiss = { viewModel.dismissNewVersionNotification() },
+                    )
+                }
+
+                // Device Authorization Grant dialog – shown while the polling loop is active
+                iamDeviceAuthState?.let { deviceAuth ->
+                    DeviceAuthLoginDialog(
+                        deviceAuthState = deviceAuth,
+                        onCancel = {
+                            de.egril.defender.iam.IamService
+                                .logoutLocal()
+                        },
+                    )
+                }
+
+                when (val screen = currentScreen) {
+                    is Screen.MainMenu -> {
+                        MainMenuScreen(
+                            onStartGame = { viewModel.navigateToWorldMap() },
+                            onContinueGame = { viewModel.continueFromAutosave() },
+                            hasAutosave = viewModel.hasAutosave(),
+                            onShowRules = { viewModel.navigateToRules() },
+                            onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
+                            onShowDownloadInfo = { viewModel.navigateToDownloadInfo() },
+                            onShowBackendInfo = { viewModel.navigateToBackendInfo() },
+                            onEditPlayerName = { viewModel.navigateToPlayerProfile() },
+                            currentPlayerName = currentPlayer?.name,
+                            iamState = iamState,
+                            iamLoginInProgress = iamLoginInProgress,
+                            onIamLogin = {
+                                de.egril.defender.iam.IamService
+                                    .login()
+                            },
+                            onIamLogout = {
+                                de.egril.defender.iam.IamService
+                                    .logout()
+                            },
+                            onIamLoginCancel = {
+                                de.egril.defender.iam.IamService
+                                    .logoutLocal()
+                            },
+                            openSettingsInitially = pendingSettingsDeepLink,
+                            settingsInitialTab = SettingsTab.GENERAL,
+                            onSettingsInitialOpenHandled = { viewModel.clearPendingSettingsDeepLink() },
+                            isDataLoaded = isDataLoaded,
+                            loadingProgress = loadingProgress,
+                        )
+                    }
+
+                    is Screen.WorldMap -> {
+                        WorldMapScreen(
+                            worldLevels = worldLevels,
+                            onLevelSelected = { levelId -> viewModel.startLevel(levelId) },
+                            onBackToMenu = { viewModel.navigateToMainMenu() },
+                            onShowRules = { viewModel.navigateToRules() },
+                            onOpenEditor = { viewModel.navigateToLevelEditor() },
+                            onLoadGame = { viewModel.navigateToLoadGame() },
+                            onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) },
+                            onReloadWorldMap = { viewModel.reloadWorldMap() },
+                            onDownloadCommunityContent = { viewModel.downloadCommunityContent() },
+                            remoteCommunityLevels = remoteCommunityLevelsMeta,
+                            onDownloadCommunityLevel = { fileInfo, onComplete ->
+                                viewModel.downloadCommunityLevelOnDemand(fileInfo, onComplete)
+                            },
+                            onSwitchPlayer = { showPlayerSelection = true },
+                            onEditPlayerName = { viewModel.navigateToPlayerProfile() },
+                            currentPlayerName = currentPlayer?.name,
+                            iamState = iamState,
+                            showPlatformInfo = showPlatformInfo,
+                            onClearPlatformInfo = { viewModel.clearPlatformInfo() },
+                            showCheatHelp = showCheatHelp,
+                            onClearCheatHelp = { viewModel.clearCheatHelp() },
+                        )
+                    }
+
+                    is Screen.Rules -> {
+                        RulesScreen(
+                            onBack = { viewModel.navigateToMainMenu() },
+                        )
+                    }
+
+                    is Screen.InstallationInfo -> {
+                        InfoPageScreen(
+                            onBack = { viewModel.navigateToMainMenu() },
+                        )
+                    }
+
+                    is Screen.InstallationInfoAtTab -> {
+                        InfoPageScreen(
+                            onBack = { viewModel.navigateToMainMenu() },
+                            initialTab = screen.initialTab,
+                        )
+                    }
+
+                    is Screen.PlayerProfile -> {
+                        currentPlayer?.let { profile ->
+                            de.egril.defender.ui.infopage.PlayerProfileScreen(
+                                playerProfile = profile,
+                                onBack = { viewModel.navigateToMainMenu() },
+                                onEditName = { showEditPlayer = true },
+                                onSelectPlayer = { showPlayerSelection = true },
+                                onNavigateToStats = { viewModel.navigateToStatsUpgrade() },
+                                onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
+                                onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
+                                iamState = iamState,
+                                iamLoginInProgress = iamLoginInProgress,
+                                onIamLogin = {
+                                    de.egril.defender.iam.IamService
+                                        .login()
+                                },
+                                onIamLogout = {
+                                    de.egril.defender.iam.IamService
+                                        .logout()
+                                },
+                                onManageAccount = {
+                                    de.egril.defender.iam.IamService
+                                        .openAccountConsole()
+                                },
+                                onAlwaysLoginChanged = { value -> viewModel.setAlwaysLogin(value) },
+                                onUseRemoteSettingsChanged = { value -> viewModel.setUseRemoteSettings(value) },
+                            )
+                        }
+                    }
+
+                    is Screen.StatsUpgrade -> {
+                        currentPlayer?.let { profile ->
+                            AbilitiesUpgradeScreen(
+                                playerProfile = profile,
+                                onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
+                                onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
+                                onBack = { viewModel.navigateToPlayerProfile() },
+                                onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) },
+                            )
+                        }
+                    }
+
+                    is Screen.StatsUpgradeWithNextLevel -> {
+                        currentPlayer?.let { profile ->
+                            AbilitiesUpgradeScreen(
+                                playerProfile = profile,
+                                onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
+                                onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
+                                onBack = { viewModel.navigateToWorldMap() },
+                                onContinueToNextLevel = { viewModel.startLevel(screen.nextLevelId) },
+                                nextLevelName = screen.nextLevelName,
+                                onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) },
+                            )
+                        }
+                    }
+
+                    is Screen.LevelEditor -> {
+                        LevelEditorScreen(
+                            onBack = { viewModel.navigateToWorldMap() },
+                            remoteCommunityMaps = remoteCommunityMapsMeta,
+                            downloadingMapId = downloadingMapId,
+                            onDownloadRemoteMap = { fileInfo ->
+                                downloadingMapId = fileInfo.fileId
+                                viewModel.downloadCommunityMapOnDemand(fileInfo) { _ ->
+                                    downloadingMapId = null
+                                }
+                            },
+                        )
+                    }
+
+                    is Screen.LoadGame -> {
+                        LoadGameScreen(
+                            savedGames = savedGames,
+                            isLoadingRemoteSaves = isLoadingRemoteSaves,
+                            onLoadGame = { saveId -> viewModel.loadGame(saveId) },
+                            onDeleteGame = { saveId -> viewModel.deleteSavedGame(saveId) },
+                            onDownloadGame = { saveId, includeGameState -> viewModel.downloadSaveGame(saveId, includeGameState) },
+                            onDownloadAll = { includeGameState -> viewModel.downloadAllSaveGames(includeGameState) },
+                            onExportGameProgress = { viewModel.downloadGameState() },
+                            onImportGameProgress = { json -> viewModel.importWorldMapProgress(json) },
+                            onUpload = {
+                                // Trigger refresh of saved games list after upload
+                                viewModel.navigateToLoadGame()
+                            },
+                            onBack = { viewModel.navigateToWorldMap() },
+                        )
+                    }
+
+                    is Screen.GamePlay -> {
+                        gameState?.let { state ->
+                            GamePlayScreen(
+                                gameState = state,
+                                onPlaceDefender = { type, pos -> viewModel.placeDefender(type, pos) },
+                                onUpgradeDefender = { id -> viewModel.upgradeDefender(id) },
+                                onUndoTower = { id -> viewModel.undoTower(id) },
+                                onSellTower = { id -> viewModel.sellTower(id) },
+                                onStartFirstPlayerTurn = { viewModel.startFirstPlayerTurn() },
+                                onDefenderAttack = { defenderId, targetId -> viewModel.defenderAttack(defenderId, targetId) },
+                                onDefenderAttackPosition = {
+                                    defenderId,
+                                    targetPos,
+                                    ->
+                                    viewModel.defenderAttackPosition(defenderId, targetPos)
+                                },
+                                onEndPlayerTurn = { viewModel.endPlayerTurn() },
+                                onAutoAttackAndEndTurn = { viewModel.autoAttackAndEndTurn() },
+                                onGetAutoAttackTarget = { id -> viewModel.getAutoAttackTargetPosition(id) },
+                                onBackToMap = { viewModel.navigateToWorldMap() },
+                                onSaveGame = { comment -> viewModel.saveCurrentGame(comment) },
+                                onCheatCode = { code -> viewModel.applyCheatCode(code) },
+                                onMineDig = { mineId -> viewModel.performMineDig(mineId) },
+                                onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) },
+                                onWizardPlaceMagicalTrap = {
+                                    wizardId,
+                                    trapPos,
+                                    ->
+                                    viewModel.performWizardPlaceMagicalTrap(wizardId, trapPos)
+                                },
+                                onWizardGenerateMana = { wizardId -> viewModel.performWizardGenerateMana(wizardId) },
+                                onBuildBarricade = { towerId, barricadePos -> viewModel.performBuildBarricade(towerId, barricadePos) },
+                                onRemoveBarricade = { barricadePos -> viewModel.performRemoveBarricade(barricadePos) },
+                                cheatDigOutcome = cheatDigOutcome,
+                                onClearCheatDigOutcome = { viewModel.clearCheatDigOutcome() },
+                                showPlatformInfo = showPlatformInfo,
+                                onClearPlatformInfo = { viewModel.clearPlatformInfo() },
+                                showCheatHelp = showCheatHelp,
+                                onClearCheatHelp = { viewModel.clearCheatHelp() },
+                                hasUnsavedChanges = { viewModel.hasUnsavedChanges() },
+                                specialActionsRemaining = specialActionsRemaining,
+                                onClearSpecialActionsWarning = { viewModel.clearSpecialActionsWarning() },
+                                reminderMessage = reminderMessage,
+                                onClearReminderMessage = { viewModel.clearReminderMessage() },
+                                // Magic panel callbacks
+                                showMagicPanel = showMagicPanel,
+                                playerStats =
+                                    currentPlayer?.abilities ?: de.egril.defender.model
+                                        .PlayerAbilities(),
+                                selectedSpell = selectedSpell,
+                                onOpenMagicPanel = { viewModel.openMagicPanel() },
+                                onCloseMagicPanel = { viewModel.closeMagicPanel() },
+                                onCastSpell = { spell -> viewModel.setPendingSpell(spell) },
+                                onCancelInstantTowerSpell = { viewModel.cancelInstantTowerSpell() },
+                                pendingSpellCast = pendingSpellCast,
+                                onConfirmSpellCast = {
+                                    viewModel.pendingSpellCast.value?.let { spell ->
+                                        viewModel.castSpell(spell)
+                                    }
+                                },
+                                onCancelSpellCast = { viewModel.cancelPendingSpell() },
+                                onSelectSpellTarget = { target -> viewModel.selectSpellTarget(target) },
+                                onExitSpellTargeting = { viewModel.exitSpellTargetingMode() },
+                                // Post-target confirmation callbacks
+                                showSpellTargetConfirmation = showSpellTargetConfirmation,
+                                onConfirmTargetSpell = { viewModel.confirmSpellCast() },
+                                onDismissTargetConfirmation = { viewModel.dismissSpellConfirmation() },
+                                showFreezeImmuneWarning = showFreezeImmuneWarning,
+                                onDismissFreezeWarning = { viewModel.dismissFreezeImmuneWarning() },
+                                scrollToPosition = pendingScrollToPosition,
+                                onScrollToPositionConsumed = { viewModel.clearPendingScrollPosition() },
+                                pendingGameMessage = pendingGameMessage,
+                                onDismissGameMessage = { viewModel.dismissGameMessage() },
+                                isDemoMode = isDemoMode,
+                                onStopDemoMode = { viewModel.stopDemoMode() },
+                                demoSelectedDefenderType = demoSelectedDefenderType,
+                                demoHoveredPosition = demoHoveredPosition,
+                                demoSelectedDefenderId = demoSelectedDefenderId,
+                                demoSelectedTargetPosition = demoSelectedTargetPosition,
+                            )
+                        }
+                    }
+
+                    is Screen.LevelComplete -> {
+                        LevelCompleteScreen(
+                            levelId = screen.levelId,
+                            won = screen.won,
+                            isLastLevel = screen.isLastLevel,
+                            xpEarned = screen.xpEarned,
+                            newPlayerLevel = screen.newPlayerLevel,
+                            playerLevelGained = screen.playerLevelGained,
+                            abilityPointsGained = screen.abilityPointsGained,
+                            onRestart = { viewModel.restartLevel() },
+                            onBackToMap = { viewModel.navigateToWorldMap() },
+                            onNextLevel =
+                                if (screen.nextLevelId != null && screen.nextLevelName != null) {
+                                    { viewModel.navigateToNextLevel(screen.nextLevelId, screen.nextLevelName) }
+                                } else {
+                                    null
+                                },
+                            onShowFinalCredits =
+                                if (screen.isLastLevel && screen.won) {
+                                    { viewModel.navigateToFinalCredits() }
+                                } else {
+                                    null
+                                },
+                            isDemoMode = isDemoMode,
+                            onStopDemoMode =
+                                if (isDemoMode) {
+                                    { viewModel.stopDemoMode() }
+                                } else {
+                                    null
+                                },
+                        )
+                    }
+
+                    is Screen.FinalCredits -> {
+                        FinalCreditsScreen(
+                            onDismiss = { viewModel.navigateToWorldMap() },
+                        )
+                    }
+
+                    is Screen.Sticker -> {
+                        StickerScreen(
+                            onBack = { viewModel.navigateToWorldMap() },
+                        )
+                    }
+
+                    is Screen.LoadingSpinnerDemo -> {
+                        LaunchedEffect(Unit) {
+                            delay(30_000L)
+                            viewModel.navigateToWorldMap()
+                        }
+                        LevelLoadingScreen(modifier = Modifier.fillMaxSize())
+                    }
+
+                    is Screen.TutorialDeepLink -> {
+                        // Show the loading screen while data is loading / player is being set up.
+                        // The LaunchedEffect above will call startTutorialLevel() once everything is ready.
+                        LevelLoadingScreen(modifier = Modifier.fillMaxSize())
+                    }
+
+                    is Screen.DemoDeepLink -> {
+                        // Show the loading screen while data is loading / player is being set up.
+                        // The LaunchedEffect above will call startDemoMode() once everything is ready.
+                        LevelLoadingScreen(modifier = Modifier.fillMaxSize())
+                    }
+
+                    is Screen.AnimationTest -> {
+                        AnimationTestScreen(
+                            onBack = { viewModel.navigateToWorldMap() },
+                        )
+                    }
+                }
+            } // CompositionLocalProvider
         }
-        } // CompositionLocalProvider
-    }
     } // ErrorBoundary
 }

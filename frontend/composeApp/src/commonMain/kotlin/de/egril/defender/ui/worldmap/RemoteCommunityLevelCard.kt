@@ -26,87 +26,90 @@ private const val DESCRIPTION_PREVIEW_MAX_CHARS = 80
 fun RemoteCommunityLevelCard(
     fileInfo: CommunityFileInfo,
     isDownloading: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     val backgroundColor = if (isDarkMode) Color(0xFF1A237E) else Color(0xFF3F51B5)
     val textColor = Color.White
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(200.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        onClick = onClick
+        onClick = onClick,
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(12.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             // Top row: "remote" badge aligned to the end
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 SavefileLocationChip(
                     label = stringResource(Res.string.savefile_chip_remote),
                     color = MaterialTheme.colorScheme.primary,
                     onColor = MaterialTheme.colorScheme.onPrimary,
-                    isMobile = false
+                    isMobile = false,
                 )
             }
 
             // Middle: level name + author + description (or downloading spinner)
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 if (isDownloading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(32.dp),
-                        color = textColor
+                        color = textColor,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     SelectableText(
                         text = stringResource(Res.string.community_downloading_level),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = textColor
+                        color = textColor,
                     )
                 } else {
                     // Display the level id formatted as a readable name
-                    val displayName = fileInfo.fileId
-                        .replace('_', ' ')
-                        .split(' ')
-                        .joinToString(" ") { word ->
-                            word.replaceFirstChar { it.uppercaseChar() }
-                        }
+                    val displayName =
+                        fileInfo.fileId
+                            .replace('_', ' ')
+                            .split(' ')
+                            .joinToString(" ") { word ->
+                                word.replaceFirstChar { it.uppercaseChar() }
+                            }
                     SelectableText(
                         text = displayName,
                         style = MaterialTheme.typography.titleMedium,
-                        color = textColor
+                        color = textColor,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     SelectableText(
                         text = stringResource(Res.string.community_author, fileInfo.authorUsername),
                         style = MaterialTheme.typography.bodySmall,
-                        color = textColor.copy(alpha = 0.8f)
+                        color = textColor.copy(alpha = 0.8f),
                     )
                     // Description with truncation and tooltip
                     if (fileInfo.description.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(4.dp))
                         val needsTruncation = fileInfo.description.length > DESCRIPTION_PREVIEW_MAX_CHARS
-                        val truncated = if (needsTruncation) {
-                            fileInfo.description.take(DESCRIPTION_PREVIEW_MAX_CHARS) + "…"
-                        } else {
-                            fileInfo.description
-                        }
+                        val truncated =
+                            if (needsTruncation) {
+                                fileInfo.description.take(DESCRIPTION_PREVIEW_MAX_CHARS) + "…"
+                            } else {
+                                fileInfo.description
+                            }
                         val tooltipText = if (needsTruncation) fileInfo.description else null
                         TooltipWrapper(text = tooltipText) {
                             SelectableText(
                                 text = truncated,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = textColor.copy(alpha = 0.75f)
+                                color = textColor.copy(alpha = 0.75f),
                             )
                         }
                     }
@@ -117,18 +120,19 @@ fun RemoteCommunityLevelCard(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (!isDownloading) {
-                    val downloadHint = if (isPlatformMobile) {
-                        stringResource(Res.string.community_tap_to_download)
-                    } else {
-                        stringResource(Res.string.community_click_to_download)
-                    }
+                    val downloadHint =
+                        if (isPlatformMobile) {
+                            stringResource(Res.string.community_tap_to_download)
+                        } else {
+                            stringResource(Res.string.community_click_to_download)
+                        }
                     SelectableText(
                         text = downloadHint,
                         style = MaterialTheme.typography.labelSmall,
-                        color = textColor.copy(alpha = 0.7f)
+                        color = textColor.copy(alpha = 0.7f),
                     )
                 }
             }

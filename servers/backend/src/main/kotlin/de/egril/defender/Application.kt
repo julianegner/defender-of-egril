@@ -74,9 +74,10 @@ private fun Application.isDatabaseConfigured(): Boolean {
  */
 private fun Application.startDatabaseReconnectScheduler() {
     startupLogger.info("Database not available at startup. Starting background reconnect scheduler (every 60 s).")
-    val scheduler = Executors.newSingleThreadScheduledExecutor { r ->
-        Thread(r, "db-reconnect").also { it.isDaemon = true }
-    }
+    val scheduler =
+        Executors.newSingleThreadScheduledExecutor { r ->
+            Thread(r, "db-reconnect").also { it.isDaemon = true }
+        }
     var attemptCount = 1
     scheduler.scheduleWithFixedDelay(
         {
@@ -95,11 +96,13 @@ private fun Application.startDatabaseReconnectScheduler() {
             } else {
                 startupLogger.warn(
                     "Database reconnect scheduler: attempt $attemptCount failed. " +
-                        "Next retry in 60 s. Current datasource status: UNAVAILABLE"
+                        "Next retry in 60 s. Current datasource status: UNAVAILABLE",
                 )
             }
         },
-        60L, 60L, TimeUnit.SECONDS
+        60L,
+        60L,
+        TimeUnit.SECONDS,
     )
     // Shut down the scheduler when the application stops (e.g. during tests or graceful shutdown).
     monitor.subscribe(ApplicationStopped) {
@@ -111,7 +114,10 @@ private fun Application.startDatabaseReconnectScheduler() {
 }
 
 /** Logs a one-line summary of the current datasource state. */
-private fun logDataSourceStatus(dataSource: DataSource?, source: String) {
+private fun logDataSourceStatus(
+    dataSource: DataSource?,
+    source: String,
+) {
     if (dataSource != null) {
         startupLogger.info("Datasource status [$source]: CONNECTED")
     } else {

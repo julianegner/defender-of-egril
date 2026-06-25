@@ -1,6 +1,4 @@
 package de.egril.defender.ui.animations
-import io.github.alexzhirkevich.compottie.Compottie
-
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,20 +9,26 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import io.github.alexzhirkevich.compottie.Compottie
 
 /** Spell color (purple) used for Instant Tower border */
 val SpellInstantTowerColor = Color(0xFFAA00FF)
 
 // Star gold → purple gradient endpoints
-private val StarGold   = Color(1.0f, 0.843f, 0.0f,  1.0f)
-private val StarPurple = Color(0.6f, 0.0f,   1.0f,  1.0f)
+private val StarGold = Color(1.0f, 0.843f, 0.0f, 1.0f)
+private val StarPurple = Color(0.6f, 0.0f, 1.0f, 1.0f)
 
 private const val StarAlpha = 0.88f
-private fun lerpColor(a: Color, b: Color, t: Float) = Color(
-    red   = a.red   + (b.red   - a.red)   * t,
+
+private fun lerpColor(
+    a: Color,
+    b: Color,
+    t: Float,
+) = Color(
+    red = a.red + (b.red - a.red) * t,
     green = a.green + (b.green - a.green) * t,
-    blue  = a.blue  + (b.blue  - a.blue)  * t,
-    alpha = StarAlpha
+    blue = a.blue + (b.blue - a.blue) * t,
+    alpha = StarAlpha,
 )
 
 /**
@@ -37,7 +41,10 @@ private fun lerpColor(a: Color, b: Color, t: Float) = Color(
  * The purple pill border is added separately in DefenderButtons via `.border()`.
  */
 @Composable
-fun InstantTowerSpellAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+fun InstantTowerSpellAnimation(
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (animate) {
         AnimatedInstantTowerSpell(modifier)
     } else {
@@ -51,7 +58,7 @@ private fun AnimatedInstantTowerSpell(modifier: Modifier = Modifier) {
         animationType = AnimationType.INSTANT_TOWER_SPELL,
         modifier = modifier.fillMaxSize().clip(RoundedCornerShape(percent = 50)),
         iterations = Compottie.IterateForever,
-        contentScale = ContentScale.FillBounds
+        contentScale = ContentScale.FillBounds,
     )
 }
 
@@ -65,34 +72,58 @@ private fun StaticInstantTowerSpell(modifier: Modifier = Modifier) {
 
         // Each entry: (relX, relY, radiusDp)
         // relY: 0.0 = top of button (purple), 1.0 = bottom (gold)
-        val stars = listOf(
-            // Bottom band (gold)
-            Triple(0.10f, 0.92f, 3.5f), Triple(0.25f, 0.88f, 2.8f), Triple(0.40f, 0.94f, 4.0f),
-            Triple(0.55f, 0.90f, 3.2f), Triple(0.70f, 0.86f, 2.5f), Triple(0.85f, 0.93f, 3.8f),
-            Triple(0.18f, 0.82f, 2.5f), Triple(0.62f, 0.80f, 3.0f), Triple(0.92f, 0.78f, 2.2f),
-            // Lower-middle (warm gold-purple)
-            Triple(0.05f, 0.68f, 2.8f), Triple(0.30f, 0.65f, 3.2f), Triple(0.50f, 0.70f, 2.5f),
-            Triple(0.72f, 0.72f, 3.5f), Triple(0.88f, 0.65f, 2.0f), Triple(0.15f, 0.60f, 3.0f),
-            // Middle (mid-purple)
-            Triple(0.42f, 0.52f, 2.8f), Triple(0.65f, 0.50f, 2.2f), Triple(0.25f, 0.48f, 3.5f),
-            Triple(0.80f, 0.55f, 2.5f), Triple(0.08f, 0.42f, 2.0f), Triple(0.55f, 0.40f, 3.0f),
-            Triple(0.35f, 0.45f, 2.2f), Triple(0.92f, 0.44f, 2.5f),
-            // Upper-middle (more purple)
-            Triple(0.35f, 0.32f, 2.5f), Triple(0.60f, 0.30f, 2.0f), Triple(0.15f, 0.28f, 2.8f),
-            Triple(0.78f, 0.34f, 2.2f), Triple(0.48f, 0.24f, 2.5f), Triple(0.92f, 0.22f, 1.8f),
-            // Top band (pure purple)
-            Triple(0.22f, 0.14f, 2.0f), Triple(0.45f, 0.10f, 2.5f), Triple(0.68f, 0.16f, 1.8f),
-            Triple(0.10f, 0.06f, 2.2f), Triple(0.82f, 0.12f, 2.0f), Triple(0.55f, 0.20f, 2.2f),
-            Triple(0.35f, 0.05f, 1.8f)
-        )
+        val stars =
+            listOf(
+                // Bottom band (gold)
+                Triple(0.10f, 0.92f, 3.5f),
+                Triple(0.25f, 0.88f, 2.8f),
+                Triple(0.40f, 0.94f, 4.0f),
+                Triple(0.55f, 0.90f, 3.2f),
+                Triple(0.70f, 0.86f, 2.5f),
+                Triple(0.85f, 0.93f, 3.8f),
+                Triple(0.18f, 0.82f, 2.5f),
+                Triple(0.62f, 0.80f, 3.0f),
+                Triple(0.92f, 0.78f, 2.2f),
+                // Lower-middle (warm gold-purple)
+                Triple(0.05f, 0.68f, 2.8f),
+                Triple(0.30f, 0.65f, 3.2f),
+                Triple(0.50f, 0.70f, 2.5f),
+                Triple(0.72f, 0.72f, 3.5f),
+                Triple(0.88f, 0.65f, 2.0f),
+                Triple(0.15f, 0.60f, 3.0f),
+                // Middle (mid-purple)
+                Triple(0.42f, 0.52f, 2.8f),
+                Triple(0.65f, 0.50f, 2.2f),
+                Triple(0.25f, 0.48f, 3.5f),
+                Triple(0.80f, 0.55f, 2.5f),
+                Triple(0.08f, 0.42f, 2.0f),
+                Triple(0.55f, 0.40f, 3.0f),
+                Triple(0.35f, 0.45f, 2.2f),
+                Triple(0.92f, 0.44f, 2.5f),
+                // Upper-middle (more purple)
+                Triple(0.35f, 0.32f, 2.5f),
+                Triple(0.60f, 0.30f, 2.0f),
+                Triple(0.15f, 0.28f, 2.8f),
+                Triple(0.78f, 0.34f, 2.2f),
+                Triple(0.48f, 0.24f, 2.5f),
+                Triple(0.92f, 0.22f, 1.8f),
+                // Top band (pure purple)
+                Triple(0.22f, 0.14f, 2.0f),
+                Triple(0.45f, 0.10f, 2.5f),
+                Triple(0.68f, 0.16f, 1.8f),
+                Triple(0.10f, 0.06f, 2.2f),
+                Triple(0.82f, 0.12f, 2.0f),
+                Triple(0.55f, 0.20f, 2.2f),
+                Triple(0.35f, 0.05f, 1.8f),
+            )
 
         stars.forEach { (relX, relY, radiusDp) ->
             // t: 0 at bottom (gold), 1 at top (purple)
             val t = 1f - relY
             drawCircle(
-                color  = lerpColor(StarGold, StarPurple, t),
+                color = lerpColor(StarGold, StarPurple, t),
                 radius = radiusDp.dp.toPx(),
-                center = Offset(relX * w, relY * h)
+                center = Offset(relX * w, relY * h),
             )
         }
     }

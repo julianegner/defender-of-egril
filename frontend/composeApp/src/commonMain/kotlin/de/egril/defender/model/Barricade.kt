@@ -10,19 +10,19 @@ import androidx.compose.runtime.mutableStateOf
  * Barricades with at least 100 HP can serve as tower bases.
  */
 data class Barricade(
-    val id: Int,  // Unique identifier for this barricade
+    val id: Int, // Unique identifier for this barricade
     val position: Position,
     val healthPoints: MutableState<Int>,
-    val defenderId: Int,  // Track which defender created this barricade
-    val isGate: Boolean = false,  // True if barricade is between two buildable tiles with towers
-    val name: String? = null,  // Optional display name (e.g. "North Gate") – non-null for named gates
-    val supportedTowerId: MutableState<Int?> = mutableStateOf(null)  // ID of tower placed on this barricade (null if no tower)
+    val defenderId: Int, // Track which defender created this barricade
+    val isGate: Boolean = false, // True if barricade is between two buildable tiles with towers
+    val name: String? = null, // Optional display name (e.g. "North Gate") – non-null for named gates
+    val supportedTowerId: MutableState<Int?> = mutableStateOf(null), // ID of tower placed on this barricade (null if no tower)
 ) {
     /**
      * Check if the barricade is destroyed (health points < 1)
      */
     fun isDestroyed(): Boolean = healthPoints.value < 1
-    
+
     /**
      * Apply damage to the barricade from an attacking enemy.
      * Returns true if the barricade was destroyed by this attack.
@@ -31,19 +31,19 @@ data class Barricade(
         healthPoints.value -= damage
         return isDestroyed()
     }
-    
+
     /**
      * Reinforce the barricade by adding health points.
      */
     fun reinforce(additionalHP: Int) {
         healthPoints.value += additionalHP
     }
-    
+
     /**
      * Check if this barricade can support a tower (has at least 100 HP)
      */
     fun canSupportTower(): Boolean = healthPoints.value >= 100
-    
+
     /**
      * Check if this barricade currently supports a tower
      */

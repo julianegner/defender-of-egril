@@ -10,7 +10,13 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 /**
  * Draw ogre symbol (very large creature)
  */
-fun DrawScope.drawOgreSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
+fun DrawScope.drawOgreSymbol(
+    centerX: Float,
+    centerY: Float,
+    size: Float,
+    outlineColor: Color? = null,
+    headScale: Float = 1.0f,
+) {
     val headCenterY = centerY - size * 0.05f
 
     // Head with facial features (scaled)
@@ -21,14 +27,14 @@ fun DrawScope.drawOgreSymbol(centerX: Float, centerY: Float, size: Float, outlin
                 color = outlineColor,
                 radius = size * 0.35f + 2f,
                 center = Offset(centerX, headCenterY),
-                style = Stroke(width = 3f)
+                style = Stroke(width = 3f),
             )
         }
         // Huge head
         drawCircle(
             color = Color(0xFFA0522D), // Sienna/brown
             radius = size * 0.35f,
-            center = Offset(centerX, headCenterY)
+            center = Offset(centerX, headCenterY),
         )
 
         // Big eyes
@@ -42,7 +48,7 @@ fun DrawScope.drawOgreSymbol(centerX: Float, centerY: Float, size: Float, outlin
             color = Color.Black,
             start = Offset(centerX - size * 0.15f, centerY + size * 0.1f),
             end = Offset(centerX + size * 0.15f, centerY + size * 0.1f),
-            strokeWidth = 3f
+            strokeWidth = 3f,
         )
     }
 
@@ -50,6 +56,6 @@ fun DrawScope.drawOgreSymbol(centerX: Float, centerY: Float, size: Float, outlin
     drawRect(
         color = Color(0xFF8B7355), // Burlywood
         topLeft = Offset(centerX - size * 0.3f, centerY + size * 0.25f),
-        size = Size(size * 0.6f, size * 0.2f)
+        size = Size(size * 0.6f, size * 0.2f),
     )
 }

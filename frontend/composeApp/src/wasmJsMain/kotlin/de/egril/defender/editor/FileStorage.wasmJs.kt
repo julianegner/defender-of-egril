@@ -20,7 +20,8 @@ private external fun jsIsOpfsSupported(): Boolean
  * Resolves to a newline-separated list of relative paths, or an empty string
  * if the directory does not yet exist.
  */
-@JsFun("""
+@JsFun(
+    """
 (appDir) => (async () => {
   const paths = [];
   async function walk(dir, prefix) {
@@ -36,14 +37,16 @@ private external fun jsIsOpfsSupported(): Boolean
   } catch(_) {}
   return paths.join('\n');
 })()
-""")
+""",
+)
 private external fun jsOpfsListAll(appDir: String): Promise<JsAny?>
 
 /**
  * Reads [path] (relative to [appDir]) as UTF-8 text.
  * Resolves to the file content, or null if the file does not exist.
  */
-@JsFun("""
+@JsFun(
+    """
 (appDir, path) => (async () => {
   try {
     const parts = (appDir + '/' + path).split('/');
@@ -54,14 +57,19 @@ private external fun jsOpfsListAll(appDir: String): Promise<JsAny?>
     return await file.text();
   } catch(_) { return null; }
 })()
-""")
-private external fun jsOpfsReadOne(appDir: String, path: String): Promise<JsAny?>
+""",
+)
+private external fun jsOpfsReadOne(
+    appDir: String,
+    path: String,
+): Promise<JsAny?>
 
 /**
  * Writes (or overwrites) [path] with the given UTF-8 [content].
  * Intermediate directories are created automatically.
  */
-@JsFun("""
+@JsFun(
+    """
 (appDir, path, content) => (async () => {
   const parts = (appDir + '/' + path).split('/');
   const root = await navigator.storage.getDirectory();
@@ -73,13 +81,19 @@ private external fun jsOpfsReadOne(appDir: String, path: String): Promise<JsAny?
   await w.write(content);
   await w.close();
 })()
-""")
-private external fun jsOpfsWriteOne(appDir: String, path: String, content: String): Promise<JsAny?>
+""",
+)
+private external fun jsOpfsWriteOne(
+    appDir: String,
+    path: String,
+    content: String,
+): Promise<JsAny?>
 
 /**
  * Deletes the file at [path]. Silently ignores missing files.
  */
-@JsFun("""
+@JsFun(
+    """
 (appDir, path) => (async () => {
   try {
     const parts = (appDir + '/' + path).split('/');
@@ -89,13 +103,18 @@ private external fun jsOpfsWriteOne(appDir: String, path: String, content: Strin
     await d.removeEntry(parts[parts.length - 1]);
   } catch(_) {}
 })()
-""")
-private external fun jsOpfsDeleteOne(appDir: String, path: String): Promise<JsAny?>
+""",
+)
+private external fun jsOpfsDeleteOne(
+    appDir: String,
+    path: String,
+): Promise<JsAny?>
 
 /**
  * Recursively deletes [dirPath]. Silently ignores missing directories.
  */
-@JsFun("""
+@JsFun(
+    """
 (appDir, dirPath) => (async () => {
   try {
     const parts = (appDir + '/' + dirPath).split('/');
@@ -105,8 +124,12 @@ private external fun jsOpfsDeleteOne(appDir: String, path: String): Promise<JsAn
     await d.removeEntry(parts[parts.length - 1], { recursive: true });
   } catch(_) {}
 })()
-""")
-private external fun jsOpfsDeleteDirRecursive(appDir: String, dirPath: String): Promise<JsAny?>
+""",
+)
+private external fun jsOpfsDeleteDirRecursive(
+    appDir: String,
+    dirPath: String,
+): Promise<JsAny?>
 
 // ─── OPFSFileStorage ──────────────────────────────────────────────────────────
 
@@ -130,7 +153,6 @@ private external fun jsOpfsDeleteDirRecursive(appDir: String, dirPath: String): 
  * localStorage implementation ("base64:…" prefix) to allow seamless migration.
  */
 class OPFSFileStorage : FileStorage {
-
     private companion object {
         private const val OPFS_APP_DIR = "defender-of-egril"
         private const val LS_PREFIX = "defender-of-egril:"
@@ -187,9 +209,12 @@ class OPFSFileStorage : FileStorage {
             } else {
                 // Subsequent launches: read every file into the in-memory cache.
                 for (path in opfsPaths) {
-                    val content = try {
-                        jsOpfsReadOne(OPFS_APP_DIR, path).await<JsAny?>()?.toString()
-                    } catch (_: Throwable) { null }
+                    val content =
+                        try {
+                            jsOpfsReadOne(OPFS_APP_DIR, path).await<JsAny?>()?.toString()
+                        } catch (_: Throwable) {
+                            null
+                        }
                     if (content == null) continue
                     if (content.startsWith("base64:")) {
                         binaryCache[path] = content
@@ -260,9 +285,10 @@ class OPFSFileStorage : FileStorage {
      * version of the app that retained the copies).
      */
     private fun cleanUpLocalStorageLegacyEntries() {
-        val keys = (0 until localStorage.length)
-            .mapNotNull { localStorage.key(it) }
-            .filter { it.startsWith(LS_PREFIX) }
+        val keys =
+            (0 until localStorage.length)
+                .mapNotNull { localStorage.key(it) }
+                .filter { it.startsWith(LS_PREFIX) }
         keys.forEach { localStorage.removeItem(it) }
         if (keys.isNotEmpty()) {
             println("OPFSFileStorage: removed ${keys.size} legacy localStorage entries to free quota")
@@ -271,9 +297,15 @@ class OPFSFileStorage : FileStorage {
 
     // ── background persistence helpers ────────────────────────────────────────
 
-    private fun persistAsync(path: String, content: String) {
+    private fun persistAsync(
+        path: String,
+        content: String,
+    ) {
         if (!jsIsOpfsSupported()) {
-            try { localStorage.setItem(LS_PREFIX + path, content) } catch (_: Throwable) {}
+            try {
+                localStorage.setItem(LS_PREFIX + path, content)
+            } catch (_: Throwable) {
+            }
             return
         }
         writeScope.launch {
@@ -291,27 +323,37 @@ class OPFSFileStorage : FileStorage {
             return
         }
         writeScope.launch {
-            try { jsOpfsDeleteOne(OPFS_APP_DIR, path).await<JsAny?>() } catch (_: Throwable) {}
+            try {
+                jsOpfsDeleteOne(OPFS_APP_DIR, path).await<JsAny?>()
+            } catch (_: Throwable) {
+            }
         }
     }
 
     private fun deleteDirAsync(dirPath: String) {
         if (!jsIsOpfsSupported()) {
             val prefix = LS_PREFIX + dirPath + "/"
-            val toRemove = (0 until localStorage.length)
-                .mapNotNull { localStorage.key(it) }
-                .filter { it.startsWith(prefix) }
+            val toRemove =
+                (0 until localStorage.length)
+                    .mapNotNull { localStorage.key(it) }
+                    .filter { it.startsWith(prefix) }
             toRemove.forEach { localStorage.removeItem(it) }
             return
         }
         writeScope.launch {
-            try { jsOpfsDeleteDirRecursive(OPFS_APP_DIR, dirPath).await<JsAny?>() } catch (_: Throwable) {}
+            try {
+                jsOpfsDeleteDirRecursive(OPFS_APP_DIR, dirPath).await<JsAny?>()
+            } catch (_: Throwable) {
+            }
         }
     }
 
     // ── FileStorage interface ─────────────────────────────────────────────────
 
-    override fun writeFile(path: String, content: String) {
+    override fun writeFile(
+        path: String,
+        content: String,
+    ) {
         textCache[path] = content
         binaryCache.remove(path)
         persistAsync(path, content)
@@ -319,7 +361,10 @@ class OPFSFileStorage : FileStorage {
 
     override fun readFile(path: String): String? = textCache[path]
 
-    override fun writeBinaryFile(path: String, content: ByteArray) {
+    override fun writeBinaryFile(
+        path: String,
+        content: ByteArray,
+    ) {
         val builder = StringBuilder(content.size)
         content.forEach { builder.append((it.toInt() and 0xFF).toChar()) }
         val encoded = "base64:" + window.btoa(builder.toString())
@@ -349,7 +394,7 @@ class OPFSFileStorage : FileStorage {
         if (textCache.containsKey(path) || binaryCache.containsKey(path)) return true
         val dirPrefix = "$path/"
         return textCache.keys.any { it.startsWith(dirPrefix) } ||
-               binaryCache.keys.any { it.startsWith(dirPrefix) }
+            binaryCache.keys.any { it.startsWith(dirPrefix) }
     }
 
     override fun createDirectory(path: String) {
@@ -362,7 +407,10 @@ class OPFSFileStorage : FileStorage {
         deleteFileAsync(path)
     }
 
-    override fun renameDirectory(oldPath: String, newPath: String): Boolean {
+    override fun renameDirectory(
+        oldPath: String,
+        newPath: String,
+    ): Boolean {
         val oldPrefix = "$oldPath/"
         val newPrefix = "$newPath/"
         val allKeys = (textCache.keys.toList() + binaryCache.keys.toList()).distinct()
@@ -372,14 +420,23 @@ class OPFSFileStorage : FileStorage {
             val new = old.replaceFirst(oldPrefix, newPrefix)
             val text = textCache.remove(old)
             val binary = binaryCache.remove(old)
-            if (text != null) { textCache[new] = text; persistAsync(new, text) }
-            if (binary != null) { binaryCache[new] = binary; persistAsync(new, binary) }
+            if (text != null) {
+                textCache[new] = text
+                persistAsync(new, text)
+            }
+            if (binary != null) {
+                binaryCache[new] = binary
+                persistAsync(new, binary)
+            }
             deleteFileAsync(old)
         }
         return true
     }
 
-    override fun copyDirectory(sourcePath: String, targetPath: String): Boolean {
+    override fun copyDirectory(
+        sourcePath: String,
+        targetPath: String,
+    ): Boolean {
         val sourcePrefix = "$sourcePath/"
         val targetPrefix = "$targetPath/"
         var copied = false
@@ -388,17 +445,29 @@ class OPFSFileStorage : FileStorage {
             val dst = src.replaceFirst(sourcePrefix, targetPrefix)
             val text = textCache[src]
             val binary = binaryCache[src]
-            if (text != null) { textCache[dst] = text; persistAsync(dst, text); copied = true }
-            if (binary != null) { binaryCache[dst] = binary; persistAsync(dst, binary); copied = true }
+            if (text != null) {
+                textCache[dst] = text
+                persistAsync(dst, text)
+                copied = true
+            }
+            if (binary != null) {
+                binaryCache[dst] = binary
+                persistAsync(dst, binary)
+                copied = true
+            }
         }
         return copied
     }
 
     override fun deleteDirectory(path: String): Boolean {
         val prefix = "$path/"
-        val allKeys = (textCache.keys.toList() + binaryCache.keys.toList())
-            .filter { it.startsWith(prefix) }
-        allKeys.forEach { textCache.remove(it); binaryCache.remove(it) }
+        val allKeys =
+            (textCache.keys.toList() + binaryCache.keys.toList())
+                .filter { it.startsWith(prefix) }
+        allKeys.forEach {
+            textCache.remove(it)
+            binaryCache.remove(it)
+        }
         deleteDirAsync(path)
         return true
     }

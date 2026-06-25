@@ -82,13 +82,19 @@ private fun parseRiverPaths(json: String): List<RiverPath> {
                 when (o["ty"]?.jsonPrimitive?.content) {
                     "sh" -> {
                         val k = o["ks"]?.jsonObject?.get("k")?.jsonObject ?: continue
-                        points = k["v"]?.jsonArray?.map { v ->
-                            val arr = v.jsonArray
-                            Offset(arr[0].jsonPrimitive.float, arr[1].jsonPrimitive.float)
-                        }
+                        points =
+                            k["v"]?.jsonArray?.map { v ->
+                                val arr = v.jsonArray
+                                Offset(arr[0].jsonPrimitive.float, arr[1].jsonPrimitive.float)
+                            }
                     }
-                    "st" -> strokeWidth = o["w"]?.jsonObject?.get("k")?.jsonPrimitive?.float
-                        ?: DEFAULT_LOTTIE_STROKE_WIDTH
+                    "st" ->
+                        strokeWidth = o["w"]
+                            ?.jsonObject
+                            ?.get("k")
+                            ?.jsonPrimitive
+                            ?.float
+                            ?: DEFAULT_LOTTIE_STROKE_WIDTH
                 }
             }
             val pts = points?.takeIf { it.size >= 2 } ?: return@mapNotNull null
@@ -121,9 +127,10 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
     var riverPaths by remember { mutableStateOf<List<RiverPath>>(emptyList()) }
     LaunchedEffect(Unit) {
         launch {
-            val json = runCatching {
-                Res.readBytes("files/animations/world_map_rivers.json").decodeToString()
-            }.getOrElse { return@launch }
+            val json =
+                runCatching {
+                    Res.readBytes("files/animations/world_map_rivers.json").decodeToString()
+                }.getOrElse { return@launch }
             riverPaths = parseRiverPaths(json)
         }
     }
@@ -135,10 +142,11 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
     val flowPhase by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = FLOW_CYCLE_MILLIS, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(durationMillis = FLOW_CYCLE_MILLIS, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
         label = "riverFlowPhase",
     )
 
@@ -153,10 +161,11 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
         for (river in riverPaths) {
             val scaledPts = river.points.map { Offset(it.x * scale + dx, it.y * scale + dy) }
 
-            val path = Path().apply {
-                moveTo(scaledPts[0].x, scaledPts[0].y)
-                scaledPts.drop(1).forEach { lineTo(it.x, it.y) }
-            }
+            val path =
+                Path().apply {
+                    moveTo(scaledPts[0].x, scaledPts[0].y)
+                    scaledPts.drop(1).forEach { lineTo(it.x, it.y) }
+                }
 
             val totalLen = scaledPts.pathLength()
             if (totalLen < MINIMUM_VISIBLE_PATH_LENGTH) continue
@@ -174,15 +183,17 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
             drawPath(
                 path = path,
                 color = WATER_FLOW_COLOR,
-                style = Stroke(
-                    width = sw * 0.8f,
-                    cap = StrokeCap.Round,
-                    join = StrokeJoin.Round,
-                    pathEffect = PathEffect.dashPathEffect(
-                        intervals = floatArrayOf(snakeDash, snakeGap),
-                        phase = phase1,
+                style =
+                    Stroke(
+                        width = sw * 0.8f,
+                        cap = StrokeCap.Round,
+                        join = StrokeJoin.Round,
+                        pathEffect =
+                            PathEffect.dashPathEffect(
+                                intervals = floatArrayOf(snakeDash, snakeGap),
+                                phase = phase1,
+                            ),
                     ),
-                ),
             )
 
             // --- Snake 2: staggered second segment (offset by half cycle) ---
@@ -190,15 +201,17 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
             drawPath(
                 path = path,
                 color = WATER_FLOW_COLOR,
-                style = Stroke(
-                    width = sw * 0.8f,
-                    cap = StrokeCap.Round,
-                    join = StrokeJoin.Round,
-                    pathEffect = PathEffect.dashPathEffect(
-                        intervals = floatArrayOf(snakeDash, snakeGap),
-                        phase = phase2,
+                style =
+                    Stroke(
+                        width = sw * 0.8f,
+                        cap = StrokeCap.Round,
+                        join = StrokeJoin.Round,
+                        pathEffect =
+                            PathEffect.dashPathEffect(
+                                intervals = floatArrayOf(snakeDash, snakeGap),
+                                phase = phase2,
+                            ),
                     ),
-                ),
             )
 
             // --- Highlight: a brighter, thinner, faster snake for sparkle ---
@@ -208,15 +221,17 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
             drawPath(
                 path = path,
                 color = WATER_HIGHLIGHT_COLOR,
-                style = Stroke(
-                    width = sw * 0.5f,
-                    cap = StrokeCap.Round,
-                    join = StrokeJoin.Round,
-                    pathEffect = PathEffect.dashPathEffect(
-                        intervals = floatArrayOf(highlightDash, highlightGap),
-                        phase = highlightPhase,
+                style =
+                    Stroke(
+                        width = sw * 0.5f,
+                        cap = StrokeCap.Round,
+                        join = StrokeJoin.Round,
+                        pathEffect =
+                            PathEffect.dashPathEffect(
+                                intervals = floatArrayOf(highlightDash, highlightGap),
+                                phase = highlightPhase,
+                            ),
                     ),
-                ),
             )
         }
     }

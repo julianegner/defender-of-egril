@@ -1,26 +1,27 @@
 package de.egril.defender.ui
 
+import com.hyperether.resources.AppLocale
+import com.hyperether.resources.LocalizedStrings
 import de.egril.defender.model.AttackType
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.SpellType
-import com.hyperether.resources.AppLocale
-import com.hyperether.resources.LocalizedStrings
 
 /**
  * Get localized name for a DefenderType
  */
 fun DefenderType.getLocalizedName(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String {
-    val key = when (this) {
-        DefenderType.SPIKE_TOWER -> "spike_tower_name"
-        DefenderType.SPEAR_TOWER -> "spear_tower_name"
-        DefenderType.BOW_TOWER -> "bow_tower_name"
-        DefenderType.WIZARD_TOWER -> "wizard_tower_name"
-        DefenderType.ALCHEMY_TOWER -> "alchemy_tower_name"
-        DefenderType.BALLISTA_TOWER -> "ballista_tower_name"
-        DefenderType.DWARVEN_MINE -> "dwarven_mine_name"
-        DefenderType.DRAGONS_LAIR -> "dragons_lair_name"
-    }
+    val key =
+        when (this) {
+            DefenderType.SPIKE_TOWER -> "spike_tower_name"
+            DefenderType.SPEAR_TOWER -> "spear_tower_name"
+            DefenderType.BOW_TOWER -> "bow_tower_name"
+            DefenderType.WIZARD_TOWER -> "wizard_tower_name"
+            DefenderType.ALCHEMY_TOWER -> "alchemy_tower_name"
+            DefenderType.BALLISTA_TOWER -> "ballista_tower_name"
+            DefenderType.DWARVEN_MINE -> "dwarven_mine_name"
+            DefenderType.DRAGONS_LAIR -> "dragons_lair_name"
+        }
     return LocalizedStrings.get(key, locale)
 }
 
@@ -28,19 +29,20 @@ fun DefenderType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
  * Get localized name for a SpellType
  */
 fun SpellType.getLocalizedName(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String {
-    val key = when (this) {
-        SpellType.ATTACK_AREA -> "spell_attack_area_name"
-        SpellType.ATTACK_AIMED -> "spell_attack_aimed_name"
-        SpellType.HEAL -> "spell_heal_name"
-        SpellType.INSTANT_TOWER -> "spell_instant_tower_name"
-        SpellType.BOMB -> "spell_bomb_name"
-        SpellType.DOUBLE_TOWER_LEVEL -> "spell_double_tower_level_name"
-        SpellType.COOLING_SPELL -> "spell_cooling_spell_name"
-        SpellType.FREEZE_SPELL -> "spell_freeze_spell_name"
-        SpellType.DOUBLE_TOWER_REACH -> "spell_double_tower_reach_name"
-        SpellType.FEAR_SPELL -> "spell_fear_spell_name"
-        SpellType.FEAR_SPELL_AREA -> "spell_fear_spell_area_name"
-    }
+    val key =
+        when (this) {
+            SpellType.ATTACK_AREA -> "spell_attack_area_name"
+            SpellType.ATTACK_AIMED -> "spell_attack_aimed_name"
+            SpellType.HEAL -> "spell_heal_name"
+            SpellType.INSTANT_TOWER -> "spell_instant_tower_name"
+            SpellType.BOMB -> "spell_bomb_name"
+            SpellType.DOUBLE_TOWER_LEVEL -> "spell_double_tower_level_name"
+            SpellType.COOLING_SPELL -> "spell_cooling_spell_name"
+            SpellType.FREEZE_SPELL -> "spell_freeze_spell_name"
+            SpellType.DOUBLE_TOWER_REACH -> "spell_double_tower_reach_name"
+            SpellType.FEAR_SPELL -> "spell_fear_spell_name"
+            SpellType.FEAR_SPELL_AREA -> "spell_fear_spell_area_name"
+        }
     return LocalizedStrings.get(key, locale)
 }
 
@@ -48,19 +50,20 @@ fun SpellType.getLocalizedName(locale: AppLocale = com.hyperether.resources.curr
  * Get localized description for a SpellType
  */
 fun SpellType.getLocalizedDescription(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String {
-    val key = when (this) {
-        SpellType.ATTACK_AREA -> "spell_attack_area_desc"
-        SpellType.ATTACK_AIMED -> "spell_attack_aimed_desc"
-        SpellType.HEAL -> "spell_heal_desc"
-        SpellType.INSTANT_TOWER -> "spell_instant_tower_desc"
-        SpellType.BOMB -> "spell_bomb_desc"
-        SpellType.DOUBLE_TOWER_LEVEL -> "spell_double_tower_level_desc"
-        SpellType.COOLING_SPELL -> "spell_cooling_spell_desc"
-        SpellType.FREEZE_SPELL -> "spell_freeze_spell_desc"
-        SpellType.DOUBLE_TOWER_REACH -> "spell_double_tower_reach_desc"
-        SpellType.FEAR_SPELL -> "spell_fear_spell_desc"
-        SpellType.FEAR_SPELL_AREA -> "spell_fear_spell_area_desc"
-    }
+    val key =
+        when (this) {
+            SpellType.ATTACK_AREA -> "spell_attack_area_desc"
+            SpellType.ATTACK_AIMED -> "spell_attack_aimed_desc"
+            SpellType.HEAL -> "spell_heal_desc"
+            SpellType.INSTANT_TOWER -> "spell_instant_tower_desc"
+            SpellType.BOMB -> "spell_bomb_desc"
+            SpellType.DOUBLE_TOWER_LEVEL -> "spell_double_tower_level_desc"
+            SpellType.COOLING_SPELL -> "spell_cooling_spell_desc"
+            SpellType.FREEZE_SPELL -> "spell_freeze_spell_desc"
+            SpellType.DOUBLE_TOWER_REACH -> "spell_double_tower_reach_desc"
+            SpellType.FEAR_SPELL -> "spell_fear_spell_desc"
+            SpellType.FEAR_SPELL_AREA -> "spell_fear_spell_area_desc"
+        }
     return LocalizedStrings.get(key, locale)
 }
 
@@ -68,13 +71,14 @@ fun SpellType.getLocalizedDescription(locale: AppLocale = com.hyperether.resourc
  * Get localized name for an AttackType
  */
 fun AttackType.getLocalizedName(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String {
-    val key = when (this) {
-        AttackType.MELEE -> "attack_type_melee"
-        AttackType.RANGED -> "attack_type_ranged"
-        AttackType.AREA -> "attack_type_fireball"
-        AttackType.LASTING -> "attack_type_acid"
-        AttackType.NONE -> "attack_type_special"
-    }
+    val key =
+        when (this) {
+            AttackType.MELEE -> "attack_type_melee"
+            AttackType.RANGED -> "attack_type_ranged"
+            AttackType.AREA -> "attack_type_fireball"
+            AttackType.LASTING -> "attack_type_acid"
+            AttackType.NONE -> "attack_type_special"
+        }
     return LocalizedStrings.get(key, locale)
 }
 
@@ -82,19 +86,20 @@ fun AttackType.getLocalizedName(locale: AppLocale = com.hyperether.resources.cur
  * Get localized name for an AttackerType
  */
 fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String {
-    val key = when (this) {
-        AttackerType.GOBLIN -> "goblin_name"
-        AttackerType.ORK -> "ork_name"
-        AttackerType.OGRE -> "ogre_name"
-        AttackerType.SKELETON -> "skeleton_name"
-        AttackerType.EVIL_WIZARD -> "evil_wizard_name"
-        AttackerType.BLUE_DEMON -> "blue_demon_name"
-        AttackerType.RED_DEMON -> "red_demon_name"
-        AttackerType.RED_WITCH -> "red_witch_name"
-        AttackerType.GREEN_WITCH -> "green_witch_name"
-        AttackerType.EWHAD -> "ewhad_name"
-        AttackerType.DRAGON -> "dragon_name"
-    }
+    val key =
+        when (this) {
+            AttackerType.GOBLIN -> "goblin_name"
+            AttackerType.ORK -> "ork_name"
+            AttackerType.OGRE -> "ogre_name"
+            AttackerType.SKELETON -> "skeleton_name"
+            AttackerType.EVIL_WIZARD -> "evil_wizard_name"
+            AttackerType.BLUE_DEMON -> "blue_demon_name"
+            AttackerType.RED_DEMON -> "red_demon_name"
+            AttackerType.RED_WITCH -> "red_witch_name"
+            AttackerType.GREEN_WITCH -> "green_witch_name"
+            AttackerType.EWHAD -> "ewhad_name"
+            AttackerType.DRAGON -> "dragon_name"
+        }
     return LocalizedStrings.get(key, locale)
 }
 
@@ -102,16 +107,17 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
  * Get localized short name for a DefenderType (for compact displays)
  */
 fun DefenderType.getLocalizedShortName(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String {
-    val key = when (this) {
-        DefenderType.SPIKE_TOWER -> "spike_tower_short"
-        DefenderType.SPEAR_TOWER -> "spear_tower_short"
-        DefenderType.BOW_TOWER -> "bow_tower_short"
-        DefenderType.WIZARD_TOWER -> "wizard_tower_short"
-        DefenderType.ALCHEMY_TOWER -> "alchemy_tower_short"
-        DefenderType.BALLISTA_TOWER -> "ballista_tower_short"
-        DefenderType.DWARVEN_MINE -> "dwarven_mine_short"
-        DefenderType.DRAGONS_LAIR -> "dragons_lair_short"
-    }
+    val key =
+        when (this) {
+            DefenderType.SPIKE_TOWER -> "spike_tower_short"
+            DefenderType.SPEAR_TOWER -> "spear_tower_short"
+            DefenderType.BOW_TOWER -> "bow_tower_short"
+            DefenderType.WIZARD_TOWER -> "wizard_tower_short"
+            DefenderType.ALCHEMY_TOWER -> "alchemy_tower_short"
+            DefenderType.BALLISTA_TOWER -> "ballista_tower_short"
+            DefenderType.DWARVEN_MINE -> "dwarven_mine_short"
+            DefenderType.DRAGONS_LAIR -> "dragons_lair_short"
+        }
     return LocalizedStrings.get(key, locale)
 }
 
@@ -119,26 +125,30 @@ fun DefenderType.getLocalizedShortName(locale: AppLocale = com.hyperether.resour
  * Maps well-known English entity names (target locations, gate names) to their
  * localization string keys. Used by [localizeEntityName] for runtime translation.
  */
-private val KNOWN_ENTITY_NAME_KEYS: Map<String, String> = mapOf(
-    // Target names
-    "Marketplace"  to "target_name_marketplace",
-    "Townhall"     to "target_name_townhall",
-    "Town Hall"    to "target_name_townhall",
-    "Storehouse"   to "target_name_storehouse",
-    "Guildhouse"   to "target_name_guildhouse",
-    // Gate names
-    "North Gate"   to "gate_name_north_gate",
-    "East Gate"    to "gate_name_east_gate",
-    "South Gate"   to "gate_name_south_gate",
-    "West Gate"    to "gate_name_west_gate"
-)
+private val KNOWN_ENTITY_NAME_KEYS: Map<String, String> =
+    mapOf(
+        // Target names
+        "Marketplace" to "target_name_marketplace",
+        "Townhall" to "target_name_townhall",
+        "Town Hall" to "target_name_townhall",
+        "Storehouse" to "target_name_storehouse",
+        "Guildhouse" to "target_name_guildhouse",
+        // Gate names
+        "North Gate" to "gate_name_north_gate",
+        "East Gate" to "gate_name_east_gate",
+        "South Gate" to "gate_name_south_gate",
+        "West Gate" to "gate_name_west_gate",
+    )
 
 /**
  * Translates a well-known entity name (target or gate) to the current locale.
  * If the name is not a recognized standard name, returns it unchanged.
  * The returned string may contain `\n` for multi-line tile display.
  */
-fun localizeEntityName(name: String, locale: AppLocale = com.hyperether.resources.currentLanguage.value): String {
+fun localizeEntityName(
+    name: String,
+    locale: AppLocale = com.hyperether.resources.currentLanguage.value,
+): String {
     val key = KNOWN_ENTITY_NAME_KEYS[name] ?: return name
     return LocalizedStrings.get(key, locale)
 }

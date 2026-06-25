@@ -7,7 +7,6 @@ import kotlin.test.assertEquals
  * Tests for PlayerAbilities XP and ability points logic
  */
 class PlayerAbilitiesTest {
-
     @Test
     fun testAddXPGrantsAbilityPointsOnLevelUp() {
         val abilities = PlayerAbilities()
@@ -95,7 +94,10 @@ class PlayerAbilitiesTest {
         assertEquals(3, afterAddAgain.level)
         // availableAbilityPoints should include the 2 points kept from before removal
         // plus 2 new points from re-leveling up to level 3 again = 4 total
-        assertEquals(4, afterAddAgain.availableAbilityPoints,
-            "Should grant ability points again after XP is re-added")
+        assertEquals(
+            4,
+            afterAddAgain.availableAbilityPoints,
+            "Should grant ability points again after XP is re-added",
+        )
     }
 }

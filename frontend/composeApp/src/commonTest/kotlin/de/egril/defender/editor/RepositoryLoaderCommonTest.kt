@@ -10,7 +10,7 @@ import kotlin.test.assertTrue
 /**
  * Multiplatform tests for RepositoryLoader.
  * These tests work across all platforms including WASM.
- * 
+ *
  * Note: Uses kotlinx.coroutines.test.runTest which provides multiplatform support
  * for testing suspend functions across JVM, JS, and Native platforms.
  */
@@ -25,23 +25,23 @@ class RepositoryLoaderCommonTest {
         var textWriteCount = 0
             private set
 
-        override fun writeFile(path: String, content: String) {
+        override fun writeFile(
+            path: String,
+            content: String,
+        ) {
             textFiles[path] = content
             textWriteCount++
         }
 
         override fun readFile(path: String): String? = textFiles[path]
 
-        override fun listFiles(directory: String): List<String> {
-            return textFiles.keys
+        override fun listFiles(directory: String): List<String> =
+            textFiles.keys
                 .filter { it.startsWith("$directory/") }
                 .map { it.removePrefix("$directory/").substringBefore("/") }
                 .distinct()
-        }
 
-        override fun fileExists(path: String): Boolean {
-            return textFiles.containsKey(path) || binaryFiles.containsKey(path)
-        }
+        override fun fileExists(path: String): Boolean = textFiles.containsKey(path) || binaryFiles.containsKey(path)
 
         override fun createDirectory(path: String) = Unit
 
@@ -50,207 +50,229 @@ class RepositoryLoaderCommonTest {
             binaryFiles.remove(path)
         }
 
-        override fun renameDirectory(oldPath: String, newPath: String): Boolean = false
+        override fun renameDirectory(
+            oldPath: String,
+            newPath: String,
+        ): Boolean = false
 
-        override fun copyDirectory(sourcePath: String, targetPath: String): Boolean = false
+        override fun copyDirectory(
+            sourcePath: String,
+            targetPath: String,
+        ): Boolean = false
 
         override fun deleteDirectory(path: String): Boolean = true
 
         override fun getAbsolutePath(path: String): String = path
 
-        override fun writeBinaryFile(path: String, content: ByteArray) {
+        override fun writeBinaryFile(
+            path: String,
+            content: ByteArray,
+        ) {
             binaryFiles[path] = content
         }
 
         override fun readBinaryFile(path: String): ByteArray? = binaryFiles[path]
     }
 
-    
     @Test
-    fun testLoadSequenceFromRepository() = runTest {
-        // This test verifies that the repository sequence can be loaded
-        // Works on all platforms including WASM
-        val sequence = RepositoryLoader.loadSequence()
-        
-        // If sequence is null, it means resources aren't available in this test environment (acceptable)
-        if (sequence != null) {
-            assertTrue(sequence.sequence.isNotEmpty(), "Sequence should not be empty")
-            assertTrue(sequence.sequence.contains("welcome_to_defender_of_egril"), 
-                "Sequence should contain the tutorial level")
-        }
-    }
-    
-    @Test
-    fun testLoadMapFromRepository() = runTest {
-        // This test verifies that a map can be loaded from repository
-        // Works on all platforms including WASM
-        val map = RepositoryLoader.loadMap("map_tutorial")
-        
-        // If map is null, it means resources aren't available in this test environment (acceptable)
-        if (map != null) {
-            assertTrue(map.id == "map_tutorial", "Map ID should be correct")
-            assertTrue(map.width == 15, "Map width should be 15")
-            assertTrue(map.height == 8, "Map height should be 8")
-            assertTrue(map.readyToUse, "Map should be marked as ready to use")
-        }
-    }
-    
-    @Test
-    fun testLoadLevelFromRepository() = runTest {
-        // This test verifies that a level can be loaded from repository
-        // Works on all platforms including WASM
-        val level = RepositoryLoader.loadLevel("welcome_to_defender_of_egril")
-        
-        // If level is null, it means resources aren't available in this test environment (acceptable)
-        if (level != null) {
-            assertTrue(level.id == "welcome_to_defender_of_egril", "Level ID should be correct")
-            assertTrue(level.mapId == "map_tutorial", "Level should reference correct map")
-            assertTrue(level.title == "Welcome to Defender of Egril", "Level title should be correct")
-            assertTrue(level.enemySpawns.isNotEmpty(), "Level should have enemy spawns")
-            assertTrue(level.availableTowers.isNotEmpty(), "Level should have available towers")
-        }
-    }
-    
-    @Test
-    fun testHasRepositoryFiles() = runTest {
-        // This test verifies that repository files are detected
-        // Works on all platforms including WASM
-        val hasFiles = RepositoryLoader.hasRepositoryFiles()
-        
-        // Don't fail the test if resources aren't available
-        // The functionality will work in the actual app
-        // This test just ensures the function can be called without errors
-        assertTrue(true, "Repository file check completed without errors")
-    }
-    
-    @Test
-    fun testLoadWorldMapDataFromRepository() = runTest {
-        // This test verifies that the worldmap data can be loaded from repository
-        // Works on all platforms including WASM
-        val worldMapData = RepositoryLoader.loadWorldMapData()
-        
-        // If worldMapData is null, it means resources aren't available in this test environment (acceptable)
-        if (worldMapData != null) {
-            assertTrue(worldMapData.locations.isNotEmpty(), "WorldMapData should have locations")
-            // Check for some known locations from the repository worldmap.json
-            val locationIds = worldMapData.locations.map { it.id }
-            assertTrue(locationIds.contains("tutorial"), "WorldMapData should contain tutorial location")
-            assertTrue(locationIds.contains("the_beginning"), "WorldMapData should contain the_beginning location")
-        }
-    }
-    
-    @Test
-    fun testLoadDragonNames() = runTest {
-        // This test verifies that dragon names can be loaded from repository
-        // Works on all platforms including WASM
-        val dragonNames = RepositoryLoader.loadDragonNames()
-        
-        // If dragonNames is null, it means resources aren't available in this test environment (acceptable)
-        if (dragonNames != null) {
-            assertTrue(dragonNames.isNotEmpty(), "Dragon names list should not be empty")
-            // All dragon names should be non-blank strings
-            assertTrue(dragonNames.all { it.isNotBlank() }, "All dragon names should be non-blank")
-        }
-    }
+    fun testLoadSequenceFromRepository() =
+        runTest {
+            // This test verifies that the repository sequence can be loaded
+            // Works on all platforms including WASM
+            val sequence = RepositoryLoader.loadSequence()
 
-    @Test
-    fun testRepositorySyncRefreshesWhenFingerprintDiffers() = runTest {
-        val bundledVersion = RepositoryLoader.loadVersion()
-        val bundledFingerprint = RepositoryLoader.loadFingerprint()
-
-        if (bundledVersion != null && bundledFingerprint != null) {
-            val storage = TestFileStorage().apply {
-                writeFile("gamedata/version.txt", bundledVersion)
-                writeFile("gamedata/repository_fingerprint.txt", "test-mismatch-fingerprint")
-                writeFile("gamedata/official/maps/existing.json", "{}")
-            }
-
-            val success = RepositoryLoader.loadAndSaveRepositoryFiles(storage)
-
-            assertTrue(success, "Repository sync should succeed when bundled resources are available")
-            assertEquals(
-                bundledFingerprint,
-                storage.readFile("gamedata/repository_fingerprint.txt"),
-                "Repository fingerprint should be refreshed after sync"
-            )
-            assertNotNull(storage.readFile("gamedata/official/sequence.json"))
-            assertNotNull(storage.readFile("gamedata/official/worldmap.json"))
-        }
-    }
-
-    @Test
-    fun testRepositorySyncSkipsWhenFingerprintMatches() = runTest {
-        val bundledVersion = RepositoryLoader.loadVersion()
-        val bundledFingerprint = RepositoryLoader.loadFingerprint()
-
-        if (bundledVersion != null && bundledFingerprint != null) {
-            val storage = TestFileStorage().apply {
-                writeFile("gamedata/version.txt", bundledVersion)
-                writeFile("gamedata/repository_fingerprint.txt", bundledFingerprint)
-                writeFile("gamedata/official/maps/existing.json", "{}")
-            }
-            val writesBeforeSync = storage.textWriteCount
-
-            val success = RepositoryLoader.loadAndSaveRepositoryFiles(storage)
-
-            assertTrue(success, "Repository sync fast path should still report success")
-            // Fast path now always refreshes worldmap.json from the bundled repository to
-            // prevent stale data from being shown (e.g. after the Level Editor modified it
-            // or after a storage quota overflow lost the file). Exactly 1 write is expected.
-            val worldmapWritten = storage.readFile("gamedata/official/worldmap.json") != null
-            if (worldmapWritten) {
-                assertEquals(
-                    writesBeforeSync + 1,
-                    storage.textWriteCount,
-                    "Repository sync fast path should write exactly worldmap.json and nothing else"
-                )
-            } else {
-                assertEquals(
-                    writesBeforeSync,
-                    storage.textWriteCount,
-                    "Repository sync should skip rewriting files when the fingerprint already matches"
+            // If sequence is null, it means resources aren't available in this test environment (acceptable)
+            if (sequence != null) {
+                assertTrue(sequence.sequence.isNotEmpty(), "Sequence should not be empty")
+                assertTrue(
+                    sequence.sequence.contains("welcome_to_defender_of_egril"),
+                    "Sequence should contain the tutorial level",
                 )
             }
         }
-    }
 
     @Test
-    fun testRepositorySyncFastPathRefreshesMapToolingInfoWhenDifferent() = runTest {
-        val bundledVersion = RepositoryLoader.loadVersion()
-        val bundledFingerprint = RepositoryLoader.loadFingerprint()
-        val bundledMap = RepositoryLoader.loadMap("map_the_fortress")
+    fun testLoadMapFromRepository() =
+        runTest {
+            // This test verifies that a map can be loaded from repository
+            // Works on all platforms including WASM
+            val map = RepositoryLoader.loadMap("map_tutorial")
 
-        if (bundledVersion != null && bundledFingerprint != null && bundledMap != null) {
-            val storage = TestFileStorage().apply {
-                writeFile("gamedata/version.txt", bundledVersion)
-                writeFile("gamedata/repository_fingerprint.txt", bundledFingerprint)
-                writeFile(
-                    "gamedata/official/maps/map_the_fortress.json",
-                    EditorJsonSerializer.serializeMap(
-                        bundledMap.copy(
-                            isOfficial = true,
-                            mapToolingInfo = DEFAULT_MAP_TOOLING_INFO
-                        )
+            // If map is null, it means resources aren't available in this test environment (acceptable)
+            if (map != null) {
+                assertTrue(map.id == "map_tutorial", "Map ID should be correct")
+                assertTrue(map.width == 15, "Map width should be 15")
+                assertTrue(map.height == 8, "Map height should be 8")
+                assertTrue(map.readyToUse, "Map should be marked as ready to use")
+            }
+        }
+
+    @Test
+    fun testLoadLevelFromRepository() =
+        runTest {
+            // This test verifies that a level can be loaded from repository
+            // Works on all platforms including WASM
+            val level = RepositoryLoader.loadLevel("welcome_to_defender_of_egril")
+
+            // If level is null, it means resources aren't available in this test environment (acceptable)
+            if (level != null) {
+                assertTrue(level.id == "welcome_to_defender_of_egril", "Level ID should be correct")
+                assertTrue(level.mapId == "map_tutorial", "Level should reference correct map")
+                assertTrue(level.title == "Welcome to Defender of Egril", "Level title should be correct")
+                assertTrue(level.enemySpawns.isNotEmpty(), "Level should have enemy spawns")
+                assertTrue(level.availableTowers.isNotEmpty(), "Level should have available towers")
+            }
+        }
+
+    @Test
+    fun testHasRepositoryFiles() =
+        runTest {
+            // This test verifies that repository files are detected
+            // Works on all platforms including WASM
+            val hasFiles = RepositoryLoader.hasRepositoryFiles()
+
+            // Don't fail the test if resources aren't available
+            // The functionality will work in the actual app
+            // This test just ensures the function can be called without errors
+            assertTrue(true, "Repository file check completed without errors")
+        }
+
+    @Test
+    fun testLoadWorldMapDataFromRepository() =
+        runTest {
+            // This test verifies that the worldmap data can be loaded from repository
+            // Works on all platforms including WASM
+            val worldMapData = RepositoryLoader.loadWorldMapData()
+
+            // If worldMapData is null, it means resources aren't available in this test environment (acceptable)
+            if (worldMapData != null) {
+                assertTrue(worldMapData.locations.isNotEmpty(), "WorldMapData should have locations")
+                // Check for some known locations from the repository worldmap.json
+                val locationIds = worldMapData.locations.map { it.id }
+                assertTrue(locationIds.contains("tutorial"), "WorldMapData should contain tutorial location")
+                assertTrue(locationIds.contains("the_beginning"), "WorldMapData should contain the_beginning location")
+            }
+        }
+
+    @Test
+    fun testLoadDragonNames() =
+        runTest {
+            // This test verifies that dragon names can be loaded from repository
+            // Works on all platforms including WASM
+            val dragonNames = RepositoryLoader.loadDragonNames()
+
+            // If dragonNames is null, it means resources aren't available in this test environment (acceptable)
+            if (dragonNames != null) {
+                assertTrue(dragonNames.isNotEmpty(), "Dragon names list should not be empty")
+                // All dragon names should be non-blank strings
+                assertTrue(dragonNames.all { it.isNotBlank() }, "All dragon names should be non-blank")
+            }
+        }
+
+    @Test
+    fun testRepositorySyncRefreshesWhenFingerprintDiffers() =
+        runTest {
+            val bundledVersion = RepositoryLoader.loadVersion()
+            val bundledFingerprint = RepositoryLoader.loadFingerprint()
+
+            if (bundledVersion != null && bundledFingerprint != null) {
+                val storage =
+                    TestFileStorage().apply {
+                        writeFile("gamedata/version.txt", bundledVersion)
+                        writeFile("gamedata/repository_fingerprint.txt", "test-mismatch-fingerprint")
+                        writeFile("gamedata/official/maps/existing.json", "{}")
+                    }
+
+                val success = RepositoryLoader.loadAndSaveRepositoryFiles(storage)
+
+                assertTrue(success, "Repository sync should succeed when bundled resources are available")
+                assertEquals(
+                    bundledFingerprint,
+                    storage.readFile("gamedata/repository_fingerprint.txt"),
+                    "Repository fingerprint should be refreshed after sync",
+                )
+                assertNotNull(storage.readFile("gamedata/official/sequence.json"))
+                assertNotNull(storage.readFile("gamedata/official/worldmap.json"))
+            }
+        }
+
+    @Test
+    fun testRepositorySyncSkipsWhenFingerprintMatches() =
+        runTest {
+            val bundledVersion = RepositoryLoader.loadVersion()
+            val bundledFingerprint = RepositoryLoader.loadFingerprint()
+
+            if (bundledVersion != null && bundledFingerprint != null) {
+                val storage =
+                    TestFileStorage().apply {
+                        writeFile("gamedata/version.txt", bundledVersion)
+                        writeFile("gamedata/repository_fingerprint.txt", bundledFingerprint)
+                        writeFile("gamedata/official/maps/existing.json", "{}")
+                    }
+                val writesBeforeSync = storage.textWriteCount
+
+                val success = RepositoryLoader.loadAndSaveRepositoryFiles(storage)
+
+                assertTrue(success, "Repository sync fast path should still report success")
+                // Fast path now always refreshes worldmap.json from the bundled repository to
+                // prevent stale data from being shown (e.g. after the Level Editor modified it
+                // or after a storage quota overflow lost the file). Exactly 1 write is expected.
+                val worldmapWritten = storage.readFile("gamedata/official/worldmap.json") != null
+                if (worldmapWritten) {
+                    assertEquals(
+                        writesBeforeSync + 1,
+                        storage.textWriteCount,
+                        "Repository sync fast path should write exactly worldmap.json and nothing else",
                     )
+                } else {
+                    assertEquals(
+                        writesBeforeSync,
+                        storage.textWriteCount,
+                        "Repository sync should skip rewriting files when the fingerprint already matches",
+                    )
+                }
+            }
+        }
+
+    @Test
+    fun testRepositorySyncFastPathRefreshesMapToolingInfoWhenDifferent() =
+        runTest {
+            val bundledVersion = RepositoryLoader.loadVersion()
+            val bundledFingerprint = RepositoryLoader.loadFingerprint()
+            val bundledMap = RepositoryLoader.loadMap("map_the_fortress")
+
+            if (bundledVersion != null && bundledFingerprint != null && bundledMap != null) {
+                val storage =
+                    TestFileStorage().apply {
+                        writeFile("gamedata/version.txt", bundledVersion)
+                        writeFile("gamedata/repository_fingerprint.txt", bundledFingerprint)
+                        writeFile(
+                            "gamedata/official/maps/map_the_fortress.json",
+                            EditorJsonSerializer.serializeMap(
+                                bundledMap.copy(
+                                    isOfficial = true,
+                                    mapToolingInfo = DEFAULT_MAP_TOOLING_INFO,
+                                ),
+                            ),
+                        )
+                    }
+
+                val success = RepositoryLoader.loadAndSaveRepositoryFiles(storage)
+
+                assertTrue(success, "Repository sync fast path should report success")
+                val refreshedJson = storage.readFile("gamedata/official/maps/map_the_fortress.json")
+                val refreshedMap = refreshedJson?.let { EditorJsonSerializer.deserializeMap(it) }
+                assertNotNull(refreshedMap, "Expected refreshed official map to remain readable")
+                assertNotEquals(
+                    DEFAULT_MAP_TOOLING_INFO,
+                    refreshedMap.mapToolingInfo,
+                    "Fast path should refresh stale official map tooling info from repository",
+                )
+                assertEquals(
+                    bundledMap.mapToolingInfo,
+                    refreshedMap.mapToolingInfo,
+                    "Fast path should align map tooling info with bundled repository data",
                 )
             }
-
-            val success = RepositoryLoader.loadAndSaveRepositoryFiles(storage)
-
-            assertTrue(success, "Repository sync fast path should report success")
-            val refreshedJson = storage.readFile("gamedata/official/maps/map_the_fortress.json")
-            val refreshedMap = refreshedJson?.let { EditorJsonSerializer.deserializeMap(it) }
-            assertNotNull(refreshedMap, "Expected refreshed official map to remain readable")
-            assertNotEquals(
-                DEFAULT_MAP_TOOLING_INFO,
-                refreshedMap.mapToolingInfo,
-                "Fast path should refresh stale official map tooling info from repository"
-            )
-            assertEquals(
-                bundledMap.mapToolingInfo,
-                refreshedMap.mapToolingInfo,
-                "Fast path should align map tooling info with bundled repository data"
-            )
         }
-    }
 }

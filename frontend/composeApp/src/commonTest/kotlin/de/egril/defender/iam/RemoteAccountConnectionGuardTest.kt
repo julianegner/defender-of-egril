@@ -25,20 +25,22 @@ import kotlin.test.assertTrue
  * *different* local player profile, it is a stale session → terminate it, skip linking.
  */
 class RemoteAccountConnectionGuardTest {
-
-    private fun makeProfile(id: String, remoteUsername: String? = null) = PlayerProfile(
+    private fun makeProfile(
+        id: String,
+        remoteUsername: String? = null,
+    ) = PlayerProfile(
         id = id,
         name = id,
         createdAt = 0L,
         lastPlayedAt = 0L,
-        remoteUsername = remoteUsername
+        remoteUsername = remoteUsername,
     )
 
     /** Simulates the guard logic extracted from [GameViewModel.onAuthStateChanged]. */
     private fun isStaleSession(
         profiles: PlayerProfiles,
         currentPlayerId: String,
-        authenticatedUsername: String
+        authenticatedUsername: String,
     ): Boolean {
         val existingOwner = profiles.profiles.find { it.remoteUsername == authenticatedUsername }
         return existingOwner != null && existingOwner.id != currentPlayerId
@@ -46,61 +48,70 @@ class RemoteAccountConnectionGuardTest {
 
     @Test
     fun `no stale session when no profile is linked to the remote username`() {
-        val profiles = PlayerProfiles(
-            profiles = listOf(
-                makeProfile("player_a", remoteUsername = "remoteA"),
-                makeProfile("player_b", remoteUsername = null)
-            ),
-            lastUsedPlayerId = "player_b"
-        )
+        val profiles =
+            PlayerProfiles(
+                profiles =
+                    listOf(
+                        makeProfile("player_a", remoteUsername = "remoteA"),
+                        makeProfile("player_b", remoteUsername = null),
+                    ),
+                lastUsedPlayerId = "player_b",
+            )
         // PlayerB is current player, authenticated as "remoteB" (never linked before)
         assertFalse(isStaleSession(profiles, "player_b", "remoteB"))
     }
 
     @Test
     fun `stale session detected when remote username belongs to a different local player`() {
-        val profiles = PlayerProfiles(
-            profiles = listOf(
-                makeProfile("player_a", remoteUsername = "remoteA"),
-                makeProfile("player_b", remoteUsername = null)
-            ),
-            lastUsedPlayerId = "player_b"
-        )
+        val profiles =
+            PlayerProfiles(
+                profiles =
+                    listOf(
+                        makeProfile("player_a", remoteUsername = "remoteA"),
+                        makeProfile("player_b", remoteUsername = null),
+                    ),
+                lastUsedPlayerId = "player_b",
+            )
         // PlayerB is current player, but SSO returned "remoteA" which belongs to PlayerA
         assertTrue(isStaleSession(profiles, "player_b", "remoteA"))
     }
 
     @Test
     fun `no stale session when the current player is already linked to the same remote username`() {
-        val profiles = PlayerProfiles(
-            profiles = listOf(
-                makeProfile("player_a", remoteUsername = "remoteA")
-            ),
-            lastUsedPlayerId = "player_a"
-        )
+        val profiles =
+            PlayerProfiles(
+                profiles =
+                    listOf(
+                        makeProfile("player_a", remoteUsername = "remoteA"),
+                    ),
+                lastUsedPlayerId = "player_a",
+            )
         // PlayerA is current player and is already linked to "remoteA" – not a stale session
         assertFalse(isStaleSession(profiles, "player_a", "remoteA"))
     }
 
     @Test
     fun `no stale session with single player and no linked account`() {
-        val profiles = PlayerProfiles(
-            profiles = listOf(makeProfile("player_a")),
-            lastUsedPlayerId = "player_a"
-        )
+        val profiles =
+            PlayerProfiles(
+                profiles = listOf(makeProfile("player_a")),
+                lastUsedPlayerId = "player_a",
+            )
         assertFalse(isStaleSession(profiles, "player_a", "remoteA"))
     }
 
     @Test
     fun `stale session detected in multi-player setup`() {
-        val profiles = PlayerProfiles(
-            profiles = listOf(
-                makeProfile("alice", remoteUsername = "alice_remote"),
-                makeProfile("bob", remoteUsername = "bob_remote"),
-                makeProfile("charlie", remoteUsername = null)
-            ),
-            lastUsedPlayerId = "charlie"
-        )
+        val profiles =
+            PlayerProfiles(
+                profiles =
+                    listOf(
+                        makeProfile("alice", remoteUsername = "alice_remote"),
+                        makeProfile("bob", remoteUsername = "bob_remote"),
+                        makeProfile("charlie", remoteUsername = null),
+                    ),
+                lastUsedPlayerId = "charlie",
+            )
         // Charlie is the current player, but the SSO session is still alive as alice_remote
         assertTrue(isStaleSession(profiles, "charlie", "alice_remote"))
         // …or as bob_remote
@@ -122,10 +133,11 @@ class RemoteAccountConnectionGuardTest {
 
     @Test
     fun `findByRemoteUsername returns null when no profile matches`() {
-        val profiles = listOf(
-            makeProfile("player_a", remoteUsername = "remoteA"),
-            makeProfile("player_b", remoteUsername = null)
-        )
+        val profiles =
+            listOf(
+                makeProfile("player_a", remoteUsername = "remoteA"),
+                makeProfile("player_b", remoteUsername = null),
+            )
         val found = profiles.find { it.remoteUsername == "remoteB" }
         assertNull(found)
     }

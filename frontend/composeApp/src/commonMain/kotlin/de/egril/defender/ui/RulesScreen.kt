@@ -15,63 +15,66 @@ import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import de.egril.defender.ui.infopage.HowToPlayContent
-import de.egril.defender.ui.settings.SettingsButton
+import com.hyperether.resources.stringResource
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.infopage.HowToPlayContent
 import de.egril.defender.ui.settings.AppSettings
-import com.hyperether.resources.stringResource
+import de.egril.defender.ui.settings.SettingsButton
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.launch
 
 @Composable
-fun RulesScreen(
-    onBack: () -> Unit
-) {
+fun RulesScreen(onBack: () -> Unit) {
     val focusRequester = remember { FocusRequester() }
     val scrollState = androidx.compose.foundation.rememberScrollState()
     val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
     LaunchedEffect(Unit) {
-        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+        try {
+            focusRequester.requestFocus()
+        } catch (_: IllegalStateException) {
+        }
     }
     Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .focusRequester(focusRequester)
-            .focusTarget()
-            .onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown) {
-                    when (event.key) {
-                        Key.Back, Key.Escape -> {
-                            onBack()
-                            true
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .focusRequester(focusRequester)
+                .focusTarget()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when (event.key) {
+                            Key.Back, Key.Escape -> {
+                                onBack()
+                                true
+                            }
+                            Key.DirectionDown -> {
+                                coroutineScope.launch { scrollState.animateScrollTo(scrollState.value + 150) }
+                                true
+                            }
+                            Key.DirectionUp -> {
+                                coroutineScope.launch { scrollState.animateScrollTo((scrollState.value - 150).coerceAtLeast(0)) }
+                                true
+                            }
+                            else -> false
                         }
-                        Key.DirectionDown -> {
-                            coroutineScope.launch { scrollState.animateScrollTo(scrollState.value + 150) }
-                            true
-                        }
-                        Key.DirectionUp -> {
-                            coroutineScope.launch { scrollState.animateScrollTo((scrollState.value - 150).coerceAtLeast(0)) }
-                            true
-                        }
-                        else -> false
+                    } else {
+                        false
                     }
-                } else {
-                    false
-                }
-            },
-        color = MaterialTheme.colorScheme.background
+                },
+        color = MaterialTheme.colorScheme.background,
     ) {
         Box(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
+            modifier = Modifier.fillMaxSize().padding(16.dp),
         ) {
             // Settings and Feedback buttons in top-right corner
             Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 FeedbackButton(shortcutKey = ".")
                 SettingsButton(shortcutKey = ",")
@@ -79,7 +82,7 @@ fun RulesScreen(
 
             Column(
                 modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 // Header
                 Text(
@@ -87,7 +90,7 @@ fun RulesScreen(
                     style = MaterialTheme.typography.headlineLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 16.dp),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
 
                 // Scrollable content
@@ -100,13 +103,13 @@ fun RulesScreen(
                     Row(
                         modifier = Modifier.padding(vertical = 4.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         ShortcutKeyChip(text = "\u2191\u2193")
                         Text(
                             stringResource(Res.string.keyboard_nav_scroll),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -114,7 +117,7 @@ fun RulesScreen(
                 // Back button
                 Button(
                     onClick = onBack,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 ) {
                     Text(stringResource(Res.string.back))
                     if (AppSettings.showButtonShortcutHints.value) {

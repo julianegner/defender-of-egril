@@ -1,9 +1,8 @@
 package de.egril.defender.ui.animations
-import io.github.alexzhirkevich.compottie.Compottie
-
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import io.github.alexzhirkevich.compottie.Compottie
 import kotlinx.coroutines.delay
 
 /** Duration (ms) the mine-dig animation plays before stopping automatically. */
@@ -20,7 +19,10 @@ private const val MINE_DIG_ANIMATION_DURATION_MS = 5_000L
  * feedback).
  */
 @Composable
-fun MineDigAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+fun MineDigAnimation(
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (!animate) return
 
     var isVisible by remember { mutableStateOf(true) }
@@ -34,9 +36,8 @@ fun MineDigAnimation(animate: Boolean, modifier: Modifier = Modifier) {
         LottieAnimation(
             animationType = AnimationType.MINE_DIG,
             modifier = modifier.fillMaxSize(),
-            iterations = Compottie.IterateForever
+            iterations = Compottie.IterateForever,
         )
     }
     // No static fallback — the dig-outcome dialog already communicates the result.
 }
-

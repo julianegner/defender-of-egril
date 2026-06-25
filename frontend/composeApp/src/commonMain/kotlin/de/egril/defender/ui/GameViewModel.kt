@@ -1,36 +1,32 @@
 package de.egril.defender.ui
 
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import com.hyperether.resources.currentLanguage
+import de.egril.defender.audio.GlobalSoundManager
+import de.egril.defender.audio.SoundEvent
+import de.egril.defender.config.GameLogBuffer
+import de.egril.defender.config.LogConfig
+import de.egril.defender.editor.EditorJsonSerializer
+import de.egril.defender.editor.OfficialContent
 import de.egril.defender.game.GameEngine
-import de.egril.defender.game.GameEngine.EnemyTurnMovements
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
+import de.egril.defender.ui.infopage.NewVersionInfo
+import de.egril.defender.ui.infopage.checkForNewerVersion
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.CheatCodeHandler
+import de.egril.defender.utils.DeepLink
+import de.egril.defender.utils.checkCurrentDeepLink
 import de.egril.defender.utils.isPlatformWasm
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import de.egril.defender.config.GameLogBuffer
-import de.egril.defender.config.LogConfig
-import de.egril.defender.audio.GlobalSoundManager
-import de.egril.defender.audio.SoundEvent
-import de.egril.defender.editor.EditorJsonSerializer
-import de.egril.defender.editor.OfficialContent
-import de.egril.defender.ui.infopage.NewVersionInfo
-import de.egril.defender.ui.infopage.checkForNewerVersion
-import de.egril.defender.utils.checkCurrentDeepLink
-import de.egril.defender.utils.DeepLink
-import com.hyperether.resources.currentLanguage
-
-
 
 /**
  * Represents the progress of loading repository data files (levels, maps, worldmap).
@@ -39,27 +35,51 @@ import com.hyperether.resources.currentLanguage
 data class LoadingProgress(
     val loadedCount: Int,
     val totalCount: Int,
-    val currentFile: String
+    val currentFile: String,
 )
 
 sealed class Screen {
     object MainMenu : Screen()
+
     object WorldMap : Screen()
+
     object Rules : Screen()
+
     object InstallationInfo : Screen()
-    data class InstallationInfoAtTab(val initialTab: de.egril.defender.ui.infopage.InfoTab) : Screen()
+
+    data class InstallationInfoAtTab(
+        val initialTab: de.egril.defender.ui.infopage.InfoTab,
+    ) : Screen()
+
     object LevelEditor : Screen()
+
     object LoadGame : Screen()
+
     object Sticker : Screen()
+
     object PlayerProfile : Screen()
+
     object LoadingSpinnerDemo : Screen()
-    object StatsUpgrade : Screen()  // New screen for stats/spells upgrade (from PlayerProfile)
-    data class StatsUpgradeWithNextLevel(val nextLevelId: Int, val nextLevelName: String) : Screen()  // Stats/spells upgrade before continuing to next level
+
+    object StatsUpgrade : Screen() // New screen for stats/spells upgrade (from PlayerProfile)
+
+    data class StatsUpgradeWithNextLevel(
+        val nextLevelId: Int,
+        val nextLevelName: String,
+    ) : Screen() // Stats/spells upgrade before continuing to next level
+
     object FinalCredits : Screen()
-    object AnimationTest : Screen()  // Developer cheat: animation test/preview screen
-    object TutorialDeepLink : Screen()  // Web-only: /tutorial URL shows loading while data/player are prepared
-    object DemoDeepLink : Screen()  // Web-only: /demo URL shows loading while data/player are prepared
-    data class GamePlay(val levelId: Int) : Screen()
+
+    object AnimationTest : Screen() // Developer cheat: animation test/preview screen
+
+    object TutorialDeepLink : Screen() // Web-only: /tutorial URL shows loading while data/player are prepared
+
+    object DemoDeepLink : Screen() // Web-only: /demo URL shows loading while data/player are prepared
+
+    data class GamePlay(
+        val levelId: Int,
+    ) : Screen()
+
     data class LevelComplete(
         val levelId: Int,
         val won: Boolean,
@@ -69,7 +89,7 @@ sealed class Screen {
         val playerLevelGained: Int = 0,
         val abilityPointsGained: Int = 0,
         val nextLevelId: Int? = null,
-        val nextLevelName: String? = null
+        val nextLevelName: String? = null,
     ) : Screen()
 }
 
@@ -77,10 +97,10 @@ sealed class Screen {
  * Represents a conflict between saved world map progress and current world map progress
  */
 data class WorldMapConflict(
-    val savedGame: de.egril.defender.save.SavedGame?,  // Null when importing just game state
+    val savedGame: de.egril.defender.save.SavedGame?, // Null when importing just game state
     val savedWorldMap: de.egril.defender.save.WorldMapSave,
     val currentWorldMap: Map<String, LevelStatus>,
-    val level: Level?  // Null when importing just game state (no level to load)
+    val level: Level?, // Null when importing just game state (no level to load)
 )
 
 /**
@@ -89,26 +109,25 @@ data class WorldMapConflict(
 data class ReminderMessage(
     val type: de.egril.defender.ui.gameplay.ReminderType,
     val elapsedMs: Long? = null,
-    val timeDescription: String? = null
+    val timeDescription: String? = null,
 )
 
 class GameViewModel {
-
     private val _currentScreen = MutableStateFlow<Screen>(Screen.MainMenu)
     val currentScreen: StateFlow<Screen> = _currentScreen.asStateFlow()
-    
+
     private val _worldLevels = MutableStateFlow<List<WorldLevel>>(emptyList())
     val worldLevels: StateFlow<List<WorldLevel>> = _worldLevels.asStateFlow()
-    
+
     private val _gameState = MutableStateFlow<GameState?>(null)
     val gameState: StateFlow<GameState?> = _gameState.asStateFlow()
-    
+
     private val _cheatDigOutcome = MutableStateFlow<DigOutcome?>(null)
     val cheatDigOutcome: StateFlow<DigOutcome?> = _cheatDigOutcome.asStateFlow()
-    
+
     private val _showPlatformInfo = MutableStateFlow(false)
     val showPlatformInfo: StateFlow<Boolean> = _showPlatformInfo.asStateFlow()
-    
+
     private val _showCheatHelp = MutableStateFlow(false)
     val showCheatHelp: StateFlow<Boolean> = _showCheatHelp.asStateFlow()
 
@@ -134,20 +153,21 @@ class GameViewModel {
     // Player profile state
     private val _currentPlayer = MutableStateFlow<de.egril.defender.save.PlayerProfile?>(null)
     val currentPlayer: StateFlow<de.egril.defender.save.PlayerProfile?> = _currentPlayer.asStateFlow()
-    
+
     private val _allPlayers = MutableStateFlow<List<de.egril.defender.save.PlayerProfile>>(emptyList())
     val allPlayers: StateFlow<List<de.egril.defender.save.PlayerProfile>> = _allPlayers.asStateFlow()
-    
+
     private val _needsPlayerSelection = MutableStateFlow(false)
     val needsPlayerSelection: StateFlow<Boolean> = _needsPlayerSelection.asStateFlow()
-    
+
     // World map progress conflict state
     private val _worldMapConflict = MutableStateFlow<WorldMapConflict?>(null)
     val worldMapConflict: StateFlow<WorldMapConflict?> = _worldMapConflict.asStateFlow()
-    
+
     // Level handoff state (connected levels) - shows dialog when starting a connected level
     private val _pendingLevelHandoff = MutableStateFlow<de.egril.defender.save.LevelHandoffSave?>(null)
     val pendingLevelHandoff: StateFlow<de.egril.defender.save.LevelHandoffSave?> = _pendingLevelHandoff.asStateFlow()
+
     // The level ID to start when the handoff dialog is resolved
     private var pendingLevelIdForHandoff: Int? = null
 
@@ -167,7 +187,7 @@ class GameViewModel {
     private var achievementManager: de.egril.defender.game.AchievementManager? = null
     private val _newAchievement = MutableStateFlow<Achievement?>(null)
     val newAchievement: StateFlow<Achievement?> = _newAchievement.asStateFlow()
-    
+
     // Magic panel state
     private val _showMagicPanel = MutableStateFlow(false)
     val showMagicPanel: StateFlow<Boolean> = _showMagicPanel.asStateFlow()
@@ -193,11 +213,11 @@ class GameViewModel {
     private var gameSessionStartTime: Long? = null
     private var lastBreakReminderTime: Long? = null
     private var lastSleepReminderTime: Long? = null
-    
+
     // Constants for reminder intervals
-    private val BREAK_REMINDER_INTERVAL_MS = 2 * 60 * 60 * 1000L  // 2 hours
-    private val SLEEP_REMINDER_INTERVAL_MS = 60 * 60 * 1000L       // 1 hour
-    private val SLEEP_START_HOUR = 23  // 23:00 (11 PM)
+    private val BREAK_REMINDER_INTERVAL_MS = 2 * 60 * 60 * 1000L // 2 hours
+    private val SLEEP_REMINDER_INTERVAL_MS = 60 * 60 * 1000L // 1 hour
+    private val SLEEP_START_HOUR = 23 // 23:00 (11 PM)
 
     // Extra pause added after a movement step that triggers a trap, so the trap animation (~830ms)
     // completes before the enemy continues moving.
@@ -246,7 +266,7 @@ class GameViewModel {
         de.egril.defender.analytics.reportEvent(
             de.egril.defender.analytics.GameEventType.APP_STARTED,
             null,
-            difficulty = AppSettings.difficulty.value.name
+            difficulty = AppSettings.difficulty.value.name,
         )
 
         // Upload settings to the dedicated backend table whenever a setting is changed
@@ -278,7 +298,7 @@ class GameViewModel {
                         },
                         onProgress = { loaded, total, filename ->
                             _loadingProgress.value = LoadingProgress(loaded, total, filename)
-                        }
+                        },
                     )
                     // Full load finished – refresh world map so all levels become available.
                     _loadingProgress.value = null
@@ -296,7 +316,8 @@ class GameViewModel {
             }
         } else {
             // On non-WASM platforms, repository files are loaded synchronously before this point.
-            de.egril.defender.editor.EditorStorage.ensureInitialized()
+            de.egril.defender.editor.EditorStorage
+                .ensureInitialized()
             initializePlayerProfile()
             initializeWorldMap()
             // Restore game from background save if the process was killed while the app
@@ -309,7 +330,7 @@ class GameViewModel {
         // refreshSavedGames() were called here directly, because _savedGames is declared
         // further down in the file and not yet initialised at this point in the constructor.
     }
-    
+
     /**
      * Initialize player profile system
      * - Checks for existing players
@@ -318,19 +339,24 @@ class GameViewModel {
      */
     private fun initializePlayerProfile() {
         // Check for existing player profiles
-        val profiles = de.egril.defender.save.PlayerProfileStorage.getAllProfiles()
+        val profiles =
+            de.egril.defender.save.PlayerProfileStorage
+                .getAllProfiles()
         _allPlayers.value = profiles.profiles
-        
+
         if (profiles.profiles.isEmpty()) {
             // No profiles exist - check if we need to migrate old saves
-            val migratedProfile = de.egril.defender.save.PlayerProfileStorage.migrateExistingSaves()
+            val migratedProfile =
+                de.egril.defender.save.PlayerProfileStorage
+                    .migrateExistingSaves()
             if (migratedProfile != null) {
                 // Migration successful, use the migrated profile
                 if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                println("Migrated existing saves to player profile: ${migratedProfile.name}")
+                    println("Migrated existing saves to player profile: ${migratedProfile.name}")
                 }
                 _currentPlayer.value = migratedProfile
-                de.egril.defender.save.SaveFileStorage.setCurrentPlayer(migratedProfile.id)
+                de.egril.defender.save.SaveFileStorage
+                    .setCurrentPlayer(migratedProfile.id)
                 _allPlayers.value = listOf(migratedProfile)
             } else {
                 // No existing saves, need to create first player
@@ -339,19 +365,24 @@ class GameViewModel {
         } else {
             // Load the last used player or the most recently played one
             val lastPlayerId = profiles.lastUsedPlayerId
-            val playerToUse = if (lastPlayerId != null) {
-                profiles.profiles.find { it.id == lastPlayerId }
-            } else {
-                profiles.profiles.maxByOrNull { it.lastPlayedAt }
-            }
-            
+            val playerToUse =
+                if (lastPlayerId != null) {
+                    profiles.profiles.find { it.id == lastPlayerId }
+                } else {
+                    profiles.profiles.maxByOrNull { it.lastPlayedAt }
+                }
+
             if (playerToUse != null) {
                 _currentPlayer.value = playerToUse
-                de.egril.defender.save.SaveFileStorage.setCurrentPlayer(playerToUse.id)
-                de.egril.defender.save.PlayerProfileStorage.updateLastPlayed(playerToUse.id)
+                de.egril.defender.save.SaveFileStorage
+                    .setCurrentPlayer(playerToUse.id)
+                de.egril.defender.save.PlayerProfileStorage
+                    .updateLastPlayed(playerToUse.id)
 
                 // Reload the player profile after updateLastPlayed to ensure we have the latest data
-                val reloadedProfile = de.egril.defender.save.PlayerProfileStorage.getProfile(playerToUse.id)
+                val reloadedProfile =
+                    de.egril.defender.save.PlayerProfileStorage
+                        .getProfile(playerToUse.id)
                 if (reloadedProfile != null) {
                     _currentPlayer.value = reloadedProfile
                 }
@@ -361,35 +392,42 @@ class GameViewModel {
             }
         }
     }
-    
+
     private fun initializeWorldMap() {
         // Load official levels
         val officialLevels = LevelData.createLevels()
         if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-        println("DEBUG: Total official levels loaded: ${officialLevels.size}")
+            println("DEBUG: Total official levels loaded: ${officialLevels.size}")
         }
 
         // Load user levels from user sequence
-        val userSequence = de.egril.defender.editor.EditorStorage.getUserLevelSequence()
-        val userLevels = userSequence.sequence.mapNotNull { levelId ->
-            val editorLevel = de.egril.defender.editor.EditorStorage.reloadLevel(levelId)
-            if (editorLevel != null && !editorLevel.isOfficial) {
-                // Check if level is ready to play
-                if (de.egril.defender.editor.EditorStorage.isLevelReadyToPlay(editorLevel)) {
-                    // Convert editor level to game level
-                    de.egril.defender.editor.EditorStorage.convertToGameLevel(
-                        editorLevel, 
-                        officialLevels.size + userSequence.sequence.indexOf(levelId) + 1
-                    )
+        val userSequence =
+            de.egril.defender.editor.EditorStorage
+                .getUserLevelSequence()
+        val userLevels =
+            userSequence.sequence.mapNotNull { levelId ->
+                val editorLevel =
+                    de.egril.defender.editor.EditorStorage
+                        .reloadLevel(levelId)
+                if (editorLevel != null && !editorLevel.isOfficial) {
+                    // Check if level is ready to play
+                    if (de.egril.defender.editor.EditorStorage
+                            .isLevelReadyToPlay(editorLevel)
+                    ) {
+                        // Convert editor level to game level
+                        de.egril.defender.editor.EditorStorage.convertToGameLevel(
+                            editorLevel,
+                            officialLevels.size + userSequence.sequence.indexOf(levelId) + 1,
+                        )
+                    } else {
+                        null
+                    }
                 } else {
                     null
                 }
-            } else {
-                null
             }
-        }
         if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-        println("DEBUG: Total user levels loaded: ${userLevels.size}")
+            println("DEBUG: Total user levels loaded: ${userLevels.size}")
         }
 
         // Load community levels from community directory (skip any already present as user levels)
@@ -398,96 +436,123 @@ class GameViewModel {
         // This ensures isLevelReadyToPlay → getMap() finds community maps in the cache rather than
         // relying on a lazy per-map disk read that can be disrupted by a concurrent clearCommunityCache()
         // call from downloadCommunityContent running on Dispatchers.Default's thread pool.
-        val communityMaps = de.egril.defender.editor.EditorStorage.getAllCommunityMaps()
-        val communityEditorLevels = de.egril.defender.editor.EditorStorage.getAllCommunityLevels()
-            // .filter { it.id !in userLevelIds }  // Avoid duplicating levels the user also has locally
+        val communityMaps =
+            de.egril.defender.editor.EditorStorage
+                .getAllCommunityMaps()
+        val communityEditorLevels =
+            de.egril.defender.editor.EditorStorage
+                .getAllCommunityLevels()
+        // .filter { it.id !in userLevelIds }  // Avoid duplicating levels the user also has locally
         if (LogConfig.isEnabled { LogConfig.ENABLE_COMMUNITY_DEBUG_LOGGING }) {
             println("COMMUNITY-DEBUG: Found ${communityMaps.size} community maps on disk: ${communityMaps.map { it.id }}")
-            println("COMMUNITY-DEBUG: Found ${communityEditorLevels.size} community levels on disk: ${communityEditorLevels.map { "${it.id} (mapId=${it.mapId})" }}")
+            println(
+                "COMMUNITY-DEBUG: Found ${communityEditorLevels.size} community levels on disk: ${communityEditorLevels.map {
+                    "${it.id} (mapId=${it.mapId})"
+                }}",
+            )
         }
-        val communityLevels = communityEditorLevels.mapIndexedNotNull { index, editorLevel ->
-            val map = de.egril.defender.editor.EditorStorage.getMap(editorLevel.mapId)
-            val levelReady = editorLevel.isReadyToPlay()
-            val mapReady = map?.validateReadyToUse(includeRiversAsWalkable = true) ?: false
-            val targets = map?.getTargets() ?: emptyList()
-            val spawnPoints = map?.getSpawnPoints() ?: emptyList()
-            val waypointResult = if (targets.isNotEmpty()) {
-                editorLevel.validateWaypointsDetailed(targetPositions = targets, spawnPoints = spawnPoints)
-            } else null
-            val waypointsValid = waypointResult?.isValid ?: false
-            val isReady = de.egril.defender.editor.EditorStorage.isLevelReadyToPlay(editorLevel)
-            if (LogConfig.isEnabled { LogConfig.ENABLE_COMMUNITY_DEBUG_LOGGING }) {
-                println("COMMUNITY-DEBUG: Level '${editorLevel.id}': mapId=${editorLevel.mapId}, mapFound=${map != null}, " +
-                    "tiles=${map?.tiles?.size ?: 0}, levelReady=$levelReady, mapReady=$mapReady, " +
-                    "targets=${targets.size}, spawns=${spawnPoints.size}, waypointsValid=$waypointsValid, " +
-                    "isReadyToPlay=$isReady")
+        val communityLevels =
+            communityEditorLevels.mapIndexedNotNull { index, editorLevel ->
+                val map =
+                    de.egril.defender.editor.EditorStorage
+                        .getMap(editorLevel.mapId)
+                val levelReady = editorLevel.isReadyToPlay()
+                val mapReady = map?.validateReadyToUse(includeRiversAsWalkable = true) ?: false
+                val targets = map?.getTargets() ?: emptyList()
+                val spawnPoints = map?.getSpawnPoints() ?: emptyList()
+                val waypointResult =
+                    if (targets.isNotEmpty()) {
+                        editorLevel.validateWaypointsDetailed(targetPositions = targets, spawnPoints = spawnPoints)
+                    } else {
+                        null
+                    }
+                val waypointsValid = waypointResult?.isValid ?: false
+                val isReady =
+                    de.egril.defender.editor.EditorStorage
+                        .isLevelReadyToPlay(editorLevel)
+                if (LogConfig.isEnabled { LogConfig.ENABLE_COMMUNITY_DEBUG_LOGGING }) {
+                    println(
+                        "COMMUNITY-DEBUG: Level '${editorLevel.id}': mapId=${editorLevel.mapId}, mapFound=${map != null}, " +
+                            "tiles=${map?.tiles?.size ?: 0}, levelReady=$levelReady, mapReady=$mapReady, " +
+                            "targets=${targets.size}, spawns=${spawnPoints.size}, waypointsValid=$waypointsValid, " +
+                            "isReadyToPlay=$isReady",
+                    )
+                }
+                if (isReady) {
+                    de.egril.defender.editor.EditorStorage.convertToGameLevel(
+                        editorLevel,
+                        officialLevels.size + userLevels.size + index + 1,
+                    )
+                } else {
+                    null
+                }
             }
-            if (isReady) {
-                de.egril.defender.editor.EditorStorage.convertToGameLevel(
-                    editorLevel,
-                    officialLevels.size + userLevels.size + index + 1
-                )
-            } else {
-                null
-            }
-        }
         if (LogConfig.isEnabled { LogConfig.ENABLE_COMMUNITY_DEBUG_LOGGING }) {
             println("COMMUNITY-DEBUG: Total community levels loaded into worldLevels: ${communityLevels.size}")
         }
 
         // Combine official, user, and community levels
         val allLevels = officialLevels + userLevels + communityLevels
-        
+
         // Load saved world map status
-        val savedStatuses = de.egril.defender.save.SaveFileStorage.loadWorldMapStatus()
-        
+        val savedStatuses =
+            de.egril.defender.save.SaveFileStorage
+                .loadWorldMapStatus()
+
         // Get the set of won level IDs
         val wonLevelIds = savedStatuses?.filter { it.value == LevelStatus.WON }?.keys?.toSet() ?: emptySet()
-        
-        _worldLevels.value = allLevels.mapIndexed { index, level ->
-            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size}")
-            }
-            // Look up status by editorLevelId if available
-            val status = if (level.editorLevelId != null) {
-                // Check saved status first
-                val savedStatus = savedStatuses?.get(level.editorLevelId)
-                if (savedStatus != null) {
-                    savedStatus
-                } else {
-                    // User and community levels are always unlocked
-                    val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(level.editorLevelId)
-                        ?: de.egril.defender.editor.EditorStorage.getCommunityLevel(level.editorLevelId)
-                    if (editorLevel?.isOfficial == false) {
-                        LevelStatus.UNLOCKED
-                    } else {
-                        // Check if official level should be unlocked based on prerequisites
-                        if (de.egril.defender.editor.EditorStorage.isLevelUnlocked(level.editorLevelId, wonLevelIds)) {
-                            LevelStatus.UNLOCKED
+
+        _worldLevels.value =
+            allLevels.mapIndexed { index, level ->
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size}")
+                }
+                // Look up status by editorLevelId if available
+                val status =
+                    if (level.editorLevelId != null) {
+                        // Check saved status first
+                        val savedStatus = savedStatuses?.get(level.editorLevelId)
+                        if (savedStatus != null) {
+                            savedStatus
                         } else {
-                            LevelStatus.LOCKED
+                            // User and community levels are always unlocked
+                            val editorLevel =
+                                de.egril.defender.editor.EditorStorage
+                                    .getLevel(level.editorLevelId)
+                                    ?: de.egril.defender.editor.EditorStorage
+                                        .getCommunityLevel(level.editorLevelId)
+                            if (editorLevel?.isOfficial == false) {
+                                LevelStatus.UNLOCKED
+                            } else {
+                                // Check if official level should be unlocked based on prerequisites
+                                if (de.egril.defender.editor.EditorStorage
+                                        .isLevelUnlocked(level.editorLevelId, wonLevelIds)
+                                ) {
+                                    LevelStatus.UNLOCKED
+                                } else {
+                                    LevelStatus.LOCKED
+                                }
+                            }
                         }
+                    } else {
+                        // Fallback for legacy levels or levels created without editor (shouldn't happen in normal gameplay)
+                        if (LogConfig.ENABLE_UI_LOGGING) {
+                            println("WARNING: Level ${level.id} (${level.name}) has no editorLevelId - using fallback status")
+                        }
+                        if (index == 0) LevelStatus.UNLOCKED else LevelStatus.LOCKED
                     }
-                }
-            } else {
-                // Fallback for legacy levels or levels created without editor (shouldn't happen in normal gameplay)
-                if (LogConfig.ENABLE_UI_LOGGING) {
-                println("WARNING: Level ${level.id} (${level.name}) has no editorLevelId - using fallback status")
-                }
-                if (index == 0) LevelStatus.UNLOCKED else LevelStatus.LOCKED
+
+                WorldLevel(
+                    level = level,
+                    status = status,
+                )
             }
-            
-            WorldLevel(
-                level = level,
-                status = status
-            )
-        }
     }
-    
+
     fun reloadWorldMap() {
         // Reload levels from disk to get latest changes
         if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-        println("Reloading world map from disk...")
+            println("Reloading world map from disk...")
         }
         initializeWorldMap()
     }
@@ -500,13 +565,15 @@ class GameViewModel {
     fun downloadCommunityContent() {
         viewModelScope.launch {
             try {
-                val communityLevelMeta = de.egril.defender.save.BackendCommunityService
-                    .fetchCommunityFileList("LEVEL")
+                val communityLevelMeta =
+                    de.egril.defender.save.BackendCommunityService
+                        .fetchCommunityFileList("LEVEL")
                 if (communityLevelMeta != null) {
                     _remoteCommunityLevelsMeta.value = communityLevelMeta
                 }
-                val communityMapMeta = de.egril.defender.save.BackendCommunityService
-                    .fetchCommunityFileList("MAP")
+                val communityMapMeta =
+                    de.egril.defender.save.BackendCommunityService
+                        .fetchCommunityFileList("MAP")
                 if (communityMapMeta != null) {
                     _remoteCommunityMapsMeta.value = communityMapMeta
                 }
@@ -517,7 +584,8 @@ class GameViewModel {
             } finally {
                 // Always reload locally-downloaded community levels so they appear in the world map,
                 // even when the network is unavailable or the metadata fetch fails.
-                de.egril.defender.editor.EditorStorage.clearCommunityCache()
+                de.egril.defender.editor.EditorStorage
+                    .clearCommunityCache()
                 initializeWorldMap()
             }
         }
@@ -534,39 +602,46 @@ class GameViewModel {
      */
     fun downloadCommunityLevelOnDemand(
         fileInfo: de.egril.defender.save.CommunityFileInfo,
-        onComplete: (Boolean) -> Unit
+        onComplete: (Boolean) -> Unit,
     ) {
         viewModelScope.launch {
             try {
-                val fileData = de.egril.defender.save.BackendCommunityService
-                    .fetchCommunityFile("LEVEL", fileInfo.fileId)
+                val fileData =
+                    de.egril.defender.save.BackendCommunityService
+                        .fetchCommunityFile("LEVEL", fileInfo.fileId)
                 if (fileData == null) {
                     onComplete(false)
                     return@launch
                 }
-                val level = de.egril.defender.editor.EditorJsonSerializer.deserializeLevel(fileData.data)
+                val level =
+                    de.egril.defender.editor.EditorJsonSerializer
+                        .deserializeLevel(fileData.data)
                 if (level == null) {
                     onComplete(false)
                     return@launch
                 }
                 de.egril.defender.editor.EditorStorage.saveCommunityLevel(
-                    level.copy(isCommunity = true, communityAuthorUsername = fileInfo.authorUsername)
+                    level.copy(isCommunity = true, communityAuthorUsername = fileInfo.authorUsername),
                 )
                 // Also download the map used by this level if not already present locally.
-                val mapNeededDownload = de.egril.defender.editor.EditorStorage.getMap(level.mapId) == null
+                val mapNeededDownload =
+                    de.egril.defender.editor.EditorStorage
+                        .getMap(level.mapId) == null
                 if (mapNeededDownload) {
                     downloadCommunityMap(level.mapId)
                 }
                 // Remove this level from the remote-only list now that it has been downloaded
                 // locally, so that the level cards view immediately shows it as a local level
                 // instead of keeping it in the "download" state.
-                _remoteCommunityLevelsMeta.value = _remoteCommunityLevelsMeta.value
-                    .filter { it.fileId != fileInfo.fileId }
+                _remoteCommunityLevelsMeta.value =
+                    _remoteCommunityLevelsMeta.value
+                        .filter { it.fileId != fileInfo.fileId }
                 // If the community map was also freshly downloaded, remove it from the remote
                 // maps list so the map editor list also reflects the local copy.
                 if (mapNeededDownload) {
-                    _remoteCommunityMapsMeta.value = _remoteCommunityMapsMeta.value
-                        .filter { it.fileId != level.mapId }
+                    _remoteCommunityMapsMeta.value =
+                        _remoteCommunityMapsMeta.value
+                            .filter { it.fileId != level.mapId }
                 }
                 initializeWorldMap()
                 onComplete(true)
@@ -577,10 +652,13 @@ class GameViewModel {
                 // If the download failed but the level (and its map) are already stored locally,
                 // still reload the world map so the level is surfaced as playable rather than
                 // staying in the "remote" card state.
-                val alreadyLocal = de.egril.defender.editor.EditorStorage.getCommunityLevel(fileInfo.fileId) != null
+                val alreadyLocal =
+                    de.egril.defender.editor.EditorStorage
+                        .getCommunityLevel(fileInfo.fileId) != null
                 if (alreadyLocal) {
-                    _remoteCommunityLevelsMeta.value = _remoteCommunityLevelsMeta.value
-                        .filter { it.fileId != fileInfo.fileId }
+                    _remoteCommunityLevelsMeta.value =
+                        _remoteCommunityLevelsMeta.value
+                            .filter { it.fileId != fileInfo.fileId }
                     initializeWorldMap()
                     onComplete(true)
                 } else {
@@ -593,31 +671,36 @@ class GameViewModel {
     /** Downloads a single community map (JSON + server-generated image) and stores it locally. */
     private suspend fun downloadCommunityMap(mapId: String) {
         try {
-            val mapData = de.egril.defender.save.BackendCommunityService
-                .fetchCommunityFile("MAP", mapId)
+            val mapData =
+                de.egril.defender.save.BackendCommunityService
+                    .fetchCommunityFile("MAP", mapId)
             if (mapData != null) {
-                val map = de.egril.defender.editor.EditorJsonSerializer
-                    .deserializeMap(mapData.data)
+                val map =
+                    de.egril.defender.editor.EditorJsonSerializer
+                        .deserializeMap(mapData.data)
                 if (map != null) {
                     // Pass the requested mapId so saveCommunityMap can also store the map under
                     // that ID when the map's internal JSON id differs (edge case guard).
                     if (map.id != mapId) {
                         if (LogConfig.isEnabled { LogConfig.ENABLE_COMMUNITY_DEBUG_LOGGING }) {
-                            println("COMMUNITY-DEBUG: Map id mismatch for download: requested='$mapId', json id='${map.id}'. Saving under both IDs.")
+                            println(
+                                "COMMUNITY-DEBUG: Map id mismatch for download: requested='$mapId', json id='${map.id}'. Saving under both IDs.",
+                            )
                         }
                     }
                     de.egril.defender.editor.EditorStorage.saveCommunityMap(
                         map,
                         mapData.authorUsername,
-                        requestedId = mapId
+                        requestedId = mapId,
                     )
                     // Try to fetch the server-generated image and overwrite the locally-generated one
-                    val imageBytes = de.egril.defender.save.BackendCommunityService
-                        .fetchCommunityMapImage(mapId)
+                    val imageBytes =
+                        de.egril.defender.save.BackendCommunityService
+                            .fetchCommunityMapImage(mapId)
                     if (imageBytes != null) {
                         de.egril.defender.editor.getFileStorage().writeBinaryFile(
                             "gamedata/community/maps/$mapId.png",
-                            imageBytes
+                            imageBytes,
                         )
                     }
                 }
@@ -638,12 +721,13 @@ class GameViewModel {
      */
     fun downloadCommunityMapOnDemand(
         fileInfo: de.egril.defender.save.CommunityFileInfo,
-        onComplete: (Boolean) -> Unit
+        onComplete: (Boolean) -> Unit,
     ) {
         viewModelScope.launch {
             try {
                 downloadCommunityMap(fileInfo.fileId)
-                de.egril.defender.editor.EditorStorage.clearCommunityCache()
+                de.egril.defender.editor.EditorStorage
+                    .clearCommunityCache()
                 onComplete(true)
             } catch (e: Exception) {
                 if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
@@ -662,37 +746,53 @@ class GameViewModel {
      * @param token Bearer token for authentication
      * @return true on success, false on failure
      */
-    suspend fun uploadCommunityLevel(levelId: String, token: String): Boolean {
-        val level = de.egril.defender.editor.EditorStorage.getLevel(levelId) ?: return false
+    suspend fun uploadCommunityLevel(
+        levelId: String,
+        token: String,
+    ): Boolean {
+        val level =
+            de.egril.defender.editor.EditorStorage
+                .getLevel(levelId) ?: return false
         val username = de.egril.defender.iam.IamService.state.value.username ?: ""
 
         // Auto-upload the associated map if it is a user map not yet in the community
-        val map = de.egril.defender.editor.EditorStorage.getMap(level.mapId)
+        val map =
+            de.egril.defender.editor.EditorStorage
+                .getMap(level.mapId)
         if (map != null && !map.isOfficial && !map.isCommunity) {
-            val communityMap = de.egril.defender.editor.EditorStorage.getCommunityMap(level.mapId)
+            val communityMap =
+                de.egril.defender.editor.EditorStorage
+                    .getCommunityMap(level.mapId)
             if (communityMap == null) {
                 // Map not yet uploaded – upload it now
-                val mapJson = de.egril.defender.editor.EditorJsonSerializer.serializeMap(map)
-                val mapSuccess = de.egril.defender.save.BackendCommunityService
-                    .uploadCommunityFile("MAP", level.mapId, mapJson, token)
+                val mapJson =
+                    de.egril.defender.editor.EditorJsonSerializer
+                        .serializeMap(map)
+                val mapSuccess =
+                    de.egril.defender.save.BackendCommunityService
+                        .uploadCommunityFile("MAP", level.mapId, mapJson, token)
                 if (mapSuccess) {
-                    de.egril.defender.editor.EditorStorage.saveCommunityMap(map, username)
+                    de.egril.defender.editor.EditorStorage
+                        .saveCommunityMap(map, username)
                 }
                 // Proceed with the level upload even if the map upload failed; callers
                 // can inspect the level-upload result and show an appropriate message.
             }
         }
 
-        val json = de.egril.defender.editor.EditorJsonSerializer.serializeLevel(level)
-        val success = de.egril.defender.save.BackendCommunityService
-            .uploadCommunityFile("LEVEL", levelId, json, token, level.communityDescription)
+        val json =
+            de.egril.defender.editor.EditorJsonSerializer
+                .serializeLevel(level)
+        val success =
+            de.egril.defender.save.BackendCommunityService
+                .uploadCommunityFile("LEVEL", levelId, json, token, level.communityDescription)
         if (success) {
             // Store the uploaded version locally in the community directory so we can detect changes
             de.egril.defender.editor.EditorStorage.saveCommunityLevel(
                 level.copy(
                     isCommunity = true,
-                    communityAuthorUsername = username
-                )
+                    communityAuthorUsername = username,
+                ),
             )
         }
         return success
@@ -704,18 +804,27 @@ class GameViewModel {
      * @param token Bearer token for authentication
      * @return true on success, false on failure
      */
-    suspend fun uploadCommunityMap(mapId: String, token: String): Boolean {
-        val map = de.egril.defender.editor.EditorStorage.getMap(mapId) ?: return false
-        val json = de.egril.defender.editor.EditorJsonSerializer.serializeMap(map)
-        val success = de.egril.defender.save.BackendCommunityService
-            .uploadCommunityFile("MAP", mapId, json, token)
+    suspend fun uploadCommunityMap(
+        mapId: String,
+        token: String,
+    ): Boolean {
+        val map =
+            de.egril.defender.editor.EditorStorage
+                .getMap(mapId) ?: return false
+        val json =
+            de.egril.defender.editor.EditorJsonSerializer
+                .serializeMap(map)
+        val success =
+            de.egril.defender.save.BackendCommunityService
+                .uploadCommunityFile("MAP", mapId, json, token)
         if (success) {
             val username = de.egril.defender.iam.IamService.state.value.username ?: ""
-            de.egril.defender.editor.EditorStorage.saveCommunityMap(map, username)
+            de.egril.defender.editor.EditorStorage
+                .saveCommunityMap(map, username)
         }
         return success
     }
-    
+
     fun navigateToMainMenu() {
         stopTimeTracking()
         _currentScreen.value = Screen.MainMenu
@@ -741,10 +850,10 @@ class GameViewModel {
             de.egril.defender.analytics.GameEventType.APP_CLOSED,
             levelName,
             turnNumber,
-            difficulty
+            difficulty,
         )
     }
-    
+
     fun navigateToWorldMap() {
         if (_currentScreen.value is Screen.GamePlay) {
             val levelName = _gameState.value?.level?.name ?: "unknown"
@@ -753,7 +862,7 @@ class GameViewModel {
                 de.egril.defender.analytics.GameEventType.LEVEL_LEFT,
                 levelName,
                 turnNumber,
-                _gameState.value?.difficulty?.name ?: AppSettings.difficulty.value.name
+                _gameState.value?.difficulty?.name ?: AppSettings.difficulty.value.name,
             )
         }
         stopTimeTracking()
@@ -764,11 +873,11 @@ class GameViewModel {
         reloadWorldMap()
         _currentScreen.value = Screen.WorldMap
     }
-    
+
     fun navigateToRules() {
         _currentScreen.value = Screen.Rules
     }
-    
+
     fun navigateToInstallationInfo() {
         _currentScreen.value = Screen.InstallationInfo
     }
@@ -780,15 +889,15 @@ class GameViewModel {
     fun navigateToDownloadInfo() {
         _currentScreen.value = Screen.InstallationInfoAtTab(de.egril.defender.ui.infopage.InfoTab.DOWNLOAD)
     }
-    
+
     fun navigateToLevelEditor() {
         _currentScreen.value = Screen.LevelEditor
     }
-    
+
     fun navigateToSticker() {
         _currentScreen.value = Screen.Sticker
     }
-    
+
     fun navigateToLoadingSpinnerDemo() {
         _currentScreen.value = Screen.LoadingSpinnerDemo
     }
@@ -796,12 +905,15 @@ class GameViewModel {
     fun navigateToPlayerProfile() {
         _currentScreen.value = Screen.PlayerProfile
     }
-    
+
     fun navigateToStatsUpgrade() {
         _currentScreen.value = Screen.StatsUpgrade
     }
 
-    fun navigateToNextLevel(nextLevelId: Int, nextLevelName: String) {
+    fun navigateToNextLevel(
+        nextLevelId: Int,
+        nextLevelName: String,
+    ) {
         val availableAbilityPoints = _currentPlayer.value?.abilities?.availableAbilityPoints ?: 0
         if (availableAbilityPoints > 0) {
             _currentScreen.value = Screen.StatsUpgradeWithNextLevel(nextLevelId, nextLevelName)
@@ -824,18 +936,22 @@ class GameViewModel {
         val updatedStats = oldStats.spendAbilityPoint(statType) ?: return
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
-        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        de.egril.defender.save.PlayerProfileStorage
+            .updateProfile(updatedPlayer)
 
         // Check for achievements
         val playerId = currentPlayer.id
-        val tempAchievementManager = de.egril.defender.game.AchievementManager(playerId)
+        val tempAchievementManager =
+            de.egril.defender.game
+                .AchievementManager(playerId)
         tempAchievementManager.onAchievementEarned = { achievement ->
             _newAchievement.value = achievement
         }
 
         // First stat upgrade achievement
-        val totalSpentBefore = oldStats.healthAbility + oldStats.treasuryAbility + oldStats.incomeAbility +
-                               oldStats.constructionAbility + oldStats.manaAbility
+        val totalSpentBefore =
+            oldStats.healthAbility + oldStats.treasuryAbility + oldStats.incomeAbility +
+                oldStats.constructionAbility + oldStats.manaAbility
         if (totalSpentBefore == 0) {
             tempAchievementManager.onFirstStatUpgrade()
         }
@@ -846,7 +962,9 @@ class GameViewModel {
         }
 
         // Player level achievements
-        val playerLevel = de.egril.defender.model.PlayerAbilities.calculateLevel(updatedStats.totalXP)
+        val playerLevel =
+            de.egril.defender.model.PlayerAbilities
+                .calculateLevel(updatedStats.totalXP)
         if (playerLevel >= 10) {
             tempAchievementManager.onPlayerLevel10()
         }
@@ -863,11 +981,14 @@ class GameViewModel {
         val updatedStats = oldStats.unlockSpell(spell) ?: return
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
-        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        de.egril.defender.save.PlayerProfileStorage
+            .updateProfile(updatedPlayer)
 
         // Check for first spell unlock achievement
         val playerId = currentPlayer.id
-        val tempAchievementManager = de.egril.defender.game.AchievementManager(playerId)
+        val tempAchievementManager =
+            de.egril.defender.game
+                .AchievementManager(playerId)
         tempAchievementManager.onAchievementEarned = { achievement ->
             _newAchievement.value = achievement
         }
@@ -889,12 +1010,21 @@ class GameViewModel {
 
             // Check if this level is connected to the previous level and a handoff exists.
             // Only show the dialog for official levels (not community / user-created).
-            val isOfficialLevel = !level.isCommunity && editorLevelId != null &&
-                de.egril.defender.editor.EditorStorage.getLevel(editorLevelId)?.isOfficial == true
-            if (level.connectedToPreviousLevel && isOfficialLevel && editorLevelId != null &&
-                de.egril.defender.save.SaveFileStorage.hasLevelHandoff(editorLevelId)
+            val isOfficialLevel =
+                !level.isCommunity &&
+                    editorLevelId != null &&
+                    de.egril.defender.editor.EditorStorage
+                        .getLevel(editorLevelId)
+                        ?.isOfficial == true
+            if (level.connectedToPreviousLevel &&
+                isOfficialLevel &&
+                editorLevelId != null &&
+                de.egril.defender.save.SaveFileStorage
+                    .hasLevelHandoff(editorLevelId)
             ) {
-                val handoff = de.egril.defender.save.SaveFileStorage.loadLevelHandoff(editorLevelId)
+                val handoff =
+                    de.egril.defender.save.SaveFileStorage
+                        .loadLevelHandoff(editorLevelId)
                 if (handoff != null && handoff.mapId == level.mapId) {
                     // Show the handoff choice dialog
                     _pendingLevelHandoff.value = handoff
@@ -917,12 +1047,17 @@ class GameViewModel {
     /** Start the pending level fresh (ignore handoff state) */
     fun startLevelFresh() {
         val levelId = pendingLevelIdForHandoff ?: return
-        val editorLevelId = _worldLevels.value.find { it.level.id == levelId }?.level?.editorLevelId
+        val editorLevelId =
+            _worldLevels.value
+                .find { it.level.id == levelId }
+                ?.level
+                ?.editorLevelId
         _pendingLevelHandoff.value = null
         pendingLevelIdForHandoff = null
         // Delete the handoff so it doesn't show up again
         if (editorLevelId != null) {
-            de.egril.defender.save.SaveFileStorage.deleteLevelHandoff(editorLevelId)
+            de.egril.defender.save.SaveFileStorage
+                .deleteLevelHandoff(editorLevelId)
         }
         startLevelInternal(levelId)
     }
@@ -946,13 +1081,14 @@ class GameViewModel {
             val playerStats = _currentPlayer.value?.abilities ?: PlayerAbilities()
 
             // Apply difficulty modifiers to spawn plan
-            val modifiedSpawnPlan = if (level.directSpawnPlan != null) {
-                DifficultyModifiers.applySpawnPlanModifier(level.directSpawnPlan, difficulty)
-            } else {
-                val basePlan = generateSpawnPlan(level.attackerWaves)
-                DifficultyModifiers.applySpawnPlanModifier(basePlan, difficulty)
-            }
-            
+            val modifiedSpawnPlan =
+                if (level.directSpawnPlan != null) {
+                    DifficultyModifiers.applySpawnPlanModifier(level.directSpawnPlan, difficulty)
+                } else {
+                    val basePlan = generateSpawnPlan(level.attackerWaves)
+                    DifficultyModifiers.applySpawnPlanModifier(basePlan, difficulty)
+                }
+
             // Apply player stats bonuses
             val baseCoins = DifficultyModifiers.applyCoinsModifier(level.initialCoins, difficulty)
             val bonusCoins = playerStats.getBonusStartCoins()
@@ -967,21 +1103,22 @@ class GameViewModel {
             val constructionLevel = playerStats.constructionAbility
 
             // Create GameState with difficulty-modified and stats-bonus values
-            val newGameState = GameState(
-                level = level,
-                difficulty = difficulty,
-                coins = mutableStateOf(totalCoins),
-                healthPoints = mutableStateOf(totalHealth),
-                spawnPlan = modifiedSpawnPlan,
-                maxMana = mutableStateOf(maxMana),
-                currentMana = mutableStateOf(maxMana),  // Start with full mana
-                incomeMultiplier = incomeMultiplier,
-                constructionLevel = constructionLevel
-            )
-            
+            val newGameState =
+                GameState(
+                    level = level,
+                    difficulty = difficulty,
+                    coins = mutableStateOf(totalCoins),
+                    healthPoints = mutableStateOf(totalHealth),
+                    spawnPlan = modifiedSpawnPlan,
+                    maxMana = mutableStateOf(maxMana),
+                    currentMana = mutableStateOf(maxMana), // Start with full mana
+                    incomeMultiplier = incomeMultiplier,
+                    constructionLevel = constructionLevel,
+                )
+
             // Initialize pre-placed elements if any
             newGameState.initializePrePlacedElements()
-            
+
             _gameState.value = newGameState
             gameEngine = GameEngine(newGameState)
             _currentScreen.value = Screen.GamePlay(levelId)
@@ -989,10 +1126,11 @@ class GameViewModel {
             // Show story intro message if this level has one (all levels except the tutorial)
             val editorLevelId = level.editorLevelId
             if (editorLevelId != null && editorLevelId != "welcome_to_defender_of_egril") {
-                _pendingGameMessage.value = de.egril.defender.model.GameMessage(
-                    type = de.egril.defender.model.GameMessageType.STORY_INTRO,
-                    name = editorLevelId
-                )
+                _pendingGameMessage.value =
+                    de.egril.defender.model.GameMessage(
+                        type = de.egril.defender.model.GameMessageType.STORY_INTRO,
+                        name = editorLevelId,
+                    )
             }
 
             // Capture initial state snapshot
@@ -1002,21 +1140,22 @@ class GameViewModel {
             de.egril.defender.analytics.reportEvent(
                 de.egril.defender.analytics.GameEventType.LEVEL_STARTED,
                 level.name,
-                difficulty = difficulty.name
+                difficulty = difficulty.name,
             )
-            
+
             // Initialize achievement manager for this level
             val playerId = _currentPlayer.value?.id
             if (playerId != null) {
-                achievementManager = de.egril.defender.game.AchievementManager(playerId).apply {
-                    onAchievementEarned = { achievement ->
-                        _newAchievement.value = achievement
-                        // Refresh player profile to show updated achievements
-                        refreshCurrentPlayer()
+                achievementManager =
+                    de.egril.defender.game.AchievementManager(playerId).apply {
+                        onAchievementEarned = { achievement ->
+                            _newAchievement.value = achievement
+                            // Refresh player profile to show updated achievements
+                            refreshCurrentPlayer()
+                        }
+                        startLevel(newGameState.healthPoints.value)
                     }
-                    startLevel(newGameState.healthPoints.value)
-                }
-                
+
                 // Set up combat result callback for kill tracking
                 gameEngine?.setCombatResultCallback { result ->
                     // Track kills from this attack
@@ -1024,18 +1163,18 @@ class GameViewModel {
                         achievementManager?.onEnemyKilled(enemyType, result.killsThisAttack)
                     }
                 }
-                
+
                 // Set up raft loss callback
                 gameEngine?.setRaftLossCallback { reason ->
                     when (reason) {
-                        de.egril.defender.game.RaftLossReason.MAP_EDGE -> 
+                        de.egril.defender.game.RaftLossReason.MAP_EDGE ->
                             achievementManager?.onRaftLostToMapEdge()
-                        de.egril.defender.game.RaftLossReason.MAELSTROM -> 
+                        de.egril.defender.game.RaftLossReason.MAELSTROM ->
                             achievementManager?.onRaftLostToMaelstrom()
                         de.egril.defender.game.RaftLossReason.OTHER -> {} // No achievement
                     }
                 }
-                
+
                 // Set up dragon level change callback
                 gameEngine?.setDragonLevelChangeCallback { oldLevel, newLevel ->
                     if (newLevel > oldLevel) {
@@ -1045,7 +1184,7 @@ class GameViewModel {
                     }
                 }
             }
-            
+
             // Start time tracking for reminders
             startTimeTracking()
         }
@@ -1055,7 +1194,10 @@ class GameViewModel {
      * Start a level using the carry-over state from the previous connected level.
      * Restores defenders, barricades, traps, rafts, coins, and mana from [handoff].
      */
-    private fun startLevelInternalWithHandoff(levelId: Int, handoff: de.egril.defender.save.LevelHandoffSave) {
+    private fun startLevelInternalWithHandoff(
+        levelId: Int,
+        handoff: de.egril.defender.save.LevelHandoffSave,
+    ) {
         _pendingGameMessage.value = null
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
@@ -1064,12 +1206,13 @@ class GameViewModel {
             val playerStats = _currentPlayer.value?.abilities ?: PlayerAbilities()
 
             // Apply difficulty modifiers to spawn plan
-            val modifiedSpawnPlan = if (level.directSpawnPlan != null) {
-                DifficultyModifiers.applySpawnPlanModifier(level.directSpawnPlan, difficulty)
-            } else {
-                val basePlan = generateSpawnPlan(level.attackerWaves)
-                DifficultyModifiers.applySpawnPlanModifier(basePlan, difficulty)
-            }
+            val modifiedSpawnPlan =
+                if (level.directSpawnPlan != null) {
+                    DifficultyModifiers.applySpawnPlanModifier(level.directSpawnPlan, difficulty)
+                } else {
+                    val basePlan = generateSpawnPlan(level.attackerWaves)
+                    DifficultyModifiers.applySpawnPlanModifier(basePlan, difficulty)
+                }
 
             val baseHealth = DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty)
             val bonusHealth = playerStats.getBonusHealth()
@@ -1086,31 +1229,33 @@ class GameViewModel {
             val startMana = handoff.currentMana.coerceAtMost(handoff.maxMana)
             val maxMana = handoff.maxMana.takeIf { it > 0 } ?: playerStats.getMaxMana()
 
-            val newGameState = GameState(
-                level = level,
-                difficulty = difficulty,
-                coins = mutableStateOf(startCoins),
-                healthPoints = mutableStateOf(totalHealth),
-                spawnPlan = modifiedSpawnPlan,
-                maxMana = mutableStateOf(maxMana),
-                currentMana = mutableStateOf(startMana),
-                incomeMultiplier = incomeMultiplier,
-                constructionLevel = constructionLevel
-            )
+            val newGameState =
+                GameState(
+                    level = level,
+                    difficulty = difficulty,
+                    coins = mutableStateOf(startCoins),
+                    healthPoints = mutableStateOf(totalHealth),
+                    spawnPlan = modifiedSpawnPlan,
+                    maxMana = mutableStateOf(maxMana),
+                    currentMana = mutableStateOf(startMana),
+                    incomeMultiplier = incomeMultiplier,
+                    constructionLevel = constructionLevel,
+                )
 
             // Restore defenders from handoff (reset actionsRemaining; build time is already 0)
             newGameState.nextDefenderId.value = handoff.nextDefenderId
             newGameState.nextRaftId.value = handoff.nextRaftId
             for (savedDefender in handoff.defenders) {
-                val defender = de.egril.defender.model.Defender(
-                    id = savedDefender.id,
-                    type = savedDefender.type,
-                    position = mutableStateOf(savedDefender.position),
-                    placedOnTurn = savedDefender.placedOnTurn,
-                    dragonName = savedDefender.dragonName
-                )
+                val defender =
+                    de.egril.defender.model.Defender(
+                        id = savedDefender.id,
+                        type = savedDefender.type,
+                        position = mutableStateOf(savedDefender.position),
+                        placedOnTurn = savedDefender.placedOnTurn,
+                        dragonName = savedDefender.dragonName,
+                    )
                 defender.level.value = savedDefender.level
-                defender.buildTimeRemaining.value = 0  // Always fully built
+                defender.buildTimeRemaining.value = 0 // Always fully built
                 defender.actionsRemaining.value = savedDefender.type.actionsPerTurn
                 defender.raftId.value = savedDefender.raftId
                 defender.towerBaseBarricadeId.value = savedDefender.towerBaseBarricadeId
@@ -1119,39 +1264,44 @@ class GameViewModel {
 
             // Restore rafts
             for (savedRaft in handoff.rafts) {
-                val raft = de.egril.defender.model.Raft(
-                    id = savedRaft.id,
-                    defenderId = savedRaft.defenderId,
-                    currentPosition = mutableStateOf(savedRaft.position)
-                )
+                val raft =
+                    de.egril.defender.model.Raft(
+                        id = savedRaft.id,
+                        defenderId = savedRaft.defenderId,
+                        currentPosition = mutableStateOf(savedRaft.position),
+                    )
                 newGameState.rafts.add(raft)
             }
 
             // Restore barricades
             for (savedBarricade in handoff.barricades) {
-                val barricade = de.egril.defender.model.Barricade(
-                    id = savedBarricade.id,
-                    position = savedBarricade.position,
-                    healthPoints = mutableStateOf(savedBarricade.healthPoints),
-                    defenderId = savedBarricade.defenderId,
-                    supportedTowerId = mutableStateOf(savedBarricade.supportedTowerId)
-                )
+                val barricade =
+                    de.egril.defender.model.Barricade(
+                        id = savedBarricade.id,
+                        position = savedBarricade.position,
+                        healthPoints = mutableStateOf(savedBarricade.healthPoints),
+                        defenderId = savedBarricade.defenderId,
+                        supportedTowerId = mutableStateOf(savedBarricade.supportedTowerId),
+                    )
                 newGameState.barricades.add(barricade)
             }
 
             // Restore traps
             for (savedTrap in handoff.traps) {
-                val trapType = try {
-                    de.egril.defender.model.TrapType.valueOf(savedTrap.type)
-                } catch (e: Exception) {
-                    de.egril.defender.model.TrapType.DWARVEN
-                }
-                val trap = de.egril.defender.model.Trap(
-                    position = savedTrap.position,
-                    damage = savedTrap.damage,
-                    defenderId = savedTrap.defenderId,
-                    type = trapType
-                )
+                val trapType =
+                    try {
+                        de.egril.defender.model.TrapType
+                            .valueOf(savedTrap.type)
+                    } catch (e: Exception) {
+                        de.egril.defender.model.TrapType.DWARVEN
+                    }
+                val trap =
+                    de.egril.defender.model.Trap(
+                        position = savedTrap.position,
+                        damage = savedTrap.damage,
+                        defenderId = savedTrap.defenderId,
+                        type = trapType,
+                    )
                 newGameState.traps.add(trap)
             }
 
@@ -1161,7 +1311,10 @@ class GameViewModel {
             // same positions, so we intentionally omit them here.
 
             // Delete the handoff file now that it has been used
-            level.editorLevelId?.let { de.egril.defender.save.SaveFileStorage.deleteLevelHandoff(it) }
+            level.editorLevelId?.let {
+                de.egril.defender.save.SaveFileStorage
+                    .deleteLevelHandoff(it)
+            }
 
             _gameState.value = newGameState
             gameEngine = GameEngine(newGameState)
@@ -1169,10 +1322,11 @@ class GameViewModel {
 
             val editorLevelId = level.editorLevelId
             if (editorLevelId != null && editorLevelId != "welcome_to_defender_of_egril") {
-                _pendingGameMessage.value = de.egril.defender.model.GameMessage(
-                    type = de.egril.defender.model.GameMessageType.STORY_INTRO,
-                    name = editorLevelId
-                )
+                _pendingGameMessage.value =
+                    de.egril.defender.model.GameMessage(
+                        type = de.egril.defender.model.GameMessageType.STORY_INTRO,
+                        name = editorLevelId,
+                    )
             }
 
             initialGameStateSnapshot = createGameStateSnapshot(newGameState)
@@ -1181,18 +1335,19 @@ class GameViewModel {
             de.egril.defender.analytics.reportEvent(
                 de.egril.defender.analytics.GameEventType.LEVEL_STARTED,
                 level.name,
-                difficulty = difficulty.name
+                difficulty = difficulty.name,
             )
 
             val playerId = _currentPlayer.value?.id
             if (playerId != null) {
-                achievementManager = de.egril.defender.game.AchievementManager(playerId).apply {
-                    onAchievementEarned = { achievement ->
-                        _newAchievement.value = achievement
-                        refreshCurrentPlayer()
+                achievementManager =
+                    de.egril.defender.game.AchievementManager(playerId).apply {
+                        onAchievementEarned = { achievement ->
+                            _newAchievement.value = achievement
+                            refreshCurrentPlayer()
+                        }
+                        startLevel(newGameState.healthPoints.value)
                     }
-                    startLevel(newGameState.healthPoints.value)
-                }
                 gameEngine?.setCombatResultCallback { result ->
                     result.killedEnemyTypes.forEach { enemyType ->
                         achievementManager?.onEnemyKilled(enemyType, result.killsThisAttack)
@@ -1220,7 +1375,10 @@ class GameViewModel {
         }
     }
 
-    fun placeDefender(type: DefenderType, position: Position): Boolean {
+    fun placeDefender(
+        type: DefenderType,
+        position: Position,
+    ): Boolean {
         val gameState = _gameState.value
         val isInstantDeploy = gameState?.instantTowerSpellActive?.value == true
 
@@ -1244,12 +1402,12 @@ class GameViewModel {
         }
         return result
     }
-    
+
     fun upgradeDefender(defenderId: Int): Boolean {
         // Check if this is a raft before upgrading
         val defender = _gameState.value?.defenders?.find { it.id == defenderId }
         val isRaft = defender?.raftId?.value != null
-        
+
         val result = gameEngine?.upgradeDefender(defenderId) ?: false
         if (result) {
             // Track achievement
@@ -1261,12 +1419,12 @@ class GameViewModel {
         }
         return result
     }
-    
+
     fun undoTower(defenderId: Int): Boolean {
         // Check if this is a raft before undoing
         val defender = _gameState.value?.defenders?.find { it.id == defenderId }
         val isRaft = defender?.raftId?.value != null
-        
+
         val result = gameEngine?.undoTower(defenderId) ?: false
         if (result) {
             // Track achievement
@@ -1278,12 +1436,12 @@ class GameViewModel {
         }
         return result
     }
-    
+
     fun sellTower(defenderId: Int): Boolean {
         // Check if this is a raft before selling
         val defender = _gameState.value?.defenders?.find { it.id == defenderId }
         val isRaft = defender?.raftId?.value != null
-        
+
         val result = gameEngine?.sellTower(defenderId) ?: false
         if (result) {
             // Track achievement
@@ -1295,7 +1453,7 @@ class GameViewModel {
         }
         return result
     }
-    
+
     /**
      * Generate mana using a wizard tower
      * - Costs 1 action
@@ -1327,14 +1485,14 @@ class GameViewModel {
 
     fun startFirstPlayerTurn() {
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-        println("DEBUG: startFirstPlayerTurn called")
+            println("DEBUG: startFirstPlayerTurn called")
         }
         val stateBefore = _gameState.value
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-        println("DEBUG: Phase before: ${stateBefore?.phase?.value}")
+            println("DEBUG: Phase before: ${stateBefore?.phase?.value}")
         }
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-        println("DEBUG: Attackers before: ${stateBefore?.attackers?.size}")
+            println("DEBUG: Attackers before: ${stateBefore?.attackers?.size}")
         }
 
         gameEngine?.startFirstPlayerTurn()
@@ -1342,30 +1500,35 @@ class GameViewModel {
         // Surface any messages queued during initial spawn (e.g. EWHAD_ENTERS) immediately,
         // so they appear as soon as the player's first turn begins rather than after they end it.
         surfaceNextPendingMessageIfIdle()
-        
+
         // Track turn start for achievements
         achievementManager?.startTurn()
         gameEngine?.startTurnTracking()
-        
+
         val stateAfter = _gameState.value
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-        println("DEBUG: Phase after: ${stateAfter?.phase?.value}")
+            println("DEBUG: Phase after: ${stateAfter?.phase?.value}")
         }
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-        println("DEBUG: Attackers after: ${stateAfter?.attackers?.size}")
+            println("DEBUG: Attackers after: ${stateAfter?.attackers?.size}")
         }
         stateAfter?.attackers?.forEach { attacker ->
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-            println("DEBUG: Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.value.x}, ${attacker.position.value.y})")
+                println(
+                    "DEBUG: Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.value.x}, ${attacker.position.value.y})",
+                )
             }
         }
-        
+
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-        println("DEBUG: startFirstPlayerTurn completed")
+            println("DEBUG: startFirstPlayerTurn completed")
         }
     }
-    
-    fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
+
+    fun defenderAttack(
+        defenderId: Int,
+        targetId: Int,
+    ): Boolean {
         val result = gameEngine?.defenderAttack(defenderId, targetId) ?: false
         if (result) {
             // Surface any messages queued by the attack (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
@@ -1378,8 +1541,11 @@ class GameViewModel {
         }
         return result
     }
-    
-    fun defenderAttackPosition(defenderId: Int, targetPosition: Position): Boolean {
+
+    fun defenderAttackPosition(
+        defenderId: Int,
+        targetPosition: Position,
+    ): Boolean {
         val result = gameEngine?.defenderAttackPosition(defenderId, targetPosition) ?: false
         if (result) {
             // triggerStateUpdate()
@@ -1394,13 +1560,13 @@ class GameViewModel {
         }
         return result
     }
-    
+
     fun performMineDig(mineId: Int): DigOutcome? {
         val outcome = gameEngine?.performMineDig(mineId)
         if (outcome != null) {
             // Track first dig achievement
             achievementManager?.onDigFirstTime()
-            
+
             // Track specific outcome achievements
             when (outcome) {
                 DigOutcome.GOLD -> achievementManager?.onFindGold()
@@ -1411,25 +1577,28 @@ class GameViewModel {
         }
         return outcome
     }
-    
-    fun performMineBuildTrap(mineId: Int, trapPosition: Position): Boolean {
-        return gameEngine?.performMineBuildTrap(mineId, trapPosition) ?: false
-    }
-    
-    fun performWizardPlaceMagicalTrap(wizardId: Int, trapPosition: Position): Boolean {
-        return gameEngine?.performWizardPlaceMagicalTrap(wizardId, trapPosition) ?: false
-    }
-    
+
+    fun performMineBuildTrap(
+        mineId: Int,
+        trapPosition: Position,
+    ): Boolean = gameEngine?.performMineBuildTrap(mineId, trapPosition) ?: false
+
+    fun performWizardPlaceMagicalTrap(
+        wizardId: Int,
+        trapPosition: Position,
+    ): Boolean = gameEngine?.performWizardPlaceMagicalTrap(wizardId, trapPosition) ?: false
+
     /**
      * Perform wizard mana generation
      * Called when player clicks the "Generate Mana" button on a wizard tower
      * Returns true if mana was generated successfully
      */
-    fun performWizardGenerateMana(wizardId: Int): Boolean {
-        return gameEngine?.performWizardGenerateMana(wizardId) ?: false
-    }
+    fun performWizardGenerateMana(wizardId: Int): Boolean = gameEngine?.performWizardGenerateMana(wizardId) ?: false
 
-    fun performBuildBarricade(towerId: Int, barricadePosition: Position): Boolean {
+    fun performBuildBarricade(
+        towerId: Int,
+        barricadePosition: Position,
+    ): Boolean {
         val result = gameEngine?.performBuildBarricade(towerId, barricadePosition) ?: false
         if (result) {
             // Check if this is a new barricade or adding health to existing one
@@ -1444,14 +1613,10 @@ class GameViewModel {
         }
         return result
     }
-    
-    fun performRemoveBarricade(barricadePosition: Position): Int {
-        return gameEngine?.removeBarricade(barricadePosition) ?: 0
-    }
-    
-    fun performMineDigWithOutcome(outcome: DigOutcome): DigOutcome? {
-        return gameEngine?.performMineDigWithOutcome(outcome)
-    }
+
+    fun performRemoveBarricade(barricadePosition: Position): Int = gameEngine?.removeBarricade(barricadePosition) ?: 0
+
+    fun performMineDigWithOutcome(outcome: DigOutcome): DigOutcome? = gameEngine?.performMineDigWithOutcome(outcome)
 
     /**
      * Returns the best auto-attack target position for the given defender,
@@ -1484,12 +1649,12 @@ class GameViewModel {
             // Start enemy turn: change phase to ENEMY_TURN
             // The UI immediately shows "ENEMY TURN" indicator when phase changes
             engine.startEnemyTurn()
-            
+
             // Calculate all movement steps for existing units
             val enemyTurnMovements = engine.calculateEnemyTurnMovements()
             val movementSteps = enemyTurnMovements.allMovementSteps
             val attackersStoppedByBarricade = enemyTurnMovements.attackersStoppedByBarricade
-            
+
             // Apply each movement step with a delay between steps
             for (stepMovements in movementSteps) {
                 val trapCountBefore = _gameState.value?.trapTriggerEffects?.size ?: 0
@@ -1512,12 +1677,12 @@ class GameViewModel {
 
             attackersStoppedByBarricade.forEach { it ->
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                println("attackBarricade B")
+                    println("attackBarricade B")
                 }
                 // fixit HERE
                 engine.attackBarricade(it.second, it.first)
             }
-            
+
             // Add a small delay to see final positions before spawning new units (reduced from 300ms to 150ms)
             if (movementSteps.isNotEmpty()) {
                 delay(150)
@@ -1525,14 +1690,14 @@ class GameViewModel {
 
             // Now spawn new units (spawn points should be clear after movements)
             engine.spawnEnemyTurnAttackers()
-            
+
             // Show spawned units briefly (reduced from 400ms to 200ms)
             delay(200)
 
             // Surface any pending spawn messages (e.g. Ewhad enters) while units are still at
             // their spawn points, so the message is displayed before they move away.
             surfaceNextPendingMessageIfIdle()
-            
+
             // Move newly spawned units away from spawn points
             val newSpawnMovements = engine.calculateNewlySpawnedMovements()
             for (stepMovements in newSpawnMovements) {
@@ -1551,15 +1716,15 @@ class GameViewModel {
                     processAndDelayForTrapDeaths()
                 }
             }
-            
+
             // Add a small delay after newly spawned units have moved (reduced from 300ms to 150ms)
             if (newSpawnMovements.isNotEmpty()) {
                 delay(150)
             }
-            
+
             // Complete enemy turn: apply effects and return to player turn
             engine.completeEnemyTurn()
-            
+
             // Trigger camera pan to bomb explosion position if any bomb exploded this turn
             val currentStateForBombs = _gameState.value
             if (currentStateForBombs != null && currentStateForBombs.bombExplosionEffects.isNotEmpty()) {
@@ -1574,7 +1739,7 @@ class GameViewModel {
             // Autosave at the beginning of the new player turn (after enemy turn completes)
             // This ensures the phase is PLAYER_TURN when the save is created
             autoSaveGame()
-            
+
             // Check win/loss conditions
             val updatedState = _gameState.value ?: return@launch
             if (updatedState.isLevelWon()) {
@@ -1590,13 +1755,13 @@ class GameViewModel {
         // It explicitly calls autoDefenderAttacks() before ending the turn
         val engine = gameEngine ?: return
         val currentState = gameState.value ?: return
-        
+
         // Explicitly trigger auto-attacks for all ready defenders
         engine.autoDefenderAttacks()
-        
+
         // Check if there are special actions remaining (mines, alchemy, wizard traps)
         val specialActionTypes = currentState.getDefenderTypesWithSpecialActions()
-        
+
         if (specialActionTypes.isNotEmpty()) {
             // There are special actions remaining - show warning dialog instead of ending turn
             // Store the types so the UI can display them
@@ -1606,12 +1771,15 @@ class GameViewModel {
             endPlayerTurn()
         }
     }
-    
+
     fun clearSpecialActionsWarning() {
         _specialActionsRemaining.value = emptyList()
     }
 
-    private fun completeLevel(levelId: Int, won: Boolean) {
+    private fun completeLevel(
+        levelId: Int,
+        won: Boolean,
+    ) {
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
         val rawXpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
         val xpEarned = calculateAwardedXpForLevelCompletion(rawXpEarned, won)
@@ -1628,7 +1796,7 @@ class GameViewModel {
             if (won) de.egril.defender.analytics.GameEventType.LEVEL_WON else de.egril.defender.analytics.GameEventType.LEVEL_LOST,
             levelName,
             turnNumber,
-            _gameState.value?.difficulty?.name ?: AppSettings.difficulty.value.name
+            _gameState.value?.difficulty?.name ?: AppSettings.difficulty.value.name,
         )
 
         // Track achievement for level completion
@@ -1648,18 +1816,23 @@ class GameViewModel {
             abilityPointsGained = (updatedStats.availableAbilityPoints - previousAbilities.availableAbilityPoints).coerceAtLeast(0)
             val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
             _currentPlayer.value = updatedPlayer
-            de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+            de.egril.defender.save.PlayerProfileStorage
+                .updateProfile(updatedPlayer)
             hasUpdatedPlayerProfile = true
         }
-        
-        val isLastLevel = _worldLevels.value.firstOrNull { it.level.id == levelId }?.level?.editorLevelId == OfficialContent.FINAL_LEVEL_ID
+
+        val isLastLevel =
+            _worldLevels.value
+                .firstOrNull { it.level.id == levelId }
+                ?.level
+                ?.editorLevelId == OfficialContent.FINAL_LEVEL_ID
 
         if (won && isLastLevel) {
             de.egril.defender.analytics.reportEvent(
                 de.egril.defender.analytics.GameEventType.GAME_WON,
                 levelName,
                 turnNumber,
-                _gameState.value?.difficulty?.name ?: AppSettings.difficulty.value.name
+                _gameState.value?.difficulty?.name ?: AppSettings.difficulty.value.name,
             )
         }
 
@@ -1667,9 +1840,12 @@ class GameViewModel {
         val currentLevelIndex = _worldLevels.value.indexOfFirst { it.level.id == levelId }
 
         // Compute next level: the level immediately following the current one in the world levels list (only when won and not the final level)
-        val nextLevel: WorldLevel? = if (won && !isLastLevel && currentLevelIndex >= 0 && currentLevelIndex + 1 < _worldLevels.value.size) {
-            _worldLevels.value[currentLevelIndex + 1]
-        } else null
+        val nextLevel: WorldLevel? =
+            if (won && !isLastLevel && currentLevelIndex >= 0 && currentLevelIndex + 1 < _worldLevels.value.size) {
+                _worldLevels.value[currentLevelIndex + 1]
+            } else {
+                null
+            }
 
         if (won) {
             val updatedLevels = _worldLevels.value.toMutableList()
@@ -1679,21 +1855,24 @@ class GameViewModel {
                 updatedLevels[wonIndex] = wonWorldLevel.copy(status = LevelStatus.WON)
 
                 // Get the set of all won level IDs (including the just-won level)
-                val wonLevelIds = updatedLevels
-                    .filter { it.status == LevelStatus.WON }
-                    .mapNotNull { it.level.editorLevelId }
-                    .toSet()
-                
+                val wonLevelIds =
+                    updatedLevels
+                        .filter { it.status == LevelStatus.WON }
+                        .mapNotNull { it.level.editorLevelId }
+                        .toSet()
+
                 // Unlock levels based on prerequisites
                 for (i in updatedLevels.indices) {
                     val worldLevel = updatedLevels[i]
                     if (worldLevel.status == LevelStatus.LOCKED && worldLevel.level.editorLevelId != null) {
-                        if (de.egril.defender.editor.EditorStorage.isLevelUnlocked(worldLevel.level.editorLevelId, wonLevelIds)) {
+                        if (de.egril.defender.editor.EditorStorage
+                                .isLevelUnlocked(worldLevel.level.editorLevelId, wonLevelIds)
+                        ) {
                             updatedLevels[i] = worldLevel.copy(status = LevelStatus.UNLOCKED)
                         }
                     }
                 }
-                
+
                 _worldLevels.value = updatedLevels
                 // Save world map status
                 saveWorldMapStatus()
@@ -1714,7 +1893,8 @@ class GameViewModel {
 
         if (_isDemoMode.value) {
             // In demo mode: show the Level Won/Lost screen for 4 seconds, then load the next level
-            _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel, xpEarned, newPlayerLevel, playerLevelGained, abilityPointsGained)
+            _currentScreen.value =
+                Screen.LevelComplete(levelId, won, isLastLevel, xpEarned, newPlayerLevel, playerLevelGained, abilityPointsGained)
             viewModelScope.launch {
                 delay(4000L)
                 if (_isDemoMode.value) {
@@ -1726,23 +1906,25 @@ class GameViewModel {
         }
         // Level ended – remove any background save so it is not restored on the next cold start.
         deleteBackgroundSave()
-        _currentScreen.value = Screen.LevelComplete(
-            levelId = levelId,
-            won = won,
-            isLastLevel = isLastLevel,
-            xpEarned = xpEarned,
-            newPlayerLevel = newPlayerLevel,
-            playerLevelGained = playerLevelGained,
-            abilityPointsGained = abilityPointsGained,
-            nextLevelId = nextLevel?.level?.id,
-            nextLevelName = nextLevel?.level?.name
-        )
+        _currentScreen.value =
+            Screen.LevelComplete(
+                levelId = levelId,
+                won = won,
+                isLastLevel = isLastLevel,
+                xpEarned = xpEarned,
+                newPlayerLevel = newPlayerLevel,
+                playerLevelGained = playerLevelGained,
+                abilityPointsGained = abilityPointsGained,
+                nextLevelId = nextLevel?.level?.id,
+                nextLevelName = nextLevel?.level?.name,
+            )
     }
-    
+
     fun restartLevel() {
-        val levelId = (_currentScreen.value as? Screen.LevelComplete)?.levelId
-            ?: (_currentScreen.value as? Screen.GamePlay)?.levelId
-            ?: return
+        val levelId =
+            (_currentScreen.value as? Screen.LevelComplete)?.levelId
+                ?: (_currentScreen.value as? Screen.GamePlay)?.levelId
+                ?: return
         startLevel(levelId)
     }
 
@@ -1762,7 +1944,7 @@ class GameViewModel {
     private fun saveHandoffForConnectedLevels(
         wonEditorLevelId: String,
         wonMapId: String,
-        allLevels: List<WorldLevel>
+        allLevels: List<WorldLevel>,
     ) {
         val gameState = _gameState.value ?: return
 
@@ -1770,11 +1952,15 @@ class GameViewModel {
         val wonWorldLevel = allLevels.find { it.level.editorLevelId == wonEditorLevelId }
         if (wonWorldLevel?.level?.isCommunity == true) return
         // isOfficial == false means user-created; skip those too
-        val wonEditorLevel = de.egril.defender.editor.EditorStorage.getLevel(wonEditorLevelId)
+        val wonEditorLevel =
+            de.egril.defender.editor.EditorStorage
+                .getLevel(wonEditorLevelId)
         if (wonEditorLevel != null && !wonEditorLevel.isOfficial) return
 
         // Use world map data to determine which levels are "next on the path".
-        val worldMapData = de.egril.defender.editor.EditorStorage.getWorldMapData()
+        val worldMapData =
+            de.egril.defender.editor.EditorStorage
+                .getWorldMapData()
         val wonLocation = worldMapData.findLocationByLevelId(wonEditorLevelId)
 
         // Collect the set of candidate editor-level IDs that may receive the handoff.
@@ -1793,84 +1979,94 @@ class GameViewModel {
                 }
         }
 
-        if (candidateLevelIds.isEmpty()) return  // hermit tower and other dead-ends have no candidates
+        if (candidateLevelIds.isEmpty()) return // hermit tower and other dead-ends have no candidates
 
         // Among candidates, only keep levels that:
         //  - have connectedToPreviousLevel = true
         //  - are on the same map
         //  - are official (not community, not user-created)
         //  - directly list wonEditorLevelId as a prerequisite (ensures strict ordering)
-        val connectedLevels = allLevels.filter { wl ->
-            wl.level.connectedToPreviousLevel &&
-                !wl.level.isCommunity &&
-                wl.level.mapId == wonMapId &&
-                wl.level.editorLevelId != null &&
-                wl.level.editorLevelId in candidateLevelIds
-        }.filter { wl ->
-            // Verify the won level is a direct prerequisite (strict path ordering)
-            val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(wl.level.editorLevelId!!)
-            editorLevel != null && wonEditorLevelId in editorLevel.prerequisites
-        }
+        val connectedLevels =
+            allLevels
+                .filter { wl ->
+                    wl.level.connectedToPreviousLevel &&
+                        !wl.level.isCommunity &&
+                        wl.level.mapId == wonMapId &&
+                        wl.level.editorLevelId != null &&
+                        wl.level.editorLevelId in candidateLevelIds
+                }.filter { wl ->
+                    // Verify the won level is a direct prerequisite (strict path ordering)
+                    val editorLevel =
+                        de.egril.defender.editor.EditorStorage
+                            .getLevel(wl.level.editorLevelId!!)
+                    editorLevel != null && wonEditorLevelId in editorLevel.prerequisites
+                }
 
         if (connectedLevels.isEmpty()) return
 
         // Build handoff from current game state
-        val handoffDefenders = gameState.defenders.map { d ->
-            de.egril.defender.save.SavedDefender(
-                id = d.id,
-                type = d.type,
-                position = d.position.value,
-                level = d.level.value,
-                buildTimeRemaining = 0,  // Always fully built on carry-over
-                placedOnTurn = d.placedOnTurn,
-                actionsRemaining = d.actionsRemaining.value,
-                dragonName = d.dragonName,
-                raftId = d.raftId.value,
-                towerBaseBarricadeId = d.towerBaseBarricadeId.value
-            )
-        }
-        val handoffBarricades = gameState.barricades.map { b ->
-            de.egril.defender.save.SavedBarricade(
-                position = b.position,
-                healthPoints = b.healthPoints.value,
-                defenderId = b.defenderId,
-                id = b.id,
-                supportedTowerId = b.supportedTowerId.value
-            )
-        }
-        val handoffTraps = gameState.traps.map { t ->
-            de.egril.defender.save.SavedTrap(
-                position = t.position,
-                damage = t.damage,
-                defenderId = t.defenderId,
-                type = t.type.name
-            )
-        }
-        val handoffRafts = gameState.rafts.map { r ->
-            de.egril.defender.save.SavedRaft(
-                id = r.id,
-                defenderId = r.defenderId,
-                position = r.currentPosition.value
-            )
-        }
+        val handoffDefenders =
+            gameState.defenders.map { d ->
+                de.egril.defender.save.SavedDefender(
+                    id = d.id,
+                    type = d.type,
+                    position = d.position.value,
+                    level = d.level.value,
+                    buildTimeRemaining = 0, // Always fully built on carry-over
+                    placedOnTurn = d.placedOnTurn,
+                    actionsRemaining = d.actionsRemaining.value,
+                    dragonName = d.dragonName,
+                    raftId = d.raftId.value,
+                    towerBaseBarricadeId = d.towerBaseBarricadeId.value,
+                )
+            }
+        val handoffBarricades =
+            gameState.barricades.map { b ->
+                de.egril.defender.save.SavedBarricade(
+                    position = b.position,
+                    healthPoints = b.healthPoints.value,
+                    defenderId = b.defenderId,
+                    id = b.id,
+                    supportedTowerId = b.supportedTowerId.value,
+                )
+            }
+        val handoffTraps =
+            gameState.traps.map { t ->
+                de.egril.defender.save.SavedTrap(
+                    position = t.position,
+                    damage = t.damage,
+                    defenderId = t.defenderId,
+                    type = t.type.name,
+                )
+            }
+        val handoffRafts =
+            gameState.rafts.map { r ->
+                de.egril.defender.save.SavedRaft(
+                    id = r.id,
+                    defenderId = r.defenderId,
+                    position = r.currentPosition.value,
+                )
+            }
 
         for (connectedLevel in connectedLevels) {
             val toEditorId = connectedLevel.level.editorLevelId ?: continue
-            val handoff = de.egril.defender.save.LevelHandoffSave(
-                fromLevelEditorId = wonEditorLevelId,
-                toLevelEditorId = toEditorId,
-                coins = gameState.coins.value,
-                currentMana = gameState.currentMana.value,
-                maxMana = gameState.maxMana.value,
-                defenders = handoffDefenders,
-                barricades = handoffBarricades,
-                traps = handoffTraps,
-                rafts = handoffRafts,
-                nextDefenderId = gameState.nextDefenderId.value,
-                nextRaftId = gameState.nextRaftId.value,
-                mapId = wonMapId
-            )
-            de.egril.defender.save.SaveFileStorage.saveLevelHandoff(handoff)
+            val handoff =
+                de.egril.defender.save.LevelHandoffSave(
+                    fromLevelEditorId = wonEditorLevelId,
+                    toLevelEditorId = toEditorId,
+                    coins = gameState.coins.value,
+                    currentMana = gameState.currentMana.value,
+                    maxMana = gameState.maxMana.value,
+                    defenders = handoffDefenders,
+                    barricades = handoffBarricades,
+                    traps = handoffTraps,
+                    rafts = handoffRafts,
+                    nextDefenderId = gameState.nextDefenderId.value,
+                    nextRaftId = gameState.nextRaftId.value,
+                    mapId = wonMapId,
+                )
+            de.egril.defender.save.SaveFileStorage
+                .saveLevelHandoff(handoff)
         }
     }
 
@@ -1898,14 +2094,17 @@ class GameViewModel {
     }
 
     private fun loadDemoLevel(index: Int) {
-        val demoLevel = de.egril.defender.game.DemoMode.createDemoLevel(index) ?: return
+        val demoLevel =
+            de.egril.defender.game.DemoMode
+                .createDemoLevel(index) ?: return
 
-        val newGameState = GameState(
-            level = demoLevel,
-            coins = mutableStateOf(demoLevel.initialCoins),
-            healthPoints = mutableStateOf(demoLevel.healthPoints),
-            spawnPlan = demoLevel.directSpawnPlan ?: emptyList()
-        )
+        val newGameState =
+            GameState(
+                level = demoLevel,
+                coins = mutableStateOf(demoLevel.initialCoins),
+                healthPoints = mutableStateOf(demoLevel.healthPoints),
+                spawnPlan = demoLevel.directSpawnPlan ?: emptyList(),
+            )
         // Towers are placed dynamically by startDemoAutoPlay() — no pre-placed elements here.
 
         _gameState.value = newGameState
@@ -1932,7 +2131,10 @@ class GameViewModel {
      * [DemoMode.TOWER_PLACE_DELAY_MS] ms, then places the tower, then waits
      * [DemoMode.TOWER_AFTER_PLACE_MS] ms before continuing.
      */
-    private suspend fun demoPlaceTowerWithPreview(type: DefenderType, position: Position) {
+    private suspend fun demoPlaceTowerWithPreview(
+        type: DefenderType,
+        position: Position,
+    ) {
         _demoSelectedDefenderType.value = type
         _demoHoveredPosition.value = position
         delay(de.egril.defender.game.DemoMode.TOWER_PLACE_DELAY_MS)
@@ -1957,10 +2159,12 @@ class GameViewModel {
      */
     private suspend fun demoAttackOneByOne() {
         val engine = gameEngine ?: return
-        val defenderIds = _gameState.value?.defenders
-            ?.filter { it.isReady && !it.isDisabled.value && it.type.attackType != AttackType.NONE }
-            ?.map { it.id }
-            ?: return
+        val defenderIds =
+            _gameState.value
+                ?.defenders
+                ?.filter { it.isReady && !it.isDisabled.value && it.type.attackType != AttackType.NONE }
+                ?.map { it.id }
+                ?: return
 
         try {
             for (id in defenderIds) {
@@ -2010,155 +2214,173 @@ class GameViewModel {
 
     private fun startDemoAutoPlay() {
         demoJob?.cancel()
-        demoJob = viewModelScope.launch {
-            val mapId = de.egril.defender.game.DemoMode.DEMO_MAP_IDS.getOrNull(demoLevelIndex)
-            val initialTowers = mapId?.let { de.egril.defender.game.DemoMode.DEMO_TOWERS[it] } ?: emptyList()
+        demoJob =
+            viewModelScope.launch {
+                val mapId =
+                    de.egril.defender.game.DemoMode.DEMO_MAP_IDS
+                        .getOrNull(demoLevelIndex)
+                val initialTowers = mapId?.let { de.egril.defender.game.DemoMode.DEMO_TOWERS[it] } ?: emptyList()
 
-            // Phase 1: place initial towers one by one with preview + delays in the INITIAL_BUILDING phase
-            delay(de.egril.defender.game.DemoMode.INITIAL_BUILDING_DELAY_MS)
-            for (tower in initialTowers) {
-                if (!_isDemoMode.value || _gameState.value?.phase?.value != GamePhase.INITIAL_BUILDING) break
-                demoPlaceTowerWithPreview(tower.type, tower.position)
-            }
-            // Brief pause after last tower is placed so the player can see all towers before battle starts
-            delay(de.egril.defender.game.DemoMode.INITIAL_BUILDING_DELAY_MS)
-            if (_isDemoMode.value && _gameState.value?.phase?.value == GamePhase.INITIAL_BUILDING) {
-                startFirstPlayerTurn()
-            }
+                // Phase 1: place initial towers one by one with preview + delays in the INITIAL_BUILDING phase
+                delay(de.egril.defender.game.DemoMode.INITIAL_BUILDING_DELAY_MS)
+                for (tower in initialTowers) {
+                    if (!_isDemoMode.value || _gameState.value?.phase?.value != GamePhase.INITIAL_BUILDING) break
+                    demoPlaceTowerWithPreview(tower.type, tower.position)
+                }
+                // Brief pause after last tower is placed so the player can see all towers before battle starts
+                delay(de.egril.defender.game.DemoMode.INITIAL_BUILDING_DELAY_MS)
+                if (_isDemoMode.value && _gameState.value?.phase?.value == GamePhase.INITIAL_BUILDING) {
+                    startFirstPlayerTurn()
+                }
 
-            // Phase 2: auto-play turns
-            while (_isDemoMode.value) {
-                when (_gameState.value?.phase?.value) {
-                    GamePhase.PLAYER_TURN -> {
-                        delay(de.egril.defender.game.DemoMode.PLAYER_TURN_DELAY_MS)
-                        val currentState = _gameState.value ?: break
-                        if (!_isDemoMode.value || currentState.phase.value != GamePhase.PLAYER_TURN) continue
-                        if (currentState.isLevelWon() || currentState.isLevelLost()) {
-                            delay(de.egril.defender.game.DemoMode.ENEMY_TURN_POLL_MS)
-                            continue
-                        }
+                // Phase 2: auto-play turns
+                while (_isDemoMode.value) {
+                    when (_gameState.value?.phase?.value) {
+                        GamePhase.PLAYER_TURN -> {
+                            delay(de.egril.defender.game.DemoMode.PLAYER_TURN_DELAY_MS)
+                            val currentState = _gameState.value ?: break
+                            if (!_isDemoMode.value || currentState.phase.value != GamePhase.PLAYER_TURN) continue
+                            if (currentState.isLevelWon() || currentState.isLevelLost()) {
+                                delay(de.egril.defender.game.DemoMode.ENEMY_TURN_POLL_MS)
+                                continue
+                            }
 
-                        // Try to place a new tower if coins allow and a free build area exists
-                        val occupiedPositions = currentState.defenders.map { it.position.value }.toSet()
-                        val freeBuildAreas = currentState.level.buildAreas - occupiedPositions
-                        if (freeBuildAreas.isNotEmpty()) {
-                            for (type in currentState.level.availableTowers.sortedByDescending { it.baseCost }) {
-                                if (currentState.canPlaceDefender(type)) {
-                                    val targetPos = freeBuildAreas.first()
-                                    // Show preview, then place
-                                    _demoSelectedDefenderType.value = type
-                                    _demoHoveredPosition.value = targetPos
-                                    delay(de.egril.defender.game.DemoMode.TOWER_PLACE_DELAY_MS)
-                                    _demoSelectedDefenderType.value = null
-                                    _demoHoveredPosition.value = null
-                                    val stateNow = _gameState.value
-                                    // Re-check that position is still free after the delay
-                                    val stillFree = stateNow?.defenders?.none { it.position.value == targetPos } == true
-                                    if (_isDemoMode.value && stateNow?.phase?.value == GamePhase.PLAYER_TURN && stillFree) {
-                                        gameEngine?.placeDefender(type, targetPos)
-                                        delay(de.egril.defender.game.DemoMode.TOWER_AFTER_PLACE_MS)
+                            // Try to place a new tower if coins allow and a free build area exists
+                            val occupiedPositions = currentState.defenders.map { it.position.value }.toSet()
+                            val freeBuildAreas = currentState.level.buildAreas - occupiedPositions
+                            if (freeBuildAreas.isNotEmpty()) {
+                                for (type in currentState.level.availableTowers.sortedByDescending { it.baseCost }) {
+                                    if (currentState.canPlaceDefender(type)) {
+                                        val targetPos = freeBuildAreas.first()
+                                        // Show preview, then place
+                                        _demoSelectedDefenderType.value = type
+                                        _demoHoveredPosition.value = targetPos
+                                        delay(de.egril.defender.game.DemoMode.TOWER_PLACE_DELAY_MS)
+                                        _demoSelectedDefenderType.value = null
+                                        _demoHoveredPosition.value = null
+                                        val stateNow = _gameState.value
+                                        // Re-check that position is still free after the delay
+                                        val stillFree = stateNow?.defenders?.none { it.position.value == targetPos } == true
+                                        if (_isDemoMode.value && stateNow?.phase?.value == GamePhase.PLAYER_TURN && stillFree) {
+                                            gameEngine?.placeDefender(type, targetPos)
+                                            delay(de.egril.defender.game.DemoMode.TOWER_AFTER_PLACE_MS)
+                                        }
+                                        break
                                     }
-                                    break
                                 }
                             }
-                        }
 
-                        // Try to upgrade the cheapest upgradeable tower
-                        val stateForUpgrade = _gameState.value
-                        if (stateForUpgrade != null && _isDemoMode.value &&
-                            stateForUpgrade.phase.value == GamePhase.PLAYER_TURN
-                        ) {
-                            val upgradeCandidate = stateForUpgrade.defenders
-                                .filter { stateForUpgrade.canUpgradeDefender(it) }
-                                .minByOrNull { it.upgradeCost }
-                            if (upgradeCandidate != null) {
-                                delay(de.egril.defender.game.DemoMode.TOWER_PLACE_DELAY_MS)
-                                val stateNow = _gameState.value
-                                if (_isDemoMode.value && stateNow?.phase?.value == GamePhase.PLAYER_TURN) {
-                                    gameEngine?.upgradeDefender(upgradeCandidate.id)
+                            // Try to upgrade the cheapest upgradeable tower
+                            val stateForUpgrade = _gameState.value
+                            if (stateForUpgrade != null &&
+                                _isDemoMode.value &&
+                                stateForUpgrade.phase.value == GamePhase.PLAYER_TURN
+                            ) {
+                                val upgradeCandidate =
+                                    stateForUpgrade.defenders
+                                        .filter { stateForUpgrade.canUpgradeDefender(it) }
+                                        .minByOrNull { it.upgradeCost }
+                                if (upgradeCandidate != null) {
+                                    delay(de.egril.defender.game.DemoMode.TOWER_PLACE_DELAY_MS)
+                                    val stateNow = _gameState.value
+                                    if (_isDemoMode.value && stateNow?.phase?.value == GamePhase.PLAYER_TURN) {
+                                        gameEngine?.upgradeDefender(upgradeCandidate.id)
+                                    }
                                 }
                             }
-                        }
 
-                        // Attack one by one with aiming circles, then end turn
-                        val finalState = _gameState.value ?: break
-                        if (!_isDemoMode.value || finalState.phase.value != GamePhase.PLAYER_TURN) continue
-                        if (finalState.isLevelWon() || finalState.isLevelLost()) continue
-                        demoAttackOneByOne()
-                        if (_isDemoMode.value && _gameState.value?.phase?.value == GamePhase.PLAYER_TURN &&
-                            !(_gameState.value?.isLevelWon() ?: false) && !(_gameState.value?.isLevelLost() ?: false)
-                        ) {
-                            endPlayerTurn()
+                            // Attack one by one with aiming circles, then end turn
+                            val finalState = _gameState.value ?: break
+                            if (!_isDemoMode.value || finalState.phase.value != GamePhase.PLAYER_TURN) continue
+                            if (finalState.isLevelWon() || finalState.isLevelLost()) continue
+                            demoAttackOneByOne()
+                            if (_isDemoMode.value &&
+                                _gameState.value?.phase?.value == GamePhase.PLAYER_TURN &&
+                                !(_gameState.value?.isLevelWon() ?: false) &&
+                                !(_gameState.value?.isLevelLost() ?: false)
+                            ) {
+                                endPlayerTurn()
+                            }
                         }
+                        GamePhase.ENEMY_TURN,
+                        GamePhase.INITIAL_BUILDING,
+                        -> delay(de.egril.defender.game.DemoMode.ENEMY_TURN_POLL_MS)
+                        null -> break
                     }
-                    GamePhase.ENEMY_TURN,
-                    GamePhase.INITIAL_BUILDING -> delay(de.egril.defender.game.DemoMode.ENEMY_TURN_POLL_MS)
-                    null -> break
                 }
             }
-        }
     }
-    
+
     fun applyCheatCode(code: String): Boolean {
         // Check for reminder testing cheat codes first
         val lowerCode = code.lowercase().trim()
         if (lowerCode == "breakreminder" || lowerCode == "break") {
             // Trigger break reminder with current session time
-            val currentTime = de.egril.defender.utils.currentTimeMillis()
+            val currentTime =
+                de.egril.defender.utils
+                    .currentTimeMillis()
             gameSessionStartTime?.let { sessionStart ->
                 val elapsedMs = currentTime - sessionStart
-                _reminderMessage.value = ReminderMessage(
-                    type = de.egril.defender.ui.gameplay.ReminderType.BREAK,
-                    elapsedMs = elapsedMs
-                )
+                _reminderMessage.value =
+                    ReminderMessage(
+                        type = de.egril.defender.ui.gameplay.ReminderType.BREAK,
+                        elapsedMs = elapsedMs,
+                    )
             }
             return true
         }
-        
+
         if (lowerCode == "sleepreminder" || lowerCode == "sleep") {
             // Trigger sleep reminder
-            val currentTime = de.egril.defender.utils.currentTimeMillis()
-            val hour = de.egril.defender.utils.getLocalHour(currentTime)
-            val timeDescription = when {
-                hour == 23 -> "close_to_midnight"
-                hour == 0 -> "midnight"
-                else -> "after_midnight"
-            }
-            _reminderMessage.value = ReminderMessage(
-                type = de.egril.defender.ui.gameplay.ReminderType.SLEEP,
-                timeDescription = timeDescription
-            )
+            val currentTime =
+                de.egril.defender.utils
+                    .currentTimeMillis()
+            val hour =
+                de.egril.defender.utils
+                    .getLocalHour(currentTime)
+            val timeDescription =
+                when {
+                    hour == 23 -> "close_to_midnight"
+                    hour == 0 -> "midnight"
+                    else -> "after_midnight"
+                }
+            _reminderMessage.value =
+                ReminderMessage(
+                    type = de.egril.defender.ui.gameplay.ReminderType.SLEEP,
+                    timeDescription = timeDescription,
+                )
             return true
         }
-        
-        val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
-            code = code,
-            addCoins = { amount -> gameEngine?.addCoins(amount) },
-            setCoins = { amount -> gameEngine?.setCoins(amount) },
-            performMineDigWithOutcome = { outcome -> performMineDigWithOutcome(outcome) },
-            spawnEnemy = { attackerType, level -> gameEngine?.spawnEnemy(attackerType, level) },
-            showPlatformInfo = { _showPlatformInfo.value = true },
-            setBigHeadMode = { enabled -> de.egril.defender.utils.BigHeadMode.isEnabled.value = enabled },
-            addMana = { amount -> gameEngine?.addMana(amount) },
-            removeMana = { amount -> gameEngine?.removeMana(amount) },
-            showCheatHelp = { _showCheatHelp.value = true }
-        )
-        
+
+        val (success, digOutcome) =
+            CheatCodeHandler.applyCheatCode(
+                code = code,
+                addCoins = { amount -> gameEngine?.addCoins(amount) },
+                setCoins = { amount -> gameEngine?.setCoins(amount) },
+                performMineDigWithOutcome = { outcome -> performMineDigWithOutcome(outcome) },
+                spawnEnemy = { attackerType, level -> gameEngine?.spawnEnemy(attackerType, level) },
+                showPlatformInfo = { _showPlatformInfo.value = true },
+                setBigHeadMode = { enabled -> de.egril.defender.utils.BigHeadMode.isEnabled.value = enabled },
+                addMana = { amount -> gameEngine?.addMana(amount) },
+                removeMana = { amount -> gameEngine?.removeMana(amount) },
+                showCheatHelp = { _showCheatHelp.value = true },
+            )
+
         if (digOutcome != null) {
             _cheatDigOutcome.value = digOutcome
         }
-        
+
         return success
     }
-    
+
     fun clearCheatDigOutcome() {
         _cheatDigOutcome.value = null
     }
-    
+
     fun clearPlatformInfo() {
         _showPlatformInfo.value = false
     }
-    
+
     fun clearCheatHelp() {
         _showCheatHelp.value = false
     }
@@ -2169,7 +2391,8 @@ class GameViewModel {
         val updatedStats = currentPlayer.abilities.addXP(amount)
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
-        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        de.egril.defender.save.PlayerProfileStorage
+            .updateProfile(updatedPlayer)
         uploadUserDataToBackend()
     }
 
@@ -2177,49 +2400,62 @@ class GameViewModel {
         val currentPlayer = _currentPlayer.value ?: return
         val currentXP = currentPlayer.abilities.totalXP
         val newXP = maxOf(0, currentXP - amount)
-        val newLevel = de.egril.defender.model.PlayerAbilities.calculateLevel(newXP)
+        val newLevel =
+            de.egril.defender.model.PlayerAbilities
+                .calculateLevel(newXP)
         val updatedStats = currentPlayer.abilities.copy(totalXP = newXP, level = newLevel)
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
-        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        de.egril.defender.save.PlayerProfileStorage
+            .updateProfile(updatedPlayer)
         uploadUserDataToBackend()
     }
 
-    private fun addPlayerStat(statName: String, amount: Int) {
+    private fun addPlayerStat(
+        statName: String,
+        amount: Int,
+    ) {
         val currentPlayer = _currentPlayer.value ?: return
         val oldStats = currentPlayer.abilities
 
-        val updatedStats = when (statName.lowercase()) {
-            "health" -> oldStats.copy(healthAbility = oldStats.healthAbility + amount)
-            "treasury" -> oldStats.copy(treasuryAbility = oldStats.treasuryAbility + amount)
-            "income" -> oldStats.copy(incomeAbility = oldStats.incomeAbility + amount)
-            "construction" -> oldStats.copy(constructionAbility = oldStats.constructionAbility + amount)
-            "mana" -> oldStats.copy(manaAbility = oldStats.manaAbility + amount)
-            else -> return  // Invalid stat name
-        }
+        val updatedStats =
+            when (statName.lowercase()) {
+                "health" -> oldStats.copy(healthAbility = oldStats.healthAbility + amount)
+                "treasury" -> oldStats.copy(treasuryAbility = oldStats.treasuryAbility + amount)
+                "income" -> oldStats.copy(incomeAbility = oldStats.incomeAbility + amount)
+                "construction" -> oldStats.copy(constructionAbility = oldStats.constructionAbility + amount)
+                "mana" -> oldStats.copy(manaAbility = oldStats.manaAbility + amount)
+                else -> return // Invalid stat name
+            }
 
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
-        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        de.egril.defender.save.PlayerProfileStorage
+            .updateProfile(updatedPlayer)
         uploadUserDataToBackend()
     }
 
-    private fun removePlayerStat(statName: String, amount: Int) {
+    private fun removePlayerStat(
+        statName: String,
+        amount: Int,
+    ) {
         val currentPlayer = _currentPlayer.value ?: return
         val oldStats = currentPlayer.abilities
 
-        val updatedStats = when (statName.lowercase()) {
-            "health" -> oldStats.copy(healthAbility = maxOf(0, oldStats.healthAbility - amount))
-            "treasury" -> oldStats.copy(treasuryAbility = maxOf(0, oldStats.treasuryAbility - amount))
-            "income" -> oldStats.copy(incomeAbility = maxOf(0, oldStats.incomeAbility - amount))
-            "construction" -> oldStats.copy(constructionAbility = maxOf(0, oldStats.constructionAbility - amount))
-            "mana" -> oldStats.copy(manaAbility = maxOf(0, oldStats.manaAbility - amount))
-            else -> return  // Invalid stat name
-        }
+        val updatedStats =
+            when (statName.lowercase()) {
+                "health" -> oldStats.copy(healthAbility = maxOf(0, oldStats.healthAbility - amount))
+                "treasury" -> oldStats.copy(treasuryAbility = maxOf(0, oldStats.treasuryAbility - amount))
+                "income" -> oldStats.copy(incomeAbility = maxOf(0, oldStats.incomeAbility - amount))
+                "construction" -> oldStats.copy(constructionAbility = maxOf(0, oldStats.constructionAbility - amount))
+                "mana" -> oldStats.copy(manaAbility = maxOf(0, oldStats.manaAbility - amount))
+                else -> return // Invalid stat name
+            }
 
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
-        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        de.egril.defender.save.PlayerProfileStorage
+            .updateProfile(updatedPlayer)
         uploadUserDataToBackend()
     }
 
@@ -2228,25 +2464,27 @@ class GameViewModel {
         val oldStats = currentPlayer.abilities
 
         // Parse spell name to SpellType
-        val spell = when (spellName.lowercase().replace(" ", "_")) {
-            "attack_aimed", "attackaimed" -> de.egril.defender.model.SpellType.ATTACK_AIMED
-            "attack_area", "attackarea", "fireball" -> de.egril.defender.model.SpellType.ATTACK_AREA
-            "heal" -> de.egril.defender.model.SpellType.HEAL
-            "instant_tower", "instanttower" -> de.egril.defender.model.SpellType.INSTANT_TOWER
-            "bomb" -> de.egril.defender.model.SpellType.BOMB
-            "double_level", "doublelevel", "double_tower_level", "doubletowerlevel" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_LEVEL
-            "cooling", "cooling_spell", "coolingspell" -> de.egril.defender.model.SpellType.COOLING_SPELL
-            "freeze", "freeze_spell", "freezespell" -> de.egril.defender.model.SpellType.FREEZE_SPELL
-            "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
-            "fear", "fear_spell", "fearspell" -> de.egril.defender.model.SpellType.FEAR_SPELL
-            "fear_area", "feararea", "fear_spell_area", "fearspellarea" -> de.egril.defender.model.SpellType.FEAR_SPELL_AREA
-            else -> return  // Invalid spell name
-        }
+        val spell =
+            when (spellName.lowercase().replace(" ", "_")) {
+                "attack_aimed", "attackaimed" -> de.egril.defender.model.SpellType.ATTACK_AIMED
+                "attack_area", "attackarea", "fireball" -> de.egril.defender.model.SpellType.ATTACK_AREA
+                "heal" -> de.egril.defender.model.SpellType.HEAL
+                "instant_tower", "instanttower" -> de.egril.defender.model.SpellType.INSTANT_TOWER
+                "bomb" -> de.egril.defender.model.SpellType.BOMB
+                "double_level", "doublelevel", "double_tower_level", "doubletowerlevel" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_LEVEL
+                "cooling", "cooling_spell", "coolingspell" -> de.egril.defender.model.SpellType.COOLING_SPELL
+                "freeze", "freeze_spell", "freezespell" -> de.egril.defender.model.SpellType.FREEZE_SPELL
+                "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
+                "fear", "fear_spell", "fearspell" -> de.egril.defender.model.SpellType.FEAR_SPELL
+                "fear_area", "feararea", "fear_spell_area", "fearspellarea" -> de.egril.defender.model.SpellType.FEAR_SPELL_AREA
+                else -> return // Invalid spell name
+            }
 
         val updatedStats = oldStats.copy(unlockedSpells = oldStats.unlockedSpells + spell)
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
-        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        de.egril.defender.save.PlayerProfileStorage
+            .updateProfile(updatedPlayer)
         uploadUserDataToBackend()
     }
 
@@ -2255,25 +2493,27 @@ class GameViewModel {
         val oldStats = currentPlayer.abilities
 
         // Parse spell name to SpellType
-        val spell = when (spellName.lowercase().replace(" ", "_")) {
-            "attack_aimed", "attackaimed" -> de.egril.defender.model.SpellType.ATTACK_AIMED
-            "attack_area", "attackarea", "fireball" -> de.egril.defender.model.SpellType.ATTACK_AREA
-            "heal" -> de.egril.defender.model.SpellType.HEAL
-            "instant_tower", "instanttower" -> de.egril.defender.model.SpellType.INSTANT_TOWER
-            "bomb" -> de.egril.defender.model.SpellType.BOMB
-            "double_level", "doublelevel", "double_tower_level", "doubletowerlevel" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_LEVEL
-            "cooling", "cooling_spell", "coolingspell" -> de.egril.defender.model.SpellType.COOLING_SPELL
-            "freeze", "freeze_spell", "freezespell" -> de.egril.defender.model.SpellType.FREEZE_SPELL
-            "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
-            "fear", "fear_spell", "fearspell" -> de.egril.defender.model.SpellType.FEAR_SPELL
-            "fear_area", "feararea", "fear_spell_area", "fearspellarea" -> de.egril.defender.model.SpellType.FEAR_SPELL_AREA
-            else -> return  // Invalid spell name
-        }
+        val spell =
+            when (spellName.lowercase().replace(" ", "_")) {
+                "attack_aimed", "attackaimed" -> de.egril.defender.model.SpellType.ATTACK_AIMED
+                "attack_area", "attackarea", "fireball" -> de.egril.defender.model.SpellType.ATTACK_AREA
+                "heal" -> de.egril.defender.model.SpellType.HEAL
+                "instant_tower", "instanttower" -> de.egril.defender.model.SpellType.INSTANT_TOWER
+                "bomb" -> de.egril.defender.model.SpellType.BOMB
+                "double_level", "doublelevel", "double_tower_level", "doubletowerlevel" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_LEVEL
+                "cooling", "cooling_spell", "coolingspell" -> de.egril.defender.model.SpellType.COOLING_SPELL
+                "freeze", "freeze_spell", "freezespell" -> de.egril.defender.model.SpellType.FREEZE_SPELL
+                "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
+                "fear", "fear_spell", "fearspell" -> de.egril.defender.model.SpellType.FEAR_SPELL
+                "fear_area", "feararea", "fear_spell_area", "fearspellarea" -> de.egril.defender.model.SpellType.FEAR_SPELL_AREA
+                else -> return // Invalid spell name
+            }
 
         val updatedStats = oldStats.copy(unlockedSpells = oldStats.unlockedSpells - spell)
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
-        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        de.egril.defender.save.PlayerProfileStorage
+            .updateProfile(updatedPlayer)
         uploadUserDataToBackend()
     }
 
@@ -2322,40 +2562,40 @@ class GameViewModel {
             removeStatLevel = { statName, amount -> removePlayerStat(statName, amount) },
             unlockSpell = { spellName -> unlockPlayerSpell(spellName) },
             lockSpell = { spellName -> lockPlayerSpell(spellName) },
-            showCheatHelp = { _showCheatHelp.value = true }
+            showCheatHelp = { _showCheatHelp.value = true },
         )
     }
-    
+
     private fun unlockAllLevels() {
         _worldLevels.value = CheatCodeHandler.unlockAllLevels(_worldLevels.value)
         // Save updated world map status
         saveWorldMapStatus()
         uploadUserDataToBackend()
     }
-    
+
     private fun unlockLevel(editorLevelId: String) {
         _worldLevels.value = CheatCodeHandler.unlockLevel(_worldLevels.value, editorLevelId)
         // Save updated world map status
         saveWorldMapStatus()
         uploadUserDataToBackend()
     }
-    
+
     private fun lockAllLevels() {
         _worldLevels.value = CheatCodeHandler.lockAllLevels(_worldLevels.value)
         // Save updated world map status
         saveWorldMapStatus()
         uploadUserDataToBackend()
     }
-    
+
     private fun lockLevel(editorLevelId: String) {
         _worldLevels.value = CheatCodeHandler.lockLevel(_worldLevels.value, editorLevelId)
         // Save updated world map status
         saveWorldMapStatus()
         uploadUserDataToBackend()
     }
-    
+
     // Save/Load functionality
-    
+
     private val _savedGames = MutableStateFlow<List<de.egril.defender.save.SaveGameMetadata>>(emptyList())
     val savedGames: StateFlow<List<de.egril.defender.save.SaveGameMetadata>> = _savedGames.asStateFlow()
 
@@ -2368,15 +2608,17 @@ class GameViewModel {
      * store a remote-only save locally without a second network round-trip.
      */
     private val remoteFilesCache = mutableMapOf<String, String>()
-    
+
     fun navigateToLoadGame() {
         refreshSavedGames()
         _currentScreen.value = Screen.LoadGame
     }
-    
+
     fun saveCurrentGame(comment: String? = null): String? {
         val state = _gameState.value ?: return null
-        val saveId = de.egril.defender.save.SaveFileStorage.saveGameState(state, comment)
+        val saveId =
+            de.egril.defender.save.SaveFileStorage
+                .saveGameState(state, comment)
         refreshSavedGames()
         // Update the last save snapshot
         lastSaveSnapshot = createGameStateSnapshot(state)
@@ -2384,7 +2626,7 @@ class GameViewModel {
         uploadSavefileToBackend(saveId)
         return saveId
     }
-    
+
     /**
      * Create an autosave at the beginning of a new turn.
      * Autosaves always use the fixed ID "autosave_game" so they overwrite previous autosaves.
@@ -2392,7 +2634,8 @@ class GameViewModel {
     private fun autoSaveGame() {
         val state = _gameState.value ?: return
         // Use fixed ID "autosave_game" and add "Autosave" as comment
-        de.egril.defender.save.SaveFileStorage.saveGameState(state, comment = "Autosave", saveId = "autosave_game")
+        de.egril.defender.save.SaveFileStorage
+            .saveGameState(state, comment = "Autosave", saveId = "autosave_game")
         refreshSavedGames()
         // Upload autosave to backend in background if the user is logged in
         uploadSavefileToBackend("autosave_game")
@@ -2404,7 +2647,9 @@ class GameViewModel {
      * Runs in the background so it never blocks gameplay.
      */
     private fun uploadSavefileToBackend(saveId: String) {
-        val token = de.egril.defender.iam.IamService.getToken()
+        val token =
+            de.egril.defender.iam.IamService
+                .getToken()
         if (token == null) {
             if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("Skipping backend upload for $saveId: not authenticated")
@@ -2412,9 +2657,13 @@ class GameViewModel {
             return
         }
         viewModelScope.launch {
-            val json = de.egril.defender.save.SaveFileStorage.getSaveGameJson(saveId) ?: return@launch
+            val json =
+                de.egril.defender.save.SaveFileStorage
+                    .getSaveGameJson(saveId) ?: return@launch
             try {
-                val success = de.egril.defender.save.BackendSaveService.uploadSavefile(saveId, json, token)
+                val success =
+                    de.egril.defender.save.BackendSaveService
+                        .uploadSavefile(saveId, json, token)
                 if (success) {
                     // Re-merge so the card shows the "remote" chip
                     refreshSavedGames()
@@ -2434,27 +2683,29 @@ class GameViewModel {
      */
     private fun importAndLoadFromRemoteCache(saveId: String): de.egril.defender.save.SavedGame? {
         val remoteJson = remoteFilesCache[saveId] ?: return null
-        val imported = de.egril.defender.save.SaveFileStorage.importSaveGame(
-            filename = "$saveId.json",
-            jsonContent = remoteJson,
-            overwrite = true
-        )
+        val imported =
+            de.egril.defender.save.SaveFileStorage.importSaveGame(
+                filename = "$saveId.json",
+                jsonContent = remoteJson,
+                overwrite = true,
+            )
         if (!imported) {
             if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("Failed to import remote savefile $saveId into local storage")
             }
             return null
         }
-        return de.egril.defender.save.SaveFileStorage.loadGameState(saveId)
+        return de.egril.defender.save.SaveFileStorage
+            .loadGameState(saveId)
     }
-    
+
     /**
      * Check if an autosave exists
      */
-    fun hasAutosave(): Boolean {
-        return de.egril.defender.save.SaveFileStorage.loadGameState("autosave_game") != null
-    }
-    
+    fun hasAutosave(): Boolean =
+        de.egril.defender.save.SaveFileStorage
+            .loadGameState("autosave_game") != null
+
     /**
      * Load the autosave and start playing
      */
@@ -2473,7 +2724,7 @@ class GameViewModel {
         de.egril.defender.save.SaveFileStorage.saveGameState(
             state,
             comment = "Background save",
-            saveId = BACKGROUND_SAVE_ID
+            saveId = BACKGROUND_SAVE_ID,
         )
     }
 
@@ -2483,7 +2734,11 @@ class GameViewModel {
      * while the app was in the background.
      */
     private fun restoreBackgroundSaveIfExists() {
-        if (de.egril.defender.save.SaveFileStorage.loadGameState(BACKGROUND_SAVE_ID) == null) return
+        if (de.egril.defender.save.SaveFileStorage
+                .loadGameState(BACKGROUND_SAVE_ID) == null
+        ) {
+            return
+        }
         loadGame(BACKGROUND_SAVE_ID)
         val restored = _currentScreen.value is Screen.GamePlay
         if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
@@ -2504,7 +2759,8 @@ class GameViewModel {
      * Called when the player explicitly leaves the game (back to map, level complete).
      */
     private fun deleteBackgroundSave() {
-        de.egril.defender.save.SaveFileStorage.deleteSavedGame(BACKGROUND_SAVE_ID)
+        de.egril.defender.save.SaveFileStorage
+            .deleteSavedGame(BACKGROUND_SAVE_ID)
     }
 
     /**
@@ -2519,17 +2775,21 @@ class GameViewModel {
             append("|phase:${state.phase.value}")
             append("|defenders:${state.defenders.size}")
             state.defenders.sortedBy { it.id }.forEach { defender ->
-                append("|d${defender.id}:${defender.type},${defender.position.value.x},${defender.position.value.y},${defender.level.value},${defender.buildTimeRemaining.value}")
+                append(
+                    "|d${defender.id}:${defender.type},${defender.position.value.x},${defender.position.value.y},${defender.level.value},${defender.buildTimeRemaining.value}",
+                )
             }
             append("|attackers:${state.attackers.size}")
             state.attackers.sortedBy { it.id }.forEach { attacker ->
-                append("|a${attacker.id}:${attacker.type},${attacker.position.value.x},${attacker.position.value.y},${attacker.currentHealth.value},${attacker.isDefeated.value}")
+                append(
+                    "|a${attacker.id}:${attacker.type},${attacker.position.value.x},${attacker.position.value.y},${attacker.currentHealth.value},${attacker.isDefeated.value}",
+                )
             }
             append("|effects:${state.fieldEffects.size}")
             append("|traps:${state.traps.size}")
         }
     }
-    
+
     /**
      * Check if there are unsaved changes
      */
@@ -2539,126 +2799,141 @@ class GameViewModel {
         val referenceSnapshot = lastSaveSnapshot ?: initialGameStateSnapshot ?: return false
         return currentSnapshot != referenceSnapshot
     }
-    
+
     fun loadGame(saveId: String) {
         // Try to load from local storage first; if not present, import from remote cache
-        val savedGame = de.egril.defender.save.SaveFileStorage.loadGameState(saveId)
-            ?: importAndLoadFromRemoteCache(saveId)
-            ?: return
-        
+        val savedGame =
+            de.egril.defender.save.SaveFileStorage
+                .loadGameState(saveId)
+                ?: importAndLoadFromRemoteCache(saveId)
+                ?: return
+
         // Find the level by ID
         val level = _worldLevels.value.find { it.level.id == savedGame.levelId }?.level
-        
+
         // Verify map ID matches if both are available
         if (level != null && savedGame.mapId != null && level.mapId != null) {
             if (savedGame.mapId != level.mapId) {
                 // Map mismatch - the level at this numeric ID now uses a different map
                 if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                println("WARNING: Save file has different map ID (saved: ${savedGame.mapId}, current: ${level.mapId})")
+                    println("WARNING: Save file has different map ID (saved: ${savedGame.mapId}, current: ${level.mapId})")
                 }
                 if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                println("Level sequence may have changed. Attempting to find level with matching map ID...")
+                    println("Level sequence may have changed. Attempting to find level with matching map ID...")
                 }
 
                 // Try to find any level that uses the same map as the saved game
-                val levelWithCorrectMap = _worldLevels.value
-                    .map { it.level }
-                    .find { it.mapId == savedGame.mapId }
-                
+                val levelWithCorrectMap =
+                    _worldLevels.value
+                        .map { it.level }
+                        .find { it.mapId == savedGame.mapId }
+
                 if (levelWithCorrectMap != null) {
                     println("Found level with matching map ID: ${levelWithCorrectMap.name} (ID: ${levelWithCorrectMap.id})")
-                    val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, levelWithCorrectMap)
+                    val gameState =
+                        de.egril.defender.save.SaveFileStorage
+                            .convertSavedGameToGameState(savedGame, levelWithCorrectMap)
                     _gameState.value = gameState
                     gameEngine = GameEngine(gameState)
                     _currentScreen.value = Screen.GamePlay(levelWithCorrectMap.id)
                     // Set snapshots when loading a saved game
                     initialGameStateSnapshot = createGameStateSnapshot(gameState)
                     lastSaveSnapshot = initialGameStateSnapshot
-                    
+
                     de.egril.defender.analytics.reportEvent(
                         de.egril.defender.analytics.GameEventType.LEVEL_LOADED,
                         levelWithCorrectMap.name,
                         gameState.turnNumber.value,
-                        gameState.difficulty.name
+                        gameState.difficulty.name,
                     )
                     // Start time tracking for reminders
                     startTimeTracking()
                     return
                 } else {
                     if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                    println("ERROR: Could not find any level with map ID ${savedGame.mapId}. Save file may be incompatible.")
+                        println("ERROR: Could not find any level with map ID ${savedGame.mapId}. Save file may be incompatible.")
                     }
                     // TODO: Show error dialog to user
                     return
                 }
             }
         }
-        
+
         // No map ID mismatch or one/both map IDs are null (backward compatibility)
         if (level != null) {
-            val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, level)
+            val gameState =
+                de.egril.defender.save.SaveFileStorage
+                    .convertSavedGameToGameState(savedGame, level)
             _gameState.value = gameState
             gameEngine = GameEngine(gameState)
             _currentScreen.value = Screen.GamePlay(savedGame.levelId)
             // Set snapshots when loading a saved game
             initialGameStateSnapshot = createGameStateSnapshot(gameState)
             lastSaveSnapshot = initialGameStateSnapshot
-            
+
             de.egril.defender.analytics.reportEvent(
                 de.egril.defender.analytics.GameEventType.LEVEL_LOADED,
                 level.name,
                 gameState.turnNumber.value,
-                gameState.difficulty.name
+                gameState.difficulty.name,
             )
             // Start time tracking for reminders
             startTimeTracking()
         }
     }
-    
+
     /**
      * Import world map progress and check for conflicts
      * Returns true if conflict detected and shown to user
      */
     fun importWorldMapProgress(json: String): Boolean {
-        val importedWorldMap = de.egril.defender.save.SaveFileStorage.importWorldMapProgress(json)
-        
+        val importedWorldMap =
+            de.egril.defender.save.SaveFileStorage
+                .importWorldMapProgress(json)
+
         if (importedWorldMap != null) {
             // Conflict detected - show dialog
-            val currentWorldMap = de.egril.defender.save.SaveFileStorage.loadWorldMapStatus() ?: emptyMap()
-            _worldMapConflict.value = WorldMapConflict(
-                savedGame = null,  // No associated save game
-                savedWorldMap = importedWorldMap,
-                currentWorldMap = currentWorldMap,
-                level = null  // No level to load
-            )
+            val currentWorldMap =
+                de.egril.defender.save.SaveFileStorage
+                    .loadWorldMapStatus() ?: emptyMap()
+            _worldMapConflict.value =
+                WorldMapConflict(
+                    savedGame = null, // No associated save game
+                    savedWorldMap = importedWorldMap,
+                    currentWorldMap = currentWorldMap,
+                    level = null, // No level to load
+                )
             return true
         }
-        
-        return false  // No conflict, nothing to do
+
+        return false // No conflict, nothing to do
     }
-    
+
     /**
      * Resolve world map conflict by choosing which version to keep
      */
     fun resolveWorldMapConflict(useSavedVersion: Boolean) {
         val conflict = _worldMapConflict.value ?: return
-        
+
         if (useSavedVersion) {
             // Use the world map from the import/save
-            val updatedWorldLevels = de.egril.defender.save.SaveFileStorage.applyWorldMapProgress(
-                conflict.savedWorldMap,
-                _worldLevels.value
-            )
+            val updatedWorldLevels =
+                de.egril.defender.save.SaveFileStorage.applyWorldMapProgress(
+                    conflict.savedWorldMap,
+                    _worldLevels.value,
+                )
             _worldLevels.value = updatedWorldLevels
         }
         // If not using saved version, keep current world map (do nothing)
-        
+
         // Clear the conflict
         _worldMapConflict.value = null
-        
+
         // If there's an associated saved game and level, load it
         if (conflict.savedGame != null && conflict.level != null) {
-            val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(conflict.savedGame, conflict.level)
+            val gameState =
+                de.egril.defender.save.SaveFileStorage
+                    .convertSavedGameToGameState(conflict.savedGame, conflict.level)
             _gameState.value = gameState
             gameEngine = GameEngine(gameState)
             _currentScreen.value = Screen.GamePlay(conflict.level.id)
@@ -2667,111 +2942,155 @@ class GameViewModel {
             lastSaveSnapshot = initialGameStateSnapshot
         }
     }
-    
+
     /**
      * Cancel world map conflict resolution
      */
     fun cancelWorldMapConflict() {
         _worldMapConflict.value = null
     }
-    
+
     fun deleteSavedGame(saveId: String) {
-        de.egril.defender.save.SaveFileStorage.deleteSavedGame(saveId)
+        de.egril.defender.save.SaveFileStorage
+            .deleteSavedGame(saveId)
         refreshSavedGames()
     }
-    
+
     // Download/Upload functionality
-    
-    fun downloadSaveGame(saveId: String, includeGameState: Boolean = false) {
+
+    fun downloadSaveGame(
+        saveId: String,
+        includeGameState: Boolean = false,
+    ) {
         viewModelScope.launch {
-            val jsonContent = if (includeGameState) {
-                de.egril.defender.save.SaveFileStorage.getSaveGameWithWorldMapJson(saveId)
-            } else {
-                de.egril.defender.save.SaveFileStorage.getSaveGameJson(saveId)
-            }
-            
-            if (jsonContent != null) {
-                val fileExportImport = de.egril.defender.save.getFileExportImport()
-                val filename = if (includeGameState) {
-                    "${saveId}_with_progress.json"
+            val jsonContent =
+                if (includeGameState) {
+                    de.egril.defender.save.SaveFileStorage
+                        .getSaveGameWithWorldMapJson(saveId)
                 } else {
-                    "$saveId.json"
+                    de.egril.defender.save.SaveFileStorage
+                        .getSaveGameJson(saveId)
                 }
+
+            if (jsonContent != null) {
+                val fileExportImport =
+                    de.egril.defender.save
+                        .getFileExportImport()
+                val filename =
+                    if (includeGameState) {
+                        "${saveId}_with_progress.json"
+                    } else {
+                        "$saveId.json"
+                    }
                 fileExportImport.exportFile(filename, jsonContent)
             }
         }
     }
-    
+
     fun downloadAllSaveGames(includeGameState: Boolean = false) {
         viewModelScope.launch {
-            val allSaves = if (includeGameState) {
-                // Get all saves with world map included
-                de.egril.defender.save.SaveFileStorage.getAllSaveGamesJson().mapValues { (filename, _) ->
-                    val saveId = filename.removeSuffix(".json")
-                    de.egril.defender.save.SaveFileStorage.getSaveGameWithWorldMapJson(saveId) ?: ""
-                }.filter { it.value.isNotEmpty() }
-            } else {
-                de.egril.defender.save.SaveFileStorage.getAllSaveGamesJson()
-            }
-            
-            if (allSaves.isNotEmpty()) {
-                val timestamp = de.egril.defender.utils.formatTimestampISO(de.egril.defender.utils.currentTimeMillis())
-                val zipFilename = if (includeGameState) {
-                    "defender-of-egril-saves-with-progress-$timestamp.zip"
+            val allSaves =
+                if (includeGameState) {
+                    // Get all saves with world map included
+                    de.egril.defender.save.SaveFileStorage
+                        .getAllSaveGamesJson()
+                        .mapValues { (filename, _) ->
+                            val saveId = filename.removeSuffix(".json")
+                            de.egril.defender.save.SaveFileStorage
+                                .getSaveGameWithWorldMapJson(saveId) ?: ""
+                        }.filter { it.value.isNotEmpty() }
                 } else {
-                    "defender-of-egril-saves-$timestamp.zip"
+                    de.egril.defender.save.SaveFileStorage
+                        .getAllSaveGamesJson()
                 }
-                val fileExportImport = de.egril.defender.save.getFileExportImport()
+
+            if (allSaves.isNotEmpty()) {
+                val timestamp =
+                    de.egril.defender.utils
+                        .formatTimestampISO(
+                            de.egril.defender.utils
+                                .currentTimeMillis(),
+                        )
+                val zipFilename =
+                    if (includeGameState) {
+                        "defender-of-egril-saves-with-progress-$timestamp.zip"
+                    } else {
+                        "defender-of-egril-saves-$timestamp.zip"
+                    }
+                val fileExportImport =
+                    de.egril.defender.save
+                        .getFileExportImport()
                 fileExportImport.exportZip(zipFilename, allSaves)
             }
         }
     }
-    
+
     fun downloadGameState() {
         viewModelScope.launch {
-            val jsonContent = de.egril.defender.save.SaveFileStorage.exportWorldMapProgress()
-            val fileExportImport = de.egril.defender.save.getFileExportImport()
-            val timestamp = de.egril.defender.utils.formatTimestampISO(de.egril.defender.utils.currentTimeMillis())
+            val jsonContent =
+                de.egril.defender.save.SaveFileStorage
+                    .exportWorldMapProgress()
+            val fileExportImport =
+                de.egril.defender.save
+                    .getFileExportImport()
+            val timestamp =
+                de.egril.defender.utils
+                    .formatTimestampISO(
+                        de.egril.defender.utils
+                            .currentTimeMillis(),
+                    )
             fileExportImport.exportFile("game-progress-$timestamp.json", jsonContent)
         }
     }
-    
+
     /**
      * Upload save files and handle override conflicts
      * Returns a state flow with import results: (success count, conflicts)
      */
     suspend fun uploadSaveGames(): Pair<Int, List<String>> {
-        val fileExportImport = de.egril.defender.save.getFileExportImport()
+        val fileExportImport =
+            de.egril.defender.save
+                .getFileExportImport()
         val importedFiles = fileExportImport.importFiles() ?: return Pair(0, emptyList())
-        
+
         var successCount = 0
         val conflicts = mutableListOf<String>()
-        
+
         importedFiles.forEach { file ->
-            if (de.egril.defender.save.SaveFileStorage.saveGameExists(file.filename)) {
+            if (de.egril.defender.save.SaveFileStorage
+                    .saveGameExists(file.filename)
+            ) {
                 conflicts.add(file.filename)
             } else {
-                if (de.egril.defender.save.SaveFileStorage.importSaveGame(file.filename, file.content, overwrite = false)) {
+                if (de.egril.defender.save.SaveFileStorage
+                        .importSaveGame(file.filename, file.content, overwrite = false)
+                ) {
                     successCount++
                 }
             }
         }
-        
+
         refreshSavedGames()
         return Pair(successCount, conflicts)
     }
-    
+
     /**
      * Import a specific file with override option
      */
-    suspend fun importSaveGameWithOverride(filename: String, content: String, overwrite: Boolean): Boolean {
-        val success = de.egril.defender.save.SaveFileStorage.importSaveGame(filename, content, overwrite)
+    suspend fun importSaveGameWithOverride(
+        filename: String,
+        content: String,
+        overwrite: Boolean,
+    ): Boolean {
+        val success =
+            de.egril.defender.save.SaveFileStorage
+                .importSaveGame(filename, content, overwrite)
         if (success) {
             refreshSavedGames()
         }
         return success
     }
-    
+
     /** Public wrapper so App.kt can trigger a refresh when the IAM state changes (e.g. user logs in). */
     fun onAuthStateChanged() {
         // When the user logs in, link their Keycloak username to the current player profile
@@ -2784,12 +3103,16 @@ class GameViewModel {
                 // Safety check: if this remote account is already linked to a *different*
                 // local player profile, a stale Keycloak session is being reused for the
                 // wrong local player.  Terminate that session immediately and abort linking.
-                val existingOwner = de.egril.defender.save.PlayerProfileStorage.findByRemoteUsername(username)
+                val existingOwner =
+                    de.egril.defender.save.PlayerProfileStorage
+                        .findByRemoteUsername(username)
                 if (existingOwner != null && existingOwner.id != player.id) {
-                    de.egril.defender.iam.IamService.logoutBackchannel()
+                    de.egril.defender.iam.IamService
+                        .logoutBackchannel()
                     return
                 }
-                de.egril.defender.save.PlayerProfileStorage.linkRemoteUser(player.id, username)
+                de.egril.defender.save.PlayerProfileStorage
+                    .linkRemoteUser(player.id, username)
                 _currentPlayer.value = player.copy(remoteUsername = username)
                 // On first SSO login, use the account's first name as the local player name
                 val firstName = iamState.firstName
@@ -2812,20 +3135,27 @@ class GameViewModel {
      */
     fun setAlwaysLogin(value: Boolean) {
         val player = _currentPlayer.value ?: return
-        de.egril.defender.save.PlayerProfileStorage.saveAlwaysLogin(player.id, value)
+        de.egril.defender.save.PlayerProfileStorage
+            .saveAlwaysLogin(player.id, value)
         _currentPlayer.value = player.copy(alwaysLogin = value)
     }
 
     private fun refreshSavedGames() {
-        val localGames = de.egril.defender.save.SaveFileStorage.getAllSavedGames()
+        val localGames =
+            de.egril.defender.save.SaveFileStorage
+                .getAllSavedGames()
         _savedGames.value = localGames
         // Asynchronously enrich with remote save information
         viewModelScope.launch {
-            val token = de.egril.defender.iam.IamService.getToken() ?: return@launch
+            val token =
+                de.egril.defender.iam.IamService
+                    .getToken() ?: return@launch
             _isLoadingRemoteSaves.value = true
             try {
-                val remoteFiles = de.egril.defender.save.BackendSaveService.fetchSavefiles(token)
-                    ?: return@launch
+                val remoteFiles =
+                    de.egril.defender.save.BackendSaveService
+                        .fetchSavefiles(token)
+                        ?: return@launch
                 // Cache all remote file data so loadGame() can import remote-only saves on demand
                 remoteFilesCache.clear()
                 for (remote in remoteFiles) {
@@ -2841,23 +3171,26 @@ class GameViewModel {
                     val remote = remoteById[local.id]
                     if (remote != null) {
                         // Both local and remote exist for this save ID – prefer the newer one
-                        val remoteGame = try {
-                            de.egril.defender.save.SaveJsonSerializer.deserializeSavedGame(remote.data)
-                        } catch (e: Exception) {
-                            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                                println("Failed to parse remote savefile ${remote.saveId}: ${e.message}")
+                        val remoteGame =
+                            try {
+                                de.egril.defender.save.SaveJsonSerializer
+                                    .deserializeSavedGame(remote.data)
+                            } catch (e: Exception) {
+                                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                                    println("Failed to parse remote savefile ${remote.saveId}: ${e.message}")
+                                }
+                                null
                             }
-                            null
-                        }
                         if (remoteGame != null && remoteGame.timestamp > local.timestamp) {
                             // Remote version is newer – overwrite local save and use remote metadata
                             de.egril.defender.save.SaveFileStorage.importSaveGame(
                                 filename = "${remote.saveId}.json",
                                 jsonContent = remote.data,
-                                overwrite = true
+                                overwrite = true,
                             )
-                            val metadata = de.egril.defender.save.SaveFileStorage
-                                .buildMetadataFromSavedGame(remoteGame)
+                            val metadata =
+                                de.egril.defender.save.SaveFileStorage
+                                    .buildMetadataFromSavedGame(remoteGame)
                             merged.add(metadata.copy(isLocal = true, isRemote = true))
                         } else {
                             merged.add(local.copy(isLocal = true, isRemote = true))
@@ -2869,17 +3202,20 @@ class GameViewModel {
                 // Add remote-only saves (not present locally) using metadata from remote JSON
                 for (remote in remoteFiles) {
                     if (remote.saveId !in localIds) {
-                        val savedGame = try {
-                            de.egril.defender.save.SaveJsonSerializer.deserializeSavedGame(remote.data)
-                        } catch (e: Exception) {
-                            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                                println("Failed to parse remote savefile ${remote.saveId}: ${e.message}")
+                        val savedGame =
+                            try {
+                                de.egril.defender.save.SaveJsonSerializer
+                                    .deserializeSavedGame(remote.data)
+                            } catch (e: Exception) {
+                                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                                    println("Failed to parse remote savefile ${remote.saveId}: ${e.message}")
+                                }
+                                null
                             }
-                            null
-                        }
                         if (savedGame != null) {
-                            val metadata = de.egril.defender.save.SaveFileStorage
-                                .buildMetadataFromSavedGame(savedGame)
+                            val metadata =
+                                de.egril.defender.save.SaveFileStorage
+                                    .buildMetadataFromSavedGame(savedGame)
                             merged.add(metadata.copy(isLocal = false, isRemote = true))
                         }
                     }
@@ -2896,9 +3232,10 @@ class GameViewModel {
             }
         }
     }
-    
+
     private fun saveWorldMapStatus() {
-        de.egril.defender.save.SaveFileStorage.saveWorldMapStatus(_worldLevels.value)
+        de.egril.defender.save.SaveFileStorage
+            .saveWorldMapStatus(_worldLevels.value)
     }
 
     /**
@@ -2907,7 +3244,9 @@ class GameViewModel {
      * Runs in the background so it never blocks gameplay.
      */
     private fun uploadUserDataToBackend() {
-        val token = de.egril.defender.iam.IamService.getToken()
+        val token =
+            de.egril.defender.iam.IamService
+                .getToken()
         if (token == null) {
             if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("Skipping userdata upload: not authenticated")
@@ -2915,18 +3254,22 @@ class GameViewModel {
             return
         }
         val player = _currentPlayer.value ?: return
-        val levelProgress = _worldLevels.value
-            .filter { it.level.editorLevelId != null }
-            .associate { it.level.editorLevelId!! to it.status.name }
+        val levelProgress =
+            _worldLevels.value
+                .filter { it.level.editorLevelId != null }
+                .associate { it.level.editorLevelId!! to it.status.name }
 
         viewModelScope.launch {
             try {
-                val jsonData = de.egril.defender.save.serializeUserDataJson(
-                    localUsername = player.name,
-                    abilities = player.abilities,
-                    levelProgress = levelProgress
-                )
-                val success = de.egril.defender.save.BackendUserDataService.uploadUserData(jsonData, token)
+                val jsonData =
+                    de.egril.defender.save.serializeUserDataJson(
+                        localUsername = player.name,
+                        abilities = player.abilities,
+                        levelProgress = levelProgress,
+                    )
+                val success =
+                    de.egril.defender.save.BackendUserDataService
+                        .uploadUserData(jsonData, token)
                 if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                     println("Userdata upload ${if (success) "succeeded" else "failed"} for player ${player.name}")
                 }
@@ -2943,13 +3286,19 @@ class GameViewModel {
      * Settings are stored in a dedicated `player_settings` table on the server.
      */
     private fun uploadSettingsToBackend() {
-        val token = de.egril.defender.iam.IamService.getToken() ?: return
+        val token =
+            de.egril.defender.iam.IamService
+                .getToken() ?: return
         viewModelScope.launch {
             try {
-                val settingsJson = de.egril.defender.save.serializeSettingsJson(
-                    de.egril.defender.ui.settings.AppSettings.toSettingsMap()
-                )
-                val success = de.egril.defender.save.BackendSettingsService.uploadSettings(settingsJson, token)
+                val settingsJson =
+                    de.egril.defender.save.serializeSettingsJson(
+                        de.egril.defender.ui.settings.AppSettings
+                            .toSettingsMap(),
+                    )
+                val success =
+                    de.egril.defender.save.BackendSettingsService
+                        .uploadSettings(settingsJson, token)
                 if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                     println("Settings upload ${if (success) "succeeded" else "failed"}")
                 }
@@ -2967,10 +3316,14 @@ class GameViewModel {
      * a level has a higher status remotely (UNLOCKED or WON) than locally.
      */
     private fun downloadAndMergeUserData() {
-        val token = de.egril.defender.iam.IamService.getToken() ?: return
+        val token =
+            de.egril.defender.iam.IamService
+                .getToken() ?: return
         viewModelScope.launch {
             try {
-                val remote = de.egril.defender.save.BackendUserDataService.fetchUserData(token) ?: return@launch
+                val remote =
+                    de.egril.defender.save.BackendUserDataService
+                        .fetchUserData(token) ?: return@launch
                 if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                     println("Downloaded userdata for ${remote.localUsername}")
                 }
@@ -2983,11 +3336,15 @@ class GameViewModel {
                 val player = _currentPlayer.value ?: return@launch
                 val remoteAbilities = remote.abilities
                 if (remoteAbilities != null &&
-                    (remoteAbilities.totalXP > player.abilities.totalXP ||
-                     (remoteAbilities.totalXP == player.abilities.totalXP && remoteAbilities != player.abilities))) {
+                    (
+                        remoteAbilities.totalXP > player.abilities.totalXP ||
+                            (remoteAbilities.totalXP == player.abilities.totalXP && remoteAbilities != player.abilities)
+                    )
+                ) {
                     val updatedPlayer = player.copy(abilities = remoteAbilities)
                     _currentPlayer.value = updatedPlayer
-                    de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+                    de.egril.defender.save.PlayerProfileStorage
+                        .updateProfile(updatedPlayer)
                     playerUpdated = true
                     if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                         println("Merged remote abilities: totalXP=${remoteAbilities.totalXP}")
@@ -3004,9 +3361,13 @@ class GameViewModel {
                         val wl = updatedLevels[i]
                         val editorId = wl.level.editorLevelId ?: continue
                         val remoteStatusStr = remoteLevelProgress[editorId] ?: continue
-                        val remoteStatus = try {
-                            de.egril.defender.model.LevelStatus.valueOf(remoteStatusStr)
-                        } catch (_: Exception) { continue }
+                        val remoteStatus =
+                            try {
+                                de.egril.defender.model.LevelStatus
+                                    .valueOf(remoteStatusStr)
+                            } catch (_: Exception) {
+                                continue
+                            }
                         // Only upgrade the status (LOCKED → UNLOCKED → WON), never downgrade
                         if (remoteStatus.ordinal > wl.status.ordinal) {
                             updatedLevels[i] = wl.copy(status = remoteStatus)
@@ -3015,7 +3376,8 @@ class GameViewModel {
                     }
                     if (levelsChanged) {
                         _worldLevels.value = updatedLevels
-                        de.egril.defender.save.SaveFileStorage.saveWorldMapStatus(updatedLevels)
+                        de.egril.defender.save.SaveFileStorage
+                            .saveWorldMapStatus(updatedLevels)
                         if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                             println("Merged remote level progress into local world map")
                         }
@@ -3035,7 +3397,9 @@ class GameViewModel {
      * Settings are fetched from the dedicated `player_settings` table, independent of userdata.
      */
     private fun downloadAndApplySettings() {
-        val token = de.egril.defender.iam.IamService.getToken() ?: return
+        val token =
+            de.egril.defender.iam.IamService
+                .getToken() ?: return
         val player = _currentPlayer.value ?: return
         if (!player.useRemoteSettings) {
             if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
@@ -3045,9 +3409,12 @@ class GameViewModel {
         }
         viewModelScope.launch {
             try {
-                val remoteSettings = de.egril.defender.save.BackendSettingsService.fetchSettings(token)
+                val remoteSettings =
+                    de.egril.defender.save.BackendSettingsService
+                        .fetchSettings(token)
                 if (remoteSettings != null && remoteSettings.isNotEmpty()) {
-                    de.egril.defender.ui.settings.AppSettings.applyFromSettingsMap(remoteSettings)
+                    de.egril.defender.ui.settings.AppSettings
+                        .applyFromSettingsMap(remoteSettings)
                     if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                         println("Applied remote settings for player ${player.name}")
                     }
@@ -3065,10 +3432,11 @@ class GameViewModel {
      */
     fun setUseRemoteSettings(value: Boolean) {
         val player = _currentPlayer.value ?: return
-        de.egril.defender.save.PlayerProfileStorage.saveUseRemoteSettings(player.id, value)
+        de.egril.defender.save.PlayerProfileStorage
+            .saveUseRemoteSettings(player.id, value)
         _currentPlayer.value = player.copy(useRemoteSettings = value)
     }
-    
+
     // Player Profile Management
 
     /**
@@ -3090,39 +3458,49 @@ class GameViewModel {
      * @return true if successful, false if name is invalid or already exists
      */
     fun createPlayer(name: String): Boolean {
-        val profile = de.egril.defender.save.PlayerProfileStorage.createProfile(name)
+        val profile =
+            de.egril.defender.save.PlayerProfileStorage
+                .createProfile(name)
         if (profile != null) {
             _currentPlayer.value = profile
-            _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
-            de.egril.defender.save.SaveFileStorage.setCurrentPlayer(profile.id)
+            _allPlayers.value =
+                de.egril.defender.save.PlayerProfileStorage
+                    .getAllProfiles()
+                    .profiles
+            de.egril.defender.save.SaveFileStorage
+                .setCurrentPlayer(profile.id)
             _needsPlayerSelection.value = false
-            
+
             // Reload world map for new player
             initializeWorldMap()
-            
+
             return true
         }
         return false
     }
-    
+
     /**
      * Switch to a different player profile
      */
     fun switchPlayer(playerId: String) {
-        val profile = de.egril.defender.save.PlayerProfileStorage.getProfile(playerId)
+        val profile =
+            de.egril.defender.save.PlayerProfileStorage
+                .getProfile(playerId)
         if (profile != null) {
             _currentPlayer.value = profile
-            de.egril.defender.save.SaveFileStorage.setCurrentPlayer(playerId)
-            de.egril.defender.save.PlayerProfileStorage.updateLastPlayed(playerId)
-            
+            de.egril.defender.save.SaveFileStorage
+                .setCurrentPlayer(playerId)
+            de.egril.defender.save.PlayerProfileStorage
+                .updateLastPlayed(playerId)
+
             // Reload world map for new player
             initializeWorldMap()
-            
+
             // Reload saved games list
             refreshSavedGames()
         }
     }
-    
+
     /**
      * Delete a player profile
      */
@@ -3131,55 +3509,71 @@ class GameViewModel {
         if (_currentPlayer.value?.id == playerId) {
             return false
         }
-        
-        val success = de.egril.defender.save.PlayerProfileStorage.deleteProfile(playerId)
+
+        val success =
+            de.egril.defender.save.PlayerProfileStorage
+                .deleteProfile(playerId)
         if (success) {
-            _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
+            _allPlayers.value =
+                de.egril.defender.save.PlayerProfileStorage
+                    .getAllProfiles()
+                    .profiles
         }
         return success
     }
-    
+
     /**
      * Rename the current player profile
      * @return true if successful, false if name is invalid or already exists
      */
     fun renameCurrentPlayer(newName: String): Boolean {
         val currentPlayerId = _currentPlayer.value?.id ?: return false
-        val updatedProfile = de.egril.defender.save.PlayerProfileStorage.renameProfile(currentPlayerId, newName)
+        val updatedProfile =
+            de.egril.defender.save.PlayerProfileStorage
+                .renameProfile(currentPlayerId, newName)
         if (updatedProfile != null) {
             _currentPlayer.value = updatedProfile
-            _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
-            
+            _allPlayers.value =
+                de.egril.defender.save.PlayerProfileStorage
+                    .getAllProfiles()
+                    .profiles
+
             // Update SaveFileStorage if the ID changed
             if (updatedProfile.id != currentPlayerId) {
-                de.egril.defender.save.SaveFileStorage.setCurrentPlayer(updatedProfile.id)
+                de.egril.defender.save.SaveFileStorage
+                    .setCurrentPlayer(updatedProfile.id)
             }
-            
+
             // Sync the new local username to the backend
             uploadUserDataToBackend()
             return true
         }
         return false
     }
-    
+
     /**
      * Refresh the list of all player profiles
      */
     fun refreshPlayerProfiles() {
-        _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
+        _allPlayers.value =
+            de.egril.defender.save.PlayerProfileStorage
+                .getAllProfiles()
+                .profiles
     }
-    
+
     /**
      * Refresh the current player profile (e.g., after earning an achievement)
      */
     private fun refreshCurrentPlayer() {
         val currentPlayerId = _currentPlayer.value?.id ?: return
-        val updatedProfile = de.egril.defender.save.PlayerProfileStorage.getProfile(currentPlayerId)
+        val updatedProfile =
+            de.egril.defender.save.PlayerProfileStorage
+                .getProfile(currentPlayerId)
         if (updatedProfile != null) {
             _currentPlayer.value = updatedProfile
         }
     }
-    
+
     /**
      * Clear the new achievement notification
      */
@@ -3207,19 +3601,20 @@ class GameViewModel {
         _newVersionAvailable.value = null
     }
 
-
     fun startTimeTracking() {
-        val currentTime = de.egril.defender.utils.currentTimeMillis()
+        val currentTime =
+            de.egril.defender.utils
+                .currentTimeMillis()
         gameSessionStartTime = currentTime
         lastBreakReminderTime = currentTime
         lastSleepReminderTime = currentTime
-        
+
         // Start coroutine to check for reminders
         viewModelScope.launch {
             checkTimeReminders()
         }
     }
-    
+
     /**
      * Stop tracking time when leaving the game screen
      */
@@ -3228,51 +3623,56 @@ class GameViewModel {
         lastBreakReminderTime = null
         lastSleepReminderTime = null
     }
-    
+
     /**
      * Check and show time reminders periodically
      */
     private suspend fun checkTimeReminders() {
         while (gameSessionStartTime != null) {
-            delay(60000L)  // Check every minute
-            
-            val currentTime = de.egril.defender.utils.currentTimeMillis()
-            
+            delay(60000L) // Check every minute
+
+            val currentTime =
+                de.egril.defender.utils
+                    .currentTimeMillis()
+
             // Check break reminder (every 2 hours)
             lastBreakReminderTime?.let { lastBreak ->
                 if (currentTime - lastBreak >= BREAK_REMINDER_INTERVAL_MS) {
                     gameSessionStartTime?.let { sessionStart ->
                         val elapsedMs = currentTime - sessionStart
-                        _reminderMessage.value = ReminderMessage(
-                            type = de.egril.defender.ui.gameplay.ReminderType.BREAK,
-                            elapsedMs = elapsedMs
-                        )
+                        _reminderMessage.value =
+                            ReminderMessage(
+                                type = de.egril.defender.ui.gameplay.ReminderType.BREAK,
+                                elapsedMs = elapsedMs,
+                            )
                         lastBreakReminderTime = currentTime
                     }
                 }
             }
-            
+
             // Check sleep reminder (after 23:00, every hour)
             lastSleepReminderTime?.let { lastSleep ->
                 if (currentTime - lastSleep >= SLEEP_REMINDER_INTERVAL_MS) {
                     val hour = getLocalHour(currentTime)
-                    if (hour >= SLEEP_START_HOUR || hour < 6) {  // Between 23:00 and 06:00
-                        val timeDescription = when {
-                            hour == 23 -> "close_to_midnight"
-                            hour == 0 -> "midnight"
-                            else -> "after_midnight"
-                        }
-                        _reminderMessage.value = ReminderMessage(
-                            type = de.egril.defender.ui.gameplay.ReminderType.SLEEP,
-                            timeDescription = timeDescription
-                        )
+                    if (hour >= SLEEP_START_HOUR || hour < 6) { // Between 23:00 and 06:00
+                        val timeDescription =
+                            when {
+                                hour == 23 -> "close_to_midnight"
+                                hour == 0 -> "midnight"
+                                else -> "after_midnight"
+                            }
+                        _reminderMessage.value =
+                            ReminderMessage(
+                                type = de.egril.defender.ui.gameplay.ReminderType.SLEEP,
+                                timeDescription = timeDescription,
+                            )
                         lastSleepReminderTime = currentTime
                     }
                 }
             }
         }
     }
-    
+
     /**
      * Clear the current reminder message
      */
@@ -3322,9 +3722,9 @@ class GameViewModel {
     /**
      * Get the local hour (0-23) from timestamp
      */
-    private fun getLocalHour(timestamp: Long): Int {
-        return de.egril.defender.utils.getLocalHour(timestamp)
-    }
+    private fun getLocalHour(timestamp: Long): Int =
+        de.egril.defender.utils
+            .getLocalHour(timestamp)
 
     /**
      * Toggle magic panel display
@@ -3394,7 +3794,9 @@ class GameViewModel {
         if (spell == SpellType.INSTANT_TOWER) {
             if (gameState == null || gameState.currentMana.value < spell.manaCost) {
                 if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("=== SPELL: Cannot cast ${spell.displayName} - Insufficient mana (Need: ${spell.manaCost}, Have: ${gameState?.currentMana?.value ?: 0})")
+                    println(
+                        "=== SPELL: Cannot cast ${spell.displayName} - Insufficient mana (Need: ${spell.manaCost}, Have: ${gameState?.currentMana?.value ?: 0})",
+                    )
                 }
                 return
             }
@@ -3443,7 +3845,9 @@ class GameViewModel {
             }
         } else {
             if (LogConfig.ENABLE_SPELL_LOGGING) {
-                println("=== SPELL: Cannot cast ${spell.displayName} - Insufficient mana (Need: ${spell.manaCost}, Have: ${gameState?.currentMana?.value ?: 0})")
+                println(
+                    "=== SPELL: Cannot cast ${spell.displayName} - Insufficient mana (Need: ${spell.manaCost}, Have: ${gameState?.currentMana?.value ?: 0})",
+                )
             }
         }
     }
@@ -3521,18 +3925,20 @@ class GameViewModel {
     /**
      * Check if an enemy type is immune to freeze spell
      */
-    private fun isImmuneToFreeze(type: AttackerType): Boolean {
-        return type == AttackerType.BLUE_DEMON ||
-               type == AttackerType.RED_DEMON ||
-               type == AttackerType.DRAGON ||
-               type == AttackerType.EWHAD
-    }
+    private fun isImmuneToFreeze(type: AttackerType): Boolean =
+        type == AttackerType.BLUE_DEMON ||
+            type == AttackerType.RED_DEMON ||
+            type == AttackerType.DRAGON ||
+            type == AttackerType.EWHAD
 
     /**
      * Cast a spell (called after targeting is complete)
      * For non-targeting spells, this is called immediately after confirmation
      */
-    fun castSpell(spell: SpellType, target: Any? = null) {
+    fun castSpell(
+        spell: SpellType,
+        target: Any? = null,
+    ) {
         val gameState = _gameState.value ?: return
         val currentPlayer = _currentPlayer.value ?: return
 
@@ -3570,7 +3976,7 @@ class GameViewModel {
         val previousMana = gameState.currentMana.value
         gameState.currentMana.value -= spell.manaCost
         if (LogConfig.ENABLE_SPELL_LOGGING) {
-            println("=== SPELL: Mana deducted - ${previousMana} -> ${gameState.currentMana.value}")
+            println("=== SPELL: Mana deducted - $previousMana -> ${gameState.currentMana.value}")
         }
 
         // Execute spell effect
@@ -3603,7 +4009,11 @@ class GameViewModel {
     /**
      * Execute the effect of a cast spell
      */
-    private fun executeSpellEffect(spell: SpellType, target: Any?, gameState: GameState) {
+    private fun executeSpellEffect(
+        spell: SpellType,
+        target: Any?,
+        gameState: GameState,
+    ) {
         when (spell) {
             SpellType.ATTACK_AIMED -> {
                 // Attack Aimed: Deal 80 damage to the enemy on a targeted tile
@@ -3617,7 +4027,9 @@ class GameViewModel {
                             attacker.isDefeated.value = true
                         }
                         if (LogConfig.ENABLE_SPELL_LOGGING) {
-                        println("Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} at $position (HP: ${attacker.currentHealth.value})")
+                            println(
+                                "Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} at $position (HP: ${attacker.currentHealth.value})",
+                            )
                         }
                     }
                 }
@@ -3629,7 +4041,7 @@ class GameViewModel {
                 val newHP = (currentHP + 3).coerceAtMost(maxHP)
                 gameState.healthPoints.value = newHP
                 if (LogConfig.ENABLE_SPELL_LOGGING) {
-                println("Heal: Restored health to $newHP/$maxHP")
+                    println("Heal: Restored health to $newHP/$maxHP")
                 }
             }
             SpellType.ATTACK_AREA -> {
@@ -3649,7 +4061,7 @@ class GameViewModel {
                         }
                     }
                     if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("Attack Area: Dealt 50 damage to $damagedCount enemies within 2 hex range of $position")
+                        println("Attack Area: Dealt 50 damage to $damagedCount enemies within 2 hex range of $position")
                     }
                 }
             }
@@ -3664,15 +4076,16 @@ class GameViewModel {
                 // Double Tower Level: Double tower level for 1 turn
                 val defender = target as? Defender
                 if (defender != null) {
-                    val effect = ActiveSpellEffect(
-                        spell = SpellType.DOUBLE_TOWER_LEVEL,
-                        defenderId = defender.id,
-                        turnsRemaining = 1,
-                        castTurn = gameState.turnNumber.value
-                    )
+                    val effect =
+                        ActiveSpellEffect(
+                            spell = SpellType.DOUBLE_TOWER_LEVEL,
+                            defenderId = defender.id,
+                            turnsRemaining = 1,
+                            castTurn = gameState.turnNumber.value,
+                        )
                     gameState.activeSpellEffects.add(effect)
                     if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("Double Tower Level: ${defender.type.displayName} level doubled for 1 turn!")
+                        println("Double Tower Level: ${defender.type.displayName} level doubled for 1 turn!")
                     }
                 }
             }
@@ -3680,15 +4093,16 @@ class GameViewModel {
                 // Double Tower Reach: Double tower range for 1 turn
                 val defender = target as? Defender
                 if (defender != null) {
-                    val effect = ActiveSpellEffect(
-                        spell = SpellType.DOUBLE_TOWER_REACH,
-                        defenderId = defender.id,
-                        turnsRemaining = 1,
-                        castTurn = gameState.turnNumber.value
-                    )
+                    val effect =
+                        ActiveSpellEffect(
+                            spell = SpellType.DOUBLE_TOWER_REACH,
+                            defenderId = defender.id,
+                            turnsRemaining = 1,
+                            castTurn = gameState.turnNumber.value,
+                        )
                     gameState.activeSpellEffects.add(effect)
                     if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("Double Tower Reach: ${defender.type.displayName} range doubled for 1 turn!")
+                        println("Double Tower Reach: ${defender.type.displayName} range doubled for 1 turn!")
                     }
                 }
             }
@@ -3696,17 +4110,18 @@ class GameViewModel {
                 // Bomb: Place bomb at position, explodes after 2 turns
                 val position = target as? Position
                 if (position != null) {
-                    val effect = ActiveSpellEffect(
-                        spell = SpellType.BOMB,
-                        position = position,
-                        turnsRemaining = 3,  // Explodes at the start of turn 3 (2 full turns + explosion)
-                        castTurn = gameState.turnNumber.value
-                    )
+                    val effect =
+                        ActiveSpellEffect(
+                            spell = SpellType.BOMB,
+                            position = position,
+                            turnsRemaining = 3, // Explodes at the start of turn 3 (2 full turns + explosion)
+                            castTurn = gameState.turnNumber.value,
+                        )
                     gameState.activeSpellEffects.add(effect)
                     // Play ticking sound when bomb is placed
                     GlobalSoundManager.playSound(SoundEvent.BOMB_TICKING)
                     if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("Bomb: Placed at $position, will explode in 2 turns!")
+                        println("Bomb: Placed at $position, will explode in 2 turns!")
                     }
                 }
             }
@@ -3715,25 +4130,27 @@ class GameViewModel {
                 val attacker = target as? Attacker
                 if (attacker != null) {
                     // Check immunity: Does not work on Demons, Dragons, Ewhad
-                    val isImmune = attacker.type.isDragon ||
-                                   attacker.type == AttackerType.BLUE_DEMON ||
-                                   attacker.type == AttackerType.RED_DEMON ||
-                                   attacker.type == AttackerType.EWHAD
+                    val isImmune =
+                        attacker.type.isDragon ||
+                            attacker.type == AttackerType.BLUE_DEMON ||
+                            attacker.type == AttackerType.RED_DEMON ||
+                            attacker.type == AttackerType.EWHAD
 
                     if (isImmune) {
                         println("Freeze Spell: ${attacker.type.displayName} is immune to freeze!")
                     } else {
                         // For now, freeze for 1 turn (base cost)
                         // TODO: Add duration selection dialog for spending more mana
-                        val effect = ActiveSpellEffect(
-                            spell = SpellType.FREEZE_SPELL,
-                            attackerId = attacker.id,
-                            turnsRemaining = 1,
-                            castTurn = gameState.turnNumber.value
-                        )
+                        val effect =
+                            ActiveSpellEffect(
+                                spell = SpellType.FREEZE_SPELL,
+                                attackerId = attacker.id,
+                                turnsRemaining = 1,
+                                castTurn = gameState.turnNumber.value,
+                            )
                         gameState.activeSpellEffects.add(effect)
                         if (LogConfig.ENABLE_SPELL_LOGGING) {
-                        println("Freeze Spell: Froze ${attacker.type.displayName} for 1 turn!")
+                            println("Freeze Spell: Froze ${attacker.type.displayName} for 1 turn!")
                         }
                     }
                 }
@@ -3742,15 +4159,16 @@ class GameViewModel {
                 // Cooling Spell: Create area that slows enemies for 3 turns
                 val position = target as? Position
                 if (position != null) {
-                    val effect = ActiveSpellEffect(
-                        spell = SpellType.COOLING_SPELL,
-                        position = position,
-                        turnsRemaining = 3,
-                        castTurn = gameState.turnNumber.value
-                    )
+                    val effect =
+                        ActiveSpellEffect(
+                            spell = SpellType.COOLING_SPELL,
+                            position = position,
+                            turnsRemaining = 3,
+                            castTurn = gameState.turnNumber.value,
+                        )
                     gameState.activeSpellEffects.add(effect)
                     if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("Cooling Spell: Created cooling area at $position for 3 turns!")
+                        println("Cooling Spell: Created cooling area at $position for 3 turns!")
                     }
                 }
             }
@@ -3758,15 +4176,16 @@ class GameViewModel {
                 // Fear Spell: Single target enemy flees towards spawn for 3 turns
                 val attacker = target as? Attacker
                 if (attacker != null) {
-                    val effect = ActiveSpellEffect(
-                        spell = SpellType.FEAR_SPELL,
-                        attackerId = attacker.id,
-                        turnsRemaining = 3,
-                        castTurn = gameState.turnNumber.value
-                    )
+                    val effect =
+                        ActiveSpellEffect(
+                            spell = SpellType.FEAR_SPELL,
+                            attackerId = attacker.id,
+                            turnsRemaining = 3,
+                            castTurn = gameState.turnNumber.value,
+                        )
                     gameState.activeSpellEffects.add(effect)
                     if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("Fear Spell: ${attacker.type.displayName} flees for 3 turns!")
+                        println("Fear Spell: ${attacker.type.displayName} flees for 3 turns!")
                     }
                 }
             }
@@ -3774,15 +4193,16 @@ class GameViewModel {
                 // Fear Spell (Area): Create fear zone that makes enemies flee for 3 turns
                 val position = target as? Position
                 if (position != null) {
-                    val effect = ActiveSpellEffect(
-                        spell = SpellType.FEAR_SPELL_AREA,
-                        position = position,
-                        turnsRemaining = 3,
-                        castTurn = gameState.turnNumber.value
-                    )
+                    val effect =
+                        ActiveSpellEffect(
+                            spell = SpellType.FEAR_SPELL_AREA,
+                            position = position,
+                            turnsRemaining = 3,
+                            castTurn = gameState.turnNumber.value,
+                        )
                     gameState.activeSpellEffects.add(effect)
                     if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("Fear Spell (Area): Created fear zone at $position for 3 turns!")
+                        println("Fear Spell (Area): Created fear zone at $position for 3 turns!")
                     }
                 }
             }
@@ -3796,97 +4216,104 @@ class GameViewModel {
         val gameState = _gameState.value ?: return
 
         // Calculate valid targets based on spell type
-        val validTargets: Set<Any> = when (spell.targetType) {
-            SpellTargetType.POSITION -> {
-                if (spell == SpellType.BOMB) {
-                    // Bomb can only be placed on empty path tiles:
-                    // no enemies, no barricades, no field effects, no traps, no other bombs
-                    val occupiedByEnemy = gameState.attackers
-                        .filter { !it.isDefeated.value }
-                        .map { it.position.value }
-                        .toSet()
-                    val occupiedByBarricade = gameState.barricades.map { it.position }.toSet()
-                    val occupiedByFieldEffect = gameState.fieldEffects.map { it.position }.toSet()
-                    val occupiedByTrap = gameState.traps.map { it.position }.toSet()
-                    val occupiedByBomb = gameState.activeSpellEffects
-                        .filter { it.spell == SpellType.BOMB && it.position != null }
-                        .map { it.position!! }
-                        .toSet()
-                    val blocked = occupiedByEnemy + occupiedByBarricade + occupiedByFieldEffect +
-                            occupiedByTrap + occupiedByBomb
-                    val positions = mutableSetOf<Position>()
-                    for (x in 0 until gameState.level.gridWidth) {
-                        for (y in 0 until gameState.level.gridHeight) {
-                            val pos = Position(x, y)
-                            if (gameState.level.isOnPath(pos) && pos !in blocked) {
-                                positions.add(pos)
+        val validTargets: Set<Any> =
+            when (spell.targetType) {
+                SpellTargetType.POSITION -> {
+                    if (spell == SpellType.BOMB) {
+                        // Bomb can only be placed on empty path tiles:
+                        // no enemies, no barricades, no field effects, no traps, no other bombs
+                        val occupiedByEnemy =
+                            gameState.attackers
+                                .filter { !it.isDefeated.value }
+                                .map { it.position.value }
+                                .toSet()
+                        val occupiedByBarricade = gameState.barricades.map { it.position }.toSet()
+                        val occupiedByFieldEffect = gameState.fieldEffects.map { it.position }.toSet()
+                        val occupiedByTrap = gameState.traps.map { it.position }.toSet()
+                        val occupiedByBomb =
+                            gameState.activeSpellEffects
+                                .filter { it.spell == SpellType.BOMB && it.position != null }
+                                .map { it.position!! }
+                                .toSet()
+                        val blocked =
+                            occupiedByEnemy + occupiedByBarricade + occupiedByFieldEffect +
+                                occupiedByTrap + occupiedByBomb
+                        val positions = mutableSetOf<Position>()
+                        for (x in 0 until gameState.level.gridWidth) {
+                            for (y in 0 until gameState.level.gridHeight) {
+                                val pos = Position(x, y)
+                                if (gameState.level.isOnPath(pos) && pos !in blocked) {
+                                    positions.add(pos)
+                                }
                             }
                         }
-                    }
-                    positions
-                } else if (spell == SpellType.COOLING_SPELL) {
-                    // Cooling spell can only be placed on path/spawn tiles without barricades
-                    val occupiedByBarricade = gameState.barricades.map { it.position }.toSet()
-                    val positions = mutableSetOf<Position>()
-                    for (x in 0 until gameState.level.gridWidth) {
-                        for (y in 0 until gameState.level.gridHeight) {
-                            val pos = Position(x, y)
-                            if (gameState.level.isEnemyTraversable(pos) &&
-                                pos !in occupiedByBarricade) {
-                                positions.add(pos)
+                        positions
+                    } else if (spell == SpellType.COOLING_SPELL) {
+                        // Cooling spell can only be placed on path/spawn tiles without barricades
+                        val occupiedByBarricade = gameState.barricades.map { it.position }.toSet()
+                        val positions = mutableSetOf<Position>()
+                        for (x in 0 until gameState.level.gridWidth) {
+                            for (y in 0 until gameState.level.gridHeight) {
+                                val pos = Position(x, y)
+                                if (gameState.level.isEnemyTraversable(pos) &&
+                                    pos !in occupiedByBarricade
+                                ) {
+                                    positions.add(pos)
+                                }
                             }
                         }
-                    }
-                    positions
-                } else if (spell == SpellType.ATTACK_AREA) {
-                    // Attack Area: only path tiles without a barricade
-                    val occupiedByBarricade = gameState.barricades
-                        .filter { !it.isDestroyed() }
-                        .map { it.position }
-                        .toSet()
-                    val positions = mutableSetOf<Position>()
-                    for (x in 0 until gameState.level.gridWidth) {
-                        for (y in 0 until gameState.level.gridHeight) {
-                            val pos = Position(x, y)
-                            if (gameState.level.isOnPath(pos) && pos !in occupiedByBarricade) {
-                                positions.add(pos)
+                        positions
+                    } else if (spell == SpellType.ATTACK_AREA) {
+                        // Attack Area: only path tiles without a barricade
+                        val occupiedByBarricade =
+                            gameState.barricades
+                                .filter { !it.isDestroyed() }
+                                .map { it.position }
+                                .toSet()
+                        val positions = mutableSetOf<Position>()
+                        for (x in 0 until gameState.level.gridWidth) {
+                            for (y in 0 until gameState.level.gridHeight) {
+                                val pos = Position(x, y)
+                                if (gameState.level.isOnPath(pos) && pos !in occupiedByBarricade) {
+                                    positions.add(pos)
+                                }
                             }
                         }
-                    }
-                    positions
-                } else if (spell == SpellType.ATTACK_AIMED) {
-                    // Attack Aimed: only tiles that have an enemy on them
-                    gameState.attackers
-                        .filter { !it.isDefeated.value }
-                        .map { it.position.value }
-                        .toSet()
-                } else {
-                    // All tiles on the map are valid positions for other spells
-                    val positions = mutableSetOf<Position>()
-                    for (x in 0 until gameState.level.gridWidth) {
-                        for (y in 0 until gameState.level.gridHeight) {
-                            positions.add(Position(x, y))
+                        positions
+                    } else if (spell == SpellType.ATTACK_AIMED) {
+                        // Attack Aimed: only tiles that have an enemy on them
+                        gameState.attackers
+                            .filter { !it.isDefeated.value }
+                            .map { it.position.value }
+                            .toSet()
+                    } else {
+                        // All tiles on the map are valid positions for other spells
+                        val positions = mutableSetOf<Position>()
+                        for (x in 0 until gameState.level.gridWidth) {
+                            for (y in 0 until gameState.level.gridHeight) {
+                                positions.add(Position(x, y))
+                            }
                         }
+                        positions
                     }
-                    positions
                 }
+                SpellTargetType.ENEMY -> {
+                    // All active (non-defeated) enemies are valid targets
+                    gameState.attackers.filter { !it.isDefeated.value }.toSet()
+                }
+                SpellTargetType.TOWER -> {
+                    // All placed defenders are valid targets
+                    gameState.defenders.toSet()
+                }
+                SpellTargetType.NONE -> emptySet()
             }
-            SpellTargetType.ENEMY -> {
-                // All active (non-defeated) enemies are valid targets
-                gameState.attackers.filter { !it.isDefeated.value }.toSet()
-            }
-            SpellTargetType.TOWER -> {
-                // All placed defenders are valid targets
-                gameState.defenders.toSet()
-            }
-            SpellTargetType.NONE -> emptySet()
-        }
 
         // Set targeting state
-        gameState.spellTargeting.value = SpellTargetingState(
-            activeSpell = spell,
-            validTargets = validTargets
-        )
+        gameState.spellTargeting.value =
+            SpellTargetingState(
+                activeSpell = spell,
+                validTargets = validTargets,
+            )
 
         // Clear pending spell cast (we're now in targeting mode)
         _pendingSpellCast.value = null
@@ -3942,7 +4369,7 @@ class GameViewModel {
                 _pendingTutorialDeepLink.value = true
                 de.egril.defender.analytics.reportEvent(
                     de.egril.defender.analytics.GameEventType.TUTORIAL_DEEP_LINK,
-                    null
+                    null,
                 )
             }
             DeepLink.Demo -> {
@@ -3985,12 +4412,14 @@ class GameViewModel {
         /** Level ID of the tutorial level ("Welcome to Defender of Egril"). */
         const val TUTORIAL_LEVEL_ID = 1
 
-        internal fun calculateAwardedXpForLevelCompletion(rawXpEarned: Int, won: Boolean): Int {
-            return if (won) {
+        internal fun calculateAwardedXpForLevelCompletion(
+            rawXpEarned: Int,
+            won: Boolean,
+        ): Int =
+            if (won) {
                 rawXpEarned
             } else {
                 rawXpEarned / LOST_LEVEL_XP_DIVISOR
             }
-        }
     }
 }

@@ -14,19 +14,20 @@ data class GameFeedbackContext(
     val levelName: String,
     val turnNumber: Int,
     val gameStateJson: String,
-    val sourceContext: String = "GAMEPLAY"
+    val sourceContext: String = "GAMEPLAY",
 )
 
 /** Escapes a string for safe inclusion in a manually-built JSON string value. */
-internal fun escapeForJson(s: String): String = buildString {
-    for (c in s) {
-        when (c) {
-            '"' -> append("\\\"")
-            '\\' -> append("\\\\")
-            '\n' -> append("\\n")
-            '\r' -> append("\\r")
-            '\t' -> append("\\t")
-            else -> append(c)
+internal fun escapeForJson(s: String): String =
+    buildString {
+        for (c in s) {
+            when (c) {
+                '"' -> append("\\\"")
+                '\\' -> append("\\\\")
+                '\n' -> append("\\n")
+                '\r' -> append("\\r")
+                '\t' -> append("\\t")
+                else -> append(c)
+            }
         }
     }
-}

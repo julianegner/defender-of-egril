@@ -11,20 +11,19 @@ class AndroidPlatform : Platform {
     override val isSteamDeckGamingMode: Boolean = false
     override val platformExtended: String = buildPlatformExtended()
     override val osName: String = buildOsName()
-    
-    private fun checkIsAndroidTV(): Boolean {
-        return try {
+
+    private fun checkIsAndroidTV(): Boolean =
+        try {
             val context = AndroidContextProvider.getContext()
             context.packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
         } catch (e: Exception) {
             // If context is not available, assume not TV
             false
         }
-    }
-    
+
     private fun buildPlatformName(): String {
         val baseInfo = "Android ${Build.VERSION.SDK_INT}"
-        
+
         return try {
             if (checkIsAndroidTV()) {
                 "$baseInfo (Android TV)"
@@ -46,20 +45,17 @@ class AndroidPlatform : Platform {
         }
     }
 
-    private fun buildOsName(): String {
-        return "Android ${Build.VERSION.RELEASE}"
-    }
+    private fun buildOsName(): String = "Android ${Build.VERSION.RELEASE}"
 }
 
 actual fun getPlatform(): Platform = AndroidPlatform()
 
-actual fun getSystemLanguageCode(): String? {
-    return try {
+actual fun getSystemLanguageCode(): String? =
+    try {
         Locale.getDefault().language.lowercase()
     } catch (e: Exception) {
         null
     }
-}
 
 actual fun getCurrentUsername(): String = ""
 

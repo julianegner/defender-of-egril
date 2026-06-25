@@ -14,10 +14,10 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
-import dev.vicart.compose.material.symbols.FilledSymbol
-import dev.vicart.compose.material.symbols.MaterialSymbols
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.settings
+import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbols
 
 /**
  * Settings button with gear icon that opens the settings dialog
@@ -33,7 +33,7 @@ fun SettingsButton(
     triggerOpen: Boolean = false,
     onTriggerHandled: (() -> Unit)? = null,
     triggerOpenWithTab: SettingsTab? = null,
-    onTriggerWithTabHandled: (() -> Unit)? = null
+    onTriggerWithTabHandled: (() -> Unit)? = null,
 ) {
     var showSettings by remember { mutableStateOf(false) }
     var autoOpenConsumed by remember { mutableStateOf(false) }
@@ -72,12 +72,12 @@ fun SettingsButton(
                     activeTab = initialTab
                     showSettings = true
                 },
-                modifier = modifier.semantics { contentDescription = settingsLabel }
+                modifier = modifier.semantics { contentDescription = settingsLabel },
             ) {
                 FilledSymbol(
                     icon = MaterialSymbols.SETTINGS,
                     size = 32.dp,
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
             if (shortcutKey != null && AppSettings.showButtonShortcutHints.value) {
@@ -86,11 +86,11 @@ fun SettingsButton(
             }
         }
     }
-    
+
     if (showSettings) {
         SettingsDialog(
             onDismiss = { showSettings = false },
-            initialTab = activeTab
+            initialTab = activeTab,
         )
     }
 }

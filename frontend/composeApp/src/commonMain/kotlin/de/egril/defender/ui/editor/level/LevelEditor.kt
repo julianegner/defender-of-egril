@@ -1,53 +1,48 @@
 package de.egril.defender.ui.editor.level
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hyperether.resources.stringResource
+import de.egril.defender.config.LogConfig
 import de.egril.defender.editor.EditorEnemySpawn
+import de.egril.defender.editor.EditorJsonSerializer
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.EditorWaypoint
-import de.egril.defender.editor.WaypointValidationResult
-import de.egril.defender.editor.EditorJsonSerializer
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
-import de.egril.defender.model.Position
 import de.egril.defender.ui.*
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.editor.CreateLevelDialog
-import de.egril.defender.ui.editor.map.MapSelectionCard
 import de.egril.defender.ui.editor.SaveAsDialog
-import de.egril.defender.ui.icon.*
-import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import com.hyperether.resources.stringResource
+import de.egril.defender.ui.editor.getDefaultAuthorName
 import de.egril.defender.ui.editor.level.enemies.EnemySpawnsTab
 import de.egril.defender.ui.editor.level.tower.TowersTab
 import de.egril.defender.ui.editor.level.waypoint.WaypointsTab
+import de.egril.defender.ui.icon.*
+import de.egril.defender.ui.loadgame.SavefileLocationChip
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
-import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_title
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_message
-import kotlin.random.Random
-import de.egril.defender.ui.editor.getDefaultAuthorName
-import de.egril.defender.config.LogConfig
-import androidx.compose.runtime.rememberCoroutineScope
-import de.egril.defender.ui.loadgame.SavefileLocationChip
+import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_title
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 /**
  * Main content for the Level Editor tab
@@ -60,7 +55,7 @@ fun LevelEditorContent() {
     var showCreateDialog by remember { mutableStateOf(false) }
     var levelToDelete by remember { mutableStateOf<EditorLevel?>(null) }
     val iamState by de.egril.defender.iam.IamService.state
-    
+
     if (editingLevel != null) {
         // Level editing view
         LevelEditorView(
@@ -71,74 +66,78 @@ fun LevelEditorContent() {
                 // Reload the level from storage to trigger UI updates
                 editingLevel = EditorStorage.getLevel(updatedLevel.id)
             },
-            onCancel = { editingLevel = null }
+            onCancel = { editingLevel = null },
         )
     } else {
         // Level list view
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = stringResource(Res.string.levels),
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp),
                 )
-                
+
                 Button(onClick = { showCreateDialog = true }) {
                     Text(stringResource(Res.string.create_new_level))
                 }
             }
-            
+
             Text(
                 text = stringResource(Res.string.select_level_to_edit),
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp),
             )
-            
+
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 300.dp),
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(levels.value) { level ->
                     LevelCard(
                         level = level,
                         isSelected = selectedLevelId == level.id,
-                        onSelect = { 
+                        onSelect = {
                             selectedLevelId = level.id
                             editingLevel = level
                         },
                         onCopy = {
                             // Copy the level with a new ID and " - Copy" suffix
                             val copyTitle = "${level.title} - Copy"
-                            val sanitizedTitle = copyTitle.trim().lowercase()
-                                .replace(" ", "_")
-                                .replace(Regex("[^a-z0-9_]"), "")
-                                .replace(Regex("_+"), "_")  // Collapse consecutive underscores
+                            val sanitizedTitle =
+                                copyTitle
+                                    .trim()
+                                    .lowercase()
+                                    .replace(" ", "_")
+                                    .replace(Regex("[^a-z0-9_]"), "")
+                                    .replace(Regex("_+"), "_") // Collapse consecutive underscores
                             val newId = "${sanitizedTitle}_${Random.nextInt(1000, 9999)}"
-                            val copiedLevel = level.copy(
-                                id = newId,
-                                title = copyTitle,
-                                isOfficial = false  // Copied levels are always user levels
-                            )
+                            val copiedLevel =
+                                level.copy(
+                                    id = newId,
+                                    title = copyTitle,
+                                    isOfficial = false, // Copied levels are always user levels
+                                )
                             EditorStorage.saveLevel(copiedLevel)
                             levels.value = EditorStorage.getAllLevels()
                         },
                         onDelete = {
                             levelToDelete = level
-                        }
+                        },
                     )
                 }
             }
         }
     }
-    
+
     // Confirmation dialog for delete level
     if (levelToDelete != null) {
         ConfirmationDialog(
@@ -152,10 +151,10 @@ fun LevelEditorContent() {
                     selectedLevelId = null
                 }
                 levelToDelete = null
-            }
+            },
         )
     }
-    
+
     if (showCreateDialog) {
         val defaultAuthor = getDefaultAuthorName(iamState)
         CreateLevelDialog(
@@ -163,35 +162,42 @@ fun LevelEditorContent() {
             defaultAuthor = defaultAuthor,
             onCreate = { title, author ->
                 // Generate ID from title with underscores (lowercase, no "level_" prefix)
-                val sanitizedTitle = title.trim().lowercase()
-                    .replace(" ", "_")
-                    .replace(Regex("[^a-z0-9_]"), "")
-                    .replace(Regex("_+"), "_")  // Collapse consecutive underscores
-                val newId = if (sanitizedTitle.isNotEmpty()) {
-                    sanitizedTitle
-                } else {
-                    "custom_${Random.nextInt(10000, 99999)}"
-                }
+                val sanitizedTitle =
+                    title
+                        .trim()
+                        .lowercase()
+                        .replace(" ", "_")
+                        .replace(Regex("[^a-z0-9_]"), "")
+                        .replace(Regex("_+"), "_") // Collapse consecutive underscores
+                val newId =
+                    if (sanitizedTitle.isNotEmpty()) {
+                        sanitizedTitle
+                    } else {
+                        "custom_${Random.nextInt(10000, 99999)}"
+                    }
                 // Get first ready-to-use map
                 val firstReadyMap = EditorStorage.getAllMaps().filter { it.readyToUse }.firstOrNull()
-                val newLevel = EditorLevel(
-                    id = newId,
-                    mapId = firstReadyMap?.id ?: "map_30x8",
-                    title = title,
-                    subtitle = "",
-                    startCoins = 100,
-                    startHealthPoints = 10,
-                    enemySpawns = emptyList(),
-                    availableTowers = DefenderType.entries.filter {
-                        it != DefenderType.DRAGONS_LAIR
-                    }.toSet(),
-                    author = author
-                )
+                val newLevel =
+                    EditorLevel(
+                        id = newId,
+                        mapId = firstReadyMap?.id ?: "map_30x8",
+                        title = title,
+                        subtitle = "",
+                        startCoins = 100,
+                        startHealthPoints = 10,
+                        enemySpawns = emptyList(),
+                        availableTowers =
+                            DefenderType.entries
+                                .filter {
+                                    it != DefenderType.DRAGONS_LAIR
+                                }.toSet(),
+                        author = author,
+                    )
                 EditorStorage.saveLevel(newLevel)
                 levels.value = EditorStorage.getAllLevels()
                 showCreateDialog = false
                 editingLevel = newLevel
-            }
+            },
         )
     }
 }
@@ -202,158 +208,177 @@ private fun LevelCard(
     isSelected: Boolean,
     onSelect: () -> Unit,
     onCopy: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
 ) {
     // Check if any enemies are spawned outside valid spawn points
     val map = remember(level.mapId) { EditorStorage.getMap(level.mapId) }
-    val hasEnemiesOutsideSpawnPoints = remember(level.enemySpawns, map) {
-        val mapSpawnPoints = map?.getSpawnPoints()?.toSet() ?: emptySet()
-        level.enemySpawns.any { spawn ->
-            spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
+    val hasEnemiesOutsideSpawnPoints =
+        remember(level.enemySpawns, map) {
+            val mapSpawnPoints = map?.getSpawnPoints()?.toSet() ?: emptySet()
+            level.enemySpawns.any { spawn ->
+                spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
+            }
         }
-    }
-    
+
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected)
-                MaterialTheme.colorScheme.primaryContainer
-            else
-                MaterialTheme.colorScheme.surfaceVariant
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor =
+                    if (isSelected) {
+                        MaterialTheme.colorScheme.primaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    },
+            ),
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Box(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onSelect() }
-                        .padding(12.dp)
-                        .padding(top = 24.dp)  // Add top padding for the badges
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect() }
+                            .padding(12.dp)
+                            .padding(top = 24.dp), // Add top padding for the badges
                 ) {
                     Text(
                         text = level.title,
-                        style = MaterialTheme.typography.titleSmall
+                        style = MaterialTheme.typography.titleSmall,
                     )
                     // Add warning badge if enemies are outside spawn points
                     if (hasEnemiesOutsideSpawnPoints) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             WarningBadge()
                         }
                     }
-                if (level.subtitle.isNotEmpty()) {
-                    Text(
-                        text = level.subtitle,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-                Text(
-                    text = "${stringResource(Res.string.file)}: ${level.id}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "${stringResource(Res.string.map_label)}: ${level.mapId} | ${stringResource(Res.string.coins)}: ${level.startCoins} | ${stringResource(Res.string.hp_short)}: ${level.startHealthPoints}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Text(
-                    text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Text(
-                    text = if (EditorStorage.isLevelReadyToPlay(level)) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (EditorStorage.isLevelReadyToPlay(level)) Color.Green else Color.Red
-                )
-            }
-            
-            // Badges in upper right corner
-            Column(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp),
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Test Level badge
-                    if (level.testingOnly) {
+                    if (level.subtitle.isNotEmpty()) {
                         Text(
-                            text = stringResource(Res.string.test_level),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.error
+                            text = level.subtitle,
+                            style = MaterialTheme.typography.bodySmall,
                         )
                     }
-                    // Ready/not ready check indicator
-                    if (EditorStorage.isLevelReadyToPlay(level)) {
-                        CheckmarkIcon(
-                            size = 20.dp,
-                            tint = Color.Green
-                        )
-                    } else {
-                        CrossIcon(
-                            size = 20.dp,
-                            tint = Color.Red
-                        )
-                    }
-                }
-                // Official/User badge below the check
-                if (level.isOfficial) {
                     Text(
-                        text = stringResource(Res.string.official_level),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary
+                        text = "${stringResource(Res.string.file)}: ${level.id}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = "${stringResource(
+                            Res.string.map_label,
+                        )}: ${level.mapId} | ${stringResource(
+                            Res.string.coins,
+                        )}: ${level.startCoins} | ${stringResource(Res.string.hp_short)}: ${level.startHealthPoints}",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Text(
+                        text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Text(
+                        text =
+                            if (EditorStorage.isLevelReadyToPlay(
+                                    level,
+                                )
+                            ) {
+                                stringResource(Res.string.ready_to_use)
+                            } else {
+                                stringResource(Res.string.not_ready)
+                            },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (EditorStorage.isLevelReadyToPlay(level)) Color.Green else Color.Red,
                     )
                 }
-                // Community badge: shown for levels downloaded from the community backend
-                if (level.isCommunity) {
+
+                // Badges in upper right corner
+                Column(
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp),
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        SavefileLocationChip(
-                            label = stringResource(Res.string.savefile_chip_local),
-                            color = MaterialTheme.colorScheme.tertiary,
-                            onColor = MaterialTheme.colorScheme.onTertiary,
-                            isMobile = false
-                        )
-                        SavefileLocationChip(
-                            label = stringResource(Res.string.savefile_chip_remote),
+                        // Test Level badge
+                        if (level.testingOnly) {
+                            Text(
+                                text = stringResource(Res.string.test_level),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        }
+                        // Ready/not ready check indicator
+                        if (EditorStorage.isLevelReadyToPlay(level)) {
+                            CheckmarkIcon(
+                                size = 20.dp,
+                                tint = Color.Green,
+                            )
+                        } else {
+                            CrossIcon(
+                                size = 20.dp,
+                                tint = Color.Red,
+                            )
+                        }
+                    }
+                    // Official/User badge below the check
+                    if (level.isOfficial) {
+                        Text(
+                            text = stringResource(Res.string.official_level),
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
-                            onColor = MaterialTheme.colorScheme.onPrimary,
-                            isMobile = false
                         )
+                    }
+                    // Community badge: shown for levels downloaded from the community backend
+                    if (level.isCommunity) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            SavefileLocationChip(
+                                label = stringResource(Res.string.savefile_chip_local),
+                                color = MaterialTheme.colorScheme.tertiary,
+                                onColor = MaterialTheme.colorScheme.onTertiary,
+                                isMobile = false,
+                            )
+                            SavefileLocationChip(
+                                label = stringResource(Res.string.savefile_chip_remote),
+                                color = MaterialTheme.colorScheme.primary,
+                                onColor = MaterialTheme.colorScheme.onPrimary,
+                                isMobile = false,
+                            )
+                        }
                     }
                 }
             }
-        }
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Button(
                     onClick = onCopy,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(Res.string.copy_level))
                 }
                 Button(
                     onClick = onDelete,
                     enabled = !level.isOfficial || de.egril.defender.OfficialEditMode.enabled,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    ),
-                    modifier = Modifier.weight(1f)
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                        ),
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(Res.string.delete))
                 }
@@ -369,7 +394,7 @@ private fun LevelCard(
 fun LevelEditorView(
     level: EditorLevel,
     onSave: (EditorLevel) -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
 ) {
     var title by remember { mutableStateOf(level.title) }
     var subtitle by remember { mutableStateOf(level.subtitle) }
@@ -385,19 +410,22 @@ fun LevelEditorView(
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
     var connectedToPreviousLevel by remember { mutableStateOf(level.connectedToPreviousLevel) }
-    
+
     // Update state when level changes (e.g., after reload from disk)
     LaunchedEffect(level.id, level.initialData, level.hashCode()) {
         if (LogConfig.ENABLE_UI_LOGGING) {
-        println("LevelEditor LaunchedEffect triggered: levelId=${level.id}, initialData=${level.initialData}, effectiveData=${level.getEffectiveInitialData()}")
+            println(
+                "LevelEditor LaunchedEffect triggered: levelId=${level.id}, initialData=${level.initialData}, effectiveData=${level.getEffectiveInitialData()}",
+            )
         }
         if (LogConfig.ENABLE_UI_LOGGING) {
-        println("  Defenders: ${level.getEffectiveInitialData().defenders.size}, Attackers: ${level.getEffectiveInitialData().attackers.size}")
+            println(
+                "  Defenders: ${level.getEffectiveInitialData().defenders.size}, Attackers: ${level.getEffectiveInitialData().attackers.size}",
+            )
         }
         if (LogConfig.ENABLE_UI_LOGGING) {
-        println("level data: $level")
+            println("level data: $level")
         }
-
 
         initialDataState = level.getEffectiveInitialData()
     }
@@ -413,19 +441,20 @@ fun LevelEditorView(
     val coroutineScope = rememberCoroutineScope()
     var showRemoveAllTurnsDialog by remember { mutableStateOf(false) }
     // Track the maximum turn number explicitly to support empty turns
-    var maxTurnNumber by remember { 
-        mutableStateOf(level.enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0) 
+    var maxTurnNumber by remember {
+        mutableStateOf(level.enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0)
     }
-    
+
     // Get only ready-to-use maps for selection
     val maps = remember { EditorStorage.getAllMaps().filter { it.readyToUse } }
 
     // Get all levels (excluding the current one) to check if any share the same map.
     // Used to enable/disable the "Connected to Previous Level" toggle.
     val allLevels = remember { EditorStorage.getAllLevels() }
-    val hasOtherLevelsOnSameMap = remember(selectedMapId, level.id) {
-        allLevels.any { it.id != level.id && it.mapId == selectedMapId }
-    }
+    val hasOtherLevelsOnSameMap =
+        remember(selectedMapId, level.id) {
+            allLevels.any { it.id != level.id && it.mapId == selectedMapId }
+        }
 
     // When the map changes and no other levels share it, reset the toggle.
     LaunchedEffect(hasOtherLevelsOnSameMap) {
@@ -436,18 +465,19 @@ fun LevelEditorView(
 
     // Get current map to access waypoint tiles and target
     val currentMap = remember(selectedMapId) { EditorStorage.getMap(selectedMapId) }
-    
+
     // Check if Ewhad is already in spawn list
     val ewhadCount = enemySpawns.count { it.attackerType == AttackerType.EWHAD }
-    
+
     // Check if any enemies are spawned outside valid spawn points
     val mapSpawnPoints = remember(currentMap) { currentMap?.getSpawnPoints()?.toSet() ?: emptySet() }
-    val hasEnemiesOutsideSpawnPoints = remember(enemySpawns, mapSpawnPoints) {
-        enemySpawns.any { spawn ->
-            spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
+    val hasEnemiesOutsideSpawnPoints =
+        remember(enemySpawns, mapSpawnPoints) {
+            enemySpawns.any { spawn ->
+                spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
+            }
         }
-    }
-    
+
     // Check readiness for each tab
     val coinsInt = startCoins.toIntOrNull() ?: 0
     val hpInt = startHP.toIntOrNull() ?: 0
@@ -456,42 +486,43 @@ fun LevelEditorView(
     val isTowersReady = availableTowersState.isNotEmpty()
     // Waypoints are optional, but if present they should be valid
     val isWaypointsValid = areWaypointsValid(waypointsState, currentMap, level)
-    
+
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         // Official level info banner
         if (level.isOfficial) {
             Card(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    ),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(12.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     InfoIcon(size = 20.dp)
                     Text(
                         text = stringResource(Res.string.official_level_info),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                 }
             }
         }
-        
+
         // Title above tabs
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 8.dp),
         ) {
             Text(
                 text = "${stringResource(Res.string.level_title)}: ${level.title}",
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
             // Official badge
             if (level.isOfficial) {
@@ -500,42 +531,43 @@ fun LevelEditorView(
                     label = {
                         Text(
                             text = stringResource(Res.string.official_level),
-                            fontSize = 10.sp
+                            fontSize = 10.sp,
                         )
                     },
-                    colors = AssistChipDefaults.assistChipColors(
-                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                        labelColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.height(24.dp)
+                    colors =
+                        AssistChipDefaults.assistChipColors(
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                            labelColor = MaterialTheme.colorScheme.primary,
+                        ),
+                    modifier = Modifier.height(24.dp),
                 )
             }
         }
-        
+
         // Tab Row with badges
         PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
             Tab(
                 selected = selectedTabIndex == 0,
                 onClick = { selectedTabIndex = 0 },
-                text = { 
+                text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(stringResource(Res.string.level_info_tab))
                         if (!isLevelInfoReady) {
                             RedDotBadge()
                         }
                     }
-                }
+                },
             )
             Tab(
                 selected = selectedTabIndex == 1,
                 onClick = { selectedTabIndex = 1 },
-                text = { 
+                text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(stringResource(Res.string.enemy_spawns_tab))
                         if (!isEnemySpawnsReady) {
@@ -544,140 +576,146 @@ fun LevelEditorView(
                             WarningBadge()
                         }
                     }
-                }
+                },
             )
             Tab(
                 selected = selectedTabIndex == 2,
                 onClick = { selectedTabIndex = 2 },
-                text = { 
+                text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(stringResource(Res.string.towers_tab))
                         if (!isTowersReady) {
                             RedDotBadge()
                         }
                     }
-                }
+                },
             )
             Tab(
                 selected = selectedTabIndex == 3,
                 onClick = { selectedTabIndex = 3 },
-                text = { 
+                text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(stringResource(Res.string.waypoints_tab))
                         if (!isWaypointsValid) {
                             RedDotBadge()
                         }
                     }
-                }
+                },
             )
             Tab(
                 selected = selectedTabIndex == 4,
                 onClick = { selectedTabIndex = 4 },
-                text = { 
+                text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(stringResource(Res.string.initial_setup))
                     }
-                }
+                },
             )
         }
-        
+
         // Tab Content
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             when (selectedTabIndex) {
-                0 -> LevelInfoTab(
-                    title = title,
-                    onTitleChange = { title = it },
-                    subtitle = subtitle,
-                    onSubtitleChange = { subtitle = it },
-                    author = author,
-                    onAuthorChange = { author = it },
-                    communityDescription = communityDescription,
-                    onCommunityDescriptionChange = { communityDescription = it },
-                    selectedMapId = selectedMapId,
-                    onMapChange = { selectedMapId = it },
-                    maps = maps,
-                    startCoins = startCoins,
-                    onStartCoinsChange = { startCoins = it },
-                    startHP = startHP,
-                    onStartHPChange = { startHP = it },
-                    testingOnly = testingOnly,
-                    onTestingOnlyChange = { testingOnly = it },
-                    allowAutoAttack = allowAutoAttack,
-                    onAllowAutoAttackChange = { allowAutoAttack = it },
-                    connectedToPreviousLevel = connectedToPreviousLevel,
-                    onConnectedToPreviousLevelChange = { connectedToPreviousLevel = it },
-                    isOfficial = level.isOfficial,
-                    canEnableConnectedToPreviousLevel = hasOtherLevelsOnSameMap
-                )
-                1 -> EnemySpawnsTab(
-                    enemySpawns = enemySpawns,
-                    maxTurnNumber = maxTurnNumber,
-                    onMaxTurnNumberChange = { maxTurnNumber = it },
-                    onEnemySpawnsChange = { enemySpawns = it },
-                    ewhadCount = ewhadCount,
-                    onShowEnemyDialog = { turn ->
-                        showEnemyDialog = true
-                        showEnemyDialogForTurn = turn
-                    },
-                    onShowRemoveAllTurnsDialog = { showRemoveAllTurnsDialog = true },
-                    map = currentMap
-                )
-                2 -> TowersTab(
-                    availableTowers = availableTowersState,
-                    onAvailableTowersChange = { availableTowersState = it }
-                )
-                3 -> WaypointsTab(
-                    waypoints = waypointsState.toList(),
-                    onWaypointsChange = { waypointsState = it.toMutableList() },
-                    map = currentMap,
-                    isValid = isWaypointsValid
-                )
-                4 -> de.egril.defender.ui.editor.level.initialsetup.InitialSetupTab(
-                    initialData = initialDataState,
-                    onInitialDataChange = { initialDataState = it },
-                    map = currentMap,
-                    availableTowers = availableTowersState
-                )
+                0 ->
+                    LevelInfoTab(
+                        title = title,
+                        onTitleChange = { title = it },
+                        subtitle = subtitle,
+                        onSubtitleChange = { subtitle = it },
+                        author = author,
+                        onAuthorChange = { author = it },
+                        communityDescription = communityDescription,
+                        onCommunityDescriptionChange = { communityDescription = it },
+                        selectedMapId = selectedMapId,
+                        onMapChange = { selectedMapId = it },
+                        maps = maps,
+                        startCoins = startCoins,
+                        onStartCoinsChange = { startCoins = it },
+                        startHP = startHP,
+                        onStartHPChange = { startHP = it },
+                        testingOnly = testingOnly,
+                        onTestingOnlyChange = { testingOnly = it },
+                        allowAutoAttack = allowAutoAttack,
+                        onAllowAutoAttackChange = { allowAutoAttack = it },
+                        connectedToPreviousLevel = connectedToPreviousLevel,
+                        onConnectedToPreviousLevelChange = { connectedToPreviousLevel = it },
+                        isOfficial = level.isOfficial,
+                        canEnableConnectedToPreviousLevel = hasOtherLevelsOnSameMap,
+                    )
+                1 ->
+                    EnemySpawnsTab(
+                        enemySpawns = enemySpawns,
+                        maxTurnNumber = maxTurnNumber,
+                        onMaxTurnNumberChange = { maxTurnNumber = it },
+                        onEnemySpawnsChange = { enemySpawns = it },
+                        ewhadCount = ewhadCount,
+                        onShowEnemyDialog = { turn ->
+                            showEnemyDialog = true
+                            showEnemyDialogForTurn = turn
+                        },
+                        onShowRemoveAllTurnsDialog = { showRemoveAllTurnsDialog = true },
+                        map = currentMap,
+                    )
+                2 ->
+                    TowersTab(
+                        availableTowers = availableTowersState,
+                        onAvailableTowersChange = { availableTowersState = it },
+                    )
+                3 ->
+                    WaypointsTab(
+                        waypoints = waypointsState.toList(),
+                        onWaypointsChange = { waypointsState = it.toMutableList() },
+                        map = currentMap,
+                        isValid = isWaypointsValid,
+                    )
+                4 ->
+                    de.egril.defender.ui.editor.level.initialsetup.InitialSetupTab(
+                        initialData = initialDataState,
+                        onInitialDataChange = { initialDataState = it },
+                        map = currentMap,
+                        availableTowers = availableTowersState,
+                    )
             }
         }
-        
+
         // Save/Cancel buttons
         Column(
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Button(
                     onClick = {
-                        val updatedLevel = level.copy(
-                            title = title,
-                            subtitle = subtitle,
-                            author = author,
-                            communityDescription = communityDescription,
-                            mapId = selectedMapId,
-                            startCoins = startCoins.toIntOrNull() ?: 100,
-                            startHealthPoints = startHP.toIntOrNull() ?: 10,
-                            enemySpawns = enemySpawns.toList(),
-                            availableTowers = availableTowersState,
-                            waypoints = waypointsState.toList(),
-                            testingOnly = testingOnly,
-                            allowAutoAttack = allowAutoAttack,
-                            connectedToPreviousLevel = connectedToPreviousLevel,
-                            initialData = initialDataState
-                        )
-                        
+                        val updatedLevel =
+                            level.copy(
+                                title = title,
+                                subtitle = subtitle,
+                                author = author,
+                                communityDescription = communityDescription,
+                                mapId = selectedMapId,
+                                startCoins = startCoins.toIntOrNull() ?: 100,
+                                startHealthPoints = startHP.toIntOrNull() ?: 10,
+                                enemySpawns = enemySpawns.toList(),
+                                availableTowers = availableTowersState,
+                                waypoints = waypointsState.toList(),
+                                testingOnly = testingOnly,
+                                allowAutoAttack = allowAutoAttack,
+                                connectedToPreviousLevel = connectedToPreviousLevel,
+                                initialData = initialDataState,
+                            )
+
                         // Show warning dialog for official levels before saving
                         if (level.isOfficial && de.egril.defender.OfficialEditMode.enabled) {
                             pendingLevelToSave = updatedLevel
@@ -688,22 +726,22 @@ fun LevelEditorView(
                         }
                     },
                     enabled = !level.isOfficial || de.egril.defender.OfficialEditMode.enabled,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(Res.string.save_level))
                 }
-                
+
                 Button(
                     onClick = { showSaveAsDialog = true },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(Res.string.save_as_new))
                 }
             }
-            
+
             Button(
                 onClick = onCancel,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(stringResource(Res.string.cancel))
             }
@@ -711,49 +749,67 @@ fun LevelEditorView(
             // Community upload button - only shown for non-official levels when user is authenticated
             val iamState by de.egril.defender.iam.IamService.state
             if (!level.isOfficial && iamState.isAuthenticated) {
-                val storedCommunityJson = remember(level.id) {
-                    de.egril.defender.editor.EditorStorage.getStoredCommunityLevelJson(level.id)
-                }
-                val currentLevelJson = remember(level.id, level.hashCode()) {
-                    de.egril.defender.editor.EditorJsonSerializer.serializeLevel(level)
-                }
-                val storedCommunityLevel = remember(level.id) {
-                    de.egril.defender.editor.EditorStorage.getCommunityLevel(level.id)
-                }
+                val storedCommunityJson =
+                    remember(level.id) {
+                        de.egril.defender.editor.EditorStorage
+                            .getStoredCommunityLevelJson(level.id)
+                    }
+                val currentLevelJson =
+                    remember(level.id, level.hashCode()) {
+                        de.egril.defender.editor.EditorJsonSerializer
+                            .serializeLevel(level)
+                    }
+                val storedCommunityLevel =
+                    remember(level.id) {
+                        de.egril.defender.editor.EditorStorage
+                            .getCommunityLevel(level.id)
+                    }
                 val isMyUpload = storedCommunityLevel?.communityAuthorUsername == iamState.username
                 val isChanged = storedCommunityJson != null && storedCommunityJson != currentLevelJson
 
                 // Check if the map is a user map that needs auto-uploading
-                val levelMap = remember(level.mapId) {
-                    de.egril.defender.editor.EditorStorage.getMap(level.mapId)
-                }
-                val mapAlsoUploaded = levelMap != null && !levelMap.isOfficial && !levelMap.isCommunity &&
-                    de.egril.defender.editor.EditorStorage.getCommunityMap(level.mapId) == null
+                val levelMap =
+                    remember(level.mapId) {
+                        de.egril.defender.editor.EditorStorage
+                            .getMap(level.mapId)
+                    }
+                val mapAlsoUploaded =
+                    levelMap != null &&
+                        !levelMap.isOfficial &&
+                        !levelMap.isCommunity &&
+                        de.egril.defender.editor.EditorStorage
+                            .getCommunityMap(level.mapId) == null
 
                 fun doUpload(token: String) {
                     isUploadingToCommunity = true
                     communityUploadStatus = null
                     coroutineScope.launch {
-                        val success = de.egril.defender.save.BackendCommunityService
-                            .uploadCommunityFile("LEVEL", level.id, currentLevelJson, token)
+                        val success =
+                            de.egril.defender.save.BackendCommunityService
+                                .uploadCommunityFile("LEVEL", level.id, currentLevelJson, token)
                         if (success) {
                             de.egril.defender.editor.EditorStorage.saveCommunityLevel(
                                 level.copy(
                                     isCommunity = true,
-                                    communityAuthorUsername = iamState.username ?: ""
-                                )
+                                    communityAuthorUsername = iamState.username ?: "",
+                                ),
                             )
                             // Auto-upload the map if it hasn't been uploaded yet
                             if (mapAlsoUploaded) {
-                                val map = de.egril.defender.editor.EditorStorage.getMap(level.mapId)
+                                val map =
+                                    de.egril.defender.editor.EditorStorage
+                                        .getMap(level.mapId)
                                 if (map != null) {
-                                    val mapJson = de.egril.defender.editor.EditorJsonSerializer.serializeMap(map)
-                                    val mapSuccess = de.egril.defender.save.BackendCommunityService
-                                        .uploadCommunityFile("MAP", level.mapId, mapJson, token)
+                                    val mapJson =
+                                        de.egril.defender.editor.EditorJsonSerializer
+                                            .serializeMap(map)
+                                    val mapSuccess =
+                                        de.egril.defender.save.BackendCommunityService
+                                            .uploadCommunityFile("MAP", level.mapId, mapJson, token)
                                     if (mapSuccess) {
                                         de.egril.defender.editor.EditorStorage.saveCommunityMap(
                                             map,
-                                            iamState.username ?: ""
+                                            iamState.username ?: "",
                                         )
                                     }
                                 }
@@ -771,63 +827,83 @@ fun LevelEditorView(
                     Button(
                         onClick = { showCommunityUploadConfirm = true },
                         enabled = !isUploadingToCommunity,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(
-                            if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
-                            else stringResource(Res.string.upload_as_community_level)
+                            if (isUploadingToCommunity) {
+                                stringResource(Res.string.community_uploading)
+                            } else {
+                                stringResource(Res.string.upload_as_community_level)
+                            },
                         )
                     }
                 } else if (isMyUpload && isChanged) {
                     // Level exists in community and belongs to this user and has been changed - show update button
                     Button(
                         onClick = {
-                            val token = de.egril.defender.iam.IamService.getToken() ?: return@Button
+                            val token =
+                                de.egril.defender.iam.IamService
+                                    .getToken() ?: return@Button
                             doUpload(token)
                         },
                         enabled = !isUploadingToCommunity,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(
-                            if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
-                            else stringResource(Res.string.update_community_level)
+                            if (isUploadingToCommunity) {
+                                stringResource(Res.string.community_uploading)
+                            } else {
+                                stringResource(Res.string.update_community_level)
+                            },
                         )
                     }
                 }
                 communityUploadStatus?.let { status ->
                     Text(
-                        text = if (status == "success") stringResource(Res.string.community_upload_success)
-                               else stringResource(Res.string.community_upload_failed),
-                        color = if (status == "success") androidx.compose.ui.graphics.Color(0xFF2E7D32)
-                                else MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
+                        text =
+                            if (status == "success") {
+                                stringResource(Res.string.community_upload_success)
+                            } else {
+                                stringResource(Res.string.community_upload_failed)
+                            },
+                        color =
+                            if (status == "success") {
+                                androidx.compose.ui.graphics
+                                    .Color(0xFF2E7D32)
+                            } else {
+                                MaterialTheme.colorScheme.error
+                            },
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
 
                 // Confirmation dialog before first community upload
                 if (showCommunityUploadConfirm) {
                     val username = iamState.username ?: ""
-                    val confirmMessage = if (mapAlsoUploaded) {
-                        stringResource(Res.string.upload_community_level_confirm_message, username) +
-                            "\n\n" + stringResource(Res.string.upload_community_also_uploads_map)
-                    } else {
-                        stringResource(Res.string.upload_community_level_confirm_message, username)
-                    }
+                    val confirmMessage =
+                        if (mapAlsoUploaded) {
+                            stringResource(Res.string.upload_community_level_confirm_message, username) +
+                                "\n\n" + stringResource(Res.string.upload_community_also_uploads_map)
+                        } else {
+                            stringResource(Res.string.upload_community_level_confirm_message, username)
+                        }
                     de.egril.defender.ui.editor.ConfirmationDialog(
                         title = stringResource(Res.string.upload_community_confirm_title),
                         message = confirmMessage,
                         onDismiss = { showCommunityUploadConfirm = false },
                         onConfirm = {
                             showCommunityUploadConfirm = false
-                            val token = de.egril.defender.iam.IamService.getToken() ?: return@ConfirmationDialog
+                            val token =
+                                de.egril.defender.iam.IamService
+                                    .getToken() ?: return@ConfirmationDialog
                             doUpload(token)
-                        }
+                        },
                     )
                 }
             }
         }
     }
-    
+
     if (showEnemyDialog) {
         AddEnemyDialog(
             ewhadCount = ewhadCount,
@@ -835,17 +911,18 @@ fun LevelEditorView(
             map = currentMap,
             onDismiss = { showEnemyDialog = false },
             onAdd = { enemyType, level, amount, spawnPoint ->
-                enemySpawns = enemySpawns.toMutableList().apply {
-                    // Add multiple enemies based on amount
-                    repeat(amount) {
-                        add(EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn, spawnPoint))
+                enemySpawns =
+                    enemySpawns.toMutableList().apply {
+                        // Add multiple enemies based on amount
+                        repeat(amount) {
+                            add(EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn, spawnPoint))
+                        }
                     }
-                }
                 showEnemyDialog = false
-            }
+            },
         )
     }
-    
+
     if (showRemoveAllTurnsDialog) {
         ConfirmationDialog(
             title = stringResource(Res.string.remove_all_turns),
@@ -855,10 +932,10 @@ fun LevelEditorView(
                 enemySpawns = mutableListOf()
                 maxTurnNumber = 0
                 showRemoveAllTurnsDialog = false
-            }
+            },
         )
     }
-    
+
     if (showSaveAsDialog) {
         SaveAsDialog(
             title = "Save Level As New",
@@ -868,44 +945,46 @@ fun LevelEditorView(
             onSave = { newTitle ->
                 // Generate ID from title with underscores
                 val sanitizedTitle = newTitle.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
-                val newId = if (sanitizedTitle.isNotEmpty()) {
-                    "level_$sanitizedTitle"
-                } else {
-                    "level_copy_${Random.nextInt(10000, 99999)}"
-                }
-                val newLevel = level.copy(
-                    id = newId,
-                    title = newTitle,
-                    subtitle = subtitle,
-                    author = author,
-                    mapId = selectedMapId,
-                    startCoins = startCoins.toIntOrNull() ?: 100,
-                    startHealthPoints = startHP.toIntOrNull() ?: 10,
-                    enemySpawns = enemySpawns.toList(),
-                    availableTowers = availableTowersState,
-                    waypoints = waypointsState.toList(),
-                    testingOnly = testingOnly,
-                    allowAutoAttack = allowAutoAttack,
-                    connectedToPreviousLevel = connectedToPreviousLevel,
-                    initialData = initialDataState
-                )
+                val newId =
+                    if (sanitizedTitle.isNotEmpty()) {
+                        "level_$sanitizedTitle"
+                    } else {
+                        "level_copy_${Random.nextInt(10000, 99999)}"
+                    }
+                val newLevel =
+                    level.copy(
+                        id = newId,
+                        title = newTitle,
+                        subtitle = subtitle,
+                        author = author,
+                        mapId = selectedMapId,
+                        startCoins = startCoins.toIntOrNull() ?: 100,
+                        startHealthPoints = startHP.toIntOrNull() ?: 10,
+                        enemySpawns = enemySpawns.toList(),
+                        availableTowers = availableTowersState,
+                        waypoints = waypointsState.toList(),
+                        testingOnly = testingOnly,
+                        allowAutoAttack = allowAutoAttack,
+                        connectedToPreviousLevel = connectedToPreviousLevel,
+                        initialData = initialDataState,
+                    )
                 onSave(newLevel)
                 showSaveAsDialog = false
-            }
+            },
         )
     }
-    
+
     // Warning dialog when saving official level
     if (showOfficialLevelSavedWarning) {
         AlertDialog(
-            onDismissRequest = { 
+            onDismissRequest = {
                 showOfficialLevelSavedWarning = false
                 pendingLevelToSave = null
             },
             title = { Text(stringResource(Res.string.official_level_saved_warning_title)) },
             text = { Text(stringResource(Res.string.official_level_saved_warning_message)) },
             confirmButton = {
-                Button(onClick = { 
+                Button(onClick = {
                     showOfficialLevelSavedWarning = false
                     // Save the pending level after user acknowledges the warning
                     pendingLevelToSave?.let { onSave(it) }
@@ -913,7 +992,7 @@ fun LevelEditorView(
                 }) {
                     Text(stringResource(Res.string.ok))
                 }
-            }
+            },
         )
     }
 }
@@ -921,17 +1000,17 @@ fun LevelEditorView(
 private fun areWaypointsValid(
     waypointsState: MutableList<EditorWaypoint>,
     currentMap: EditorMap?,
-    level: EditorLevel
+    level: EditorLevel,
 ): Boolean {
     val targets = currentMap?.getTargets() ?: emptyList()
     if (targets.isEmpty() || currentMap == null) {
         return false
     }
-    
+
     val spawnPoints = currentMap.getSpawnPoints()
     val tempLevel = level.copy(waypoints = waypointsState.toList())
     val validationResult = tempLevel.validateWaypointsDetailed(targets, spawnPoints)
-    
+
     // Valid if validation passes
     return validationResult.isValid
 }
@@ -942,10 +1021,11 @@ private fun areWaypointsValid(
 @Composable
 private fun RedDotBadge() {
     Box(
-        modifier = Modifier
-            .size(8.dp)
-            .clip(CircleShape)
-            .background(Color.Red)
+        modifier =
+            Modifier
+                .size(8.dp)
+                .clip(CircleShape)
+                .background(Color.Red),
     )
 }
 
@@ -955,9 +1035,10 @@ private fun RedDotBadge() {
 @Composable
 private fun WarningBadge() {
     Box(
-        modifier = Modifier
-            .size(12.dp)
-            .clip(CircleShape)
-            .background(Color(0xFFFFA500)) // Orange color
+        modifier =
+            Modifier
+                .size(12.dp)
+                .clip(CircleShape)
+                .background(Color(0xFFFFA500)), // Orange color
     )
 }

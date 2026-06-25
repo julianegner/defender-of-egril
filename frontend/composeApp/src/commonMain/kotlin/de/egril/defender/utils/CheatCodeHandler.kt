@@ -10,15 +10,14 @@ import de.egril.defender.model.WorldLevel
  * Separates cheat code logic from the GameViewModel.
  */
 object CheatCodeHandler {
-
     private const val CRASH_DIALOG_PREVIEW_ERROR_TYPE =
         "de.egril.defender.ui.crash.CheatCodePreviewException"
     private const val CRASH_DIALOG_PREVIEW_ERROR_MESSAGE =
         "Example crash dialog preview triggered by the cheat code. Uncheck reporting unless you want to test backend ingestion."
-    
+
     /**
      * Apply a cheat code during gameplay.
-     * 
+     *
      * @param code The cheat code to apply
      * @param addCoins Callback to add coins to the game
      * @param setCoins Callback to set coins to a specific value
@@ -41,10 +40,10 @@ object CheatCodeHandler {
         setBigHeadMode: ((Boolean) -> Unit)? = null,
         addMana: ((Int) -> Unit)? = null,
         removeMana: ((Int) -> Unit)? = null,
-        showCheatHelp: (() -> Unit)? = null
+        showCheatHelp: (() -> Unit)? = null,
     ): Pair<Boolean, DigOutcome?> {
         val lowercaseCode = code.lowercase().trim()
-        
+
         // Helper function to apply dig outcome cheat
         fun applyDigCheat(outcome: DigOutcome): Pair<Boolean, DigOutcome?> {
             val result = performMineDigWithOutcome(outcome)
@@ -54,7 +53,7 @@ object CheatCodeHandler {
                 Pair(false, null)
             }
         }
-        
+
         // Handle simple one-word cheatcodes
         when (lowercaseCode) {
             "cash" -> {
@@ -76,7 +75,7 @@ object CheatCodeHandler {
             "crash", "crashdialog" -> {
                 CrashReporter.report(
                     errorType = CRASH_DIALOG_PREVIEW_ERROR_TYPE,
-                    errorMessage = CRASH_DIALOG_PREVIEW_ERROR_MESSAGE
+                    errorMessage = CRASH_DIALOG_PREVIEW_ERROR_MESSAGE,
                 )
                 return Pair(true, null)
             }
@@ -101,31 +100,32 @@ object CheatCodeHandler {
             "dig diamond" -> return applyDigCheat(DigOutcome.DIAMOND)
             "dig dragon", "dragon" -> return applyDigCheat(DigOutcome.DRAGON)
         }
-        
+
         // Handle "spawn <type> <level>" cheatcode
         if (lowercaseCode.startsWith("spawn ")) {
             val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
             if (parts.size >= 2) {
                 val typeName = parts[1]
                 val level = if (parts.size >= 3) parts[2].toIntOrNull() ?: 1 else 1
-                
+
                 // Map type name to AttackerType
-                val attackerType = when (typeName) {
-                    "goblin" -> AttackerType.GOBLIN
-                    "ork", "orc" -> AttackerType.ORK
-                    "ogre" -> AttackerType.OGRE
-                    "skeleton" -> AttackerType.SKELETON
-                    "wizard", "evil_wizard", "evilwizard" -> AttackerType.EVIL_WIZARD
-                    "greenwitch" -> AttackerType.GREEN_WITCH
-                    "redwitch" -> AttackerType.RED_WITCH
-                    else -> return Pair(false, null)
-                }
-                
+                val attackerType =
+                    when (typeName) {
+                        "goblin" -> AttackerType.GOBLIN
+                        "ork", "orc" -> AttackerType.ORK
+                        "ogre" -> AttackerType.OGRE
+                        "skeleton" -> AttackerType.SKELETON
+                        "wizard", "evil_wizard", "evilwizard" -> AttackerType.EVIL_WIZARD
+                        "greenwitch" -> AttackerType.GREEN_WITCH
+                        "redwitch" -> AttackerType.RED_WITCH
+                        else -> return Pair(false, null)
+                    }
+
                 spawnEnemy(attackerType, level)
                 return Pair(true, null)
             }
         }
-        
+
         // Handle "addmana <amount>" cheatcode
         if (lowercaseCode.startsWith("addmana ") && addMana != null) {
             val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
@@ -148,10 +148,10 @@ object CheatCodeHandler {
 
         return Pair(false, null)
     }
-    
+
     /**
      * Apply a cheat code on the world map screen.
-     * 
+     *
      * @param code The cheat code to apply
      * @param unlockAllLevels Callback to unlock all levels
      * @param unlockLevel Callback to unlock a specific level by index or ID
@@ -182,10 +182,10 @@ object CheatCodeHandler {
         removeStatLevel: ((String, Int) -> Unit)? = null,
         unlockSpell: ((String) -> Unit)? = null,
         lockSpell: ((String) -> Unit)? = null,
-        showCheatHelp: (() -> Unit)? = null
+        showCheatHelp: (() -> Unit)? = null,
     ): Boolean {
         val lowercaseCode = code.lowercase().trim()
-        
+
         // Handle "unlockall" cheatcode to unlock all levels
         when (lowercaseCode) {
             "unlockall", "unlock all" -> {
@@ -203,7 +203,7 @@ object CheatCodeHandler {
             "crash", "crashdialog" -> {
                 CrashReporter.report(
                     errorType = CRASH_DIALOG_PREVIEW_ERROR_TYPE,
-                    errorMessage = CRASH_DIALOG_PREVIEW_ERROR_MESSAGE
+                    errorMessage = CRASH_DIALOG_PREVIEW_ERROR_MESSAGE,
                 )
                 return true
             }
@@ -212,16 +212,17 @@ object CheatCodeHandler {
                 return true
             }
         }
-        
+
         // Handle "unlock <index>" or "unlock <level_id>" cheatcode to unlock a specific level
         if (lowercaseCode.startsWith("unlock ") && unlockLevel != null && worldLevels != null) {
             val levelReference = lowercaseCode.removePrefix("unlock ").trim()
-            
+
             // Try to match by level ID (with or without "level" prefix and with underscores or spaces)
-            val normalizedReference = levelReference
-                .removePrefix("level ")
-                .replace(" ", "_")
-            
+            val normalizedReference =
+                levelReference
+                    .removePrefix("level ")
+                    .replace(" ", "_")
+
             // Try to parse as a 1-based index (after removing "level" prefix)
             val index = normalizedReference.toIntOrNull()
             if (index != null) {
@@ -235,30 +236,32 @@ object CheatCodeHandler {
                 }
                 return false
             }
-            
+
             // Check if any level has a matching ID
-            val matchingLevel = worldLevels.find { worldLevel ->
-                val levelId = worldLevel.level.editorLevelId ?: return@find false
-                levelId.lowercase() == normalizedReference
-            }
-            
+            val matchingLevel =
+                worldLevels.find { worldLevel ->
+                    val levelId = worldLevel.level.editorLevelId ?: return@find false
+                    levelId.lowercase() == normalizedReference
+                }
+
             matchingLevel?.level?.editorLevelId?.let { levelId ->
                 unlockLevel(levelId)
                 return true
             }
-            
+
             return false
         }
-        
+
         // Handle "lock <index>" or "lock <level_id>" cheatcode to lock a specific level
         if (lowercaseCode.startsWith("lock ") && lockLevel != null && worldLevels != null) {
             val levelReference = lowercaseCode.removePrefix("lock ").trim()
-            
+
             // Try to match by level ID (with or without "level" prefix and with underscores or spaces)
-            val normalizedReference = levelReference
-                .removePrefix("level ")
-                .replace(" ", "_")
-            
+            val normalizedReference =
+                levelReference
+                    .removePrefix("level ")
+                    .replace(" ", "_")
+
             // Try to parse as a 1-based index (after removing "level" prefix)
             val index = normalizedReference.toIntOrNull()
             if (index != null) {
@@ -272,21 +275,22 @@ object CheatCodeHandler {
                 }
                 return false
             }
-            
+
             // Check if any level has a matching ID
-            val matchingLevel = worldLevels.find { worldLevel ->
-                val levelId = worldLevel.level.editorLevelId ?: return@find false
-                levelId.lowercase() == normalizedReference
-            }
-            
+            val matchingLevel =
+                worldLevels.find { worldLevel ->
+                    val levelId = worldLevel.level.editorLevelId ?: return@find false
+                    levelId.lowercase() == normalizedReference
+                }
+
             matchingLevel?.level?.editorLevelId?.let { levelId ->
                 lockLevel(levelId)
                 return true
             }
-            
+
             return false
         }
-        
+
         // Handle "addxp <amount>" cheatcode
         if (lowercaseCode.startsWith("addxp ") && addXP != null) {
             val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
@@ -354,65 +358,70 @@ object CheatCodeHandler {
             unlockAllLevels()
             return true
         }
-        
+
         return false
     }
-    
+
     /**
      * Unlock all levels in the world map.
-     * 
+     *
      * @param worldLevels The current list of world levels
      * @return The updated list of world levels with all LOCKED levels changed to UNLOCKED
      */
-    fun unlockAllLevels(worldLevels: List<WorldLevel>): List<WorldLevel> {
-        return worldLevels.map { worldLevel ->
+    fun unlockAllLevels(worldLevels: List<WorldLevel>): List<WorldLevel> =
+        worldLevels.map { worldLevel ->
             when (worldLevel.status) {
                 LevelStatus.LOCKED -> worldLevel.copy(status = LevelStatus.UNLOCKED)
                 else -> worldLevel
             }
         }
-    }
-    
+
     /**
      * Unlock a specific level in the world map by its editor level ID.
-     * 
+     *
      * @param worldLevels The current list of world levels
      * @param editorLevelId The editor level ID to unlock
      * @return The updated list of world levels with the specified level unlocked (if found and locked)
      */
-    fun unlockLevel(worldLevels: List<WorldLevel>, editorLevelId: String): List<WorldLevel> {
-        return worldLevels.map { worldLevel ->
+    fun unlockLevel(
+        worldLevels: List<WorldLevel>,
+        editorLevelId: String,
+    ): List<WorldLevel> =
+        worldLevels.map { worldLevel ->
             if (worldLevel.level.editorLevelId == editorLevelId && worldLevel.status == LevelStatus.LOCKED) {
                 worldLevel.copy(status = LevelStatus.UNLOCKED)
             } else {
                 worldLevel
             }
         }
-    }
-    
+
     /**
      * Lock all levels in the world map that HAVE prerequisites.
      * Only levels with prerequisites can be locked.
-     * 
+     *
      * @param worldLevels The current list of world levels
      * @return The updated list of world levels with levels that have prerequisites changed to LOCKED
      */
     fun lockAllLevels(worldLevels: List<WorldLevel>): List<WorldLevel> {
         // Get all editor level IDs and their prerequisites
-        val editorLevelsMap = try {
-            de.egril.defender.editor.EditorStorage.getAllLevels().associateBy { it.id }
-        } catch (e: Exception) {
-            emptyMap()
-        }
-        
+        val editorLevelsMap =
+            try {
+                de.egril.defender.editor.EditorStorage
+                    .getAllLevels()
+                    .associateBy { it.id }
+            } catch (e: Exception) {
+                emptyMap()
+            }
+
         return worldLevels.map { worldLevel ->
             val editorLevelId = worldLevel.level.editorLevelId
-            val hasPrerequisites = if (editorLevelId != null) {
-                editorLevelsMap[editorLevelId]?.prerequisites?.isNotEmpty() == true
-            } else {
-                false
-            }
-            
+            val hasPrerequisites =
+                if (editorLevelId != null) {
+                    editorLevelsMap[editorLevelId]?.prerequisites?.isNotEmpty() == true
+                } else {
+                    false
+                }
+
             // Lock levels that HAVE prerequisites
             if (hasPrerequisites) {
                 worldLevel.copy(status = LevelStatus.LOCKED)
@@ -421,25 +430,30 @@ object CheatCodeHandler {
             }
         }
     }
-    
+
     /**
      * Lock a specific level in the world map by its editor level ID.
      * The level can only be locked if it HAS prerequisites (not an entry level).
-     * 
+     *
      * @param worldLevels The current list of world levels
      * @param editorLevelId The editor level ID to lock
      * @return The updated list of world levels with the specified level locked (if found and has prerequisites)
      */
-    fun lockLevel(worldLevels: List<WorldLevel>, editorLevelId: String): List<WorldLevel> {
+    fun lockLevel(
+        worldLevels: List<WorldLevel>,
+        editorLevelId: String,
+    ): List<WorldLevel> {
         // Get the editor level to check prerequisites
-        val editorLevel = try {
-            de.egril.defender.editor.EditorStorage.getLevel(editorLevelId)
-        } catch (e: Exception) {
-            null
-        }
-        
+        val editorLevel =
+            try {
+                de.egril.defender.editor.EditorStorage
+                    .getLevel(editorLevelId)
+            } catch (e: Exception) {
+                null
+            }
+
         val hasPrerequisites = editorLevel?.prerequisites?.isNotEmpty() == true
-        
+
         return worldLevels.map { worldLevel ->
             // Lock if matches editorLevelId and HAS prerequisites
             if (worldLevel.level.editorLevelId == editorLevelId && hasPrerequisites) {

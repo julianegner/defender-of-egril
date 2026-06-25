@@ -27,19 +27,23 @@ object GameLogBuffer {
     data class LogEntry(
         val timestamp: Long,
         val category: String,
-        val message: String
+        val message: String,
     )
 
     /**
      * Appends a log entry to the ring buffer and also prints it to stdout.
      * If the buffer is full, the oldest entry is discarded.
      */
-    fun log(category: String, message: String) {
-        val entry = LogEntry(
-            timestamp = currentTimeMillis(),
-            category = category,
-            message = message
-        )
+    fun log(
+        category: String,
+        message: String,
+    ) {
+        val entry =
+            LogEntry(
+                timestamp = currentTimeMillis(),
+                category = category,
+                message = message,
+            )
         if (entries.size >= MAX_ENTRIES) {
             entries.removeFirst()
         }

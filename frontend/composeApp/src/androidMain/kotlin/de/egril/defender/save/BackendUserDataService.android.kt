@@ -4,8 +4,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 actual object BackendUserDataService {
-
-    actual suspend fun uploadUserData(jsonData: String, token: String): Boolean =
+    actual suspend fun uploadUserData(
+        jsonData: String,
+        token: String,
+    ): Boolean =
         withContext(Dispatchers.IO) {
             val status = jvmHttpPost("/api/userdata", buildUserDataUploadJson(jsonData), token)
             status in 200..299

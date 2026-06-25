@@ -19,10 +19,11 @@ fun FontSizeMaximum(content: @Composable () -> Unit) {
     val currentScale = AppSettings.fontSize.value.scale
     val maxScale = FontSize.HUGE.scale
     if (currentScale != maxScale) {
-        val scaledDensity = Density(
-            density = currentDensity.density,
-            fontScale = currentDensity.fontScale / currentScale * maxScale
-        )
+        val scaledDensity =
+            Density(
+                density = currentDensity.density,
+                fontScale = currentDensity.fontScale / currentScale * maxScale,
+            )
         CompositionLocalProvider(LocalDensity provides scaledDensity) {
             content()
         }

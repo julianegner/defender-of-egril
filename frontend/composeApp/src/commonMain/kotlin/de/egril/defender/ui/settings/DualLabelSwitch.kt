@@ -24,20 +24,21 @@ fun DualLabelSwitch(
     leftText: String,
     rightText: String,
     onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         Text(
             text = leftText,
             style = MaterialTheme.typography.bodyLarge,
             color = if (!state.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = 12.dp)
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .padding(end = 12.dp),
         )
         Switch(
             checked = state.value,
@@ -45,20 +46,22 @@ fun DualLabelSwitch(
                 state.value = newValue
                 onCheckedChange(newValue)
             },
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+            colors =
+                SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                ),
         )
         Text(
             text = rightText,
             style = MaterialTheme.typography.bodyLarge,
             color = if (state.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 12.dp)
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .padding(start = 12.dp),
         )
     }
 }

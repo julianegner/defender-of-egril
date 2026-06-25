@@ -15,10 +15,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import de.egril.defender.model.SpearAttackEffect
 import de.egril.defender.model.Position
-import de.egril.defender.ui.hexagon.HexagonalGridConstants
+import de.egril.defender.model.SpearAttackEffect
 import de.egril.defender.ui.gameplay.GamePlayConstants
+import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import kotlinx.coroutines.delay
 import kotlin.math.sqrt
 
@@ -48,7 +48,7 @@ fun SpearAttackOverlay(
     effects: List<SpearAttackEffect>,
     hexSizeDp: Float,
     contentSize: IntSize,
-    animate: Boolean
+    animate: Boolean,
 ) {
     val pixelDensity = LocalDensity.current.density
     val hexSizePx = hexSizeDp * pixelDensity
@@ -66,7 +66,7 @@ fun SpearAttackOverlay(
                 rowVerticalAdjPx = rowVerticalAdjPx,
                 contentWidth = contentWidth,
                 contentHeight = contentHeight,
-                animate = animate
+                animate = animate,
             )
         }
     }
@@ -80,7 +80,7 @@ private fun SingleSpearOverlay(
     rowVerticalAdjPx: Float,
     contentWidth: Dp,
     contentHeight: Dp,
-    animate: Boolean
+    animate: Boolean,
 ) {
     val hexWidthPx = hexSizePx * sqrt(3f)
     val hexHeightPx = hexSizePx * 2f
@@ -103,10 +103,11 @@ private fun SingleSpearOverlay(
         if (animate) {
             overallProgress.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS.toInt(),
-                    easing = LinearEasing
-                )
+                animationSpec =
+                    tween(
+                        durationMillis = GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS.toInt(),
+                        easing = LinearEasing,
+                    ),
             )
         } else {
             overallProgress.snapTo(1f)
@@ -124,7 +125,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawSpear(
     progress: Float,
     sourceCenter: Offset,
     targetCenter: Offset,
-    hexSizePx: Float
+    hexSizePx: Float,
 ) {
     if (progress < FIRING_PHASE_END) {
         // Phase 1: Throwing flash on the source tile (blue-white warrior glow)
@@ -135,13 +136,13 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawSpear(
         drawCircle(
             color = Color(0xFF4488FF).copy(alpha = glowAlpha * 0.35f),
             radius = hexSizePx * (0.65f + fp * 0.35f),
-            center = sourceCenter
+            center = sourceCenter,
         )
         // Inner bright white flash
         drawCircle(
             color = Color(0xFFFFFFFF).copy(alpha = glowAlpha * 0.55f),
             radius = hexSizePx * (0.32f + fp * 0.18f),
-            center = sourceCenter
+            center = sourceCenter,
         )
     } else if (progress < 1f) {
         // Phase 2: Spear in flight
@@ -175,7 +176,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawSpear(
             start = Offset(tailCenter.x + shadowOff, tailCenter.y + shadowOff),
             end = Offset(tipCenter.x + shadowOff, tipCenter.y + shadowOff),
             strokeWidth = shaftWidth,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
 
         // Spear shaft (dark brown hardwood)
@@ -184,27 +185,30 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawSpear(
             start = tailCenter,
             end = Offset(tipCenter.x - nx * headLength * 0.6f, tipCenter.y - ny * headLength * 0.6f),
             strokeWidth = shaftWidth,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
 
         // Spearhead (metallic silver triangle)
         val tipX = tipCenter.x
         val tipY = tipCenter.y
-        val baseLeft = Offset(
-            tipX - nx * headLength - px * headWidth * 0.5f,
-            tipY - ny * headLength - py * headWidth * 0.5f
-        )
-        val baseRight = Offset(
-            tipX - nx * headLength + px * headWidth * 0.5f,
-            tipY - ny * headLength + py * headWidth * 0.5f
-        )
+        val baseLeft =
+            Offset(
+                tipX - nx * headLength - px * headWidth * 0.5f,
+                tipY - ny * headLength - py * headWidth * 0.5f,
+            )
+        val baseRight =
+            Offset(
+                tipX - nx * headLength + px * headWidth * 0.5f,
+                tipY - ny * headLength + py * headWidth * 0.5f,
+            )
 
-        val spearHeadPath = Path().apply {
-            moveTo(tipX, tipY)
-            lineTo(baseLeft.x, baseLeft.y)
-            lineTo(baseRight.x, baseRight.y)
-            close()
-        }
+        val spearHeadPath =
+            Path().apply {
+                moveTo(tipX, tipY)
+                lineTo(baseLeft.x, baseLeft.y)
+                lineTo(baseRight.x, baseRight.y)
+                close()
+            }
         drawPath(spearHeadPath, Color(0xFFD0D0D0))
 
         // Spearhead highlight (lighter silver streak along the center)
@@ -213,20 +217,21 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawSpear(
             start = Offset(tipX - nx * headLength * 0.65f, tipY - ny * headLength * 0.65f),
             end = tipCenter,
             strokeWidth = shaftWidth * 0.35f,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
 
         // Tail grip wrap (darker band near the tail end)
-        val wrapCenter = Offset(
-            tailCenter.x + nx * spearLength * 0.12f,
-            tailCenter.y + ny * spearLength * 0.12f
-        )
+        val wrapCenter =
+            Offset(
+                tailCenter.x + nx * spearLength * 0.12f,
+                tailCenter.y + ny * spearLength * 0.12f,
+            )
         drawLine(
             color = Color(0xFF3A200A),
             start = Offset(wrapCenter.x - nx * shaftWidth, wrapCenter.y - ny * shaftWidth),
             end = Offset(wrapCenter.x + nx * shaftWidth, wrapCenter.y + ny * shaftWidth),
             strokeWidth = shaftWidth * 1.6f,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
     }
 }

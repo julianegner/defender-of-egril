@@ -8,7 +8,10 @@ import org.w3c.xhr.XMLHttpRequest
 import kotlin.coroutines.resume
 
 actual object BackendCrashService {
-    actual suspend fun submitCrashReport(request: CrashReportSubmitRequest, token: String?): Int? =
+    actual suspend fun submitCrashReport(
+        request: CrashReportSubmitRequest,
+        token: String?,
+    ): Int? =
         suspendCancellableCoroutine { continuation ->
             try {
                 val xhr = XMLHttpRequest()

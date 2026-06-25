@@ -24,21 +24,23 @@ fun WaypointChainCard(
     circularDeps: Set<Position>,
     unconnectedWaypoints: Set<Position>,
     onDeleteConnection: (Position) -> Unit,
-    onConnectWaypoint: (Position) -> Unit
+    onConnectWaypoint: (Position) -> Unit,
 ) {
     Card(
         modifier = Modifier.Companion.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (chain.hasCircularDependency) {
-                MaterialTheme.colorScheme.errorContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor =
+                    if (chain.hasCircularDependency) {
+                        MaterialTheme.colorScheme.errorContainer
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    },
+            ),
     ) {
         Column(
             modifier = Modifier.Companion.fillMaxWidth().padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             // waypoints
             chain.positions.forEachIndexed { index, pos ->
@@ -50,7 +52,7 @@ fun WaypointChainCard(
                     isUnconnected = unconnectedWaypoints.contains(pos),
                     indentLevel = index,
                     onDelete = { onDeleteConnection(pos) },
-                    onConnect = { onConnectWaypoint(pos) }
+                    onConnect = { onConnectWaypoint(pos) },
                 )
             }
 
@@ -63,8 +65,8 @@ fun WaypointChainCard(
                     isInCircular = circularDeps.contains(chain.endPosition),
                     isUnconnected = unconnectedWaypoints.contains(chain.endPosition),
                     indentLevel = chain.positions.size,
-                    onDelete = null,  // Can't delete target
-                    onConnect = { onConnectWaypoint(chain.endPosition) }
+                    onDelete = null, // Can't delete target
+                    onConnect = { onConnectWaypoint(chain.endPosition) },
                 )
             }
         }

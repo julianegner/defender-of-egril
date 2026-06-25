@@ -20,7 +20,11 @@ internal fun extractUsernameFromJwt(token: String): String? {
     return try {
         val payload = token.split(".").getOrNull(1) ?: return null
         val padded = payload + "=".repeat((4 - payload.length % 4) % 4)
-        val decoded = java.util.Base64.getUrlDecoder().decode(padded).toString(Charsets.UTF_8)
+        val decoded =
+            java.util.Base64
+                .getUrlDecoder()
+                .decode(padded)
+                .toString(Charsets.UTF_8)
         extractJsonStringValue(decoded, "preferred_username")
             ?: extractJsonStringValue(decoded, "sub")
     } catch (_: Exception) {
@@ -29,9 +33,18 @@ internal fun extractUsernameFromJwt(token: String): String? {
 }
 
 /** Extracts a simple string field from a flat JSON object without a full parser. */
-internal fun extractJsonStringValue(json: String, key: String): String? =
-    Regex("\"${Regex.escape(key)}\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1)
+internal fun extractJsonStringValue(
+    json: String,
+    key: String,
+): String? = Regex("\"${Regex.escape(key)}\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1)
 
 /** Extracts a numeric field from a flat JSON object without a full parser. */
-internal fun extractJsonLongValue(json: String, key: String): Long? =
-    Regex("\"${Regex.escape(key)}\"\\s*:\\s*(\\d+)").find(json)?.groupValues?.get(1)?.toLongOrNull()
+internal fun extractJsonLongValue(
+    json: String,
+    key: String,
+): Long? =
+    Regex("\"${Regex.escape(key)}\"\\s*:\\s*(\\d+)")
+        .find(json)
+        ?.groupValues
+        ?.get(1)
+        ?.toLongOrNull()

@@ -16,46 +16,44 @@ import defender_of_egril.composeapp.generated.resources.*
  * Automatically preselects platform language if supported
  */
 @Composable
-fun InitialLanguageChooserDialog(
-    onLanguageSelected: () -> Unit
-) {
+fun InitialLanguageChooserDialog(onLanguageSelected: () -> Unit) {
     // Detect and preselect platform language on first composition
     LaunchedEffect(Unit) {
         AppSettings.detectAndPreselectPlatformLanguage()
     }
-    
+
     Dialog(onDismissRequest = { /* Cannot dismiss - must choose language */ }) {
         Surface(
             modifier = Modifier.widthIn(max = 500.dp),
             shape = MaterialTheme.shapes.medium,
-            color = MaterialTheme.colorScheme.surface
+            color = MaterialTheme.colorScheme.surface,
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = stringResource(Res.string.initial_language_title),
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Text(
                     text = stringResource(Res.string.initial_language_prompt),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 // Language chooser component
                 LanguageChooser(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 Button(
                     onClick = {
                         // Save the selected language and mark as chosen
@@ -64,7 +62,7 @@ fun InitialLanguageChooserDialog(
                         AppSettings.markLanguageChosen()
                         onLanguageSelected()
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(stringResource(Res.string.initial_language_continue))
                 }

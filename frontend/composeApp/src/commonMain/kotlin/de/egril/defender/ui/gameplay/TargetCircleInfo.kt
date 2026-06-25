@@ -15,9 +15,9 @@ sealed class TargetCircleInfo {
     data class CentralTarget(
         val color: Color,
         val attackType: AttackType,
-        val isExtendedArea: Boolean = false  // True if area radius is 2 (level 20+)
+        val isExtendedArea: Boolean = false, // True if area radius is 2 (level 20+)
     ) : TargetCircleInfo()
-    
+
     /**
      * This tile is a neighbor of the target - draw outer ring segments
      * Only applies to AREA and LASTING attack types
@@ -25,9 +25,9 @@ sealed class TargetCircleInfo {
     data class NeighborTarget(
         val color: Color,
         val attackType: AttackType,
-        val centerPosition: Position,  // Position of the central target tile
-        val thisPosition: Position,    // Position of this neighbor tile
-        val distanceFromCenter: Int = 1,  // Distance in hex tiles (1 for inner ring, 2 for outer ring)
-        val isExtendedArea: Boolean = false  // True if area radius is 2 (level 20+)
+        val centerPosition: Position, // Position of the central target tile
+        val thisPosition: Position, // Position of this neighbor tile
+        val distanceFromCenter: Int = 1, // Distance in hex tiles (1 for inner ring, 2 for outer ring)
+        val isExtendedArea: Boolean = false, // True if area radius is 2 (level 20+)
     ) : TargetCircleInfo()
 }

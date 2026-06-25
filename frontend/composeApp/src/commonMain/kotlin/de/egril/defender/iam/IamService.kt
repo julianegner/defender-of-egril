@@ -16,7 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 data class DeviceAuthState(
     val userCode: String,
     val verificationUri: String,
-    val verificationUriComplete: String? = null
+    val verificationUriComplete: String? = null,
 )
 
 /**
@@ -27,7 +27,6 @@ data class DeviceAuthState(
  * attached to API calls as an optional Bearer token.
  */
 object IamService {
-
     /** Reactive authentication state – observe this in Compose via `by IamService.state`. */
     val state: MutableState<IamState> = mutableStateOf(IamState())
 

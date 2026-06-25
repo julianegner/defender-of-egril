@@ -14,7 +14,10 @@ import de.egril.defender.ui.icon.ExplosionIcon
  * When [animate] is false, shows a static explosion icon.
  */
 @Composable
-fun TowerAttackImpactAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+fun TowerAttackImpactAnimation(
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (animate) {
         AnimatedTowerAttackImpact(modifier)
     } else {
@@ -27,7 +30,7 @@ private fun AnimatedTowerAttackImpact(modifier: Modifier = Modifier) {
     LottieAnimation(
         animationType = AnimationType.TOWER_ATTACK_IMPACT,
         modifier = modifier.fillMaxSize(),
-        iterations = 1
+        iterations = 1,
     )
 }
 
@@ -35,7 +38,7 @@ private fun AnimatedTowerAttackImpact(modifier: Modifier = Modifier) {
 private fun StaticTowerAttackImpact(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         ExplosionIcon(size = 20.dp)
     }

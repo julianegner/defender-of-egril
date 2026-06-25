@@ -9,54 +9,58 @@ import platform.Foundation.*
  */
 class IosFileStorage : FileStorage {
     private val fileManager = NSFileManager.defaultManager
-    
+
     @OptIn(ExperimentalForeignApi::class)
     private val baseDir: String
         get() {
-            val paths = fileManager.URLsForDirectory(
-                NSDocumentDirectory,
-                NSUserDomainMask
-            )
+            val paths =
+                fileManager.URLsForDirectory(
+                    NSDocumentDirectory,
+                    NSUserDomainMask,
+                )
             val documentsDirectory = paths.first() as NSURL
             val defenderDir = documentsDirectory.URLByAppendingPathComponent("defender-of-egril")!!
-            
+
             // Create base directory if it doesn't exist
             if (!fileManager.fileExistsAtPath(defenderDir.path!!)) {
                 fileManager.createDirectoryAtURL(
                     defenderDir,
                     withIntermediateDirectories = true,
                     attributes = null,
-                    error = null
+                    error = null,
                 )
             }
-            
+
             return defenderDir.path!!
         }
-    
+
     @OptIn(ExperimentalForeignApi::class)
-    override fun writeFile(path: String, content: String) {
+    override fun writeFile(
+        path: String,
+        content: String,
+    ) {
         val filePath = "$baseDir/$path"
         val fileURL = NSURL.fileURLWithPath(filePath)
-        
+
         // Create parent directory if needed
         fileURL.URLByDeletingLastPathComponent?.let { parentURL ->
             fileManager.createDirectoryAtURL(
                 parentURL,
                 withIntermediateDirectories = true,
                 attributes = null,
-                error = null
+                error = null,
             )
         }
-        
+
         // Write file
         (content as NSString).writeToFile(
             filePath,
             atomically = true,
             encoding = NSUTF8StringEncoding,
-            error = null
+            error = null,
         )
     }
-    
+
     @OptIn(ExperimentalForeignApi::class)
     override fun readFile(path: String): String? {
         val filePath = "$baseDir/$path"
@@ -64,13 +68,13 @@ class IosFileStorage : FileStorage {
             NSString.stringWithContentsOfFile(
                 filePath,
                 encoding = NSUTF8StringEncoding,
-                error = null
+                error = null,
             ) as? String
         } else {
             null
         }
     }
-    
+
     @OptIn(ExperimentalForeignApi::class)
     override fun listFiles(directory: String): List<String> {
         val dirPath = "$baseDir/$directory"
@@ -81,13 +85,13 @@ class IosFileStorage : FileStorage {
             emptyList()
         }
     }
-    
+
     @OptIn(ExperimentalForeignApi::class)
     override fun fileExists(path: String): Boolean {
         val filePath = "$baseDir/$path"
         return fileManager.fileExistsAtPath(filePath)
     }
-    
+
     @OptIn(ExperimentalForeignApi::class)
     override fun createDirectory(path: String) {
         val dirPath = "$baseDir/$path"
@@ -95,57 +99,64 @@ class IosFileStorage : FileStorage {
             dirPath,
             withIntermediateDirectories = true,
             attributes = null,
-            error = null
+            error = null,
         )
     }
-    
+
     @OptIn(ExperimentalForeignApi::class)
     override fun deleteFile(path: String) {
         val filePath = "$baseDir/$path"
         fileManager.removeItemAtPath(filePath, error = null)
     }
-    
+
     @OptIn(ExperimentalForeignApi::class)
-    override fun renameDirectory(oldPath: String, newPath: String): Boolean {
+    override fun renameDirectory(
+        oldPath: String,
+        newPath: String,
+    ): Boolean {
         val oldDirPath = "$baseDir/$oldPath"
         val newDirPath = "$baseDir/$newPath"
-        
+
         if (!fileManager.fileExistsAtPath(oldDirPath)) {
             return false
         }
-        
+
         return fileManager.moveItemAtPath(oldDirPath, toPath = newDirPath, error = null)
     }
-    
+
     @OptIn(ExperimentalForeignApi::class)
-    override fun copyDirectory(sourcePath: String, targetPath: String): Boolean {
+    override fun copyDirectory(
+        sourcePath: String,
+        targetPath: String,
+    ): Boolean {
         val sourceDirPath = "$baseDir/$sourcePath"
         val targetDirPath = "$baseDir/$targetPath"
-        
+
         if (!fileManager.fileExistsAtPath(sourceDirPath)) {
             return false
         }
-        
+
         return fileManager.copyItemAtPath(sourceDirPath, toPath = targetDirPath, error = null)
     }
-    
+
     @OptIn(ExperimentalForeignApi::class)
     override fun deleteDirectory(path: String): Boolean {
         val dirPath = "$baseDir/$path"
-        
+
         if (!fileManager.fileExistsAtPath(dirPath)) {
             return true // Already doesn't exist
         }
-        
+
         return fileManager.removeItemAtPath(dirPath, error = null)
     }
-    
-    @OptIn(ExperimentalForeignApi::class)
-    override fun getAbsolutePath(path: String): String {
-        return "$baseDir/$path"
-    }
 
-    override fun writeBinaryFile(path: String, content: ByteArray) {
+    @OptIn(ExperimentalForeignApi::class)
+    override fun getAbsolutePath(path: String): String = "$baseDir/$path"
+
+    override fun writeBinaryFile(
+        path: String,
+        content: ByteArray,
+    ) {
         // Binary file writing not supported on iOS in this implementation
     }
 

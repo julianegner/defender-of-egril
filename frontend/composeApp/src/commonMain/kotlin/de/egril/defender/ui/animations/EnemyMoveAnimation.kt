@@ -10,12 +10,15 @@ import androidx.compose.ui.Modifier
  * When [animate] is false, no additional visual is shown (the enemy icon communicates location).
  */
 @Composable
-fun EnemyMoveAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+fun EnemyMoveAnimation(
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (animate) {
         LottieAnimation(
             animationType = AnimationType.ENEMY_MOVE,
             modifier = modifier.fillMaxSize(),
-            iterations = 1
+            iterations = 1,
         )
     }
     // No static fallback — the tile colour on path tiles already shows the area.

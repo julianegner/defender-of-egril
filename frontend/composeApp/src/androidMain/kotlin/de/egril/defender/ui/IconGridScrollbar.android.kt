@@ -1,7 +1,7 @@
 package de.egril.defender.ui
 
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.Composable
 
 /**

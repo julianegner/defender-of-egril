@@ -3,11 +3,13 @@ package de.egril.defender.utils
 interface Platform {
     val name: String
     val isAndroidTV: Boolean
+
     /**
      * `true` when the app is running on a Steam Deck in **gaming mode** (gamescope session).
      * `false` on all other platforms and on a Steam Deck in desktop mode (KDE Plasma).
      */
     val isSteamDeckGamingMode: Boolean
+
     /**
      * Extended platform detail string.
      * Desktop: OS name and version (e.g. "Windows 11 10.0").
@@ -16,6 +18,7 @@ interface Platform {
      * Web: browser name and version (e.g. "Chrome/120.0.6099.130").
      */
     val platformExtended: String
+
     /**
      * Human-readable operating system name and version.
      * Desktop Linux: pretty name from /etc/os-release (e.g. "Ubuntu 22.04.5 LTS").
@@ -72,10 +75,11 @@ val isLimitedInputDevice: Boolean
  * Returns a short platform identifier suitable for backend API calls and analytics.
  * Maps platform names to the canonical string values used throughout the backend.
  */
-fun getClientPlatformName(): String = when {
-    isPlatformWasm -> "WEB"
-    isPlatformAndroid -> "ANDROID"
-    isPlatformIos -> "IOS"
-    isPlatformDesktop -> "DESKTOP"
-    else -> "UNKNOWN"
-}
+fun getClientPlatformName(): String =
+    when {
+        isPlatformWasm -> "WEB"
+        isPlatformAndroid -> "ANDROID"
+        isPlatformIos -> "IOS"
+        isPlatformDesktop -> "DESKTOP"
+        else -> "UNKNOWN"
+    }

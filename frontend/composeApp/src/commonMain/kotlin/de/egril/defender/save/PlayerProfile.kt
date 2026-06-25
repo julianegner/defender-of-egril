@@ -8,15 +8,15 @@ import de.egril.defender.model.PlayerAbilities
  * Each player has their own world map progress and save files
  */
 data class PlayerProfile(
-    val id: String,  // Unique identifier (sanitized player name)
-    val name: String,  // Display name entered by player
-    val createdAt: Long,  // Timestamp when profile was created
-    val lastPlayedAt: Long,  // Timestamp when profile was last used
-    val achievements: List<Achievement> = emptyList(),  // List of earned achievements
-    val abilities: PlayerAbilities = PlayerAbilities(),  // Player abilities and XP progression
-    val remoteUsername: String? = null,  // Keycloak username linked to this profile (set on first remote login)
-    val alwaysLogin: Boolean = false,   // Auto-login to Keycloak when this player is active (per-player setting)
-    val useRemoteSettings: Boolean = true  // Load settings from remote when authenticated (local-only, not synced)
+    val id: String, // Unique identifier (sanitized player name)
+    val name: String, // Display name entered by player
+    val createdAt: Long, // Timestamp when profile was created
+    val lastPlayedAt: Long, // Timestamp when profile was last used
+    val achievements: List<Achievement> = emptyList(), // List of earned achievements
+    val abilities: PlayerAbilities = PlayerAbilities(), // Player abilities and XP progression
+    val remoteUsername: String? = null, // Keycloak username linked to this profile (set on first remote login)
+    val alwaysLogin: Boolean = false, // Auto-login to Keycloak when this player is active (per-player setting)
+    val useRemoteSettings: Boolean = true, // Load settings from remote when authenticated (local-only, not synced)
 )
 
 /**
@@ -24,5 +24,5 @@ data class PlayerProfile(
  */
 data class PlayerProfiles(
     val profiles: List<PlayerProfile>,
-    val lastUsedPlayerId: String?  // ID of the last player who played
+    val lastUsedPlayerId: String?, // ID of the last player who played
 )
