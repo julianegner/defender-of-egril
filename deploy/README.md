@@ -202,8 +202,8 @@ The pre-provisioned **Defender of Egril – Overview** dashboard shows:
 | Total Feedback | All-time count of rows in the `player_feedback` table |
 | Feedback Today | Feedback entries created since midnight (UTC) |
 | Feedback Entries (Latest 100) | Table of the 100 most recent rows from `player_feedback` |
-| Events by Type | Bar chart of event counts grouped by `event_type` (all time) |
-| Events per Day | Time series of daily event volume for the past 90 days |
+| Events by Type | Bar chart of event counts grouped by `event_type` for the selected dashboard timeframe |
+| Events per Day | Time series of daily event volume for the selected dashboard timeframe (default: last 90 days) |
 | Recent Events | Table of the 100 most recent events with all fields |
 | web page views – APP_STARTED Events (Last 100) | Table of the 100 most recent `APP_STARTED` events on the `WEB` platform, including the `url` field |
 | CPU / Memory / Disk | Gauge panels for all three Hetzner servers with colour thresholds: green (0–70 %), yellow (70–85 %), red (85–100 %) |
