@@ -142,6 +142,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                     if (event.levelName != null) append(" levelName=${event.levelName}")
                     if (event.versionName != null) append(" version=${event.versionName}")
                     if (event.commitHash != null) append(" commit=${event.commitHash}")
+                    if (event.installUuid != null) append(" installUuid=${event.installUuid}")
                     if (event.turnNumber != null) append(" turn=${event.turnNumber}")
                     if (event.difficulty != null) append(" difficulty=${event.difficulty}")
                     if (event.url != null) append(" url=${event.url}")
@@ -153,7 +154,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 try {
                     conn
                         .prepareStatement(
-                            "INSERT INTO events (event_type, platform, platform_long, platform_extended, os_name, level_name, version_name, commit_hash, user_name, turn_number, difficulty, url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            "INSERT INTO events (event_type, platform, platform_long, platform_extended, os_name, level_name, version_name, commit_hash, user_name, turn_number, difficulty, url, install_uuid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         ).use { stmt ->
                             stmt.setString(1, event.event)
                             stmt.setString(2, event.platform)
@@ -167,6 +168,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                             if (event.turnNumber != null) stmt.setInt(10, event.turnNumber) else stmt.setNull(10, java.sql.Types.INTEGER)
                             stmt.setString(11, event.difficulty)
                             stmt.setString(12, event.url)
+                            stmt.setObject(13, parseUuidOrNull(event.installUuid))
                             stmt.executeUpdate()
                         }
                 } catch (e: Exception) {
@@ -244,8 +246,8 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                                 INSERT INTO player_feedback (
                                     feedback_uuid, feedback_type, bug_types, message, contact_email, source_context,
                                     platform, platform_long, platform_extended, os_name, version_name, commit_hash,
-                                    user_id, user_name, game_level_name, game_turn_number, current_settings_json, game_state_json, game_log, screenshot_png
-                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                    user_id, user_name, game_level_name, game_turn_number, current_settings_json, game_state_json, game_log, screenshot_png, install_uuid
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                                 ON CONFLICT (feedback_uuid) DO NOTHING
                                 """.trimIndent(),
                             ).use { stmt ->
@@ -269,6 +271,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                                 stmt.setString(18, request.gameStateJson)
                                 stmt.setString(19, request.gameLog)
                                 if (screenshotBytes != null) stmt.setBytes(20, screenshotBytes) else stmt.setNull(20, java.sql.Types.BINARY)
+                                stmt.setObject(21, parseUuidOrNull(request.installUuid))
                                 stmt.executeUpdate()
                             }
 
@@ -1146,6 +1149,12 @@ internal fun extractJsonStringValue(
 private fun isValidFeedbackId(value: String): Boolean = isValidUuid(value)
 
 private fun isValidUuid(value: String): Boolean = runCatching { UUID.fromString(value) }.isSuccess
+
+private fun parseUuidOrNull(value: String?): UUID? =
+    value
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+        ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
 
 private fun parseFeedbackType(value: String): FeedbackType? = runCatching { FeedbackType.valueOf(value.trim().uppercase()) }.getOrNull()
 

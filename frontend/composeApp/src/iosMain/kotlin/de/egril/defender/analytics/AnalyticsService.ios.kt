@@ -1,6 +1,7 @@
 package de.egril.defender.analytics
 
 import de.egril.defender.iam.IamService
+import de.egril.defender.utils.getOrCreateInstallUuid
 import platform.Foundation.NSMutableURLRequest
 import platform.Foundation.NSProcessInfo
 import platform.Foundation.NSString
@@ -28,7 +29,7 @@ actual fun reportEvent(
     turnNumber: Int?,
     difficulty: String?,
 ) {
-    val json = buildEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty)
+    val json = buildEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty, installUuid = getOrCreateInstallUuid())
     val url = NSURL.URLWithString("$backendUrl/api/events") ?: return
     val request = NSMutableURLRequest.requestWithURL(url)
     request.HTTPMethod = "POST"

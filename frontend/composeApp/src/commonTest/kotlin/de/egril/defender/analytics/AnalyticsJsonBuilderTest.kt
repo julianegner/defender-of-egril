@@ -13,9 +13,11 @@ class AnalyticsJsonBuilderTest {
                 levelName = "Tutorial",
                 platform = "DESKTOP",
                 difficulty = "HARD",
+                installUuid = "11111111-1111-4111-8111-111111111111",
             )
 
         assertContains(json, "\"difficulty\":\"HARD\"")
+        assertContains(json, "\"installUuid\":\"")
     }
 
     @Test
@@ -26,9 +28,11 @@ class AnalyticsJsonBuilderTest {
                 levelName = null,
                 platform = "WEB",
                 url = "https://egril.de/game?level=1",
+                installUuid = "11111111-1111-4111-8111-111111111111",
             )
 
         assertContains(json, "\"url\":\"https://egril.de/game?level=1\"")
+        assertContains(json, "\"installUuid\":\"")
     }
 
     @Test
@@ -38,9 +42,11 @@ class AnalyticsJsonBuilderTest {
                 eventType = GameEventType.APP_STARTED,
                 levelName = null,
                 platform = "WEB",
+                installUuid = "11111111-1111-4111-8111-111111111111",
             )
 
         assertFalse(json.contains("\"url\":"))
+        assertContains(json, "\"installUuid\":\"")
     }
 
     @Test
@@ -53,6 +59,7 @@ class AnalyticsJsonBuilderTest {
                 turnNumber = 12,
                 difficulty = "HARD",
                 url = "https://egril.de/game?level=tutorial",
+                installUuid = "11111111-1111-4111-8111-111111111111",
             )
 
         assertContains(json, "\"event\":\"APP_CLOSED\"")
@@ -60,6 +67,7 @@ class AnalyticsJsonBuilderTest {
         assertContains(json, "\"turnNumber\":12")
         assertContains(json, "\"difficulty\":\"HARD\"")
         assertContains(json, "\"url\":\"https://egril.de/game?level=tutorial\"")
+        assertContains(json, "\"installUuid\":\"")
         assertFalse(json.contains("\"username\":"))
     }
 }

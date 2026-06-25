@@ -3,6 +3,7 @@
 package de.egril.defender.analytics
 
 import de.egril.defender.iam.IamService
+import de.egril.defender.utils.getOrCreateInstallUuid
 
 /**
  * Fire-and-forget HTTP POST via the browser Fetch API.
@@ -71,7 +72,7 @@ actual fun reportEvent(
     difficulty: String?,
 ) {
     val url = if (eventType == GameEventType.APP_STARTED || eventType == GameEventType.APP_CLOSED) getCurrentUrl() else null
-    val json = buildEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty, url)
+    val json = buildEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty, url, getOrCreateInstallUuid())
     if (eventType == GameEventType.APP_CLOSED) {
         postJsonOnPageHide("$backendUrl/api/events", json)
     } else {

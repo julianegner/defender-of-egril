@@ -13,6 +13,7 @@ internal fun buildEventJson(
     turnNumber: Int? = null,
     difficulty: String? = null,
     url: String? = null,
+    installUuid: String? = null,
 ): String =
     buildString {
         val currentPlatform = getPlatform()
@@ -38,6 +39,11 @@ internal fun buildEventJson(
         append("\",\"commitHash\":\"")
         append(escapeJson(AppBuildInfo.COMMIT_HASH))
         append("\"")
+        if (installUuid != null) {
+            append(",\"installUuid\":\"")
+            append(escapeJson(installUuid))
+            append("\"")
+        }
         if (levelName != null) {
             append(",\"levelName\":\"")
             append(escapeJson(levelName))

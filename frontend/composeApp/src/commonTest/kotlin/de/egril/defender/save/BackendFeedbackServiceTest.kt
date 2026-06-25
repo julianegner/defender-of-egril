@@ -16,6 +16,7 @@ class BackendFeedbackServiceTest {
         val request =
             FeedbackSubmitRequest(
                 feedbackId = "123e4567-e89b-12d3-a456-426614174000",
+                installUuid = "123e4567-e89b-12d3-a456-426614174001",
                 feedbackType = "FEATURE_REQUEST",
                 bugTypes = emptyList(),
                 message = "Please add this feature",
@@ -32,6 +33,7 @@ class BackendFeedbackServiceTest {
         val payload = buildFeedbackUploadJson(request)
 
         assertContains(payload, "\"currentSettingsJson\":")
+        assertContains(payload, "\"installUuid\":\"123e4567-e89b-12d3-a456-426614174001\"")
         assertContains(payload, "\\\"language\\\": \\\"en\\\"")
         assertContains(payload, "\\\"darkMode\\\": \\\"false\\\"")
     }
@@ -41,6 +43,7 @@ class BackendFeedbackServiceTest {
         val request =
             FeedbackSubmitRequest(
                 feedbackId = "123e4567-e89b-12d3-a456-426614174000",
+                installUuid = "123e4567-e89b-12d3-a456-426614174001",
                 feedbackType = "FEATURE_REQUEST",
                 bugTypes = emptyList(),
                 message = "Please add this feature",

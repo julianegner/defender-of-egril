@@ -1,5 +1,7 @@
 package de.egril.defender.analytics
 
+import de.egril.defender.utils.getOrCreateInstallUuid
+
 private const val PLATFORM = "DESKTOP"
 
 actual fun reportEvent(
@@ -8,5 +10,5 @@ actual fun reportEvent(
     turnNumber: Int?,
     difficulty: String?,
 ) {
-    postEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty)
+    postEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty, getOrCreateInstallUuid())
 }
