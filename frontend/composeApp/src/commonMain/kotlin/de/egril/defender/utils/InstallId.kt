@@ -7,15 +7,18 @@ import kotlin.random.Random
 
 private const val KEY_INSTALL_UUID = "install_uuid"
 private val installIdSettings = Settings()
+private val installIdLock = Any()
 
 fun getOrCreateInstallUuid(): String {
-    val existing = installIdSettings[KEY_INSTALL_UUID, ""]
-    if (existing.isNotBlank()) {
-        return existing
+    synchronized(installIdLock) {
+        val existing = installIdSettings[KEY_INSTALL_UUID, ""]
+        if (existing.isNotBlank()) {
+            return existing
+        }
+        val created = generateUuidV4()
+        installIdSettings[KEY_INSTALL_UUID] = created
+        return created
     }
-    val created = generateUuidV4()
-    installIdSettings[KEY_INSTALL_UUID] = created
-    return created
 }
 
 private fun generateUuidV4(): String {

@@ -1154,7 +1154,12 @@ private fun parseUuidOrNull(value: String?): UUID? =
     value
         ?.trim()
         ?.takeIf { it.isNotEmpty() }
-        ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+        ?.let { trimmed ->
+            runCatching { UUID.fromString(trimmed) }
+                .onFailure {
+                    analyticsLogger.warn("Ignoring invalid install UUID: {}", trimmed)
+                }.getOrNull()
+        }
 
 private fun parseFeedbackType(value: String): FeedbackType? = runCatching { FeedbackType.valueOf(value.trim().uppercase()) }.getOrNull()
 
