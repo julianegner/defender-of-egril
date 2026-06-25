@@ -357,7 +357,7 @@
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 100
       },
-      "title": "Events by Type (All Time)",
+      "title": "Events by Type (Timeframe)",
       "type": "barchart",
       "targets": [
         {
@@ -366,7 +366,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT event_type, COUNT(*) AS count FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') GROUP BY event_type ORDER BY count DESC",
+          "rawSql": "SELECT event_type, COUNT(*) AS count FROM events WHERE $__timeFilter(created_at) AND ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') GROUP BY event_type ORDER BY count DESC",
           "refId": "A"
         }
       ]
@@ -406,7 +406,7 @@
           "sort": "desc"
         }
       },
-      "title": "Events per Day (Last 90 Days)",
+      "title": "Events per Day (Timeframe)",
       "type": "timeseries",
       "targets": [
         {
@@ -415,7 +415,7 @@
             "uid": "postgres-app"
           },
           "format": "time_series",
-          "rawSql": "SELECT date_trunc('day', created_at) AS time, COUNT(*) AS \"Events\" FROM events WHERE created_at >= NOW() - INTERVAL '90 days' AND ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') GROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT date_trunc('day', created_at) AS time, COUNT(*) AS \"Events\" FROM events WHERE $__timeFilter(created_at) AND ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') GROUP BY 1 ORDER BY 1",
           "refId": "A"
         }
       ]
@@ -2076,14 +2076,14 @@
     "defender-of-egril"
   ],
   "time": {
-    "from": "now-24h",
+    "from": "now-90d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Defender of Egril \u2013 Overview",
   "uid": "defender-overview",
-  "version": 4,
+  "version": 5,
   "weekStart": "",
   "templating": {
     "list": [
