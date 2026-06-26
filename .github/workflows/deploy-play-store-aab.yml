@@ -125,7 +125,7 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: de.egril.defender
-          releaseFiles: release.aab
+          releaseFiles: ${{ github.workspace }}/release.aab
           tracks: ${{ github.event.inputs.track }}
 
       - name: Write deploy summary
