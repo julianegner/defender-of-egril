@@ -51,6 +51,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `build_wasm`: Build WebAssembly bundle
 - `release`: Create GitHub Release with all artifacts attached
 - `deploy_github_pages`: Trigger the GitHub Pages workflow on `main` branch after the release succeeds
+- `deploy_play_store`: Trigger the Google Play Store deployment workflow on `main` branch after the release succeeds (runs in parallel with `deploy_github_pages`, uploads to `internal` track by default)
 
 **Build Artifacts (attached to the GitHub Release):**
 - Android APK: `de.egril.defender-productionRelease.apk` (or debug suffix without signing)
@@ -155,7 +156,7 @@ This workflow provides an easy way to build and test Windows EXE installers with
 
 ### 6. Deploy AAB to Google Play Store (`deploy-play-store-aab.yml`)
 
-**Trigger:** Manual dispatch only
+**Trigger:** Manual dispatch, plus automatic dispatch from the `Release` workflow after a successful release (runs in parallel with `deploy_github_pages`, uploads to `internal` track by default)
 
 **Purpose:** Download the AAB from the latest GitHub Release and upload it to Google Play
 
