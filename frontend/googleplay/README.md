@@ -8,7 +8,8 @@ This directory contains all assets and configuration needed to manage the
 ```
 googleplay/
 ├── Gemfile            – Ruby gem dependencies (Fastlane)
-├── Fastfile           – Fastlane lanes for uploading metadata
+├── fastlane/
+│   └── Fastfile       – Fastlane lanes for uploading metadata
 ├── README.md          – This file
 └── metadata/
     └── android/

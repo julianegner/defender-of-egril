@@ -7,7 +7,7 @@
 #   1. Fetches the latest GitHub release and shows the version and AAB filename
 #      in the job summary so you can cancel if something is off.
 #   2. Downloads the AAB from that release.
-#   3. Uploads the AAB to Google Play via Fastlane supply.
+#   3. Uploads the AAB to Google Play via the r0adkll/upload-google-play action.
 #
 # The deploy job is protected by the "google-play" GitHub environment.
 # Configure that environment with required reviewers to get a manual approval
@@ -120,20 +120,13 @@ jobs:
           curl -fL -o release.aab "${{ needs.check_release.outputs.aab_url }}"
           ls -lh release.aab
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Upload AAB to Google Play
+        uses: r0adkll/upload-google-play@v1
         with:
-          ruby-version: '3.3'
-          bundler-cache: true
-          working-directory: frontend/googleplay
-
-      - name: Upload AAB to Google Play via Fastlane
-        working-directory: frontend/googleplay
-        env:
-          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
-          AAB_PATH: ${{ github.workspace }}/release.aab
-          PLAY_TRACK: ${{ github.event.inputs.track }}
-        run: bundle exec fastlane upload_aab
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: de.egril.defender
+          releaseFiles: release.aab
+          tracks: ${{ github.event.inputs.track }}
 
       - name: Write deploy summary
         run: |
