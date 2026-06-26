@@ -22,5 +22,6 @@
     <include file="db/changelog/migrations/015-events-difficulty.sql"/>
     <include file="db/changelog/migrations/016-crash-reports.sql"/>
     <include file="db/changelog/migrations/017-events-url.sql"/>
+    <include file="db/changelog/migrations/018-install-uuid.sql"/>
 
 </databaseChangeLog>

@@ -9,6 +9,7 @@ import com.russhwolf.settings.get
 import com.russhwolf.settings.set
 import de.egril.defender.ui.a11y.AccessibilityPreferences
 import de.egril.defender.ui.a11y.ColorBlindPalette
+import de.egril.defender.utils.getOrCreateInstallUuid
 import de.egril.defender.utils.isPlatformMobile
 
 /**
@@ -659,6 +660,7 @@ object AppSettings {
                 // If saved language is invalid, keep default
             }
         }
+        getOrCreateInstallUuid()
     }
 
     /**

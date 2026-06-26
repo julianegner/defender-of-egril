@@ -16,8 +16,9 @@ internal fun postEventJson(
     platform: String,
     turnNumber: Int? = null,
     difficulty: String? = null,
+    installUuid: String,
 ) {
-    val json = buildEventJson(eventType, levelName, platform, turnNumber, difficulty)
+    val json = buildEventJson(eventType, levelName, platform, turnNumber, difficulty, installUuid = installUuid)
     val targetUrl = "$backendUrl/api/events"
     val token = IamService.getToken()
     Thread {

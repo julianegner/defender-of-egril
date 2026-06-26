@@ -12,6 +12,7 @@ data class FeedbackAttachmentDto(
 @Serializable
 data class FeedbackSubmissionRequest(
     val feedbackId: String,
+    val installUuid: String? = null,
     val feedbackType: String,
     val bugTypes: List<String> = emptyList(),
     val message: String,

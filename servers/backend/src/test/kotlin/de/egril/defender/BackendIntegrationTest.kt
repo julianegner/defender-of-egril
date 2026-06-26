@@ -148,6 +148,16 @@ class BackendIntegrationTest {
                 }
             }
 
+        private fun latestFeedbackInstallUuid(feedbackId: String): String? =
+            testDataSource.connection.use { conn ->
+                conn.prepareStatement("SELECT install_uuid::text FROM player_feedback WHERE feedback_uuid = ?::uuid ORDER BY id DESC LIMIT 1").use { stmt ->
+                    stmt.setString(1, feedbackId)
+                    stmt.executeQuery().use { rs ->
+                        if (rs.next()) rs.getString(1) else null
+                    }
+                }
+            }
+
         private fun latestEventDifficulty(levelName: String): String? =
             testDataSource.connection.use { conn ->
                 conn
@@ -774,6 +784,21 @@ class BackendIntegrationTest {
         }
 
     @Test
+    fun `POST events with install UUID persists install UUID`() =
+        withRealDatabase {
+            val levelName = "install-uuid-level"
+            val installUuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+            client
+                .post("/api/events") {
+                    contentType(ContentType.Application.Json)
+                    setBody("""{"event":"LEVEL_STARTED","levelName":"$levelName","platform":"DESKTOP","installUuid":"$installUuid"}""")
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                }
+            assertEquals(installUuid, latestEventField(levelName, "LEVEL_STARTED", "install_uuid::text"))
+        }
+
+    @Test
     fun `POST events without difficulty stores null difficulty`() =
         withRealDatabase {
             val levelName = "difficulty-null-level"
@@ -833,10 +858,12 @@ class BackendIntegrationTest {
     fun `POST feedback stores once and deduplicates by feedback UUID`() =
         withRealDatabase {
             val feedbackId = "33333333-3333-4333-8333-333333333333"
+            val installUuid = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
             val payload =
                 """
                 {
                   "feedbackId":"$feedbackId",
+                  "installUuid":"$installUuid",
                   "feedbackType":"FEATURE_REQUEST",
                   "message":"Please add cloud save conflict resolution UI",
                   "platform":"WEB",
@@ -871,6 +898,7 @@ class BackendIntegrationTest {
                 }
 
             assertEquals(1, countFeedbackRows(feedbackId))
+            assertEquals(installUuid, latestFeedbackInstallUuid(feedbackId))
         }
 
     @Test

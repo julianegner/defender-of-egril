@@ -35,6 +35,7 @@ import de.egril.defender.save.serializeSettingsJson
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.currentTimeMillis
 import de.egril.defender.utils.getClientPlatformName
+import de.egril.defender.utils.getOrCreateInstallUuid
 import de.egril.defender.utils.getPlatform
 import defender_of_egril.composeapp.generated.resources.*
 import dev.carlsen.flagkit.FlagKit
@@ -551,6 +552,7 @@ fun FeedbackFormContent(
                         BackendFeedbackService.submitFeedback(
                             FeedbackSubmitRequest(
                                 feedbackId = feedbackId,
+                                installUuid = getOrCreateInstallUuid(),
                                 feedbackType = selectedType.apiValue,
                                 bugTypes = selectedBugTypes.toList(),
                                 message = finalMessage,
