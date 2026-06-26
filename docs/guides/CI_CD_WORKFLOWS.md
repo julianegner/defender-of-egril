@@ -164,7 +164,7 @@ This workflow provides an easy way to build and test Windows EXE installers with
 
 **Jobs:**
 - `check_release`: Fetches the latest GitHub Release, verifies it contains a `.aab` file, and writes a summary with the version, release name, and target track. **Cancel the workflow here if the wrong version is shown.**
-- `deploy`: Downloads the AAB and uploads it via Fastlane `supply`. Gated by the `google-play` GitHub environment (see setup below).
+- `deploy`: Downloads the AAB and uploads it via the `r0adkll/upload-google-play` GitHub Action (no Ruby or Fastlane required). Gated by the `google-play` GitHub environment (see setup below).
 
 **Required Secret:**
 - `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` – Full JSON content of a Google Play service account key with **Release manager** permission for `de.egril.defender`. See `frontend/googleplay/README.md` for setup instructions.
@@ -292,7 +292,7 @@ The workflow will:
 - Fetch the latest GitHub Release and display its version, release name, and the AAB filename in the job summary.
 - **Pause here** – review the summary to confirm this is the correct version to deploy.  If the wrong version is shown, cancel the run now.
 - Download the AAB from the GitHub Release.
-- Upload it to Google Play via Fastlane supply.
+- Upload it to Google Play via the `r0adkll/upload-google-play` GitHub Action (no Ruby or Fastlane required).
 
 #### Setting up the Manual Approval Gate (recommended)
 
