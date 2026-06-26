@@ -48,7 +48,7 @@ on:
         required: true
         type: string
       snap_channel:
-        description: "Snap Store channel(s) to publish to (comma-separated, e.g. edge or stable,candidate). Leave default to publish to edge. Publishing is skipped when the SNAPCRAFT_STORE_CREDENTIALS secret is not configured."
+        description: "Snap Store channel to publish to. Choose 'skip' to opt out for this release. Publishing is also skipped when the SNAPCRAFT_STORE_CREDENTIALS secret is not configured."
         required: false
         type: choice
         default: edge
