@@ -1002,3 +1002,28 @@ jobs:
             repos/${{ github.repository }}/actions/workflows/deploy_wasm_to_github_pages.yml/dispatches \
             -X POST \
             -f ref="main"
+
+  # ---------------------------------------------------------------------------
+  # Trigger the Google Play Store deployment workflow in parallel with the
+  # GitHub Pages deployment, after the release has been created successfully.
+  # The AAB is uploaded to the "production" track.
+  # ---------------------------------------------------------------------------
+  deploy_play_store:
+    name: Trigger Google Play Store deployment
+    needs:
+      - prepare
+      - release
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+
+    steps:
+      - name: Dispatch Google Play Store workflow on main branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api \
+            repos/${{ github.repository }}/actions/workflows/deploy-play-store-aab.yml/dispatches \
+            -X POST \
+            -f ref="main" \
+            --field inputs='{"track":"production"}'
