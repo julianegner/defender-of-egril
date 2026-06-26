@@ -1025,4 +1025,4 @@ jobs:
             repos/${{ github.repository }}/actions/workflows/deploy-play-store-aab.yml/dispatches \
             -X POST \
             -f ref="main" \
-            --field inputs='{"track":"production"}'
+            -F inputs[track]=production
