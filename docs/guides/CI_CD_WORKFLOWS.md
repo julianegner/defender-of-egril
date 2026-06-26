@@ -15,6 +15,7 @@ The project uses GitHub Actions for continuous integration and deployment. The w
 **Purpose:** Run automated tests across multiple platforms
 
 **Jobs:**
+
 - `run_tests_jvm_linux`: Run desktop tests on Ubuntu (Linux)
 - `run_tests_jvm_windows`: Run desktop tests on Windows
 - `run_tests_jvm_macos`: Run desktop tests on macOS
@@ -24,6 +25,7 @@ The project uses GitHub Actions for continuous integration and deployment. The w
 WASM browser tests are not currently run in CI because the common test suite uses JVM-specific APIs (`File`, `System`, `runBlocking`) that are not available in the WASM platform. The WASM build itself compiles and runs successfully - only the test code needs refactoring for true multiplatform support. This is a known limitation and does not affect WASM runtime functionality.
 
 **Configuration:**
+
 - JDK: 24 (Temurin distribution)
 - Gradle: Uses project wrapper (9.2.1)
 - Test command: `:composeApp:desktopTest` (JVM) or `:composeApp:testDebugUnitTest` (Android)
@@ -35,9 +37,11 @@ WASM browser tests are not currently run in CI because the common test suite use
 **Purpose:** Create a versioned release with platform-specific installers/packages
 
 **Inputs:**
+
 - `version` (required): Release version string in `major.minor.patch` format (e.g. `1.2.3`)
 
 **Jobs:**
+
 - `prepare`: Validate version string, verify it is strictly greater than the latest release, and compute Android `versionCode`
 - `build_android`: Build Android APK and AAB (signed if secrets are configured, debug otherwise)
 - `build_linux_deb`: Build Linux DEB package
@@ -54,6 +58,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `deploy_play_store`: Trigger the Google Play Store deployment workflow on `main` branch after the release succeeds (runs in parallel with `deploy_github_pages`, uploads to `production` track)
 
 **Build Artifacts (attached to the GitHub Release):**
+
 - Android APK: `de.egril.defender-productionRelease.apk` (or debug suffix without signing)
 - Android AAB: `de.egril.defender-productionRelease.aab` (or debug suffix without signing)
 - Linux DEB: `defender-of-egril_<version>_amd64.deb`
@@ -66,11 +71,13 @@ WASM browser tests are not currently run in CI because the common test suite use
 - WASM: `defender-of-egril_<version>_wasm.zip`
 
 **Configuration:**
+
 - JDK: 24 (Temurin distribution)
 - Gradle: Uses project wrapper
 - Version is passed to Gradle as `-PappVersion=<version>` and sets `versionName`, `versionCode`, `packageVersion`, and `AppBuildInfo.VERSION_NAME`
 
 **Required Secrets (optional – build degrades gracefully without them):**
+
 - `ANDROID_KEYSTORE_BASE64`: Base64-encoded Android release keystore
 - `ANDROID_KEY_ALIAS`: Key alias in the keystore
 - `ANDROID_KEY_PASSWORD`: Key password
@@ -87,6 +94,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 **Purpose:** Legacy build workflow – superseded by `release.yml` for new releases
 
 **Jobs:**
+
 - `check_version_tag`: Verify version tag (only runs on tags)
 - `build_wasm_js`: Build WebAssembly/JavaScript bundle
 - `build_jvm`: Build JVM/Desktop JAR
@@ -96,6 +104,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `release`: Create GitHub release with all artifacts (only on tags)
 
 **Build Artifacts:**
+
 - WASM: `defender-of-egril_wasm.zip`
 - JVM: `defender-of-egril-linux-x64-*.jar`
 - macOS: `defender-of-egril_macos.zip`
@@ -103,6 +112,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - Windows: `defender-of-egril-*.exe`
 
 **Configuration:**
+
 - JDK: 24 (Temurin distribution)
 - Gradle: Uses project wrapper (9.2.1)
 - Builds only run on version tags or manual dispatch
@@ -114,15 +124,18 @@ WASM browser tests are not currently run in CI because the common test suite use
 **Purpose:** Deploy the WebAssembly version to GitHub Pages
 
 **Jobs:**
+
 - `build-and-deploy`: Build WASM bundle and deploy to GitHub Pages
 
 **Configuration:**
+
 - JDK: 24 (Temurin distribution)
 - Gradle: Uses project wrapper (9.2.1)
 - Build command: `:composeApp:wasmJsBrowserDistribution`
 - Deployment: Uses GitHub Pages with proper permissions
 
 **Permissions Required:**
+
 - `contents: read` - To fetch repository content
 - `pages: write` - To deploy to GitHub Pages
 - `id-token: write` - Required by actions/configure-pages
@@ -134,21 +147,25 @@ WASM browser tests are not currently run in CI because the common test suite use
 **Purpose:** Build Windows EXE installer independently
 
 **Jobs:**
+
 - `build_windows_exe`: Build Windows EXE installer on Windows runner
 
 **Configuration:**
+
 - JDK: 24 (Temurin distribution)
 - Gradle: Uses project wrapper (9.2.1)
 - Build command: `:composeApp:packageExe`
 - Runner: `windows-latest`
 
 **Artifacts:**
+
 - Windows EXE installer uploaded as `windows-exe-installer`
 - Retention: 30 days
 - Can be downloaded from the workflow run
 
 **Usage:**
 This workflow provides an easy way to build and test Windows EXE installers without creating a full release. Artifacts can be downloaded from:
+
 1. Go to Actions tab
 2. Select "Build Windows EXE" workflow
 3. Click on a completed run
@@ -156,23 +173,27 @@ This workflow provides an easy way to build and test Windows EXE installers with
 
 ### 6. Deploy AAB to Google Play Store (`deploy-play-store-aab.yml`)
 
-**Trigger:** Manual dispatch, plus automatic dispatch from the `Release` workflow after a successful release (runs in parallel with `deploy_github_pages`, uploads to `internal` track by default)
+**Trigger:** Manual dispatch, plus automatic dispatch from the `Release` workflow after a successful release (runs in parallel with `deploy_github_pages`, uploads to `production` track)
 
 **Purpose:** Download the AAB from the latest GitHub Release and upload it to Google Play
 
 **Inputs:**
+
 - `track` (required, default: `internal`): Google Play track – one of `internal`, `alpha`, `beta`, `production`
 
 **Jobs:**
+
 - `check_release`: Fetches the latest GitHub Release, verifies it contains a `.aab` file, and writes a summary with the version, release name, and target track. **Cancel the workflow here if the wrong version is shown.**
 - `deploy`: Downloads the AAB and uploads it via the `r0adkll/upload-google-play` GitHub Action (no Ruby or Fastlane required). Gated by the `google-play` GitHub environment (see setup below).
 
 **Required Secret:**
+
 - `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` – Full JSON content of a Google Play service account key with **Release manager** permission for `de.egril.defender`. See `frontend/googleplay/README.md` for setup instructions.
 
-**Optional: Manual Approval Gate**
+#### Optional: Manual Approval Gate
 
 To require a human approval between the version-check step and the actual upload:
+
 1. Go to **Settings → Environments** in the GitHub repository.
 2. Create an environment named exactly `google-play`.
 3. Under **Protection rules**, enable **Required reviewers** and add yourself (or a team).
@@ -188,15 +209,18 @@ Without the environment the upload proceeds automatically after the version chec
 **Purpose:** Renew Let's Encrypt TLS certificates for all production servers before they expire
 
 **Jobs (run in parallel):**
+
 - `renew-keycloak-cert`: Renews the certificate for `sso.julianegner.de` on the Keycloak server (178.104.79.60)
 - `renew-backend-cert`: Renews the certificate for `defender-backend.egril.de` on the backend server (178.104.84.83)
 
 **How it works:**
+
 1. Temporarily stops the nginx Docker container on the target server (to free port 80 for certbot's standalone ACME challenge)
 2. Runs `certbot renew --standalone --non-interactive` (no-op if cert is more than 30 days from expiry)
 3. Restarts nginx so it serves the updated certificate immediately
 
 **Required Secrets (same as the deploy workflows):**
+
 - `PROD_SSH_PRIVATE_KEY` – SSH private key for the production servers
 - `PROD_SSH_KEY_PASSPHRASE` – Passphrase protecting the key (empty if none)
 
@@ -209,14 +233,17 @@ Without the environment the upload proceeds automatically after the version chec
 **Purpose:** Debug Android ProGuard builds with signed APK
 
 **Jobs:**
+
 - `build_apk_release`: Build signed release APK with ProGuard
 
 **Configuration:**
+
 - JDK: 24 (Temurin distribution)
 - Gradle: Uses project wrapper (9.2.1)
 - Build command: `:composeApp:packageReleaseApk`
 
 **Required Secrets:**
+
 - `ANDROID_KEYSTORE`: Base64-encoded Android keystore
 - `ANDROID_KEYSTORE_PASSWORD`: Keystore password
 - `ANDROID_KEY_PASSWORD`: Key password
@@ -239,6 +266,7 @@ Use the **Release** workflow (`release.yml`) to create a new release:
 5. Click **"Run workflow"** to start.
 
 The workflow will:
+
 - Validate the version string.
 - Build all platform artifacts in parallel (Android, Linux, macOS, Windows, WASM; iOS when signing secrets are configured).
 - Create a GitHub Release tagged with the version and attach all artifacts for download.
@@ -248,6 +276,7 @@ The workflow will:
 #### Configuring Signing (optional)
 
 **Android signed release:** Add the following repository secrets:
+
 - `ANDROID_KEYSTORE_BASE64` – Base64-encoded Android release keystore (`base64 release.keystore`)
 - `ANDROID_KEY_ALIAS` – Key alias
 - `ANDROID_KEY_PASSWORD` – Key password
@@ -256,6 +285,7 @@ The workflow will:
 Without these secrets the workflow falls back to an unsigned debug build.
 
 **iOS IPA:** Add the following repository secrets:
+
 - `APPLE_CERTIFICATE` – Base64-encoded Apple P12 signing certificate
 - `APPLE_CERTIFICATE_PASSWORD` – Password for the P12
 - `APPLE_PROVISIONING_PROFILE` – Base64-encoded `.mobileprovision` file
@@ -266,6 +296,7 @@ Without these secrets the iOS build job is automatically skipped.
 ### Manual Build Trigger (legacy)
 
 You can still manually trigger the legacy build workflow via the GitHub Actions UI:
+
 1. Go to Actions tab
 2. Select "Build (and Release)" workflow
 3. Click "Run workflow"
@@ -290,6 +321,7 @@ Use the **Deploy AAB to Google Play Store** workflow (`deploy-play-store-aab.yml
 6. Click **"Run workflow"** to start.
 
 The workflow will:
+
 - Fetch the latest GitHub Release and display its version, release name, and the AAB filename in the job summary.
 - **Pause here** – review the summary to confirm this is the correct version to deploy.  If the wrong version is shown, cancel the run now.
 - Download the AAB from the GitHub Release.
@@ -298,6 +330,7 @@ The workflow will:
 #### Setting up the Manual Approval Gate (recommended)
 
 To require an explicit approval between the version-check and the upload:
+
 1. Go to **Settings → Environments** in the GitHub repository.
 2. Create an environment named `google-play`.
 3. Under **Protection rules**, enable **Required reviewers** and add yourself or a team.
@@ -307,12 +340,14 @@ When configured, the deploy job will pause waiting for approval so you have time
 #### Setting up the Service Account Secret
 
 Add `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` as a repository secret (Settings → Secrets and variables → Actions):
+
 - Value: the full JSON content of a Google Play service account key with **Release manager** permission for `de.egril.defender`.
 - See `frontend/googleplay/README.md` for detailed setup steps.
 
 ### Debug Android Build
 
 For debugging Android ProGuard issues:
+
 1. Set up required secrets in repository settings
 2. Go to Actions tab
 3. Select "debug android" workflow
@@ -334,6 +369,7 @@ The workflows have been adapted from the coshanu project with the following chan
 ### Tests Failing
 
 Check the test logs in the GitHub Actions run. Common issues:
+
 - Missing dependencies
 - Platform-specific test failures
 - Compilation errors
@@ -341,6 +377,7 @@ Check the test logs in the GitHub Actions run. Common issues:
 ### Build Failures
 
 Check the build logs in the GitHub Actions run. Common issues:
+
 - Missing signing keys (Android)
 - Gradle configuration errors
 - Platform-specific build tool issues
@@ -348,11 +385,13 @@ Check the build logs in the GitHub Actions run. Common issues:
 ### Gradle Deprecation Warnings
 
 You may see deprecation warnings during builds:
-```
+
+```text
 Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
 ```
 
 These warnings come from the Android Gradle Plugin and other dependencies, not from project code. The warnings include:
+
 - Multi-string notation for dependencies (internal to Android plugin)
 - Archives configuration (internal to Android plugin)
 
@@ -361,6 +400,7 @@ These are being tracked by the plugin maintainers and will be fixed in future ve
 ### GitHub Pages Deployment
 
 Ensure GitHub Pages is enabled in repository settings:
+
 1. Go to Settings > Pages
 2. Set Source to "GitHub Actions"
 3. Save changes
@@ -370,6 +410,7 @@ Ensure GitHub Pages is enabled in repository settings:
 ### Updating Actions Versions
 
 The workflows use specific versions of GitHub Actions:
+
 - `actions/checkout@v4`
 - `actions/setup-java@v4`
 - `gradle/actions/setup-gradle@v6`
@@ -386,6 +427,7 @@ Check for updates periodically and test before updating.
 ### Adding New Platforms
 
 To add support for new platforms:
+
 1. Add a new job in `release.yml`
 2. Configure the appropriate runner (e.g., `runs-on: ubuntu-latest`)
 3. Add build steps with appropriate Gradle tasks, passing `-PappVersion="${APP_VERSION}"`
