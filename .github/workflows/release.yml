@@ -17,7 +17,8 @@
 #        - Windows MSI installer
 #   3. Creates a GitHub Release tagged with the version and attaches all artifacts.
 #   4. Creates and pushes the git tag (v<version>) after the release is published.
-#   5. Outputs a summary with download URLs for every uploaded artifact.
+#   5. Optionally publishes the snap to the Snap Store (when SNAPCRAFT_STORE_CREDENTIALS is set).
+#   6. Outputs a summary with download URLs for every uploaded artifact.
 #
 # Notes:
 #   - iOS builds require Apple Developer signing certificates which must be
@@ -31,6 +32,10 @@
 #     macOS DMG requires MAJOR >= 1; versions like "0.8.0" will have their macOS
 #     package version adjusted automatically in build.gradle.kts.
 #   - Linux Snap, Flatpak, Arch Linux and AppImage builds are optional and do not block the release.
+#   - Snap Store publishing is optional and requires a SNAPCRAFT_STORE_CREDENTIALS
+#     secret (exportable login from `snapcraft export-login`). The publish job is
+#     skipped automatically when the secret is missing or when the snap_channel
+#     input is set to "skip". See docs/guides/CI_CD_WORKFLOWS.md for setup steps.
 
 ---
 name: Release
@@ -42,6 +47,17 @@ on:
         description: "Release version (major.minor.patch, e.g. 1.2.3)"
         required: true
         type: string
+      snap_channel:
+        description: "Snap Store channel(s) to publish to (comma-separated, e.g. edge or stable,candidate). Leave default to publish to edge. Publishing is skipped when the SNAPCRAFT_STORE_CREDENTIALS secret is not configured."
+        required: false
+        type: choice
+        default: edge
+        options:
+          - edge
+          - beta
+          - candidate
+          - stable
+          - skip
 
 permissions:
   contents: write
@@ -1026,3 +1042,77 @@ jobs:
             -X POST \
             -f ref="main" \
             -F inputs[track]=production
+
+  # ---------------------------------------------------------------------------
+  # Publish the built snap to the Snap Store.
+  # Optional: skipped automatically when SNAPCRAFT_STORE_CREDENTIALS is not
+  # configured, when the snap build did not succeed, or when the snap_channel
+  # input is set to "skip". Failure does not block the release.
+  #
+  # Required setup (one-time):
+  #   1. Register a free Snap Store account at https://snapcraft.io/account
+  #   2. Install snapcraft locally: `sudo snap install snapcraft --classic`
+  #   3. Register the snap name (once):
+  #        snapcraft register defender-of-egril
+  #   4. Export exportable login credentials for CI:
+  #        snapcraft export-login --snaps=defender-of-egril \
+  #          --channels=edge,beta,candidate,stable \
+  #          --acls package_access,package_push,package_update,package_release \
+  #          snapcraft.login
+  #   5. Add the contents of snapcraft.login as a repository secret named
+  #      SNAPCRAFT_STORE_CREDENTIALS (Settings → Secrets and variables → Actions).
+  # See docs/guides/CI_CD_WORKFLOWS.md for full details.
+  # ---------------------------------------------------------------------------
+  publish_linux_snap:
+    name: Publish Linux Snap to Snap Store
+    needs:
+      - prepare
+      - build_linux_snap
+      - release
+    runs-on: ubuntu-latest
+    if: |
+      always() &&
+      needs.build_linux_snap.result == 'success' &&
+      needs.release.result == 'success' &&
+      inputs.snap_channel != 'skip'
+
+    steps:
+      - name: Check Snap Store credentials
+        id: check
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        run: |
+          if [ -z "${SNAPCRAFT_STORE_CREDENTIALS}" ]; then
+            echo "::warning::SNAPCRAFT_STORE_CREDENTIALS secret is not configured; skipping Snap Store publish."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download Snap artifact
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: linux-snap-build
+          path: snap-artifact
+
+      - name: Locate snap file
+        if: steps.check.outputs.skip != 'true'
+        id: locate
+        run: |
+          SNAP_FILE=$(ls snap-artifact/*.snap 2>/dev/null | head -1)
+          if [ -z "$SNAP_FILE" ]; then
+            echo "::error::No .snap file found in downloaded artifact."
+            exit 1
+          fi
+          echo "Found snap file: $SNAP_FILE"
+          echo "snap=$SNAP_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Publish snap to Snap Store
+        if: steps.check.outputs.skip != 'true'
+        uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.locate.outputs.snap }}
+          release: ${{ inputs.snap_channel }}
