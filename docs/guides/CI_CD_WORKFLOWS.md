@@ -51,7 +51,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `build_wasm`: Build WebAssembly bundle
 - `release`: Create GitHub Release with all artifacts attached
 - `deploy_github_pages`: Trigger the GitHub Pages workflow on `main` branch after the release succeeds
-- `deploy_play_store`: Trigger the Google Play Store deployment workflow on `main` branch after the release succeeds (runs in parallel with `deploy_github_pages`, uploads to `internal` track by default)
+- `deploy_play_store`: Trigger the Google Play Store deployment workflow on `main` branch after the release succeeds (runs in parallel with `deploy_github_pages`, uploads to `production` track)
 
 **Build Artifacts (attached to the GitHub Release):**
 - Android APK: `de.egril.defender-productionRelease.apk` (or debug suffix without signing)

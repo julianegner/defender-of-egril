@@ -1006,7 +1006,7 @@ jobs:
   # ---------------------------------------------------------------------------
   # Trigger the Google Play Store deployment workflow in parallel with the
   # GitHub Pages deployment, after the release has been created successfully.
-  # The AAB is uploaded to the "internal" track by default.
+  # The AAB is uploaded to the "production" track.
   # ---------------------------------------------------------------------------
   deploy_play_store:
     name: Trigger Google Play Store deployment
@@ -1026,4 +1026,4 @@ jobs:
             repos/${{ github.repository }}/actions/workflows/deploy-play-store-aab.yml/dispatches \
             -X POST \
             -f ref="main" \
-            --field inputs='{"track":"internal"}'
+            --field inputs='{"track":"production"}'
