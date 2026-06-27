@@ -1019,32 +1019,9 @@ jobs:
             -f ref="main"
 
   # ---------------------------------------------------------------------------
-  # Trigger the Google Play Store deployment workflow in parallel with the
-  # GitHub Pages deployment, after the release has been created successfully.
-  # The AAB is uploaded to the "production" track.
-  # ---------------------------------------------------------------------------
-  deploy_play_store:
-    name: Trigger Google Play Store deployment
-    needs:
-      - prepare
-      - release
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-
-    steps:
-      - name: Dispatch Google Play Store workflow on main branch
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api \
-            repos/${{ github.repository }}/actions/workflows/deploy-play-store-aab.yml/dispatches \
-            -X POST \
-            -f ref="main" \
-            -F inputs[track]=production
-
-  # ---------------------------------------------------------------------------
   # Publish the built snap to the Snap Store.
+  # Runs in parallel with the GitHub Pages and Google Play Store deployments,
+  # after the GitHub Release has been created successfully.
   # Optional: skipped automatically when SNAPCRAFT_STORE_CREDENTIALS is not
   # configured, when the snap build did not succeed, or when the snap_channel
   # input is set to "skip". Failure does not block the release.
@@ -1066,14 +1043,13 @@ jobs:
   publish_linux_snap:
     name: Publish Linux Snap to Snap Store
     needs:
-      - prepare
       - build_linux_snap
       - release
     runs-on: ubuntu-latest
     if: |
       always() &&
-      needs.build_linux_snap.result == 'success' &&
       needs.release.result == 'success' &&
+      needs.build_linux_snap.result == 'success' &&
       inputs.snap_channel != 'skip'
 
     steps:
@@ -1116,3 +1092,28 @@ jobs:
         with:
           snap: ${{ steps.locate.outputs.snap }}
           release: ${{ inputs.snap_channel }}
+
+  # ---------------------------------------------------------------------------
+  # Trigger the Google Play Store deployment workflow in parallel with the
+  # GitHub Pages deployment, after the release has been created successfully.
+  # The AAB is uploaded to the "production" track.
+  # ---------------------------------------------------------------------------
+  deploy_play_store:
+    name: Trigger Google Play Store deployment
+    needs:
+      - prepare
+      - release
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+
+    steps:
+      - name: Dispatch Google Play Store workflow on main branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api \
+            repos/${{ github.repository }}/actions/workflows/deploy-play-store-aab.yml/dispatches \
+            -X POST \
+            -f ref="main" \
+            -F inputs[track]=production
