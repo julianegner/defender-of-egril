@@ -97,19 +97,26 @@ One-time setup (performed by a maintainer):
 
 1. **Create an Ubuntu One / Snap Store account** at <https://snapcraft.io/account>. The same Ubuntu One account is used to sign in to the Snap Store. A free account is sufficient.
 2. **Install snapcraft locally** (on any Linux machine or via multipass/LXD):
+
    ```bash
    sudo snap install snapcraft --classic
    ```
+
 3. **Log in** with the Ubuntu One account:
+
    ```bash
    snapcraft login
    ```
+
 4. **Register the snap name** (only needed once – the name must be globally unique on the Snap Store):
+
    ```bash
    snapcraft register defender-of-egril
    ```
+
    The name must match the `name:` field in `frontend/snap/snapcraft.yaml`.
 5. **Export an exportable login token** scoped to this snap only. This is the credential that GitHub Actions will use; it is a long-lived token bound to the listed snap and channels and does not require interactive 2FA:
+
    ```bash
    snapcraft export-login \
      --snaps=defender-of-egril \
@@ -117,6 +124,7 @@ One-time setup (performed by a maintainer):
      --acls package_access,package_push,package_update,package_release \
      snapcraft.login
    ```
+
    The resulting `snapcraft.login` file contains a single base64-style token. Keep it secret.
 6. **Add the secret to GitHub** under *Settings → Secrets and variables → Actions → New repository secret*:
    - Name: `SNAPCRAFT_STORE_CREDENTIALS`

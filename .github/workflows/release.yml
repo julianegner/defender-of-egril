@@ -1076,7 +1076,7 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         id: locate
         run: |
-          SNAP_FILE=$(ls snap-artifact/*.snap 2>/dev/null | head -1)
+          SNAP_FILE=$(find snap-artifact -maxdepth 1 -name '*.snap' -print -quit)
           if [ -z "$SNAP_FILE" ]; then
             echo "::error::No .snap file found in downloaded artifact."
             exit 1
