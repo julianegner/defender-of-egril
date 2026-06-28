@@ -65,6 +65,13 @@ WASM browser tests are not currently run in CI because the common test suite use
 - Linux Snap: `defender-of-egril_<version>_amd64.snap` (optional)
 - Linux Flatpak: `de.egril.defender-<version>.flatpak` (optional)
 - Linux Arch: `defender-of-egril-<version>-1-x86_64.pkg.tar.zst` (optional)
+- JVM uber JARs (built alongside the Linux DEB, macOS DMG and Windows EXE jobs;
+  bundle OS-specific skiko natives so they run on any machine of the matching OS
+  with a JVM installed, no installer required):
+  `DefenderOfEgril-linux-x64-<version>.jar`,
+  `DefenderOfEgril-macos-<arch>-<version>.jar` (optional),
+  `DefenderOfEgril-windows-x64-<version>.jar`.
+  Run with `java -jar DefenderOfEgril-<os>-<arch>-<version>.jar`.
 - macOS: DMG file from `composeApp/build/compose/binaries/main/dmg/`
 - iOS: `*.ipa` (when Apple signing secrets are configured)
 - Windows: `DefenderOfEgril-<version>.exe` and `DefenderOfEgril-<version>.msi`
