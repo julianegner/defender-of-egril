@@ -52,8 +52,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Validate snap channel
+      - name: Validate workflow inputs
         run: |
+          if ! echo "${{ inputs.release_run_id }}" | grep -qE '^[0-9]+$'; then
+            echo "::error::release_run_id must be a numeric workflow run ID (got '${{ inputs.release_run_id }}')."
+            exit 1
+          fi
+
           case "${{ inputs.snap_channel }}" in
             edge|beta|candidate|stable)
               ;;
