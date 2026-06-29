@@ -1,0 +1,95 @@
+name: Publish Linux Snap
+
+on:
+  workflow_call:
+    inputs:
+      release_run_id:
+        description: "Workflow run ID containing the built snap artifact"
+        required: true
+        type: string
+      snap_channel:
+        description: "Snap Store channel to publish to"
+        required: false
+        default: edge
+        type: string
+      artifact_name:
+        description: "Artifact name containing the built snap"
+        required: false
+        default: linux-snap-build
+        type: string
+    secrets:
+      SNAPCRAFT_STORE_CREDENTIALS:
+        required: false
+  workflow_dispatch:
+    inputs:
+      release_run_id:
+        description: "Workflow run ID containing the built snap artifact"
+        required: true
+        type: string
+      snap_channel:
+        description: "Snap Store channel to publish to"
+        required: false
+        type: choice
+        default: edge
+        options:
+          - edge
+          - beta
+          - candidate
+          - stable
+      artifact_name:
+        description: "Artifact name containing the built snap"
+        required: false
+        default: linux-snap-build
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  publish_linux_snap:
+    name: Publish Linux Snap to Snap Store
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Snap Store credentials
+        id: check
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        run: |
+          if [ -z "${SNAPCRAFT_STORE_CREDENTIALS}" ]; then
+            echo "::warning::SNAPCRAFT_STORE_CREDENTIALS secret is not configured; skipping Snap Store publish."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download Snap artifact
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: snap-artifact
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.release_run_id }}
+
+      - name: Locate snap file
+        if: steps.check.outputs.skip != 'true'
+        id: locate
+        run: |
+          SNAP_FILE=$(find snap-artifact -maxdepth 1 -name '*.snap' -print -quit)
+          if [ -z "$SNAP_FILE" ]; then
+            echo "::error::No .snap file found in downloaded artifact."
+            exit 1
+          fi
+          echo "Found snap file: $SNAP_FILE"
+          echo "snap=$SNAP_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Publish snap to Snap Store
+        if: steps.check.outputs.skip != 'true'
+        uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.locate.outputs.snap }}
+          release: ${{ inputs.snap_channel }}
