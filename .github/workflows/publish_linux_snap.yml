@@ -25,7 +25,7 @@ on:
         description: "Snap Store channel to publish to"
         required: false
         type: choice
-        default: edge
+        default: stable
         options:
           - edge
           - beta
