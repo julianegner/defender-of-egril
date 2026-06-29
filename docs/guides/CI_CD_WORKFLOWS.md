@@ -56,6 +56,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `release`: Create GitHub Release with all artifacts attached
 - `deploy_github_pages`: Trigger the GitHub Pages workflow on `main` branch after the release succeeds
 - `deploy_play_store`: Trigger the Google Play Store deployment workflow on `main` branch after the release succeeds (runs in parallel with `deploy_github_pages`, uploads to `production` track)
+- `publish_linux_snap`: Publish the built `.snap` to the Snap Store (optional, runs after `release`). Skipped automatically when `SNAPCRAFT_STORE_CREDENTIALS` is not configured, when the snap build did not succeed, or when the `snap_channel` input is set to `skip`.
 
 **Build Artifacts (attached to the GitHub Release):**
 
@@ -93,6 +94,63 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `APPLE_CERTIFICATE_PASSWORD`: Password for the P12 certificate
 - `APPLE_PROVISIONING_PROFILE`: Base64-encoded `.mobileprovision` file
 - `APPLE_TEAM_ID`: 10-character Apple Developer team identifier
+- `SNAPCRAFT_STORE_CREDENTIALS`: Exportable Snap Store login token used by `publish_linux_snap` (see [Snap Store Publishing Setup](#snap-store-publishing-setup) below)
+
+#### Snap Store Publishing Setup
+
+The `publish_linux_snap` job uploads the built `.snap` to the [Snap Store](https://snapcraft.io/) using [`snapcore/action-publish`](https://github.com/canonical/action-publish). Publishing is fully optional – the job is skipped automatically when the credentials secret is not configured.
+
+One-time setup (performed by a maintainer):
+
+1. **Create an Ubuntu One / Snap Store account** at <https://snapcraft.io/account>. The same Ubuntu One account is used to sign in to the Snap Store. A free account is sufficient.
+2. **Install snapcraft locally** (on any Linux machine or via multipass/LXD):
+
+   ```bash
+   sudo snap install snapcraft --classic
+   ```
+
+3. **Log in** with the Ubuntu One account:
+
+   ```bash
+   snapcraft login
+   ```
+
+4. **Register the snap name** (only needed once – the name must be globally unique on the Snap Store):
+
+   ```bash
+   snapcraft register defender-of-egril
+   ```
+
+   The name must match the `name:` field in `frontend/snap/snapcraft.yaml`.
+5. **Export an exportable login token** scoped to this snap only. This is the credential that GitHub Actions will use; it is a long-lived token bound to the listed snap and channels and does not require interactive 2FA:
+
+   ```bash
+   snapcraft export-login \
+     --snaps=defender-of-egril \
+     --channels=edge,beta,candidate,stable \
+     --acls package_access,package_push,package_update,package_release \
+     snapcraft.login
+   ```
+
+   The resulting `snapcraft.login` file contains a single base64-style token. Keep it secret.
+6. **Add the secret to GitHub** under *Settings → Secrets and variables → Actions → New repository secret*:
+   - Name: `SNAPCRAFT_STORE_CREDENTIALS`
+   - Value: the **entire contents** of the `snapcraft.login` file (including the header lines).
+7. Delete the local `snapcraft.login` file after copying it into GitHub.
+
+Per-release usage:
+
+- When triggering the `Release` workflow, choose the desired `snap_channel` input:
+  - `edge` (default) – safe for first publishes and pre-releases.
+  - `beta` / `candidate` – staged rollouts.
+  - `stable` – promote to all users.
+  - `skip` – do not publish to the Snap Store for this release.
+- If the secret is missing, the job logs a warning and exits successfully without uploading.
+
+Rotation / revocation:
+
+- Tokens can be revoked at <https://dashboard.snapcraft.io/account/> under *Active credentials*.
+- To rotate, repeat step 5 above and replace the GitHub secret value.
 
 ### 3. Build and Release Workflow (`build_and_release.yml`) *(legacy)*
 
