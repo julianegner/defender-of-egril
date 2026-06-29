@@ -56,7 +56,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `release`: Create GitHub Release with all artifacts attached
 - `deploy_github_pages`: Trigger the GitHub Pages workflow on `main` branch after the release succeeds
 - `deploy_play_store`: Trigger the Google Play Store deployment workflow on `main` branch after the release succeeds (runs in parallel with `deploy_github_pages`, uploads to `production` track)
-- `publish_linux_snap`: Publish the built `.snap` to the Snap Store (optional, runs after `release`). Skipped automatically when `SNAPCRAFT_STORE_CREDENTIALS` is not configured, when the snap build did not succeed, or when the `snap_channel` input is set to `skip`.
+- `publish_linux_snap`: Call the dedicated `publish_linux_snap.yml` workflow to publish the built `.snap` to the Snap Store (optional, runs after `release`). Skipped automatically when `SNAPCRAFT_STORE_CREDENTIALS` is not configured, when the snap build did not succeed, or when the `snap_channel` input is set to `skip`.
 
 **Build Artifacts (attached to the GitHub Release):**
 
@@ -98,7 +98,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 
 #### Snap Store Publishing Setup
 
-The `publish_linux_snap` job uploads the built `.snap` to the [Snap Store](https://snapcraft.io/) using [`snapcore/action-publish`](https://github.com/canonical/action-publish). Publishing is fully optional – the job is skipped automatically when the credentials secret is not configured.
+The `Release` workflow delegates Snap publishing to the dedicated `publish_linux_snap.yml` workflow, which uploads the built `.snap` to the [Snap Store](https://snapcraft.io/) using [`snapcore/action-publish`](https://github.com/canonical/action-publish). Publishing is fully optional – the job is skipped automatically when the credentials secret is not configured.
 
 One-time setup (performed by a maintainer):
 
@@ -145,6 +145,7 @@ Per-release usage:
   - `beta` / `candidate` – staged rollouts.
   - `stable` – promote to all users.
   - `skip` – do not publish to the Snap Store for this release.
+- To rerun Snap publishing independently, trigger the `Publish Linux Snap` workflow manually and provide the `release_run_id` of the workflow run that produced the `linux-snap-build` artifact. The optional `artifact_name` input defaults to `linux-snap-build`.
 - If the secret is missing, the job logs a warning and exits successfully without uploading.
 
 Rotation / revocation:
@@ -152,7 +153,25 @@ Rotation / revocation:
 - Tokens can be revoked at <https://dashboard.snapcraft.io/account/> under *Active credentials*.
 - To rotate, repeat step 5 above and replace the GitHub secret value.
 
-### 3. Build and Release Workflow (`build_and_release.yml`) *(legacy)*
+### 3. Publish Linux Snap (`publish_linux_snap.yml`)
+
+**Trigger:** Manual dispatch with a `release_run_id` input, or reusable `workflow_call` from the `Release` workflow
+
+**Purpose:** Publish a previously built Linux Snap artifact to the Snap Store without rerunning the full release pipeline
+
+**Inputs:**
+
+- `release_run_id` (required): Workflow run ID containing the `linux-snap-build` artifact to publish
+- `snap_channel` (optional): Snap Store channel (`edge`, `beta`, `candidate`, or `stable`)
+- `artifact_name` (optional): Artifact name to download (defaults to `linux-snap-build`)
+
+**Behavior:**
+
+- Downloads the `.snap` artifact from the specified workflow run
+- Publishes it with `snapcore/action-publish`
+- Logs a warning and exits successfully when `SNAPCRAFT_STORE_CREDENTIALS` is not configured
+
+### 4. Build and Release Workflow (`build_and_release.yml`) *(legacy)*
 
 **Trigger:** On version tags (`v*.*.*`), manual dispatch, or pushes to main branch
 
@@ -182,7 +201,7 @@ Rotation / revocation:
 - Gradle: Uses project wrapper (9.2.1)
 - Builds only run on version tags or manual dispatch
 
-### 4. Deploy WASM to GitHub Pages (`deploy_wasm_to_github_pages.yml`)
+### 5. Deploy WASM to GitHub Pages (`deploy_wasm_to_github_pages.yml`)
 
 **Trigger:** Manual dispatch, plus automatic dispatch from the `Release` workflow after a successful release/tag publish
 
@@ -205,7 +224,7 @@ Rotation / revocation:
 - `pages: write` - To deploy to GitHub Pages
 - `id-token: write` - Required by actions/configure-pages
 
-### 5. Build Windows EXE (`build-windows-exe.yml`)
+### 6. Build Windows EXE (`build-windows-exe.yml`)
 
 **Trigger:** On pushes to main branch, pull requests to main, or manual dispatch
 
@@ -236,7 +255,7 @@ This workflow provides an easy way to build and test Windows EXE installers with
 3. Click on a completed run
 4. Download the `windows-exe-installer` artifact
 
-### 6. Deploy AAB to Google Play Store (`deploy-play-store-aab.yml`)
+### 7. Deploy AAB to Google Play Store (`deploy-play-store-aab.yml`)
 
 **Trigger:** Manual dispatch, plus automatic dispatch from the `Release` workflow after a successful release (runs in parallel with `deploy_github_pages`, uploads to `production` track)
 
@@ -267,7 +286,7 @@ When this is configured the `deploy` job will pause and wait for approval after 
 
 Without the environment the upload proceeds automatically after the version check.
 
-### 7. Renew TLS Certificates (`renew-tls-certificates.yml`)
+### 8. Renew TLS Certificates (`renew-tls-certificates.yml`)
 
 **Trigger:** Scheduled (1st of every month at 03:00 UTC) or manual dispatch
 
@@ -291,7 +310,7 @@ Without the environment the upload proceeds automatically after the version chec
 
 **Note:** Let's Encrypt certificates are valid for 90 days.  This workflow runs monthly, ensuring certificates are always renewed well before they expire.  Run it manually to force an immediate renewal (e.g. after a certificate has already expired).
 
-### 8. Debug Android ProGuard (`debug-proguard.yml`)
+### 9. Debug Android ProGuard (`debug-proguard.yml`)
 
 **Trigger:** Manual dispatch only
 

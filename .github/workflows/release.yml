@@ -1109,57 +1109,22 @@ jobs:
   # See docs/guides/CI_CD_WORKFLOWS.md for full details.
   # ---------------------------------------------------------------------------
   publish_linux_snap:
-    name: Publish Linux Snap to Snap Store
     needs:
       - build_linux_snap
       - release
-    runs-on: ubuntu-latest
     if: |
       always() &&
       needs.release.result == 'success' &&
       needs.build_linux_snap.result == 'success' &&
       inputs.snap_channel != 'skip'
-
-    steps:
-      - name: Check Snap Store credentials
-        id: check
-        env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
-        run: |
-          if [ -z "${SNAPCRAFT_STORE_CREDENTIALS}" ]; then
-            echo "::warning::SNAPCRAFT_STORE_CREDENTIALS secret is not configured; skipping Snap Store publish."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Download Snap artifact
-        if: steps.check.outputs.skip != 'true'
-        uses: actions/download-artifact@v8
-        with:
-          name: linux-snap-build
-          path: snap-artifact
-
-      - name: Locate snap file
-        if: steps.check.outputs.skip != 'true'
-        id: locate
-        run: |
-          SNAP_FILE=$(find snap-artifact -maxdepth 1 -name '*.snap' -print -quit)
-          if [ -z "$SNAP_FILE" ]; then
-            echo "::error::No .snap file found in downloaded artifact."
-            exit 1
-          fi
-          echo "Found snap file: $SNAP_FILE"
-          echo "snap=$SNAP_FILE" >> "$GITHUB_OUTPUT"
-
-      - name: Publish snap to Snap Store
-        if: steps.check.outputs.skip != 'true'
-        uses: snapcore/action-publish@v1
-        env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
-        with:
-          snap: ${{ steps.locate.outputs.snap }}
-          release: ${{ inputs.snap_channel }}
+    permissions:
+      actions: read
+      contents: read
+    uses: ./.github/workflows/publish_linux_snap.yml
+    with:
+      release_run_id: ${{ github.run_id }}
+      snap_channel: ${{ inputs.snap_channel }}
+    secrets: inherit
 
   # ---------------------------------------------------------------------------
   # Trigger the Google Play Store deployment workflow in parallel with the
