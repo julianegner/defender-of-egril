@@ -12,9 +12,12 @@
 #        - Linux Flatpak bundle (built from DEB artifact)
 #        - Linux Arch Linux package (built from DEB artifact)
 #        - Linux AppImage (built from DEB artifact)
+#        - Linux JVM uber JAR (runnable on any Linux x64 with a JVM)
 #        - macOS DMG  (optional – skipped on failure or when MAJOR=0 version is used)
+#        - macOS JVM uber JAR (optional – runnable on any macOS with a JVM)
 #        - Windows EXE installer
 #        - Windows MSI installer
+#        - Windows JVM uber JAR (runnable on any Windows x64 with a JVM)
 #   3. Creates a GitHub Release tagged with the version and attaches all artifacts.
 #   4. Creates and pushes the git tag (v<version>) after the release is published.
 #   5. Outputs a summary with download URLs for every uploaded artifact.
@@ -307,6 +310,19 @@ jobs:
           path: frontend/composeApp/build/compose/binaries/main/deb/defender-of-egril_*_amd64.deb
           if-no-files-found: error
 
+      - name: Build Linux JVM uber JAR
+        id: build_linux_jar
+        run: ./gradlew :composeApp:packageUberJarForCurrentOS -PappVersion="${APP_VERSION}"
+        continue-on-error: true
+
+      - name: Upload Linux JVM JAR artifact
+        if: steps.build_linux_jar.outcome == 'success'
+        uses: actions/upload-artifact@v7
+        with:
+          name: linux-jar-build
+          path: frontend/composeApp/build/compose/jars/DefenderOfEgril-linux-*.jar
+          if-no-files-found: error
+
   # ---------------------------------------------------------------------------
   # macOS DMG
   # ---------------------------------------------------------------------------
@@ -341,6 +357,19 @@ jobs:
         with:
           name: macos-build
           path: frontend/composeApp/build/compose/binaries/main/dmg/
+          if-no-files-found: error
+
+      - name: Build macOS JVM uber JAR
+        id: build_macos_jar
+        run: ./gradlew :composeApp:packageUberJarForCurrentOS -PappVersion="${APP_VERSION}"
+        continue-on-error: true
+
+      - name: Upload macOS JVM JAR artifact
+        if: steps.build_macos_jar.outcome == 'success'
+        uses: actions/upload-artifact@v7
+        with:
+          name: macos-jar-build
+          path: frontend/composeApp/build/compose/jars/DefenderOfEgril-macos-*.jar
           if-no-files-found: error
 
   # ---------------------------------------------------------------------------
@@ -723,6 +752,20 @@ jobs:
           path: frontend\composeApp\build\compose\binaries\main\exe\*.exe
           if-no-files-found: error
 
+      - name: Build Windows JVM uber JAR
+        id: build_windows_jar
+        run: ./gradlew :composeApp:packageUberJarForCurrentOS -PappVersion="$env:APP_VERSION"
+        shell: pwsh
+        continue-on-error: true
+
+      - name: Upload Windows JVM JAR artifact
+        if: steps.build_windows_jar.outcome == 'success'
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-jar-build
+          path: frontend\composeApp\build\compose\jars\DefenderOfEgril-windows-*.jar
+          if-no-files-found: error
+
   # ---------------------------------------------------------------------------
   # Windows MSI installer
   # ---------------------------------------------------------------------------
@@ -810,6 +853,14 @@ jobs:
           name: linux-deb-build
           path: release-assets/linux
 
+      - name: Download Linux JVM JAR artifact
+        if: needs.build_linux_deb.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: linux-jar-build
+          path: release-assets/jvm
+        continue-on-error: true
+
       - name: Download Linux Snap artifact
         if: needs.build_linux_snap.result == 'success'
         uses: actions/download-artifact@v8
@@ -850,6 +901,14 @@ jobs:
           path: release-assets/macos
         continue-on-error: true
 
+      - name: Download macOS JVM JAR artifact
+        if: needs.build_macos.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: macos-jar-build
+          path: release-assets/jvm
+        continue-on-error: true
+
       - name: Download iOS artifact
         if: needs.build_ios.result == 'success'
         uses: actions/download-artifact@v8
@@ -864,6 +923,14 @@ jobs:
         with:
           name: windows-exe-build
           path: release-assets/windows
+
+      - name: Download Windows JVM JAR artifact
+        if: needs.build_windows_exe.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: windows-jar-build
+          path: release-assets/jvm
+        continue-on-error: true
 
       - name: Download Windows MSI artifact
         if: needs.build_windows_msi.result == 'success'
@@ -918,6 +985,7 @@ jobs:
               macos)   PLATFORM="macOS" ;;
               ios)     PLATFORM="iOS" ;;
               windows) PLATFORM="Windows" ;;
+              jvm)     PLATFORM="JVM (any platform)" ;;
               wasm)    PLATFORM="Web / WASM" ;;
               *)       PLATFORM="$DIR" ;;
             esac
