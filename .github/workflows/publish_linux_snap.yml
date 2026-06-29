@@ -52,6 +52,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Validate snap channel
+        run: |
+          case "${{ inputs.snap_channel }}" in
+            edge|beta|candidate|stable)
+              ;;
+            *)
+              echo "::error::Unsupported snap_channel '${{ inputs.snap_channel }}'. Use one of: edge, beta, candidate, stable."
+              exit 1
+              ;;
+          esac
+
       - name: Check Snap Store credentials
         id: check
         env:
