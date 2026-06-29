@@ -1064,14 +1064,20 @@ jobs:
           fi
 
   # ---------------------------------------------------------------------------
-  # Trigger the GitHub Pages deployment workflow only after the release and tag
-  # have both been created successfully.
+  # Trigger the GitHub Pages deployment workflow only after the release, tag,
+  # and APT repository update have all completed.  `always()` is used so Pages
+  # are deployed even when `publish_linux_apt` fails or is skipped – the only
+  # hard requirement is that the GitHub Release itself succeeded.
   # ---------------------------------------------------------------------------
   deploy_github_pages:
     name: Trigger GitHub Pages deployment
     needs:
       - prepare
       - release
+      - publish_linux_apt
+    if: |
+      always() &&
+      needs.release.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       actions: write
@@ -1085,6 +1091,49 @@ jobs:
             repos/${{ github.repository }}/actions/workflows/deploy_wasm_to_github_pages.yml/dispatches \
             -X POST \
             -f ref="main"
+
+  # ---------------------------------------------------------------------------
+  # Publish the .deb package to the self-hosted APT repository on GitHub Pages.
+  # Runs after the GitHub Release has been created, before the GitHub Pages
+  # deployment (deploy_github_pages depends on this job) so the APT content is
+  # already in the apt-repo branch when Pages are built.
+  # Optional: skipped automatically when the build_linux_deb job did not
+  # succeed or when the release failed.  Failure does not block the release.
+  #
+  # Required one-time setup:
+  #   1. Generate a GPG key pair:
+  #        gpg --batch --gen-key <<EOF
+  #        %no-protection
+  #        Key-Type: RSA
+  #        Key-Length: 4096
+  #        Subkey-Type: RSA
+  #        Subkey-Length: 4096
+  #        Name-Real: Defender of Egril
+  #        Name-Email: noreply@egril.de
+  #        Expire-Date: 0
+  #        EOF
+  #   2. Export the private key:
+  #        gpg --armor --export-secret-keys <KEY_ID> > apt_private.key
+  #   3. Add its contents as repository secret APT_GPG_PRIVATE_KEY.
+  #   4. Add the key ID (fingerprint) as repository secret APT_GPG_KEY_ID.
+  #   5. If the key has a passphrase, add it as secret APT_GPG_PASSPHRASE.
+  #   6. Ensure GitHub Pages is enabled for this repository.
+  # See docs/guides/CI_CD_WORKFLOWS.md for full details.
+  # ---------------------------------------------------------------------------
+  publish_linux_apt:
+    needs:
+      - build_linux_deb
+      - release
+    if: |
+      always() &&
+      needs.release.result == 'success' &&
+      needs.build_linux_deb.result == 'success'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish_linux_apt.yml
+    with:
+      release_tag: v${{ inputs.version }}
+    secrets: inherit
 
   # ---------------------------------------------------------------------------
   # Publish the built snap to the Snap Store.

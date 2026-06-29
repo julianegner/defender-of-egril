@@ -41,19 +41,35 @@ jobs:
       - name: "🛠️ Build WasmJS App"
         run: ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
 
-      # 5. Set up GitHub Pages
+      # 5. Include APT repository content (served at /apt/ alongside the web app)
+      - name: "📦 Include APT repository content"
+        run: |
+          WASM_OUTPUT=./frontend/composeApp/build/dist/wasmJs/productionExecutable
+          APT_DEST="$WASM_OUTPUT/apt"
+
+          if git ls-remote --heads origin apt-repo 2>/dev/null | grep -q "apt-repo"; then
+            echo "apt-repo branch found; including APT repository content at apt/."
+            git fetch origin apt-repo
+            mkdir -p "$APT_DEST"
+            git archive origin/apt-repo | tar -x -C "$APT_DEST"
+            echo "APT repository content included."
+          else
+            echo "apt-repo branch not found; skipping APT repository content."
+          fi
+
+      # 6. Set up GitHub Pages
       - name: "📄 Configure GitHub Pages"
         uses: actions/configure-pages@v6
         with:
           enablement: true  # Automatically enable Pages if not already enabled
 
-      # 6. Upload the built artifact to Pages
+      # 7. Upload the built artifact to Pages
       - name: "📤 Upload GitHub Pages artifact"
         uses: actions/upload-pages-artifact@v5
         with:
           path: ./frontend/composeApp/build/dist/wasmJs/productionExecutable
 
-      # 7. Deploy to GitHub Pages
+      # 8. Deploy to GitHub Pages
       - name: "🚀 Deploy to GitHub Pages"
         id: deployment
         uses: actions/deploy-pages@v5

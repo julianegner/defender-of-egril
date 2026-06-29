@@ -1,0 +1,281 @@
+name: Publish Linux APT Repository
+# Maintains a signed APT repository in the `apt-repo` branch, served via
+# GitHub Pages at https://julianegner.github.io/defender-of-egril/apt/.
+#
+# The workflow downloads the .deb package from a GitHub Release, updates the
+# package pool, regenerates the Packages/Release/InRelease index files, signs
+# them with GPG (if credentials are configured) and force-pushes the result to
+# the `apt-repo` branch.  The `deploy_wasm_to_github_pages` workflow then picks
+# up that branch and includes its content under the `apt/` path when it deploys
+# GitHub Pages.
+#
+# Required one-time setup:
+#   1. Generate a dedicated GPG key pair (no expiry, no passphrase is fine for
+#      CI; a passphrase is also supported):
+#        gpg --batch --gen-key <<EOF
+#        %no-protection
+#        Key-Type: RSA
+#        Key-Length: 4096
+#        Subkey-Type: RSA
+#        Subkey-Length: 4096
+#        Name-Real: Defender of Egril
+#        Name-Email: noreply@egril.de
+#        Expire-Date: 0
+#        EOF
+#   2. Export the private key:
+#        gpg --armor --export-secret-keys <KEY_ID> > apt_private.key
+#   3. Add the private key contents as repository secret APT_GPG_PRIVATE_KEY.
+#   4. Add the key ID (short or full fingerprint) as secret APT_GPG_KEY_ID.
+#   5. If the key has a passphrase, add it as secret APT_GPG_PASSPHRASE.
+#   6. Ensure GitHub Pages is enabled for this repository (Settings → Pages).
+#
+# Users install the game with:
+#   curl -fsSL https://julianegner.github.io/defender-of-egril/apt/KEY.gpg \
+#     | sudo gpg --dearmor \
+#     -o /usr/share/keyrings/defenderofegril-archive-keyring.gpg
+#   echo "deb [signed-by=/usr/share/keyrings/defenderofegril-archive-keyring.gpg] \
+#     https://julianegner.github.io/defender-of-egril/apt stable main" \
+#     | sudo tee /etc/apt/sources.list.d/defenderofegril.list
+#   sudo apt update && sudo apt install defender-of-egril
+
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        description: "Release tag to publish (e.g. v1.0.3). Defaults to latest release."
+        required: false
+        type: string
+    secrets:
+      APT_GPG_PRIVATE_KEY:
+        required: false
+      APT_GPG_KEY_ID:
+        required: false
+      APT_GPG_PASSPHRASE:
+        required: false
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag to publish (e.g. v1.0.3). Leave empty to use the latest release."
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish_linux_apt:
+    name: Publish to APT Repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate workflow inputs
+        run: |
+          RELEASE_TAG="${{ inputs.release_tag }}"
+          if [ -n "$RELEASE_TAG" ] && ! echo "$RELEASE_TAG" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::release_tag must match v<major>.<minor>.<patch> (got '$RELEASE_TAG')."
+            exit 1
+          fi
+
+      - name: Check GPG signing key
+        id: check_gpg
+        env:
+          APT_GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+        run: |
+          if [ -z "${APT_GPG_PRIVATE_KEY}" ]; then
+            echo "::warning::APT_GPG_PRIVATE_KEY secret is not configured. The APT repository will be unsigned. Users will need to add [trusted=yes] to their sources.list entry."
+            echo "sign=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "sign=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download .deb from GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/deb-artifact
+          RELEASE_TAG="${{ inputs.release_tag }}"
+          if [ -z "$RELEASE_TAG" ]; then
+            echo "No release_tag provided; downloading .deb from the latest release."
+            gh release download \
+              --repo "${{ github.repository }}" \
+              --pattern "defender-of-egril_*_amd64.deb" \
+              --dir /tmp/deb-artifact
+          else
+            echo "Downloading .deb from release $RELEASE_TAG."
+            gh release download "$RELEASE_TAG" \
+              --repo "${{ github.repository }}" \
+              --pattern "defender-of-egril_*_amd64.deb" \
+              --dir /tmp/deb-artifact
+          fi
+
+          DEB_FILE=$(find /tmp/deb-artifact -name "*.deb" -print -quit)
+          if [ -z "$DEB_FILE" ]; then
+            echo "::error::No .deb file found in downloaded release assets."
+            exit 1
+          fi
+          echo "Found .deb: $DEB_FILE"
+          {
+            echo "DEB_FILE=$DEB_FILE"
+            echo "DEB_BASENAME=$(basename "$DEB_FILE")"
+          } >> "$GITHUB_ENV"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: true
+          token: ${{ github.token }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Switch to apt-repo branch
+        run: |
+          if git fetch origin apt-repo 2>/dev/null; then
+            echo "Checking out existing apt-repo branch."
+            git checkout -B apt-repo origin/apt-repo
+          else
+            echo "Creating new orphan apt-repo branch."
+            git checkout --orphan apt-repo
+            git rm -rf . --quiet 2>/dev/null || true
+          fi
+
+      - name: Install dpkg-dev
+        run: sudo apt-get install -y --no-install-recommends dpkg-dev
+
+      - name: Update package pool
+        run: |
+          # Remove previous .deb to keep the repository lean (only latest version)
+          rm -f pool/main/d/defender-of-egril/*.deb 2>/dev/null || true
+
+          # Ensure directory structure exists
+          mkdir -p pool/main/d/defender-of-egril
+          mkdir -p dists/stable/main/binary-amd64
+
+          # Add the new .deb to the pool
+          cp "$DEB_FILE" "pool/main/d/defender-of-egril/$DEB_BASENAME"
+          echo "Added $DEB_BASENAME to pool."
+
+          # Mark .deb files as binary so git does not attempt text diffs
+          if [ ! -f .gitattributes ]; then
+            echo "*.deb binary" > .gitattributes
+          fi
+
+      - name: Generate Packages index
+        run: |
+          dpkg-scanpackages --arch amd64 pool/ > dists/stable/main/binary-amd64/Packages
+          gzip -9 -k dists/stable/main/binary-amd64/Packages
+          echo "Packages index generated."
+
+      - name: Generate Release file
+        run: |
+          cd dists/stable
+
+          PKG_FILE=main/binary-amd64/Packages
+          PKG_GZ_FILE=main/binary-amd64/Packages.gz
+
+          DATE=$(date -Ru)
+          PKG_SIZE=$(wc -c < "$PKG_FILE")
+          PKG_GZ_SIZE=$(wc -c < "$PKG_GZ_FILE")
+          PKG_MD5=$(md5sum "$PKG_FILE" | awk '{print $1}')
+          PKG_GZ_MD5=$(md5sum "$PKG_GZ_FILE" | awk '{print $1}')
+          PKG_SHA256=$(sha256sum "$PKG_FILE" | awk '{print $1}')
+          PKG_GZ_SHA256=$(sha256sum "$PKG_GZ_FILE" | awk '{print $1}')
+
+          cat > Release <<EOF
+          Origin: Defender of Egril
+          Label: Defender of Egril
+          Suite: stable
+          Codename: stable
+          Architectures: amd64
+          Components: main
+          Description: Official APT repository for Defender of Egril
+          Date: $DATE
+          MD5Sum:
+           $PKG_MD5  $PKG_SIZE $PKG_FILE
+           $PKG_GZ_MD5  $PKG_GZ_SIZE $PKG_GZ_FILE
+          SHA256:
+           $PKG_SHA256  $PKG_SIZE $PKG_FILE
+           $PKG_GZ_SHA256  $PKG_GZ_SIZE $PKG_GZ_FILE
+          EOF
+
+          echo "Release file generated."
+
+      - name: Import GPG private key
+        if: steps.check_gpg.outputs.sign == 'true'
+        env:
+          APT_GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+        run: |
+          echo "${APT_GPG_PRIVATE_KEY}" | gpg --batch --import
+          echo "GPG key imported."
+
+      - name: Sign Release file
+        if: steps.check_gpg.outputs.sign == 'true'
+        env:
+          APT_GPG_KEY_ID: ${{ secrets.APT_GPG_KEY_ID }}
+          APT_GPG_PASSPHRASE: ${{ secrets.APT_GPG_PASSPHRASE }}
+        run: |
+          DEFAULT_KEY_OPT=''
+          if [ -n "${APT_GPG_KEY_ID}" ]; then
+            DEFAULT_KEY_OPT="--default-key ${APT_GPG_KEY_ID}"
+          fi
+
+          # Detached ASCII-armoured signature (Release.gpg)
+          if [ -n "${APT_GPG_PASSPHRASE}" ]; then
+            # shellcheck disable=SC2086
+            echo "${APT_GPG_PASSPHRASE}" | gpg --batch --yes --pinentry-mode loopback \
+              $DEFAULT_KEY_OPT --passphrase-fd 0 \
+              --armor --detach-sign \
+              -o dists/stable/Release.gpg \
+              dists/stable/Release
+          else
+            # shellcheck disable=SC2086
+            gpg --batch --yes --pinentry-mode loopback \
+              $DEFAULT_KEY_OPT \
+              --armor --detach-sign \
+              -o dists/stable/Release.gpg \
+              dists/stable/Release
+          fi
+
+          # Inline clear-signed file (InRelease – preferred by modern apt)
+          if [ -n "${APT_GPG_PASSPHRASE}" ]; then
+            # shellcheck disable=SC2086
+            echo "${APT_GPG_PASSPHRASE}" | gpg --batch --yes --pinentry-mode loopback \
+              $DEFAULT_KEY_OPT --passphrase-fd 0 \
+              --clearsign \
+              -o dists/stable/InRelease \
+              dists/stable/Release
+          else
+            # shellcheck disable=SC2086
+            gpg --batch --yes --pinentry-mode loopback \
+              $DEFAULT_KEY_OPT \
+              --clearsign \
+              -o dists/stable/InRelease \
+              dists/stable/Release
+          fi
+
+          echo "Release file signed."
+
+      - name: Export public GPG key
+        if: steps.check_gpg.outputs.sign == 'true'
+        env:
+          APT_GPG_KEY_ID: ${{ secrets.APT_GPG_KEY_ID }}
+        run: |
+          if [ -n "${APT_GPG_KEY_ID}" ]; then
+            gpg --armor --export "${APT_GPG_KEY_ID}" > KEY.gpg
+          else
+            gpg --armor --export > KEY.gpg
+          fi
+          echo "Public GPG key exported to KEY.gpg."
+
+      - name: Commit and push apt-repo branch
+        run: |
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to the APT repository; nothing to commit."
+          else
+            git commit -m "chore: update APT repository to ${{ env.DEB_BASENAME }}"
+          fi
+          git push origin apt-repo --force
+          echo "apt-repo branch pushed."

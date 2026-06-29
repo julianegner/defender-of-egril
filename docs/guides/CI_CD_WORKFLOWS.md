@@ -57,6 +57,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `deploy_github_pages`: Trigger the GitHub Pages workflow on `main` branch after the release succeeds
 - `deploy_play_store`: Trigger the Google Play Store deployment workflow on `main` branch after the release succeeds (runs in parallel with `deploy_github_pages`, uploads to `production` track)
 - `publish_linux_snap`: Call the dedicated `publish_linux_snap.yml` workflow to publish the built `.snap` to the Snap Store (optional, runs after `release`). Skipped automatically when `SNAPCRAFT_STORE_CREDENTIALS` is not configured, when the snap build did not succeed, or when the `snap_channel` input is set to `skip`.
+- `publish_linux_apt`: Call the dedicated `publish_linux_apt.yml` workflow to update the self-hosted APT repository on GitHub Pages (optional, runs after `release`). Skipped automatically when `build_linux_deb` did not succeed. `deploy_github_pages` waits for this job so the APT content is included in the Pages deployment.
 
 **Build Artifacts (attached to the GitHub Release):**
 
@@ -95,6 +96,9 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `APPLE_PROVISIONING_PROFILE`: Base64-encoded `.mobileprovision` file
 - `APPLE_TEAM_ID`: 10-character Apple Developer team identifier
 - `SNAPCRAFT_STORE_CREDENTIALS`: Exportable Snap Store login token used by `publish_linux_snap` (see [Snap Store Publishing Setup](#snap-store-publishing-setup) below)
+- `APT_GPG_PRIVATE_KEY`: ASCII-armoured GPG private key used by `publish_linux_apt` to sign APT repository metadata (see [APT Repository Publishing Setup](#apt-repository-publishing-setup) below)
+- `APT_GPG_KEY_ID`: GPG key fingerprint or short ID corresponding to `APT_GPG_PRIVATE_KEY`
+- `APT_GPG_PASSPHRASE`: GPG key passphrase (optional – only required when the key was generated with a passphrase)
 
 #### Snap Store Publishing Setup
 
@@ -170,7 +174,89 @@ Rotation / revocation:
 - Publishes it with `snapcore/action-publish`
 - Logs a warning and exits successfully when `SNAPCRAFT_STORE_CREDENTIALS` is not configured
 
-### 4. Build and Release Workflow (`build_and_release.yml`) *(legacy)*
+### 3a. Publish Linux APT Repository (`publish_linux_apt.yml`)
+
+**Trigger:** Manual dispatch with an optional `release_tag` input, or reusable `workflow_call` from the `Release` workflow
+
+**Purpose:** Add the latest `.deb` package to a self-hosted, GPG-signed APT repository that is served from GitHub Pages at `https://julianegner.github.io/defender-of-egril/apt/`
+
+**Inputs:**
+
+- `release_tag` (optional): Release tag to download the `.deb` from (e.g. `v1.0.3`). Defaults to the latest release when not provided.
+
+**Secrets (optional – signing is skipped when absent):**
+
+- `APT_GPG_PRIVATE_KEY`: ASCII-armoured GPG private key
+- `APT_GPG_KEY_ID`: Key fingerprint or short ID
+- `APT_GPG_PASSPHRASE`: Key passphrase (if any)
+
+**Behavior:**
+
+1. Downloads the `.deb` asset from the specified (or latest) GitHub Release
+2. Checks out (or creates) an orphan `apt-repo` branch
+3. Replaces the previous `.deb` in `pool/main/d/defender-of-egril/` with the new one
+4. Regenerates `dists/stable/main/binary-amd64/Packages` and `Packages.gz` using `dpkg-scanpackages`
+5. Regenerates `dists/stable/Release` with fresh MD5/SHA-256 checksums
+6. If GPG credentials are configured: signs `Release` → `Release.gpg` (detached) and `InRelease` (inline), then exports the public key to `KEY.gpg`
+7. Force-pushes `apt-repo` to GitHub
+8. The subsequent `deploy_github_pages` step in `release.yml` includes the `apt-repo` content under the `apt/` path of the Pages deployment
+
+The `deploy_wasm_to_github_pages.yml` workflow always checks for the `apt-repo` branch and merges its content into `apt/` before uploading the Pages artifact, so a manual WASM redeploy will also pick up any APT changes.
+
+**APT Repository URL:** `https://julianegner.github.io/defender-of-egril/apt/`
+
+**Users install the game with:**
+
+```bash
+curl -fsSL https://julianegner.github.io/defender-of-egril/apt/KEY.gpg \
+  | sudo gpg --dearmor \
+  -o /usr/share/keyrings/defenderofegril-archive-keyring.gpg
+
+echo "deb [signed-by=/usr/share/keyrings/defenderofegril-archive-keyring.gpg] \
+https://julianegner.github.io/defender-of-egril/apt stable main" \
+  | sudo tee /etc/apt/sources.list.d/defenderofegril.list
+
+sudo apt update && sudo apt install defender-of-egril
+```
+
+#### APT Repository Publishing Setup
+
+1. **Generate a dedicated GPG key pair** (no expiry; no passphrase is recommended for CI simplicity):
+
+   ```bash
+   gpg --batch --gen-key <<'EOF'
+   %no-protection
+   Key-Type: RSA
+   Key-Length: 4096
+   Subkey-Type: RSA
+   Subkey-Length: 4096
+   Name-Real: Defender of Egril
+   Name-Email: noreply@egril.de
+   Expire-Date: 0
+   EOF
+   ```
+
+2. **List the generated key** to get the fingerprint:
+
+   ```bash
+   gpg --list-secret-keys --keyid-format=long
+   ```
+
+3. **Export the private key**:
+
+   ```bash
+   gpg --armor --export-secret-keys <KEY_ID> > apt_private.key
+   ```
+
+4. **Add repository secrets** (Settings → Secrets and variables → Actions):
+   - `APT_GPG_PRIVATE_KEY`: contents of `apt_private.key`
+   - `APT_GPG_KEY_ID`: the key fingerprint from step 2
+
+5. **Delete the local key file** after uploading.
+
+6. Ensure **GitHub Pages is enabled** for the repository (Settings → Pages, source: GitHub Actions).
+
+
 
 **Trigger:** On version tags (`v*.*.*`), manual dispatch, or pushes to main branch
 
