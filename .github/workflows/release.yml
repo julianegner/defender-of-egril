@@ -1118,11 +1118,10 @@ jobs:
       needs.build_linux_snap.result == 'success' &&
       inputs.snap_channel != 'skip'
     permissions:
-      actions: read
       contents: read
     uses: ./.github/workflows/publish_linux_snap.yml
     with:
-      release_run_id: ${{ github.run_id }}
+      release_tag: v${{ inputs.version }}
       snap_channel: ${{ inputs.snap_channel }}
     secrets: inherit
 

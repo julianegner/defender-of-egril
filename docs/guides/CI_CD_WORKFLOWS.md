@@ -145,7 +145,7 @@ Per-release usage:
   - `beta` / `candidate` – staged rollouts.
   - `stable` – promote to all users.
   - `skip` – do not publish to the Snap Store for this release.
-- To rerun Snap publishing independently, trigger the `Publish Linux Snap` workflow manually and provide the `release_run_id` of the workflow run that produced the `linux-snap-build` artifact. The optional `artifact_name` input defaults to `linux-snap-build`.
+- To rerun Snap publishing independently, trigger the `Publish Linux Snap` workflow manually and optionally provide the `release_tag` (e.g. `v1.0.3`). Leave it empty to republish from the latest release.
 - If the secret is missing, the job logs a warning and exits successfully without uploading.
 
 Rotation / revocation:
@@ -155,19 +155,18 @@ Rotation / revocation:
 
 ### 3. Publish Linux Snap (`publish_linux_snap.yml`)
 
-**Trigger:** Manual dispatch with a `release_run_id` input, or reusable `workflow_call` from the `Release` workflow
+**Trigger:** Manual dispatch with an optional `release_tag` input, or reusable `workflow_call` from the `Release` workflow
 
-**Purpose:** Publish a previously built Linux Snap artifact to the Snap Store without rerunning the full release pipeline
+**Purpose:** Publish a Linux Snap from a GitHub Release to the Snap Store without rerunning the full release pipeline
 
 **Inputs:**
 
-- `release_run_id` (required): Workflow run ID containing the `linux-snap-build` artifact to publish
+- `release_tag` (optional): Release tag to download the snap from (e.g. `v1.0.3`). Defaults to the latest release when not provided.
 - `snap_channel` (optional): Snap Store channel (`edge`, `beta`, `candidate`, or `stable`)
-- `artifact_name` (optional): Artifact name to download (defaults to `linux-snap-build`)
 
 **Behavior:**
 
-- Downloads the `.snap` artifact from the specified workflow run
+- Downloads the `.snap` asset directly from the specified (or latest) GitHub Release
 - Publishes it with `snapcore/action-publish`
 - Logs a warning and exits successfully when `SNAPCRAFT_STORE_CREDENTIALS` is not configured
 
