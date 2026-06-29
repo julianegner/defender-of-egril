@@ -9,9 +9,15 @@ group = "de.egril.defender"
 //   1. Gradle property:  -PappVersion=1.2.3
 //   2. VERSION file at the project root (written by the release GitHub Action)
 //   3. Hard-coded default "0.0.0"
-version = project.findProperty("appVersion")?.toString()
-    ?: rootProject.file("VERSION").takeIf { it.exists() }?.readText()?.trim()?.ifBlank { null }
-    ?: "0.0.0"
+version =
+    project.findProperty("appVersion")?.toString()
+        ?: rootProject
+            .file("VERSION")
+            .takeIf { it.exists() }
+            ?.readText()
+            ?.trim()
+            ?.ifBlank { null }
+        ?: "0.0.0"
 
 application {
     mainClass.set("de.egril.defender.ApplicationKt")
@@ -45,18 +51,16 @@ tasks.named<Test>("test") {
     }
 }
 
-/**
- * Runs the full end-to-end test suite against containerized Keycloak + PostgreSQL.
- *
- * Usage:
- *   ./gradlew :server:e2eTest
- *
- * Requirements:
- *   - Docker must be available on the host (Testcontainers pulls the images automatically)
- *   - Internet access to pull quay.io/keycloak/keycloak:24.0 (first run only)
- *
- * Keycloak startup takes ~60-90 s, so the task timeout is set generously.
- */
+// Runs the full end-to-end test suite against containerized Keycloak + PostgreSQL.
+//
+// Usage:
+//   ./gradlew :server:e2eTest
+//
+// Requirements:
+//   - Docker must be available on the host (Testcontainers pulls the images automatically)
+//   - Internet access to pull quay.io/keycloak/keycloak:24.0 (first run only)
+//
+// Keycloak startup takes ~60-90 s, so the task timeout is set generously.
 tasks.register<Test>("e2eTest") {
     description = "Runs end-to-end tests with containerised Keycloak and PostgreSQL via Testcontainers"
     group = "verification"
