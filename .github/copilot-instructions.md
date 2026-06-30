@@ -552,6 +552,7 @@ Add to `LevelData.createLevels()` with:
 
 ### Pull Requests
 - Test on at least one platform before submitting
+- Run MegaLinter before finishing and fix all issues found
 - Update documentation for new features
 - Ensure all tests pass
 - Do not change the PR title after initial naming; only removing a leading [WIP] is allowed

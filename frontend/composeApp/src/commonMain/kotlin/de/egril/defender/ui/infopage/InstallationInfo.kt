@@ -102,6 +102,8 @@ fun InstallationInfo(scrollState: ScrollState = rememberScrollState()) {
                 PlatformSection(
                     title = stringResource(Res.string.installation_linux_title),
                     content = {
+                        LinuxPackageManagerInstallInfo()
+                        Spacer(modifier = Modifier.height(12.dp))
                         InstallationStep(stringResource(Res.string.installation_linux_step1))
                         InstallationSubStep(stringResource(Res.string.installation_linux_step1a))
                         InstallationSubStep(stringResource(Res.string.installation_linux_step1b))
@@ -166,6 +168,27 @@ fun InstallationInfo(scrollState: ScrollState = rememberScrollState()) {
             }
         }
     }
+}
+
+@Composable
+fun LinuxPackageManagerInstallInfo() {
+    Text(
+        text = stringResource(Res.string.installation_linux_package_managers_title),
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(bottom = 8.dp),
+    )
+    InstallationStep(stringResource(Res.string.installation_linux_snapstore_step))
+    CommandText(stringResource(Res.string.installation_linux_snapstore_command))
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    InstallationStep(stringResource(Res.string.installation_linux_apt_step))
+    InstallationSubStep(stringResource(Res.string.installation_linux_apt_setup_label))
+    CommandText(stringResource(Res.string.installation_linux_apt_setup_command))
+    InstallationSubStep(stringResource(Res.string.installation_linux_apt_install_label))
+    CommandText(stringResource(Res.string.installation_linux_apt_install_command))
 }
 
 @Composable
