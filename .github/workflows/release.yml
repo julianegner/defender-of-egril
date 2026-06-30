@@ -844,18 +844,12 @@ jobs:
       needs.prepare.result == 'success' &&
       needs.build_android.result == 'success' &&
       needs.build_linux_deb.result == 'success' &&
-      needs.build_linux_snap.result != 'failure' &&
-      needs.build_linux_snap.result != 'cancelled' &&
-      needs.build_linux_flatpak.result != 'failure' &&
-      needs.build_linux_flatpak.result != 'cancelled' &&
-      needs.build_linux_arch.result != 'failure' &&
-      needs.build_linux_arch.result != 'cancelled' &&
-      needs.build_linux_appimage.result != 'failure' &&
-      needs.build_linux_appimage.result != 'cancelled' &&
-      needs.build_macos.result != 'failure' &&
-      needs.build_macos.result != 'cancelled' &&
-      needs.build_ios.result != 'failure' &&
-      needs.build_ios.result != 'cancelled' &&
+      !contains(fromJSON('["failure", "cancelled"]'), needs.build_linux_snap.result) &&
+      !contains(fromJSON('["failure", "cancelled"]'), needs.build_linux_flatpak.result) &&
+      !contains(fromJSON('["failure", "cancelled"]'), needs.build_linux_arch.result) &&
+      !contains(fromJSON('["failure", "cancelled"]'), needs.build_linux_appimage.result) &&
+      !contains(fromJSON('["failure", "cancelled"]'), needs.build_macos.result) &&
+      !contains(fromJSON('["failure", "cancelled"]'), needs.build_ios.result) &&
       needs.build_windows_exe.result == 'success' &&
       needs.build_windows_msi.result == 'success'
 
