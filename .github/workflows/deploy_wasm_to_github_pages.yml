@@ -43,6 +43,8 @@ jobs:
 
       # 5. Include APT repository content (served at /apt/ alongside the web app)
       - name: "📦 Include APT repository content"
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           WASM_OUTPUT=./frontend/composeApp/build/dist/wasmJs/productionExecutable
           APT_DEST="$WASM_OUTPUT/apt"
@@ -53,6 +55,38 @@ jobs:
             mkdir -p "$APT_DEST"
             git archive origin/apt-repo | tar -x -C "$APT_DEST"
             echo "APT repository content included."
+
+            # The .deb binary is not stored in the apt-repo git branch (it exceeds
+            # GitHub's 100 MB per-file limit).  Download it from the GitHub Release
+            # that matches the Packages index and place it in the pool directory so
+            # APT clients can fetch it from the Pages site.
+            PACKAGES_FILE="$APT_DEST/dists/stable/main/binary-amd64/Packages"
+            if [ -f "$PACKAGES_FILE" ]; then
+              DEB_FILENAME=$(grep "^Filename:" "$PACKAGES_FILE" | head -1 | awk '{print $2}')
+              if [ -n "$DEB_FILENAME" ]; then
+                DEB_BASENAME=$(basename "$DEB_FILENAME")
+                DEB_POOL_DIR="$APT_DEST/$(dirname "$DEB_FILENAME")"
+                # Derive the release tag from the .deb filename (e.g. defender-of-egril_1.0.3_amd64.deb → v1.0.3)
+                DEB_NO_PREFIX="${DEB_BASENAME#defender-of-egril_}"
+                DEB_VERSION="${DEB_NO_PREFIX%%_*}"
+                RELEASE_TAG="v${DEB_VERSION}"
+                mkdir -p "$DEB_POOL_DIR"
+                echo "Downloading $DEB_BASENAME from release $RELEASE_TAG..."
+                if gh release download "$RELEASE_TAG" \
+                    --repo "${{ github.repository }}" \
+                    --pattern "$DEB_BASENAME" \
+                    --dir "$DEB_POOL_DIR" \
+                    --clobber; then
+                  echo "Downloaded $DEB_BASENAME to $DEB_POOL_DIR."
+                else
+                  echo "::warning::Could not download $DEB_BASENAME from release $RELEASE_TAG. Verify that the release exists and contains the .deb asset. APT pool will not contain the .deb binary."
+                fi
+              else
+                echo "::warning::No Filename found in Packages index; skipping .deb download."
+              fi
+            else
+              echo "::warning::Packages index not found; skipping .deb download."
+            fi
           else
             echo "apt-repo branch not found; skipping APT repository content."
           fi

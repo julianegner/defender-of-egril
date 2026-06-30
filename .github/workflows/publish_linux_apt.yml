@@ -168,6 +168,16 @@ jobs:
           gzip -9 -k dists/stable/main/binary-amd64/Packages
           echo "Packages index generated."
 
+      - name: Remove .deb from pool (not stored in git)
+        run: |
+          # The .deb is only needed locally to generate the Packages index with correct
+          # checksums and metadata.  The actual binary is served at deploy time by
+          # deploy_wasm_to_github_pages.yml, which downloads it directly from the GitHub
+          # Release and places it in the Pages artifact pool directory.  Keeping it out
+          # of git avoids GitHub's 100 MB per-file size limit.
+          rm -rf pool/
+          echo "Removed pool directory (will be reconstructed at Pages deploy time with .deb downloaded from GitHub Release)."
+
       - name: Generate Release file
         run: |
           cd dists/stable
