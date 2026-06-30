@@ -1,8 +1,8 @@
 package de.egril.defender.ui.infopage
 
+import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import java.io.File
 
 class LinuxInstallInfoContentTest {
     @Test
