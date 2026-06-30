@@ -194,14 +194,15 @@ Rotation / revocation:
 
 1. Downloads the `.deb` asset from the specified (or latest) GitHub Release
 2. Checks out (or creates) an orphan `apt-repo` branch
-3. Replaces the previous `.deb` in `pool/main/d/defender-of-egril/` with the new one
+3. Copies the `.deb` to `pool/main/d/defender-of-egril/` *locally* (not committed to git)
 4. Regenerates `dists/stable/main/binary-amd64/Packages` and `Packages.gz` using `dpkg-scanpackages`
-5. Regenerates `dists/stable/Release` with fresh MD5/SHA-256 checksums
-6. If GPG credentials are configured: signs `Release` → `Release.gpg` (detached) and `InRelease` (inline), then exports the public key to `KEY.gpg`
-7. Force-pushes `apt-repo` to GitHub
-8. The subsequent `deploy_github_pages` step in `release.yml` includes the `apt-repo` content under the `apt/` path of the Pages deployment
+5. **Removes the `.deb` from the local pool** – the binary is never committed to git (it exceeds GitHub's 100 MB per-file limit)
+6. Regenerates `dists/stable/Release` with fresh MD5/SHA-256 checksums
+7. If GPG credentials are configured: signs `Release` → `Release.gpg` (detached) and `InRelease` (inline), then exports the public key to `KEY.gpg`
+8. Force-pushes `apt-repo` to GitHub (metadata only – no `.deb` binary)
+9. The subsequent `deploy_github_pages` step in `release.yml` triggers `deploy_wasm_to_github_pages.yml`, which downloads the `.deb` from the GitHub Release and places it in the pool directory of the Pages artifact
 
-The `deploy_wasm_to_github_pages.yml` workflow always checks for the `apt-repo` branch and merges its content into `apt/` before uploading the Pages artifact, so a manual WASM redeploy will also pick up any APT changes.
+The `deploy_wasm_to_github_pages.yml` workflow always checks for the `apt-repo` branch, merges its metadata into `apt/`, and then downloads the `.deb` referenced in the `Packages` index directly from the GitHub Release.  This way the binary is served from GitHub Pages without ever being stored in git.
 
 **APT Repository URL:** `https://julianegner.github.io/defender-of-egril/apt/`
 

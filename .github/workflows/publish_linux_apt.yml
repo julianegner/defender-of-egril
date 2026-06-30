@@ -168,6 +168,18 @@ jobs:
           gzip -9 -k dists/stable/main/binary-amd64/Packages
           echo "Packages index generated."
 
+      - name: Remove .deb from pool (not stored in git)
+        run: |
+          # The .deb is only needed locally to generate the Packages index with correct
+          # checksums and metadata.  The actual binary is served at deploy time by
+          # deploy_wasm_to_github_pages.yml, which downloads it directly from the GitHub
+          # Release and places it in the Pages artifact pool directory.  Keeping it out
+          # of git avoids GitHub's 100 MB per-file size limit.
+          rm -f pool/main/d/defender-of-egril/*.deb
+          # Keep the pool directory so git does not complain about an empty tree
+          touch pool/main/d/defender-of-egril/.gitkeep
+          echo "Removed .deb from pool (will be served via GitHub Release download at Pages deploy time)."
+
       - name: Generate Release file
         run: |
           cd dists/stable
