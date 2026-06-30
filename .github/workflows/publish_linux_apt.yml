@@ -165,7 +165,7 @@ jobs:
       - name: Generate Packages index
         run: |
           dpkg-scanpackages --arch amd64 pool/ > dists/stable/main/binary-amd64/Packages
-          gzip -9 -k dists/stable/main/binary-amd64/Packages
+          gzip -9 -f -k dists/stable/main/binary-amd64/Packages
           echo "Packages index generated."
 
       - name: Remove .deb from pool (not stored in git)
