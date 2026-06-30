@@ -66,16 +66,19 @@ jobs:
               if [ -n "$DEB_FILENAME" ]; then
                 DEB_BASENAME=$(basename "$DEB_FILENAME")
                 DEB_POOL_DIR="$APT_DEST/$(dirname "$DEB_FILENAME")"
+                # Derive the release tag from the .deb filename (e.g. defender-of-egril_1.0.3_amd64.deb → v1.0.3)
+                DEB_VERSION=$(echo "$DEB_BASENAME" | sed 's/defender-of-egril_\([^_]*\)_.*/\1/')
+                RELEASE_TAG="v${DEB_VERSION}"
                 mkdir -p "$DEB_POOL_DIR"
-                echo "Downloading $DEB_BASENAME from GitHub Releases..."
-                if gh release download \
+                echo "Downloading $DEB_BASENAME from release $RELEASE_TAG..."
+                if gh release download "$RELEASE_TAG" \
                     --repo "${{ github.repository }}" \
                     --pattern "$DEB_BASENAME" \
                     --dir "$DEB_POOL_DIR" \
                     --clobber; then
                   echo "Downloaded $DEB_BASENAME to $DEB_POOL_DIR."
                 else
-                  echo "::warning::Could not download $DEB_BASENAME from GitHub Releases. APT pool will not contain the .deb binary."
+                  echo "::warning::Could not download $DEB_BASENAME from release $RELEASE_TAG. Verify that the release exists and contains the .deb asset. APT pool will not contain the .deb binary."
                 fi
               else
                 echo "::warning::No Filename found in Packages index; skipping .deb download."

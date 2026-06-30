@@ -175,10 +175,8 @@ jobs:
           # deploy_wasm_to_github_pages.yml, which downloads it directly from the GitHub
           # Release and places it in the Pages artifact pool directory.  Keeping it out
           # of git avoids GitHub's 100 MB per-file size limit.
-          rm -f pool/main/d/defender-of-egril/*.deb
-          # Keep the pool directory so git does not complain about an empty tree
-          touch pool/main/d/defender-of-egril/.gitkeep
-          echo "Removed .deb from pool (will be served via GitHub Release download at Pages deploy time)."
+          rm -rf pool/
+          echo "Removed pool directory (will be reconstructed at Pages deploy time with .deb downloaded from GitHub Release)."
 
       - name: Generate Release file
         run: |
