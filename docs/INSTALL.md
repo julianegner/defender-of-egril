@@ -121,22 +121,47 @@ For more detailed information about APK sideloading, see: [Android APK Installat
 
 ## Linux
 
-### Installing from GitHub Releases
+### Method 1: Installing via APT (Debian/Ubuntu – Recommended)
+
+This is the easiest way to install the game on any Debian-based system.  APT
+handles installation and future updates automatically.
+
+#### Step 1: Add the repository and GPG key (one-time setup)
+
+```bash
+curl -fsSL https://julianegner.github.io/defender-of-egril/apt/KEY.gpg \
+  | sudo gpg --dearmor \
+  -o /usr/share/keyrings/defenderofegril-archive-keyring.gpg
+
+echo "deb [signed-by=/usr/share/keyrings/defenderofegril-archive-keyring.gpg] \
+https://julianegner.github.io/defender-of-egril/apt stable main" \
+  | sudo tee /etc/apt/sources.list.d/defenderofegril.list
+
+sudo apt update
+```
+
+#### Step 2: Install the game
+
+```bash
+sudo apt install defender-of-egril
+```
+
+#### Updating to a newer version
+
+```bash
+sudo apt update && sudo apt upgrade defender-of-egril
+```
+
+### Method 2: Installing from GitHub Releases
 
 1. Go to the [GitHub Releases page](https://github.com/julianegner/defender-of-egril/releases)
 2. Download the appropriate package for your distribution:
    - `.deb` for Debian/Ubuntu
-   - `.rpm` for Fedora/Red Hat
-3. Install the package from terminal:
+3. Install the package from the terminal:
 
    **Debian/Ubuntu:**
    ```bash
    sudo dpkg -i defender-of-egril.deb
-   ```
-
-   **Fedora/Red Hat:**
-   ```bash
-   sudo rpm -i defender-of-egril.rpm
    ```
 
 4. Launch the game from the application menu
@@ -153,7 +178,6 @@ Or build a distributable package:
 
 ```bash
 ./gradlew :composeApp:packageDeb  # For Debian/Ubuntu
-./gradlew :composeApp:packageRpm  # For Fedora/Red Hat
 ```
 
 ---
