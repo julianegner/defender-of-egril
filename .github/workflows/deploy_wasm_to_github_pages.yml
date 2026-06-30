@@ -67,7 +67,8 @@ jobs:
                 DEB_BASENAME=$(basename "$DEB_FILENAME")
                 DEB_POOL_DIR="$APT_DEST/$(dirname "$DEB_FILENAME")"
                 # Derive the release tag from the .deb filename (e.g. defender-of-egril_1.0.3_amd64.deb → v1.0.3)
-                DEB_VERSION=$(echo "$DEB_BASENAME" | sed 's/defender-of-egril_\([^_]*\)_.*/\1/')
+                DEB_NO_PREFIX="${DEB_BASENAME#defender-of-egril_}"
+                DEB_VERSION="${DEB_NO_PREFIX%%_*}"
                 RELEASE_TAG="v${DEB_VERSION}"
                 mkdir -p "$DEB_POOL_DIR"
                 echo "Downloading $DEB_BASENAME from release $RELEASE_TAG..."

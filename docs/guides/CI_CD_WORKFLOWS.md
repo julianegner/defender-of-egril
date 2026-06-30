@@ -257,8 +257,6 @@ sudo apt update && sudo apt install defender-of-egril
 
 6. Ensure **GitHub Pages is enabled** for the repository (Settings → Pages, source: GitHub Actions).
 
-
-
 **Trigger:** On version tags (`v*.*.*`), manual dispatch, or pushes to main branch
 
 **Purpose:** Legacy build workflow – superseded by `release.yml` for new releases
