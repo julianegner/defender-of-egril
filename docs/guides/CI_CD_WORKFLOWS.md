@@ -53,7 +53,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `build_windows_exe`: Build Windows EXE installer
 - `build_windows_msi`: Build Windows MSI installer
 - `build_wasm`: Build WebAssembly bundle
-- `release`: Create GitHub Release with all artifacts attached
+- `release`: Create GitHub Release with all artifacts attached, but only after all preceding build jobs have either succeeded or been intentionally skipped
 - `deploy_github_pages`: Trigger the GitHub Pages workflow on `main` branch after the release succeeds
 - `deploy_play_store`: Trigger the Google Play Store deployment workflow on `main` branch after the release succeeds (runs in parallel with `deploy_github_pages`, uploads to `production` track)
 - `publish_linux_snap`: Call the dedicated `publish_linux_snap.yml` workflow to publish the built `.snap` to the Snap Store (optional, runs after `release`). Skipped automatically when `SNAPCRAFT_STORE_CREDENTIALS` is not configured, when the snap build did not succeed, or when the `snap_channel` input is set to `skip`.
@@ -437,7 +437,7 @@ The workflow will:
 
 - Validate the version string.
 - Build all platform artifacts in parallel (Android, Linux, macOS, Windows, WASM; iOS when signing secrets are configured).
-- Create a GitHub Release tagged with the version and attach all artifacts for download.
+- Create a GitHub Release tagged with the version and attach all artifacts for download, but only after the earlier build jobs complete without failures.
 - Create and push a git tag `v<version>` after the release workflow finishes its release bookkeeping.
 - Trigger the **Deploy WasmJS App to GitHub Pages** workflow on the `main` branch after the release job succeeds.
 

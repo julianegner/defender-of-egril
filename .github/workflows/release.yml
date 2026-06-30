@@ -837,13 +837,19 @@ jobs:
     runs-on: ubuntu-latest
     # Always evaluate this job so the condition below can gate it properly.
     # Mandatory builds (Android, Linux DEB, Windows EXE, Windows MSI) must succeed.
-    # Optional builds (macOS DMG, iOS, Linux Snap, Linux Flatpak, Linux Arch, Linux AppImage) may fail or be skipped
-    # without blocking the release.
+    # Optional builds may be skipped when unavailable (for example iOS without signing secrets),
+    # but any started build must finish successfully before the GitHub Release is created.
     if: |
       always() &&
       needs.prepare.result == 'success' &&
       needs.build_android.result == 'success' &&
       needs.build_linux_deb.result == 'success' &&
+      !contains(fromJSON('["failure", "cancelled"]'), needs.build_linux_snap.result) &&
+      !contains(fromJSON('["failure", "cancelled"]'), needs.build_linux_flatpak.result) &&
+      !contains(fromJSON('["failure", "cancelled"]'), needs.build_linux_arch.result) &&
+      !contains(fromJSON('["failure", "cancelled"]'), needs.build_linux_appimage.result) &&
+      !contains(fromJSON('["failure", "cancelled"]'), needs.build_macos.result) &&
+      !contains(fromJSON('["failure", "cancelled"]'), needs.build_ios.result) &&
       needs.build_windows_exe.result == 'success' &&
       needs.build_windows_msi.result == 'success'
 
