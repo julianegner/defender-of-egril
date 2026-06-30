@@ -1,0 +1,33 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Origin: Defender of Egril
+Label: Defender of Egril
+Suite: stable
+Codename: stable
+Architectures: amd64
+Components: main
+Description: Official APT repository for Defender of Egril
+Date: Tue, 30 Jun 2026 16:28:18 +0000
+MD5Sum:
+ 5d11822f07fa89206c36f6daf2fe8648  735 main/binary-amd64/Packages
+ 57e71496785a0f23c547be0decb60d2f  465 main/binary-amd64/Packages.gz
+SHA256:
+ fd3292c15a286dfcee97bfa45bbd7e4e2e90abf9da99878b91f2919caeb76755  735 main/binary-amd64/Packages
+ a72ade97110a6eb2efff0a4f3ca51b7ede0610de94b5e2e8a46e6cf9e2f46068  465 main/binary-amd64/Packages.gz
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEI0gMxwxWsGmkDs266ko6pgnrnpcFAmpD7qMACgkQ6ko6pgnr
+npdDnA/+KGp22elaSql/81ro8thesCC+Q8c4z4ZEqFUaYpbQ2gS2h1zXAz+PZ5oq
+83U476mVRLGI5AzS3b7ghU8F/R8GFyqQUqMsJYKPGUjRso2+8T4x49503gWp/eLE
+iqJspvCCIG+kRNGozlibRqldak7P/G5s+xf2lifqer0SywlFc62XbgNROYmiziiQ
+jddOZvKs/oKAisLlDv4C1/swYn9axCvI2io6WTYIDaaHzsABDTgcw6I7goX7PLrZ
+a5Je22au3JY3EcqMkbNtWYuH2QaC5mwzM43ulcisDUYPwvfD7vvyu3C/fbljb/rv
+b4eCen9jW9YXUW0TZqVSPsD9AU0F6haaLo36TNmKvR3XVfCvYbB9sfBfNN3OmyAf
+r3z5DI57E30CI1c3s9bnvN9zmW5xqr7rWyeazAufpnILt1i3nKJA/7D7oNA745zK
+rQg0hLgOsbUawd24fBdGgyQcXefU/wOWn2pqAHuJCBFRCaIQZlJath4juIm1dpbD
++otmzEGi/VyEwG9WhdqfnERGLtEytb6r8anclXrMus0gReTPHAAk0HKysj5gRJbw
+CI8df+HtC3BCL7f9S0uujgg4a7TRr8hQw9pkykOZn/59FpVQEpfUrdWpuJvuzX0z
+NK1cQs+mUu+aspk1KxWMjuKe9PBOClbe2Xwr9Wfr1CogwONya0s=
+=1zUU
+-----END PGP SIGNATURE-----
