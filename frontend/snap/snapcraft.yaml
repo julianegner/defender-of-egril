@@ -8,7 +8,7 @@ description: |
   A turn-based tower defense game built with Kotlin Multiplatform and
   Compose Multiplatform. Defend the realm of Egril against waves of
   monsters by placing towers, casting spells, set traps and place barricades.
-icon: snap/gui/icon.png
+icon: gui/icon.png
 license: AGPL-3.0
 
 grade: stable
