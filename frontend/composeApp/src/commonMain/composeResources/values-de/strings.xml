@@ -1111,6 +1111,14 @@
     <string name="installation_ios_step1">1. Aus dem App Store installieren (wenn verfügbar)</string>
     <string name="installation_ios_step2">2. Oder aus dem Quellcode mit Xcode kompilieren</string>
     <string name="installation_linux_title">Linux</string>
+    <string name="installation_linux_package_managers_title">Mit Snap Store oder APT installieren</string>
+    <string name="installation_linux_snapstore_step">Snap Store:</string>
+    <string name="installation_linux_snapstore_command">sudo snap install defender-of-egril</string>
+    <string name="installation_linux_apt_step">APT (Debian/Ubuntu):</string>
+    <string name="installation_linux_apt_setup_label">• Einmalige Einrichtung:</string>
+    <string name="installation_linux_apt_setup_command">curl -fsSL https://julianegner.github.io/defender-of-egril/apt/KEY.gpg | sudo gpg --dearmor -o /usr/share/keyrings/defenderofegril-archive-keyring.gpg\n\necho "deb [signed-by=/usr/share/keyrings/defenderofegril-archive-keyring.gpg] https://julianegner.github.io/defender-of-egril/apt stable main" | sudo tee /etc/apt/sources.list.d/defenderofegril.list\n\nsudo apt update</string>
+    <string name="installation_linux_apt_install_label">• Installieren:</string>
+    <string name="installation_linux_apt_install_command">sudo apt install defender-of-egril</string>
     <string name="installation_linux_step1">1. Paket von GitHub Releases herunterladen:</string>
     <string name="installation_linux_step1a">• .deb für Debian/Ubuntu</string>
     <string name="installation_linux_step1b">• .rpm für Fedora/Red Hat</string>

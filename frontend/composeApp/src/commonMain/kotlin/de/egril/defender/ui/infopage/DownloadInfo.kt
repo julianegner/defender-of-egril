@@ -213,6 +213,9 @@ fun DownloadInfo(
                     )
                 }
 
+                LinuxPackageManagerInstallInfo()
+                Spacer(modifier = Modifier.height(16.dp))
+
                 when {
                     // Still loading
                     release == null && !loadError -> {
