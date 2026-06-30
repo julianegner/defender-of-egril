@@ -161,6 +161,8 @@ The web version uses browser localStorage for save games and supports:
 # Desktop (JVM)
 ./gradlew :composeApp:run                          # production (default)
 ./gradlew :composeApp:run -Pprofile=local          # local Docker Compose stack
+./gradlew :composeApp:hotRunDesktop                # production with Compose Hot Reload
+./gradlew :composeApp:hotRunDesktop -Pprofile=local # local stack with Compose Hot Reload
 ./gradlew :composeApp:runLocal                     # convenience task
 ./gradlew :composeApp:runProduction                # convenience task
 

@@ -677,6 +677,7 @@ fun profileJvmArgs(profileName: String): List<String> {
 //
 // Desktop (JVM):
 //   ./gradlew :composeApp:run -Pprofile=local
+//   ./gradlew :composeApp:hotRunDesktop -Pprofile=local
 //   ./gradlew :composeApp:runLocal
 //   ./gradlew :composeApp:runProduction   (default)
 //
@@ -692,10 +693,16 @@ fun profileJvmArgs(profileName: String): List<String> {
 afterEvaluate {
     val profile = project.findProperty("profile")?.toString() ?: "production"
 
-    // ── Desktop: configure the built-in `run` task ──────────────────────────
+    // ── Desktop: configure the built-in `run` task and hot reload runners ───
     tasks.named<JavaExec>("run") {
         jvmArgs(profileJvmArgs(profile))
         logger.lifecycle("Desktop 'run' task configured with profile '$profile'")
+    }
+
+    tasks.named<JavaExec>("hotRunDesktop") {
+        val taskName = name
+        jvmArgs(profileJvmArgs(profile))
+        logger.lifecycle("Desktop '$taskName' task configured with profile '$profile'")
     }
 
     // ── Web/WASM: inject profile URLs into the production distribution ────────

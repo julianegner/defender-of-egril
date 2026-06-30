@@ -32,6 +32,18 @@
 ./gradlew :composeApp:run
 ```
 
+For desktop development with Compose Hot Reload, use:
+
+```bash
+./gradlew :composeApp:hotRunDesktop
+```
+
+You can combine hot reload with the existing profile switch, for example:
+
+```bash
+./gradlew :composeApp:hotRunDesktop -Pprofile=local
+```
+
 On Windows, use:
 ```cmd
 gradlew.bat :composeApp:run
