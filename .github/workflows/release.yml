@@ -42,6 +42,7 @@
 
 ---
 name: Release
+run-name: Release ${{ inputs.version }}
 
 on:
   workflow_dispatch:
