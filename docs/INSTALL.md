@@ -133,7 +133,7 @@ curl -fsSL https://julianegner.github.io/defender-of-egril/apt/KEY.gpg \
   | sudo gpg --dearmor \
   -o /usr/share/keyrings/defenderofegril-archive-keyring.gpg
 
-echo "deb [signed-by=/usr/share/keyrings/defenderofegril-archive-keyring.gpg] \
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/defenderofegril-archive-keyring.gpg] \
 https://julianegner.github.io/defender-of-egril/apt stable main" \
   | sudo tee /etc/apt/sources.list.d/defenderofegril.list
 
