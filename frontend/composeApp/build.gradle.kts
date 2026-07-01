@@ -652,6 +652,7 @@ compose.desktop {
             
             linux {
                 packageName = "defender-of-egril"
+                iconFile.set(project.file("src/commonMain/composeResources/drawable/black-shield.png"))
             }
         }
     }
