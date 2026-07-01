@@ -8,26 +8,26 @@ Codename: stable
 Architectures: amd64
 Components: main
 Description: Official APT repository for Defender of Egril
-Date: Tue, 30 Jun 2026 16:28:18 +0000
+Date: Wed, 01 Jul 2026 08:52:31 +0000
 MD5Sum:
- 5d11822f07fa89206c36f6daf2fe8648  735 main/binary-amd64/Packages
- 57e71496785a0f23c547be0decb60d2f  465 main/binary-amd64/Packages.gz
+ 8dab43387b4edc324284f9a474755016  735 main/binary-amd64/Packages
+ 2af98c043838ded91b7fccd8b5903cb7  468 main/binary-amd64/Packages.gz
 SHA256:
- fd3292c15a286dfcee97bfa45bbd7e4e2e90abf9da99878b91f2919caeb76755  735 main/binary-amd64/Packages
- a72ade97110a6eb2efff0a4f3ca51b7ede0610de94b5e2e8a46e6cf9e2f46068  465 main/binary-amd64/Packages.gz
+ 44afde1937118f156b2c56eeae30843ca3baac2a0df514ca551746fcea7db26e  735 main/binary-amd64/Packages
+ 0a9d30c8cde7e0a8f5d3afde02996587a8c26ec0ae42f554bede1c485dc3b369  468 main/binary-amd64/Packages.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEEI0gMxwxWsGmkDs266ko6pgnrnpcFAmpD7qMACgkQ6ko6pgnr
-npdDnA/+KGp22elaSql/81ro8thesCC+Q8c4z4ZEqFUaYpbQ2gS2h1zXAz+PZ5oq
-83U476mVRLGI5AzS3b7ghU8F/R8GFyqQUqMsJYKPGUjRso2+8T4x49503gWp/eLE
-iqJspvCCIG+kRNGozlibRqldak7P/G5s+xf2lifqer0SywlFc62XbgNROYmiziiQ
-jddOZvKs/oKAisLlDv4C1/swYn9axCvI2io6WTYIDaaHzsABDTgcw6I7goX7PLrZ
-a5Je22au3JY3EcqMkbNtWYuH2QaC5mwzM43ulcisDUYPwvfD7vvyu3C/fbljb/rv
-b4eCen9jW9YXUW0TZqVSPsD9AU0F6haaLo36TNmKvR3XVfCvYbB9sfBfNN3OmyAf
-r3z5DI57E30CI1c3s9bnvN9zmW5xqr7rWyeazAufpnILt1i3nKJA/7D7oNA745zK
-rQg0hLgOsbUawd24fBdGgyQcXefU/wOWn2pqAHuJCBFRCaIQZlJath4juIm1dpbD
-+otmzEGi/VyEwG9WhdqfnERGLtEytb6r8anclXrMus0gReTPHAAk0HKysj5gRJbw
-CI8df+HtC3BCL7f9S0uujgg4a7TRr8hQw9pkykOZn/59FpVQEpfUrdWpuJvuzX0z
-NK1cQs+mUu+aspk1KxWMjuKe9PBOClbe2Xwr9Wfr1CogwONya0s=
-=1zUU
+iQIzBAEBCgAdFiEEI0gMxwxWsGmkDs266ko6pgnrnpcFAmpE1VEACgkQ6ko6pgnr
+npesaQ/9EUws7Iy3jmR8qgDwuUEvUjMqx2KQTIX4FWepsVKQdfmYdXedDZgOdD9b
+pnCSGUtj3k/0ik1DHqHEPcbrIt3gH+1LxtTlOUaNt8MDBj+1gUcBBqzkf7MOcEkw
+vjr7GmgIy+6CyObch0IQc5gynPcmsursrayBQrAv1Q1u3j6Vw6S1i/5eOUiJKZ+S
+3zARGUbUdjneVX7HTv1niLfGWnBPTkZGas9Ji3NQKb0YAJ4Hv8ocbPE9vYQmjUQD
+Js3EqFBJkjlb+REEpTXIPUq0iXENUQuZ5aUrBE5PdVdUk0wXgMh/MP5LUdpr44Z8
+yEStM9z3Kga07iWOnMEYAw5+q9jGsO6lK2ivxyqI/ZrCEbEnV1eECanF/4w16JkG
+/BO5dUKYj2TEI4vjnHLUYN/J3BT5AB2CaZKLcCnxQg9t5JpGtUpt9rI1VNXga6k9
+C/mt1u36prNYiBIM8EfXiUjfHvORsWTYQ3ZVpVUweY7B3Y8UlyDyM0ftmZGQRuJw
+P3sefRP+zxROBraeGUac1mM4Mbaf2BUzuj7f8WSkX/nRXoNYCRaIU5kPSqGWNnKs
+Yl4pQ8aZgDEx0NcUztOL/lF/xjXErjC5W7/TQVlH4iNZXNFDAsgNee+78F2wuRRd
+7wenjNZUA0HNFQ7nLWdwCoiTsxLI1ZgK4vY/LCCCXz6wOGOdvGI=
+=dAon
 -----END PGP SIGNATURE-----
