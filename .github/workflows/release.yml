@@ -884,7 +884,8 @@ jobs:
         shell: pwsh
         run: |
           $version = $env:APP_VERSION
-          # MSIX versions must have 4 parts (major.minor.patch.0)
+          # APP_VERSION is always in major.minor.patch format (validated by the prepare job).
+          # MSIX versions require 4 parts, so append .0 to get major.minor.patch.0
           $msixVersion = "$version.0"
           $publisherId = $env:PUBLISHER_ID
           $publisherDisplayName = if ($env:PUBLISHER_DISPLAY_NAME) { $env:PUBLISHER_DISPLAY_NAME } else { "Defender of Egril" }
@@ -896,7 +897,8 @@ jobs:
           # Copy app from createDistributable output
           $appDir = "frontend\composeApp\build\compose\binaries\main\app\DefenderOfEgril"
           if (-not (Test-Path $appDir)) {
-            Write-Error "App directory not found at $appDir. Check that createDistributable ran successfully."
+            $absPath = (Join-Path (Get-Location) $appDir)
+            Write-Error "App directory not found at $absPath. Check that createDistributable ran successfully."
             exit 1
           }
           Copy-Item -Recurse "$appDir" "$staging\DefenderOfEgril"

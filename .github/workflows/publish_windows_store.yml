@@ -127,7 +127,7 @@ jobs:
         run: |
           $msixFile = Get-ChildItem msix-artifact -Filter "*.msix" | Select-Object -First 1
           if (-not $msixFile) {
-            Write-Error "No .msix file found in downloaded release assets.  Make sure the build_windows_msix job ran successfully and attached the MSIX to the release."
+            Write-Error "No .msix file found in downloaded release assets. Make sure the build_windows_msix job ran successfully and attached the MSIX to the release."
             exit 1
           }
           Write-Host "Found MSIX: $($msixFile.FullName)"
