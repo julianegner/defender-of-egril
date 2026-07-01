@@ -681,8 +681,8 @@ tasks.register("fixPackageDeb") {
         // from jpackage's convention of deriving the application-name from the package name
         // (stripping hyphens and capitalising each word: defender-of-egril → DefenderOfEgril).
         // Update these constants if linux.packageName ever changes.
-        val linuxPackageName = "defender-of-egril"           // linux { packageName }
-        val jpackageAppName  = "DefenderOfEgril"             // jpackage-derived launcher/icon name
+        val linuxPackageName = "defender-of-egril" // linux { packageName }
+        val jpackageAppName = "DefenderOfEgril" // jpackage-derived launcher/icon name
 
         val debDir = layout.buildDirectory.dir("compose/binaries/main/deb").get().asFile
         val debFile =
