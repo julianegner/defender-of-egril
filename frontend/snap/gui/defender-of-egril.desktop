@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Defender of Egril
 Comment=Turn-based Tower Defense
-Exec=defender-of-egril
+Exec=defender-of-egril %F
 Icon=${SNAP}/meta/gui/icon.png
 Terminal=false
 Type=Application

@@ -15,6 +15,12 @@ grade: stable
 confinement: strict
 compression: lzo
 
+# Bind-mount the staged fontconfig configuration inside the snap so that the
+# bundled JVM can locate fonts even under strict confinement.
+layout:
+  /etc/fonts:
+    bind: $SNAP/etc/fonts
+
 # The DEB produced by Compose Desktop already bundles a JRE and native
 # libraries, so we simply extract it into the snap root.
 parts:
@@ -48,8 +54,23 @@ parts:
 
       rm -rf "$TMP"
     stage-packages:
+      # Font rendering – the JVM font manager (libfontmanager.so) requires
+      # libfreetype and libfontconfig.  The 'fontconfig' package adds the
+      # configuration files (/etc/fonts/fonts.conf …) that libfontconfig needs;
+      # without them the JVM cannot load any fonts and will crash on startup.
       - libfreetype6
       - libfontconfig1
+      - fontconfig
+      - fonts-dejavu-core
+      # X11 display libraries required by the JVM's AWT X toolkit
+      # (libawt_xawt.so links against all of these at runtime).
+      - libx11-6
+      - libxext6
+      - libxrender1
+      - libxi6
+      - libxtst6
+      # ALSA audio library – required by the audio-playback snap interface.
+      - libasound2
 
 apps:
   defender-of-egril:
@@ -58,6 +79,10 @@ apps:
     environment:
       HOME: $SNAP_USER_DATA
       JAVA_HOME: $SNAP/opt/defender-of-egril/lib/runtime
+      # Point the JVM font manager to the fontconfig configuration staged
+      # inside the snap (bound to /etc/fonts via the layout section above).
+      FONTCONFIG_PATH: $SNAP/etc/fonts
+      FONTCONFIG_FILE: $SNAP/etc/fonts/fonts.conf
     plugs:
       - home
       - network
