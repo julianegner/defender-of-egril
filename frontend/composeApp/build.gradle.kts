@@ -677,6 +677,13 @@ tasks.register("fixPackageDeb") {
     dependsOn("packageDeb")
 
     doLast {
+        // These names come from the linux { packageName } setting in nativeDistributions and
+        // from jpackage's convention of deriving the application-name from the package name
+        // (stripping hyphens and capitalising each word: defender-of-egril → DefenderOfEgril).
+        // Update these constants if linux.packageName ever changes.
+        val linuxPackageName = "defender-of-egril"           // linux { packageName }
+        val jpackageAppName  = "DefenderOfEgril"             // jpackage-derived launcher/icon name
+
         val debDir = layout.buildDirectory.dir("compose/binaries/main/deb").get().asFile
         val debFile =
             debDir.listFiles { f -> f.extension == "deb" }?.firstOrNull()
@@ -701,27 +708,28 @@ tasks.register("fixPackageDeb") {
             //    dpkg tracks it and desktop environments find it without needing
             //    xdg-desktop-menu.
             val appsDir = File(workDir, "usr/share/applications").also { it.mkdirs() }
-            File(appsDir, "defender-of-egril.desktop").writeText(
+            File(appsDir, "$linuxPackageName.desktop").writeText(
                 "[Desktop Entry]\n" +
                     "Name=Defender of Egril\n" +
                     "Comment=Turn-based Tower Defense\n" +
-                    "Exec=/opt/defender-of-egril/bin/DefenderOfEgril\n" +
-                    "Icon=defender-of-egril\n" +
+                    "Exec=/opt/$linuxPackageName/bin/$jpackageAppName\n" +
+                    "Icon=$linuxPackageName\n" +
                     "Terminal=false\n" +
                     "Type=Application\n" +
                     "Categories=Game;StrategyGame;\n",
             )
 
             // 2. Install the icon to /usr/share/pixmaps/ and the hicolor icon theme so
-            //    desktop environments can look it up by name ("defender-of-egril").
-            val iconSrc = File(workDir, "opt/defender-of-egril/lib/DefenderOfEgril.png")
+            //    desktop environments can look it up by name.
+            // jpackage places the icon at /opt/{packageName}/lib/{AppName}.png
+            val iconSrc = File(workDir, "opt/$linuxPackageName/lib/$jpackageAppName.png")
             if (iconSrc.exists()) {
                 val pixmapsDir = File(workDir, "usr/share/pixmaps").also { it.mkdirs() }
-                iconSrc.copyTo(File(pixmapsDir, "defender-of-egril.png"), overwrite = true)
+                iconSrc.copyTo(File(pixmapsDir, "$linuxPackageName.png"), overwrite = true)
 
                 val hicolorDir =
                     File(workDir, "usr/share/icons/hicolor/256x256/apps").also { it.mkdirs() }
-                iconSrc.copyTo(File(hicolorDir, "defender-of-egril.png"), overwrite = true)
+                iconSrc.copyTo(File(hicolorDir, "$linuxPackageName.png"), overwrite = true)
             } else {
                 logger.warn("fixPackageDeb: icon not found at ${iconSrc.absolutePath}")
             }
@@ -738,7 +746,7 @@ tasks.register("fixPackageDeb") {
                     "            update-desktop-database -q /usr/share/applications\n" +
                     "        fi\n" +
                     "        if command -v gtk-update-icon-cache > /dev/null 2>&1; then\n" +
-                    "            gtk-update-icon-cache -q -f /usr/share/icons/hicolor 2>/dev/null || true\n" +
+                    "            gtk-update-icon-cache -q -f /usr/share/icons/hicolor || true\n" +
                     "        fi\n" +
                     "    ;;\n" +
                     "    abort-upgrade|abort-remove|abort-deconfigure)\n" +
