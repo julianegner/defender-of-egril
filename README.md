@@ -48,16 +48,19 @@ Defend the meadows of Egril against waves of attackers including goblins, orks, 
 ### Running the Game
 
 **Desktop (Linux/macOS):**
+
 ```bash
 ./gradlew :composeApp:run
 ```
 
 **Desktop (Windows):**
+
 ```cmd
 gradlew.bat :composeApp:run
 ```
 
 **Android:**
+
 ```bash
 ./gradlew :composeApp:installDebug
 ```
@@ -66,14 +69,18 @@ gradlew.bat :composeApp:run
 Open `frontend/iosApp/iosApp.xcodeproj` in Xcode and click Run
 
 **Web/Browser:**
+
 ```bash
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
 ```
+
 With Impressum (legal notice for German website compliance):
+
 ```bash
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun -PwithImpressum=true
 ```
-Then open http://localhost:8080 in your browser
+
+Then open <http://localhost:8080> in your browser
 
 📖 **For detailed gameplay instructions, see [GAMEPLAY.md](docs/root/GAMEPLAY.md)**
 
@@ -122,6 +129,7 @@ Then open http://localhost:8080 in your browser
 ```
 
 **GitHub Actions**: You can also build Windows EXE installers using GitHub Actions:
+
 1. Go to the Actions tab in GitHub
 2. Select "Build Windows EXE" workflow
 3. Click "Run workflow" to trigger a build
@@ -146,35 +154,52 @@ Install the APK from `frontend/composeApp/build/outputs/apk/debug/de.egril.defen
 ### Running Web/Browser
 
 Run the development server:
+
 ```bash
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
 ```
 
-Then open http://localhost:8080 in a modern web browser (Chrome, Firefox, Safari, or Edge).
+Then open <http://localhost:8080> in a modern web browser (Chrome, Firefox, Safari, or Edge).
 
 The web version uses browser localStorage for save games and supports:
+
 - Mouse wheel zoom
 - Click and drag to pan
 - All game features available on other platforms (except level editor)
 
 ## run frontends against local / production IAM and backend
-# Desktop (JVM)
+
+### Desktop (JVM)
+
+```bash
 ./gradlew :composeApp:run                          # production (default)
 ./gradlew :composeApp:run -Pprofile=local          # local Docker Compose stack
+./gradlew :composeApp:hotRunDesktop                # production with Compose Hot Reload
+./gradlew :composeApp:hotRunDesktop -Pprofile=local # local stack with Compose Hot Reload
 ./gradlew :composeApp:runLocal                     # convenience task
 ./gradlew :composeApp:runProduction                # convenience task
+```
 
-# Web / WASM
+### Web / WASM
+
+```bash
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun              # production (default)
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun -Pprofile=local  # local stack
+```
 
-# Android (profile baked into APK at build time via product flavors)
+### Android (profile baked into APK at build time via product flavors)
+
+```bash
 ./gradlew :composeApp:installDebug       # production flavor, debug build (default)
 ./gradlew :composeApp:installProduction  # production flavor, debug build
 ./gradlew :composeApp:installLocal       # local flavor (localhost URLs)
+```
 
-# Custom profiles are supported
+### Custom profiles are supported
+
+```bash
 ./gradlew :composeApp:run -Pprofile=staging   # reads frontend/profiles/staging.properties
+```
 
 ### run Tests
 
@@ -182,13 +207,13 @@ The web version uses browser localStorage for save games and supports:
 # Run all tests
 ./gradlew test
 ```
+
 ./gradlew :composeApp:desktopTest
 ./gradlew :composeApp:wasmJsBrowserTest
 
-
 ## Project Structure
 
-```
+```text
 composeApp/src/
 ├── commonMain/kotlin/com/defenderofegril/
 │   ├── model/           # Game domain models
@@ -243,6 +268,7 @@ GNU Affero General Public License - See LICENSE file for details
 ## Audio Files
 
 The game uses sound effects and background music from various sources. For detailed information about the audio files, their sources, and licenses, see:
+
 - [Sound Effects Documentation](composeApp/src/commonMain/composeResources/files/sounds/README.md)
 - [Background Music Documentation](composeApp/src/commonMain/composeResources/files/sounds/background/README.md)
 
@@ -251,6 +277,7 @@ All audio files are used under their respective licenses with proper attribution
 ## Development
 
 This game is built using:
+
 - Kotlin 2.0.21
 - Compose Multiplatform 1.7.0
 - Kotlin Multiplatform for cross-platform support
@@ -266,11 +293,13 @@ The `withImpressum` flag controls whether the impressum (legal notice) is includ
 **Usage:**
 
 Set in `gradle.properties`:
+
 ```properties
 withImpressum=true
 ```
 
 Or pass via command line:
+
 ```bash
 # Run development server with impressum
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun -PwithImpressum=true
@@ -308,6 +337,7 @@ Unit tests are written in Kotlin and test game logic, UI components, and data ha
 ```
 
 **What's Tested:**
+
 - Game logic (combat, pathfinding, tower placement)
 - Save/load functionality
 - UI components (world map, settings, level completion)
@@ -335,12 +365,14 @@ npx playwright show-report
 ```
 
 **Running via GitHub Actions:**
+
 1. Go to the Actions tab in GitHub
 2. Select "Playwright UI Tests" workflow
 3. Click "Run workflow"
 4. Download test results and screenshots from artifacts
 
 **What's Tested:**
+
 - Tutorial level playthrough (building towers, combat)
 - Main menu navigation
 - World map level selection
@@ -351,6 +383,7 @@ npx playwright show-report
 The tests automatically capture 30+ screenshots per run, documenting every step of gameplay. See [Playwright UI Tests Guide](docs/testing/PLAYWRIGHT_UI_TESTS.md) for details.
 
 ### Backend
+
 run backend:
 ./gradlew server:run
 
@@ -358,6 +391,7 @@ compile backend:
 ./gradlew server:build
 
 #### local buildup (Database, Keycloak (IAM), Backend)
+
 ```bash
 docker compose up -d
 ```
@@ -365,6 +399,7 @@ docker compose up -d
 ### CI/CD
 
 The project uses GitHub Actions for continuous integration and deployment:
+
 - **Unit Tests**: Automated testing on Linux, Windows, macOS, and Android
 - **UI Tests**: Playwright-based end-to-end browser testing (manual trigger)
 - **Builds**: Multi-platform builds (WASM, JVM, macOS, Linux, Windows)
@@ -377,5 +412,6 @@ See [CI/CD Workflows Guide](docs/guides/CI_CD_WORKFLOWS.md) for details.
 ### Utility Scripts
 
 The `scripts/` directory contains utility scripts for the project:
+
 - **Dragon Names Scraper** (`scripts/scrape_dragon_names.sh`): Automated web scraper for collecting dragon names from mythopedia.com
   - See [scripts/README.md](scripts/README.md) for usage instructions

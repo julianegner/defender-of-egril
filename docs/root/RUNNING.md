@@ -3,19 +3,23 @@
 ## Platform Requirements
 
 ### Desktop (JVM)
+
 - **Windows**: Windows 10 or later, JDK 11+
 - **macOS**: macOS 10.14 or later, JDK 11+
 - **Linux**: Any modern distribution, JDK 11+
 
 ### Android
+
 - Android 7.0 (API 24) or later
 - ~10MB storage space
 
 ### iOS
+
 - iOS 13.0 or later
 - Requires Xcode for building (macOS only)
 
 ### Web/Browser
+
 - Modern web browser (Chrome 119+, Firefox 120+, Safari 17+, or Edge 119+)
 - JavaScript and WebAssembly enabled
 - ~12MB download size for initial load
@@ -32,7 +36,20 @@
 ./gradlew :composeApp:run
 ```
 
+For desktop development with Compose Hot Reload, use:
+
+```bash
+./gradlew :composeApp:hotRunDesktop
+```
+
+You can combine hot reload with the existing profile switch, for example:
+
+```bash
+./gradlew :composeApp:hotRunDesktop -Pprofile=local
+```
+
 On Windows, use:
+
 ```cmd
 gradlew.bat :composeApp:run
 ```
@@ -40,27 +57,35 @@ gradlew.bat :composeApp:run
 ## Building a Distributable Package
 
 ### Windows (EXE Installer)
+
 ```bash
 ./gradlew :composeApp:packageExe
 ```
+
 The installer will be created in `composeApp/build/compose/binaries/main/exe/`
 
 ### Windows (MSI Installer)
+
 ```bash
 ./gradlew :composeApp:packageMsi
 ```
+
 The installer will be created in `composeApp/build/compose/binaries/main/msi/`
 
 ### macOS (DMG)
+
 ```bash
 ./gradlew :composeApp:packageDmg
 ```
+
 The DMG will be created in `composeApp/build/compose/binaries/main/dmg/`
 
 ### Linux (DEB Package)
+
 ```bash
 ./gradlew :composeApp:packageDeb
 ```
+
 The package will be created in `composeApp/build/compose/binaries/main/deb/`
 
 ## Running on Android
@@ -68,6 +93,7 @@ The package will be created in `composeApp/build/compose/binaries/main/deb/`
 ### Option 1: Install Pre-built APK
 
 1. Build the APK:
+
    ```bash
    ./gradlew :composeApp:assembleDebug
    ```
@@ -90,12 +116,14 @@ The package will be created in `composeApp/build/compose/binaries/main/deb/`
 ## Running on iOS
 
 ### Requirements
+
 - macOS with Xcode installed
 - iOS Simulator or a physical iOS device
 
 ### Steps
 
 1. Open the project in Xcode:
+
    ```bash
    open iosApp/iosApp.xcodeproj
    ```
@@ -126,9 +154,10 @@ Run the development server with hot reload:
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
 ```
 
-The game will be available at: http://localhost:8080
+The game will be available at: <http://localhost:8080>
 
 The development server supports:
+
 - Auto-reload on code changes
 - Source maps for debugging
 - Development mode optimizations
@@ -145,6 +174,7 @@ The production build will be in:
 `composeApp/build/kotlin-webpack/wasmJs/productionExecutable/`
 
 You can serve these files with any static web server:
+
 ```bash
 cd composeApp/build/kotlin-webpack/wasmJs/productionExecutable/
 python3 -m http.server 8080
@@ -153,6 +183,7 @@ python3 -m http.server 8080
 ### Browser Compatibility
 
 The web version requires a modern browser with WebAssembly support:
+
 - Chrome 119 or later
 - Firefox 120 or later
 - Safari 17 or later
@@ -161,6 +192,7 @@ The web version requires a modern browser with WebAssembly support:
 ### Web Features
 
 The web version includes:
+
 - ✅ Full game functionality
 - ✅ Save games using browser localStorage
 - ✅ Mouse wheel zoom
@@ -170,6 +202,7 @@ The web version includes:
 ### Clearing Save Data
 
 To clear saved games in the browser:
+
 1. Open browser Developer Tools (F12)
 2. Go to Application/Storage tab
 3. Select Local Storage
@@ -179,7 +212,7 @@ To clear saved games in the browser:
 
 1. **Main Menu**: Click "Start Game" to begin
 2. **World Map**: Select an unlocked level to play
-3. **Game Board**: 
+3. **Game Board**:
    - In planning phase, select a tower type and click on an empty cell to place it
    - Click on placed towers to see upgrade options
    - Click "Start Combat" when ready
