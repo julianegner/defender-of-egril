@@ -5,10 +5,10 @@ Codename: stable
 Architectures: amd64
 Components: main
 Description: Official APT repository for Defender of Egril
-Date: Wed, 01 Jul 2026 08:52:31 +0000
+Date: Wed, 01 Jul 2026 14:55:37 +0000
 MD5Sum:
- 8dab43387b4edc324284f9a474755016  735 main/binary-amd64/Packages
- 2af98c043838ded91b7fccd8b5903cb7  468 main/binary-amd64/Packages.gz
+ 8299ca5d6932d135d570daa56650d3e8  735 main/binary-amd64/Packages
+ 73e5af2032041cd8bdefad5cbccdbeaf  468 main/binary-amd64/Packages.gz
 SHA256:
- 44afde1937118f156b2c56eeae30843ca3baac2a0df514ca551746fcea7db26e  735 main/binary-amd64/Packages
- 0a9d30c8cde7e0a8f5d3afde02996587a8c26ec0ae42f554bede1c485dc3b369  468 main/binary-amd64/Packages.gz
+ 487e790c30e869d1b3c6a93be3842c1cbff5e5d7ad46125170bf95c5b4a81730  735 main/binary-amd64/Packages
+ a6fabdb2076cd40c6b3a092a8dcc63a3688b2ced0db3ebb751cd2eb5f57a4a3c  468 main/binary-amd64/Packages.gz
