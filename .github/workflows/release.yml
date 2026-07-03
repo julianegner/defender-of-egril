@@ -318,7 +318,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Build DEB package
-        run: ./gradlew :composeApp:packageDeb -PappVersion="${APP_VERSION}"
+        run: ./gradlew :composeApp:fixPackageDeb -PappVersion="${APP_VERSION}"
 
       - name: Upload Linux DEB artifact
         uses: actions/upload-artifact@v7

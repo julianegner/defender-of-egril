@@ -652,8 +652,120 @@ compose.desktop {
             
             linux {
                 packageName = "defender-of-egril"
+                menuGroup = "Game"
                 iconFile.set(project.file("src/commonMain/composeResources/drawable/black-shield.png"))
             }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// fixPackageDeb – post-processes the Compose Desktop DEB package so that
+// the desktop entry and application icon are installed to the standard
+// system paths (/usr/share/applications, /usr/share/pixmaps, and
+// /usr/share/icons/hicolor).  Compose Desktop relies on xdg-desktop-menu in
+// the generated postinst script, which silently fails during apt/dpkg
+// installation because no desktop-environment context is present at that
+// point.  This task replaces that approach with the Debian-standard method:
+//   • /usr/share/applications/defender-of-egril.desktop  (tracked by dpkg)
+//   • /usr/share/pixmaps/defender-of-egril.png           (icon by name)
+//   • /usr/share/icons/hicolor/256x256/apps/defender-of-egril.png
+//   • updated postinst that calls update-desktop-database and
+//     gtk-update-icon-cache
+// ---------------------------------------------------------------------------
+tasks.register("fixPackageDeb") {
+    dependsOn("packageDeb")
+
+    doLast {
+        // These names come from the linux { packageName } setting in nativeDistributions and
+        // from jpackage's convention of deriving the application-name from the package name
+        // (stripping hyphens and capitalising each word: defender-of-egril → DefenderOfEgril).
+        // Update these constants if linux.packageName ever changes.
+        val linuxPackageName = "defender-of-egril" // linux { packageName }
+        val jpackageAppName = "DefenderOfEgril" // jpackage-derived launcher/icon name
+
+        val debDir = layout.buildDirectory.dir("compose/binaries/main/deb").get().asFile
+        val debFile =
+            debDir.listFiles { f -> f.extension == "deb" }?.firstOrNull()
+                ?: run {
+                    logger.lifecycle("fixPackageDeb: no .deb file found in $debDir – skipping.")
+                    return@doLast
+                }
+
+        val workDir = layout.buildDirectory.dir("deb-fix-staging").get().asFile
+        workDir.deleteRecursively()
+        workDir.mkdirs()
+
+        try {
+            // Unpack the DEB (data + DEBIAN/ control files)
+            fun run(vararg cmd: String) {
+                val exitCode = ProcessBuilder(*cmd).inheritIO().start().waitFor()
+                check(exitCode == 0) { "Command failed (exit $exitCode): ${cmd.joinToString(" ")}" }
+            }
+            run("dpkg-deb", "-R", debFile.absolutePath, workDir.absolutePath)
+
+            // 1. Install .desktop file directly to /usr/share/applications/ so that
+            //    dpkg tracks it and desktop environments find it without needing
+            //    xdg-desktop-menu.
+            val appsDir = File(workDir, "usr/share/applications").also { it.mkdirs() }
+            File(appsDir, "$linuxPackageName.desktop").writeText(
+                "[Desktop Entry]\n" +
+                    "Name=Defender of Egril\n" +
+                    "Comment=Turn-based Tower Defense\n" +
+                    "Exec=/opt/$linuxPackageName/bin/$jpackageAppName\n" +
+                    "Icon=$linuxPackageName\n" +
+                    "Terminal=false\n" +
+                    "Type=Application\n" +
+                    "Categories=Game;StrategyGame;\n",
+            )
+
+            // 2. Install the icon to /usr/share/pixmaps/ and the hicolor icon theme so
+            //    desktop environments can look it up by name.
+            // jpackage places the icon at /opt/{packageName}/lib/{AppName}.png
+            val iconSrc = File(workDir, "opt/$linuxPackageName/lib/$jpackageAppName.png")
+            if (iconSrc.exists()) {
+                val pixmapsDir = File(workDir, "usr/share/pixmaps").also { it.mkdirs() }
+                iconSrc.copyTo(File(pixmapsDir, "$linuxPackageName.png"), overwrite = true)
+
+                val hicolorDir =
+                    File(workDir, "usr/share/icons/hicolor/256x256/apps").also { it.mkdirs() }
+                iconSrc.copyTo(File(hicolorDir, "$linuxPackageName.png"), overwrite = true)
+            } else {
+                logger.warn("fixPackageDeb: icon not found at ${iconSrc.absolutePath}")
+            }
+
+            // 3. Replace the postinst script with one that uses update-desktop-database
+            //    and gtk-update-icon-cache instead of xdg-desktop-menu install.
+            val postinstFile = File(workDir, "DEBIAN/postinst")
+            postinstFile.writeText(
+                "#!/bin/sh\n" +
+                    "set -e\n" +
+                    "case \"\$1\" in\n" +
+                    "    configure)\n" +
+                    "        if command -v update-desktop-database > /dev/null 2>&1; then\n" +
+                    "            update-desktop-database -q /usr/share/applications\n" +
+                    "        fi\n" +
+                    "        if command -v gtk-update-icon-cache > /dev/null 2>&1; then\n" +
+                    "            gtk-update-icon-cache -q -f /usr/share/icons/hicolor || true\n" +
+                    "        fi\n" +
+                    "    ;;\n" +
+                    "    abort-upgrade|abort-remove|abort-deconfigure)\n" +
+                    "    ;;\n" +
+                    "    *)\n" +
+                    "        echo \"postinst called with unknown argument '\$1'\" >&2\n" +
+                    "        exit 1\n" +
+                    "    ;;\n" +
+                    "esac\n" +
+                    "exit 0\n",
+            )
+            postinstFile.setExecutable(true)
+
+            // 4. Repack the DEB in-place, overwriting the original file.
+            run("dpkg-deb", "--build", "--root-owner-group", workDir.absolutePath, debFile.absolutePath)
+
+            logger.lifecycle("fixPackageDeb: fixed DEB written to ${debFile.absolutePath}")
+        } finally {
+            workDir.deleteRecursively()
         }
     }
 }
