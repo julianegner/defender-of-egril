@@ -91,10 +91,11 @@ fun AttackerInfo(
                     modifier = Modifier.size(iconSize),
                     contentAlignment = Alignment.Center,
                 ) {
+                    // Info portrait always shows the unit looking forward.
                     EnemyIcon(
                         attacker = attacker,
                         modifier = Modifier.size(iconInnerSize),
-                        direction = de.egril.defender.model.HexDirection.DEFAULT,
+                        direction = HexDirection.DEFAULT,
                     )
                 }
 

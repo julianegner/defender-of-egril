@@ -1078,7 +1078,8 @@ private fun LevelTabContent() {
                 )
             }
 
-            // Enemy sprites switch
+            // Enemy sprites switch (Level → Appearance): renders enemy units from their
+            // directional spritesheet instead of the drawn vector icon, when available.
             NumberedSetting(6) {
                 DualLabelSwitch(
                     state = AppSettings.useSprites,
