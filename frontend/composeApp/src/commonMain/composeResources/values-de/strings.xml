@@ -1419,6 +1419,8 @@
     <string name="level_map_image">Karten-Hintergrundbild</string>
     <string name="unit_tower_background_on">Einheiten-Hintergrund An</string>
     <string name="unit_tower_background_off">Transparente Kacheln</string>
+    <string name="enemy_sprites_on">Gegner-Sprites An</string>
+    <string name="enemy_sprites_off">Gezeichnete Symbole</string>
     <string name="debug_options">Debug-Optionen</string>
     <string name="debug_display_tile_borders">Kachel-Umrandungen anzeigen</string>
     <string name="debug_display_tile_positions">Kachel-Positionen anzeigen</string>

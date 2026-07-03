@@ -91,7 +91,11 @@ fun AttackerInfo(
                     modifier = Modifier.size(iconSize),
                     contentAlignment = Alignment.Center,
                 ) {
-                    EnemyIcon(attacker = attacker, modifier = Modifier.size(iconInnerSize))
+                    EnemyIcon(
+                        attacker = attacker,
+                        modifier = Modifier.size(iconInnerSize),
+                        direction = de.egril.defender.model.HexDirection.DEFAULT,
+                    )
                 }
 
                 val horizontalSpacing = if (isMobile) 4.dp else 8.dp

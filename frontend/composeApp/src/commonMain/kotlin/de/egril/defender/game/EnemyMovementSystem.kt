@@ -517,6 +517,7 @@ class EnemyMovementSystem(
                         if (state.enemyMoveEffects.none { it.position == oldPos }) {
                             state.enemyMoveEffects.add(EnemyMoveEffect(oldPos, state.turnNumber.value))
                         }
+                        attacker.facing.value = hexDirectionBetween(oldPos, newPos) ?: attacker.facing.value
                         attacker.position.value = newPos
 
                         // Check if reached a waypoint
@@ -561,6 +562,7 @@ class EnemyMovementSystem(
                     if (state.enemyMoveEffects.none { it.position == oldPos }) {
                         state.enemyMoveEffects.add(EnemyMoveEffect(oldPos, state.turnNumber.value))
                     }
+                    attacker.facing.value = hexDirectionBetween(oldPos, newPos) ?: attacker.facing.value
                     attacker.position.value = newPos
 
                     // Check if reached a waypoint and update target BEFORE next move

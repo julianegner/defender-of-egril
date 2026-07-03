@@ -1421,6 +1421,8 @@
     <string name="level_map_image">Image de la carte</string>
     <string name="unit_tower_background_on">Fonds d\'Unités Activés</string>
     <string name="unit_tower_background_off">Cases Transparentes</string>
+    <string name="enemy_sprites_on">Sprites d\'Ennemis Activés</string>
+    <string name="enemy_sprites_off">Icônes Dessinées</string>
     <string name="debug_options">Options de débogage</string>
     <string name="debug_display_tile_borders">Afficher les bordures des tuiles</string>
     <string name="debug_display_tile_positions">Afficher les positions des tuiles</string>
