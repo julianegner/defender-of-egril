@@ -153,6 +153,15 @@ object GamePlayConstants {
 
         /** Icon size for static damage effect overlay (shown when animations are disabled) */
         val DamageEffect = 24.dp
+
+        /** Scale factor for enemy sprites rendered on map tiles. */
+        const val EnemySpriteScale = 1.85f
+
+        /** Horizontal offset for enemy sprites rendered on map tiles. */
+        val EnemySpriteOffsetX = 16.dp
+
+        /** Vertical offset for enemy sprites rendered on map tiles. */
+        val EnemySpriteOffsetY = (-6).dp
     }
 
     /**
