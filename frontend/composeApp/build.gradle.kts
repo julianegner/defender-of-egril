@@ -550,6 +550,13 @@ val syncLegacyEnemySprites =
 
 tasks.matching { it.name == "prepareComposeResourcesTaskForCommonMain" }.configureEach {
     dependsOn(syncLegacyEnemySprites)
+    doLast {
+        delete(
+            layout.buildDirectory.dir(
+                "generated/compose/resourceGenerator/preparedResources/commonMain/composeResources/drawable/sprites"
+            )
+        )
+    }
 }
 
 // ---------------------------------------------------------------------------
