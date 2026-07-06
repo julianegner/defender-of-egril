@@ -4,12 +4,14 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
@@ -29,6 +31,9 @@ import de.egril.defender.utils.BigHeadMode
  * @param healthOverride When provided, this value is shown instead of [attacker.currentHealth]
  *   in the health bar. Used to delay the health display during attack animations so the number
  *   only changes after the projectile impact flash has completed.
+ * @param spriteScale Scales the rendered sprite frame (used to fine-tune map appearance).
+ * @param spriteOffsetX Horizontal offset applied to the rendered sprite frame.
+ * @param spriteOffsetY Vertical offset applied to the rendered sprite frame.
  */
 @Composable
 fun EnemyIcon(
@@ -38,6 +43,9 @@ fun EnemyIcon(
     backgroundColor: Color? = null,
     healthOverride: Int? = null,
     direction: HexDirection = attacker.facing.value,
+    spriteScale: Float = 1f,
+    spriteOffsetX: androidx.compose.ui.unit.Dp = 0.dp,
+    spriteOffsetY: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
@@ -53,7 +61,11 @@ fun EnemyIcon(
             Image(
                 painter = spritePainter,
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .offset(x = spriteOffsetX, y = spriteOffsetY)
+                        .scale(spriteScale),
             )
         } else {
             Canvas(modifier = Modifier.fillMaxSize()) {

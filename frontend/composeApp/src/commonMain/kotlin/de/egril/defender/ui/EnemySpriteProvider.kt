@@ -157,15 +157,27 @@ object EnemySpriteProvider {
         val useSprites = AppSettings.useSprites.value
         val key = spriteKey(type)
 
-        var sheet by remember(key, useSprites) { mutableStateOf<ImageBitmap?>(null) }
-
-        LaunchedEffect(key, useSprites) {
-            sheet =
+        var sheet by remember(key, useSprites) {
+            mutableStateOf(
                 if (useSprites) {
-                    withContext(Dispatchers.Default) { loadSheet(key) }
+                    sheetCache[key]
                 } else {
                     null
+                },
+            )
+        }
+
+        LaunchedEffect(key, useSprites) {
+            if (!useSprites) {
+                sheet = null
+            } else {
+                val cached = sheetCache[key]
+                if (cached != null || sheetCache.containsKey(key)) {
+                    sheet = cached
+                } else {
+                    sheet = withContext(Dispatchers.Default) { loadSheet(key) }
                 }
+            }
         }
 
         val currentSheet = sheet
