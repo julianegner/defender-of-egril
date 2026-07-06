@@ -158,7 +158,7 @@ object GamePlayConstants {
         const val EnemySpriteScale = 1.85f
 
         /** Horizontal offset for enemy sprites rendered on map tiles. */
-        val EnemySpriteOffsetX = 16.dp
+        val EnemySpriteOffsetX = 40.dp
 
         /** Vertical offset for enemy sprites rendered on map tiles. */
         val EnemySpriteOffsetY = (-6).dp
