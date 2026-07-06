@@ -245,7 +245,12 @@ kotlin {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
     
-    jvm("desktop")
+    jvm("desktop") {
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_21)
+        }
+    }
     
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
