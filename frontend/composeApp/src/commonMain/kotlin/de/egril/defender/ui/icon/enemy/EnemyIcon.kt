@@ -26,8 +26,8 @@ import de.egril.defender.utils.BigHeadMode
 /**
  * Composable that draws an enemy unit icon
  *
- * @param direction Direction the sprite should face when sprites are enabled. Defaults to the
- *   attacker's current facing so the unit looks the way it last moved.
+ * @param direction Direction the sprite should face when sprites are enabled. When `null`, the
+ *   attacker's current facing is used so the unit looks the way it last moved.
  * @param healthOverride When provided, this value is shown instead of [attacker.currentHealth]
  *   in the health bar. Used to delay the health display during attack animations so the number
  *   only changes after the projectile impact flash has completed.
@@ -42,14 +42,15 @@ fun EnemyIcon(
     healthTextColor: Color = Color.White,
     backgroundColor: Color? = null,
     healthOverride: Int? = null,
-    direction: HexDirection = attacker.facing.value,
+    direction: HexDirection? = null,
     spriteScale: Float = 1f,
     spriteOffsetX: androidx.compose.ui.unit.Dp = 0.dp,
     spriteOffsetY: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
-    val spritePainter = EnemySpriteProvider.rememberEnemySpritePainter(attacker.type, direction)
+    val resolvedDirection = direction ?: attacker.facing.value
+    val spritePainter = EnemySpriteProvider.rememberEnemySpritePainter(attacker.type, resolvedDirection)
 
     Box(
         modifier = modifier.fillMaxSize(),
