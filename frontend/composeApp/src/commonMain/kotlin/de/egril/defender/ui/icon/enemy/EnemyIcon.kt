@@ -120,8 +120,8 @@ fun EnemyTypeIcon(
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
-    // Planned/preview icons always show the unit looking forward.
-    val spritePainter = EnemySpriteProvider.rememberEnemySpritePainter(attackerType, HexDirection.DEFAULT)
+    // Planned/preview icons always show the neutral center portrait.
+    val spritePainter = EnemySpriteProvider.rememberEnemySpritePainter(attackerType, null)
 
     Box(
         modifier = modifier.fillMaxSize(),

@@ -9,28 +9,46 @@ import kotlin.test.assertEquals
 
 class EnemySpriteProviderTest {
     @Test
-    fun spriteKeyIsLowercasedTypeName() {
-        assertEquals("goblin", EnemySpriteProvider.spriteKey(AttackerType.GOBLIN))
-        assertEquals("evil_wizard", EnemySpriteProvider.spriteKey(AttackerType.EVIL_WIZARD))
-        assertEquals("dragon", EnemySpriteProvider.spriteKey(AttackerType.DRAGON))
+    fun spriteKeyHasSpritePrefix() {
+        assertEquals("sprite_goblin", EnemySpriteProvider.spriteKey(AttackerType.GOBLIN))
+        assertEquals("sprite_dragon", EnemySpriteProvider.spriteKey(AttackerType.DRAGON))
+        assertEquals("sprite_skeleton", EnemySpriteProvider.spriteKey(AttackerType.SKELETON))
     }
 
     @Test
-    fun frameBoundsCropEachDirectionInOrder() {
-        // 6 frames of 64x64 laid out horizontally.
-        val width = 64 * EnemySpriteProvider.DIRECTION_COUNT
-        val height = 64
-        HexDirection.entries.forEachIndexed { index, direction ->
-            val (offset, size) = EnemySpriteProvider.frameBounds(width, height, direction)
-            assertEquals(IntOffset(64 * index, 0), offset)
-            assertEquals(IntSize(64, 64), size)
-        }
+    fun spriteKeyUsesCanonicalNameForOrkAndEvilWizard() {
+        // ORK file is sprite_orc.png; EVIL_WIZARD file is sprite_evil_mage.png
+        assertEquals("sprite_orc", EnemySpriteProvider.spriteKey(AttackerType.ORK))
+        assertEquals("sprite_evil_mage", EnemySpriteProvider.spriteKey(AttackerType.EVIL_WIZARD))
     }
 
     @Test
-    fun frameBoundsFallBackToWholeImageWhenTooNarrow() {
-        val (offset, size) = EnemySpriteProvider.frameBounds(4, 10, HexDirection.SE)
+    fun frameBoundsCropDirectionalFramesFromThreeByThreeGrid() {
+        // 3 columns × 3 rows of 60×60 frames → sheet is 180×180
+        val frameW = 60
+        val frameH = 60
+        val sheetW = frameW * EnemySpriteProvider.GRID_COLS
+        val sheetH = frameH * EnemySpriteProvider.GRID_ROWS
+
+        // Row 0: SE (col 0), S unused, SW (col 2)
+        assertEquals(IntOffset(0, 0) to IntSize(frameW, frameH), EnemySpriteProvider.frameBounds(sheetW, sheetH, HexDirection.SE))
+        assertEquals(IntOffset(frameW * 2, 0) to IntSize(frameW, frameH), EnemySpriteProvider.frameBounds(sheetW, sheetH, HexDirection.SW))
+
+        // Row 1: E (col 0), Center (col 1), W (col 2)
+        assertEquals(IntOffset(0, frameH) to IntSize(frameW, frameH), EnemySpriteProvider.frameBounds(sheetW, sheetH, HexDirection.E))
+        assertEquals(IntOffset(frameW, frameH) to IntSize(frameW, frameH), EnemySpriteProvider.frameBounds(sheetW, sheetH, null))
+        assertEquals(IntOffset(frameW * 2, frameH) to IntSize(frameW, frameH), EnemySpriteProvider.frameBounds(sheetW, sheetH, HexDirection.W))
+
+        // Row 2: NE (col 0), N unused, NW (col 2)
+        assertEquals(IntOffset(0, frameH * 2) to IntSize(frameW, frameH), EnemySpriteProvider.frameBounds(sheetW, sheetH, HexDirection.NE))
+        assertEquals(IntOffset(frameW * 2, frameH * 2) to IntSize(frameW, frameH), EnemySpriteProvider.frameBounds(sheetW, sheetH, HexDirection.NW))
+    }
+
+    @Test
+    fun frameBoundsFallBackToWholeImageWhenTooSmall() {
+        // Sheet too narrow to split into 3 columns (frameWidth = 2/3 = 0)
+        val (offset, size) = EnemySpriteProvider.frameBounds(2, 10, HexDirection.SE)
         assertEquals(IntOffset.Zero, offset)
-        assertEquals(IntSize(4, 10), size)
+        assertEquals(IntSize(2, 10), size)
     }
 }

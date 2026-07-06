@@ -9,10 +9,11 @@ sprite is shown; otherwise the game falls back to the drawn vector icon.
 
 Each enemy remembers the direction it last moved (`Attacker.facing`, a [`HexDirection`]). On the
 map the sprite is drawn facing that direction, so a unit looks the way it is travelling. In the
-enemy info area the sprite is always shown facing forward (`HexDirection.DEFAULT`).
+enemy info area and planned-spawn previews the **center** frame of the spritesheet is used as a
+neutral portrait.
 
-The six directions correspond to the six neighbours of a pointy-top hexagon and are computed by
-`hexDirectionBetween(from, to)`:
+The six movement directions correspond to the six neighbours of a pointy-top hexagon and are
+computed by `hexDirectionBetween(from, to)`:
 
 ```
 E, NE, NW, W, SW, SE
@@ -31,36 +32,42 @@ frontend/composeApp/src/commonMain/composeResources/files/sprites/{key}.png
 > `drawable/sprites/` resources into `files/sprites/` before Compose resource accessor generation
 > runs, so older local checkouts still compile.
 
-where `{key}` is the lower-cased `AttackerType` name:
+where `{key}` is `sprite_` followed by a canonical lower-case name (see table below):
 
-| AttackerType | File               |
-| ------------ | ------------------ |
-| GOBLIN       | `goblin.png`       |
-| ORK          | `ork.png`          |
-| OGRE         | `ogre.png`         |
-| SKELETON     | `skeleton.png`     |
-| EVIL_WIZARD  | `evil_wizard.png`  |
-| BLUE_DEMON   | `blue_demon.png`   |
-| RED_DEMON    | `red_demon.png`    |
-| RED_WITCH    | `red_witch.png`    |
-| GREEN_WITCH  | `green_witch.png`  |
-| EWHAD        | `ewhad.png`        |
-| DRAGON       | `dragon.png`       |
+| AttackerType | File                    |
+| ------------ | ----------------------- |
+| GOBLIN       | `sprite_goblin.png`     |
+| ORK          | `sprite_orc.png`        |
+| OGRE         | `sprite_ogre.png`       |
+| SKELETON     | `sprite_skeleton.png`   |
+| EVIL_WIZARD  | `sprite_evil_mage.png`  |
+| BLUE_DEMON   | `sprite_blue_demon.png` |
+| RED_DEMON    | `sprite_red_demon.png`  |
+| RED_WITCH    | `sprite_red_witch.png`  |
+| GREEN_WITCH  | `sprite_green_witch.png`|
+| EWHAD        | `sprite_ewhad.png`      |
+| DRAGON       | `sprite_dragon.png`     |
 
-Each sheet is a single **horizontal strip of 6 equally-sized frames**, one per direction, laid out
-left-to-right in the order `E, NE, NW, W, SW, SE`. The frame for a direction is located at
-`frameWidth * direction.ordinal`, where `frameWidth = imageWidth / 6`.
+Each sheet is a **3 × 3 grid of equally-sized frames**, laid out as follows:
 
 ```
-+--------+--------+--------+--------+--------+--------+
-|   E    |   NE   |   NW   |   W    |   SW   |   SE   |
-+--------+--------+--------+--------+--------+--------+
++--------+--------+--------+
+|   SE   |   S    |   SW   |
++--------+--------+--------+
+|   E    |  Ctr   |   W    |
++--------+--------+--------+
+|   NE   |   N    |   NW   |
++--------+--------+--------+
 ```
+
+- The **S** and **N** columns exist in the spritesheet but are not used by the movement system
+  (the hex grid has six directions, not eight).
+- The **center (Ctr)** frame is the neutral portrait shown in the enemy info area and
+  planned-spawn previews.
+- `frameWidth  = imageWidth  / 3`
+- `frameHeight = imageHeight / 3`
 
 Loading, caching and frame cropping are handled by
 `de.egril.defender.ui.EnemySpriteProvider`. If a sheet is missing or the setting is off, the
 provider returns `null` and the drawn icon is used, so the game keeps working without any sprite
 assets.
-
-> **Note:** If your spritesheets use a different layout (e.g. a different frame order or a grid),
-> adjust the frame math in `EnemySpriteProvider.framePainter` and the ordering documented above.
