@@ -2588,7 +2588,9 @@ private fun BoxScope.GridCellContent(
         mutableStateOf(false)
     }
     // Track this tile's center in root coordinates so a coin-flight animation can start here.
-    var tileRootCenter by remember(coinGainEffect?.turnNumber, coinGainEffect?.position) {
+    // Keyed on the (stable) tile grid position so it is captured once and not reset to null when
+    // a new coin-gain effect appears on the same tile.
+    var tileRootCenter by remember(position) {
         mutableStateOf<Offset?>(null)
     }
     if (coinGainEffect != null) {

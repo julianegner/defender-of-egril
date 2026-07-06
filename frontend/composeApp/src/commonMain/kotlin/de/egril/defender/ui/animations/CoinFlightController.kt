@@ -29,6 +29,10 @@ data class CoinFlight(
  * removes the active [flights].
  *
  * The queueing logic here is intentionally free of Compose UI so it can be unit tested.
+ *
+ * Not thread-safe by design: it is only ever accessed from the Compose UI thread (header layout
+ * callbacks and `LaunchedEffect` coroutines, which run on the main dispatcher), so no locking is
+ * needed for [nextId] or the state holders.
  */
 object CoinFlightController {
     /**

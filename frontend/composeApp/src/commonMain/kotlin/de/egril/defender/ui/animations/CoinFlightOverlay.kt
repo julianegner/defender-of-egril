@@ -75,7 +75,8 @@ private fun CoinFlightSprite(flight: CoinFlight) {
     val density = LocalDensity.current
     val progress = remember { Animatable(0f) }
 
-    LaunchedEffect(flight.id) {
+    // The sprite is keyed by flight.id upstream, so this effect runs exactly once per sprite.
+    LaunchedEffect(Unit) {
         progress.animateTo(
             targetValue = 1f,
             animationSpec = tween(durationMillis = COIN_FLIGHT_DURATION_MS, easing = FastOutSlowInEasing),
