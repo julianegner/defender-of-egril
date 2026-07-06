@@ -248,7 +248,7 @@ kotlin {
     jvm("desktop") {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_21)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
     
@@ -298,6 +298,9 @@ kotlin {
                     layout.buildDirectory.get().asFile.path,
                     "generated/compose/resourceGenerator/kotlin/commonCustomResClass"
                 )
+            )
+            resources.srcDir(
+                layout.buildDirectory.dir("generated/legacyEnemySprites/commonMain/composeResources")
             )
         }
         
@@ -535,31 +538,18 @@ tasks.matching { it.name.startsWith("copyNonXmlValueResourcesFor") }.configureEa
 }
 
 // Compatibility workaround for legacy enemy spritesheets that may still exist under
-// src/commonMain/composeResources/drawable/sprites on developer machines. Compose resource
-// accessors cannot handle nested directories below drawable/, so we rewrite prepared resources to
-// use files/sprites instead and remove the invalid drawable/sprites directory before accessor
-// generation runs.
-tasks.matching { it.name == "prepareComposeResourcesTaskForCommonMain" }.configureEach {
-    doLast {
-        val preparedComposeResourcesDir =
-            layout.buildDirectory
-                .dir("generated/compose/resourceGenerator/preparedResources/commonMain/composeResources")
-                .get()
-                .asFile
-        val preparedLegacySpritesDir = preparedComposeResourcesDir.resolve("drawable/sprites")
-        if (preparedLegacySpritesDir.exists()) {
-            val preparedFilesSpritesDir = preparedComposeResourcesDir.resolve("files/sprites")
-            preparedFilesSpritesDir.mkdirs()
-            copy {
-                from(preparedLegacySpritesDir)
-                into(preparedFilesSpritesDir)
-            }
-            delete(preparedLegacySpritesDir)
-            logger.lifecycle(
-                "Moved legacy prepared enemy sprite resources from drawable/sprites to files/sprites.",
-            )
-        }
+// src/commonMain/composeResources/drawable/sprites on developer machines. Compose resources under
+// drawable/ cannot be consumed as raw nested files at runtime, so we copy them into a generated
+// files/sprites resource tree before Compose resource preparation runs.
+val syncLegacyEnemySprites =
+    tasks.register<org.gradle.api.tasks.Sync>("syncLegacyEnemySprites") {
+        from(layout.projectDirectory.dir("src/commonMain/composeResources/drawable/sprites"))
+        into(layout.buildDirectory.dir("generated/legacyEnemySprites/commonMain/composeResources/files/sprites"))
+        include("*.png")
     }
+
+tasks.matching { it.name == "prepareComposeResourcesTaskForCommonMain" }.configureEach {
+    dependsOn(syncLegacyEnemySprites)
 }
 
 // ---------------------------------------------------------------------------
