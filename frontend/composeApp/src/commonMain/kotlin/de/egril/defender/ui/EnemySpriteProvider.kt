@@ -24,7 +24,7 @@ import kotlinx.coroutines.withContext
  * ## Spritesheet convention
  * Each enemy type has a single spritesheet PNG stored at:
  *
- * `composeResources/drawable/sprites/{key}.png`
+ * `composeResources/files/sprites/{key}.png`
  *
  * where `{key}` is the lower-cased [AttackerType] name (see [spriteKey]).  The sheet is a single
  * horizontal strip of [DIRECTION_COUNT] equally-sized frames, one per hexagon direction, laid out
@@ -58,7 +58,7 @@ object EnemySpriteProvider {
     private suspend fun loadSheet(key: String): ImageBitmap? {
         if (sheetCache.containsKey(key)) return sheetCache[key]
 
-        var bitmap: ImageBitmap? =
+        val bitmap: ImageBitmap? =
             try {
                 val bytes = Res.readBytes("files/sprites/$key.png")
                 MapImageProvider.decodeImageBitmap(bytes)
