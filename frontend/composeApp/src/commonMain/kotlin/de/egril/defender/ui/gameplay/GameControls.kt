@@ -157,6 +157,13 @@ fun GameControlsPanel(
                 autoAttackAvailable -> stringResource(Res.string.auto_attack_button)
                 else -> stringResource(Res.string.end_turn_button)
             }
+        // Larger expanded button (shown when nothing is selected) uses the combined label
+        val primaryButtonExpandedText =
+            when {
+                !isPlayerTurn -> stringResource(Res.string.start_battle)
+                autoAttackAvailable -> stringResource(Res.string.auto_attack_slash_end_turn)
+                else -> stringResource(Res.string.end_turn_button)
+            }
         val primaryButtonTooltip =
             if (isPlayerTurn && autoAttackAvailable) stringResource(Res.string.auto_attack_and_end_turn) else null
         val primaryButtonColor =
@@ -411,7 +418,7 @@ fun GameControlsPanel(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                 ) {
-                                    Text(primaryButtonText)
+                                    Text(primaryButtonExpandedText)
                                     ShortcutKeyChip(
                                         text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
                                         color = shortcutHintColor,
