@@ -35,8 +35,8 @@ private const val COIN_FADE_START = 0.85f
 /**
  * Z-index for the overlay. It is a sibling of the gameplay `Surface` (which hosts the header and
  * map) within the top-level `BoxWithConstraints`, so any positive value stacks it above that
- * sibling; a comfortably large value keeps it above the map's own internal tile overlays (which use
- * z-indices well below this) so coins remain visible for their whole flight.
+ * sibling. The map's internal tile overlays (enemy death, coin gain, tower impacts) use z-indices
+ * up to ~19f, so 50f keeps flying coins above all of them for their whole flight.
  */
 private const val COIN_FLIGHT_OVERLAY_Z_INDEX = 50f
 
