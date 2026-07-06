@@ -33,6 +33,14 @@ private val COIN_FLIGHT_SIZE: Dp = 22.dp
 private const val COIN_FADE_START = 0.85f
 
 /**
+ * Z-index for the overlay. It is a sibling of the gameplay `Surface` (which hosts the header and
+ * map) within the top-level `BoxWithConstraints`, so any positive value stacks it above that
+ * sibling; a comfortably large value keeps it above the map's own internal tile overlays (which use
+ * z-indices well below this) so coins remain visible for their whole flight.
+ */
+private const val COIN_FLIGHT_OVERLAY_Z_INDEX = 50f
+
+/**
  * Full-screen overlay that renders "coin fly-to-counter" animations queued in [CoinFlightController].
  *
  * Each coin sprite eases along an arced path from its reward source to the coin counter and then
@@ -56,7 +64,7 @@ fun CoinFlightOverlay(modifier: Modifier = Modifier) {
         return
     }
 
-    Box(modifier = modifier.fillMaxSize().zIndex(50f)) {
+    Box(modifier = modifier.fillMaxSize().zIndex(COIN_FLIGHT_OVERLAY_Z_INDEX)) {
         // Iterate a stable snapshot copy so removals during iteration don't disturb rendering.
         CoinFlightController.flights.toList().forEach { flight ->
             key(flight.id) {
