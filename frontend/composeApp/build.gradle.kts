@@ -541,6 +541,11 @@ tasks.matching { it.name.startsWith("copyNonXmlValueResourcesFor") }.configureEa
 // src/commonMain/composeResources/drawable/sprites on developer machines. Compose resources under
 // drawable/ cannot be consumed as raw nested files at runtime, so we copy them into a generated
 // files/sprites resource tree before Compose resource preparation runs.
+val preparedLegacyEnemySpritesDir =
+    layout.buildDirectory.dir(
+        "generated/compose/resourceGenerator/preparedResources/commonMain/composeResources/drawable/sprites"
+    )
+
 val syncLegacyEnemySprites =
     tasks.register<org.gradle.api.tasks.Sync>("syncLegacyEnemySprites") {
         from(layout.projectDirectory.dir("src/commonMain/composeResources/drawable/sprites"))
@@ -553,11 +558,7 @@ tasks.matching { it.name == "prepareComposeResourcesTaskForCommonMain" }.configu
     doLast {
         // Delete the prepared legacy drawable/sprites directory so Compose resource accessor
         // generation only sees the copied files/sprites tree and not the nested drawable folder.
-        delete(
-            layout.buildDirectory.dir(
-                "generated/compose/resourceGenerator/preparedResources/commonMain/composeResources/drawable/sprites"
-            )
-        )
+        delete(preparedLegacyEnemySpritesDir)
     }
 }
 
