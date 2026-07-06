@@ -91,7 +91,7 @@ fun AttackerInfo(
                     modifier = Modifier.size(iconSize),
                     contentAlignment = Alignment.Center,
                 ) {
-                    // Info portrait always shows the unit looking forward.
+                    // Info portrait always shows the unit in the default facing (SW).
                     EnemyIcon(
                         attacker = attacker,
                         modifier = Modifier.size(iconInnerSize),

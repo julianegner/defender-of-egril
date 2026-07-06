@@ -45,10 +45,10 @@ import kotlinx.coroutines.withContext
  */
 object EnemySpriteProvider {
     /** Number of columns in each spritesheet grid. */
-    val GRID_COLS: Int = 3
+    const val GRID_COLS: Int = 3
 
     /** Number of rows in each spritesheet grid. */
-    val GRID_ROWS: Int = 3
+    const val GRID_ROWS: Int = 3
 
     // Cache of decoded spritesheets keyed by sprite key. `null` means "already tried, not available".
     private val sheetCache = mutableMapOf<String, ImageBitmap?>()
