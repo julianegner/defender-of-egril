@@ -529,6 +529,34 @@ tasks.matching { it.name.startsWith("copyNonXmlValueResourcesFor") }.configureEa
     doNotTrackState("Gradle 9.x output-property validation workaround for Compose resource tasks")
 }
 
+// Compatibility workaround for legacy enemy spritesheets that may still exist under
+// src/commonMain/composeResources/drawable/sprites on developer machines. Compose resource
+// accessors cannot handle nested directories below drawable/, so we rewrite prepared resources to
+// use files/sprites instead and remove the invalid drawable/sprites directory before accessor
+// generation runs.
+tasks.matching { it.name == "prepareComposeResourcesTaskForCommonMain" }.configureEach {
+    doLast {
+        val preparedComposeResourcesDir =
+            layout.buildDirectory
+                .dir("generated/compose/resourceGenerator/preparedResources/commonMain/composeResources")
+                .get()
+                .asFile
+        val preparedLegacySpritesDir = preparedComposeResourcesDir.resolve("drawable/sprites")
+        if (preparedLegacySpritesDir.exists()) {
+            val preparedFilesSpritesDir = preparedComposeResourcesDir.resolve("files/sprites")
+            preparedFilesSpritesDir.mkdirs()
+            copy {
+                from(preparedLegacySpritesDir)
+                into(preparedFilesSpritesDir)
+            }
+            delete(preparedLegacySpritesDir)
+            logger.lifecycle(
+                "Moved legacy prepared enemy sprite resources from drawable/sprites to files/sprites.",
+            )
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Asset-pack integration for AAB builds
 //
