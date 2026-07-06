@@ -26,6 +26,7 @@ import de.egril.defender.model.*
 import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.ReminderMessage
 import de.egril.defender.ui.a11y.accessibilityVisualFilter
+import de.egril.defender.ui.animations.CoinFlightOverlay
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.getGameplayUIScale
 import de.egril.defender.ui.getLocalizedName
@@ -3041,6 +3042,10 @@ private fun GamePlayScreenContent(
                     }
                 }
             }
+
+            // Coin fly-to-counter animation overlay: sits above header + map so coins can travel
+            // between them. No-op when animations are disabled.
+            CoinFlightOverlay()
         }
     }
 }

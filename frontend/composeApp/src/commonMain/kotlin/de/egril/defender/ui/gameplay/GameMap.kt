@@ -17,7 +17,9 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +45,7 @@ import de.egril.defender.ui.animations.BallistaAttackOverlay
 import de.egril.defender.ui.animations.BarricadeDamageAnimation
 import de.egril.defender.ui.animations.BombExplosionAnimation
 import de.egril.defender.ui.animations.BowAttackOverlay
+import de.egril.defender.ui.animations.CoinFlightController
 import de.egril.defender.ui.animations.CoinGainAnimation
 import de.egril.defender.ui.animations.CoolingAreaAnimation
 import de.egril.defender.ui.animations.DragonLevelChangeAnimation
@@ -2584,6 +2587,23 @@ private fun BoxScope.GridCellContent(
     var showCoinAnimation by remember(coinGainEffect?.turnNumber, coinGainEffect?.position) {
         mutableStateOf(false)
     }
+    // Track this tile's center in root coordinates so a coin-flight animation can start here.
+    var tileRootCenter by remember(coinGainEffect?.turnNumber, coinGainEffect?.position) {
+        mutableStateOf<Offset?>(null)
+    }
+    if (coinGainEffect != null) {
+        Box(
+            modifier =
+                Modifier.matchParentSize().onGloballyPositioned { coords ->
+                    val topLeft = coords.positionInRoot()
+                    tileRootCenter =
+                        Offset(
+                            x = topLeft.x + coords.size.width / 2f,
+                            y = topLeft.y + coords.size.height / 2f,
+                        )
+                },
+        )
+    }
     LaunchedEffect(coinGainEffect?.turnNumber, coinGainEffect?.position, towerAttackEffect?.turnNumber) {
         if (coinGainEffect != null) {
             val arrowDelay =
@@ -2624,6 +2644,13 @@ private fun BoxScope.GridCellContent(
                 gameState.coins.value += toAdd
             }
             showCoinAnimation = true
+            // Also launch the "coin fly-to-counter" animation from this tile toward the coin
+            // counter. Only when animations are enabled; runs alongside the existing coin overlay.
+            if (AppSettings.enableAnimations.value) {
+                tileRootCenter?.let { source ->
+                    CoinFlightController.launch(source, coinGainEffect.amount)
+                }
+            }
         } else {
             showCoinAnimation = false
         }
