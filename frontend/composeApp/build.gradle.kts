@@ -551,6 +551,8 @@ val syncLegacyEnemySprites =
 tasks.matching { it.name == "prepareComposeResourcesTaskForCommonMain" }.configureEach {
     dependsOn(syncLegacyEnemySprites)
     doLast {
+        // Delete the prepared legacy drawable/sprites directory so Compose resource accessor
+        // generation only sees the copied files/sprites tree and not the nested drawable folder.
         delete(
             layout.buildDirectory.dir(
                 "generated/compose/resourceGenerator/preparedResources/commonMain/composeResources/drawable/sprites"
