@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.geometry.Offset
+import kotlin.math.hypot
 
 /**
  * A single coin sprite in flight from a reward source toward the coin counter.
@@ -11,6 +12,8 @@ import androidx.compose.ui.geometry.Offset
  * @param id Unique identifier used as a stable Compose key and for removal.
  * @param start Screen (root) coordinates where the coin starts, in pixels.
  * @param target Screen (root) coordinates of the coin counter, in pixels.
+ * @param control Quadratic-Bézier control point (root coordinates). Precomputed once at launch so
+ *                the arced path isn't recalculated on every animation frame.
  * @param curveSign Direction (+1 / -1) the arced flight path bends, alternated per coin
  *                  so a burst fans out instead of overlapping on a single line.
  */
@@ -18,6 +21,7 @@ data class CoinFlight(
     val id: Long,
     val start: Offset,
     val target: Offset,
+    val control: Offset,
     val curveSign: Float,
 )
 
@@ -49,6 +53,9 @@ object CoinFlightController {
 
     /** One extra coin sprite is added per this many coins, up to [MAX_COINS_PER_EVENT]. */
     const val COINS_PER_SPRITE = 10
+
+    /** How far the arced flight path bows out, as a fraction of the straight-line distance. */
+    private const val ARC_FACTOR = 0.25f
 
     private var nextId = 0L
 
@@ -97,11 +104,30 @@ object CoinFlightController {
                     id = nextId++,
                     start = source,
                     target = target,
+                    control = arcControlPoint(source, target, sign),
                     curveSign = sign,
                 ),
             )
         }
         return count
+    }
+
+    /**
+     * Control point for a coin's quadratic-Bézier flight path: the midpoint of the straight line,
+     * pushed perpendicular to it (in the [curveSign] direction) so the coin travels along an arc.
+     */
+    private fun arcControlPoint(
+        start: Offset,
+        target: Offset,
+        curveSign: Float,
+    ): Offset {
+        val mid = Offset((start.x + target.x) / 2f, (start.y + target.y) / 2f)
+        val dx = target.x - start.x
+        val dy = target.y - start.y
+        val length = hypot(dx, dy)
+        if (length <= 0f) return mid
+        val perpendicular = Offset(-dy / length, dx / length)
+        return mid + perpendicular * (length * ARC_FACTOR * curveSign)
     }
 
     /** Remove a completed flight by [id]. */

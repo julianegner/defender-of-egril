@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.settings.AppSettings
-import kotlin.math.hypot
 import kotlin.math.roundToInt
 
 /** Duration of a single coin's flight from the reward source to the coin counter. */
@@ -32,9 +31,6 @@ private val COIN_FLIGHT_SIZE: Dp = 22.dp
 
 /** Fraction of the flight (near the end) over which the coin fades out as it reaches the counter. */
 private const val COIN_FADE_START = 0.85f
-
-/** How far the arced path bows out, as a fraction of the straight-line distance. */
-private const val COIN_ARC_FACTOR = 0.25f
 
 /**
  * Full-screen overlay that renders "coin fly-to-counter" animations queued in [CoinFlightController].
@@ -85,7 +81,7 @@ private fun CoinFlightSprite(flight: CoinFlight) {
     }
 
     val t = progress.value
-    val position = quadraticBezierPoint(flight.start, controlPoint(flight), flight.target, t)
+    val position = quadraticBezierPoint(flight.start, flight.control, flight.target, t)
     val spriteAlpha =
         if (t > COIN_FADE_START) {
             (1f - (t - COIN_FADE_START) / (1f - COIN_FADE_START)).coerceIn(0f, 1f)
@@ -106,22 +102,6 @@ private fun CoinFlightSprite(flight: CoinFlight) {
     ) {
         MoneyIcon(size = COIN_FLIGHT_SIZE)
     }
-}
-
-/**
- * Control point for the quadratic Bézier flight path: the midpoint of the straight line, pushed
- * perpendicular to it so the coin travels along a gentle arc. The push direction is [CoinFlight.curveSign].
- */
-private fun controlPoint(flight: CoinFlight): Offset {
-    val start = flight.start
-    val target = flight.target
-    val mid = Offset((start.x + target.x) / 2f, (start.y + target.y) / 2f)
-    val dx = target.x - start.x
-    val dy = target.y - start.y
-    val length = hypot(dx, dy)
-    if (length <= 0f) return mid
-    val perpendicular = Offset(-dy / length, dx / length)
-    return mid + perpendicular * (length * COIN_ARC_FACTOR * flight.curveSign)
 }
 
 private fun quadraticBezierPoint(

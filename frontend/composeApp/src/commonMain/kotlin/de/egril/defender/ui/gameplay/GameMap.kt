@@ -2597,6 +2597,9 @@ private fun BoxScope.GridCellContent(
         Box(
             modifier =
                 Modifier.matchParentSize().onGloballyPositioned { coords ->
+                    // Captured fresh whenever a coin-gain effect is present on this tile (this Box
+                    // only exists then) and re-fired while the map pans/zooms, so the value used at
+                    // launch time reflects the tile's current on-screen position.
                     val topLeft = coords.positionInRoot()
                     tileRootCenter =
                         Offset(
