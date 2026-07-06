@@ -26,9 +26,10 @@ Add one spritesheet PNG per enemy type at:
 frontend/composeApp/src/commonMain/composeResources/files/sprites/{key}.png
 ```
 
-> **Important:** Place spritesheets under `files/sprites/`, **not** `drawable/sprites/`.
-> The Compose resource generator does not support subdirectories inside `drawable/` and
-> will fail at build time (`FileNotFoundException: … is a directory`) if such a directory exists.
+> **Important:** Place spritesheets under `files/sprites/`; that is the correct long-term
+> location. For backward compatibility, the Gradle build now rewrites any legacy
+> `drawable/sprites/` resources into `files/sprites/` before Compose resource accessor generation
+> runs, so older local checkouts still compile.
 
 where `{key}` is the lower-cased `AttackerType` name:
 

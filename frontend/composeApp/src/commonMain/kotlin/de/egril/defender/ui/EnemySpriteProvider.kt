@@ -51,9 +51,9 @@ object EnemySpriteProvider {
      * Loads and decodes the spritesheet for the given key, caching the result (including misses).
      *
      * The bytes are looked up under `files/sprites/` (the cross-platform raw-resource location used
-     * elsewhere in the app). Note: spritesheets must **not** be placed under `drawable/sprites/`
-     * because the Compose resource generator does not support subdirectories inside `drawable/`
-     * and will fail at build time if such a directory exists.
+     * elsewhere in the app). `files/sprites/` is the correct long-term location. For backward
+     * compatibility, the Gradle build rewrites any legacy prepared `drawable/sprites/` resources
+     * into `files/sprites/` before Compose resource accessor generation runs.
      */
     private suspend fun loadSheet(key: String): ImageBitmap? {
         if (sheetCache.containsKey(key)) return sheetCache[key]
