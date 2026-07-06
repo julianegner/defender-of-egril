@@ -50,24 +50,21 @@ object EnemySpriteProvider {
     /**
      * Loads and decodes the spritesheet for the given key, caching the result (including misses).
      *
-     * The bytes are looked up first under `files/sprites/` (the cross-platform raw-resource
-     * location used elsewhere in the app) and then under `drawable/sprites/`.
+     * The bytes are looked up under `files/sprites/` (the cross-platform raw-resource location used
+     * elsewhere in the app). Note: spritesheets must **not** be placed under `drawable/sprites/`
+     * because the Compose resource generator does not support subdirectories inside `drawable/`
+     * and will fail at build time if such a directory exists.
      */
     private suspend fun loadSheet(key: String): ImageBitmap? {
         if (sheetCache.containsKey(key)) return sheetCache[key]
 
-        val candidatePaths = listOf("files/sprites/$key.png", "drawable/sprites/$key.png")
-        var bitmap: ImageBitmap? = null
-        for (path in candidatePaths) {
-            bitmap =
-                try {
-                    val bytes = Res.readBytes(path)
-                    MapImageProvider.decodeImageBitmap(bytes)
-                } catch (_: Exception) {
-                    null
-                }
-            if (bitmap != null) break
-        }
+        var bitmap: ImageBitmap? =
+            try {
+                val bytes = Res.readBytes("files/sprites/$key.png")
+                MapImageProvider.decodeImageBitmap(bytes)
+            } catch (_: Exception) {
+                null
+            }
         sheetCache[key] = bitmap
         return bitmap
     }

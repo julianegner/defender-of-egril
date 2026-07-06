@@ -20,12 +20,15 @@ E, NE, NW, W, SW, SE
 
 ## Spritesheet convention
 
-Add one spritesheet PNG per enemy type at either of these locations (the first that exists wins):
+Add one spritesheet PNG per enemy type at:
 
 ```
-frontend/composeApp/src/commonMain/composeResources/files/sprites/{key}.png      (recommended, works on all platforms)
-frontend/composeApp/src/commonMain/composeResources/drawable/sprites/{key}.png
+frontend/composeApp/src/commonMain/composeResources/files/sprites/{key}.png
 ```
+
+> **Important:** Place spritesheets under `files/sprites/`, **not** `drawable/sprites/`.
+> The Compose resource generator does not support subdirectories inside `drawable/` and
+> will fail at build time (`FileNotFoundException: … is a directory`) if such a directory exists.
 
 where `{key}` is the lower-cased `AttackerType` name:
 
