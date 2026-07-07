@@ -3,6 +3,7 @@ package de.egril.defender.ui.gameplay
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.icon.DigOutcomeIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.settings.AppSettings
@@ -340,31 +340,33 @@ fun EndTurnConfirmationDialog(
         onDismissRequest = onCancel,
         title = { Text(stringResource(Res.string.end_turn_confirmation_title)) },
         text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                if (showEndTurnWarning) {
-                    Text(
-                        stringResource(Res.string.end_turn_confirmation_message),
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                    if (showAutoAttackButton) {
-                        Spacer(modifier = Modifier.height(4.dp))
+            SelectionContainer {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (showEndTurnWarning) {
                         Text(
-                            stringResource(Res.string.auto_attack_warning),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            stringResource(Res.string.end_turn_confirmation_message),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        if (showAutoAttackButton) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                stringResource(Res.string.auto_attack_warning),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    if (showWinLevelNow) {
+                        if (showEndTurnWarning) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                        Text(
+                            stringResource(Res.string.win_level_now_description),
+                            style = MaterialTheme.typography.bodyLarge,
                         )
                     }
-                }
-                if (showWinLevelNow) {
-                    if (showEndTurnWarning) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                    }
-                    SelectableText(
-                        text = stringResource(Res.string.win_level_now_description),
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
                 }
             }
         },
