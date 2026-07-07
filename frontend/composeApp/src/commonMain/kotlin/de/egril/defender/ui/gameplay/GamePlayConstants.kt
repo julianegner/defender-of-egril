@@ -164,6 +164,18 @@ object GamePlayConstants {
     }
 
     /**
+     * Opacity (alpha) values used to convey element state through transparency.
+     */
+    object Opacity {
+        /**
+         * Opacity applied to the graphic of a tower/defender that is inactive this turn
+         * (out of actions, disabled, or still building). Active towers – which display
+         * action markers (lightning bolts) – are drawn fully opaque.
+         */
+        const val InactiveTower = 0.5f
+    }
+
+    /**
      * Timing constants (milliseconds) used to sequence overlapping animations.
      * These values match the durations encoded in the corresponding Lottie JSON files.
      */

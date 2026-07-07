@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import de.egril.defender.model.*
 import de.egril.defender.ui.animations.SpellDoubleLevelColor
 import de.egril.defender.ui.gameplay.GamePlayColors
+import de.egril.defender.ui.gameplay.GamePlayConstants
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.icon.defender.*
@@ -83,6 +85,21 @@ fun DrawScope.drawTower(
 }
 
 /**
+ * Determines the opacity (alpha) to apply to a placed tower's graphic.
+ *
+ * Active towers – those that can still take an action this turn and therefore display action
+ * markers (lightning bolts) – are drawn fully opaque (1f). Inactive towers – out of actions,
+ * disabled, or still building – are drawn with reduced opacity so they can be distinguished at
+ * a glance. Structures that never act (e.g. the Dragon's Lair, whose actionsPerTurn is 0) are
+ * always fully opaque.
+ */
+fun towerGraphicAlpha(defender: Defender): Float {
+    val canEverAct = defender.actionsPerTurnCalculated > 0
+    val isActive = defender.isReady && defender.actionsRemaining.value > 0
+    return if (canEverAct && !isActive) GamePlayConstants.Opacity.InactiveTower else 1f
+}
+
+/**
  * Composable that draws a tower icon with a symbol for the tower type
  */
 @Composable
@@ -99,12 +116,15 @@ fun TowerIcon(
             it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == defender.id
         } ?: false
 
+    // Inactive towers are drawn with reduced opacity so they stand out from active ones.
+    val graphicAlpha = towerGraphicAlpha(defender)
+
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
         // Draw tower graphics first (will be behind text)
-        Canvas(modifier = Modifier.fillMaxSize()) {
+        Canvas(modifier = Modifier.fillMaxSize().alpha(graphicAlpha)) {
             val centerX = size.width / 2
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
