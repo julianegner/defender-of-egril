@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
@@ -42,6 +44,14 @@ private fun turnButtonShortcutHintColor(
         MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f)
     }
 
+/** Font size for the primary turn button label. Uses larger sizes than other controls for readability. */
+private fun turnButtonLabelFontSize(headerTextSize: HeaderTextSize) =
+    when (headerTextSize) {
+        HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.TurnButtonSmall
+        HeaderTextSize.MEDIUM -> GamePlayConstants.TextSizes.TurnButtonMedium
+        HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.TurnButtonLarge
+    }
+
 @Composable
 fun ColumnScope.TurnButton(
     isPlayerTurn: Boolean,
@@ -49,52 +59,64 @@ fun ColumnScope.TurnButton(
     onPrimaryAction: () -> Unit = {},
     primaryButtonColor: Color = GamePlayColors.WarningDeep,
     highlighted: Boolean = false,
+    autoAttackAvailable: Boolean = false,
 ) {
-    val buttonTextSize =
-        when (AppSettings.headerTextSize.value) {
-            HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.Body
-            HeaderTextSize.MEDIUM -> GamePlayConstants.TextSizes.Medium
-            HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
-        }
+    val buttonTextSize = turnButtonLabelFontSize(AppSettings.headerTextSize.value)
     val turnButtonContentColor = GamePlayColors.readableContentColor(primaryButtonColor)
     val shortcutHintColor = turnButtonShortcutHintColor(isPlayerTurn, primaryButtonColor)
-    Button(
-        onClick = onPrimaryAction,
-        // modifier = Modifier.fillMaxWidth(),
-        colors =
-            if (isPlayerTurn) {
-                ButtonDefaults.buttonColors(
-                    containerColor = primaryButtonColor,
-                    contentColor = turnButtonContentColor,
-                )
-            } else {
-                ButtonDefaults.buttonColors()
-            },
-        border =
-            if (highlighted && isPlayerTurn) {
-                BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
-            } else {
-                null
-            },
-        modifier = modifier,
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+    val buttonLabel =
+        when {
+            !isPlayerTurn -> stringResource(Res.string.start_battle)
+            autoAttackAvailable -> stringResource(Res.string.auto_attack_button)
+            else -> stringResource(Res.string.end_turn_button)
+        }
+    val tooltipText = if (isPlayerTurn && autoAttackAvailable) stringResource(Res.string.auto_attack_and_end_turn) else null
+    TooltipWrapper(text = tooltipText, preferAbove = true) {
+        Button(
+            onClick = onPrimaryAction,
+            // modifier = Modifier.fillMaxWidth(),
+            colors =
+                if (isPlayerTurn) {
+                    ButtonDefaults.buttonColors(
+                        containerColor = primaryButtonColor,
+                        contentColor = turnButtonContentColor,
+                    )
+                } else {
+                    ButtonDefaults.buttonColors()
+                },
+            border =
+                if (highlighted && isPlayerTurn) {
+                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                } else {
+                    null
+                },
+            modifier = modifier,
         ) {
-            Text(
-                if (isPlayerTurn) stringResource(Res.string.end_turn_button) else stringResource(Res.string.start_battle),
-                style = MaterialTheme.typography.labelMedium,
-                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                fontSize = buttonTextSize,
-                maxLines = 1,
-                modifier = Modifier.weight(1f),
-            )
-            ShortcutKeyChip(
-                text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
-                color = shortcutHintColor,
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    buttonLabel,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                    fontWeight = FontWeight.Bold,
+                    autoSize =
+                        TextAutoSize.StepBased(
+                            minFontSize = 9.sp,
+                            maxFontSize = buttonTextSize,
+                            stepSize = 1.sp,
+                        ),
+                    maxLines = 1,
+                    softWrap = false,
+                    modifier = Modifier.weight(1f),
+                )
+                ShortcutKeyChip(
+                    text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
+                    color = shortcutHintColor,
+                )
+            }
         }
     }
 }
@@ -134,13 +156,28 @@ fun GameControlsPanel(
 
         // Determine phase-specific properties
         val isPlayerTurn = phase == GamePhase.PLAYER_TURN
+        val autoAttackAvailable = isPlayerTurn && gameState.level.allowAutoAttack && gameState.hasDefendersForAutoAttack()
         val title =
             if (isPlayerTurn) {
                 stringResource(Res.string.your_turn_message)
             } else {
                 stringResource(Res.string.initial_building_phase)
             }
-        val primaryButtonText = if (isPlayerTurn) stringResource(Res.string.end_turn_button) else stringResource(Res.string.start_battle)
+        val primaryButtonText =
+            when {
+                !isPlayerTurn -> stringResource(Res.string.start_battle)
+                autoAttackAvailable -> stringResource(Res.string.auto_attack_button)
+                else -> stringResource(Res.string.end_turn_button)
+            }
+        // Larger expanded button (shown when nothing is selected) uses the combined label
+        val primaryButtonExpandedText =
+            when {
+                !isPlayerTurn -> stringResource(Res.string.start_battle)
+                autoAttackAvailable -> stringResource(Res.string.auto_attack_slash_end_turn)
+                else -> stringResource(Res.string.end_turn_button)
+            }
+        val primaryButtonTooltip =
+            if (isPlayerTurn && autoAttackAvailable) stringResource(Res.string.auto_attack_and_end_turn) else null
         val primaryButtonColor =
             if (isPlayerTurn) {
                 GamePlayColors.WarningDeep
@@ -288,6 +325,7 @@ fun GameControlsPanel(
                                                 modifier = compactDefenderButtonModifier,
                                                 onPrimaryAction,
                                                 highlighted = highlightEndTurnButton,
+                                                autoAttackAvailable = autoAttackAvailable,
                                             )
                                         }
                                     }
@@ -369,33 +407,42 @@ fun GameControlsPanel(
                     if (!compactBuyPanel) {
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        Button(
-                            onClick = onPrimaryAction,
-                            modifier = Modifier.fillMaxWidth(),
-                            border =
-                                if (highlightEndTurnButton && isPlayerTurn) {
-                                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
-                                } else {
-                                    null
-                                },
-                            colors =
-                                if (isPlayerTurn) {
-                                    ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
-                                } else {
-                                    ButtonDefaults.buttonColors()
-                                },
-                        ) {
-                            val shortcutHintColor = turnButtonShortcutHintColor(isPlayerTurn, primaryButtonColor)
-                            Row(
+                        TooltipWrapper(text = primaryButtonTooltip) {
+                            Button(
+                                onClick = onPrimaryAction,
                                 modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                                border =
+                                    if (highlightEndTurnButton && isPlayerTurn) {
+                                        BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                                    } else {
+                                        null
+                                    },
+                                colors =
+                                    if (isPlayerTurn) {
+                                        ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
+                                    } else {
+                                        ButtonDefaults.buttonColors()
+                                    },
                             ) {
-                                Text(primaryButtonText)
-                                ShortcutKeyChip(
-                                    text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
-                                    color = shortcutHintColor,
-                                )
+                                val shortcutHintColor = turnButtonShortcutHintColor(isPlayerTurn, primaryButtonColor)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Text(
+                                        primaryButtonExpandedText,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = turnButtonLabelFontSize(AppSettings.headerTextSize.value),
+                                        maxLines = 1,
+                                    )
+                                    ShortcutKeyChip(
+                                        text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
+                                        color = shortcutHintColor,
+                                    )
+                                }
                             }
                         }
                     }

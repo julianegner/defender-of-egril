@@ -132,6 +132,14 @@ object GamePlayConstants {
 
         /** Title text */
         val Title = 18.sp
+
+        /**
+         * Font sizes for the primary turn button label (End Turn / Auto-Attack / Start Battle).
+         * Larger than other controls for readability, scaled by the header text size setting.
+         */
+        val TurnButtonSmall = 18.sp
+        val TurnButtonMedium = 22.sp
+        val TurnButtonLarge = 26.sp
     }
 
     /**
