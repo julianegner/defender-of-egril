@@ -2101,7 +2101,10 @@ private fun BoxScope.GridCellContent(
                             damage = attackPreview.damage,
                             isLethal = attackPreview.isLethal,
                             isImmune = attackPreview.isImmune,
-                            modifier = Modifier.align(Alignment.CenterStart),
+                            modifier =
+                                Modifier
+                                    .align(Alignment.CenterStart)
+                                    .offset(x = 10.dp),
                         )
                     }
                 }
