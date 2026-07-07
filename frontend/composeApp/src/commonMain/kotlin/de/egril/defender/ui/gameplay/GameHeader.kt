@@ -14,6 +14,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +32,8 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.common.LevelInfoEnemiesColumn
 import de.egril.defender.ui.common.SelectableText
+import de.egril.defender.ui.common.SpeechBubble
+import de.egril.defender.ui.common.SpeechBubblePointer
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.hexagon.HexagonMinimap
 import de.egril.defender.ui.hexagon.MinimapConfig
@@ -740,13 +744,18 @@ private fun LevelHeaderIcons(
         }
     val hasSpecialTowers = specialTowers.isNotEmpty()
 
-    // Win-level info icon (only shown when the level is guaranteed to be won)
+    // Win-level info icon with a speech bubble pointing at it (only shown when the level is
+    // guaranteed to be won). Clicking the badge opens the full win-level popup.
     if (onWinLevelInfoClick != null && gameState.canWinLevelNow()) {
-        TooltipWrapper(text = stringResource(Res.string.win_level_now_description)) {
+        Box {
             TrophyIcon(
                 size = iconSize,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.clickable { onWinLevelInfoClick() },
+            )
+            WinLevelSpeechBubble(
+                text = stringResource(Res.string.win_level_now_description),
+                badgeSize = iconSize,
             )
         }
     }
@@ -789,6 +798,45 @@ private fun LevelHeaderIcons(
                     }
                 },
         )
+    }
+}
+
+/**
+ * A speech bubble rendered just below the win-level badge, its pointer aimed at the badge centre.
+ * Drawn as a zero-size overlay so it floats over the map without affecting the header row layout.
+ */
+@Composable
+private fun WinLevelSpeechBubble(
+    text: String,
+    badgeSize: Dp,
+) {
+    val density = LocalDensity.current
+    val badgeSizePx = with(density) { badgeSize.roundToPx() }
+    val gapPx = with(density) { 2.dp.roundToPx() }
+
+    Box(
+        modifier =
+            Modifier
+                .zIndex(50f)
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
+                    // Report zero size so the bubble does not affect the header row layout.
+                    layout(0, 0) {
+                        placeable.place(0, badgeSizePx + gapPx)
+                    }
+                },
+    ) {
+        SpeechBubble(
+            pointer = SpeechBubblePointer.UP,
+            // Aim the pointer tip at the badge centre while the bubble is left-aligned to the badge.
+            pointerOffset = badgeSize / 2,
+            modifier = Modifier.widthIn(max = 260.dp),
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
 }
 
