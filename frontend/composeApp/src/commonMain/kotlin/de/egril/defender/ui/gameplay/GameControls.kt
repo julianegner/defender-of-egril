@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
@@ -100,8 +102,14 @@ fun ColumnScope.TurnButton(
                     style = MaterialTheme.typography.labelMedium,
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
                     fontWeight = FontWeight.Bold,
-                    fontSize = buttonTextSize,
+                    autoSize =
+                        TextAutoSize.StepBased(
+                            minFontSize = 9.sp,
+                            maxFontSize = buttonTextSize,
+                            stepSize = 1.sp,
+                        ),
                     maxLines = 1,
+                    softWrap = false,
                     modifier = Modifier.weight(1f),
                 )
                 ShortcutKeyChip(
