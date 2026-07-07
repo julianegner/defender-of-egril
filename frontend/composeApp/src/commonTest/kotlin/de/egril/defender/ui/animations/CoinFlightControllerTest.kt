@@ -86,6 +86,30 @@ class CoinFlightControllerTest {
     }
 
     @Test
+    fun launchAppliesProvidedCoinSize() {
+        CoinFlightController.setTarget(Offset(300f, 25f))
+        val coinSize = 9.5f
+        CoinFlightController.launch(Offset(30f, 40f), amount = 5, coinSizePx = coinSize)
+        assertTrue(CoinFlightController.flights.isNotEmpty())
+        CoinFlightController.flights.forEach { flight ->
+            assertEquals(coinSize, flight.sizePx, "Flight coin size matches the launched size")
+        }
+    }
+
+    @Test
+    fun launchUsesDefaultCoinSizeWhenUnspecified() {
+        CoinFlightController.setTarget(Offset(300f, 25f))
+        CoinFlightController.launch(Offset(30f, 40f), amount = 5)
+        CoinFlightController.flights.forEach { flight ->
+            assertEquals(
+                CoinFlightController.DEFAULT_COIN_SIZE_PX,
+                flight.sizePx,
+                "Flight falls back to the default coin size",
+            )
+        }
+    }
+
+    @Test
     fun burstsShareOneArcStaggeredWithUniqueIds() {
         CoinFlightController.setTarget(Offset(300f, 25f))
         CoinFlightController.launch(Offset(0f, 0f), amount = 100000) // maximal burst

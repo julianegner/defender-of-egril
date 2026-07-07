@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import de.egril.defender.ui.settings.AppSettings
 import kotlinx.coroutines.delay
@@ -31,9 +30,6 @@ import kotlin.math.roundToInt
  * so the coins are clearly visible travelling from the defeated enemy to the counter.
  */
 private const val COIN_FLIGHT_DURATION_MS = 2800
-
-/** Size of an individual flying coin sprite. */
-private val COIN_FLIGHT_SIZE: Dp = 22.dp
 
 /**
  * Golden fill of a flying coin. Matches the gold used by the coin-gain "bubbling" Lottie
@@ -112,7 +108,8 @@ private fun CoinFlightSprite(flight: CoinFlight) {
         } else {
             1f
         }
-    val halfPx = with(density) { (COIN_FLIGHT_SIZE / 2).toPx() }
+    val halfPx = flight.sizePx / 2f
+    val sizeDp = with(density) { flight.sizePx.toDp() }
 
     Box(
         modifier =
@@ -124,7 +121,7 @@ private fun CoinFlightSprite(flight: CoinFlight) {
                     )
                 }.alpha(spriteAlpha),
     ) {
-        Coin(size = COIN_FLIGHT_SIZE)
+        Coin(size = sizeDp)
     }
 }
 

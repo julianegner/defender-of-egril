@@ -17,6 +17,8 @@ import kotlin.math.hypot
  * @param delayMillis Delay before this coin starts moving. Coins in a burst are staggered so they
  *                    trail one another along the same single upper arc, forming a smooth stream of
  *                    coins instead of splitting across separate arcs.
+ * @param sizePx Diameter of the coin sprite in pixels. Derived from the source tile's on-screen
+ *               size so the flying coins match the coin-gain "bubbling" coins at any zoom level.
  */
 data class CoinFlight(
     val id: Long,
@@ -24,6 +26,7 @@ data class CoinFlight(
     val target: Offset,
     val control: Offset,
     val delayMillis: Int,
+    val sizePx: Float,
 )
 
 /**
@@ -65,6 +68,12 @@ object CoinFlightController {
      */
     const val COIN_STAGGER_MS = 220
 
+    /**
+     * Fallback coin diameter (pixels) used when a caller doesn't provide a tile-derived size
+     * (e.g. unit tests). Real gameplay launches pass a size measured from the source tile.
+     */
+    const val DEFAULT_COIN_SIZE_PX = 24f
+
     private var nextId = 0L
 
     /** Coin counter center in root coordinates (pixels); null until the header reports it. */
@@ -91,6 +100,9 @@ object CoinFlightController {
     /**
      * Enqueue a coin-flight burst from [source] toward the current target (coin counter).
      *
+     * [coinSizePx] is the coin sprite diameter in pixels, derived from the source tile's on-screen
+     * size so flying coins match the coin-gain "bubbling" coins at the current zoom.
+     *
      * Returns the number of coin sprites actually launched. This is 0 when there is no target
      * yet, the [amount] is not positive, or capacity ([MAX_ACTIVE_FLIGHTS]) is exhausted. Extra
      * rewards arriving while the queue is full are simply dropped so quick successions never
@@ -99,6 +111,7 @@ object CoinFlightController {
     fun launch(
         source: Offset,
         amount: Int,
+        coinSizePx: Float = DEFAULT_COIN_SIZE_PX,
     ): Int {
         val target = targetPosition.value ?: return 0
         val desired = coinCountForAmount(amount)
@@ -114,6 +127,7 @@ object CoinFlightController {
                     target = target,
                     control = control,
                     delayMillis = i * COIN_STAGGER_MS,
+                    sizePx = coinSizePx,
                 ),
             )
         }
