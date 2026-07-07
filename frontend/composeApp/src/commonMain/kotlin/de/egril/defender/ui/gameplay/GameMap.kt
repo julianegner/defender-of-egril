@@ -83,8 +83,9 @@ import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
-import de.egril.defender.ui.icon.enemy.EnemyIcon
+import de.egril.defender.ui.icon.enemy.EnemyAttackPreview
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
+import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.rememberMapImageState
 import de.egril.defender.ui.settings.AppSettings
@@ -1251,6 +1252,39 @@ fun GridCell(
             false
         }
 
+    // Attack damage / lethality / immunity preview shown at the left border of an enemy when a
+    // defender is selected that could attack it, and no build/trap/barricade placement mode is
+    // active (issue #591). Computed here (where selectedDefender and range are known) and passed
+    // into GridCellContent for rendering.
+    val attackPreview: EnemyAttackPreview? =
+        run {
+            val sel = selectedDefender
+            if (attacker == null ||
+                sel == null ||
+                sel.type.attackType == AttackType.NONE ||
+                !sel.isReady ||
+                sel.actionsRemaining.value <= 0 ||
+                !cellIsInRange ||
+                selectedMineAction != null ||
+                selectedWizardAction != null ||
+                selectedBarricadeAction != null
+            ) {
+                null
+            } else {
+                val hasDoubleLevelBuff =
+                    gameState.activeSpellEffects.any {
+                        it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == sel.id
+                    }
+                val isImmune = attacker.isImmuneTo(sel.type)
+                val previewDamage = sel.previewAttackDamage(hasDoubleLevelBuff)
+                EnemyAttackPreview(
+                    damage = previewDamage,
+                    isLethal = !isImmune && previewDamage >= attacker.currentHealth.value,
+                    isImmune = isImmune,
+                )
+            }
+        }
+
     // Calculate hover preview for trap placement
     val isHoveringForTrapPreview = isHovering
     val isTrapPlacementMode = selectedMineAction == MineAction.BUILD_TRAP || selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
@@ -1746,6 +1780,7 @@ fun GridCell(
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine,
                 suppressEnemyBackground = suppressEnemyBackground,
+                attackPreview = attackPreview,
             )
         }
     } else {
@@ -1811,6 +1846,7 @@ fun GridCell(
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine,
                 suppressEnemyBackground = suppressEnemyBackground,
+                attackPreview = attackPreview,
             )
         }
     }
@@ -1875,6 +1911,9 @@ private fun BoxScope.GridCellContent(
     isInAlchemyAttackArea: Boolean = false,
     dragonIsTargetingMine: Boolean = false,
     suppressEnemyBackground: Boolean = false,
+    // Precomputed attack damage/lethality/immunity preview for the enemy on this tile (issue #591).
+    // Non-null only when a defender is selected that could attack this enemy.
+    attackPreview: EnemyAttackPreview? = null,
 ) {
     // When animations are enabled, delay updating the enemy's displayed health value until
     // the attack animation (projectile flight + impact flash) has completed.
@@ -1969,18 +2008,6 @@ private fun BoxScope.GridCellContent(
                         AppSettings.isDarkMode.value -> Color.White
                         else -> Color.Black
                     }
-                // Damage / lethality preview: shown at the left border of the enemy when a
-                // defender is selected that could attack it (and no build/trap/barricade
-                // placement mode is active). See issue #591.
-                val showAttackPreview =
-                    selectedDefender != null &&
-                        selectedDefender.type.attackType != AttackType.NONE &&
-                        selectedDefender.isReady &&
-                        selectedDefender.actionsRemaining.value > 0 &&
-                        cellIsInRange &&
-                        selectedMineAction == null &&
-                        selectedWizardAction == null &&
-                        selectedBarricadeAction == null
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier =
@@ -2055,18 +2082,11 @@ private fun BoxScope.GridCellContent(
                         }
                     }
                     // Attack damage / lethality / immunity preview at the left border
-                    if (showAttackPreview && selectedDefender != null) {
-                        val hasDoubleLevelBuff =
-                            gameState.activeSpellEffects.any {
-                                it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == selectedDefender.id
-                            }
-                        val isImmune = attacker.isImmuneTo(selectedDefender.type)
-                        val previewDamage = selectedDefender.previewAttackDamage(hasDoubleLevelBuff)
-                        val isLethal = !isImmune && previewDamage >= attacker.currentHealth.value
+                    if (attackPreview != null) {
                         EnemyAttackPreviewIcon(
-                            damage = previewDamage,
-                            isLethal = isLethal,
-                            isImmune = isImmune,
+                            damage = attackPreview.damage,
+                            isLethal = attackPreview.isLethal,
+                            isImmune = attackPreview.isImmune,
                             modifier = Modifier.align(Alignment.CenterStart),
                         )
                     }

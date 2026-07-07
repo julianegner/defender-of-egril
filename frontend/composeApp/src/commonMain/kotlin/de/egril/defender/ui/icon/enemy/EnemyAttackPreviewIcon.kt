@@ -23,6 +23,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
+ * Precomputed information for the enemy attack preview (issue #591).
+ *
+ * @param damage the damage a single attack from the selected defender would deal.
+ * @param isLethal whether that attack would defeat the enemy (damage >= current health).
+ * @param isImmune whether the enemy is immune to the selected defender's attack type.
+ */
+data class EnemyAttackPreview(
+    val damage: Int,
+    val isLethal: Boolean,
+    val isImmune: Boolean,
+)
+
+/**
  * Damage / lethality preview shown at the left border of an enemy unit when a defender is
  * selected that could attack it.
  *
