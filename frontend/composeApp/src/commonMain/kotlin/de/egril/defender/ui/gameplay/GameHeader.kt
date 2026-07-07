@@ -40,6 +40,7 @@ import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.TriangleRightIcon
+import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.infopage.HowToPlayContent
 import de.egril.defender.ui.infopage.KeyboardShortcutsInfo
 import de.egril.defender.ui.isMobileWebBrowser
@@ -742,7 +743,7 @@ private fun LevelHeaderIcons(
     // Win-level info icon (only shown when the level is guaranteed to be won)
     if (onWinLevelInfoClick != null && gameState.canWinLevelNow()) {
         TooltipWrapper(text = stringResource(Res.string.win_level_now_description)) {
-            de.egril.defender.ui.icon.TrophyIcon(
+            TrophyIcon(
                 size = iconSize,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.clickable { onWinLevelInfoClick() },

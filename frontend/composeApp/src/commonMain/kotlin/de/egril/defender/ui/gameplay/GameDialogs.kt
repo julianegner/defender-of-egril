@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.icon.DigOutcomeIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.settings.AppSettings
@@ -360,7 +361,7 @@ fun EndTurnConfirmationDialog(
                     if (showEndTurnWarning) {
                         Spacer(modifier = Modifier.height(4.dp))
                     }
-                    de.egril.defender.ui.common.SelectableText(
+                    SelectableText(
                         text = stringResource(Res.string.win_level_now_description),
                         style = MaterialTheme.typography.bodyLarge,
                     )
