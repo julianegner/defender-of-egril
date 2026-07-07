@@ -62,6 +62,7 @@ fun GameHeader(
     onCheatCode: (() -> Unit)?,
     onEnemyCountClick: (() -> Unit)? = null,
     onManaClick: (() -> Unit)? = null,
+    onWinLevelInfoClick: (() -> Unit)? = null,
     isDemoMode: Boolean = false,
     onDemoTitleClick: (() -> Unit)? = null,
     externalShowShortcuts: Boolean = false,
@@ -200,6 +201,7 @@ fun GameHeader(
                     LevelHeaderIcons(
                         gameState = gameState,
                         iconSize = buttonHeight, // Use button height for larger icons (double size)
+                        onWinLevelInfoClick = onWinLevelInfoClick,
                     )
 
                     // Difficulty display (non-clickable on gameplay screen)
@@ -728,6 +730,7 @@ private fun GameStats(
 private fun LevelHeaderIcons(
     gameState: GameState,
     iconSize: Dp,
+    onWinLevelInfoClick: (() -> Unit)? = null,
 ) {
     val hasRiver = gameState.level.riverTiles.isNotEmpty()
     val specialTowers =
@@ -735,6 +738,17 @@ private fun LevelHeaderIcons(
             it in listOf(DefenderType.WIZARD_TOWER, DefenderType.ALCHEMY_TOWER, DefenderType.BALLISTA_TOWER, DefenderType.DWARVEN_MINE)
         }
     val hasSpecialTowers = specialTowers.isNotEmpty()
+
+    // Win-level info icon (only shown when the level is guaranteed to be won)
+    if (onWinLevelInfoClick != null && gameState.canWinLevelNow()) {
+        TooltipWrapper(text = stringResource(Res.string.win_level_now_description)) {
+            de.egril.defender.ui.icon.TrophyIcon(
+                size = iconSize,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable { onWinLevelInfoClick() },
+            )
+        }
+    }
 
     // Water icon (if level has river) - blue color
     if (hasRiver) {

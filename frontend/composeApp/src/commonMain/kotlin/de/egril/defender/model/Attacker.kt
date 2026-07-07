@@ -100,16 +100,33 @@ data class Attacker(
      * - Ewhad (boss): All remaining health points (special handling required by caller)
      * - All other enemies: 1 HP
      */
-    fun calculateTargetDamage(): Int =
-        when (type) {
-            AttackerType.EVIL_WIZARD,
-            AttackerType.RED_WITCH,
-            AttackerType.GREEN_WITCH,
-            AttackerType.BLUE_DEMON,
-            AttackerType.RED_DEMON,
-            AttackerType.DRAGON,
-            -> level.value
-            AttackerType.EWHAD -> Int.MAX_VALUE // Special marker for "all HP" - caller must handle
-            else -> 1 // Goblin, Ork, Ogre, Skeleton
-        }
+    fun calculateTargetDamage(): Int = attackerTargetDamage(type, level.value)
 }
+
+/**
+ * Calculate the health-point damage a given enemy [type] at [level] deals when it reaches the target.
+ * Mirrors [Attacker.calculateTargetDamage] but works from a plain type/level pair so it can be used
+ * for enemies that have not spawned yet (see [PlannedEnemySpawn]).
+ */
+fun attackerTargetDamage(
+    type: AttackerType,
+    level: Int,
+): Int =
+    when (type) {
+        AttackerType.EVIL_WIZARD,
+        AttackerType.RED_WITCH,
+        AttackerType.GREEN_WITCH,
+        AttackerType.BLUE_DEMON,
+        AttackerType.RED_DEMON,
+        AttackerType.DRAGON,
+        -> level
+        AttackerType.EWHAD -> Int.MAX_VALUE // Special marker for "all HP" - caller must handle
+        else -> 1 // Goblin, Ork, Ogre, Skeleton
+    }
+
+/**
+ * True for enemy types that can summon additional enemies during the enemy turn.
+ * Such enemies can create an unbounded number of extra units, so the maximum threat they
+ * pose to the player's health points cannot be reliably bounded ahead of time.
+ */
+fun AttackerType.isSummoner(): Boolean = this == AttackerType.EVIL_WIZARD || this == AttackerType.EWHAD

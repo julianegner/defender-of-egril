@@ -100,6 +100,7 @@ fun GamePlayScreen(
     demoSelectedDefenderId: Int? = null,
     demoSelectedTargetPosition: Position? = null,
     onGetAutoAttackTarget: ((Int) -> Position?)? = null, // Get best auto-attack target for a tower
+    onWinLevelNow: (() -> Unit)? = null, // Instantly win the level when guaranteed (finish level fast)
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -160,6 +161,7 @@ fun GamePlayScreen(
         demoSelectedDefenderId = demoSelectedDefenderId,
         demoSelectedTargetPosition = demoSelectedTargetPosition,
         onGetAutoAttackTarget = onGetAutoAttackTarget,
+        onWinLevelNow = onWinLevelNow,
     )
 }
 
@@ -225,6 +227,7 @@ private fun GamePlayScreenContent(
     demoSelectedDefenderId: Int? = null,
     demoSelectedTargetPosition: Position? = null,
     onGetAutoAttackTarget: ((Int) -> Position?)? = null, // Get best auto-attack target for a tower
+    onWinLevelNow: (() -> Unit)? = null, // Instantly win the level when guaranteed (finish level fast)
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -1503,6 +1506,7 @@ private fun GamePlayScreenContent(
                                 null
                             },
                         onEnemyCountClick = { showOverlay = !showOverlay },
+                        onWinLevelInfoClick = { showEndTurnConfirmation = true },
                         onManaClick =
                             if (onOpenMagicPanel != null && gameState.maxMana.value > 0 && !isDemoMode) {
                                 {
@@ -2690,6 +2694,7 @@ private fun GamePlayScreenContent(
 
                     // End turn confirmation dialog
                     if (showEndTurnConfirmation) {
+                        val canWinLevelNow = gameState.canWinLevelNow()
                         EndTurnConfirmationDialog(
                             onConfirm = {
                                 showEndTurnConfirmation = false
@@ -2715,6 +2720,12 @@ private fun GamePlayScreenContent(
                                 showEndTurnConfirmation = false
                             },
                             showAutoAttackButton = gameState.level.allowAutoAttack && gameState.hasDefendersForAutoAttack(),
+                            showEndTurnWarning = gameState.hasDefendersWithUnusedActions(),
+                            showWinLevelNow = canWinLevelNow && onWinLevelNow != null,
+                            onWinLevelNow = {
+                                showEndTurnConfirmation = false
+                                onWinLevelNow?.invoke()
+                            },
                         )
                     }
 

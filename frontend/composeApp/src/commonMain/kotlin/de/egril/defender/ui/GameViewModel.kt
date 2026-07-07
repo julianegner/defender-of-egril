@@ -1776,6 +1776,19 @@ class GameViewModel {
         _specialActionsRemaining.value = emptyList()
     }
 
+    /**
+     * Instantly wins the current level when it is guaranteed to be won (see [GameState.canWinLevelNow]).
+     * Triggered by the "Win Level now" action, available when the remaining enemies cannot deplete the
+     * player's health points.
+     */
+    fun winLevelNow() {
+        val state = _gameState.value ?: return
+        if (!state.canWinLevelNow()) return
+        // Mark all remaining enemies as defeated so the game state is consistent with a completed level.
+        state.attackers.forEach { it.isDefeated.value = true }
+        completeLevel(state.level.id, won = true)
+    }
+
     private fun completeLevel(
         levelId: Int,
         won: Boolean,

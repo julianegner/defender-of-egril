@@ -732,6 +732,8 @@
     <string name="end_turn_confirmation_title">Terminer le tour ?</string>
     <string name="end_turn_confirmation_message">Vous avez des tours avec des points d'action inutilisés et des ennemis à portée, ou des mines avec des actions inutilisées. Êtes-vous sûr de vouloir terminer votre tour ?</string>
     <string name="end_turn_confirm">Terminer le tour</string>
+    <string name="win_level_now">Gagner le niveau maintenant</string>
+    <string name="win_level_now_description">Les ennemis restants ne sont pas assez puissants pour menacer votre forteresse — vous pouvez terminer le niveau par une victoire dès maintenant.</string>
     <string name="auto_attack_and_end_turn">Attaque Auto et Terminer le Tour</string>
     <string name="auto_attack_warning">Note : Après la fin de l'attaque automatique, si les mines ou les tours avec des capacités de piège ou des attaques durables ont encore des points d'action, vous pouvez les utiliser avant la fin du tour.</string>
     <string name="special_actions_remaining_title">Actions Spéciales Disponibles</string>

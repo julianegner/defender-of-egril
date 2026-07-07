@@ -253,6 +253,49 @@ data class GameState(
     }
 
     /**
+     * Total worst-case health-point damage the player can still take, assuming every remaining
+     * enemy (both those alive on the field and those still to spawn) reaches the target unhindered.
+     * Uses [Long] so summoner/boss "all HP" markers ([Int.MAX_VALUE]) can be summed without overflow.
+     */
+    fun getRemainingEnemyThreat(): Long {
+        var total = 0L
+        for (attacker in attackers) {
+            if (attacker.isDefeated.value) continue
+            total += attackerTargetDamage(attacker.type, attacker.level.value).toLong()
+        }
+        for (spawn in spawnPlan) {
+            if (spawn.spawnTurn > turnNumber.value) {
+                total += attackerTargetDamage(spawn.attackerType, spawn.level).toLong()
+            }
+        }
+        return total
+    }
+
+    /**
+     * Returns true when the level is guaranteed to be won: even if every remaining enemy reached the
+     * target, the player would still have health points left. Used to offer an instant "Win Level now".
+     *
+     * Excluded cases where a win cannot be guaranteed:
+     *  - Not during the player's turn (e.g. building phase or enemy turn).
+     *  - Levels with SINGLE_HIT targets, which can be lost regardless of remaining health.
+     *  - When a summoner enemy remains, since it can create an unbounded number of additional units.
+     */
+    fun canWinLevelNow(): Boolean {
+        if (phase.value != GamePhase.PLAYER_TURN) return false
+        if (level.targetInfoMap.any { it.value.type == TargetType.SINGLE_HIT }) return false
+        if (isLevelLost() || isLevelWon()) return false
+
+        val aliveEnemies = attackers.filter { !it.isDefeated.value }
+        val enemiesToSpawn = spawnPlan.filter { it.spawnTurn > turnNumber.value }
+        // There must be at least one remaining enemy (otherwise the level is already won).
+        if (aliveEnemies.isEmpty() && enemiesToSpawn.isEmpty()) return false
+        // Summoners can create additional enemies, so the total threat cannot be bounded.
+        if (aliveEnemies.any { it.type.isSummoner() } || enemiesToSpawn.any { it.attackerType.isSummoner() }) return false
+
+        return getRemainingEnemyThreat() < healthPoints.value.toLong()
+    }
+
+    /**
      * Returns true if [position] is a target that can still be reached by enemies.
      * Taken SINGLE_HIT targets are excluded.
      */

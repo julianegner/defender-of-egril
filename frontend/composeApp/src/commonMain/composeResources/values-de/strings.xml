@@ -732,6 +732,8 @@
     <string name="end_turn_confirmation_title">Runde beenden?</string>
     <string name="end_turn_confirmation_message">Sie haben Türme mit ungenutzten Aktionspunkten und Feinden in Reichweite, oder Minen mit ungenutzten Aktionen. Möchten Sie Ihre Runde wirklich beenden?</string>
     <string name="end_turn_confirm">Runde beenden</string>
+    <string name="win_level_now">Level jetzt gewinnen</string>
+    <string name="win_level_now_description">Die verbleibenden Feinde sind nicht stark genug, um deine Festung zu bedrohen — du kannst das Level jetzt siegreich beenden.</string>
     <string name="auto_attack_and_end_turn">Auto-Angriff und Runde beenden</string>
     <string name="auto_attack_warning">Hinweis: Nach Abschluss des Auto-Angriffs können Sie Minen oder Türme mit Fallenfähigkeiten oder dauerhaften Angriffen nutzen, wenn diese noch Aktionspunkte haben, bevor die Runde endet.</string>
     <string name="special_actions_remaining_title">Spezialaktionen verfügbar</string>

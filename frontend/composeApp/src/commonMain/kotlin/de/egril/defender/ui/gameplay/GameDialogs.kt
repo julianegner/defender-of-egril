@@ -18,6 +18,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.DigOutcomeIcon
+import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
 import kotlinx.coroutines.delay
@@ -330,6 +331,9 @@ fun EndTurnConfirmationDialog(
     onAutoAttackAndConfirm: () -> Unit,
     onCancel: () -> Unit,
     showAutoAttackButton: Boolean = true,
+    showEndTurnWarning: Boolean = true,
+    showWinLevelNow: Boolean = false,
+    onWinLevelNow: () -> Unit = {},
 ) {
     AlertDialog(
         onDismissRequest = onCancel,
@@ -338,16 +342,27 @@ fun EndTurnConfirmationDialog(
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(
-                    stringResource(Res.string.end_turn_confirmation_message),
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                if (showAutoAttackButton) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                if (showEndTurnWarning) {
                     Text(
-                        stringResource(Res.string.auto_attack_warning),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        stringResource(Res.string.end_turn_confirmation_message),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    if (showAutoAttackButton) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            stringResource(Res.string.auto_attack_warning),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+                if (showWinLevelNow) {
+                    if (showEndTurnWarning) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+                    Text(
+                        stringResource(Res.string.win_level_now_description),
+                        style = MaterialTheme.typography.bodyLarge,
                     )
                 }
             }
@@ -381,6 +396,21 @@ fun EndTurnConfirmationDialog(
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(stringResource(Res.string.end_turn_confirm))
                             ShortcutKeyChip(text = "Enter")
+                        }
+                    }
+                }
+                if (showWinLevelNow) {
+                    Button(
+                        onClick = onWinLevelNow,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                            ),
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            TrophyIcon(size = 18.dp, tint = MaterialTheme.colorScheme.onPrimary)
+                            Text(stringResource(Res.string.win_level_now))
                         }
                     }
                 }
