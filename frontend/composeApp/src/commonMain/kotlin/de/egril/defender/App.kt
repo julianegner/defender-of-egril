@@ -584,6 +584,7 @@ fun App() {
                                 },
                                 onEndPlayerTurn = { viewModel.endPlayerTurn() },
                                 onAutoAttackAndEndTurn = { viewModel.autoAttackAndEndTurn() },
+                                onWinLevelNow = { viewModel.winLevelNow() },
                                 onGetAutoAttackTarget = { id -> viewModel.getAutoAttackTargetPosition(id) },
                                 onBackToMap = { viewModel.navigateToWorldMap() },
                                 onSaveGame = { comment -> viewModel.saveCurrentGame(comment) },

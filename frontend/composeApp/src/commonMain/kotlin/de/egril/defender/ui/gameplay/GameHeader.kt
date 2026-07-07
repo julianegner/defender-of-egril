@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -14,6 +15,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +33,8 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.common.LevelInfoEnemiesColumn
 import de.egril.defender.ui.common.SelectableText
+import de.egril.defender.ui.common.SpeechBubble
+import de.egril.defender.ui.common.SpeechBubblePointer
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.hexagon.HexagonMinimap
 import de.egril.defender.ui.hexagon.MinimapConfig
@@ -40,6 +45,7 @@ import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.TriangleRightIcon
+import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.infopage.HowToPlayContent
 import de.egril.defender.ui.infopage.KeyboardShortcutsInfo
 import de.egril.defender.ui.isMobileWebBrowser
@@ -62,6 +68,7 @@ fun GameHeader(
     onCheatCode: (() -> Unit)?,
     onEnemyCountClick: (() -> Unit)? = null,
     onManaClick: (() -> Unit)? = null,
+    onWinLevelInfoClick: (() -> Unit)? = null,
     isDemoMode: Boolean = false,
     onDemoTitleClick: (() -> Unit)? = null,
     externalShowShortcuts: Boolean = false,
@@ -200,6 +207,7 @@ fun GameHeader(
                     LevelHeaderIcons(
                         gameState = gameState,
                         iconSize = buttonHeight, // Use button height for larger icons (double size)
+                        onWinLevelInfoClick = onWinLevelInfoClick,
                     )
 
                     // Difficulty display (non-clickable on gameplay screen)
@@ -728,6 +736,7 @@ private fun GameStats(
 private fun LevelHeaderIcons(
     gameState: GameState,
     iconSize: Dp,
+    onWinLevelInfoClick: (() -> Unit)? = null,
 ) {
     val hasRiver = gameState.level.riverTiles.isNotEmpty()
     val specialTowers =
@@ -735,6 +744,26 @@ private fun LevelHeaderIcons(
             it in listOf(DefenderType.WIZARD_TOWER, DefenderType.ALCHEMY_TOWER, DefenderType.BALLISTA_TOWER, DefenderType.DWARVEN_MINE)
         }
     val hasSpecialTowers = specialTowers.isNotEmpty()
+
+    // Win-level info icon with a speech bubble pointing at it (only shown when the level is
+    // guaranteed to be won). Clicking the badge opens the full win-level popup.
+    if (onWinLevelInfoClick != null && gameState.canWinLevelNow()) {
+        var bubbleDismissed by rememberSaveable { mutableStateOf(false) }
+        Box {
+            TrophyIcon(
+                size = iconSize,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable { onWinLevelInfoClick() },
+            )
+            if (!bubbleDismissed) {
+                WinLevelSpeechBubble(
+                    text = stringResource(Res.string.win_level_now_description),
+                    badgeSize = iconSize,
+                    onClose = { bubbleDismissed = true },
+                )
+            }
+        }
+    }
 
     // Water icon (if level has river) - blue color
     if (hasRiver) {
@@ -774,6 +803,53 @@ private fun LevelHeaderIcons(
                     }
                 },
         )
+    }
+}
+
+/**
+ * A speech bubble rendered just below the win-level badge, its pointer aimed at the badge centre.
+ * Drawn as a zero-size overlay so it floats over the map without affecting the header row layout.
+ */
+@Composable
+private fun WinLevelSpeechBubble(
+    text: String,
+    badgeSize: Dp,
+    onClose: () -> Unit,
+) {
+    val density = LocalDensity.current
+    val badgeSizePx = with(density) { badgeSize.roundToPx() }
+    val gapPx = with(density) { 2.dp.roundToPx() }
+    // Distance from the bubble's left edge to the pointer tip. Matches SpeechBubble's minimum
+    // clamp for an UP pointer (cornerRadius + pointerWidth / 2 = 12dp + 8dp). The bubble is shifted
+    // left by this amount (minus half the badge) so the pointer lands on the badge centre.
+    val pointerInset = 20.dp
+    val pointerInsetPx = with(density) { pointerInset.roundToPx() }
+
+    Box(
+        modifier =
+            Modifier
+                .zIndex(50f)
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
+                    // Report zero size so the bubble does not affect the header row layout.
+                    layout(0, 0) {
+                        placeable.place(badgeSizePx / 2 - pointerInsetPx, badgeSizePx + gapPx)
+                    }
+                },
+    ) {
+        SpeechBubble(
+            pointer = SpeechBubblePointer.UP,
+            // Aim the pointer tip at the badge centre (see pointerInset above).
+            pointerOffset = pointerInset,
+            onClose = onClose,
+            closeContentDescription = stringResource(Res.string.close),
+            modifier = Modifier.widthIn(max = 260.dp),
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
 }
 

@@ -374,6 +374,22 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
     dependsOn(generateOfficialEditModeConstant)
 }
 
+// The compose-multiplatform-localize plugin's GenerateTranslationsTask only declares resourcesDir and
+// projectDir as @Input path strings, never the actual XML file contents. Consequently the task stays
+// UP-TO-DATE when a strings.xml file changes and regenerates a stale LocalizedStrings map that is missing
+// newly added keys, which then render as "???" at runtime even though compilation succeeds (the JetBrains
+// Res accessors are regenerated independently). Declare the localization string resource files as task
+// inputs so any edit correctly invalidates the task and triggers regeneration.
+tasks.named("generateTranslateFile").configure {
+    inputs.files(
+        fileTree(layout.projectDirectory.dir("src/commonMain/composeResources")) {
+            include("values*/*.xml")
+        },
+    )
+        .withPropertyName("localizationStringResources")
+        .withPathSensitivity(org.gradle.api.tasks.PathSensitivity.RELATIVE)
+}
+
 
 android {
     namespace = "de.egril.defender"

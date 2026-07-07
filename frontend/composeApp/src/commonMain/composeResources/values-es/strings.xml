@@ -732,6 +732,8 @@
     <string name="end_turn_confirmation_title">¿Terminar turno?</string>
     <string name="end_turn_confirmation_message">Tienes torres con puntos de acción sin usar y enemigos al alcance, o minas con acciones sin usar. ¿Estás seguro de que quieres terminar tu turno?</string>
     <string name="end_turn_confirm">Terminar turno</string>
+    <string name="win_level_now">Ganar el nivel ahora</string>
+    <string name="win_level_now_description">Los enemigos restantes no son lo bastante poderosos para amenazar tu fortaleza: puedes terminar el nivel con victoria ahora mismo.</string>
     <string name="auto_attack_and_end_turn">Auto-Ataque y Terminar Turno</string>
     <string name="auto_attack_button">Auto-Ataque</string>
     <string name="auto_attack_slash_end_turn">Auto-Ataque / Terminar Turno</string>
