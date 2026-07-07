@@ -192,6 +192,13 @@ object GamePlayConstants {
         /** Pause between the death animation finishing and the coin-gain animation starting. */
         const val COIN_GAIN_DELAY_AFTER_DEATH_MS = 400L
 
+        /**
+         * Duration of the coin-gain (coins bubbling up) Lottie animation (60 frames @ 30 fps
+         * = 2 000 ms). The "fly-to-counter" coins launch after this so they appear to peel off
+         * the end of the bubble-up animation.
+         */
+        const val COIN_GAIN_ANIMATION_DURATION_MS = 2000L
+
         /** Conversion factor from radians to degrees (used for projectile direction angles). */
         const val RADIANS_TO_DEGREES = 180.0 / kotlin.math.PI
     }

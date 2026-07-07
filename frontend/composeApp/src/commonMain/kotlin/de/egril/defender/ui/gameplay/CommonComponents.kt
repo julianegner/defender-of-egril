@@ -9,7 +9,10 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -19,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.*
+import de.egril.defender.ui.animations.CoinFlightController
 import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.ReloadIcon
@@ -163,10 +167,22 @@ fun GameStatsDisplay(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier =
-                if (onCoinsClick != null) {
-                    Modifier.clickable(onClick = onCoinsClick)
-                } else {
-                    Modifier
+                (
+                    if (onCoinsClick != null) {
+                        Modifier.clickable(onClick = onCoinsClick)
+                    } else {
+                        Modifier
+                    }
+                ).onGloballyPositioned { coords ->
+                    // Report the coin counter center (root coordinates) so coin-flight
+                    // animations know where to fly to.
+                    val topLeft = coords.positionInRoot()
+                    CoinFlightController.setTarget(
+                        Offset(
+                            x = topLeft.x + coords.size.width / 2f,
+                            y = topLeft.y + coords.size.height / 2f,
+                        ),
+                    )
                 },
         ) {
             MoneyIcon(size = iconSize)
