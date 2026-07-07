@@ -41,6 +41,15 @@ private val COIN_FILL_COLOR = Color(0xFFFFD700)
 /** Darker gold used for the coin's rim/edge so it reads as a coin rather than a plain dot. */
 private val COIN_EDGE_COLOR = Color(0xFFB8860B)
 
+/** Rim (outer edge) stroke width, as a fraction of the coin radius. */
+private const val COIN_RIM_WIDTH_RATIO = 0.18f
+
+/** Inner ring radius, as a fraction of the coin radius. */
+private const val COIN_INNER_RING_RADIUS_RATIO = 0.55f
+
+/** Inner ring stroke width, as a fraction of the coin radius. */
+private const val COIN_INNER_RING_WIDTH_RATIO = 0.12f
+
 /** Fraction of the flight (near the end) over which the coin fades out as it reaches the counter. */
 private const val COIN_FADE_START = 0.85f
 
@@ -130,7 +139,7 @@ private fun Coin(size: Dp) {
     Canvas(modifier = Modifier.size(size)) {
         val radius = this.size.minDimension / 2f
         val center = Offset(this.size.width / 2f, this.size.height / 2f)
-        val rimWidth = radius * 0.18f
+        val rimWidth = radius * COIN_RIM_WIDTH_RATIO
         drawCircle(color = COIN_FILL_COLOR, radius = radius, center = center)
         // Inset the rim by half its width so the stroke stays within the sprite bounds.
         drawCircle(
@@ -141,9 +150,9 @@ private fun Coin(size: Dp) {
         )
         drawCircle(
             color = COIN_EDGE_COLOR,
-            radius = radius * 0.55f,
+            radius = radius * COIN_INNER_RING_RADIUS_RATIO,
             center = center,
-            style = Stroke(width = radius * 0.12f),
+            style = Stroke(width = radius * COIN_INNER_RING_WIDTH_RATIO),
         )
     }
 }
