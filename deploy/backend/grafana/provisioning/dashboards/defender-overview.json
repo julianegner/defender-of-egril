@@ -77,7 +77,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED')",
+          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') AND ('${filter_install_ids}' = 'false' OR install_uuid IS NULL OR install_uuid::text NOT IN (${excluded_install_ids:singlequote}))",
           "refId": "A"
         }
       ]
@@ -136,7 +136,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE created_at >= CURRENT_DATE AND ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED')",
+          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE created_at >= CURRENT_DATE AND ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') AND ('${filter_install_ids}' = 'false' OR install_uuid IS NULL OR install_uuid::text NOT IN (${excluded_install_ids:singlequote}))",
           "refId": "A"
         }
       ]
@@ -195,7 +195,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE event_type = 'LEVEL_STARTED' AND created_at >= CURRENT_DATE",
+          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE event_type = 'LEVEL_STARTED' AND created_at >= CURRENT_DATE AND ('${filter_install_ids}' = 'false' OR install_uuid IS NULL OR install_uuid::text NOT IN (${excluded_install_ids:singlequote}))",
           "refId": "A"
         }
       ]
@@ -254,7 +254,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE event_type = 'LEVEL_LOADED' AND created_at >= CURRENT_DATE",
+          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE event_type = 'LEVEL_LOADED' AND created_at >= CURRENT_DATE AND ('${filter_install_ids}' = 'false' OR install_uuid IS NULL OR install_uuid::text NOT IN (${excluded_install_ids:singlequote}))",
           "refId": "A"
         }
       ]
@@ -366,7 +366,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT event_type, COUNT(*) AS count FROM events WHERE $__timeFilter(created_at) AND ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') GROUP BY event_type ORDER BY count DESC",
+          "rawSql": "SELECT event_type, COUNT(*) AS count FROM events WHERE $__timeFilter(created_at) AND ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') AND ('${filter_install_ids}' = 'false' OR install_uuid IS NULL OR install_uuid::text NOT IN (${excluded_install_ids:singlequote})) GROUP BY event_type ORDER BY count DESC",
           "refId": "A"
         }
       ]
@@ -415,7 +415,7 @@
             "uid": "postgres-app"
           },
           "format": "time_series",
-          "rawSql": "SELECT date_trunc('day', created_at) AS time, COUNT(*) AS \"Events\" FROM events WHERE $__timeFilter(created_at) AND ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') GROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT date_trunc('day', created_at) AS time, COUNT(*) AS \"Events\" FROM events WHERE $__timeFilter(created_at) AND ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') AND ('${filter_install_ids}' = 'false' OR install_uuid IS NULL OR install_uuid::text NOT IN (${excluded_install_ids:singlequote})) GROUP BY 1 ORDER BY 1",
           "refId": "A"
         }
       ]
@@ -586,7 +586,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT id, event_type, platform, os_name, level_name, version_name, commit_hash, user_name, install_uuid, turn_number, difficulty, platform_extended, platform_long, created_at FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') ORDER BY created_at DESC LIMIT 500",
+          "rawSql": "SELECT id, event_type, platform, os_name, level_name, version_name, commit_hash, user_name, install_uuid, turn_number, difficulty, platform_extended, platform_long, created_at FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') AND ('${filter_install_ids}' = 'false' OR install_uuid IS NULL OR install_uuid::text NOT IN (${excluded_install_ids:singlequote})) ORDER BY created_at DESC LIMIT 500",
           "refId": "A"
         }
       ]
@@ -745,7 +745,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT id, platform, os_name, version_name, commit_hash, user_name, install_uuid, url, platform_extended, platform_long, created_at FROM events WHERE event_type = 'APP_STARTED' AND platform = 'WEB' ORDER BY created_at DESC LIMIT 100",
+          "rawSql": "SELECT id, platform, os_name, version_name, commit_hash, user_name, install_uuid, url, platform_extended, platform_long, created_at FROM events WHERE event_type = 'APP_STARTED' AND platform = 'WEB' AND ('${filter_install_ids}' = 'false' OR install_uuid IS NULL OR install_uuid::text NOT IN (${excluded_install_ids:singlequote})) ORDER BY created_at DESC LIMIT 100",
           "refId": "A"
         }
       ]
@@ -1881,7 +1881,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT created_at, feedback_uuid, install_uuid, feedback_type, bug_types, message, user_name, contact_email, platform, version_name, os_name, source_context, (screenshot_png IS NOT NULL) AS has_screenshot FROM player_feedback ORDER BY created_at DESC LIMIT 100",
+          "rawSql": "SELECT created_at, feedback_uuid, install_uuid, feedback_type, bug_types, message, user_name, contact_email, platform, version_name, os_name, source_context, (screenshot_png IS NOT NULL) AS has_screenshot FROM player_feedback WHERE ('${filter_install_ids}' = 'false' OR install_uuid IS NULL OR install_uuid::text NOT IN (${excluded_install_ids:singlequote})) ORDER BY created_at DESC LIMIT 100",
           "refId": "A"
         }
       ]
@@ -2113,6 +2113,68 @@
         "skipUrlSync": false,
         "description": "When set to false, APP_STARTED events are hidden from all panels",
         "multi": false,
+        "includeAll": false
+      },
+      {
+        "name": "filter_install_ids",
+        "label": "filter install IDs",
+        "type": "custom",
+        "current": {
+          "selected": true,
+          "text": "true",
+          "value": "true"
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "true",
+            "value": "true"
+          },
+          {
+            "selected": false,
+            "text": "false",
+            "value": "false"
+          }
+        ],
+        "query": "true,false",
+        "hide": 0,
+        "skipUrlSync": false,
+        "description": "When true, the install IDs in 'excluded_install_ids' are excluded from all event and feedback panels",
+        "multi": false,
+        "includeAll": false
+      },
+      {
+        "name": "excluded_install_ids",
+        "label": "excluded install IDs",
+        "type": "custom",
+        "current": {
+          "selected": true,
+          "text": [
+            "c6dfa6c3-5d26-4328-b4f1-5a50e77132eb",
+            "473b8eff-6a8c-4c31-ac28-3aa26b10cd6b"
+          ],
+          "value": [
+            "c6dfa6c3-5d26-4328-b4f1-5a50e77132eb",
+            "473b8eff-6a8c-4c31-ac28-3aa26b10cd6b"
+          ]
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "c6dfa6c3-5d26-4328-b4f1-5a50e77132eb",
+            "value": "c6dfa6c3-5d26-4328-b4f1-5a50e77132eb"
+          },
+          {
+            "selected": true,
+            "text": "473b8eff-6a8c-4c31-ac28-3aa26b10cd6b",
+            "value": "473b8eff-6a8c-4c31-ac28-3aa26b10cd6b"
+          }
+        ],
+        "query": "c6dfa6c3-5d26-4328-b4f1-5a50e77132eb,473b8eff-6a8c-4c31-ac28-3aa26b10cd6b",
+        "hide": 0,
+        "skipUrlSync": false,
+        "description": "Install IDs to exclude from all event and feedback panels when 'filter_install_ids' is true. Add more IDs by editing this variable's options list.",
+        "multi": true,
         "includeAll": false
       },
       {
