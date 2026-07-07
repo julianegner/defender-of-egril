@@ -86,8 +86,11 @@ import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
+import de.egril.defender.ui.icon.enemy.EnemyAttackPreview
+import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
+import de.egril.defender.ui.icon.enemy.enemyAttackPreview
 import de.egril.defender.ui.rememberMapImageState
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
@@ -870,6 +873,7 @@ fun GameGrid(
                     selectedWizardAction = selectedWizardAction,
                     selectedBarricadeAction = selectedBarricadeAction,
                     targetCircleInfo = spellAreaCircleMap[position] ?: targetCircleMap[position] ?: placedBombCircleMap[position],
+                    isSelectedAttackTarget = targetCircleMap[position] != null,
                     onClick = cellOnClick,
                     hexSize = hexSize,
                     onHoverChange = cellOnHoverChange,
@@ -1013,6 +1017,10 @@ fun GridCell(
     selectedWizardAction: WizardAction? = null,
     selectedBarricadeAction: BarricadeAction? = null,
     targetCircleInfo: TargetCircleInfo?,
+    // True when this tile is affected by the currently selected tower attack (the selected target
+    // for single-target attacks, or a tile within the blast area for AREA/LASTING attacks). Used to
+    // gate the enemy attack damage/lethality/immunity preview (issue #591).
+    isSelectedAttackTarget: Boolean = false,
     onClick: () -> Unit,
     hexSize: androidx.compose.ui.unit.Dp = 48.dp,
     onHoverChange: ((Boolean) -> Unit)? = null,
@@ -1267,6 +1275,34 @@ fun GridCell(
             }
         } else {
             false
+        }
+
+    // Attack damage / lethality / immunity preview shown at the left border of an enemy that is
+    // affected by the currently selected tower attack: the selected target for single-target
+    // attacks, or any enemy within the blast area for AREA/LASTING attacks. Only shown when no
+    // build/trap/barricade placement mode is active (issue #591). Computed here (where
+    // selectedDefender is known) and passed into GridCellContent for rendering.
+    val attackPreview: EnemyAttackPreview? =
+        run {
+            val sel = selectedDefender
+            if (attacker == null ||
+                sel == null ||
+                sel.type.attackType == AttackType.NONE ||
+                !sel.isReady ||
+                sel.actionsRemaining.value <= 0 ||
+                !isSelectedAttackTarget ||
+                selectedMineAction != null ||
+                selectedWizardAction != null ||
+                selectedBarricadeAction != null
+            ) {
+                null
+            } else {
+                val hasDoubleLevelBuff =
+                    gameState.activeSpellEffects.any {
+                        it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == sel.id
+                    }
+                enemyAttackPreview(attacker, sel, hasDoubleLevelBuff)
+            }
         }
 
     // Calculate hover preview for trap placement
@@ -1764,6 +1800,7 @@ fun GridCell(
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine,
                 suppressEnemyBackground = suppressEnemyBackground,
+                attackPreview = attackPreview,
             )
         }
     } else {
@@ -1829,6 +1866,7 @@ fun GridCell(
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine,
                 suppressEnemyBackground = suppressEnemyBackground,
+                attackPreview = attackPreview,
             )
         }
     }
@@ -1893,6 +1931,9 @@ private fun BoxScope.GridCellContent(
     isInAlchemyAttackArea: Boolean = false,
     dragonIsTargetingMine: Boolean = false,
     suppressEnemyBackground: Boolean = false,
+    // Precomputed attack damage/lethality/immunity preview for the enemy on this tile (issue #591).
+    // Non-null only when a defender is selected that could attack this enemy.
+    attackPreview: EnemyAttackPreview? = null,
 ) {
     // When animations are enabled, delay updating the enemy's displayed health value until
     // the attack animation (projectile flight + impact flash) has completed.
@@ -2059,6 +2100,18 @@ private fun BoxScope.GridCellContent(
                                 }
                             }
                         }
+                    }
+                    // Attack damage / lethality / immunity preview at the left border
+                    if (attackPreview != null) {
+                        EnemyAttackPreviewIcon(
+                            damage = attackPreview.damage,
+                            isLethal = attackPreview.isLethal,
+                            isImmune = attackPreview.isImmune,
+                            modifier =
+                                Modifier
+                                    .align(Alignment.CenterStart)
+                                    .offset(x = 10.dp),
+                        )
                     }
                 }
             }

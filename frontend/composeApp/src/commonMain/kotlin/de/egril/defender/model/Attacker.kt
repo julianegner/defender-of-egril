@@ -130,3 +130,15 @@ fun attackerTargetDamage(
  * pose to the player's health points cannot be reliably bounded ahead of time.
  */
 fun AttackerType.isSummoner(): Boolean = this == AttackerType.EVIL_WIZARD || this == AttackerType.EWHAD
+
+/**
+ * Returns true if this attacker is immune to a single attack from a defender of [defenderType].
+ * Red Demons are immune to fireballs (AREA), Blue Demons are immune to acid (LASTING).
+ * Used for attack-damage previews shown when a defender is selected.
+ */
+fun Attacker.isImmuneToAttackFrom(defenderType: DefenderType): Boolean =
+    when (defenderType.attackType) {
+        AttackType.AREA -> type.immuneToFireball
+        AttackType.LASTING -> type.immuneToAcid
+        else -> false
+    }

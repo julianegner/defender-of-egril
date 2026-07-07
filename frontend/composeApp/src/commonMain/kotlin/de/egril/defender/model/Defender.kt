@@ -241,3 +241,19 @@ data class Defender(
         }
     }
 }
+
+/**
+ * Damage a single attack from this defender would deal, mirroring the combat calculation.
+ * LASTING (acid) attacks deal half their base damage per hit. Non-attacking towers deal 0.
+ *
+ * @param hasDoubleLevelBuff whether the DOUBLE_TOWER_LEVEL spell is active on this defender.
+ */
+fun Defender.previewAttackDamage(hasDoubleLevelBuff: Boolean = false): Int {
+    val effectiveLevel = if (hasDoubleLevelBuff) level.value * 2 else level.value
+    val baseDamage = type.baseDamage + (effectiveLevel - 1) * 5
+    return when (type.attackType) {
+        AttackType.LASTING -> baseDamage / 2
+        AttackType.NONE -> 0
+        else -> baseDamage
+    }
+}
