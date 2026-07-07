@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
@@ -45,9 +46,9 @@ private fun turnButtonShortcutHintColor(
 /** Font size for the primary turn button label. Uses larger sizes than other controls for readability. */
 private fun turnButtonLabelFontSize(headerTextSize: HeaderTextSize) =
     when (headerTextSize) {
-        HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.Medium
-        HeaderTextSize.MEDIUM -> GamePlayConstants.TextSizes.Large
-        HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Title
+        HeaderTextSize.SMALL -> 18.sp
+        HeaderTextSize.MEDIUM -> 22.sp
+        HeaderTextSize.LARGE -> 26.sp
     }
 
 @Composable
@@ -99,6 +100,7 @@ fun ColumnScope.TurnButton(
                     buttonLabel,
                     style = MaterialTheme.typography.labelMedium,
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                    fontWeight = FontWeight.Bold,
                     fontSize = buttonTextSize,
                     maxLines = 1,
                     modifier = Modifier.weight(1f),
@@ -425,6 +427,7 @@ fun GameControlsPanel(
                                         primaryButtonExpandedText,
                                         style = MaterialTheme.typography.labelMedium,
                                         fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                                        fontWeight = FontWeight.Bold,
                                         fontSize = turnButtonLabelFontSize(AppSettings.headerTextSize.value),
                                         maxLines = 1,
                                     )
