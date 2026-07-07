@@ -360,8 +360,8 @@ fun EndTurnConfirmationDialog(
                     if (showEndTurnWarning) {
                         Spacer(modifier = Modifier.height(4.dp))
                     }
-                    Text(
-                        stringResource(Res.string.win_level_now_description),
+                    de.egril.defender.ui.common.SelectableText(
+                        text = stringResource(Res.string.win_level_now_description),
                         style = MaterialTheme.typography.bodyLarge,
                     )
                 }

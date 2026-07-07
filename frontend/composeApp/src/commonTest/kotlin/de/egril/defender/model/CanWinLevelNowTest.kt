@@ -2,6 +2,7 @@ package de.egril.defender.model
 
 import androidx.compose.runtime.mutableStateOf
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -60,7 +61,7 @@ class CanWinLevelNowTest {
         addAttacker(state, AttackerType.GOBLIN)
         addAttacker(state, AttackerType.GOBLIN)
         assertTrue(state.canWinLevelNow())
-        assertTrue(state.getRemainingEnemyThreat() == 2L)
+        assertEquals(2L, state.getRemainingEnemyThreat())
     }
 
     @Test
@@ -82,7 +83,7 @@ class CanWinLevelNowTest {
         val state = playerTurnState(buildLevel(healthPoints = 10, spawnPlan = spawnPlan))
         addAttacker(state, AttackerType.GOBLIN)
         // 1 (alive goblin) + 1 (goblin) + 1 (ork) = 3 < 10
-        assertTrue(state.getRemainingEnemyThreat() == 3L)
+        assertEquals(3L, state.getRemainingEnemyThreat())
         assertTrue(state.canWinLevelNow())
     }
 
