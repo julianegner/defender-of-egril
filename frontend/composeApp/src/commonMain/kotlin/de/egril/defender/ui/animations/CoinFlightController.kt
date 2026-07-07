@@ -134,9 +134,9 @@ object CoinFlightController {
         val dy = target.y - start.y
         val length = hypot(dx, dy)
         if (length <= 0f) return mid
-        var perpendicular = Offset(-dy / length, dx / length)
         // Always bow upward (negative y) so the arc is the smooth upper curve, never a lower one.
-        if (perpendicular.y > 0f) perpendicular = Offset(-perpendicular.x, -perpendicular.y)
+        val perpendicular =
+            Offset(-dy / length, dx / length).let { if (it.y > 0f) Offset(-it.x, -it.y) else it }
         return mid + perpendicular * (length * ARC_FACTOR)
     }
 
