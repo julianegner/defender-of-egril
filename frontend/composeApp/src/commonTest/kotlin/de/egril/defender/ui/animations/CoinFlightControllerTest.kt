@@ -92,7 +92,7 @@ class CoinFlightControllerTest {
         CoinFlightController.launch(Offset(30f, 40f), amount = 5, coinSizePx = coinSize)
         assertTrue(CoinFlightController.flights.isNotEmpty())
         CoinFlightController.flights.forEach { flight ->
-            assertEquals(coinSize, flight.sizePx, "Flight coin size matches the launched size")
+            assertEquals(coinSize, flight.sizePx, "Each flight should use the provided coin size")
         }
     }
 

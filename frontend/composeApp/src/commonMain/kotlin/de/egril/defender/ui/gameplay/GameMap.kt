@@ -2615,7 +2615,7 @@ private fun BoxScope.GridCellContent(
     // be launched at the same visible size. The Lottie (coin_gain.json) is a 100x100 viewport with
     // 14-unit coins, fitted (ContentScale.Fit) to the tile box, so the coin diameter on screen is
     // COIN_BUBBLE_COIN_SIZE_FRACTION of the tile's smaller dimension.
-    var coinFlightCoinSizePx by remember(position) {
+    var flyingCoinSizePx by remember(position) {
         mutableStateOf(CoinFlightController.DEFAULT_COIN_SIZE_PX)
     }
     if (coinGainEffect != null) {
@@ -2631,7 +2631,7 @@ private fun BoxScope.GridCellContent(
                             x = topLeft.x + coords.size.width / 2f,
                             y = topLeft.y + coords.size.height * COIN_BUBBLE_END_HEIGHT_FRACTION,
                         )
-                    coinFlightCoinSizePx =
+                    flyingCoinSizePx =
                         minOf(coords.size.width, coords.size.height) * COIN_BUBBLE_COIN_SIZE_FRACTION
                 },
         )
@@ -2682,7 +2682,7 @@ private fun BoxScope.GridCellContent(
             if (AppSettings.enableAnimations.value) {
                 kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.COIN_GAIN_ANIMATION_DURATION_MS)
                 coinFlightStartPosition?.let { source ->
-                    CoinFlightController.launch(source, coinGainEffect.amount, coinFlightCoinSizePx)
+                    CoinFlightController.launch(source, coinGainEffect.amount, flyingCoinSizePx)
                 }
             }
         } else {
