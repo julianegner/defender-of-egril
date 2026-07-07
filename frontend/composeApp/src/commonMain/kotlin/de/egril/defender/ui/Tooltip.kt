@@ -115,14 +115,31 @@ private class TooltipPositionProvider(
         popupContentSize: IntSize,
     ): IntOffset {
         val spaceBelow = windowSize.height - anchorBounds.bottom
-        val showAbove = preferAbove || spaceBelow < popupContentSize.height + gapPx
+        val spaceAbove = anchorBounds.top
+        val needed = popupContentSize.height + gapPx
+        // Prefer the requested side, but fall back to whichever side actually has room.
+        val showAbove =
+            when {
+                preferAbove && spaceAbove >= needed -> true
+                preferAbove -> spaceBelow < needed
+                spaceBelow >= needed -> false
+                else -> spaceAbove > spaceBelow
+            }
 
-        val y =
+        var y =
             if (showAbove) {
                 anchorBounds.top - popupContentSize.height - gapPx
             } else {
                 anchorBounds.bottom + gapPx
             }
+        // Clamp vertically so the tooltip is never clipped by the top or bottom window edge.
+        val maxY = windowSize.height - popupContentSize.height
+        if (y > maxY) {
+            y = maxY
+        }
+        if (y < 0) {
+            y = 0
+        }
 
         var x = anchorBounds.left
         val maxX = windowSize.width - edgeMarginPx - popupContentSize.width
