@@ -44,6 +44,7 @@ enum class SpeechBubblePointer {
  *
  * @param pointer Which edge the pointer protrudes from (and therefore the direction it points).
  * @param pointerBias Position of the pointer along its edge, 0f (start/top) .. 1f (end/bottom).
+ *   Values outside 0f..1f are clamped to that range. Ignored when [pointerOffset] is set.
  * @param pointerOffset Absolute distance from the start of the pointer's edge (left for UP/DOWN,
  *   top for LEFT/RIGHT) to the pointer tip. When non-null it takes precedence over [pointerBias];
  *   useful to aim the tip at a specific anchor regardless of the bubble's own width/height.
