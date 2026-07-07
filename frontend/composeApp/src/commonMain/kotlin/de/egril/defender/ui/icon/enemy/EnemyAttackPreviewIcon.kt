@@ -3,8 +3,11 @@ package de.egril.defender.ui.icon.enemy
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,6 +21,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,7 +78,7 @@ fun EnemyAttackPreviewIcon(
     isLethal: Boolean,
     isImmune: Boolean,
     modifier: Modifier = Modifier,
-    size: Dp = 20.dp,
+    size: Dp = 24.dp,
 ) {
     when {
         isImmune ->
@@ -94,11 +98,26 @@ fun EnemyAttackPreviewIcon(
                         .background(Color.White.copy(alpha = 0.85f)),
                 contentAlignment = Alignment.Center,
             ) {
+                // Auto-size the damage number so multi-digit values stay fully visible
+                // inside the circle on small (mobile) tiles. Mirrors the adaptive font
+                // sizing used on the end turn / auto attack button.
                 Text(
                     text = "$damage",
                     color = Color.Red,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center,
+                    autoSize =
+                        TextAutoSize.StepBased(
+                            minFontSize = 7.sp,
+                            maxFontSize = 12.sp,
+                            stepSize = 1.sp,
+                        ),
+                    maxLines = 1,
+                    softWrap = false,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 2.dp),
                 )
             }
     }
