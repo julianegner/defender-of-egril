@@ -100,7 +100,7 @@ import kotlin.math.sqrt
  * Vertical position (as a fraction of the tile height, measured from the top) where the coin-gain
  * "bubbling" animation ends. The rising coins in `files/animations/coin_gain.json` finish around
  * 25% down from the top, so the fly-to-counter animation launches from there to appear to peel off
- * the end of that animation rather than jumping back to the tile centre.
+ * the end of that animation rather than jumping back to the tile center.
  */
 private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
 
@@ -2597,10 +2597,10 @@ private fun BoxScope.GridCellContent(
     }
     // Track where this tile's coin-gain "bubbling" animation ends, in root coordinates, so a
     // coin-flight animation can start from there. The rising coins finish near the top of the tile
-    // (see COIN_BUBBLE_END_HEIGHT_FRACTION), horizontally centred.
+    // (see COIN_BUBBLE_END_HEIGHT_FRACTION), horizontally centered.
     // Keyed on the (stable) tile grid position so it is captured once and not reset to null when
     // a new coin-gain effect appears on the same tile.
-    var tileRootCenter by remember(position) {
+    var coinFlightStartPosition by remember(position) {
         mutableStateOf<Offset?>(null)
     }
     if (coinGainEffect != null) {
@@ -2611,7 +2611,7 @@ private fun BoxScope.GridCellContent(
                     // only exists then) and re-fired while the map pans/zooms, so the value used at
                     // launch time reflects the tile's current on-screen position.
                     val topLeft = coords.positionInRoot()
-                    tileRootCenter =
+                    coinFlightStartPosition =
                         Offset(
                             x = topLeft.x + coords.size.width / 2f,
                             y = topLeft.y + coords.size.height * COIN_BUBBLE_END_HEIGHT_FRACTION,
@@ -2664,7 +2664,7 @@ private fun BoxScope.GridCellContent(
             // animation. Only when animations are enabled; the counter total already updated above.
             if (AppSettings.enableAnimations.value) {
                 kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.COIN_GAIN_ANIMATION_DURATION_MS)
-                tileRootCenter?.let { source ->
+                coinFlightStartPosition?.let { source ->
                     CoinFlightController.launch(source, coinGainEffect.amount)
                 }
             }
