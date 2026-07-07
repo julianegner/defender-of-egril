@@ -21,6 +21,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.egril.defender.model.Attacker
+import de.egril.defender.model.Defender
+import de.egril.defender.model.isImmuneToAttackFrom
+import de.egril.defender.model.previewAttackDamage
 
 /**
  * Precomputed information for the enemy attack preview (issue #591).
@@ -34,6 +38,25 @@ data class EnemyAttackPreview(
     val isLethal: Boolean,
     val isImmune: Boolean,
 )
+
+/**
+ * Build the attack preview shown for [attacker] when [defender] is the currently selected tower.
+ *
+ * @param hasDoubleLevelBuff whether the DOUBLE_TOWER_LEVEL spell is active on [defender].
+ */
+fun enemyAttackPreview(
+    attacker: Attacker,
+    defender: Defender,
+    hasDoubleLevelBuff: Boolean,
+): EnemyAttackPreview {
+    val isImmune = attacker.isImmuneToAttackFrom(defender.type)
+    val damage = defender.previewAttackDamage(hasDoubleLevelBuff)
+    return EnemyAttackPreview(
+        damage = damage,
+        isLethal = !isImmune && damage >= attacker.currentHealth.value,
+        isImmune = isImmune,
+    )
+}
 
 /**
  * Damage / lethality preview shown at the left border of an enemy unit when a defender is

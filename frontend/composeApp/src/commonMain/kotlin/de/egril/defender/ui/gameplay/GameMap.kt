@@ -87,6 +87,7 @@ import de.egril.defender.ui.icon.enemy.EnemyAttackPreview
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
+import de.egril.defender.ui.icon.enemy.enemyAttackPreview
 import de.egril.defender.ui.rememberMapImageState
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
@@ -1275,13 +1276,7 @@ fun GridCell(
                     gameState.activeSpellEffects.any {
                         it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == sel.id
                     }
-                val isImmune = attacker.isImmuneTo(sel.type)
-                val previewDamage = sel.previewAttackDamage(hasDoubleLevelBuff)
-                EnemyAttackPreview(
-                    damage = previewDamage,
-                    isLethal = !isImmune && previewDamage >= attacker.currentHealth.value,
-                    isImmune = isImmune,
-                )
+                enemyAttackPreview(attacker, sel, hasDoubleLevelBuff)
             }
         }
 

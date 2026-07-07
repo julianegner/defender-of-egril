@@ -1,6 +1,7 @@
 package de.egril.defender.model
 
 import androidx.compose.runtime.mutableStateOf
+import de.egril.defender.ui.icon.enemy.enemyAttackPreview
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -49,23 +50,49 @@ class AttackDamagePreviewTest {
     @Test
     fun redDemonImmuneToFireballButNotToOthers() {
         val redDemon = attacker(AttackerType.RED_DEMON)
-        assertTrue(redDemon.isImmuneTo(DefenderType.WIZARD_TOWER)) // AREA / fireball
-        assertFalse(redDemon.isImmuneTo(DefenderType.BOW_TOWER)) // RANGED
-        assertFalse(redDemon.isImmuneTo(DefenderType.ALCHEMY_TOWER)) // LASTING / acid
+        assertTrue(redDemon.isImmuneToAttackFrom(DefenderType.WIZARD_TOWER)) // AREA / fireball
+        assertFalse(redDemon.isImmuneToAttackFrom(DefenderType.BOW_TOWER)) // RANGED
+        assertFalse(redDemon.isImmuneToAttackFrom(DefenderType.ALCHEMY_TOWER)) // LASTING / acid
     }
 
     @Test
     fun blueDemonImmuneToAcidButNotToFireball() {
         val blueDemon = attacker(AttackerType.BLUE_DEMON)
-        assertTrue(blueDemon.isImmuneTo(DefenderType.ALCHEMY_TOWER)) // LASTING / acid
-        assertFalse(blueDemon.isImmuneTo(DefenderType.WIZARD_TOWER)) // AREA / fireball
+        assertTrue(blueDemon.isImmuneToAttackFrom(DefenderType.ALCHEMY_TOWER)) // LASTING / acid
+        assertFalse(blueDemon.isImmuneToAttackFrom(DefenderType.WIZARD_TOWER)) // AREA / fireball
     }
 
     @Test
     fun regularEnemyNotImmune() {
         val goblin = attacker(AttackerType.GOBLIN)
-        assertFalse(goblin.isImmuneTo(DefenderType.WIZARD_TOWER))
-        assertFalse(goblin.isImmuneTo(DefenderType.ALCHEMY_TOWER))
-        assertFalse(goblin.isImmuneTo(DefenderType.BOW_TOWER))
+        assertFalse(goblin.isImmuneToAttackFrom(DefenderType.WIZARD_TOWER))
+        assertFalse(goblin.isImmuneToAttackFrom(DefenderType.ALCHEMY_TOWER))
+        assertFalse(goblin.isImmuneToAttackFrom(DefenderType.BOW_TOWER))
+    }
+
+    @Test
+    fun previewIsLethalWhenDamageMeetsOrExceedsHealth() {
+        // Bow tower level 1 deals 10; goblin has 20 HP -> not lethal.
+        val goblin = attacker(AttackerType.GOBLIN)
+        val bow = defender(DefenderType.BOW_TOWER, 1)
+        val nonLethal = enemyAttackPreview(goblin, bow, hasDoubleLevelBuff = false)
+        assertEquals(10, nonLethal.damage)
+        assertFalse(nonLethal.isLethal)
+        assertFalse(nonLethal.isImmune)
+
+        // Reduce goblin health to 10 -> exactly lethal.
+        goblin.currentHealth.value = 10
+        val lethal = enemyAttackPreview(goblin, bow, hasDoubleLevelBuff = false)
+        assertTrue(lethal.isLethal)
+    }
+
+    @Test
+    fun previewIsNeverLethalWhenImmune() {
+        // Red Demon at 1 HP is immune to fireball, so the preview must show immunity, not lethal.
+        val redDemon = attacker(AttackerType.RED_DEMON).also { it.currentHealth.value = 1 }
+        val wizard = defender(DefenderType.WIZARD_TOWER, 1)
+        val preview = enemyAttackPreview(redDemon, wizard, hasDoubleLevelBuff = false)
+        assertTrue(preview.isImmune)
+        assertFalse(preview.isLethal)
     }
 }
