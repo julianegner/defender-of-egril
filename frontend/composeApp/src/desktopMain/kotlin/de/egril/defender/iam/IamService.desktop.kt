@@ -282,7 +282,6 @@ private fun startPkceLogin() {
             append("&code_challenge=${URLEncoder.encode(codeChallenge, "UTF-8")}")
             append("&code_challenge_method=S256")
             append("&state=${URLEncoder.encode(stateParam, "UTF-8")}")
-            append("&prompt=login")
             append("&ui_locales=${URLEncoder.encode(locale.code, "UTF-8")}")
         }
 
