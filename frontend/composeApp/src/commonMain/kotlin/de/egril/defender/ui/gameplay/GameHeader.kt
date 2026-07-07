@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -747,16 +748,20 @@ private fun LevelHeaderIcons(
     // Win-level info icon with a speech bubble pointing at it (only shown when the level is
     // guaranteed to be won). Clicking the badge opens the full win-level popup.
     if (onWinLevelInfoClick != null && gameState.canWinLevelNow()) {
+        var bubbleDismissed by rememberSaveable { mutableStateOf(false) }
         Box {
             TrophyIcon(
                 size = iconSize,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.clickable { onWinLevelInfoClick() },
             )
-            WinLevelSpeechBubble(
-                text = stringResource(Res.string.win_level_now_description),
-                badgeSize = iconSize,
-            )
+            if (!bubbleDismissed) {
+                WinLevelSpeechBubble(
+                    text = stringResource(Res.string.win_level_now_description),
+                    badgeSize = iconSize,
+                    onClose = { bubbleDismissed = true },
+                )
+            }
         }
     }
 
@@ -809,10 +814,16 @@ private fun LevelHeaderIcons(
 private fun WinLevelSpeechBubble(
     text: String,
     badgeSize: Dp,
+    onClose: () -> Unit,
 ) {
     val density = LocalDensity.current
     val badgeSizePx = with(density) { badgeSize.roundToPx() }
     val gapPx = with(density) { 2.dp.roundToPx() }
+    // Distance from the bubble's left edge to the pointer tip. Matches SpeechBubble's minimum
+    // clamp for an UP pointer (cornerRadius + pointerWidth / 2 = 12dp + 8dp). The bubble is shifted
+    // left by this amount (minus half the badge) so the pointer lands on the badge centre.
+    val pointerInset = 20.dp
+    val pointerInsetPx = with(density) { pointerInset.roundToPx() }
 
     Box(
         modifier =
@@ -822,14 +833,16 @@ private fun WinLevelSpeechBubble(
                     val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
                     // Report zero size so the bubble does not affect the header row layout.
                     layout(0, 0) {
-                        placeable.place(0, badgeSizePx + gapPx)
+                        placeable.place(badgeSizePx / 2 - pointerInsetPx, badgeSizePx + gapPx)
                     }
                 },
     ) {
         SpeechBubble(
             pointer = SpeechBubblePointer.UP,
-            // Aim the pointer tip at the badge centre while the bubble is left-aligned to the badge.
-            pointerOffset = badgeSize / 2,
+            // Aim the pointer tip at the badge centre (see pointerInset above).
+            pointerOffset = pointerInset,
+            onClose = onClose,
+            closeContentDescription = stringResource(Res.string.close),
             modifier = Modifier.widthIn(max = 260.dp),
         ) {
             Text(

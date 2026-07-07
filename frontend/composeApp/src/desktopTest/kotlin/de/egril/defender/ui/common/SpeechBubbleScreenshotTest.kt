@@ -9,10 +9,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import de.egril.defender.ui.ScreenshotTestUtils
 import org.junit.Rule
@@ -70,5 +76,28 @@ class SpeechBubbleScreenshotTest {
         composeTestRule.onRoot().assertExists()
         composeTestRule.onNodeWithText("Pointer down").assertExists()
         ScreenshotTestUtils.captureScreenshot(composeTestRule, "speech_bubble_dark")
+    }
+
+    @Test
+    fun closeButtonDismissesBubble() {
+        composeTestRule.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                var visible by remember { mutableStateOf(true) }
+                if (visible) {
+                    SpeechBubble(
+                        pointer = SpeechBubblePointer.UP,
+                        onClose = { visible = false },
+                        closeContentDescription = "Close",
+                    ) {
+                        Text("Closable bubble")
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Closable bubble").assertExists()
+        composeTestRule.onNodeWithContentDescription("Close").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Closable bubble").assertDoesNotExist()
     }
 }

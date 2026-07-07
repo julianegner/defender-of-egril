@@ -1,13 +1,17 @@
 package de.egril.defender.ui.common
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.RoundRect
@@ -16,8 +20,11 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import de.egril.defender.ui.icon.CrossIcon
 
 /**
  * The edge of a [SpeechBubble] the pointer (tail) protrudes from.
@@ -56,6 +63,10 @@ enum class SpeechBubblePointer {
  * @param pointerLength How far the pointer protrudes from the bubble body.
  * @param borderWidth Stroke width used when [borderColor] is set.
  * @param contentPadding Inner padding around [content].
+ * @param onClose Optional callback; when non-null a small close (X) button is drawn in the
+ *   top-right corner of the bubble, and trailing space is reserved so it never overlaps [content].
+ * @param closeButtonSize Size of the close (X) icon when [onClose] is set.
+ * @param closeContentDescription Accessibility description for the close button when [onClose] is set.
  */
 @Composable
 fun SpeechBubble(
@@ -71,6 +82,9 @@ fun SpeechBubble(
     pointerLength: Dp = 8.dp,
     borderWidth: Dp = 1.dp,
     contentPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+    onClose: (() -> Unit)? = null,
+    closeButtonSize: Dp = 14.dp,
+    closeContentDescription: String? = null,
     content: @Composable () -> Unit,
 ) {
     // Reserve space for the pointer on the edge it protrudes from so it does not overlap content.
@@ -103,7 +117,35 @@ fun SpeechBubble(
                 .padding(contentPadding),
     ) {
         CompositionLocalProvider(LocalContentColor provides contentColor) {
-            content()
+            Box(
+                modifier =
+                    if (onClose != null) {
+                        // Reserve trailing space so the close button never overlaps the content.
+                        Modifier.padding(end = closeButtonSize + 4.dp)
+                    } else {
+                        Modifier
+                    },
+            ) {
+                content()
+            }
+            if (onClose != null) {
+                Box(
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .clip(CircleShape)
+                            .clickable(onClick = onClose)
+                            .then(
+                                if (closeContentDescription != null) {
+                                    Modifier.semantics { contentDescription = closeContentDescription }
+                                } else {
+                                    Modifier
+                                },
+                            ),
+                ) {
+                    CrossIcon(size = closeButtonSize, tint = contentColor)
+                }
+            }
         }
     }
 }
