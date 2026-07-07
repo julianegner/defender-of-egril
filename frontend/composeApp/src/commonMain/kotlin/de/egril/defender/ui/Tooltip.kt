@@ -42,12 +42,15 @@ import de.egril.defender.utils.isPlatformMobile
  *
  * @param text Tooltip text to display, or null/empty to disable the tooltip
  * @param modifier Modifier for the wrapper Box
+ * @param preferAbove When true, always show the tooltip above the element. Useful when the element
+ *   is inside a container that clips content below it (e.g. the bottom row of a LazyVerticalGrid).
  * @param content The composable content to wrap
  */
 @Composable
 fun TooltipWrapper(
     text: String?,
     modifier: Modifier = Modifier,
+    preferAbove: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -91,9 +94,9 @@ fun TooltipWrapper(
             val windowWidthPx = windowInfo.containerSize.width.toFloat()
             val spaceBelowPx = windowHeightPx - elementBottomPx
 
-            // Show above when less than 60dp of space remains below the element
+            // Show above when preferAbove is set, or when less than 60dp of space remains below the element
             val minSpaceBelowPx = with(density) { 60.dp.toPx() }
-            val showAbove = windowHeightPx > 0 && spaceBelowPx < minSpaceBelowPx
+            val showAbove = preferAbove || (windowHeightPx > 0 && spaceBelowPx < minSpaceBelowPx)
 
             val offsetY: Dp =
                 if (showAbove) {

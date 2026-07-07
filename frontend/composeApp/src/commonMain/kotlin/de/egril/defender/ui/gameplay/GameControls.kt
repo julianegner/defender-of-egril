@@ -42,6 +42,14 @@ private fun turnButtonShortcutHintColor(
         MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f)
     }
 
+/** Font size for the primary turn button label. Uses larger sizes than other controls for readability. */
+private fun turnButtonLabelFontSize(headerTextSize: HeaderTextSize) =
+    when (headerTextSize) {
+        HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.Medium
+        HeaderTextSize.MEDIUM -> GamePlayConstants.TextSizes.Large
+        HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Title
+    }
+
 @Composable
 fun ColumnScope.TurnButton(
     isPlayerTurn: Boolean,
@@ -51,12 +59,7 @@ fun ColumnScope.TurnButton(
     highlighted: Boolean = false,
     autoAttackAvailable: Boolean = false,
 ) {
-    val buttonTextSize =
-        when (AppSettings.headerTextSize.value) {
-            HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.Body
-            HeaderTextSize.MEDIUM -> GamePlayConstants.TextSizes.Medium
-            HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
-        }
+    val buttonTextSize = turnButtonLabelFontSize(AppSettings.headerTextSize.value)
     val turnButtonContentColor = GamePlayColors.readableContentColor(primaryButtonColor)
     val shortcutHintColor = turnButtonShortcutHintColor(isPlayerTurn, primaryButtonColor)
     val buttonLabel =
@@ -66,7 +69,7 @@ fun ColumnScope.TurnButton(
             else -> stringResource(Res.string.end_turn_button)
         }
     val tooltipText = if (isPlayerTurn && autoAttackAvailable) stringResource(Res.string.auto_attack_and_end_turn) else null
-    TooltipWrapper(text = tooltipText) {
+    TooltipWrapper(text = tooltipText, preferAbove = true) {
         Button(
             onClick = onPrimaryAction,
             // modifier = Modifier.fillMaxWidth(),
@@ -418,7 +421,13 @@ fun GameControlsPanel(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                 ) {
-                                    Text(primaryButtonExpandedText)
+                                    Text(
+                                        primaryButtonExpandedText,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                                        fontSize = turnButtonLabelFontSize(AppSettings.headerTextSize.value),
+                                        maxLines = 1,
+                                    )
                                     ShortcutKeyChip(
                                         text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
                                         color = shortcutHintColor,
