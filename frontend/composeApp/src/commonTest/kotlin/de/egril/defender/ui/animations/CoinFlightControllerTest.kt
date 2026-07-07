@@ -86,15 +86,21 @@ class CoinFlightControllerTest {
     }
 
     @Test
-    fun burstsAlternateArcDirectionAndHaveUniqueIds() {
+    fun burstsShareOneArcStaggeredWithUniqueIds() {
         CoinFlightController.setTarget(Offset(300f, 25f))
         CoinFlightController.launch(Offset(0f, 0f), amount = 100000) // maximal burst
 
         val ids = CoinFlightController.flights.map { it.id }.toSet()
         assertEquals(CoinFlightController.flights.size, ids.size, "Every flight has a unique id")
 
-        val signs = CoinFlightController.flights.map { it.curveSign }
-        assertTrue(signs.contains(1f) && signs.contains(-1f), "Arc directions alternate within a burst")
+        // All coins share the same single arc (identical control point) so they follow one curve.
+        val controls = CoinFlightController.flights.map { it.control }.toSet()
+        assertEquals(1, controls.size, "All coins in a burst follow the same single arc")
+
+        // Coins are staggered so they trail one another along that arc.
+        val delays = CoinFlightController.flights.map { it.delayMillis }
+        assertEquals(delays.sorted(), delays, "Coins are staggered in launch order")
+        assertTrue(delays.toSet().size > 1, "A burst staggers its coins along the arc")
     }
 
     @Test

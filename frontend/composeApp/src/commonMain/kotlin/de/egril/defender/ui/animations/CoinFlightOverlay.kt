@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import de.egril.defender.ui.settings.AppSettings
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 /**
@@ -93,6 +94,9 @@ private fun CoinFlightSprite(flight: CoinFlight) {
 
     // The sprite is keyed by flight.id upstream, so this effect runs exactly once per sprite.
     LaunchedEffect(Unit) {
+        if (flight.delayMillis > 0) {
+            delay(flight.delayMillis.toLong())
+        }
         progress.animateTo(
             targetValue = 1f,
             animationSpec = tween(durationMillis = COIN_FLIGHT_DURATION_MS, easing = FastOutSlowInEasing),

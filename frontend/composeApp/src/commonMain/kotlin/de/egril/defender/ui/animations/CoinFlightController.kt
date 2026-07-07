@@ -14,15 +14,16 @@ import kotlin.math.hypot
  * @param target Screen (root) coordinates of the coin counter, in pixels.
  * @param control Quadratic-Bézier control point (root coordinates). Precomputed once at launch so
  *                the arced path isn't recalculated on every animation frame.
- * @param curveSign Direction (+1 / -1) the arced flight path bends, alternated per coin
- *                  so a burst fans out instead of overlapping on a single line.
+ * @param delayMillis Delay before this coin starts moving. Coins in a burst are staggered so they
+ *                    trail one another along the same single upper arc, forming a smooth stream of
+ *                    coins instead of splitting across separate arcs.
  */
 data class CoinFlight(
     val id: Long,
     val start: Offset,
     val target: Offset,
     val control: Offset,
-    val curveSign: Float,
+    val delayMillis: Int,
 )
 
 /**
@@ -56,6 +57,13 @@ object CoinFlightController {
 
     /** How far the arced flight path bows out, as a fraction of the straight-line distance. */
     private const val ARC_FACTOR = 0.25f
+
+    /**
+     * Delay added per coin within a single burst (milliseconds). Staggering the coins makes them
+     * trail one another along the same single arc, so a burst reads as a stream of coins rather
+     * than a couple of overlapping sprites.
+     */
+    const val COIN_STAGGER_MS = 220
 
     private var nextId = 0L
 
@@ -97,15 +105,15 @@ object CoinFlightController {
         if (desired == 0) return 0
         val capacity = (MAX_ACTIVE_FLIGHTS - flights.size).coerceAtLeast(0)
         val count = minOf(desired, capacity)
+        val control = arcControlPoint(source, target)
         for (i in 0 until count) {
-            val sign = if (i % 2 == 0) 1f else -1f
             flights.add(
                 CoinFlight(
                     id = nextId++,
                     start = source,
                     target = target,
-                    control = arcControlPoint(source, target, sign),
-                    curveSign = sign,
+                    control = control,
+                    delayMillis = i * COIN_STAGGER_MS,
                 ),
             )
         }
@@ -114,20 +122,22 @@ object CoinFlightController {
 
     /**
      * Control point for a coin's quadratic-Bézier flight path: the midpoint of the straight line,
-     * pushed perpendicular to it (in the [curveSign] direction) so the coin travels along an arc.
+     * pushed perpendicular to it so the coin travels along an arc. The bow always points upward
+     * (toward the top of the screen) so every coin in a burst follows the same single upper arc.
      */
     private fun arcControlPoint(
         start: Offset,
         target: Offset,
-        curveSign: Float,
     ): Offset {
         val mid = Offset((start.x + target.x) / 2f, (start.y + target.y) / 2f)
         val dx = target.x - start.x
         val dy = target.y - start.y
         val length = hypot(dx, dy)
         if (length <= 0f) return mid
-        val perpendicular = Offset(-dy / length, dx / length)
-        return mid + perpendicular * (length * ARC_FACTOR * curveSign)
+        var perpendicular = Offset(-dy / length, dx / length)
+        // Always bow upward (negative y) so the arc is the smooth upper curve, never a lower one.
+        if (perpendicular.y > 0f) perpendicular = Offset(-perpendicular.x, -perpendicular.y)
+        return mid + perpendicular * (length * ARC_FACTOR)
     }
 
     /** Remove a completed flight by [id]. */
