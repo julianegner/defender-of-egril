@@ -24,6 +24,7 @@ enum class AchievementId {
     LOSE_LEVEL,
     WIN_LEVEL_FULL_HP,
     WIN_LEVEL_ONE_HP,
+    PLAY_HUNDRED_TURNS,
 
     // Combat achievements
     KILL_TWO_ENEMIES_SAME_TURN,
@@ -48,6 +49,7 @@ enum class AchievementId {
     // Building achievements
     BUILD_TEN_TOWERS,
     BUILD_TEN_RAFTS,
+    TWENTY_TOWERS_STANDING,
 
     // Bridge and barricade achievements
     DESTROY_BRIDGE,
@@ -107,6 +109,11 @@ object AchievementDefinitions {
             AchievementInfo(AchievementId.LOSE_LEVEL, "achievement_lose_level_name", "achievement_lose_level_desc"),
             AchievementInfo(AchievementId.WIN_LEVEL_FULL_HP, "achievement_win_level_full_hp_name", "achievement_win_level_full_hp_desc"),
             AchievementInfo(AchievementId.WIN_LEVEL_ONE_HP, "achievement_win_level_one_hp_name", "achievement_win_level_one_hp_desc"),
+            AchievementInfo(
+                AchievementId.PLAY_HUNDRED_TURNS,
+                "achievement_play_hundred_turns_name",
+                "achievement_play_hundred_turns_desc",
+            ),
             // Combat achievements
             AchievementInfo(
                 AchievementId.KILL_TWO_ENEMIES_SAME_TURN,
@@ -143,6 +150,11 @@ object AchievementDefinitions {
             // Building achievements
             AchievementInfo(AchievementId.BUILD_TEN_TOWERS, "achievement_build_ten_towers_name", "achievement_build_ten_towers_desc"),
             AchievementInfo(AchievementId.BUILD_TEN_RAFTS, "achievement_build_ten_rafts_name", "achievement_build_ten_rafts_desc"),
+            AchievementInfo(
+                AchievementId.TWENTY_TOWERS_STANDING,
+                "achievement_twenty_towers_standing_name",
+                "achievement_twenty_towers_standing_desc",
+            ),
             // Bridge and barricade achievements
             AchievementInfo(AchievementId.DESTROY_BRIDGE, "achievement_destroy_bridge_name", "achievement_destroy_bridge_desc"),
             AchievementInfo(AchievementId.BUILD_BARRICADE, "achievement_build_barricade_name", "achievement_build_barricade_desc"),

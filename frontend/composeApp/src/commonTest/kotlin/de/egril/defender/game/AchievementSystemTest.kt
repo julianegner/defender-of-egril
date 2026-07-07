@@ -198,6 +198,40 @@ class AchievementSystemTest {
         )
     }
 
+    @Test
+    fun testPlayHundredTurnsAchievement() {
+        // Reaching turn 99 should not award
+        achievementManager.onTurnReached(99)
+        assertFalse(
+            awardedAchievements.any { it.id == AchievementId.PLAY_HUNDRED_TURNS },
+            "Should not award PLAY_HUNDRED_TURNS before turn 100",
+        )
+
+        // Reaching turn 100 should award
+        achievementManager.onTurnReached(100)
+        assertTrue(
+            awardedAchievements.any { it.id == AchievementId.PLAY_HUNDRED_TURNS },
+            "Should award PLAY_HUNDRED_TURNS at turn 100",
+        )
+    }
+
+    @Test
+    fun testTwentyTowersStandingAchievement() {
+        // Fewer than 20 towers should not award
+        achievementManager.onTowersStanding(19)
+        assertFalse(
+            awardedAchievements.any { it.id == AchievementId.TWENTY_TOWERS_STANDING },
+            "Should not award TWENTY_TOWERS_STANDING with fewer than 20 towers",
+        )
+
+        // 20 towers standing should award
+        achievementManager.onTowersStanding(20)
+        assertTrue(
+            awardedAchievements.any { it.id == AchievementId.TWENTY_TOWERS_STANDING },
+            "Should award TWENTY_TOWERS_STANDING with 20 towers standing",
+        )
+    }
+
     // Combat Achievement Tests
 
     @Test

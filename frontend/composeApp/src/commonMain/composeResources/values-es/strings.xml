@@ -1188,7 +1188,9 @@
     <string name="achievement_win_level_full_hp_name">Victoria Perfecta</string>
     <string name="achievement_win_level_full_hp_desc">Gana un nivel sin perder puntos de salud</string>
     <string name="achievement_win_level_one_hp_name">Por los Pelos</string>
+    <string name="achievement_play_hundred_turns_name">Resistencia</string>
     <string name="achievement_win_level_one_hp_desc">Gana un nivel con solo un punto de salud restante</string>
+    <string name="achievement_play_hundred_turns_desc">Juega 100 turnos en un solo nivel</string>
 
     <!-- Achievements: Combat -->
     <string name="achievement_kill_two_enemies_same_turn_name">Doble Muerte</string>
@@ -1231,6 +1233,8 @@
     <string name="achievement_build_ten_towers_desc">Construye al menos 10 torres en un solo nivel</string>
     <string name="achievement_build_ten_rafts_name">Maestro de Balsas</string>
     <string name="achievement_build_ten_rafts_desc">Construye al menos 10 balsas en un solo nivel</string>
+    <string name="achievement_twenty_towers_standing_name">Fortaleza</string>
+    <string name="achievement_twenty_towers_standing_desc">Ten 20 torres en pie al mismo tiempo en un solo nivel</string>
 
     <!-- Achievements: Bridge and Barricade -->
     <string name="achievement_destroy_bridge_name">Destructor de Puentes</string>

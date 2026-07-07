@@ -1188,7 +1188,9 @@
     <string name="achievement_win_level_full_hp_name">Vittoria Perfetta</string>
     <string name="achievement_win_level_full_hp_desc">Vinci un livello senza perdere punti vita</string>
     <string name="achievement_win_level_one_hp_name">Per un Soffio</string>
+    <string name="achievement_play_hundred_turns_name">Resistenza</string>
     <string name="achievement_win_level_one_hp_desc">Vinci un livello con solo un punto vita rimanente</string>
+    <string name="achievement_play_hundred_turns_desc">Gioca 100 turni in un singolo livello</string>
 
     <!-- Achievements: Combat -->
     <string name="achievement_kill_two_enemies_same_turn_name">Doppia Uccisione</string>
@@ -1231,6 +1233,8 @@
     <string name="achievement_build_ten_towers_desc">Costruisci almeno 10 torri in un singolo livello</string>
     <string name="achievement_build_ten_rafts_name">Maestro delle Zattere</string>
     <string name="achievement_build_ten_rafts_desc">Costruisci almeno 10 zattere in un singolo livello</string>
+    <string name="achievement_twenty_towers_standing_name">Fortezza</string>
+    <string name="achievement_twenty_towers_standing_desc">Abbi 20 torri in piedi contemporaneamente in un singolo livello</string>
 
     <!-- Achievements: Bridge and Barricade -->
     <string name="achievement_destroy_bridge_name">Distruttore di Ponti</string>

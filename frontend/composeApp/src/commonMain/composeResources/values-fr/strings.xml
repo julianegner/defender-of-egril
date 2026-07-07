@@ -1188,7 +1188,9 @@
     <string name="achievement_win_level_full_hp_name">Victoire Parfaite</string>
     <string name="achievement_win_level_full_hp_desc">Gagnez un niveau sans perdre de points de vie</string>
     <string name="achievement_win_level_one_hp_name">De Justesse</string>
+    <string name="achievement_play_hundred_turns_name">Endurance</string>
     <string name="achievement_win_level_one_hp_desc">Gagnez un niveau avec un seul point de vie restant</string>
+    <string name="achievement_play_hundred_turns_desc">Jouez 100 tours dans un seul niveau</string>
 
     <!-- Achievements: Combat -->
     <string name="achievement_kill_two_enemies_same_turn_name">Double Élimination</string>
@@ -1231,6 +1233,8 @@
     <string name="achievement_build_ten_towers_desc">Construisez au moins 10 tours dans un seul niveau</string>
     <string name="achievement_build_ten_rafts_name">Maître des Radeaux</string>
     <string name="achievement_build_ten_rafts_desc">Construisez au moins 10 radeaux dans un seul niveau</string>
+    <string name="achievement_twenty_towers_standing_name">Forteresse</string>
+    <string name="achievement_twenty_towers_standing_desc">Ayez 20 tours debout en même temps dans un seul niveau</string>
 
     <!-- Achievements: Bridge and Barricade -->
     <string name="achievement_destroy_bridge_name">Destructeur de Ponts</string>
