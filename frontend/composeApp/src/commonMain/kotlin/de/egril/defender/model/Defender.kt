@@ -241,3 +241,31 @@ data class Defender(
         }
     }
 }
+
+/**
+ * Returns true if [target] is immune to a single attack from a defender of [defenderType].
+ * Red Demons are immune to fireballs (AREA), Blue Demons are immune to acid (LASTING).
+ * Used for attack-damage previews shown when a defender is selected.
+ */
+fun Attacker.isImmuneTo(defenderType: DefenderType): Boolean =
+    when (defenderType.attackType) {
+        AttackType.AREA -> type.immuneToFireball
+        AttackType.LASTING -> type.immuneToAcid
+        else -> false
+    }
+
+/**
+ * Damage a single attack from this defender would deal, mirroring the combat calculation.
+ * LASTING (acid) attacks deal half their base damage per hit. Non-attacking towers deal 0.
+ *
+ * @param hasDoubleLevelBuff whether the DOUBLE_TOWER_LEVEL spell is active on this defender.
+ */
+fun Defender.previewAttackDamage(hasDoubleLevelBuff: Boolean = false): Int {
+    val effectiveLevel = if (hasDoubleLevelBuff) level.value * 2 else level.value
+    val baseDamage = type.baseDamage + (effectiveLevel - 1) * 5
+    return when (type.attackType) {
+        AttackType.LASTING -> baseDamage / 2
+        AttackType.NONE -> 0
+        else -> baseDamage
+    }
+}

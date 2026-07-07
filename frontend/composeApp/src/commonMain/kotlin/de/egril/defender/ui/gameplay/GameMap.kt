@@ -84,6 +84,7 @@ import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
+import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.rememberMapImageState
 import de.egril.defender.ui.settings.AppSettings
@@ -1968,6 +1969,18 @@ private fun BoxScope.GridCellContent(
                         AppSettings.isDarkMode.value -> Color.White
                         else -> Color.Black
                     }
+                // Damage / lethality preview: shown at the left border of the enemy when a
+                // defender is selected that could attack it (and no build/trap/barricade
+                // placement mode is active). See issue #591.
+                val showAttackPreview =
+                    selectedDefender != null &&
+                        selectedDefender.type.attackType != AttackType.NONE &&
+                        selectedDefender.isReady &&
+                        selectedDefender.actionsRemaining.value > 0 &&
+                        cellIsInRange &&
+                        selectedMineAction == null &&
+                        selectedWizardAction == null &&
+                        selectedBarricadeAction == null
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier =
@@ -2040,6 +2053,22 @@ private fun BoxScope.GridCellContent(
                                 }
                             }
                         }
+                    }
+                    // Attack damage / lethality / immunity preview at the left border
+                    if (showAttackPreview && selectedDefender != null) {
+                        val hasDoubleLevelBuff =
+                            gameState.activeSpellEffects.any {
+                                it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == selectedDefender.id
+                            }
+                        val isImmune = attacker.isImmuneTo(selectedDefender.type)
+                        val previewDamage = selectedDefender.previewAttackDamage(hasDoubleLevelBuff)
+                        val isLethal = !isImmune && previewDamage >= attacker.currentHealth.value
+                        EnemyAttackPreviewIcon(
+                            damage = previewDamage,
+                            isLethal = isLethal,
+                            isImmune = isImmune,
+                            modifier = Modifier.align(Alignment.CenterStart),
+                        )
                     }
                 }
             }
