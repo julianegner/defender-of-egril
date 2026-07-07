@@ -159,4 +159,56 @@ class CoinFlightControllerTest {
         CoinFlightController.clear()
         assertTrue(CoinFlightController.flights.isEmpty(), "clear() removes all active flights")
     }
+
+    @Test
+    fun distributeCreditSplitsAmountExactlyAcrossCoins() {
+        assertTrue(CoinFlightController.distributeCredit(10, 0).isEmpty(), "No coins means no shares")
+
+        val even = CoinFlightController.distributeCredit(12, 3)
+        assertEquals(12, even.sum(), "Shares always sum to the full reward")
+        assertTrue(even.all { it == 4 }, "An evenly divisible reward splits equally")
+
+        val uneven = CoinFlightController.distributeCredit(10, 3)
+        assertEquals(10, uneven.sum(), "Shares always sum to the full reward, remainder included")
+        assertEquals(listOf(4, 3, 3), uneven.toList(), "Leftover coins go to the first sprites")
+    }
+
+    @Test
+    fun arrivingCoinsCreditTheirShareUntilTheBurstIsComplete() {
+        CoinFlightController.setTarget(Offset(300f, 25f))
+        var credited = 0
+        val reward = 20
+        val count =
+            CoinFlightController.launch(
+                Offset(0f, 0f),
+                amount = reward,
+                creditAmount = reward,
+            ) { arrived -> credited += arrived }
+        assertTrue(count > 0, "Coins should launch when a target is set")
+
+        val flights = CoinFlightController.flights.toList()
+        assertEquals(reward, flights.sumOf { it.creditAmount }, "Coins carry the full reward between them")
+
+        // Each coin credits its share exactly once when it lands.
+        flights.forEach { flight -> CoinFlightController.onArrived(flight) }
+        assertEquals(reward, credited, "The counter is credited the full reward as coins arrive")
+        assertTrue(CoinFlightController.flights.isEmpty(), "All coins are removed once they have landed")
+    }
+
+    @Test
+    fun clearFlushesUncreditedCoinsSoRewardsAreNeverLost() {
+        CoinFlightController.setTarget(Offset(300f, 25f))
+        var credited = 0
+        val reward = 15
+        CoinFlightController.launch(
+            Offset(0f, 0f),
+            amount = reward,
+            creditAmount = reward,
+        ) { arrived -> credited += arrived }
+
+        // Simulate leaving the screen / disabling animations mid-flight before any coin lands.
+        CoinFlightController.clear()
+        assertEquals(reward, credited, "Dropping in-flight coins still credits the reserved reward")
+        assertTrue(CoinFlightController.flights.isEmpty())
+    }
 }

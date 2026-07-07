@@ -19,6 +19,10 @@ import kotlin.math.hypot
  *                    coins instead of splitting across separate arcs.
  * @param sizePx Diameter of the coin sprite in pixels. Derived from the source tile's on-screen
  *               size so the flying coins match the coin-gain "bubbling" coins at any zoom level.
+ * @param creditAmount Number of coins credited to the counter when THIS sprite reaches it. A burst's
+ *                     total reward is split across its coins so the counter ticks up as the coins
+ *                     arrive, keeping the visible total in step with the coins landing on it.
+ * @param burstId Identifies the burst this coin belongs to (all coins launched together share one).
  */
 data class CoinFlight(
     val id: Long,
@@ -27,6 +31,8 @@ data class CoinFlight(
     val control: Offset,
     val delayMillis: Int,
     val sizePx: Float,
+    val creditAmount: Int = 0,
+    val burstId: Long = -1L,
 )
 
 /**
@@ -75,6 +81,13 @@ object CoinFlightController {
     const val DEFAULT_COIN_SIZE_PX = 24f
 
     private var nextId = 0L
+    private var nextBurstId = 0L
+
+    /**
+     * Per-burst callbacks that credit the counter as the burst's coins arrive. Keyed by burst id and
+     * removed once the burst's final coin has landed (or on [clear]).
+     */
+    private val burstCallbacks = mutableMapOf<Long, (Int) -> Unit>()
 
     /** Coin counter center in root coordinates (pixels); null until the header reports it. */
     val targetPosition = mutableStateOf<Offset?>(null)
@@ -103,22 +116,34 @@ object CoinFlightController {
      * [coinSizePx] is the coin sprite diameter in pixels, derived from the source tile's on-screen
      * size so flying coins match the coin-gain "bubbling" coins at the current zoom.
      *
+     * [creditAmount] is the reward (in coins) to add to the counter as this burst's coins arrive; it
+     * is split across the launched coins and delivered via [onArrival] when each coin reaches the
+     * counter, so the visible total updates in step with the coins landing on it. It defaults to
+     * [amount] (the number driving the sprite count).
+     *
      * Returns the number of coin sprites actually launched. This is 0 when there is no target
      * yet, the [amount] is not positive, or capacity ([MAX_ACTIVE_FLIGHTS]) is exhausted. Extra
      * rewards arriving while the queue is full are simply dropped so quick successions never
-     * glitch or overwhelm the screen.
+     * glitch or overwhelm the screen. When 0 is returned the caller should credit [creditAmount]
+     * itself, since no coin will arrive to trigger [onArrival].
      */
     fun launch(
         source: Offset,
         amount: Int,
         coinSizePx: Float = DEFAULT_COIN_SIZE_PX,
+        creditAmount: Int = amount,
+        onArrival: (Int) -> Unit = {},
     ): Int {
         val target = targetPosition.value ?: return 0
         val desired = coinCountForAmount(amount)
         if (desired == 0) return 0
         val capacity = (MAX_ACTIVE_FLIGHTS - flights.size).coerceAtLeast(0)
         val count = minOf(desired, capacity)
+        if (count == 0) return 0
         val control = arcControlPoint(source, target)
+        val burstId = nextBurstId++
+        burstCallbacks[burstId] = onArrival
+        val credits = distributeCredit(creditAmount, count)
         for (i in 0 until count) {
             flights.add(
                 CoinFlight(
@@ -128,10 +153,26 @@ object CoinFlightController {
                     control = control,
                     delayMillis = i * COIN_STAGGER_MS,
                     sizePx = coinSizePx,
+                    creditAmount = credits[i],
+                    burstId = burstId,
                 ),
             )
         }
         return count
+    }
+
+    /**
+     * Split [total] coins across [count] sprites as evenly as possible, giving the leftover to the
+     * first coins so the whole reward is delivered exactly once across the burst.
+     */
+    fun distributeCredit(
+        total: Int,
+        count: Int,
+    ): IntArray {
+        if (count <= 0) return IntArray(0)
+        val base = total / count
+        val remainder = total - base * count
+        return IntArray(count) { i -> base + if (i < remainder) 1 else 0 }
     }
 
     /**
@@ -154,13 +195,36 @@ object CoinFlightController {
         return mid + perpendicular * (length * ARC_FACTOR)
     }
 
-    /** Remove a completed flight by [id]. */
+    /**
+     * Called by the overlay when a coin sprite reaches the counter. Credits this coin's share of its
+     * burst's reward (so the counter updates as coins land) and removes the sprite. When the burst's
+     * final coin has arrived, its callback is discarded.
+     */
+    fun onArrived(flight: CoinFlight) {
+        flights.removeAll { it.id == flight.id }
+        val callback = burstCallbacks[flight.burstId] ?: return
+        callback(flight.creditAmount)
+        if (flights.none { it.burstId == flight.burstId }) {
+            burstCallbacks.remove(flight.burstId)
+        }
+    }
+
+    /** Remove a completed flight by [id] without crediting (used for tests and manual cleanup). */
     fun remove(id: Long) {
         flights.removeAll { it.id == id }
     }
 
-    /** Clear all active flights (e.g. when leaving the gameplay screen). */
+    /**
+     * Clear all active flights (e.g. when leaving the gameplay screen or disabling animations).
+     *
+     * Any coins still in flight are credited first via their burst callbacks so a reward reserved at
+     * launch time is never lost when its coins are dropped before landing.
+     */
     fun clear() {
+        flights.forEach { flight ->
+            burstCallbacks[flight.burstId]?.invoke(flight.creditAmount)
+        }
+        burstCallbacks.clear()
         flights.clear()
     }
 }

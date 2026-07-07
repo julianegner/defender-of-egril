@@ -53,8 +53,10 @@ private const val COIN_FLIGHT_OVERLAY_Z_INDEX = 50f
  * Full-screen overlay that renders "coin fly-to-counter" animations queued in [CoinFlightController].
  *
  * Each coin sprite eases along an arced path from its reward source to the coin counter and then
- * removes itself. The whole overlay is a no-op when the animations setting is OFF, so disabling
- * animations fully suppresses the effect (the coin total still updates via the existing flow).
+ * removes itself, crediting its share of the reward to the counter as it lands (see
+ * [CoinFlightController.onArrived]). The whole overlay is a no-op when the animations setting is OFF,
+ * so disabling animations fully suppresses the effect (any reserved coins are then credited by
+ * [CoinFlightController.clear], and new rewards update the total via the existing flow).
  *
  * This must be placed above both the header and the map so coins can visibly travel between them.
  */
@@ -97,7 +99,7 @@ private fun CoinFlightSprite(flight: CoinFlight) {
             targetValue = 1f,
             animationSpec = tween(durationMillis = COIN_FLIGHT_DURATION_MS, easing = FastOutSlowInEasing),
         )
-        CoinFlightController.remove(flight.id)
+        CoinFlightController.onArrived(flight)
     }
 
     val t = progress.value

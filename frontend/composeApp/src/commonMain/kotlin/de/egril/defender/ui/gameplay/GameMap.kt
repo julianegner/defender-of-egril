@@ -2668,21 +2668,39 @@ private fun BoxScope.GridCellContent(
             )
             // Add coins to the player's total in sync with the animation so the counter
             // visually increases when the coin animation plays, not before the attack runs.
-            // Only transfer coins that are still pending (guard against the safety flush in
-            // completeEnemyTurn() having already credited them).
-            val toAdd = minOf(coinGainEffect.amount, gameState.pendingCoinGains.value)
-            if (toAdd > 0) {
-                gameState.pendingCoinGains.value -= toAdd
-                gameState.coins.value += toAdd
-            }
             showCoinAnimation = true
             // Launch the "coin fly-to-counter" animation only after the coin-gain (coins bubbling
             // up) animation has played, so the flying coins appear to peel off the end of that
-            // animation. Only when animations are enabled; the counter total already updated above.
+            // animation. The counter is then updated as those coins reach it (via the launch
+            // callback), so the number and the arriving coins stay in step.
             if (AppSettings.enableAnimations.value) {
                 kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.COIN_GAIN_ANIMATION_DURATION_MS)
-                coinFlightStartPosition?.let { source ->
-                    CoinFlightController.launch(source, coinGainEffect.amount, flyingCoinSizePx)
+            }
+            // Credit the coins that are still pending for this reward (guard against the safety
+            // flush in completeEnemyTurn() having already credited them). Reserve them out of
+            // pending immediately before launching so the flush can't also credit them; the flying
+            // coins then add them to the visible total as they land.
+            val toAdd = minOf(coinGainEffect.amount, gameState.pendingCoinGains.value)
+            if (toAdd > 0) {
+                gameState.pendingCoinGains.value -= toAdd
+                val source = coinFlightStartPosition
+                val launched =
+                    if (AppSettings.enableAnimations.value && source != null) {
+                        CoinFlightController.launch(
+                            source = source,
+                            amount = coinGainEffect.amount,
+                            coinSizePx = flyingCoinSizePx,
+                            creditAmount = toAdd,
+                        ) { arrived ->
+                            gameState.coins.value += arrived
+                        }
+                    } else {
+                        0
+                    }
+                // No flying coins launched (animations off, no source position, or the queue is
+                // full): credit the reserved coins immediately so the reward is never lost.
+                if (launched == 0) {
+                    gameState.coins.value += toAdd
                 }
             }
         } else {
