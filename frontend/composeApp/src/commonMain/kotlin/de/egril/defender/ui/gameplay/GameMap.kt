@@ -17,7 +17,9 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +45,7 @@ import de.egril.defender.ui.animations.BallistaAttackOverlay
 import de.egril.defender.ui.animations.BarricadeDamageAnimation
 import de.egril.defender.ui.animations.BombExplosionAnimation
 import de.egril.defender.ui.animations.BowAttackOverlay
+import de.egril.defender.ui.animations.CoinFlightController
 import de.egril.defender.ui.animations.CoinGainAnimation
 import de.egril.defender.ui.animations.CoolingAreaAnimation
 import de.egril.defender.ui.animations.DragonLevelChangeAnimation
@@ -95,6 +98,22 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+
+/**
+ * Vertical position (as a fraction of the tile height, measured from the top) where the coin-gain
+ * "bubbling" animation ends. The rising coins in `files/animations/coin_gain.json` finish around
+ * 25% down from the top, so the fly-to-counter animation launches from there to appear to peel off
+ * the end of that animation rather than jumping back to the tile center.
+ */
+private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
+
+/**
+ * On-screen diameter of a coin in the coin-gain "bubbling" Lottie, as a fraction of the tile's
+ * smaller dimension. The animation (`files/animations/coin_gain.json`) is a 100x100 viewport with
+ * 14-unit coins, fitted (ContentScale.Fit) to the tile, so each coin renders at 14/100 of the
+ * fitted (smaller) side. The fly-to-counter coins use this so they match the bubbling coins' size.
+ */
+private const val COIN_BUBBLE_COIN_SIZE_FRACTION = 0.14f
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -2628,6 +2647,39 @@ private fun BoxScope.GridCellContent(
     var showCoinAnimation by remember(coinGainEffect?.turnNumber, coinGainEffect?.position) {
         mutableStateOf(false)
     }
+    // Track where this tile's coin-gain "bubbling" animation ends, in root coordinates, so a
+    // coin-flight animation can start from there. The rising coins finish near the top of the tile
+    // (see COIN_BUBBLE_END_HEIGHT_FRACTION), horizontally centered.
+    // Keyed on the (stable) tile grid position so it is captured once and not reset to null when
+    // a new coin-gain effect appears on the same tile.
+    var coinFlightStartPosition by remember(position) {
+        mutableStateOf<Offset?>(null)
+    }
+    // Diameter (px) of the coin-gain "bubbling" coins on this tile, so the fly-to-counter coins can
+    // be launched at the same visible size. The Lottie (coin_gain.json) is a 100x100 viewport with
+    // 14-unit coins, fitted (ContentScale.Fit) to the tile box, so the coin diameter on screen is
+    // COIN_BUBBLE_COIN_SIZE_FRACTION of the tile's smaller dimension.
+    var flyingCoinSizePx by remember(position) {
+        mutableStateOf(CoinFlightController.DEFAULT_COIN_SIZE_PX)
+    }
+    if (coinGainEffect != null) {
+        Box(
+            modifier =
+                Modifier.matchParentSize().onGloballyPositioned { coords ->
+                    // Captured fresh whenever a coin-gain effect is present on this tile (this Box
+                    // only exists then) and re-fired while the map pans/zooms, so the value used at
+                    // launch time reflects the tile's current on-screen position.
+                    val topLeft = coords.positionInRoot()
+                    coinFlightStartPosition =
+                        Offset(
+                            x = topLeft.x + coords.size.width / 2f,
+                            y = topLeft.y + coords.size.height * COIN_BUBBLE_END_HEIGHT_FRACTION,
+                        )
+                    flyingCoinSizePx =
+                        minOf(coords.size.width, coords.size.height) * COIN_BUBBLE_COIN_SIZE_FRACTION
+                },
+        )
+    }
     LaunchedEffect(coinGainEffect?.turnNumber, coinGainEffect?.position, towerAttackEffect?.turnNumber) {
         if (coinGainEffect != null) {
             val arrowDelay =
@@ -2660,14 +2712,41 @@ private fun BoxScope.GridCellContent(
             )
             // Add coins to the player's total in sync with the animation so the counter
             // visually increases when the coin animation plays, not before the attack runs.
-            // Only transfer coins that are still pending (guard against the safety flush in
-            // completeEnemyTurn() having already credited them).
+            showCoinAnimation = true
+            // Launch the "coin fly-to-counter" animation only after the coin-gain (coins bubbling
+            // up) animation has played, so the flying coins appear to peel off the end of that
+            // animation. The counter is then updated as those coins reach it (via the launch
+            // callback), so the number and the arriving coins stay in step.
+            if (AppSettings.enableAnimations.value) {
+                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.COIN_GAIN_ANIMATION_DURATION_MS)
+            }
+            // Credit the coins that are still pending for this reward (guard against the safety
+            // flush in completeEnemyTurn() having already credited them). Reserve them out of
+            // pending immediately before launching so the flush can't also credit them; the flying
+            // coins then add them to the visible total as they land.
             val toAdd = minOf(coinGainEffect.amount, gameState.pendingCoinGains.value)
             if (toAdd > 0) {
                 gameState.pendingCoinGains.value -= toAdd
-                gameState.coins.value += toAdd
+                val source = coinFlightStartPosition
+                val launched =
+                    if (AppSettings.enableAnimations.value && source != null) {
+                        CoinFlightController.launch(
+                            source = source,
+                            amount = coinGainEffect.amount,
+                            coinSizePx = flyingCoinSizePx,
+                            creditAmount = toAdd,
+                        ) { arrived ->
+                            gameState.coins.value += arrived
+                        }
+                    } else {
+                        0
+                    }
+                // No flying coins launched (animations off, no source position, or the queue is
+                // full): credit the reserved coins immediately so the reward is never lost.
+                if (launched == 0) {
+                    gameState.coins.value += toAdd
+                }
             }
-            showCoinAnimation = true
         } else {
             showCoinAnimation = false
         }
