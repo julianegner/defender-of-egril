@@ -2649,9 +2649,11 @@ private fun BoxScope.GridCellContent(
                 gameState.coins.value += toAdd
             }
             showCoinAnimation = true
-            // Also launch the "coin fly-to-counter" animation from this tile toward the coin
-            // counter. Only when animations are enabled; runs alongside the existing coin overlay.
+            // Launch the "coin fly-to-counter" animation only after the coin-gain (coins bubbling
+            // up) animation has played, so the flying coins appear to peel off the end of that
+            // animation. Only when animations are enabled; the counter total already updated above.
             if (AppSettings.enableAnimations.value) {
+                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.COIN_GAIN_ANIMATION_DURATION_MS)
                 tileRootCenter?.let { source ->
                     CoinFlightController.launch(source, coinGainEffect.amount)
                 }

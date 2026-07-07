@@ -3,9 +3,11 @@ package de.egril.defender.ui.animations
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -14,20 +16,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.settings.AppSettings
 import kotlin.math.roundToInt
 
-/** Duration of a single coin's flight from the reward source to the coin counter. */
-private const val COIN_FLIGHT_DURATION_MS = 650
+/**
+ * Duration of a single coin's flight from the reward source to the coin counter. Deliberately slow
+ * so the coins are clearly visible travelling from the defeated enemy to the counter.
+ */
+private const val COIN_FLIGHT_DURATION_MS = 1800
 
 /** Size of an individual flying coin sprite. */
 private val COIN_FLIGHT_SIZE: Dp = 22.dp
+
+/** Golden fill of a flying coin. */
+private val COIN_FILL_COLOR = Color(0xFFFFD700)
+
+/** Darker gold used for the coin's rim/edge so it reads as a coin rather than a plain dot. */
+private val COIN_EDGE_COLOR = Color(0xFFB8860B)
 
 /** Fraction of the flight (near the end) over which the coin fades out as it reaches the counter. */
 private const val COIN_FADE_START = 0.85f
@@ -108,7 +120,31 @@ private fun CoinFlightSprite(flight: CoinFlight) {
                     )
                 }.alpha(spriteAlpha),
     ) {
-        MoneyIcon(size = COIN_FLIGHT_SIZE)
+        Coin(size = COIN_FLIGHT_SIZE)
+    }
+}
+
+/** A small golden coin: a filled gold disc with a darker rim and inner ring. */
+@Composable
+private fun Coin(size: Dp) {
+    Canvas(modifier = Modifier.size(size)) {
+        val radius = this.size.minDimension / 2f
+        val center = Offset(this.size.width / 2f, this.size.height / 2f)
+        val rimWidth = radius * 0.18f
+        drawCircle(color = COIN_FILL_COLOR, radius = radius, center = center)
+        // Inset the rim by half its width so the stroke stays within the sprite bounds.
+        drawCircle(
+            color = COIN_EDGE_COLOR,
+            radius = radius - rimWidth / 2f,
+            center = center,
+            style = Stroke(width = rimWidth),
+        )
+        drawCircle(
+            color = COIN_EDGE_COLOR,
+            radius = radius * 0.55f,
+            center = center,
+            style = Stroke(width = radius * 0.12f),
+        )
     }
 }
 
