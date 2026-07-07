@@ -46,7 +46,7 @@ object CoinFlightController {
     const val MAX_ACTIVE_FLIGHTS = 24
 
     /** Minimum number of coin sprites spawned for a single (positive) gain event. */
-    const val MIN_COINS_PER_EVENT = 1
+    const val MIN_COINS_PER_EVENT = 3
 
     /** Maximum number of coin sprites spawned for a single gain event, regardless of amount. */
     const val MAX_COINS_PER_EVENT = 6

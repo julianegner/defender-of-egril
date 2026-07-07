@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -30,25 +29,17 @@ import kotlin.math.roundToInt
  * Duration of a single coin's flight from the reward source to the coin counter. Deliberately slow
  * so the coins are clearly visible travelling from the defeated enemy to the counter.
  */
-private const val COIN_FLIGHT_DURATION_MS = 1800
+private const val COIN_FLIGHT_DURATION_MS = 2800
 
 /** Size of an individual flying coin sprite. */
 private val COIN_FLIGHT_SIZE: Dp = 22.dp
 
-/** Golden fill of a flying coin. */
+/**
+ * Golden fill of a flying coin. Matches the gold used by the coin-gain "bubbling" Lottie
+ * (`files/animations/coin_gain.json`, RGB 1.0/0.843/0.0) so the flying coins look identical to the
+ * coins that rise up from the defeated enemy.
+ */
 private val COIN_FILL_COLOR = Color(0xFFFFD700)
-
-/** Darker gold used for the coin's rim/edge so it reads as a coin rather than a plain dot. */
-private val COIN_EDGE_COLOR = Color(0xFFB8860B)
-
-/** Rim (outer edge) stroke width, as a fraction of the coin radius. */
-private const val COIN_RIM_WIDTH_RATIO = 0.18f
-
-/** Inner ring radius, as a fraction of the coin radius. */
-private const val COIN_INNER_RING_RADIUS_RATIO = 0.55f
-
-/** Inner ring stroke width, as a fraction of the coin radius. */
-private const val COIN_INNER_RING_WIDTH_RATIO = 0.12f
 
 /** Fraction of the flight (near the end) over which the coin fades out as it reaches the counter. */
 private const val COIN_FADE_START = 0.85f
@@ -133,27 +124,13 @@ private fun CoinFlightSprite(flight: CoinFlight) {
     }
 }
 
-/** A small golden coin: a filled gold disc with a darker rim and inner ring. */
+/** A small golden coin: a plain filled gold disc, matching the coins in the coin-gain animation. */
 @Composable
 private fun Coin(size: Dp) {
     Canvas(modifier = Modifier.size(size)) {
         val radius = this.size.minDimension / 2f
         val center = Offset(this.size.width / 2f, this.size.height / 2f)
-        val rimWidth = radius * COIN_RIM_WIDTH_RATIO
         drawCircle(color = COIN_FILL_COLOR, radius = radius, center = center)
-        // Inset the rim by half its width so the stroke stays within the sprite bounds.
-        drawCircle(
-            color = COIN_EDGE_COLOR,
-            radius = radius - rimWidth / 2f,
-            center = center,
-            style = Stroke(width = rimWidth),
-        )
-        drawCircle(
-            color = COIN_EDGE_COLOR,
-            radius = radius * COIN_INNER_RING_RADIUS_RATIO,
-            center = center,
-            style = Stroke(width = radius * COIN_INNER_RING_WIDTH_RATIO),
-        )
     }
 }
 

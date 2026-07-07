@@ -43,6 +43,18 @@ class CoinFlightControllerTest {
     }
 
     @Test
+    fun everyGainLaunchesAtLeastThreeCoins() {
+        assertTrue(
+            CoinFlightController.MIN_COINS_PER_EVENT >= 3,
+            "A coin gain should fly at least three coins to the counter",
+        )
+        assertTrue(
+            CoinFlightController.coinCountForAmount(1) >= 3,
+            "Even the smallest reward flies at least three coins",
+        )
+    }
+
+    @Test
     fun launchDoesNothingWithoutTarget() {
         val launched = CoinFlightController.launch(Offset(10f, 10f), amount = 50)
         assertEquals(0, launched, "No coins should launch until the counter target is known")

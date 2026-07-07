@@ -96,6 +96,14 @@ import kotlin.math.atan2
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
+/**
+ * Vertical position (as a fraction of the tile height, measured from the top) where the coin-gain
+ * "bubbling" animation ends. The rising coins in `files/animations/coin_gain.json` finish around
+ * 25% down from the top, so the fly-to-counter animation launches from there to appear to peel off
+ * the end of that animation rather than jumping back to the tile centre.
+ */
+private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GameGrid(
@@ -2587,7 +2595,9 @@ private fun BoxScope.GridCellContent(
     var showCoinAnimation by remember(coinGainEffect?.turnNumber, coinGainEffect?.position) {
         mutableStateOf(false)
     }
-    // Track this tile's center in root coordinates so a coin-flight animation can start here.
+    // Track where this tile's coin-gain "bubbling" animation ends, in root coordinates, so a
+    // coin-flight animation can start from there. The rising coins finish near the top of the tile
+    // (see COIN_BUBBLE_END_HEIGHT_FRACTION), horizontally centred.
     // Keyed on the (stable) tile grid position so it is captured once and not reset to null when
     // a new coin-gain effect appears on the same tile.
     var tileRootCenter by remember(position) {
@@ -2604,7 +2614,7 @@ private fun BoxScope.GridCellContent(
                     tileRootCenter =
                         Offset(
                             x = topLeft.x + coords.size.width / 2f,
-                            y = topLeft.y + coords.size.height / 2f,
+                            y = topLeft.y + coords.size.height * COIN_BUBBLE_END_HEIGHT_FRACTION,
                         )
                 },
         )
