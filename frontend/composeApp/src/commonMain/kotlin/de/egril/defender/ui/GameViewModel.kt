@@ -1399,6 +1399,9 @@ class GameViewModel {
             } else {
                 achievementManager?.onBuildTower()
             }
+            // Track number of towers standing at the same time (non-raft defenders)
+            val standingTowers = _gameState.value?.defenders?.count { it.raftId.value == null } ?: 0
+            achievementManager?.onTowersStanding(standingTowers)
         }
         return result
     }
@@ -1742,6 +1745,8 @@ class GameViewModel {
 
             // Check win/loss conditions
             val updatedState = _gameState.value ?: return@launch
+            // Track turn count achievement (100 turns in a single level)
+            achievementManager?.onTurnReached(updatedState.turnNumber.value)
             if (updatedState.isLevelWon()) {
                 completeLevel(updatedState.level.id, won = true)
             } else if (updatedState.isLevelLost()) {

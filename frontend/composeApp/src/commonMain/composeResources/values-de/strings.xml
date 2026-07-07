@@ -1187,7 +1187,9 @@
     <string name="achievement_win_level_full_hp_name">Makellos</string>
     <string name="achievement_win_level_full_hp_desc">Gewinne ein Level ohne Lebenspunkte zu verlieren</string>
     <string name="achievement_win_level_one_hp_name">Knappes Ding</string>
+    <string name="achievement_play_hundred_turns_name">Ausdauer</string>
     <string name="achievement_win_level_one_hp_desc">Gewinne ein Level mit nur einem verbleibenden Lebenspunkt</string>
+    <string name="achievement_play_hundred_turns_desc">Spiele 100 Runden in einem einzigen Level</string>
 
     <!-- Achievements: Combat -->
     <string name="achievement_kill_two_enemies_same_turn_name">Doppel-Kill</string>
@@ -1228,6 +1230,8 @@
     <string name="achievement_build_ten_towers_desc">Baue mindestens 10 Türme in einem einzigen Level</string>
     <string name="achievement_build_ten_rafts_name">Floßmeister</string>
     <string name="achievement_build_ten_rafts_desc">Baue mindestens 10 Flöße in einem einzigen Level</string>
+    <string name="achievement_twenty_towers_standing_name">Festung</string>
+    <string name="achievement_twenty_towers_standing_desc">Habe 20 Türme gleichzeitig in einem einzigen Level stehen</string>
 
     <!-- Achievements: Structures -->
     <string name="achievement_destroy_bridge_name">Brückenbrecher</string>

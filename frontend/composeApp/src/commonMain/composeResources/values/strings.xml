@@ -1174,6 +1174,7 @@
     <string name="achievement_lose_level_name">Defeat</string>
     <string name="achievement_win_level_full_hp_name">Flawless Victory</string>
     <string name="achievement_win_level_one_hp_name">Close Call</string>
+    <string name="achievement_play_hundred_turns_name">Endurance</string>
     
     <string name="achievement_kill_two_enemies_same_turn_name">Double Kill</string>
     <string name="achievement_kill_two_enemies_same_attack_name">Multi-Kill</string>
@@ -1194,6 +1195,7 @@
     
     <string name="achievement_build_ten_towers_name">Tower Master</string>
     <string name="achievement_build_ten_rafts_name">Raft Master</string>
+    <string name="achievement_twenty_towers_standing_name">Fortress</string>
     
     <string name="achievement_destroy_bridge_name">Bridge Breaker</string>
     <string name="achievement_build_barricade_name">First Barricade</string>
@@ -1222,6 +1224,7 @@
     <string name="achievement_lose_level_desc">Lose a level</string>
     <string name="achievement_win_level_full_hp_desc">Win a level without losing any health points</string>
     <string name="achievement_win_level_one_hp_desc">Win a level with only one health point remaining</string>
+    <string name="achievement_play_hundred_turns_desc">Play 100 turns in a single level</string>
     
     <string name="achievement_kill_two_enemies_same_turn_desc">Kill at least 2 enemies in the same turn</string>
     <string name="achievement_kill_two_enemies_same_attack_desc">Kill at least 2 enemies with a single attack</string>
@@ -1242,6 +1245,7 @@
     
     <string name="achievement_build_ten_towers_desc">Build at least 10 towers in a single level</string>
     <string name="achievement_build_ten_rafts_desc">Build at least 10 rafts in a single level</string>
+    <string name="achievement_twenty_towers_standing_desc">Have 20 towers standing at the same time in a single level</string>
     
     <string name="achievement_destroy_bridge_desc">Destroy a bridge</string>
     <string name="achievement_build_barricade_desc">Build your first barricade</string>
