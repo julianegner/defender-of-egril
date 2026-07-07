@@ -873,6 +873,7 @@ fun GameGrid(
                     selectedWizardAction = selectedWizardAction,
                     selectedBarricadeAction = selectedBarricadeAction,
                     targetCircleInfo = spellAreaCircleMap[position] ?: targetCircleMap[position] ?: placedBombCircleMap[position],
+                    isSelectedAttackTarget = targetCircleMap[position] != null,
                     onClick = cellOnClick,
                     hexSize = hexSize,
                     onHoverChange = cellOnHoverChange,
@@ -1016,6 +1017,10 @@ fun GridCell(
     selectedWizardAction: WizardAction? = null,
     selectedBarricadeAction: BarricadeAction? = null,
     targetCircleInfo: TargetCircleInfo?,
+    // True when this tile is affected by the currently selected tower attack (the selected target
+    // for single-target attacks, or a tile within the blast area for AREA/LASTING attacks). Used to
+    // gate the enemy attack damage/lethality/immunity preview (issue #591).
+    isSelectedAttackTarget: Boolean = false,
     onClick: () -> Unit,
     hexSize: androidx.compose.ui.unit.Dp = 48.dp,
     onHoverChange: ((Boolean) -> Unit)? = null,
@@ -1272,10 +1277,11 @@ fun GridCell(
             false
         }
 
-    // Attack damage / lethality / immunity preview shown at the left border of an enemy when a
-    // defender is selected that could attack it, and no build/trap/barricade placement mode is
-    // active (issue #591). Computed here (where selectedDefender and range are known) and passed
-    // into GridCellContent for rendering.
+    // Attack damage / lethality / immunity preview shown at the left border of an enemy that is
+    // affected by the currently selected tower attack: the selected target for single-target
+    // attacks, or any enemy within the blast area for AREA/LASTING attacks. Only shown when no
+    // build/trap/barricade placement mode is active (issue #591). Computed here (where
+    // selectedDefender is known) and passed into GridCellContent for rendering.
     val attackPreview: EnemyAttackPreview? =
         run {
             val sel = selectedDefender
@@ -1284,7 +1290,7 @@ fun GridCell(
                 sel.type.attackType == AttackType.NONE ||
                 !sel.isReady ||
                 sel.actionsRemaining.value <= 0 ||
-                !cellIsInRange ||
+                !isSelectedAttackTarget ||
                 selectedMineAction != null ||
                 selectedWizardAction != null ||
                 selectedBarricadeAction != null
