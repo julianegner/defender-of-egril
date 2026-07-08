@@ -1,11 +1,12 @@
 # Impressum Visual Guide
 
 ## Overview
+
 This document describes the visual appearance of the impressum feature when enabled on the WASM platform.
 
 ## Main Menu Screen (with impressum enabled)
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                      [ℹ️] [⚙️]    │
 │  [Exit]                                                          │
@@ -35,13 +36,14 @@ This document describes the visual appearance of the impressum feature when enab
 ```
 
 ### Impressum Link Behavior
+
 - **Default state**: Shows small "Impressum" text link at bottom center
 - **On click**: Expands to show full impressum information in a bordered box
 - **Expanded state**: Shows "X" button in top-right corner to close
 
 ## Main Menu Screen (impressum expanded)
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                      [ℹ️] [⚙️]    │
 │  [Exit]                                                          │
@@ -80,7 +82,7 @@ This document describes the visual appearance of the impressum feature when enab
 
 ## Installation Info Screen (bottom section, with impressum)
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                                 Installation Info     [⚙️]       │
 │                                                                  │
@@ -114,12 +116,14 @@ This document describes the visual appearance of the impressum feature when enab
 ## Key Visual Features
 
 ### Main Menu Impressum Link
+
 - **Location**: Bottom center of screen
 - **Size**: Small text (MaterialTheme.typography.bodySmall)
 - **Color**: Follows theme colors
 - **Interaction**: Clickable, expands on click
 
 ### Expanded Impressum Box
+
 - **Border**: 1dp outline in theme's outline color
 - **Padding**: 8dp around content
 - **Background**: Follows theme background
@@ -127,6 +131,7 @@ This document describes the visual appearance of the impressum feature when enab
 - **Content padding**: 12dp inside the box
 
 ### Installation Info Screen Impressum
+
 - **Location**: Bottom of scrollable content, above back button
 - **Separator**: Horizontal line above the impressum section
 - **Title**: "Impressum" in TitleLarge typography
@@ -134,11 +139,13 @@ This document describes the visual appearance of the impressum feature when enab
 - **Spacing**: 20dp above the section
 
 ### Email Link Styling
+
 - **Color**: Primary color from theme
 - **Decoration**: Underlined
 - **Interaction**: Clickable, opens "mailto:" link
 
 ## Behavior Notes
+
 - Impressum only appears when:
   1. Platform is WASM (web browser)
   2. `withImpressum=true` in gradle.properties

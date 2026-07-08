@@ -39,6 +39,7 @@ npm run build
 ```
 
 This produces:
+
 - A Vite bundle in `dist/`
 - A Keycloak theme JAR in `dist_keycloak/` (ready to deploy)
 

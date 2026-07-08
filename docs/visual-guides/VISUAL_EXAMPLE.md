@@ -4,7 +4,7 @@ This file provides a text-based mockup of what the game grid looks like with the
 
 ## Before (Text-Based Display)
 
-```
+```text
 ┌─────────┬─────────┬─────────┬─────────┐
 │   S     │  Path   │  Path   │  Path   │  Spawn points and path
 ├─────────┼─────────┼─────────┼─────────┤
@@ -19,7 +19,7 @@ This file provides a text-based mockup of what the game grid looks like with the
 
 ## After (Icon-Based Display)
 
-```
+```text
 ┌─────────┬─────────┬─────────┬─────────┐
 │   S     │  Path   │  Path   │  Path   │  Spawn point (unchanged)
 ├─────────┼─────────┼─────────┼─────────┤
@@ -54,15 +54,18 @@ This file provides a text-based mockup of what the game grid looks like with the
 
 ## Color Coding
 
-### Tower Background Colors:
+### Tower Background Colors
+
 - **Blue (#2196F3)**: Tower is ready with actions
 - **Gray (#9E9E9E)**: Tower is being built
 - **Blue-gray (#7986CB)**: Tower has no actions remaining
 
-### Enemy Background Colors:
+### Enemy Background Colors
+
 - **Red (#F44336)**: All enemy units
 
-### Build Area Colors:
+### Build Area Colors
+
 - **Light Green (#8BC34A)**: Build islands
 - **Medium Green (#A5D6A7)**: Build strips
 - **Cream (#FFF8DC)**: Enemy path
@@ -72,7 +75,7 @@ This file provides a text-based mockup of what the game grid looks like with the
 
 All icons maintain the critical game information overlays:
 
-- **Towers**: 
+- **Towers**:
   - Level: `L1`, `L2`, `L3`, etc. (white text, bottom)
   - Actions: `⚡1` (yellow, when available)
   - Build time: `⏱2` (orange, when building)
@@ -83,6 +86,7 @@ All icons maintain the critical game information overlays:
 ## Grid Cell Size
 
 Each cell is **48dp × 48dp**, which provides enough space for:
+
 1. The icon graphic (main area)
 2. Status text overlays (bottom 12dp)
 3. Borders for selection/highlighting (2-5dp)

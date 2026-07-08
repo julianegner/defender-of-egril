@@ -1,22 +1,27 @@
 # Spike Tower Barricade Level Requirement Update
 
 ## Summary
+
 Updated spike tower barricade requirements from level 10 to level 20, with an adjusted HP formula to balance the higher level requirement.
 
 ## Changes Made
 
 ### 1. Spike Tower Barricade Requirements
+
 **Before:**
+
 - Minimum level: 10
 - HP formula: `level - 10` (minimum 1)
 - Button visibility: Level 10+
 
 **After:**
+
 - Minimum level: 20
 - HP formula: `(level - 20) / 2` (minimum 1)
 - Button visibility: Level 20+
 
 ### 2. Spear Tower (Unchanged)
+
 - Minimum level: 10
 - HP formula: `level - 10` (minimum 1)
 - Button visibility: Level 10+
@@ -24,6 +29,7 @@ Updated spike tower barricade requirements from level 10 to level 20, with an ad
 ### 3. Code Changes
 
 #### DefenderInfo.kt
+
 1. **Button visibility logic** (lines 306-323):
    - Changed from checking `defender.level.value >= 10` for both types
    - Now uses type-specific checks:
@@ -37,7 +43,9 @@ Updated spike tower barricade requirements from level 10 to level 20, with an ad
      - Spear tower: `maxOf(1, defender.level.value - 10)`
 
 #### String Resources (All Languages)
+
 Updated `barricade_info_message` in:
+
 - `values/strings.xml` (English)
 - `values-de/strings.xml` (German)
 - `values-es/strings.xml` (Spanish)
@@ -66,23 +74,29 @@ Updated `barricade_info_message` in:
 | 50          | 40                  | 15                  | 40             |
 
 ## Rationale
+
 The spike tower barricade was considered too powerful when unlocked at level 10, especially given:
+
 1. Spike towers are the cheapest and most basic tower (10 coins)
 2. Early access to barricades could trivialize early game difficulty
 3. Spear towers (15 coins) are meant to be the primary barricade-building tower
 
 The new level 20 requirement for spike towers:
+
 - Maintains spear tower as the primary barricade builder (level 10-19)
 - Creates a meaningful progression unlock for spike towers
 - Reduces HP output at high levels to prevent excessive barricade spam
 
 ## Testing
+
 - ✅ All BarricadeSystemTest tests pass
 - ✅ Build completes successfully
 - ✅ String resources validated in all 5 languages
 
 ## Backward Compatibility
+
 This is a **balance change** that affects gameplay:
+
 - Existing spike towers below level 20 will lose barricade ability
 - HP values for spike tower barricades at level 20+ will be lower
 - Does not affect save file format or data structures

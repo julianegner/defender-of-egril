@@ -13,11 +13,13 @@ This feature implements checking for unsaved data when a player tries to close t
 ### Core Components
 
 #### 1. WindowCloseHandler (Common)
+
 **File:** `composeApp/src/commonMain/kotlin/de/egril/defender/utils/WindowCloseHandler.kt`
 
 A singleton object that coordinates unsaved changes state between the UI layer and platform-specific window handlers.
 
 **Key Methods:**
+
 - `setUnsavedChangesChecker(checker: (() -> Boolean)?)` - Sets the callback to check for unsaved changes
 - `setSaveGameCallback(callback: (() -> Unit)?)` - Sets the callback to save the game
 - `hasUnsavedChanges(): Boolean` - Checks if there are unsaved changes
@@ -26,6 +28,7 @@ A singleton object that coordinates unsaved changes state between the UI layer a
 **Design Decision:** Uses simple nullable function properties instead of MutableState for simplicity, as reactive observation is not needed.
 
 #### 2. App.kt Integration (Common)
+
 **File:** `composeApp/src/commonMain/kotlin/de/egril/defender/App.kt`
 
 Registers the unsaved changes checker and save callback when navigating to/from the GamePlay screen.
@@ -46,16 +49,19 @@ LaunchedEffect(currentScreen) {
 ```
 
 This ensures:
+
 - Callbacks are only active during gameplay
 - Callbacks are properly cleaned up when leaving gameplay
 - No memory leaks from dangling callbacks
 
 #### 3. Desktop Implementation (JVM)
+
 **File:** `composeApp/src/desktopMain/kotlin/de/egril/defender/main.kt`
 
 Implements a custom AlertDialog when the user tries to close the window with unsaved changes.
 
 **Key Features:**
+
 - Intercepts `onCloseRequest` before calling `exitApplication()`
 - Shows dialog with 3 buttons:
   - **Cancel** (secondary color): Closes dialog, stays in game
@@ -64,6 +70,7 @@ Implements a custom AlertDialog when the user tries to close the window with uns
 - Uses existing localized strings: `unsaved_changes_title`, `unsaved_changes_message`, `cancel`, `discard_changes`, `save_and_exit`
 
 **Implementation:**
+
 ```kotlin
 Window(
     onCloseRequest = {
@@ -84,21 +91,25 @@ Window(
 ```
 
 #### 4. Web/WASM Implementation
+
 **File:** `composeApp/src/wasmJsMain/kotlin/de/egril/defender/main.kt`
 
 Sets up a JavaScript `beforeunload` event handler to show browser's native confirmation dialog.
 
 **Key Features:**
+
 - Uses JavaScript interop to access `window.onbeforeunload`
 - Returns a confirmation message when there are unsaved changes
 - Browser shows standard confirmation dialog (security requirement)
 
 **Limitations:**
+
 - Modern browsers show generic messages for security (cannot customize text)
 - Some browsers require user interaction before showing the dialog
 - Cannot show custom dialogs with multiple buttons (browser security)
 
 **Implementation:**
+
 ```kotlin
 private fun setupBeforeUnloadHandler() {
     window.onbeforeunload = { event ->
@@ -116,7 +127,7 @@ private fun setupBeforeUnloadHandler() {
 
 ### Sequence Diagram
 
-```
+```text
 User Action: Click Window Close (X)
     |
     v
@@ -162,6 +173,7 @@ The unsaved changes detection uses the existing `GameViewModel.hasUnsavedChanges
 4. **Detection:** If snapshots differ, there are unsaved changes
 
 Snapshot includes:
+
 - Turn number
 - Coins
 - Health points
@@ -174,6 +186,7 @@ Snapshot includes:
 ## Testing
 
 A comprehensive testing guide is available in `docs/guides/WINDOW_CLOSE_TESTING.md` with:
+
 - 7 desktop test scenarios
 - 4 web test scenarios  
 - 4 edge case scenarios
@@ -183,10 +196,12 @@ A comprehensive testing guide is available in `docs/guides/WINDOW_CLOSE_TESTING.
 ## Known Limitations
 
 ### Desktop
+
 - Dialog only appears during active gameplay (GamePlay screen)
 - Other screens don't trigger the dialog (by design - no game state to save)
 
 ### Web
+
 - Cannot customize dialog text (browser security)
 - Some browsers may suppress dialog if user hasn't interacted with page
 - Cannot provide "Save & Exit" option (browser API limitation)
@@ -194,6 +209,7 @@ A comprehensive testing guide is available in `docs/guides/WINDOW_CLOSE_TESTING.
 ## Future Enhancements
 
 Potential improvements not included in this implementation:
+
 1. iOS/Android platform support (requires platform-specific lifecycle handling)
 2. Auto-save before closing (would eliminate need for dialog in most cases)
 3. Periodic auto-save during gameplay
@@ -216,6 +232,7 @@ Potential improvements not included in this implementation:
 ## Localization
 
 All strings are localized and available in:
+
 - English (default)
 - German
 - Spanish
@@ -223,6 +240,7 @@ All strings are localized and available in:
 - Italian
 
 String keys used:
+
 - `unsaved_changes_title`
 - `unsaved_changes_message`
 - `cancel`

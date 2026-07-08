@@ -21,26 +21,33 @@ Updated `BackgroundMusicManager.wasmJs.kt` to load MP3 files from Compose resour
 ### Key Changes
 
 1. **Added Resource Loading**: Import `Res` from generated resources
+
    ```kotlin
    import defender_of_egril.composeapp.generated.resources.Res
+
    ```
 
 2. **Added Coroutine Scope**: Music loading is now asynchronous
+
    ```kotlin
    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
    ```
 
 3. **Added Blob URL Cache**: Prevents reloading the same music file
+
    ```kotlin
    private val musicBlobCache = mutableMapOf<BackgroundMusic, String>()
+
    ```
 
 4. **Load MP3 as Bytes**: Use Compose resource API
+
    ```kotlin
    val bytes = Res.readBytes(resourcePath)
    ```
 
 5. **Convert to Blob**: Create Blob from bytes with proper MIME type
+
    ```kotlin
    val uint8Array = createUint8Array(bytes.size)
    bytes.forEachIndexed { index, byte ->
@@ -48,14 +55,17 @@ Updated `BackgroundMusicManager.wasmJs.kt` to load MP3 files from Compose resour
    }
    val blob = createBlob(uint8Array, "audio/mpeg")
    val blobUrl = createObjectURL(blob)
+
    ```
 
 6. **Create Audio Element**: Use Blob URL instead of file path
+
    ```kotlin
    val audio = createMusicAudio(blobUrl)
    ```
 
 7. **Cleanup**: Properly release Blob URLs when done
+
    ```kotlin
    override fun release() {
        stopMusic()
@@ -69,6 +79,7 @@ Updated `BackgroundMusicManager.wasmJs.kt` to load MP3 files from Compose resour
        musicBlobCache.clear()
        scope.cancel()
    }
+
    ```
 
 ## Technical Details
@@ -76,6 +87,7 @@ Updated `BackgroundMusicManager.wasmJs.kt` to load MP3 files from Compose resour
 ### Why Direct URLs Don't Work
 
 In WASM/JS builds, Compose Multiplatform resources are embedded in the bundle and not accessible via direct file paths. The resources must be:
+
 1. Loaded as ByteArray via `Res.readBytes()`
 2. Converted to JavaScript Uint8Array
 3. Wrapped in a Blob object
@@ -90,6 +102,7 @@ This fix aligns the background music implementation with the sound effects imple
 ### Caching Strategy
 
 The `musicBlobCache` prevents redundant loading and Blob creation. Since there are only 3 background music tracks, this is efficient:
+
 - `BackgroundMusic.WORLD_MAP`
 - `BackgroundMusic.GAMEPLAY_NORMAL`
 - `BackgroundMusic.GAMEPLAY_LOW_HEALTH`
@@ -101,22 +114,25 @@ Each track is loaded once and reused throughout the game session.
 To verify the fix:
 
 1. Build the WASM version:
+
    ```bash
    ./gradlew :composeApp:wasmJsBrowserDevelopmentWebpack
    ```
 
-2. Run the development server:
+1. Run the development server:
+
    ```bash
    ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
+
    ```
 
-3. Open http://localhost:8080 in a browser
+1. Open <http://localhost:8080> in a browser
 
-4. Navigate to the world map (background music should play)
+1. Navigate to the world map (background music should play)
 
-5. Start a level (gameplay music should play)
+1. Start a level (gameplay music should play)
 
-6. Check browser console for any errors
+1. Check browser console for any errors
 
 ## Files Changed
 
@@ -142,12 +158,14 @@ To verify the fix:
 ## Browser Compatibility
 
 The fix uses standard Web APIs:
+
 - `Uint8Array` - Widely supported
 - `Blob` - Widely supported
 - `URL.createObjectURL()` - Widely supported
 - HTML5 Audio API - Widely supported
 
 Tested browsers:
+
 - Chrome/Chromium
 - Firefox
 - Safari

@@ -9,10 +9,12 @@ The project includes automated UI tests for all major screens and components usi
 ## Test Structure
 
 ### Test Location
+
 - **Desktop Tests**: `composeApp/src/desktopTest/kotlin/com/defenderofegril/ui/`
 - **Screenshot Output**: `test-screenshots/`
 
 ### Test Files
+
 1. **MainMenuScreenTest.kt** - Tests for the main menu screen
 2. **LevelCompleteScreenTest.kt** - Tests for victory/defeat screens
 3. **WorldMapScreenTest.kt** - Tests for the world map with different level states
@@ -21,7 +23,9 @@ The project includes automated UI tests for all major screens and components usi
 6. **RulesScreenTest.kt** - Tests for the rules screen
 
 ### Screenshot Test Utility
+
 The `ScreenshotTestUtils.kt` provides functionality to:
+
 - Capture screenshots of Compose UI components during tests
 - Save screenshots to the `test-screenshots/` directory
 - Make screenshots accessible for visual verification
@@ -29,18 +33,22 @@ The `ScreenshotTestUtils.kt` provides functionality to:
 ## Running Tests
 
 ### Run All UI Tests
+
 ```bash
 ./gradlew :composeApp:desktopTest
 ```
 
 ### Run Specific Test Class
+
 ```bash
 ./gradlew :composeApp:desktopTest --tests "com.defenderofegril.ui.MainMenuScreenTest"
 ```
 
 ### View Test Results
+
 After running tests, view the HTML report at:
-```
+
+```text
 composeApp/build/reports/tests/desktopTest/index.html
 ```
 
@@ -49,18 +57,21 @@ composeApp/build/reports/tests/desktopTest/index.html
 The UI tests cover:
 
 ### Main Menu Screen
+
 - ✅ Screen renders correctly with title and buttons
 - ✅ Start Game button is clickable
 - ✅ Rules button is clickable
 - ✅ Settings button is present
 
 ### Level Complete Screen
+
 - ✅ Victory state (battle won)
 - ✅ Defeat state
 - ✅ Final victory state (game completed)
 - ✅ Button interactions
 
 ### World Map Screen
+
 - ✅ Map renders with multiple levels
 - ✅ All levels locked state
 - ✅ All levels unlocked state
@@ -68,18 +79,21 @@ The UI tests cover:
 - ✅ Button interactions (Back, Rules, Load Game)
 
 ### Game Play Screen
+
 - ✅ Initial state rendering
 - ✅ Game with enemies
 - ✅ Initial building phase
 - ✅ Map rendering
 
 ### Settings Dialog
+
 - ✅ Dialog renders correctly
 - ✅ Language section is present
 - ✅ Close button works
 - ✅ Language chooser is displayed
 
 ### Rules Screen
+
 - ✅ Screen renders correctly
 - ✅ Content is displayed
 - ✅ Scrollable content
@@ -89,6 +103,7 @@ The UI tests cover:
 Screenshots are automatically captured during test execution and saved to the `test-screenshots/` directory. Each test captures one or more screenshots showing different states of the UI.
 
 ### Screenshot Files
+
 - `main-menu-screen.png` - Main menu
 - `level-complete-victory.png` - Victory screen
 - `level-complete-defeat.png` - Defeat screen
@@ -106,6 +121,7 @@ Screenshots are automatically captured during test execution and saved to the `t
 ## Test Implementation Details
 
 ### Testing Framework
+
 - **Compose UI Test** - JetBrains Compose Multiplatform testing library
 - **JUnit 4** - Test runner
 - **Desktop Target** - Tests run on JVM/Desktop platform
@@ -113,6 +129,7 @@ Screenshots are automatically captured during test execution and saved to the `t
 ### Test Patterns
 
 #### Basic Screen Test
+
 ```kotlin
 @Test
 fun testScreenRendersCorrectly() {
@@ -137,6 +154,7 @@ fun testScreenRendersCorrectly() {
 ```
 
 #### Testing User Interactions
+
 ```kotlin
 @Test
 fun testButtonClick() {
@@ -154,6 +172,7 @@ fun testButtonClick() {
 ```
 
 #### Testing Different States
+
 ```kotlin
 @Test
 fun testStateVariations() {
@@ -173,6 +192,7 @@ fun testStateVariations() {
 ## Continuous Integration
 
 The UI tests are designed to run in CI environments:
+
 - Tests run on Linux/Ubuntu
 - No display/graphics required (headless testing)
 - Screenshots captured to git-tracked directory
@@ -181,6 +201,7 @@ The UI tests are designed to run in CI environments:
 ## Accessibility to GitHub Copilot
 
 Screenshots and test results are:
+
 1. **Saved to `test-screenshots/`** - A git-tracked directory accessible to all users and tools
 2. **Referenced in test reports** - HTML reports link to screenshots
 3. **Generated during CI** - Available in CI artifacts and logs
@@ -237,11 +258,13 @@ class NewComponentTest {
 ## Limitations
 
 ### Current Limitations
+
 1. **Screenshot Quality**: Screenshots are currently placeholder images. Full rendering capture requires platform-specific implementations.
 2. **Platform Support**: Tests currently run on desktop/JVM only. Android and iOS UI tests would require platform-specific test infrastructure.
 3. **Localization**: Tests avoid checking specific text strings since the app supports multiple languages.
 
 ### Future Improvements
+
 - Implement actual screenshot capture using platform-specific rendering APIs
 - Add visual regression testing (screenshot comparison)
 - Extend to Android instrumented tests
@@ -252,18 +275,23 @@ class NewComponentTest {
 ## Troubleshooting
 
 ### Tests Fail with "Node not found"
+
 This usually means localized text is being tested. Avoid testing specific text strings. Instead:
+
 - Test for component existence using `onRoot()`
 - Test for clickable elements using `assertHasClickAction()`
 - Test for display using `assertIsDisplayed()`
 
 ### Screenshots Not Generated
+
 Check that:
+
 - The `test-screenshots/` directory exists
 - Tests are actually running (check test reports)
 - ScreenshotTestUtils is being called in tests
 
 ### Tests Pass Locally But Fail in CI
+
 - Verify that the CI environment has the required dependencies
 - Check that the test environment is headless-compatible
 - Review CI logs for specific error messages

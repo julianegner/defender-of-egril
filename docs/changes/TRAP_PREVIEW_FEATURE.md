@@ -1,11 +1,13 @@
 # Trap Preview Feature
 
 ## Overview
+
 This feature adds visual feedback when placing traps by showing a semi-transparent preview of the trap icon on valid placement tiles when hovering with the mouse.
 
 ## Implementation Details
 
 ### What was changed
+
 Modified `composeApp/src/commonMain/kotlin/de/egril/defender/ui/gameplay/GameMap.kt` to add trap preview rendering.
 
 ### How it works

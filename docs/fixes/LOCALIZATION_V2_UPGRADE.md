@@ -1,14 +1,17 @@
 # Localization Library Upgrade Summary
 
 ## Issue
+
 Upgrade `com.hyperether.localization` from version 1.1.1 to version 2.0.0 and check for plurals feature support.
 
 ## Solution
+
 Successfully upgraded to version 2.0.0 with full plurals support implemented across all 5 languages.
 
 ## Version 2.0.0 Features
 
 ### New: Plural String Resources
+
 The library now supports grammatically correct pluralization:
 
 ```xml
@@ -19,6 +22,7 @@ The library now supports grammatically correct pluralization:
 ```
 
 Usage in code:
+
 ```kotlin
 // In composables
 pluralStringResource(Res.plurals.enemy_count, 5, 5) // "5 enemies"
@@ -28,6 +32,7 @@ LocalizedStrings.getPlural(Res.plurals.enemy_count, 1, 1) // "1 enemy"
 ```
 
 ### Also Supports
+
 - String arrays via `<string-array>`
 - Formatted strings with `stringResource(key, ...args)`
 - All previous v1.1.1 functionality
@@ -35,15 +40,19 @@ LocalizedStrings.getPlural(Res.plurals.enemy_count, 1, 1) // "1 enemy"
 ## Changes Made
 
 ### 1. Library Version Upgrade
+
 **File**: `gradle/libs.versions.toml`
+
 - Changed: `localization = "1.1.1"` → `localization = "2.0.0"`
 
 ### 2. Compatibility Fixes
 
 #### Issue: Newline Handling Bug
+
 Version 2.0.0 has a bug where `\n` in XML strings is treated as literal newline instead of escape sequence, breaking generated Kotlin code.
 
 **Solution**: Removed all `\n` characters from affected strings (21 total):
+
 - English: 5 strings
 - German: 4 strings  
 - Spanish: 4 strings
@@ -51,6 +60,7 @@ Version 2.0.0 has a bug where `\n` in XML strings is treated as literal newline 
 - Italian: 4 strings
 
 **Affected strings**:
+
 - `app_subtitle`
 - `tutorial_towers`
 - `dragon_info_movement` (English only)
@@ -58,19 +68,23 @@ Version 2.0.0 has a bug where `\n` in XML strings is treated as literal newline 
 - `dragon_very_greedy_message`
 
 #### Issue: API Change for String Formatting
+
 Version 2.0.0 changed how formatted strings work.
 
 **Old API** (v1.1.1):
+
 ```kotlin
 stringResource(Res.string.format_string).format(arg1, arg2)
 ```
 
 **New API** (v2.0.0):
+
 ```kotlin
 stringResource(Res.string.format_string, arg1, arg2)
 ```
 
 **Fixed files**:
+
 - `WaypointChainNode.kt`
 - `WaypointConnectionCard.kt`
 
@@ -109,12 +123,14 @@ Added 4 plural resources in all 5 languages:
 ### 4. Documentation
 
 **New file**: `PLURALS_USAGE.md`
+
 - Comprehensive guide to using plurals
 - Examples in all 5 languages
 - Integration recommendations
 - XML definition format reference
 
 **Updated file**: `LOCALIZATION_IMPLEMENTATION.md`
+
 - Updated version number to 2.0.0
 - Added plurals section with usage examples
 - Noted v2.0.0 newline handling issue
@@ -123,21 +139,26 @@ Added 4 plural resources in all 5 languages:
 ## Testing & Verification
 
 ### Build Status
+
 ✅ **Desktop build**: SUCCESSFUL
-```
+
+```text
 ./gradlew :composeApp:compileKotlinDesktop
 BUILD SUCCESSFUL in 28s
 ```
 
 ✅ **Unit tests**: PASSING
-```
+
+```text
 ./gradlew :composeApp:testDebugUnitTest
 BUILD SUCCESSFUL in 36s
 31 actionable tasks: 10 executed, 21 up-to-date
 ```
 
 ### Generated Code Verification
+
 Verified plurals are correctly generated in:
+
 - `StringsDefault.kt` (English)
 - `StringsDe.kt` (German)
 - `StringsEs.kt` (Spanish)
@@ -145,6 +166,7 @@ Verified plurals are correctly generated in:
 - `StringsIt.kt` (Italian)
 
 Example from `StringsDefault.kt`:
+
 ```kotlin
 val plurals: Map<String, Map<String, String>> = mapOf(
     "enemy_count" to mapOf("one" to "%d enemy", "other" to "%d enemies"),
@@ -154,6 +176,7 @@ val plurals: Map<String, Map<String, String>> = mapOf(
 ```
 
 ### No Breaking Changes
+
 - All existing localization continues to work
 - No changes required to existing string usage
 - Only files using old `.format()` API needed updates
@@ -161,9 +184,11 @@ val plurals: Map<String, Map<String, String>> = mapOf(
 ## Files Modified
 
 ### Configuration
+
 - `gradle/libs.versions.toml`
 
 ### String Resources (all 5 languages)
+
 - `composeApp/src/commonMain/composeResources/values/strings.xml`
 - `composeApp/src/commonMain/composeResources/values-de/strings.xml`
 - `composeApp/src/commonMain/composeResources/values-es/strings.xml`
@@ -171,10 +196,12 @@ val plurals: Map<String, Map<String, String>> = mapOf(
 - `composeApp/src/commonMain/composeResources/values-it/strings.xml`
 
 ### Source Code
+
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/level/waypoint/WaypointChainNode.kt`
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/level/waypoint/WaypointConnectionCard.kt`
 
 ### Documentation
+
 - `PLURALS_USAGE.md` (new)
 - `LOCALIZATION_IMPLEMENTATION.md` (updated)
 
@@ -183,35 +210,44 @@ val plurals: Map<String, Map<String, String>> = mapOf(
 The plural resources are now available but not yet used in the UI. Consider integrating them in:
 
 1. **Enemy spawn messages**
+
    ```kotlin
    Text(pluralStringResource(Res.plurals.enemy_count, count, count))
+
    ```
 
 2. **Turn counter displays**
+
    ```kotlin
    Text("${pluralStringResource(Res.plurals.turn_count, turn, turn)} elapsed")
    ```
 
 3. **Coin reward messages**
+
    ```kotlin
    Text("You earned ${pluralStringResource(Res.plurals.coin_count, coins, coins)}")
+
    ```
 
 4. **Health point displays**
+
    ```kotlin
    Text(pluralStringResource(Res.plurals.health_point_count, hp, hp))
    ```
 
 5. **Save game descriptions**
+
    ```kotlin
    val summary = "${pluralStringResource(Res.plurals.enemy_count, enemies, enemies)} " +
                  "in ${pluralStringResource(Res.plurals.turn_count, turns, turns)}"
+
    ```
 
 ## Known Issues
 
 ### Version 2.0.0 Newline Bug
-The library has a bug where `\n` escape sequences in XML are treated as literal newlines, breaking the generated Kotlin code. 
+
+The library has a bug where `\n` escape sequences in XML are treated as literal newlines, breaking the generated Kotlin code.
 
 **Workaround**: Remove `\n` from XML strings and use spaces or let text wrap naturally.
 

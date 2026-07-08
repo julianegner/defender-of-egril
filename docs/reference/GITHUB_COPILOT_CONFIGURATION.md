@@ -32,6 +32,7 @@ The implementation is designed to work with default GitHub Copilot settings:
 ### ✅ No Additional Firewall Rules Needed
 
 The UI testing framework:
+
 - ✅ Runs entirely locally
 - ✅ Does not require internet access during test execution
 - ✅ Does not connect to external services
@@ -40,6 +41,7 @@ The UI testing framework:
 ### Dependencies
 
 All dependencies are resolved through standard Maven repositories:
+
 - Maven Central
 - Google Maven Repository  
 - JetBrains Compose Repository
@@ -65,7 +67,8 @@ GitHub Copilot can access screenshots through:
 3. **Documentation**: UI_TESTING_GUIDE.md provides context and instructions
 
 Example MCP usage:
-```
+
+```text
 # Copilot can view the screenshot directory
 ls composeApp/test-screenshots/
 
@@ -103,6 +106,7 @@ The tests are designed to run in GitHub Actions without configuration changes:
 ### Artifact Accessibility
 
 Test artifacts (reports and screenshots) can be made available to Copilot through:
+
 1. **Git Commits**: Screenshots can optionally be committed for reference
 2. **PR Comments**: Test results can be posted as PR comments
 3. **GitHub Actions Artifacts**: Available for download from workflow runs
@@ -112,18 +116,23 @@ Test artifacts (reports and screenshots) can be made available to Copilot throug
 ### If Copilot Cannot Access Screenshots
 
 1. **Verify Directory Exists**:
+
    ```bash
    ls -la composeApp/test-screenshots/
+
    ```
 
 2. **Check Git Status**:
+
    ```bash
    git status composeApp/test-screenshots/
    ```
 
 3. **Regenerate Screenshots**:
+
    ```bash
    ./gradlew :composeApp:desktopTest
+
    ```
 
 ### If Tests Fail in CI

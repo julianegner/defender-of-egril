@@ -7,7 +7,7 @@ The sound system has been updated to use **audio files** instead of harsh synthe
 ### What Changed
 
 1. **New FileSoundManager**: Replaces SimpleSoundManager to load and play WAV audio files
-2. **Platform Implementations**: 
+2. **Platform Implementations**:
    - Desktop: Uses `javax.sound.sampled` with Clip API
    - Android: Uses SoundPool API for efficient playback
    - iOS: Uses AVAudioPlayer for native audio
@@ -21,28 +21,33 @@ The sound system has been updated to use **audio files** instead of harsh synthe
 All sounds are stored in: `composeApp/src/commonMain/composeResources/files/sounds/`
 
 **Tower Attacks:**
+
 - `attack_melee.wav` - Spike/Pike tower attacks
 - `attack_ranged.wav` - Bow/Spear/Ballista attacks
 - `attack_area.wav` - Wizard fireball
 - `attack_lasting.wav` - Alchemy acid
 
 **Enemy Events:**
+
 - `enemy_spawn.wav` - Enemy spawning
 - `enemy_move.wav` - Enemy movement
 - `enemy_destroyed.wav` - Enemy destruction
 
 **Mine Events:**
+
 - `mine_dig.wav` - Digging action
 - `mine_coin.wav` - Coins found
 - `mine_trap.wav` - Trap built
 - `mine_dragon.wav` - Dragon awakens
 
 **Other Events:**
+
 - `trap_trigger.wav` - Trap activation
 - `life_lost.wav` - Life lost
 - `dragon_eat.wav` - Dragon eating
 
 **UI Sounds:**
+
 - `button_click.wav` - Button clicks
 - `tower_placed.wav` - Tower placement
 - `tower_upgraded.wav` - Tower upgrade
@@ -61,15 +66,19 @@ All sounds are stored in: `composeApp/src/commonMain/composeResources/files/soun
    - Keep sounds short (0.1 - 1.0 seconds)
 
 3. **Test**:
+
    ```bash
    ./gradlew :composeApp:run
+
    ```
+
    - Open Settings → Enable Sound
    - Play the game and hear your new sounds!
 
 ### Technical Details
 
 The placeholder sounds are generated programmatically:
+
 - Simple sine wave tones
 - Different frequencies for different events
 - Short durations (50-400ms)

@@ -1,11 +1,13 @@
 # Localization Implementation Summary
 
 ## Overview
+
 This implementation adds localization support to Defender of Egril using the `compose-multiplatform-localize` library (version 2.0.1), with language chooser, settings dialog, and **plural string support** accessible from all screens.
 
 ## Dependencies Added
 
 ### gradle/libs.versions.toml
+
 ```toml
 [versions]
 flagkit = "1.1.0"
@@ -21,6 +23,7 @@ localization = { id = "com.hyperether.localization", version.ref = "localization
 ```
 
 ### composeApp/build.gradle.kts
+
 - Added localization plugin to plugins block
 - Added flagkit and multiplatform-settings to commonMain dependencies
 - Added materialIconsExtended for settings icon
@@ -31,6 +34,7 @@ localization = { id = "com.hyperether.localization", version.ref = "localization
 Created `composeApp/src/commonMain/composeResources/values/strings.xml` with 46 English strings:
 
 ### Categories
+
 - **Main Menu**: app_name, app_subtitle, start_game, rules
 - **Level Complete**: victory, battle_won, defeat, victory_message, battle_won_message, defeat_message, retry, world_map
 - **Settings**: settings, language, close
@@ -43,6 +47,7 @@ Created `composeApp/src/commonMain/composeResources/values/strings.xml` with 46 
 ## UI Components
 
 ### 1. LanguageChooser.kt (`ui/settings/`)
+
 - Dropdown component displaying current language with flag
 - Shows all available locales with flags and names
 - Uses FlagKit for country flag icons
@@ -50,6 +55,7 @@ Created `composeApp/src/commonMain/composeResources/values/strings.xml` with 46 
 - Currently supports DEFAULT (English/GB) with extensibility for more locales
 
 ### 2. SettingsDialog.kt (`ui/settings/`)
+
 - Modal dialog for app settings
 - Language selection section with LanguageChooser
 - Clean Material Design 3 styling
@@ -57,6 +63,7 @@ Created `composeApp/src/commonMain/composeResources/values/strings.xml` with 46 
 - Dismissible with close button
 
 ### 3. SettingsButton.kt (`ui/settings/`)
+
 - Icon button with gear (Settings) icon
 - Opens SettingsDialog when clicked
 - Manages dialog state internally
@@ -64,7 +71,8 @@ Created `composeApp/src/commonMain/composeResources/values/strings.xml` with 46 
 
 ## Integration Across Screens
 
-### Settings Button Added To:
+### Settings Button Added To
+
 1. **MainMenuScreen** - Top-right corner
 2. **WorldMapScreen** - Top-right corner  
 3. **RulesScreen** - Top-right corner
@@ -73,7 +81,8 @@ Created `composeApp/src/commonMain/composeResources/values/strings.xml` with 46 
 6. **LevelEditorScreen** - In header row next to back button
 7. **LoadGameScreen** - Top-right corner
 
-### Localized Strings Applied To:
+### Localized Strings Applied To
+
 1. **MenuScreens.kt**
    - MainMenuScreen: app_name, app_subtitle, start_game, rules
    - LevelCompleteScreen: victory, battle_won, defeat, victory_message, battle_won_message, defeat_message, retry, world_map
@@ -91,7 +100,9 @@ Created `composeApp/src/commonMain/composeResources/values/strings.xml` with 46 
 ## How It Works
 
 ### Localization Plugin
+
 The `compose-multiplatform-localize` plugin:
+
 1. Parses XML string files from `composeResources/values/` directories
 2. Generates `AppLocale` enum with available locales
 3. Generates `LocalizedStrings` object with string mappings
@@ -99,12 +110,15 @@ The `compose-multiplatform-localize` plugin:
 5. Provides `stringResource()` composable function
 
 ### Generated Files
+
 Located in `build/generated/compose/resourceGenerator/kotlin/commonCustomResClass/`:
+
 - `AppLocale.kt` - Enum of available locales
 - `StringsDefault.kt` - Map of English strings
 - `LocalizedStrings.kt` - String access utilities
 
 ### Usage Pattern
+
 ```kotlin
 // In composable - simple string
 Text(stringResource(Res.string.app_name))
@@ -120,9 +134,11 @@ currentLanguage.value = AppLocale.DEFAULT
 ```
 
 ### String Formatting
+
 The plugin supports string formatting with placeholders in XML:
 
 **XML Definition:**
+
 ```xml
 <string name="in_x_turns">in %s turns</string>
 <string name="hp_with_level">HP: %d</string>
@@ -130,6 +146,7 @@ The plugin supports string formatting with placeholders in XML:
 ```
 
 **Usage in Code (CORRECT):**
+
 ```kotlin
 // ✅ Correct: Pass values as arguments to stringResource()
 stringResource(Res.string.in_x_turns, turnCount.toString())
@@ -138,6 +155,7 @@ stringResource(Res.string.editing_map, mapName)
 ```
 
 **INCORRECT Usage:**
+
 ```kotlin
 // ❌ Wrong: Using .replace() doesn't work with the localization system
 stringResource(Res.string.in_x_turns).replace("%s", turnCount.toString())
@@ -151,6 +169,7 @@ To add a new language (e.g., German):
 
 1. Create directory: `composeApp/src/commonMain/composeResources/values-de/`
 2. Create `strings.xml` with translated strings:
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
@@ -159,19 +178,22 @@ To add a new language (e.g., German):
     <!-- ... more translations ... -->
 </resources>
 ```
-3. Clean and rebuild: `./gradlew clean build`
-4. The plugin will automatically generate `AppLocale.DE` enum value
-5. Update `LanguageChooser.kt` country code mapping if needed
+
+1. Clean and rebuild: `./gradlew clean build`
+2. The plugin will automatically generate `AppLocale.DE` enum value
+3. Update `LanguageChooser.kt` country code mapping if needed
 
 ## Files Modified
 
 ### New Files
+
 - `composeApp/src/commonMain/composeResources/values/strings.xml`
 - `composeApp/src/commonMain/kotlin/com/defenderofegril/ui/settings/LanguageChooser.kt`
 - `composeApp/src/commonMain/kotlin/com/defenderofegril/ui/settings/SettingsDialog.kt`
 - `composeApp/src/commonMain/kotlin/com/defenderofegril/ui/settings/SettingsButton.kt`
 
 ### Modified Files
+
 - `gradle/libs.versions.toml` - Added dependencies
 - `composeApp/build.gradle.kts` - Added plugin and dependencies
 - `composeApp/src/commonMain/kotlin/com/defenderofegril/ui/MenuScreens.kt` - Added settings button and localization
@@ -193,12 +215,14 @@ To add a new language (e.g., German):
 Version 2.0.0 adds support for plurals, allowing grammatically correct messages based on quantity.
 
 ### Available Plurals
+
 - `enemy_count` - "1 enemy" vs "X enemies"  
 - `turn_count` - "1 turn" vs "X turns"
 - `coin_count` - "1 coin" vs "X coins"
 - `health_point_count` - "1 health point" vs "X health points"
 
 ### Usage in Composables
+
 ```kotlin
 import com.hyperether.resources.Res
 import com.hyperether.resources.pluralStringResource
@@ -210,6 +234,7 @@ fun EnemyCountDisplay(count: Int) {
 ```
 
 ### Usage Outside Composables
+
 ```kotlin
 import com.hyperether.resources.LocalizedStrings
 import com.hyperether.resources.Res
@@ -234,6 +259,7 @@ See `PLURALS_USAGE.md` for detailed documentation and examples.
 ## Testing Recommendations
 
 When testing with a display:
+
 1. Launch the application
 2. Click settings gear icon on any screen
 3. Verify settings dialog opens

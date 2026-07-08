@@ -7,6 +7,7 @@ This document describes how Unicode emoji icons have been replaced with Canvas-d
 ## Problem
 
 Unicode emojis (⚡, ⏱, ⚔️, etc.) used throughout the UI were not rendering properly on web/WASM platforms. These emojis were used for:
+
 - Lightning bolt (⚡) - indicating available actions
 - Timer (⏱) - indicating build time remaining
 - Sword (⚔️) - indicating attack actions
@@ -67,7 +68,8 @@ Created three Composable icon functions:
 ## Visual Design
 
 ### LightningIcon
-```
+
+```text
     *
    ***
   * * *
@@ -76,24 +78,28 @@ Created three Composable icon functions:
  *   *
 *     *
 ```
+
 - Filled yellow path with white outline
 - Recognizable lightning bolt shape
 
 ### TimerIcon
-```
+
+```text
    ___
   /   \
  |  |  |
  | _|  |
   \___/
 ```
+
 - Clock circle outline
 - Hour hand pointing up (12 o'clock position)
 - Minute hand pointing right (3 o'clock position)
 - Center dot
 
 ### SwordIcon
-```
+
+```text
       /
      /
     /  (blade)
@@ -102,6 +108,7 @@ Created three Composable icon functions:
    |__|   (handle)
     ()    (pommel)
 ```
+
 - Silver blade
 - Gold crossguard
 - Brown handle
@@ -125,6 +132,7 @@ Created three Composable icon functions:
 ## Future Improvements
 
 Potential enhancements:
+
 - Add more icon animations (pulse effect for lightning, rotating for timer)
 - Create a comprehensive icon library for other game elements
 - Add icon themes (different color schemes)

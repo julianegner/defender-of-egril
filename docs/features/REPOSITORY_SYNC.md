@@ -20,22 +20,26 @@ This feature automatically detects when new map and level files have been added 
 
 ### Key Components
 
-**RepositoryManager.kt**
+#### RepositoryManager.kt
+
 - `detectNewRepositoryFiles()`: Compares repository files with user's gamedata
 - `syncNewRepositoryFiles()`: Syncs new files and backs up sequence
 - `NewRepositoryData`: Data class holding detection results
 
-**NewRepositoryDataDialog.kt**
+#### NewRepositoryDataDialog.kt
+
 - UI dialog component showing new content
 - Fully localized in 5 languages (EN, DE, ES, FR, IT)
 
-**WorldMapScreen.kt**
+#### WorldMapScreen.kt
+
 - Integrates the check on first load
 - `checkForNewRepositoryData` parameter allows disabling in tests
 
 ### Sequence File Backup
 
 When new content is synced:
+
 1. Current sequence file is read from `gamedata/sequence.json`
 2. It's backed up to `gamedata/sequence-N.json` where N is the next available number (1, 2, 3, etc.)
 3. Repository's sequence file replaces the current one
@@ -44,6 +48,7 @@ When new content is synced:
 ### Localization
 
 The feature is fully localized with strings in:
+
 - English (default)
 - German (Deutsch)
 - Spanish (Español)
@@ -51,6 +56,7 @@ The feature is fully localized with strings in:
 - Italian (Italiano)
 
 String keys:
+
 - `new_repository_data_title`
 - `new_repository_data_message`
 - `new_maps_found`
@@ -63,6 +69,7 @@ String keys:
 ## Testing
 
 The feature includes:
+
 - Unit tests for `NewRepositoryData` data class
 - Integration into existing WorldMapScreen tests
 - Parameter to disable repository check in test environments

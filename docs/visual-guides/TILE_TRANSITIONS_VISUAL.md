@@ -3,7 +3,8 @@
 ## Before and After
 
 ### Without Tile Blending (Original)
-```
+
+```text
 ┌─────────┐ ┌─────────┐ ┌─────────┐
 │  PATH   │ │  PATH   │ │  PATH   │
 │  Tile   │ │  Tile   │ │  Tile   │
@@ -16,10 +17,12 @@
 │ (Green) │ │ (Green) │ │ (Green) │
 └─────────┘ └─────────┘ └─────────┘
 ```
+
 **Issue**: Hard, jarring transitions between different terrain types
 
 ### With Tile Blending (New)
-```
+
+```text
 ┌─────────┐ ┌─────────┐ ┌─────────┐
 │  PATH   │ │  PATH   │ │  PATH   │
 │  Tile   │ │  Tile   │ │  Tile   │
@@ -33,12 +36,14 @@
 │ (Green) │ │ (Green) │ │ (Green) │
 └─────────┘ └─────────┘ └─────────┘
 ```
+
 **Benefit**: Natural, smooth transitions create a more polished look
 
 ## Hexagonal Tile Blending
 
 ### Single Tile View
-```
+
+```text
        ╱ ╲
       ╱   ╲         Pointy-top hexagon
      ╱     ╲        6 neighbors (E, NE, NW, W, SW, SE)
@@ -50,7 +55,8 @@
 ```
 
 ### With Neighbor Blending
-```
+
+```text
        ╱ ╲
       ╱NE ╲        NE = North-East neighbor blend
      ╱▒▒▒▒▒╲       W  = West neighbor blend
@@ -67,7 +73,8 @@
 ```
 
 ### Gradient Mask Details
-```
+
+```text
 Edge Center (neighbor direction)
       │
       ▼
@@ -89,6 +96,7 @@ Radial gradient:
 ## Tile Type Combinations
 
 ### Supported Blending
+
 ✓ PATH ↔ BUILD_AREA
 ✓ PATH ↔ NO_PLAY
 ✓ BUILD_AREA ↔ ISLAND
@@ -99,6 +107,7 @@ Radial gradient:
 ✓ RIVER ↔ NO_PLAY (shows riverbank)
 
 ### No Blending
+
 ✗ Same tile type (no transition needed)
 ✗ SPAWN_POINT (always distinct)
 ✗ TARGET (always distinct)
@@ -107,6 +116,7 @@ Radial gradient:
 ## Rendering Layers
 
 ### Layer Order (bottom to top)
+
 1. **Background Color** - Solid color fallback
 2. **Main Tile Image** - Primary texture
 3. **Neighbor Blend 1** - First neighbor (e.g., East)
@@ -116,8 +126,10 @@ Radial gradient:
 7. **UI Overlays** - Borders, selection, circles
 
 ### Clipping
+
 All rendering is clipped to hexagon shape:
-```
+
+```text
      ╱ ╲
     ╱   ╲         Hexagon Shape = Clipping Path
    ╱  A  ╲        Only pixels inside hexagon are visible
@@ -129,7 +141,8 @@ All rendering is clipped to hexagon shape:
 ## Visual Examples
 
 ### Example 1: Path with Build Area
-```
+
+```text
 ┌──────────┬──────────┐
 │   PATH   │   PATH   │  PATH tiles (beige stone texture)
 └──────────┴──────────┘
@@ -140,12 +153,14 @@ All rendering is clipped to hexagon shape:
 ```
 
 At the boundary:
+
 - PATH tile shows 100% at its center
 - BUILD tile shows 100% at its center  
 - At edge: ~70% PATH, ~30% BUILD (gradient blend)
 
 ### Example 2: River with Riverbank
-```
+
+```text
 ┌──────────┐
 │  NO_PLAY │           NO_PLAY (gray background)
 └──────────┘
@@ -157,7 +172,8 @@ At the boundary:
 ```
 
 ### Example 3: Island Surrounded by Background
-```
+
+```text
         ┌──────────┐
         │ NO_PLAY  │       NO_PLAY surrounds island
         └──────────┘
@@ -174,17 +190,20 @@ At the boundary:
 ## Performance Characteristics
 
 ### Before Blending
+
 - 1 draw call per tile
 - Simple hexagon clip
 - ~60 FPS typical
 
 ### After Blending  
+
 - 1 + N draw calls per tile (N = different neighbors)
 - Hexagon clip + gradient masks
 - Still ~60 FPS (negligible impact)
 - Memory: Slight increase from neighbor caching
 
 ### Optimizations
+
 1. Precompute neighbor types (cached with `remember()`)
 2. Skip blending for same-type neighbors
 3. Skip blending when images disabled
@@ -193,34 +212,43 @@ At the boundary:
 ## User Experience
 
 ### Toggle Feature
+
 Settings → Tile Images → ON/OFF
+
 - ON: Blended transitions (new)
 - OFF: Sharp transitions (original)
 
 ### Visual Quality
+
 - Subtle effect (30% alpha at edges)
 - Professional appearance
 - Natural terrain flow
 - No gameplay impact
 
 ### Click Detection
+
 Unaffected - still uses hexagon shape for hit testing
 
 ## Technical Notes
 
 ### Blend Mode
+
 Uses `BlendMode.DstIn`:
+
 - Destination: Neighbor tile pixels
 - Source: Gradient mask
 - Result: Neighbor visible only where gradient is opaque
 
 ### Color Space
+
 - RGB color blending
 - Alpha compositing
 - sRGB color space
 
 ### Cross-Platform
+
 Works on all platforms:
+
 - Desktop (JVM)
 - Android
 - iOS  

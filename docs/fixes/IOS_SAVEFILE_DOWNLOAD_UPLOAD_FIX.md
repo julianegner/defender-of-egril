@@ -1,27 +1,33 @@
 # iOS Save File Download/Upload Implementation
 
 ## Issue
+
 On iOS, the download and upload buttons for save files did nothing. The functionality was not implemented - only stub implementations existed that returned `false` for exports and `null` for imports.
 
 ## Root Cause
+
 The `FileExportImport.ios.kt` file contained only stub implementations with TODO comments indicating that UIDocumentPickerViewController integration was needed but not yet implemented.
 
 ## Solution
+
 Implemented full iOS file export/import functionality using UIKit's native APIs:
 
 ### 1. UIActivityViewController for Exports
+
 - Used `UIActivityViewController` (iOS's native share sheet) for file exports
 - Provides familiar iOS sharing experience with multiple destination options
 - Works seamlessly with Files app, AirDrop, iCloud Drive, and third-party apps
 - No special permissions required in Info.plist
 
 ### 2. UIDocumentPickerViewController for Imports
+
 - Used `UIDocumentPickerViewController` for file imports
 - Supports multi-selection for importing multiple files at once
 - Accepts both JSON and ZIP-like file types using `UTType` API
 - Integrates with iOS's document picker UI
 
 ### 3. Simple ZIP Format
+
 - Created a simple concatenated text format for "Download All" feature
 - Uses markers (`=== FILE: filename ===`) to separate files
 - Avoids dependency on Apple's Compression framework
@@ -29,12 +35,14 @@ Implemented full iOS file export/import functionality using UIKit's native APIs:
 - Can be parsed on import to extract individual save files
 
 ### 4. Coroutine Integration
+
 - Used `suspendCancellableCoroutine` to bridge UIKit callbacks with suspend functions
 - Operations run on `Dispatchers.Main` for UI interaction
 - File I/O runs on `Dispatchers.Default` for background processing
 - Proper error handling with try-catch blocks
 
 ### 5. Build Configuration Fix
+
 - Added iosMain source set to build.gradle.kts
 - Connected iOS targets (iosX64, iosArm64, iosSimulatorArm64) to iosMain
 - Fixed Kotlin Multiplatform configuration to recognize iOS platform implementations
@@ -42,7 +50,9 @@ Implemented full iOS file export/import functionality using UIKit's native APIs:
 ## Technical Details
 
 ### UIActivityViewController (Exports)
+
 iOS's standard sharing mechanism that:
+
 - Presents a native share sheet with app icons
 - Supports sharing to Files app, AirDrop, Mail, Messages, etc.
 - Works with third-party document apps (Dropbox, Google Drive, etc.)
@@ -50,7 +60,9 @@ iOS's standard sharing mechanism that:
 - No special entitlements or permissions needed
 
 ### UIDocumentPickerViewController (Imports)
+
 iOS's standard document picker that:
+
 - Presents native file browser UI
 - Works with Files app and iCloud Drive
 - Supports multiple document providers
@@ -59,8 +71,10 @@ iOS's standard document picker that:
 - Requires iOS 14+ for modern `forOpeningContentTypes` API
 
 ### Simple ZIP Format
+
 Instead of using true ZIP compression, we use a simple text-based format:
-```
+
+```text
 === FILE: savegame_1234567890.json ===
 {
   "saveId": "savegame_1234567890",
@@ -75,12 +89,14 @@ Instead of using true ZIP compression, we use a simple text-based format:
 ```
 
 **Advantages:**
+
 - No external dependencies (Apple Compression framework not needed)
 - Simple to implement and parse
 - Cross-platform compatible (matches Web/WASM implementation)
 - Human-readable for debugging
 
 **Limitations:**
+
 - Larger file size (no compression)
 - Not compatible with standard ZIP tools
 - For future: Could integrate Apple Compression framework for true ZIP support
@@ -90,11 +106,13 @@ Instead of using true ZIP compression, we use a simple text-based format:
 ### Modified Files
 
 #### `composeApp/build.gradle.kts`
+
 - Added `iosMain` source set configuration
 - Connected iOS targets to iosMain using `dependsOn()`
 - Ensures iOS platform implementations are recognized by compiler
 
 #### `composeApp/src/iosMain/kotlin/de/egril/defender/save/FileExportImport.ios.kt`
+
 - Complete rewrite from stub to full implementation
 - ~250 lines of production code
 - Three main functions:
@@ -106,6 +124,7 @@ Instead of using true ZIP compression, we use a simple text-based format:
   - `processImportedFiles()`: Parses both JSON and simple ZIP format
 
 #### `docs/implementation/SAVEFILE_DOWNLOAD_UPLOAD.md`
+
 - Updated iOS section to reflect implementation status
 - Changed from "⏳ Stub implementation" to "✅ Implemented"
 - Added technical details about iOS-specific implementation
@@ -114,6 +133,7 @@ Instead of using true ZIP compression, we use a simple text-based format:
 ## Testing Instructions
 
 ### Prerequisites
+
 - iOS device or simulator running iOS 14.0 or higher
 - macOS with Xcode installed
 - Defender of Egril app built for iOS with this fix
@@ -121,6 +141,7 @@ Instead of using true ZIP compression, we use a simple text-based format:
 ### Test Cases
 
 #### 1. Export Single Save File
+
 1. Launch the app on iOS
 2. Play a level and save the game
 3. Navigate to Load Game screen
@@ -131,6 +152,7 @@ Instead of using true ZIP compression, we use a simple text-based format:
 8. Verify file exists using Files app
 
 #### 2. Export All Save Files (Simple ZIP)
+
 1. Ensure multiple save files exist
 2. Navigate to Load Game screen
 3. Tap the "Download All" button
@@ -140,6 +162,7 @@ Instead of using true ZIP compression, we use a simple text-based format:
 7. Verify file exists and can be opened (shows concatenated format)
 
 #### 3. Import Single JSON File
+
 1. Navigate to Load Game screen
 2. Tap the "Upload" button
 3. **Expected**: iOS document picker appears
@@ -149,6 +172,7 @@ Instead of using true ZIP compression, we use a simple text-based format:
 7. **Expected**: Save appears in the list
 
 #### 4. Import Multiple JSON Files
+
 1. Navigate to Load Game screen
 2. Tap the "Upload" button
 3. **Expected**: iOS document picker appears
@@ -159,6 +183,7 @@ Instead of using true ZIP compression, we use a simple text-based format:
 8. **Expected**: All saves appear in the list
 
 #### 5. Import Simple ZIP Archive
+
 1. Navigate to Load Game screen
 2. Tap the "Upload" button
 3. **Expected**: iOS document picker appears
@@ -169,6 +194,7 @@ Instead of using true ZIP compression, we use a simple text-based format:
 8. **Expected**: All saves appear in the list
 
 #### 6. Override Confirmation
+
 1. Create a save file
 2. Export it
 3. Delete the original save
@@ -179,12 +205,14 @@ Instead of using true ZIP compression, we use a simple text-based format:
 8. Upload again and test "Override" button - file should be replaced
 
 #### 7. Cancel Operations
+
 1. Tap download button, then cancel share sheet
 2. **Expected**: Nothing happens, no error
 3. Tap upload button, then cancel document picker
 4. **Expected**: Nothing happens, no error
 
 #### 8. Share to Other Apps
+
 1. Export a save file
 2. **Expected**: Share sheet appears
 3. Select "AirDrop" or "Mail" or other app
@@ -192,6 +220,7 @@ Instead of using true ZIP compression, we use a simple text-based format:
 5. Verify file is received/sent correctly
 
 ## Success Criteria
+
 - ✅ All three operations (export file, export ZIP, import files) work correctly
 - ✅ iOS share sheet appears with appropriate configuration
 - ✅ Files are correctly shared to various destinations
@@ -213,6 +242,7 @@ Instead of using true ZIP compression, we use a simple text-based format:
 | File Picker UI | Swing JFileChooser | Android SAF | iOS Document Picker | Browser File API |
 
 ## Notes
+
 - No changes to iOS app manifest (Info.plist) required
 - No special permissions needed (UIActivityViewController doesn't require permissions)
 - No changes to UI code required (all changes in platform-specific implementation)
@@ -225,6 +255,7 @@ Instead of using true ZIP compression, we use a simple text-based format:
 ## Comparison with Android Implementation
 
 ### Similarities
+
 - Both use native platform file APIs
 - Both support multi-file import
 - Both integrate with platform's document storage
@@ -232,7 +263,8 @@ Instead of using true ZIP compression, we use a simple text-based format:
 - Both have proper error handling
 
 ### Differences
-- **Export Strategy**: 
+
+- **Export Strategy**:
   - Android: Uses SAF's CreateDocument (user picks location)
   - iOS: Uses UIActivityViewController (user picks destination app)
 - **ZIP Format**:
@@ -246,6 +278,7 @@ Instead of using true ZIP compression, we use a simple text-based format:
   - iOS: Native share sheet with app destinations
 
 ## Future Enhancements
+
 1. Integrate Apple Compression framework for true ZIP support
 2. Add progress indicators for large file operations
 3. Support direct iCloud Drive integration

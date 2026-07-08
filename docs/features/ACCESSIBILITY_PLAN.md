@@ -27,7 +27,7 @@ roadmap — items should be implemented in small, focused follow‑up PRs.
 - [Game Accessibility Guidelines](https://gameaccessibilityguidelines.com/)
   (Basic / Intermediate / Advanced tiers, grouped by impairment)
 - [IGDA‑GASIG SIG Top Ten](https://igda-gasig.org/how/sig-top-ten/)
-- WCAG 2.1 (https://www.w3.org/WAI/WCAG21/quickref/)
+- WCAG 2.1 (<https://www.w3.org/WAI/WCAG21/quickref/>)
 
 ## 3. Current State (Audit)
 

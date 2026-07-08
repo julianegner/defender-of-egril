@@ -3,7 +3,8 @@
 ## Visual Flow Comparison
 
 ### Before (Old Behavior)
-```
+
+```text
 ┌─────────────────────────────────────────────────────────┐
 │ Level 10 Dwarven Mine (2 actions remaining)            │
 └─────────────────────────────────────────────────────────┘
@@ -47,7 +48,8 @@ Total clicks: 4 (2 button clicks + 2 map clicks)
 ```
 
 ### After (New Behavior)
-```
+
+```text
 ┌─────────────────────────────────────────────────────────┐
 │ Level 10 Dwarven Mine (2 actions remaining)            │
 └─────────────────────────────────────────────────────────┘
@@ -87,6 +89,7 @@ Total clicks: 3 (1 button click + 2 map clicks)
 ## Impact Analysis
 
 ### Click Reduction
+
 | Actions Per Turn | Traps/Barricades | Old Clicks | New Clicks | Saved |
 |-----------------|------------------|------------|------------|-------|
 | 2               | 2                | 4          | 3          | 25%   |
@@ -97,17 +100,20 @@ Total clicks: 3 (1 button click + 2 map clicks)
 ### Tower Types Affected
 
 #### Dwarven Mine (Traps)
+
 - **Level 10**: 2 actions → 2 traps (save 1 click)
 - **Level 15**: 2 actions → 2 traps (save 1 click)
 - **Level 20**: 3 actions → 3 traps (save 2 clicks)
 - **Level 30**: 4 actions → 4 traps (save 3 clicks)
 
 #### Spike Tower (Barricades)
+
 - **Level 20**: 3 actions → 3 barricades (save 2 clicks)
 - **Level 30**: 4 actions → 4 barricades (save 3 clicks)
 - **Level 40**: 5 actions → 5 barricades (save 4 clicks)
 
 #### Spear Tower (Barricades)
+
 - **Level 15**: 2 actions → 2 barricades (save 1 click)
 - **Level 20**: 3 actions → 3 barricades (save 2 clicks)
 - **Level 30**: 4 actions → 4 barricades (save 3 clicks)
@@ -115,6 +121,7 @@ Total clicks: 3 (1 button click + 2 map clicks)
 ## UI State Indicators
 
 ### Button States
+
 1. **Disabled**: Gray, cannot click (no actions OR on cooldown)
 2. **Enabled**: Blue/Brown, can click to activate mode
 3. **Active**: Yellow border, placement mode active
@@ -122,7 +129,8 @@ Total clicks: 3 (1 button click + 2 map clicks)
 ### Button Behavior by Type
 
 #### Dwarven Mine Trap Button
-```
+
+```text
 Initial: [SET TRAP] (enabled, 2 actions)
          ↓ Click button
 Active:  [SET TRAP] (yellow border)
@@ -133,7 +141,8 @@ After 2: [SET TRAP] (disabled, 0 actions)
 ```
 
 #### Barricade Button
-```
+
+```text
 Initial: [BARRICADE] (enabled, 3 actions)
          ↓ Click button
 Active:  [BARRICADE] (yellow border)
@@ -146,7 +155,8 @@ After 3: [BARRICADE] (disabled, 0 actions)
 ```
 
 #### Magical Trap Button (Unchanged)
-```
+
+```text
 Initial: [MAGICAL TRAP] (enabled, 2 actions, 0 cooldown)
          ↓ Click button
 Active:  [MAGICAL TRAP] (yellow border)
@@ -157,6 +167,7 @@ After 1: [MAGICAL TRAP] (disabled, 10 cooldown) ← ALWAYS CLEARS
 ## Code Flow Comparison
 
 ### Before
+
 ```kotlin
 if (onMineBuildTrap?.invoke(selectedDefender.id, position) == true) {
     selectedMineAction = null  // Always clear
@@ -165,6 +176,7 @@ if (onMineBuildTrap?.invoke(selectedDefender.id, position) == true) {
 ```
 
 ### After
+
 ```kotlin
 if (onMineBuildTrap?.invoke(selectedDefender.id, position) == true) {
     // Keep trap placement mode active if tower has actions remaining
@@ -176,6 +188,7 @@ if (onMineBuildTrap?.invoke(selectedDefender.id, position) == true) {
 ```
 
 ### Helper Function
+
 ```kotlin
 private fun shouldKeepPlacementMode(
     gameState: GameState,
@@ -191,6 +204,7 @@ private fun shouldKeepPlacementMode(
 ### Typical Game Scenario (Level 20+ Gameplay)
 
 **Before:**
+
 1. Level 20 Spike Tower (3 actions)
 2. Click "Barricade" button
 3. Click map position 1 → Barricade placed
@@ -200,6 +214,7 @@ private fun shouldKeepPlacementMode(
 7. Click map position 3 → Barricade placed
 
 **After:**
+
 1. Level 20 Spike Tower (3 actions)
 2. Click "Barricade" button
 3. Click map position 1 → Barricade placed
@@ -211,12 +226,14 @@ Result: **33% fewer clicks** for the same outcome!
 ## Player Feedback Expectations
 
 ### Positive Impacts
+
 - **Faster gameplay**: Less clicking = more fluid experience
 - **Less repetitive**: Don't need to keep re-enabling the same mode
 - **More strategic**: Can focus on placement decisions, not UI navigation
 - **Consistent**: Matches attack button behavior
 
 ### Edge Cases Handled
+
 1. **Actions exhausted**: Button automatically disables
 2. **Cooldown active**: Button stays disabled (magical traps)
 3. **Tower sold**: Selection and mode cleared
@@ -225,14 +242,18 @@ Result: **33% fewer clicks** for the same outcome!
 ## Technical Notes
 
 ### Pattern Consistency
+
 This implementation follows the same pattern as attack button preservation:
+
 - Both use `shouldKeep*()` helper functions
 - Both check `actionsRemaining.value > 0`
 - Both preserve selection/mode when condition is true
 - Both clear when condition is false
 
 ### Exception: Magical Traps
+
 Magical traps do NOT preserve mode because:
+
 - 10-turn cooldown after placement
 - Button would be disabled anyway
 - Preserving mode would be confusing

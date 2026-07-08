@@ -20,6 +20,7 @@ Thank you for your interest in contributing to Defender of Egril! This document 
 If you find a bug or experience unexpected behavior, please [open a GitHub Issue](https://github.com/julianegner/defender-of-egril/issues).
 
 When reporting a bug, please include:
+
 - A clear, descriptive title
 - Steps to reproduce the problem
 - Expected behavior vs. actual behavior
@@ -35,6 +36,7 @@ When reporting a bug, please include:
 Have an idea for a new feature or improvement? [Open a GitHub Issue](https://github.com/julianegner/defender-of-egril/issues) with the label `enhancement`.
 
 Please describe:
+
 - What the feature would do
 - Why it would be useful
 - Any ideas for how it might be implemented
@@ -106,7 +108,7 @@ See [docs/guides/TESTING_GUIDE.md](docs/guides/TESTING_GUIDE.md) for more detail
 
 ## Use of AI Tools
 
-The use of AI coding assistants (e.g., GitHub Copilot, ChatGPT, etc.) is **allowed** and can help with productivity. 
+The use of AI coding assistants (e.g., GitHub Copilot, ChatGPT, etc.) is **allowed** and can help with productivity.
 **However**:
 
 - **Don't change the world in one PR.** AI tools can generate large amounts of code quickly — please keep contributions focused and incremental.

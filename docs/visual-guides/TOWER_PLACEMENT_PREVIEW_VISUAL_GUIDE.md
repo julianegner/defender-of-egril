@@ -4,7 +4,7 @@ This document provides visual descriptions and ASCII art representations of the 
 
 ## Example 1: Spike Tower Preview (Range 1)
 
-```
+```text
 Legend:
   [P] = Path tile (enemy walkway)
   [B] = Build area (empty, can place tower)
@@ -43,7 +43,7 @@ Visual Elements:
 
 ## Example 2: Bow Tower Preview (Range 3)
 
-```
+```text
 Map Layout:
 ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┐
 │     │     │ [B] │     │ [P] │     │     │
@@ -78,7 +78,7 @@ Visual Elements:
 
 ## Example 3: Ballista Tower Preview (Range 5, Min Range 3)
 
-```
+```text
 When hovering over build tile at (1,1) with Ballista (range 3-5):
 ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
 │     │     │     │     │[R]╱╲│[R]╱╲│[R]╱╲│     │     │  <- Range 4-5
@@ -105,7 +105,7 @@ Visual Elements:
 
 ## Example 4: Wizard Tower (Area Attack) Preview
 
-```
+```text
 When hovering over build tile with Wizard Tower (area attack, range 3):
 ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┐
 │     │     │ [B] │     │[R]╱╲│[R]╱╲│     │
@@ -129,7 +129,8 @@ Visual Elements:
 ## Color Scheme Details
 
 ### Light Mode
-- **Hovered Build Tile**: 
+
+- **Hovered Build Tile**:
   - Background: `Color(0xFFFFEB3B).copy(alpha = 0.4f)` (light yellow, 40% transparent)
   - Border: `Color(0xFFFFEB3B)` (yellow, solid color with dashed pattern)
   
@@ -138,7 +139,8 @@ Visual Elements:
   - Border: `Color(0xFF4CAF50)` (green, solid color with dashed pattern)
 
 ### Dark Mode
-- **Hovered Build Tile**: 
+
+- **Hovered Build Tile**:
   - Background: `Color(0xFFC4A000).copy(alpha = 0.4f)` (darker yellow, 40% transparent)
   - Border: `Color(0xFFC4A000)` (darker yellow)
   
@@ -147,6 +149,7 @@ Visual Elements:
   - Border: `Color(0xFF2E7D32)` (darker green)
 
 ### Dashed Border Pattern
+
 - **Dash Length**: 10 pixels
 - **Gap Length**: 5 pixels
 - **Border Width**: 3dp
@@ -155,16 +158,19 @@ Visual Elements:
 ## Comparison with Existing Tower Range Display
 
 ### Placed Tower (Existing Feature)
+
 - **Background**: Blue (`GamePlayColors.Info`) - solid color
 - **Border**: Dark blue (`GamePlayColors.InfoDark`) - solid line, 3-5dp
 - **Range Display**: Green border (`GamePlayColors.Success`) - solid line, 4dp on path tiles
 
 ### Tower Preview (New Feature)
+
 - **Background**: Light yellow (40% alpha) for build tile, light green (20% alpha) for range
 - **Border**: Yellow/Green - dashed line (10px dash, 5px gap), 3dp
 - **Transparency**: Much lighter to indicate "not yet placed"
 
 The key distinction is:
+
 1. **Solid vs. Dashed**: Placed towers use solid borders, preview uses dashed
 2. **Opacity**: Preview uses transparent backgrounds, placed towers use solid colors
 3. **Colors**: Different color scheme (yellow/light green vs. blue/green)

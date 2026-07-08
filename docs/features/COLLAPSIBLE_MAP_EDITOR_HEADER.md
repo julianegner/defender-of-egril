@@ -15,6 +15,7 @@ Implemented a toggle mechanism that switches between two header states:
 ### 1. Expanded State (Default)
 
 The full header with all controls:
+
 - Map name input field
 - Complete tile type selector (all 7 tile types visible)
 - River properties (flow direction and speed selectors)
@@ -27,6 +28,7 @@ The full header with all controls:
 ### 2. Collapsed State
 
 A compact card positioned on the left side with minimal controls:
+
 - Tile type dropdown (280dp width)
 - All tile types available in dropdown menu
 - Expand button with ▼ icon
@@ -54,6 +56,7 @@ A compact card positioned on the left side with minimal controls:
 ### Key Components
 
 #### Expanded Header
+
 ```kotlin
 @Composable
 private fun ExpandedMapEditorHeader(
@@ -77,6 +80,7 @@ private fun ExpandedMapEditorHeader(
 ```
 
 #### Collapsed Header
+
 ```kotlin
 @Composable
 private fun CollapsedMapEditorHeader(
@@ -107,6 +111,7 @@ private fun CollapsedMapEditorHeader(
 ## User Experience
 
 ### Expanding/Collapsing
+
 1. User clicks collapse button (▲) in expanded header
 2. Header smoothly transitions to collapsed state
 3. Map area gains ~224dp of vertical space
@@ -114,6 +119,7 @@ private fun CollapsedMapEditorHeader(
 5. User clicks expand button (▼) to restore full controls
 
 ### Tile Selection in Collapsed Mode
+
 1. Click dropdown button showing current tile type
 2. Select desired tile type from menu
 3. If RIVER is selected, river properties dialog appears automatically
@@ -130,16 +136,19 @@ private fun CollapsedMapEditorHeader(
 ## Technical Notes
 
 ### State Management
+
 - State is local to `MapEditorView` (not persisted)
 - Each time the editor is opened, header starts in expanded state
 - Future enhancement: Could persist preference to user settings
 
 ### Styling
+
 - Uses existing icon components (`TriangleUpIcon`, `TriangleDownIcon`)
 - Maintains Material3 design system consistency
 - Respects light/dark mode themes
 
 ### Accessibility
+
 - Clear visual indicators (▲/▼ icons + text labels)
 - All controls remain keyboard-accessible
 - Dropdown menu follows Material3 accessibility guidelines
@@ -147,6 +156,7 @@ private fun CollapsedMapEditorHeader(
 ## Testing
 
 ### Manual Testing
+
 1. Open Map Editor
 2. Verify header is expanded by default
 3. Click collapse button → header should minimize
@@ -157,6 +167,7 @@ private fun CollapsedMapEditorHeader(
 8. Verify all controls still function correctly
 
 ### Automated Testing
+
 - Existing tests still pass (no breaking changes)
 - UI component structure allows for future Compose UI tests
 

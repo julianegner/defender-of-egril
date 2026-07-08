@@ -17,6 +17,7 @@ This document describes the hexagonal tile arrangement system used in Defender o
 Defender of Egril uses a **pointy-top hexagonal grid** with an **odd-row offset** layout (also known as "odd-r horizontal layout" in the Red Blob Games hexagon guide).
 
 Key characteristics:
+
 - Hexagons have points at top and bottom, flat sides on left and right
 - Odd-numbered rows (y % 2 == 1) are offset to the right
 - Coordinates use standard (x, y) positions starting at (0, 0)
@@ -28,7 +29,7 @@ Key characteristics:
 
 The fundamental measurement is the **hexagon radius** (distance from center to any corner):
 
-```
+```text
 hexSize = 40 (in display points/pixels at 1x scale)
 ```
 
@@ -36,7 +37,7 @@ hexSize = 40 (in display points/pixels at 1x scale)
 
 From the hexagon radius, all other dimensions are calculated:
 
-```
+```text
 sqrt(3) = 1.732050808...
 
 hexWidth = hexSize × sqrt(3)
@@ -52,7 +53,7 @@ hexHeight = hexSize × 2
 
 A pointy-top hexagon has 6 vertices positioned around the center:
 
-```
+```text
        Top (0°)
          •
         / \
@@ -67,6 +68,7 @@ A pointy-top hexagon has 6 vertices positioned around the center:
 ```
 
 Vertex positions (relative to center at 0,0):
+
 - Top: (0, -hexSize)
 - Top-Right: (hexSize × sqrt(3)/2, -hexSize/2)
 - Bottom-Right: (hexSize × sqrt(3)/2, hexSize/2)
@@ -75,6 +77,7 @@ Vertex positions (relative to center at 0,0):
 - Top-Left: (-hexSize × sqrt(3)/2, -hexSize/2)
 
 With hexSize = 40:
+
 - Top: (0, -40)
 - Top-Right: (34.64, -20)
 - Bottom-Right: (34.64, 20)
@@ -98,7 +101,7 @@ ODD_ROW_OFFSET_RATIO = 0.42
 
 Hexagon rows overlap vertically. The vertical spacing between row centers is:
 
-```
+```text
 verticalSpacing = hexHeight × 0.75
                 = 80 × 0.75
                 = 60 pixels
@@ -112,7 +115,7 @@ This means each row starts 27 pixels ABOVE the bottom of the previous row, creat
 
 The center-to-center vertical distance between rows is:
 
-```
+```text
 rowCenterDistance = hexHeight + actualVerticalSpacing
                   = 80 + (-27)
                   = 53 pixels
@@ -120,7 +123,7 @@ rowCenterDistance = hexHeight + actualVerticalSpacing
 
 However, due to the way the UI framework handles spacing, the effective vertical distance from the top of one row to the top of the next is:
 
-```
+```text
 effectiveRowSpacing = verticalSpacing
                     = 60 pixels
 ```
@@ -129,14 +132,14 @@ effectiveRowSpacing = verticalSpacing
 
 Within a row, hexagons overlap horizontally:
 
-```
+```text
 horizontalSpacing = HORIZONTAL_SPACING
                   = -10 pixels
 ```
 
 The center-to-center horizontal distance between adjacent hexagons in the same row is:
 
-```
+```text
 hexCenterDistance = hexWidth + horizontalSpacing
                   = 69.28203230 + (-10)
                   = 59.28203230 pixels
@@ -146,7 +149,7 @@ hexCenterDistance = hexWidth + horizontalSpacing
 
 Odd-numbered rows (y = 1, 3, 5, ...) are shifted to the right to create the hexagonal pattern:
 
-```
+```text
 oddRowOffset = hexWidth × ODD_ROW_OFFSET_RATIO
              = 69.28203230 × 0.42
              = 29.09845357 pixels
@@ -157,24 +160,28 @@ oddRowOffset = hexWidth × ODD_ROW_OFFSET_RATIO
 Maps use the `TileType` enum with the following values:
 
 ### TileType.PATH
+
 - **Purpose**: Path where enemies walk
 - **Gameplay**: Enemies traverse these tiles to reach the target
 - **Visual**: Typically shown with a distinct path texture/color
 - **Placement**: Forms continuous routes from spawn points to targets
 
 ### TileType.BUILD_AREA
+
 - **Purpose**: Areas where towers can be built
 - **Gameplay**: Players can place defensive towers on these tiles
 - **Visual**: Usually shown as buildable terrain adjacent to paths
 - **Placement**: Typically placed next to paths for strategic tower positioning
 
 ### TileType.NO_PLAY
+
 - **Purpose**: Non-playable area (void/blocked)
 - **Gameplay**: Not accessible to enemies or towers
 - **Visual**: Typically shown as empty space, water, or impassable terrain
 - **Placement**: Used to create interesting map shapes and boundaries
 
 ### TileType.SPAWN_POINT
+
 - **Purpose**: Enemy spawn locations
 - **Gameplay**: Enemies appear on these tiles at the start of their turn
 - **Visual**: Marked with special spawn point indicators
@@ -182,6 +189,7 @@ Maps use the `TileType` enum with the following values:
 - **Note**: Spawn points are also walkable by enemies
 
 ### TileType.TARGET
+
 - **Purpose**: Goal position for enemies
 - **Gameplay**: When enemies reach this tile, the player loses health points
 - **Visual**: Marked as the target/goal location
@@ -189,6 +197,7 @@ Maps use the `TileType` enum with the following values:
 - **Note**: Targets are also walkable by enemies
 
 ### TileType.RIVER
+
 - **Purpose**: River tiles with flow mechanics
 - **Gameplay**: Movable with bridges (built by certain enemy types like Ork, Ogre, Evil Wizard, Ewhad)
 - **Visual**: Shown with flowing water and directional indicators
@@ -227,6 +236,7 @@ Maps are stored as JSON files with the following structure:
 ### Tile Position Format
 
 Tiles are keyed by their grid coordinates in the format `"x,y"` where:
+
 - `x` = column index (0 to width-1)
 - `y` = row index (0 to height-1)
 
@@ -235,6 +245,7 @@ If a position is not in the `tiles` map, it defaults to `TileType.NO_PLAY`.
 ### River Tiles
 
 River tiles require two entries:
+
 1. In `tiles` map: `"x,y": "RIVER"`
 2. In `riverTiles` map: `"x,y": {"flowDirection": "DIRECTION", "flowSpeed": 1 or 2}`
 
@@ -324,7 +335,7 @@ const renderY = centerY + padding;
 
 Example: Tutorial Map
 
-```
+```text
 Map dimensions: 15 columns × 8 rows
 
 Constants:
@@ -357,7 +368,7 @@ Image size: 969 × 540 pixels
 
 Example: The Creek
 
-```
+```text
 Map dimensions: 30 columns × 30 rows
 
 Last column: 29
@@ -382,7 +393,7 @@ Image size: 1858 × 1860 pixels
 
 Example: Large battle map
 
-```
+```text
 Map dimensions: 40 columns × 40 rows
 
 Last column: 39
@@ -418,6 +429,7 @@ Image size: 2450 × 2460 pixels
 Each hexagon has 6 neighbors. The neighbor positions depend on whether the current row is even or odd:
 
 **Even rows (y % 2 == 0):**
+
 - East: (x+1, y)
 - North-East: (x, y-1)
 - North-West: (x-1, y-1)
@@ -426,6 +438,7 @@ Each hexagon has 6 neighbors. The neighbor positions depend on whether the curre
 - South-East: (x, y+1)
 
 **Odd rows (y % 2 == 1):**
+
 - East: (x+1, y)
 - North-East: (x+1, y-1)
 - North-West: (x, y-1)
@@ -436,6 +449,7 @@ Each hexagon has 6 neighbors. The neighbor positions depend on whether the curre
 ### Map Validation
 
 A valid "ready to use" map must:
+
 1. Have at least one SPAWN_POINT tile
 2. Have at least one TARGET tile
 3. Have a continuous path from all spawn points to at least one target
@@ -469,13 +483,14 @@ When rendering map images:
 ### Performance Considerations
 
 For large maps (40×40 or bigger):
+
 - Image dimensions can exceed 2400×2400 pixels
 - Consider rendering at lower resolution and scaling up if needed
 - Use efficient rendering techniques (canvas, WebGL, etc.)
 
 ## References
 
-- Red Blob Games Hexagon Guide: https://www.redblobgames.com/grids/hexagons/
+- Red Blob Games Hexagon Guide: <https://www.redblobgames.com/grids/hexagons/>
 - Source code: `composeApp/src/commonMain/kotlin/de/egril/defender/ui/hexagon/`
 - Hexagon constants: `HexagonalGridConstants.kt`
 - Map models: `composeApp/src/commonMain/kotlin/de/egril/defender/editor/EditorModels.kt`

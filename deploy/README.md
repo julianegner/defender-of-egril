@@ -62,6 +62,7 @@ ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/defender_deploy_key -
 ```
 
 This creates two files **on your local machine**:
+
 - `~/.ssh/defender_deploy_key` — **private key** (goes into GitHub Secrets)
 - `~/.ssh/defender_deploy_key.pub` — **public key** (goes onto each server)
 
@@ -89,7 +90,7 @@ and save.
 
 The stored value must look exactly like this (with all internal newlines preserved):
 
-```
+```text
 -----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAA...
 ...AAAA
@@ -116,6 +117,7 @@ chmod 600 ~/.ssh/authorized_keys
 ```
 
 Repeat this on all three servers:
+
 - `178.104.64.170` (DB)
 - `178.104.79.60` (Keycloak)
 - `178.104.84.83` (Backend)
@@ -132,11 +134,13 @@ apt-get update && apt-get install -y docker.io docker-compose-v2
 ```
 
 **DB server only** (`/opt/postgres` is created automatically by the workflow):
+
 ```bash
 mkdir -p /opt/postgres
 ```
 
 **Keycloak server only** — obtain a TLS certificate before the first deploy:
+
 ```bash
 apt-get install -y certbot
 mkdir -p /opt/keycloak/providers
@@ -144,6 +148,7 @@ certbot certonly --standalone -d sso.julianegner.de
 ```
 
 **Backend server** (created automatically by the workflow):
+
 ```bash
 mkdir -p /opt/defender-of-egril/backend
 apt-get install -y certbot
@@ -180,11 +185,12 @@ certbot certonly --standalone -d defender-backend.egril.de
 
 After deploying the backend, the Grafana dashboard is available at:
 
-```
+```text
 https://defender-backend.egril.de/grafana
 ```
 
 Log in with:
+
 - **Username:** `admin`
 - **Password:** the value of the `GRAFANA_ADMIN_PASSWORD` repository secret
 
@@ -222,7 +228,7 @@ application log (SLF4J / Logback) regardless of database availability.
 
 ### Architecture
 
-```
+```text
 nginx (TLS termination)
   └── /grafana/  →  Grafana container (port 3000)
                        ├── datasource: PostgreSQL (defenderofegril DB on 10.0.0.2)
@@ -261,7 +267,7 @@ empty passphrase as "no passphrase"), and add the new public key to
 The SSH handshake reached the server but the server rejected the key.
 Work through this checklist in order:
 
-**1. Verify the public key is on every server**
+#### 1. Verify the public key is on every server
 
 The most common cause: the public key that matches `PROD_SSH_PRIVATE_KEY` has
 never been added to `~/.ssh/authorized_keys` on the server.
@@ -288,7 +294,7 @@ echo "ssh-ed25519 AAAA... github-actions-deploy" >> ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-**2. Confirm the key fingerprint shown by the workflow matches the server**
+#### 2. Confirm the key fingerprint shown by the workflow matches the server
 
 The "Deploy Database" workflow prints the fingerprint of `PROD_SSH_PRIVATE_KEY`
 during the `🔍 Validate SSH key` step.  To see what fingerprint the server
@@ -328,7 +334,7 @@ Then open **Settings → Secrets and variables → Actions**, delete the existin
 `PROD_SSH_PRIVATE_KEY` secret, create a new one with the same name, and paste
 the clipboard contents.  A valid key looks like this in the secret value field:
 
-```
+```text
 -----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAA...
 ...AAAA
@@ -338,7 +344,7 @@ b3BlbnNzaC1rZXktdjEAAAAA...
 The `🔍 Validate SSH key` step also prints `Line count` — a valid ed25519 key
 typically has around 8–10 lines.  If the line count is 1, newlines were lost.
 
-**4. Check server-side SSH settings**
+#### 4. Check server-side SSH settings
 
 If everything above looks correct, log in to the server and check:
 

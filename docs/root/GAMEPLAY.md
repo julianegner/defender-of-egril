@@ -3,23 +3,30 @@
 ## How to Start the Game
 
 ### Desktop (All Platforms)
+
 ```bash
 ./gradlew :composeApp:run
 ```
 
 On Windows:
+
 ```cmd
 gradlew.bat :composeApp:run
 ```
 
 ### Android
+
 1. Build and install the APK:
+
    ```bash
    ./gradlew :composeApp:installDebug
+
    ```
+
 2. Or transfer the APK from `composeApp/build/outputs/apk/debug/` to your device
 
 ### iOS (requires macOS with Xcode)
+
 1. Open `iosApp/iosApp.xcodeproj` in Xcode
 2. Select your simulator or device
 3. Click Run (⌘R)
@@ -41,6 +48,7 @@ The game features a **single-phase turn system** where you control both tower pl
 **New players should start with the tutorial level!**
 
 The first level "Welcome to Defender of Egril" is a guided tutorial that teaches you:
+
 - **Resources**: Understanding coins and health points
 - **Tower Placement**: How to build defensive towers
 - **Tower Types**: Learning about Spike, Spear, and Bow towers
@@ -48,6 +56,7 @@ The first level "Welcome to Defender of Egril" is a guided tutorial that teaches
 - **Combat System**: Starting turns and defeating enemies
 
 The tutorial:
+
 - Uses a small, easy-to-understand map (15x8 grid)
 - Features only 5 goblins and 1 ork
 - Provides step-by-step guidance with overlay messages
@@ -59,9 +68,11 @@ The tutorial:
 ---
 
 ### Main Menu
+
 - Click **"Start Game"** to view the World Map
 
 ### World Map
+
 - Shows all available levels
 - 🔒 **Locked**: Complete previous levels to unlock
 - ⚔️ **Available**: Ready to play
@@ -73,6 +84,7 @@ The tutorial:
 ## Level Gameplay
 
 ### Phase 1: Initial Building Phase
+
 **At the start of each level, you get a special building phase:**
 
 - Place towers **instantly** (no build time)
@@ -81,11 +93,13 @@ The tutorial:
 - Click **"Start Battle"** when ready
 
 **Tips for Initial Building:**
+
 - Block the enemy path with long-range towers
 - Save some coins for later
 - Mix different tower types for better coverage
 
 ### Phase 2: Player Turn
+
 **During your turn, you can:**
 
 1. **Place New Towers**
@@ -110,6 +124,7 @@ The tutorial:
    - Enemy turn begins automatically
 
 ### Phase 3: Enemy Turn
+
 - Enemies move toward the target
 - New enemies spawn
 - Damage-over-time effects are applied
@@ -137,12 +152,15 @@ The tutorial:
 - **DoT (Damage over Time)**: Initial damage + continuous damage for 3 more turns
 
 ### Upgrading
+
 - Each upgrade costs: Base Cost × Current Level
 - Damage increases by +5 per level
 - Range increases by +0.5 (rounded down) every 2 levels
 
 ### Spike Tower (Pike Tower) Special Mechanics
+
 The Spike Tower has unique upgrade characteristics:
+
 - **Range Cap**: Maximum range is capped at 2 when level 5 or higher
 - **Action Scaling**: Gains +1 action per turn for every 5 levels (maximum 3 actions)
   - Levels 1-4: 1 action per turn
@@ -182,10 +200,12 @@ The Spike Tower has unique upgrade characteristics:
 ## Winning and Losing
 
 ### Victory Conditions
+
 - Defeat all enemies in all waves
 - At least 1 health point remaining
 
 ### Defeat Conditions
+
 - All health points lost (0 HP)
 - **Variable Damage:** Different enemies cause different damage when reaching the target:
   - **Weak enemies** (Goblin, Ork, Ogre, Skeleton): 1 HP each
@@ -197,21 +217,25 @@ The Spike Tower has unique upgrade characteristics:
 ## Strategic Tips
 
 ### Early Game
+
 1. Use the initial building phase wisely
 2. Place towers to cover the enemy path
 3. Save 20-30 coins for mid-game
 
 ### Mid Game
+
 1. Build towers during battle to get coins → build more towers
 2. Focus fire on tough enemies (Ogres, Orks)
 3. Upgrade key towers for better efficiency
 
 ### Late Game
+
 1. Wizard Towers for massive AOE damage
 2. Alchemy Towers for continuous damage
 3. Upgrade high-level towers rather than building new ones
 
 ### Advanced Tactics
+
 - **Build Time Strategy**: Place towers early in your turn so they're ready sooner
 - **Coin Efficiency**: Defeat weak enemies to get coins for strong towers
 - **Action Management**: Use all tower actions before ending turn
@@ -249,6 +273,7 @@ The Spike Tower has unique upgrade characteristics:
 ## Keyboard Shortcuts
 
 Currently all controls are mouse/touch based:
+
 - **Click** to select towers/enemies
 - **Click** tower buttons to build
 - **Click** "End Turn" to finish
@@ -258,16 +283,19 @@ Currently all controls are mouse/touch based:
 ## Troubleshooting
 
 **Towers not attacking?**
+
 - Check if tower is ready (no ⏱ symbol)
 - Check if tower has actions (⚡ symbol)
 - Check if enemy is in range
 
 **Can't place tower?**
+
 - Check if you have enough coins
 - Position may be occupied
 - Can't place on Start (S) or Target (T)
 
 **Lost the level?**
+
 - Click "Retry" to try again
 - Try different tower placements
 - Focus on high-value targets first
@@ -277,6 +305,7 @@ Currently all controls are mouse/touch based:
 ## Level Progression
 
 Complete levels to unlock new ones:
+
 1. **Welcome to Defender of Egril** - Tutorial level with 5 Goblins and 1 Ork
    - Learn the basics: tower placement, combat, and strategy
    - Only 3 tower types available: Spike Tower, Spear Tower, Bow Tower
@@ -292,6 +321,6 @@ Each level increases in difficulty with more enemies, tougher types, and less he
 
 ---
 
-## Have Fun!
+## Have Fun
 
 Defend the meadows of Egril and drive back the evil forces of Ewhad!

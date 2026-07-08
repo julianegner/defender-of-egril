@@ -15,7 +15,7 @@ Both components appear in the bottom-right corner of the map view when enabled.
 
 ### Visual Layout
 
-```
+```text
 Map View
 ┌──────────────────────────────────────────┐
 │                                          │
@@ -56,8 +56,9 @@ The zoom controls are a vertical stack (60dp wide, 122dp tall with divider).
 ### UI Components
 
 #### ControlPad Component
+
 - **File**: `composeApp/src/commonMain/kotlin/de/egril/defender/ui/ControlPad.kt`
-- **Appearance**: 
+- **Appearance**:
   - Circular shape (120dp diameter)
   - Semi-transparent background (surfaceVariant with 0.7 alpha)
   - Four directional arrows in quadrants
@@ -69,6 +70,7 @@ The zoom controls are a vertical stack (60dp wide, 122dp tall with divider).
   - Right: Pans viewport right
 
 #### ZoomControls Component
+
 - **File**: `composeApp/src/commonMain/kotlin/de/egril/defender/ui/ControlPad.kt`
 - **Appearance**:
   - Vertical rectangle (60dp wide)
@@ -83,6 +85,7 @@ The zoom controls are a vertical stack (60dp wide, 122dp tall with divider).
 ### Integration
 
 The control pad is integrated into `HexagonalMapView.kt`:
+
 - Displayed as an overlay in the bottom-right corner
 - Visibility controlled by `AppSettings.showControlPad` state
 - Uses the same pan/zoom logic as keyboard navigation
@@ -94,30 +97,35 @@ The control pad is integrated into `HexagonalMapView.kt`:
 Control pad settings are localized in all supported languages:
 
 #### English (values/strings.xml)
+
 - `controls`: "Controls"
 - `show_control_pad`: "Show Control Pad"
 - `control_pad_enabled`: "Control Pad Enabled"
 - `control_pad_disabled`: "Control Pad Disabled"
 
 #### German (values-de/strings.xml)
+
 - `controls`: "Steuerung"
 - `show_control_pad`: "Steuerkreuz anzeigen"
 - `control_pad_enabled`: "Steuerkreuz aktiviert"
 - `control_pad_disabled`: "Steuerkreuz deaktiviert"
 
 #### Spanish (values-es/strings.xml)
+
 - `controls`: "Controles"
 - `show_control_pad`: "Mostrar panel de control"
 - `control_pad_enabled`: "Panel de control activado"
 - `control_pad_disabled`: "Panel de control desactivado"
 
 #### French (values-fr/strings.xml)
+
 - `controls`: "Contrôles"
 - `show_control_pad`: "Afficher le pavé directionnel"
 - `control_pad_enabled`: "Pavé directionnel activé"
 - `control_pad_disabled`: "Pavé directionnel désactivé"
 
 #### Italian (values-it/strings.xml)
+
 - `controls`: "Controlli"
 - `show_control_pad`: "Mostra pad direzionale"
 - `control_pad_enabled`: "Pad direzionale attivato"
@@ -184,6 +192,7 @@ The control pad uses a circular design divided into 4 quadrants by perpendicular
 ### Semi-Transparent Background
 
 The controls use semi-transparent backgrounds (70% opacity) to:
+
 - Remain visible without completely obscuring the game map
 - Maintain visual hierarchy (map is primary, controls are secondary)
 - Blend naturally with the game's visual design
@@ -191,6 +200,7 @@ The controls use semi-transparent backgrounds (70% opacity) to:
 ### Bottom-Right Placement
 
 Controls are positioned in the bottom-right corner to:
+
 - Avoid overlapping critical game UI elements (header, controls, tower info)
 - Provide easy thumb access on mobile devices
 - Follow common mobile game control patterns

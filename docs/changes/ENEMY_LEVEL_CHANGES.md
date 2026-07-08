@@ -5,16 +5,19 @@
 ### 1. Changed "Lv{X}" to "Lvl {X}" (with space)
 
 **Before:**
-```
+
+```text
 Goblin Lv3
 ```
 
 **After:**
-```
+
+```text
 Goblin Lvl 3
 ```
 
 This change applies to:
+
 - Enemy list panel (active enemies on map)
 - Enemy list panel (planned spawns)
 - Enemy details panel (when clicking on enemy tile)
@@ -25,10 +28,11 @@ This change applies to:
 
 **NEW FEATURE:** Level number now appears at the top of enemy icons on the game map!
 
-#### Visual Representation:
+#### Visual Representation
 
 **Enemy with Level 1 (no change):**
-```
+
+```text
 ┌─────────────┐
 │             │
 │             │
@@ -39,7 +43,8 @@ This change applies to:
 ```
 
 **Enemy with Level 3 (NEW - shows level at top):**
-```
+
+```text
 ┌─────────────┐
 │      3      │  ← Level number (RED, BOLD) - NEW!
 │             │
@@ -50,7 +55,8 @@ This change applies to:
 ```
 
 **Enemy with Level 5 (example):**
-```
+
+```text
 ┌─────────────┐
 │      5      │  ← Level number (RED, BOLD) - NEW!
 │             │
@@ -65,6 +71,7 @@ This change applies to:
 ## Implementation Details
 
 ### Level Number Display
+
 - **Position:** Top center of the hexagon
 - **Color:** Red (for visibility and to indicate threat)
 - **Font:** Bold, 12sp
@@ -72,6 +79,7 @@ This change applies to:
 - **Padding:** 8dp from top edge
 
 ### Health Display (unchanged)
+
 - **Position:** Bottom center of the hexagon
 - **Color:** White (customizable via parameter)
 - **Font:** Bold, 13sp
@@ -81,7 +89,7 @@ This change applies to:
 
 ## Code Changes
 
-### Files Modified:
+### Files Modified
 
 1. **EnemyIcon.kt**
    - Added level number display at top center
@@ -104,7 +112,8 @@ This change applies to:
 ## Visual Impact on Different Enemy Levels
 
 ### Level 1 Enemies (Default)
-```
+
+```text
 Enemy List:        Map Icon:
 ┌──────────────┐   ┌─────────┐
 │ Goblin       │   │         │
@@ -114,7 +123,8 @@ Enemy List:        Map Icon:
 ```
 
 ### Level 2 Enemies
-```
+
+```text
 Enemy List:        Map Icon:
 ┌──────────────┐   ┌─────────┐
 │ Goblin Lvl 2 │   │    2    │ ← Level shown
@@ -124,7 +134,8 @@ Enemy List:        Map Icon:
 ```
 
 ### Level 5 Enemies
-```
+
+```text
 Enemy List:        Map Icon:
 ┌──────────────┐   ┌─────────┐
 │ Ogre Lvl 5   │   │    5    │ ← Level shown
@@ -148,6 +159,7 @@ Enemy List:        Map Icon:
 ## Testing
 
 All changes have been:
+
 - ✅ Compiled successfully
 - ✅ Tested with automated test suite
 - ✅ Verified to work with level editor

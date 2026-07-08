@@ -30,11 +30,13 @@ official=true
 ### Default Behavior
 
 By default, `official` is set to `false`, which means:
+
 - Official maps and levels are read-only in the editor
 - All save, delete, and edit buttons are disabled for official content
 - Users can only copy official content to create user versions
 
 When `official=true`:
+
 - Official maps and levels can be edited, saved, and deleted
 - All editor controls work normally for official content
 - A warning dialog appears on app close if official data was modified
@@ -45,7 +47,7 @@ When official edit mode is enabled and you modify official game data, a warning 
 
 **Title:** "Official Game Data Modified"
 
-**Message:** 
+**Message:**
 > You have made changes to official game data (maps or levels).
 >
 > These changes will be overwritten when you restart the game, as official content is restored from the repository on each launch.
@@ -97,6 +99,7 @@ enabled = !map.isOfficial || OfficialEditMode.enabled
 ```
 
 This applies to:
+
 - Map name input field (MapEditorHeader.kt)
 - Save map button (MapEditorView.kt)
 - Delete map button (MapListCard.kt)
@@ -132,13 +135,14 @@ if (WindowCloseHandler.hasOfficialDataChanged()) {
 ### For Users
 
 The official edit mode is not intended for end users. If you want to create custom content:
+
 1. Copy official maps/levels to create user versions
 2. Edit your user versions
 3. Your changes will be preserved in the `gamedata/user/` directory
 
 ## File Structure
 
-```
+```text
 gamedata/
 ├── official/          # Official content (read-only by default)
 │   ├── maps/         # Official maps
@@ -154,6 +158,7 @@ gamedata/
 ## Localization
 
 The warning dialog is fully localized in:
+
 - English (default)
 - German
 - Spanish
@@ -161,6 +166,7 @@ The warning dialog is fully localized in:
 - Italian
 
 String keys:
+
 - `official_data_changed_title`
 - `official_data_changed_message`
 - `official_data_modified_maps`
@@ -170,12 +176,14 @@ String keys:
 ## Testing
 
 Tests are provided in `OfficialDataChangeTrackerTest.kt` to verify:
+
 - Tracking of official map/level modifications
 - Filtering out non-official content
 - Duplicate tracking
 - Clearing tracked changes
 
 Run tests:
+
 ```bash
 ./gradlew :composeApp:testDebugUnitTest --tests "de.egril.defender.editor.OfficialDataChangeTrackerTest"
 ```

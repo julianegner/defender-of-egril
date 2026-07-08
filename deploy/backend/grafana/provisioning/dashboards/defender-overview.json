@@ -555,6 +555,76 @@
                 "value": 250
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "weekday_num"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#f5f5f5",
+                      "value": null
+                    },
+                    {
+                      "color": "#f8d7da",
+                      "value": 0
+                    },
+                    {
+                      "color": "#ffe5b4",
+                      "value": 1
+                    },
+                    {
+                      "color": "#fff3cd",
+                      "value": 2
+                    },
+                    {
+                      "color": "#d1e7dd",
+                      "value": 3
+                    },
+                    {
+                      "color": "#d1ecf1",
+                      "value": 4
+                    },
+                    {
+                      "color": "#dbeafe",
+                      "value": 5
+                    },
+                    {
+                      "color": "#e2d9f3",
+                      "value": 6
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "applyToRow": true,
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": true,
+                  "viz": true
+                }
+              }
+            ]
           }
         ]
       },
@@ -586,7 +656,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT id, event_type, platform, os_name, level_name, version_name, commit_hash, user_name, install_uuid, turn_number, difficulty, platform_extended, platform_long, created_at FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') AND ('${filter_install_ids}' = 'false' OR install_uuid IS NULL OR install_uuid::text NOT IN (${excluded_install_ids:singlequote})) ORDER BY created_at DESC LIMIT 500",
+          "rawSql": "SELECT id, event_type, platform, os_name, level_name, version_name, commit_hash, user_name, install_uuid, turn_number, difficulty, platform_extended, platform_long, created_at, EXTRACT(DOW FROM created_at)::int AS weekday_num FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') AND ('${filter_install_ids}' = 'false' OR install_uuid IS NULL OR install_uuid::text NOT IN (${excluded_install_ids:singlequote})) ORDER BY created_at DESC LIMIT 500",
           "refId": "A"
         }
       ]
@@ -714,6 +784,76 @@
                 "value": 250
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "weekday_num"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#f5f5f5",
+                      "value": null
+                    },
+                    {
+                      "color": "#f8d7da",
+                      "value": 0
+                    },
+                    {
+                      "color": "#ffe5b4",
+                      "value": 1
+                    },
+                    {
+                      "color": "#fff3cd",
+                      "value": 2
+                    },
+                    {
+                      "color": "#d1e7dd",
+                      "value": 3
+                    },
+                    {
+                      "color": "#d1ecf1",
+                      "value": 4
+                    },
+                    {
+                      "color": "#dbeafe",
+                      "value": 5
+                    },
+                    {
+                      "color": "#e2d9f3",
+                      "value": 6
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "applyToRow": true,
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": true,
+                  "viz": true
+                }
+              }
+            ]
           }
         ]
       },
@@ -745,7 +885,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT id, platform, os_name, version_name, commit_hash, user_name, install_uuid, url, platform_extended, platform_long, created_at FROM events WHERE event_type = 'APP_STARTED' AND platform = 'WEB' AND ('${filter_install_ids}' = 'false' OR install_uuid IS NULL OR install_uuid::text NOT IN (${excluded_install_ids:singlequote})) ORDER BY created_at DESC LIMIT 100",
+          "rawSql": "SELECT id, platform, os_name, version_name, commit_hash, user_name, install_uuid, url, platform_extended, platform_long, created_at, EXTRACT(DOW FROM created_at)::int AS weekday_num FROM events WHERE event_type = 'APP_STARTED' AND platform = 'WEB' AND ('${filter_install_ids}' = 'false' OR install_uuid IS NULL OR install_uuid::text NOT IN (${excluded_install_ids:singlequote})) ORDER BY created_at DESC LIMIT 100",
           "refId": "A"
         }
       ]

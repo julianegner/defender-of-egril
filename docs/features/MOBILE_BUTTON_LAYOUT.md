@@ -56,6 +56,7 @@ if (isPlatformMobile) {
 ### Platform Detection
 
 Uses `isPlatformMobile` from `Platform.kt`:
+
 - Returns `true` for Android and iOS
 - Returns `false` for Desktop/JVM and Web/WASM
 
@@ -66,6 +67,7 @@ Uses `isPlatformMobile` from `Platform.kt`:
 ![Desktop Layout](https://github.com/user-attachments/assets/cad8ca0a-d977-400c-af3b-786e47ca32c5)
 
 Buttons are stacked vertically with:
+
 - Fixed width: 200.dp
 - Height: 60.dp
 - Spacing: 16.dp between buttons
@@ -74,7 +76,7 @@ Buttons are stacked vertically with:
 
 On mobile devices (Android/iOS), the buttons will appear side-by-side:
 
-```
+```text
 ┌─────────────────────────────────────────┐
 │                                         │
 │         Defender of Egril               │
@@ -87,6 +89,7 @@ On mobile devices (Android/iOS), the buttons will appear side-by-side:
 ```
 
 Buttons use:
+
 - `weight(1f)`: Equal width distribution
 - Height: 60.dp (same as desktop)
 - Spacing: 16.dp between buttons

@@ -1,7 +1,9 @@
 # iOS Build Issues - Fix Summary
 
 ## Problem Statement
+
 The iOS platform had preexisting compilation issues that prevented successful builds. These issues were blocking all three iOS targets:
+
 - iosSimulatorArm64
 - iosX64
 - iosArm64
@@ -9,12 +11,14 @@ The iOS platform had preexisting compilation issues that prevented successful bu
 ## Issues Identified
 
 ### 1. BuildConfig Task Dependency
+
 **File:** `composeApp/build.gradle.kts`
 
 **Issue:** The `generateBuildConfig` task was not running before iOS Kotlin compilation tasks because it used `AbstractKotlinCompile` which doesn't cover all Kotlin compilation types.
 
 **Error:**
-```
+
+```text
 e: Unresolved reference 'BuildConfig'.
 ```
 
@@ -33,12 +37,14 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
 ```
 
 ### 2. FileSoundManager.ios.kt - NSData Creation
+
 **File:** `composeApp/src/iosMain/kotlin/de/egril/defender/audio/FileSoundManager.ios.kt`
 
 **Issue:** Incorrect usage of `NSData.create()` with `refTo()` which caused argument type mismatch.
 
 **Error:**
-```
+
+```text
 e: Argument type mismatch: actual type is 'CValuesRef<ByteVarOf<Byte>>', 
    but 'CPointer<out CPointed>?' was expected.
 ```
@@ -66,18 +72,21 @@ private fun ByteArray.toNSData(): NSData {
 ```
 
 ### 3. FileStorage.ios.kt - Missing OptIn Annotations
+
 **File:** `composeApp/src/iosMain/kotlin/de/egril/defender/editor/FileStorage.ios.kt`
 
 **Issue:** Multiple methods using Foundation APIs without proper opt-in annotations for `ExperimentalForeignApi`.
 
 **Errors:**
-```
+
+```text
 e: This declaration needs opt-in. Its usage must be marked with 
    '@kotlinx.cinterop.ExperimentalForeignApi' or 
    '@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)'
 ```
 
 **Fix:** Added `@OptIn(ExperimentalForeignApi::class)` annotation to all methods using Foundation/NSFileManager APIs:
+
 - `baseDir` property
 - `writeFile()`
 - `readFile()`
@@ -87,17 +96,20 @@ e: This declaration needs opt-in. Its usage must be marked with
 - `deleteFile()`
 
 Also added the import:
+
 ```kotlin
 import kotlinx.cinterop.ExperimentalForeignApi
 ```
 
 ### 4. TimeUtils.ios.kt - NSDate Constructor
+
 **File:** `composeApp/src/iosMain/kotlin/de/egril/defender/utils/TimeUtils.ios.kt`
 
 **Issue:** Incorrect NSDate constructor usage with named parameter `timeIntervalSince1970`.
 
 **Error:**
-```
+
+```text
 e: None of the following candidates is applicable:
 constructor(): NSDate
 constructor(timeIntervalSinceReferenceDate: Double): NSDate
@@ -122,6 +134,7 @@ actual fun formatTimestamp(timestamp: Long): String {
 ```
 
 Also added the import:
+
 ```kotlin
 import kotlinx.cinterop.ExperimentalForeignApi
 ```
@@ -129,12 +142,14 @@ import kotlinx.cinterop.ExperimentalForeignApi
 ## Changes Summary
 
 ### Files Modified
+
 1. `composeApp/build.gradle.kts` - Fixed BuildConfig task dependency
 2. `composeApp/src/iosMain/kotlin/de/egril/defender/audio/FileSoundManager.ios.kt` - Fixed NSData creation
 3. `composeApp/src/iosMain/kotlin/de/egril/defender/editor/FileStorage.ios.kt` - Added OptIn annotations
 4. `composeApp/src/iosMain/kotlin/de/egril/defender/utils/TimeUtils.ios.kt` - Fixed NSDate constructor
 
 ### Statistics
+
 - 4 files changed
 - 19 insertions(+)
 - 5 deletions(-)
@@ -142,6 +157,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 ## Build Verification
 
 ### iOS Targets - All Successful ✅
+
 ```bash
 ./gradlew :composeApp:compileKotlinIosSimulatorArm64  # ✅ BUILD SUCCESSFUL
 ./gradlew :composeApp:compileKotlinIosX64             # ✅ BUILD SUCCESSFUL
@@ -150,6 +166,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 ```
 
 ### Other Platforms - Verified Working ✅
+
 ```bash
 ./gradlew :composeApp:compileKotlinDesktop            # ✅ BUILD SUCCESSFUL
 ./gradlew :composeApp:compileDebugKotlinAndroid       # ✅ BUILD SUCCESSFUL
@@ -175,6 +192,7 @@ These warnings do not impact functionality and can be addressed in future improv
 ## Impact
 
 All iOS targets now compile successfully. The game can now be built for:
+
 - iOS Simulator (ARM64 & x64)
 - Physical iOS devices (ARM64)
 
@@ -183,6 +201,7 @@ This resolves the "preexisting issues" mentioned in the repository and enables f
 ## Testing Recommendations
 
 To verify iOS functionality:
+
 1. Build the iOS framework: `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64`
 2. Open the Xcode project in `iosApp/`
 3. Run on iOS Simulator
@@ -195,16 +214,19 @@ To verify iOS functionality:
 ## Technical Notes
 
 ### Kotlin/Native Interop
+
 - `ExperimentalForeignApi` opt-in is required for iOS Foundation API usage
 - `BetaInteropApi` opt-in is required for advanced memory operations like `addressOf`
 - `usePinned` ensures safe memory access when passing Kotlin arrays to native APIs
 
 ### BuildConfig Generation
+
 - BuildConfig is now generated for all platforms during compilation
 - Contains version information and git commit hash
 - Critical for version display in the app
 
 ## Related Documentation
+
 - [RUNNING.md](../root/RUNNING.md) - Platform-specific build instructions
 - [LOCALIZATION_IMPLEMENTATION.md](LOCALIZATION_IMPLEMENTATION.md) - Contains note about library v2.0.0 issues
 - [DEVELOPMENT.md](../root/DEVELOPMENT.md) - Build and development guidelines

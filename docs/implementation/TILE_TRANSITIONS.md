@@ -40,6 +40,7 @@ The implementation uses a layered rendering approach with alpha gradients:
 ### Tile Types Supporting Blending
 
 According to requirements, blending is enabled for:
+
 - `PATH` - Enemy pathways
 - `BUILD_AREA` - Tower placement zones adjacent to paths
 - `ISLAND` - Build islands (2x2 tiles)
@@ -47,18 +48,23 @@ According to requirements, blending is enabled for:
 - `RIVER` - River tiles (special case: can show riverbank at edges)
 
 Tiles that don't blend:
+
 - `SPAWN_POINT` - Enemy spawn locations
 - `TARGET` - Target destination
 
 ### Special Cases
 
 #### River Tiles
+
 River tiles have special handling:
+
 - Can blend with non-river tiles to show riverbank transitions
 - Adjacent river tiles of the same type don't blend (no transition needed)
 
 #### Tower Coverage
+
 When a tower is placed on a `BUILD_AREA` or `ISLAND` tile and is ready (fully constructed):
+
 - The tile background is hidden to make the tower more visible
 - Neighbor tiles don't blend with this position
 
@@ -75,6 +81,7 @@ val edgeAlpha = 0.3f                   // Maximum alpha at edge center
 #### Gradient Calculation
 
 For each neighbor:
+
 1. Calculate the angle from current tile center to neighbor center
 2. Compute edge center position along that angle
 3. Create radial gradient:
@@ -113,6 +120,7 @@ clipPath(hexPath) {
 ### Backward Compatibility
 
 The feature is fully backward compatible:
+
 - When tile images are disabled in settings, uses original `BaseGridCell`
 - Click/tap detection unchanged (uses same hexagon shape)
 - No impact on game logic or mechanics
@@ -122,6 +130,7 @@ The feature is fully backward compatible:
 ### Enabling/Disabling
 
 Tile blending automatically activates when:
+
 1. Tile images are enabled in settings (`AppSettings.useTileImages.value == true`)
 2. A tile painter is available for the current tile type
 
@@ -139,6 +148,7 @@ Color.White.copy(alpha = 0.3f)         // Higher alpha = stronger blend
 ## Future Enhancements
 
 Potential improvements:
+
 1. **Platform-Specific Blending**: Use native layer APIs for better performance
 2. **Dynamic Blend Strength**: Make blend parameters configurable in settings
 3. **Additional Blend Modes**: Experiment with different blend modes for various effects
@@ -147,17 +157,20 @@ Potential improvements:
 ## Testing
 
 ### Visual Testing
+
 - Load a level with mixed tile types
 - Verify smooth transitions at tile boundaries
 - Test with different zoom levels
 - Check all tile type combinations
 
 ### Functional Testing
+
 - Verify click/tap detection works correctly on all tiles
 - Confirm tower placement and selection unchanged
 - Test with tile images enabled and disabled
 
 ### Performance Testing
+
 - Monitor frame rate during gameplay
 - Check for any lag during pan/zoom operations
 - Verify no memory leaks from painter caching
@@ -169,6 +182,6 @@ Potential improvements:
 
 ## References
 
-- Hexagonal Grid Guide: https://www.redblobgames.com/grids/hexagons/
-- Compose Canvas API: https://developer.android.com/jetpack/compose/graphics/draw/overview
-- Blend Modes: https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode
+- Hexagonal Grid Guide: <https://www.redblobgames.com/grids/hexagons/>
+- Compose Canvas API: <https://developer.android.com/jetpack/compose/graphics/draw/overview>
+- Blend Modes: <https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/BlendMode>

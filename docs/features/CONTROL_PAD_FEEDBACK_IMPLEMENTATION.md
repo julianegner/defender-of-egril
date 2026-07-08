@@ -5,31 +5,41 @@
 All 4 requested changes have been implemented:
 
 ### 1. ✅ Minimap Always Shown
+
 **Change**: Removed the `if (scale > 1.1f)` condition that previously hid the minimap when zoomed out.
 **Files Modified**:
+
 - `GameMap.kt`: Removed zoom threshold check
 - Minimap now renders unconditionally
 
 ### 2. ✅ Control Pad Positioned Left of Minimap
+
 **Change**: Reorganized layout to place control pad and zoom controls to the left of the minimap.
 **Layout**:
-```
+
+```text
 [Control Pad 120dp] [Zoom Controls 60dp] [Minimap 120dp]
 ```
+
 **Files Modified**:
+
 - `GameMap.kt`: New horizontal Row layout with spacing
 - `MapEditorView.kt`: Same layout for consistency
 - `HexagonalMapView.kt`: Removed embedded control pad (moved to parent components)
 
 ### 3. ✅ Bottom Padding for Full Map Navigation
+
 **Change**: Added 152dp bottom padding to ensure the bottom-right edge of the map can be scrolled into view and isn't hidden by the control pad/minimap overlay.
 **Calculation**: 120dp (minimap height) + 16dp (top padding) + 16dp (bottom padding) = 152dp
 **Files Modified**:
+
 - `GameMap.kt`: Added `.padding(bottom = 152.dp)` to the Box containing HexagonalMapView
 
 ### 4. ✅ Continuous Movement on Button Hold
+
 **Change**: Implemented press-and-hold functionality using coroutines and gesture detection.
 **Implementation**:
+
 - Replaced `clickable` modifier with `pointerInput` and `detectTapGestures`
 - First action fires immediately on press
 - After 300ms initial delay, actions repeat continuously:
@@ -38,6 +48,7 @@ All 4 requested changes have been implemented:
 - Actions cancel when button is released using coroutine job cancellation
 
 **Files Modified**:
+
 - `ControlPad.kt`: Complete rewrite of button interaction logic
   - Added coroutine scope and job management
   - Created `DirectionalButton` helper composable
@@ -47,6 +58,7 @@ All 4 requested changes have been implemented:
 ## Technical Details
 
 ### Continuous Action Implementation
+
 ```kotlin
 @Composable
 private fun DirectionalButton(
@@ -86,6 +98,7 @@ private fun DirectionalButton(
 ```
 
 ### Layout Structure (GameMap.kt)
+
 ```kotlin
 Box(modifier = modifier
     .onSizeChanged { containerSize = it }
@@ -150,7 +163,7 @@ Box(modifier = modifier
 
 ## Visual Layout
 
-```
+```text
 Game Map Container (with 152dp bottom padding)
 ┌──────────────────────────────────────────────────┐
 │                                                  │
@@ -179,17 +192,20 @@ Game Map Container (with 152dp bottom padding)
 ## Impact Assessment
 
 ### User Experience
+
 - **Improved**: Minimap always visible provides better spatial awareness
 - **Improved**: Continuous movement allows faster navigation
 - **Improved**: Full map visibility ensures no content is hidden
 - **Consistent**: Same controls in gameplay and editor
 
 ### Code Quality
+
 - **Better**: Cleaner separation of concerns (control pad moved to parent)
 - **Better**: Reusable button components with shared logic
 - **Better**: Coroutine-based gesture handling is more maintainable
 
 ### Performance
+
 - **Neutral**: Coroutines add minimal overhead
 - **Neutral**: Minimap always rendering has negligible impact
 - **Positive**: No continuous polling or timers needed
@@ -197,6 +213,7 @@ Game Map Container (with 152dp bottom padding)
 ## Future Enhancements
 
 Potential improvements based on this implementation:
+
 1. Configurable repeat delays in settings
 2. Visual feedback on button press (color change, animation)
 3. Haptic feedback on mobile devices

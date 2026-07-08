@@ -6,7 +6,7 @@ This document provides visual ASCII diagrams to supplement the technical documen
 
 ### Small 5×3 Grid Example
 
-```
+```text
      /\    /\    /\    /\    /\     Row 0 (even - no offset)
     /  \  /  \  /  \  /  \  /  \
    |0,0||1,0||2,0||3,0||4,0|
@@ -29,6 +29,7 @@ Notice how row 1 (the middle row) is shifted to the right compared to rows 0 and
 ## Tile Type Layout Example
 
 Legend:
+
 - `S` = SPAWN_POINT
 - `P` = PATH
 - `B` = BUILD_AREA
@@ -37,7 +38,7 @@ Legend:
 
 ### Tutorial Map Pattern (Simplified 15×8)
 
-```
+```text
    . . . . .B.B. . . . . . . .     Row 0
     . . . . . .B.B. . . . . . .    Row 1
    . .B.B.B.B.B.B.B.B.B.B.B.B.B.   Row 2
@@ -51,7 +52,8 @@ Legend:
 ## Pixel Coordinate System
 
 ### Coordinate Origin
-```
+
+```text
 (0,0) ────────────────> X-axis (right)
   │
   │
@@ -65,7 +67,7 @@ Y-axis (down)
 
 For a 3×2 grid, the hexagon centers are positioned at:
 
-```
+```text
 Row 0 (even):
   Hex (0,0): center at (34.64, 40.00)
   Hex (1,0): center at (93.92, 40.00)
@@ -83,7 +85,7 @@ Notice the 29.10 pixel rightward offset for row 1 hexagons.
 
 For a map of width W and height H, the bounding box extends from:
 
-```
+```text
 ┌─────────────────────────────┐
 │ Padding (20px)              │
 │   ┌─────────────────────┐   │
@@ -100,7 +102,7 @@ For a map of width W and height H, the bounding box extends from:
 
 The image is rectangular (not following hexagon edges) to allow easy embedding:
 
-```
+```text
 Without padding (hexagons at edges):
 ┌───╱╲───╱╲───╱╲───┐
 │  ╱  ╲ ╱  ╲ ╱  ╲  │
@@ -130,7 +132,7 @@ With padding (full rectangular image):
 
 ### Even Row (y % 2 == 0) Neighbors
 
-```
+```text
      NW    NE
       ╲   ╱
        ╲ ╱
@@ -141,6 +143,7 @@ With padding (full rectangular image):
 ```
 
 Position offsets for hexagon at (x, y) where y is even:
+
 - E (East): (x+1, y)
 - NE (North-East): (x, y-1)
 - NW (North-West): (x-1, y-1)
@@ -150,7 +153,7 @@ Position offsets for hexagon at (x, y) where y is even:
 
 ### Odd Row (y % 2 == 1) Neighbors
 
-```
+```text
      NW    NE
       ╲   ╱
        ╲ ╱
@@ -161,6 +164,7 @@ Position offsets for hexagon at (x, y) where y is even:
 ```
 
 Position offsets for hexagon at (x, y) where y is odd:
+
 - E (East): (x+1, y)
 - NE (North-East): (x+1, y-1)
 - NW (North-West): (x, y-1)
@@ -174,7 +178,7 @@ Note: The neighbor positions differ between even and odd rows due to the offset!
 
 River tiles can have flow in any of the 6 hexagonal directions:
 
-```
+```text
       NORTH_WEST    NORTH_EAST
             ╲           ╱
              ╲         ╱
@@ -193,6 +197,7 @@ River tiles can have flow in any of the 6 hexagonal directions:
 ```
 
 Plus special cases:
+
 - NONE: Still water (no flow)
 - MAELSTROM: Whirlpool/vortex
 
@@ -202,7 +207,7 @@ Flow speed can be 1 or 2 (shown as one or two arrows in the game).
 
 Islands are often arranged in 2×2 groups:
 
-```
+```text
      /\    /\
     /  \  /  \
    | I || I |     Row 0 (even)
@@ -221,18 +226,19 @@ This creates a cohesive island formation that spans multiple hexagons.
 
 For a valid map, there must be a continuous path from spawn points to targets:
 
-```
+```text
 S → P → P → P → P → P → T
 ```
 
 Where:
+
 - S = Spawn point (also walkable)
 - P = Path tile
 - T = Target (also walkable)
 
 The path can include waypoints for complex routing:
 
-```
+```text
 S → P → P → W₁ → P → W₂ → P → T
 ```
 

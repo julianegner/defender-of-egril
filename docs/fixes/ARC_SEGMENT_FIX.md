@@ -7,6 +7,7 @@ Arc segments were not being drawn for neighbor tiles in different rows than the 
 ## Root Cause
 
 The `drawArcSegment` function was calculating offsets incorrectly for tiles in different rows. In a hexagonal grid with odd-row offset layout:
+
 - Even rows (y % 2 == 0): No horizontal offset
 - Odd rows (y % 2 == 1): Offset to the right by `hexWidth * 0.42f`
 
@@ -33,14 +34,16 @@ This correctly accounts for the actual pixel offset applied in the layout, ensur
 ## Example
 
 If center is at (5, 5) [odd row] and neighbor is at (5, 4) [even row]:
+
 - Grid distance: dx = 0, dy = 1
 - Base offset: offsetX = 0, offsetY = verticalSpacing
-- Row adjustment: offsetX += (hexWidth * 0.42f - 0) = hexWidth * 0.42f
+- Row adjustment: offsetX += (hexWidth *0.42f - 0) = hexWidth* 0.42f
 - The arc is now correctly positioned to account for the visual offset between the rows
 
 ## Additional Fix
 
 Fixed undefined `center` variable in debug circle drawing code by calculating the tile center:
+
 ```kotlin
 val centerX = size.width / 2
 val centerY = size.height / 2

@@ -38,9 +38,11 @@ Only users explicitly granted this role can delete community files.
 > **Note for new deployments**: The `community_admin` role is automatically created
 > when Keycloak imports `egril-realm.json` on first start.
 > If Keycloak was already running before the role was added, recreate the container:
+>
 > ```bash
 > docker compose down -v && docker compose up -d
 > ```
+>
 > Or use the Keycloak Admin REST API to create the role manually (see below).
 
 ### Create the role via Admin REST API (if missing)

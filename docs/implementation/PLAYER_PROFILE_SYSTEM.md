@@ -3,6 +3,7 @@
 ## Overview
 
 The player profile system allows multiple players to use the same machine while keeping their game progress and save files completely separate. Each player has:
+
 - Their own world map progress (locked/unlocked levels)
 - Their own save game files
 - A unique player name chosen at first launch
@@ -11,7 +12,7 @@ The player profile system allows multiple players to use the same machine while 
 
 ### File Structure
 
-```
+```text
 ~/.defender-of-egril/
 ├── players.json                    # Registry of all player profiles
 └── players/
@@ -30,6 +31,7 @@ The player profile system allows multiple players to use the same machine while 
 ### Data Models
 
 #### PlayerProfile
+
 ```kotlin
 data class PlayerProfile(
     val id: String,          // Sanitized name (e.g., "john_doe")
@@ -40,6 +42,7 @@ data class PlayerProfile(
 ```
 
 #### PlayerProfiles
+
 ```kotlin
 data class PlayerProfiles(
     val profiles: List<PlayerProfile>,
@@ -52,6 +55,7 @@ data class PlayerProfiles(
 #### PlayerProfileStorage
 
 Manages player profile operations:
+
 - `createProfile(name: String): PlayerProfile?` - Creates a new player
 - `getProfile(playerId: String): PlayerProfile?` - Retrieves a profile
 - `getAllProfiles(): PlayerProfiles` - Lists all profiles
@@ -62,6 +66,7 @@ Manages player profile operations:
 #### SaveFileStorage (Updated)
 
 Enhanced to support player-specific directories:
+
 - `setCurrentPlayer(playerId: String?)` - Sets the active player context
 - `getCurrentPlayer(): String?` - Gets the active player ID
 - All save/load operations now use player-specific paths
@@ -69,6 +74,7 @@ Enhanced to support player-specific directories:
 #### GameViewModel (Updated)
 
 Manages player profile lifecycle:
+
 - `currentPlayer: StateFlow<PlayerProfile?>` - Currently active player
 - `allPlayers: StateFlow<List<PlayerProfile>>` - All available players
 - `needsPlayerSelection: StateFlow<Boolean>` - First-time setup flag
@@ -79,6 +85,7 @@ Manages player profile lifecycle:
 ### User Flow
 
 #### First Launch
+
 1. App starts with no player profiles
 2. Check for existing legacy saves (pre-migration)
 3. If legacy saves exist:
@@ -91,11 +98,13 @@ Manages player profile lifecycle:
    - Profile created and selected
 
 #### Subsequent Launches
+
 1. App loads player profiles from `players.json`
 2. Auto-selects the last used player
 3. Loads that player's world map progress and saves
 
 #### Player Switching
+
 1. User clicks "Switch Player" button (main menu or world map)
 2. "Select Player" dialog appears
 3. User can:
@@ -110,12 +119,14 @@ Manages player profile lifecycle:
 ### UI Components
 
 #### CreatePlayerDialog
+
 - Text input for player name
 - Validation (1-50 characters, non-empty)
 - Error messages for invalid input
 - Cancel button (only if a player already exists)
 
 #### SelectPlayerDialog
+
 - List of all players with last played timestamp
 - Visual indicator for current player
 - "Select" button for other players
@@ -123,11 +134,13 @@ Manages player profile lifecycle:
 - "New Player" button to create additional profiles
 
 #### Main Menu Integration
+
 - Player name displayed in top-left corner
 - "Switch Player" button next to name
 - Settings button remains in top-right
 
 #### World Map Integration
+
 - Player name shown below title/subtitle
 - Compact "Switch Player" button
 - Non-intrusive placement
@@ -146,6 +159,7 @@ For backward compatibility with existing installations:
 ### Localization
 
 All UI strings are translated to 5 languages:
+
 - English (EN) - Default
 - German (DE)
 - Spanish (ES)
@@ -153,6 +167,7 @@ All UI strings are translated to 5 languages:
 - Italian (IT)
 
 Key strings:
+
 - `player_create_title` - "Create New Player"
 - `player_select_title` - "Select Player"
 - `player_name` - "Player Name"
@@ -169,6 +184,7 @@ Key strings:
 ### Platform Support
 
 Works on all supported platforms:
+
 - Desktop (JVM) - Linux, macOS, Windows
 - Android
 - iOS
@@ -197,6 +213,7 @@ Each platform uses its own FileStorage implementation to determine the base dire
 ## Future Enhancements
 
 Possible improvements for future versions:
+
 - Player avatars/icons
 - Player statistics (games played, levels completed, etc.)
 - Export/import player profiles

@@ -11,9 +11,11 @@ This document describes the implementation of the first-start language chooser f
 Added platform-specific language detection capability to identify the system's default language:
 
 **Common Interface** (`Platform.kt`):
+
 - Added `expect fun getSystemLanguageCode(): String?` to detect system language
 
 **Platform-Specific Implementations**:
+
 - **Desktop (JVM)**: Uses `Locale.getDefault().language.lowercase()`
 - **Android**: Uses `Locale.getDefault().language.lowercase()`
 - **iOS**: Uses `NSLocale.currentLocale.languageCode`
@@ -33,6 +35,7 @@ Extended `AppSettings` to manage first-start language selection:
 Created new `InitialLanguageChooserDialog` component:
 
 **Features**:
+
 - Shows language selection dialog on first app start
 - Automatically preselects platform language if supported
 - Reuses existing `LanguageChooser` component for consistency
@@ -40,6 +43,7 @@ Created new `InitialLanguageChooserDialog` component:
 - Saves selected language and marks it as chosen on continue
 
 **UI Structure**:
+
 ```kotlin
 Dialog (non-dismissible)
 ├── Title: "Choose Your Language"
@@ -53,6 +57,7 @@ Dialog (non-dismissible)
 Updated `App.kt` to integrate the language chooser into the first-start flow:
 
 **Flow on First Start**:
+
 1. Check if player profile exists (`needsPlayerSelection`)
 2. If no player profile:
    - Check if language has been chosen (`hasChosenLanguage()`)
@@ -61,7 +66,8 @@ Updated `App.kt` to integrate the language chooser into the first-start flow:
 3. If player profile exists: Normal app flow
 
 **Dialog Chaining**:
-```
+
+```text
 First Start → Language Chooser → Player Creation → Main Menu
 Subsequent Starts → Main Menu (if player exists)
 ```
@@ -93,12 +99,15 @@ All tests pass successfully.
 To test the first-start experience:
 
 1. Clear app data:
+
    ```bash
    rm -rf ~/.defender-of-egril/settings*
    rm -rf ~/.defender-of-egril/players.json
+
    ```
 
 2. Launch the application:
+
    ```bash
    ./gradlew :composeApp:run
    ```
@@ -130,10 +139,12 @@ To test the first-start experience:
 ## Files Modified
 
 ### New Files
+
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/settings/InitialLanguageChooserDialog.kt`
 - `composeApp/src/desktopTest/kotlin/de/egril/defender/ui/InitialLanguageChooserDialogTest.kt`
 
 ### Modified Files
+
 - `composeApp/src/commonMain/kotlin/de/egril/defender/utils/Platform.kt`
 - `composeApp/src/androidMain/kotlin/de/egril/defender/utils/Platform.android.kt`
 - `composeApp/src/desktopMain/kotlin/de/egril/defender/utils/Platform.jvm.kt`
@@ -155,6 +166,7 @@ Potential improvements for future consideration:
 ## Compatibility
 
 This implementation is compatible with all supported platforms:
+
 - ✅ Desktop (JVM)
 - ✅ Android
 - ✅ iOS

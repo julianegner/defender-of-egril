@@ -3,7 +3,8 @@
 ## Before Implementation
 
 ### ApplicationBanner (Original)
-```
+
+```text
 Row:
 ├── Column (Title Text)
 │   ├── "Defender of" (32sp)
@@ -13,7 +14,8 @@ Row:
 ```
 
 ### StickerScreen (Original)
-```
+
+```text
 - Inline Canvas with enemy/tower symbols (70+ lines)
 - Spacer
 - Call to ApplicationBanner (title + shield)
@@ -22,6 +24,7 @@ Row:
 ```
 
 **Issues:**
+
 - Tower lines always white → invisible on light backgrounds
 - Wizard tower mask always black → wrong color in light mode
 - Code duplication between StickerScreen and potential future use cases
@@ -29,7 +32,8 @@ Row:
 ## After Implementation
 
 ### ApplicationBanner (Enhanced)
-```
+
+```text
 Row:
 ├── Canvas Box (80x80dp) ← NEW!
 │   ├── Enemy Symbols (Goblin, Ork, Wizard)
@@ -45,7 +49,8 @@ Row:
 ```
 
 ### StickerScreen (Simplified)
-```
+
+```text
 - Call to ApplicationBanner (now includes canvas!)
 - Text: "Open Source Turn Based Fantasy Tower Defense Game"
 - Text: "defender.egril.de"
@@ -60,7 +65,8 @@ Row:
 ## Theme Adaptation
 
 ### Dark Mode
-```
+
+```text
 Background: Dark (#1C1B1F)
 Tower Lines: White (visible on dark background)
 Wizard Mask: Dark background color
@@ -68,7 +74,8 @@ Result: ✅ All symbols clearly visible
 ```
 
 ### Light Mode
-```
+
+```text
 Background: White (#FFFFFF)
 Tower Lines: Dark (onBackground, visible on light background)
 Wizard Mask: White background color
@@ -78,6 +85,7 @@ Result: ✅ All symbols clearly visible
 ## Usage
 
 ### MainMenuScreen
+
 ```kotlin
 Column {
     ApplicationBanner()  // Shows: Canvas + Title + Shield
@@ -90,6 +98,7 @@ Column {
 ```
 
 ### StickerScreen
+
 ```kotlin
 Column {
     ApplicationBanner()  // Shows: Canvas + Title + Shield
@@ -108,7 +117,8 @@ Both screens now show the same beautiful banner with game symbols!
 ### Visual Comparison: Enemy Icons
 
 #### Before Outlines
-```
+
+```text
 Dark Mode:
 ╔═══════════════════════════════════╗
 ║  👹 👺 🧙   🗡️ 🧙‍♂️                 ║
@@ -123,7 +133,8 @@ Issue: Icons lack clear definition
 ```
 
 #### After Outlines
-```
+
+```text
 Dark Mode:
 ╔═══════════════════════════════════╗
 ║  ⬜👹 ⬜👺 ⬜🧙   🗡️ 🧙‍♂️            ║
@@ -155,39 +166,46 @@ drawEvilWizardSymbol(..., outlineColor)
 
 ### Enemy Icon Details
 
-**Goblin (Light Green)**
+#### Goblin (Light Green)
+
 - Before: Green head + ears + body
 - After: + 2px stroke-based outline (uniform thickness)
 
-**Ork (Dark Olive Green)**
+#### Ork (Dark Olive Green)
+
 - Before: Dark green head + tusks + gray armor
 - After: + 2px stroke-based outline (uniform thickness)
 - ✨ Most improved visibility in dark mode!
 
-**Evil Wizard (Purple/Indigo)**
+#### Evil Wizard (Purple/Indigo)
+
 - Before: Purple hat + face + staff with orb
 - After: + 2px stroke-based outline (uniform thickness)
 
 ### Implementation Notes
 
 **Backward Compatible:**
+
 - Enemy symbols accept optional `outlineColor: Color? = null`
 - Other uses (like EnemyIcon.kt in gameplay) don't get outlines
 - Only ApplicationBanner passes outline color
 
 **Drawing Technique (Updated):**
+
 1. Use `Stroke(width = 2f)` style instead of fill-based shapes
 2. Draw outline shapes using `drawPath(path, color, style = Stroke(width = 2f))`
 3. Draw original shapes (filled, on top)
 4. Result: Clean 2px uniform outline on all edges
 
 **Fix for Uneven Thickness:**
+
 - Initial implementation used fill-based offset shapes
 - This caused thick outlines on straight lines, thin on diagonals
 - Updated to use stroke-based outlines for uniform thickness
 - Stroke method ensures consistent 2px width regardless of edge angle
 
 **Benefits:**
+
 - ✅ Better visibility in both themes
 - ✅ Clear icon boundaries
 - ✅ Automatic theme adaptation

@@ -2,7 +2,7 @@
 
 ## Mobile UI at 0.5x Layout + 0.75x Text Scale
 
-```
+```text
 ╔═══════════════════════════════════════════════════════════════╗
 ║  📱 MOBILE DEVICE (Portrait, ~400dp width x 700dp height)     ║
 ║                                                               ║
@@ -78,6 +78,7 @@ KEY IMPROVEMENTS:
 | Map | 525dp (~75%) | ✅ Good |
 
 **Problems**:
+
 - Text too small to read comfortably
 - Icons hard to distinguish
 - Tower area still taking too much space
@@ -94,6 +95,7 @@ KEY IMPROVEMENTS:
 | Map | 540dp (~77%) | ✅ Excellent |
 
 **Solutions**:
+
 - ✅ Text scaled separately (0.75x) for readability
 - ✅ Icons remain clear and recognizable
 - ✅ Buttons reduced (100dp→60dp) then scaled (→30dp)
@@ -104,7 +106,8 @@ KEY IMPROVEMENTS:
 ### Vertical Space Distribution
 
 **Old (0.5x all, 100dp buttons)**:
-```
+
+```text
 Header:           60dp   (8.6%)
 Map:             525dp  (75%)
 Tower Selection:  85dp  (12%)
@@ -115,7 +118,8 @@ Total:           700dp
 ```
 
 **New (0.5x layout + 0.75x text, 60dp buttons)**:
-```
+
+```text
 Header:           60dp   (8.6%)
 Map:             540dp  (77%)  ← +15dp!
 Tower Selection:  85dp  (12%)
@@ -130,6 +134,7 @@ Total:           700dp
 ## Font Size Guidelines
 
 Standard mobile game text sizes:
+
 - **Title**: 18-24sp ✓ (We use 18sp)
 - **Body**: 12-14sp ✓ (We use 12sp)
 - **Button**: 10-12sp ✓ (We use 10.5sp)

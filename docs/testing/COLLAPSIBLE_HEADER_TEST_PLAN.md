@@ -3,6 +3,7 @@
 ## Manual Testing Checklist
 
 ### Test Environment Setup
+
 - [ ] Desktop platform (Windows, Mac, or Linux)
 - [ ] Game launched successfully
 - [ ] Level Editor accessed from World Map
@@ -14,11 +15,14 @@
 ## Test Cases
 
 ### TC1: Initial State - Header is Expanded by Default
+
 **Steps:**
+
 1. Open any map in Map Editor
 2. Observe the header state
 
 **Expected Result:**
+
 - ✓ Header is in expanded state showing all controls
 - ✓ Header height is approximately 280dp
 - ✓ Collapse button visible with ▲ icon and "Collapse" text
@@ -29,11 +33,14 @@
 ---
 
 ### TC2: Collapse Header
+
 **Steps:**
+
 1. Open any map in Map Editor (header should be expanded)
 2. Click the [▲ Collapse] button in the top-right of header
 
 **Expected Result:**
+
 - ✓ Header transitions to collapsed state
 - ✓ Header height reduces to approximately 56dp
 - ✓ Compact card appears on left side
@@ -45,11 +52,14 @@
 ---
 
 ### TC3: Expand Header
+
 **Steps:**
+
 1. Ensure header is in collapsed state
 2. Click the [▼] expand button
 
 **Expected Result:**
+
 - ✓ Header transitions back to expanded state
 - ✓ All original controls are visible again
 - ✓ Map area returns to original size
@@ -60,12 +70,15 @@
 ---
 
 ### TC4: Tile Type Selection - Collapsed State
+
 **Steps:**
+
 1. Collapse the header
 2. Click on the tile type dropdown button
 3. Observe the dropdown menu
 
 **Expected Result:**
+
 - ✓ Dropdown menu opens
 - ✓ All 7 tile types are visible: PATH, BUILD_AREA, ISLAND, NO_PLAY, SPAWN_POINT, TARGET, RIVER
 - ✓ Current selection is indicated
@@ -74,13 +87,16 @@
 ---
 
 ### TC5: Change Tile Type in Collapsed Mode (Non-River)
+
 **Steps:**
+
 1. Collapse the header
 2. Open tile type dropdown
 3. Select "PATH" (or any non-RIVER tile)
 4. Click on map hexagons
 
 **Expected Result:**
+
 - ✓ Dropdown closes
 - ✓ Button text updates to show "PATH"
 - ✓ Clicking on hexagons paints them as PATH tiles
@@ -89,12 +105,15 @@
 ---
 
 ### TC6: Change Tile Type to RIVER in Collapsed Mode
+
 **Steps:**
+
 1. Collapse the header
 2. Open tile type dropdown
 3. Select "RIVER"
 
 **Expected Result:**
+
 - ✓ Dropdown closes
 - ✓ Button text updates to show "RIVER"
 - ✓ River Properties dialog automatically opens
@@ -106,7 +125,9 @@
 ---
 
 ### TC7: Configure River Properties in Collapsed Mode
+
 **Steps:**
+
 1. Collapse header and select RIVER tile type (dialog should open)
 2. Select "EAST" for flow direction
 3. Select "2 (Fast)" for flow speed
@@ -114,6 +135,7 @@
 5. Click on map hexagons
 
 **Expected Result:**
+
 - ✓ Dialog closes after clicking OK
 - ✓ Selections are saved
 - ✓ Clicking hexagons paints RIVER tiles
@@ -123,12 +145,15 @@
 ---
 
 ### TC8: River Properties Dialog - Cancel/Dismiss
+
 **Steps:**
+
 1. Collapse header and select RIVER tile type
 2. Change flow direction
 3. Click outside the dialog or press ESC (if supported)
 
 **Expected Result:**
+
 - ✓ Dialog closes
 - ✓ Changes may or may not be saved (depending on implementation)
 - ✓ RIVER tile type remains selected
@@ -136,7 +161,9 @@
 ---
 
 ### TC9: Map Editing in Collapsed State
+
 **Steps:**
+
 1. Collapse the header
 2. Pan the map (drag)
 3. Zoom in/out (mouse wheel or zoom controls if visible)
@@ -144,6 +171,7 @@
 5. Use keyboard navigation (if supported)
 
 **Expected Result:**
+
 - ✓ All map interactions work normally
 - ✓ Pan gesture works correctly
 - ✓ Zoom functionality works
@@ -154,7 +182,9 @@
 ---
 
 ### TC10: State Persistence within Session
+
 **Steps:**
+
 1. Open map, collapse header
 2. Paint some tiles
 3. Expand header
@@ -162,6 +192,7 @@
 5. Collapse header again
 
 **Expected Result:**
+
 - ✓ Header collapses/expands correctly each time
 - ✓ Tile changes are preserved
 - ✓ Map name changes are preserved
@@ -171,12 +202,15 @@
 ---
 
 ### TC11: Save Map with Collapsed Header
+
 **Steps:**
+
 1. Open map, collapse header
 2. Make some tile changes
 3. Click [Save] button (below map)
 
 **Expected Result:**
+
 - ✓ Map saves successfully
 - ✓ Changes are persisted to file
 - ✓ No errors occur
@@ -185,7 +219,9 @@
 ---
 
 ### TC12: Multiple Toggle Cycles
+
 **Steps:**
+
 1. Open map
 2. Collapse header
 3. Expand header
@@ -194,6 +230,7 @@
 6. Repeat 10 times
 
 **Expected Result:**
+
 - ✓ Header toggles smoothly each time
 - ✓ No visual glitches
 - ✓ No performance degradation
@@ -203,7 +240,9 @@
 ---
 
 ### TC13: Tile Type Selection - All Types
+
 **Steps:**
+
 1. Collapse header
 2. For each tile type (PATH, BUILD_AREA, ISLAND, NO_PLAY, SPAWN_POINT, TARGET, RIVER):
    a. Select from dropdown
@@ -211,6 +250,7 @@
    c. Verify correct color and behavior
 
 **Expected Result:**
+
 - ✓ All 7 tile types are selectable
 - ✓ Each tile type paints with correct color
 - ✓ RIVER type opens properties dialog
@@ -220,7 +260,9 @@
 ---
 
 ### TC14: River Flow Directions - All Options
+
 **Steps:**
+
 1. Collapse header, select RIVER
 2. For each flow direction (NONE, MAELSTROM, EAST, SE, SW, WEST, NW, NE):
    a. Select direction in dialog
@@ -229,6 +271,7 @@
    d. Verify flow indicator
 
 **Expected Result:**
+
 - ✓ All 8 flow directions are selectable
 - ✓ Each direction shows correct indicator:
   - NONE: dot or simple marker
@@ -239,13 +282,16 @@
 ---
 
 ### TC15: River Flow Speeds - Both Options
+
 **Steps:**
+
 1. Collapse header, select RIVER
 2. Select speed 1 (Slow), OK, paint tile → observe
 3. Open dropdown again, select RIVER
 4. Select speed 2 (Fast), OK, paint tile → observe
 
 **Expected Result:**
+
 - ✓ Speed 1: single arrow indicator
 - ✓ Speed 2: double arrow indicator
 - ✓ Visual difference is clear
@@ -253,7 +299,9 @@
 ---
 
 ### TC16: Responsive Layout - Various Window Sizes
+
 **Steps:**
+
 1. Open map editor
 2. Resize window to small size (e.g., 800x600)
 3. Collapse header → observe
@@ -261,6 +309,7 @@
 5. Observe layout
 
 **Expected Result:**
+
 - ✓ Collapsed header remains at 280dp width
 - ✓ Header doesn't overflow or clip
 - ✓ Dropdown menu is fully visible
@@ -270,13 +319,16 @@
 ---
 
 ### TC17: Dark/Light Mode Compatibility
+
 **Steps:**
+
 1. Open map editor in light mode
 2. Collapse/expand header → observe styling
 3. Switch to dark mode (if supported)
 4. Collapse/expand header → observe styling
 
 **Expected Result:**
+
 - ✓ Header colors follow theme in both modes
 - ✓ Text is readable in both modes
 - ✓ Icons are visible in both modes
@@ -285,7 +337,9 @@
 ---
 
 ### TC18: Keyboard Accessibility
+
 **Steps:**
+
 1. Open map editor
 2. Use TAB to navigate to collapse button → press ENTER
 3. Use TAB to navigate to tile type dropdown → press ENTER
@@ -293,6 +347,7 @@
 5. (If dialog opens) TAB through dialog options → select with ENTER/SPACE
 
 **Expected Result:**
+
 - ✓ All interactive elements are keyboard-accessible
 - ✓ Tab order is logical
 - ✓ Visual focus indicators are visible
@@ -301,13 +356,16 @@
 ---
 
 ### TC19: Error Handling - Edge Cases
+
 **Steps:**
+
 1. Collapse header
 2. Rapidly click expand/collapse button multiple times
 3. Click dropdown while dialog is open
 4. Press ESC while dropdown is open
 
 **Expected Result:**
+
 - ✓ No crashes or errors
 - ✓ UI remains responsive
 - ✓ State management handles rapid changes gracefully
@@ -316,7 +374,9 @@
 ---
 
 ### TC20: Integration with Other Features
+
 **Steps:**
+
 1. Open map, collapse header
 2. Click minimap (if visible)
 3. Use zoom controls (if visible in collapsed state)
@@ -324,6 +384,7 @@
 5. Save/Save As/Cancel buttons
 
 **Expected Result:**
+
 - ✓ Minimap works correctly
 - ✓ All other map editor features remain functional
 - ✓ No feature conflicts or breaking changes
@@ -334,6 +395,7 @@
 ## Regression Testing
 
 ### Existing Functionality to Verify
+
 - [ ] Map name editing works (expanded state)
 - [ ] All tile types paintable (both states)
 - [ ] Zoom controls work (expanded state)
@@ -349,6 +411,7 @@
 ## Performance Testing
 
 ### Metrics to Monitor
+
 - [ ] Header collapse/expand transition is smooth (<100ms)
 - [ ] Dropdown menu opens instantly
 - [ ] Dialog appears without delay
@@ -360,9 +423,9 @@
 ## Known Issues / Limitations
 
 Document any issues found during testing:
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ---
 

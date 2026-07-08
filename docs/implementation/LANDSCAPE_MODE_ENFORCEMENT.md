@@ -1,11 +1,13 @@
 # Landscape Mode Enforcement for Mobile
 
 ## Overview
+
 Enforced landscape orientation for mobile devices (Android and iOS) to provide optimal gaming experience with maximum screen space.
 
 ## Changes Made
 
 ### Android (AndroidManifest.xml)
+
 Added `android:screenOrientation="sensorLandscape"` attribute to the MainActivity:
 
 ```xml
@@ -16,12 +18,14 @@ Added `android:screenOrientation="sensorLandscape"` attribute to the MainActivit
 ```
 
 **Effect**:
+
 - App will always run in landscape mode
 - Uses sensor to allow both left and right landscape orientations
 - User cannot rotate to portrait mode
 - Provides maximum horizontal space for the game map
 
 ### iOS (iOSApp.swift)
+
 Added AppDelegate with orientation support:
 
 ```swift
@@ -35,6 +39,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 ```
 
 **Effect**:
+
 - App will always run in landscape mode
 - Supports both left and right landscape orientations
 - User cannot rotate to portrait mode
@@ -43,26 +48,30 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 ## Benefits
 
 ### ✅ Optimal Game Experience
+
 - **Maximum screen real estate**: Landscape provides wider view ideal for tower defense game
 - **Better map visibility**: Horizontal orientation matches the game's 10x6 grid layout
 - **Improved UI layout**: Controls and tower selection fit better in landscape
 - **Professional gaming feel**: Most mobile games use landscape for strategy/tower defense
 
 ### ✅ UI Scaling Synergy
+
 Works perfectly with the existing mobile UI optimizations:
+
 - 0.5x layout scaling + landscape = excellent map coverage
 - 1.5x text scaling remains readable
 - Tower info area fits better horizontally
 - All buttons easily accessible
 
 ### ✅ Consistent Experience
+
 - No confusion from switching orientations
 - UI remains stable and predictable
 - Desktop version unaffected (maintains flexibility)
 
 ## Screen Layout in Landscape
 
-```
+```text
 ┌────────────────────────────────────────────────────────────────┐
 │ 💰250 ❤️10 🔄3   Forest Defense   💾 Map ▶ ▼  (Header 16dp)   │
 ├────────────────────────────────────────────────────────────────┤
@@ -85,14 +94,16 @@ Works perfectly with the existing mobile UI optimizations:
 ## Technical Details
 
 ### Android
+
 - **Attribute**: `screenOrientation="sensorLandscape"`
-- **Behavior**: 
+- **Behavior**:
   - Locks to landscape orientation
   - Allows rotation between left and right landscape
   - Prevents portrait mode
   - Works immediately on app launch
 
 ### iOS
+
 - **Method**: UIApplicationDelegate orientation support
 - **Behavior**:
   - Returns `.landscape` orientation mask
@@ -103,12 +114,14 @@ Works perfectly with the existing mobile UI optimizations:
 ## Testing
 
 ### Android Testing
+
 1. Launch app on Android device
 2. Verify app starts in landscape
 3. Try rotating device - should stay in landscape
 4. Check both landscape orientations work
 
 ### iOS Testing
+
 1. Launch app on iOS device
 2. Verify app starts in landscape
 3. Try rotating device - should stay in landscape
@@ -125,16 +138,19 @@ Works perfectly with the existing mobile UI optimizations:
 If different orientation behavior is desired, these can be adjusted:
 
 ### Android Options
+
 - `landscape`: Left landscape only
 - `reverseLandscape`: Right landscape only
 - `sensorLandscape`: Both landscapes (current)
 - `userLandscape`: User preference in landscape
 
 ### iOS Options
+
 - `.landscape`: Both landscapes (current)
 - `.landscapeLeft`: Left landscape only
 - `.landscapeRight`: Right landscape only
 
 ## Files Modified
+
 - `AndroidManifest.xml`: Added `screenOrientation` attribute
 - `iOSApp.swift`: Added AppDelegate with orientation enforcement

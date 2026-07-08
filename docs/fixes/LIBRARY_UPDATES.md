@@ -5,6 +5,7 @@ This document summarizes the library updates performed on the Defender of Egril 
 ## Updated Libraries
 
 ### Build Tools
+
 | Library | Previous Version | New Version | Status                                                              |
 |---------|-----------------|-------------|---------------------------------------------------------------------|
 | Gradle | 8.9 | 9.2.1       | ✅ Updated                                                           |
@@ -13,11 +14,13 @@ This document summarizes the library updates performed on the Defender of Egril 
 | Compose Plugin | 1.9.0 | 1.9.3       | ✅ Updated                                                           |
 
 ### Kotlin Libraries
+
 | Library | Previous Version | New Version | Status |
 |---------|-----------------|-------------|--------|
 | kotlinx-serialization | 1.6.3 | 1.9.0 | ✅ Updated |
 
 ### AndroidX Libraries
+
 | Library | Previous Version | New Version | Status |
 |---------|-----------------|-------------|--------|
 | androidx.activity:activity-compose | 1.9.2 | 1.12.0 | ✅ Updated |
@@ -28,12 +31,14 @@ This document summarizes the library updates performed on the Defender of Egril 
 | androidx.constraintlayout | 2.1.4 | 2.2.1 | ✅ Updated |
 
 ### Testing Libraries
+
 | Library | Previous Version | New Version | Status |
 |---------|-----------------|-------------|--------|
 | androidx.test.ext:junit | 1.2.1 | 1.3.0 | ✅ Updated |
 | androidx.test.espresso:espresso-core | 3.6.1 | 3.7.0 | ✅ Updated |
 
 ### Already Latest
+
 | Library | Version | Status |
 |---------|---------|--------|
 | junit | 4.13.2 | ✅ Latest |
@@ -42,6 +47,7 @@ This document summarizes the library updates performed on the Defender of Egril 
 | localization | 2.0.0 | ✅ Latest |
 
 ### SDK Versions
+
 | Setting | Previous Version | New Version | Status |
 |---------|-----------------|-------------|--------|
 | Android compileSdk | 35 | 36 | ✅ Updated |
@@ -49,6 +55,7 @@ This document summarizes the library updates performed on the Defender of Egril 
 ## Code Changes Required
 
 ### 1. wasmJs Configuration (composeApp/build.gradle.kts)
+
 **Issue**: The `moduleName` property was deprecated in Kotlin 2.3.
 **Solution**: Removed the deprecated `moduleName` property. The module name is now derived from the project name automatically.
 
@@ -66,12 +73,14 @@ wasmJs {
 ```
 
 ### 2. Android compileSdk Update
+
 **Issue**: androidx.activity:activity-compose 1.12.0 requires compileSdk 36.
 **Solution**: Updated `android-compileSdk` from 35 to 36 in libs.versions.toml.
 
 ## Build Status
 
 ### ✅ Working Platforms
+
 - **Desktop (JVM)**: Builds successfully
 - **Android**: Unit tests pass, builds successfully
 - **WASM/JS**: Builds successfully
@@ -79,6 +88,7 @@ wasmJs {
 ### ⚠️ Known Issues
 
 #### iOS Platform
+
 The iOS build fails due to breaking changes in Kotlin 2.2.21's Kotlin/Native interop API. The following files need updates:
 
 1. **composeApp/src/iosMain/kotlin/de/egril/defender/audio/FileSoundManager.ios.kt**
@@ -104,6 +114,7 @@ The following deprecation warnings are present but don't affect functionality:
 ## Testing
 
 All tests pass on supported platforms:
+
 - ✅ Android unit tests: PASSING
 - ✅ Desktop build: SUCCESS
 - ✅ WASM/JS build: SUCCESS
@@ -116,7 +127,7 @@ All tests pass on supported platforms:
 
 ## References
 
-- Gradle 9.2.1 Release Notes: https://docs.gradle.org/9.2.1/release-notes.html
-- Kotlin 2.2.21 Release: https://github.com/JetBrains/kotlin/releases
-- Compose Multiplatform 1.9.3: https://github.com/JetBrains/compose-multiplatform/releases
-- AndroidX Releases: https://developer.android.com/jetpack/androidx/versions
+- Gradle 9.2.1 Release Notes: <https://docs.gradle.org/9.2.1/release-notes.html>
+- Kotlin 2.2.21 Release: <https://github.com/JetBrains/kotlin/releases>
+- Compose Multiplatform 1.9.3: <https://github.com/JetBrains/compose-multiplatform/releases>
+- AndroidX Releases: <https://developer.android.com/jetpack/androidx/versions>

@@ -9,32 +9,39 @@ Screenshots are automatically generated when running UI tests to provide visual 
 ## Contents
 
 ### Desktop Tests (`desktopTest`)
+
 During desktop test execution, the following screenshots are generated:
 
 #### Main Menu
+
 - `main-menu-screen.png` - The main application menu
 
 #### Level Complete Screens
+
 - `level-complete-victory.png` - Victory screen after winning a level
 - `level-complete-defeat.png` - Defeat screen after losing a level
 - `level-complete-final-victory.png` - Final victory screen after completing the game
 
 #### World Map
+
 - `world-map-screen.png` - World map with mixed level states
 - `world-map-all-locked.png` - All levels locked
 - `world-map-all-unlocked.png` - All levels unlocked
 - `world-map-all-won.png` - All levels completed
 
 #### Gameplay
+
 - `gameplay-screen-initial.png` - Gameplay screen in initial state
 - `gameplay-screen-with-enemies.png` - Gameplay screen with enemies spawned
 - `gameplay-screen-building-phase.png` - Initial building phase
 
 #### Settings & Rules
+
 - `settings-dialog.png` - Settings dialog with language selection
 - `rules-screen.png` - Rules and help screen
 
 ### Playwright Tests (`playwright/`)
+
 Automated UI tests that play through the game and capture screenshots at each step:
 
 - Screenshots are numbered sequentially (e.g., `001_initial_load.png`, `002_game_loaded.png`)
@@ -44,6 +51,7 @@ Automated UI tests that play through the game and capture screenshots at each st
 ## Generating Screenshots
 
 ### Desktop Tests
+
 Run the desktop UI tests to regenerate screenshots:
 
 ```bash
@@ -51,6 +59,7 @@ Run the desktop UI tests to regenerate screenshots:
 ```
 
 ### Playwright Tests
+
 Run Playwright tests locally (requires Node.js):
 
 ```bash
@@ -60,6 +69,7 @@ npx playwright test
 ```
 
 Or run via GitHub Actions (manually triggered):
+
 1. Go to the Actions tab in GitHub
 2. Select "Playwright UI Tests" workflow
 3. Click "Run workflow"
@@ -82,6 +92,7 @@ The artifacts are retained for 30 days and can be downloaded as ZIP files.
 ## Usage
 
 These screenshots can be used for:
+
 - Visual verification of UI changes
 - Documentation and presentations
 - Comparison with previous versions (visual regression testing)
@@ -99,6 +110,7 @@ These screenshots can be used for:
 ## Accessibility
 
 Screenshots are stored in this directory to make them easily accessible to:
+
 - Developers reviewing UI changes
 - GitHub Copilot for understanding the UI state
 - CI/CD tools for visual verification

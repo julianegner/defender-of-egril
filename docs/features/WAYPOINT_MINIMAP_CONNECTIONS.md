@@ -1,28 +1,36 @@
 # Waypoint Minimap Connections Enhancement
 
 ## Overview
+
 This document describes the enhancement made to the waypoint minimap in the level editor to display connections with different colors for each target and ensure all connections are properly visible.
 
 ## Problem Statement
+
 The original issue (#issue-number) requested:
+
 1. Display the connections on the minimap with different colors (one color for each target)
 2. Check why sometimes the connections are not shown on the minimap
 
 ## Root Cause Analysis
 
 ### Why connections weren't always shown
+
 The original implementation (lines 242-261 in WaypointMinimap.kt) had the following issues:
+
 1. **Connection drawing was inside the tile iteration loop** - Connections were only drawn when iterating through map tiles
 2. **Bounds checking prevented valid connections** - The code checked `if (targetCol in 0 until mapWidth && targetRow in 0 until mapHeight)` which could exclude valid waypoint positions
 3. **Waypoints not on tiles were skipped** - If a waypoint's position didn't correspond to an iterated tile, no connection was drawn
 
 ### Why all connections used the same color
+
 The original implementation used a hardcoded yellow color (`Color.Companion.Yellow`) for all waypoint connections, with no logic to differentiate between different target destinations.
 
 ## Solution Implementation
 
 ### 1. Color Palette for Targets
+
 Added a palette of 8 distinct colors to represent different target destinations:
+
 ```kotlin
 private val TARGET_COLORS = listOf(
     Color(0xFFFFD700), // Gold
@@ -37,6 +45,7 @@ private val TARGET_COLORS = listOf(
 ```
 
 ### 2. Ultimate Target Detection
+
 Created a `findUltimateTarget()` function that traces waypoint chains to determine which final target each waypoint ultimately leads to:
 
 ```kotlin
@@ -48,15 +57,18 @@ private fun findUltimateTarget(
 ```
 
 The function:
+
 - Follows the chain of waypoints (waypoint -> waypoint -> waypoint -> target)
 - Detects circular dependencies and returns null
 - Returns the final target position if found
 - Handles edge cases (no target, invalid chains)
 
 ### 3. Connection Drawing Refactoring
+
 Moved connection drawing outside the tile iteration loop:
 
 **Before:**
+
 ```kotlin
 for (row in 0 until map.height) {
     for (col in 0 until map.width) {
@@ -67,6 +79,7 @@ for (row in 0 until map.height) {
 ```
 
 **After:**
+
 ```kotlin
 for (row in 0 until map.height) {
     for (col in 0 until map.width) {
@@ -81,7 +94,9 @@ for (waypoint in existingWaypoints) {
 ```
 
 ### 4. Color Assignment Logic
+
 Each waypoint connection is colored based on its ultimate target:
+
 ```kotlin
 val waypointTargetColors = existingWaypoints.associate { waypoint ->
     val ultimateTarget = findUltimateTarget(waypoint, existingWaypoints, targets)

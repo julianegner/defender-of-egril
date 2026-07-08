@@ -5,7 +5,7 @@ This directory contains all assets and configuration needed to manage the
 
 ## Directory Structure
 
-```
+```text
 googleplay/
 ├── Gemfile            – Ruby gem dependencies (Fastlane)
 ├── fastlane/
@@ -24,7 +24,7 @@ googleplay/
 Each locale directory contains:
 
 | File | Max length | Description |
-|------|-----------|-------------|
+| ------ | ----------- | ------------- |
 | `title.txt` | 50 characters | App title shown on the Play Store |
 | `short_description.txt` | 80 characters | Brief tagline shown in search results |
 | `full_description.txt` | 4 000 characters | Full app description |
@@ -87,7 +87,7 @@ For each new release, add a file named after the Android `versionCode`
 every locale you want to update. If a version-specific file is absent,
 Fastlane falls back to `default.txt`.
 
-```
+```text
 changelogs/
 ├── default.txt   – fallback for any version without a specific file
 └── 10300.txt     – changelog for versionCode 10300 (= version 1.3.0)

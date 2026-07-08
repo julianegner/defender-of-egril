@@ -1,18 +1,23 @@
 # Android TV UI Visual Changes
 
 ## Overview
+
 This document describes the visual changes made to support Android TV UI in the Defender of Egril game, following Android TV accessibility best practices.
 
 ## Button Selection Visual Distinction
 
 ### Before (Regular Android/Non-TV)
+
 When a tower button is selected on regular Android devices or other platforms:
+
 - Button background color changes to a darker blue (`GamePlayColors.InfoDark`)
 - Text color remains white
 - No border added
 
 ### After (Android TV)
+
 When a tower button is selected on Android TV:
+
 - Button background color changes to a darker blue (`GamePlayColors.InfoDark`) - **same as before**
 - Text color remains white - **same as before**
 - **NEW**: A bright yellow 4dp border is added around the button
@@ -21,7 +26,7 @@ When a tower button is selected on Android TV:
 
 ## Visual Representation
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                     Regular Android Device                      │
 ├─────────────────────────────────────────────────────────────────┤
@@ -52,12 +57,14 @@ When a tower button is selected on Android TV:
 ## Technical Details
 
 ### Border Specification
+
 - **Width**: 4dp (density-independent pixels)
 - **Color**: Yellow (`Color.Yellow`)
 - **Shape**: Follows Material3 `MaterialTheme.shapes.small` (rounded corners)
 - **When Applied**: Only when `getPlatform().isAndroidTV == true` AND `isSelected == true`
 
 ### Performance Optimization
+
 - Platform detection is cached using `remember` to avoid recomputation on every recomposition
 - Border modifier is only applied conditionally based on platform and selection state
 
@@ -66,29 +73,39 @@ When a tower button is selected on Android TV:
 This implementation follows the [Android TV Accessibility Best Practices](https://developer.android.com/training/tv/accessibility) as follows:
 
 ### 1. Content Descriptions
+
 ✅ **Implemented**: All tower buttons now include semantic content descriptions for screen readers
+
 - Compact button: Includes tower name, cost, and selection state
 - Full button: Includes tower name, attack type, damage, range, cost, and selection state
 - Content descriptions are localized for all supported languages
 
 ### 2. Focusable Elements
+
 ✅ **Implemented**: All tower buttons are explicitly marked as focusable using `.focusable()` modifier
+
 - Ensures proper D-pad navigation on Android TV
 - Compatible with keyboard navigation
 
 ### 3. Visual Focus Indication
+
 ✅ **Implemented**: Yellow 4dp border provides clear visual feedback
+
 - High contrast for TV screen visibility
 - Only displayed on Android TV devices
 - Follows Material Design guidelines for focus states
 
 ### 4. Text Scaling
+
 ✅ **Already Supported**: The UI uses `sp` units for text sizes
+
 - Respects user's text scaling preferences
 - All layouts use flexible sizing (no fixed pixel sizes for text)
 
 ### 5. D-pad Navigation
+
 ✅ **Enabled**: Through combination of:
+
 - Focusable modifiers on all buttons
 - Proper semantic structure
 - Button components that work with Compose's focus system
@@ -96,12 +113,14 @@ This implementation follows the [Android TV Accessibility Best Practices](https:
 ## User Experience Benefits
 
 ### For TV Remote Users
+
 1. **High Contrast**: Yellow border on blue background provides excellent visibility
 2. **Clear Selection**: Immediately obvious which button is selected
 3. **TV-Optimized**: Follows Android TV UI guidelines for focus indication
 4. **D-pad Navigation**: Makes navigating with TV remote much easier
 
 ### For Non-TV Users
+
 - No visual changes
 - Existing UI behavior preserved
 - No performance impact
@@ -109,10 +128,12 @@ This implementation follows the [Android TV Accessibility Best Practices](https:
 ## Code Locations
 
 ### Platform Detection
+
 - Interface: `composeApp/src/commonMain/kotlin/de/egril/defender/utils/Platform.kt`
 - Android Implementation: `composeApp/src/androidMain/kotlin/de/egril/defender/utils/Platform.android.kt`
 
 ### Button Components
+
 - `CompactDefenderButton`: Lines 22-84 in `DefenderButtons.kt`
 - `DefenderButton`: Lines 86-220 in `DefenderButtons.kt`
 - File: `composeApp/src/commonMain/kotlin/de/egril/defender/ui/gameplay/DefenderButtons.kt`
@@ -120,11 +141,14 @@ This implementation follows the [Android TV Accessibility Best Practices](https:
 ## Testing
 
 ### Unit Tests
+
 - Platform detection tests: `composeApp/src/commonTest/kotlin/de/egril/defender/utils/PlatformTest.kt`
 - All existing tests continue to pass
 
 ### Manual Testing Required
+
 To fully verify this feature:
+
 1. Build the APK: `./gradlew :composeApp:assembleDebug`
 2. Install on Android TV device or emulator
 3. Launch the game

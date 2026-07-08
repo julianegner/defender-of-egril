@@ -22,6 +22,7 @@ const PADDING = 20;                     // Recommended image padding
 ## Quick Formulas
 
 ### Hexagon Center Position
+
 ```javascript
 function getHexagonCenter(x, y) {
     const isOddRow = (y % 2 === 1);
@@ -35,6 +36,7 @@ function getHexagonCenter(x, y) {
 ```
 
 ### Image Dimensions
+
 ```javascript
 function getImageDimensions(mapWidth, mapHeight, padding = 20) {
     const lastCol = mapWidth - 1;
@@ -101,6 +103,7 @@ function getImageDimensions(mapWidth, mapHeight, padding = 20) {
 ## Hexagon Vertices (for drawing)
 
 Relative to center, with HEX_SIZE = 40:
+
 ```javascript
 const vertices = [
     { x: 0,      y: -40 },     // Top
@@ -114,7 +117,7 @@ const vertices = [
 
 ## Grid Layout Pattern
 
-```
+```text
 Row 0 (even):  ⬡ ⬡ ⬡ ⬡ ⬡   (no offset)
 Row 1 (odd):    ⬡ ⬡ ⬡ ⬡ ⬡ (offset right by 29.10px)
 Row 2 (even):  ⬡ ⬡ ⬡ ⬡ ⬡   (no offset)
@@ -123,10 +126,12 @@ Row 2 (even):  ⬡ ⬡ ⬡ ⬡ ⬡   (no offset)
 ## Neighbor Offsets
 
 **Even rows (y % 2 == 0):**
+
 - E: (+1, 0) | NE: (0, -1) | NW: (-1, -1)
 - W: (-1, 0) | SW: (-1, +1) | SE: (0, +1)
 
 **Odd rows (y % 2 == 1):**
+
 - E: (+1, 0) | NE: (+1, -1) | NW: (0, -1)
 - W: (-1, 0) | SW: (0, +1) | SE: (+1, +1)
 
@@ -196,7 +201,7 @@ def draw_hexagon(ctx, x, y, tile_type):
 - **Visual Examples:** `docs/reference/MAP_TILE_ARRANGEMENT_VISUAL_EXAMPLES.md`
 - **Source Code:** `composeApp/src/commonMain/kotlin/de/egril/defender/ui/hexagon/`
 - **Example Maps:** `composeApp/src/commonMain/composeResources/files/repository/maps/`
-- **Red Blob Games Guide:** https://www.redblobgames.com/grids/hexagons/
+- **Red Blob Games Guide:** <https://www.redblobgames.com/grids/hexagons/>
 
 ---
 

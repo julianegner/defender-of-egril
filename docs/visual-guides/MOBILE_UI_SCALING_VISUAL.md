@@ -4,7 +4,7 @@
 
 On mobile devices (Android/iOS), the gameplay screen elements were too large:
 
-```
+```text
 ┌─────────────────────────────────────┐
 │  Mobile Screen (Small)              │
 │                                     │
@@ -32,7 +32,7 @@ On mobile devices (Android/iOS), the gameplay screen elements were too large:
 
 With 0.7x scale applied to the entire gameplay screen:
 
-```
+```text
 ┌─────────────────────────────────────┐
 │  Mobile Screen (Small)              │
 │                                     │
@@ -63,7 +63,7 @@ With 0.7x scale applied to the entire gameplay screen:
 
 Desktop screens already had enough space, so no scaling is applied:
 
-```
+```text
 ┌───────────────────────────────────────────────────────────┐
 │  Desktop Screen (Large)                                   │
 │                                                           │
@@ -112,7 +112,8 @@ CompositionLocalProvider(LocalDensity provides scaledDensity) {
 }
 ```
 
-**Effect**: 
+**Effect**:
+
 - A button with `height(48.dp)` becomes `height(24dp)` on mobile (48 × 0.7)
 - Text with `fontSize(16.sp)` becomes `fontSize(11.2.sp)` on mobile (16 × 0.7)
 - All padding, margins, sizes are proportionally reduced
@@ -136,6 +137,7 @@ CompositionLocalProvider(LocalDensity provides scaledDensity) {
 ### Combined Effect Example
 
 If a mobile user:
+
 1. Starts with outer scale: 0.7x (automatic)
 2. Pinches to zoom map: 2.0x (user action)
 3. Effective map scale: 0.7 × 2.0 = 1.0x
@@ -144,7 +146,7 @@ This means they can still zoom in on the map to see details, but the overall UI 
 
 ## Code Structure
 
-```
+```text
 GamePlayScreenContent
 ├── CompositionLocalProvider (with scaled Density on mobile) ← NEW
 │   └── Column (all gameplay content)
@@ -161,6 +163,7 @@ To change mobile zoom level, edit these files:
 - `PlatformUtils.ios.kt`: Change `0.5f` to desired value
 
 Values:
+
 - Less than 0.7 → Smaller elements (more fits on screen)
 - Greater than 0.7 → Larger elements (less fits on screen)
 - 1.0 → No scaling (same as desktop)
