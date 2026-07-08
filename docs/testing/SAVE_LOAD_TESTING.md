@@ -3,7 +3,9 @@
 ## Test Scenarios
 
 ### 1. World Map Status Persistence
+
 **Test Steps:**
+
 1. Launch the game
 2. Complete level 1 successfully
 3. Verify level 1 shows as "WON" and level 2 is "UNLOCKED"
@@ -13,7 +15,9 @@
 7. **Expected:** Level 1 should still show as "WON" and level 2 should be "UNLOCKED"
 
 ### 2. Save Game During Play
+
 **Test Steps:**
+
 1. Start level 1
 2. Place 2-3 towers
 3. Start the game (click "Start Turn 1")
@@ -24,7 +28,9 @@
 8. Continue playing or return to world map
 
 ### 3. Load Saved Game
+
 **Test Steps:**
+
 1. From World Map, click "Load Game" button
 2. **Expected:** A screen showing saved games should appear
 3. Each saved game should show:
@@ -41,7 +47,9 @@
    - Same coins and health points
 
 ### 4. Multiple Save Files
+
 **Test Steps:**
+
 1. Save game at turn 1
 2. Continue playing to turn 3
 3. Save game again
@@ -51,7 +59,9 @@
 7. Each should show different turn numbers
 
 ### 5. Delete Saved Game
+
 **Test Steps:**
+
 1. From Load Game screen, find a saved game
 2. Click the trash icon (🗑️) next to it
 3. **Expected:** A confirmation dialog should appear
@@ -61,7 +71,9 @@
 7. **Expected:** That save should remain in the list
 
 ### 6. Load Game After Changes
+
 **Test Steps:**
+
 1. Save a game during level 1
 2. Return to world map
 3. Start level 2
@@ -71,13 +83,17 @@
 7. **Expected:** The game should load the level 1 state correctly
 
 ### 7. World Map Status After Unlocking Levels
+
 **Test Steps:**
+
 1. Use cheat code "unlock" to unlock all levels (click on World Map title)
 2. Close and reopen the game
 3. **Expected:** All levels should still be unlocked
 
 ### 8. Save File Location
+
 **Test Files Created:**
+
 - World map status: `~/.defender-of-egril/savefiles/worldmap.json`
 - Saved games: `~/.defender-of-egril/savefiles/savegame_<timestamp>.json`
 
@@ -102,6 +118,7 @@ You can inspect these JSON files to verify the save data structure.
 ## Troubleshooting
 
 If save/load doesn't work:
+
 1. Check console output for error messages
 2. Verify the savefiles directory exists and is writable
 3. Check JSON file format for corruption

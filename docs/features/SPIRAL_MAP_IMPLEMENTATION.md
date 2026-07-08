@@ -1,16 +1,19 @@
 # Spiral Map Implementation Summary
 
 ## Overview
+
 This implementation adds a new spiral map to the Defender of Egril game as requested in the issue "create a map with a spiral".
 
 ## Map Specifications
 
 ### Layout
+
 - **Size**: 40x40 square hexagonal grid
 - **Target**: Center of the map at position (20, 20)
 - **Spawn Points**: 4 corners at positions (0,0), (39,0), (0,39), (39,39)
 
 ### Tile Distribution
+
 - **Path Tiles**: 657 tiles (41% of map)
   - Spiral pattern from corners toward center
   - Widened for better gameplay
@@ -27,6 +30,7 @@ This implementation adds a new spiral map to the Defender of Egril game as reque
   - Creates challenging gameplay area
 
 ### Path Design
+
 The spiral path is generated using the following algorithm:
 
 1. **Spiral Generation**: Creates layers at different radii from center
@@ -37,13 +41,17 @@ The spiral path is generated using the following algorithm:
 ## Implementation Files
 
 ### EditorStorage.kt
+
 Added three new functions:
+
 - `createSpiralMap()`: Main function to generate the complete map
 - `generateSpiralPath()`: Creates the spiral pattern from corners to center
 - `createPathBetween()`: Helper to connect spawn points to spiral
 
 ### Level Configuration
+
 Created "Level 7: The Spiral Challenge":
+
 - Map ID: `map_spiral`
 - Starting coins: 250
 - Starting health: 10
@@ -53,6 +61,7 @@ Created "Level 7: The Spiral Challenge":
 ## Testing
 
 ### Test Suite (SpiralMapTest.kt)
+
 Created comprehensive test coverage with 7 tests:
 
 1. ✅ `testSpiralMapExists`: Verifies map exists with correct dimensions
@@ -64,13 +73,16 @@ Created comprehensive test coverage with 7 tests:
 7. ✅ `testSpiralMapStructure`: Validates tile type distribution
 
 ### Test Results
+
 All tests passing successfully:
-```
+
+```text
 BUILD SUCCESSFUL in 8s
 31 actionable tasks: 4 executed, 28 up-to-date
 ```
 
 Test output confirms:
+
 - 4 spawn points in corners
 - 1 target in center
 - 657 path tiles
@@ -79,10 +91,12 @@ Test output confirms:
 - Map marked as ready to use
 
 ## Version Management
+
 Bumped EditorStorage version from "3" to "4" to force regeneration of all maps on next game launch, ensuring the new spiral map is created.
 
 ## Visualization
-```
+
+```text
 Legend:
   S = Spawn Point (corners)
   T = Target (center)
@@ -99,6 +113,7 @@ The map features:
 ```
 
 ## Code Quality
+
 - ✅ All existing tests pass
 - ✅ New tests comprehensive and passing
 - ✅ Code compiles successfully
@@ -108,9 +123,11 @@ The map features:
 - ✅ Minimal changes to existing code
 
 ## Usage
+
 Players will find the new spiral map as "Level 7: The Spiral Challenge" in the game's level sequence. The level appears after the 6 existing levels and can be accessed through normal level progression.
 
 ## Files Changed
+
 1. `composeApp/src/commonMain/kotlin/de/egril/defender/editor/EditorStorage.kt` (+219 lines)
    - Added spiral map generation functions
    - Added Level 7 configuration

@@ -33,12 +33,14 @@ data class InfoState(
 ```
 
 **Key Features:**
+
 - Tracks currently displayed info
 - Maintains set of seen infos to prevent re-showing
 - Stores mine ID for mine warnings
 - Immutable state with helper methods
 
 **Methods:**
+
 - `shouldShowOverlay()`: Check if overlay should be displayed
 - `hasSeen(type)`: Check if a specific info has been seen
 - `showInfo(type, mineId?)`: Display a specific info
@@ -62,10 +64,12 @@ val infoState: MutableState<InfoState> = mutableStateOf(InfoState())
 Updated to support both sequential tutorials and single infos:
 
 **Parameters:**
+
 - `currentInfo: InfoType = InfoType.NONE`
 - `onDismissInfo: (() -> Unit)? = null`
 
 **Priority System:**
+
 1. Single info (if currentInfo != NONE)
 2. Sequential tutorial (if currentStep != NONE)
 
@@ -144,6 +148,7 @@ TutorialOverlay(
 **Trigger:** First time a dragon appears (not defeated)
 
 **Content:**
+
 - Dragon movement pattern (walk/fly alternation)
 - Dragon eating behavior (devours enemies)
 - Dragon level system (HP ÷ 500)
@@ -153,6 +158,7 @@ TutorialOverlay(
 **Trigger:** Dragon greed > 0 (first time)
 
 **Content:**
+
 - Greed mechanic explanation
 - Adjacent unit devouring behavior
 
@@ -163,6 +169,7 @@ TutorialOverlay(
 **Trigger:** Dragon greed > 5 (first time)
 
 **Content:**
+
 - Very greedy behavior (mine destruction)
 - Mine targeting and health absorption
 - Defense recommendations
@@ -174,10 +181,12 @@ TutorialOverlay(
 **Trigger:** Dragon can reach a mine next turn (from GameEngine)
 
 **Content:**
+
 - Warning that mine is under threat
 - Dwarves preparing to defend
 
 **Special Behavior:**
+
 - Can show multiple times (one per mine)
 - Tracks specific mine ID
 - Removed from queue when dismissed
@@ -187,6 +196,7 @@ TutorialOverlay(
 Comprehensive test coverage in `InfoStateTest.kt`:
 
 **Test Cases:**
+
 - Initial state verification
 - Info display and dismissal
 - Multiple sequential infos
@@ -196,6 +206,7 @@ Comprehensive test coverage in `InfoStateTest.kt`:
 - Edge cases (dismiss without showing, repeated shows)
 
 **All tests passing:**
+
 - Unit tests for InfoState logic
 - Compilation tests for Android and Desktop platforms
 - Integration with existing tutorial system
@@ -203,16 +214,19 @@ Comprehensive test coverage in `InfoStateTest.kt`:
 ## Benefits
 
 ### Code Organization
+
 - Single, consistent system for all tutorial infos
 - Reduced code duplication
 - Clearer separation of concerns
 
 ### Maintainability
+
 - Easy to add new info types
 - Centralized state management
 - Better testability
 
 ### User Experience
+
 - Consistent info display behavior
 - Prevents re-showing seen infos
 - Priority system ensures important infos shown first
@@ -220,6 +234,7 @@ Comprehensive test coverage in `InfoStateTest.kt`:
 ## Future Enhancements
 
 ### Potential Additions
+
 - Additional info types for new game mechanics
 - Configurable priority system
 - Info queuing for multiple simultaneous triggers
@@ -229,16 +244,20 @@ Comprehensive test coverage in `InfoStateTest.kt`:
 ## Related Files
 
 **Model:**
+
 - `composeApp/src/commonMain/kotlin/de/egril/defender/model/InfoState.kt`
 - `composeApp/src/commonMain/kotlin/de/egril/defender/model/GameState.kt`
 
 **UI:**
+
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/gameplay/TutorialOverlay.kt`
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/gameplay/GamePlayScreen.kt`
 
 **Tests:**
+
 - `composeApp/src/commonTest/kotlin/de/egril/defender/model/InfoStateTest.kt`
 
 **Documentation:**
+
 - `docs/implementation/SINGLE_TUTORIAL_INFOS.md` (this file)
 - `docs/implementation/TUTORIAL_IMPLEMENTATION.md` (sequential tutorial documentation)

@@ -182,7 +182,7 @@ The tests use these approximate positions (% of canvas dimensions):
 
 ## Files Created
 
-```
+```text
 .
 ├── .github/workflows/
 │   └── playwright-ui-tests.yml          # GitHub Actions workflow
@@ -197,7 +197,7 @@ The tests use these approximate positions (% of canvas dimensions):
 
 ## Files Modified
 
-```
+```text
 .
 ├── .gitignore                           # Added Playwright exclusions
 ├── README.md                            # Added UI Testing section

@@ -46,6 +46,7 @@ This implementation successfully replaces the overlay-based target circle render
 ### 1. Trigger Calculation (GameGrid)
 
 When a target is selected:
+
 ```kotlin
 val targetCircleMap = remember(selectedTargetPosition, selectedDefenderId, gameState.defenders.size) {
     // Calculate which tiles should draw circles
@@ -57,6 +58,7 @@ val targetCircleMap = remember(selectedTargetPosition, selectedDefenderId, gameS
 ### 2. Central Tile Rendering (GridCell)
 
 The target tile draws 3 concentric circles:
+
 ```kotlin
 when (info) {
     is TargetCircleInfo.CentralTarget -> {
@@ -70,6 +72,7 @@ when (info) {
 ### 3. Neighbor Tile Rendering (GridCell)
 
 For AREA and LASTING attacks, neighbor PATH tiles draw arc segments:
+
 ```kotlin
 is TargetCircleInfo.NeighborTarget -> {
     if (info.attackType == AttackType.AREA || info.attackType == AttackType.LASTING) {
@@ -82,6 +85,7 @@ is TargetCircleInfo.NeighborTarget -> {
 ### 4. Arc Segment Calculation
 
 The `CircularSegmentDrawer` calculates:
+
 - **Angle** from center tile to neighbor tile (using hexagonal grid math)
 - **Arc span**: ~64 degrees (slightly more than 60° to ensure coverage)
 - **Arc position**: Offset from neighbor tile's center to target tile's center
@@ -90,16 +94,19 @@ The `CircularSegmentDrawer` calculates:
 ## Key Benefits
 
 ### ✅ Cleaner Architecture
+
 - No overlay layer with z-index management
 - Each tile is self-contained and responsible for its own rendering
 - Follows the existing pattern used for field effects
 
 ### ✅ No Platform-Specific Hacks
+
 - Removed all `isPlatformMobile` positioning adjustments
 - Works consistently across desktop, web, Android, iOS
 - Positioning is handled by the tile grid system itself
 
 ### ✅ Better Integration
+
 - Circles are part of tiles, so they work correctly with:
   - Pan and zoom
   - Tile selection
@@ -107,11 +114,13 @@ The `CircularSegmentDrawer` calculates:
   - Screen size changes
 
 ### ✅ Centralized Constants
+
 - All circle sizes in one place
 - Easy to adjust visual appearance
 - Consistent across all attack types
 
 ### ✅ Reuses Existing Logic
+
 - Uses same neighbor detection as fireball/acid effects (`getHexNeighbors()`)
 - Leverages hexagonal grid utilities from `HexUtils.kt`
 - Follows established patterns in the codebase
@@ -119,16 +128,19 @@ The `CircularSegmentDrawer` calculates:
 ## Attack Type Behavior
 
 ### MELEE & RANGED (Single-Target)
+
 - Only 3 inner circles on target tile
 - Color: Dark Gray
 - No neighbor highlighting
 
 ### AREA (Fireball)
+
 - 3 inner circles on target tile (Deep Orange/Red)
 - Arc segments on up to 6 neighbor PATH tiles
 - Forms 3 concentric rings when viewed together
 
 ### LASTING (Acid)
+
 - 3 inner circles on target tile (Green)
 - Arc segments on up to 6 neighbor PATH tiles
 - Forms 3 concentric rings when viewed together
@@ -136,12 +148,15 @@ The `CircularSegmentDrawer` calculates:
 ## Testing Status
 
 ### ✅ Unit Tests
+
 - 6 tests created for circular segment angle calculations
 - All tests pass
 - Verifies hexagonal grid math for odd/even rows
 
 ### ⏳ Manual Testing Required
+
 Visual verification needed on:
+
 - Desktop (Linux, Windows, macOS)
 - Web/WASM
 - Android
@@ -154,6 +169,7 @@ See TARGET_CIRCLE_TESTING.md for detailed test scenarios.
 ### Hexagonal Grid Math
 
 The implementation correctly handles:
+
 - **Odd-row offset coordinates**: Even rows (y%2==0) and odd rows (y%2==1) have different neighbor offsets
 - **Angle calculation**: Uses `atan2` with Y-axis flipped for screen coordinates
 - **Arc positioning**: Calculates pixel offset from neighbor to center using hexWidth and verticalSpacing
@@ -161,6 +177,7 @@ The implementation correctly handles:
 ### Drawing Approach
 
 Uses Compose `Canvas` with `drawArc`:
+
 - **useCenter = false**: Draws only the arc, not a pie slice
 - **Stroke style**: For the ring appearance
 - **Bounding box**: Defined by top-left corner and size (diameter)
@@ -169,6 +186,7 @@ Uses Compose `Canvas` with `drawArc`:
 ### Constants
 
 All values are in pixels at 1.0 scale:
+
 ```kotlin
 // Inner circles (all attack types)
 INNER_CIRCLE_1_RADIUS = 6f       // filled
@@ -186,10 +204,12 @@ OUTER_CIRCLE_STROKE_WIDTH = 3f
 ## Limitations & Future Work
 
 ### Current Limitations
+
 - Arc segment overlap at tile boundaries might create slight visual artifacts
 - Arc span is hardcoded to ~64° (could be made configurable)
 
 ### Potential Enhancements
+
 - Animate the circles (pulsing, fading)
 - Different circle styles for different tower levels
 - Glow effects for AREA attacks
@@ -198,12 +218,14 @@ OUTER_CIRCLE_STROKE_WIDTH = 3f
 ## Migration Notes
 
 ### Removed Code
+
 - `TargetCirclesOverlay` composable (127 lines)
 - `isPlatformMobile` positioning logic
 - Complex grid-to-pixel coordinate transformations
 - Manual scale/offset calculations
 
 ### Backward Compatibility
+
 - No changes to game logic or mechanics
 - No changes to save files or level data
 - No changes to attack behavior
@@ -212,6 +234,7 @@ OUTER_CIRCLE_STROKE_WIDTH = 3f
 ## Conclusion
 
 This implementation successfully addresses the requirements:
+
 - ✅ Tiles draw their own circles (central and arc segments)
 - ✅ Neighbor tiles are triggered using same logic as fireball/acid
 - ✅ Only PATH tiles draw the outer ring segments

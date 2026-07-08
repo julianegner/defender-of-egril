@@ -6,7 +6,7 @@
 
 The project follows a clean architecture pattern:
 
-```
+```text
 composeApp/
 ├── src/
 │   ├── commonMain/          # Platform-independent code
@@ -110,22 +110,24 @@ private fun createLevel6() = Level(
 
 1. Create levels using the desktop Level Editor
 2. Copy JSON files from `~/.defender-of-egril/gamedata/` to repository:
-   ```
+
+```text
    composeApp/src/commonMain/composeResources/files/repository/
    ├── maps/your_map.json
    ├── levels/your_level.json
    └── sequence.json
    ```
-3. Rebuild the app - repository files will be deployed to all platforms
+
+1. Rebuild the app - repository files will be deployed to all platforms
 
 On first launch, the app checks for repository files and uses them instead of generating defaults. See `docs/guides/LEVEL_EDITOR.md` for details.
-
 
 ### Game Balance
 
 #### Tower Upgrades
 
 Each upgrade level:
+
 - Increases damage by 5
 - Increases range by 0.5 (rounded down)
 - Costs: `baseCost * currentLevel`
@@ -133,6 +135,7 @@ Each upgrade level:
 #### Pathfinding
 
 Current implementation uses simple greedy pathfinding:
+
 - Move horizontal first (towards X goal)
 - Then move vertical (towards Y goal)
 
@@ -145,6 +148,7 @@ For more complex maps, consider implementing A* pathfinding.
 For testing and debugging, the game includes cheat codes:
 
 **In-Game Cheat Codes** (accessed by clicking on the coins display during gameplay):
+
 - **cash**: Adds 1000 coins
 - **mmmoney**: Adds 1000000 coins
 - **emptypocket**: Sets coins to 0
@@ -154,6 +158,7 @@ For testing and debugging, the game includes cheat codes:
   - Examples: `spawn goblin 2`, `spawn ogre 5`
 
 **World Map Cheat Codes** (accessed by clicking the "World Map - Meadows of Egril" title):
+
 - **unlock**, **unlockall**, **unlock all**: Unlocks all levels for testing
 - **credits**: Opens the final credits screen directly (for testing without completing the game)
 
@@ -259,35 +264,45 @@ The final credits screen is shown after winning "The Final Stand" (the last leve
 Its content is defined in `composeApp/src/commonMain/kotlin/de/egril/defender/ui/FinalCreditsData.kt`.
 
 **When a new human developer commits code:**
+
 - Add their name to `FinalCreditsData.developers`.
 - Bot accounts (names ending in `[bot]`) are excluded by convention.
 
 **When a contributor should be credited** (testers, designers, non-committing helpers):
+
 - Add their name to `FinalCreditsData.contributors`.
 - The Contributors section is only shown in the credits when this list is non-empty.
 
 **When new sound effects are added** (with new Freesound.org credits in `composeResources/files/sounds/README.md`):
+
 - Add a `SoundCreditEntry` to `FinalCreditsData.soundEffectsCredits`.
 
 **When new background music is added** (with new credits in `composeResources/files/sounds/background/README.md`):
+
 - Add a `SoundCreditEntry` to `FinalCreditsData.backgroundMusicCredits`.
 
 **When new third-party software or tools are used** (e.g. AI image generators):
+
 - Add a `SoftwareCreditEntry` to `FinalCreditsData.softwareCredits`.
 - Also update `composeResources/drawable/README.MD` if images were generated with the tool.
 
 **When a special acknowledgement is warranted** (e.g. open-source libraries, tutorials):
+
 - Add a `SpecialThanksEntry` to `FinalCreditsData.specialThanks`.
 
 **When new drawable images are added** (without `emoji_` or `tile_` prefixes):
+
 - Add the resource name (without file extension, hyphens replaced by underscores) to `FinalCreditsData.backgroundImageNames`.
 - Also add the corresponding `when` branch in `drawableResourceByName()` inside `FinalCreditsScreen.kt`. The branch maps the string name to the Compose `DrawableResource`. Example:
+
   ```kotlin
   // In FinalCreditsScreen.kt → drawableResourceByName()
   "my_new_image" -> Res.drawable.my_new_image
+
   ```
 
 The `FinalCreditsDataTest` suite validates all the above invariants automatically – run it to verify:
+
 ```bash
 ./gradlew :composeApp:desktopTest --tests "de.egril.defender.ui.FinalCreditsDataTest"
 ```

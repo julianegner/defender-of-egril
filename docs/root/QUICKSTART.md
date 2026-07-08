@@ -3,22 +3,28 @@
 ## Installation
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/julianegner/defender-of-egril.git
    cd defender-of-egril
+
    ```
 
 2. **Ensure you have JDK 11 or higher**:
+
    ```bash
    java -version
    ```
 
 3. **Build the project**:
+
    ```bash
    ./gradlew build
+
    ```
 
 4. **Run the game**:
+
    ```bash
    ./gradlew :composeApp:run
    ```
@@ -76,6 +82,7 @@
 ## Game Progression
 
 Complete Level 1 to unlock Level 2, and so on. Each level introduces:
+
 - More enemies
 - Different enemy types
 - Tougher challenges
@@ -84,6 +91,7 @@ Complete Level 1 to unlock Level 2, and so on. Each level introduces:
 ## Keyboard Shortcuts
 
 Currently the game uses mouse-only controls. Future versions may add:
+
 - ESC: Return to menu
 - Space: Next turn
 - 1-5: Quick select tower types
@@ -91,16 +99,20 @@ Currently the game uses mouse-only controls. Future versions may add:
 ## Troubleshooting
 
 ### Game won't start
+
 - Check that JDK 11+ is installed
 - Ensure you have internet access (needed for dependency download)
 - Try: `./gradlew clean build`
 
 ### Performance issues
+
 - Close other applications
 - The game should run smoothly on most modern computers
 
 ### Questions or Issues?
+
 Open an issue on the GitHub repository with:
+
 - Your operating system
 - JDK version (`java -version`)
 - Error message or description of the problem
@@ -108,6 +120,7 @@ Open an issue on the GitHub repository with:
 ## Next Steps
 
 Once you've mastered the basics:
+
 1. Try to complete all 5 levels
 2. Experiment with different tower combinations
 3. Find the most coin-efficient strategies

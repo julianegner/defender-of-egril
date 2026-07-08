@@ -4,7 +4,7 @@ This document describes what a raft on a river looks like in the Defender of Egr
 
 ## Visual Layout
 
-```
+```text
 Game Map (Hexagonal Grid):
 ┌─────────────────────────────────────────┐
 │                                         │
@@ -19,9 +19,9 @@ Game Map (Hexagonal Grid):
 └─────────────────────────────────────────┘
 ```
 
-## Key Features Shown:
+## Key Features Shown
 
-1. **River Tiles** (indicated by ~~~~~): 
+1. **River Tiles** (indicated by ~~~~~):
    - Blue-tinted hexagonal tiles
    - Arrows show flow direction (→)
    - Flow speed determines movement distance
@@ -36,7 +36,7 @@ Game Map (Hexagonal Grid):
    - Spike tower on a build area (not on river)
    - For comparison - doesn't move
 
-## Game State Details:
+## Game State Details
 
 - **Tower on Raft**: Bow Tower (Level 1)
   - Position: River tile at (10, 3)
@@ -49,7 +49,7 @@ Game Map (Hexagonal Grid):
   - Flow Speed: 1 (moves 1 tile per turn)
   - Blocks: Bridges can block raft movement
 
-## Raft Behavior:
+## Raft Behavior
 
 ✓ Towers placed on river tiles create rafts automatically
 ✓ Rafts move with the river flow at end of each turn

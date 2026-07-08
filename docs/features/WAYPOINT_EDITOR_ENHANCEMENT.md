@@ -1,6 +1,7 @@
 # Waypoint Editor Usability Upgrade - Implementation Summary
 
 ## Overview
+
 This document describes the enhancements made to the waypoint editor to improve usability as requested in the issue.
 
 ## Implemented Features
@@ -10,6 +11,7 @@ This document describes the enhancements made to the waypoint editor to improve 
 **File:** `composeApp/src/commonMain/kotlin/de/egril/defender/editor/EditorModels.kt`
 
 Added comprehensive validation structures:
+
 - `WaypointValidationResult`: Contains detailed validation information including:
   - `isValid`: Overall validity status
   - `circularDependencies`: Set of positions involved in circular paths
@@ -58,6 +60,7 @@ New components for hierarchical waypoint visualization:
 **File:** `composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/level/LevelEditor.kt`
 
 Updated `WaypointsTab` with:
+
 - **View Toggle**: Switch between Tree View and List View
 - **Detailed Validation Display**:
   - Green ✓ for valid configuration
@@ -78,6 +81,7 @@ Updated `WaypointsTab` with:
 **Files:** All language string files updated (en, de, es, fr, it)
 
 New localized strings:
+
 - `click_to_connect_waypoints`: Instructions for map-based selection
 - `select_on_map`: Button text for map selection mode
 - `waypoint_chains_title`: Tree view section header
@@ -95,6 +99,7 @@ New localized strings:
 **File:** `composeApp/src/commonTest/kotlin/de/egril/defender/editor/WaypointValidationTest.kt`
 
 Added tests for new validation:
+
 - `testDetailedValidationNoWaypoints`: Validates empty waypoint list
 - `testDetailedValidationCircularDependency`: Tests circular detection
 - `testDetailedValidationUnconnectedWaypoint`: Tests unconnected detection
@@ -107,6 +112,7 @@ All tests pass successfully.
 ### 1. Interactive Map-Based Waypoint Selection (⏳ Not Started)
 
 **Proposed Implementation:**
+
 - Add connection mode state to waypoint tab
 - Add click handlers to map tiles in `MapEditorView.kt`
 - Visual feedback for selected source waypoint
@@ -116,6 +122,7 @@ All tests pass successfully.
 - Cancel button to exit connection mode
 
 **Complexity:** High
+
 - Requires modifications to map view components
 - Needs state management for selection mode
 - Must integrate with existing pan/zoom controls
@@ -123,6 +130,7 @@ All tests pass successfully.
 ### 2. Visual Waypoint Arrows on Map (⏳ Not Started)
 
 **Proposed Implementation:**
+
 - Draw arrow overlays on hexagonal map
 - Use Canvas or custom composables for arrows
 - Color-coded arrows:
@@ -131,6 +139,7 @@ All tests pass successfully.
 - Arrow positioning using hexagonal grid math
 
 **Complexity:** High
+
 - Requires custom drawing code
 - Must work with zoom and pan
 - Needs proper arrow head rendering
@@ -139,32 +148,40 @@ All tests pass successfully.
 ### 3. Spawn Point Multiple Target Validation (⏳ Not Started)
 
 **Proposed Implementation:**
+
 - Check if multiple targets exist in map
 - Validate that spawn points have explicit targets set
 - Show warning if spawn points rely on default target with multiple targets
 - Add UI indicator for this specific case
 
 **Complexity:** Medium
+
 - Logic mostly exists, needs refinement
 - UI updates needed for specific warning
 
 ## Architecture Decisions
 
 ### Why Tree View?
+
 The tree view provides several advantages over a flat list:
+
 1. **Hierarchical Clarity**: Shows parent-child relationships naturally
 2. **Path Visualization**: Makes spawn→waypoint→target chains obvious
 3. **Error Highlighting**: Problems visible in context of full chain
 4. **Scalability**: Works well with complex multi-branch paths
 
 ### Why Separate View Toggle?
+
 Users may prefer different views based on task:
+
 - **Tree View**: Better for understanding overall structure
 - **List View**: Better for quick edits and familiar interface
 - **Toggle**: Allows users to choose based on preference
 
 ### Why In-Place Validation Messages?
+
 Rather than a single error message at top:
+
 - Shows exactly which connections have problems
 - Allows selective fixing of issues
 - Provides immediate visual feedback
@@ -173,12 +190,14 @@ Rather than a single error message at top:
 ## Testing Results
 
 All unit tests pass:
-```
+
+```text
 BUILD SUCCESSFUL in 3s
 31 actionable tasks: 6 executed, 25 up-to-date
 ```
 
 Tests cover:
+
 - Empty waypoint validation
 - Circular dependency detection
 - Unconnected waypoint detection  
@@ -187,14 +206,16 @@ Tests cover:
 
 ## User Experience Improvements
 
-### Before Enhancement:
+### Before Enhancement
+
 - Simple list of source→target pairs
 - Only "valid/invalid" status
 - No indication of specific problems
 - Circular dependencies not visually indicated
 - Manual tracking of chain completeness
 
-### After Enhancement:
+### After Enhancement
+
 - Tree view showing complete chains
 - Detailed validation messages
 - Visual indicators (⚠, 🔴→) for problems
@@ -204,16 +225,19 @@ Tests cover:
 
 ## File Changes Summary
 
-### Modified Files:
+### Modified Files
+
 1. `EditorModels.kt`: Added validation data structures (+101 lines)
 2. `LevelEditor.kt`: Enhanced waypoint tab UI (+~150 lines)
 3. `strings.xml` (5 files): Added localization strings (+70 lines total)
 4. `WaypointValidationTest.kt`: Added new tests (+101 lines)
 
-### New Files:
+### New Files
+
 1. `WaypointEditorComponents.kt`: Tree view components (226 lines)
 
-### Total Changes:
+### Total Changes
+
 - Lines added: ~648
 - Lines modified: ~50
 - New data structures: 2
@@ -250,6 +274,7 @@ To fully implement the requirements from the issue:
 ## Conclusion
 
 This implementation significantly improves the waypoint editor's usability by:
+
 - Providing clear visual hierarchy of waypoint chains
 - Giving detailed, actionable validation feedback
 - Supporting both tree and list viewing modes

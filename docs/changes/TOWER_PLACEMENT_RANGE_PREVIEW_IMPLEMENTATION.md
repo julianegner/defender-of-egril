@@ -1,9 +1,11 @@
 # Tower Placement Range Preview - Implementation Summary
 
 ## Issue Reference
+
 GitHub Issue: "Tower placement range preview"
 
 ## Requirements
+
 ✅ Show range preview when player selects a tower type and hovers over an empty buildable tile
 ✅ Mark the build tile in a different color than the range tiles
 ✅ Use dashed borders to distinguish preview from existing tower ranges
@@ -13,7 +15,9 @@ GitHub Issue: "Tower placement range preview"
 ### Code Changes
 
 #### 1. HexagonalMapView.kt
+
 **Added hover detection to BaseGridCell:**
+
 ```kotlin
 fun BaseGridCell(
     // ... existing parameters ...
@@ -23,18 +27,22 @@ fun BaseGridCell(
 ```
 
 **Implementation details:**
+
 - Uses `pointerInput` with `awaitPointerEventScope`
 - Detects `PointerEventType.Enter` and `PointerEventType.Exit` events
 - Calls `onHover(true)` when mouse enters, `onHover(false)` when it exits
 - Platform-agnostic implementation works on Desktop, Web, Android, iOS
 
 #### 2. GameMap.kt
+
 **Added hover state tracking in GameGrid:**
+
 ```kotlin
 var hoveredPosition by remember { mutableStateOf<Position?>(null) }
 ```
 
 **Added range preview calculation in GridCell:**
+
 ```kotlin
 // Calculate hover preview for tower placement
 val isHoveringForPreview = hoveredPosition == position && selectedDefenderType != null
@@ -54,6 +62,7 @@ val isInPreviewRange = if (selectedDefenderType != null && hoveredPosition != nu
 ```
 
 **Added visual styling:**
+
 ```kotlin
 val backgroundColor = when {
     // ... existing cases ...
@@ -64,6 +73,7 @@ val backgroundColor = when {
 ```
 
 **Added dashed border rendering with Canvas:**
+
 ```kotlin
 if (useDashedBorder) {
     Canvas(modifier = Modifier.matchParentSize().zIndex(12f)) {
@@ -95,22 +105,28 @@ if (useDashedBorder) {
 ### Visual Design
 
 #### Color Scheme
+
 **Light Mode:**
+
 - Hovered build tile: Yellow (`#FFEB3B`) with 40% alpha
 - Range tiles: Green (`#4CAF50`) with 20% alpha
 
 **Dark Mode:**
+
 - Hovered build tile: Darker yellow (`#C4A000`) with 40% alpha
 - Range tiles: Darker green (`#2E7D32`) with 20% alpha
 
 #### Borders
+
 - **Preview**: Dashed borders (10px dash, 5px gap, 3dp width)
 - **Existing towers**: Solid borders (3-5dp width)
 
 ### Game Logic Integration
 
 #### Buildable Tile Detection
+
 Preview only shows when ALL conditions are met:
+
 1. Tower type is selected
 2. Mouse is hovering over the tile
 3. Tile is a build area or build island
@@ -118,13 +134,16 @@ Preview only shows when ALL conditions are met:
 5. No enemy is at the position
 
 #### Range Calculation
+
 Respects tower-specific rules:
+
 - **Min/Max Range**: Uses `DefenderType.minRange` and `DefenderType.baseRange`
 - **Ballista**: Shows range 3-5 (respects 3-tile minimum)
 - **Spike Tower**: Shows range 1 (adjacent only)
 - **Bow Tower**: Shows range 1-3
 
 #### Attack Type Support
+
 - **AREA/LASTING attacks** (Wizard, Alchemy): Show range on path AND river tiles
 - **MELEE/RANGED attacks** (Spike, Spear, Bow, Ballista): Show range on path tiles only
 - **NONE attacks** (Mine, Dragon's Lair): No range preview
@@ -132,7 +151,9 @@ Respects tower-specific rules:
 ## Testing
 
 ### Unit Tests Created
+
 `TowerPlacementRangePreviewTest.kt` includes tests for:
+
 - ✅ Spike Tower range (1 tile)
 - ✅ Bow Tower range (3 tiles)
 - ✅ Ballista Tower min/max range (3-5 tiles)
@@ -142,7 +163,9 @@ Respects tower-specific rules:
 - ✅ Buildable tile detection
 
 ### Manual Testing Required
+
 Due to CI environment limitations, manual testing is required to verify:
+
 1. Hover detection works smoothly
 2. Preview appears/disappears correctly
 3. Dashed borders render properly on all platforms
@@ -152,7 +175,9 @@ Due to CI environment limitations, manual testing is required to verify:
 ## Documentation Created
 
 ### 1. TOWER_PLACEMENT_RANGE_PREVIEW.md
+
 Comprehensive feature documentation including:
+
 - Feature description and benefits
 - Technical implementation details
 - Visual design specifications
@@ -162,7 +187,9 @@ Comprehensive feature documentation including:
 - Future enhancement ideas
 
 ### 2. TOWER_PLACEMENT_PREVIEW_VISUAL_GUIDE.md
+
 Visual guide with ASCII art examples showing:
+
 - Spike Tower preview (range 1)
 - Bow Tower preview (range 3)
 - Ballista Tower preview (range 3-5 with min range)
@@ -173,18 +200,21 @@ Visual guide with ASCII art examples showing:
 ## Benefits
 
 ### For Players
+
 1. **Better Planning**: See exact range before committing resources
 2. **Strategic Decisions**: Compare different tower placements easily
 3. **Reduced Mistakes**: Visual feedback prevents suboptimal placements
 4. **Learning Aid**: Understand tower ranges without trial and error
 
 ### For Game Design
+
 1. **Improved UX**: More intuitive tower placement
 2. **Reduced Frustration**: Clear feedback on tower capabilities
 3. **Better Accessibility**: Visual learners benefit from preview
 4. **Consistency**: Matches patterns from other tower defense games
 
 ## Platform Compatibility
+
 ✅ Desktop (JVM)
 ✅ Web (WASM)
 ✅ Android
@@ -193,7 +223,9 @@ Visual guide with ASCII art examples showing:
 Uses standard Compose Multiplatform APIs that work across all platforms.
 
 ## Future Enhancements
+
 Potential improvements for future iterations:
+
 - Range preview during initial building phase
 - Different colors for minimum range restrictions
 - Keyboard navigation support for preview
@@ -202,7 +234,9 @@ Potential improvements for future iterations:
 - Range preview for tower upgrades
 
 ## Pull Request Summary
+
 This implementation successfully addresses all requirements from the original issue:
+
 - ✅ Shows range when hovering over buildable tile with tower selected
 - ✅ Build tile marked in different color (yellow) than range tiles (green)
 - ✅ Uses dashed borders to distinguish from existing tower ranges (solid borders)

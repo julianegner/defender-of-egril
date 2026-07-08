@@ -106,7 +106,7 @@ Uses the **Resource Owner Password Credentials (ROPC)** flow via the dedicated
 enabled, separate from the main `defender-of-egril` app client which intentionally
 restricts this flow).
 
-```
+```http
 POST {KEYCLOAK_URL}/realms/{realm}/protocol/openid-connect/token
 Content-Type: application/x-www-form-urlencoded
 
@@ -117,7 +117,7 @@ grant_type=password&client_id=defender-of-egril-cli&username=...&password=...&sc
 
 Verifies the backend is reachable. Returns `200 OK` with a plain-text greeting.
 
-```
+```http
 GET http://localhost:8080/
 ```
 
@@ -125,7 +125,7 @@ GET http://localhost:8080/
 
 Logs a game analytics event. Authentication is optional for this endpoint.
 
-```
+```http
 POST http://localhost:8080/api/events
 Authorization: Bearer <token>
 Content-Type: application/json
@@ -138,7 +138,7 @@ Content-Type: application/json
 Uploads (or upserts) a savefile for the authenticated user. The `data` field
 contains the raw JSON of the save game as a **string value** (JSON-escaped).
 
-```
+```http
 POST http://localhost:8080/api/savefiles
 Authorization: Bearer <token>
 Content-Type: application/json
@@ -157,7 +157,7 @@ Content-Type: application/json
 
 Returns all savefiles for the authenticated user as a JSON array.
 
-```
+```http
 GET http://localhost:8080/api/savefiles
 Authorization: Bearer <token>
 ```

@@ -1,12 +1,14 @@
 # Settings Hint Box - Visual Description
 
 ## Feature Overview
+
 The settings hint box is a first-run help dialog that appears on the main menu screen to inform users about available settings.
 
 ## Visual Layout
 
 ### Main Menu Screen (First Run)
-```
+
+```text
 ┌─────────────────────────────────────────────────────────────────────┐
 │                                              [⚙️ Settings Icon]    │
 │                                              ┌──────────────────────┤
@@ -34,6 +36,7 @@ The settings hint box is a first-run help dialog that appears on the main menu s
 ## Component Details
 
 ### Settings Hint Box
+
 - **Position**: Top-right corner, 60dp below the settings icon, 8dp from right edge
 - **Width**: 280dp
 - **Background**: Primary container color (themed)
@@ -42,6 +45,7 @@ The settings hint box is a first-run help dialog that appears on the main menu s
 - **Padding**: 16dp
 
 ### Content Structure
+
 1. **Title** (titleMedium typography, onPrimaryContainer color)
    - "Settings Available" (or localized equivalent)
 
@@ -65,18 +69,21 @@ The settings hint box is a first-run help dialog that appears on the main menu s
 ## Behavior
 
 ### First Run
+
 - Hint box appears automatically
 - Rest of UI remains interactive (not blocking)
 - User can still click "Start Game" or "Rules" buttons
 - Settings button is accessible
 
 ### After Dismissal
+
 - User clicks "Got it!" button
 - Hint box disappears with smooth transition
 - State is persisted to local storage
 - Hint will not appear on subsequent launches
 
 ### Subsequent Runs
+
 - Hint box does not appear
 - Main menu shows normally
 - Settings icon remains accessible
@@ -84,6 +91,7 @@ The settings hint box is a first-run help dialog that appears on the main menu s
 ## Localization
 
 The hint box supports all game languages:
+
 - **English**: "Settings Available" / "Got it!"
 - **German**: "Einstellungen verfügbar" / "Verstanden!"
 - **Spanish**: "Configuración Disponible" / "¡Entendido!"
@@ -101,6 +109,7 @@ The hint box supports all game languages:
 ## Testing
 
 The feature includes comprehensive unit tests:
+
 - ✅ Hint shows on first run
 - ✅ Hint can be dismissed
 - ✅ Hint doesn't show on subsequent runs

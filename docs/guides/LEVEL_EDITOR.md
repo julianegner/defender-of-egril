@@ -20,7 +20,7 @@ All editor data is stored in JSON format on your local filesystem:
 
 ### Directory Structure
 
-```
+```text
 ~/.defender-of-egril/gamedata/
 ├── maps/
 │   ├── map_30x8.json
@@ -175,7 +175,7 @@ The following features are planned for future versions:
 
 You can package custom levels with the app by placing them in the repository directory:
 
-```
+```text
 composeApp/src/commonMain/composeResources/files/repository/
 ├── maps/
 │   └── your_map.json
@@ -185,11 +185,13 @@ composeApp/src/commonMain/composeResources/files/repository/
 ```
 
 When the app starts:
+
 1. If no levels exist in the platform-specific storage, it checks the repository
 2. If repository files exist, they are copied to the storage directory
 3. Otherwise, default levels are generated programmatically
 
 This allows you to:
+
 - Create levels using the desktop editor
 - Copy the JSON files from `~/.defender-of-egril/gamedata/` to the repository
 - Rebuild the app to include your levels on all platforms

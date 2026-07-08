@@ -11,10 +11,12 @@ This implementation adds drag-to-navigate functionality to the minimap in Defend
 Added drag gesture detection to the minimap with the following changes:
 
 #### New Import
+
 - Added `import androidx.compose.foundation.gestures.detectDragGestures`
 - Added `import androidx.compose.ui.input.pointer.pointerInput`
 
 #### New Parameter
+
 - Added `onViewportDrag: ((Float, Float) -> Unit)?` parameter to:
   - `HexagonMinimap()` - For in-game minimap
   - `HexagonMinimapFromEditorMap()` - For map editor minimap
@@ -22,11 +24,13 @@ Added drag gesture detection to the minimap with the following changes:
 - This callback is invoked when the user drags on the minimap, passing the new viewport offsets
 
 #### Drag Gesture Implementation
+
 Added a `pointerInput` modifier to the viewport indicator Box that:
 
 1. **Detects drag gestures** on the minimap using `onDragStart` and `onDrag` callbacks
 2. **Captures initial offset** at drag start to prevent jumping behavior
 3. **Converts minimap coordinates to viewport offsets** using the following calculation:
+
    ```kotlin
    // On drag start: capture the current viewport offset
    onDragStart = {
@@ -56,6 +60,7 @@ Added a `pointerInput` modifier to the viewport indicator Box that:
        dragStartOffsetX = newOffsetX
        dragStartOffsetY = newOffsetY
    }
+
    ```
 
 4. **Constrains the offsets** to valid range: `coerceIn(-maxOffsetX, maxOffsetX)`
@@ -66,6 +71,7 @@ Added a `pointerInput` modifier to the viewport indicator Box that:
 Updated the `GameGrid` composable to handle minimap drag events:
 
 #### Added Callback
+
 ```kotlin
 HexagonMinimap(
     // ... existing parameters ...
@@ -83,6 +89,7 @@ This immediately updates the viewport position when the user drags on the minima
 Updated the Map Editor to handle minimap drag events:
 
 #### Added Callback
+
 ```kotlin
 HexagonMinimapFromEditorMap(
     // ... existing parameters ...
@@ -111,6 +118,7 @@ All tests pass successfully.
 ### Coordinate System
 
 The minimap uses a different coordinate system than the main viewport:
+
 - **Minimap**: Fixed size (120dp × 120dp)
 - **Viewport**: Variable size based on zoom level and container size
 
@@ -123,7 +131,7 @@ The minimap uses a different coordinate system than the main viewport:
 2. **Movable Area**: The viewport indicator can move within `(1.0 - viewportRatio)` of the minimap
    - Example: At 0.5 ratio, viewport can move within 50% of minimap size (60dp out of 120dp)
 
-3. **Drag Conversion**: 
+3. **Drag Conversion**:
    - Drag amount in minimap pixels → fraction of movable area
    - Fraction → normalized offset change (-1 to 1)
    - Normalized change → actual viewport offset (pixels)
@@ -133,6 +141,7 @@ The minimap uses a different coordinate system than the main viewport:
 ## Platform Support
 
 This feature works on all platforms:
+
 - ✅ **Desktop**: Click and drag with mouse
 - ✅ **Web/WASM**: Click and drag with mouse
 - ✅ **Mobile**: Tap and drag with finger
@@ -142,10 +151,12 @@ The gesture detection is handled by Compose Multiplatform's `detectDragGestures`
 ## User Experience
 
 ### Before
+
 - Users could only navigate by dragging the main map
 - Minimap was view-only, showing current position
 
 ### After
+
 - Users can click/tap and drag on the minimap to navigate
 - Dragging the yellow viewport indicator moves the view
 - Provides quick, precise navigation to any part of the map
@@ -154,13 +165,17 @@ The gesture detection is handled by Compose Multiplatform's `detectDragGestures`
 ## Testing
 
 ### Automated Tests
+
 All unit tests pass, validating:
+
 - Coordinate conversion math
 - Constraint handling
 - Behavior at different zoom levels
 
 ### Manual Testing Required
+
 To test the feature:
+
 1. Run the game (desktop or web)
 2. Start any level
 3. Zoom in on the map (mouse wheel or pinch gesture)
@@ -171,17 +186,20 @@ To test the feature:
 ## Technical Details
 
 ### Performance
+
 - Minimal performance impact
 - Drag gestures are efficiently handled by Compose
 - Calculations are simple floating-point operations
 - No heavy rendering or complex logic
 
 ### Backwards Compatibility
+
 - The `onViewportDrag` parameter is optional (nullable)
 - Existing minimap usage without the callback continues to work
 - No breaking changes to the public API
 
 ### Code Quality
+
 - Clean separation of concerns
 - Well-documented calculations
 - Comprehensive test coverage

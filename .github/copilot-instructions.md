@@ -108,7 +108,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
     {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 1}},
     {"attackerType": "ORK", "level": 2, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 4}}
   ]
-  ```
+```
 - **Waypoints**: Write each waypoint object on its own line (not all on one line, not fully expanded). **Always add one space after commas** within objects.
   ```json
   "waypoints": [
@@ -130,7 +130,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
     "35,22": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
     "34,21": {"flowDirection": "NORTH_WEST", "flowSpeed": 1}
   }
-  ```
+```
 - **Rationale**: This format saves hundreds of lines per map file while maintaining readability
 - **When Creating/Editing Maps**: Always use this compact single-line format for river tile entries
 - **Other Fields**: Keep other JSON fields (id, name, width, height, tiles, etc.) on separate lines with normal formatting
@@ -143,7 +143,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Level ID Arrays**: Always write levelIds arrays on a single line for compactness and readability
   ```json
   "levelIds": ["welcome_to_defender_of_egril"]
-  ```
+```
   or with multiple entries:
   ```json
   "levelIds": ["the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises"]
@@ -151,7 +151,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Control Points**: Always write controlPoints arrays on a single line with compact position objects
   ```json
   "controlPoints": [{"x": 668, "y": 488}, {"x": 629, "y": 406}]
-  ```
+```
 - **Segment Types**: Always write segmentTypes arrays on a single line
   ```json
   "segmentTypes": ["SEA_ROUTE", "SEA_ROUTE", "SEA_ROUTE", "ROAD", "ROAD"]
@@ -204,7 +204,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
       WarningIcon(size = 14.dp)
       Text("Warning text")
   }
-  ```
+```
 - **Adding New Emojis**: If a new emoji is needed:
   1. Look it up at https://api.github.com/repos/googlefonts/noto-emoji
   2. Download the PNG version
@@ -426,7 +426,7 @@ Add to `LevelData.createLevels()` with:
   } else {
       doSomethingElse()
   }
-  ```
+```
 
 ### File Structure
 - One class per file (unless nested/sealed classes)
@@ -560,7 +560,7 @@ Add to `LevelData.createLevels()` with:
   ```
   Closes #42
   Closes #57
-  ```
+```
 
 ## Important Notes
 

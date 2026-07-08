@@ -111,6 +111,7 @@ One-time setup (performed by a maintainer):
 
    ```bash
    sudo snap install snapcraft --classic
+
    ```
 
 3. **Log in** with the Ubuntu One account:
@@ -123,6 +124,7 @@ One-time setup (performed by a maintainer):
 
    ```bash
    snapcraft register defender-of-egril
+
    ```
 
    The name must match the `name:` field in `frontend/snap/snapcraft.yaml`.
@@ -138,9 +140,11 @@ One-time setup (performed by a maintainer):
 
    The resulting `snapcraft.login` file contains a single base64-style token. Keep it secret.
 6. **Add the secret to GitHub** under *Settings → Secrets and variables → Actions → New repository secret*:
-   - Name: `SNAPCRAFT_STORE_CREDENTIALS`
-   - Value: the **entire contents** of the `snapcraft.login` file (including the header lines).
-7. Delete the local `snapcraft.login` file after copying it into GitHub.
+
+- Name: `SNAPCRAFT_STORE_CREDENTIALS`
+- Value: the **entire contents** of the `snapcraft.login` file (including the header lines).
+
+1. Delete the local `snapcraft.login` file after copying it into GitHub.
 
 Per-release usage:
 
@@ -235,6 +239,7 @@ sudo apt update && sudo apt install defender-of-egril
    Name-Email: noreply@egril.de
    Expire-Date: 0
    EOF
+
    ```
 
 2. **List the generated key** to get the fingerprint:
@@ -247,6 +252,7 @@ sudo apt update && sudo apt install defender-of-egril
 
    ```bash
    gpg --armor --export-secret-keys <KEY_ID> > apt_private.key
+
    ```
 
 4. **Add repository secrets** (Settings → Secrets and variables → Actions):

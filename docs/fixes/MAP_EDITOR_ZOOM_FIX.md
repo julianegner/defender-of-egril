@@ -12,7 +12,8 @@ The map editor had zoom disabled (`enableZoomMode = false`) because it broke the
 
 The issue was in the centering adjustment calculation in `MapEditorView.kt`:
 
-### Before (Incorrect):
+### Before (Incorrect)
+
 ```kotlin
 val adjustedX = pointerPos.x - (containerSize.width - actualContentSize.width) / 2f
 val adjustedY = pointerPos.y - (containerSize.height - actualContentSize.height) / 2f
@@ -20,7 +21,8 @@ val adjustedY = pointerPos.y - (containerSize.height - actualContentSize.height)
 
 This used the **unscaled** content size for centering calculation, which is incorrect when content is zoomed. At zoom 2.0x, the visual size of the content doubles, but the old code still used the original size.
 
-### After (Correct):
+### After (Correct)
+
 ```kotlin
 val scaledWidth = actualContentSize.width * zoomLevel
 val scaledHeight = actualContentSize.height * zoomLevel
@@ -36,7 +38,7 @@ This correctly accounts for the **scaled** content size, ensuring accurate coord
 
 The complete transformation from user click to hex grid position:
 
-```
+```text
 User Click (screen px) 
   → Adjust for Centering (accounting for zoom)
   → Screen Space Coordinates
@@ -47,30 +49,35 @@ User Click (screen px)
 ### Mathematical Explanation
 
 When content is scaled (zoomed), its visual size changes:
+
 - Visual size = Original size × Zoom level
 
 When content is smaller than its container, it gets centered:
+
 - Centering offset = (Container size - Visual size) / 2
 
 The centering offset must use the **visual size** (scaled), not the original size.
 
 ### Example Scenarios
 
-**Scenario 1: Zoom 1.0x (no zoom)**
+#### Scenario 1: Zoom 1.0x (no zoom)
+
 - Content: 400px wide
 - Visual size: 400px × 1.0 = 400px
 - Container: 800px
 - Centering offset: (800 - 400) / 2 = 200px
 - ✓ Content centered at x=200 to x=600
 
-**Scenario 2: Zoom 2.0x (zoomed in)**
+#### Scenario 2: Zoom 2.0x (zoomed in)
+
 - Content: 400px wide
 - Visual size: 400px × 2.0 = 800px
 - Container: 800px
 - Centering offset: (800 - 800) / 2 = 0px
 - ✓ Content fills container, no centering needed
 
-**Scenario 3: Zoom 0.5x (zoomed out)**
+#### Scenario 3: Zoom 0.5x (zoomed out)
+
 - Content: 400px wide
 - Visual size: 400px × 0.5 = 200px
 - Container: 800px
@@ -82,11 +89,13 @@ The centering offset must use the **visual size** (scaled), not the original siz
 ### 1. MapEditorView.kt
 
 **Line 100**: Enabled zoom mode
+
 ```kotlin
 enableZoomMode = true  // Zoom now works with brush painting
 ```
 
 **Lines 115-132**: Fixed coordinate conversion
+
 ```kotlin
 .pointerInput(containerSize, actualContentSize, zoomLevel) {
     detectDragGestures { change, _ ->
@@ -109,6 +118,7 @@ enableZoomMode = true  // Zoom now works with brush painting
 ```
 
 Key changes:
+
 - Added `zoomLevel` to `pointerInput` dependencies (ensures recomposition when zoom changes)
 - Calculate `scaledWidth` and `scaledHeight` based on zoom level
 - Use scaled dimensions for centering adjustment
@@ -117,12 +127,14 @@ Key changes:
 
 Added comprehensive test coverage:
 
-**testScreenToHexGridPosition_variousZoomLevels**
+#### testScreenToHexGridPosition_variousZoomLevels
+
 - Tests coordinate conversion at zoom levels: 0.5x, 1.5x, 3.0x
 - Verifies that the same content position maps correctly at different zoom levels
 - Ensures Position(0, 0) is correctly identified regardless of zoom
 
-**testScreenToHexGridPosition_withZoomAndCentering**
+#### testScreenToHexGridPosition_withZoomAndCentering
+
 - Simulates the complete MapEditorView scenario with centering
 - Tests with realistic container and content sizes
 - Validates the entire transformation pipeline
@@ -132,11 +144,13 @@ Added comprehensive test coverage:
 ### Automated Tests
 
 All tests pass:
+
 ```bash
 ./gradlew :composeApp:testDebugUnitTest --tests HexUtilsTest
 ```
 
 Results:
+
 - ✓ testScreenToHexGridPosition_withHexCenters (existing)
 - ✓ testScreenToHexGridPosition_withZoomAndPan (existing)
 - ✓ testScreenToHexGridPosition_nearBoundaries (existing)
@@ -173,10 +187,11 @@ To verify the fix works correctly in the actual map editor:
 ### New Functionality
 
 Users can now:
+
 1. **Zoom in/out** in the map editor using:
    - Mouse wheel with Ctrl key
    - Zoom in/out buttons in the header
-   
+
 2. **Paint tiles at any zoom level**:
    - Brush painting works accurately whether zoomed in or out
    - No need to reset zoom to 1.0x to paint accurately
@@ -189,6 +204,7 @@ Users can now:
 ### Improved Workflow
 
 The map editor workflow is now more efficient:
+
 - Zoom in to work on fine details
 - Zoom out to see the big picture
 - No need to toggle zoom on/off for painting
@@ -197,6 +213,7 @@ The map editor workflow is now more efficient:
 ## Backward Compatibility
 
 This change maintains full backward compatibility:
+
 - All existing tests pass
 - No changes to data formats or storage
 - No changes to the hex grid layout or rendering
@@ -205,6 +222,7 @@ This change maintains full backward compatibility:
 ## Performance
 
 The fix has minimal performance impact:
+
 - Only adds two multiplications per pointer event
 - No additional allocations
 - No change to rendering performance
@@ -224,6 +242,7 @@ None. The zoom feature now works fully with brush painting at all zoom levels.
 ## Future Enhancements
 
 Potential improvements (out of scope for this fix):
+
 - Add brush size control (paint multiple tiles at once)
 - Add undo/redo for brush strokes
 - Add keyboard shortcuts for zoom (e.g., '+' and '-' keys)

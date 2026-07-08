@@ -64,7 +64,7 @@ The following features have their foundation in place but could be enhanced in t
 
 ### Source Code Organization
 
-```
+```text
 composeApp/src/
 ├── commonMain/kotlin/com/defenderofegril/
 │   ├── editor/
@@ -96,7 +96,7 @@ composeApp/src/
 
 ### Runtime File Structure (Desktop)
 
-```
+```text
 ~/.defender-of-egril/gamedata/
 ├── maps/
 │   ├── map_30x8.json
@@ -126,6 +126,7 @@ composeApp/src/
 ### Current Capabilities
 
 **What You Can Do:**
+
 - View all maps and their properties
 - View all levels and their configuration
 - Reorder levels using up/down buttons in the Level Sequence tab
@@ -133,6 +134,7 @@ composeApp/src/
 - Create new maps/levels by copying and modifying JSON files
 
 **What You Cannot Do (Yet):**
+
 - Visually edit map tiles (must edit JSON manually)
 - Create levels through UI (must edit JSON manually)
 - Delete maps/levels through UI (must delete files manually)
@@ -177,18 +179,21 @@ See `LEVEL_EDITOR.md` for detailed JSON format documentation.
 ## Performance & Storage
 
 ### File Size
+
 - Each map: ~2-5 KB
 - Each level: ~1-3 KB
 - Total for 6 default levels: ~20 KB
 - Negligible impact on storage
 
 ### Load Time
+
 - Maps and levels loaded on demand
 - Cached after first load
 - No noticeable performance impact
 - Initialization only happens once
 
 ### Memory Usage
+
 - Desktop: Files on disk, minimal memory
 - Mobile: ~20 KB in-memory for default levels
 - No impact on gameplay performance
@@ -196,28 +201,31 @@ See `LEVEL_EDITOR.md` for detailed JSON format documentation.
 ## Future Enhancements
 
 ### High Priority
+
 1. Visual map editor with tile palette
 2. Interactive level configuration UI
 3. Create new map/level buttons
 4. Delete functionality
 
 ### Medium Priority
-5. Import/export level packs
-6. Level validation (path connectivity, balance)
-7. Preview gameplay for testing
-8. Undo/redo functionality
+
+1. Import/export level packs
+2. Level validation (path connectivity, balance)
+3. Preview gameplay for testing
+4. Undo/redo functionality
 
 ### Low Priority
-9. Multi-map support per level
-10. Custom enemy variants
-11. Weather/environment effects
-12. Scripted events
+
+1. Multi-map support per level
+2. Custom enemy variants
+3. Weather/environment effects
+4. Scripted events
 
 ## Testing
 
 ### Test Coverage
 
-```
+```text
 EditorStorageTest:
   ✓ testEditorMapStructure
   ✓ testEditorEnemySpawn
@@ -272,12 +280,14 @@ Created comprehensive documentation:
 The implementation followed the principle of minimal changes:
 
 **Modified Existing Files:** 6 files
+
 - Added kotlinx.serialization plugin (for future use, not currently used)
 - Added editor navigation (App.kt, GameViewModel.kt)
 - Added editor button (WorldMapScreen.kt)
 - Changed level loading (LevelData.kt)
 
 **New Files:** 14 files
+
 - Editor-specific code in new `editor/` package
 - Platform-specific implementations
 - Comprehensive tests

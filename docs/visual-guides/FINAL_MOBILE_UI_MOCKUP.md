@@ -2,7 +2,7 @@
 
 ## Mobile Gameplay Screen (Portrait Mode - Fullscreen)
 
-```
+```text
 ╔═══════════════════════════════════════════════════════════════╗
 ║  📱 MOBILE DEVICE (Fullscreen - No Status/Nav Bars)          ║
 ║                                                               ║
@@ -67,7 +67,7 @@ KEY FEATURES:
 
 ## Collapsed Header Detail
 
-```
+```text
 ╔═══════════════════════════════════════════════════════════╗
 ║  💰 250    ❤️ 10    🔄 0      Forest Defense      💾  Map  ▶  ▼  ║
 ╚═══════════════════════════════════════════════════════════╝
@@ -122,7 +122,8 @@ KEY FEATURES:
 ## User Experience Flow
 
 ### Turn 0 (Initial Building Phase)
-```
+
+```text
 Mobile:
 ┌──────────────────────────┐
 │ 💰💰  ❤️❤️  🔄0   │  💾 Map ▶ ▼│  <- Collapsed header
@@ -146,11 +147,13 @@ Desktop:
 ### Accessing Save Function
 
 **Mobile** (Quick access):
+
 1. Look at collapsed header
 2. Tap 💾 button
 3. Game saved!
 
 **Desktop** (Expanded header):
+
 1. Expanded header visible
 2. Click "Save Game" button
 3. Game saved!
@@ -158,24 +161,28 @@ Desktop:
 ## Benefits Summary
 
 ### ✅ Readability
+
 - Text doubled in size (24sp vs 12sp)
 - Icons large and clear (30sp)
 - No eye strain
 - Professional appearance
 
 ### ✅ Map Visibility
+
 - 83% of screen dedicated to map
 - Full 10x6 grid always visible
 - Room for zoom in/out
 - Fullscreen = no wasted space
 
 ### ✅ Accessibility
+
 - Save easily accessible (💾 in header)
 - Large touch targets (32dp+ buttons)
 - Clear visual hierarchy
 - Intuitive layout
 
 ### ✅ Platform Optimization
+
 - Mobile: Compact + readable
 - Desktop: Unchanged experience
 - Each platform optimized for its context
@@ -184,7 +191,8 @@ Desktop:
 ## Technical Achievement
 
 ### Dual Scaling Magic
-```
+
+```text
 Layout Scale: 0.5x  (saves space)
 Text Scale:   1.5x  (readable)
 ──────────────────────────────
@@ -195,7 +203,9 @@ Net Effect:   0.75x visual size, but...
 ```
 
 ### Result
+
 Perfect balance between:
+
 - Space efficiency (compact layout)
 - Readability (large text)
 - Usability (large icons, easy save)

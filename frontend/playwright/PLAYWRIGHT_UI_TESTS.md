@@ -43,6 +43,7 @@ The test suite:
 
    ```bash
    npm install
+
    ```
 
 2. **Install Playwright browsers**:
@@ -55,6 +56,7 @@ The test suite:
 
    ```bash
    npx playwright test
+
    ```
 
    This will:
@@ -73,6 +75,7 @@ The test suite:
 
    ```bash
    npm run test:debug
+
    ```
 
 6. **View the test report**:

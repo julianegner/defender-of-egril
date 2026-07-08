@@ -132,6 +132,7 @@ The container-level approach works because:
 ### Testing
 
 The feature has been tested by:
+
 1. Compiling the code successfully on desktop ✅
 2. Verifying no test regressions (existing tests still pass/fail as before) ✅
 3. Manual testing recommended on desktop and web platforms
@@ -147,6 +148,7 @@ The feature has been tested by:
 ### Future Enhancements
 
 Potential improvements:
+
 - Add back pan with a modifier key (Space bar)
 - Add back pinch-to-zoom for mobile
 - Add brush size option (paint multiple tiles at once in a radius)
@@ -165,6 +167,7 @@ The implementation prioritizes brush painting over panning when dragging on tile
 - **Zooming**: Unaffected - works via Ctrl+Scroll or pinch gestures
 
 This tradeoff is acceptable because:
+
 1. The primary use case (requested in the issue) is to paint tiles by dragging
 2. Panning is still accessible through empty areas
 3. Most editing is done while zoomed in where panning is less critical
@@ -179,6 +182,7 @@ tiles = tiles.toMutableMap().apply { this[key] = selectedTileType }
 ```
 
 While this seems inefficient, it's the recommended pattern for Compose because:
+
 1. Compose's state system is optimized for immutable updates
 2. Creating new map instances ensures proper change detection
 3. The map is typically small (< 500 tiles for most maps)
@@ -187,7 +191,7 @@ While this seems inefficient, it's the recommended pattern for Compose because:
 
 Performance profiling on real devices would be needed to justify a more complex optimization.
 
-### How It Works
+### Brush Event Flow
 
 1. **Pointer Down**: When the user clicks/touches a tile:
    - `isBrushActive` is set to `true`
@@ -204,7 +208,7 @@ Performance profiling on real devices would be needed to justify a more complex 
    - Brush mode is deactivated
    - The event is consumed
 
-### User Experience
+### Brush User Experience
 
 - **Single Click**: Still works as before - click a tile to paint it
 - **Click and Drag**: Now supported - hold down the mouse button and drag over tiles to paint them all
@@ -212,23 +216,25 @@ Performance profiling on real devices would be needed to justify a more complex 
 - **Zoom Compatibility**: Works correctly with the zoom feature (Ctrl+Scroll)
 - **Pan Compatibility**: Does not interfere with pan gestures (drag on empty space)
 
-### Technical Notes
+### Brush Technical Notes
 
 - The `pointerInput` modifier includes `key`, `selectedTileType`, and `isBrushActive` as keys, ensuring the handler is recreated when these values change
 - The `.clickable` modifier is kept as a fallback for simple clicks
 - Events are consumed to prevent interference with other gesture detectors
 - The implementation is platform-agnostic and works on desktop, web, and mobile (where supported)
 
-### Testing
+### Brush Testing
 
 The feature has been tested by:
+
 1. Compiling the code successfully on desktop
 2. Verifying no test regressions (existing tests still pass/fail as before)
 3. Manual testing recommended on desktop and web platforms
 
-### Future Enhancements
+### Brush Future Enhancements
 
 Potential improvements for the future:
+
 - Add a brush size option (paint multiple tiles at once)
 - Add an eraser mode (toggle between paint and erase)
 - Add undo/redo functionality for brush strokes

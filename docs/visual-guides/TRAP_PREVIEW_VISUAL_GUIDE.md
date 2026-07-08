@@ -1,13 +1,14 @@
 # Trap Preview Visual Guide
 
 ## Feature Overview
+
 This document provides a visual guide to the trap preview feature implemented in the game.
 
 ## Dwarven Trap Preview
 
 When placing a dwarven trap from a mine:
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │  Step 1: Select a Dwarven Mine                     │
 │  ┌────┐                                            │
@@ -43,7 +44,7 @@ When placing a dwarven trap from a mine:
 
 When placing a magical trap from a wizard tower:
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │  Step 1: Select a Wizard Tower (level 10+)         │
 │  ┌────┐                                            │
@@ -78,7 +79,8 @@ When placing a magical trap from a wizard tower:
 ## Visual Comparison
 
 ### Before (No Preview)
-```
+
+```text
 Player hovers over path tile
   ↓
 No visual feedback
@@ -87,7 +89,8 @@ Click to place (may fail silently if invalid)
 ```
 
 ### After (With Preview)
-```
+
+```text
 Player hovers over path tile
   ↓
 Preview icon appears (50% transparent) if valid
@@ -100,12 +103,14 @@ Click to place (with confidence!)
 ## Icon Details
 
 ### Dwarven Trap Icon (HoleIcon)
+
 - Visual: 🕳️ (hole/pit icon)
 - Color: Brown/neutral
 - Size: 24dp
 - Alpha: 0.5 (50% transparent)
 
 ### Magical Trap Icon (PentagramIcon)
+
 - Visual: ⭐ (purple pentagram)
 - Color: Purple/Magenta (#AA00FF)
 - Size: 24dp
@@ -113,7 +118,7 @@ Click to place (with confidence!)
 
 ## Placement Rules Visualized
 
-```
+```text
 Valid Placement:
 ┌─────┬─────┬─────┬─────┬─────┐
 │     │     │  ⛏️  │     │     │  ← Mine position
@@ -158,6 +163,7 @@ The preview is implemented in `GameMap.kt` using the following logic:
 ## Testing
 
 All placement rules are validated with unit tests:
+
 - ✓ Range restrictions (dwarven: 3 tiles, wizard: 3 tiles)
 - ✓ Path tile requirement
 - ✓ Enemy blocking detection

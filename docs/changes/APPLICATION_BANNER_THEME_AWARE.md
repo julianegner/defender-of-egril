@@ -1,7 +1,9 @@
 # Implementation Summary: Generalize Sticker Page and Use Symbols for Start Page
 
 ## Issue Overview
+
 The task was to:
+
 1. Make the sticker page compatible with both dark and light modes
 2. Make tower icon lines theme-aware (visible in both modes)
 3. Make wizard tower background mask theme-aware
@@ -13,25 +15,30 @@ The task was to:
 ### 1. Theme-Aware Tower Icon Lines
 
 **Files Modified:**
+
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/UnitIcons.kt`
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/icon/defender/Spike.kt`
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/icon/defender/Spear.kt`
 
 **Changes:**
+
 - Added optional `lineColor` parameter to `drawTower()`, `drawTowerBase()`, `drawSpikeSymbol()`, and `drawSpearSymbol()` functions
 - Default value is `Color.White` to maintain existing game UI behavior
 - ApplicationBanner passes `MaterialTheme.colorScheme.onBackground` to get theme-aware colors
 
 **Key Design Decision:**
+
 - Game tower icons continue using white lines (default) since they're always displayed on colored tile backgrounds
 - Banner tower icons use theme-aware colors since they're drawn directly on the screen's background color
 
 ### 2. Theme-Aware Wizard Tower Background Mask
 
 **File Modified:**
+
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/ApplicationBanner.kt`
 
 **Changes:**
+
 - Replaced hardcoded `Color.Black` with `MaterialTheme.colorScheme.background`
 - The trapezoid mask prevents the bow tower from showing through the wizard tower
 - Now adapts to theme: black in dark mode, white in light mode
@@ -39,10 +46,12 @@ The task was to:
 ### 3. Extracted Canvas to ApplicationBanner
 
 **Files Modified:**
+
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/ApplicationBanner.kt` (enhanced)
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/StickerScreen.kt` (simplified)
 
 **Changes in ApplicationBanner.kt:**
+
 - Moved the Canvas drawing code from StickerScreen
 - Canvas now draws:
   - 3 enemy symbols (Goblin, Ork, Evil Wizard)
@@ -50,6 +59,7 @@ The task was to:
 - Layout: Canvas → Spacer → Title Text (2 rows) → Spacer → Shield Image
 
 **Changes in StickerScreen.kt:**
+
 - Removed 70+ lines of duplicated canvas code
 - Now simply calls `ApplicationBanner()` component
 - Added descriptive text below the banner
@@ -57,11 +67,13 @@ The task was to:
 ### 4. ApplicationBanner Usage
 
 **MainMenuScreen** (MenuScreens.kt):
+
 - Already uses `ApplicationBanner()` at line 62
 - Automatically gets the new canvas with symbols
 - No changes needed
 
 **StickerScreen** (StickerScreen.kt):
+
 - Updated to use the new `ApplicationBanner()` component
 - Simplified from ~160 lines to ~90 lines
 - Better separation of concerns
@@ -69,7 +81,8 @@ The task was to:
 ## Code Structure
 
 ### ApplicationBanner Component
-```
+
+```text
 Row (horizontal layout):
 ├── Canvas Box (80x80dp)
 │   ├── Enemy Symbols (Goblin, Ork, Wizard)
@@ -86,24 +99,28 @@ Row (horizontal layout):
 
 ## Theme Compatibility
 
-### Dark Mode:
+### Dark Mode
+
 - Tower lines: White (onBackground = white on dark backgrounds)
 - Wizard mask: Dark background color
 - All symbols clearly visible
 
-### Light Mode:
+### Light Mode
+
 - Tower lines: Dark (onBackground = dark on light backgrounds)
 - Wizard mask: Light background color
 - All symbols clearly visible
 
 ## Testing
 
-### Test File Created:
+### Test File Created
+
 - `composeApp/src/desktopTest/kotlin/de/egril/defender/ui/ApplicationBannerThemeTest.kt`
 - Tests for both light and dark modes
 - Tests for both ApplicationBanner and StickerScreen
 
-### Note on Test Execution:
+### Note on Test Execution
+
 - Cannot run tests due to pre-existing compilation errors in unrelated test files
 - Errors in `GamePlayScreenTest.kt` and `TargetRingsOverlayTest.kt` (Position type mismatches)
 - These errors existed before this implementation
@@ -139,12 +156,14 @@ The implementation is complete and ready for visual verification in the running 
 ### 4. Theme-Aware Enemy Icon Outlines
 
 **Files Modified:**
+
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/icon/enemy/Goblin.kt`
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/icon/enemy/Ork.kt`
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/icon/enemy/EvilWizard.kt`
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/ApplicationBanner.kt`
 
 **Changes:**
+
 - Added optional `outlineColor: Color?` parameter to all three enemy symbol drawing functions
 - When outline color is provided, draws a 2-pixel stroke-based outline around all enemy icon elements
 - Uses `Stroke(width = 2f)` style for uniform outline thickness on all edges
@@ -153,6 +172,7 @@ The implementation is complete and ready for visual verification in the running 
   - **Light mode** (luminance >= 0.5): Black outlines
 
 **Implementation Example (Goblin):**
+
 ```kotlin
 import androidx.compose.ui.graphics.drawscope.Stroke
 
@@ -186,23 +206,27 @@ fun DrawScope.drawGoblinSymbol(centerX: Float, centerY: Float, size: Float, outl
 ```
 
 **Rationale:**
+
 - Improves icon visibility against various backgrounds
 - Clear definition in both light and dark themes
 - Backward compatible: outline parameter defaults to `null` for other uses
 - Consistent with Material Design principles of theme adaptation
 
 **Testing:**
+
 - ✅ Common unit tests pass (BUILD SUCCESSFUL)
 - ✅ Build successful with no compilation errors
 - ✅ Backward compatible (other uses of enemy symbols continue to work)
 
 **Visual Impact:**
+
 - Enemy icons now stand out clearly in both themes
 - Black outlines provide definition in light mode
 - White outlines ensure visibility in dark mode
 - 2px stroke-based outline width provides uniform thickness on all edges
 
 **Update (Addressing Feedback):**
+
 - Changed from fill-based outlines to stroke-based outlines
 - Fixed issue where outlines were thick on straight lines and thin on diagonal lines
 - Now uses `Stroke(width = 2f)` for all outline shapes

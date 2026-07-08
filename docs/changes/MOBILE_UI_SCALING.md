@@ -1,13 +1,17 @@
 # Mobile UI Scaling Implementation
 
 ## Overview
+
 This document describes the implementation of platform-specific UI scaling for the gameplay screen to address the issue where UI elements were too large on mobile devices (Android and iOS).
 
 ## Problem
+
 On Android and iOS devices, all UI elements in the gameplay screen were too large, making the game map not fully visible and the game unplayable.
 
 ## Solution
+
 A minimal, platform-specific scaling solution was implemented that:
+
 1. Applies a fixed density scaling of 0.5x (50%) to the entire gameplay screen on mobile platforms
 2. Keeps the desktop version at 1.0x (100%) - unchanged
 3. Preserves the internal map zoom functionality (pinch-to-zoom and mouse wheel zoom)
@@ -47,6 +51,7 @@ CompositionLocalProvider(LocalDensity provides scaledDensity) {
 ### How It Works
 
 By providing a custom `Density` with scaled values:
+
 - All `dp` (density-independent pixels) values are multiplied by the scale factor
 - All `sp` (scale-independent pixels for text) values are multiplied by the scale factor
 - This affects actual layout calculations, not just rendering
@@ -67,6 +72,7 @@ This is different from `graphicsLayer` scaling which only affects visual renderi
 ## Adjusting the Scale
 
 To adjust the mobile scale factor, simply change the return value in:
+
 - `PlatformUtils.android.kt` for Android
 - `PlatformUtils.ios.kt` for iOS
 
@@ -83,6 +89,7 @@ To zoom out less (make elements larger), use a value greater than 0.7 (e.g., 0.8
 ## Future Improvements
 
 Potential enhancements (not implemented to keep changes minimal):
+
 1. Make scale configurable in game settings
 2. Add different scales for tablets vs phones
 3. Implement adaptive scaling based on screen size/density

@@ -13,7 +13,9 @@ This directory contains detailed documentation for the Defender of Egril project
 ## Documentation Structure
 
 ### Guides (`guides/`)
+
 User and developer guides for various features and platforms:
+
 - Testing guides (TESTING_GUIDE.md, UI_TESTING_GUIDE.md, PLATFORM_TESTING.md)
 - Level editor guide (LEVEL_EDITOR.md)
 - Settings UI guide (SETTINGS_UI_GUIDE.md)
@@ -21,7 +23,9 @@ User and developer guides for various features and platforms:
 - Sound download guides (FREESOUND_DOWNLOAD_GUIDE.md, SOUND_DOWNLOAD_LIST.md)
 
 ### Implementation (`implementation/`)
+
 Detailed implementation documentation for features:
+
 - Complete implementation summaries
 - Specific feature implementations (localization, save/load, tutorial, keyboard navigation, etc.)
 - Control pad implementation
@@ -29,7 +33,9 @@ Detailed implementation documentation for features:
 - Landscape mode enforcement
 
 ### Features (`features/`)
+
 Feature development and refactoring documentation:
+
 - Level editor refactoring
 - Gameplay screen extraction
 - Code refactoring analysis
@@ -40,7 +46,9 @@ Feature development and refactoring documentation:
 - Plurals usage
 
 ### Fixes (`fixes/`)
+
 Bug fixes and improvements:
+
 - Platform-specific fixes (Android, iOS)
 - Sound fixes and improvements
 - Visual fixes (arc segments, zoom, mobile text)
@@ -48,14 +56,18 @@ Bug fixes and improvements:
 - Localization upgrades
 
 ### Changes (`changes/`)
+
 User-facing changes and enhancements:
+
 - Enemy level changes
 - Mobile UI optimizations and scaling
 - Tower details improvements
 - UI readability improvements
 
 ### Testing (`testing/`)
+
 Test guides and procedures:
+
 - Playwright UI tests (PLAYWRIGHT_UI_TESTS.md)
 - Enemy level testing
 - Keyboard navigation testing
@@ -63,14 +75,18 @@ Test guides and procedures:
 - Target circle testing
 
 ### Visual Guides (`visual-guides/`)
+
 Visual documentation and mockups:
+
 - Feature visual guides (brush, enemy levels, waypoint editor)
 - Mobile UI mockups and screenshots
 - Zoom fix diagrams
 - Scaling comparisons
 
 ### Reference (`reference/`)
+
 Reference documentation:
+
 - GitHub Copilot configuration
 - Sound credits template
 - Tower and enemy icons reference

@@ -8,7 +8,7 @@ This guide provides a visual explanation of the map editor zoom fix that enables
 
 ### Before the Fix
 
-```
+```text
 Map Editor (Zoom Disabled)
 ┌─────────────────────────────────────┐
 │  Zoom: 1.0x only ❌                 │
@@ -21,6 +21,7 @@ Map Editor (Zoom Disabled)
 ```
 
 **User Experience Issues:**
+
 - Could not zoom in to see tile details
 - Could not zoom out to see whole map
 - Had to work at 1.0x zoom always
@@ -38,7 +39,8 @@ val adjustedX = pointerPos.x - (containerSize.width - actualContentSize.width) /
 ```
 
 **Visual Example at Zoom 2.0x:**
-```
+
+```text
 Container: 800px wide
 Content (unscaled): 400px wide
 Content (visual at 2.0x): 800px wide
@@ -61,7 +63,7 @@ Result:
 
 ### After the Fix
 
-```
+```text
 Map Editor (Zoom Enabled)
 ┌─────────────────────────────────────┐
 │  Zoom: 0.5x to 3.0x ✅              │
@@ -74,6 +76,7 @@ Map Editor (Zoom Enabled)
 ```
 
 **User Experience Improvements:**
+
 - ✅ Zoom in to work on fine details
 - ✅ Zoom out to see entire map layout
 - ✅ Brush painting accurate at all zoom levels
@@ -93,7 +96,8 @@ val adjustedX = pointerPos.x - (containerSize.width - scaledWidth) / 2f
 ```
 
 **Visual Example at Zoom 2.0x:**
-```
+
+```text
 Container: 800px wide
 Content (unscaled): 400px wide
 Content (visual at 2.0x): 800px wide
@@ -116,7 +120,7 @@ Result:
 
 ### Zoom 0.5x (Zoomed Out)
 
-```
+```text
 ┌─────────────────────────────────────────────┐ Container (800px)
 │                                             │
 │              [  Map  ]                      │ Content visual size: 200px
@@ -130,7 +134,7 @@ Centering offset = (800 - 200) / 2 = 300px ✅
 
 ### Zoom 1.0x (Normal)
 
-```
+```text
 ┌─────────────────────────────────────────────┐ Container (800px)
 │                                             │
 │         [      Map      ]                   │ Content visual size: 400px
@@ -144,7 +148,7 @@ Centering offset = (800 - 400) / 2 = 200px ✅
 
 ### Zoom 2.0x (Zoomed In)
 
-```
+```text
 ┌─────────────────────────────────────────────┐ Container (800px)
 │[          Zoomed  Map          ]            │ Content visual size: 800px
 │                                             │ Fills container
@@ -157,7 +161,7 @@ Centering offset = (800 - 800) / 2 = 0px ✅
 
 ### Zoom 3.0x (Max Zoom)
 
-```
+```text
 ┌─────────────────────────────────────────────┐ Container (800px)
  [       Large Map Portion      ]               Content visual size: 1200px
          Exceeds container                      Content larger than container
@@ -169,7 +173,7 @@ Centering offset = (800 - 1200) / 2 = -200px ✅
 
 ## Coordinate Transformation Flow
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │  User clicks/drags on map                           │
 │  ↓                                                   │
@@ -218,7 +222,8 @@ Centering offset = (800 - 1200) / 2 = -200px ✅
 
 ### MapEditorView.kt
 
-**Change 1: Enable zoom**
+#### Change 1: Enable zoom
+
 ```kotlin
 // Before:
 enableZoomMode = false // fixme: zoom deactivated because it breaks the brush painting
@@ -227,7 +232,8 @@ enableZoomMode = false // fixme: zoom deactivated because it breaks the brush pa
 enableZoomMode = true  // Zoom now works with brush painting
 ```
 
-**Change 2: Add zoomLevel dependency**
+#### Change 2: Add zoomLevel dependency
+
 ```kotlin
 // Before:
 .pointerInput(containerSize, actualContentSize) {
@@ -236,7 +242,8 @@ enableZoomMode = true  // Zoom now works with brush painting
 .pointerInput(containerSize, actualContentSize, zoomLevel) {
 ```
 
-**Change 3: Fix centering calculation**
+#### Change 3: Fix centering calculation
+
 ```kotlin
 // Before:
 val adjustedX = pointerPos.x - (containerSize.width - actualContentSize.width) / 2f
@@ -254,17 +261,21 @@ val adjustedY = pointerPos.y - (containerSize.height - scaledHeight) / 2f
 New tests added to verify the fix:
 
 ### Test 1: Various Zoom Levels
+
 ```kotlin
 testScreenToHexGridPosition_variousZoomLevels()
 ```
+
 - Tests at zoom: 0.5x, 1.5x, 3.0x
 - Verifies Position(0, 0) maps correctly at each zoom level
 - ✅ All tests pass
 
 ### Test 2: Zoom with Centering
+
 ```kotlin
 testScreenToHexGridPosition_withZoomAndCentering()
 ```
+
 - Simulates realistic container/content sizes
 - Tests complete transformation pipeline
 - ✅ All tests pass

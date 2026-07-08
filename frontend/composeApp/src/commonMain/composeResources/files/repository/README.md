@@ -4,7 +4,7 @@ This directory contains pre-built maps and levels that will be deployed with the
 
 ## Directory Structure
 
-```
+```text
 repository/
 ├── maps/               # Map files (one per map)
 │   ├── map_tutorial.json
@@ -60,6 +60,7 @@ Defines the grid layout, spawn points, target, paths, and build areas.
 ```
 
 Tile types:
+
 - `SPAWN_POINT`: Enemy spawn locations
 - `TARGET`: Level goal
 - `PATH`: Where enemies walk
@@ -89,11 +90,13 @@ Defines the level configuration, enemies, resources, and available towers.
 ```
 
 Enemy types:
+
 - `GOBLIN`, `ORK`, `OGRE`, `SKELETON`, `EVIL_WIZARD`, `WITCH`
 - `BLUE_DEMON`, `RED_DEMON`, `EVIL_MAGE`, `RED_WITCH`, `GREEN_WITCH`
 - `EWHAD`, `DRAGON`
 
 Tower types:
+
 - `SPIKE_TOWER`, `SPEAR_TOWER`, `BOW_TOWER`
 - `WIZARD_TOWER`, `ALCHEMY_TOWER`, `BALLISTA_TOWER`
 - `DWARVEN_MINE`, `DRAGONS_LAIR`

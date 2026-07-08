@@ -46,7 +46,7 @@ The installer file will be named: `DefenderOfEgril-1.0.0.exe` (or similar based 
 
 ## Dragon Names Scraper
 
-### Overview
+### Dragon Names Overview
 
 `scrape_dragon_names.sh` is a bash script that scrapes dragon names from [mythopedia.com's dragon name generator](https://mythopedia.com/name-generator/dragon-names/).
 
@@ -57,13 +57,13 @@ The name generator has 5 text fields above a "Generate Names" button. This scrip
 3. Repeating until 200 unique names are collected
 4. Saving all names to a text file (one name per line)
 
-### Requirements
+### Dragon Names Requirements
 
 - **Node.js** and **npm** must be installed
 - **Internet connection** to access mythopedia.com
 - **Playwright** (installed automatically by the script)
 
-### Usage
+### Dragon Names Usage
 
 ```bash
 # Scrape dragon names from mythopedia.com
@@ -76,7 +76,7 @@ The name generator has 5 text fields above a "Generate Names" button. This scrip
 ./scrape_dragon_names.sh --help
 ```
 
-### Output
+### Dragon Names Output
 
 The script creates a file named `dragon_names.txt` in the same directory, containing:
 
@@ -86,14 +86,14 @@ The script creates a file named `dragon_names.txt` in the same directory, contai
 
 Example output:
 
-```
+```text
 Alduin
 Smaug
 Drogon
 ...
 ```
 
-### How It Works
+### Dragon Names: How It Works
 
 1. **Browser Automation**: Uses Playwright to control a headless Chrome browser
 2. **Page Navigation**: Navigates to the dragon name generator page

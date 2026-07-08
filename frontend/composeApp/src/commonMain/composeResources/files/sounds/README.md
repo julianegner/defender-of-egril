@@ -4,7 +4,7 @@ This directory contains audio files for game sound effects.
 
 ## sounds from freesound.org
 
-# Tower Attacks
+### Tower Attack Sources
 
 attack_melee
 342397__christopherderp__swords-clash-w-swing-1.wav
@@ -31,7 +31,7 @@ attack_lasting / acid
 <https://freesound.org/people/spookymodem/sounds/202094/>
 Creative Commons 0
 
-# Enemy Events
+### Enemy Event Sources
 
 enemy_spawn and enemy_move
 384898__ali_6868__knight-left-footstep-forestgrass-3-with-chainmail.wav
@@ -47,7 +47,7 @@ by: PaladinVII
 License: Attribution 4.0
 <https://creativecommons.org/licenses/by/4.0/>
 
-# Mine Events
+### Mine Event Sources
 
 mine_dig
 240801__ryanconway__pickaxe-mining-stone.wav
@@ -69,7 +69,7 @@ mine_dragon
 <https://freesound.org/people/NearTheAtmoshphere/sounds/676474/>
 Creative Commons 0
 
-# Other Game Events
+### Other Game Event Sources
 
 trap_trigger
 434898__thebuilder15__trap-switch.wav
@@ -81,14 +81,15 @@ life_lost
 <https://freesound.org/people/joseppujol/sounds/221544/>
 Creative Commons 0
 
-# Special Events
+### Special Event Sources
 
 dragon_eat
 389638__stubb__growl-7.wav
 <https://freesound.org/people/_stubb/sounds/389638/>
 Creative Commons 0
 
-# UI Sounds
+### UI Sound Sources
+
 button_click - remove
 
 tower_placed - remove
@@ -104,14 +105,14 @@ same as mine coin
 <https://freesound.org/people/Paul%20Sinnett/sounds/761495/>
 Attribution 4.0
 
-# Game Phase Sounds
+### Game Phase Sound Sources
 
 battle_start
 188815__porphyr__battle-horn.wav
 <https://freesound.org/people/Porphyr/sounds/188815/>
 Attribution 4.0
 
-# bomb effects
+### Bomb Effect Sources
 
 bomb ticking
 Ticking Timer 05 Sec.wav by LilMati -- <https://freesound.org/s/487725/> -- License: Creative Commons 0

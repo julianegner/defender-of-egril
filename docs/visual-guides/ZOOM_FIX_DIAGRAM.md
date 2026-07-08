@@ -4,7 +4,7 @@
 
 ### Scenario: Zoom 2.0x (Content Zoomed In)
 
-```
+```text
 ┌────────────────────────────────────────────────────┐
 │                  Container (800px)                  │
 │                                                     │
@@ -46,7 +46,7 @@
 
 ## Complete Coordinate Transformation Flow
 
-```
+```text
                      USER INTERACTION
                            │
                            ▼
@@ -125,7 +125,7 @@
 
 ### Coordinate System Definitions
 
-```
+```text
 Screen Space:
   - What user sees after zoom and pan
   - Affected by: scale, translation
@@ -146,7 +146,7 @@ Hex Grid Space:
 
 When content is smaller than container, Compose centers it:
 
-```
+```text
 Given:
   - C = Container size
   - S = Content size (unscaled)
@@ -237,7 +237,8 @@ fun testScreenToHexGridPosition_variousZoomLevels() {
 ## Impact Analysis
 
 ### Performance
-```
+
+```text
 Before: 0 multiplications (wrong calculation)
 After:  2 multiplications (correct calculation)
 
@@ -245,7 +246,8 @@ Impact: Negligible (< 0.01ms per event)
 ```
 
 ### Memory
-```
+
+```text
 Before: 0 allocations
 After:  0 allocations
 
@@ -253,7 +255,8 @@ Impact: None
 ```
 
 ### Code Size
-```
+
+```text
 Before: 2 lines of code
 After:  4 lines of code
 
@@ -261,7 +264,8 @@ Impact: +2 lines (50% increase in this block, but minimal overall)
 ```
 
 ### Correctness
-```
+
+```text
 Before: ❌ Wrong at all zoom levels except 1.0x
 After:  ✅ Correct at all zoom levels (0.5x to 3.0x)
 
@@ -272,4 +276,4 @@ Impact: Feature now works as intended!
 
 The fix is minimal (2 additional lines), mathematically sound, and has negligible performance impact. It correctly accounts for zoom level in the centering calculation, enabling the zoom feature while maintaining accurate brush painting.
 
-**Result: Map editor zoom feature fully functional! 🎉**
+### Result: Map editor zoom feature fully functional! 🎉

@@ -7,12 +7,14 @@ This feature adds health-promoting reminder messages to encourage players to tak
 ## Features
 
 ### Break Reminder
+
 - **Trigger**: Appears every 2 hours of gameplay
 - **Message**: "Time for a break? You have been playing for [time]."
 - **Icon**: Coffee cup emoji (☕)
 - **Format**: Shows elapsed time in hours and minutes (e.g., "2 hours 30 minutes")
 
 ### Sleep Reminder
+
 - **Trigger**: Appears hourly after 23:00 local time (until 06:00)
 - **Message**: "Time for Sleep? It is [close to midnight/midnight/after midnight]."
 - **Icon**: Bed emoji (🛏️)
@@ -46,6 +48,7 @@ This feature adds health-promoting reminder messages to encourage players to tak
 ### Localization
 
 Strings are available in 5 languages:
+
 - English (default)
 - German (Deutsch)
 - Spanish (Español)
@@ -53,6 +56,7 @@ Strings are available in 5 languages:
 - Italian (Italiano)
 
 String keys:
+
 - `time_for_break_title`
 - `time_for_break_message`
 - `time_for_sleep_title`
@@ -111,6 +115,7 @@ To test reminders without waiting:
 ## Future Enhancements
 
 Possible improvements:
+
 - Make reminder intervals configurable in Settings
 - Add "Remind me later" option (snooze for 30 minutes)
 - Track total play time across sessions

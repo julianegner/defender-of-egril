@@ -21,7 +21,8 @@ The test suite identifies five primary causes for "???" appearing in the applica
 ## Test Suite Implementation
 
 The test suite is located in:
-```
+
+```text
 composeApp/src/desktopTest/kotlin/de/egril/defender/ui/TranslationCoverageTest.kt
 ```
 
@@ -30,17 +31,20 @@ composeApp/src/desktopTest/kotlin/de/egril/defender/ui/TranslationCoverageTest.k
 **Purpose**: Scans UI code for hardcoded strings that should be localized.
 
 **What it checks**:
+
 - All text displayed in UI uses `stringResource(Res.string.key_name)`
 - No hardcoded strings like `Text("Hello World")`
 
 **Exceptions**:
+
 - Cheat codes (not translated by design)
 - Single-character symbols (•, X, +, -)
 - Variable interpolations ($variable)
 - Numeric and formatting strings
 
 **Example failure message**:
-```
+
+```text
 Found 2 hardcoded string(s) that should be translated:
 
   ui/GameScreen.kt:42 - "Game Over"
@@ -54,12 +58,14 @@ All user-facing strings should use stringResource(Res.string.key_name)
 **Purpose**: Verifies that all language files have identical keys.
 
 **What it checks**:
+
 - German (de), Spanish (es), French (fr), and Italian (it) files have all English keys
 - No extra keys exist in non-English files
 - All keys are synchronized across languages
 
 **Example failure message**:
-```
+
+```text
 Translation files are not synchronized:
 
   values-de/ is missing keys: achievement_new_tower, settings_sound
@@ -71,12 +77,14 @@ Translation files are not synchronized:
 **Purpose**: Detects empty translation values that would display as "???".
 
 **What it checks**:
+
 - All `<string>` tags have non-empty values
 - No whitespace-only translations
 - Checks all language files
 
 **Example failure message**:
-```
+
+```text
 Found 1 empty or whitespace-only translation(s):
 Empty translations will display as '???' in the app.
 
@@ -90,6 +98,7 @@ All translations must have non-empty values.
 **Purpose**: Validates that all keys referenced in code are defined in strings.xml.
 
 **What it checks**:
+
 - Scans ALL UI files for `stringResource(Res.string.xxx)` calls (covers ~680+ keys)
 - Also checks `LocalizationUtils.kt`, `NameLocalizationUtils.kt`, and `AchievementLocalization.kt`
 - Verifies each key exists in English strings.xml
@@ -98,7 +107,8 @@ All translations must have non-empty values.
 **Coverage**: This test now validates **all** stringResource usages throughout the entire UI codebase, not just specific utility files.
 
 **Example failure message**:
-```
+
+```text
 Found 2 key(s) referenced in code but not defined in strings.xml:
 These will display as '???' in the app.
 
@@ -113,13 +123,15 @@ All referenced keys must be defined in values/strings.xml
 **Purpose**: Validates XML structure and prevents parsing errors.
 
 **What it checks**:
+
 - XML declaration present (`<?xml version="1.0"?>`)
 - Root `<resources>` element exists
 - Matching open and close `<string>` tags
 - No duplicate keys within a file
 
 **Example failure message**:
-```
+
+```text
 Found 2 XML structure issue(s):
 Malformed XML will cause translations to fail and display as '???'
 
@@ -132,13 +144,15 @@ Malformed XML will cause translations to fail and display as '???'
 **Purpose**: Validates that parameterized strings use consistent placeholders across all languages.
 
 **What it checks**:
+
 - Extracts all parameterized strings (containing %s, %d, %1$s, %2$d, etc.)
 - Compares parameter placeholders between English and each language
 - Detects mismatches like English using %s but German using %d
 - Parameter mismatches cause "???" or incorrect formatting at runtime
 
 **Example failure message**:
-```
+
+```text
 Found 2 parameterized string(s) with mismatched parameters:
 Parameter mismatches can cause '???' or incorrect formatting at runtime.
 
@@ -154,17 +168,20 @@ All languages must use the same parameter placeholders (e.g., %s, %d, %1$s, %2$d
 
 ## Running the Tests
 
-### Run all translation tests:
+### Run all translation tests
+
 ```bash
 ./gradlew :composeApp:desktopTest --tests "de.egril.defender.ui.TranslationCoverageTest"
 ```
 
-### Run a specific test:
+### Run a specific test
+
 ```bash
 ./gradlew :composeApp:desktopTest --tests "de.egril.defender.ui.TranslationCoverageTest.testNoEmptyOrWhitespaceOnlyTranslations"
 ```
 
-### Run as part of full test suite:
+### Run as part of full test suite
+
 ```bash
 ./gradlew :composeApp:test
 ```
@@ -174,6 +191,7 @@ All languages must use the same parameter placeholders (e.g., %s, %d, %1$s, %2$d
 **Purpose**: Detects incorrect parameter passing that causes "???".
 
 **What it checks**:
+
 - Scans all UI files for `stringResource(...).replace(...)` patterns
 - This pattern doesn't work with the localization plugin
 - Parameters must be passed directly to stringResource, not via .replace()
@@ -181,7 +199,8 @@ All languages must use the same parameter placeholders (e.g., %s, %d, %1$s, %2$d
 **Why this matters**: The compose-multiplatform-localize plugin requires parameters to be passed directly to the function, not post-processed with .replace(). Using .replace() causes "???" to appear because the plugin doesn't see the actual string value.
 
 **Example failure message**:
-```
+
+```text
 Found 1 case(s) of stringResource().replace() pattern:
 This pattern causes '???' because parameters are not passed correctly.
 
@@ -195,6 +214,7 @@ Wrong usage: stringResource(Res.string.key).replace("%s", param1)
 ## Test Results
 
 All tests currently pass:
+
 - ✅ testNoHardcodedStringsInUI
 - ✅ testAllLanguageFilesHaveSameKeys
 - ✅ testNoEmptyOrWhitespaceOnlyTranslations
@@ -203,7 +223,7 @@ All tests currently pass:
 - ✅ testParameterizedStringsMatchAcrossLanguages
 - ✅ testNoStringResourceWithReplace (NEW)
 
-**Total: 7 tests, 0 failures**
+### Total: 7 tests, 0 failures
 
 ## Continuous Integration
 
@@ -217,25 +237,25 @@ These tests should be run as part of the CI pipeline to prevent broken translati
 
 ## Fixing Issues
 
-### When testAllLanguageFilesHaveSameKeys fails:
+### When testAllLanguageFilesHaveSameKeys fails
 
 1. Open the missing language file (e.g., `values-de/strings.xml`)
 2. Add the missing keys with translated values
 3. Run the test again to verify
 
-### When testNoEmptyOrWhitespaceOnlyTranslations fails:
+### When testNoEmptyOrWhitespaceOnlyTranslations fails
 
 1. Navigate to the file and line number indicated
 2. Add a proper translation value between the `<string>` tags
 3. Ensure the translation is not just whitespace
 
-### When testAllReferencedKeysExist fails:
+### When testAllReferencedKeysExist fails
 
 1. Add the missing key to `values/strings.xml`
 2. Translate it and add to all other language files
 3. Verify the key name matches exactly (case-sensitive)
 
-### When testXmlFilesAreWellFormed fails:
+### When testXmlFilesAreWellFormed fails
 
 1. Check for unclosed tags or missing closing tags
 2. Remove any duplicate key definitions
@@ -268,6 +288,7 @@ The test suite will automatically validate new strings without requiring updates
 ### Key Extraction Algorithm
 
 The test uses regex patterns to extract keys from code:
+
 - Pattern: `["']([a-z_][a-z0-9_]*)["']`
 - Filters: Must contain underscore, no file paths, no URLs
 - Skips: Comments (lines starting with //, *, or /*)
@@ -281,6 +302,7 @@ The test uses regex patterns to extract keys from code:
 ### Project Root Detection
 
 Tests automatically detect project root whether run from:
+
 - Repository root directory
 - composeApp subdirectory
 - CI environment

@@ -17,7 +17,7 @@ This document describes the addition of the `SAVE_GAME` tutorial step to educate
 
 Added `SAVE_GAME` step between `SELL_TOWER` and `COMPLETE` in the tutorial progression:
 
-```
+```text
 ... -> UPGRADE_TOWER -> SELL_TOWER -> SAVE_GAME -> COMPLETE -> NONE
 ```
 
@@ -46,22 +46,27 @@ Added `SAVE_GAME` step between `SELL_TOWER` and `COMPLETE` in the tutorial progr
 #### Step 13: Save Your Progress (TutorialStep.SAVE_GAME)
 
 **English:**
+
 - **Title:** "Save Your Progress"
 - **Message:** "You can save your game at any time using the Save Game button. This lets you try different strategies or continue later. To load a saved game, use the Load Game button on the world map screen."
 
 **German:**
+
 - **Title:** "Speichern Sie Ihren Fortschritt"
 - **Message:** "Sie können Ihr Spiel jederzeit mit der Schaltfläche Spiel speichern sichern. So können Sie verschiedene Strategien ausprobieren oder später weiterspielen. Um ein gespeichertes Spiel zu laden, verwenden Sie die Schaltfläche Spiel laden auf dem Weltkarten-Bildschirm."
 
 **Spanish:**
+
 - **Title:** "Guarda tu progreso"
 - **Message:** "Puedes guardar tu juego en cualquier momento usando el botón Guardar Juego. Esto te permite probar diferentes estrategias o continuar más tarde. Para cargar una partida guardada, usa el botón Cargar Juego en la pantalla del mapa mundial."
 
 **French:**
+
 - **Title:** "Sauvegardez votre progression"
 - **Message:** "Vous pouvez sauvegarder votre jeu à tout moment en utilisant le bouton Sauvegarder. Cela vous permet d'essayer différentes stratégies ou de continuer plus tard. Pour charger une partie sauvegardée, utilisez le bouton Charger sur l'écran de la carte du monde."
 
 **Italian:**
+
 - **Title:** "Salva i tuoi progressi"
 - **Message:** "Puoi salvare il tuo gioco in qualsiasi momento usando il pulsante Salva gioco. Questo ti permette di provare diverse strategie o continuare più tardi. Per caricare un gioco salvato, usa il pulsante Carica gioco sulla schermata della mappa del mondo."
 
@@ -111,6 +116,7 @@ Added `SAVE_GAME` step between `SELL_TOWER` and `COMPLETE` in the tutorial progr
 ### Unit Tests
 
 ✅ **TutorialStateTest.kt** updated to verify:
+
 - `SELL_TOWER` advances to `SAVE_GAME`
 - `SAVE_GAME` advances to `COMPLETE`
 - Complete tutorial progression includes all 14 steps
@@ -123,6 +129,7 @@ Added `SAVE_GAME` step between `SELL_TOWER` and `COMPLETE` in the tutorial progr
 ### Manual Testing Required
 
 To verify the implementation:
+
 1. Launch the game
 2. Start Level 1 ("Welcome to Defender of Egril")
 3. Progress through tutorial steps

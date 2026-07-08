@@ -3,6 +3,7 @@
 ## Overview
 
 The commit info dialog displays build and version information including:
+
 - Commit hash
 - Commit date and time
 - Commit message
@@ -14,6 +15,7 @@ On the main menu screen, click or tap on the version text in the bottom-left cor
 ## What You'll See
 
 A dialog titled "Build Information" will appear showing:
+
 1. **Commit Hash:** The short git commit hash (e.g., "995bd6c")
 2. **Commit Date:** The full date and time of the commit (e.g., "2026-01-14 18:32:16 +0000")
 3. **Commit Message:** The commit message (e.g., "Initial plan")
@@ -21,6 +23,7 @@ A dialog titled "Build Information" will appear showing:
 ## Localization
 
 The dialog is fully localized in:
+
 - English
 - German (Deutsch)
 - Spanish (Español)
@@ -32,7 +35,9 @@ Change the language in Settings to see the translated labels.
 ## Implementation Details
 
 ### BuildConfig Generation
+
 The build system automatically generates `BuildConfig.kt` with commit information:
+
 ```kotlin
 object BuildConfig {
     const val VERSION_NAME = "1.0"
@@ -43,15 +48,18 @@ object BuildConfig {
 ```
 
 This is done via a Gradle task that runs git commands:
+
 - `git rev-parse --short HEAD` for the hash
 - `git show -s --format=%ci HEAD` for the date
 - `git log -1 --pretty=%B` for the message
 
 ### UI Components
+
 - **CommitInfoDialog.kt:** The dialog component
 - **MenuScreens.kt:** Updated to make version text clickable and show the dialog
 
 ### Tests
+
 - **CommitInfoDialogTest.kt:** Tests dialog rendering and dismissal
 - **MainMenuScreenTest.kt:** Tests clicking version text and showing/dismissing the dialog
 
@@ -60,8 +68,10 @@ All tests pass successfully.
 ## Manual Verification Steps
 
 1. Build and run the desktop application:
+
    ```bash
    ./gradlew :composeApp:run
+
    ```
 
 2. On the main menu, look for the version text in the bottom-left corner

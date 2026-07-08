@@ -9,6 +9,7 @@ The tutorial level "Welcome to Defender of Egril" is an interactive first level 
 **Size:** 15 columns × 8 rows (smaller than standard 30×8)
 
 **Features:**
+
 - Single spawn point at position (0, 4)
 - Simple path with slight curves
 - Target at position (14, 4)
@@ -16,6 +17,7 @@ The tutorial level "Welcome to Defender of Egril" is an interactive first level 
 - Abundant build areas adjacent to the path
 
 **Why this design?**
+
 - Small size reduces complexity for new players
 - Clear, easy-to-follow path
 - Strategic islands teach advanced placement concepts
@@ -24,10 +26,12 @@ The tutorial level "Welcome to Defender of Egril" is an interactive first level 
 ## Enemy Configuration
 
 **Total Enemies:** 6
+
 - 5 Goblins (spawn on turns 1-5)
 - 1 Ork (spawns on turn 8)
 
 **Why this composition?**
+
 - Goblins are fast but weak - teach basic tower placement
 - Ork is slow but tough - demonstrates the need for stronger/upgraded towers
 - Gap between goblin waves and ork gives player time to build/upgrade
@@ -65,6 +69,7 @@ Only 3 basic tower types are available:
    - Best for: Long-range coverage
 
 **Why only 3 towers?**
+
 - Reduces decision paralysis for new players
 - Teaches fundamental tower defense concepts
 - More complex towers (Wizard, Alchemy, Ballista, Mine, Dragon's Lair) are introduced in later levels
@@ -72,58 +77,74 @@ Only 3 basic tower types are available:
 ## Tutorial Steps
 
 ### 1. Welcome (TutorialStep.WELCOME)
+
 **Title:** "Welcome to Defender of Egril!"
 **Message:** "This is a tower defense game. Your goal is to stop enemies from reaching the target by building defensive towers."
-**Actions:** 
+**Actions:**
+
 - Next button advances
 - Skip button available
 
 ### 2. Resources (TutorialStep.RESOURCES)
+
 **Title:** "Resources"
 **Message:** "You have coins to build towers and health points. Each enemy reaching the target costs 1 HP."
 **Actions:**
+
 - Next button advances
 - Skip button available
 
 ### 3. Build Tower (TutorialStep.BUILD_TOWER)
+
 **Title:** "Building Towers"
 **Message:** "Select a tower type, then click on a green build area to place it. Try placing a Spike Tower!"
 **Actions:**
+
 - Next button advances
 - Skip button available
 - **Gating:** Won't advance past this step until player places at least one tower
 
 ### 4. Tower Types (TutorialStep.TOWER_TYPES)
+
 **Title:** "Available Towers"
-**Message:** 
-```
+**Message:**
+
+```text
 Spike Tower: Close range, cheap
 Spear Tower: Medium range
 Bow Tower: Long range
 ```
+
 **Actions:**
+
 - Next button advances
 - No skip button (too far into tutorial)
 
 ### 5. Enemies Incoming (TutorialStep.ENEMIES_INCOMING)
+
 **Title:** "Enemies Incoming!"
 **Message:** "Goblins are fast but weak. The Ork is slow but tough. Position your towers wisely!"
 **Actions:**
+
 - Next button advances
 - No skip button
 
 ### 6. Start Combat (TutorialStep.START_COMBAT)
+
 **Title:** "Combat Phase"
 **Message:** "Click 'Start Turn' to begin. Towers will attack, then enemies move. You can upgrade towers and attack specific enemies."
 **Actions:**
+
 - Next button advances
 - No skip button
 - **Gating:** Won't advance past this step until player starts their first turn
 
 ### 7. Complete (TutorialStep.COMPLETE)
+
 **Title:** "You're Ready!"
 **Message:** "You've learned the basics! Now defend Egril against the hordes. Good luck!"
 **Actions:**
+
 - "Got it!" button dismisses and tutorial ends
 
 ## Technical Implementation
@@ -140,11 +161,13 @@ Bow Tower: Long range
 ### Tutorial Detection
 
 Tutorial is activated when:
+
 ```kotlin
 level.id == 1 && level.name.contains("Welcome", ignoreCase = true)
 ```
 
 This ensures:
+
 - Only the first level triggers tutorial
 - Level name clearly identifies it
 - Other levels are unaffected
@@ -152,6 +175,7 @@ This ensures:
 ### Progress Tracking
 
 Tutorial tracks two key player actions:
+
 1. **hasPlacedFirstTower** - Set when player places any tower
 2. **hasStartedFirstTurn** - Set when player clicks "Start Turn" or "End Turn"
 
@@ -160,18 +184,20 @@ These flags gate progression through BUILD_TOWER and START_COMBAT steps respecti
 ### Skip Functionality
 
 Players can skip the tutorial at any point during the first 3 steps:
+
 - WELCOME
 - RESOURCES  
 - BUILD_TOWER
 
 After that, skip is removed since:
+
 - Player has already invested time
 - Remaining steps are brief
 - Player needs to complete the level anyway
 
 ## User Experience Flow
 
-```
+```text
 ┌─────────────────────────────────────────────┐
 │ Player clicks on Level 1 "Welcome to...    │
 └─────────────────────────────────────────────┘
@@ -229,6 +255,7 @@ After that, skip is removed since:
 ## Localization
 
 Tutorial strings are fully localized in 5 languages:
+
 - English (default)
 - German (Deutsch)
 - Spanish (Español)
@@ -240,6 +267,7 @@ All strings use the `stringResource(Res.string.tutorial_*)` system for automatic
 ## Testing
 
 Comprehensive unit tests in `TutorialStateTest.kt`:
+
 - 11 test cases covering all state transitions
 - Tests for gating logic (tower placement, turn start)
 - Tests for skip functionality
@@ -249,23 +277,27 @@ Comprehensive unit tests in `TutorialStateTest.kt`:
 ## Design Decisions
 
 ### Why overlays instead of tooltips?
+
 - More prominent and harder to miss
 - Forces player attention on important information
 - Works well on all screen sizes
 - Can't be accidentally dismissed
 
 ### Why block progression at certain steps?
+
 - Ensures player actually tries the mechanic
 - Prevents "next-next-next" clicking through
 - Provides hands-on learning experience
 
 ### Why only 6 enemies?
+
 - Quick tutorial (5-10 minutes)
 - Enough to learn mechanics
 - Not overwhelming for new players
 - Sets up expectations for longer levels
 
 ### Why limit to 3 tower types?
+
 - Reduces cognitive load
 - Teaches fundamentals first
 - More advanced towers require understanding basic concepts
@@ -274,6 +306,7 @@ Comprehensive unit tests in `TutorialStateTest.kt`:
 ## Future Enhancements
 
 Potential improvements (not in scope for current implementation):
+
 - Highlight specific UI elements during relevant steps
 - Animated arrows pointing to buttons/areas
 - In-game tooltips that persist after tutorial

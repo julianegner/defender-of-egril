@@ -43,26 +43,13 @@ The easiest way to run the Playwright UI tests is through GitHub Actions:
 8. 📸 Captures screenshots at each step
 9. 📤 Uploads all results as artifacts
 
-## Running Locally
-
-If you want to run the tests on your own machine:
-
-### Prerequisites
-
-```bash
-# Check you have Node.js installed
-node --version  # Should be v20 or later
-
-# Check you have JDK installed  
-java --version  # Should be JDK 11 or later
-```
-
-### Steps
+### Local Run Steps
 
 1. **Install Dependencies**
 
    ```bash
    npm install
+
    ```
 
 2. **Install Playwright Browsers**
@@ -75,6 +62,7 @@ java --version  # Should be JDK 11 or later
 
    ```bash
    npx playwright test
+
    ```
 
    Or run in headed mode (see the browser):

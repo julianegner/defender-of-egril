@@ -1,6 +1,7 @@
 # Savefile Download/Upload Feature - Implementation Summary
 
 ## Overview
+
 This document describes the implementation of the download/upload functionality for save files in Defender of Egril, supporting cross-platform usage (Desktop, Android, iOS, Web).
 
 ## Requirements Implemented
@@ -15,6 +16,7 @@ This document describes the implementation of the download/upload functionality 
 ### Core Infrastructure
 
 #### FileExportImport Interface (`commonMain`)
+
 ```kotlin
 interface FileExportImport {
     suspend fun exportFile(filename: String, content: String): Boolean
@@ -26,12 +28,14 @@ interface FileExportImport {
 #### Platform Implementations
 
 **Desktop/JVM** (`FileExportImport.desktop.kt`)
+
 - Uses `JFileChooser` for file picker dialogs
 - Full ZIP support with `ZipOutputStream` and `ZipInputStream`
 - Handles both single files and ZIP archives
 - Status: ✅ **Fully implemented and tested (compilation)**
 
 **Web/WASM** (`FileExportImport.wasmJs.kt`)
+
 - Uses browser File API with `<input type="file">` for uploads
 - Creates download links with `Blob` and `URL.createObjectURL()`
 - Uses `@JsFun` external functions for proper WASM/JS interop
@@ -41,6 +45,7 @@ interface FileExportImport {
 - Status: ✅ **Implemented and compiles**
 
 **Android** (`FileExportImport.android.kt`)
+
 - Uses Storage Access Framework (SAF) for file operations
 - `ActivityResultContracts.CreateDocument` for export with file picker dialog
 - `ActivityResultContracts.OpenMultipleDocuments` for import with multiple selection
@@ -50,6 +55,7 @@ interface FileExportImport {
 - Status: ✅ **Fully implemented**
 
 **iOS** (`FileExportImport.ios.kt`)
+
 - Uses UIActivityViewController for file exports (native iOS share sheet)
 - Uses UIDocumentPickerViewController for file imports
 - Export strategy:
@@ -78,11 +84,13 @@ fun saveGameExists(filename: String): Boolean
 ### UI Components
 
 #### SavedGameCard
+
 - Added `onDownload` callback parameter
 - Download button appears next to Delete button
 - Uses `DownloadIcon` from IconUtils
 
 #### LoadGameScreen
+
 - Added "Download All" and "Upload" buttons at the top
 - Buttons styled with primary/secondary colors
 - Internal state management for upload flow:
@@ -91,6 +99,7 @@ fun saveGameExists(filename: String): Boolean
   - Shows success/error dialogs
 
 #### New Dialog Components (`ImportExportDialogs.kt`)
+
 - `FileOverrideDialog`: Handles filename conflicts with Skip/Override/Override All
 - `ImportSuccessDialog`: Shows count of successfully imported files
 - `ImportErrorDialog`: Shows error message for failed imports
@@ -109,6 +118,7 @@ suspend fun importSaveGameWithOverride(filename: String, content: String, overwr
 ### Localization
 
 All new strings added to 5 languages:
+
 - English (default)
 - German (de)
 - Spanish (es)
@@ -116,6 +126,7 @@ All new strings added to 5 languages:
 - Italian (it)
 
 New string keys:
+
 - `download_savefile` / `download_all_savefiles` / `upload_savefiles`
 - `download_savefile_tooltip` / `download_all_tooltip` / `upload_tooltip`
 - `file_override_title` / `file_override_message`
@@ -126,29 +137,34 @@ New string keys:
 ### Icon Components
 
 Added to `IconUtils.kt`:
+
 - `DownloadIcon`: Uses `emoji_down_arrow.png`
 - `UploadIcon`: Uses `emoji_up_arrow.png`
 
 ### Time Utilities
 
 Added `formatTimestampISO()` function for ZIP filenames:
+
 - Format: `YYYY-MM-DD_HH-mm-ss`
 - Implemented for all platforms (JVM, WASM, iOS)
 
 ## User Flow
 
 ### Download Individual Save
+
 1. User clicks download button on save card
 2. File picker dialog opens (Desktop) or download starts (Web)
 3. Save file exported as `{saveId}.json`
 
 ### Download All Saves
+
 1. User clicks "Download All" button
 2. All save files packaged into ZIP (Desktop) or concatenated text file (Web)
 3. Filename: `defender-of-egril-saves-YYYY-MM-DD_HH-mm-ss.zip`
 4. File picker dialog opens (Desktop) or download starts (Web)
 
 ### Upload Saves
+
 1. User clicks "Upload" button
 2. File picker dialog opens
 3. User selects one or more JSON files (or ZIP on Desktop)
@@ -162,12 +178,14 @@ Added `formatTimestampISO()` function for ZIP filenames:
 ## File Format
 
 ### Individual Save File
+
 - Format: JSON
 - Extension: `.json`
 - Filename pattern: `savegame_{timestamp}.json`
 - Validated on import by deserializing with `SaveJsonSerializer`
 
 ### ZIP Archive (Desktop only)
+
 - Format: Standard ZIP
 - Extension: `.zip`
 - Contents: Multiple JSON save files
@@ -176,13 +194,16 @@ Added `formatTimestampISO()` function for ZIP filenames:
 ## Testing Status
 
 ### Compilation
+
 - ✅ Desktop/JVM: Compiles successfully
 - ✅ Web/WASM: Compiles successfully
 - ✅ Android: Fully implemented with Storage Access Framework
 - ✅ iOS: Implemented with UIKit (UIActivityViewController + UIDocumentPickerViewController)
 
 ### Manual Testing Required
+
 The feature requires UI interaction and cannot be fully tested in CI:
+
 1. Download individual save file
 2. Download all saves as ZIP
 3. Upload single JSON file
@@ -224,6 +245,7 @@ The feature requires UI interaction and cannot be fully tested in CI:
 ## Files Changed
 
 ### New Files
+
 - `composeApp/src/commonMain/kotlin/de/egril/defender/save/FileExportImport.kt`
 - `composeApp/src/desktopMain/kotlin/de/egril/defender/save/FileExportImport.desktop.kt`
 - `composeApp/src/wasmJsMain/kotlin/de/egril/defender/save/FileExportImport.wasmJs.kt`
@@ -232,6 +254,7 @@ The feature requires UI interaction and cannot be fully tested in CI:
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/loadgame/ImportExportDialogs.kt`
 
 ### Modified Files
+
 - `composeApp/src/androidMain/kotlin/de/egril/defender/MainActivity.kt` (Android initialization)
 - `composeApp/src/commonMain/kotlin/de/egril/defender/save/SaveFileStorage.kt`
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/GameViewModel.kt`
@@ -251,6 +274,7 @@ The feature requires UI interaction and cannot be fully tested in CI:
 The savefile download/upload feature is fully implemented for Desktop, Android, and iOS with appropriate platform-specific implementations. Web/WASM has basic functionality with limitations (no ZIP library). The feature provides a consistent user experience across platforms with proper localization and error handling.
 
 ### Platform Summary
+
 - ✅ **Desktop/JVM**: Full functionality with JFileChooser and ZIP support
 - ✅ **Android**: Full functionality with Storage Access Framework (SAF) and ZIP support
 - ✅ **iOS**: Full functionality with UIActivityViewController/UIDocumentPickerViewController (simple concatenated format instead of ZIP)

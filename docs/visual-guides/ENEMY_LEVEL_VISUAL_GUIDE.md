@@ -1,12 +1,14 @@
 # Enemy Level Display - Visual Implementation Guide
 
 ## Overview
+
 This document provides a visual guide to the enemy level display feature implementation.
 
 ## 1. Enemy List Panel - Level Badge Display
 
-### Before (without level badge):
-```
+### Before (without level badge)
+
+```text
 ┌─────────────────────────────────────┐
 │ On Map:                             │
 ├─────────────────────────────────────┤
@@ -18,8 +20,9 @@ This document provides a visual guide to the enemy level display feature impleme
 └─────────────────────────────────────┘
 ```
 
-### After (with level badge for level > 1):
-```
+### After (with level badge for level > 1)
+
+```text
 ┌─────────────────────────────────────┐
 │ On Map:                             │
 ├─────────────────────────────────────┤
@@ -34,7 +37,8 @@ This document provides a visual guide to the enemy level display feature impleme
 ## 2. Enemy Click Interaction Flow
 
 ### Step 1: Normal View (No Selection)
-```
+
+```text
 ┌──────────────────────────────────────────────────────────────────┐
 │ Game Map                                                          │
 │                                                                    │
@@ -55,7 +59,8 @@ Bottom Panel:
 ```
 
 ### Step 2: Click on Enemy (NEW FEATURE)
-```
+
+```text
 ┌──────────────────────────────────────────────────────────────────┐
 │ Game Map                                                          │
 │                                                                    │
@@ -85,7 +90,8 @@ Bottom Panel (NEW LAYOUT):
 ```
 
 ### Step 3: Click on Tower (Existing Feature, for Comparison)
-```
+
+```text
 ┌──────────────────────────────────────────────────────────────────┐
 │ Game Map                                                          │
 │                                                                    │
@@ -115,8 +121,9 @@ Bottom Panel:
 
 Different enemies show different abilities:
 
-### Evil Mage (Can Summon):
-```
+### Evil Mage (Can Summon)
+
+```text
 ┌──────────────────────────────┐
 │ [Icon] Evil Mage Lv2         │
 │        HP: 60/80             │
@@ -126,8 +133,9 @@ Different enemies show different abilities:
 └──────────────────────────────┘
 ```
 
-### Red Witch (Can Disable):
-```
+### Red Witch (Can Disable)
+
+```text
 ┌──────────────────────────────┐
 │ [Icon] Red Witch Lv1         │
 │        HP: 25/30             │
@@ -137,8 +145,9 @@ Different enemies show different abilities:
 └──────────────────────────────┘
 ```
 
-### Green Witch (Can Heal):
-```
+### Green Witch (Can Heal)
+
+```text
 ┌──────────────────────────────┐
 │ [Icon] Green Witch Lv1       │
 │        HP: 25/25             │
@@ -148,8 +157,9 @@ Different enemies show different abilities:
 └──────────────────────────────┘
 ```
 
-### Blue Demon (Immune to Acid):
-```
+### Blue Demon (Immune to Acid)
+
+```text
 ┌──────────────────────────────┐
 │ [Icon] Blue Demon Lv4        │
 │        HP: 60/60             │
@@ -159,8 +169,9 @@ Different enemies show different abilities:
 └──────────────────────────────┘
 ```
 
-### Red Demon (Immune to Fireball):
-```
+### Red Demon (Immune to Fireball)
+
+```text
 ┌──────────────────────────────┐
 │ [Icon] Red Demon Lv2         │
 │        HP: 120/120           │
@@ -196,25 +207,29 @@ The ability descriptions are localized:
 
 ## 6. Interaction States
 
-### Selecting Enemy:
+### Selecting Enemy
+
 - Click enemy tile → Enemy details appear, buy buttons move right
 - Click same enemy again → Deselect, return to normal layout
 - Click different enemy → Switch to new enemy details
 - Click tower → Enemy deselected, tower details shown instead
 
-### Selecting Tower:
+### Selecting Tower
+
 - Click tower tile → Tower details appear, buy buttons move right
 - Click same tower again → Deselect, return to normal layout
 - Click enemy → Tower deselected, enemy details shown instead
 
 ## 7. Responsive Design
 
-### Desktop (uiScale = 1.0):
+### Desktop (uiScale = 1.0)
+
 - Icon size: 96dp
 - Button height: 60dp
 - Full spacing and padding
 
-### Mobile (uiScale < 1.0):
+### Mobile (uiScale < 1.0)
+
 - Icon size: 64dp
 - Button height: 100dp
 - Reduced spacing and padding (0.5x)
