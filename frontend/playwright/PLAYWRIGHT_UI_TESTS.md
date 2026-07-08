@@ -40,16 +40,19 @@ The test suite:
 ### Local Execution
 
 1. **Install dependencies**:
+
    ```bash
    npm install
    ```
 
 2. **Install Playwright browsers**:
+
    ```bash
    npx playwright install chromium
    ```
 
 3. **Run the tests**:
+
    ```bash
    npx playwright test
    ```
@@ -61,16 +64,19 @@ The test suite:
    - Generate a report
 
 4. **Run tests in headed mode** (see the browser):
+
    ```bash
    npm run test:headed
    ```
 
 5. **Debug tests interactively**:
+
    ```bash
    npm run test:debug
    ```
 
 6. **View the test report**:
+
    ```bash
    npx playwright show-report
    ```
@@ -95,6 +101,7 @@ The artifacts are retained for 30 days.
 ### Configuration (`playwright.config.ts`)
 
 The configuration file defines:
+
 - Test timeout: 5 minutes per test
 - Web server: Automatic startup of the WASM development server
 - Browsers: Chromium (can be extended to Firefox and WebKit)
@@ -228,6 +235,7 @@ For more robust tests, consider:
 **Symptoms**: Tests timeout waiting for server
 
 **Solutions**:
+
 - Check if port 8080 is already in use
 - Verify JDK 24 is installed
 - Check Gradle build logs for errors
@@ -238,6 +246,7 @@ For more robust tests, consider:
 **Symptoms**: Screenshots show clicks in wrong locations
 
 **Solutions**:
+
 - Review canvas dimensions in test output
 - Adjust position percentages in `game.spec.ts`
 - Add more delays between actions
@@ -248,6 +257,7 @@ For more robust tests, consider:
 **Symptoms**: Artifacts don't contain expected screenshots
 
 **Solutions**:
+
 - Check if `test-screenshots/playwright/` directory exists
 - Verify file permissions
 - Check disk space
@@ -258,6 +268,7 @@ For more robust tests, consider:
 **Symptoms**: All clicks succeed but game state is wrong
 
 **Solutions**:
+
 - Manually review all screenshots
 - Compare with expected game behavior
 - Adjust wait times between actions

@@ -5,7 +5,7 @@ This directory contains the production Keycloak realm for Defender of Egril.
 ## Differences from Local
 
 | Setting | Local (`keycloak/local/`) | Production (`keycloak/production/`) |
-|---------|--------------------------|--------------------------------------|
+| --------- | -------------------------- | -------------------------------------- |
 | Test user (`tester@test.org`) | ✅ present | ❌ removed |
 | `sslRequired` | `none` | `external` |
 | Redirect URIs | localhost dev ports | localhost wildcard + `egril://` |

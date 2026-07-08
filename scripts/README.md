@@ -51,6 +51,7 @@ The installer file will be named: `DefenderOfEgril-1.0.0.exe` (or similar based 
 `scrape_dragon_names.sh` is a bash script that scrapes dragon names from [mythopedia.com's dragon name generator](https://mythopedia.com/name-generator/dragon-names/).
 
 The name generator has 5 text fields above a "Generate Names" button. This script automates the process of:
+
 1. Clicking the "Generate Names" button
 2. Extracting the generated names from the text fields
 3. Repeating until 200 unique names are collected
@@ -78,11 +79,13 @@ The name generator has 5 text fields above a "Generate Names" button. This scrip
 ### Output
 
 The script creates a file named `dragon_names.txt` in the same directory, containing:
+
 - 200 unique dragon names
 - One name per line
 - No headers or additional formatting
 
 Example output:
+
 ```
 Alduin
 Smaug
@@ -95,7 +98,7 @@ Drogon
 1. **Browser Automation**: Uses Playwright to control a headless Chrome browser
 2. **Page Navigation**: Navigates to the dragon name generator page
 3. **Element Detection**: Finds the 5 text input fields and the "Generate Names" button
-4. **Iterative Collection**: 
+4. **Iterative Collection**:
    - Clicks the button to generate names
    - Extracts names from the text fields
    - Repeats until 200 unique names are collected (typically 40-50 iterations)
@@ -105,20 +108,25 @@ Drogon
 ### Troubleshooting
 
 **Issue**: Website is blocked or unreachable
+
 - **Solution**: Use test mode: `./scrape_dragon_names.sh --test`
 
 **Issue**: Playwright installation fails
+
 - **Solution**: Manually install: `npm install playwright && npx playwright install chromium`
 
 **Issue**: Script times out
+
 - **Solution**: The website might be slow or down. Try again later.
 
 **Issue**: Fewer than 200 names collected
+
 - **Solution**: The script will save what it collected. Run again to get more names.
 
 ### Test Mode
 
 Test mode (`--test` flag) generates 200+ sample dragon names without accessing the internet. This is useful for:
+
 - Testing the output format
 - Demonstrating the script's functionality
 - Working in environments where the website is blocked

@@ -9,10 +9,12 @@ Successfully implemented a comprehensive Playwright-based UI testing system for 
 ### 1. Core Testing Infrastructure
 
 #### package.json
+
 - Added Playwright as a dev dependency (@playwright/test ^1.40.0)
 - Defined npm scripts for running tests in different modes (normal, headed, debug)
 
 #### playwright.config.ts
+
 - Configured test execution with 5-minute timeout per test
 - Set up automatic WASM development server startup before tests
 - Configured Chromium browser for testing
@@ -20,6 +22,7 @@ Successfully implemented a comprehensive Playwright-based UI testing system for 
 - Configured HTML and list reporters for test results
 
 #### tests/game.spec.ts
+
 - **Test 1: Complete Tutorial Level with Bow Towers**
   - Loads the game and waits for initialization
   - Clicks "Start Game" button on main menu
@@ -40,7 +43,9 @@ Successfully implemented a comprehensive Playwright-based UI testing system for 
 ### 2. GitHub Actions Workflow
 
 #### .github/workflows/playwright-ui-tests.yml
+
 A complete CI workflow that:
+
 1. ✅ Checks out repository code
 2. ⚙️ Sets up JDK 24 and Gradle for building
 3. 🛠️ Builds the WASM version of the game
@@ -62,7 +67,9 @@ A complete CI workflow that:
 ### 3. Documentation
 
 #### PLAYWRIGHT_QUICKSTART.md
+
 Quick reference guide covering:
+
 - How to run tests via GitHub Actions (step-by-step with screenshots)
 - How to run tests locally
 - How to download and interpret results
@@ -70,7 +77,9 @@ Quick reference guide covering:
 - How to modify test behavior
 
 #### docs/testing/PLAYWRIGHT_UI_TESTS.md
+
 Comprehensive guide (9,800+ words) covering:
+
 - System architecture and purpose
 - How the tests work internally
 - Prerequisites and setup
@@ -84,6 +93,7 @@ Comprehensive guide (9,800+ words) covering:
 - Contributing guidelines
 
 #### Updated Existing Documentation
+
 - **README.md**: Added UI Testing section with quick start
 - **docs/README.md**: Added Playwright reference to testing section
 - **test-screenshots/README.md**: Updated with Playwright artifacts info
@@ -91,7 +101,9 @@ Comprehensive guide (9,800+ words) covering:
 ### 4. Configuration Updates
 
 #### .gitignore
+
 Added exclusions for:
+
 - `node_modules/` - npm dependencies
 - `package-lock.json` - npm lock file
 - `test-screenshots/playwright/` - Test screenshots directory
@@ -101,30 +113,35 @@ Added exclusions for:
 ## Key Features
 
 ### Automated Gameplay Testing
+
 - Fully automated playthrough of the tutorial level
 - Simulates real user interactions (clicks, navigation)
 - Strategic tower placement and combat execution
 - Turn-by-turn gameplay progression
 
 ### Visual Documentation
+
 - Sequential screenshot capture at every major action
 - Numbered filenames for easy ordering (001_, 002_, etc.)
 - Descriptive names indicating the action (e.g., "built_bow_tower_1")
 - Full-page screenshots showing entire game state
 
 ### Error Detection
+
 - Monitors JavaScript console errors
 - Captures page errors and exceptions
 - Reports all errors found during testing
 - Helps identify runtime issues early
 
 ### CI/CD Integration
+
 - Seamless GitHub Actions integration
 - Manual trigger for on-demand testing
 - Automatic artifact upload and retention
 - Summary report in workflow run
 
 ### Artifact Management
+
 - Screenshots accessible via GitHub UI
 - Interactive HTML report with embedded media
 - Video recordings for debugging failures
@@ -156,7 +173,7 @@ Since Defender of Egril uses Compose for Web with a canvas-based UI, traditional
 The tests use these approximate positions (% of canvas dimensions):
 
 | UI Element | X Position | Y Position |
-|------------|------------|------------|
+| ------------ | ------------ | ------------ |
 | Start Game button | 50% | 65% |
 | Tutorial level | 25% | 40% |
 | Tower buttons | 15% | 20% |
@@ -191,6 +208,7 @@ The tests use these approximate positions (% of canvas dimensions):
 ## How to Use
 
 ### Via GitHub Actions (Recommended)
+
 1. Go to repository Actions tab
 2. Select "Playwright UI Tests" workflow
 3. Click "Run workflow"
@@ -198,6 +216,7 @@ The tests use these approximate positions (% of canvas dimensions):
 5. Download artifacts from workflow run page
 
 ### Locally
+
 ```bash
 # One-time setup
 npm install
@@ -223,6 +242,7 @@ The implementation follows these principles:
 ## Limitations and Future Work
 
 ### Current Limitations
+
 - **Position-based clicking**: Fragile if UI layout changes significantly
 - **No text detection**: Can't verify button labels or game text
 - **Single browser**: Only tests on Chromium
@@ -230,6 +250,7 @@ The implementation follows these principles:
 - **Manual verification**: Screenshots need manual review
 
 ### Future Enhancements
+
 - Add image recognition for UI element detection
 - Test multiple levels and strategies
 - Add browser matrix (Firefox, Safari, Edge)

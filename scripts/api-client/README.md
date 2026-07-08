@@ -6,7 +6,7 @@ It authenticates with Keycloak via username/password, then demonstrates every ba
 ## Prerequisites
 
 | Requirement | Notes |
-|---|---|
+| --- | --- |
 | **Kotlin 1.9+** | Must be on your `PATH`. Install via [SDKMAN](https://sdkman.io/): `sdk install kotlin` |
 | **Keycloak** | Default: `http://localhost:8081`. Start with `docker compose up -d` from the repo root. |
 | **Backend server** | Default: `http://localhost:8080`. Starts automatically after Keycloak is healthy (see startup note below). |
@@ -67,7 +67,7 @@ All settings have sensible defaults for local development.
 Override them with environment variables:
 
 | Variable | Default | Description |
-|---|---|---|
+| --- | --- | --- |
 | `KEYCLOAK_URL` | `http://localhost:8081` | Keycloak base URL |
 | `KEYCLOAK_REALM` | `egril` | Keycloak realm name |
 | `KEYCLOAK_CLIENT` | `defender-of-egril-cli` | OAuth2 client ID (CLI client with direct access grants) |
@@ -80,7 +80,7 @@ Override them with environment variables:
 The egril realm ships with a ready-to-use test account (no manual Keycloak admin steps needed):
 
 | Field | Value |
-|---|---|
+| --- | --- |
 | Username / Email | `tester@test.org` |
 | Password | `test` |
 | First name | Test |

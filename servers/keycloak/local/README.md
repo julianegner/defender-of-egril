@@ -11,6 +11,7 @@ docker compose up -d
 ```
 
 This single command starts:
+
 - **PostgreSQL** on port `5432`
 - **Keycloak** on port `8081` with the `egril` realm and `defender-of-egril` client pre-configured
 - **Backend** on port `8080`, connected to the database
@@ -42,10 +43,10 @@ docker compose up -d
 > **Note:** `keycloak/theme/dist_keycloak/` is git-ignored.
 > The JARs must be built locally before starting Keycloak.
 
-Keycloak will start on **http://localhost:8081** and automatically import the `egril` realm
+Keycloak will start on **<http://localhost:8081>** and automatically import the `egril` realm
 (including the `defender-of-egril` client) on first startup.
 
-Admin console: http://localhost:8081/admin  
+Admin console: <http://localhost:8081/admin>  
 Default credentials: `admin` / `admin`
 
 ## Stopping Keycloak
@@ -62,7 +63,7 @@ starts, by importing `egril-realm.json`. No manual Terraform steps are needed fo
 Two OpenID Connect clients are configured:
 
 | Client ID | Purpose |
-|---|---|
+| --- | --- |
 | `defender-of-egril` | The game application (PKCE flow, browser/desktop login) |
 | `defender-of-egril-cli` | Developer scripts and API testing (Resource Owner Password flow) |
 
@@ -82,7 +83,7 @@ Two OpenID Connect clients are configured:
 
 After startup you can register test user accounts in the Keycloak admin console:
 
-1. Go to http://localhost:8081/admin
+1. Go to <http://localhost:8081/admin>
 2. Log in with `admin` / `admin`
 3. Select the **egril** realm
 4. Go to **Users** → **Add user**
@@ -142,6 +143,7 @@ For a production deployment, set `window.keycloakConfig.url` to your external Ke
 ### Frontend (Desktop)
 
 The Keycloak URL for the desktop version is read from:
+
 1. Java system property: `-Diam.base.url=https://your-keycloak.example.com`
 2. Environment variable: `IAM_BASE_URL=https://your-keycloak.example.com`
 3. Default: `https://sso.julianegner.de` (production server)
@@ -152,6 +154,7 @@ or the `iam.base.url` system property to point at the local Keycloak instance (`
 ### Backend (Server)
 
 The Keycloak URL for the backend is read from:
+
 1. Environment variable: `IAM_BASE_URL=https://your-keycloak.example.com`
 2. Default: `http://localhost:8081`
 
@@ -159,7 +162,7 @@ The Keycloak URL for the backend is read from:
 
 After applying Terraform:
 
-1. Go to http://localhost:8081/admin
+1. Go to <http://localhost:8081/admin>
 2. Log in with `admin` / `admin`
 3. Select the **egril** realm
 4. Go to **Users** → **Add user**

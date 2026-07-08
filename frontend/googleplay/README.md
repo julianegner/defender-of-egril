@@ -24,7 +24,7 @@ googleplay/
 Each locale directory contains:
 
 | File | Max length | Description |
-|------|-----------|-------------|
+| ------ | ----------- | ------------- |
 | `title.txt` | 50 characters | App title shown on the Play Store |
 | `short_description.txt` | 80 characters | Brief tagline shown in search results |
 | `full_description.txt` | 4 000 characters | Full app description |
