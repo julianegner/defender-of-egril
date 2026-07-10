@@ -288,5 +288,6 @@ fun SupportObjectType.localizedSupportName(
             SupportObjectType.MAGICAL_TRAP -> "magical_trap"
             SupportObjectType.BARRICADE -> "barricade"
         }
-    return com.hyperether.resources.LocalizedStrings.get(key, locale)
+    return com.hyperether.resources.LocalizedStrings
+        .get(key, locale)
 }

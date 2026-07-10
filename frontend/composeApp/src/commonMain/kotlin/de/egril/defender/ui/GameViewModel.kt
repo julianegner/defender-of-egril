@@ -4442,7 +4442,9 @@ class GameViewModel {
         val remaining = gameState.supportObjectsRemaining[type] ?: 0
         if (remaining <= 0) return false
 
-        val config = gameState.level.supports.objects.firstOrNull { it.type == type }
+        val config =
+            gameState.level.supports.objects
+                .firstOrNull { it.type == type }
         val success =
             when (type) {
                 SupportObjectType.DWARVEN_TRAP ->
