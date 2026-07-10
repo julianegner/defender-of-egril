@@ -1,7 +1,5 @@
 package de.egril.defender.game
 
-import androidx.compose.runtime.mutableStateOf
-import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Level

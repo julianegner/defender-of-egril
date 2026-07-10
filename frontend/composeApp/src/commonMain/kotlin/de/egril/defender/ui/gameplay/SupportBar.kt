@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -141,7 +142,7 @@ private fun SupportBox(
                                 val strokeWidth = if (isSelected) 3.dp.toPx() else 2.dp.toPx()
                                 drawRoundRect(
                                     color = borderColor.copy(alpha = alpha),
-                                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(14.dp.toPx(), 14.dp.toPx()),
+                                    cornerRadius = CornerRadius(14.dp.toPx(), 14.dp.toPx()),
                                     style =
                                         Stroke(
                                             width = strokeWidth,
