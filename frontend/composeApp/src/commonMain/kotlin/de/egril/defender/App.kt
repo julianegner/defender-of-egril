@@ -126,6 +126,7 @@ fun App() {
                 val showMagicPanel by viewModel.showMagicPanel.collectAsState()
                 val selectedSpell by viewModel.selectedSpell.collectAsState()
                 val pendingSpellCast by viewModel.pendingSpellCast.collectAsState()
+                val pendingTokenSpell by viewModel.pendingTokenSpell.collectAsState()
                 val showSpellTargetConfirmation by viewModel.showSpellTargetConfirmation.collectAsState()
                 val showFreezeImmuneWarning by viewModel.showFreezeImmuneWarning.collectAsState()
                 val pendingScrollToPosition by viewModel.pendingScrollToPosition.collectAsState()
@@ -646,6 +647,9 @@ fun App() {
                                 demoHoveredPosition = demoHoveredPosition,
                                 demoSelectedDefenderId = demoSelectedDefenderId,
                                 demoSelectedTargetPosition = demoSelectedTargetPosition,
+                                onPlaceSupportObject = { type, pos -> viewModel.placeSupportObject(type, pos) },
+                                onCastSupportSpellToken = { spell -> viewModel.onSupportSpellTokenClicked(spell) },
+                                activeSpellToken = pendingTokenSpell,
                             )
                         }
                     }

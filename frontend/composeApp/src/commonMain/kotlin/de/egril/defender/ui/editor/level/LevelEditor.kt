@@ -410,6 +410,7 @@ fun LevelEditorView(
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
     var connectedToPreviousLevel by remember { mutableStateOf(level.connectedToPreviousLevel) }
+    var supportsState by remember { mutableStateOf(level.supports) }
 
     // Update state when level changes (e.g., after reload from disk)
     LaunchedEffect(level.id, level.initialData, level.hashCode()) {
@@ -620,6 +621,18 @@ fun LevelEditorView(
                     }
                 },
             )
+            Tab(
+                selected = selectedTabIndex == 5,
+                onClick = { selectedTabIndex = 5 },
+                text = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(stringResource(Res.string.supports_tab))
+                    }
+                },
+            )
         }
 
         // Tab Content
@@ -684,6 +697,11 @@ fun LevelEditorView(
                         map = currentMap,
                         availableTowers = availableTowersState,
                     )
+                5 ->
+                    de.egril.defender.ui.editor.level.supports.SupportsTab(
+                        supports = supportsState,
+                        onSupportsChange = { supportsState = it },
+                    )
             }
         }
 
@@ -713,6 +731,7 @@ fun LevelEditorView(
                                 testingOnly = testingOnly,
                                 allowAutoAttack = allowAutoAttack,
                                 connectedToPreviousLevel = connectedToPreviousLevel,
+                                supports = supportsState,
                                 initialData = initialDataState,
                             )
 
@@ -966,6 +985,7 @@ fun LevelEditorView(
                         testingOnly = testingOnly,
                         allowAutoAttack = allowAutoAttack,
                         connectedToPreviousLevel = connectedToPreviousLevel,
+                        supports = supportsState,
                         initialData = initialDataState,
                     )
                 onSave(newLevel)

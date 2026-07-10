@@ -53,6 +53,8 @@ private const val KEYBOARD_SCROLL_STEP = 150
  * @param title    The title text to display.
  * @param text     The body text to display below the title.
  * @param onDismiss Called when the dialog should be closed.
+ * @param supports Optional level supports; when non-null and non-empty, a summary of the level's
+ *   available player supports (objects + spell tokens) is shown below the body text.
  */
 @Composable
 fun NarrativeMessageDialog(
@@ -60,6 +62,7 @@ fun NarrativeMessageDialog(
     title: String,
     text: String,
     onDismiss: () -> Unit,
+    supports: de.egril.defender.model.LevelSupports? = null,
 ) {
     Dialog(onDismissRequest = onDismiss) {
         val focusRequester = remember { FocusRequester() }
@@ -210,6 +213,15 @@ fun NarrativeMessageDialog(
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
+
+                    // Optional summary of the level's available player supports
+                    if (supports != null && supports.isNotEmpty()) {
+                        LevelSupportsSummary(
+                            supports = supports,
+                            title = stringResource(Res.string.level_supports_title),
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
 
                     // Dismiss button
                     Button(

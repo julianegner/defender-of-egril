@@ -145,6 +145,43 @@ class MineOperations(
     }
 
     /**
+     * Place a support trap directly on the path without requiring a tower or consuming actions.
+     * Used by player-granted level supports.
+     * Returns true if the trap was placed.
+     */
+    fun placeSupportTrap(
+        trapPosition: Position,
+        damage: Int,
+        type: TrapType,
+    ): Boolean {
+        // Check if position is on the path
+        if (!state.level.isOnPath(trapPosition)) return false
+
+        // Check if there's already a trap at this position
+        if (state.traps.any { it.position == trapPosition }) return false
+
+        // Check if there's a barricade at this position
+        if (state.barricades.any { it.position == trapPosition }) return false
+
+        // Check if there's an enemy unit at this position
+        if (state.attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
+
+        // Check if there's a field effect at this position
+        if (state.fieldEffects.any { it.position == trapPosition }) return false
+
+        val trap =
+            Trap(
+                position = trapPosition,
+                damage = if (type == TrapType.MAGICAL) 0 else damage,
+                defenderId = -1, // Support-placed traps don't belong to a defender
+                type = type,
+            )
+        state.traps.add(trap)
+        GlobalSoundManager.playSound(SoundEvent.MINE_TRAP_BUILT)
+        return true
+    }
+
+    /**
      * Spawn a dragon when a mine is destroyed
      */
     private fun spawnDragonFromMine(mine: Defender) {

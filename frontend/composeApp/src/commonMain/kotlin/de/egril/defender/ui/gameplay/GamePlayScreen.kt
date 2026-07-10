@@ -102,6 +102,9 @@ fun GamePlayScreen(
     demoSelectedTargetPosition: Position? = null,
     onGetAutoAttackTarget: ((Int) -> Position?)? = null, // Get best auto-attack target for a tower
     onWinLevelNow: (() -> Unit)? = null, // Instantly win the level when guaranteed (finish level fast)
+    onPlaceSupportObject: ((SupportObjectType, Position) -> Boolean)? = null, // Place a level support object at a position
+    onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
+    activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -163,6 +166,9 @@ fun GamePlayScreen(
         demoSelectedTargetPosition = demoSelectedTargetPosition,
         onGetAutoAttackTarget = onGetAutoAttackTarget,
         onWinLevelNow = onWinLevelNow,
+        onPlaceSupportObject = onPlaceSupportObject,
+        onCastSupportSpellToken = onCastSupportSpellToken,
+        activeSpellToken = activeSpellToken,
     )
 }
 
@@ -229,8 +235,12 @@ private fun GamePlayScreenContent(
     demoSelectedTargetPosition: Position? = null,
     onGetAutoAttackTarget: ((Int) -> Position?)? = null, // Get best auto-attack target for a tower
     onWinLevelNow: (() -> Unit)? = null, // Instantly win the level when guaranteed (finish level fast)
+    onPlaceSupportObject: ((SupportObjectType, Position) -> Boolean)? = null, // Place a level support object at a position
+    onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
+    activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
+    var selectedSupportObject by remember { mutableStateOf<SupportObjectType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
     var selectedAttackerId by remember { mutableStateOf<Int?>(null) } // Add enemy selection
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
@@ -1585,6 +1595,18 @@ private fun GamePlayScreenContent(
                                     return@GameGrid
                                 }
 
+                                // Handle support object placement mode
+                                selectedSupportObject?.let { supportType ->
+                                    if (onPlaceSupportObject?.invoke(supportType, position) == true) {
+                                        // Deselect if no more of this support object remain
+                                        val remaining = gameState.supportObjectsRemaining[supportType] ?: 0
+                                        if (remaining <= 0) {
+                                            selectedSupportObject = null
+                                        }
+                                    }
+                                    return@GameGrid
+                                }
+
                                 // Try to place defender if one is selected
                                 selectedDefenderType?.let { type ->
                                     if (onPlaceDefender(type, position)) {
@@ -2303,179 +2325,206 @@ private fun GamePlayScreenContent(
                                 }
                             }
                         } else {
-                            // Control Panel based on phase
-                            when (gameState.phase.value) {
-                                GamePhase.INITIAL_BUILDING -> {
-                                    GameControlsPanel(
-                                        phase = GamePhase.INITIAL_BUILDING,
-                                        gameState = gameState,
-                                        coinsState = gameState.coins,
-                                        selectedDefenderType = selectedDefenderType,
-                                        selectedDefenderId = selectedDefenderId,
-                                        selectedAttackerId = selectedAttackerId,
-                                        selectedTargetId = null,
-                                        selectedTargetPosition = null,
-                                        selectedBarricadePosition = selectedBarricadePosition,
-                                        onSelectDefenderType = { selectedDefenderType = it },
-                                        onUpgradeDefender = { onUpgradeDefender(it) },
-                                        onUndoTower = { defenderId ->
-                                            if (onUndoTower(defenderId)) {
-                                                selectedDefenderType = null
-                                                selectedDefenderId = null
-                                            }
-                                        },
-                                        onSellTower = { defenderId ->
-                                            if (onSellTower(defenderId)) {
-                                                selectedDefenderType = null
-                                                selectedDefenderId = null
-                                            }
-                                        },
-                                        onDefenderAttack = { _, _ -> false },
-                                        onDefenderAttackPosition = { _, _ -> false },
-                                        onPrimaryAction = {
-                                            selectedDefenderType = null // Clear defender type selection when starting battle
-                                            selectedDefenderId = null // Clear defender selection when starting battle
-                                            selectedAttackerId = null // Clear attacker selection when starting battle
-                                            onStartFirstPlayerTurn()
-
-                                            // Show first-time auto-attack info at the start of the level if allowed and not seen
-                                            if (gameState.level.allowAutoAttack &&
-                                                !gameState.infoState.value.hasSeen(InfoType.AUTO_ATTACK_INFO)
-                                            ) {
-                                                gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.AUTO_ATTACK_INFO)
-                                            }
-
-                                            // Track tutorial progress and auto-advance START_COMBAT step
-                                            if (gameState.tutorialState.value.isActive) {
-                                                if (!gameState.tutorialState.value.hasStartedFirstTurn) {
-                                                    gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                // Support bar: placable objects + spell tokens shown directly above the button row
+                                SupportBar(
+                                    gameState = gameState,
+                                    selectedSupportObject = selectedSupportObject,
+                                    activeSpellToken = activeSpellToken,
+                                    enabled =
+                                        gameState.phase.value == GamePhase.PLAYER_TURN ||
+                                            gameState.phase.value == GamePhase.INITIAL_BUILDING,
+                                    onObjectClick = { type ->
+                                        // Toggle object placement selection; clear other selections
+                                        selectedSupportObject = if (selectedSupportObject == type) null else type
+                                        selectedDefenderType = null
+                                    },
+                                    onSpellClick = { spell ->
+                                        selectedSupportObject = null
+                                        onCastSupportSpellToken?.invoke(spell)
+                                    },
+                                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                                )
+                                // Control Panel based on phase
+                                when (gameState.phase.value) {
+                                    GamePhase.INITIAL_BUILDING -> {
+                                        GameControlsPanel(
+                                            phase = GamePhase.INITIAL_BUILDING,
+                                            gameState = gameState,
+                                            coinsState = gameState.coins,
+                                            selectedDefenderType = selectedDefenderType,
+                                            selectedDefenderId = selectedDefenderId,
+                                            selectedAttackerId = selectedAttackerId,
+                                            selectedTargetId = null,
+                                            selectedTargetPosition = null,
+                                            selectedBarricadePosition = selectedBarricadePosition,
+                                            onSelectDefenderType = {
+                                                selectedDefenderType = it
+                                                selectedSupportObject = null
+                                            },
+                                            onUpgradeDefender = { onUpgradeDefender(it) },
+                                            onUndoTower = { defenderId ->
+                                                if (onUndoTower(defenderId)) {
+                                                    selectedDefenderType = null
+                                                    selectedDefenderId = null
                                                 }
-                                                // Auto-advance if currently showing START_COMBAT step
-                                                if (gameState.tutorialState.value.currentStep == TutorialStep.START_COMBAT) {
-                                                    gameState.tutorialState.value = gameState.tutorialState.value.advanceStep()
+                                            },
+                                            onSellTower = { defenderId ->
+                                                if (onSellTower(defenderId)) {
+                                                    selectedDefenderType = null
+                                                    selectedDefenderId = null
                                                 }
-                                            }
-                                        },
-                                        onMineAction = handleMineAction,
-                                        onWizardAction = handleWizardAction,
-                                        selectedMineAction = selectedMineAction,
-                                        selectedWizardAction = selectedWizardAction,
-                                        onBarricadeAction = handleBarricadeAction,
-                                        selectedBarricadeAction = selectedBarricadeAction,
-                                        onRemoveBarricade = { pos ->
-                                            onRemoveBarricade?.invoke(pos)
-                                            selectedBarricadePosition = null
-                                        },
-                                        uiScale = uiScale,
-                                        onShowDragonInfo = {
-                                            gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
-                                        },
-                                    )
-                                }
+                                            },
+                                            onDefenderAttack = { _, _ -> false },
+                                            onDefenderAttackPosition = { _, _ -> false },
+                                            onPrimaryAction = {
+                                                selectedDefenderType = null // Clear defender type selection when starting battle
+                                                selectedDefenderId = null // Clear defender selection when starting battle
+                                                selectedAttackerId = null // Clear attacker selection when starting battle
+                                                onStartFirstPlayerTurn()
 
-                                GamePhase.PLAYER_TURN -> {
-                                    GameControlsPanel(
-                                        phase = GamePhase.PLAYER_TURN,
-                                        gameState = gameState,
-                                        coinsState = gameState.coins,
-                                        selectedDefenderType = selectedDefenderType,
-                                        selectedDefenderId = selectedDefenderId,
-                                        selectedAttackerId = selectedAttackerId,
-                                        selectedTargetId = selectedTargetId,
-                                        selectedTargetPosition = selectedTargetPosition,
-                                        selectedBarricadePosition = selectedBarricadePosition,
-                                        onSelectDefenderType = { selectedDefenderType = it },
-                                        onUpgradeDefender = { onUpgradeDefender(it) },
-                                        onUndoTower = { defenderId ->
-                                            if (onUndoTower(defenderId)) {
-                                                selectedDefenderType = null
-                                                selectedDefenderId = null
-                                            }
-                                        },
-                                        onSellTower = { defenderId ->
-                                            if (onSellTower(defenderId)) {
-                                                selectedDefenderType = null
-                                                selectedDefenderId = null
-                                            }
-                                        },
-                                        onDefenderAttack = { defenderId, targetId ->
-                                            if (onDefenderAttack(defenderId, targetId)) {
-                                                // Check if we should keep the selection active:
-                                                // - Tower still has actions remaining
-                                                // - Enemy is still alive
-                                                if (!shouldKeepTargetSelection(gameState, defenderId, targetId)) {
-                                                    selectedTargetId = null
-                                                    selectedTargetPosition = null
-                                                }
-
-                                                // Track tutorial progress
-                                                if (gameState.tutorialState.value.isActive &&
-                                                    !gameState.tutorialState.value.hasAttackedEnemy
+                                                // Show first-time auto-attack info at the start of the level if allowed and not seen
+                                                if (gameState.level.allowAutoAttack &&
+                                                    !gameState.infoState.value.hasSeen(InfoType.AUTO_ATTACK_INFO)
                                                 ) {
-                                                    gameState.tutorialState.value = gameState.tutorialState.value.markAttackedEnemy()
-                                                }
-                                                true
-                                            } else {
-                                                false
-                                            }
-                                        },
-                                        onDefenderAttackPosition = { defenderId, targetPos ->
-                                            if (onDefenderAttackPosition(defenderId, targetPos)) {
-                                                // Check if we should keep the selection active:
-                                                // - Tower still has actions remaining
-                                                // - There's still a living enemy at the target position
-                                                if (!shouldKeepTargetSelectionForPosition(gameState, defenderId, targetPos)) {
-                                                    selectedTargetId = null
-                                                    selectedTargetPosition = null
+                                                    gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.AUTO_ATTACK_INFO)
                                                 }
 
-                                                // Track tutorial progress
-                                                if (gameState.tutorialState.value.isActive &&
-                                                    !gameState.tutorialState.value.hasAttackedEnemy
-                                                ) {
-                                                    gameState.tutorialState.value = gameState.tutorialState.value.markAttackedEnemy()
+                                                // Track tutorial progress and auto-advance START_COMBAT step
+                                                if (gameState.tutorialState.value.isActive) {
+                                                    if (!gameState.tutorialState.value.hasStartedFirstTurn) {
+                                                        gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                                                    }
+                                                    // Auto-advance if currently showing START_COMBAT step
+                                                    if (gameState.tutorialState.value.currentStep == TutorialStep.START_COMBAT) {
+                                                        gameState.tutorialState.value = gameState.tutorialState.value.advanceStep()
+                                                    }
                                                 }
-                                                true
-                                            } else {
-                                                false
-                                            }
-                                        },
-                                        onPrimaryAction = {
-                                            // Check if there are unused action points before ending turn
-                                            if (gameState.hasDefendersWithUnusedActions()) {
-                                                // Show confirmation dialog
-                                                showEndTurnConfirmation = true
-                                            } else {
-                                                // End turn directly
-                                                endPlayerTurnAction()
-                                                // Track tutorial progress
-                                                if (gameState.tutorialState.value.isActive &&
-                                                    !gameState.tutorialState.value.hasStartedFirstTurn
-                                                ) {
-                                                    gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
-                                                }
-                                            }
-                                        },
-                                        onMineAction = handleMineAction,
-                                        onWizardAction = handleWizardAction,
-                                        selectedMineAction = selectedMineAction,
-                                        selectedWizardAction = selectedWizardAction,
-                                        onBarricadeAction = handleBarricadeAction,
-                                        selectedBarricadeAction = selectedBarricadeAction,
-                                        onRemoveBarricade = { pos ->
-                                            onRemoveBarricade?.invoke(pos)
-                                            selectedBarricadePosition = null
-                                        },
-                                        uiScale = uiScale,
-                                        onShowDragonInfo = {
-                                            gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
-                                        },
-                                        highlightEndTurnButton = highlightEndTurnButton,
-                                    )
-                                }
+                                            },
+                                            onMineAction = handleMineAction,
+                                            onWizardAction = handleWizardAction,
+                                            selectedMineAction = selectedMineAction,
+                                            selectedWizardAction = selectedWizardAction,
+                                            onBarricadeAction = handleBarricadeAction,
+                                            selectedBarricadeAction = selectedBarricadeAction,
+                                            onRemoveBarricade = { pos ->
+                                                onRemoveBarricade?.invoke(pos)
+                                                selectedBarricadePosition = null
+                                            },
+                                            uiScale = uiScale,
+                                            onShowDragonInfo = {
+                                                gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
+                                            },
+                                        )
+                                    }
 
-                                GamePhase.ENEMY_TURN -> {
-                                    EnemyTurnInfo()
+                                    GamePhase.PLAYER_TURN -> {
+                                        GameControlsPanel(
+                                            phase = GamePhase.PLAYER_TURN,
+                                            gameState = gameState,
+                                            coinsState = gameState.coins,
+                                            selectedDefenderType = selectedDefenderType,
+                                            selectedDefenderId = selectedDefenderId,
+                                            selectedAttackerId = selectedAttackerId,
+                                            selectedTargetId = selectedTargetId,
+                                            selectedTargetPosition = selectedTargetPosition,
+                                            selectedBarricadePosition = selectedBarricadePosition,
+                                            onSelectDefenderType = {
+                                                selectedDefenderType = it
+                                                selectedSupportObject = null
+                                            },
+                                            onUpgradeDefender = { onUpgradeDefender(it) },
+                                            onUndoTower = { defenderId ->
+                                                if (onUndoTower(defenderId)) {
+                                                    selectedDefenderType = null
+                                                    selectedDefenderId = null
+                                                }
+                                            },
+                                            onSellTower = { defenderId ->
+                                                if (onSellTower(defenderId)) {
+                                                    selectedDefenderType = null
+                                                    selectedDefenderId = null
+                                                }
+                                            },
+                                            onDefenderAttack = { defenderId, targetId ->
+                                                if (onDefenderAttack(defenderId, targetId)) {
+                                                    // Check if we should keep the selection active:
+                                                    // - Tower still has actions remaining
+                                                    // - Enemy is still alive
+                                                    if (!shouldKeepTargetSelection(gameState, defenderId, targetId)) {
+                                                        selectedTargetId = null
+                                                        selectedTargetPosition = null
+                                                    }
+
+                                                    // Track tutorial progress
+                                                    if (gameState.tutorialState.value.isActive &&
+                                                        !gameState.tutorialState.value.hasAttackedEnemy
+                                                    ) {
+                                                        gameState.tutorialState.value = gameState.tutorialState.value.markAttackedEnemy()
+                                                    }
+                                                    true
+                                                } else {
+                                                    false
+                                                }
+                                            },
+                                            onDefenderAttackPosition = { defenderId, targetPos ->
+                                                if (onDefenderAttackPosition(defenderId, targetPos)) {
+                                                    // Check if we should keep the selection active:
+                                                    // - Tower still has actions remaining
+                                                    // - There's still a living enemy at the target position
+                                                    if (!shouldKeepTargetSelectionForPosition(gameState, defenderId, targetPos)) {
+                                                        selectedTargetId = null
+                                                        selectedTargetPosition = null
+                                                    }
+
+                                                    // Track tutorial progress
+                                                    if (gameState.tutorialState.value.isActive &&
+                                                        !gameState.tutorialState.value.hasAttackedEnemy
+                                                    ) {
+                                                        gameState.tutorialState.value = gameState.tutorialState.value.markAttackedEnemy()
+                                                    }
+                                                    true
+                                                } else {
+                                                    false
+                                                }
+                                            },
+                                            onPrimaryAction = {
+                                                // Check if there are unused action points before ending turn
+                                                if (gameState.hasDefendersWithUnusedActions()) {
+                                                    // Show confirmation dialog
+                                                    showEndTurnConfirmation = true
+                                                } else {
+                                                    // End turn directly
+                                                    endPlayerTurnAction()
+                                                    // Track tutorial progress
+                                                    if (gameState.tutorialState.value.isActive &&
+                                                        !gameState.tutorialState.value.hasStartedFirstTurn
+                                                    ) {
+                                                        gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                                                    }
+                                                }
+                                            },
+                                            onMineAction = handleMineAction,
+                                            onWizardAction = handleWizardAction,
+                                            selectedMineAction = selectedMineAction,
+                                            selectedWizardAction = selectedWizardAction,
+                                            onBarricadeAction = handleBarricadeAction,
+                                            selectedBarricadeAction = selectedBarricadeAction,
+                                            onRemoveBarricade = { pos ->
+                                                onRemoveBarricade?.invoke(pos)
+                                                selectedBarricadePosition = null
+                                            },
+                                            uiScale = uiScale,
+                                            onShowDragonInfo = {
+                                                gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
+                                            },
+                                            highlightEndTurnButton = highlightEndTurnButton,
+                                        )
+                                    }
+
+                                    GamePhase.ENEMY_TURN -> {
+                                        EnemyTurnInfo()
+                                    }
                                 }
                             }
                         }
@@ -2796,6 +2845,7 @@ private fun GamePlayScreenContent(
                             currentMana = gameState.currentMana.value,
                             onConfirm = { onConfirmTargetSpell.invoke() },
                             onDismiss = { onDismissTargetConfirmation.invoke() },
+                            isTokenCast = activeSpellToken == spell,
                         )
                     }
 
@@ -3018,6 +3068,7 @@ private fun GamePlayScreenContent(
                                             title = storyTitle,
                                             text = storyText,
                                             onDismiss = { onDismissGameMessage?.invoke() },
+                                            supports = gameState.level.supports,
                                         )
                                     }
                                 }

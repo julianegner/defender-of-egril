@@ -59,6 +59,7 @@ data class Level(
     val allowAutoAttack: Boolean = false, // If true, shows auto-attack button in end turn confirmation dialog
     val connectedToPreviousLevel: Boolean = false, // If true, player can carry over towers/coins from the previous level
     val targetInfoMap: Map<Position, TargetInfo> = emptyMap(), // Optional metadata (name, type) per target position
+    val supports: LevelSupports = LevelSupports(), // Player-usable supports (placable objects + spell tokens) for this level
     // Initial placements (optional) - new nested structure
     val initialData: de.egril.defender.editor.InitialData? = null,
     // Legacy fields for backward compatibility (deprecated - use initialData instead)

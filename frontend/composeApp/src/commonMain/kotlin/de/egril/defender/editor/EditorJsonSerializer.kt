@@ -3,7 +3,12 @@ package de.egril.defender.editor
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpellType
+import de.egril.defender.model.SupportObject
+import de.egril.defender.model.SupportObjectType
+import de.egril.defender.model.SupportSpell
 import de.egril.defender.utils.JsonUtils
 
 /**
@@ -398,6 +403,38 @@ object EditorJsonSerializer {
                 ""
             }
 
+        // Serialize player-usable supports (objects + spell tokens), compact one-per-line
+        val supportsJson =
+            if (level.supports.isNotEmpty()) {
+                val parts = mutableListOf<String>()
+                if (level.supports.objects.isNotEmpty()) {
+                    val objectsData =
+                        level.supports.objects.joinToString(",\n      ") { obj ->
+                            """{"type": "${obj.type.name}", "count": ${obj.count}, "damage": ${obj.damage}, "healthPoints": ${obj.healthPoints}}"""
+                        }
+                    parts.add(
+                        """"objects": [
+      $objectsData
+    ]""",
+                    )
+                }
+                if (level.supports.spells.isNotEmpty()) {
+                    val spellsData =
+                        level.supports.spells.joinToString(",\n      ") { supportSpell ->
+                            """{"spell": "${supportSpell.spell.name}", "count": ${supportSpell.count}}"""
+                        }
+                    parts.add(
+                        """"spells": [
+      $spellsData
+    ]""",
+                    )
+                }
+                val allParts = parts.joinToString(",\n    ")
+                ",\n  \"supports\": {\n    $allParts\n  }"
+            } else {
+                ""
+            }
+
         // Serialize initial data in new nested format (optional)
         val initialData = level.getEffectiveInitialData()
         val initialDataJson =
@@ -516,7 +553,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isOfficialJson$authorJson$communityDescriptionJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$initialDataJson
 }"""
         return """{
   "metadata": {
@@ -1267,6 +1304,9 @@ object EditorJsonSerializer {
                     null
                 }
 
+            // Parse optional player-usable supports (objects + spell tokens)
+            val supports = parseSupports(dataJson)
+
             return EditorLevel(
                 id,
                 mapId,
@@ -1287,6 +1327,7 @@ object EditorJsonSerializer {
                 isOfficial,
                 author = author,
                 communityDescription = communityDescription,
+                supports = supports,
                 initialData = initialData,
             )
         } catch (e: Exception) {
@@ -1578,5 +1619,99 @@ object EditorJsonSerializer {
         }
 
         return objects
+    }
+
+    /**
+     * Extract the JSON object body that follows a given object key (e.g. "supports").
+     * Returns the text between the matching braces, or "" if the key is not present.
+     */
+    private fun extractObjectSection(
+        json: String,
+        key: String,
+    ): String {
+        if (!json.contains("\"$key\"")) return ""
+        val afterKey = json.substringAfter("\"$key\"")
+        val openBraceIndex = afterKey.indexOf('{')
+        if (openBraceIndex == -1) return ""
+        val afterBrace = afterKey.substring(openBraceIndex + 1)
+        var braceCount = 1
+        var endIndex = -1
+        for (i in afterBrace.indices) {
+            when (afterBrace[i]) {
+                '{' -> braceCount++
+                '}' -> {
+                    braceCount--
+                    if (braceCount == 0) {
+                        endIndex = i
+                        break
+                    }
+                }
+            }
+        }
+        return if (endIndex >= 0) afterBrace.substring(0, endIndex) else ""
+    }
+
+    /**
+     * Extract the contents of a JSON array that follows a given array key.
+     * Returns the text between the outermost brackets, or "" if the key is not present.
+     */
+    private fun extractArraySection(
+        json: String,
+        key: String,
+    ): String {
+        if (!json.contains("\"$key\"")) return ""
+        val afterKey = json.substringAfter("\"$key\"")
+        val openBracketIndex = afterKey.indexOf('[')
+        if (openBracketIndex == -1) return ""
+        val afterBracket = afterKey.substring(openBracketIndex + 1)
+        var depth = 1
+        var endIndex = -1
+        for (i in afterBracket.indices) {
+            when (afterBracket[i]) {
+                '[' -> depth++
+                ']' -> {
+                    depth--
+                    if (depth == 0) {
+                        endIndex = i
+                        break
+                    }
+                }
+            }
+        }
+        return if (endIndex >= 0) afterBracket.substring(0, endIndex) else ""
+    }
+
+    /**
+     * Parse the optional "supports" section (player-usable objects + spell tokens) from a level's data JSON.
+     */
+    private fun parseSupports(dataJson: String): LevelSupports {
+        val supportsSection = extractObjectSection(dataJson, "supports")
+        if (supportsSection.isBlank()) return LevelSupports()
+
+        val objects = mutableListOf<SupportObject>()
+        val objectsSection = extractArraySection(supportsSection, "objects")
+        if (objectsSection.isNotBlank()) {
+            for (entry in splitJsonArrayObjects(objectsSection)) {
+                val typeName = runCatching { JsonUtils.extractValue(entry, "type") }.getOrNull() ?: continue
+                val type = runCatching { SupportObjectType.valueOf(typeName) }.getOrNull() ?: continue
+                val count = runCatching { JsonUtils.extractValue(entry, "count").toInt() }.getOrDefault(1)
+                val damage = runCatching { JsonUtils.extractValue(entry, "damage").toInt() }.getOrDefault(10)
+                val healthPoints = runCatching { JsonUtils.extractValue(entry, "healthPoints").toInt() }.getOrDefault(50)
+                objects.add(SupportObject(type = type, count = count, damage = damage, healthPoints = healthPoints))
+            }
+        }
+
+        val spells = mutableListOf<SupportSpell>()
+        val spellsSection = extractArraySection(supportsSection, "spells")
+        if (spellsSection.isNotBlank()) {
+            for (entry in splitJsonArrayObjects(spellsSection)) {
+                val spellName = runCatching { JsonUtils.extractValue(entry, "spell") }.getOrNull() ?: continue
+                val spell = runCatching { SpellType.valueOf(spellName) }.getOrNull() ?: continue
+                val count = runCatching { JsonUtils.extractValue(entry, "count").toInt() }.getOrDefault(1)
+                spells.add(SupportSpell(spell = spell, count = count))
+            }
+        }
+
+        return LevelSupports(objects = objects, spells = spells)
     }
 }

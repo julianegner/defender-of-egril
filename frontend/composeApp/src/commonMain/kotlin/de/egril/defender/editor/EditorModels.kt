@@ -2,6 +2,7 @@ package de.egril.defender.editor
 
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
 import de.egril.defender.model.TargetType
 import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
@@ -315,6 +316,8 @@ data class EditorLevel(
     val isCommunity: Boolean = false, // True if level is a community-shared level from the backend
     val communityAuthorUsername: String = "", // Username of the community author (only set if isCommunity == true)
     val communityDescription: String = "", // Short description shown on the community card
+    // Player-usable supports (placable objects + spell tokens) available in this level
+    val supports: LevelSupports = LevelSupports(),
     // Initial placements (optional) - new nested structure
     val initialData: InitialData? = null,
     // Legacy fields for backward compatibility (deprecated - use initialData instead)

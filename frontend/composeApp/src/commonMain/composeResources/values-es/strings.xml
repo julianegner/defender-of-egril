@@ -764,6 +764,11 @@
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trampa Mágica</string>
+    <string name="level_supports_title">Apoyo Disponible</string>
+    <string name="supports_tab">Apoyos</string>
+    <string name="supports_intro">Objetos y fichas de hechizo que el jugador puede usar en este nivel, sin importar sus torres, nivel tecnológico o maná.</string>
+    <string name="supports_objects_section">Objetos Colocables</string>
+    <string name="supports_spells_section">Fichas de Hechizo</string>
     <string name="magical_trap_cooldown">Enfriamiento: %d turnos</string>
     <string name="magical_trap_available">Trampa Mágica Disponible</string>
     <string name="magical_trap_tutorial_title">¡Trampa Mágica Desbloqueada!</string>

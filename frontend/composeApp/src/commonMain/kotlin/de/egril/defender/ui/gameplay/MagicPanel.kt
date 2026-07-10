@@ -277,6 +277,7 @@ fun SpellTargetConfirmationDialog(
     currentMana: Int,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+    isTokenCast: Boolean = false,
 ) {
     val remainingMana = currentMana - spell.manaCost
 
@@ -347,49 +348,51 @@ fun SpellTargetConfirmationDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Mana cost and remaining
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(
-                        text = stringResource(Res.string.mana_cost_label),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                // Mana cost and remaining (hidden when casting via a support token)
+                if (!isTokenCast) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        PentagramIcon(size = 16.dp, color = MaterialTheme.colorScheme.primary)
                         Text(
-                            text = "${spell.manaCost}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(
-                        text = stringResource(Res.string.remaining_mana_label),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        PentagramIcon(size = 16.dp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(
-                            text = "$remainingMana",
+                            text = stringResource(Res.string.mana_cost_label),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            PentagramIcon(size = 16.dp, color = MaterialTheme.colorScheme.primary)
+                            Text(
+                                text = "${spell.manaCost}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.remaining_mana_label),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            PentagramIcon(size = 16.dp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(
+                                text = "$remainingMana",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
             }

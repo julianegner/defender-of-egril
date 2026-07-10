@@ -2,8 +2,10 @@ package de.egril.defender.model
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import de.egril.defender.ui.settings.DifficultyLevel
 
 enum class GamePhase {
@@ -237,6 +239,9 @@ data class GameState(
     // SINGLE_HIT target tracking
     val takenTargets: SnapshotStateList<Position> = mutableStateListOf(), // Positions of taken SINGLE_HIT targets
     val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf(), // Messages queued for display
+    // Player-usable supports remaining this level (placable objects + spell tokens)
+    val supportObjectsRemaining: SnapshotStateMap<SupportObjectType, Int> = mutableStateMapOf(),
+    val supportSpellsRemaining: SnapshotStateMap<SpellType, Int> = mutableStateMapOf(),
 ) {
     fun isLevelWon(): Boolean {
         // Check if all planned spawns have occurred and all enemies are defeated
@@ -526,6 +531,18 @@ data class GameState(
     fun initializePrePlacedElements() {
         // Get initial data using the helper method that handles both old and new formats
         val initialData = level.getEffectiveInitialData()
+
+        // Initialize player-usable supports (placable objects + spell tokens) for this level
+        supportObjectsRemaining.clear()
+        for (supportObject in level.supports.objects) {
+            supportObjectsRemaining[supportObject.type] =
+                (supportObjectsRemaining[supportObject.type] ?: 0) + supportObject.count
+        }
+        supportSpellsRemaining.clear()
+        for (supportSpell in level.supports.spells) {
+            supportSpellsRemaining[supportSpell.spell] =
+                (supportSpellsRemaining[supportSpell.spell] ?: 0) + supportSpell.count
+        }
 
         // Place initial barricades FIRST (before defenders so we can link them)
         for (initialBarricade in initialData.barricades) {

@@ -764,6 +764,11 @@
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magische Falle</string>
+    <string name="level_supports_title">Verfügbare Unterstützung</string>
+    <string name="supports_tab">Unterstützung</string>
+    <string name="supports_intro">Objekte und Zauber-Marken, die der Spieler in diesem Level nutzen kann, unabhängig von Türmen, Techstufe oder Mana.</string>
+    <string name="supports_objects_section">Platzierbare Objekte</string>
+    <string name="supports_spells_section">Zauber-Marken</string>
     <string name="magical_trap_cooldown">Abklingzeit: %d Runden</string>
     <string name="magical_trap_available">Magische Falle verfügbar</string>
     <string name="magical_trap_tutorial_title">Magische Falle freigeschaltet!</string>

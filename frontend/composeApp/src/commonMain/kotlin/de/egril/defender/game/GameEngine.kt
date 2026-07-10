@@ -74,6 +74,25 @@ class GameEngine(
     ): Boolean = mineOperations.performWizardPlaceMagicalTrap(wizardId, trapPosition)
 
     /**
+     * Place a support trap (dwarven or magical) directly from a player-granted level support.
+     * Does not require a tower or consume any tower actions.
+     */
+    fun placeSupportTrap(
+        trapPosition: Position,
+        damage: Int,
+        type: TrapType,
+    ): Boolean = mineOperations.placeSupportTrap(trapPosition, damage, type)
+
+    /**
+     * Place a support barricade directly from a player-granted level support.
+     * Does not require a tower or consume any tower actions.
+     */
+    fun placeSupportBarricade(
+        barricadePosition: Position,
+        hp: Int,
+    ): Boolean = barricadeSystem.placeSupportBarricade(barricadePosition, hp)
+
+    /**
      * Perform wizard mana generation action
      * Generates base 5 mana + (wizard level / 5) bonus mana
      * Consumes one wizard action

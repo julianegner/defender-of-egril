@@ -767,6 +767,11 @@
     <!-- Magical Trap Feature -->
     <string name="dwarven_trap">Dwarven Trap</string>
     <string name="magical_trap">Magical Trap</string>
+    <string name="level_supports_title">Available Support</string>
+    <string name="supports_tab">Supports</string>
+    <string name="supports_intro">Objects and spell tokens the player can use in this level, regardless of their towers, tech level, or mana.</string>
+    <string name="supports_objects_section">Placable Objects</string>
+    <string name="supports_spells_section">Spell Tokens</string>
     <string name="magical_trap_cooldown">Cooldown: %d turns</string>
     <string name="magical_trap_available">Magical Trap Available</string>
     <string name="magical_trap_tutorial_title">Magical Trap Unlocked!</string>
