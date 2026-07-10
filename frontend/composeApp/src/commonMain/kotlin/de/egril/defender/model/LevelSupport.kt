@@ -45,6 +45,9 @@ data class SupportSpell(
  * level and can be re-used after waiting [CooldownPowerType.defaultCooldown] (or a level-configured
  * number of) turns. Each type has a sensible default cooldown used when the level editor does not
  * override it.
+ *
+ * @param defaultCooldown Default number of turns before the power can be reused; can be overridden
+ *   per level in the level editor.
  */
 enum class CooldownPowerType(
     val defaultCooldown: Int,
