@@ -764,6 +764,11 @@
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Piège Magique</string>
+    <string name="level_supports_title">Soutien Disponible</string>
+    <string name="supports_tab">Soutiens</string>
+    <string name="supports_intro">Objets et jetons de sort que le joueur peut utiliser dans ce niveau, quels que soient ses tours, son niveau technologique ou son mana.</string>
+    <string name="supports_objects_section">Objets Plaçables</string>
+    <string name="supports_spells_section">Jetons de Sort</string>
     <string name="magical_trap_cooldown">Temps de recharge : %d tours</string>
     <string name="magical_trap_available">Piège Magique Disponible</string>
     <string name="magical_trap_tutorial_title">Piège Magique Débloqué !</string>

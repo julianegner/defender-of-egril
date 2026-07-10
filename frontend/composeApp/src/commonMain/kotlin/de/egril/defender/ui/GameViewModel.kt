@@ -198,6 +198,11 @@ class GameViewModel {
     private val _pendingSpellCast = MutableStateFlow<SpellType?>(null)
     val pendingSpellCast: StateFlow<SpellType?> = _pendingSpellCast.asStateFlow()
 
+    // When non-null, the spell currently being cast/targeted is being cast via a level support
+    // token, which skips mana cost and the unlocked-spell requirement, and consumes a token.
+    private val _pendingTokenSpell = MutableStateFlow<SpellType?>(null)
+    val pendingTokenSpell: StateFlow<SpellType?> = _pendingTokenSpell.asStateFlow()
+
     // Position to scroll to (e.g., bomb explosion)
     private val _pendingScrollToPosition = MutableStateFlow<Position?>(null)
     val pendingScrollToPosition: StateFlow<Position?> = _pendingScrollToPosition.asStateFlow()
@@ -3882,6 +3887,7 @@ class GameViewModel {
         }
         _pendingSpellCast.value = null
         _selectedSpell.value = null
+        _pendingTokenSpell.value = null
     }
 
     /**
@@ -3918,7 +3924,8 @@ class GameViewModel {
         val confirmation = _showSpellTargetConfirmation.value
         if (confirmation != null) {
             val (spell, target) = confirmation
-            castSpell(spell, target)
+            val viaToken = _pendingTokenSpell.value == spell
+            castSpell(spell, target, viaToken)
             _showSpellTargetConfirmation.value = null
             _selectedSpell.value = null
         }
@@ -3956,29 +3963,40 @@ class GameViewModel {
     fun castSpell(
         spell: SpellType,
         target: Any? = null,
+        viaToken: Boolean = false,
     ) {
         val gameState = _gameState.value ?: return
         val currentPlayer = _currentPlayer.value ?: return
 
         if (LogConfig.ENABLE_SPELL_LOGGING) {
-            println("=== SPELL: Cast spell called - ${spell.displayName}")
+            println("=== SPELL: Cast spell called - ${spell.displayName}${if (viaToken) " (token)" else ""}")
             println("=== SPELL: Current mana: ${gameState.currentMana.value}/${gameState.maxMana.value}")
         }
 
-        // Validate mana cost
-        if (gameState.currentMana.value < spell.manaCost) {
-            if (LogConfig.ENABLE_SPELL_LOGGING) {
-                println("=== SPELL: FAILED - Not enough mana to cast ${spell.displayName}")
+        if (viaToken) {
+            // Casting via a level support token: skip mana and unlocked-spell validation.
+            if ((gameState.supportSpellsRemaining[spell] ?: 0) <= 0) {
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: FAILED - No support token remaining for ${spell.displayName}")
+                }
+                return
             }
-            return
-        }
+        } else {
+            // Validate mana cost
+            if (gameState.currentMana.value < spell.manaCost) {
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: FAILED - Not enough mana to cast ${spell.displayName}")
+                }
+                return
+            }
 
-        // Validate spell is unlocked
-        if (!currentPlayer.abilities.unlockedSpells.contains(spell)) {
-            if (LogConfig.ENABLE_SPELL_LOGGING) {
-                println("=== SPELL: FAILED - Spell ${spell.displayName} is not unlocked")
+            // Validate spell is unlocked
+            if (!currentPlayer.abilities.unlockedSpells.contains(spell)) {
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: FAILED - Spell ${spell.displayName} is not unlocked")
+                }
+                return
             }
-            return
         }
 
         // If spell requires targeting and no target provided, enter targeting mode
@@ -3990,11 +4008,22 @@ class GameViewModel {
             return
         }
 
-        // Deduct mana cost
-        val previousMana = gameState.currentMana.value
-        gameState.currentMana.value -= spell.manaCost
-        if (LogConfig.ENABLE_SPELL_LOGGING) {
-            println("=== SPELL: Mana deducted - $previousMana -> ${gameState.currentMana.value}")
+        if (viaToken) {
+            // Consume one support token instead of mana.
+            val remaining = gameState.supportSpellsRemaining[spell] ?: 0
+            if (remaining > 0) {
+                gameState.supportSpellsRemaining[spell] = remaining - 1
+            }
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Support token consumed - ${gameState.supportSpellsRemaining[spell]} remaining")
+            }
+        } else {
+            // Deduct mana cost
+            val previousMana = gameState.currentMana.value
+            gameState.currentMana.value -= spell.manaCost
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Mana deducted - $previousMana -> ${gameState.currentMana.value}")
+            }
         }
 
         // Execute spell effect
@@ -4014,6 +4043,7 @@ class GameViewModel {
 
         // Clear pending spell and targeting state
         _pendingSpellCast.value = null
+        _pendingTokenSpell.value = null
         exitSpellTargetingMode()
 
         // Close magic panel after casting
@@ -4345,6 +4375,7 @@ class GameViewModel {
     fun exitSpellTargetingMode() {
         val gameState = _gameState.value ?: return
         gameState.spellTargeting.value = null
+        _pendingTokenSpell.value = null
     }
 
     /**
@@ -4362,6 +4393,70 @@ class GameViewModel {
 
         // Show confirmation dialog with target details (or warning for immune enemies)
         onSpellTargetSelected(target)
+    }
+
+    /**
+     * Handle a click on a level support spell token box.
+     * Casting a spell via a token does not consume mana and works even if the spell is not unlocked.
+     * Toggles the selection; enters targeting mode for targeting spells or shows a confirmation for others.
+     */
+    fun onSupportSpellTokenClicked(spell: SpellType) {
+        val gameState = _gameState.value ?: return
+        if ((gameState.supportSpellsRemaining[spell] ?: 0) <= 0) return
+
+        // Spell tokens can only be used once the level has started (not during initial build phase)
+        if (gameState.phase.value == GamePhase.INITIAL_BUILDING) return
+
+        // Toggle: if the same token is already active, cancel it
+        if (_pendingTokenSpell.value == spell) {
+            _pendingTokenSpell.value = null
+            _selectedSpell.value = null
+            _pendingSpellCast.value = null
+            _showSpellTargetConfirmation.value = null
+            exitSpellTargetingMode()
+            return
+        }
+
+        _pendingTokenSpell.value = spell
+        _selectedSpell.value = spell
+        // Close the magic panel if it is open so token targeting is visible
+        _showMagicPanel.value = false
+
+        if (spell.requiresTarget) {
+            enterSpellTargetingMode(spell)
+        } else {
+            _showSpellTargetConfirmation.value = Pair(spell, Unit)
+        }
+    }
+
+    /**
+     * Place a player-granted support object (trap, magical trap, or barricade) at a position.
+     * Does not require a tower or tech level and does not consume tower actions.
+     * Returns true if the object was placed and a token consumed.
+     */
+    fun placeSupportObject(
+        type: SupportObjectType,
+        position: Position,
+    ): Boolean {
+        val gameState = _gameState.value ?: return false
+        val remaining = gameState.supportObjectsRemaining[type] ?: 0
+        if (remaining <= 0) return false
+
+        val config = gameState.level.supports.objects.firstOrNull { it.type == type }
+        val success =
+            when (type) {
+                SupportObjectType.DWARVEN_TRAP ->
+                    gameEngine?.placeSupportTrap(position, config?.damage ?: 10, TrapType.DWARVEN) ?: false
+                SupportObjectType.MAGICAL_TRAP ->
+                    gameEngine?.placeSupportTrap(position, 0, TrapType.MAGICAL) ?: false
+                SupportObjectType.BARRICADE ->
+                    gameEngine?.placeSupportBarricade(position, config?.healthPoints ?: 50) ?: false
+            }
+
+        if (success) {
+            gameState.supportObjectsRemaining[type] = remaining - 1
+        }
+        return success
     }
 
     /**

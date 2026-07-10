@@ -764,6 +764,11 @@
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trappola Magica</string>
+    <string name="level_supports_title">Supporto Disponibile</string>
+    <string name="supports_tab">Supporti</string>
+    <string name="supports_intro">Oggetti e gettoni incantesimo che il giocatore può usare in questo livello, indipendentemente da torri, livello tecnologico o mana.</string>
+    <string name="supports_objects_section">Oggetti Posizionabili</string>
+    <string name="supports_spells_section">Gettoni Incantesimo</string>
     <string name="magical_trap_cooldown">Ricarica: %d turni</string>
     <string name="magical_trap_available">Trappola Magica Disponibile</string>
     <string name="magical_trap_tutorial_title">Trappola Magica Sbloccata!</string>

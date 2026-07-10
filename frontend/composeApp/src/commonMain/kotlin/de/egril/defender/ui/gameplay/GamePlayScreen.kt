@@ -102,6 +102,9 @@ fun GamePlayScreen(
     demoSelectedTargetPosition: Position? = null,
     onGetAutoAttackTarget: ((Int) -> Position?)? = null, // Get best auto-attack target for a tower
     onWinLevelNow: (() -> Unit)? = null, // Instantly win the level when guaranteed (finish level fast)
+    onPlaceSupportObject: ((SupportObjectType, Position) -> Boolean)? = null, // Place a level support object at a position
+    onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
+    activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -163,6 +166,9 @@ fun GamePlayScreen(
         demoSelectedTargetPosition = demoSelectedTargetPosition,
         onGetAutoAttackTarget = onGetAutoAttackTarget,
         onWinLevelNow = onWinLevelNow,
+        onPlaceSupportObject = onPlaceSupportObject,
+        onCastSupportSpellToken = onCastSupportSpellToken,
+        activeSpellToken = activeSpellToken,
     )
 }
 
@@ -229,8 +235,12 @@ private fun GamePlayScreenContent(
     demoSelectedTargetPosition: Position? = null,
     onGetAutoAttackTarget: ((Int) -> Position?)? = null, // Get best auto-attack target for a tower
     onWinLevelNow: (() -> Unit)? = null, // Instantly win the level when guaranteed (finish level fast)
+    onPlaceSupportObject: ((SupportObjectType, Position) -> Boolean)? = null, // Place a level support object at a position
+    onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
+    activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
+    var selectedSupportObject by remember { mutableStateOf<SupportObjectType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
     var selectedAttackerId by remember { mutableStateOf<Int?>(null) } // Add enemy selection
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
@@ -1585,6 +1595,18 @@ private fun GamePlayScreenContent(
                                     return@GameGrid
                                 }
 
+                                // Handle support object placement mode
+                                selectedSupportObject?.let { supportType ->
+                                    if (onPlaceSupportObject?.invoke(supportType, position) == true) {
+                                        // Deselect if no more of this support object remain
+                                        val remaining = gameState.supportObjectsRemaining[supportType] ?: 0
+                                        if (remaining <= 0) {
+                                            selectedSupportObject = null
+                                        }
+                                    }
+                                    return@GameGrid
+                                }
+
                                 // Try to place defender if one is selected
                                 selectedDefenderType?.let { type ->
                                     if (onPlaceDefender(type, position)) {
@@ -2211,6 +2233,26 @@ private fun GamePlayScreenContent(
                         }
                     }
 
+                    // Support bar: placable objects + spell tokens shown above the tower buttons
+                    SupportBar(
+                        gameState = gameState,
+                        selectedSupportObject = selectedSupportObject,
+                        activeSpellToken = activeSpellToken,
+                        enabled =
+                            gameState.phase.value == GamePhase.PLAYER_TURN ||
+                                gameState.phase.value == GamePhase.INITIAL_BUILDING,
+                        onObjectClick = { type ->
+                            // Toggle object placement selection; clear other selections
+                            selectedSupportObject = if (selectedSupportObject == type) null else type
+                            selectedDefenderType = null
+                        },
+                        onSpellClick = { spell ->
+                            selectedSupportObject = null
+                            onCastSupportSpellToken?.invoke(spell)
+                        },
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    )
+
                     // Track the maximum height the controls panel has reached (in pixels).
                     // Using heightIn(min = ...) on the container prevents it from shrinking when switching
                     // between the tall PLAYER_TURN panel and the short ENEMY_TURN indicator, which would
@@ -2316,7 +2358,10 @@ private fun GamePlayScreenContent(
                                         selectedTargetId = null,
                                         selectedTargetPosition = null,
                                         selectedBarricadePosition = selectedBarricadePosition,
-                                        onSelectDefenderType = { selectedDefenderType = it },
+                                        onSelectDefenderType = {
+                                            selectedDefenderType = it
+                                            selectedSupportObject = null
+                                        },
                                         onUpgradeDefender = { onUpgradeDefender(it) },
                                         onUndoTower = { defenderId ->
                                             if (onUndoTower(defenderId)) {
@@ -2384,7 +2429,10 @@ private fun GamePlayScreenContent(
                                         selectedTargetId = selectedTargetId,
                                         selectedTargetPosition = selectedTargetPosition,
                                         selectedBarricadePosition = selectedBarricadePosition,
-                                        onSelectDefenderType = { selectedDefenderType = it },
+                                        onSelectDefenderType = {
+                                            selectedDefenderType = it
+                                            selectedSupportObject = null
+                                        },
                                         onUpgradeDefender = { onUpgradeDefender(it) },
                                         onUndoTower = { defenderId ->
                                             if (onUndoTower(defenderId)) {
@@ -3018,6 +3066,7 @@ private fun GamePlayScreenContent(
                                             title = storyTitle,
                                             text = storyText,
                                             onDismiss = { onDismissGameMessage?.invoke() },
+                                            supports = gameState.level.supports,
                                         )
                                     }
                                 }
