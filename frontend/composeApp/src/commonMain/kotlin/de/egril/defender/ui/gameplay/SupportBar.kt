@@ -33,11 +33,6 @@ import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
-import defender_of_egril.composeapp.generated.resources.Res
-import defender_of_egril.composeapp.generated.resources.barricade
-import defender_of_egril.composeapp.generated.resources.dwarven_trap
-import defender_of_egril.composeapp.generated.resources.magical_trap
-import org.jetbrains.compose.resources.stringResource
 
 /** Colors used for the support boxes (objects vs spell tokens). */
 private object SupportBarColors {
@@ -77,33 +72,37 @@ fun SupportBar(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Placable objects
+        // Placable objects (hidden once fully used up)
         supports.objects.forEach { supportObject ->
             val remaining = gameState.supportObjectsRemaining[supportObject.type] ?: 0
-            SupportBox(
-                remaining = remaining,
-                isSpell = false,
-                isSelected = selectedSupportObject == supportObject.type,
-                enabled = enabled && remaining > 0,
-                tooltip = supportObject.type.localizedSupportName(),
-                onClick = { onObjectClick(supportObject.type) },
-            ) {
-                SupportObjectIcon(supportObject.type, SUPPORT_ICON_SIZE)
+            if (remaining > 0) {
+                SupportBox(
+                    remaining = remaining,
+                    isSpell = false,
+                    isSelected = selectedSupportObject == supportObject.type,
+                    enabled = enabled,
+                    tooltip = supportObject.type.localizedSupportName(),
+                    onClick = { onObjectClick(supportObject.type) },
+                ) {
+                    SupportObjectIcon(supportObject.type, SUPPORT_ICON_SIZE)
+                }
             }
         }
 
-        // Spell tokens
+        // Spell tokens (hidden once fully used up)
         supports.spells.forEach { supportSpell ->
             val remaining = gameState.supportSpellsRemaining[supportSpell.spell] ?: 0
-            SupportBox(
-                remaining = remaining,
-                isSpell = true,
-                isSelected = activeSpellToken == supportSpell.spell,
-                enabled = enabled && remaining > 0,
-                tooltip = supportSpell.spell.getLocalizedName(),
-                onClick = { onSpellClick(supportSpell.spell) },
-            ) {
-                SpellTargetIcon(spell = supportSpell.spell, size = SUPPORT_ICON_SIZE)
+            if (remaining > 0) {
+                SupportBox(
+                    remaining = remaining,
+                    isSpell = true,
+                    isSelected = activeSpellToken == supportSpell.spell,
+                    enabled = enabled,
+                    tooltip = supportSpell.spell.getLocalizedName(),
+                    onClick = { onSpellClick(supportSpell.spell) },
+                ) {
+                    SpellTargetIcon(spell = supportSpell.spell, size = SUPPORT_ICON_SIZE)
+                }
             }
         }
     }
@@ -280,10 +279,14 @@ private fun SupportSummaryRow(
 }
 
 /** Localized display name for a support object type. */
-@Composable
-fun SupportObjectType.localizedSupportName(): String =
-    when (this) {
-        SupportObjectType.DWARVEN_TRAP -> stringResource(Res.string.dwarven_trap)
-        SupportObjectType.MAGICAL_TRAP -> stringResource(Res.string.magical_trap)
-        SupportObjectType.BARRICADE -> stringResource(Res.string.barricade)
-    }
+fun SupportObjectType.localizedSupportName(
+    locale: com.hyperether.resources.AppLocale = com.hyperether.resources.currentLanguage.value,
+): String {
+    val key =
+        when (this) {
+            SupportObjectType.DWARVEN_TRAP -> "dwarven_trap"
+            SupportObjectType.MAGICAL_TRAP -> "magical_trap"
+            SupportObjectType.BARRICADE -> "barricade"
+        }
+    return com.hyperether.resources.LocalizedStrings.get(key, locale)
+}

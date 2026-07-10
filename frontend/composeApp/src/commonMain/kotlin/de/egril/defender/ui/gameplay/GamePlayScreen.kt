@@ -2844,6 +2844,7 @@ private fun GamePlayScreenContent(
                             currentMana = gameState.currentMana.value,
                             onConfirm = { onConfirmTargetSpell.invoke() },
                             onDismiss = { onDismissTargetConfirmation.invoke() },
+                            isTokenCast = activeSpellToken == spell,
                         )
                     }
 
