@@ -31,7 +31,7 @@ class MineOperations(
             }
             else -> {
                 // Add coins (with income multiplier from player stats)
-                val modifiedCoins = (outcome.coins * state.incomeMultiplier).toInt()
+                val modifiedCoins = (outcome.coins * state.incomeMultiplier).toInt() * state.coinSurgeMultiplier()
                 state.coins.value += modifiedCoins
                 mine.coinsGenerated.value += modifiedCoins
                 if (modifiedCoins > 0) {
@@ -74,7 +74,7 @@ class MineOperations(
             }
             else -> {
                 // Add coins (with income multiplier from player stats)
-                val modifiedCoins = (outcomeType.coins * state.incomeMultiplier).toInt()
+                val modifiedCoins = (outcomeType.coins * state.incomeMultiplier).toInt() * state.coinSurgeMultiplier()
                 state.coins.value += modifiedCoins
                 mine.coinsGenerated.value += modifiedCoins
                 if (modifiedCoins > 0) {

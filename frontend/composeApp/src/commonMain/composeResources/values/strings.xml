@@ -772,6 +772,14 @@
     <string name="supports_intro">Objects and spell tokens the player can use in this level, regardless of their towers, tech level, or mana.</string>
     <string name="supports_objects_section">Placable Objects</string>
     <string name="supports_spells_section">Spell Tokens</string>
+    <string name="supports_cooldown_powers_section">Cooldown Powers</string>
+    <string name="cooldown_turns_label">Cooldown</string>
+    <string name="start_active_label">Start active</string>
+    <string name="cooldown_power_coin_surge">Coin Surge</string>
+    <string name="cooldown_power_sky_is_falling">The Sky is Falling</string>
+    <string name="cooldown_power_construction_repairs">Construction Repairs</string>
+    <string name="cooldown_power_mana_well">Mana Well</string>
+    <string name="cooldown_power_deep_mana_well">Deep Mana Well</string>
     <string name="magical_trap_cooldown">Cooldown: %d turns</string>
     <string name="magical_trap_available">Magical Trap Available</string>
     <string name="magical_trap_tutorial_title">Magical Trap Unlocked!</string>

@@ -1,5 +1,6 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,29 +16,37 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.egril.defender.model.CooldownPowerType
 import de.egril.defender.model.GameState
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.icon.ExplosionIcon
+import de.egril.defender.ui.icon.HammerIcon
+import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 
-/** Colors used for the support boxes (objects vs spell tokens). */
+/** Colors used for the support boxes (objects vs spell tokens vs cooldown powers). */
 private object SupportBarColors {
     val ObjectBorder = Color(0xFF795548) // Brown - objects use solid, square boxes
     val SpellBorder = Color(0xFF7E57C2) // Purple - spell tokens use dashed, rounded boxes
+    val CooldownBorder = Color(0xFF00897B) // Teal - cooldown powers use solid, rounded boxes
     val Selected = Color(0xFFFFC107) // Amber highlight for the active selection
 }
 
@@ -63,6 +72,7 @@ fun SupportBar(
     onObjectClick: (SupportObjectType) -> Unit,
     onSpellClick: (SpellType) -> Unit,
     modifier: Modifier = Modifier,
+    onCooldownPowerClick: (CooldownPowerType) -> Unit = {},
 ) {
     val supports = gameState.level.supports
     if (supports.isEmpty()) return
@@ -104,6 +114,17 @@ fun SupportBar(
                     SpellTargetIcon(spell = supportSpell.spell, size = SUPPORT_ICON_SIZE)
                 }
             }
+        }
+
+        // Cooldown-based powers (always shown, even while on cooldown)
+        supports.cooldownPowers.forEach { power ->
+            val readyIn = gameState.cooldownPowerReadyIn[power.type] ?: 0
+            CooldownPowerBox(
+                type = power.type,
+                readyIn = readyIn,
+                enabled = enabled && readyIn == 0,
+                onClick = { onCooldownPowerClick(power.type) },
+            )
         }
     }
 }
@@ -215,6 +236,124 @@ private fun SupportObjectIcon(
 }
 
 /**
+ * A cooldown-based support power box. Uses a rounded, solid border in a distinct color and is
+ * always shown, even while the power is on cooldown. When on cooldown, the remaining number of
+ * turns is displayed as a large number over a dimmed icon. A small white timer symbol is drawn in
+ * the top-left corner so cooldown powers are easy to distinguish from other supports.
+ */
+@Composable
+private fun CooldownPowerBox(
+    type: CooldownPowerType,
+    readyIn: Int,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    val onCooldown = readyIn > 0
+    val alpha = if (enabled) 1f else 0.4f
+    val shape = RoundedCornerShape(14.dp)
+    val borderColor = SupportBarColors.CooldownBorder
+
+    TooltipWrapper(text = type.localizedCooldownPowerName(), preferAbove = true) {
+        Box(
+            modifier =
+                Modifier
+                    .size(SUPPORT_BOX_SIZE)
+                    .clip(shape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f * alpha))
+                    .border(
+                        width = 2.dp,
+                        color = borderColor.copy(alpha = alpha),
+                        shape = shape,
+                    ).clickable(enabled = enabled, onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            // Dim the icon while the power is recharging
+            Box(
+                modifier = Modifier.alpha(if (onCooldown) 0.35f else 1f),
+                contentAlignment = Alignment.Center,
+            ) {
+                CooldownPowerIcon(type, SUPPORT_ICON_SIZE)
+            }
+
+            // Large cooldown number over the dimmed icon
+            if (onCooldown) {
+                Text(
+                    text = "$readyIn",
+                    color = borderColor,
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+
+            // Small white timer symbol on a teal disc in the top-left corner so cooldown
+            // powers are easy to distinguish from other supports on any background.
+            Box(
+                modifier =
+                    Modifier
+                        .align(Alignment.TopStart)
+                        .padding(2.dp)
+                        .size(16.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(borderColor.copy(alpha = alpha)),
+                contentAlignment = Alignment.Center,
+            ) {
+                TimerBadge(dimension = 11.dp)
+            }
+        }
+    }
+}
+
+/** Small white clock/timer glyph drawn in a Canvas so it can be tinted white on any background. */
+@Composable
+private fun TimerBadge(
+    modifier: Modifier = Modifier,
+    dimension: Dp = 12.dp,
+) {
+    Canvas(modifier = modifier.size(dimension)) {
+        val stroke = size.minDimension * 0.12f
+        val radius = size.minDimension / 2f - stroke
+        val center = Offset(size.width / 2f, size.height / 2f)
+        // Clock face outline
+        drawCircle(
+            color = Color.White,
+            radius = radius,
+            center = center,
+            style = Stroke(width = stroke),
+        )
+        // Hour hand (up)
+        drawLine(
+            color = Color.White,
+            start = center,
+            end = Offset(center.x, center.y - radius * 0.55f),
+            strokeWidth = stroke,
+            cap = StrokeCap.Round,
+        )
+        // Minute hand (right)
+        drawLine(
+            color = Color.White,
+            start = center,
+            end = Offset(center.x + radius * 0.7f, center.y),
+            strokeWidth = stroke,
+            cap = StrokeCap.Round,
+        )
+    }
+}
+
+@Composable
+private fun CooldownPowerIcon(
+    type: CooldownPowerType,
+    size: Dp,
+) {
+    when (type) {
+        CooldownPowerType.COIN_SURGE -> MoneyIcon(size = size)
+        CooldownPowerType.SKY_IS_FALLING -> ExplosionIcon(size = size)
+        CooldownPowerType.CONSTRUCTION_REPAIRS -> HammerIcon(size = size)
+        CooldownPowerType.MANA_WELL -> PentagramIcon(size = size)
+        CooldownPowerType.DEEP_MANA_WELL -> PentagramIcon(size = size)
+    }
+}
+
+/**
  * Reusable summary of a level's available supports (objects + spell tokens).
  * Values are inserted from the level's [de.egril.defender.model.LevelSupports] so the composable
  * can be reused anywhere the available supports need to be presented (e.g. the story message).
@@ -256,6 +395,14 @@ fun LevelSupportsSummary(
                 SpellTargetIcon(spell = supportSpell.spell, size = 24.dp)
             }
         }
+        supports.cooldownPowers.forEach { power ->
+            SupportSummaryRow(
+                count = 1,
+                label = power.type.localizedCooldownPowerName(),
+            ) {
+                CooldownPowerIcon(power.type, 24.dp)
+            }
+        }
     }
 }
 
@@ -287,6 +434,22 @@ fun SupportObjectType.localizedSupportName(
             SupportObjectType.DWARVEN_TRAP -> "dwarven_trap"
             SupportObjectType.MAGICAL_TRAP -> "magical_trap"
             SupportObjectType.BARRICADE -> "barricade"
+        }
+    return com.hyperether.resources.LocalizedStrings
+        .get(key, locale)
+}
+
+/** Localized display name for a cooldown-based support power. */
+fun CooldownPowerType.localizedCooldownPowerName(
+    locale: com.hyperether.resources.AppLocale = com.hyperether.resources.currentLanguage.value,
+): String {
+    val key =
+        when (this) {
+            CooldownPowerType.COIN_SURGE -> "cooldown_power_coin_surge"
+            CooldownPowerType.SKY_IS_FALLING -> "cooldown_power_sky_is_falling"
+            CooldownPowerType.CONSTRUCTION_REPAIRS -> "cooldown_power_construction_repairs"
+            CooldownPowerType.MANA_WELL -> "cooldown_power_mana_well"
+            CooldownPowerType.DEEP_MANA_WELL -> "cooldown_power_deep_mana_well"
         }
     return com.hyperether.resources.LocalizedStrings
         .get(key, locale)

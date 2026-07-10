@@ -1966,6 +1966,16 @@ class GameEngine(
         // prevents the lingering overlay from showing during the player's turn.
         state.trapTriggerEffects.clear()
 
+        // Tick down cooldown-based support powers (one turn per full round) and clear the
+        // Coin Surge effect so its doubling only applies to the round it was activated in.
+        for (type in state.cooldownPowerReadyIn.keys.toList()) {
+            val remaining = state.cooldownPowerReadyIn[type] ?: 0
+            if (remaining > 0) {
+                state.cooldownPowerReadyIn[type] = remaining - 1
+            }
+        }
+        state.coinSurgeActive.value = false
+
         state.phase.value = GamePhase.PLAYER_TURN
         resetDefenderActions()
     }

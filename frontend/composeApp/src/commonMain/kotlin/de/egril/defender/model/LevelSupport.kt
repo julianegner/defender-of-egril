@@ -39,14 +39,57 @@ data class SupportSpell(
 )
 
 /**
- * All player-usable supports (placable objects + spell tokens) defined for a level.
+ * Cooldown-based support powers a player can trigger for the whole level.
+ *
+ * Unlike placable objects and spell tokens (which are consumed), a cooldown power exists once per
+ * level and can be re-used after waiting [CooldownPowerType.defaultCooldown] (or a level-configured
+ * number of) turns. Each type has a sensible default cooldown used when the level editor does not
+ * override it.
+ */
+enum class CooldownPowerType(
+    val defaultCooldown: Int,
+) {
+    /** Doubles all coins earned during the turn after the power is activated. */
+    COIN_SURGE(5),
+
+    /** All enemy units lose 10 health points. */
+    SKY_IS_FALLING(5),
+
+    /** All existing barricades gain 10 health points. */
+    CONSTRUCTION_REPAIRS(5),
+
+    /** Grants 10 mana. */
+    MANA_WELL(3),
+
+    /** Grants 50 mana. */
+    DEEP_MANA_WELL(5),
+}
+
+/**
+ * A cooldown-based support power granted to the player for a level.
+ *
+ * @param type          Which power is available.
+ * @param cooldownTurns Number of turns the power is unavailable after being used.
+ * @param startActive   When true (default), the power is usable at the start of the level and the
+ *                      cooldown only begins after the first use. When false, the power starts on
+ *                      cooldown at the beginning of the level.
+ */
+data class CooldownPower(
+    val type: CooldownPowerType,
+    val cooldownTurns: Int = type.defaultCooldown,
+    val startActive: Boolean = true,
+)
+
+/**
+ * All player-usable supports (placable objects + spell tokens + cooldown powers) defined for a level.
  * Displayed as boxes above the gameplay buttons and mentioned in the level's story message.
  */
 data class LevelSupports(
     val objects: List<SupportObject> = emptyList(),
     val spells: List<SupportSpell> = emptyList(),
+    val cooldownPowers: List<CooldownPower> = emptyList(),
 ) {
-    fun isEmpty(): Boolean = objects.isEmpty() && spells.isEmpty()
+    fun isEmpty(): Boolean = objects.isEmpty() && spells.isEmpty() && cooldownPowers.isEmpty()
 
     fun isNotEmpty(): Boolean = !isEmpty()
 }

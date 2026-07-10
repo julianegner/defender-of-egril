@@ -242,7 +242,14 @@ data class GameState(
     // Player-usable supports remaining this level (placable objects + spell tokens)
     val supportObjectsRemaining: SnapshotStateMap<SupportObjectType, Int> = mutableStateMapOf(),
     val supportSpellsRemaining: SnapshotStateMap<SpellType, Int> = mutableStateMapOf(),
+    // Cooldown-based support powers: turns remaining until the power can be used again (0 = ready)
+    val cooldownPowerReadyIn: SnapshotStateMap<CooldownPowerType, Int> = mutableStateMapOf(),
+    // True when the Coin Surge power is active this turn (doubles coins earned)
+    val coinSurgeActive: MutableState<Boolean> = mutableStateOf(false),
 ) {
+    /** Multiplier applied to earned coins while the Coin Surge power is active (2x), otherwise 1x. */
+    fun coinSurgeMultiplier(): Int = if (coinSurgeActive.value) 2 else 1
+
     fun isLevelWon(): Boolean {
         // Check if all planned spawns have occurred and all enemies are defeated
         val allSpawned = spawnPlan.all { it.spawnTurn <= turnNumber.value }
@@ -543,6 +550,14 @@ data class GameState(
             supportSpellsRemaining[supportSpell.spell] =
                 (supportSpellsRemaining[supportSpell.spell] ?: 0) + supportSpell.count
         }
+
+        // Initialize cooldown-based support powers. Powers that start active are immediately usable
+        // (readyIn = 0); powers that start inactive begin on cooldown.
+        cooldownPowerReadyIn.clear()
+        for (power in level.supports.cooldownPowers) {
+            cooldownPowerReadyIn[power.type] = if (power.startActive) 0 else power.cooldownTurns
+        }
+        coinSurgeActive.value = false
 
         // Place initial barricades FIRST (before defenders so we can link them)
         for (initialBarricade in initialData.barricades) {

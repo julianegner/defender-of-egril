@@ -105,6 +105,7 @@ fun GamePlayScreen(
     onPlaceSupportObject: ((SupportObjectType, Position) -> Boolean)? = null, // Place a level support object at a position
     onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
     activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
+    onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -169,6 +170,7 @@ fun GamePlayScreen(
         onPlaceSupportObject = onPlaceSupportObject,
         onCastSupportSpellToken = onCastSupportSpellToken,
         activeSpellToken = activeSpellToken,
+        onActivateCooldownPower = onActivateCooldownPower,
     )
 }
 
@@ -238,6 +240,7 @@ private fun GamePlayScreenContent(
     onPlaceSupportObject: ((SupportObjectType, Position) -> Boolean)? = null, // Place a level support object at a position
     onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
     activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
+    onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedSupportObject by remember { mutableStateOf<SupportObjectType?>(null) }
@@ -2344,6 +2347,10 @@ private fun GamePlayScreenContent(
                                         onCastSupportSpellToken?.invoke(spell)
                                     },
                                     modifier = Modifier.align(Alignment.CenterHorizontally),
+                                    onCooldownPowerClick = { power ->
+                                        selectedSupportObject = null
+                                        onActivateCooldownPower?.invoke(power)
+                                    },
                                 )
                                 // Control Panel based on phase
                                 when (gameState.phase.value) {

@@ -628,7 +628,7 @@ class CombatSystem(
             // pendingCoinGains tracks the total not yet credited; completeEnemyTurn flushes it
             // as a safety net in case the animation coroutine is cancelled before it fires.
             val baseCoins = attacker.type.reward * attacker.level.value
-            val modifiedCoins = (baseCoins * state.incomeMultiplier).toInt()
+            val modifiedCoins = (baseCoins * state.incomeMultiplier).toInt() * state.coinSurgeMultiplier()
             if (modifiedCoins > 0) {
                 state.pendingCoinGains.value += modifiedCoins
             }
