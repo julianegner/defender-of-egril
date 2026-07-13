@@ -27,7 +27,7 @@ import kotlin.math.sqrt
 import kotlin.random.Random
 
 /** Total duration of the falling-meteor sweep, in milliseconds. */
-private const val SKY_IS_FALLING_DURATION_MS = 3000
+const val SKY_IS_FALLING_DURATION_MS = 3000
 
 /** Number of meteors that rain across the map. */
 private const val METEOR_COUNT = 26

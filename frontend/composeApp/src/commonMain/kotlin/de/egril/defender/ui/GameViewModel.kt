@@ -12,6 +12,7 @@ import de.egril.defender.game.GameEngine
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
+import de.egril.defender.ui.animations.SKY_IS_FALLING_DURATION_MS
 import de.egril.defender.ui.infopage.NewVersionInfo
 import de.egril.defender.ui.infopage.checkForNewerVersion
 import de.egril.defender.ui.settings.AppSettings
@@ -4497,23 +4498,14 @@ class GameViewModel {
                 gameState.coinSurgeActive.value = true
             }
             CooldownPowerType.SKY_IS_FALLING -> {
-                // Trigger the full-map falling-meteor animation overlay.
+                // Trigger the full-map falling-meteor animation overlay first, then remove the
+                // enemies' health once the meteors have visibly struck the map.
                 gameState.skyIsFallingTrigger.value += 1
-                // All enemy units lose 10 health points.
-                gameState.attackers
-                    .filter { !it.isDefeated.value }
-                    .forEach { attacker ->
-                        attacker.currentHealth.value -= SKY_IS_FALLING_DAMAGE
-                        if (attacker.currentHealth.value <= 0) {
-                            attacker.isDefeated.value = true
-                        }
+                viewModelScope.launch {
+                    if (AppSettings.enableAnimations.value) {
+                        delay(SKY_IS_FALLING_DURATION_MS.toLong())
                     }
-                // Award coins/XP and remove defeated enemies immediately (mirrors damage spells).
-                gameEngine?.processDefeatedAttackers()
-                surfaceNextPendingMessageIfIdle()
-                val stateAfter = _gameState.value
-                if (stateAfter != null && stateAfter.isLevelWon()) {
-                    completeLevel(stateAfter.level.id, won = true)
+                    applySkyIsFallingDamage(gameState)
                 }
             }
             CooldownPowerType.CONSTRUCTION_REPAIRS -> {
@@ -4524,6 +4516,26 @@ class GameViewModel {
             }
             CooldownPowerType.MANA_WELL -> gameEngine?.addMana(MANA_WELL_MANA)
             CooldownPowerType.DEEP_MANA_WELL -> gameEngine?.addMana(DEEP_MANA_WELL_MANA)
+        }
+    }
+
+    /** Apply the "Sky is Falling" damage to all live enemies and resolve any defeats. */
+    private fun applySkyIsFallingDamage(gameState: GameState) {
+        // All enemy units lose 10 health points.
+        gameState.attackers
+            .filter { !it.isDefeated.value }
+            .forEach { attacker ->
+                attacker.currentHealth.value -= SKY_IS_FALLING_DAMAGE
+                if (attacker.currentHealth.value <= 0) {
+                    attacker.isDefeated.value = true
+                }
+            }
+        // Award coins/XP and remove defeated enemies immediately (mirrors damage spells).
+        gameEngine?.processDefeatedAttackers()
+        surfaceNextPendingMessageIfIdle()
+        val stateAfter = _gameState.value
+        if (stateAfter != null && stateAfter.isLevelWon()) {
+            completeLevel(stateAfter.level.id, won = true)
         }
     }
 
