@@ -1505,6 +1505,7 @@
     <string name="spell_targeting_cancel">Cliquez ici pour annuler</string>
     <string name="keyboard_placement_move">Déplacer</string>
     <string name="keyboard_placement_place">Placer</string>
+    <string name="keyboard_placement_row">Rangée</string>
 
     <!-- Spell Names -->
     <string name="spell_attack_area_name">Attaque de Zone</string>

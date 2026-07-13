@@ -1503,6 +1503,7 @@
     <string name="spell_targeting_cancel">Hier klicken zum Abbrechen</string>
     <string name="keyboard_placement_move">Bewegen</string>
     <string name="keyboard_placement_place">Platzieren</string>
+    <string name="keyboard_placement_row">Reihe</string>
 
     <!-- Spell Names -->
     <string name="spell_attack_area_name">Flächenangriff</string>

@@ -209,4 +209,49 @@ class SupportShortcutTest {
         // Returned sorted top-to-bottom then left-to-right regardless of input order.
         assertEquals(listOf(Position(0, 0), Position(5, 0)), spellTargetPositions(gameState))
     }
+
+    @Test
+    fun testRowStepMovesDownKeepingColumn() {
+        // Two rows; from (2,0) moving down lands on the same column in the next row.
+        val tiles = listOf(Position(0, 0), Position(2, 0), Position(0, 1), Position(2, 1))
+        assertEquals(Position(2, 1), rowStepPlacementTile(tiles, Position(2, 0), up = false))
+    }
+
+    @Test
+    fun testRowStepMovesUpKeepingColumn() {
+        val tiles = listOf(Position(0, 0), Position(2, 0), Position(0, 1), Position(2, 1))
+        assertEquals(Position(0, 0), rowStepPlacementTile(tiles, Position(0, 1), up = true))
+    }
+
+    @Test
+    fun testRowStepPicksNearestColumnInTargetRow() {
+        // Target row only has tiles at x=0 and x=5; from x=4 the nearest is x=5.
+        val tiles = listOf(Position(4, 0), Position(0, 1), Position(5, 1))
+        assertEquals(Position(5, 1), rowStepPlacementTile(tiles, Position(4, 0), up = false))
+    }
+
+    @Test
+    fun testRowStepSkipsToNearestPopulatedRow() {
+        // No tiles on row 1; moving down from row 0 skips to the next populated row (2).
+        val tiles = listOf(Position(3, 0), Position(3, 2))
+        assertEquals(Position(3, 2), rowStepPlacementTile(tiles, Position(3, 0), up = false))
+    }
+
+    @Test
+    fun testRowStepReturnsNullAtEdges() {
+        val tiles = listOf(Position(0, 0), Position(0, 1))
+        assertNull(rowStepPlacementTile(tiles, Position(0, 0), up = true))
+        assertNull(rowStepPlacementTile(tiles, Position(0, 1), up = false))
+    }
+
+    @Test
+    fun testRowStepNullCurrentStartsFromFirstTile() {
+        val tiles = listOf(Position(0, 0), Position(0, 1))
+        assertEquals(Position(0, 1), rowStepPlacementTile(tiles, current = null, up = false))
+    }
+
+    @Test
+    fun testRowStepEmptyListReturnsNull() {
+        assertNull(rowStepPlacementTile(emptyList(), Position(0, 0), up = false))
+    }
 }

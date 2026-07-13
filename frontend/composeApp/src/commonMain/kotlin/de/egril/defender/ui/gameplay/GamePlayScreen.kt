@@ -1154,6 +1154,36 @@ private fun GamePlayScreenContent(
                             false
                         }
                     }
+                    // Move the keyboard placement/targeting cursor a whole grid row up/down while placing
+                    // a support object or targeting a spell. Reuses the pan up/down bindings (W/S by
+                    // default) — during placement the map already auto-follows the cursor, so these keys
+                    // move between rows instead of panning. Complements the next/prev (row-major) stepping
+                    // below. Placed before pan handling (onPreviewKeyEvent) so it takes precedence.
+                    event.type == KeyEventType.KeyDown &&
+                        (
+                            isShortcutBindingPressed(event, AppSettings.shortcutPanUp.value) ||
+                                isShortcutBindingPressed(event, AppSettings.shortcutPanDown.value)
+                        ) &&
+                        !showMagicPanel &&
+                        (selectedSupportObject != null || gameState.spellTargeting.value != null) &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                        val candidateTiles =
+                            selectedSupportObject?.let { supportObjectPlacementTiles(gameState, it) }
+                                ?: spellTargetPositions(gameState)
+                        if (candidateTiles.isEmpty()) {
+                            false
+                        } else {
+                            val up = isShortcutBindingPressed(event, AppSettings.shortcutPanUp.value)
+                            val target = rowStepPlacementTile(candidateTiles, keyboardPlacementTile, up)
+                            if (target != null) {
+                                keyboardPlacementTile = target
+                                tabScrollPosition = target
+                            }
+                            // Consume the key even at the top/bottom edge so it never falls through to
+                            // panning while a placement/targeting mode is active.
+                            true
+                        }
+                    }
                     // Cycle the keyboard placement/targeting cursor over the valid tiles while placing a
                     // support object or targeting a spell (reuses the next/prev enemy-target bindings, as
                     // tower placement does for build tiles). Placed before the enemy-target handlers so it
@@ -1327,8 +1357,22 @@ private fun GamePlayScreenContent(
                                 val remaining = gameState.supportObjectsRemaining[supportType] ?: 0
                                 if (remaining <= 0) {
                                     selectedSupportObject = null
+                                    keyboardPlacementTile = null
+                                } else {
+                                    // Keep the placement cursor near the tile just used instead of
+                                    // resetting it to the first tile, so consecutive placements stay
+                                    // in the same area of the map. The placed tile is now occupied and
+                                    // dropped from the list, so the same (clamped) index lands on the
+                                    // next remaining tile.
+                                    val placedIndex = candidateTiles.indexOf(tile)
+                                    val remainingTiles = supportObjectPlacementTiles(gameState, supportType)
+                                    keyboardPlacementTile =
+                                        if (remainingTiles.isEmpty()) {
+                                            null
+                                        } else {
+                                            remainingTiles[placedIndex.coerceIn(0, remainingTiles.lastIndex)]
+                                        }
                                 }
-                                keyboardPlacementTile = null
                             }
                         } else {
                             val targeting = gameState.spellTargeting.value
@@ -2583,6 +2627,16 @@ private fun GamePlayScreenContent(
                                             if (count == 0) null else idx.coerceIn(0, count - 1)
                                         },
                                 )
+                                // Keyboard-navigation hint for the support bar: shown only while there
+                                // are support elements to navigate and hints are enabled.
+                                if (visibleSupportSlots(gameState).isNotEmpty()) {
+                                    SupportBarKeyboardHints(
+                                        modifier =
+                                            Modifier
+                                                .align(Alignment.CenterHorizontally)
+                                                .padding(bottom = 4.dp),
+                                    )
+                                }
                                 // Control Panel based on phase
                                 when (gameState.phase.value) {
                                     GamePhase.INITIAL_BUILDING -> {
@@ -3409,6 +3463,8 @@ private fun PlacementKeyboardHints(modifier: Modifier = Modifier) {
     val hintColor = LocalContentColor.current.copy(alpha = 0.75f)
     val nextBinding = formatShortcutBindingForDisplay(AppSettings.shortcutNextEnemyTarget.value)
     val prevBinding = formatShortcutBindingForDisplay(AppSettings.shortcutPrevEnemyTarget.value)
+    val rowUpBinding = formatShortcutBindingForDisplay(AppSettings.shortcutPanUp.value)
+    val rowDownBinding = formatShortcutBindingForDisplay(AppSettings.shortcutPanDown.value)
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -3422,9 +3478,49 @@ private fun PlacementKeyboardHints(modifier: Modifier = Modifier) {
             color = hintColor,
         )
         Spacer(modifier = Modifier.width(8.dp))
+        ShortcutKeyChip(text = rowUpBinding, color = hintColor)
+        ShortcutKeyChip(text = rowDownBinding, color = hintColor)
+        Text(
+            text = stringResource(Res.string.keyboard_placement_row),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
         ShortcutKeyChip(text = "Enter", color = hintColor)
         Text(
             text = stringResource(Res.string.keyboard_placement_place),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor,
+        )
+    }
+}
+
+/**
+ * Compact keyboard-hint row shown beneath the support bar. It documents how to navigate between the
+ * support elements (placeable objects, spell tokens, cooldown powers) with the keyboard: left/right
+ * to move the focus cursor and Enter to activate the focused element. Renders nothing when the
+ * shortcut-hint setting is disabled (each chip self-guards).
+ */
+@Composable
+private fun SupportBarKeyboardHints(modifier: Modifier = Modifier) {
+    if (!AppSettings.showButtonShortcutHints.value) return
+    val hintColor = LocalContentColor.current.copy(alpha = 0.75f)
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        // \u2190\u2192 = left/right arrows; ShortcutKeyChip renders them as Material Symbol icons.
+        ShortcutKeyChip(text = "\u2190\u2192", color = hintColor)
+        Text(
+            text = stringResource(Res.string.keyboard_placement_move),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        ShortcutKeyChip(text = "Enter", color = hintColor)
+        Text(
+            text = stringResource(Res.string.keyboard_nav_select),
             style = MaterialTheme.typography.labelSmall,
             color = hintColor,
         )

@@ -228,6 +228,41 @@ fun spellTargetPositions(gameState: GameState): List<Position> {
 }
 
 /**
+ * The tile one grid row above ([up] = true) or below ([up] = false) [current] within
+ * [candidateTiles], keeping roughly the same column (nearest x). Returns null when there is no
+ * candidate tile in an adjacent row in the requested direction.
+ *
+ * [candidateTiles] is expected to be ordered top-to-bottom, left-to-right (see
+ * [supportObjectPlacementTiles] / [spellTargetPositions]). Used so keyboard placement can move a
+ * whole row up/down, complementing the previous/next stepping through the flat list.
+ */
+fun rowStepPlacementTile(
+    candidateTiles: List<Position>,
+    current: Position?,
+    up: Boolean,
+): Position? {
+    if (candidateTiles.isEmpty()) return null
+    val from = current ?: candidateTiles.first()
+    // Rows in the requested direction, ordered nearest-first.
+    val targetRows =
+        candidateTiles
+            .asSequence()
+            .map { it.y }
+            .filter { if (up) it < from.y else it > from.y }
+            .distinct()
+            .sortedBy { if (up) -it else it }
+            .toList()
+    for (rowY in targetRows) {
+        val best =
+            candidateTiles
+                .filter { it.y == rowY }
+                .minByOrNull { kotlin.math.abs(it.x - from.x) }
+        if (best != null) return best
+    }
+    return null
+}
+
+/**
  * Row of support boxes shown at the lower edge of the screen, above the tower buttons.
  *
  * Objects (traps, magical traps, barricades) are drawn as square boxes with a solid border,

@@ -1507,6 +1507,7 @@
     <string name="spell_targeting_cancel">Click here to cancel</string>
     <string name="keyboard_placement_move">Move</string>
     <string name="keyboard_placement_place">Place</string>
+    <string name="keyboard_placement_row">Row</string>
 
     <!-- Spell Names -->
     <string name="spell_attack_area_name">Attack Area</string>
