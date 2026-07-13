@@ -65,10 +65,10 @@ private val SUPPORT_ICON_SIZE = 32.dp
 private const val MAX_SUPPORT_SHORTCUTS = 9
 
 /**
- * A single support box shown in the [SupportBar]. Objects and spell tokens are only present while
- * at least one is remaining; cooldown powers are always present (even while recharging). The order
- * of this list — objects, then spell tokens, then cooldown powers — matches the on-screen order,
- * so the list index can be used to assign a stable keyboard shortcut to each box.
+ * A support box shown in the [SupportBar]. Objects and spell tokens are only present while at least
+ * one is remaining; cooldown powers are always present (even while recharging). [visibleSupportSlots]
+ * lists them in on-screen order — objects, then spell tokens, then cooldown powers — so the list
+ * index can be used to assign a stable keyboard shortcut to each box.
  */
 sealed interface SupportSlot {
     data class ObjectSlot(
