@@ -172,7 +172,11 @@ fun supportObjectPlacementTiles(
 ): List<Position> {
     // Pre-compute occupied positions once so the per-tile checks below are O(1) lookups instead of
     // scanning every attacker/trap/barricade/defender for each grid cell.
-    val attackerPositions = gameState.attackers.filter { !it.isDefeated.value }.map { it.position.value }.toHashSet()
+    val attackerPositions =
+        gameState.attackers
+            .filter { !it.isDefeated.value }
+            .map { it.position.value }
+            .toHashSet()
     val trapPositions = gameState.traps.map { it.position }.toHashSet()
     val barricadePositions = gameState.barricades.map { it.position }.toHashSet()
     val fieldEffectPositions = gameState.fieldEffects.map { it.position }.toHashSet()

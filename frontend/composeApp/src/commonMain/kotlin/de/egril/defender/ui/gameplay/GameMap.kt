@@ -58,8 +58,8 @@ import de.egril.defender.ui.animations.FreezeSpellAnimation
 import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.MineDigAnimation
-import de.egril.defender.ui.animations.SkyIsFallingAnimation
 import de.egril.defender.ui.animations.PikeAttackOverlay
+import de.egril.defender.ui.animations.SkyIsFallingAnimation
 import de.egril.defender.ui.animations.SpearAttackOverlay
 import de.egril.defender.ui.animations.SpellDoubleReachColor
 import de.egril.defender.ui.animations.TowerAttackImpactAnimation

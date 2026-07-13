@@ -12,6 +12,7 @@ import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObject
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.SupportSpell
+import de.egril.defender.model.Trap
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -181,7 +182,7 @@ class SupportShortcutTest {
 
         // A tile that already has a trap is not offered again.
         gameState.traps.add(
-            de.egril.defender.model.Trap(position = Position(0, 0), damage = 10, defenderId = -1),
+            Trap(position = Position(0, 0), damage = 10, defenderId = -1),
         )
 
         val tiles = supportObjectPlacementTiles(gameState, SupportObjectType.DWARVEN_TRAP)
