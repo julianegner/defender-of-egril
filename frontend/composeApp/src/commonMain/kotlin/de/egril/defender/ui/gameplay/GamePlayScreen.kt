@@ -1194,6 +1194,61 @@ private fun GamePlayScreenContent(
                             false
                         }
                     }
+                    // Shift+1..9: Select/activate a level support element (object / spell token /
+                    // cooldown power) by its position in the support bar.
+                    event.type == KeyEventType.KeyDown &&
+                        event.isShiftPressed &&
+                        !event.isCtrlPressed &&
+                        !event.isAltPressed &&
+                        event.key in
+                        setOf(
+                            Key.One,
+                            Key.Two,
+                            Key.Three,
+                            Key.Four,
+                            Key.Five,
+                            Key.Six,
+                            Key.Seven,
+                            Key.Eight,
+                            Key.Nine,
+                        ) &&
+                        !showMagicPanel &&
+                        (gameState.phase.value == GamePhase.PLAYER_TURN || gameState.phase.value == GamePhase.INITIAL_BUILDING) -> {
+                        val digit =
+                            when (event.key) {
+                                Key.One -> 1
+                                Key.Two -> 2
+                                Key.Three -> 3
+                                Key.Four -> 4
+                                Key.Five -> 5
+                                Key.Six -> 6
+                                Key.Seven -> 7
+                                Key.Eight -> 8
+                                Key.Nine -> 9
+                                else -> 0
+                            }
+                        val slots = visibleSupportSlots(gameState)
+                        val slot = slots.getOrNull(digit - 1)
+                        if (slot != null && isSupportSlotEnabled(gameState, slot, barEnabled = true)) {
+                            when (slot) {
+                                is SupportSlot.ObjectSlot -> {
+                                    selectedSupportObject = if (selectedSupportObject == slot.type) null else slot.type
+                                    selectedDefenderType = null
+                                }
+                                is SupportSlot.SpellSlot -> {
+                                    selectedSupportObject = null
+                                    onCastSupportSpellToken?.invoke(slot.spell)
+                                }
+                                is SupportSlot.PowerSlot -> {
+                                    selectedSupportObject = null
+                                    onActivateCooldownPower?.invoke(slot.type)
+                                }
+                            }
+                            true
+                        } else {
+                            false
+                        }
+                    }
                     // 1-8: Select defender type by index (only when NOT in tower-selected mode)
                     event.type == KeyEventType.KeyDown &&
                         event.key in setOf(Key.One, Key.Two, Key.Three, Key.Four, Key.Five, Key.Six, Key.Seven, Key.Eight) &&

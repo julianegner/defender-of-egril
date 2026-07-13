@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,6 +44,8 @@ import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
+import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 
 /** Colors used for the support boxes (objects vs spell tokens vs cooldown powers). */
 private object SupportBarColors {
@@ -53,6 +57,87 @@ private object SupportBarColors {
 
 private val SUPPORT_BOX_SIZE = 56.dp
 private val SUPPORT_ICON_SIZE = 32.dp
+
+/**
+ * The maximum number of support boxes that can be assigned a keyboard shortcut. Shortcuts are
+ * Shift+1 .. Shift+9, matching the digits available on a keyboard.
+ */
+private const val MAX_SUPPORT_SHORTCUTS = 9
+
+/**
+ * A single support box shown in the [SupportBar]. Objects and spell tokens are only present while
+ * at least one is remaining; cooldown powers are always present (even while recharging). The order
+ * of this list — objects, then spell tokens, then cooldown powers — matches the on-screen order,
+ * so the list index can be used to assign a stable keyboard shortcut to each box.
+ */
+sealed interface SupportSlot {
+    data class ObjectSlot(
+        val type: SupportObjectType,
+    ) : SupportSlot
+
+    data class SpellSlot(
+        val spell: SpellType,
+    ) : SupportSlot
+
+    data class PowerSlot(
+        val type: CooldownPowerType,
+    ) : SupportSlot
+}
+
+/**
+ * The ordered list of support boxes currently visible in the [SupportBar] for [gameState].
+ * Used to assign — and resolve — the sequential keyboard shortcuts shown on the boxes.
+ */
+fun visibleSupportSlots(gameState: GameState): List<SupportSlot> {
+    val supports = gameState.level.supports
+    val slots = mutableListOf<SupportSlot>()
+    supports.objects.forEach { supportObject ->
+        if ((gameState.supportObjectsRemaining[supportObject.type] ?: 0) > 0) {
+            slots.add(SupportSlot.ObjectSlot(supportObject.type))
+        }
+    }
+    supports.spells.forEach { supportSpell ->
+        if ((gameState.supportSpellsRemaining[supportSpell.spell] ?: 0) > 0) {
+            slots.add(SupportSlot.SpellSlot(supportSpell.spell))
+        }
+    }
+    supports.cooldownPowers.forEach { power ->
+        slots.add(SupportSlot.PowerSlot(power.type))
+    }
+    return slots
+}
+
+/** Keyboard shortcut binding (e.g. "Shift+1") for the support box at [index], or null if none. */
+fun supportSlotShortcutBinding(index: Int): String? = if (index in 0 until MAX_SUPPORT_SHORTCUTS) "Shift+${index + 1}" else null
+
+/**
+ * Whether the support box for [slot] can currently be used. Mirrors the per-box enable logic used
+ * when rendering the [SupportBar] so that keyboard shortcuts behave exactly like clicking the box.
+ *
+ * [barEnabled] is true while the player may act (player turn or initial building phase).
+ */
+fun isSupportSlotEnabled(
+    gameState: GameState,
+    slot: SupportSlot,
+    barEnabled: Boolean,
+): Boolean {
+    val isInitialBuilding = gameState.phase.value == GamePhase.INITIAL_BUILDING
+    val powersEnabled = barEnabled && !isInitialBuilding
+    val healthAtMax = gameState.healthPoints.value >= gameState.level.healthPoints
+    val manaAtMax = gameState.currentMana.value >= gameState.maxMana.value
+    return when (slot) {
+        is SupportSlot.ObjectSlot -> barEnabled
+        is SupportSlot.SpellSlot -> {
+            val atMaxEffect = slot.spell == SpellType.HEAL && healthAtMax
+            powersEnabled && !atMaxEffect
+        }
+        is SupportSlot.PowerSlot -> {
+            val readyIn = gameState.cooldownPowerReadyIn[slot.type] ?: 0
+            val atMaxEffect = slot.type.addsMana && manaAtMax
+            powersEnabled && readyIn == 0 && !atMaxEffect
+        }
+    }
+}
 
 /**
  * Row of support boxes shown at the lower edge of the screen, above the tower buttons.
@@ -95,16 +180,23 @@ fun SupportBar(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        // Running index over the visible boxes (objects, then spells, then powers) so each box
+        // gets the same sequential keyboard shortcut resolved by visibleSupportSlots().
+        var slotIndex = 0
+
         // Placable objects (hidden once fully used up)
         supports.objects.forEach { supportObject ->
             val remaining = gameState.supportObjectsRemaining[supportObject.type] ?: 0
             if (remaining > 0) {
+                val shortcut = supportSlotShortcutBinding(slotIndex)
+                slotIndex++
                 SupportBox(
                     remaining = remaining,
                     isSpell = false,
                     isSelected = selectedSupportObject == supportObject.type,
                     enabled = enabled,
                     tooltip = supportTooltip("support_type_object", supportObject.type.localizedSupportName()),
+                    shortcut = shortcut,
                     onClick = { onObjectClick(supportObject.type) },
                 ) {
                     SupportObjectIcon(supportObject.type, SUPPORT_ICON_SIZE)
@@ -118,12 +210,15 @@ fun SupportBar(
             if (remaining > 0) {
                 // The Heal token is pointless while the player is already at full health.
                 val atMaxEffect = supportSpell.spell == SpellType.HEAL && healthAtMax
+                val shortcut = supportSlotShortcutBinding(slotIndex)
+                slotIndex++
                 SupportBox(
                     remaining = remaining,
                     isSpell = true,
                     isSelected = activeSpellToken == supportSpell.spell,
                     enabled = powersEnabled && !atMaxEffect,
                     tooltip = supportTooltip("support_type_spell", supportSpell.spell.getLocalizedName()),
+                    shortcut = shortcut,
                     onClick = { onSpellClick(supportSpell.spell) },
                 ) {
                     SpellTargetIcon(spell = supportSpell.spell, size = SUPPORT_ICON_SIZE)
@@ -136,11 +231,14 @@ fun SupportBar(
             val readyIn = gameState.cooldownPowerReadyIn[power.type] ?: 0
             // Mana wells are pointless while mana is already at maximum.
             val atMaxEffect = power.type.addsMana && manaAtMax
+            val shortcut = supportSlotShortcutBinding(slotIndex)
+            slotIndex++
             CooldownPowerBox(
                 type = power.type,
                 readyIn = readyIn,
                 enabled = powersEnabled && readyIn == 0 && !atMaxEffect,
                 tooltip = supportTooltip("support_type_power", power.type.localizedCooldownPowerName()),
+                shortcut = shortcut,
                 onClick = { onCooldownPowerClick(power.type) },
             )
         }
@@ -154,6 +252,7 @@ private fun SupportBox(
     isSelected: Boolean,
     enabled: Boolean,
     tooltip: String,
+    shortcut: String?,
     onClick: () -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -165,12 +264,16 @@ private fun SupportBox(
         }
     val alpha = if (enabled) 1f else 0.4f
     val shape = if (isSpell) RoundedCornerShape(14.dp) else RoundedCornerShape(0.dp)
+    // Show the keyboard shortcut chip only when hints are enabled and a shortcut is assigned. The
+    // box grows wider (rectangular) to make room for the chip.
+    val showShortcut = AppSettings.showButtonShortcutHints.value && shortcut != null
 
     TooltipWrapper(text = tooltip, preferAbove = true) {
         Box(
             modifier =
                 Modifier
-                    .size(SUPPORT_BOX_SIZE)
+                    .height(SUPPORT_BOX_SIZE)
+                    .widthIn(min = SUPPORT_BOX_SIZE)
                     .clip(shape)
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f * alpha))
                     .then(
@@ -203,12 +306,25 @@ private fun SupportBox(
                     ).clickable(enabled = enabled, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            // Dim the icon (not just the border) when the support is disabled.
-            Box(
-                modifier = Modifier.alpha(alpha),
-                contentAlignment = Alignment.Center,
+            Row(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                content()
+                // Dim the icon (not just the border) when the support is disabled.
+                Box(
+                    modifier = Modifier.alpha(alpha),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    content()
+                }
+
+                if (showShortcut) {
+                    ShortcutKeyChip(
+                        text = formatShortcutBindingForDisplay(shortcut!!),
+                        color = borderColor.copy(alpha = alpha),
+                    )
+                }
             }
 
             // Count badge in the upper-right corner when more than one is available
@@ -273,18 +389,23 @@ private fun CooldownPowerBox(
     readyIn: Int,
     enabled: Boolean,
     tooltip: String,
+    shortcut: String?,
     onClick: () -> Unit,
 ) {
     val onCooldown = readyIn > 0
     val alpha = if (enabled) 1f else 0.4f
     val shape = RoundedCornerShape(14.dp)
     val borderColor = SupportBarColors.CooldownBorder
+    // Show the keyboard shortcut chip only when hints are enabled and a shortcut is assigned. The
+    // box grows wider (rectangular) to make room for the chip.
+    val showShortcut = AppSettings.showButtonShortcutHints.value && shortcut != null
 
     TooltipWrapper(text = tooltip, preferAbove = true) {
         Box(
             modifier =
                 Modifier
-                    .size(SUPPORT_BOX_SIZE)
+                    .height(SUPPORT_BOX_SIZE)
+                    .widthIn(min = SUPPORT_BOX_SIZE)
                     .clip(shape)
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f * alpha))
                     .border(
@@ -294,23 +415,38 @@ private fun CooldownPowerBox(
                     ).clickable(enabled = enabled, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            // Dim the icon while the power is recharging or otherwise disabled (e.g. during
-            // the initial building phase) so the symbol — not just the border — is grayed out.
-            Box(
-                modifier = Modifier.alpha((if (onCooldown) 0.35f else 1f) * alpha),
-                contentAlignment = Alignment.Center,
+            Row(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                CooldownPowerIcon(type, SUPPORT_ICON_SIZE)
-            }
+                Box(contentAlignment = Alignment.Center) {
+                    // Dim the icon while the power is recharging or otherwise disabled (e.g. during
+                    // the initial building phase) so the symbol — not just the border — is grayed out.
+                    Box(
+                        modifier = Modifier.alpha((if (onCooldown) 0.35f else 1f) * alpha),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CooldownPowerIcon(type, SUPPORT_ICON_SIZE)
+                    }
 
-            // Large cooldown number over the dimmed icon
-            if (onCooldown) {
-                Text(
-                    text = "$readyIn",
-                    color = borderColor.copy(alpha = alpha),
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Bold,
-                )
+                    // Large cooldown number over the dimmed icon
+                    if (onCooldown) {
+                        Text(
+                            text = "$readyIn",
+                            color = borderColor.copy(alpha = alpha),
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+
+                if (showShortcut) {
+                    ShortcutKeyChip(
+                        text = formatShortcutBindingForDisplay(shortcut!!),
+                        color = borderColor.copy(alpha = alpha),
+                    )
+                }
             }
 
             // Small white timer symbol on a teal disc in the top-left corner so cooldown
@@ -483,6 +619,7 @@ private fun supportTooltip(
             .get(typeKey, locale)
     return "$typeLabel: $name"
 }
+
 fun CooldownPowerType.localizedCooldownPowerName(
     locale: com.hyperether.resources.AppLocale = com.hyperether.resources.currentLanguage.value,
 ): String {
