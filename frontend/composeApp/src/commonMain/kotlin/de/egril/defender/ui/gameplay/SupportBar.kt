@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +23,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
@@ -44,8 +43,6 @@ import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
-import de.egril.defender.ui.settings.AppSettings
-import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 
 /** Colors used for the support boxes (objects vs spell tokens vs cooldown powers). */
 private object SupportBarColors {
@@ -53,22 +50,22 @@ private object SupportBarColors {
     val SpellBorder = Color(0xFF7E57C2) // Purple - spell tokens use dashed, rounded boxes
     val CooldownBorder = Color(0xFF00897B) // Teal - cooldown powers use solid, rounded boxes
     val Selected = Color(0xFFFFC107) // Amber highlight for the active selection
+    val Focus = Color(0xFFFFFFFF) // White ring for the keyboard-navigation cursor
 }
 
 private val SUPPORT_BOX_SIZE = 56.dp
 private val SUPPORT_ICON_SIZE = 32.dp
 
-/**
- * The maximum number of support boxes that can be assigned a keyboard shortcut. Shortcuts are
- * Shift+1 .. Shift+9, matching the digits available on a keyboard.
- */
-private const val MAX_SUPPORT_SHORTCUTS = 9
+// Space reserved around every box for the keyboard-focus ring, so the row layout stays stable
+// whether or not a box is currently focused.
+private val SUPPORT_FOCUS_RING_PADDING = 3.dp
 
 /**
  * A support box shown in the [SupportBar]. Objects and spell tokens are only present while at least
  * one is remaining; cooldown powers are always present (even while recharging). [visibleSupportSlots]
  * lists them in on-screen order — objects, then spell tokens, then cooldown powers — so the list
- * index can be used to assign a stable keyboard shortcut to each box.
+ * index can be used to drive keyboard navigation (left/right to move the focus cursor, a select key
+ * to activate the focused box).
  */
 sealed interface SupportSlot {
     data class ObjectSlot(
@@ -107,12 +104,9 @@ fun visibleSupportSlots(gameState: GameState): List<SupportSlot> {
     return slots
 }
 
-/** Keyboard shortcut binding (e.g. "Shift+1") for the support box at [index], or null if none. */
-fun supportSlotShortcutBinding(index: Int): String? = if (index in 0 until MAX_SUPPORT_SHORTCUTS) "Shift+${index + 1}" else null
-
 /**
  * Whether the support box for [slot] can currently be used. Mirrors the per-box enable logic used
- * when rendering the [SupportBar] so that keyboard shortcuts behave exactly like clicking the box.
+ * when rendering the [SupportBar] so that keyboard navigation behaves exactly like clicking the box.
  *
  * [barEnabled] is true while the player may act (player turn or initial building phase).
  */
@@ -140,6 +134,26 @@ fun isSupportSlotEnabled(
 }
 
 /**
+ * Next position of the support-bar keyboard-focus cursor over [slotCount] visible boxes.
+ *
+ * [current] is the current cursor index, or null when the bar is not being navigated yet — the
+ * first move then lands on the near end (0 when moving [forward], the last box when moving
+ * backwards). Subsequent moves wrap around. Returns null when there are no boxes to focus.
+ */
+fun nextSupportFocusIndex(
+    current: Int?,
+    slotCount: Int,
+    forward: Boolean,
+): Int? {
+    if (slotCount <= 0) return null
+    return when {
+        current == null -> if (forward) 0 else slotCount - 1
+        forward -> (current + 1) % slotCount
+        else -> (current - 1 + slotCount) % slotCount
+    }
+}
+
+/**
  * Row of support boxes shown at the lower edge of the screen, above the tower buttons.
  *
  * Objects (traps, magical traps, barricades) are drawn as square boxes with a solid border,
@@ -148,6 +162,10 @@ fun isSupportSlotEnabled(
  *
  * Clicking an object box enters placement mode; clicking a spell token box starts casting the
  * spell (which does not consume mana).
+ *
+ * Keyboard users can navigate the boxes with left/right and activate the focused box with a select
+ * key (see [GamePlayScreen]); [focusedSlotIndex] is the index (into [visibleSupportSlots]) of the
+ * box currently under that focus cursor, or null when nothing is focused.
  */
 @Composable
 fun SupportBar(
@@ -159,6 +177,7 @@ fun SupportBar(
     onSpellClick: (SpellType) -> Unit,
     modifier: Modifier = Modifier,
     onCooldownPowerClick: (CooldownPowerType) -> Unit = {},
+    focusedSlotIndex: Int? = null,
 ) {
     val supports = gameState.level.supports
     if (supports.isEmpty()) return
@@ -180,23 +199,23 @@ fun SupportBar(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Running index over the visible boxes (objects, then spells, then powers) so each box
-        // gets the same sequential keyboard shortcut resolved by visibleSupportSlots().
+        // Running index over the visible boxes (objects, then spells, then powers) matching the
+        // ordering of visibleSupportSlots(), so the keyboard focus cursor lands on the same box.
         var slotIndex = 0
 
         // Placable objects (hidden once fully used up)
         supports.objects.forEach { supportObject ->
             val remaining = gameState.supportObjectsRemaining[supportObject.type] ?: 0
             if (remaining > 0) {
-                val shortcut = supportSlotShortcutBinding(slotIndex)
+                val isFocused = slotIndex == focusedSlotIndex
                 slotIndex++
                 SupportBox(
                     remaining = remaining,
                     isSpell = false,
                     isSelected = selectedSupportObject == supportObject.type,
+                    isFocused = isFocused,
                     enabled = enabled,
                     tooltip = supportTooltip("support_type_object", supportObject.type.localizedSupportName()),
-                    shortcut = shortcut,
                     onClick = { onObjectClick(supportObject.type) },
                 ) {
                     SupportObjectIcon(supportObject.type, SUPPORT_ICON_SIZE)
@@ -210,15 +229,15 @@ fun SupportBar(
             if (remaining > 0) {
                 // The Heal token is pointless while the player is already at full health.
                 val atMaxEffect = supportSpell.spell == SpellType.HEAL && healthAtMax
-                val shortcut = supportSlotShortcutBinding(slotIndex)
+                val isFocused = slotIndex == focusedSlotIndex
                 slotIndex++
                 SupportBox(
                     remaining = remaining,
                     isSpell = true,
                     isSelected = activeSpellToken == supportSpell.spell,
+                    isFocused = isFocused,
                     enabled = powersEnabled && !atMaxEffect,
                     tooltip = supportTooltip("support_type_spell", supportSpell.spell.getLocalizedName()),
-                    shortcut = shortcut,
                     onClick = { onSpellClick(supportSpell.spell) },
                 ) {
                     SpellTargetIcon(spell = supportSpell.spell, size = SUPPORT_ICON_SIZE)
@@ -231,14 +250,14 @@ fun SupportBar(
             val readyIn = gameState.cooldownPowerReadyIn[power.type] ?: 0
             // Mana wells are pointless while mana is already at maximum.
             val atMaxEffect = power.type.addsMana && manaAtMax
-            val shortcut = supportSlotShortcutBinding(slotIndex)
+            val isFocused = slotIndex == focusedSlotIndex
             slotIndex++
             CooldownPowerBox(
                 type = power.type,
                 readyIn = readyIn,
                 enabled = powersEnabled && readyIn == 0 && !atMaxEffect,
+                isFocused = isFocused,
                 tooltip = supportTooltip("support_type_power", power.type.localizedCooldownPowerName()),
-                shortcut = shortcut,
                 onClick = { onCooldownPowerClick(power.type) },
             )
         }
@@ -250,9 +269,9 @@ private fun SupportBox(
     remaining: Int,
     isSpell: Boolean,
     isSelected: Boolean,
+    isFocused: Boolean,
     enabled: Boolean,
     tooltip: String,
-    shortcut: String?,
     onClick: () -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -264,52 +283,44 @@ private fun SupportBox(
         }
     val alpha = if (enabled) 1f else 0.4f
     val shape = if (isSpell) RoundedCornerShape(14.dp) else RoundedCornerShape(0.dp)
-    // Show the keyboard shortcut chip only when hints are enabled and a shortcut is assigned. The
-    // box grows wider (rectangular) to make room for the chip.
-    val showShortcut = AppSettings.showButtonShortcutHints.value && shortcut != null
 
     TooltipWrapper(text = tooltip, preferAbove = true) {
-        Box(
-            modifier =
-                Modifier
-                    .height(SUPPORT_BOX_SIZE)
-                    .widthIn(min = SUPPORT_BOX_SIZE)
-                    .clip(shape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f * alpha))
-                    .then(
-                        if (isSpell) {
-                            // Spell tokens use a dashed border
-                            Modifier.drawBehind {
-                                val strokeWidth = if (isSelected) 3.dp.toPx() else 2.dp.toPx()
-                                drawRoundRect(
+        SupportFocusRing(isFocused = isFocused, shape = shape) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(SUPPORT_BOX_SIZE)
+                        .clip(shape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f * alpha))
+                        .then(
+                            if (isSpell) {
+                                // Spell tokens use a dashed border
+                                Modifier.drawBehind {
+                                    val strokeWidth = if (isSelected) 3.dp.toPx() else 2.dp.toPx()
+                                    drawRoundRect(
+                                        color = borderColor.copy(alpha = alpha),
+                                        cornerRadius = CornerRadius(14.dp.toPx(), 14.dp.toPx()),
+                                        style =
+                                            Stroke(
+                                                width = strokeWidth,
+                                                pathEffect =
+                                                    PathEffect.dashPathEffect(
+                                                        floatArrayOf(8.dp.toPx(), 6.dp.toPx()),
+                                                        0f,
+                                                    ),
+                                            ),
+                                    )
+                                }
+                            } else {
+                                // Objects use a solid border
+                                Modifier.border(
+                                    width = if (isSelected) 3.dp else 2.dp,
                                     color = borderColor.copy(alpha = alpha),
-                                    cornerRadius = CornerRadius(14.dp.toPx(), 14.dp.toPx()),
-                                    style =
-                                        Stroke(
-                                            width = strokeWidth,
-                                            pathEffect =
-                                                PathEffect.dashPathEffect(
-                                                    floatArrayOf(8.dp.toPx(), 6.dp.toPx()),
-                                                    0f,
-                                                ),
-                                        ),
+                                    shape = shape,
                                 )
-                            }
-                        } else {
-                            // Objects use a solid border
-                            Modifier.border(
-                                width = if (isSelected) 3.dp else 2.dp,
-                                color = borderColor.copy(alpha = alpha),
-                                shape = shape,
-                            )
-                        },
-                    ).clickable(enabled = enabled, onClick = onClick),
-            contentAlignment = Alignment.Center,
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            },
+                        ).clickable(enabled = enabled, onClick = onClick),
+                contentAlignment = Alignment.Center,
             ) {
                 // Dim the icon (not just the border) when the support is disabled.
                 Box(
@@ -319,24 +330,45 @@ private fun SupportBox(
                     content()
                 }
 
-                if (showShortcut) {
-                    ShortcutKeyChip(
-                        text = formatShortcutBindingForDisplay(shortcut!!),
-                        color = borderColor.copy(alpha = alpha),
+                // Count badge in the upper-right corner when more than one is available
+                if (remaining > 1) {
+                    SupportCountBadge(
+                        count = remaining,
+                        color = borderColor,
+                        alpha = alpha,
+                        modifier = Modifier.align(Alignment.TopEnd),
                     )
                 }
             }
-
-            // Count badge in the upper-right corner when more than one is available
-            if (remaining > 1) {
-                SupportCountBadge(
-                    count = remaining,
-                    color = borderColor,
-                    alpha = alpha,
-                    modifier = Modifier.align(Alignment.TopEnd),
-                )
-            }
         }
+    }
+}
+
+/**
+ * Wraps a support box in a constant-size gutter that draws a bright ring around the box while it is
+ * the current keyboard-focus cursor. The gutter is always reserved so neighbouring boxes do not
+ * shift as the focus moves between them.
+ */
+@Composable
+private fun SupportFocusRing(
+    isFocused: Boolean,
+    shape: Shape,
+    content: @Composable () -> Unit,
+) {
+    Box(
+        modifier =
+            Modifier
+                .clip(shape)
+                .then(
+                    if (isFocused) {
+                        Modifier.border(width = 3.dp, color = SupportBarColors.Focus, shape = shape)
+                    } else {
+                        Modifier
+                    },
+                ).padding(SUPPORT_FOCUS_RING_PADDING),
+        contentAlignment = Alignment.Center,
+    ) {
+        content()
     }
 }
 
@@ -388,37 +420,29 @@ private fun CooldownPowerBox(
     type: CooldownPowerType,
     readyIn: Int,
     enabled: Boolean,
+    isFocused: Boolean,
     tooltip: String,
-    shortcut: String?,
     onClick: () -> Unit,
 ) {
     val onCooldown = readyIn > 0
     val alpha = if (enabled) 1f else 0.4f
     val shape = RoundedCornerShape(14.dp)
     val borderColor = SupportBarColors.CooldownBorder
-    // Show the keyboard shortcut chip only when hints are enabled and a shortcut is assigned. The
-    // box grows wider (rectangular) to make room for the chip.
-    val showShortcut = AppSettings.showButtonShortcutHints.value && shortcut != null
 
     TooltipWrapper(text = tooltip, preferAbove = true) {
-        Box(
-            modifier =
-                Modifier
-                    .height(SUPPORT_BOX_SIZE)
-                    .widthIn(min = SUPPORT_BOX_SIZE)
-                    .clip(shape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f * alpha))
-                    .border(
-                        width = 2.dp,
-                        color = borderColor.copy(alpha = alpha),
-                        shape = shape,
-                    ).clickable(enabled = enabled, onClick = onClick),
-            contentAlignment = Alignment.Center,
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+        SupportFocusRing(isFocused = isFocused, shape = shape) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(SUPPORT_BOX_SIZE)
+                        .clip(shape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f * alpha))
+                        .border(
+                            width = 2.dp,
+                            color = borderColor.copy(alpha = alpha),
+                            shape = shape,
+                        ).clickable(enabled = enabled, onClick = onClick),
+                contentAlignment = Alignment.Center,
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     // Dim the icon while the power is recharging or otherwise disabled (e.g. during
@@ -441,29 +465,22 @@ private fun CooldownPowerBox(
                     }
                 }
 
-                if (showShortcut) {
-                    ShortcutKeyChip(
-                        text = formatShortcutBindingForDisplay(shortcut!!),
-                        color = borderColor.copy(alpha = alpha),
-                    )
+                // Small white timer symbol on a teal disc in the top-left corner so cooldown
+                // powers are easy to distinguish from other supports on any background. The whole
+                // badge (disc and glyph) is dimmed together when the power is disabled.
+                Box(
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopStart)
+                            .padding(2.dp)
+                            .size(16.dp)
+                            .alpha(alpha)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(borderColor),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    TimerBadge(dimension = 11.dp)
                 }
-            }
-
-            // Small white timer symbol on a teal disc in the top-left corner so cooldown
-            // powers are easy to distinguish from other supports on any background. The whole
-            // badge (disc and glyph) is dimmed together when the power is disabled.
-            Box(
-                modifier =
-                    Modifier
-                        .align(Alignment.TopStart)
-                        .padding(2.dp)
-                        .size(16.dp)
-                        .alpha(alpha)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(borderColor),
-                contentAlignment = Alignment.Center,
-            ) {
-                TimerBadge(dimension = 11.dp)
             }
         }
     }

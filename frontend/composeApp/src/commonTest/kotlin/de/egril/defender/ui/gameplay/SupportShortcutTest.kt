@@ -19,7 +19,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * Tests for the keyboard-shortcut helpers backing the support bar boxes.
+ * Tests for the helpers backing the support bar's keyboard navigation (focus cursor + activation).
  */
 class SupportShortcutTest {
     private fun createLevel(supports: LevelSupports): Level =
@@ -75,14 +75,6 @@ class SupportShortcutTest {
 
         val slots = visibleSupportSlots(gameState)
         assertEquals(listOf<SupportSlot>(SupportSlot.PowerSlot(CooldownPowerType.COIN_SURGE)), slots)
-    }
-
-    @Test
-    fun testShortcutBindings() {
-        assertEquals("Shift+1", supportSlotShortcutBinding(0))
-        assertEquals("Shift+9", supportSlotShortcutBinding(8))
-        assertNull(supportSlotShortcutBinding(9))
-        assertNull(supportSlotShortcutBinding(-1))
     }
 
     @Test
@@ -147,5 +139,24 @@ class SupportShortcutTest {
 
         gameState.cooldownPowerReadyIn[CooldownPowerType.COIN_SURGE] = 3
         assertFalse(isSupportSlotEnabled(gameState, slot, barEnabled = true))
+    }
+
+    @Test
+    fun testFocusCursorNavigation() {
+        // First move from no-focus lands on the near end (0 forward, last box backwards).
+        assertEquals(0, nextSupportFocusIndex(current = null, slotCount = 3, forward = true))
+        assertEquals(2, nextSupportFocusIndex(current = null, slotCount = 3, forward = false))
+
+        // Stepping through the boxes.
+        assertEquals(1, nextSupportFocusIndex(current = 0, slotCount = 3, forward = true))
+        assertEquals(0, nextSupportFocusIndex(current = 1, slotCount = 3, forward = false))
+
+        // Wrap around at both ends.
+        assertEquals(0, nextSupportFocusIndex(current = 2, slotCount = 3, forward = true))
+        assertEquals(2, nextSupportFocusIndex(current = 0, slotCount = 3, forward = false))
+
+        // No boxes: nothing to focus.
+        assertNull(nextSupportFocusIndex(current = null, slotCount = 0, forward = true))
+        assertNull(nextSupportFocusIndex(current = 1, slotCount = 0, forward = false))
     }
 }

@@ -267,6 +267,10 @@ private fun GamePlayScreenContent(
     var keyboardSelectedBuildTile by remember { mutableStateOf<Position?>(null) }
     var nextSpawnPointIndex by remember { mutableStateOf(0) }
     var keyboardSpellFocusIndex by remember { mutableStateOf(0) }
+    // Index (into visibleSupportSlots) of the support box under the keyboard-navigation cursor, or
+    // null while the support bar is not being navigated. Left/right move the cursor, a select key
+    // activates the focused box.
+    var supportFocusIndex by remember { mutableStateOf<Int?>(null) }
     // Non-null means the keyboard undo/sell shortcut was pressed and the confirmation dialog is open.
     // The Boolean flag indicates whether this is an "undo" (true) or "sell" (false) operation.
     var keyboardUndoOrSellConfirmation by remember { mutableStateOf<Pair<Int, Boolean>?>(null) }
@@ -895,6 +899,8 @@ private fun GamePlayScreenContent(
                             selectedAttackerId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            // Leaving the support bar for tower-place mode: drop the support focus cursor.
+                            supportFocusIndex = null
                         }
                         true
                     }
@@ -1194,41 +1200,41 @@ private fun GamePlayScreenContent(
                             false
                         }
                     }
-                    // Shift+1..9: Select/activate a level support element (object / spell token /
-                    // cooldown power) by its position in the support bar.
+                    // Left / Right: Move the keyboard-focus cursor between support elements
+                    // (placeable objects, spell tokens, cooldown powers) in the support bar.
                     event.type == KeyEventType.KeyDown &&
-                        event.isShiftPressed &&
+                        (event.key == Key.DirectionLeft || event.key == Key.DirectionRight) &&
                         !event.isCtrlPressed &&
                         !event.isAltPressed &&
-                        event.key in
-                        setOf(
-                            Key.One,
-                            Key.Two,
-                            Key.Three,
-                            Key.Four,
-                            Key.Five,
-                            Key.Six,
-                            Key.Seven,
-                            Key.Eight,
-                            Key.Nine,
-                        ) &&
+                        !event.isShiftPressed &&
                         !showMagicPanel &&
                         (gameState.phase.value == GamePhase.PLAYER_TURN || gameState.phase.value == GamePhase.INITIAL_BUILDING) -> {
-                        val digit =
-                            when (event.key) {
-                                Key.One -> 1
-                                Key.Two -> 2
-                                Key.Three -> 3
-                                Key.Four -> 4
-                                Key.Five -> 5
-                                Key.Six -> 6
-                                Key.Seven -> 7
-                                Key.Eight -> 8
-                                Key.Nine -> 9
-                                else -> 0
-                            }
                         val slots = visibleSupportSlots(gameState)
-                        val slot = slots.getOrNull(digit - 1)
+                        if (slots.isEmpty()) {
+                            false
+                        } else {
+                            supportFocusIndex =
+                                nextSupportFocusIndex(
+                                    current = supportFocusIndex,
+                                    slotCount = slots.size,
+                                    forward = event.key == Key.DirectionRight,
+                                )
+                            true
+                        }
+                    }
+                    // Enter / Space: Activate (select / cast / trigger) the support element currently
+                    // under the keyboard-focus cursor. Placed before the plain-Enter placement handler
+                    // so it only intercepts Enter while a support box is focused.
+                    event.type == KeyEventType.KeyDown &&
+                        (event.key == Key.Enter || event.key == Key.Spacebar) &&
+                        !event.isCtrlPressed &&
+                        !event.isAltPressed &&
+                        !event.isShiftPressed &&
+                        !showMagicPanel &&
+                        supportFocusIndex != null &&
+                        (gameState.phase.value == GamePhase.PLAYER_TURN || gameState.phase.value == GamePhase.INITIAL_BUILDING) -> {
+                        val slots = visibleSupportSlots(gameState)
+                        val slot = slots.getOrNull(supportFocusIndex ?: -1)
                         if (slot != null && isSupportSlotEnabled(gameState, slot, barEnabled = true)) {
                             when (slot) {
                                 is SupportSlot.ObjectSlot -> {
@@ -1244,9 +1250,14 @@ private fun GamePlayScreenContent(
                                     onActivateCooldownPower?.invoke(slot.type)
                                 }
                             }
+                            // Drop the focus cursor after activating so a plain Enter afterwards
+                            // confirms tower placement again instead of re-triggering this support.
+                            supportFocusIndex = null
                             true
                         } else {
-                            false
+                            // Consume the key even when the focused box can't be used, so a focused but
+                            // disabled support doesn't fall through to tower placement/confirmation.
+                            true
                         }
                     }
                     // 1-8: Select defender type by index (only when NOT in tower-selected mode)
@@ -1281,6 +1292,9 @@ private fun GamePlayScreenContent(
                             selectedAttackerId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            // Leaving the support bar for a tower: drop the support focus cursor so
+                            // Enter confirms tower placement rather than a focused support element.
+                            supportFocusIndex = null
                             true
                         } else {
                             false
@@ -2399,6 +2413,11 @@ private fun GamePlayScreenContent(
                                         selectedSupportObject = null
                                         onActivateCooldownPower?.invoke(power)
                                     },
+                                    focusedSlotIndex =
+                                        supportFocusIndex?.let { idx ->
+                                            val count = visibleSupportSlots(gameState).size
+                                            if (count == 0) null else idx.coerceIn(0, count - 1)
+                                        },
                                 )
                                 // Control Panel based on phase
                                 when (gameState.phase.value) {
