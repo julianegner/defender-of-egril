@@ -84,6 +84,12 @@ fun SupportBar(
     val isInitialBuilding = gameState.phase.value == GamePhase.INITIAL_BUILDING
     val powersEnabled = enabled && !isInitialBuilding
 
+    // Supports that top up a resource are pointless — and shown grayed out — when that resource is
+    // already full: the Heal spell token when health is at maximum, and the mana wells when mana is
+    // at maximum.
+    val healthAtMax = gameState.healthPoints.value >= gameState.level.healthPoints
+    val manaAtMax = gameState.currentMana.value >= gameState.maxMana.value
+
     Row(
         modifier = modifier.padding(bottom = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -110,11 +116,13 @@ fun SupportBar(
         supports.spells.forEach { supportSpell ->
             val remaining = gameState.supportSpellsRemaining[supportSpell.spell] ?: 0
             if (remaining > 0) {
+                // The Heal token is pointless while the player is already at full health.
+                val atMaxEffect = supportSpell.spell == SpellType.HEAL && healthAtMax
                 SupportBox(
                     remaining = remaining,
                     isSpell = true,
                     isSelected = activeSpellToken == supportSpell.spell,
-                    enabled = powersEnabled,
+                    enabled = powersEnabled && !atMaxEffect,
                     tooltip = supportTooltip("support_type_spell", supportSpell.spell.getLocalizedName()),
                     onClick = { onSpellClick(supportSpell.spell) },
                 ) {
@@ -126,10 +134,14 @@ fun SupportBar(
         // Cooldown-based powers (always shown, even while on cooldown)
         supports.cooldownPowers.forEach { power ->
             val readyIn = gameState.cooldownPowerReadyIn[power.type] ?: 0
+            // Mana wells are pointless while mana is already at maximum.
+            val atMaxEffect =
+                (power.type == CooldownPowerType.MANA_WELL || power.type == CooldownPowerType.DEEP_MANA_WELL) &&
+                    manaAtMax
             CooldownPowerBox(
                 type = power.type,
                 readyIn = readyIn,
-                enabled = powersEnabled && readyIn == 0,
+                enabled = powersEnabled && readyIn == 0 && !atMaxEffect,
                 tooltip = supportTooltip("support_type_power", power.type.localizedCooldownPowerName()),
                 onClick = { onCooldownPowerClick(power.type) },
             )

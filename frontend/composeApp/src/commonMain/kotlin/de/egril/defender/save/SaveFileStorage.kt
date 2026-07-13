@@ -384,6 +384,10 @@ object SaveFileStorage {
             currentMana = gameState.currentMana.value,
             maxMana = gameState.maxMana.value,
             spellEffects = spellEffects,
+            supportObjectsRemaining = gameState.supportObjectsRemaining.toMap(),
+            supportSpellsRemaining = gameState.supportSpellsRemaining.toMap(),
+            cooldownPowerReadyIn = gameState.cooldownPowerReadyIn.toMap(),
+            coinSurgeActive = gameState.coinSurgeActive.value,
         )
     }
 
@@ -410,6 +414,18 @@ object SaveFileStorage {
         // Restore mana
         gameState.currentMana.value = savedGame.currentMana
         gameState.maxMana.value = savedGame.maxMana
+
+        // Restore player-usable support state (placeable objects, spell tokens, cooldown powers).
+        // These are normally initialized from the level definition, but the player consumes objects
+        // and spell tokens and recharges cooldown powers during play, so the current state must be
+        // restored from the save rather than reset to the level defaults.
+        gameState.supportObjectsRemaining.clear()
+        gameState.supportObjectsRemaining.putAll(savedGame.supportObjectsRemaining)
+        gameState.supportSpellsRemaining.clear()
+        gameState.supportSpellsRemaining.putAll(savedGame.supportSpellsRemaining)
+        gameState.cooldownPowerReadyIn.clear()
+        gameState.cooldownPowerReadyIn.putAll(savedGame.cooldownPowerReadyIn)
+        gameState.coinSurgeActive.value = savedGame.coinSurgeActive
 
         // Restore rafts first
         gameState.rafts.clear()
