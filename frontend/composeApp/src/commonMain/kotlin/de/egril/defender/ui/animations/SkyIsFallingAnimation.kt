@@ -19,7 +19,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlin.math.PI
 import kotlin.math.max
+import kotlin.math.sin
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 /** Total duration of the falling-meteor sweep, in milliseconds. */
@@ -117,7 +120,7 @@ private fun DrawScope.drawMeteor(
     val trailLength = minDim * meteor.trailLengthFraction
     val trailDx = size.width * meteor.driftFraction
     val trailDy = size.height + 2f * margin
-    val trailMag = max(kotlin.math.sqrt(trailDx * trailDx + trailDy * trailDy), 1f)
+    val trailMag = max(sqrt(trailDx * trailDx + trailDy * trailDy), 1f)
     val tail =
         Offset(
             head.x - trailDx / trailMag * trailLength,
@@ -125,7 +128,7 @@ private fun DrawScope.drawMeteor(
         )
 
     // Fade in/out over the meteor's active span for a soft appearance.
-    val fade = kotlin.math.sin(local * kotlin.math.PI.toFloat())
+    val fade = sin(local * PI.toFloat())
     val headRadius = minDim * meteor.headRadiusFraction
 
     // Glowing trail.
