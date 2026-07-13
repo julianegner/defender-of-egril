@@ -58,6 +58,7 @@ import de.egril.defender.ui.animations.FreezeSpellAnimation
 import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.MineDigAnimation
+import de.egril.defender.ui.animations.SkyIsFallingAnimation
 import de.egril.defender.ui.animations.PikeAttackOverlay
 import de.egril.defender.ui.animations.SpearAttackOverlay
 import de.egril.defender.ui.animations.SpellDoubleReachColor
@@ -755,6 +756,12 @@ fun GameGrid(
                             animate = AppSettings.enableAnimations.value,
                         )
                     }
+                    // Full-map falling-meteor shower for the "Sky is Falling" support power.
+                    SkyIsFallingAnimation(
+                        triggerKey = gameState.skyIsFallingTrigger.value,
+                        contentSize = measuredContentSize,
+                        animate = AppSettings.enableAnimations.value,
+                    )
                 },
             ) { position ->
                 // Pre-compute the two hover-position-dependent booleans per cell.

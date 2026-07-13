@@ -246,6 +246,9 @@ data class GameState(
     val cooldownPowerReadyIn: SnapshotStateMap<CooldownPowerType, Int> = mutableStateMapOf(),
     // True when the Coin Surge power is active this turn (doubles coins earned)
     val coinSurgeActive: MutableState<Boolean> = mutableStateOf(false),
+    // Monotonically-increasing counter, incremented each time the "Sky is Falling" power is used,
+    // to trigger the full-map falling-meteor animation overlay.
+    val skyIsFallingTrigger: MutableState<Int> = mutableStateOf(0),
 ) {
     /** Multiplier applied to earned coins while the Coin Surge power is active (2x), otherwise 1x. */
     fun coinSurgeMultiplier(): Int = if (coinSurgeActive.value) 2 else 1

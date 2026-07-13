@@ -4497,6 +4497,8 @@ class GameViewModel {
                 gameState.coinSurgeActive.value = true
             }
             CooldownPowerType.SKY_IS_FALLING -> {
+                // Trigger the full-map falling-meteor animation overlay.
+                gameState.skyIsFallingTrigger.value += 1
                 // All enemy units lose 10 health points.
                 gameState.attackers
                     .filter { !it.isDefeated.value }

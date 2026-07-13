@@ -193,7 +193,13 @@ private fun SupportBox(
                     ).clickable(enabled = enabled, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            content()
+            // Dim the icon (not just the border) when the support is disabled.
+            Box(
+                modifier = Modifier.alpha(alpha),
+                contentAlignment = Alignment.Center,
+            ) {
+                content()
+            }
 
             // Count badge in the upper-right corner when more than one is available
             if (remaining > 1) {
@@ -276,9 +282,10 @@ private fun CooldownPowerBox(
                     ).clickable(enabled = enabled, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            // Dim the icon while the power is recharging
+            // Dim the icon while the power is recharging or otherwise disabled (e.g. during
+            // the initial building phase) so the symbol — not just the border — is grayed out.
             Box(
-                modifier = Modifier.alpha(if (onCooldown) 0.35f else 1f),
+                modifier = Modifier.alpha((if (onCooldown) 0.35f else 1f) * alpha),
                 contentAlignment = Alignment.Center,
             ) {
                 CooldownPowerIcon(type, SUPPORT_ICON_SIZE)
@@ -288,7 +295,7 @@ private fun CooldownPowerBox(
             if (onCooldown) {
                 Text(
                     text = "$readyIn",
-                    color = borderColor,
+                    color = borderColor.copy(alpha = alpha),
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
                 )
