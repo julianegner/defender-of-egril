@@ -170,28 +170,30 @@ fun supportObjectPlacementTiles(
     gameState: GameState,
     type: SupportObjectType,
 ): List<Position> {
+    // Pre-compute occupied positions once so the per-tile checks below are O(1) lookups instead of
+    // scanning every attacker/trap/barricade/defender for each grid cell.
+    val attackerPositions = gameState.attackers.filter { !it.isDefeated.value }.map { it.position.value }.toHashSet()
+    val trapPositions = gameState.traps.map { it.position }.toHashSet()
+    val barricadePositions = gameState.barricades.map { it.position }.toHashSet()
+    val fieldEffectPositions = gameState.fieldEffects.map { it.position }.toHashSet()
+    val defenderNotOnTowerBasePositions =
+        gameState.defenders
+            .filter { it.towerBaseBarricadeId.value == null }
+            .map { it.position.value }
+            .toHashSet()
+
     val tiles = mutableListOf<Position>()
     for (y in 0 until gameState.level.gridHeight) {
         for (x in 0 until gameState.level.gridWidth) {
             val pos = Position(x, y)
             if (!gameState.level.isOnPath(pos)) continue
-            val hasAttacker = gameState.attackers.any { !it.isDefeated.value && it.position.value == pos }
-            val hasTrap = gameState.traps.any { it.position == pos }
-            if (hasAttacker || hasTrap) continue
+            if (pos in attackerPositions || pos in trapPositions) continue
             val valid =
                 when (type) {
-                    SupportObjectType.DWARVEN_TRAP, SupportObjectType.MAGICAL_TRAP -> {
-                        val hasBarricade = gameState.barricades.any { it.position == pos }
-                        val hasFieldEffect = gameState.fieldEffects.any { it.position == pos }
-                        !hasBarricade && !hasFieldEffect
-                    }
-                    SupportObjectType.BARRICADE -> {
-                        val hasDefenderNotOnTowerBase =
-                            gameState.defenders.any { defender ->
-                                defender.position.value == pos && defender.towerBaseBarricadeId.value == null
-                            }
-                        !hasDefenderNotOnTowerBase
-                    }
+                    SupportObjectType.DWARVEN_TRAP, SupportObjectType.MAGICAL_TRAP ->
+                        pos !in barricadePositions && pos !in fieldEffectPositions
+                    SupportObjectType.BARRICADE ->
+                        pos !in defenderNotOnTowerBasePositions
                 }
             if (valid) tiles.add(pos)
         }
