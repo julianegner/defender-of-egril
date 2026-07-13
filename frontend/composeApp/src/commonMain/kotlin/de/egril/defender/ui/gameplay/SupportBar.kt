@@ -206,6 +206,7 @@ private fun SupportBox(
                 SupportCountBadge(
                     count = remaining,
                     color = borderColor,
+                    alpha = alpha,
                     modifier = Modifier.align(Alignment.TopEnd),
                 )
             }
@@ -218,19 +219,20 @@ private fun SupportCountBadge(
     count: Int,
     color: Color,
     modifier: Modifier = Modifier,
+    alpha: Float = 1f,
 ) {
     Box(
         modifier =
             modifier
                 .padding(2.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(color)
+                .background(color.copy(alpha = alpha))
                 .padding(horizontal = 5.dp, vertical = 1.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = "$count",
-            color = Color.White,
+            color = Color.White.copy(alpha = alpha),
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
         )
@@ -302,15 +304,17 @@ private fun CooldownPowerBox(
             }
 
             // Small white timer symbol on a teal disc in the top-left corner so cooldown
-            // powers are easy to distinguish from other supports on any background.
+            // powers are easy to distinguish from other supports on any background. The whole
+            // badge (disc and glyph) is dimmed together when the power is disabled.
             Box(
                 modifier =
                     Modifier
                         .align(Alignment.TopStart)
                         .padding(2.dp)
                         .size(16.dp)
+                        .alpha(alpha)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(borderColor.copy(alpha = alpha)),
+                        .background(borderColor),
                 contentAlignment = Alignment.Center,
             ) {
                 TimerBadge(dimension = 11.dp)
