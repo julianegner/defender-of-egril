@@ -1255,8 +1255,9 @@ private fun GamePlayScreenContent(
                             supportFocusIndex = null
                             true
                         } else {
-                            // Consume the key even when the focused box can't be used, so a focused but
-                            // disabled support doesn't fall through to tower placement/confirmation.
+                            // Consume Enter/Space even when the focused box can't be used, so pressing
+                            // select on a focused-but-disabled support doesn't fall through to the
+                            // tower-placement / attack handlers bound to the same keys.
                             true
                         }
                     }

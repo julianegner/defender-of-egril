@@ -138,7 +138,8 @@ fun isSupportSlotEnabled(
  *
  * [current] is the current cursor index, or null when the bar is not being navigated yet — the
  * first move then lands on the near end (0 when moving [forward], the last box when moving
- * backwards). Subsequent moves wrap around. Returns null when there are no boxes to focus.
+ * backwards). Subsequent moves wrap around: moving forward from the last box returns to index 0,
+ * and moving backward from index 0 returns to the last box. Returns null when there are no boxes.
  */
 fun nextSupportFocusIndex(
     current: Int?,
