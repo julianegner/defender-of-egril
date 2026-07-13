@@ -30,9 +30,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.egril.defender.model.Attacker
 import de.egril.defender.model.CooldownPowerType
+import de.egril.defender.model.Defender
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.GameState
+import de.egril.defender.model.Position
+import de.egril.defender.model.SpellTargetType
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.ui.TooltipWrapper
@@ -152,6 +156,69 @@ fun nextSupportFocusIndex(
         forward -> (current + 1) % slotCount
         else -> (current - 1 + slotCount) % slotCount
     }
+}
+
+/**
+ * The ordered list of tiles on which the support object [type] may currently be placed, mirroring
+ * the validation used by the game engine when placing support-granted traps and barricades. Used to
+ * drive keyboard placement: a cursor cycles through these tiles and the selected one is confirmed
+ * with the place key.
+ *
+ * Tiles are ordered top-to-bottom, left-to-right so the keyboard cursor moves predictably.
+ */
+fun supportObjectPlacementTiles(
+    gameState: GameState,
+    type: SupportObjectType,
+): List<Position> {
+    val tiles = mutableListOf<Position>()
+    for (y in 0 until gameState.level.gridHeight) {
+        for (x in 0 until gameState.level.gridWidth) {
+            val pos = Position(x, y)
+            if (!gameState.level.isOnPath(pos)) continue
+            val hasAttacker = gameState.attackers.any { !it.isDefeated.value && it.position.value == pos }
+            val hasTrap = gameState.traps.any { it.position == pos }
+            if (hasAttacker || hasTrap) continue
+            val valid =
+                when (type) {
+                    SupportObjectType.DWARVEN_TRAP, SupportObjectType.MAGICAL_TRAP -> {
+                        val hasBarricade = gameState.barricades.any { it.position == pos }
+                        val hasFieldEffect = gameState.fieldEffects.any { it.position == pos }
+                        !hasBarricade && !hasFieldEffect
+                    }
+                    SupportObjectType.BARRICADE -> {
+                        val hasDefenderNotOnTowerBase =
+                            gameState.defenders.any { defender ->
+                                defender.position.value == pos && defender.towerBaseBarricadeId.value == null
+                            }
+                        !hasDefenderNotOnTowerBase
+                    }
+                }
+            if (valid) tiles.add(pos)
+        }
+    }
+    return tiles
+}
+
+/**
+ * The ordered list of tiles that can currently be selected as a target for the active spell
+ * targeting mode (position/enemy/tower spells), or an empty list when no spell is being targeted.
+ * Used to drive keyboard targeting of spells (e.g. the Bomb) with the same place/cancel keys as
+ * support object placement.
+ *
+ * Tiles are ordered top-to-bottom, left-to-right so the keyboard cursor moves predictably.
+ */
+fun spellTargetPositions(gameState: GameState): List<Position> {
+    val targeting = gameState.spellTargeting.value ?: return emptyList()
+    val positions =
+        when (targeting.activeSpell.targetType) {
+            SpellTargetType.POSITION -> targeting.validTargets.filterIsInstance<Position>()
+            SpellTargetType.ENEMY ->
+                targeting.validTargets.filterIsInstance<Attacker>().map { it.position.value }
+            SpellTargetType.TOWER ->
+                targeting.validTargets.filterIsInstance<Defender>().map { it.position.value }
+            SpellTargetType.NONE -> emptyList()
+        }
+    return positions.distinct().sortedWith(compareBy({ it.y }, { it.x }))
 }
 
 /**
@@ -399,7 +466,7 @@ private fun SupportCountBadge(
 }
 
 @Composable
-private fun SupportObjectIcon(
+internal fun SupportObjectIcon(
     type: SupportObjectType,
     size: Dp,
 ) {

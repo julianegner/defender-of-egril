@@ -159,4 +159,53 @@ class SupportShortcutTest {
         assertNull(nextSupportFocusIndex(current = null, slotCount = 0, forward = true))
         assertNull(nextSupportFocusIndex(current = 1, slotCount = 0, forward = false))
     }
+
+    @Test
+    fun testSupportObjectPlacementTilesListsPathTiles() {
+        val supports =
+            LevelSupports(objects = listOf(SupportObject(SupportObjectType.DWARVEN_TRAP, count = 2)))
+        val gameState = GameState(createLevel(supports))
+        gameState.initializePrePlacedElements()
+
+        // Both path tiles are valid trap placement tiles, ordered top-to-bottom then left-to-right.
+        val tiles = supportObjectPlacementTiles(gameState, SupportObjectType.DWARVEN_TRAP)
+        assertEquals(listOf(Position(0, 0), Position(5, 0)), tiles)
+    }
+
+    @Test
+    fun testSupportObjectPlacementTilesExcludesOccupiedTiles() {
+        val supports =
+            LevelSupports(objects = listOf(SupportObject(SupportObjectType.DWARVEN_TRAP, count = 2)))
+        val gameState = GameState(createLevel(supports))
+        gameState.initializePrePlacedElements()
+
+        // A tile that already has a trap is not offered again.
+        gameState.traps.add(
+            de.egril.defender.model.Trap(position = Position(0, 0), damage = 10, defenderId = -1),
+        )
+
+        val tiles = supportObjectPlacementTiles(gameState, SupportObjectType.DWARVEN_TRAP)
+        assertEquals(listOf(Position(5, 0)), tiles)
+    }
+
+    @Test
+    fun testSpellTargetPositionsEmptyWhenNotTargeting() {
+        val gameState = GameState(createLevel(LevelSupports()))
+        gameState.initializePrePlacedElements()
+        assertTrue(spellTargetPositions(gameState).isEmpty())
+    }
+
+    @Test
+    fun testSpellTargetPositionsListsValidPositionTargets() {
+        val gameState = GameState(createLevel(LevelSupports()))
+        gameState.initializePrePlacedElements()
+        gameState.spellTargeting.value =
+            de.egril.defender.model.SpellTargetingState(
+                activeSpell = SpellType.BOMB,
+                validTargets = setOf(Position(5, 0), Position(0, 0)),
+            )
+
+        // Returned sorted top-to-bottom then left-to-right regardless of input order.
+        assertEquals(listOf(Position(0, 0), Position(5, 0)), spellTargetPositions(gameState))
+    }
 }

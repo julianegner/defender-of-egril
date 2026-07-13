@@ -1503,6 +1503,8 @@
     <string name="spell_targeting_enemy">Selecciona un enemigo como objetivo</string>
     <string name="spell_targeting_tower">Selecciona una torre para mejorar</string>
     <string name="spell_targeting_cancel">Haz clic aquí para cancelar</string>
+    <string name="keyboard_placement_move">Mover</string>
+    <string name="keyboard_placement_place">Colocar</string>
 
     <!-- Spell Names -->
     <string name="spell_attack_area_name">Ataque de Área</string>

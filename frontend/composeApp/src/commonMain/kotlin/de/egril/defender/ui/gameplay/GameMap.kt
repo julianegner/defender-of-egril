@@ -134,6 +134,7 @@ fun GameGrid(
     isDemoMode: Boolean = false,
     demoHoveredPosition: Position? = null, // overrides the local hover in demo mode
     keyboardHoveredPosition: Position? = null, // overrides the local hover for keyboard build tile selection
+    keyboardPlacementCursor: Position? = null, // keyboard cursor tile while placing a support object / targeting a spell
     extraFocusTrigger: Int = 0,
 ) {
     // State for pan and zoom
@@ -830,6 +831,10 @@ fun GameGrid(
                 // click → those cells are not marked for recomposition due to this parameter.
                 val previewDefenderType: DefenderType? = if (showPlacementPreview) selectedDefenderType else null
 
+                // isKeyboardPlacementCursor: only the single tile under the keyboard placement/targeting
+                // cursor is true, so at most one cell recomposes when the cursor moves.
+                val isKeyboardPlacementCursor = keyboardPlacementCursor != null && keyboardPlacementCursor == position
+
                 // Memoize the event-handler lambdas so Compose's strong-skipping can work correctly.
                 //
                 // Without memoization, `{ onCellClick(position) }` and `{ localHoveredPosition = ... }`
@@ -864,6 +869,7 @@ fun GameGrid(
                     isBuildableAndEmpty = isBuildableAndEmpty,
                     canBeUsedAsTowerBase = canBeUsedAsTowerBase,
                     previewDefenderType = previewDefenderType,
+                    isKeyboardPlacementCursor = isKeyboardPlacementCursor,
                     // NOTE: the null guard on selectedDefenderId/selectedTargetId is critical for
                     // correctness AND performance.  Without it, `null?.id == null` evaluates to
                     // `null == null = true`, so every cell without a defender/attacker becomes
@@ -1017,6 +1023,10 @@ fun GridCell(
     // previewDefenderType is non-null only for the 1 cell showing the placement preview icon.
     // All other cells receive null and are not marked for recomposition when the selection changes.
     previewDefenderType: DefenderType?,
+    // True only for the single tile under the keyboard placement/targeting cursor (support object
+    // placement or spell targeting). Renders a distinct bright cursor border/tint so keyboard users
+    // can see which tile the place key will act on.
+    isKeyboardPlacementCursor: Boolean = false,
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
@@ -1483,6 +1493,8 @@ fun GridCell(
     // Special case: Keep river background visible for defenders on rafts
     val backgroundColor =
         when {
+            // Keyboard placement/targeting cursor — bright cyan tint so the active tile stands out.
+            isKeyboardPlacementCursor -> Color(0xFF00E5FF).copy(alpha = 0.45f)
             attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f) // Turquoise background for frozen/cooled-to-zero enemies
             attacker != null && enemyBgSuppressed -> if (useTransparentBackground) Color.Transparent else baseBackgroundColor
             attacker != null ->
@@ -1594,6 +1606,8 @@ fun GridCell(
 
     val borderColor =
         when {
+            // Keyboard placement/targeting cursor — bright cyan border for the active tile.
+            isKeyboardPlacementCursor -> Color(0xFF00B8D4)
             // Tower placement preview - dashed borders for preview (we'll handle this with Canvas later)
             showPlacementPreview -> GamePlayColors.Yellow // Yellow border for hovered build tile
             isInPreviewRange -> GamePlayColors.Success // Green border for range preview tiles
@@ -1643,6 +1657,7 @@ fun GridCell(
     // Thicker borders for important elements
     val borderWidth =
         when {
+            isKeyboardPlacementCursor -> 6.dp // Prominent border for the keyboard placement/targeting cursor
             showPlacementPreview -> 6.dp // Double thickness for hovered build tile
             isInPreviewRange -> 3.dp // Medium border for range preview
             cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
