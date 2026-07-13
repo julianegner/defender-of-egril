@@ -514,11 +514,11 @@ object SaveJsonSerializer {
      * enum of type [K]. Missing keys, malformed sections, and unknown enum names are ignored so old
      * or partially-corrupt saves still load. Returns an empty map when the key is absent.
      */
-    private fun <K> parseEnumIntMap(
+    private fun <E> parseEnumIntMap(
         dataJson: String,
         key: String,
-        toEnum: (String) -> K,
-    ): Map<K, Int> {
+        toEnum: (String) -> E,
+    ): Map<E, Int> {
         if (!dataJson.contains("\"$key\":")) return emptyMap()
         val section =
             try {
@@ -527,7 +527,7 @@ object SaveJsonSerializer {
                 return emptyMap()
             }
         if (section.isBlank()) return emptyMap()
-        val result = mutableMapOf<K, Int>()
+        val result = mutableMapOf<E, Int>()
         for (pair in section.split(",")) {
             val trimmed = pair.trim()
             if (trimmed.isBlank()) continue

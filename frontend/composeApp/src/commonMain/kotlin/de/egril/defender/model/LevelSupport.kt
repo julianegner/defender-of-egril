@@ -66,6 +66,11 @@ enum class CooldownPowerType(
 
     /** Grants 50 mana. */
     DEEP_MANA_WELL(5),
+    ;
+
+    /** True for powers whose only effect is to add mana (pointless while mana is already full). */
+    val addsMana: Boolean
+        get() = this == MANA_WELL || this == DEEP_MANA_WELL
 }
 
 /**

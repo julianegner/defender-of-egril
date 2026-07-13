@@ -135,9 +135,7 @@ fun SupportBar(
         supports.cooldownPowers.forEach { power ->
             val readyIn = gameState.cooldownPowerReadyIn[power.type] ?: 0
             // Mana wells are pointless while mana is already at maximum.
-            val atMaxEffect =
-                (power.type == CooldownPowerType.MANA_WELL || power.type == CooldownPowerType.DEEP_MANA_WELL) &&
-                    manaAtMax
+            val atMaxEffect = power.type.addsMana && manaAtMax
             CooldownPowerBox(
                 type = power.type,
                 readyIn = readyIn,
