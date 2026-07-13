@@ -770,6 +770,9 @@
     <string name="supports_objects_section">Objetos Colocables</string>
     <string name="supports_spells_section">Fichas de Hechizo</string>
     <string name="supports_cooldown_powers_section">Poderes con Enfriamiento</string>
+    <string name="support_type_object">Objeto Colocable</string>
+    <string name="support_type_spell">Ficha de Hechizo</string>
+    <string name="support_type_power">Poder con Enfriamiento</string>
     <string name="cooldown_turns_label">Enfriamiento</string>
     <string name="start_active_label">Empezar activo</string>
     <string name="cooldown_power_coin_surge">Oleada de Monedas</string>

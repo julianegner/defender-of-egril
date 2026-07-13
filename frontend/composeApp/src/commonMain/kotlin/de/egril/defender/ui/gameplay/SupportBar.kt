@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.CooldownPowerType
+import de.egril.defender.model.GamePhase
 import de.egril.defender.model.GameState
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObjectType
@@ -77,6 +78,12 @@ fun SupportBar(
     val supports = gameState.level.supports
     if (supports.isEmpty()) return
 
+    // Spell tokens and cooldown powers are unusable during the initial building phase — only
+    // placeable objects can be placed before the first enemy turn. Reflect this by disabling
+    // (graying out) those supports while building.
+    val isInitialBuilding = gameState.phase.value == GamePhase.INITIAL_BUILDING
+    val powersEnabled = enabled && !isInitialBuilding
+
     Row(
         modifier = modifier.padding(bottom = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -91,7 +98,7 @@ fun SupportBar(
                     isSpell = false,
                     isSelected = selectedSupportObject == supportObject.type,
                     enabled = enabled,
-                    tooltip = supportObject.type.localizedSupportName(),
+                    tooltip = supportTooltip("support_type_object", supportObject.type.localizedSupportName()),
                     onClick = { onObjectClick(supportObject.type) },
                 ) {
                     SupportObjectIcon(supportObject.type, SUPPORT_ICON_SIZE)
@@ -107,8 +114,8 @@ fun SupportBar(
                     remaining = remaining,
                     isSpell = true,
                     isSelected = activeSpellToken == supportSpell.spell,
-                    enabled = enabled,
-                    tooltip = supportSpell.spell.getLocalizedName(),
+                    enabled = powersEnabled,
+                    tooltip = supportTooltip("support_type_spell", supportSpell.spell.getLocalizedName()),
                     onClick = { onSpellClick(supportSpell.spell) },
                 ) {
                     SpellTargetIcon(spell = supportSpell.spell, size = SUPPORT_ICON_SIZE)
@@ -122,7 +129,8 @@ fun SupportBar(
             CooldownPowerBox(
                 type = power.type,
                 readyIn = readyIn,
-                enabled = enabled && readyIn == 0,
+                enabled = powersEnabled && readyIn == 0,
+                tooltip = supportTooltip("support_type_power", power.type.localizedCooldownPowerName()),
                 onClick = { onCooldownPowerClick(power.type) },
             )
         }
@@ -246,6 +254,7 @@ private fun CooldownPowerBox(
     type: CooldownPowerType,
     readyIn: Int,
     enabled: Boolean,
+    tooltip: String,
     onClick: () -> Unit,
 ) {
     val onCooldown = readyIn > 0
@@ -253,7 +262,7 @@ private fun CooldownPowerBox(
     val shape = RoundedCornerShape(14.dp)
     val borderColor = SupportBarColors.CooldownBorder
 
-    TooltipWrapper(text = type.localizedCooldownPowerName(), preferAbove = true) {
+    TooltipWrapper(text = tooltip, preferAbove = true) {
         Box(
             modifier =
                 Modifier
@@ -439,7 +448,20 @@ fun SupportObjectType.localizedSupportName(
         .get(key, locale)
 }
 
-/** Localized display name for a cooldown-based support power. */
+/**
+ * Build a support tooltip that includes the support's type and name, e.g.
+ * "Placeable Object: Magical Trap". [typeKey] is the localization key for the type label.
+ */
+private fun supportTooltip(
+    typeKey: String,
+    name: String,
+    locale: com.hyperether.resources.AppLocale = com.hyperether.resources.currentLanguage.value,
+): String {
+    val typeLabel =
+        com.hyperether.resources.LocalizedStrings
+            .get(typeKey, locale)
+    return "$typeLabel: $name"
+}
 fun CooldownPowerType.localizedCooldownPowerName(
     locale: com.hyperether.resources.AppLocale = com.hyperether.resources.currentLanguage.value,
 ): String {

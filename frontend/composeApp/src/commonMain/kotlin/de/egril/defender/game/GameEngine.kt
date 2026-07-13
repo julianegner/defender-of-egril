@@ -243,7 +243,7 @@ class GameEngine(
     ): Attacker? {
         val attackable =
             candidates.filter { attacker ->
-                !attacker.isDefeated.value && defender.canAttack(attacker)
+                !attacker.isDefeated.value && defender.canAttack(attacker, getEffectiveRange(defender))
             }
         if (attackable.isEmpty()) return null
 

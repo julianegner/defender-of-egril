@@ -226,11 +226,14 @@ data class Defender(
     // Check if the tower is on a tower base
     val isOnTowerBase: Boolean get() = towerBaseBarricadeId.value != null
 
-    fun canAttack(attacker: Attacker): Boolean {
+    fun canAttack(
+        attacker: Attacker,
+        effectiveRange: Int = range,
+    ): Boolean {
         if (!isReady || actionsRemaining.value <= 0 || isDisabled.value) return false
         val distance = position.value.distanceTo(attacker.position.value)
         // Check both minimum and maximum range
-        return distance >= type.minRange && distance <= range
+        return distance >= type.minRange && distance <= effectiveRange
     }
 
     fun resetActions() {

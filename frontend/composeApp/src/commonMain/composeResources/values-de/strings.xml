@@ -770,6 +770,9 @@
     <string name="supports_objects_section">Platzierbare Objekte</string>
     <string name="supports_spells_section">Zauber-Marken</string>
     <string name="supports_cooldown_powers_section">Abkling-Kräfte</string>
+    <string name="support_type_object">Platzierbares Objekt</string>
+    <string name="support_type_spell">Zauber-Marke</string>
+    <string name="support_type_power">Abkling-Kraft</string>
     <string name="cooldown_turns_label">Abklingzeit</string>
     <string name="start_active_label">Aktiv starten</string>
     <string name="cooldown_power_coin_surge">Münzflut</string>

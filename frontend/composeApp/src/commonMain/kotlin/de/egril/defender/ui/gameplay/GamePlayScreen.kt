@@ -1779,14 +1779,7 @@ private fun GamePlayScreenContent(
                                         }
 
                                         // For AREA/LASTING (fireball and acid) attacks, allow targeting path tiles OR river tiles
-                                        val effectiveRange =
-                                            run {
-                                                val hasDoubleReach =
-                                                    gameState.activeSpellEffects.any {
-                                                        it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == selectedDefender.id
-                                                    }
-                                                if (hasDoubleReach) selectedDefender.range * 2 else selectedDefender.range
-                                            }
+                                        val effectiveRange = gameState.effectiveRange(selectedDefender)
                                         if (selectedDefender.type.attackType == AttackType.AREA ||
                                             selectedDefender.type.attackType == AttackType.LASTING
                                         ) {

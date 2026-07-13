@@ -64,7 +64,7 @@ class CombatSystem(
         val defender = state.defenders.find { it.id == defenderId } ?: return false
         val target = state.attackers.find { it.id == targetId && !it.isDefeated.value } ?: return false
 
-        if (!defender.canAttack(target)) return false
+        if (!defender.canAttack(target, getEffectiveRange(defender))) return false
 
         // Mark defender as used
         defender.hasBeenUsed.value = true

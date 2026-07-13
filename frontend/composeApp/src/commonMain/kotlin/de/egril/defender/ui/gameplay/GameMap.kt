@@ -1259,7 +1259,7 @@ fun GridCell(
                 false // Don't highlight the defender's own cell
             } else {
                 val distance = sel.position.value.distanceTo(position)
-                val effectiveRange = if (hasDoubleReachBuff) sel.range * 2 else sel.range
+                val effectiveRange = gameState.effectiveRange(sel)
                 distance >= sel.type.minRange && distance <= effectiveRange
             }
         } ?: false

@@ -5,6 +5,7 @@ import de.egril.defender.model.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
  * Tests for tower range mechanics with maxRange limits
@@ -280,5 +281,40 @@ class TowerRangeTest {
             )
         assertEquals(6, spearTower.position.value.distanceTo(attacker2.position.value))
         assertEquals(false, spearTower.canAttack(attacker2), "Should NOT be able to attack beyond max range")
+    }
+
+    @Test
+    fun testCanAttackWithEffectiveRangeBuff() {
+        // A tower cannot attack an enemy beyond its base range, but can once given an extended
+        // (double-reach) effective range, mirroring the DOUBLE_TOWER_REACH spell/support buff.
+        val bowTower =
+            Defender(
+                id = 1,
+                type = DefenderType.BOW_TOWER,
+                position = mutableStateOf(Position(5, 5)),
+                level = mutableStateOf(1),
+                buildTimeRemaining = mutableStateOf(0),
+                actionsRemaining = mutableStateOf(1),
+            )
+        val baseRange = bowTower.range
+
+        // Enemy just beyond the base range
+        val attacker =
+            Attacker(
+                id = 1,
+                type = AttackerType.GOBLIN,
+                position = mutableStateOf(Position(5 + baseRange + 1, 5)),
+                level = mutableStateOf(1),
+                currentHealth = mutableStateOf(20),
+            )
+        val distance = bowTower.position.value.distanceTo(attacker.position.value)
+        assertTrue(distance > baseRange, "Enemy should be beyond base range for this test")
+
+        assertEquals(false, bowTower.canAttack(attacker), "Should NOT attack beyond base range without buff")
+        assertEquals(
+            true,
+            bowTower.canAttack(attacker, effectiveRange = baseRange * 2),
+            "Should attack within doubled effective range",
+        )
     }
 }

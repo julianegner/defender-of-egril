@@ -773,6 +773,9 @@
     <string name="supports_objects_section">Placable Objects</string>
     <string name="supports_spells_section">Spell Tokens</string>
     <string name="supports_cooldown_powers_section">Cooldown Powers</string>
+    <string name="support_type_object">Placeable Object</string>
+    <string name="support_type_spell">Spell Token</string>
+    <string name="support_type_power">Cooldown Power</string>
     <string name="cooldown_turns_label">Cooldown</string>
     <string name="start_active_label">Start active</string>
     <string name="cooldown_power_coin_surge">Coin Surge</string>

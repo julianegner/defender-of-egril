@@ -399,6 +399,19 @@ data class GameState(
         }
 
     /**
+     * Effective attack range for a defender, accounting for the DOUBLE_TOWER_REACH spell buff
+     * (whether granted by a mana spell or a spell-token support). This must be used everywhere
+     * range is evaluated for attacking so the buff behaves consistently in the UI and combat.
+     */
+    fun effectiveRange(defender: Defender): Int {
+        val hasDoubleReachBuff =
+            activeSpellEffects.any {
+                it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == defender.id
+            }
+        return if (hasDoubleReachBuff) defender.range * 2 else defender.range
+    }
+
+    /**
      * Check if there are defenders with unused action points and enemies in range
      * Used to show end turn confirmation dialog
      */
@@ -426,7 +439,7 @@ data class GameState(
                         false
                     } else {
                         // Check if there are any enemies in range
-                        activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                        activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
                     }
                 }
             }
@@ -454,7 +467,7 @@ data class GameState(
                         if (defender.type.attackType == AttackType.NONE) {
                             false
                         } else {
-                            activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                            activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
                         }
                     }
                 }
@@ -487,7 +500,7 @@ data class GameState(
                 defender.type.attackType == AttackType.NONE -> false
                 else -> {
                     // Check if there are any enemies in range
-                    activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                    activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
                 }
             }
         }
@@ -514,7 +527,7 @@ data class GameState(
                 // Alchemy towers with lasting attacks only when no enemies in range
                 // (if enemies are in range, they will auto-attack like normal towers)
                 defender.type == DefenderType.ALCHEMY_TOWER -> {
-                    val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                    val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
                     if (!hasEnemiesInRange) {
                         typesWithActions.add(DefenderType.ALCHEMY_TOWER)
                     }

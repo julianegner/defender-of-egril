@@ -770,6 +770,9 @@
     <string name="supports_objects_section">Objets Plaçables</string>
     <string name="supports_spells_section">Jetons de Sort</string>
     <string name="supports_cooldown_powers_section">Pouvoirs à Recharge</string>
+    <string name="support_type_object">Objet Plaçable</string>
+    <string name="support_type_spell">Jeton de Sort</string>
+    <string name="support_type_power">Pouvoir à Recharge</string>
     <string name="cooldown_turns_label">Recharge</string>
     <string name="start_active_label">Actif au départ</string>
     <string name="cooldown_power_coin_surge">Afflux de Pièces</string>
