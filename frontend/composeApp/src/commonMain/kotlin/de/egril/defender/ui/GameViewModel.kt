@@ -12,6 +12,7 @@ import de.egril.defender.game.GameEngine
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
+import de.egril.defender.ui.animations.SKY_IS_FALLING_DURATION_MS
 import de.egril.defender.ui.infopage.NewVersionInfo
 import de.egril.defender.ui.infopage.checkForNewerVersion
 import de.egril.defender.ui.settings.AppSettings
@@ -4462,6 +4463,83 @@ class GameViewModel {
     }
 
     /**
+     * Activate a cooldown-based support power for the whole level.
+     *
+     * Does nothing if the power is not part of the level, is still on cooldown, or the level has not
+     * started yet (initial building phase). On success the power's effect is applied immediately and
+     * its cooldown is (re)started.
+     */
+    fun activateCooldownPower(type: CooldownPowerType) {
+        val gameState = _gameState.value ?: return
+        val power =
+            gameState.level.supports.cooldownPowers
+                .firstOrNull { it.type == type } ?: return
+
+        // Powers can only be used once the level has started (not during the initial build phase)
+        if (gameState.phase.value == GamePhase.INITIAL_BUILDING) return
+
+        // Must be ready (readyIn == 0)
+        if ((gameState.cooldownPowerReadyIn[type] ?: 0) > 0) return
+
+        applyCooldownPowerEffect(gameState, type)
+
+        // Start the cooldown
+        gameState.cooldownPowerReadyIn[type] = power.cooldownTurns
+    }
+
+    /** Apply the immediate effect of a cooldown support power. */
+    private fun applyCooldownPowerEffect(
+        gameState: GameState,
+        type: CooldownPowerType,
+    ) {
+        when (type) {
+            CooldownPowerType.COIN_SURGE -> {
+                // Double all coins earned for the remainder of this turn/round.
+                gameState.coinSurgeActive.value = true
+            }
+            CooldownPowerType.SKY_IS_FALLING -> {
+                // Trigger the full-map falling-meteor animation overlay first, then remove the
+                // enemies' health once the meteors have visibly struck the map.
+                gameState.skyIsFallingTrigger.value += 1
+                viewModelScope.launch {
+                    if (AppSettings.enableAnimations.value) {
+                        delay(SKY_IS_FALLING_DURATION_MS.toLong())
+                    }
+                    applySkyIsFallingDamage(gameState)
+                }
+            }
+            CooldownPowerType.CONSTRUCTION_REPAIRS -> {
+                // All existing barricades gain 10 health points.
+                gameState.barricades
+                    .filterNot { it.isDestroyed() }
+                    .forEach { it.reinforce(CONSTRUCTION_REPAIRS_HP) }
+            }
+            CooldownPowerType.MANA_WELL -> gameEngine?.addMana(MANA_WELL_MANA)
+            CooldownPowerType.DEEP_MANA_WELL -> gameEngine?.addMana(DEEP_MANA_WELL_MANA)
+        }
+    }
+
+    /** Apply the "Sky is Falling" damage to all live enemies and resolve any defeats. */
+    private fun applySkyIsFallingDamage(gameState: GameState) {
+        // All enemy units lose 10 health points.
+        gameState.attackers
+            .filter { !it.isDefeated.value }
+            .forEach { attacker ->
+                attacker.currentHealth.value -= SKY_IS_FALLING_DAMAGE
+                if (attacker.currentHealth.value <= 0) {
+                    attacker.isDefeated.value = true
+                }
+            }
+        // Award coins/XP and remove defeated enemies immediately (mirrors damage spells).
+        gameEngine?.processDefeatedAttackers()
+        surfaceNextPendingMessageIfIdle()
+        val stateAfter = _gameState.value
+        if (stateAfter != null && stateAfter.isLevelWon()) {
+            completeLevel(stateAfter.level.id, won = true)
+        }
+    }
+
+    /**
      * Handles deep link navigation for web/WASM variant.
      * Called once during app startup to check for deep links like /data-privacy/en, /info/installation, or /tutorial
      */
@@ -4523,6 +4601,18 @@ class GameViewModel {
         private const val BACKGROUND_SAVE_ID = "background_save"
 
         private const val LOST_LEVEL_XP_DIVISOR = 5
+
+        /** Health points every enemy loses when the "Sky is falling" power is used. */
+        private const val SKY_IS_FALLING_DAMAGE = 10
+
+        /** Health points each barricade gains when the Construction Repairs power is used. */
+        private const val CONSTRUCTION_REPAIRS_HP = 10
+
+        /** Mana granted by the Mana Well power. */
+        private const val MANA_WELL_MANA = 10
+
+        /** Mana granted by the Deep Mana Well power. */
+        private const val DEEP_MANA_WELL_MANA = 50
 
         /** Level ID of the tutorial level ("Welcome to Defender of Egril"). */
         const val TUTORIAL_LEVEL_ID = 1

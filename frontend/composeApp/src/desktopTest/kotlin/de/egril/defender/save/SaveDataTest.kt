@@ -679,4 +679,83 @@ class SaveDataTest {
         assertEquals("Old Player", deserialized.profiles[0].name)
         assertEquals("old_player", deserialized.lastUsedPlayerId)
     }
+
+    @Test
+    fun testSavedGameSupportStateRoundTrip() {
+        // Support state (placeable objects, spell tokens, cooldown powers, coin surge) must survive
+        // a serialization round-trip so it is preserved across save/load.
+        val savedGame =
+            SavedGame(
+                id = "support_save",
+                timestamp = 1000L,
+                levelId = 1,
+                levelName = "Support Level",
+                turnNumber = 4,
+                coins = 50,
+                healthPoints = 8,
+                phase = GamePhase.PLAYER_TURN,
+                defenders = emptyList(),
+                attackers = emptyList(),
+                nextDefenderId = 1,
+                nextAttackerId = 1,
+                currentWaveIndex = 0,
+                spawnCounter = 0,
+                attackersToSpawn = emptyList(),
+                fieldEffects = emptyList(),
+                traps = emptyList(),
+                supportObjectsRemaining =
+                    mapOf(
+                        SupportObjectType.DWARVEN_TRAP to 2,
+                        SupportObjectType.BARRICADE to 0,
+                    ),
+                supportSpellsRemaining = mapOf(SpellType.HEAL to 1),
+                cooldownPowerReadyIn =
+                    mapOf(
+                        CooldownPowerType.COIN_SURGE to 3,
+                        CooldownPowerType.MANA_WELL to 0,
+                    ),
+                coinSurgeActive = true,
+            )
+
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals(2, deserialized.supportObjectsRemaining[SupportObjectType.DWARVEN_TRAP])
+        assertEquals(0, deserialized.supportObjectsRemaining[SupportObjectType.BARRICADE])
+        assertEquals(1, deserialized.supportSpellsRemaining[SpellType.HEAL])
+        assertEquals(3, deserialized.cooldownPowerReadyIn[CooldownPowerType.COIN_SURGE])
+        assertEquals(0, deserialized.cooldownPowerReadyIn[CooldownPowerType.MANA_WELL])
+        assertTrue(deserialized.coinSurgeActive)
+    }
+
+    @Test
+    fun testSavedGameSupportStateBackwardCompatibility() {
+        // Old saves without support fields must still load, defaulting to empty maps / inactive.
+        val oldSaveJson = """{
+  "id": "old_support_save",
+  "timestamp": 1234567890,
+  "levelId": 1,
+  "levelName": "Test Level",
+  "turnNumber": 5,
+  "coins": 100,
+  "healthPoints": 10,
+  "phase": "PLAYER_TURN",
+  "defenders": [],
+  "attackers": [],
+  "nextDefenderId": 2,
+  "nextAttackerId": 1,
+  "currentWaveIndex": 0,
+  "spawnCounter": 0,
+  "attackersToSpawn": [],
+  "fieldEffects": [],
+  "traps": [],
+  "comment": null
+}"""
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(oldSaveJson)
+        assertNotNull(deserialized)
+        assertTrue(deserialized.supportObjectsRemaining.isEmpty())
+        assertTrue(deserialized.supportSpellsRemaining.isEmpty())
+        assertTrue(deserialized.cooldownPowerReadyIn.isEmpty())
+        assertEquals(false, deserialized.coinSurgeActive)
+    }
 }

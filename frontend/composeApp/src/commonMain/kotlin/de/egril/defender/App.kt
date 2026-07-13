@@ -650,6 +650,7 @@ fun App() {
                                 onPlaceSupportObject = { type, pos -> viewModel.placeSupportObject(type, pos) },
                                 onCastSupportSpellToken = { spell -> viewModel.onSupportSpellTokenClicked(spell) },
                                 activeSpellToken = pendingTokenSpell,
+                                onActivateCooldownPower = { power -> viewModel.activateCooldownPower(power) },
                             )
                         }
                     }

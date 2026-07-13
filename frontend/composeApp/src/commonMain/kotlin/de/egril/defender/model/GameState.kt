@@ -242,7 +242,17 @@ data class GameState(
     // Player-usable supports remaining this level (placable objects + spell tokens)
     val supportObjectsRemaining: SnapshotStateMap<SupportObjectType, Int> = mutableStateMapOf(),
     val supportSpellsRemaining: SnapshotStateMap<SpellType, Int> = mutableStateMapOf(),
+    // Cooldown-based support powers: turns remaining until the power can be used again (0 = ready)
+    val cooldownPowerReadyIn: SnapshotStateMap<CooldownPowerType, Int> = mutableStateMapOf(),
+    // True when the Coin Surge power is active this turn (doubles coins earned)
+    val coinSurgeActive: MutableState<Boolean> = mutableStateOf(false),
+    // Monotonically-increasing counter, incremented each time the "Sky is Falling" power is used,
+    // to trigger the full-map falling-meteor animation overlay.
+    val skyIsFallingTrigger: MutableState<Int> = mutableStateOf(0),
 ) {
+    /** Multiplier applied to earned coins while the Coin Surge power is active (2x), otherwise 1x. */
+    fun coinSurgeMultiplier(): Int = if (coinSurgeActive.value) 2 else 1
+
     fun isLevelWon(): Boolean {
         // Check if all planned spawns have occurred and all enemies are defeated
         val allSpawned = spawnPlan.all { it.spawnTurn <= turnNumber.value }
@@ -392,6 +402,19 @@ data class GameState(
         }
 
     /**
+     * Effective attack range for a defender, accounting for the DOUBLE_TOWER_REACH spell buff
+     * (whether granted by a mana spell or a spell-token support). This must be used everywhere
+     * range is evaluated for attacking so the buff behaves consistently in the UI and combat.
+     */
+    fun effectiveRange(defender: Defender): Int {
+        val hasDoubleReachBuff =
+            activeSpellEffects.any {
+                it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == defender.id
+            }
+        return if (hasDoubleReachBuff) defender.range * 2 else defender.range
+    }
+
+    /**
      * Check if there are defenders with unused action points and enemies in range
      * Used to show end turn confirmation dialog
      */
@@ -419,7 +442,7 @@ data class GameState(
                         false
                     } else {
                         // Check if there are any enemies in range
-                        activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                        activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
                     }
                 }
             }
@@ -447,7 +470,7 @@ data class GameState(
                         if (defender.type.attackType == AttackType.NONE) {
                             false
                         } else {
-                            activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                            activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
                         }
                     }
                 }
@@ -480,7 +503,7 @@ data class GameState(
                 defender.type.attackType == AttackType.NONE -> false
                 else -> {
                     // Check if there are any enemies in range
-                    activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                    activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
                 }
             }
         }
@@ -507,7 +530,7 @@ data class GameState(
                 // Alchemy towers with lasting attacks only when no enemies in range
                 // (if enemies are in range, they will auto-attack like normal towers)
                 defender.type == DefenderType.ALCHEMY_TOWER -> {
-                    val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                    val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
                     if (!hasEnemiesInRange) {
                         typesWithActions.add(DefenderType.ALCHEMY_TOWER)
                     }
@@ -543,6 +566,14 @@ data class GameState(
             supportSpellsRemaining[supportSpell.spell] =
                 (supportSpellsRemaining[supportSpell.spell] ?: 0) + supportSpell.count
         }
+
+        // Initialize cooldown-based support powers. Powers that start active are immediately usable
+        // (readyIn = 0); powers that start inactive begin on cooldown.
+        cooldownPowerReadyIn.clear()
+        for (power in level.supports.cooldownPowers) {
+            cooldownPowerReadyIn[power.type] = if (power.startActive) 0 else power.cooldownTurns
+        }
+        coinSurgeActive.value = false
 
         // Place initial barricades FIRST (before defenders so we can link them)
         for (initialBarricade in initialData.barricades) {

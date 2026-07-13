@@ -61,6 +61,11 @@ data class SavedGame(
     val currentMana: Int = 0, // Current mana at the time of saving
     val maxMana: Int = 0, // Maximum mana at the time of saving
     val spellEffects: List<SavedSpellEffect> = emptyList(), // Active spell effects (e.g. placed bombs)
+    // Player-usable supports remaining/recharging this level. Persisted so they survive save/load.
+    val supportObjectsRemaining: Map<SupportObjectType, Int> = emptyMap(), // Placeable objects left to deploy
+    val supportSpellsRemaining: Map<SpellType, Int> = emptyMap(), // Spell tokens left to cast
+    val cooldownPowerReadyIn: Map<CooldownPowerType, Int> = emptyMap(), // Turns until each power is ready (0 = ready)
+    val coinSurgeActive: Boolean = false, // True when Coin Surge is active for the current turn
 )
 
 /**

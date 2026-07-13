@@ -769,6 +769,17 @@
     <string name="supports_intro">Objets et jetons de sort que le joueur peut utiliser dans ce niveau, quels que soient ses tours, son niveau technologique ou son mana.</string>
     <string name="supports_objects_section">Objets Plaçables</string>
     <string name="supports_spells_section">Jetons de Sort</string>
+    <string name="supports_cooldown_powers_section">Pouvoirs à Recharge</string>
+    <string name="support_type_object">Objet Plaçable</string>
+    <string name="support_type_spell">Jeton de Sort</string>
+    <string name="support_type_power">Pouvoir à Recharge</string>
+    <string name="cooldown_turns_label">Recharge</string>
+    <string name="start_active_label">Actif au départ</string>
+    <string name="cooldown_power_coin_surge">Afflux de Pièces</string>
+    <string name="cooldown_power_sky_is_falling">Le Ciel nous Tombe sur la Tête</string>
+    <string name="cooldown_power_construction_repairs">Réparations de Construction</string>
+    <string name="cooldown_power_mana_well">Puits de Mana</string>
+    <string name="cooldown_power_deep_mana_well">Puits de Mana Profond</string>
     <string name="magical_trap_cooldown">Temps de recharge : %d tours</string>
     <string name="magical_trap_available">Piège Magique Disponible</string>
     <string name="magical_trap_tutorial_title">Piège Magique Débloqué !</string>

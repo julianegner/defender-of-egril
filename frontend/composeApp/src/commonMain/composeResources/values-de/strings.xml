@@ -769,6 +769,17 @@
     <string name="supports_intro">Objekte und Zauber-Marken, die der Spieler in diesem Level nutzen kann, unabhängig von Türmen, Techstufe oder Mana.</string>
     <string name="supports_objects_section">Platzierbare Objekte</string>
     <string name="supports_spells_section">Zauber-Marken</string>
+    <string name="supports_cooldown_powers_section">Abkling-Kräfte</string>
+    <string name="support_type_object">Platzierbares Objekt</string>
+    <string name="support_type_spell">Zauber-Marke</string>
+    <string name="support_type_power">Abkling-Kraft</string>
+    <string name="cooldown_turns_label">Abklingzeit</string>
+    <string name="start_active_label">Aktiv starten</string>
+    <string name="cooldown_power_coin_surge">Münzflut</string>
+    <string name="cooldown_power_sky_is_falling">Der Himmel fällt uns auf den Kopf</string>
+    <string name="cooldown_power_construction_repairs">Baureparaturen</string>
+    <string name="cooldown_power_mana_well">Mana-Brunnen</string>
+    <string name="cooldown_power_deep_mana_well">Tiefer Mana-Brunnen</string>
     <string name="magical_trap_cooldown">Abklingzeit: %d Runden</string>
     <string name="magical_trap_available">Magische Falle verfügbar</string>
     <string name="magical_trap_tutorial_title">Magische Falle freigeschaltet!</string>

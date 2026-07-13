@@ -21,20 +21,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.model.CooldownPower
+import de.egril.defender.model.CooldownPowerType
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObject
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.SupportSpell
 import de.egril.defender.ui.gameplay.SpellTargetIcon
+import de.egril.defender.ui.gameplay.localizedCooldownPowerName
 import de.egril.defender.ui.gameplay.localizedSupportName
 import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.icon.ExplosionIcon
+import de.egril.defender.ui.icon.HammerIcon
+import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.cooldown_turns_label
 import defender_of_egril.composeapp.generated.resources.damage_label
 import defender_of_egril.composeapp.generated.resources.health_points
+import defender_of_egril.composeapp.generated.resources.start_active_label
+import defender_of_egril.composeapp.generated.resources.supports_cooldown_powers_section
 import defender_of_egril.composeapp.generated.resources.supports_intro
 import defender_of_egril.composeapp.generated.resources.supports_objects_section
 import defender_of_egril.composeapp.generated.resources.supports_spells_section
@@ -133,6 +142,41 @@ fun SupportsTab(
                             if (it.spell == spell) it.copy(count = newCount) else it
                         }
                     onSupportsChange(supports.copy(spells = newSpells))
+                },
+            )
+        }
+
+        // Cooldown powers section
+        item {
+            SectionHeader(stringResource(Res.string.supports_cooldown_powers_section))
+        }
+        items(CooldownPowerType.entries) { type ->
+            val existing = supports.cooldownPowers.firstOrNull { it.type == type }
+            CooldownPowerRow(
+                type = type,
+                power = existing,
+                onToggle = { checked ->
+                    val newPowers =
+                        if (checked) {
+                            supports.cooldownPowers + CooldownPower(type = type)
+                        } else {
+                            supports.cooldownPowers.filterNot { it.type == type }
+                        }
+                    onSupportsChange(supports.copy(cooldownPowers = newPowers))
+                },
+                onCooldownChange = { newCooldown ->
+                    val newPowers =
+                        supports.cooldownPowers.map {
+                            if (it.type == type) it.copy(cooldownTurns = newCooldown) else it
+                        }
+                    onSupportsChange(supports.copy(cooldownPowers = newPowers))
+                },
+                onStartActiveChange = { startActive ->
+                    val newPowers =
+                        supports.cooldownPowers.map {
+                            if (it.type == type) it.copy(startActive = startActive) else it
+                        }
+                    onSupportsChange(supports.copy(cooldownPowers = newPowers))
                 },
             )
         }
@@ -267,6 +311,60 @@ private fun CountStepper(
             modifier = Modifier.size(32.dp),
         ) {
             Text("+")
+        }
+    }
+}
+
+@Composable
+private fun CooldownPowerRow(
+    type: CooldownPowerType,
+    power: CooldownPower?,
+    onToggle: (Boolean) -> Unit,
+    onCooldownChange: (Int) -> Unit,
+    onStartActiveChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Checkbox(
+            checked = power != null,
+            onCheckedChange = onToggle,
+        )
+        Box(modifier = Modifier.size(28.dp), contentAlignment = Alignment.Center) {
+            when (type) {
+                CooldownPowerType.COIN_SURGE -> MoneyIcon(size = 24.dp)
+                CooldownPowerType.SKY_IS_FALLING -> ExplosionIcon(size = 24.dp)
+                CooldownPowerType.CONSTRUCTION_REPAIRS -> HammerIcon(size = 24.dp)
+                CooldownPowerType.MANA_WELL -> PentagramIcon(size = 24.dp)
+                CooldownPowerType.DEEP_MANA_WELL -> PentagramIcon(size = 24.dp)
+            }
+        }
+        Text(
+            text = type.localizedCooldownPowerName(),
+            modifier = Modifier.width(160.dp),
+        )
+        if (power != null) {
+            ValueStepper(
+                label = stringResource(Res.string.cooldown_turns_label),
+                value = power.cooldownTurns,
+                step = 1,
+                onValueChange = { onCooldownChange(it.coerceAtLeast(1)) },
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Checkbox(
+                    checked = power.startActive,
+                    onCheckedChange = onStartActiveChange,
+                )
+                Text(
+                    text = stringResource(Res.string.start_active_label),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
         }
     }
 }

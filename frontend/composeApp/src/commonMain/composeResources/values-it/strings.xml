@@ -769,6 +769,17 @@
     <string name="supports_intro">Oggetti e gettoni incantesimo che il giocatore può usare in questo livello, indipendentemente da torri, livello tecnologico o mana.</string>
     <string name="supports_objects_section">Oggetti Posizionabili</string>
     <string name="supports_spells_section">Gettoni Incantesimo</string>
+    <string name="supports_cooldown_powers_section">Poteri a Ricarica</string>
+    <string name="support_type_object">Oggetto Posizionabile</string>
+    <string name="support_type_spell">Gettone Incantesimo</string>
+    <string name="support_type_power">Potere a Ricarica</string>
+    <string name="cooldown_turns_label">Ricarica</string>
+    <string name="start_active_label">Inizia attivo</string>
+    <string name="cooldown_power_coin_surge">Ondata di Monete</string>
+    <string name="cooldown_power_sky_is_falling">Il Cielo ci Cade in Testa</string>
+    <string name="cooldown_power_construction_repairs">Riparazioni Edili</string>
+    <string name="cooldown_power_mana_well">Pozzo di Mana</string>
+    <string name="cooldown_power_deep_mana_well">Pozzo di Mana Profondo</string>
     <string name="magical_trap_cooldown">Ricarica: %d turni</string>
     <string name="magical_trap_available">Trappola Magica Disponibile</string>
     <string name="magical_trap_tutorial_title">Trappola Magica Sbloccata!</string>

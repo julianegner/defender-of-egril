@@ -1,6 +1,8 @@
 package de.egril.defender.editor
 
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.CooldownPower
+import de.egril.defender.model.CooldownPowerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.SpellType
@@ -80,6 +82,34 @@ class SupportsSerializationTest {
 
         val freeze = level.supports.spells.first { it.spell == SpellType.FREEZE_SPELL }
         assertEquals(3, freeze.count)
+    }
+
+    @Test
+    fun testSerializeDeserializeCooldownPowersRoundTrip() {
+        val supports =
+            LevelSupports(
+                cooldownPowers =
+                    listOf(
+                        CooldownPower(CooldownPowerType.COIN_SURGE, cooldownTurns = 7, startActive = false),
+                        CooldownPower(CooldownPowerType.MANA_WELL),
+                    ),
+            )
+
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(supports))
+        assertTrue(json.contains("\"cooldownPowers\""), "JSON should contain cooldownPowers array")
+        assertTrue(json.contains("COIN_SURGE"), "JSON should contain the cooldown power type")
+
+        val level = EditorJsonSerializer.deserializeLevel(json)
+        assertNotNull(level, "Level should be deserialized")
+        assertEquals(2, level.supports.cooldownPowers.size, "Should have 2 cooldown powers")
+
+        val coinSurge = level.supports.cooldownPowers.first { it.type == CooldownPowerType.COIN_SURGE }
+        assertEquals(7, coinSurge.cooldownTurns, "Custom cooldown should round-trip")
+        assertEquals(false, coinSurge.startActive, "startActive flag should round-trip")
+
+        val manaWell = level.supports.cooldownPowers.first { it.type == CooldownPowerType.MANA_WELL }
+        assertEquals(CooldownPowerType.MANA_WELL.defaultCooldown, manaWell.cooldownTurns, "Default cooldown should be used")
+        assertEquals(true, manaWell.startActive, "startActive should default to true")
     }
 
     @Test

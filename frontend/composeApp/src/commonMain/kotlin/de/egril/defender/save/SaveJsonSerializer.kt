@@ -185,6 +185,20 @@ object SaveJsonSerializer {
                 """{"levelStatuses": {$statusesJson}}"""
             } ?: "null"
 
+        // Support state (placeable objects, spell tokens, cooldown powers) as name->int maps
+        val supportObjectsJson =
+            savedGame.supportObjectsRemaining.entries.joinToString(", ") { (type, count) ->
+                "\"${type.name}\": $count"
+            }
+        val supportSpellsJson =
+            savedGame.supportSpellsRemaining.entries.joinToString(", ") { (spell, count) ->
+                "\"${spell.name}\": $count"
+            }
+        val cooldownPowersJson =
+            savedGame.cooldownPowerReadyIn.entries.joinToString(", ") { (type, readyIn) ->
+                "\"${type.name}\": $readyIn"
+            }
+
         val data = """{
   "id": "${savedGame.id}",
   "timestamp": ${savedGame.timestamp},
@@ -225,7 +239,11 @@ object SaveJsonSerializer {
   "mapId": $mapIdJson,
   "worldMapSave": $worldMapSaveJson,
   "currentMana": ${savedGame.currentMana},
-  "maxMana": ${savedGame.maxMana}
+  "maxMana": ${savedGame.maxMana},
+  "supportObjectsRemaining": {$supportObjectsJson},
+  "supportSpellsRemaining": {$supportSpellsJson},
+  "cooldownPowerReadyIn": {$cooldownPowersJson},
+  "coinSurgeActive": ${savedGame.coinSurgeActive}
 }"""
         return """{
   "metadata": {
@@ -426,6 +444,20 @@ object SaveJsonSerializer {
                     null // If worldMapSave field doesn't exist or is malformed, default to null
                 }
 
+            // Parse support state (optional fields for backward compatibility with old saves)
+            val supportObjectsRemaining =
+                parseEnumIntMap(dataJson, "supportObjectsRemaining") { SupportObjectType.valueOf(it) }
+            val supportSpellsRemaining =
+                parseEnumIntMap(dataJson, "supportSpellsRemaining") { SpellType.valueOf(it) }
+            val cooldownPowerReadyIn =
+                parseEnumIntMap(dataJson, "cooldownPowerReadyIn") { CooldownPowerType.valueOf(it) }
+            val coinSurgeActive =
+                try {
+                    JsonUtils.extractBooleanValue(dataJson, "coinSurgeActive")
+                } catch (e: Exception) {
+                    false
+                }
+
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -463,6 +495,10 @@ object SaveJsonSerializer {
                         0
                     },
                 spellEffects = spellEffects,
+                supportObjectsRemaining = supportObjectsRemaining,
+                supportSpellsRemaining = supportSpellsRemaining,
+                cooldownPowerReadyIn = cooldownPowerReadyIn,
+                coinSurgeActive = coinSurgeActive,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
@@ -471,6 +507,39 @@ object SaveJsonSerializer {
             e.printStackTrace()
             return null
         }
+    }
+
+    /**
+     * Parse a `"key": {"ENUM_NAME": intValue, ...}` object from [dataJson] into a map keyed by an
+     * enum of type [K]. Missing keys, malformed sections, and unknown enum names are ignored so old
+     * or partially-corrupt saves still load. Returns an empty map when the key is absent.
+     */
+    private fun <E> parseEnumIntMap(
+        dataJson: String,
+        key: String,
+        toEnum: (String) -> E,
+    ): Map<E, Int> {
+        if (!dataJson.contains("\"$key\":")) return emptyMap()
+        val section =
+            try {
+                dataJson.substringAfter("\"$key\": {").substringBefore("}")
+            } catch (e: Exception) {
+                return emptyMap()
+            }
+        if (section.isBlank()) return emptyMap()
+        val result = mutableMapOf<E, Int>()
+        for (pair in section.split(",")) {
+            val trimmed = pair.trim()
+            if (trimmed.isBlank()) continue
+            val name = trimmed.substringBefore(":").trim().removeSurrounding("\"")
+            val value = trimmed.substringAfter(":").trim().toIntOrNull() ?: continue
+            try {
+                result[toEnum(name)] = value
+            } catch (e: Exception) {
+                // Unknown enum name (e.g. renamed/removed support) - skip it
+            }
+        }
+        return result
     }
 
     private fun parseSavedDefender(json: String): SavedDefender {

@@ -2,6 +2,8 @@ package de.egril.defender.editor
 
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.CooldownPower
+import de.egril.defender.model.CooldownPowerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
@@ -426,6 +428,17 @@ object EditorJsonSerializer {
                     parts.add(
                         """"spells": [
       $spellsData
+    ]""",
+                    )
+                }
+                if (level.supports.cooldownPowers.isNotEmpty()) {
+                    val cooldownData =
+                        level.supports.cooldownPowers.joinToString(",\n      ") { power ->
+                            """{"type": "${power.type.name}", "cooldownTurns": ${power.cooldownTurns}, "startActive": ${power.startActive}}"""
+                        }
+                    parts.add(
+                        """"cooldownPowers": [
+      $cooldownData
     ]""",
                     )
                 }
@@ -1712,6 +1725,24 @@ object EditorJsonSerializer {
             }
         }
 
-        return LevelSupports(objects = objects, spells = spells)
+        val cooldownPowers = mutableListOf<CooldownPower>()
+        val cooldownSection = extractArraySection(supportsSection, "cooldownPowers")
+        if (cooldownSection.isNotBlank()) {
+            for (entry in splitJsonArrayObjects(cooldownSection)) {
+                val typeName = runCatching { JsonUtils.extractValue(entry, "type") }.getOrNull() ?: continue
+                val type = runCatching { CooldownPowerType.valueOf(typeName) }.getOrNull() ?: continue
+                val cooldownTurns =
+                    runCatching { JsonUtils.extractValue(entry, "cooldownTurns").toInt() }
+                        .getOrDefault(type.defaultCooldown)
+                val startActive =
+                    runCatching { JsonUtils.extractValue(entry, "startActive").toBoolean() }
+                        .getOrDefault(true)
+                cooldownPowers.add(
+                    CooldownPower(type = type, cooldownTurns = cooldownTurns, startActive = startActive),
+                )
+            }
+        }
+
+        return LevelSupports(objects = objects, spells = spells, cooldownPowers = cooldownPowers)
     }
 }
