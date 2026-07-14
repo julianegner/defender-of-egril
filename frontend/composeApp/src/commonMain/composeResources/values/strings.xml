@@ -813,6 +813,8 @@
     <string name="event_summary_support_object">Support object</string>
     <string name="event_summary_support_spell">Support spell</string>
     <string name="event_summary_killed">killed</string>
+    <string name="event_summary_turn">Turn %d</string>
+    <string name="event_summary_enemy_turn">Enemy Turn %d</string>
     <string name="event_cond_turn_start">Beginning of a player turn</string>
     <string name="event_cond_enemy_turn_start">Beginning of an enemy turn</string>
     <string name="event_cond_enemies_killed">Enemies killed (total)</string>

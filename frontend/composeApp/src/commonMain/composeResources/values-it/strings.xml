@@ -810,6 +810,8 @@
     <string name="event_summary_support_object">Oggetto di supporto</string>
     <string name="event_summary_support_spell">Incantesimo di supporto</string>
     <string name="event_summary_killed">uccisi</string>
+    <string name="event_summary_turn">Turno %d</string>
+    <string name="event_summary_enemy_turn">Turno nemico %d</string>
     <string name="event_cond_turn_start">Inizio di un turno del giocatore</string>
     <string name="event_cond_enemy_turn_start">Inizio di un turno nemico</string>
     <string name="event_cond_enemies_killed">Nemici uccisi (totale)</string>

@@ -810,6 +810,8 @@
     <string name="event_summary_support_object">Objeto de apoyo</string>
     <string name="event_summary_support_spell">Hechizo de apoyo</string>
     <string name="event_summary_killed">eliminados</string>
+    <string name="event_summary_turn">Turno %d</string>
+    <string name="event_summary_enemy_turn">Turno enemigo %d</string>
     <string name="event_cond_turn_start">Inicio de un turno del jugador</string>
     <string name="event_cond_enemy_turn_start">Inicio de un turno enemigo</string>
     <string name="event_cond_enemies_killed">Enemigos eliminados (total)</string>

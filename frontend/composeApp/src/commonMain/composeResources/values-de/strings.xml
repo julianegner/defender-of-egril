@@ -810,6 +810,8 @@
     <string name="event_summary_support_object">Unterstützungsobjekt</string>
     <string name="event_summary_support_spell">Unterstützungszauber</string>
     <string name="event_summary_killed">getötet</string>
+    <string name="event_summary_turn">Runde %d</string>
+    <string name="event_summary_enemy_turn">Gegnerrunde %d</string>
     <string name="event_cond_turn_start">Beginn einer Spielerrunde</string>
     <string name="event_cond_enemy_turn_start">Beginn einer Gegnerrunde</string>
     <string name="event_cond_enemies_killed">Getötete Gegner (gesamt)</string>

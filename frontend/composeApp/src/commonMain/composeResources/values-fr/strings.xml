@@ -810,6 +810,8 @@
     <string name="event_summary_support_object">Objet de soutien</string>
     <string name="event_summary_support_spell">Sort de soutien</string>
     <string name="event_summary_killed">tués</string>
+    <string name="event_summary_turn">Tour %d</string>
+    <string name="event_summary_enemy_turn">Tour ennemi %d</string>
     <string name="event_cond_turn_start">Début d'un tour du joueur</string>
     <string name="event_cond_enemy_turn_start">Début d'un tour ennemi</string>
     <string name="event_cond_enemies_killed">Ennemis tués (total)</string>

@@ -275,6 +275,29 @@ class EventScriptSystemTest {
     }
 
     @Test
+    fun testGiveSupportActionsFallBackToFirstEntryWhenTypeMissing() {
+        // Events authored before a type was persisted (null type) should still grant a support,
+        // matching the first entry the editor displayed as selected.
+        val event =
+            LevelEvent(
+                id = "support_no_type",
+                condition = EventCondition(type = EventConditionType.TURN_START),
+                actions =
+                    listOf(
+                        EventAction(type = EventActionType.GIVE_SUPPORT_OBJECT, amount = 1),
+                        EventAction(type = EventActionType.GIVE_SUPPORT_SPELL, amount = 1),
+                    ),
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(1, state.supportObjectsRemaining[SupportObjectType.entries.first()])
+        assertEquals(1, state.supportSpellsRemaining[SpellType.entries.first()])
+    }
+
+    @Test
     fun testMessageIsQueued() {
         val event =
             LevelEvent(

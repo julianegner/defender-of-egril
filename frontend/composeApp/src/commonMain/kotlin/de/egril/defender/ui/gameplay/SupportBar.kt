@@ -90,22 +90,40 @@ sealed interface SupportSlot {
  * Used to assign — and resolve — the sequential keyboard shortcuts shown on the boxes.
  */
 fun visibleSupportSlots(gameState: GameState): List<SupportSlot> {
-    val supports = gameState.level.supports
     val slots = mutableListOf<SupportSlot>()
-    supports.objects.forEach { supportObject ->
-        if ((gameState.supportObjectsRemaining[supportObject.type] ?: 0) > 0) {
-            slots.add(SupportSlot.ObjectSlot(supportObject.type))
-        }
-    }
-    supports.spells.forEach { supportSpell ->
-        if ((gameState.supportSpellsRemaining[supportSpell.spell] ?: 0) > 0) {
-            slots.add(SupportSlot.SpellSlot(supportSpell.spell))
-        }
-    }
-    supports.cooldownPowers.forEach { power ->
+    displayedSupportObjectTypes(gameState).forEach { slots.add(SupportSlot.ObjectSlot(it)) }
+    displayedSupportSpellTypes(gameState).forEach { slots.add(SupportSlot.SpellSlot(it)) }
+    gameState.level.supports.cooldownPowers.forEach { power ->
         slots.add(SupportSlot.PowerSlot(power.type))
     }
     return slots
+}
+
+/**
+ * Ordered support-object types to show: those declared for the level, followed by any granted at
+ * runtime by a scripted event (see [de.egril.defender.game.EventScriptSystem]). Only types with at
+ * least one use remaining are kept.
+ */
+fun displayedSupportObjectTypes(gameState: GameState): List<SupportObjectType> {
+    val declared = gameState.level.supports.objects.map { it.type }
+    val extra =
+        gameState.supportObjectsRemaining.keys
+            .filter { it !in declared }
+            .sortedBy { it.ordinal }
+    return (declared + extra).filter { (gameState.supportObjectsRemaining[it] ?: 0) > 0 }
+}
+
+/**
+ * Ordered support-spell types to show: those declared for the level, followed by any granted at
+ * runtime by a scripted event. Only types with at least one use remaining are kept.
+ */
+fun displayedSupportSpellTypes(gameState: GameState): List<SpellType> {
+    val declared = gameState.level.supports.spells.map { it.spell }
+    val extra =
+        gameState.supportSpellsRemaining.keys
+            .filter { it !in declared }
+            .sortedBy { it.ordinal }
+    return (declared + extra).filter { (gameState.supportSpellsRemaining[it] ?: 0) > 0 }
 }
 
 /**
@@ -289,7 +307,9 @@ fun SupportBar(
     focusedSlotIndex: Int? = null,
 ) {
     val supports = gameState.level.supports
-    if (supports.isEmpty()) return
+    val objectTypes = displayedSupportObjectTypes(gameState)
+    val spellTypes = displayedSupportSpellTypes(gameState)
+    if (objectTypes.isEmpty() && spellTypes.isEmpty() && supports.cooldownPowers.isEmpty()) return
 
     // Spell tokens and cooldown powers are unusable during the initial building phase — only
     // placeable objects can be placed before the first enemy turn. Reflect this by disabling
@@ -312,45 +332,41 @@ fun SupportBar(
         // ordering of visibleSupportSlots(), so the keyboard focus cursor lands on the same box.
         var slotIndex = 0
 
-        // Placable objects (hidden once fully used up)
-        supports.objects.forEach { supportObject ->
-            val remaining = gameState.supportObjectsRemaining[supportObject.type] ?: 0
-            if (remaining > 0) {
-                val isFocused = slotIndex == focusedSlotIndex
-                slotIndex++
-                SupportBox(
-                    remaining = remaining,
-                    isSpell = false,
-                    isSelected = selectedSupportObject == supportObject.type,
-                    isFocused = isFocused,
-                    enabled = enabled,
-                    tooltip = supportTooltip("support_type_object", supportObject.type.localizedSupportName()),
-                    onClick = { onObjectClick(supportObject.type) },
-                ) {
-                    SupportObjectIcon(supportObject.type, SUPPORT_ICON_SIZE)
-                }
+        // Placable objects (declared for the level or granted by an event; hidden once used up)
+        objectTypes.forEach { type ->
+            val remaining = gameState.supportObjectsRemaining[type] ?: 0
+            val isFocused = slotIndex == focusedSlotIndex
+            slotIndex++
+            SupportBox(
+                remaining = remaining,
+                isSpell = false,
+                isSelected = selectedSupportObject == type,
+                isFocused = isFocused,
+                enabled = enabled,
+                tooltip = supportTooltip("support_type_object", type.localizedSupportName()),
+                onClick = { onObjectClick(type) },
+            ) {
+                SupportObjectIcon(type, SUPPORT_ICON_SIZE)
             }
         }
 
-        // Spell tokens (hidden once fully used up)
-        supports.spells.forEach { supportSpell ->
-            val remaining = gameState.supportSpellsRemaining[supportSpell.spell] ?: 0
-            if (remaining > 0) {
-                // The Heal token is pointless while the player is already at full health.
-                val atMaxEffect = supportSpell.spell == SpellType.HEAL && healthAtMax
-                val isFocused = slotIndex == focusedSlotIndex
-                slotIndex++
-                SupportBox(
-                    remaining = remaining,
-                    isSpell = true,
-                    isSelected = activeSpellToken == supportSpell.spell,
-                    isFocused = isFocused,
-                    enabled = powersEnabled && !atMaxEffect,
-                    tooltip = supportTooltip("support_type_spell", supportSpell.spell.getLocalizedName()),
-                    onClick = { onSpellClick(supportSpell.spell) },
-                ) {
-                    SpellTargetIcon(spell = supportSpell.spell, size = SUPPORT_ICON_SIZE)
-                }
+        // Spell tokens (declared for the level or granted by an event; hidden once used up)
+        spellTypes.forEach { spell ->
+            val remaining = gameState.supportSpellsRemaining[spell] ?: 0
+            // The Heal token is pointless while the player is already at full health.
+            val atMaxEffect = spell == SpellType.HEAL && healthAtMax
+            val isFocused = slotIndex == focusedSlotIndex
+            slotIndex++
+            SupportBox(
+                remaining = remaining,
+                isSpell = true,
+                isSelected = activeSpellToken == spell,
+                isFocused = isFocused,
+                enabled = powersEnabled && !atMaxEffect,
+                tooltip = supportTooltip("support_type_spell", spell.getLocalizedName()),
+                onClick = { onSpellClick(spell) },
+            ) {
+                SpellTargetIcon(spell = spell, size = SUPPORT_ICON_SIZE)
             }
         }
 

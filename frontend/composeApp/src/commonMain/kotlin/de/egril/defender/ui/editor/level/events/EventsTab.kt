@@ -81,11 +81,13 @@ import defender_of_egril.composeapp.generated.resources.event_position_label
 import defender_of_egril.composeapp.generated.resources.event_repeatable_help
 import defender_of_egril.composeapp.generated.resources.event_repeatable_label
 import defender_of_egril.composeapp.generated.resources.event_summary_coins
+import defender_of_egril.composeapp.generated.resources.event_summary_enemy_turn
 import defender_of_egril.composeapp.generated.resources.event_summary_killed
 import defender_of_egril.composeapp.generated.resources.event_summary_label
 import defender_of_egril.composeapp.generated.resources.event_summary_mana
 import defender_of_egril.composeapp.generated.resources.event_summary_support_object
 import defender_of_egril.composeapp.generated.resources.event_summary_support_spell
+import defender_of_egril.composeapp.generated.resources.event_summary_turn
 import defender_of_egril.composeapp.generated.resources.event_support_object_label
 import defender_of_egril.composeapp.generated.resources.event_support_spell_label
 import defender_of_egril.composeapp.generated.resources.event_threshold_label
@@ -314,9 +316,11 @@ private fun eventSummary(event: LevelEvent): String {
 @Composable
 private fun conditionSummary(condition: EventCondition): String =
     when (condition.type) {
-        EventConditionType.TURN_START,
-        EventConditionType.ENEMY_TURN_START,
-        -> condition.type.localizedName()
+        EventConditionType.TURN_START ->
+            stringResource(Res.string.event_summary_turn, condition.fromTurn)
+
+        EventConditionType.ENEMY_TURN_START ->
+            stringResource(Res.string.event_summary_enemy_turn, condition.fromTurn)
 
         EventConditionType.ENEMIES_KILLED ->
             "${condition.threshold} ${condition.type.localizedName()}"
@@ -452,7 +456,18 @@ private fun ActionEditor(
                     options = EventActionType.entries,
                     selected = action.type,
                     optionLabel = { it.localizedName() },
-                    onSelected = { onActionChange(action.copy(type = it)) },
+                    onSelected = { newType ->
+                        // Ensure a concrete support object/spell is stored when the action type is
+                        // switched to one that requires it, so the granted support is never null.
+                        var updated = action.copy(type = newType)
+                        if (newType == EventActionType.GIVE_SUPPORT_OBJECT && updated.supportObjectType == null) {
+                            updated = updated.copy(supportObjectType = SupportObjectType.entries.first())
+                        }
+                        if (newType == EventActionType.GIVE_SUPPORT_SPELL && updated.spellType == null) {
+                            updated = updated.copy(spellType = SpellType.entries.first())
+                        }
+                        onActionChange(updated)
+                    },
                 )
             }
             OutlinedButton(onClick = onDelete) {
