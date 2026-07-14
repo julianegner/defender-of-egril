@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.*
@@ -56,6 +57,27 @@ fun TowerTypeIcon(
 
             drawTower(defenderType, centerX, centerY, iconSize)
         }
+    }
+}
+
+/**
+ * Composable that draws only the wooden tower-base platform (without any tower).
+ *
+ * Used to mark a barricade that also serves as a tower base (HP >= 100) so that players
+ * can tell it apart from a plain barricade. It mirrors the platform drawn beneath a tower
+ * that stands on a tower base.
+ */
+@Composable
+fun TowerBasePlatformIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = GamePlayConstants.TileIconSizes.Barricade,
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val centerX = this.size.width / 2
+        val centerY = this.size.height / 2
+        val iconSize = minOf(this.size.width, this.size.height)
+
+        drawTowerBasePlatform(centerX, centerY, iconSize * 0.9f)
     }
 }
 

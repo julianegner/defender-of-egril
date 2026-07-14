@@ -1714,6 +1714,10 @@
     <string name="gate_info_description">Un cancello sorveglia l\'ingresso. I nemici lo attaccheranno e cercheranno di sfondarlo. Difendilo per mantenere il percorso bloccato.</string>
     <string name="barricade_info_panel_title">Barricata</string>
     <string name="gate_info_panel_title">Cancello</string>
+    <string name="barricade_tower_base_info_panel_title">Barricata - Base per torre</string>
+    <string name="gate_tower_base_info_panel_title">Cancello - Base per torre</string>
+    <string name="barricade_tower_base_info_description">Le barricate bloccano il movimento nemico. I nemici le attaccano quando sono adiacenti. Costruiscile o rinforzale con torri di picca o lancia. Questa barricata è abbastanza robusta da fare da base per una torre: puoi posizionarci una torre.</string>
+    <string name="gate_tower_base_info_description">Un cancello sorveglia l\'ingresso. I nemici lo attaccheranno e cercheranno di sfondarlo. Difendilo per mantenere il percorso bloccato. Questo cancello è abbastanza robusto da fare da base per una torre: puoi posizionarci una torre.</string>
     <!-- Ewhad narrative messages -->
     <string name="ewhad_enters_title">Ewhad entra nel campo di battaglia</string>
     <string name="ewhad_enters_text">Ewhad è entrato nel campo di battaglia! Attenzione, evoca Demoni ogni Turno, che diventeranno sempre più potenti.</string>
