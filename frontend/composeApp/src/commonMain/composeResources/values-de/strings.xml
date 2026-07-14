@@ -1656,6 +1656,10 @@
     <string name="gate_info_description">Ein Tor bewacht den Eingang. Feinde werden es angreifen und versuchen, es zu durchbrechen. Verteidige es, um den Weg blockiert zu halten.</string>
     <string name="barricade_info_panel_title">Barrikade</string>
     <string name="gate_info_panel_title">Tor</string>
+    <string name="barricade_tower_base_info_panel_title">Barrikade – Turmbasis</string>
+    <string name="gate_tower_base_info_panel_title">Tor – Turmbasis</string>
+    <string name="barricade_tower_base_info_description">Barrikaden blockieren die Bewegung von Feinden. Feinde greifen sie an, wenn sie benachbart sind. Baue oder verstärke sie mit Pikier- oder Speertürmen. Diese Barrikade ist stark genug, um als Turmbasis zu dienen – du kannst einen Turm darauf platzieren.</string>
+    <string name="gate_tower_base_info_description">Ein Tor bewacht den Eingang. Feinde werden es angreifen und versuchen, es zu durchbrechen. Verteidige es, um den Weg blockiert zu halten. Dieses Tor ist stark genug, um als Turmbasis zu dienen – du kannst einen Turm darauf platzieren.</string>
     <!-- Ewhad narrative messages -->
     <string name="ewhad_enters_title">Ewhad betritt das Schlachtfeld</string>
     <string name="ewhad_enters_text">Ewhad hat das Schlachtfeld betreten! Vorsicht, er beschwört jeden Zug Dämonen, die zunehmend mächtiger werden.</string>

@@ -1662,6 +1662,10 @@
     <string name="gate_info_description">A gate guards the entrance. Enemies will attack and try to break through. Defend it to keep the path blocked.</string>
     <string name="barricade_info_panel_title">Barricade</string>
     <string name="gate_info_panel_title">Gate</string>
+    <string name="barricade_tower_base_info_panel_title">Barricade - Tower Base</string>
+    <string name="gate_tower_base_info_panel_title">Gate - Tower Base</string>
+    <string name="barricade_tower_base_info_description">Barricades block enemy movement. Enemies attack them when adjacent. Build or reinforce them with Spike or Spear towers. This barricade is strong enough to serve as a tower base — you can place a tower on it.</string>
+    <string name="gate_tower_base_info_description">A gate guards the entrance. Enemies will attack and try to break through. Defend it to keep the path blocked. This gate is strong enough to serve as a tower base — you can place a tower on it.</string>
     <!-- Ewhad narrative messages -->
     <string name="ewhad_enters_title">Ewhad enters the battlefield</string>
     <string name="ewhad_enters_text">Ewhad has entered the Battlefield! Beware, he spawns Demons every Turn, which will be increasingly powerful.</string>
