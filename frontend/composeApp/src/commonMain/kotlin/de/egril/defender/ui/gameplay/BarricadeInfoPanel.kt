@@ -78,18 +78,15 @@ fun BarricadeInfoPanel(
                 val panelTitle =
                     if (!localizedName.isNullOrBlank()) {
                         localizedName.replace("-\n", "").replace("\n", " ")
-                    } else if (isGate) {
-                        if (isTowerBase) {
-                            stringResource(Res.string.gate_tower_base_info_panel_title)
-                        } else {
-                            stringResource(Res.string.gate_info_panel_title)
-                        }
                     } else {
-                        if (isTowerBase) {
-                            stringResource(Res.string.barricade_tower_base_info_panel_title)
-                        } else {
-                            stringResource(Res.string.barricade_info_panel_title)
-                        }
+                        val titleRes =
+                            when {
+                                isGate && isTowerBase -> Res.string.gate_tower_base_info_panel_title
+                                isGate -> Res.string.gate_info_panel_title
+                                isTowerBase -> Res.string.barricade_tower_base_info_panel_title
+                                else -> Res.string.barricade_info_panel_title
+                            }
+                        stringResource(titleRes)
                     }
                 Text(
                     panelTitle,
@@ -104,20 +101,14 @@ fun BarricadeInfoPanel(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 // Description
-                val description =
-                    if (isGate) {
-                        if (isTowerBase) {
-                            stringResource(Res.string.gate_tower_base_info_description)
-                        } else {
-                            stringResource(Res.string.gate_info_description)
-                        }
-                    } else {
-                        if (isTowerBase) {
-                            stringResource(Res.string.barricade_tower_base_info_description)
-                        } else {
-                            stringResource(Res.string.barricade_info_description)
-                        }
+                val descriptionRes =
+                    when {
+                        isGate && isTowerBase -> Res.string.gate_tower_base_info_description
+                        isGate -> Res.string.gate_info_description
+                        isTowerBase -> Res.string.barricade_tower_base_info_description
+                        else -> Res.string.barricade_info_description
                     }
+                val description = stringResource(descriptionRes)
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
