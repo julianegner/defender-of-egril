@@ -804,7 +804,12 @@
     <string name="event_repeatable_help">Wenn aktiviert, wird das Ereignis jedes Mal ausgelöst, wenn seine Bedingung erfüllt ist. Wenn deaktiviert, wird es nur einmal ausgelöst.</string>
     <string name="event_summary_label">Ereignis</string>
     <string name="event_no_actions">Keine Aktionen</string>
-    <string name="event_actions_count">%d Aktion(en)</string>
+    <string name="event_actions_count">%d Aktionen</string>
+    <string name="event_summary_coins">%d Münzen</string>
+    <string name="event_summary_mana">%d Mana</string>
+    <string name="event_summary_support_object">Unterstützungsobjekt</string>
+    <string name="event_summary_support_spell">Unterstützungszauber</string>
+    <string name="event_summary_killed">getötet</string>
     <string name="event_cond_turn_start">Beginn einer Spielerrunde</string>
     <string name="event_cond_enemy_turn_start">Beginn einer Gegnerrunde</string>
     <string name="event_cond_enemies_killed">Getötete Gegner (gesamt)</string>

@@ -804,7 +804,12 @@
     <string name="event_repeatable_help">Lorsqu'il est activé, l'événement se déclenche chaque fois que sa condition est remplie. Lorsqu'il est désactivé, il ne se déclenche qu'une seule fois.</string>
     <string name="event_summary_label">Événement</string>
     <string name="event_no_actions">Aucune action</string>
-    <string name="event_actions_count">%d action(s)</string>
+    <string name="event_actions_count">%d actions</string>
+    <string name="event_summary_coins">%d pièces</string>
+    <string name="event_summary_mana">%d mana</string>
+    <string name="event_summary_support_object">Objet de soutien</string>
+    <string name="event_summary_support_spell">Sort de soutien</string>
+    <string name="event_summary_killed">tués</string>
     <string name="event_cond_turn_start">Début d'un tour du joueur</string>
     <string name="event_cond_enemy_turn_start">Début d'un tour ennemi</string>
     <string name="event_cond_enemies_killed">Ennemis tués (total)</string>

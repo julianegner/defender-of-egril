@@ -80,7 +80,12 @@ import defender_of_egril.composeapp.generated.resources.event_no_actions
 import defender_of_egril.composeapp.generated.resources.event_position_label
 import defender_of_egril.composeapp.generated.resources.event_repeatable_help
 import defender_of_egril.composeapp.generated.resources.event_repeatable_label
+import defender_of_egril.composeapp.generated.resources.event_summary_coins
+import defender_of_egril.composeapp.generated.resources.event_summary_killed
 import defender_of_egril.composeapp.generated.resources.event_summary_label
+import defender_of_egril.composeapp.generated.resources.event_summary_mana
+import defender_of_egril.composeapp.generated.resources.event_summary_support_object
+import defender_of_egril.composeapp.generated.resources.event_summary_support_spell
 import defender_of_egril.composeapp.generated.resources.event_support_object_label
 import defender_of_egril.composeapp.generated.resources.event_support_spell_label
 import defender_of_egril.composeapp.generated.resources.event_threshold_label
@@ -281,18 +286,18 @@ private fun EventCard(
 
 /**
  * Short human-readable summary of an event shown in the collapsed card state:
- * the condition followed by the action count (only when more than one) and the
- * first three actions in abbreviated form.
+ * the condition (with its amount/type) followed by the action count (only when more
+ * than one) and the first three actions in abbreviated form.
  */
 @Composable
 private fun eventSummary(event: LevelEvent): String {
-    val condition = event.condition.type.localizedName()
+    val condition = conditionSummary(event.condition)
     val actions =
         if (event.actions.isEmpty()) {
             stringResource(Res.string.event_no_actions)
         } else {
             val names = mutableListOf<String>()
-            event.actions.take(3).forEach { names.add(it.type.localizedName()) }
+            event.actions.take(3).forEach { names.add(actionSummary(it)) }
             val preview = names.joinToString(", ")
             if (event.actions.size == 1) {
                 preview
@@ -302,6 +307,54 @@ private fun eventSummary(event: LevelEvent): String {
         }
     return "$condition • $actions"
 }
+
+/**
+ * Compact condition description including the relevant amount/type where applicable.
+ */
+@Composable
+private fun conditionSummary(condition: EventCondition): String =
+    when (condition.type) {
+        EventConditionType.TURN_START,
+        EventConditionType.ENEMY_TURN_START,
+        -> condition.type.localizedName()
+
+        EventConditionType.ENEMIES_KILLED ->
+            "${condition.threshold} ${condition.type.localizedName()}"
+
+        EventConditionType.ENEMY_TYPE_KILLED -> {
+            val typeName = condition.attackerType?.getLocalizedName() ?: stringResource(Res.string.event_any_enemy)
+            "${condition.threshold} $typeName ${stringResource(Res.string.event_summary_killed)}"
+        }
+
+        EventConditionType.HEALTH_AT_OR_BELOW,
+        EventConditionType.MANA_AT_OR_BELOW,
+        EventConditionType.COINS_AT_OR_BELOW,
+        -> "${condition.type.localizedName()} ${condition.threshold}"
+
+        EventConditionType.UNIT_REACHED -> {
+            val typeName = condition.attackerType?.getLocalizedName() ?: stringResource(Res.string.event_any_enemy)
+            val position = condition.position
+            val base = "$typeName ${condition.type.localizedName()}"
+            if (position != null) "$base (${position.x},${position.y})" else base
+        }
+    }
+
+/**
+ * Compact action description including the relevant amount/type where applicable.
+ */
+@Composable
+private fun actionSummary(action: EventAction): String =
+    when (action.type) {
+        EventActionType.GIVE_COINS -> stringResource(Res.string.event_summary_coins, action.amount)
+        EventActionType.GIVE_MANA -> stringResource(Res.string.event_summary_mana, action.amount)
+        EventActionType.GIVE_SUPPORT_OBJECT ->
+            "${stringResource(Res.string.event_summary_support_object)}: ${action.supportObjectType?.name ?: ""}"
+
+        EventActionType.GIVE_SUPPORT_SPELL ->
+            "${stringResource(Res.string.event_summary_support_spell)}: ${action.spellType?.getLocalizedName() ?: ""}"
+
+        EventActionType.DESTROY_MINE -> action.type.localizedName()
+    }
 
 @Composable
 private fun ConditionEditor(
