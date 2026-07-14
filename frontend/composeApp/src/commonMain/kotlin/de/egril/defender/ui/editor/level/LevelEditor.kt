@@ -719,6 +719,11 @@ fun LevelEditorView(
                     de.egril.defender.ui.editor.level.events.EventsTab(
                         events = eventsState,
                         onEventsChange = { eventsState = it },
+                        minePositions =
+                            initialDataState.defenders
+                                .filter { it.type == DefenderType.DWARVEN_MINE }
+                                .map { it.position }
+                                .toSet(),
                     )
             }
         }

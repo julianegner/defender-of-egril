@@ -794,6 +794,7 @@
     <string name="event_enemy_type_label">Enemy type</string>
     <string name="event_any_enemy">Any enemy</string>
     <string name="event_position_label">Tile</string>
+    <string name="event_destroy_mine_no_mine_warning">Warning: no mine at this tile.</string>
     <string name="event_actions_label">Actions</string>
     <string name="add_action">Add Action</string>
     <string name="delete_action">Delete action</string>

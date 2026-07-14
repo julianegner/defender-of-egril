@@ -1408,6 +1408,8 @@ class GameViewModel {
             // Track number of towers standing at the same time (non-raft defenders)
             val standingTowers = _gameState.value?.defenders?.count { it.raftId.value == null } ?: 0
             achievementManager?.onTowersStanding(standingTowers)
+            // Surface any messages queued by scripted events triggered by the coin spend.
+            surfaceNextPendingMessageIfIdle()
         }
         return result
     }
@@ -1425,6 +1427,8 @@ class GameViewModel {
             } else {
                 achievementManager?.onUpgradeTower()
             }
+            // Surface any messages queued by scripted events triggered by the coin spend.
+            surfaceNextPendingMessageIfIdle()
         }
         return result
     }

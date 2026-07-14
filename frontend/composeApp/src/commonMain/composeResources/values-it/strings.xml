@@ -791,6 +791,7 @@
     <string name="event_enemy_type_label">Tipo di nemico</string>
     <string name="event_any_enemy">Qualsiasi nemico</string>
     <string name="event_position_label">Casella</string>
+    <string name="event_destroy_mine_no_mine_warning">Attenzione: nessuna miniera su questa casella.</string>
     <string name="event_actions_label">Azioni</string>
     <string name="add_action">Aggiungi azione</string>
     <string name="delete_action">Elimina azione</string>

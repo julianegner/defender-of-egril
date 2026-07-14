@@ -791,6 +791,7 @@
     <string name="event_enemy_type_label">Gegnertyp</string>
     <string name="event_any_enemy">Beliebiger Gegner</string>
     <string name="event_position_label">Feld</string>
+    <string name="event_destroy_mine_no_mine_warning">Warnung: Keine Mine auf diesem Feld.</string>
     <string name="event_actions_label">Aktionen</string>
     <string name="add_action">Aktion hinzufügen</string>
     <string name="delete_action">Aktion löschen</string>

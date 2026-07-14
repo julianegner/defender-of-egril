@@ -22,6 +22,14 @@ enum class EventTrigger {
 
     /** Beginning of an enemy turn. */
     ENEMY_TURN_START,
+
+    /**
+     * A mid-turn state change (enemy killed, coins/mana/health changed, unit moved). Used to fire
+     * threshold- and position-based events immediately instead of waiting for the next turn start.
+     * Turn-start events ([EventConditionType.TURN_START]/[EventConditionType.ENEMY_TURN_START]) do
+     * not fire on this trigger.
+     */
+    IMMEDIATE,
 }
 
 /**

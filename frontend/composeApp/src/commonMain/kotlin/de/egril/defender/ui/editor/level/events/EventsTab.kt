@@ -77,6 +77,7 @@ import defender_of_egril.composeapp.generated.resources.event_from_turn_label
 import defender_of_egril.composeapp.generated.resources.event_message_label
 import defender_of_egril.composeapp.generated.resources.event_message_none
 import defender_of_egril.composeapp.generated.resources.event_no_actions
+import defender_of_egril.composeapp.generated.resources.event_destroy_mine_no_mine_warning
 import defender_of_egril.composeapp.generated.resources.event_position_label
 import defender_of_egril.composeapp.generated.resources.event_repeatable_help
 import defender_of_egril.composeapp.generated.resources.event_repeatable_label
@@ -103,6 +104,7 @@ import defender_of_egril.composeapp.generated.resources.y_coordinate
 fun EventsTab(
     events: LevelEvents,
     onEventsChange: (LevelEvents) -> Unit,
+    minePositions: Set<Position> = emptySet(),
 ) {
     fun updateEvent(
         index: Int,
@@ -144,6 +146,7 @@ fun EventsTab(
                 index = index,
                 event = event,
                 onEventChange = { updateEvent(index, it) },
+                minePositions = minePositions,
                 onDelete = {
                     val updated = events.events.toMutableList()
                     updated.removeAt(index)
@@ -167,6 +170,7 @@ private fun EventCard(
     event: LevelEvent,
     onEventChange: (LevelEvent) -> Unit,
     onDelete: () -> Unit,
+    minePositions: Set<Position> = emptySet(),
 ) {
     var expanded by remember(event.id) { mutableStateOf(false) }
 
@@ -236,6 +240,7 @@ private fun EventCard(
             event.actions.forEachIndexed { actionIndex, action ->
                 ActionEditor(
                     action = action,
+                    minePositions = minePositions,
                     onActionChange = { newAction ->
                         val updated = event.actions.toMutableList()
                         updated[actionIndex] = newAction
@@ -436,6 +441,7 @@ private fun ActionEditor(
     action: EventAction,
     onActionChange: (EventAction) -> Unit,
     onDelete: () -> Unit,
+    minePositions: Set<Position> = emptySet(),
 ) {
     Column(
         modifier =
@@ -522,11 +528,20 @@ private fun ActionEditor(
                 )
             }
 
-            EventActionType.DESTROY_MINE ->
+            EventActionType.DESTROY_MINE -> {
                 PositionField(
                     position = action.position,
                     onPositionChange = { onActionChange(action.copy(position = it)) },
                 )
+                val position = action.position
+                if (position == null || !minePositions.contains(position)) {
+                    Text(
+                        text = stringResource(Res.string.event_destroy_mine_no_mine_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
         }
     }
 }

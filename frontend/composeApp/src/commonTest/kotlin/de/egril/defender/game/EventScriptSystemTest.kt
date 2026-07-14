@@ -314,4 +314,47 @@ class EventScriptSystemTest {
         assertEquals(GameMessageType.EVENT_MESSAGE, state.pendingMessages.first().type)
         assertEquals("event_msg_reinforcements", state.pendingMessages.first().name)
     }
+
+    @Test
+    fun testImmediateTriggerFiresThresholdConditions() {
+        val killEvent =
+            LevelEvent(
+                id = "kills",
+                condition = EventCondition(type = EventConditionType.ENEMIES_KILLED, threshold = 5),
+                actions = listOf(EventAction(type = EventActionType.GIVE_COINS, amount = 50)),
+            )
+        val coinsEvent =
+            LevelEvent(
+                id = "lowcoins",
+                condition = EventCondition(type = EventConditionType.COINS_AT_OR_BELOW, threshold = 30),
+                actions = listOf(EventAction(type = EventActionType.GIVE_MANA, amount = 5)),
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(coinsEvent, killEvent))))
+        state.turnNumber.value = 1
+        state.coins.value = 20
+        state.maxMana.value = 100
+        val system = EventScriptSystem(state)
+
+        // Threshold-based events fire mid-turn on the IMMEDIATE trigger.
+        state.enemiesKilledTotal.value = 5
+        system.evaluate(EventTrigger.IMMEDIATE)
+        assertEquals(70, state.coins.value, "Enemies-killed event should fire immediately")
+        assertEquals(5, state.currentMana.value, "Coins-at-or-below event should fire immediately")
+    }
+
+    @Test
+    fun testImmediateTriggerDoesNotFireTurnStartConditions() {
+        val event =
+            LevelEvent(
+                id = "turnstart",
+                condition = EventCondition(type = EventConditionType.TURN_START),
+                actions = listOf(EventAction(type = EventActionType.GIVE_COINS, amount = 50)),
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.IMMEDIATE)
+        assertEquals(100, state.coins.value, "Turn-start events must not fire on the IMMEDIATE trigger")
+    }
 }

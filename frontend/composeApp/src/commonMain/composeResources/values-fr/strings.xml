@@ -791,6 +791,7 @@
     <string name="event_enemy_type_label">Type d'ennemi</string>
     <string name="event_any_enemy">N'importe quel ennemi</string>
     <string name="event_position_label">Case</string>
+    <string name="event_destroy_mine_no_mine_warning">Attention : aucune mine sur cette case.</string>
     <string name="event_actions_label">Actions</string>
     <string name="add_action">Ajouter une action</string>
     <string name="delete_action">Supprimer l'action</string>
