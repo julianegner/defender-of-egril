@@ -2272,14 +2272,21 @@ private fun BoxScope.GridCellContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    // Show wood/barricade symbol or gate icon with brown color
-                    if (barricade.isGate) {
-                        GateIcon(
-                            modifier = Modifier.offset(y = 10.dp),
-                            size = GamePlayConstants.TileIconSizes.Barricade,
-                        )
-                    } else {
-                        WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                    // Show wood/barricade symbol or gate icon with brown color.
+                    // When the barricade also serves as a tower base (HP >= 100), overlay the
+                    // wooden tower-base platform so it is distinguishable from a plain barricade.
+                    Box(contentAlignment = Alignment.Center) {
+                        if (barricade.isGate) {
+                            GateIcon(
+                                modifier = Modifier.offset(y = 10.dp),
+                                size = GamePlayConstants.TileIconSizes.Barricade,
+                            )
+                        } else {
+                            WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                        }
+                        if (barricade.canSupportTower() && !barricade.hasTower()) {
+                            TowerBasePlatformIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                        }
                     }
 
                     // Show gate/barricade name (2 lines) then HP (1 line, bold)
