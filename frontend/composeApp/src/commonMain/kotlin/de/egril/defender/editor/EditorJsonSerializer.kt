@@ -5,6 +5,12 @@ import de.egril.defender.model.AttackerType
 import de.egril.defender.model.CooldownPower
 import de.egril.defender.model.CooldownPowerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.EventAction
+import de.egril.defender.model.EventActionType
+import de.egril.defender.model.EventCondition
+import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.LevelEvent
+import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
 import de.egril.defender.model.SpellType
@@ -448,6 +454,18 @@ object EditorJsonSerializer {
                 ""
             }
 
+        // Serialize scripted events (conditions + actions + predefined story messages), one per line
+        val eventsJson =
+            if (level.events.isNotEmpty()) {
+                val eventsData =
+                    level.events.events.joinToString(",\n    ") { event ->
+                        serializeEvent(event)
+                    }
+                ",\n  \"events\": [\n    $eventsData\n  ]"
+            } else {
+                ""
+            }
+
         // Serialize initial data in new nested format (optional)
         val initialData = level.getEffectiveInitialData()
         val initialDataJson =
@@ -566,7 +584,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
 }"""
         return """{
   "metadata": {
@@ -1320,6 +1338,9 @@ object EditorJsonSerializer {
             // Parse optional player-usable supports (objects + spell tokens)
             val supports = parseSupports(dataJson)
 
+            // Parse optional scripted level events
+            val events = parseEvents(dataJson)
+
             return EditorLevel(
                 id,
                 mapId,
@@ -1341,6 +1362,7 @@ object EditorJsonSerializer {
                 author = author,
                 communityDescription = communityDescription,
                 supports = supports,
+                events = events,
                 initialData = initialData,
             )
         } catch (e: Exception) {
@@ -1744,5 +1766,148 @@ object EditorJsonSerializer {
         }
 
         return LevelSupports(objects = objects, spells = spells, cooldownPowers = cooldownPowers)
+    }
+
+    /**
+     * Serialize a single [LevelEvent] to a compact single-line JSON object.
+     */
+    private fun serializeEvent(event: LevelEvent): String {
+        val c = event.condition
+        val conditionParts = mutableListOf<String>()
+        conditionParts.add("\"type\": \"${c.type.name}\"")
+        conditionParts.add("\"fromTurn\": ${c.fromTurn}")
+        conditionParts.add("\"threshold\": ${c.threshold}")
+        if (c.attackerType != null) conditionParts.add("\"attackerType\": \"${c.attackerType.name}\"")
+        if (c.position != null) conditionParts.add("\"position\": {\"x\": ${c.position.x}, \"y\": ${c.position.y}}")
+        val conditionJson = "{${conditionParts.joinToString(", ")}}"
+
+        val actionsJson =
+            event.actions.joinToString(", ") { action ->
+                val parts = mutableListOf<String>()
+                parts.add("\"type\": \"${action.type.name}\"")
+                parts.add("\"amount\": ${action.amount}")
+                if (action.supportObjectType != null) parts.add("\"supportObjectType\": \"${action.supportObjectType.name}\"")
+                if (action.spellType != null) parts.add("\"spellType\": \"${action.spellType.name}\"")
+                if (action.position != null) parts.add("\"position\": {\"x\": ${action.position.x}, \"y\": ${action.position.y}}")
+                "{${parts.joinToString(", ")}}"
+            }
+
+        val messageJson =
+            if (event.messageKey != null) ", \"messageKey\": \"${event.messageKey}\"" else ""
+        return "{\"id\": \"${event.id}\", \"condition\": $conditionJson, " +
+            "\"actions\": [$actionsJson]$messageJson, \"repeatable\": ${event.repeatable}}"
+    }
+
+    /**
+     * Parse a position object embedded in [entry] under [key] (e.g. {"x": 1, "y": 2}).
+     */
+    private fun parsePositionField(
+        entry: String,
+        key: String,
+    ): Position? {
+        if (!entry.contains("\"$key\"")) return null
+        return runCatching {
+            val section = entry.substringAfter("\"$key\"").substringAfter('{').substringBefore('}')
+            val x = JsonUtils.extractValue("{$section}", "x").toInt()
+            val y = JsonUtils.extractValue("{$section}", "y").toInt()
+            Position(x, y)
+        }.getOrNull()
+    }
+
+    /**
+     * Parse the optional "events" section (scripted level events) from a level's data JSON.
+     */
+    private fun parseEvents(dataJson: String): LevelEvents {
+        val eventsSection = extractArraySection(dataJson, "events")
+        if (eventsSection.isBlank()) {
+            return LevelEvents()
+        }
+
+        val events = mutableListOf<LevelEvent>()
+        for (entry in splitJsonArrayObjects(eventsSection)) {
+            val id = runCatching { JsonUtils.extractValue(entry, "id") }.getOrNull() ?: continue
+
+            val conditionSection = extractObjectSection(entry, "condition")
+            val condTypeName = runCatching { JsonUtils.extractValue(conditionSection, "type") }.getOrNull() ?: continue
+            val condType =
+                runCatching {
+                    EventConditionType
+                        .valueOf(condTypeName)
+                }.getOrNull() ?: continue
+            val fromTurn = runCatching { JsonUtils.extractValue(conditionSection, "fromTurn").toInt() }.getOrDefault(0)
+            val threshold = runCatching { JsonUtils.extractValue(conditionSection, "threshold").toInt() }.getOrDefault(0)
+            val condAttacker =
+                if (conditionSection.contains("\"attackerType\"")) {
+                    runCatching { AttackerType.valueOf(JsonUtils.extractValue(conditionSection, "attackerType")) }.getOrNull()
+                } else {
+                    null
+                }
+            val condPosition = parsePositionField(conditionSection, "position")
+            val condition =
+                EventCondition(
+                    type = condType,
+                    fromTurn = fromTurn,
+                    threshold = threshold,
+                    attackerType = condAttacker,
+                    position = condPosition,
+                )
+
+            val actions = mutableListOf<EventAction>()
+            val actionsSection = extractArraySection(entry, "actions")
+            if (actionsSection.isNotBlank()) {
+                for (actionEntry in splitJsonArrayObjects(actionsSection)) {
+                    val actionTypeName = runCatching { JsonUtils.extractValue(actionEntry, "type") }.getOrNull() ?: continue
+                    val actionType =
+                        runCatching {
+                            EventActionType
+                                .valueOf(actionTypeName)
+                        }.getOrNull() ?: continue
+                    val amount = runCatching { JsonUtils.extractValue(actionEntry, "amount").toInt() }.getOrDefault(0)
+                    val supportObjectType =
+                        if (actionEntry.contains("\"supportObjectType\"")) {
+                            runCatching { SupportObjectType.valueOf(JsonUtils.extractValue(actionEntry, "supportObjectType")) }
+                                .getOrNull()
+                        } else {
+                            null
+                        }
+                    val spellType =
+                        if (actionEntry.contains("\"spellType\"")) {
+                            runCatching { SpellType.valueOf(JsonUtils.extractValue(actionEntry, "spellType")) }.getOrNull()
+                        } else {
+                            null
+                        }
+                    val actionPosition = parsePositionField(actionEntry, "position")
+                    actions.add(
+                        EventAction(
+                            type = actionType,
+                            amount = amount,
+                            supportObjectType = supportObjectType,
+                            spellType = spellType,
+                            position = actionPosition,
+                        ),
+                    )
+                }
+            }
+
+            val messageKey =
+                if (entry.contains("\"messageKey\"")) {
+                    runCatching { JsonUtils.extractValue(entry, "messageKey") }.getOrNull()?.takeIf { it.isNotBlank() }
+                } else {
+                    null
+                }
+            val repeatable = runCatching { JsonUtils.extractValue(entry, "repeatable").toBoolean() }.getOrDefault(false)
+
+            events.add(
+                LevelEvent(
+                    id = id,
+                    condition = condition,
+                    actions = actions,
+                    messageKey = messageKey,
+                    repeatable = repeatable,
+                ),
+            )
+        }
+        return de.egril.defender.model
+            .LevelEvents(events = events)
     }
 }

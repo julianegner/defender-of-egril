@@ -3365,6 +3365,22 @@ private fun GamePlayScreenContent(
                                     }
                                 }
                             }
+                            GameMessageType.EVENT_MESSAGE -> {
+                                val messageKey = msg.name
+                                if (messageKey != null) {
+                                    val eventText =
+                                        com.hyperether.resources.LocalizedStrings
+                                            .get(messageKey, com.hyperether.resources.currentLanguage.value)
+                                    NarrativeMessageDialog(
+                                        type = NarrativeMessageType.STORY,
+                                        title = stringResource(Res.string.event_message_title),
+                                        text = eventText,
+                                        onDismiss = { onDismissGameMessage?.invoke() },
+                                    )
+                                } else {
+                                    onDismissGameMessage?.invoke()
+                                }
+                            }
                             else ->
                                 GameEventMessageDialog(
                                     message = msg,

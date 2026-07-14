@@ -30,6 +30,7 @@ class GameEngine(
     private val mineOperations = MineOperations(state)
     private val raftSystem = RaftSystem(state)
     private val barricadeSystem = BarricadeSystem(state) // Add barricade system
+    private val eventScriptSystem = EventScriptSystem(state) // Scripted level events
 
     // Callback for dragon level changes (stored to set on new dragons)
     private var dragonLevelChangeCallback: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
@@ -632,6 +633,9 @@ class GameEngine(
 
         // Reset all defender actions
         resetDefenderActions()
+
+        // Evaluate scripted events for the first player turn
+        eventScriptSystem.evaluate(EventTrigger.PLAYER_TURN_START)
     }
 
     private fun spawnInitialEnemies() {
@@ -1557,6 +1561,9 @@ class GameEngine(
         state.turnNumber.value++
         state.phase.value = GamePhase.ENEMY_TURN
 
+        // Evaluate scripted events at the start of the enemy turn
+        eventScriptSystem.evaluate(EventTrigger.ENEMY_TURN_START)
+
         GameLogBuffer.log(
             "TURN",
             "Enemy turn ${state.turnNumber.value} — HP: ${state.healthPoints.value}, Coins: ${state.coins.value}, Enemies alive: ${state.attackers.count {
@@ -1978,6 +1985,9 @@ class GameEngine(
 
         state.phase.value = GamePhase.PLAYER_TURN
         resetDefenderActions()
+
+        // Evaluate scripted events at the start of the player turn
+        eventScriptSystem.evaluate(EventTrigger.PLAYER_TURN_START)
     }
 
     private fun resetDefenderActions() {

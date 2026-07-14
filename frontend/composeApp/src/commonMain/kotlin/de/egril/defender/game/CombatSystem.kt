@@ -610,6 +610,14 @@ class CombatSystem(
         killsThisTurn += killsThisAttack
         killedTypesThisTurn.addAll(killedTypes)
 
+        // Update scripted-event kill tracking (total + per type)
+        if (killsThisAttack > 0) {
+            state.enemiesKilledTotal.value += killsThisAttack
+            for (type in killedTypes) {
+                state.enemiesKilledByType[type] = (state.enemiesKilledByType[type] ?: 0) + 1
+            }
+        }
+
         // Emit combat result for achievement tracking
         if (killsThisAttack > 0) {
             onCombatResult?.invoke(
