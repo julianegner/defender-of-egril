@@ -1774,6 +1774,10 @@ class GameViewModel {
         // Explicitly trigger auto-attacks for all ready defenders
         engine.autoDefenderAttacks()
 
+        // Surface any messages queued by scripted events fired by the auto-attacks (kills), so they
+        // are shown even when the turn does not end immediately (special actions remaining below).
+        surfaceNextPendingMessageIfIdle()
+
         // Check if there are special actions remaining (mines, alchemy, wizard traps)
         val specialActionTypes = currentState.getDefenderTypesWithSpecialActions()
 
@@ -4037,9 +4041,18 @@ class GameViewModel {
         // Process any enemies defeated by the spell (award coins, remove from list)
         if (spell == SpellType.ATTACK_AIMED || spell == SpellType.ATTACK_AREA) {
             gameEngine?.processDefeatedAttackers()
-            // Surface any messages queued by the kill (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
-            surfaceNextPendingMessageIfIdle()
-            // Check if the spell killed the last enemy and the level is now won
+        }
+
+        // A spell can change the kill count (attack spells) and spend mana, which may satisfy
+        // threshold-based scripted events (enemies killed, mana at or below). Evaluate them now so
+        // they fire immediately during the player's turn rather than waiting for the next turn.
+        gameEngine?.evaluateImmediateEvents()
+        // Surface any messages queued by the kill (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) or by a
+        // scripted event the spell triggered.
+        surfaceNextPendingMessageIfIdle()
+
+        // Check if the spell killed the last enemy and the level is now won
+        if (spell == SpellType.ATTACK_AIMED || spell == SpellType.ATTACK_AREA) {
             val currentStateAfterSpell = _gameState.value
             if (currentStateAfterSpell != null && currentStateAfterSpell.isLevelWon()) {
                 completeLevel(currentStateAfterSpell.level.id, won = true)
