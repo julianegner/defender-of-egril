@@ -265,8 +265,16 @@ private fun GamePlayScreenContent(
     var highlightEndTurnButton by remember { mutableStateOf(false) }
     var tabScrollPosition by remember { mutableStateOf<Position?>(null) } // Tab-triggered scroll-to-tower
     var keyboardSelectedBuildTile by remember { mutableStateOf<Position?>(null) }
+    // Position of the keyboard cursor while placing a support object or targeting a spell on the map.
+    // The cursor cycles through the valid placement/target tiles (supportObjectPlacementTiles /
+    // spellTargetPositions); the place key confirms the highlighted tile and a cancel key exits.
+    var keyboardPlacementTile by remember { mutableStateOf<Position?>(null) }
     var nextSpawnPointIndex by remember { mutableStateOf(0) }
     var keyboardSpellFocusIndex by remember { mutableStateOf(0) }
+    // Index (into visibleSupportSlots) of the support box under the keyboard-navigation cursor, or
+    // null while the support bar is not being navigated. Left/right move the cursor, a select key
+    // activates the focused box.
+    var supportFocusIndex by remember { mutableStateOf<Int?>(null) }
     // Non-null means the keyboard undo/sell shortcut was pressed and the confirmation dialog is open.
     // The Boolean flag indicates whether this is an "undo" (true) or "sell" (false) operation.
     var keyboardUndoOrSellConfirmation by remember { mutableStateOf<Pair<Int, Boolean>?>(null) }
@@ -735,6 +743,14 @@ private fun GamePlayScreenContent(
         }
     }
 
+    // Reset the keyboard placement/targeting cursor when neither a support object is selected nor a
+    // spell is being targeted, so a stale cursor does not linger after placement finishes or is cancelled.
+    LaunchedEffect(selectedSupportObject, gameState.spellTargeting.value) {
+        if (selectedSupportObject == null && gameState.spellTargeting.value == null) {
+            keyboardPlacementTile = null
+        }
+    }
+
     // Mine action handler
     val handleMineAction: (Int, MineAction) -> Unit = { mineId, action ->
         when (action) {
@@ -895,6 +911,8 @@ private fun GamePlayScreenContent(
                             selectedAttackerId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            // Leaving the support bar for tower-place mode: drop the support focus cursor.
+                            supportFocusIndex = null
                         }
                         true
                     }
@@ -1136,6 +1154,68 @@ private fun GamePlayScreenContent(
                             false
                         }
                     }
+                    // Move the keyboard placement/targeting cursor a whole grid row up/down while placing
+                    // a support object or targeting a spell. Reuses the pan up/down bindings (W/S by
+                    // default) — during placement the map already auto-follows the cursor, so these keys
+                    // move between rows instead of panning. Complements the next/prev (row-major) stepping
+                    // below. Placed before pan handling (onPreviewKeyEvent) so it takes precedence.
+                    event.type == KeyEventType.KeyDown &&
+                        (
+                            isShortcutBindingPressed(event, AppSettings.shortcutPanUp.value) ||
+                                isShortcutBindingPressed(event, AppSettings.shortcutPanDown.value)
+                        ) &&
+                        !showMagicPanel &&
+                        (selectedSupportObject != null || gameState.spellTargeting.value != null) &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                        val candidateTiles =
+                            selectedSupportObject?.let { supportObjectPlacementTiles(gameState, it) }
+                                ?: spellTargetPositions(gameState)
+                        if (candidateTiles.isEmpty()) {
+                            false
+                        } else {
+                            val up = isShortcutBindingPressed(event, AppSettings.shortcutPanUp.value)
+                            val target = rowStepPlacementTile(candidateTiles, keyboardPlacementTile, up)
+                            if (target != null) {
+                                keyboardPlacementTile = target
+                                tabScrollPosition = target
+                            }
+                            // Consume the key even at the top/bottom edge so it never falls through to
+                            // panning while a placement/targeting mode is active.
+                            true
+                        }
+                    }
+                    // Cycle the keyboard placement/targeting cursor over the valid tiles while placing a
+                    // support object or targeting a spell (reuses the next/prev enemy-target bindings, as
+                    // tower placement does for build tiles). Placed before the enemy-target handlers so it
+                    // takes precedence whenever a placement/targeting mode is active.
+                    event.type == KeyEventType.KeyDown &&
+                        (
+                            isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value) ||
+                                isShortcutBindingPressed(event, AppSettings.shortcutPrevEnemyTarget.value)
+                        ) &&
+                        !showMagicPanel &&
+                        (selectedSupportObject != null || gameState.spellTargeting.value != null) &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                        val candidateTiles =
+                            selectedSupportObject?.let { supportObjectPlacementTiles(gameState, it) }
+                                ?: spellTargetPositions(gameState)
+                        if (candidateTiles.isEmpty()) {
+                            false
+                        } else {
+                            val forward = isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value)
+                            val currentIdx =
+                                keyboardPlacementTile?.let { candidateTiles.indexOf(it).takeIf { i -> i != -1 } }
+                            val nextIdx =
+                                when {
+                                    currentIdx == null -> if (forward) 0 else candidateTiles.lastIndex
+                                    forward -> (currentIdx + 1) % candidateTiles.size
+                                    else -> (currentIdx - 1 + candidateTiles.size) % candidateTiles.size
+                                }
+                            keyboardPlacementTile = candidateTiles[nextIdx]
+                            tabScrollPosition = candidateTiles[nextIdx]
+                            true
+                        }
+                    }
                     // N (remappable): Cycle to next reachable enemy target
                     event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value) &&
@@ -1194,6 +1274,137 @@ private fun GamePlayScreenContent(
                             false
                         }
                     }
+                    // Left / Right: Move the keyboard-focus cursor between support elements
+                    // (placeable objects, spell tokens, cooldown powers) in the support bar.
+                    event.type == KeyEventType.KeyDown &&
+                        (event.key == Key.DirectionLeft || event.key == Key.DirectionRight) &&
+                        !event.isCtrlPressed &&
+                        !event.isAltPressed &&
+                        !event.isShiftPressed &&
+                        !showMagicPanel &&
+                        (gameState.phase.value == GamePhase.PLAYER_TURN || gameState.phase.value == GamePhase.INITIAL_BUILDING) -> {
+                        val slots = visibleSupportSlots(gameState)
+                        if (slots.isEmpty()) {
+                            false
+                        } else {
+                            supportFocusIndex =
+                                nextSupportFocusIndex(
+                                    current = supportFocusIndex,
+                                    slotCount = slots.size,
+                                    forward = event.key == Key.DirectionRight,
+                                )
+                            true
+                        }
+                    }
+                    // Enter / Space: Activate (select / cast / trigger) the support element currently
+                    // under the keyboard-focus cursor. Placed before the plain-Enter placement handler
+                    // so it only intercepts Enter while a support box is focused.
+                    event.type == KeyEventType.KeyDown &&
+                        (event.key == Key.Enter || event.key == Key.Spacebar) &&
+                        !event.isCtrlPressed &&
+                        !event.isAltPressed &&
+                        !event.isShiftPressed &&
+                        !showMagicPanel &&
+                        supportFocusIndex != null &&
+                        (gameState.phase.value == GamePhase.PLAYER_TURN || gameState.phase.value == GamePhase.INITIAL_BUILDING) -> {
+                        val slots = visibleSupportSlots(gameState)
+                        val slot = slots.getOrNull(supportFocusIndex ?: -1)
+                        if (slot != null && isSupportSlotEnabled(gameState, slot, barEnabled = true)) {
+                            when (slot) {
+                                is SupportSlot.ObjectSlot -> {
+                                    selectedSupportObject = if (selectedSupportObject == slot.type) null else slot.type
+                                    selectedDefenderType = null
+                                }
+                                is SupportSlot.SpellSlot -> {
+                                    selectedSupportObject = null
+                                    onCastSupportSpellToken?.invoke(slot.spell)
+                                }
+                                is SupportSlot.PowerSlot -> {
+                                    selectedSupportObject = null
+                                    onActivateCooldownPower?.invoke(slot.type)
+                                }
+                            }
+                            // Drop the focus cursor after activating so a plain Enter afterwards
+                            // confirms tower placement again instead of re-triggering this support.
+                            supportFocusIndex = null
+                            true
+                        } else {
+                            // Consume Enter/Space even when the focused box can't be used, so pressing
+                            // select on a focused-but-disabled support doesn't fall through to the
+                            // tower-placement / attack handlers bound to the same keys.
+                            true
+                        }
+                    }
+                    // Enter / Space: Confirm placing the selected support object, or casting the spell
+                    // being targeted, on the keyboard placement cursor tile (falling back to the first
+                    // valid tile). Placed before the tower-placement Enter handler so it wins whenever a
+                    // support object is selected or a spell is being targeted.
+                    event.type == KeyEventType.KeyDown &&
+                        (event.key == Key.Enter || event.key == Key.Spacebar) &&
+                        !event.isCtrlPressed &&
+                        !event.isAltPressed &&
+                        !event.isMetaPressed &&
+                        !showMagicPanel &&
+                        (selectedSupportObject != null || gameState.spellTargeting.value != null) &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                        val supportType = selectedSupportObject
+                        if (supportType != null) {
+                            val candidateTiles = supportObjectPlacementTiles(gameState, supportType)
+                            val tile =
+                                keyboardPlacementTile?.takeIf { candidateTiles.contains(it) }
+                                    ?: candidateTiles.firstOrNull()
+                            if (tile != null && onPlaceSupportObject?.invoke(supportType, tile) == true) {
+                                val remaining = gameState.supportObjectsRemaining[supportType] ?: 0
+                                if (remaining <= 0) {
+                                    selectedSupportObject = null
+                                    keyboardPlacementTile = null
+                                } else {
+                                    // Keep the placement cursor near the tile just used instead of
+                                    // resetting it to the first tile, so consecutive placements stay
+                                    // in the same area of the map. The placed tile is now occupied and
+                                    // dropped from the list, so the same (clamped) index lands on the
+                                    // next remaining tile.
+                                    val placedIndex = candidateTiles.indexOf(tile)
+                                    val remainingTiles = supportObjectPlacementTiles(gameState, supportType)
+                                    keyboardPlacementTile =
+                                        if (remainingTiles.isEmpty()) {
+                                            null
+                                        } else {
+                                            remainingTiles[placedIndex.coerceIn(0, remainingTiles.lastIndex)]
+                                        }
+                                }
+                            }
+                        } else {
+                            val targeting = gameState.spellTargeting.value
+                            val candidateTiles = spellTargetPositions(gameState)
+                            val tile =
+                                keyboardPlacementTile?.takeIf { candidateTiles.contains(it) }
+                                    ?: candidateTiles.firstOrNull()
+                            if (targeting != null && tile != null) {
+                                when (targeting.activeSpell.targetType) {
+                                    de.egril.defender.model.SpellTargetType.POSITION ->
+                                        onSelectSpellTarget?.invoke(tile)
+                                    de.egril.defender.model.SpellTargetType.ENEMY -> {
+                                        val enemy =
+                                            gameState.attackers.find { it.position.value == tile && !it.isDefeated.value }
+                                        if (enemy != null && targeting.validTargets.contains(enemy)) {
+                                            onSelectSpellTarget?.invoke(enemy)
+                                        }
+                                    }
+                                    de.egril.defender.model.SpellTargetType.TOWER -> {
+                                        val tower = gameState.defenders.find { it.position.value == tile }
+                                        if (tower != null && targeting.validTargets.contains(tower)) {
+                                            onSelectSpellTarget?.invoke(tower)
+                                        }
+                                    }
+                                    else -> {}
+                                }
+                                keyboardPlacementTile = null
+                            }
+                        }
+                        // Always consume the key so it never falls through to tower placement / attack.
+                        true
+                    }
                     // 1-8: Select defender type by index (only when NOT in tower-selected mode)
                     event.type == KeyEventType.KeyDown &&
                         event.key in setOf(Key.One, Key.Two, Key.Three, Key.Four, Key.Five, Key.Six, Key.Seven, Key.Eight) &&
@@ -1226,6 +1437,9 @@ private fun GamePlayScreenContent(
                             selectedAttackerId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            // Leaving the support bar for a tower: drop the support focus cursor so
+                            // Enter confirms tower placement rather than a focused support element.
+                            supportFocusIndex = null
                             true
                         } else {
                             false
@@ -1309,6 +1523,21 @@ private fun GamePlayScreenContent(
                         } else {
                             false
                         }
+                    }
+                    // Escape (remappable): Cancel an active support-object placement or spell targeting
+                    // first, so keyboard users can stop placing (e.g. the Bomb) without leaving the level.
+                    // A second press then falls through to the back-to-world-map handler below.
+                    event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutBackToWorldMap.value) &&
+                        !isDemoMode &&
+                        (selectedSupportObject != null || gameState.spellTargeting.value != null) -> {
+                        if (selectedSupportObject != null) {
+                            selectedSupportObject = null
+                        } else {
+                            onExitSpellTargeting?.invoke()
+                        }
+                        keyboardPlacementTile = null
+                        true
                     }
                     // Escape (remappable): Back to world map with confirmation
                     event.type == KeyEventType.KeyDown &&
@@ -1829,6 +2058,7 @@ private fun GamePlayScreenContent(
                             isDemoMode = isDemoMode,
                             demoHoveredPosition = demoHoveredPosition,
                             keyboardHoveredPosition = keyboardSelectedBuildTile,
+                            keyboardPlacementCursor = keyboardPlacementTile,
                         )
 
                         val captionText = soundCaptionText
@@ -2314,9 +2544,56 @@ private fun GamePlayScreenContent(
                                                 },
                                             style = MaterialTheme.typography.bodyMedium,
                                         )
+                                        PlacementKeyboardHints(modifier = Modifier.padding(top = 4.dp))
                                     }
                                     OutlinedButton(onClick = { onExitSpellTargeting?.invoke() }) {
                                         Text(stringResource(Res.string.spell_targeting_cancel))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        ShortcutKeyChip(
+                                            text = "Esc",
+                                            color = LocalContentColor.current.copy(alpha = 0.75f),
+                                        )
+                                    }
+                                }
+                            }
+                        } else if (selectedSupportObject != null) {
+                            // Support object placement mode: show a compact instruction + cancel card
+                            // (mirrors the spell targeting card) so keyboard users can see how to cancel.
+                            val placingType = selectedSupportObject!!
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors =
+                                    CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                ) {
+                                    SupportObjectIcon(placingType, 32.dp)
+
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = placingType.localizedSupportName(),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                        Text(
+                                            text = stringResource(Res.string.spell_targeting_position),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                        PlacementKeyboardHints(modifier = Modifier.padding(top = 4.dp))
+                                    }
+                                    OutlinedButton(onClick = { selectedSupportObject = null }) {
+                                        Text(stringResource(Res.string.spell_targeting_cancel))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        ShortcutKeyChip(
+                                            text = "Esc",
+                                            color = LocalContentColor.current.copy(alpha = 0.75f),
+                                        )
                                     }
                                 }
                             }
@@ -2344,7 +2621,22 @@ private fun GamePlayScreenContent(
                                         selectedSupportObject = null
                                         onActivateCooldownPower?.invoke(power)
                                     },
+                                    focusedSlotIndex =
+                                        supportFocusIndex?.let { idx ->
+                                            val count = visibleSupportSlots(gameState).size
+                                            if (count == 0) null else idx.coerceIn(0, count - 1)
+                                        },
                                 )
+                                // Keyboard-navigation hint for the support bar: shown only while there
+                                // are support elements to navigate and hints are enabled.
+                                if (visibleSupportSlots(gameState).isNotEmpty()) {
+                                    SupportBarKeyboardHints(
+                                        modifier =
+                                            Modifier
+                                                .align(Alignment.CenterHorizontally)
+                                                .padding(bottom = 4.dp),
+                                    )
+                                }
                                 // Control Panel based on phase
                                 when (gameState.phase.value) {
                                     GamePhase.INITIAL_BUILDING -> {
@@ -3158,4 +3450,79 @@ private fun shouldKeepPlacementMode(
 ): Boolean {
     val defender = gameState.defenders.find { it.id == defenderId } ?: return false
     return defender.actionsRemaining.value > 0
+}
+
+/**
+ * Compact keyboard-hint row shown on the placement / spell-targeting instruction cards. It documents
+ * the keys used to move the on-map placement cursor and to confirm the placement, so keyboard users
+ * can discover them. Renders nothing when the shortcut-hint setting is disabled (each chip self-guards).
+ */
+@Composable
+private fun PlacementKeyboardHints(modifier: Modifier = Modifier) {
+    if (!AppSettings.showButtonShortcutHints.value) return
+    val hintColor = LocalContentColor.current.copy(alpha = 0.75f)
+    val nextBinding = formatShortcutBindingForDisplay(AppSettings.shortcutNextEnemyTarget.value)
+    val prevBinding = formatShortcutBindingForDisplay(AppSettings.shortcutPrevEnemyTarget.value)
+    val rowUpBinding = formatShortcutBindingForDisplay(AppSettings.shortcutPanUp.value)
+    val rowDownBinding = formatShortcutBindingForDisplay(AppSettings.shortcutPanDown.value)
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        ShortcutKeyChip(text = nextBinding, color = hintColor)
+        ShortcutKeyChip(text = prevBinding, color = hintColor)
+        Text(
+            text = stringResource(Res.string.keyboard_placement_move),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        ShortcutKeyChip(text = rowUpBinding, color = hintColor)
+        ShortcutKeyChip(text = rowDownBinding, color = hintColor)
+        Text(
+            text = stringResource(Res.string.keyboard_placement_row),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        ShortcutKeyChip(text = "Enter", color = hintColor)
+        Text(
+            text = stringResource(Res.string.keyboard_placement_place),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor,
+        )
+    }
+}
+
+/**
+ * Compact keyboard-hint row shown beneath the support bar. It documents how to navigate between the
+ * support elements (placeable objects, spell tokens, cooldown powers) with the keyboard: left/right
+ * to move the focus cursor and Enter to activate the focused element. Renders nothing when the
+ * shortcut-hint setting is disabled (each chip self-guards).
+ */
+@Composable
+private fun SupportBarKeyboardHints(modifier: Modifier = Modifier) {
+    if (!AppSettings.showButtonShortcutHints.value) return
+    val hintColor = LocalContentColor.current.copy(alpha = 0.75f)
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        // \u2190\u2192 = left/right arrows; ShortcutKeyChip renders them as Material Symbol icons.
+        ShortcutKeyChip(text = "\u2190\u2192", color = hintColor)
+        Text(
+            text = stringResource(Res.string.keyboard_placement_move),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        ShortcutKeyChip(text = "Enter", color = hintColor)
+        Text(
+            text = stringResource(Res.string.keyboard_nav_select),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor,
+        )
+    }
 }
