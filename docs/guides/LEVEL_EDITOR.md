@@ -69,6 +69,22 @@ To toggle between states, click the collapse/expand button in the header.
   - Available tower types
   - Level title and subtitle
 
+#### Events Tab (within Level Editor)
+
+The **Events** tab lets you script events for a level. Each event pairs a *condition* with one or
+more *actions* and an optional predefined story message:
+
+- **Conditions**: beginning of a player turn, beginning of an enemy turn, a number of enemies
+  killed, a number of enemies of a specific type killed, a unit (any or of a specific type)
+  reaching a defined tile, or the player having health/mana/coins at or below a threshold. Every
+  condition can be gated with a "from turn N onwards" value so it is only checked from a given turn.
+- **Actions**: give coins, give mana, grant a support object, grant a support spell, or destroy a
+  dwarven mine at a specified tile.
+- **Message**: optionally display a predefined story message (selected via dropdown) when the event
+  fires.
+- **Repeatable**: by default an event fires only once; enable *repeatable* to let it fire on every
+  future evaluation.
+
 ### Level Sequence Tab
 
 - Arrange the order in which levels appear in the game

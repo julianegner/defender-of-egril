@@ -79,6 +79,7 @@ import defender_of_egril.composeapp.generated.resources.event_support_object_lab
 import defender_of_egril.composeapp.generated.resources.event_support_spell_label
 import defender_of_egril.composeapp.generated.resources.event_threshold_label
 import defender_of_egril.composeapp.generated.resources.events_intro
+import defender_of_egril.composeapp.generated.resources.x_coordinate
 import defender_of_egril.composeapp.generated.resources.y_coordinate
 
 /**
@@ -555,7 +556,7 @@ private fun PositionField(
                 val newX = text.filter { it.isDigit() }.toIntOrNull() ?: 0
                 onPositionChange(Position(newX, y))
             },
-            label = { Text("X") },
+            label = { Text(stringResource(Res.string.x_coordinate)) },
             singleLine = true,
             modifier = Modifier.width(90.dp),
         )

@@ -1907,7 +1907,6 @@ object EditorJsonSerializer {
                 ),
             )
         }
-        return de.egril.defender.model
-            .LevelEvents(events = events)
+        return LevelEvents(events = events)
     }
 }

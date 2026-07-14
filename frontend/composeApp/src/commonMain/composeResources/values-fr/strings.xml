@@ -927,6 +927,7 @@
     <string name="edit_connection">Modifier la connexion</string>
     <string name="default_connection_type">Type de connexion par défaut :</string>
     <string name="add_control_point">Ajouter un point de contrôle :</string>
+    <string name="x_coordinate">X</string>
     <string name="y_coordinate">Y</string>
     <string name="locations">Lieux</string>
     <string name="auto_connect_by_dependencies">Connecter automatiquement par dépendances</string>

@@ -930,6 +930,7 @@
     <string name="edit_connection">Edit Connection</string>
     <string name="default_connection_type">Default Connection Type:</string>
     <string name="add_control_point">Add Control Point:</string>
+    <string name="x_coordinate">X</string>
     <string name="y_coordinate">Y</string>
     <string name="locations">Locations</string>
     <string name="auto_connect_by_dependencies">Auto-Connect by Dependencies</string>
