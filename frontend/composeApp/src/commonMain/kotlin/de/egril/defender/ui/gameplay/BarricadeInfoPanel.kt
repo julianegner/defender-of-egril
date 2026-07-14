@@ -12,6 +12,7 @@ import com.hyperether.resources.currentLanguage
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.Barricade
 import de.egril.defender.model.Position
+import de.egril.defender.ui.TowerBasePlatformIcon
 import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.localizeEntityName
@@ -36,6 +37,9 @@ fun BarricadeInfoPanel(
             ?.takeIf { it.isNotBlank() }
             ?.let { localizeEntityName(it, locale) }
     val isGate = barricade.isGate
+    // A barricade/gate with enough HP also serves as a tower base, so it gets a distinct
+    // visual (wooden platform overlay) and label to tell it apart from a plain barricade.
+    val isTowerBase = barricade.canSupportTower()
 
     Card(
         modifier =
@@ -59,6 +63,9 @@ fun BarricadeInfoPanel(
                 } else {
                     WoodIcon(size = iconInnerSize)
                 }
+                if (isTowerBase) {
+                    TowerBasePlatformIcon(size = iconInnerSize)
+                }
             }
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -71,10 +78,15 @@ fun BarricadeInfoPanel(
                 val panelTitle =
                     if (!localizedName.isNullOrBlank()) {
                         localizedName.replace("-\n", "").replace("\n", " ")
-                    } else if (isGate) {
-                        stringResource(Res.string.gate_info_panel_title)
                     } else {
-                        stringResource(Res.string.barricade_info_panel_title)
+                        val titleRes =
+                            when {
+                                isGate && isTowerBase -> Res.string.gate_tower_base_info_panel_title
+                                isGate -> Res.string.gate_info_panel_title
+                                isTowerBase -> Res.string.barricade_tower_base_info_panel_title
+                                else -> Res.string.barricade_info_panel_title
+                            }
+                        stringResource(titleRes)
                     }
                 Text(
                     panelTitle,
@@ -89,12 +101,14 @@ fun BarricadeInfoPanel(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 // Description
-                val description =
-                    if (isGate) {
-                        stringResource(Res.string.gate_info_description)
-                    } else {
-                        stringResource(Res.string.barricade_info_description)
+                val descriptionRes =
+                    when {
+                        isGate && isTowerBase -> Res.string.gate_tower_base_info_description
+                        isGate -> Res.string.gate_info_description
+                        isTowerBase -> Res.string.barricade_tower_base_info_description
+                        else -> Res.string.barricade_info_description
                     }
+                val description = stringResource(descriptionRes)
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,

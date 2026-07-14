@@ -1660,6 +1660,10 @@
     <string name="gate_info_description">Una puerta guarda la entrada. Los enemigos la atacarán e intentarán abrirse paso. Defiéndela para mantener el camino bloqueado.</string>
     <string name="barricade_info_panel_title">Barricada</string>
     <string name="gate_info_panel_title">Puerta</string>
+    <string name="barricade_tower_base_info_panel_title">Barricada - Base de torre</string>
+    <string name="gate_tower_base_info_panel_title">Puerta - Base de torre</string>
+    <string name="barricade_tower_base_info_description">Las barricadas bloquean el movimiento enemigo. Los enemigos las atacan cuando están adyacentes. Constrúyelas o refuérzalas con torres de pica o lanza. Esta barricada es lo bastante resistente para servir de base de torre: puedes colocar una torre sobre ella.</string>
+    <string name="gate_tower_base_info_description">Una puerta guarda la entrada. Los enemigos la atacarán e intentarán abrirse paso. Defiéndela para mantener el camino bloqueado. Esta puerta es lo bastante resistente para servir de base de torre: puedes colocar una torre sobre ella.</string>
     <!-- Ewhad narrative messages -->
     <string name="ewhad_enters_title">Ewhad entra al campo de batalla</string>
     <string name="ewhad_enters_text">¡Ewhad ha entrado al campo de batalla! Cuidado, invoca Demonios cada Turno, que serán cada vez más poderosos.</string>
