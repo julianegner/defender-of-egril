@@ -104,7 +104,7 @@ import defender_of_egril.composeapp.generated.resources.y_coordinate
 fun EventsTab(
     events: LevelEvents,
     onEventsChange: (LevelEvents) -> Unit,
-    minePositions: Set<Position> = emptySet(),
+    minePositions: Set<Position>,
 ) {
     fun updateEvent(
         index: Int,
@@ -170,7 +170,7 @@ private fun EventCard(
     event: LevelEvent,
     onEventChange: (LevelEvent) -> Unit,
     onDelete: () -> Unit,
-    minePositions: Set<Position> = emptySet(),
+    minePositions: Set<Position>,
 ) {
     var expanded by remember(event.id) { mutableStateOf(false) }
 
@@ -441,7 +441,7 @@ private fun ActionEditor(
     action: EventAction,
     onActionChange: (EventAction) -> Unit,
     onDelete: () -> Unit,
-    minePositions: Set<Position> = emptySet(),
+    minePositions: Set<Position>,
 ) {
     Column(
         modifier =

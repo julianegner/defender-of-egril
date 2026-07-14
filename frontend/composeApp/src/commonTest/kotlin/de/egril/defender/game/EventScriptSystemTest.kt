@@ -357,4 +357,20 @@ class EventScriptSystemTest {
         system.evaluate(EventTrigger.IMMEDIATE)
         assertEquals(100, state.coins.value, "Turn-start events must not fire on the IMMEDIATE trigger")
     }
+
+    @Test
+    fun testImmediateTriggerDoesNotFireEnemyTurnStartConditions() {
+        val event =
+            LevelEvent(
+                id = "enemyturnstart",
+                condition = EventCondition(type = EventConditionType.ENEMY_TURN_START),
+                actions = listOf(EventAction(type = EventActionType.GIVE_COINS, amount = 50)),
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.IMMEDIATE)
+        assertEquals(100, state.coins.value, "Enemy-turn-start events must not fire on the IMMEDIATE trigger")
+    }
 }
