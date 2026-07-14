@@ -459,13 +459,22 @@ private fun ActionEditor(
                     onSelected = { newType ->
                         // Ensure a concrete support object/spell is stored when the action type is
                         // switched to one that requires it, so the granted support is never null.
-                        var updated = action.copy(type = newType)
-                        if (newType == EventActionType.GIVE_SUPPORT_OBJECT && updated.supportObjectType == null) {
-                            updated = updated.copy(supportObjectType = SupportObjectType.entries.first())
-                        }
-                        if (newType == EventActionType.GIVE_SUPPORT_SPELL && updated.spellType == null) {
-                            updated = updated.copy(spellType = SpellType.entries.first())
-                        }
+                        val updated =
+                            when (newType) {
+                                EventActionType.GIVE_SUPPORT_OBJECT ->
+                                    action.copy(
+                                        type = newType,
+                                        supportObjectType = action.supportObjectType ?: SupportObjectType.entries.first(),
+                                    )
+
+                                EventActionType.GIVE_SUPPORT_SPELL ->
+                                    action.copy(
+                                        type = newType,
+                                        spellType = action.spellType ?: SpellType.entries.first(),
+                                    )
+
+                                else -> action.copy(type = newType)
+                            }
                         onActionChange(updated)
                     },
                 )
