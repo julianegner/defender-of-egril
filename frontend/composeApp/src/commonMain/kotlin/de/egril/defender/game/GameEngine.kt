@@ -256,12 +256,14 @@ class GameEngine(
         return when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> {
                 val target = selectAutoTargetForDefender(defender, activeAttackers) ?: return false
-                combatSystem.defenderAttack(defender.id, target.id) { combatSystem.processDefeatedAttackers() }
+                combatSystem
+                    .defenderAttack(defender.id, target.id) { combatSystem.processDefeatedAttackers() }
                     .also { if (it) evaluateImmediateEvents() }
             }
             AttackType.AREA, AttackType.LASTING -> {
                 val targetPosition = selectBestAreaAttackPosition(defender, activeAttackers) ?: return false
-                combatSystem.defenderAttackPosition(defender.id, targetPosition) { combatSystem.processDefeatedAttackers() }
+                combatSystem
+                    .defenderAttackPosition(defender.id, targetPosition) { combatSystem.processDefeatedAttackers() }
                     .also { if (it) evaluateImmediateEvents() }
             }
             AttackType.NONE -> false

@@ -3354,7 +3354,8 @@ private fun GamePlayScreenContent(
                                                 )
                                             else -> null
                                         }
-                                    story?.let { (narrativeType, storyTitle, storyText) ->
+                                    if (story != null) {
+                                        val (narrativeType, storyTitle, storyText) = story
                                         NarrativeMessageDialog(
                                             type = narrativeType,
                                             title = storyTitle,
@@ -3362,7 +3363,14 @@ private fun GamePlayScreenContent(
                                             onDismiss = { onDismissGameMessage?.invoke() },
                                             supports = gameState.level.supports,
                                         )
+                                    } else {
+                                        // No predefined story text for this level (e.g. user-created
+                                        // levels): dismiss so it does not block later queued messages
+                                        // (scripted-event messages, target-taken, etc.).
+                                        LaunchedEffect(msg) { onDismissGameMessage?.invoke() }
                                     }
+                                } else {
+                                    LaunchedEffect(msg) { onDismissGameMessage?.invoke() }
                                 }
                             }
                             GameMessageType.EVENT_MESSAGE -> {
@@ -3378,7 +3386,7 @@ private fun GamePlayScreenContent(
                                         onDismiss = { onDismissGameMessage?.invoke() },
                                     )
                                 } else {
-                                    onDismissGameMessage?.invoke()
+                                    LaunchedEffect(msg) { onDismissGameMessage?.invoke() }
                                 }
                             }
                             else ->
