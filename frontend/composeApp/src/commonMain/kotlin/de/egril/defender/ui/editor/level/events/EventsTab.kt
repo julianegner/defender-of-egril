@@ -281,7 +281,8 @@ private fun EventCard(
 
 /**
  * Short human-readable summary of an event shown in the collapsed card state:
- * the condition followed by the number of actions.
+ * the condition followed by the action count (only when more than one) and the
+ * first three actions in abbreviated form.
  */
 @Composable
 private fun eventSummary(event: LevelEvent): String {
@@ -290,7 +291,14 @@ private fun eventSummary(event: LevelEvent): String {
         if (event.actions.isEmpty()) {
             stringResource(Res.string.event_no_actions)
         } else {
-            stringResource(Res.string.event_actions_count, event.actions.size)
+            val names = mutableListOf<String>()
+            event.actions.take(3).forEach { names.add(it.type.localizedName()) }
+            val preview = names.joinToString(", ")
+            if (event.actions.size == 1) {
+                preview
+            } else {
+                "${stringResource(Res.string.event_actions_count, event.actions.size)}: $preview"
+            }
         }
     return "$condition • $actions"
 }
