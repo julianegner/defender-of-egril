@@ -801,7 +801,10 @@
     <string name="event_message_label">Messaggio narrativo</string>
     <string name="event_message_none">Nessun messaggio</string>
     <string name="event_repeatable_label">Ripetibile</string>
+    <string name="event_repeatable_help">Se attivato, l'evento si attiva ogni volta che la sua condizione è soddisfatta. Se disattivato, si attiva una sola volta.</string>
     <string name="event_summary_label">Evento</string>
+    <string name="event_no_actions">Nessuna azione</string>
+    <string name="event_actions_count">%d azione/i</string>
     <string name="event_cond_turn_start">Inizio di un turno del giocatore</string>
     <string name="event_cond_enemy_turn_start">Inizio di un turno nemico</string>
     <string name="event_cond_enemies_killed">Nemici uccisi (totale)</string>

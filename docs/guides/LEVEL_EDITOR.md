@@ -83,7 +83,10 @@ more *actions* and an optional predefined story message:
 - **Message**: optionally display a predefined story message (selected via dropdown) when the event
   fires.
 - **Repeatable**: by default an event fires only once; enable *repeatable* to let it fire on every
-  future evaluation.
+  future evaluation whenever its condition is met.
+
+Each event is shown as a collapsible card. Collapsed cards display a short summary (the condition and
+the number of actions) and a delete button; click the card header to expand it and edit its details.
 
 ### Level Sequence Tab
 

@@ -1,6 +1,7 @@
 package de.egril.defender.ui.editor.level.events
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,6 +47,8 @@ import de.egril.defender.model.Position
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.icon.TriangleDownIcon
+import de.egril.defender.ui.icon.TriangleUpIcon
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.add_action
 import defender_of_egril.composeapp.generated.resources.add_event
@@ -56,6 +59,7 @@ import defender_of_egril.composeapp.generated.resources.event_act_give_coins
 import defender_of_egril.composeapp.generated.resources.event_act_give_mana
 import defender_of_egril.composeapp.generated.resources.event_act_give_support_object
 import defender_of_egril.composeapp.generated.resources.event_act_give_support_spell
+import defender_of_egril.composeapp.generated.resources.event_actions_count
 import defender_of_egril.composeapp.generated.resources.event_actions_label
 import defender_of_egril.composeapp.generated.resources.event_amount_label
 import defender_of_egril.composeapp.generated.resources.event_any_enemy
@@ -72,7 +76,9 @@ import defender_of_egril.composeapp.generated.resources.event_enemy_type_label
 import defender_of_egril.composeapp.generated.resources.event_from_turn_label
 import defender_of_egril.composeapp.generated.resources.event_message_label
 import defender_of_egril.composeapp.generated.resources.event_message_none
+import defender_of_egril.composeapp.generated.resources.event_no_actions
 import defender_of_egril.composeapp.generated.resources.event_position_label
+import defender_of_egril.composeapp.generated.resources.event_repeatable_help
 import defender_of_egril.composeapp.generated.resources.event_repeatable_label
 import defender_of_egril.composeapp.generated.resources.event_summary_label
 import defender_of_egril.composeapp.generated.resources.event_support_object_label
@@ -155,6 +161,8 @@ private fun EventCard(
     onEventChange: (LevelEvent) -> Unit,
     onDelete: () -> Unit,
 ) {
+    var expanded by remember(event.id) { mutableStateOf(false) }
+
     Column(
         modifier =
             Modifier
@@ -164,81 +172,127 @@ private fun EventCard(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(
-                text = "${stringResource(Res.string.event_summary_label)} ${index + 1}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-            )
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                if (expanded) {
+                    TriangleUpIcon(size = 20.dp)
+                } else {
+                    TriangleDownIcon(size = 20.dp)
+                }
+                Column {
+                    Text(
+                        text = "${stringResource(Res.string.event_summary_label)} ${index + 1}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    if (!expanded) {
+                        Text(
+                            text = eventSummary(event),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
             OutlinedButton(onClick = onDelete) {
                 Text(stringResource(Res.string.delete_event))
             }
         }
 
-        HorizontalDivider()
+        if (expanded) {
+            HorizontalDivider()
 
-        // Condition editor
-        ConditionEditor(
-            condition = event.condition,
-            onConditionChange = { onEventChange(event.copy(condition = it)) },
-        )
-
-        HorizontalDivider()
-
-        // Actions editor
-        Text(
-            text = stringResource(Res.string.event_actions_label),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-        )
-        event.actions.forEachIndexed { actionIndex, action ->
-            ActionEditor(
-                action = action,
-                onActionChange = { newAction ->
-                    val updated = event.actions.toMutableList()
-                    updated[actionIndex] = newAction
-                    onEventChange(event.copy(actions = updated))
-                },
-                onDelete = {
-                    val updated = event.actions.toMutableList()
-                    updated.removeAt(actionIndex)
-                    onEventChange(event.copy(actions = updated))
-                },
+            // Condition editor
+            ConditionEditor(
+                condition = event.condition,
+                onConditionChange = { onEventChange(event.copy(condition = it)) },
             )
-        }
-        OutlinedButton(
-            onClick = {
-                onEventChange(
-                    event.copy(actions = event.actions + EventAction(type = EventActionType.GIVE_COINS, amount = 50)),
+
+            HorizontalDivider()
+
+            // Actions editor
+            Text(
+                text = stringResource(Res.string.event_actions_label),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+            )
+            event.actions.forEachIndexed { actionIndex, action ->
+                ActionEditor(
+                    action = action,
+                    onActionChange = { newAction ->
+                        val updated = event.actions.toMutableList()
+                        updated[actionIndex] = newAction
+                        onEventChange(event.copy(actions = updated))
+                    },
+                    onDelete = {
+                        val updated = event.actions.toMutableList()
+                        updated.removeAt(actionIndex)
+                        onEventChange(event.copy(actions = updated))
+                    },
                 )
-            },
-        ) {
-            Text(stringResource(Res.string.add_action))
-        }
+            }
+            OutlinedButton(
+                onClick = {
+                    onEventChange(
+                        event.copy(actions = event.actions + EventAction(type = EventActionType.GIVE_COINS, amount = 50)),
+                    )
+                },
+            ) {
+                Text(stringResource(Res.string.add_action))
+            }
 
-        HorizontalDivider()
+            HorizontalDivider()
 
-        // Message dropdown
-        MessageDropdown(
-            selectedKey = event.messageKey,
-            onKeyChange = { onEventChange(event.copy(messageKey = it)) },
-        )
-
-        // Repeatable toggle
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Checkbox(
-                checked = event.repeatable,
-                onCheckedChange = { onEventChange(event.copy(repeatable = it)) },
+            // Message dropdown
+            MessageDropdown(
+                selectedKey = event.messageKey,
+                onKeyChange = { onEventChange(event.copy(messageKey = it)) },
             )
-            Text(stringResource(Res.string.event_repeatable_label))
+
+            // Repeatable toggle
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Checkbox(
+                    checked = event.repeatable,
+                    onCheckedChange = { onEventChange(event.copy(repeatable = it)) },
+                )
+                Text(stringResource(Res.string.event_repeatable_label))
+            }
+            Text(
+                text = stringResource(Res.string.event_repeatable_help),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
+}
+
+/**
+ * Short human-readable summary of an event shown in the collapsed card state:
+ * the condition followed by the number of actions.
+ */
+@Composable
+private fun eventSummary(event: LevelEvent): String {
+    val condition = event.condition.type.localizedName()
+    val actions =
+        if (event.actions.isEmpty()) {
+            stringResource(Res.string.event_no_actions)
+        } else {
+            stringResource(Res.string.event_actions_count, event.actions.size)
+        }
+    return "$condition • $actions"
 }
 
 @Composable

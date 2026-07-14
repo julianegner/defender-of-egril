@@ -804,7 +804,10 @@
     <string name="event_message_label">Story message</string>
     <string name="event_message_none">No message</string>
     <string name="event_repeatable_label">Repeatable</string>
+    <string name="event_repeatable_help">When enabled, the event fires every time its condition is met. When disabled, it fires only once.</string>
     <string name="event_summary_label">Event</string>
+    <string name="event_no_actions">No actions</string>
+    <string name="event_actions_count">%d action(s)</string>
     <string name="event_cond_turn_start">Beginning of a player turn</string>
     <string name="event_cond_enemy_turn_start">Beginning of an enemy turn</string>
     <string name="event_cond_enemies_killed">Enemies killed (total)</string>
