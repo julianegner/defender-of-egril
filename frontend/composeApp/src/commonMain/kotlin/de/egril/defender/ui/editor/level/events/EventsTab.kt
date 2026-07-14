@@ -347,11 +347,15 @@ private fun actionSummary(action: EventAction): String =
     when (action.type) {
         EventActionType.GIVE_COINS -> stringResource(Res.string.event_summary_coins, action.amount)
         EventActionType.GIVE_MANA -> stringResource(Res.string.event_summary_mana, action.amount)
-        EventActionType.GIVE_SUPPORT_OBJECT ->
-            "${stringResource(Res.string.event_summary_support_object)}: ${action.supportObjectType?.name ?: ""}"
+        EventActionType.GIVE_SUPPORT_OBJECT -> {
+            val base = stringResource(Res.string.event_summary_support_object)
+            action.supportObjectType?.let { "$base: ${it.name}" } ?: base
+        }
 
-        EventActionType.GIVE_SUPPORT_SPELL ->
-            "${stringResource(Res.string.event_summary_support_spell)}: ${action.spellType?.getLocalizedName() ?: ""}"
+        EventActionType.GIVE_SUPPORT_SPELL -> {
+            val base = stringResource(Res.string.event_summary_support_spell)
+            action.spellType?.let { "$base: ${it.getLocalizedName()}" } ?: base
+        }
 
         EventActionType.DESTROY_MINE -> action.type.localizedName()
     }
