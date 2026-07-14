@@ -2284,7 +2284,7 @@ private fun BoxScope.GridCellContent(
                         } else {
                             WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                         }
-                        if (barricade.canSupportTower() && !barricade.hasTower()) {
+                        if (barricade.canSupportTower()) {
                             TowerBasePlatformIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                         }
                     }

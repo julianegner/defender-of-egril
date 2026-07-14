@@ -14,6 +14,8 @@ import de.egril.defender.ui.icon.WoodIcon
 import org.junit.Rule
 import org.junit.Test
 
+private val ICON_SIZE = 48.dp
+
 /**
  * Verifies that a barricade serving as a tower base is rendered with the wooden
  * tower-base platform, so it is visually distinguishable from a plain barricade (issue #627).
@@ -26,7 +28,7 @@ class TowerBasePlatformIconTest {
     fun towerBasePlatformIconComposesWithoutError() {
         composeTestRule.setContent {
             MaterialTheme {
-                TowerBasePlatformIcon(size = 48.dp)
+                TowerBasePlatformIcon(size = ICON_SIZE)
             }
         }
         composeTestRule.waitForIdle()
@@ -63,14 +65,14 @@ private fun BarricadeComparisonGrid() {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(modifier = Modifier.size(64.dp), contentAlignment = Alignment.Center) {
-                WoodIcon(size = 48.dp)
+                WoodIcon(size = ICON_SIZE)
             }
             Text(text = "Barricade", color = Color.Black)
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(modifier = Modifier.size(64.dp), contentAlignment = Alignment.Center) {
-                WoodIcon(size = 48.dp)
-                TowerBasePlatformIcon(size = 48.dp)
+                WoodIcon(size = ICON_SIZE)
+                TowerBasePlatformIcon(size = ICON_SIZE)
             }
             Text(text = "Tower base barricade", color = Color.Black)
         }
