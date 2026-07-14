@@ -23,15 +23,20 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.egril.defender.model.Attacker
 import de.egril.defender.model.CooldownPowerType
+import de.egril.defender.model.Defender
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.GameState
+import de.egril.defender.model.Position
+import de.egril.defender.model.SpellTargetType
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.ui.TooltipWrapper
@@ -49,10 +54,213 @@ private object SupportBarColors {
     val SpellBorder = Color(0xFF7E57C2) // Purple - spell tokens use dashed, rounded boxes
     val CooldownBorder = Color(0xFF00897B) // Teal - cooldown powers use solid, rounded boxes
     val Selected = Color(0xFFFFC107) // Amber highlight for the active selection
+    val Focus = Color(0xFFFFFFFF) // White ring for the keyboard-navigation cursor
 }
 
 private val SUPPORT_BOX_SIZE = 56.dp
 private val SUPPORT_ICON_SIZE = 32.dp
+
+// Space reserved around every box for the keyboard-focus ring, so the row layout stays stable
+// whether or not a box is currently focused.
+private val SUPPORT_FOCUS_RING_PADDING = 3.dp
+
+/**
+ * A support box shown in the [SupportBar]. Objects and spell tokens are only present while at least
+ * one is remaining; cooldown powers are always present (even while recharging). [visibleSupportSlots]
+ * lists them in on-screen order — objects, then spell tokens, then cooldown powers — so the list
+ * index can be used to drive keyboard navigation (left/right to move the focus cursor, a select key
+ * to activate the focused box).
+ */
+sealed interface SupportSlot {
+    data class ObjectSlot(
+        val type: SupportObjectType,
+    ) : SupportSlot
+
+    data class SpellSlot(
+        val spell: SpellType,
+    ) : SupportSlot
+
+    data class PowerSlot(
+        val type: CooldownPowerType,
+    ) : SupportSlot
+}
+
+/**
+ * The ordered list of support boxes currently visible in the [SupportBar] for [gameState].
+ * Used to assign — and resolve — the sequential keyboard shortcuts shown on the boxes.
+ */
+fun visibleSupportSlots(gameState: GameState): List<SupportSlot> {
+    val supports = gameState.level.supports
+    val slots = mutableListOf<SupportSlot>()
+    supports.objects.forEach { supportObject ->
+        if ((gameState.supportObjectsRemaining[supportObject.type] ?: 0) > 0) {
+            slots.add(SupportSlot.ObjectSlot(supportObject.type))
+        }
+    }
+    supports.spells.forEach { supportSpell ->
+        if ((gameState.supportSpellsRemaining[supportSpell.spell] ?: 0) > 0) {
+            slots.add(SupportSlot.SpellSlot(supportSpell.spell))
+        }
+    }
+    supports.cooldownPowers.forEach { power ->
+        slots.add(SupportSlot.PowerSlot(power.type))
+    }
+    return slots
+}
+
+/**
+ * Whether the support box for [slot] can currently be used. Mirrors the per-box enable logic used
+ * when rendering the [SupportBar] so that keyboard navigation behaves exactly like clicking the box.
+ *
+ * [barEnabled] is true while the player may act (player turn or initial building phase).
+ */
+fun isSupportSlotEnabled(
+    gameState: GameState,
+    slot: SupportSlot,
+    barEnabled: Boolean,
+): Boolean {
+    val isInitialBuilding = gameState.phase.value == GamePhase.INITIAL_BUILDING
+    val powersEnabled = barEnabled && !isInitialBuilding
+    val healthAtMax = gameState.healthPoints.value >= gameState.level.healthPoints
+    val manaAtMax = gameState.currentMana.value >= gameState.maxMana.value
+    return when (slot) {
+        is SupportSlot.ObjectSlot -> barEnabled
+        is SupportSlot.SpellSlot -> {
+            val atMaxEffect = slot.spell == SpellType.HEAL && healthAtMax
+            powersEnabled && !atMaxEffect
+        }
+        is SupportSlot.PowerSlot -> {
+            val readyIn = gameState.cooldownPowerReadyIn[slot.type] ?: 0
+            val atMaxEffect = slot.type.addsMana && manaAtMax
+            powersEnabled && readyIn == 0 && !atMaxEffect
+        }
+    }
+}
+
+/**
+ * Next position of the support-bar keyboard-focus cursor over [slotCount] visible boxes.
+ *
+ * [current] is the current cursor index, or null when the bar is not being navigated yet — the
+ * first move then lands on the near end (0 when moving [forward], the last box when moving
+ * backwards). Subsequent moves wrap around: moving forward from the last box returns to index 0,
+ * and moving backward from index 0 returns to the last box. Returns null when there are no boxes.
+ */
+fun nextSupportFocusIndex(
+    current: Int?,
+    slotCount: Int,
+    forward: Boolean,
+): Int? {
+    if (slotCount <= 0) return null
+    return when {
+        current == null -> if (forward) 0 else slotCount - 1
+        forward -> (current + 1) % slotCount
+        else -> (current - 1 + slotCount) % slotCount
+    }
+}
+
+/**
+ * The ordered list of tiles on which the support object [type] may currently be placed, mirroring
+ * the validation used by the game engine when placing support-granted traps and barricades. Used to
+ * drive keyboard placement: a cursor cycles through these tiles and the selected one is confirmed
+ * with the place key.
+ *
+ * Tiles are ordered top-to-bottom, left-to-right so the keyboard cursor moves predictably.
+ */
+fun supportObjectPlacementTiles(
+    gameState: GameState,
+    type: SupportObjectType,
+): List<Position> {
+    // Pre-compute occupied positions once so the per-tile checks below are O(1) lookups instead of
+    // scanning every attacker/trap/barricade/defender for each grid cell.
+    val attackerPositions =
+        gameState.attackers
+            .filter { !it.isDefeated.value }
+            .map { it.position.value }
+            .toHashSet()
+    val trapPositions = gameState.traps.map { it.position }.toHashSet()
+    val barricadePositions = gameState.barricades.map { it.position }.toHashSet()
+    val fieldEffectPositions = gameState.fieldEffects.map { it.position }.toHashSet()
+    val defenderNotOnTowerBasePositions =
+        gameState.defenders
+            .filter { it.towerBaseBarricadeId.value == null }
+            .map { it.position.value }
+            .toHashSet()
+
+    val tiles = mutableListOf<Position>()
+    for (y in 0 until gameState.level.gridHeight) {
+        for (x in 0 until gameState.level.gridWidth) {
+            val pos = Position(x, y)
+            if (!gameState.level.isOnPath(pos)) continue
+            if (pos in attackerPositions || pos in trapPositions) continue
+            val valid =
+                when (type) {
+                    SupportObjectType.DWARVEN_TRAP, SupportObjectType.MAGICAL_TRAP ->
+                        pos !in barricadePositions && pos !in fieldEffectPositions
+                    SupportObjectType.BARRICADE ->
+                        pos !in defenderNotOnTowerBasePositions
+                }
+            if (valid) tiles.add(pos)
+        }
+    }
+    return tiles
+}
+
+/**
+ * The ordered list of tiles that can currently be selected as a target for the active spell
+ * targeting mode (position/enemy/tower spells), or an empty list when no spell is being targeted.
+ * Used to drive keyboard targeting of spells (e.g. the Bomb) with the same place/cancel keys as
+ * support object placement.
+ *
+ * Tiles are ordered top-to-bottom, left-to-right so the keyboard cursor moves predictably.
+ */
+fun spellTargetPositions(gameState: GameState): List<Position> {
+    val targeting = gameState.spellTargeting.value ?: return emptyList()
+    val positions =
+        when (targeting.activeSpell.targetType) {
+            SpellTargetType.POSITION -> targeting.validTargets.filterIsInstance<Position>()
+            SpellTargetType.ENEMY ->
+                targeting.validTargets.filterIsInstance<Attacker>().map { it.position.value }
+            SpellTargetType.TOWER ->
+                targeting.validTargets.filterIsInstance<Defender>().map { it.position.value }
+            SpellTargetType.NONE -> emptyList()
+        }
+    return positions.distinct().sortedWith(compareBy({ it.y }, { it.x }))
+}
+
+/**
+ * The tile one grid row above ([up] = true) or below ([up] = false) [current] within
+ * [candidateTiles], keeping roughly the same column (nearest x). Returns null when there is no
+ * candidate tile in an adjacent row in the requested direction.
+ *
+ * [candidateTiles] is expected to be ordered top-to-bottom, left-to-right (see
+ * [supportObjectPlacementTiles] / [spellTargetPositions]). Used so keyboard placement can move a
+ * whole row up/down, complementing the previous/next stepping through the flat list.
+ */
+fun rowStepPlacementTile(
+    candidateTiles: List<Position>,
+    current: Position?,
+    up: Boolean,
+): Position? {
+    if (candidateTiles.isEmpty()) return null
+    val from = current ?: candidateTiles.first()
+    // Rows in the requested direction, ordered nearest-first.
+    val targetRows =
+        candidateTiles
+            .asSequence()
+            .map { it.y }
+            .filter { if (up) it < from.y else it > from.y }
+            .distinct()
+            .sortedBy { if (up) -it else it }
+            .toList()
+    for (rowY in targetRows) {
+        val best =
+            candidateTiles
+                .filter { it.y == rowY }
+                .minByOrNull { kotlin.math.abs(it.x - from.x) }
+        if (best != null) return best
+    }
+    return null
+}
 
 /**
  * Row of support boxes shown at the lower edge of the screen, above the tower buttons.
@@ -63,6 +271,10 @@ private val SUPPORT_ICON_SIZE = 32.dp
  *
  * Clicking an object box enters placement mode; clicking a spell token box starts casting the
  * spell (which does not consume mana).
+ *
+ * Keyboard users can navigate the boxes with left/right and activate the focused box with a select
+ * key (see [GamePlayScreen]); [focusedSlotIndex] is the index (into [visibleSupportSlots]) of the
+ * box currently under that focus cursor, or null when nothing is focused.
  */
 @Composable
 fun SupportBar(
@@ -74,6 +286,7 @@ fun SupportBar(
     onSpellClick: (SpellType) -> Unit,
     modifier: Modifier = Modifier,
     onCooldownPowerClick: (CooldownPowerType) -> Unit = {},
+    focusedSlotIndex: Int? = null,
 ) {
     val supports = gameState.level.supports
     if (supports.isEmpty()) return
@@ -95,14 +308,21 @@ fun SupportBar(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        // Running index over the visible boxes (objects, then spells, then powers) matching the
+        // ordering of visibleSupportSlots(), so the keyboard focus cursor lands on the same box.
+        var slotIndex = 0
+
         // Placable objects (hidden once fully used up)
         supports.objects.forEach { supportObject ->
             val remaining = gameState.supportObjectsRemaining[supportObject.type] ?: 0
             if (remaining > 0) {
+                val isFocused = slotIndex == focusedSlotIndex
+                slotIndex++
                 SupportBox(
                     remaining = remaining,
                     isSpell = false,
                     isSelected = selectedSupportObject == supportObject.type,
+                    isFocused = isFocused,
                     enabled = enabled,
                     tooltip = supportTooltip("support_type_object", supportObject.type.localizedSupportName()),
                     onClick = { onObjectClick(supportObject.type) },
@@ -118,10 +338,13 @@ fun SupportBar(
             if (remaining > 0) {
                 // The Heal token is pointless while the player is already at full health.
                 val atMaxEffect = supportSpell.spell == SpellType.HEAL && healthAtMax
+                val isFocused = slotIndex == focusedSlotIndex
+                slotIndex++
                 SupportBox(
                     remaining = remaining,
                     isSpell = true,
                     isSelected = activeSpellToken == supportSpell.spell,
+                    isFocused = isFocused,
                     enabled = powersEnabled && !atMaxEffect,
                     tooltip = supportTooltip("support_type_spell", supportSpell.spell.getLocalizedName()),
                     onClick = { onSpellClick(supportSpell.spell) },
@@ -136,10 +359,13 @@ fun SupportBar(
             val readyIn = gameState.cooldownPowerReadyIn[power.type] ?: 0
             // Mana wells are pointless while mana is already at maximum.
             val atMaxEffect = power.type.addsMana && manaAtMax
+            val isFocused = slotIndex == focusedSlotIndex
+            slotIndex++
             CooldownPowerBox(
                 type = power.type,
                 readyIn = readyIn,
                 enabled = powersEnabled && readyIn == 0 && !atMaxEffect,
+                isFocused = isFocused,
                 tooltip = supportTooltip("support_type_power", power.type.localizedCooldownPowerName()),
                 onClick = { onCooldownPowerClick(power.type) },
             )
@@ -152,6 +378,7 @@ private fun SupportBox(
     remaining: Int,
     isSpell: Boolean,
     isSelected: Boolean,
+    isFocused: Boolean,
     enabled: Boolean,
     tooltip: String,
     onClick: () -> Unit,
@@ -167,60 +394,90 @@ private fun SupportBox(
     val shape = if (isSpell) RoundedCornerShape(14.dp) else RoundedCornerShape(0.dp)
 
     TooltipWrapper(text = tooltip, preferAbove = true) {
-        Box(
-            modifier =
-                Modifier
-                    .size(SUPPORT_BOX_SIZE)
-                    .clip(shape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f * alpha))
-                    .then(
-                        if (isSpell) {
-                            // Spell tokens use a dashed border
-                            Modifier.drawBehind {
-                                val strokeWidth = if (isSelected) 3.dp.toPx() else 2.dp.toPx()
-                                drawRoundRect(
-                                    color = borderColor.copy(alpha = alpha),
-                                    cornerRadius = CornerRadius(14.dp.toPx(), 14.dp.toPx()),
-                                    style =
-                                        Stroke(
-                                            width = strokeWidth,
-                                            pathEffect =
-                                                PathEffect.dashPathEffect(
-                                                    floatArrayOf(8.dp.toPx(), 6.dp.toPx()),
-                                                    0f,
-                                                ),
-                                        ),
-                                )
-                            }
-                        } else {
-                            // Objects use a solid border
-                            Modifier.border(
-                                width = if (isSelected) 3.dp else 2.dp,
-                                color = borderColor.copy(alpha = alpha),
-                                shape = shape,
-                            )
-                        },
-                    ).clickable(enabled = enabled, onClick = onClick),
-            contentAlignment = Alignment.Center,
-        ) {
-            // Dim the icon (not just the border) when the support is disabled.
+        SupportFocusRing(isFocused = isFocused, shape = shape) {
             Box(
-                modifier = Modifier.alpha(alpha),
+                modifier =
+                    Modifier
+                        .size(SUPPORT_BOX_SIZE)
+                        .clip(shape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f * alpha))
+                        .then(
+                            if (isSpell) {
+                                // Spell tokens use a dashed border
+                                Modifier.drawBehind {
+                                    val strokeWidth = if (isSelected) 3.dp.toPx() else 2.dp.toPx()
+                                    drawRoundRect(
+                                        color = borderColor.copy(alpha = alpha),
+                                        cornerRadius = CornerRadius(14.dp.toPx(), 14.dp.toPx()),
+                                        style =
+                                            Stroke(
+                                                width = strokeWidth,
+                                                pathEffect =
+                                                    PathEffect.dashPathEffect(
+                                                        floatArrayOf(8.dp.toPx(), 6.dp.toPx()),
+                                                        0f,
+                                                    ),
+                                            ),
+                                    )
+                                }
+                            } else {
+                                // Objects use a solid border
+                                Modifier.border(
+                                    width = if (isSelected) 3.dp else 2.dp,
+                                    color = borderColor.copy(alpha = alpha),
+                                    shape = shape,
+                                )
+                            },
+                        ).clickable(enabled = enabled, onClick = onClick),
                 contentAlignment = Alignment.Center,
             ) {
-                content()
-            }
+                // Dim the icon (not just the border) when the support is disabled.
+                Box(
+                    modifier = Modifier.alpha(alpha),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    content()
+                }
 
-            // Count badge in the upper-right corner when more than one is available
-            if (remaining > 1) {
-                SupportCountBadge(
-                    count = remaining,
-                    color = borderColor,
-                    alpha = alpha,
-                    modifier = Modifier.align(Alignment.TopEnd),
-                )
+                // Count badge in the upper-right corner when more than one is available
+                if (remaining > 1) {
+                    SupportCountBadge(
+                        count = remaining,
+                        color = borderColor,
+                        alpha = alpha,
+                        modifier = Modifier.align(Alignment.TopEnd),
+                    )
+                }
             }
         }
+    }
+}
+
+/**
+ * Wraps a support box in a constant-size gutter that draws a bright ring around the box while it is
+ * the current keyboard-focus cursor. The gutter is always reserved so neighbouring boxes do not
+ * shift as the focus moves between them.
+ */
+@Composable
+private fun SupportFocusRing(
+    isFocused: Boolean,
+    shape: Shape,
+    content: @Composable () -> Unit,
+) {
+    Box(
+        modifier =
+            Modifier
+                .clip(shape)
+                .then(
+                    if (isFocused) {
+                        Modifier.border(width = 3.dp, color = SupportBarColors.Focus, shape = shape)
+                    } else {
+                        Modifier
+                    },
+                ).padding(SUPPORT_FOCUS_RING_PADDING),
+        contentAlignment = Alignment.Center,
+    ) {
+        content()
     }
 }
 
@@ -250,7 +507,7 @@ private fun SupportCountBadge(
 }
 
 @Composable
-private fun SupportObjectIcon(
+internal fun SupportObjectIcon(
     type: SupportObjectType,
     size: Dp,
 ) {
@@ -272,6 +529,7 @@ private fun CooldownPowerBox(
     type: CooldownPowerType,
     readyIn: Int,
     enabled: Boolean,
+    isFocused: Boolean,
     tooltip: String,
     onClick: () -> Unit,
 ) {
@@ -281,53 +539,57 @@ private fun CooldownPowerBox(
     val borderColor = SupportBarColors.CooldownBorder
 
     TooltipWrapper(text = tooltip, preferAbove = true) {
-        Box(
-            modifier =
-                Modifier
-                    .size(SUPPORT_BOX_SIZE)
-                    .clip(shape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f * alpha))
-                    .border(
-                        width = 2.dp,
-                        color = borderColor.copy(alpha = alpha),
-                        shape = shape,
-                    ).clickable(enabled = enabled, onClick = onClick),
-            contentAlignment = Alignment.Center,
-        ) {
-            // Dim the icon while the power is recharging or otherwise disabled (e.g. during
-            // the initial building phase) so the symbol — not just the border — is grayed out.
-            Box(
-                modifier = Modifier.alpha((if (onCooldown) 0.35f else 1f) * alpha),
-                contentAlignment = Alignment.Center,
-            ) {
-                CooldownPowerIcon(type, SUPPORT_ICON_SIZE)
-            }
-
-            // Large cooldown number over the dimmed icon
-            if (onCooldown) {
-                Text(
-                    text = "$readyIn",
-                    color = borderColor.copy(alpha = alpha),
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-
-            // Small white timer symbol on a teal disc in the top-left corner so cooldown
-            // powers are easy to distinguish from other supports on any background. The whole
-            // badge (disc and glyph) is dimmed together when the power is disabled.
+        SupportFocusRing(isFocused = isFocused, shape = shape) {
             Box(
                 modifier =
                     Modifier
-                        .align(Alignment.TopStart)
-                        .padding(2.dp)
-                        .size(16.dp)
-                        .alpha(alpha)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(borderColor),
+                        .size(SUPPORT_BOX_SIZE)
+                        .clip(shape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f * alpha))
+                        .border(
+                            width = 2.dp,
+                            color = borderColor.copy(alpha = alpha),
+                            shape = shape,
+                        ).clickable(enabled = enabled, onClick = onClick),
                 contentAlignment = Alignment.Center,
             ) {
-                TimerBadge(dimension = 11.dp)
+                Box(contentAlignment = Alignment.Center) {
+                    // Dim the icon while the power is recharging or otherwise disabled (e.g. during
+                    // the initial building phase) so the symbol — not just the border — is grayed out.
+                    Box(
+                        modifier = Modifier.alpha((if (onCooldown) 0.35f else 1f) * alpha),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CooldownPowerIcon(type, SUPPORT_ICON_SIZE)
+                    }
+
+                    // Large cooldown number over the dimmed icon
+                    if (onCooldown) {
+                        Text(
+                            text = "$readyIn",
+                            color = borderColor.copy(alpha = alpha),
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+
+                // Small white timer symbol on a teal disc in the top-left corner so cooldown
+                // powers are easy to distinguish from other supports on any background. The whole
+                // badge (disc and glyph) is dimmed together when the power is disabled.
+                Box(
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopStart)
+                            .padding(2.dp)
+                            .size(16.dp)
+                            .alpha(alpha)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(borderColor),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    TimerBadge(dimension = 11.dp)
+                }
             }
         }
     }
@@ -483,6 +745,7 @@ private fun supportTooltip(
             .get(typeKey, locale)
     return "$typeLabel: $name"
 }
+
 fun CooldownPowerType.localizedCooldownPowerName(
     locale: com.hyperether.resources.AppLocale = com.hyperether.resources.currentLanguage.value,
 ): String {
