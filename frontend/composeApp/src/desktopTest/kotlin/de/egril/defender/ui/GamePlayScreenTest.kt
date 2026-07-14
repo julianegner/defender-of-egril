@@ -12,6 +12,7 @@ import de.egril.defender.ui.gameplay.GamePlayScreen
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertTrue
 
 /**
  * UI tests for the Game Play screen.
@@ -216,7 +217,7 @@ class GamePlayScreenTest {
         composeTestRule.waitForIdle()
 
         // The unknown-story STORY_INTRO should have requested dismissal instead of blocking.
-        kotlin.test.assertTrue(dismissCount >= 1, "Unknown STORY_INTRO should auto-dismiss")
+        assertTrue(dismissCount >= 1, "Unknown STORY_INTRO should auto-dismiss")
     }
 
     @Test
