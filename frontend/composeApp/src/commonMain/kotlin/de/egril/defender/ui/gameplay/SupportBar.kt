@@ -105,7 +105,9 @@ fun visibleSupportSlots(gameState: GameState): List<SupportSlot> {
  * least one use remaining are kept.
  */
 fun displayedSupportObjectTypes(gameState: GameState): List<SupportObjectType> {
-    val declared = gameState.level.supports.objects.map { it.type }
+    val declared =
+        gameState.level.supports.objects
+            .map { it.type }
     val extra =
         gameState.supportObjectsRemaining.keys
             .filter { it !in declared }
@@ -118,7 +120,9 @@ fun displayedSupportObjectTypes(gameState: GameState): List<SupportObjectType> {
  * runtime by a scripted event. Only types with at least one use remaining are kept.
  */
 fun displayedSupportSpellTypes(gameState: GameState): List<SpellType> {
-    val declared = gameState.level.supports.spells.map { it.spell }
+    val declared =
+        gameState.level.supports.spells
+            .map { it.spell }
     val extra =
         gameState.supportSpellsRemaining.keys
             .filter { it !in declared }
