@@ -195,6 +195,37 @@ class EventScriptSystemTest {
     }
 
     @Test
+    fun testUnitReachedConditionIsTypeSpecificWhenTypeSet() {
+        val target = Position(3, 0)
+        val event =
+            LevelEvent(
+                id = "reached_ork",
+                condition =
+                    EventCondition(
+                        type = EventConditionType.UNIT_REACHED,
+                        position = target,
+                        attackerType = AttackerType.ORK,
+                    ),
+                actions = listOf(EventAction(type = EventActionType.GIVE_COINS, amount = 30)),
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        // A goblin on the target tile must NOT fire an ork-specific UNIT_REACHED event.
+        val goblin = Attacker(id = 1, type = AttackerType.GOBLIN, position = mutableStateOf(target))
+        state.attackers.add(goblin)
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(100, state.coins.value, "A different unit type on the tile should not fire a type-specific event")
+
+        // An ork on the target tile fires it.
+        val ork = Attacker(id = 2, type = AttackerType.ORK, position = mutableStateOf(target))
+        state.attackers.add(ork)
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(130, state.coins.value, "The specified unit type reaching the tile should fire the event")
+    }
+
+    @Test
     fun testGiveSupportActions() {
         val event =
             LevelEvent(
