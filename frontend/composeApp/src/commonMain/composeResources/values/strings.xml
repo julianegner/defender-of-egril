@@ -1973,9 +1973,9 @@
     <string name="feedback_form_language_no_results">No matching languages found</string>
     <string name="feedback_form_language_clear">Clear</string>
     <string name="feedback_form_language_not_listed_hint">Language not listed? Write its name in the message field below.</string>
-    <string name="feedback_form_official_level_label">Official level (optional)</string>
-    <string name="feedback_form_official_level_none">Not specified</string>
-    <string name="feedback_form_official_level_hint">Select the official level your request refers to, or leave it unspecified for a new level.</string>
+    <string name="feedback_form_level_label">Level (optional)</string>
+    <string name="feedback_form_level_none">Not specified</string>
+    <string name="feedback_form_level_hint">Select the level your request refers to, or leave it unspecified for a new level.</string>
     <string name="feedback_form_submit">Send Feedback</string>
     <string name="feedback_form_submit_success">Feedback submitted successfully (ID: %1$s)</string>
     <string name="feedback_form_submit_error">Could not submit feedback. Please try again.</string>

@@ -1967,9 +1967,9 @@
     <string name="feedback_form_language_no_results">No se encontraron idiomas</string>
     <string name="feedback_form_language_clear">Borrar</string>
     <string name="feedback_form_language_not_listed_hint">¿Idioma no listado? Escribe su nombre en el campo de mensaje abajo.</string>
-    <string name="feedback_form_official_level_label">Nivel oficial (opcional)</string>
-    <string name="feedback_form_official_level_none">Sin especificar</string>
-    <string name="feedback_form_official_level_hint">Selecciona el nivel oficial al que se refiere tu solicitud, o déjalo sin especificar para un nivel nuevo.</string>
+    <string name="feedback_form_level_label">Nivel (opcional)</string>
+    <string name="feedback_form_level_none">Sin especificar</string>
+    <string name="feedback_form_level_hint">Selecciona el nivel al que se refiere tu solicitud, o déjalo sin especificar para un nivel nuevo.</string>
     <string name="feedback_form_submit">Enviar comentario</string>
     <string name="feedback_form_submit_success">Comentario enviado correctamente (ID: %1$s)</string>
     <string name="feedback_form_submit_error">No se pudo enviar el comentario. Inténtalo de nuevo.</string>

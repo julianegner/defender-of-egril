@@ -207,7 +207,7 @@ class ApplicationTest {
                         {
                           "feedbackId":"11111111-1111-4111-8111-111111111111",
                           "feedbackType":"LEVEL_REQUEST",
-                          "message":"[Official level: The Rush (the_rush)]\n\nPlease make it harder",
+                          "message":"[Level: The Rush (the_rush)]\n\nPlease make it harder",
                           "platform":"WEB"
                         }
                         """.trimIndent(),

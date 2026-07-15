@@ -56,9 +56,9 @@ internal data class BugTypeOption(
 )
 
 /**
- * Represents an official level that can optionally be referenced in a level request.
+ * Represents a level that can optionally be referenced in a level request.
  */
-internal data class OfficialLevelOption(
+internal data class LevelOption(
     val id: String,
     val title: String,
 )
@@ -214,9 +214,9 @@ fun FeedbackFormContent(
     var includeGameLog by remember { mutableStateOf(true) }
     var selectedLanguage by remember { mutableStateOf<LanguageEntry?>(null) }
     var languageSearchQuery by remember { mutableStateOf("") }
-    var officialLevels by remember { mutableStateOf<List<OfficialLevelOption>>(emptyList()) }
-    var officialLevelsLoaded by remember { mutableStateOf(false) }
-    var selectedOfficialLevel by remember { mutableStateOf<OfficialLevelOption?>(null) }
+    var levels by remember { mutableStateOf<List<LevelOption>>(emptyList()) }
+    var levelsLoaded by remember { mutableStateOf(false) }
+    var selectedLevel by remember { mutableStateOf<LevelOption?>(null) }
     var isSubmitting by remember { mutableStateOf(false) }
     var submitErrorCode by remember { mutableStateOf<Int?>(null) }
     var submitSuccess by remember { mutableStateOf(false) }
@@ -229,11 +229,11 @@ fun FeedbackFormContent(
     val isLevelRequest = selectedType.apiValue == "LEVEL_REQUEST"
     val isMessageMandatory = !isLanguageRequest
 
-    // Lazily load the official levels once a level request is selected.
+    // Lazily load the levels once a level request is selected.
     LaunchedEffect(isLevelRequest) {
-        if (isLevelRequest && !officialLevelsLoaded) {
-            officialLevels = loadOfficialLevelOptions()
-            officialLevelsLoaded = true
+        if (isLevelRequest && !levelsLoaded) {
+            levels = loadLevelOptions()
+            levelsLoaded = true
         }
     }
     val canSubmit =
@@ -326,7 +326,7 @@ fun FeedbackFormContent(
                                 selectedBugTypes = emptySet()
                             }
                             if (selectedType.apiValue != "LEVEL_REQUEST") {
-                                selectedOfficialLevel = null
+                                selectedLevel = null
                             }
                             expanded = false
                         },
@@ -394,12 +394,12 @@ fun FeedbackFormContent(
             )
         }
 
-        // Official level selector (only for level requests)
+        // Level selector (only for level requests)
         if (isLevelRequest) {
-            OfficialLevelSelector(
-                levels = officialLevels,
-                selectedLevel = selectedOfficialLevel,
-                onLevelSelected = { selectedOfficialLevel = it },
+            LevelSelector(
+                levels = levels,
+                selectedLevel = selectedLevel,
+                onLevelSelected = { selectedLevel = it },
             )
         }
 
@@ -576,16 +576,16 @@ fun FeedbackFormContent(
                             serializeSettingsJson(AppSettings.toSettingsMap())
                         }.getOrNull()
 
-                    // Prepend selected language / official level to message for context.
+                    // Prepend selected language / level to message for context.
                     val requestedLanguage = selectedLanguage
-                    val requestedLevel = selectedOfficialLevel
+                    val requestedLevel = selectedLevel
                     val trimmedMessage = message.trim()
                     val finalMessage =
                         when {
                             isLanguageRequest && requestedLanguage != null ->
                                 "[Requested language: ${requestedLanguage.name} (${requestedLanguage.code})]\n\n$trimmedMessage"
                             isLevelRequest && requestedLevel != null ->
-                                "[Official level: ${requestedLevel.title} (${requestedLevel.id})]\n\n$trimmedMessage"
+                                "[Level: ${requestedLevel.title} (${requestedLevel.id})]\n\n$trimmedMessage"
                             else -> trimmedMessage
                         }
 
@@ -620,7 +620,7 @@ fun FeedbackFormContent(
                         includeGameLog = true
                         selectedLanguage = null
                         languageSearchQuery = ""
-                        selectedOfficialLevel = null
+                        selectedLevel = null
                         additionalAttachments = emptyList()
                     } else {
                         submitErrorCode = errorCode
@@ -694,18 +694,18 @@ fun FeedbackFormContent(
 }
 
 /**
- * Optional dropdown that lets the user reference an official level in a level request.
+ * Optional dropdown that lets the user reference a level in a level request.
  * The first entry ("not specified") clears the selection.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OfficialLevelSelector(
-    levels: List<OfficialLevelOption>,
-    selectedLevel: OfficialLevelOption?,
-    onLevelSelected: (OfficialLevelOption?) -> Unit,
+private fun LevelSelector(
+    levels: List<LevelOption>,
+    selectedLevel: LevelOption?,
+    onLevelSelected: (LevelOption?) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val noneLabel = stringResource(Res.string.feedback_form_official_level_none)
+    val noneLabel = stringResource(Res.string.feedback_form_level_none)
 
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -717,7 +717,7 @@ private fun OfficialLevelSelector(
             OutlinedTextField(
                 value = selectedLevel?.title ?: noneLabel,
                 onValueChange = {},
-                label = { Text(stringResource(Res.string.feedback_form_official_level_label)) },
+                label = { Text(stringResource(Res.string.feedback_form_level_label)) },
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
@@ -745,7 +745,7 @@ private fun OfficialLevelSelector(
             }
         }
         Text(
-            text = stringResource(Res.string.feedback_form_official_level_hint),
+            text = stringResource(Res.string.feedback_form_level_hint),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -753,10 +753,10 @@ private fun OfficialLevelSelector(
 }
 
 /**
- * Loads the list of official (repository) levels in sequence order, excluding testing-only levels.
+ * Loads the list of bundled repository levels in sequence order, excluding testing-only levels.
  * Used to populate the optional level dropdown for level requests.
  */
-internal suspend fun loadOfficialLevelOptions(): List<OfficialLevelOption> =
+internal suspend fun loadLevelOptions(): List<LevelOption> =
     runCatching {
         val sequence = RepositoryLoader.loadSequence() ?: return emptyList()
         sequence.sequence.mapNotNull { levelId ->
@@ -764,7 +764,7 @@ internal suspend fun loadOfficialLevelOptions(): List<OfficialLevelOption> =
             if (level == null || level.testingOnly) {
                 null
             } else {
-                OfficialLevelOption(id = level.id, title = level.title)
+                LevelOption(id = level.id, title = level.title)
             }
         }
     }.getOrDefault(emptyList())
