@@ -858,6 +858,16 @@ fun GameGrid(
                         null
                     }
 
+                // supportObjectPlacementHighlightType: non-null for every valid placement target of the
+                // currently selected support object, so all reachable tiles are highlighted the same way
+                // a tower highlights its trap/barricade placement range (but without the range limit).
+                val supportObjectPlacementHighlightType: SupportObjectType? =
+                    if (selectedSupportObject != null && supportObjectPlacementPositions.contains(position)) {
+                        selectedSupportObject
+                    } else {
+                        null
+                    }
+
                 // Memoize the event-handler lambdas so Compose's strong-skipping can work correctly.
                 //
                 // Without memoization, `{ onCellClick(position) }` and `{ localHoveredPosition = ... }`
@@ -894,6 +904,7 @@ fun GameGrid(
                     previewDefenderType = previewDefenderType,
                     isKeyboardPlacementCursor = isKeyboardPlacementCursor,
                     supportObjectPreviewType = supportObjectPreviewType,
+                    supportObjectPlacementHighlightType = supportObjectPlacementHighlightType,
                     // NOTE: the null guard on selectedDefenderId/selectedTargetId is critical for
                     // correctness AND performance.  Without it, `null?.id == null` evaluates to
                     // `null == null = true`, so every cell without a defender/attacker becomes
@@ -1055,6 +1066,11 @@ fun GridCell(
     // selected support object. Drives the ghost preview so support-placed barricades/traps show the
     // same preview as their tower-placed counterparts.
     supportObjectPreviewType: SupportObjectType? = null,
+    // Non-null for every tile that is a valid placement target for the currently selected support
+    // object (barricade / dwarven trap / magical trap). Drives the same range-style tile highlight
+    // (border + diagonal stripes) that a tower shows when placing the equivalent item, but without
+    // the tower's range restriction.
+    supportObjectPlacementHighlightType: SupportObjectType? = null,
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
@@ -1420,6 +1436,13 @@ fun GridCell(
             false
         }
 
+    // Support-object placement highlight (barricade / dwarven trap / magical trap placed from the
+    // support bar). Mirrors the tower-placement range highlight above, but the set of valid tiles
+    // is supplied by the caller (supportObjectPlacementHighlightType) and has no range restriction.
+    val cellIsSupportBarricadePlacement = supportObjectPlacementHighlightType == SupportObjectType.BARRICADE
+    val cellIsSupportDwarvenTrapPlacement = supportObjectPlacementHighlightType == SupportObjectType.DWARVEN_TRAP
+    val cellIsSupportMagicalTrapPlacement = supportObjectPlacementHighlightType == SupportObjectType.MAGICAL_TRAP
+
     // Base background color based on area type - ALWAYS visible
     // Build areas adjacent to path allow tower placement
     val baseBackgroundColor =
@@ -1570,7 +1593,7 @@ fun GridCell(
             bombEffect != null -> Color(0xFFFF6F00).copy(alpha = 0.4f) // Amber tint for bomb
 
             // Barricade placement range - yellow tint for tiles in range
-            cellIsInBarricadeRange -> GamePlayColors.Yellow.copy(alpha = 0.3f) // Light yellow for barricade placement range
+            cellIsInBarricadeRange || cellIsSupportBarricadePlacement -> GamePlayColors.Yellow.copy(alpha = 0.3f) // Light yellow for barricade placement range
 
             // Tower placement preview - highlight the hovered build tile differently than range tiles
             showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f) // Light yellow for the build tile being hovered
@@ -1641,10 +1664,11 @@ fun GridCell(
             isInPreviewRange -> GamePlayColors.Success // Green border for range preview tiles
 
             // Barricade and trap placement range - brown borders (light brown diagonal stripes)
-            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
+            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement ||
+                cellIsSupportBarricadePlacement || cellIsSupportDwarvenTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
 
             // Magical trap placement range - lilac borders
-            cellIsValidForMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight // Lilac border for magical trap placement range
+            cellIsValidForMagicalTrapPlacement || cellIsSupportMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight // Lilac border for magical trap placement range
 
             // Buildable tile highlighting - lighter green borders with dashed line when tower type is selected
             isBuildableAndEmpty || canBeUsedAsTowerBase -> GamePlayColors.BuildableHighlight // Lighter green border for buildable tiles and tower bases
@@ -1688,7 +1712,8 @@ fun GridCell(
             isKeyboardPlacementCursor -> 6.dp // Prominent border for the keyboard placement/targeting cursor
             showPlacementPreview -> 6.dp // Double thickness for hovered build tile
             isInPreviewRange -> 3.dp // Medium border for range preview
-            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
+            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement ||
+                cellIsSupportBarricadePlacement || cellIsSupportDwarvenTrapPlacement || cellIsSupportMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
             isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp // Medium border for buildable tiles and tower bases
             isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp // Extra thick border for selected defender (not during initial building)
             cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> 2.dp // Thin purple border for double-reach-only tiles
@@ -1712,14 +1737,20 @@ fun GridCell(
             canBeUsedAsTowerBase ||
             cellIsInBarricadeRange ||
             cellIsValidForMineTrapPlacement ||
-            cellIsValidForMagicalTrapPlacement
+            cellIsValidForMagicalTrapPlacement ||
+            cellIsSupportBarricadePlacement ||
+            cellIsSupportDwarvenTrapPlacement ||
+            cellIsSupportMagicalTrapPlacement
 
     val showDiagonalStripes =
         isBuildableAndEmpty ||
             canBeUsedAsTowerBase ||
             cellIsInBarricadeRange ||
             cellIsValidForMineTrapPlacement ||
-            cellIsValidForMagicalTrapPlacement
+            cellIsValidForMagicalTrapPlacement ||
+            cellIsSupportBarricadePlacement ||
+            cellIsSupportDwarvenTrapPlacement ||
+            cellIsSupportMagicalTrapPlacement
 
     // Determine if we should use gradient blending
     val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
