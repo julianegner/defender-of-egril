@@ -165,12 +165,16 @@ enum class GameMessageType {
 
 /**
  * An in-game event message queued for display to the player.
- * @param type   The kind of event.
- * @param name   Optional name (target name or gate name).
+ * @param type          The kind of event.
+ * @param name          Optional name (target name or gate name); for [GameMessageType.EVENT_MESSAGE]
+ *                      it is the optional string-resource key of the predefined text (may be null).
+ * @param eventActions  For [GameMessageType.EVENT_MESSAGE]: the actions the event applied, so the
+ *                      granted elements (coins, mana, supports, …) can be shown to the player.
  */
 data class GameMessage(
     val type: GameMessageType,
     val name: String? = null,
+    val eventActions: List<EventAction>? = null,
 )
 
 data class GameState(

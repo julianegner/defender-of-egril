@@ -316,6 +316,27 @@ class EventScriptSystemTest {
     }
 
     @Test
+    fun testMessageIsQueuedEvenWithoutMessageKey() {
+        val event =
+            LevelEvent(
+                id = "no_msg",
+                condition = EventCondition(type = EventConditionType.TURN_START),
+                actions = listOf(EventAction(type = EventActionType.GIVE_COINS, amount = 50)),
+                messageKey = null,
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(1, state.pendingMessages.size, "A message should be queued even without a message key")
+        val message = state.pendingMessages.first()
+        assertEquals(GameMessageType.EVENT_MESSAGE, message.type)
+        assertEquals(null, message.name)
+        assertEquals(event.actions, message.eventActions, "The applied actions are carried on the message")
+    }
+
+    @Test
     fun testImmediateTriggerFiresThresholdConditions() {
         val killEvent =
             LevelEvent(

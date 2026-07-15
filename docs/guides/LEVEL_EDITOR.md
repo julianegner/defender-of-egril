@@ -82,7 +82,9 @@ more *actions* and an optional predefined story message:
   dwarven mine at a specified tile. When a *destroy mine* action targets a tile that has no
   pre-placed dwarven mine, the editor shows a warning below the tile field.
 - **Message**: optionally display a predefined story message (selected via dropdown) when the event
-  fires.
+  fires. A message dialog is always shown when an event fires — even if no story message is selected —
+  and lists the granted elements (coins, mana, support objects/spells) with their symbols, names and
+  amounts so the player knows what they gained.
 - **Repeatable**: by default an event fires only once; enable *repeatable* to let it fire on every
   future evaluation whenever its condition is met.
 

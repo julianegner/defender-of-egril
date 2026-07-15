@@ -94,9 +94,17 @@ class EventScriptSystem(
         for (action in event.actions) {
             applyAction(action)
         }
-        event.messageKey?.let { key ->
-            state.pendingMessages.add(GameMessage(type = GameMessageType.EVENT_MESSAGE, name = key))
-        }
+        // Always queue a message so the player is informed of the event's effects, even when no
+        // predefined story text was selected. The applied actions are carried on the message so the
+        // granted elements (coins, mana, supports, …) can be displayed with symbols, names and
+        // amounts.
+        state.pendingMessages.add(
+            GameMessage(
+                type = GameMessageType.EVENT_MESSAGE,
+                name = event.messageKey,
+                eventActions = event.actions,
+            ),
+        )
     }
 
     private fun applyAction(action: EventAction) {
