@@ -135,6 +135,7 @@ fun GameGrid(
     demoHoveredPosition: Position? = null, // overrides the local hover in demo mode
     keyboardHoveredPosition: Position? = null, // overrides the local hover for keyboard build tile selection
     keyboardPlacementCursor: Position? = null, // keyboard cursor tile while placing a support object / targeting a spell
+    selectedSupportObject: SupportObjectType? = null, // support object currently selected for placement (barricade/trap/magical trap)
     extraFocusTrigger: Int = 0,
 ) {
     // State for pan and zoom
@@ -634,6 +635,17 @@ fun GameGrid(
             hoveredPosition != null &&
             buildableEmptyPositions.contains(hoveredPosition)
 
+    // Valid tiles for placing the currently selected support object (barricade / trap / magical
+    // trap). Computed once per selection change so the per-cell hover preview below is an O(1)
+    // Set lookup. Empty when no support object is being placed.
+    val supportObjectPlacementPositions: Set<Position> by remember(gameState.level, selectedSupportObject) {
+        derivedStateOf {
+            selectedSupportObject
+                ?.let { supportObjectPlacementTiles(gameState, it).toHashSet() }
+                ?: emptySet()
+        }
+    }
+
     // Stable reference to onCellClick via rememberUpdatedState.
     //
     // Why this matters for performance:
@@ -835,6 +847,17 @@ fun GameGrid(
                 // cursor is true, so at most one cell recomposes when the cursor moves.
                 val isKeyboardPlacementCursor = keyboardPlacementCursor != null && keyboardPlacementCursor == position
 
+                // supportObjectPreviewType: non-null only for the single hovered tile that is a valid
+                // placement target for the currently selected support object. Mirrors previewDefenderType
+                // so hovering a support object over a valid tile shows the same ghost preview as the
+                // matching tower-placed barricade/trap.
+                val supportObjectPreviewType: SupportObjectType? =
+                    if (isHovering && selectedSupportObject != null && supportObjectPlacementPositions.contains(position)) {
+                        selectedSupportObject
+                    } else {
+                        null
+                    }
+
                 // Memoize the event-handler lambdas so Compose's strong-skipping can work correctly.
                 //
                 // Without memoization, `{ onCellClick(position) }` and `{ localHoveredPosition = ... }`
@@ -870,6 +893,7 @@ fun GameGrid(
                     canBeUsedAsTowerBase = canBeUsedAsTowerBase,
                     previewDefenderType = previewDefenderType,
                     isKeyboardPlacementCursor = isKeyboardPlacementCursor,
+                    supportObjectPreviewType = supportObjectPreviewType,
                     // NOTE: the null guard on selectedDefenderId/selectedTargetId is critical for
                     // correctness AND performance.  Without it, `null?.id == null` evaluates to
                     // `null == null = true`, so every cell without a defender/attacker becomes
@@ -1027,6 +1051,10 @@ fun GridCell(
     // placement or spell targeting). Renders a distinct bright cursor border/tint so keyboard users
     // can see which tile the place key will act on.
     isKeyboardPlacementCursor: Boolean = false,
+    // Non-null only for the single hovered tile that is a valid placement target for the currently
+    // selected support object. Drives the ghost preview so support-placed barricades/traps show the
+    // same preview as their tower-placed counterparts.
+    supportObjectPreviewType: SupportObjectType? = null,
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
@@ -1784,6 +1812,7 @@ fun GridCell(
                 isRiverTile = isRiverTile,
                 showPlacementPreview = showPlacementPreview,
                 showBarricadePreview = showBarricadePreview,
+                supportObjectPreviewType = supportObjectPreviewType,
                 previewDefenderType = previewDefenderType,
                 targetCircleInfo = targetCircleInfo,
                 useDashedBorder = useDashedBorder,
@@ -1850,6 +1879,7 @@ fun GridCell(
                 isRiverTile = isRiverTile,
                 showPlacementPreview = showPlacementPreview,
                 showBarricadePreview = showBarricadePreview,
+                supportObjectPreviewType = supportObjectPreviewType,
                 previewDefenderType = previewDefenderType,
                 targetCircleInfo = targetCircleInfo,
                 useDashedBorder = useDashedBorder,
@@ -1913,6 +1943,9 @@ private fun BoxScope.GridCellContent(
     isRiverTile: Boolean,
     showPlacementPreview: Boolean,
     showBarricadePreview: Boolean,
+    // Non-null only for the single hovered tile that is a valid placement target for the selected
+    // support object; renders the same ghost preview used for tower-placed barricades/traps.
+    supportObjectPreviewType: SupportObjectType? = null,
     // previewDefenderType replaces selectedDefenderType: non-null only for the 1 cell showing
     // the placement preview icon, so buy-button clicks don't cascade to all GridCellContent instances.
     previewDefenderType: DefenderType?,
@@ -2350,7 +2383,7 @@ private fun BoxScope.GridCellContent(
             }
         }
 
-        showBarricadePreview -> {
+        showBarricadePreview || supportObjectPreviewType == SupportObjectType.BARRICADE -> {
             // Show see-through barricade preview when hovering
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -2533,7 +2566,10 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show half-transparent trap icon on hovered path tile (when in trap placement mode)
-    if (showTrapPreview) {
+    if (showTrapPreview ||
+        supportObjectPreviewType == SupportObjectType.DWARVEN_TRAP ||
+        supportObjectPreviewType == SupportObjectType.MAGICAL_TRAP
+    ) {
         Box(
             modifier =
                 Modifier
@@ -2544,11 +2580,13 @@ private fun BoxScope.GridCellContent(
         ) {
             // Show different icon based on trap type
             when {
-                selectedMineAction == MineAction.BUILD_TRAP -> {
+                selectedMineAction == MineAction.BUILD_TRAP ||
+                    supportObjectPreviewType == SupportObjectType.DWARVEN_TRAP -> {
                     // Dwarven trap - show trap icon
                     TrapIcon(size = GamePlayConstants.TileIconSizes.TrapPreview)
                 }
-                selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP -> {
+                selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP ||
+                    supportObjectPreviewType == SupportObjectType.MAGICAL_TRAP -> {
                     // Magical trap - show pentagram icon
                     PentagramIcon(size = GamePlayConstants.TileIconSizes.TrapPreview)
                 }

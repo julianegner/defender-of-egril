@@ -2059,6 +2059,7 @@ private fun GamePlayScreenContent(
                             demoHoveredPosition = demoHoveredPosition,
                             keyboardHoveredPosition = keyboardSelectedBuildTile,
                             keyboardPlacementCursor = keyboardPlacementTile,
+                            selectedSupportObject = selectedSupportObject,
                         )
 
                         val captionText = soundCaptionText
