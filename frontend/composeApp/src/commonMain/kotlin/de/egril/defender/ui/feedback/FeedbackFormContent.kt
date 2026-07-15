@@ -215,6 +215,7 @@ fun FeedbackFormContent(
     var selectedLanguage by remember { mutableStateOf<LanguageEntry?>(null) }
     var languageSearchQuery by remember { mutableStateOf("") }
     var officialLevels by remember { mutableStateOf<List<OfficialLevelOption>>(emptyList()) }
+    var officialLevelsLoaded by remember { mutableStateOf(false) }
     var selectedOfficialLevel by remember { mutableStateOf<OfficialLevelOption?>(null) }
     var isSubmitting by remember { mutableStateOf(false) }
     var submitErrorCode by remember { mutableStateOf<Int?>(null) }
@@ -230,8 +231,9 @@ fun FeedbackFormContent(
 
     // Lazily load the official levels once a level request is selected.
     LaunchedEffect(isLevelRequest) {
-        if (isLevelRequest && officialLevels.isEmpty()) {
+        if (isLevelRequest && !officialLevelsLoaded) {
             officialLevels = loadOfficialLevelOptions()
+            officialLevelsLoaded = true
         }
     }
     val canSubmit =
@@ -575,13 +577,16 @@ fun FeedbackFormContent(
                         }.getOrNull()
 
                     // Prepend selected language / official level to message for context.
+                    val requestedLanguage = selectedLanguage
+                    val requestedLevel = selectedOfficialLevel
+                    val trimmedMessage = message.trim()
                     val finalMessage =
                         when {
-                            isLanguageRequest && selectedLanguage != null ->
-                                "[Requested language: ${selectedLanguage!!.name} (${selectedLanguage!!.code})]\n\n${message.trim()}"
-                            isLevelRequest && selectedOfficialLevel != null ->
-                                "[Official level: ${selectedOfficialLevel!!.title} (${selectedOfficialLevel!!.id})]\n\n${message.trim()}"
-                            else -> message.trim()
+                            isLanguageRequest && requestedLanguage != null ->
+                                "[Requested language: ${requestedLanguage.name} (${requestedLanguage.code})]\n\n$trimmedMessage"
+                            isLevelRequest && requestedLevel != null ->
+                                "[Official level: ${requestedLevel.title} (${requestedLevel.id})]\n\n$trimmedMessage"
+                            else -> trimmedMessage
                         }
 
                     val errorCode =
