@@ -293,16 +293,18 @@ private fun EventGainsSummary(actions: List<EventAction>) {
                         PentagramIcon(size = 24.dp)
                     }
                 EventActionType.GIVE_SUPPORT_OBJECT -> {
+                    // Mirror EventScriptSystem.applyAction: fall back to the first entry / a count of
+                    // one so the displayed element matches what was actually granted.
                     val type = action.supportObjectType ?: SupportObjectType.entries.first()
-                    val count = if (action.amount > 0) action.amount else 1
-                    EventGainRow(label = eventGainCountLabel(type.localizedSupportName(), count)) {
+                    EventGainRow(label = eventGainCountLabel(type.localizedSupportName(), action.grantCount())) {
                         SupportObjectIcon(type, 24.dp)
                     }
                 }
                 EventActionType.GIVE_SUPPORT_SPELL -> {
+                    // Mirror EventScriptSystem.applyAction: fall back to the first entry / a count of
+                    // one so the displayed element matches what was actually granted.
                     val spell = action.spellType ?: SpellType.entries.first()
-                    val count = if (action.amount > 0) action.amount else 1
-                    EventGainRow(label = eventGainCountLabel(spell.getLocalizedName(), count)) {
+                    EventGainRow(label = eventGainCountLabel(spell.getLocalizedName(), action.grantCount())) {
                         SpellTargetIcon(spell = spell, size = 24.dp)
                     }
                 }
@@ -320,6 +322,9 @@ private fun eventGainCountLabel(
     label: String,
     count: Int,
 ): String = if (count > 1) "$label ×$count" else label
+
+/** The number of support tokens granted by this action; falls back to one, matching the runtime. */
+private fun EventAction.grantCount(): Int = if (amount > 0) amount else 1
 
 @Composable
 private fun EventGainRow(
