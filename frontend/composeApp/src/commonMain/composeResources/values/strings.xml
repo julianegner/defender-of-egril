@@ -1973,6 +1973,9 @@
     <string name="feedback_form_language_no_results">No matching languages found</string>
     <string name="feedback_form_language_clear">Clear</string>
     <string name="feedback_form_language_not_listed_hint">Language not listed? Write its name in the message field below.</string>
+    <string name="feedback_form_official_level_label">Official level (optional)</string>
+    <string name="feedback_form_official_level_none">Not specified</string>
+    <string name="feedback_form_official_level_hint">Select the official level your request refers to, or leave it unspecified for a new level.</string>
     <string name="feedback_form_submit">Send Feedback</string>
     <string name="feedback_form_submit_success">Feedback submitted successfully (ID: %1$s)</string>
     <string name="feedback_form_submit_error">Could not submit feedback. Please try again.</string>
@@ -1985,6 +1988,8 @@
     <string name="feedback_type_typo_translation_text_desc">A spelling mistake, wrong translation, or unclear/incorrect text in the game.</string>
     <string name="feedback_type_feature_request">Feature Request</string>
     <string name="feedback_type_feature_request_desc">Suggest a new feature or improvement for the game.</string>
+    <string name="feedback_type_level_request">Level Request</string>
+    <string name="feedback_type_level_request_desc">Request a change to an existing level or suggest a new level.</string>
     <string name="feedback_type_additional_language_request">Additional Language Request</string>
     <string name="feedback_type_additional_language_request_desc">Request support for a language that is not yet available.</string>
     <string name="feedback_type_info_request">Info Request</string>
