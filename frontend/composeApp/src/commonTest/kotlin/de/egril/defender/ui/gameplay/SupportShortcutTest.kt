@@ -42,6 +42,22 @@ class SupportShortcutTest {
         )
 
     @Test
+    fun testEventGrantedSupportsBecomeVisibleEvenWhenNotDeclared() {
+        // A level with no declared supports; a scripted event grants a support object and spell.
+        val gameState = GameState(createLevel(LevelSupports()))
+        gameState.initializePrePlacedElements()
+        assertTrue(visibleSupportSlots(gameState).isEmpty(), "No supports should be visible initially")
+
+        gameState.supportObjectsRemaining[SupportObjectType.BARRICADE] = 1
+        gameState.supportSpellsRemaining[SpellType.FREEZE_SPELL] = 1
+
+        val slots = visibleSupportSlots(gameState)
+        assertEquals(2, slots.size, "Event-granted supports should be visible")
+        assertTrue(slots.contains(SupportSlot.ObjectSlot(SupportObjectType.BARRICADE)))
+        assertTrue(slots.contains(SupportSlot.SpellSlot(SpellType.FREEZE_SPELL)))
+    }
+
+    @Test
     fun testVisibleSlotsOrderedObjectsThenSpellsThenPowers() {
         val supports =
             LevelSupports(

@@ -160,16 +160,21 @@ enum class GameMessageType {
     EWHAD_RETREATS, // Ewhad has retreated (health reached 0, not final stand)
     EWHAD_DEFEATED, // Ewhad is defeated (health reached 0, final stand level)
     STORY_INTRO, // Story narrative shown at the start of a level (name = editorLevelId)
+    EVENT_MESSAGE, // Scripted-event story message (name = string-resource key of the predefined text)
 }
 
 /**
  * An in-game event message queued for display to the player.
- * @param type   The kind of event.
- * @param name   Optional name (target name or gate name).
+ * @param type          The kind of event.
+ * @param name          Optional name (target name or gate name); for [GameMessageType.EVENT_MESSAGE]
+ *                      it is the optional string-resource key of the predefined text (may be null).
+ * @param eventActions  For [GameMessageType.EVENT_MESSAGE]: the actions the event applied, so the
+ *                      granted elements (coins, mana, supports, …) can be shown to the player.
  */
 data class GameMessage(
     val type: GameMessageType,
     val name: String? = null,
+    val eventActions: List<EventAction>? = null,
 )
 
 data class GameState(
@@ -249,6 +254,10 @@ data class GameState(
     // Monotonically-increasing counter, incremented each time the "Sky is Falling" power is used,
     // to trigger the full-map falling-meteor animation overlay.
     val skyIsFallingTrigger: MutableState<Int> = mutableStateOf(0),
+    // Scripted level event tracking
+    val enemiesKilledTotal: MutableState<Int> = mutableStateOf(0), // Total enemies killed (by combat/traps, not those reaching the target)
+    val enemiesKilledByType: SnapshotStateMap<AttackerType, Int> = mutableStateMapOf(), // Kills per enemy type
+    val triggeredEventIds: SnapshotStateList<String> = mutableStateListOf(), // IDs of scripted events that have already fired
 ) {
     /** Multiplier applied to earned coins while the Coin Surge power is active (2x), otherwise 1x. */
     fun coinSurgeMultiplier(): Int = if (coinSurgeActive.value) 2 else 1

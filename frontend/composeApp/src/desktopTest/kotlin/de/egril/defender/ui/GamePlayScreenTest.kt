@@ -12,6 +12,7 @@ import de.egril.defender.ui.gameplay.GamePlayScreen
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertTrue
 
 /**
  * UI tests for the Game Play screen.
@@ -178,6 +179,81 @@ class GamePlayScreenTest {
         // The game map should be present (it's always rendered)
         // We can verify this by checking that the root exists and has content
         composeTestRule.onRoot().assertIsDisplayed()
+    }
+
+    @Test
+    fun testUnknownStoryIntroIsAutoDismissedSoItDoesNotBlockLaterMessages() {
+        // A STORY_INTRO for a user-created level whose id has no predefined story text must not
+        // stay stuck on screen; it should auto-dismiss so queued messages (e.g. scripted-event
+        // messages) can surface afterwards.
+        val level = LevelData.createLevels().first { it.id == 1 }
+        val gameState = GameState(level)
+        gameState.phase.value = GamePhase.PLAYER_TURN
+
+        var dismissCount = 0
+
+        composeTestRule.setContent {
+            GamePlayScreen(
+                gameState = gameState,
+                onPlaceDefender = { _, _ -> true },
+                onUpgradeDefender = { true },
+                onUndoTower = { true },
+                onSellTower = { true },
+                onStartFirstPlayerTurn = {},
+                onDefenderAttack = { _, _ -> true },
+                onDefenderAttackPosition = { _, _ -> true },
+                onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
+                onBackToMap = {},
+                pendingGameMessage =
+                    de.egril.defender.model.GameMessage(
+                        type = de.egril.defender.model.GameMessageType.STORY_INTRO,
+                        name = "a_user_created_level_without_predefined_story",
+                    ),
+                onDismissGameMessage = { dismissCount++ },
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        // The unknown-story STORY_INTRO should have requested dismissal instead of blocking.
+        assertTrue(dismissCount >= 1, "Unknown STORY_INTRO should auto-dismiss")
+    }
+
+    @Test
+    fun testEventMessageIsDisplayed() {
+        // A scripted-event message should resolve its predefined localized text and render it.
+        val level = LevelData.createLevels().first { it.id == 1 }
+        val gameState = GameState(level)
+        gameState.phase.value = GamePhase.PLAYER_TURN
+
+        composeTestRule.setContent {
+            GamePlayScreen(
+                gameState = gameState,
+                onPlaceDefender = { _, _ -> true },
+                onUpgradeDefender = { true },
+                onUndoTower = { true },
+                onSellTower = { true },
+                onStartFirstPlayerTurn = {},
+                onDefenderAttack = { _, _ -> true },
+                onDefenderAttackPosition = { _, _ -> true },
+                onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
+                onBackToMap = {},
+                pendingGameMessage =
+                    de.egril.defender.model.GameMessage(
+                        type = de.egril.defender.model.GameMessageType.EVENT_MESSAGE,
+                        name = "event_msg_reinforcements",
+                    ),
+                onDismissGameMessage = {},
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithText("Reinforcements", substring = true)
+            .assertExists()
     }
 
     @Test

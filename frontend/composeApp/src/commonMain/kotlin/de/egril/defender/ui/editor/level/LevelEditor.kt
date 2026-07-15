@@ -411,6 +411,7 @@ fun LevelEditorView(
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
     var connectedToPreviousLevel by remember { mutableStateOf(level.connectedToPreviousLevel) }
     var supportsState by remember { mutableStateOf(level.supports) }
+    var eventsState by remember { mutableStateOf(level.events) }
 
     // Update state when level changes (e.g., after reload from disk)
     LaunchedEffect(level.id, level.initialData, level.hashCode()) {
@@ -633,6 +634,18 @@ fun LevelEditorView(
                     }
                 },
             )
+            Tab(
+                selected = selectedTabIndex == 6,
+                onClick = { selectedTabIndex = 6 },
+                text = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(stringResource(Res.string.events_tab))
+                    }
+                },
+            )
         }
 
         // Tab Content
@@ -702,6 +715,16 @@ fun LevelEditorView(
                         supports = supportsState,
                         onSupportsChange = { supportsState = it },
                     )
+                6 ->
+                    de.egril.defender.ui.editor.level.events.EventsTab(
+                        events = eventsState,
+                        onEventsChange = { eventsState = it },
+                        minePositions =
+                            initialDataState.defenders
+                                .filter { it.type == DefenderType.DWARVEN_MINE }
+                                .map { it.position }
+                                .toSet(),
+                    )
             }
         }
 
@@ -732,6 +755,7 @@ fun LevelEditorView(
                                 allowAutoAttack = allowAutoAttack,
                                 connectedToPreviousLevel = connectedToPreviousLevel,
                                 supports = supportsState,
+                                events = eventsState,
                                 initialData = initialDataState,
                             )
 
@@ -986,6 +1010,7 @@ fun LevelEditorView(
                         allowAutoAttack = allowAutoAttack,
                         connectedToPreviousLevel = connectedToPreviousLevel,
                         supports = supportsState,
+                        events = eventsState,
                         initialData = initialDataState,
                     )
                 onSave(newLevel)

@@ -66,6 +66,10 @@ data class SavedGame(
     val supportSpellsRemaining: Map<SpellType, Int> = emptyMap(), // Spell tokens left to cast
     val cooldownPowerReadyIn: Map<CooldownPowerType, Int> = emptyMap(), // Turns until each power is ready (0 = ready)
     val coinSurgeActive: Boolean = false, // True when Coin Surge is active for the current turn
+    // Scripted-event tracking, persisted so events don't re-fire after save/load.
+    val triggeredEventIds: List<String> = emptyList(), // IDs of scripted events that have already fired
+    val enemiesKilledTotal: Int = 0, // Total enemies killed (for event conditions)
+    val enemiesKilledByType: Map<AttackerType, Int> = emptyMap(), // Kills per enemy type (for event conditions)
 )
 
 /**

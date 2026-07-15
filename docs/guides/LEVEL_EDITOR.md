@@ -69,6 +69,32 @@ To toggle between states, click the collapse/expand button in the header.
   - Available tower types
   - Level title and subtitle
 
+#### Events Tab (within Level Editor)
+
+The **Events** tab lets you script events for a level. Each event pairs a *condition* with one or
+more *actions* and an optional predefined story message:
+
+- **Conditions**: beginning of a player turn, beginning of an enemy turn, a number of enemies
+  killed, a number of enemies of a specific type killed, a unit (any or of a specific type)
+  reaching a defined tile, or the player having health/mana/coins at or below a threshold. Every
+  condition can be gated with a "from turn N onwards" value so it is only checked from a given turn.
+- **Actions**: give coins, give mana, grant a support object, grant a support spell, or destroy a
+  dwarven mine at a specified tile. When a *destroy mine* action targets a tile that has no
+  pre-placed dwarven mine, the editor shows a warning below the tile field.
+- **Message**: optionally display a predefined story message (selected via dropdown) when the event
+  fires. A message dialog is always shown when an event fires — even if no story message is selected —
+  and lists the granted elements (coins, mana, support objects/spells) with their symbols, names and
+  amounts so the player knows what they gained.
+- **Repeatable**: by default an event fires only once; enable *repeatable* to let it fire on every
+  future evaluation whenever its condition is met.
+
+Events are evaluated at the start of each player and enemy turn, and also immediately during the
+player's turn when a relevant state change happens (an enemy is killed or coins are spent), so
+threshold-based events fire as soon as their condition is met rather than waiting for the next turn.
+
+Each event is shown as a collapsible card. Collapsed cards display a short summary (the condition and
+the number of actions) and a delete button; click the card header to expand it and edit its details.
+
 ### Level Sequence Tab
 
 - Arrange the order in which levels appear in the game

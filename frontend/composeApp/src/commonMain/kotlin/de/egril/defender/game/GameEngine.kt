@@ -30,6 +30,7 @@ class GameEngine(
     private val mineOperations = MineOperations(state)
     private val raftSystem = RaftSystem(state)
     private val barricadeSystem = BarricadeSystem(state) // Add barricade system
+    private val eventScriptSystem = EventScriptSystem(state) // Scripted level events
 
     // Callback for dragon level changes (stored to set on new dragons)
     private var dragonLevelChangeCallback: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
@@ -39,24 +40,50 @@ class GameEngine(
         type: DefenderType,
         position: Position,
         instantDeploy: Boolean = false,
-    ): Boolean = towerManager.placeDefender(type, position, instantDeploy)
+    ): Boolean {
+        val result = towerManager.placeDefender(type, position, instantDeploy)
+        if (result) evaluateImmediateEvents()
+        return result
+    }
 
-    fun upgradeDefender(defenderId: Int): Boolean = towerManager.upgradeDefender(defenderId)
+    fun upgradeDefender(defenderId: Int): Boolean {
+        val result = towerManager.upgradeDefender(defenderId)
+        if (result) evaluateImmediateEvents()
+        return result
+    }
 
     fun undoTower(defenderId: Int): Boolean = towerManager.undoTower(defenderId)
 
     fun sellTower(defenderId: Int): Boolean = towerManager.sellTower(defenderId)
 
+    /**
+     * Re-evaluate scripted events that react to state changes (enemies killed, coins/mana/health
+     * thresholds, units reaching tiles) so they fire immediately during the player's turn rather
+     * than waiting for the next turn boundary. Turn-start events are unaffected.
+     */
+    fun evaluateImmediateEvents() {
+        eventScriptSystem.evaluate(EventTrigger.IMMEDIATE)
+    }
+
     // Combat System - delegated to CombatSystem
     fun defenderAttack(
         defenderId: Int,
         targetId: Int,
-    ): Boolean = combatSystem.defenderAttack(defenderId, targetId) { combatSystem.processDefeatedAttackers() }
+    ): Boolean {
+        val result = combatSystem.defenderAttack(defenderId, targetId) { combatSystem.processDefeatedAttackers() }
+        if (result) evaluateImmediateEvents()
+        return result
+    }
 
     fun defenderAttackPosition(
         defenderId: Int,
         targetPosition: Position,
-    ): Boolean = combatSystem.defenderAttackPosition(defenderId, targetPosition) { combatSystem.processDefeatedAttackers() }
+    ): Boolean {
+        val result =
+            combatSystem.defenderAttackPosition(defenderId, targetPosition) { combatSystem.processDefeatedAttackers() }
+        if (result) evaluateImmediateEvents()
+        return result
+    }
 
     // Mine Operations - delegated to MineOperations
     fun performMineDig(mineId: Int): DigOutcome? = mineOperations.performMineDig(mineId)
@@ -189,10 +216,12 @@ class GameEngine(
                     }
             }
         }
+        evaluateImmediateEvents()
     }
 
     fun checkAndActivateTraps() {
         mineOperations.checkAndActivateTraps { combatSystem.processDefeatedAttackers() }
+        evaluateImmediateEvents()
     }
 
     /**
@@ -227,11 +256,15 @@ class GameEngine(
         return when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> {
                 val target = selectAutoTargetForDefender(defender, activeAttackers) ?: return false
-                combatSystem.defenderAttack(defender.id, target.id) { combatSystem.processDefeatedAttackers() }
+                combatSystem
+                    .defenderAttack(defender.id, target.id) { combatSystem.processDefeatedAttackers() }
+                    .also { if (it) evaluateImmediateEvents() }
             }
             AttackType.AREA, AttackType.LASTING -> {
                 val targetPosition = selectBestAreaAttackPosition(defender, activeAttackers) ?: return false
-                combatSystem.defenderAttackPosition(defender.id, targetPosition) { combatSystem.processDefeatedAttackers() }
+                combatSystem
+                    .defenderAttackPosition(defender.id, targetPosition) { combatSystem.processDefeatedAttackers() }
+                    .also { if (it) evaluateImmediateEvents() }
             }
             AttackType.NONE -> false
         }
@@ -632,6 +665,9 @@ class GameEngine(
 
         // Reset all defender actions
         resetDefenderActions()
+
+        // Evaluate scripted events for the first player turn
+        eventScriptSystem.evaluate(EventTrigger.PLAYER_TURN_START)
     }
 
     private fun spawnInitialEnemies() {
@@ -1557,6 +1593,9 @@ class GameEngine(
         state.turnNumber.value++
         state.phase.value = GamePhase.ENEMY_TURN
 
+        // Evaluate scripted events at the start of the enemy turn
+        eventScriptSystem.evaluate(EventTrigger.ENEMY_TURN_START)
+
         GameLogBuffer.log(
             "TURN",
             "Enemy turn ${state.turnNumber.value} — HP: ${state.healthPoints.value}, Coins: ${state.coins.value}, Enemies alive: ${state.attackers.count {
@@ -1978,6 +2017,9 @@ class GameEngine(
 
         state.phase.value = GamePhase.PLAYER_TURN
         resetDefenderActions()
+
+        // Evaluate scripted events at the start of the player turn
+        eventScriptSystem.evaluate(EventTrigger.PLAYER_TURN_START)
     }
 
     private fun resetDefenderActions() {

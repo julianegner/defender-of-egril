@@ -24,7 +24,15 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.EventAction
+import de.egril.defender.model.EventActionType
+import de.egril.defender.model.SpellType
+import de.egril.defender.model.SupportObjectType
 import de.egril.defender.ui.common.SelectableText
+import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.icon.ExplosionIcon
+import de.egril.defender.ui.icon.MoneyIcon
+import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.isPlatformMobile
@@ -55,6 +63,8 @@ private const val KEYBOARD_SCROLL_STEP = 150
  * @param onDismiss Called when the dialog should be closed.
  * @param supports Optional level supports; when non-null and non-empty, a summary of the level's
  *   available player supports (objects + spell tokens) is shown below the body text.
+ * @param eventGains Optional scripted-event actions; when non-null and non-empty, the granted
+ *   elements (coins, mana, supports, …) are shown with symbols, names and amounts below the body.
  */
 @Composable
 fun NarrativeMessageDialog(
@@ -63,6 +73,7 @@ fun NarrativeMessageDialog(
     text: String,
     onDismiss: () -> Unit,
     supports: de.egril.defender.model.LevelSupports? = null,
+    eventGains: List<EventAction>? = null,
 ) {
     Dialog(onDismissRequest = onDismiss) {
         val focusRequester = remember { FocusRequester() }
@@ -204,15 +215,23 @@ fun NarrativeMessageDialog(
                     )
 
                     // Body text
-                    SelectableText(
-                        text = text,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF333333),
-                        textAlign = TextAlign.Center,
-                        fontSize = bodyFontSize,
-                    )
+                    if (text.isNotEmpty()) {
+                        SelectableText(
+                            text = text,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFF333333),
+                            textAlign = TextAlign.Center,
+                            fontSize = bodyFontSize,
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(4.dp))
+
+                    // Optional summary of the granted elements of a scripted event
+                    if (!eventGains.isNullOrEmpty()) {
+                        EventGainsSummary(actions = eventGains)
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
 
                     // Optional summary of the level's available player supports
                     if (supports != null && supports.isNotEmpty()) {
@@ -245,5 +264,82 @@ fun NarrativeMessageDialog(
                 }
             }
         }
+    }
+}
+
+/**
+ * Summary of the elements granted by a scripted event, shown inside [NarrativeMessageDialog].
+ *
+ * Each action is rendered as a row with a symbol, a name and (where relevant) an amount so the
+ * player knows exactly what they gained (coins, mana, support objects/spells) or what happened
+ * (a mine being destroyed).
+ */
+@Composable
+private fun EventGainsSummary(actions: List<EventAction>) {
+    if (actions.isEmpty()) return
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        actions.forEach { action ->
+            when (action.type) {
+                EventActionType.GIVE_COINS ->
+                    EventGainRow(label = stringResource(Res.string.event_summary_coins, action.amount)) {
+                        MoneyIcon(size = 24.dp)
+                    }
+                EventActionType.GIVE_MANA ->
+                    EventGainRow(label = stringResource(Res.string.event_summary_mana, action.amount)) {
+                        PentagramIcon(size = 24.dp)
+                    }
+                EventActionType.GIVE_SUPPORT_OBJECT -> {
+                    // Mirror EventScriptSystem.applyAction: fall back to the first entry / a count of
+                    // one so the displayed element matches what was actually granted.
+                    val type = action.supportObjectType ?: SupportObjectType.entries.first()
+                    EventGainRow(label = eventGainCountLabel(type.localizedSupportName(), action.grantCount())) {
+                        SupportObjectIcon(type, 24.dp)
+                    }
+                }
+                EventActionType.GIVE_SUPPORT_SPELL -> {
+                    // Mirror EventScriptSystem.applyAction: fall back to the first entry / a count of
+                    // one so the displayed element matches what was actually granted.
+                    val spell = action.spellType ?: SpellType.entries.first()
+                    EventGainRow(label = eventGainCountLabel(spell.getLocalizedName(), action.grantCount())) {
+                        SpellTargetIcon(spell = spell, size = 24.dp)
+                    }
+                }
+                EventActionType.DESTROY_MINE ->
+                    EventGainRow(label = stringResource(Res.string.event_act_destroy_mine)) {
+                        ExplosionIcon(size = 24.dp)
+                    }
+            }
+        }
+    }
+}
+
+/** Append "×count" to a label when more than one element is granted. */
+private fun eventGainCountLabel(
+    label: String,
+    count: Int,
+): String = if (count > 1) "$label ×$count" else label
+
+/** The number of support tokens granted by this action; falls back to one, matching the runtime. */
+private fun EventAction.grantCount(): Int = if (amount > 0) amount else 1
+
+@Composable
+private fun EventGainRow(
+    label: String,
+    icon: @Composable () -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        icon()
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF333333),
+        )
     }
 }

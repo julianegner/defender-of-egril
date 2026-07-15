@@ -199,6 +199,14 @@ object SaveJsonSerializer {
                 "\"${type.name}\": $readyIn"
             }
 
+        // Scripted-event tracking
+        val triggeredEventIdsJson =
+            savedGame.triggeredEventIds.joinToString(", ") { "\"$it\"" }
+        val enemiesKilledByTypeJson =
+            savedGame.enemiesKilledByType.entries.joinToString(", ") { (type, count) ->
+                "\"${type.name}\": $count"
+            }
+
         val data = """{
   "id": "${savedGame.id}",
   "timestamp": ${savedGame.timestamp},
@@ -243,7 +251,10 @@ object SaveJsonSerializer {
   "supportObjectsRemaining": {$supportObjectsJson},
   "supportSpellsRemaining": {$supportSpellsJson},
   "cooldownPowerReadyIn": {$cooldownPowersJson},
-  "coinSurgeActive": ${savedGame.coinSurgeActive}
+  "coinSurgeActive": ${savedGame.coinSurgeActive},
+  "triggeredEventIds": [$triggeredEventIdsJson],
+  "enemiesKilledTotal": ${savedGame.enemiesKilledTotal},
+  "enemiesKilledByType": {$enemiesKilledByTypeJson}
 }"""
         return """{
   "metadata": {
@@ -458,6 +469,31 @@ object SaveJsonSerializer {
                     false
                 }
 
+            // Parse scripted-event tracking (optional for backward compatibility)
+            val triggeredEventIds = mutableListOf<String>()
+            if (dataJson.contains("\"triggeredEventIds\":")) {
+                val section =
+                    try {
+                        dataJson.substringAfter("\"triggeredEventIds\": [").substringBefore("]")
+                    } catch (e: Exception) {
+                        ""
+                    }
+                if (section.isNotBlank()) {
+                    for (item in section.split(",")) {
+                        val trimmed = item.trim().removeSurrounding("\"")
+                        if (trimmed.isNotBlank()) triggeredEventIds.add(trimmed)
+                    }
+                }
+            }
+            val enemiesKilledTotal =
+                try {
+                    JsonUtils.extractValue(dataJson, "enemiesKilledTotal").toInt()
+                } catch (e: Exception) {
+                    0
+                }
+            val enemiesKilledByType =
+                parseEnumIntMap(dataJson, "enemiesKilledByType") { AttackerType.valueOf(it) }
+
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -499,6 +535,9 @@ object SaveJsonSerializer {
                 supportSpellsRemaining = supportSpellsRemaining,
                 cooldownPowerReadyIn = cooldownPowerReadyIn,
                 coinSurgeActive = coinSurgeActive,
+                triggeredEventIds = triggeredEventIds,
+                enemiesKilledTotal = enemiesKilledTotal,
+                enemiesKilledByType = enemiesKilledByType,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {

@@ -1548,6 +1548,7 @@ object EditorStorage {
                 connectedToPreviousLevel = editorLevel.connectedToPreviousLevel, // Connected level flag
                 targetInfoMap = gameTargetInfoMap, // Named / SINGLE_HIT target metadata
                 supports = editorLevel.supports, // Player-usable supports (objects + spell tokens)
+                events = editorLevel.events, // Scripted level events (conditions + actions + messages)
                 initialData = editorLevel.getEffectiveInitialData(), // Pre-placed elements using new structure
             )
 

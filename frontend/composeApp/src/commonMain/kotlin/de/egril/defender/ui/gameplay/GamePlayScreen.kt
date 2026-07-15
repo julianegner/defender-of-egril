@@ -2059,6 +2059,7 @@ private fun GamePlayScreenContent(
                             demoHoveredPosition = demoHoveredPosition,
                             keyboardHoveredPosition = keyboardSelectedBuildTile,
                             keyboardPlacementCursor = keyboardPlacementTile,
+                            selectedSupportObject = selectedSupportObject,
                         )
 
                         val captionText = soundCaptionText
@@ -3354,7 +3355,8 @@ private fun GamePlayScreenContent(
                                                 )
                                             else -> null
                                         }
-                                    story?.let { (narrativeType, storyTitle, storyText) ->
+                                    if (story != null) {
+                                        val (narrativeType, storyTitle, storyText) = story
                                         NarrativeMessageDialog(
                                             type = narrativeType,
                                             title = storyTitle,
@@ -3362,8 +3364,32 @@ private fun GamePlayScreenContent(
                                             onDismiss = { onDismissGameMessage?.invoke() },
                                             supports = gameState.level.supports,
                                         )
+                                    } else {
+                                        // No predefined story text for this level (e.g. user-created
+                                        // levels): dismiss so it does not block later queued messages
+                                        // (scripted-event messages, target-taken, etc.).
+                                        LaunchedEffect(msg) { onDismissGameMessage?.invoke() }
                                     }
+                                } else {
+                                    LaunchedEffect(msg) { onDismissGameMessage?.invoke() }
                                 }
+                            }
+                            GameMessageType.EVENT_MESSAGE -> {
+                                val messageKey = msg.name
+                                val eventText =
+                                    if (messageKey != null) {
+                                        com.hyperether.resources.LocalizedStrings
+                                            .get(messageKey, com.hyperether.resources.currentLanguage.value)
+                                    } else {
+                                        ""
+                                    }
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.STORY,
+                                    title = stringResource(Res.string.event_message_title),
+                                    text = eventText,
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                    eventGains = msg.eventActions,
+                                )
                             }
                             else ->
                                 GameEventMessageDialog(
