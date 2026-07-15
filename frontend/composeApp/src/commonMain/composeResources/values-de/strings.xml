@@ -1966,6 +1966,9 @@
     <string name="feedback_form_language_no_results">Keine passenden Sprachen gefunden</string>
     <string name="feedback_form_language_clear">Löschen</string>
     <string name="feedback_form_language_not_listed_hint">Sprache nicht aufgeführt? Schreibe den Namen unten ins Nachrichtenfeld.</string>
+    <string name="feedback_form_level_label">Level (optional)</string>
+    <string name="feedback_form_level_none">Nicht angegeben</string>
+    <string name="feedback_form_level_hint">Wähle das Level, auf das sich deine Anfrage bezieht, oder lass es für ein neues Level leer.</string>
     <string name="feedback_form_submit">Feedback senden</string>
     <string name="feedback_form_submit_success">Feedback erfolgreich gesendet (ID: %1$s)</string>
     <string name="feedback_form_submit_error">Feedback konnte nicht gesendet werden. Bitte versuche es erneut.</string>
@@ -1978,6 +1981,8 @@
     <string name="feedback_type_typo_translation_text_desc">Ein Schreibfehler, eine falsche Übersetzung oder ein unklarer/falscher Text im Spiel.</string>
     <string name="feedback_type_feature_request">Funktionswunsch</string>
     <string name="feedback_type_feature_request_desc">Schlage eine neue Funktion oder Verbesserung für das Spiel vor.</string>
+    <string name="feedback_type_level_request">Level-Anfrage</string>
+    <string name="feedback_type_level_request_desc">Fordere eine Änderung an einem bestehenden Level an oder schlage ein neues Level vor.</string>
     <string name="feedback_type_additional_language_request">Anfrage für zusätzliche Sprache</string>
     <string name="feedback_type_additional_language_request_desc">Unterstützung für eine noch nicht verfügbare Sprache anfordern.</string>
     <string name="feedback_type_info_request">Informationsanfrage</string>

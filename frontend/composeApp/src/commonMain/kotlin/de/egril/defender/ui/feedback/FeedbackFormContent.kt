@@ -27,6 +27,7 @@ import com.hyperether.resources.currentLanguage
 import com.hyperether.resources.stringResource
 import de.egril.defender.AppBuildInfo
 import de.egril.defender.config.GameLogBuffer
+import de.egril.defender.editor.RepositoryLoader
 import de.egril.defender.iam.IamService
 import de.egril.defender.save.BackendFeedbackService
 import de.egril.defender.save.FeedbackAttachmentData
@@ -52,6 +53,14 @@ internal data class BugTypeOption(
     val apiValue: String,
     val label: String,
     val description: String,
+)
+
+/**
+ * Represents a level that can optionally be referenced in a level request.
+ */
+internal data class LevelOption(
+    val id: String,
+    val title: String,
 )
 
 /**
@@ -143,6 +152,11 @@ fun FeedbackFormContent(
                 stringResource(Res.string.feedback_type_feature_request_desc),
             ),
             FeedbackTypeOption(
+                "LEVEL_REQUEST",
+                stringResource(Res.string.feedback_type_level_request),
+                stringResource(Res.string.feedback_type_level_request_desc),
+            ),
+            FeedbackTypeOption(
                 "ADDITIONAL_LANGUAGE_REQUEST",
                 stringResource(Res.string.feedback_type_additional_language_request),
                 stringResource(Res.string.feedback_type_additional_language_request_desc),
@@ -200,6 +214,9 @@ fun FeedbackFormContent(
     var includeGameLog by remember { mutableStateOf(true) }
     var selectedLanguage by remember { mutableStateOf<LanguageEntry?>(null) }
     var languageSearchQuery by remember { mutableStateOf("") }
+    var levels by remember { mutableStateOf<List<LevelOption>>(emptyList()) }
+    var levelsLoaded by remember { mutableStateOf(false) }
+    var selectedLevel by remember { mutableStateOf<LevelOption?>(null) }
     var isSubmitting by remember { mutableStateOf(false) }
     var submitErrorCode by remember { mutableStateOf<Int?>(null) }
     var submitSuccess by remember { mutableStateOf(false) }
@@ -209,7 +226,16 @@ fun FeedbackFormContent(
     val isBugReport = selectedType.apiValue == "BUG_REPORT"
     val isLanguageRequest = selectedType.apiValue == "ADDITIONAL_LANGUAGE_REQUEST"
     val isInfoRequest = selectedType.apiValue == "INFO_REQUEST"
+    val isLevelRequest = selectedType.apiValue == "LEVEL_REQUEST"
     val isMessageMandatory = !isLanguageRequest
+
+    // Lazily load the levels once a level request is selected.
+    LaunchedEffect(isLevelRequest) {
+        if (isLevelRequest && !levelsLoaded) {
+            levels = loadLevelOptions()
+            levelsLoaded = true
+        }
+    }
     val canSubmit =
         if (isBugReport) {
             message.isNotBlank() && selectedBugTypes.isNotEmpty()
@@ -299,6 +325,9 @@ fun FeedbackFormContent(
                             if (selectedType.apiValue != "BUG_REPORT") {
                                 selectedBugTypes = emptySet()
                             }
+                            if (selectedType.apiValue != "LEVEL_REQUEST") {
+                                selectedLevel = null
+                            }
                             expanded = false
                         },
                     )
@@ -362,6 +391,15 @@ fun FeedbackFormContent(
                 searchQuery = languageSearchQuery,
                 onSearchQueryChange = { languageSearchQuery = it },
                 onLanguageSelected = { selectedLanguage = it },
+            )
+        }
+
+        // Level selector (only for level requests)
+        if (isLevelRequest) {
+            LevelSelector(
+                levels = levels,
+                selectedLevel = selectedLevel,
+                onLevelSelected = { selectedLevel = it },
             )
         }
 
@@ -538,15 +576,18 @@ fun FeedbackFormContent(
                             serializeSettingsJson(AppSettings.toSettingsMap())
                         }.getOrNull()
 
-                    // Prepend selected language to message for language requests
+                    // Prepend selected language / level to message for context.
+                    val requestedLanguage = selectedLanguage
+                    val requestedLevel = selectedLevel
+                    val trimmedMessage = message.trim()
                     val finalMessage =
-                        selectedLanguage?.let { lang ->
-                            if (isLanguageRequest) {
-                                "[Requested language: ${lang.name} (${lang.code})]\n\n${message.trim()}"
-                            } else {
-                                null
-                            }
-                        } ?: message.trim()
+                        when {
+                            isLanguageRequest && requestedLanguage != null ->
+                                "[Requested language: ${requestedLanguage.name} (${requestedLanguage.code})]\n\n$trimmedMessage"
+                            isLevelRequest && requestedLevel != null ->
+                                "[Level: ${requestedLevel.title} (${requestedLevel.id})]\n\n$trimmedMessage"
+                            else -> trimmedMessage
+                        }
 
                     val errorCode =
                         BackendFeedbackService.submitFeedback(
@@ -579,6 +620,7 @@ fun FeedbackFormContent(
                         includeGameLog = true
                         selectedLanguage = null
                         languageSearchQuery = ""
+                        selectedLevel = null
                         additionalAttachments = emptyList()
                     } else {
                         submitErrorCode = errorCode
@@ -650,6 +692,82 @@ fun FeedbackFormContent(
         }
     }
 }
+
+/**
+ * Optional dropdown that lets the user reference a level in a level request.
+ * The first entry ("not specified") clears the selection.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LevelSelector(
+    levels: List<LevelOption>,
+    selectedLevel: LevelOption?,
+    onLevelSelected: (LevelOption?) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val noneLabel = stringResource(Res.string.feedback_form_level_none)
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it },
+        ) {
+            OutlinedTextField(
+                value = selectedLevel?.title ?: noneLabel,
+                onValueChange = {},
+                label = { Text(stringResource(Res.string.feedback_form_level_label)) },
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                DropdownMenuItem(
+                    text = { Text(noneLabel) },
+                    onClick = {
+                        onLevelSelected(null)
+                        expanded = false
+                    },
+                )
+                levels.forEach { level ->
+                    DropdownMenuItem(
+                        text = { Text(level.title) },
+                        onClick = {
+                            onLevelSelected(level)
+                            expanded = false
+                        },
+                    )
+                }
+            }
+        }
+        Text(
+            text = stringResource(Res.string.feedback_form_level_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+/**
+ * Loads the list of bundled repository levels in sequence order, excluding testing-only levels.
+ * Used to populate the optional level dropdown for level requests.
+ */
+internal suspend fun loadLevelOptions(): List<LevelOption> =
+    runCatching {
+        val sequence = RepositoryLoader.loadSequence() ?: return emptyList()
+        sequence.sequence.mapNotNull { levelId ->
+            val level = RepositoryLoader.loadLevel(levelId)
+            if (level == null || level.testingOnly) {
+                null
+            } else {
+                LevelOption(id = level.id, title = level.title)
+            }
+        }
+    }.getOrDefault(emptyList())
 
 /**
  * Searchable, multi-line language selector with flags.
