@@ -1132,6 +1132,9 @@
     <string name="test_level">Nivel de prueba</string>
     <string name="sandbox_level">Nivel de pruebas libre</string>
     <string name="sandbox">Modo libre</string>
+    <string name="sandbox_tools">Herramientas de modo libre</string>
+    <string name="sandbox_spawn_enemy">Generar enemigo</string>
+    <string name="sandbox_add_coins">Añadir 1000 monedas</string>
     <string name="allow_auto_attack">Permitir Auto-Ataque</string>
     <string name="connected_to_previous_level">Conectar con el nivel anterior</string>
     <string name="auto_attack_info_title">Función de Auto-Ataque</string>

@@ -106,6 +106,8 @@ fun GamePlayScreen(
     onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
     activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
     onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
+    onSandboxSpawnEnemy: ((de.egril.defender.model.AttackerType, Int) -> Unit)? = null, // Sandbox: spawn an adjustable test enemy
+    onSandboxAddCoins: (() -> Unit)? = null, // Sandbox: add coins
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -171,6 +173,8 @@ fun GamePlayScreen(
         onCastSupportSpellToken = onCastSupportSpellToken,
         activeSpellToken = activeSpellToken,
         onActivateCooldownPower = onActivateCooldownPower,
+        onSandboxSpawnEnemy = onSandboxSpawnEnemy,
+        onSandboxAddCoins = onSandboxAddCoins,
     )
 }
 
@@ -241,6 +245,8 @@ private fun GamePlayScreenContent(
     onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
     activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
     onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
+    onSandboxSpawnEnemy: ((de.egril.defender.model.AttackerType, Int) -> Unit)? = null, // Sandbox: spawn an adjustable test enemy
+    onSandboxAddCoins: (() -> Unit)? = null, // Sandbox: add coins
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedSupportObject by remember { mutableStateOf<SupportObjectType?>(null) }
@@ -249,6 +255,7 @@ private fun GamePlayScreenContent(
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
     var selectedTargetPosition by remember { mutableStateOf<Position?>(null) }
     var showCheatDialog by remember { mutableStateOf(false) }
+    var showSandboxTools by remember { mutableStateOf(false) }
     var cheatCodeInput by remember { mutableStateOf("") }
     var showMineActionDialog by remember { mutableStateOf(false) }
     var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
@@ -1750,6 +1757,12 @@ private fun GamePlayScreenContent(
                             },
                         onEnemyCountClick = { showOverlay = !showOverlay },
                         onWinLevelInfoClick = { showEndTurnConfirmation = true },
+                        onSandboxTools =
+                            if (onSandboxSpawnEnemy != null && !isDemoMode) {
+                                { showSandboxTools = true }
+                            } else {
+                                null
+                            },
                         onManaClick =
                             if (onOpenMagicPanel != null && gameState.maxMana.value > 0 && !isDemoMode) {
                                 {
@@ -2884,6 +2897,14 @@ private fun GamePlayScreenContent(
                             showHints = true,
                             initialInput = cheatCodeInput,
                             onInputChange = { cheatCodeInput = it },
+                        )
+                    }
+
+                    if (showSandboxTools && onSandboxSpawnEnemy != null) {
+                        SandboxToolsDialog(
+                            onSpawnEnemy = { type, level -> onSandboxSpawnEnemy(type, level) },
+                            onAddCoins = { onSandboxAddCoins?.invoke() },
+                            onDismiss = { showSandboxTools = false },
                         )
                     }
 

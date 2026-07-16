@@ -651,6 +651,8 @@ fun App() {
                                 onCastSupportSpellToken = { spell -> viewModel.onSupportSpellTokenClicked(spell) },
                                 activeSpellToken = pendingTokenSpell,
                                 onActivateCooldownPower = { power -> viewModel.activateCooldownPower(power) },
+                                onSandboxSpawnEnemy = { type, level -> viewModel.sandboxSpawnEnemy(type, level) },
+                                onSandboxAddCoins = { viewModel.sandboxAddCoins() },
                             )
                         }
                     }

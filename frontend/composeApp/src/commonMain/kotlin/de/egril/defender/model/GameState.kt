@@ -365,9 +365,10 @@ data class GameState(
             waypointNextTarget
         }
 
-    fun canPlaceDefender(type: DefenderType): Boolean = coins.value >= type.baseCost && level.availableTowers.contains(type)
+    fun canPlaceDefender(type: DefenderType): Boolean =
+        (level.isSandbox || coins.value >= type.baseCost) && level.availableTowers.contains(type)
 
-    fun canUpgradeDefender(defender: Defender): Boolean = coins.value >= defender.upgradeCost
+    fun canUpgradeDefender(defender: Defender): Boolean = level.isSandbox || coins.value >= defender.upgradeCost
 
     fun hasActionsRemaining(): Boolean = actionsRemainingThisTurn.value > 0
 

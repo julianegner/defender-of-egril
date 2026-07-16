@@ -1131,6 +1131,9 @@
     <string name="test_level">Test-Level</string>
     <string name="sandbox_level">Sandbox-Level</string>
     <string name="sandbox">Sandbox</string>
+    <string name="sandbox_tools">Sandbox-Werkzeuge</string>
+    <string name="sandbox_spawn_enemy">Gegner beschwören</string>
+    <string name="sandbox_add_coins">1000 Münzen hinzufügen</string>
     <string name="allow_auto_attack">Auto-Angriff erlauben</string>
     <string name="connected_to_previous_level">Mit vorherigem Level verbinden</string>
     <string name="auto_attack_info_title">Auto-Angriff-Funktion</string>

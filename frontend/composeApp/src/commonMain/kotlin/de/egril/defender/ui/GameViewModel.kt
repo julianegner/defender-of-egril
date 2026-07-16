@@ -2345,6 +2345,26 @@ class GameViewModel {
             }
     }
 
+    /**
+     * Sandbox: spawn an adjustable test enemy (type + level) onto the running level.
+     */
+    fun sandboxSpawnEnemy(
+        type: de.egril.defender.model.AttackerType,
+        level: Int,
+    ) {
+        if (_gameState.value?.level?.isSandbox != true) return
+        gameEngine?.spawnEnemy(type, level.coerceAtLeast(1))
+        surfaceNextPendingMessageIfIdle()
+    }
+
+    /**
+     * Sandbox: add coins to the running level.
+     */
+    fun sandboxAddCoins(amount: Int = 1000) {
+        if (_gameState.value?.level?.isSandbox != true) return
+        gameEngine?.addCoins(amount)
+    }
+
     fun applyCheatCode(code: String): Boolean {
         // Check for reminder testing cheat codes first
         val lowerCode = code.lowercase().trim()

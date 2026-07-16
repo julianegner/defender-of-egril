@@ -71,4 +71,29 @@ class SandboxLevelTest {
         )
         assertFalse(state.canWinLevelNow())
     }
+
+    @Test
+    fun sandboxLevelAllowsFreePlacementAndUpgradeWithoutCoins() {
+        val level =
+            buildLevel(isSandbox = true).copy(
+                buildAreas = setOf(Position(3, 2)),
+                availableTowers = setOf(DefenderType.SPIKE_TOWER),
+            )
+        val state = playerTurnState(level)
+        state.coins.value = 0
+        // With no coins, a sandbox level still allows placement and upgrade.
+        assertTrue(state.canPlaceDefender(DefenderType.SPIKE_TOWER))
+    }
+
+    @Test
+    fun nonSandboxLevelRequiresCoinsToPlace() {
+        val level =
+            buildLevel(isSandbox = false).copy(
+                buildAreas = setOf(Position(3, 2)),
+                availableTowers = setOf(DefenderType.SPIKE_TOWER),
+            )
+        val state = playerTurnState(level)
+        state.coins.value = 0
+        assertFalse(state.canPlaceDefender(DefenderType.SPIKE_TOWER))
+    }
 }

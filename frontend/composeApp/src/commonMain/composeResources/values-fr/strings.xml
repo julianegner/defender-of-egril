@@ -1132,6 +1132,9 @@
     <string name="test_level">Niveau de test</string>
     <string name="sandbox_level">Niveau bac à sable</string>
     <string name="sandbox">Bac à sable</string>
+    <string name="sandbox_tools">Outils bac à sable</string>
+    <string name="sandbox_spawn_enemy">Générer un ennemi</string>
+    <string name="sandbox_add_coins">Ajouter 1000 pièces</string>
     <string name="allow_auto_attack">Autoriser l'Attaque Automatique</string>
     <string name="connected_to_previous_level">Connecter au niveau précédent</string>
     <string name="auto_attack_info_title">Fonction d'Attaque Automatique</string>

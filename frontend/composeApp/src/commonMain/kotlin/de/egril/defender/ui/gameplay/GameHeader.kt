@@ -41,6 +41,7 @@ import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.icon.HelpIcon
 import de.egril.defender.ui.icon.KeyboardKeyIcon
 import de.egril.defender.ui.icon.SaveIcon
+import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
@@ -69,6 +70,7 @@ fun GameHeader(
     onEnemyCountClick: (() -> Unit)? = null,
     onManaClick: (() -> Unit)? = null,
     onWinLevelInfoClick: (() -> Unit)? = null,
+    onSandboxTools: (() -> Unit)? = null,
     isDemoMode: Boolean = false,
     onDemoTitleClick: (() -> Unit)? = null,
     externalShowShortcuts: Boolean = false,
@@ -346,6 +348,18 @@ fun GameHeader(
                         triggerOpen = externalShowSettings,
                         onTriggerHandled = onExternalShowSettingsHandled,
                     )
+
+                    if (onSandboxTools != null && gameState.level.isSandbox) {
+                        TooltipWrapper(text = stringResource(Res.string.sandbox_tools)) {
+                            Button(
+                                onClick = onSandboxTools,
+                                modifier = Modifier.height(buttonHeight).semantics { contentDescription = "sandbox_tools" },
+                                contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
+                            ) {
+                                SwordIcon(size = buttonIconSize)
+                            }
+                        }
+                    }
 
                     if (onSaveGame != null) {
                         TooltipWrapper(text = stringResource(Res.string.tooltip_save_the_game)) {

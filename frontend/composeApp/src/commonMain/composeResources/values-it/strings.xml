@@ -1132,6 +1132,9 @@
     <string name="test_level">Livello di test</string>
     <string name="sandbox_level">Livello sandbox</string>
     <string name="sandbox">Sandbox</string>
+    <string name="sandbox_tools">Strumenti sandbox</string>
+    <string name="sandbox_spawn_enemy">Genera nemico</string>
+    <string name="sandbox_add_coins">Aggiungi 1000 monete</string>
     <string name="allow_auto_attack">Consenti Attacco Automatico</string>
     <string name="connected_to_previous_level">Collegato al livello precedente</string>
     <string name="auto_attack_info_title">Funzione Attacco Automatico</string>
