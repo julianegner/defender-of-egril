@@ -10,7 +10,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -105,10 +104,10 @@ fun SandboxToolsDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text("${stringResource(Res.string.enemy_level)}: $enemyLevel")
-                    IconButton(onClick = { if (enemyLevel > 1) enemyLevel-- }) {
+                    OutlinedButton(onClick = { if (enemyLevel > 1) enemyLevel-- }) {
                         Text("-", style = MaterialTheme.typography.titleLarge)
                     }
-                    IconButton(onClick = { if (enemyLevel < 20) enemyLevel++ }) {
+                    OutlinedButton(onClick = { if (enemyLevel < 20) enemyLevel++ }) {
                         Text("+", style = MaterialTheme.typography.titleLarge)
                     }
                 }

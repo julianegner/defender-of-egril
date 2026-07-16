@@ -520,7 +520,9 @@ object SaveJsonSerializer {
                             try {
                                 val x = JsonUtils.extractValue(entry, "x").toInt()
                                 val y = JsonUtils.extractValue(entry, "y").toInt()
-                                val type = de.egril.defender.editor.TileType.valueOf(JsonUtils.extractValue(entry, "type"))
+                                val type =
+                                    de.egril.defender.editor.TileType
+                                        .valueOf(JsonUtils.extractValue(entry, "type"))
                                 result[Position(x, y)] = type
                             } catch (e: Exception) {
                                 // Skip malformed tile entries.
