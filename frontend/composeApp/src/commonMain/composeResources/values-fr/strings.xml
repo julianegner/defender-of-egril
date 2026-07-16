@@ -1135,7 +1135,12 @@
     <string name="sandbox_tools">Outils bac à sable</string>
     <string name="sandbox_spawn_enemy">Générer un ennemi</string>
     <string name="sandbox_add_coins">Ajouter 1000 pièces</string>
-    <string name="sandbox_edit_map">Modifier les tuiles de la carte</string>\n    <string name="sandbox_tile_build_area">Zone de construction</string>\n    <string name="sandbox_tile_no_play">Bloqué</string>\n    <string name="sandbox_paint_hint">Touchez les tuiles pour les peindre. Touchez Terminé une fois fini.</string>\n    <string name="sandbox_done_editing">Terminer la modification de la carte</string>\n    <string name="allow_auto_attack">Autoriser l'Attaque Automatique</string>
+    <string name="sandbox_edit_map">Modifier les tuiles de la carte</string>
+    <string name="sandbox_tile_build_area">Zone de construction</string>
+    <string name="sandbox_tile_no_play">Bloqué</string>
+    <string name="sandbox_paint_hint">Touchez les tuiles pour les peindre. Touchez Terminé une fois fini.</string>
+    <string name="sandbox_done_editing">Terminer la modification de la carte</string>
+    <string name="allow_auto_attack">Autoriser l'Attaque Automatique</string>
     <string name="connected_to_previous_level">Connecter au niveau précédent</string>
     <string name="auto_attack_info_title">Fonction d'Attaque Automatique</string>
     <string name="auto_attack_info_message">Vous pouvez maintenant utiliser la fonction Attaque Auto. Lorsque vous sélectionnez "Terminer le Tour" et qu'il reste des points d'action utilisables, le dialogue propose l'option "Attaque Auto et Terminer le Tour". Ensuite, les tours avec des points d'action restants attaquent automatiquement les ennemis. Cible les ennemis par priorité (d'abord les boss, puis les ennemis spéciaux). S'il reste des actions (mines, pièges, attaques acides sans ennemi à portée), vous recevez un message indiquant quel type d'action est encore utilisable, sinon le tour se termine.</string>

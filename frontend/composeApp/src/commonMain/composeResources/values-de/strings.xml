@@ -1134,7 +1134,12 @@
     <string name="sandbox_tools">Sandbox-Werkzeuge</string>
     <string name="sandbox_spawn_enemy">Gegner beschwören</string>
     <string name="sandbox_add_coins">1000 Münzen hinzufügen</string>
-    <string name="sandbox_edit_map">Kartenfelder bearbeiten</string>\n    <string name="sandbox_tile_build_area">Baubereich</string>\n    <string name="sandbox_tile_no_play">Gesperrt</string>\n    <string name="sandbox_paint_hint">Felder antippen, um sie zu malen. Zum Beenden auf Fertig tippen.</string>\n    <string name="sandbox_done_editing">Kartenbearbeitung beenden</string>\n    <string name="allow_auto_attack">Auto-Angriff erlauben</string>
+    <string name="sandbox_edit_map">Kartenfelder bearbeiten</string>
+    <string name="sandbox_tile_build_area">Baubereich</string>
+    <string name="sandbox_tile_no_play">Gesperrt</string>
+    <string name="sandbox_paint_hint">Felder antippen, um sie zu malen. Zum Beenden auf Fertig tippen.</string>
+    <string name="sandbox_done_editing">Kartenbearbeitung beenden</string>
+    <string name="allow_auto_attack">Auto-Angriff erlauben</string>
     <string name="connected_to_previous_level">Mit vorherigem Level verbinden</string>
     <string name="auto_attack_info_title">Auto-Angriff-Funktion</string>
     <string name="auto_attack_info_message">Sie können nun die Auto-Angriff-Funktion verwenden. Wenn Sie "Zug beenden" wählen und noch verwendbare Aktionspunkte übrig sind, bietet der Dialog die Option "Auto-Angriff und Zug beenden". Dann greifen Türme mit verbleibenden Aktionspunkten automatisch Feinde an. Greift Feinde nach Priorität an (zuerst Bosse, dann spezielle Feinde). Wenn noch Aktionen übrig sind (Minen, Fallen, Säureangriffe ohne Feind in Reichweite), erhalten Sie eine Nachricht, welche Art von Aktion noch verwendbar ist, andernfalls endet der Zug.</string>

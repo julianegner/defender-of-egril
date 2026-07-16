@@ -1135,7 +1135,12 @@
     <string name="sandbox_tools">Strumenti sandbox</string>
     <string name="sandbox_spawn_enemy">Genera nemico</string>
     <string name="sandbox_add_coins">Aggiungi 1000 monete</string>
-    <string name="sandbox_edit_map">Modifica caselle mappa</string>\n    <string name="sandbox_tile_build_area">Area di costruzione</string>\n    <string name="sandbox_tile_no_play">Bloccato</string>\n    <string name="sandbox_paint_hint">Tocca le caselle per dipingerle. Tocca Fatto al termine.</string>\n    <string name="sandbox_done_editing">Termina modifica mappa</string>\n    <string name="allow_auto_attack">Consenti Attacco Automatico</string>
+    <string name="sandbox_edit_map">Modifica caselle mappa</string>
+    <string name="sandbox_tile_build_area">Area di costruzione</string>
+    <string name="sandbox_tile_no_play">Bloccato</string>
+    <string name="sandbox_paint_hint">Tocca le caselle per dipingerle. Tocca Fatto al termine.</string>
+    <string name="sandbox_done_editing">Termina modifica mappa</string>
+    <string name="allow_auto_attack">Consenti Attacco Automatico</string>
     <string name="connected_to_previous_level">Collegato al livello precedente</string>
     <string name="auto_attack_info_title">Funzione Attacco Automatico</string>
     <string name="auto_attack_info_message">Ora puoi usare la funzione Attacco Auto. Quando selezioni "Termina Turno" e ci sono punti azione utilizzabili rimasti, il dialogo offre l'opzione "Attacco Auto e Termina Turno". Quindi, le torri con punti azione rimasti attaccano automaticamente i nemici. Colpisce i nemici per priorità (prima i boss, poi i nemici speciali). Se rimangono azioni (miniere, trappole, attacchi acidi senza nemici a portata), ricevi un messaggio che indica quale tipo di azione è ancora utilizzabile, altrimenti il turno termina.</string>
