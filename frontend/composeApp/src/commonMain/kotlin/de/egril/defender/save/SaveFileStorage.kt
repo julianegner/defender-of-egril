@@ -391,6 +391,60 @@ object SaveFileStorage {
             triggeredEventIds = gameState.triggeredEventIds.toList(),
             enemiesKilledTotal = gameState.enemiesKilledTotal.value,
             enemiesKilledByType = gameState.enemiesKilledByType.toMap(),
+            sandboxMapTiles = if (gameState.level.isSandbox) buildSandboxMapTiles(gameState.level) else null,
+        )
+    }
+
+    /**
+     * Capture the current (possibly runtime-edited) sandbox map tile layout so it can be restored on load.
+     */
+    private fun buildSandboxMapTiles(level: Level): Map<Position, de.egril.defender.editor.TileType> {
+        val tiles = mutableMapOf<Position, de.egril.defender.editor.TileType>()
+        level.pathCells.forEach { tiles[it] = de.egril.defender.editor.TileType.PATH }
+        level.buildAreas.forEach { tiles[it] = de.egril.defender.editor.TileType.BUILD_AREA }
+        level.riverTiles.keys.forEach { tiles[it] = de.egril.defender.editor.TileType.RIVER }
+        level.startPositions.forEach { tiles[it] = de.egril.defender.editor.TileType.SPAWN_POINT }
+        level.targetPositions.forEach { tiles[it] = de.egril.defender.editor.TileType.TARGET }
+        return tiles
+    }
+
+    /**
+     * Rebuild a sandbox level's tile collections from a persisted tile map.
+     */
+    private fun applySandboxMapTiles(
+        level: Level,
+        tiles: Map<Position, de.egril.defender.editor.TileType>,
+    ): Level {
+        val pathCells = mutableSetOf<Position>()
+        val buildAreas = mutableSetOf<Position>()
+        val startPositions = mutableListOf<Position>()
+        val targetPositions = mutableListOf<Position>()
+        val riverTiles = level.riverTiles.toMutableMap()
+        // Rivers are fully re-derived from the saved tile map.
+        riverTiles.clear()
+        tiles.forEach { (position, type) ->
+            when (type) {
+                de.egril.defender.editor.TileType.PATH -> pathCells.add(position)
+                de.egril.defender.editor.TileType.BUILD_AREA -> buildAreas.add(position)
+                de.egril.defender.editor.TileType.SPAWN_POINT -> startPositions.add(position)
+                de.egril.defender.editor.TileType.TARGET -> targetPositions.add(position)
+                de.egril.defender.editor.TileType.RIVER ->
+                    riverTiles[position] =
+                        level.riverTiles[position]
+                            ?: de.egril.defender.model.RiverTile(
+                                position = position,
+                                flowDirection = de.egril.defender.model.RiverFlow.EAST,
+                                flowSpeed = 1,
+                            )
+                de.egril.defender.editor.TileType.NO_PLAY -> {} // Not stored in any collection.
+            }
+        }
+        return level.copy(
+            pathCells = pathCells.toSet(),
+            buildAreas = buildAreas.toSet(),
+            startPositions = startPositions.toList(),
+            targetPositions = targetPositions.toList(),
+            riverTiles = riverTiles.toMap(),
         )
     }
 
@@ -401,7 +455,14 @@ object SaveFileStorage {
         savedGame: SavedGame,
         level: Level,
     ): GameState {
-        val gameState = GameState(level = level)
+        // Sandbox: restore the (possibly runtime-edited) map tile layout before creating the state.
+        val effectiveLevel =
+            if (level.isSandbox && savedGame.sandboxMapTiles != null) {
+                applySandboxMapTiles(level, savedGame.sandboxMapTiles)
+            } else {
+                level
+            }
+        val gameState = GameState(level = effectiveLevel)
 
         // Restore basic state
         gameState.phase.value = savedGame.phase

@@ -2365,6 +2365,18 @@ class GameViewModel {
         gameEngine?.addCoins(amount)
     }
 
+    /**
+     * Sandbox: repaint a map tile at runtime to the given tile type.
+     */
+    fun sandboxPaintTile(
+        position: de.egril.defender.model.Position,
+        tileType: de.egril.defender.editor.TileType,
+    ) {
+        val state = _gameState.value ?: return
+        if (!state.level.isSandbox) return
+        state.sandboxPaintTile(position, tileType)
+    }
+
     fun applyCheatCode(code: String): Boolean {
         // Check for reminder testing cheat codes first
         val lowerCode = code.lowercase().trim()

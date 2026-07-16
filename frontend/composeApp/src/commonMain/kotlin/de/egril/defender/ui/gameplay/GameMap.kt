@@ -138,6 +138,11 @@ fun GameGrid(
     selectedSupportObject: SupportObjectType? = null, // support object currently selected for placement (barricade/trap/magical trap)
     extraFocusTrigger: Int = 0,
 ) {
+    // Establish a snapshot dependency on runtime map edits (sandbox tile painting) so the entire
+    // grid recomposes and re-derives its tile sets from the updated level when a tile is repainted.
+    @Suppress("UNUSED_VARIABLE")
+    val mapEditVersion = gameState.mapEditVersion.value
+
     // State for pan and zoom
     var scale by remember { mutableStateOf(1f) }
     var offsetX by remember { mutableStateOf(0f) }

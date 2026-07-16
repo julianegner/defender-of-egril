@@ -207,6 +207,16 @@ object SaveJsonSerializer {
                 "\"${type.name}\": $count"
             }
 
+        // Sandbox map tiles: array of {x, y, type}. Serialized as null when not a sandbox save.
+        val sandboxMapTilesJson =
+            savedGame.sandboxMapTiles?.let { tiles ->
+                val entries =
+                    tiles.entries.joinToString(", ") { (position, type) ->
+                        "{\"x\": ${position.x}, \"y\": ${position.y}, \"type\": \"${type.name}\"}"
+                    }
+                "[$entries]"
+            } ?: "null"
+
         val data = """{
   "id": "${savedGame.id}",
   "timestamp": ${savedGame.timestamp},
@@ -254,7 +264,8 @@ object SaveJsonSerializer {
   "coinSurgeActive": ${savedGame.coinSurgeActive},
   "triggeredEventIds": [$triggeredEventIdsJson],
   "enemiesKilledTotal": ${savedGame.enemiesKilledTotal},
-  "enemiesKilledByType": {$enemiesKilledByTypeJson}
+  "enemiesKilledByType": {$enemiesKilledByTypeJson},
+  "sandboxMapTiles": $sandboxMapTilesJson
 }"""
         return """{
   "metadata": {
@@ -494,6 +505,33 @@ object SaveJsonSerializer {
             val enemiesKilledByType =
                 parseEnumIntMap(dataJson, "enemiesKilledByType") { AttackerType.valueOf(it) }
 
+            // Parse sandbox map tiles (optional; only present for sandbox saves). Null when absent.
+            val sandboxMapTiles: Map<Position, de.egril.defender.editor.TileType>? =
+                if (dataJson.contains("\"sandboxMapTiles\": [")) {
+                    val tilesSection =
+                        try {
+                            dataJson.substringAfter("\"sandboxMapTiles\": [").substringBefore("]")
+                        } catch (e: Exception) {
+                            ""
+                        }
+                    val result = mutableMapOf<Position, de.egril.defender.editor.TileType>()
+                    if (tilesSection.isNotBlank()) {
+                        for (entry in JsonUtils.splitJsonArray(tilesSection)) {
+                            try {
+                                val x = JsonUtils.extractValue(entry, "x").toInt()
+                                val y = JsonUtils.extractValue(entry, "y").toInt()
+                                val type = de.egril.defender.editor.TileType.valueOf(JsonUtils.extractValue(entry, "type"))
+                                result[Position(x, y)] = type
+                            } catch (e: Exception) {
+                                // Skip malformed tile entries.
+                            }
+                        }
+                    }
+                    result
+                } else {
+                    null
+                }
+
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -538,6 +576,7 @@ object SaveJsonSerializer {
                 triggeredEventIds = triggeredEventIds,
                 enemiesKilledTotal = enemiesKilledTotal,
                 enemiesKilledByType = enemiesKilledByType,
+                sandboxMapTiles = sandboxMapTiles,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {

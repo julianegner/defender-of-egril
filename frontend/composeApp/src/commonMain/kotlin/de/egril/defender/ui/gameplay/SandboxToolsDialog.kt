@@ -24,16 +24,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.editor.TileType
 import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.TriangleDownIcon
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.close
 import defender_of_egril.composeapp.generated.resources.enemy_level
+import defender_of_egril.composeapp.generated.resources.enemy_path
 import defender_of_egril.composeapp.generated.resources.sandbox_add_coins
+import defender_of_egril.composeapp.generated.resources.sandbox_edit_map
 import defender_of_egril.composeapp.generated.resources.sandbox_spawn_enemy
+import defender_of_egril.composeapp.generated.resources.sandbox_tile_build_area
+import defender_of_egril.composeapp.generated.resources.sandbox_tile_no_play
 import defender_of_egril.composeapp.generated.resources.sandbox_tools
 import defender_of_egril.composeapp.generated.resources.spawn
+import defender_of_egril.composeapp.generated.resources.spawn_point
+import defender_of_egril.composeapp.generated.resources.target
 
 /**
  * Sandbox in-game tools dialog: send out an adjustable test enemy (type + level) and add coins.
@@ -43,6 +50,7 @@ import defender_of_egril.composeapp.generated.resources.spawn
 fun SandboxToolsDialog(
     onSpawnEnemy: (AttackerType, Int) -> Unit,
     onAddCoins: () -> Unit,
+    onSelectPaintTile: (TileType) -> Unit,
     onDismiss: () -> Unit,
 ) {
     // Dragons are boss units with special spawn mechanics; keep the sandbox test roster to the
@@ -119,6 +127,27 @@ fun SandboxToolsDialog(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(stringResource(Res.string.sandbox_add_coins))
+                }
+
+                HorizontalDivider()
+
+                // Map tile editing: pick a tile type, then paint tiles on the map.
+                Text(stringResource(Res.string.sandbox_edit_map))
+                val tilePalette =
+                    listOf(
+                        TileType.PATH to stringResource(Res.string.enemy_path),
+                        TileType.BUILD_AREA to stringResource(Res.string.sandbox_tile_build_area),
+                        TileType.SPAWN_POINT to stringResource(Res.string.spawn_point),
+                        TileType.TARGET to stringResource(Res.string.target),
+                        TileType.NO_PLAY to stringResource(Res.string.sandbox_tile_no_play),
+                    )
+                tilePalette.forEach { (type, label) ->
+                    OutlinedButton(
+                        onClick = { onSelectPaintTile(type) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(label)
+                    }
                 }
             }
         },

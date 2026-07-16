@@ -1136,7 +1136,7 @@
     <string name="sandbox_tools">Sandbox Tools</string>
     <string name="sandbox_spawn_enemy">Spawn Enemy</string>
     <string name="sandbox_add_coins">Add 1000 Coins</string>
-    <string name="allow_auto_attack">Allow Auto-Attack</string>
+    <string name="sandbox_edit_map">Edit Map Tiles</string>\n    <string name="sandbox_tile_build_area">Build Area</string>\n    <string name="sandbox_tile_no_play">Blocked</string>\n    <string name="sandbox_paint_hint">Tap tiles to paint them. Tap Done when finished.</string>\n    <string name="sandbox_done_editing">Done Editing Map</string>\n    <string name="allow_auto_attack">Allow Auto-Attack</string>
     <string name="connected_to_previous_level">Connected to Previous Level</string>
     <string name="auto_attack_info_title">Auto-Attack Feature</string>
     <string name="auto_attack_info_message">You can now use the Auto-Attack function. When you select "End Turn" and there are usable action points left, the dialog gives the option "Auto-Attack and End Turn". Then, towers with action points left automatically attack enemies. Targets enemies by priority (bosses first, then special enemies). If there are actions left (mines, traps, acid attacks with no enemy in range), you get a message stating which kind of action is still usable, otherwise the turn ends.</string>

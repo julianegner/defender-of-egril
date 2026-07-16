@@ -1,7 +1,9 @@
 package de.egril.defender.model
 
 import androidx.compose.runtime.mutableStateOf
+import de.egril.defender.editor.TileType
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -95,5 +97,41 @@ class SandboxLevelTest {
         val state = playerTurnState(level)
         state.coins.value = 0
         assertFalse(state.canPlaceDefender(DefenderType.SPIKE_TOWER))
+    }
+
+    @Test
+    fun sandboxPaintTileConvertsPathToBuildAreaAndBack() {
+        val state = playerTurnState(buildLevel(isSandbox = true))
+        val target = Position(4, 2)
+        assertTrue(state.level.isOnPath(target))
+        val versionBefore = state.mapEditVersion.value
+
+        state.sandboxPaintTile(target, TileType.BUILD_AREA)
+        assertFalse(state.level.isOnPath(target))
+        assertTrue(state.level.isBuildArea(target))
+        assertEquals(versionBefore + 1, state.mapEditVersion.value)
+
+        state.sandboxPaintTile(target, TileType.PATH)
+        assertTrue(state.level.isOnPath(target))
+        assertFalse(state.level.isBuildArea(target))
+    }
+
+    @Test
+    fun sandboxPaintTileNoPlayClearsTile() {
+        val state = playerTurnState(buildLevel(isSandbox = true))
+        val target = Position(4, 2)
+        state.sandboxPaintTile(target, TileType.NO_PLAY)
+        assertFalse(state.level.isOnPath(target))
+        assertFalse(state.level.isBuildArea(target))
+    }
+
+    @Test
+    fun sandboxPaintTileIsNoOpForNonSandboxLevel() {
+        val state = playerTurnState(buildLevel(isSandbox = false))
+        val target = Position(4, 2)
+        state.sandboxPaintTile(target, TileType.BUILD_AREA)
+        // Unchanged: still on path, still no build area, version untouched.
+        assertTrue(state.level.isOnPath(target))
+        assertEquals(0, state.mapEditVersion.value)
     }
 }

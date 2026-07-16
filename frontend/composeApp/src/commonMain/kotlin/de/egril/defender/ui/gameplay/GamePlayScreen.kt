@@ -108,6 +108,7 @@ fun GamePlayScreen(
     onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
     onSandboxSpawnEnemy: ((de.egril.defender.model.AttackerType, Int) -> Unit)? = null, // Sandbox: spawn an adjustable test enemy
     onSandboxAddCoins: (() -> Unit)? = null, // Sandbox: add coins
+    onSandboxPaintTile: ((de.egril.defender.model.Position, de.egril.defender.editor.TileType) -> Unit)? = null, // Sandbox: repaint a map tile
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -175,6 +176,7 @@ fun GamePlayScreen(
         onActivateCooldownPower = onActivateCooldownPower,
         onSandboxSpawnEnemy = onSandboxSpawnEnemy,
         onSandboxAddCoins = onSandboxAddCoins,
+        onSandboxPaintTile = onSandboxPaintTile,
     )
 }
 
@@ -247,6 +249,7 @@ private fun GamePlayScreenContent(
     onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
     onSandboxSpawnEnemy: ((de.egril.defender.model.AttackerType, Int) -> Unit)? = null, // Sandbox: spawn an adjustable test enemy
     onSandboxAddCoins: (() -> Unit)? = null, // Sandbox: add coins
+    onSandboxPaintTile: ((de.egril.defender.model.Position, de.egril.defender.editor.TileType) -> Unit)? = null, // Sandbox: repaint a map tile
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedSupportObject by remember { mutableStateOf<SupportObjectType?>(null) }
@@ -256,6 +259,8 @@ private fun GamePlayScreenContent(
     var selectedTargetPosition by remember { mutableStateOf<Position?>(null) }
     var showCheatDialog by remember { mutableStateOf(false) }
     var showSandboxTools by remember { mutableStateOf(false) }
+    // Sandbox: active map tile-paint type; when non-null, tapping a tile repaints it to this type.
+    var sandboxPaintTileType by remember { mutableStateOf<de.egril.defender.editor.TileType?>(null) }
     var cheatCodeInput by remember { mutableStateOf("") }
     var showMineActionDialog by remember { mutableStateOf(false) }
     var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
@@ -1796,6 +1801,29 @@ private fun GamePlayScreenContent(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
+                    // Sandbox: active map tile-paint mode banner with a Done button.
+                    sandboxPaintTileType?.let {
+                        Row(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.tertiaryContainer, RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.sandbox_paint_hint),
+                                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                modifier = Modifier.weight(1f),
+                            )
+                            Button(onClick = { sandboxPaintTileType = null }) {
+                                Text(stringResource(Res.string.sandbox_done_editing))
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
                     // Game Grid with toggle button and overlay
                     Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                         // Scrollable Game Grid
@@ -1810,6 +1838,13 @@ private fun GamePlayScreenContent(
                             selectedBarricadeAction = selectedBarricadeAction,
                             extraFocusTrigger = mapRefocusTrigger,
                             onCellClick = { position ->
+                                // Sandbox: map tile painting takes precedence over all other interactions.
+                                val paintType = sandboxPaintTileType
+                                if (paintType != null) {
+                                    onSandboxPaintTile?.invoke(position, paintType)
+                                    return@GameGrid
+                                }
+
                                 // Handle spell targeting mode first
                                 val targeting = gameState.spellTargeting.value
                                 if (targeting != null) {
@@ -2904,6 +2939,10 @@ private fun GamePlayScreenContent(
                         SandboxToolsDialog(
                             onSpawnEnemy = { type, level -> onSandboxSpawnEnemy(type, level) },
                             onAddCoins = { onSandboxAddCoins?.invoke() },
+                            onSelectPaintTile = { tileType ->
+                                sandboxPaintTileType = tileType
+                                showSandboxTools = false
+                            },
                             onDismiss = { showSandboxTools = false },
                         )
                     }

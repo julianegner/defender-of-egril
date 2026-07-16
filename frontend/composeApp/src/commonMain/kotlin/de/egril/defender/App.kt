@@ -653,6 +653,7 @@ fun App() {
                                 onActivateCooldownPower = { power -> viewModel.activateCooldownPower(power) },
                                 onSandboxSpawnEnemy = { type, level -> viewModel.sandboxSpawnEnemy(type, level) },
                                 onSandboxAddCoins = { viewModel.sandboxAddCoins() },
+                                onSandboxPaintTile = { position, tileType -> viewModel.sandboxPaintTile(position, tileType) },
                             )
                         }
                     }

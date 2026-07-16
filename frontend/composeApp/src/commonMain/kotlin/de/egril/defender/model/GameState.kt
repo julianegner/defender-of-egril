@@ -178,7 +178,7 @@ data class GameMessage(
 )
 
 data class GameState(
-    val level: Level,
+    var level: Level,
     val phase: MutableState<GamePhase> = mutableStateOf(GamePhase.INITIAL_BUILDING),
     val coins: MutableState<Int> = mutableStateOf(level.initialCoins),
     val healthPoints: MutableState<Int> = mutableStateOf(level.healthPoints),
@@ -258,9 +258,59 @@ data class GameState(
     val enemiesKilledTotal: MutableState<Int> = mutableStateOf(0), // Total enemies killed (by combat/traps, not those reaching the target)
     val enemiesKilledByType: SnapshotStateMap<AttackerType, Int> = mutableStateMapOf(), // Kills per enemy type
     val triggeredEventIds: SnapshotStateList<String> = mutableStateListOf(), // IDs of scripted events that have already fired
+    // Sandbox: incremented whenever the map layout (tiles) is edited at runtime, so the map re-renders.
+    val mapEditVersion: MutableState<Int> = mutableStateOf(0),
 ) {
     /** Multiplier applied to earned coins while the Coin Surge power is active (2x), otherwise 1x. */
     fun coinSurgeMultiplier(): Int = if (coinSurgeActive.value) 2 else 1
+
+    /**
+     * Sandbox: repaint a single map tile to the given [tileType] at runtime.
+     * Rebuilds the level's tile collections and bumps [mapEditVersion] to trigger a re-render.
+     * Only allowed on sandbox levels; a no-op otherwise.
+     */
+    fun sandboxPaintTile(
+        position: Position,
+        tileType: de.egril.defender.editor.TileType,
+    ) {
+        if (!level.isSandbox) return
+        // Never repaint an occupied tile (defender/barricade/trap) to avoid orphaning game objects.
+        if (defenders.any { it.position.value == position }) return
+        if (barricades.any { it.position == position }) return
+
+        val pathCells = level.pathCells.toMutableSet()
+        val buildAreas = level.buildAreas.toMutableSet()
+        val startPositions = level.startPositions.toMutableList()
+        val targetPositions = level.targetPositions.toMutableList()
+        val riverTiles = level.riverTiles.toMutableMap()
+
+        // Clear the tile from every collection first so the new type fully replaces the old one.
+        pathCells.remove(position)
+        buildAreas.remove(position)
+        startPositions.remove(position)
+        targetPositions.remove(position)
+        riverTiles.remove(position)
+
+        when (tileType) {
+            de.egril.defender.editor.TileType.PATH -> pathCells.add(position)
+            de.egril.defender.editor.TileType.BUILD_AREA -> buildAreas.add(position)
+            de.egril.defender.editor.TileType.SPAWN_POINT -> if (!startPositions.contains(position)) startPositions.add(position)
+            de.egril.defender.editor.TileType.TARGET -> if (!targetPositions.contains(position)) targetPositions.add(position)
+            de.egril.defender.editor.TileType.RIVER ->
+                riverTiles[position] = RiverTile(position = position, flowDirection = RiverFlow.EAST, flowSpeed = 1)
+            de.egril.defender.editor.TileType.NO_PLAY -> {} // Already cleared from all collections.
+        }
+
+        level =
+            level.copy(
+                pathCells = pathCells.toSet(),
+                buildAreas = buildAreas.toSet(),
+                startPositions = startPositions.toList(),
+                targetPositions = targetPositions.toList(),
+                riverTiles = riverTiles.toMap(),
+            )
+        mapEditVersion.value++
+    }
 
     fun isLevelWon(): Boolean {
         // Sandbox levels can never be won, even when all enemies are gone.
