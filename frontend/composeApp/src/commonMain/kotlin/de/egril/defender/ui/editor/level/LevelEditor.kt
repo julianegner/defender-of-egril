@@ -410,6 +410,7 @@ fun LevelEditorView(
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
     var connectedToPreviousLevel by remember { mutableStateOf(level.connectedToPreviousLevel) }
+    var isSandbox by remember { mutableStateOf(level.isSandbox) }
     var supportsState by remember { mutableStateOf(level.supports) }
     var eventsState by remember { mutableStateOf(level.events) }
 
@@ -437,6 +438,12 @@ fun LevelEditorView(
     var showOfficialLevelSavedWarning by remember { mutableStateOf(false) }
     var pendingLevelToSave by remember { mutableStateOf<EditorLevel?>(null) }
     var selectedTabIndex by remember { mutableStateOf(0) }
+    // Sandbox levels have no scripted events, so hide/leave the Events tab (index 6).
+    LaunchedEffect(isSandbox) {
+        if (isSandbox && selectedTabIndex == 6) {
+            selectedTabIndex = 0
+        }
+    }
     var communityUploadStatus by remember { mutableStateOf<String?>(null) }
     var isUploadingToCommunity by remember { mutableStateOf(false) }
     var showCommunityUploadConfirm by remember { mutableStateOf(false) }
@@ -634,18 +641,20 @@ fun LevelEditorView(
                     }
                 },
             )
-            Tab(
-                selected = selectedTabIndex == 6,
-                onClick = { selectedTabIndex = 6 },
-                text = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Text(stringResource(Res.string.events_tab))
-                    }
-                },
-            )
+            if (!isSandbox) {
+                Tab(
+                    selected = selectedTabIndex == 6,
+                    onClick = { selectedTabIndex = 6 },
+                    text = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Text(stringResource(Res.string.events_tab))
+                        }
+                    },
+                )
+            }
         }
 
         // Tab Content
@@ -674,6 +683,8 @@ fun LevelEditorView(
                         onAllowAutoAttackChange = { allowAutoAttack = it },
                         connectedToPreviousLevel = connectedToPreviousLevel,
                         onConnectedToPreviousLevelChange = { connectedToPreviousLevel = it },
+                        isSandbox = isSandbox,
+                        onIsSandboxChange = { isSandbox = it },
                         isOfficial = level.isOfficial,
                         canEnableConnectedToPreviousLevel = hasOtherLevelsOnSameMap,
                     )
@@ -754,6 +765,7 @@ fun LevelEditorView(
                                 testingOnly = testingOnly,
                                 allowAutoAttack = allowAutoAttack,
                                 connectedToPreviousLevel = connectedToPreviousLevel,
+                                isSandbox = isSandbox,
                                 supports = supportsState,
                                 events = eventsState,
                                 initialData = initialDataState,
@@ -1009,6 +1021,7 @@ fun LevelEditorView(
                         testingOnly = testingOnly,
                         allowAutoAttack = allowAutoAttack,
                         connectedToPreviousLevel = connectedToPreviousLevel,
+                        isSandbox = isSandbox,
                         supports = supportsState,
                         events = eventsState,
                         initialData = initialDataState,

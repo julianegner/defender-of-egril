@@ -1130,6 +1130,8 @@
     <string name="level_status_unknown">Desconocido</string>
     <string name="show_testing_levels">Mostrar niveles de prueba</string>
     <string name="test_level">Nivel de prueba</string>
+    <string name="sandbox_level">Nivel de pruebas libre</string>
+    <string name="sandbox">Modo libre</string>
     <string name="allow_auto_attack">Permitir Auto-Ataque</string>
     <string name="connected_to_previous_level">Conectar con el nivel anterior</string>
     <string name="auto_attack_info_title">Función de Auto-Ataque</string>

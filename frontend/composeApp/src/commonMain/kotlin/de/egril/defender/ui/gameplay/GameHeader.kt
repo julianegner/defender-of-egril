@@ -169,7 +169,12 @@ fun GameHeader(
                     }
                 } else {
                     SelectableText(
-                        text = gameState.level.getLocalizedTitle(locale),
+                        text =
+                            if (gameState.level.isSandbox) {
+                                "${stringResource(Res.string.sandbox)} — ${gameState.level.getLocalizedTitle(locale)}"
+                            } else {
+                                gameState.level.getLocalizedTitle(locale)
+                            },
                         fontSize = titleFontSize,
                         fontWeight = FontWeight.Bold,
                         modifier =

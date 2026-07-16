@@ -1814,7 +1814,9 @@ class GameViewModel {
     ) {
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
         val rawXpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
-        val xpEarned = calculateAwardedXpForLevelCompletion(rawXpEarned, won)
+        val isSandbox = _gameState.value?.level?.isSandbox == true
+        // Sandbox levels never award XP.
+        val xpEarned = if (isSandbox) 0 else calculateAwardedXpForLevelCompletion(rawXpEarned, won)
         val levelName = _gameState.value?.level?.name ?: "unknown"
         val turnNumber = _gameState.value?.turnNumber?.value
         var newPlayerLevel = 0

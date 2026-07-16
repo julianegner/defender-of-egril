@@ -263,6 +263,8 @@ data class GameState(
     fun coinSurgeMultiplier(): Int = if (coinSurgeActive.value) 2 else 1
 
     fun isLevelWon(): Boolean {
+        // Sandbox levels can never be won, even when all enemies are gone.
+        if (level.isSandbox) return false
         // Check if all planned spawns have occurred and all enemies are defeated
         val allSpawned = spawnPlan.all { it.spawnTurn <= turnNumber.value }
         return allSpawned && attackers.all { it.isDefeated.value }
@@ -305,6 +307,8 @@ data class GameState(
      *  - When a summoner enemy remains, since it can create an unbounded number of additional units.
      */
     fun canWinLevelNow(): Boolean {
+        // Sandbox levels can never be won, so never offer the instant win.
+        if (level.isSandbox) return false
         if (phase.value != GamePhase.PLAYER_TURN) return false
         if (level.targetInfoMap.any { it.value.type == TargetType.SINGLE_HIT }) return false
         if (isLevelLost() || isLevelWon()) return false

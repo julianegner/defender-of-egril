@@ -44,6 +44,8 @@ class EventScriptSystem(
     private val state: GameState,
 ) {
     fun evaluate(trigger: EventTrigger) {
+        // Sandbox levels have no scripted events.
+        if (state.level.isSandbox) return
         val events = state.level.events.events
         if (events.isEmpty()) return
 

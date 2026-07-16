@@ -383,6 +383,13 @@ object EditorJsonSerializer {
                 ""
             }
 
+        val isSandboxJson =
+            if (level.isSandbox) {
+                ",\n  \"isSandbox\": true"
+            } else {
+                ""
+            }
+
         val isOfficialJson =
             if (level.isOfficial) {
                 ",\n  \"isOfficial\": true"
@@ -584,7 +591,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isSandboxJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
 }"""
         return """{
   "metadata": {
@@ -811,6 +818,18 @@ object EditorJsonSerializer {
                 if (dataJson.contains("\"connectedToPreviousLevel\"")) {
                     try {
                         JsonUtils.extractValue(dataJson, "connectedToPreviousLevel").toBoolean()
+                    } catch (e: Exception) {
+                        false
+                    }
+                } else {
+                    false
+                }
+
+            // Parse isSandbox (optional, defaults to false)
+            val isSandbox =
+                if (dataJson.contains("\"isSandbox\"")) {
+                    try {
+                        JsonUtils.extractValue(dataJson, "isSandbox").toBoolean()
                     } catch (e: Exception) {
                         false
                     }
@@ -1358,7 +1377,8 @@ object EditorJsonSerializer {
                 testingOnly,
                 allowAutoAttack,
                 connectedToPreviousLevel,
-                isOfficial,
+                isSandbox = isSandbox,
+                isOfficial = isOfficial,
                 author = author,
                 communityDescription = communityDescription,
                 supports = supports,
