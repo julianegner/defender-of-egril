@@ -1559,9 +1559,13 @@ private fun GamePlayScreenContent(
                         isShortcutBindingPressed(event, AppSettings.shortcutBackToWorldMap.value) &&
                         !isDemoMode -> {
                         // Skip unsaved changes check if in initial building phase with no defenders placed
+                        val hasSandboxMapEdits =
+                            gameState.level.isSandbox &&
+                                (gameState.sandboxPaintedTiles.isNotEmpty() || gameState.sandboxPaintedRiverTiles.isNotEmpty())
                         val isInitialWithNothingDone =
                             gameState.phase.value == GamePhase.INITIAL_BUILDING &&
-                                gameState.defenders.isEmpty()
+                                gameState.defenders.isEmpty() &&
+                                !hasSandboxMapEdits
                         if (!isInitialWithNothingDone && unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
                             showUnsavedChangesDialog = true
                         } else {

@@ -18,6 +18,8 @@ class SandboxLevelTest {
         isSandbox: Boolean,
         healthPoints: Int = 10,
         spawnPlan: List<PlannedEnemySpawn> = emptyList(),
+        riverTiles: Map<Position, RiverTile> = emptyMap(),
+        targetInfoMap: Map<Position, TargetInfo> = emptyMap(),
     ): Level =
         Level(
             id = 1,
@@ -31,6 +33,8 @@ class SandboxLevelTest {
             directSpawnPlan = spawnPlan,
             healthPoints = healthPoints,
             isSandbox = isSandbox,
+            riverTiles = riverTiles,
+            targetInfoMap = targetInfoMap,
         )
 
     private fun playerTurnState(level: Level): GameState {
@@ -190,6 +194,50 @@ class SandboxLevelTest {
         // The chosen flow is applied to the live level's river tiles too.
         assertEquals(RiverFlow.NORTH_WEST, state.level.riverTiles[target]?.flowDirection)
         assertEquals(2, state.level.riverTiles[target]?.flowSpeed)
+    }
+
+    @Test
+    fun sandboxPaintChangingExistingRiverFlowIsTrackedUntilRestored() {
+        val target = Position(4, 2)
+        val level =
+            buildLevel(
+                isSandbox = true,
+                riverTiles =
+                    mapOf(
+                        target to RiverTile(position = target, flowDirection = RiverFlow.EAST, flowSpeed = 1),
+                    ),
+            )
+        val state = playerTurnState(level)
+
+        state.sandboxPaintTile(target, TileType.RIVER, RiverFlow.NORTH_WEST, 2)
+        assertEquals(TileType.RIVER, state.sandboxPaintedTiles[target])
+        assertEquals(RiverFlow.NORTH_WEST, state.sandboxPaintedRiverTiles[target]?.flowDirection)
+        assertEquals(2, state.sandboxPaintedRiverTiles[target]?.flowSpeed)
+
+        state.sandboxPaintTile(target, TileType.RIVER, RiverFlow.EAST, 1)
+        assertFalse(state.sandboxPaintedTiles.containsKey(target))
+        assertFalse(state.sandboxPaintedRiverTiles.containsKey(target))
+    }
+
+    @Test
+    fun sandboxPaintReplacingTargetClearsMetadataAndRestoringTargetRestoresIt() {
+        val target = Position(9, 2)
+        val originalTargetInfo = TargetInfo(name = "Gate", type = TargetType.SINGLE_HIT)
+        val state =
+            playerTurnState(
+                buildLevel(
+                    isSandbox = true,
+                    targetInfoMap = mapOf(target to originalTargetInfo),
+                ),
+            )
+
+        state.sandboxPaintTile(target, TileType.BUILD_AREA)
+        assertFalse(state.level.targetPositions.contains(target))
+        assertFalse(state.level.targetInfoMap.containsKey(target))
+
+        state.sandboxPaintTile(target, TileType.TARGET)
+        assertTrue(state.level.targetPositions.contains(target))
+        assertEquals(originalTargetInfo, state.level.targetInfoMap[target])
     }
 
     @Test

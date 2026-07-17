@@ -2856,6 +2856,20 @@ class GameViewModel {
             }
             append("|effects:${state.fieldEffects.size}")
             append("|traps:${state.traps.size}")
+            if (state.level.isSandbox) {
+                append("|sandboxTiles:${state.sandboxPaintedTiles.size}")
+                state.sandboxPaintedTiles.entries
+                    .sortedWith(compareBy({ it.key.x }, { it.key.y }))
+                    .forEach { (position, tileType) ->
+                        append("|st:${position.x},${position.y},$tileType")
+                    }
+                append("|sandboxRivers:${state.sandboxPaintedRiverTiles.size}")
+                state.sandboxPaintedRiverTiles.entries
+                    .sortedWith(compareBy({ it.key.x }, { it.key.y }))
+                    .forEach { (position, riverTile) ->
+                        append("|sr:${position.x},${position.y},${riverTile.flowDirection},${riverTile.flowSpeed}")
+                    }
+            }
         }
     }
 

@@ -272,6 +272,10 @@ data class GameState(
     // original map and only genuine differences are tracked, persisted, and overlaid.
     private val originalSandboxTileTypes: Map<Position, de.egril.defender.editor.TileType> =
         if (level.isSandbox) buildTileTypeMap(level) else emptyMap()
+    private val originalSandboxRiverTiles: Map<Position, RiverTile> =
+        if (level.isSandbox) level.riverTiles.toMap() else emptyMap()
+    private val originalSandboxTargetInfoMap: Map<Position, TargetInfo> =
+        if (level.isSandbox) level.targetInfoMap.toMap() else emptyMap()
 
     /** Multiplier applied to earned coins while the Coin Surge power is active (2x), otherwise 1x. */
     fun coinSurgeMultiplier(): Int = if (coinSurgeActive.value) 2 else 1
@@ -301,6 +305,7 @@ data class GameState(
         val startPositions = level.startPositions.toMutableList()
         val targetPositions = level.targetPositions.toMutableList()
         val riverTiles = level.riverTiles.toMutableMap()
+        val targetInfoMap = level.targetInfoMap.toMutableMap()
 
         // Clear the tile from every collection first so the new type fully replaces the old one.
         pathCells.remove(position)
@@ -308,12 +313,20 @@ data class GameState(
         startPositions.remove(position)
         targetPositions.remove(position)
         riverTiles.remove(position)
+        targetInfoMap.remove(position)
 
         when (tileType) {
             de.egril.defender.editor.TileType.PATH -> pathCells.add(position)
             de.egril.defender.editor.TileType.BUILD_AREA -> buildAreas.add(position)
             de.egril.defender.editor.TileType.SPAWN_POINT -> if (!startPositions.contains(position)) startPositions.add(position)
-            de.egril.defender.editor.TileType.TARGET -> if (!targetPositions.contains(position)) targetPositions.add(position)
+            de.egril.defender.editor.TileType.TARGET -> {
+                if (!targetPositions.contains(position)) {
+                    targetPositions.add(position)
+                }
+                originalSandboxTargetInfoMap[position]?.let { originalTargetInfo ->
+                    targetInfoMap[position] = originalTargetInfo
+                }
+            }
             de.egril.defender.editor.TileType.RIVER ->
                 riverTiles[position] = RiverTile(position = position, flowDirection = riverFlow, flowSpeed = riverSpeed)
             de.egril.defender.editor.TileType.NO_PLAY -> {} // Already cleared from all collections.
@@ -326,19 +339,37 @@ data class GameState(
                 startPositions = startPositions.toList(),
                 targetPositions = targetPositions.toList(),
                 riverTiles = riverTiles.toMap(),
+                targetInfoMap = targetInfoMap.toMap(),
             )
         // Record the repaint so the map can overlay the new tile image over the original map
         // background — but only when it genuinely differs from the original map. Repainting a tile
         // back to its original type removes it from the tracked differences.
         val originalType = originalSandboxTileTypes[position] ?: de.egril.defender.editor.TileType.NO_PLAY
-        if (tileType == originalType) {
+        val originalRiverTile = originalSandboxRiverTiles[position]
+        val isSameAsOriginal =
+            if (tileType == de.egril.defender.editor.TileType.RIVER) {
+                originalType == de.egril.defender.editor.TileType.RIVER &&
+                    originalRiverTile != null &&
+                    originalRiverTile.flowDirection == riverFlow &&
+                    originalRiverTile.flowSpeed == riverSpeed
+            } else if (tileType == de.egril.defender.editor.TileType.TARGET) {
+                tileType == originalType && targetInfoMap[position] == originalSandboxTargetInfoMap[position]
+            } else {
+                tileType == originalType
+            }
+        if (isSameAsOriginal) {
             sandboxPaintedTiles.remove(position)
         } else {
             sandboxPaintedTiles[position] = tileType
         }
         // Track the chosen river flow separately so it can be persisted and restored across saves.
         if (tileType == de.egril.defender.editor.TileType.RIVER) {
-            sandboxPaintedRiverTiles[position] = RiverTile(position = position, flowDirection = riverFlow, flowSpeed = riverSpeed)
+            val paintedRiverTile = RiverTile(position = position, flowDirection = riverFlow, flowSpeed = riverSpeed)
+            if (originalType == de.egril.defender.editor.TileType.RIVER && originalRiverTile == paintedRiverTile) {
+                sandboxPaintedRiverTiles.remove(position)
+            } else {
+                sandboxPaintedRiverTiles[position] = paintedRiverTile
+            }
         } else {
             sandboxPaintedRiverTiles.remove(position)
         }
