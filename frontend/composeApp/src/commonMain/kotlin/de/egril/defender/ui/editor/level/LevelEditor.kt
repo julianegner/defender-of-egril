@@ -438,8 +438,9 @@ fun LevelEditorView(
     var showOfficialLevelSavedWarning by remember { mutableStateOf(false) }
     var pendingLevelToSave by remember { mutableStateOf<EditorLevel?>(null) }
     var selectedTabIndex by remember { mutableStateOf(0) }
-    // Sandbox levels have no scripted enemy waves or events: the player launches test attacks while
-    // playing, so the Enemy Spawns tab (index 1) and Events tab (index 6) are hidden.
+    // Sandbox levels have no scripted enemy waves: the player launches test attacks while playing, so
+    // this hides the Enemy Spawns tab (index 1). The Events tab (index 6) is also hidden (see below);
+    // reset the selection to the Level Info tab if either hidden tab is currently selected.
     LaunchedEffect(isSandbox) {
         if (isSandbox && (selectedTabIndex == 1 || selectedTabIndex == 6)) {
             selectedTabIndex = 0

@@ -422,8 +422,8 @@ object SaveFileStorage {
             when (type) {
                 de.egril.defender.editor.TileType.PATH -> pathCells.add(position)
                 de.egril.defender.editor.TileType.BUILD_AREA -> buildAreas.add(position)
-                de.egril.defender.editor.TileType.SPAWN_POINT -> if (!startPositions.contains(position)) startPositions.add(position)
-                de.egril.defender.editor.TileType.TARGET -> if (!targetPositions.contains(position)) targetPositions.add(position)
+                de.egril.defender.editor.TileType.SPAWN_POINT -> startPositions.add(position)
+                de.egril.defender.editor.TileType.TARGET -> targetPositions.add(position)
                 de.egril.defender.editor.TileType.RIVER ->
                     riverTiles[position] =
                         de.egril.defender.model.RiverTile(
