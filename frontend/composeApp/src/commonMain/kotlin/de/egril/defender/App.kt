@@ -651,9 +651,11 @@ fun App() {
                                 onCastSupportSpellToken = { spell -> viewModel.onSupportSpellTokenClicked(spell) },
                                 activeSpellToken = pendingTokenSpell,
                                 onActivateCooldownPower = { power -> viewModel.activateCooldownPower(power) },
-                                onSandboxSpawnEnemy = { type, level -> viewModel.sandboxSpawnEnemy(type, level) },
+                                onSandboxSpawnEnemy = { type, level, spawnPoint -> viewModel.sandboxSpawnEnemy(type, level, spawnPoint) },
                                 onSandboxAddCoins = { viewModel.sandboxAddCoins() },
-                                onSandboxPaintTile = { position, tileType -> viewModel.sandboxPaintTile(position, tileType) },
+                                onSandboxPaintTile = { position, tileType, riverFlow, riverSpeed ->
+                                    viewModel.sandboxPaintTile(position, tileType, riverFlow, riverSpeed)
+                                },
                             )
                         }
                     }

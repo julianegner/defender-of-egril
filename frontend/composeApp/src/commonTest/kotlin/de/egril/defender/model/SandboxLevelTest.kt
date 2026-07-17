@@ -176,4 +176,31 @@ class SandboxLevelTest {
         assertTrue(state.level.isOnPath(target))
         assertEquals(0, state.mapEditVersion.value)
     }
+
+    @Test
+    fun sandboxPaintRiverRecordsChosenFlowDirectionAndSpeed() {
+        val state = playerTurnState(buildLevel(isSandbox = true))
+        val target = Position(4, 2)
+
+        state.sandboxPaintTile(target, TileType.RIVER, RiverFlow.NORTH_WEST, 2)
+        assertEquals(TileType.RIVER, state.sandboxPaintedTiles[target])
+        val river = state.sandboxPaintedRiverTiles[target]
+        assertEquals(RiverFlow.NORTH_WEST, river?.flowDirection)
+        assertEquals(2, river?.flowSpeed)
+        // The chosen flow is applied to the live level's river tiles too.
+        assertEquals(RiverFlow.NORTH_WEST, state.level.riverTiles[target]?.flowDirection)
+        assertEquals(2, state.level.riverTiles[target]?.flowSpeed)
+    }
+
+    @Test
+    fun sandboxPaintNonRiverClearsRecordedRiverFlow() {
+        val state = playerTurnState(buildLevel(isSandbox = true))
+        val target = Position(4, 2)
+        state.sandboxPaintTile(target, TileType.RIVER, RiverFlow.EAST, 1)
+        assertTrue(state.sandboxPaintedRiverTiles.containsKey(target))
+
+        // Painting a non-river type over the tile drops the recorded river flow.
+        state.sandboxPaintTile(target, TileType.BUILD_AREA)
+        assertFalse(state.sandboxPaintedRiverTiles.containsKey(target))
+    }
 }

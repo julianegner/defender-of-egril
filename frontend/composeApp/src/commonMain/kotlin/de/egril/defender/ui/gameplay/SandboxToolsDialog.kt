@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.Position
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.TriangleDownIcon
 import defender_of_egril.composeapp.generated.resources.Res
@@ -31,16 +32,19 @@ import defender_of_egril.composeapp.generated.resources.close
 import defender_of_egril.composeapp.generated.resources.enemy_level
 import defender_of_egril.composeapp.generated.resources.sandbox_add_coins
 import defender_of_egril.composeapp.generated.resources.sandbox_spawn_enemy
+import defender_of_egril.composeapp.generated.resources.sandbox_spawn_point_auto
 import defender_of_egril.composeapp.generated.resources.sandbox_tools
+import defender_of_egril.composeapp.generated.resources.select_spawn_point
 import defender_of_egril.composeapp.generated.resources.spawn
 
 /**
- * Sandbox in-game tools dialog: send out an adjustable test enemy (type + level) and add coins.
- * Only shown for sandbox levels.
+ * Sandbox in-game tools dialog: send out an adjustable test enemy (type + level + spawn point) and
+ * add coins. Only shown for sandbox levels.
  */
 @Composable
 fun SandboxToolsDialog(
-    onSpawnEnemy: (AttackerType, Int) -> Unit,
+    spawnPoints: List<Position>,
+    onSpawnEnemy: (AttackerType, Int, Position?) -> Unit,
     onAddCoins: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -50,6 +54,9 @@ fun SandboxToolsDialog(
     var selectedType by remember { mutableStateOf(spawnableTypes.first()) }
     var enemyLevel by remember { mutableStateOf(1) }
     var typeMenuExpanded by remember { mutableStateOf(false) }
+    // null = automatic (first free spawn point); otherwise the chosen spawn point.
+    var selectedSpawnPoint by remember { mutableStateOf<Position?>(null) }
+    var spawnPointMenuExpanded by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -104,8 +111,50 @@ fun SandboxToolsDialog(
                     }
                 }
 
+                // Spawn point selector: only meaningful when the map has more than one spawn point.
+                if (spawnPoints.size > 1) {
+                    Text(stringResource(Res.string.select_spawn_point))
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedButton(
+                            onClick = { spawnPointMenuExpanded = true },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                val sp = selectedSpawnPoint
+                                Text(if (sp == null) stringResource(Res.string.sandbox_spawn_point_auto) else spawnPointLabel(sp))
+                                TriangleDownIcon(size = 10.dp)
+                            }
+                        }
+                        DropdownMenu(
+                            expanded = spawnPointMenuExpanded,
+                            onDismissRequest = { spawnPointMenuExpanded = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(Res.string.sandbox_spawn_point_auto)) },
+                                onClick = {
+                                    selectedSpawnPoint = null
+                                    spawnPointMenuExpanded = false
+                                },
+                            )
+                            spawnPoints.forEach { point ->
+                                DropdownMenuItem(
+                                    text = { Text(spawnPointLabel(point)) },
+                                    onClick = {
+                                        selectedSpawnPoint = point
+                                        spawnPointMenuExpanded = false
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
+
                 Button(
-                    onClick = { onSpawnEnemy(selectedType, enemyLevel) },
+                    onClick = { onSpawnEnemy(selectedType, enemyLevel, selectedSpawnPoint) },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(stringResource(Res.string.spawn))
@@ -128,3 +177,6 @@ fun SandboxToolsDialog(
         },
     )
 }
+
+/** Human-readable label for a chosen spawn point option using its grid coordinates. */
+private fun spawnPointLabel(point: Position): String = "(${point.x}, ${point.y})"

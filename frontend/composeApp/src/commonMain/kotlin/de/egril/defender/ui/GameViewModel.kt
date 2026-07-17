@@ -2351,9 +2351,10 @@ class GameViewModel {
     fun sandboxSpawnEnemy(
         type: de.egril.defender.model.AttackerType,
         level: Int,
+        spawnPoint: de.egril.defender.model.Position? = null,
     ) {
         if (_gameState.value?.level?.isSandbox != true) return
-        gameEngine?.spawnEnemy(type, level.coerceAtLeast(1))
+        gameEngine?.spawnEnemy(type, level.coerceAtLeast(1), spawnPoint)
         surfaceNextPendingMessageIfIdle()
     }
 
@@ -2371,10 +2372,12 @@ class GameViewModel {
     fun sandboxPaintTile(
         position: de.egril.defender.model.Position,
         tileType: de.egril.defender.editor.TileType,
+        riverFlow: de.egril.defender.model.RiverFlow = de.egril.defender.model.RiverFlow.EAST,
+        riverSpeed: Int = 1,
     ) {
         val state = _gameState.value ?: return
         if (!state.level.isSandbox) return
-        state.sandboxPaintTile(position, tileType)
+        state.sandboxPaintTile(position, tileType, riverFlow, riverSpeed)
     }
 
     fun applyCheatCode(code: String): Boolean {

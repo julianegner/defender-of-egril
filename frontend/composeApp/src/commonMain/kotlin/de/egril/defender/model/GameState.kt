@@ -263,6 +263,9 @@ data class GameState(
     // Sandbox: tiles repainted at runtime (position -> new type). Used to draw the new tile image as an
     // overlay over the original (possibly pre-rendered) map so edits are visible, and persisted in saves.
     val sandboxPaintedTiles: SnapshotStateMap<Position, de.egril.defender.editor.TileType> = mutableStateMapOf(),
+    // Sandbox: flow direction/speed chosen for river tiles painted at runtime, so the chosen
+    // water direction survives save/load. Only populated for positions painted as RIVER.
+    val sandboxPaintedRiverTiles: SnapshotStateMap<Position, RiverTile> = mutableStateMapOf(),
 ) {
     // Sandbox: the original map tile type for every position, captured once from the level as it was
     // first loaded (before any runtime edits). Used so runtime paints can be compared against the
@@ -276,6 +279,8 @@ data class GameState(
     /**
      * Sandbox: repaint a single map tile to the given [tileType] at runtime.
      * Rebuilds the level's tile collections and bumps [mapEditVersion] to trigger a re-render.
+     * When painting a [de.egril.defender.editor.TileType.RIVER] tile, [riverFlow] and [riverSpeed]
+     * set the water flow direction and speed (1 or 2).
      * Only tiles that differ from the original map are tracked in [sandboxPaintedTiles] (repainting a
      * tile back to its original type removes it), so only genuine differences are overlaid and saved.
      * Only allowed on sandbox levels; a no-op otherwise.
@@ -283,6 +288,8 @@ data class GameState(
     fun sandboxPaintTile(
         position: Position,
         tileType: de.egril.defender.editor.TileType,
+        riverFlow: RiverFlow = RiverFlow.EAST,
+        riverSpeed: Int = 1,
     ) {
         if (!level.isSandbox) return
         // Never repaint an occupied tile (defender/barricade/trap) to avoid orphaning game objects.
@@ -308,7 +315,7 @@ data class GameState(
             de.egril.defender.editor.TileType.SPAWN_POINT -> if (!startPositions.contains(position)) startPositions.add(position)
             de.egril.defender.editor.TileType.TARGET -> if (!targetPositions.contains(position)) targetPositions.add(position)
             de.egril.defender.editor.TileType.RIVER ->
-                riverTiles[position] = RiverTile(position = position, flowDirection = RiverFlow.EAST, flowSpeed = 1)
+                riverTiles[position] = RiverTile(position = position, flowDirection = riverFlow, flowSpeed = riverSpeed)
             de.egril.defender.editor.TileType.NO_PLAY -> {} // Already cleared from all collections.
         }
 
@@ -328,6 +335,12 @@ data class GameState(
             sandboxPaintedTiles.remove(position)
         } else {
             sandboxPaintedTiles[position] = tileType
+        }
+        // Track the chosen river flow separately so it can be persisted and restored across saves.
+        if (tileType == de.egril.defender.editor.TileType.RIVER) {
+            sandboxPaintedRiverTiles[position] = RiverTile(position = position, flowDirection = riverFlow, flowSpeed = riverSpeed)
+        } else {
+            sandboxPaintedRiverTiles.remove(position)
         }
         mapEditVersion.value++
     }

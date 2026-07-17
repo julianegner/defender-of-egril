@@ -106,9 +106,9 @@ fun GamePlayScreen(
     onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
     activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
     onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
-    onSandboxSpawnEnemy: ((de.egril.defender.model.AttackerType, Int) -> Unit)? = null, // Sandbox: spawn an adjustable test enemy
+    onSandboxSpawnEnemy: ((de.egril.defender.model.AttackerType, Int, de.egril.defender.model.Position?) -> Unit)? = null, // Sandbox: spawn an adjustable test enemy at an optional spawn point
     onSandboxAddCoins: (() -> Unit)? = null, // Sandbox: add coins
-    onSandboxPaintTile: ((de.egril.defender.model.Position, de.egril.defender.editor.TileType) -> Unit)? = null, // Sandbox: repaint a map tile
+    onSandboxPaintTile: ((de.egril.defender.model.Position, de.egril.defender.editor.TileType, de.egril.defender.model.RiverFlow, Int) -> Unit)? = null, // Sandbox: repaint a map tile (with river flow when RIVER)
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -247,9 +247,9 @@ private fun GamePlayScreenContent(
     onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
     activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
     onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
-    onSandboxSpawnEnemy: ((de.egril.defender.model.AttackerType, Int) -> Unit)? = null, // Sandbox: spawn an adjustable test enemy
+    onSandboxSpawnEnemy: ((de.egril.defender.model.AttackerType, Int, de.egril.defender.model.Position?) -> Unit)? = null, // Sandbox: spawn an adjustable test enemy at an optional spawn point
     onSandboxAddCoins: (() -> Unit)? = null, // Sandbox: add coins
-    onSandboxPaintTile: ((de.egril.defender.model.Position, de.egril.defender.editor.TileType) -> Unit)? = null, // Sandbox: repaint a map tile
+    onSandboxPaintTile: ((de.egril.defender.model.Position, de.egril.defender.editor.TileType, de.egril.defender.model.RiverFlow, Int) -> Unit)? = null, // Sandbox: repaint a map tile (with river flow when RIVER)
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedSupportObject by remember { mutableStateOf<SupportObjectType?>(null) }
@@ -261,6 +261,9 @@ private fun GamePlayScreenContent(
     var showSandboxTools by remember { mutableStateOf(false) }
     // Sandbox: active map tile-paint type; when non-null, tapping a tile repaints it to this type.
     var sandboxPaintTileType by remember { mutableStateOf<de.egril.defender.editor.TileType?>(null) }
+    // Sandbox: water flow direction/speed applied when painting RIVER tiles.
+    var sandboxRiverFlow by remember { mutableStateOf(de.egril.defender.model.RiverFlow.EAST) }
+    var sandboxRiverSpeed by remember { mutableStateOf(1) }
     var cheatCodeInput by remember { mutableStateOf("") }
     var showMineActionDialog by remember { mutableStateOf(false) }
     var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
@@ -1818,7 +1821,7 @@ private fun GamePlayScreenContent(
                                 // Sandbox: map tile painting takes precedence over all other interactions.
                                 val paintType = sandboxPaintTileType
                                 if (paintType != null) {
-                                    onSandboxPaintTile?.invoke(position, paintType)
+                                    onSandboxPaintTile?.invoke(position, paintType, sandboxRiverFlow, sandboxRiverSpeed)
                                     return@GameGrid
                                 }
 
@@ -2095,6 +2098,10 @@ private fun GamePlayScreenContent(
                             SandboxTilePalette(
                                 selectedTileType = sandboxPaintTileType,
                                 onSelectTileType = { sandboxPaintTileType = it },
+                                selectedRiverFlow = sandboxRiverFlow,
+                                onSelectRiverFlow = { sandboxRiverFlow = it },
+                                selectedRiverSpeed = sandboxRiverSpeed,
+                                onSelectRiverSpeed = { sandboxRiverSpeed = it },
                                 modifier =
                                     Modifier
                                         .align(Alignment.CenterStart)
@@ -2930,7 +2937,8 @@ private fun GamePlayScreenContent(
 
                     if (showSandboxTools && onSandboxSpawnEnemy != null) {
                         SandboxToolsDialog(
-                            onSpawnEnemy = { type, level -> onSandboxSpawnEnemy(type, level) },
+                            spawnPoints = gameState.level.startPositions,
+                            onSpawnEnemy = { type, level, spawnPoint -> onSandboxSpawnEnemy(type, level, spawnPoint) },
                             onAddCoins = { onSandboxAddCoins?.invoke() },
                             onDismiss = { showSandboxTools = false },
                         )

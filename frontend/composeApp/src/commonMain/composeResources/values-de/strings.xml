@@ -1140,6 +1140,7 @@
     <string name="sandbox_paint_hint">Felder antippen, um sie zu malen. Zum Beenden auf Fertig tippen.</string>
     <string name="sandbox_done_editing">Kartenbearbeitung beenden</string>
     <string name="sandbox_tools_hint">Öffne die Sandbox-Werkzeuge, um Testgegner zu erzeugen, Münzen hinzuzufügen und die Karte zu bearbeiten.</string>
+    <string name="sandbox_spawn_point_auto">Automatisch (erster freier Startpunkt)</string>
     <string name="allow_auto_attack">Auto-Angriff erlauben</string>
     <string name="connected_to_previous_level">Mit vorherigem Level verbinden</string>
     <string name="auto_attack_info_title">Auto-Angriff-Funktion</string>

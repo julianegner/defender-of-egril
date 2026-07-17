@@ -252,6 +252,58 @@ class SaveDataTest {
     }
 
     @Test
+    fun testSandboxRiverTilesRoundTrip() {
+        val tiles =
+            mapOf(
+                Position(3, 3) to de.egril.defender.editor.TileType.RIVER,
+                Position(4, 3) to de.egril.defender.editor.TileType.RIVER,
+            )
+        val rivers =
+            mapOf(
+                Position(3, 3) to
+                    de.egril.defender.model.RiverTile(
+                        position = Position(3, 3),
+                        flowDirection = de.egril.defender.model.RiverFlow.NORTH_WEST,
+                        flowSpeed = 2,
+                    ),
+                Position(4, 3) to
+                    de.egril.defender.model.RiverTile(
+                        position = Position(4, 3),
+                        flowDirection = de.egril.defender.model.RiverFlow.SOUTH_EAST,
+                        flowSpeed = 1,
+                    ),
+            )
+        val savedGame =
+            SavedGame(
+                id = "sandbox_river_save",
+                timestamp = System.currentTimeMillis(),
+                levelId = 7,
+                levelName = "Sandbox",
+                turnNumber = 2,
+                coins = 500,
+                healthPoints = 10,
+                phase = GamePhase.PLAYER_TURN,
+                defenders = emptyList(),
+                attackers = emptyList(),
+                nextDefenderId = 1,
+                nextAttackerId = 1,
+                currentWaveIndex = 0,
+                spawnCounter = 0,
+                attackersToSpawn = emptyList(),
+                fieldEffects = emptyList(),
+                traps = emptyList(),
+                sandboxMapTiles = tiles,
+                sandboxRiverTiles = rivers,
+            )
+
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        assertNotNull(json)
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals(rivers, deserialized.sandboxRiverTiles)
+    }
+
+    @Test
     fun testNonSandboxSaveHasNullMapTiles() {
         val savedGame =
             SavedGame(

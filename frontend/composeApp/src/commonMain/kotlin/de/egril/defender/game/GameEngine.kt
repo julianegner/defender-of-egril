@@ -2225,9 +2225,15 @@ class GameEngine(
     fun spawnEnemy(
         type: AttackerType,
         level: Int = 1,
+        preferredSpawnPoint: Position? = null,
     ) {
-        // Find a free spawn position
-        val spawnPos = enemyMovement.findFreeSpawnPosition() ?: return
+        // Find a free spawn position, honoring a requested spawn point when given.
+        val spawnPos =
+            if (preferredSpawnPoint != null) {
+                enemyMovement.findFreePositionNear(preferredSpawnPoint)
+            } else {
+                enemyMovement.findFreeSpawnPosition()
+            } ?: return
 
         // Create the enemy with scaled health based on level
         val scaledHealth = type.health * level

@@ -397,6 +397,12 @@ object SaveFileStorage {
                 } else {
                     null
                 },
+            sandboxRiverTiles =
+                if (gameState.level.isSandbox && gameState.sandboxPaintedRiverTiles.isNotEmpty()) {
+                    gameState.sandboxPaintedRiverTiles.toMap()
+                } else {
+                    null
+                },
         )
     }
 
@@ -416,7 +422,12 @@ object SaveFileStorage {
         // original map. Applied before defenders/barricades are restored so no tiles are skipped.
         if (level.isSandbox && savedGame.sandboxMapTiles != null) {
             savedGame.sandboxMapTiles.forEach { (position, type) ->
-                gameState.sandboxPaintTile(position, type)
+                val river = savedGame.sandboxRiverTiles?.get(position)
+                if (type == de.egril.defender.editor.TileType.RIVER && river != null) {
+                    gameState.sandboxPaintTile(position, type, river.flowDirection, river.flowSpeed)
+                } else {
+                    gameState.sandboxPaintTile(position, type)
+                }
             }
         }
 
