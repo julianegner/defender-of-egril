@@ -116,6 +116,11 @@ private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
  */
 private const val COIN_BUBBLE_COIN_SIZE_FRACTION = 0.14f
 
+internal fun displayedRiverTile(
+    levelRiverTile: RiverTile?,
+    sandboxPaintedRiverTile: RiverTile?,
+): RiverTile? = sandboxPaintedRiverTile ?: levelRiverTile
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GameGrid(
@@ -1194,7 +1199,7 @@ fun GridCell(
 
     // Determine the tile type for background image loading. Prefer the sandbox-painted river tile so
     // a runtime repaint (which mutates the non-observable level in place) is reflected immediately.
-    val riverTile = sandboxPaintedRiverTile ?: gameState.level.getRiverTile(position)
+    val riverTile = displayedRiverTile(gameState.level.getRiverTile(position), sandboxPaintedRiverTile)
     val isMaelstrom = riverTile?.flowDirection == RiverFlow.MAELSTROM
 
     val tileType =
@@ -2541,7 +2546,6 @@ private fun BoxScope.GridCellContent(
                 BridgeVisualization(bridge = bridge)
             } else {
                 // Show river flow direction arrows
-                val riverTile = gameState.level.getRiverTile(position)
                 if (riverTile != null) {
                     // Don't show trap icon on maelstrom when tile images are enabled
                     // (the tile_river_maelstrom.png image already shows the maelstrom visually)
