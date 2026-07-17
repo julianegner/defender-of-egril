@@ -70,7 +70,8 @@ data class SavedGame(
     val triggeredEventIds: List<String> = emptyList(), // IDs of scripted events that have already fired
     val enemiesKilledTotal: Int = 0, // Total enemies killed (for event conditions)
     val enemiesKilledByType: Map<AttackerType, Int> = emptyMap(), // Kills per enemy type (for event conditions)
-    // Sandbox: the (possibly runtime-edited) map tile layout, persisted so the edited map is restored on load.
+    // Sandbox: only the tiles whose type differs from the original map (position -> new type),
+    // persisted so the runtime edits are restored on load without storing the whole map.
     val sandboxMapTiles: Map<Position, de.egril.defender.editor.TileType>? = null,
 )
 

@@ -147,6 +147,27 @@ class SandboxLevelTest {
     }
 
     @Test
+    fun sandboxPaintTileBackToOriginalRemovesRecordedDifference() {
+        val state = playerTurnState(buildLevel(isSandbox = true))
+        val target = Position(4, 2) // originally PATH
+        state.sandboxPaintTile(target, TileType.BUILD_AREA)
+        assertEquals(TileType.BUILD_AREA, state.sandboxPaintedTiles[target])
+
+        // Painting back to the original map type is no longer a difference, so it is dropped.
+        state.sandboxPaintTile(target, TileType.PATH)
+        assertTrue(state.sandboxPaintedTiles.isEmpty())
+    }
+
+    @Test
+    fun sandboxPaintTileToOriginalTypeIsNotRecorded() {
+        val buildTarget = Position(3, 2)
+        // A build-area tile repainted to its own (original) type is not a difference.
+        val state = playerTurnState(buildLevel(isSandbox = true).copy(buildAreas = setOf(buildTarget)))
+        state.sandboxPaintTile(buildTarget, TileType.BUILD_AREA)
+        assertTrue(state.sandboxPaintedTiles.isEmpty())
+    }
+
+    @Test
     fun sandboxPaintTileIsNoOpForNonSandboxLevel() {
         val state = playerTurnState(buildLevel(isSandbox = false))
         val target = Position(4, 2)

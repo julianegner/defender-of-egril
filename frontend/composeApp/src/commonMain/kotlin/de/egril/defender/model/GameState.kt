@@ -264,12 +264,20 @@ data class GameState(
     // overlay over the original (possibly pre-rendered) map so edits are visible, and persisted in saves.
     val sandboxPaintedTiles: SnapshotStateMap<Position, de.egril.defender.editor.TileType> = mutableStateMapOf(),
 ) {
+    // Sandbox: the original map tile type for every position, captured once from the level as it was
+    // first loaded (before any runtime edits). Used so runtime paints can be compared against the
+    // original map and only genuine differences are tracked, persisted, and overlaid.
+    private val originalSandboxTileTypes: Map<Position, de.egril.defender.editor.TileType> =
+        if (level.isSandbox) buildTileTypeMap(level) else emptyMap()
+
     /** Multiplier applied to earned coins while the Coin Surge power is active (2x), otherwise 1x. */
     fun coinSurgeMultiplier(): Int = if (coinSurgeActive.value) 2 else 1
 
     /**
      * Sandbox: repaint a single map tile to the given [tileType] at runtime.
      * Rebuilds the level's tile collections and bumps [mapEditVersion] to trigger a re-render.
+     * Only tiles that differ from the original map are tracked in [sandboxPaintedTiles] (repainting a
+     * tile back to its original type removes it), so only genuine differences are overlaid and saved.
      * Only allowed on sandbox levels; a no-op otherwise.
      */
     fun sandboxPaintTile(
@@ -312,9 +320,30 @@ data class GameState(
                 targetPositions = targetPositions.toList(),
                 riverTiles = riverTiles.toMap(),
             )
-        // Record the repaint so the map can overlay the new tile image over the original map background.
-        sandboxPaintedTiles[position] = tileType
+        // Record the repaint so the map can overlay the new tile image over the original map
+        // background — but only when it genuinely differs from the original map. Repainting a tile
+        // back to its original type removes it from the tracked differences.
+        val originalType = originalSandboxTileTypes[position] ?: de.egril.defender.editor.TileType.NO_PLAY
+        if (tileType == originalType) {
+            sandboxPaintedTiles.remove(position)
+        } else {
+            sandboxPaintedTiles[position] = tileType
+        }
         mapEditVersion.value++
+    }
+
+    /**
+     * Build a position -> [de.egril.defender.editor.TileType] map for every non-blocked tile in [lvl].
+     * Positions absent from the map are implicitly [de.egril.defender.editor.TileType.NO_PLAY].
+     */
+    private fun buildTileTypeMap(lvl: Level): Map<Position, de.egril.defender.editor.TileType> {
+        val map = mutableMapOf<Position, de.egril.defender.editor.TileType>()
+        lvl.pathCells.forEach { map[it] = de.egril.defender.editor.TileType.PATH }
+        lvl.buildAreas.forEach { map[it] = de.egril.defender.editor.TileType.BUILD_AREA }
+        lvl.startPositions.forEach { map[it] = de.egril.defender.editor.TileType.SPAWN_POINT }
+        lvl.targetPositions.forEach { map[it] = de.egril.defender.editor.TileType.TARGET }
+        lvl.riverTiles.keys.forEach { map[it] = de.egril.defender.editor.TileType.RIVER }
+        return map
     }
 
     fun isLevelWon(): Boolean {

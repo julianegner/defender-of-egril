@@ -1140,6 +1140,7 @@
     <string name="sandbox_tile_no_play">Bloqué</string>
     <string name="sandbox_paint_hint">Touchez les tuiles pour les peindre. Touchez Terminé une fois fini.</string>
     <string name="sandbox_done_editing">Terminer la modification de la carte</string>
+    <string name="sandbox_tools_hint">Ouvre les Outils bac à sable pour générer des ennemis de test, ajouter des pièces et modifier la carte.</string>
     <string name="allow_auto_attack">Autoriser l'Attaque Automatique</string>
     <string name="connected_to_previous_level">Connecter au niveau précédent</string>
     <string name="auto_attack_info_title">Fonction d'Attaque Automatique</string>

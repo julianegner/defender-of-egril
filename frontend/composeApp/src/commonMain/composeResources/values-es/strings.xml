@@ -1140,6 +1140,7 @@
     <string name="sandbox_tile_no_play">Bloqueado</string>
     <string name="sandbox_paint_hint">Toca las casillas para pintarlas. Toca Listo al terminar.</string>
     <string name="sandbox_done_editing">Terminar de editar el mapa</string>
+    <string name="sandbox_tools_hint">Abre las Herramientas de modo libre para generar enemigos de prueba, añadir monedas y editar el mapa.</string>
     <string name="allow_auto_attack">Permitir Auto-Ataque</string>
     <string name="connected_to_previous_level">Conectar con el nivel anterior</string>
     <string name="auto_attack_info_title">Función de Auto-Ataque</string>

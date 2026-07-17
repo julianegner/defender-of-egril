@@ -401,67 +401,23 @@ object SaveFileStorage {
     }
 
     /**
-     * Apply the runtime-painted sandbox tiles (deltas) on top of the level's original tile layout.
-     */
-    private fun applySandboxMapTiles(
-        level: Level,
-        tiles: Map<Position, de.egril.defender.editor.TileType>,
-    ): Level {
-        val pathCells = level.pathCells.toMutableSet()
-        val buildAreas = level.buildAreas.toMutableSet()
-        val startPositions = level.startPositions.toMutableList()
-        val targetPositions = level.targetPositions.toMutableList()
-        val riverTiles = level.riverTiles.toMutableMap()
-        tiles.forEach { (position, type) ->
-            // Clear the tile from every collection first so the new type fully replaces the old one.
-            pathCells.remove(position)
-            buildAreas.remove(position)
-            startPositions.remove(position)
-            targetPositions.remove(position)
-            riverTiles.remove(position)
-            when (type) {
-                de.egril.defender.editor.TileType.PATH -> pathCells.add(position)
-                de.egril.defender.editor.TileType.BUILD_AREA -> buildAreas.add(position)
-                de.egril.defender.editor.TileType.SPAWN_POINT -> startPositions.add(position)
-                de.egril.defender.editor.TileType.TARGET -> targetPositions.add(position)
-                de.egril.defender.editor.TileType.RIVER ->
-                    riverTiles[position] =
-                        de.egril.defender.model.RiverTile(
-                            position = position,
-                            flowDirection = de.egril.defender.model.RiverFlow.EAST,
-                            flowSpeed = 1,
-                        )
-                de.egril.defender.editor.TileType.NO_PLAY -> {} // Already cleared from all collections.
-            }
-        }
-        return level.copy(
-            pathCells = pathCells.toSet(),
-            buildAreas = buildAreas.toSet(),
-            startPositions = startPositions.toList(),
-            targetPositions = targetPositions.toList(),
-            riverTiles = riverTiles.toMap(),
-        )
-    }
-
-    /**
      * Convert SavedGame back to GameState
      */
     fun convertSavedGameToGameState(
         savedGame: SavedGame,
         level: Level,
     ): GameState {
-        // Sandbox: restore the (possibly runtime-edited) map tile layout before creating the state.
-        val effectiveLevel =
-            if (level.isSandbox && savedGame.sandboxMapTiles != null) {
-                applySandboxMapTiles(level, savedGame.sandboxMapTiles)
-            } else {
-                level
-            }
-        val gameState = GameState(level = effectiveLevel)
+        // Construct the state with the original (un-edited) level so its captured snapshot of the
+        // original map is correct, then reapply the runtime-painted sandbox tile differences.
+        val gameState = GameState(level = level)
 
-        // Sandbox: restore the runtime-painted tiles so their overlays reappear.
+        // Sandbox: restore the runtime-painted tile differences. sandboxPaintTile rebuilds the level's
+        // tile collections, records the differences for overlay rendering, and drops any that match the
+        // original map. Applied before defenders/barricades are restored so no tiles are skipped.
         if (level.isSandbox && savedGame.sandboxMapTiles != null) {
-            gameState.sandboxPaintedTiles.putAll(savedGame.sandboxMapTiles)
+            savedGame.sandboxMapTiles.forEach { (position, type) ->
+                gameState.sandboxPaintTile(position, type)
+            }
         }
 
         // Restore basic state

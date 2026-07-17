@@ -1141,6 +1141,7 @@
     <string name="sandbox_tile_no_play">Blocked</string>
     <string name="sandbox_paint_hint">Tap tiles to paint them. Tap Done when finished.</string>
     <string name="sandbox_done_editing">Done Editing Map</string>
+    <string name="sandbox_tools_hint">Open Sandbox Tools to spawn test enemies, add coins, and edit the map.</string>
     <string name="allow_auto_attack">Allow Auto-Attack</string>
     <string name="connected_to_previous_level">Connected to Previous Level</string>
     <string name="auto_attack_info_title">Auto-Attack Feature</string>

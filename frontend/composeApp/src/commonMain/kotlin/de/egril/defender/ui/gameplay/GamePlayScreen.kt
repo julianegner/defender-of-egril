@@ -2087,34 +2087,20 @@ private fun GamePlayScreenContent(
                             selectedSupportObject = selectedSupportObject,
                         )
 
-                        // Sandbox: active map tile-paint mode hint, drawn as an overlay OVER the map
-                        // (top-center, high zIndex) so it is never hidden behind the map plane.
-                        sandboxPaintTileType?.let {
-                            Surface(
+                        // Sandbox: persistent map-tile selector (from the map editor), always
+                        // available while playing a sandbox level. Selecting a tile type activates
+                        // painting; tapping a map tile then repaints it. Drawn as an overlay OVER the
+                        // map (left-center, high zIndex) so it is never hidden behind the map plane.
+                        if (gameState.level.isSandbox) {
+                            SandboxTilePalette(
+                                selectedTileType = sandboxPaintTileType,
+                                onSelectTileType = { sandboxPaintTileType = it },
                                 modifier =
                                     Modifier
-                                        .align(Alignment.TopCenter)
-                                        .padding(top = 8.dp)
+                                        .align(Alignment.CenterStart)
+                                        .padding(start = 8.dp)
                                         .zIndex(30f),
-                                color = MaterialTheme.colorScheme.tertiaryContainer,
-                                tonalElevation = 3.dp,
-                                shadowElevation = 3.dp,
-                                shape = RoundedCornerShape(8.dp),
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Text(
-                                        text = stringResource(Res.string.sandbox_paint_hint),
-                                        color = MaterialTheme.colorScheme.onTertiaryContainer,
-                                    )
-                                    Button(onClick = { sandboxPaintTileType = null }) {
-                                        Text(stringResource(Res.string.sandbox_done_editing))
-                                    }
-                                }
-                            }
+                            )
                         }
 
                         val captionText = soundCaptionText
@@ -2946,10 +2932,6 @@ private fun GamePlayScreenContent(
                         SandboxToolsDialog(
                             onSpawnEnemy = { type, level -> onSandboxSpawnEnemy(type, level) },
                             onAddCoins = { onSandboxAddCoins?.invoke() },
-                            onSelectPaintTile = { tileType ->
-                                sandboxPaintTileType = tileType
-                                showSandboxTools = false
-                            },
                             onDismiss = { showSandboxTools = false },
                         )
                     }

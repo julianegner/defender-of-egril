@@ -16,6 +16,7 @@ import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -350,13 +351,29 @@ fun GameHeader(
                     )
 
                     if (onSandboxTools != null && gameState.level.isSandbox) {
-                        TooltipWrapper(text = stringResource(Res.string.sandbox_tools)) {
-                            Button(
-                                onClick = onSandboxTools,
-                                modifier = Modifier.height(buttonHeight).semantics { contentDescription = "sandbox_tools" },
-                                contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
-                            ) {
-                                SwordIcon(size = buttonIconSize)
+                        var sandboxHintDismissed by rememberSaveable { mutableStateOf(false) }
+                        var sandboxButtonWidthPx by remember { mutableStateOf(0) }
+                        Box {
+                            TooltipWrapper(text = stringResource(Res.string.sandbox_tools)) {
+                                Button(
+                                    onClick = onSandboxTools,
+                                    modifier =
+                                        Modifier
+                                            .height(buttonHeight)
+                                            .semantics { contentDescription = "sandbox_tools" }
+                                            .onGloballyPositioned { sandboxButtonWidthPx = it.size.width },
+                                    contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
+                                ) {
+                                    SwordIcon(size = buttonIconSize)
+                                }
+                            }
+                            if (!sandboxHintDismissed) {
+                                HeaderButtonSpeechBubble(
+                                    text = stringResource(Res.string.sandbox_tools_hint),
+                                    anchorWidthPx = sandboxButtonWidthPx,
+                                    anchorHeight = buttonHeight,
+                                    onClose = { sandboxHintDismissed = true },
+                                )
                             }
                         }
                     }
@@ -859,6 +876,55 @@ private fun WinLevelSpeechBubble(
         SpeechBubble(
             pointer = SpeechBubblePointer.UP,
             // Aim the pointer tip at the badge centre (see pointerInset above).
+            pointerOffset = pointerInset,
+            onClose = onClose,
+            closeContentDescription = stringResource(Res.string.close),
+            modifier = Modifier.widthIn(max = 260.dp),
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+    }
+}
+
+/**
+ * A speech bubble rendered just below a header button, its pointer aimed at the button's horizontal
+ * centre. Drawn as a zero-size overlay so it floats over the map without affecting the header row
+ * layout. [anchorWidthPx] is the measured width of the anchor button (0 until first measured).
+ */
+@Composable
+private fun HeaderButtonSpeechBubble(
+    text: String,
+    anchorWidthPx: Int,
+    anchorHeight: Dp,
+    onClose: () -> Unit,
+) {
+    val density = LocalDensity.current
+    val anchorHeightPx = with(density) { anchorHeight.roundToPx() }
+    val gapPx = with(density) { 2.dp.roundToPx() }
+    // Distance from the bubble's left edge to the pointer tip. Matches SpeechBubble's minimum clamp
+    // for an UP pointer (cornerRadius + pointerWidth / 2 = 12dp + 8dp). The bubble is shifted left by
+    // this amount (minus half the button width) so the pointer lands on the button centre.
+    val pointerInset = 20.dp
+    val pointerInsetPx = with(density) { pointerInset.roundToPx() }
+
+    Box(
+        modifier =
+            Modifier
+                .zIndex(50f)
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
+                    // Report zero size so the bubble does not affect the header row layout.
+                    layout(0, 0) {
+                        placeable.place(anchorWidthPx / 2 - pointerInsetPx, anchorHeightPx + gapPx)
+                    }
+                },
+    ) {
+        SpeechBubble(
+            pointer = SpeechBubblePointer.UP,
+            // Aim the pointer tip at the button centre (see pointerInset above).
             pointerOffset = pointerInset,
             onClose = onClose,
             closeContentDescription = stringResource(Res.string.close),
