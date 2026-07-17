@@ -900,6 +900,8 @@ fun GameGrid(
                 // non-transparent (opaque tile-image) background so the new type overlays the old map.
                 val sandboxPaintedType =
                     if (gameState.level.isSandbox) gameState.sandboxPaintedTiles[position] else null
+                val sandboxPaintedRiverTile =
+                    if (gameState.level.isSandbox) gameState.sandboxPaintedRiverTiles[position] else null
 
                 GridCell(
                     position = position,
@@ -937,6 +939,8 @@ fun GameGrid(
                     hexSize = hexSize,
                     onHoverChange = cellOnHoverChange,
                     useTransparentBackground = hasMapImage && sandboxPaintedType == null,
+                    sandboxPaintedType = sandboxPaintedType,
+                    sandboxPaintedRiverTile = sandboxPaintedRiverTile,
                 )
             }
 
@@ -1097,6 +1101,14 @@ fun GridCell(
     hexSize: androidx.compose.ui.unit.Dp = 48.dp,
     onHoverChange: ((Boolean) -> Unit)? = null,
     useTransparentBackground: Boolean = false,
+    // Sandbox runtime map edits mutate the non-observable `level` field in place, so Compose cannot
+    // detect them by reading gameState.level. These two parameters carry the repainted tile type and
+    // river flow for this exact cell; when either changes (e.g. river -> different river flow, or
+    // river -> NO_PLAY) the parameter comparison differs and Compose recomposes this cell immediately,
+    // re-reading the updated level. Without them a repaint that leaves other parameters unchanged
+    // (notably repainting one river tile over another) would be skipped and never re-render.
+    sandboxPaintedType: de.egril.defender.editor.TileType? = null,
+    sandboxPaintedRiverTile: RiverTile? = null,
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
 
@@ -1180,19 +1192,21 @@ fun GridCell(
     // Check for mine dig animation at this position
     val mineDigEffect = gameState.mineDigEffects.find { it.position == position }
 
-    // Determine the tile type for background image loading
-    val riverTile = gameState.level.getRiverTile(position)
+    // Determine the tile type for background image loading. Prefer the sandbox-painted river tile so
+    // a runtime repaint (which mutates the non-observable level in place) is reflected immediately.
+    val riverTile = sandboxPaintedRiverTile ?: gameState.level.getRiverTile(position)
     val isMaelstrom = riverTile?.flowDirection == RiverFlow.MAELSTROM
 
     val tileType =
-        when {
-            isSpawnPoint -> de.egril.defender.editor.TileType.SPAWN_POINT
-            isTarget -> de.egril.defender.editor.TileType.TARGET
-            isRiverTile -> de.egril.defender.editor.TileType.RIVER
-            isOnPath -> de.egril.defender.editor.TileType.PATH
-            isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
-            else -> de.egril.defender.editor.TileType.NO_PLAY
-        }
+        sandboxPaintedType
+            ?: when {
+                isSpawnPoint -> de.egril.defender.editor.TileType.SPAWN_POINT
+                isTarget -> de.egril.defender.editor.TileType.TARGET
+                isRiverTile -> de.egril.defender.editor.TileType.RIVER
+                isOnPath -> de.egril.defender.editor.TileType.PATH
+                isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
+                else -> de.egril.defender.editor.TileType.NO_PLAY
+            }
 
     // Get tile background painter (will be null if images are disabled or not available)
     // Suppress tile image when unit backgrounds are ON so the colored background is visible:
