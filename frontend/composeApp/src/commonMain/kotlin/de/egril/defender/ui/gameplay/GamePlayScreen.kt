@@ -1,7 +1,6 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +18,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.hyperether.resources.stringResource
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
@@ -1801,29 +1801,6 @@ private fun GamePlayScreenContent(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Sandbox: active map tile-paint mode banner with a Done button.
-                    sandboxPaintTileType?.let {
-                        Row(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .background(MaterialTheme.colorScheme.tertiaryContainer, RoundedCornerShape(8.dp))
-                                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.sandbox_paint_hint),
-                                color = MaterialTheme.colorScheme.onTertiaryContainer,
-                                modifier = Modifier.weight(1f),
-                            )
-                            Button(onClick = { sandboxPaintTileType = null }) {
-                                Text(stringResource(Res.string.sandbox_done_editing))
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-
                     // Game Grid with toggle button and overlay
                     Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                         // Scrollable Game Grid
@@ -2109,6 +2086,36 @@ private fun GamePlayScreenContent(
                             keyboardPlacementCursor = keyboardPlacementTile,
                             selectedSupportObject = selectedSupportObject,
                         )
+
+                        // Sandbox: active map tile-paint mode hint, drawn as an overlay OVER the map
+                        // (top-center, high zIndex) so it is never hidden behind the map plane.
+                        sandboxPaintTileType?.let {
+                            Surface(
+                                modifier =
+                                    Modifier
+                                        .align(Alignment.TopCenter)
+                                        .padding(top = 8.dp)
+                                        .zIndex(30f),
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp,
+                                shape = RoundedCornerShape(8.dp),
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        text = stringResource(Res.string.sandbox_paint_hint),
+                                        color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                    )
+                                    Button(onClick = { sandboxPaintTileType = null }) {
+                                        Text(stringResource(Res.string.sandbox_done_editing))
+                                    }
+                                }
+                            }
+                        }
 
                         val captionText = soundCaptionText
                         if (captionsEnabled && captionText != null) {

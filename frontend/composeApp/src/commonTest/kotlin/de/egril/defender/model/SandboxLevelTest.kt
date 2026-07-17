@@ -126,6 +126,27 @@ class SandboxLevelTest {
     }
 
     @Test
+    fun sandboxPaintTileRecordsPaintedTilesForOverlay() {
+        val state = playerTurnState(buildLevel(isSandbox = true))
+        val target = Position(4, 2)
+        assertTrue(state.sandboxPaintedTiles.isEmpty())
+
+        state.sandboxPaintTile(target, TileType.BUILD_AREA)
+        assertEquals(TileType.BUILD_AREA, state.sandboxPaintedTiles[target])
+
+        // Repainting the same tile updates the recorded type.
+        state.sandboxPaintTile(target, TileType.NO_PLAY)
+        assertEquals(TileType.NO_PLAY, state.sandboxPaintedTiles[target])
+    }
+
+    @Test
+    fun sandboxPaintTileDoesNotRecordForNonSandboxLevel() {
+        val state = playerTurnState(buildLevel(isSandbox = false))
+        state.sandboxPaintTile(Position(4, 2), TileType.BUILD_AREA)
+        assertTrue(state.sandboxPaintedTiles.isEmpty())
+    }
+
+    @Test
     fun sandboxPaintTileIsNoOpForNonSandboxLevel() {
         val state = playerTurnState(buildLevel(isSandbox = false))
         val target = Position(4, 2)

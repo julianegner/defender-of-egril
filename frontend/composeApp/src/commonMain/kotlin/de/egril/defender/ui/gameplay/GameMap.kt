@@ -895,6 +895,12 @@ fun GameGrid(
                         }
                     }
 
+                // Sandbox: a tile repainted at runtime must show its new tile image even when the
+                // original map is rendered from a single pre-rendered image. For such tiles we force a
+                // non-transparent (opaque tile-image) background so the new type overlays the old map.
+                val sandboxPaintedType =
+                    if (gameState.level.isSandbox) gameState.sandboxPaintedTiles[position] else null
+
                 GridCell(
                     position = position,
                     gameState = gameState,
@@ -930,7 +936,7 @@ fun GameGrid(
                     onClick = cellOnClick,
                     hexSize = hexSize,
                     onHoverChange = cellOnHoverChange,
-                    useTransparentBackground = hasMapImage,
+                    useTransparentBackground = hasMapImage && sandboxPaintedType == null,
                 )
             }
 

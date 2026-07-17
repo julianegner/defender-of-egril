@@ -438,9 +438,10 @@ fun LevelEditorView(
     var showOfficialLevelSavedWarning by remember { mutableStateOf(false) }
     var pendingLevelToSave by remember { mutableStateOf<EditorLevel?>(null) }
     var selectedTabIndex by remember { mutableStateOf(0) }
-    // Sandbox levels have no scripted events, so hide/leave the Events tab (index 6).
+    // Sandbox levels have no scripted enemy waves or events: the player launches test attacks while
+    // playing, so the Enemy Spawns tab (index 1) and Events tab (index 6) are hidden.
     LaunchedEffect(isSandbox) {
-        if (isSandbox && selectedTabIndex == 6) {
+        if (isSandbox && (selectedTabIndex == 1 || selectedTabIndex == 6)) {
             selectedTabIndex = 0
         }
     }
@@ -570,23 +571,25 @@ fun LevelEditorView(
                     }
                 },
             )
-            Tab(
-                selected = selectedTabIndex == 1,
-                onClick = { selectedTabIndex = 1 },
-                text = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Text(stringResource(Res.string.enemy_spawns_tab))
-                        if (!isEnemySpawnsReady) {
-                            RedDotBadge()
-                        } else if (hasEnemiesOutsideSpawnPoints) {
-                            WarningBadge()
+            if (!isSandbox) {
+                Tab(
+                    selected = selectedTabIndex == 1,
+                    onClick = { selectedTabIndex = 1 },
+                    text = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Text(stringResource(Res.string.enemy_spawns_tab))
+                            if (!isEnemySpawnsReady) {
+                                RedDotBadge()
+                            } else if (hasEnemiesOutsideSpawnPoints) {
+                                WarningBadge()
+                            }
                         }
-                    }
-                },
-            )
+                    },
+                )
+            }
             Tab(
                 selected = selectedTabIndex == 2,
                 onClick = { selectedTabIndex = 2 },
@@ -759,7 +762,8 @@ fun LevelEditorView(
                                 mapId = selectedMapId,
                                 startCoins = startCoins.toIntOrNull() ?: 100,
                                 startHealthPoints = startHP.toIntOrNull() ?: 10,
-                                enemySpawns = enemySpawns.toList(),
+                                // Sandbox levels have no scripted enemy waves; the player spawns test enemies while playing.
+                                enemySpawns = if (isSandbox) emptyList() else enemySpawns.toList(),
                                 availableTowers = availableTowersState,
                                 waypoints = waypointsState.toList(),
                                 testingOnly = testingOnly,
@@ -1015,7 +1019,7 @@ fun LevelEditorView(
                         mapId = selectedMapId,
                         startCoins = startCoins.toIntOrNull() ?: 100,
                         startHealthPoints = startHP.toIntOrNull() ?: 10,
-                        enemySpawns = enemySpawns.toList(),
+                        enemySpawns = if (isSandbox) emptyList() else enemySpawns.toList(),
                         availableTowers = availableTowersState,
                         waypoints = waypointsState.toList(),
                         testingOnly = testingOnly,

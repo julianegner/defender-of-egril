@@ -260,6 +260,9 @@ data class GameState(
     val triggeredEventIds: SnapshotStateList<String> = mutableStateListOf(), // IDs of scripted events that have already fired
     // Sandbox: incremented whenever the map layout (tiles) is edited at runtime, so the map re-renders.
     val mapEditVersion: MutableState<Int> = mutableStateOf(0),
+    // Sandbox: tiles repainted at runtime (position -> new type). Used to draw the new tile image as an
+    // overlay over the original (possibly pre-rendered) map so edits are visible, and persisted in saves.
+    val sandboxPaintedTiles: SnapshotStateMap<Position, de.egril.defender.editor.TileType> = mutableStateMapOf(),
 ) {
     /** Multiplier applied to earned coins while the Coin Surge power is active (2x), otherwise 1x. */
     fun coinSurgeMultiplier(): Int = if (coinSurgeActive.value) 2 else 1
@@ -309,6 +312,8 @@ data class GameState(
                 targetPositions = targetPositions.toList(),
                 riverTiles = riverTiles.toMap(),
             )
+        // Record the repaint so the map can overlay the new tile image over the original map background.
+        sandboxPaintedTiles[position] = tileType
         mapEditVersion.value++
     }
 
