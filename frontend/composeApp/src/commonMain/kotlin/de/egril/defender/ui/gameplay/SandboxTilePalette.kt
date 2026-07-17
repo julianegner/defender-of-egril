@@ -144,6 +144,7 @@ private fun RiverFlowSelector(
             verticalArrangement = Arrangement.spacedBy(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
+            val riverColor = Color(0xFF4682B4) // Steel blue, matching the RIVER tile color.
             items(RiverFlow.entries) { flow ->
                 OutlinedButton(onClick = { onSelectRiverFlow(flow) }) {
                     Row(
@@ -154,7 +155,7 @@ private fun RiverFlowSelector(
                             modifier =
                                 Modifier
                                     .background(
-                                        if (selectedRiverFlow == flow) Color(0xFF4682B4) else Color(0xFF4682B4).copy(alpha = 0.4f),
+                                        if (selectedRiverFlow == flow) riverColor else riverColor.copy(alpha = 0.4f),
                                         RoundedCornerShape(3.dp),
                                     ).padding(2.dp),
                         ) {
