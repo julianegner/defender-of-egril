@@ -70,7 +70,10 @@ parts:
       - libxi6
       - libxtst6
       # ALSA audio library – required by the audio-playback snap interface.
+      # Both libasound2 and libasound2-data are listed explicitly so that
+      # rebuilding the snap picks up security updates (e.g. USN 8538-1).
       - libasound2
+      - libasound2-data
 
 apps:
   defender-of-egril:
