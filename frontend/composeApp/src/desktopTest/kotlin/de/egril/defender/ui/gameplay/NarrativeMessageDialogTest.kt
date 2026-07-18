@@ -1,11 +1,10 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.ui.test.*
-import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import kotlin.test.assertTrue
 
 /**
  * UI tests for the NarrativeMessageDialog composable.
@@ -206,6 +205,6 @@ class NarrativeMessageDialogTest {
         val storyBounds = composeTestRule.onNodeWithTag("narrativeMessageDialog").getUnclippedBoundsInRoot()
         val storyWidth = storyBounds.right - storyBounds.left
 
-        assertTrue(storyWidth > ewhadWidth, "Story dialogs should use more width than Ewhad dialogs")
+        assertTrue("Story dialogs should use more width than Ewhad dialogs", storyWidth > ewhadWidth)
     }
 }

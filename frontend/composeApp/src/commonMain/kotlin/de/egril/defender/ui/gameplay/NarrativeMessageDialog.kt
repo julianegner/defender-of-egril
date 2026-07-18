@@ -56,9 +56,13 @@ enum class NarrativeMessageType {
 }
 
 private const val KEYBOARD_SCROLL_STEP = 150
+
+// story_message_background.png is a 500×500 frame image whose wooden side rails start at 165 px
+// and whose parchment content begins 135 px from the top and bottom.
 private const val STORY_BACKGROUND_SOURCE_SIZE = 500
 private const val STORY_BACKGROUND_SIDE_SLICE_PX = 165
 private const val STORY_BACKGROUND_VERTICAL_PADDING_PX = 135f
+private const val STORY_BACKGROUND_SIDE_RATIO = STORY_BACKGROUND_SIDE_SLICE_PX.toFloat() / STORY_BACKGROUND_SOURCE_SIZE.toFloat()
 private val STORY_DIALOG_DESKTOP_WIDTH = 960.dp
 private val STORY_DIALOG_DESKTOP_HEIGHT = 700.dp
 private val EWHAD_DIALOG_DESKTOP_WIDTH = 700.dp
@@ -169,9 +173,9 @@ fun NarrativeMessageDialog(
             val dialogHeight = if (useWideStoryLayout) STORY_DIALOG_DESKTOP_HEIGHT else dialogWidth
             val horizontalPadding =
                 if (useWideStoryLayout) {
-                    dialogHeight * (STORY_BACKGROUND_SIDE_SLICE_PX.toFloat() / STORY_BACKGROUND_SOURCE_SIZE.toFloat())
+                    dialogHeight * STORY_BACKGROUND_SIDE_RATIO
                 } else {
-                    dialogWidth * (STORY_BACKGROUND_SIDE_SLICE_PX.toFloat() / STORY_BACKGROUND_SOURCE_SIZE.toFloat())
+                    dialogWidth * STORY_BACKGROUND_SIDE_RATIO
                 }
             val verticalPadding = dialogHeight * (STORY_BACKGROUND_VERTICAL_PADDING_PX / STORY_BACKGROUND_SOURCE_SIZE)
 
@@ -303,13 +307,13 @@ private fun StoryMessageBackground(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
         val sideSlicePx = STORY_BACKGROUND_SIDE_SLICE_PX
         val centerSlicePx = source.width - (sideSlicePx * 2)
-        val destinationHeight = size.height.roundToInt().coerceAtLeast(1)
+        val destinationHeight = size.height.roundToInt().coerceAtLeast(1) // drawImage requires a positive destination size
         val destinationSideWidth =
             minOf(
-                size.height * (sideSlicePx.toFloat() / source.height.toFloat()),
+                size.height * STORY_BACKGROUND_SIDE_RATIO,
                 size.width / 2f,
-            ).roundToInt().coerceAtLeast(1)
-        val destinationCenterWidth = (size.width.roundToInt() - (destinationSideWidth * 2)).coerceAtLeast(0)
+            ).roundToInt().coerceAtLeast(1) // drawImage requires a positive destination size
+        val destinationCenterWidth = (size.width.roundToInt() - (destinationSideWidth * 2)).coerceAtLeast(0) // a zero-width center is safe because we skip drawing it below
 
         drawImage(
             image = source,
