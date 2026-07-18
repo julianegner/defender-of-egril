@@ -62,7 +62,7 @@ private const val KEYBOARD_SCROLL_STEP = 150
 private const val STORY_BACKGROUND_SOURCE_SIZE = 500
 private const val STORY_BACKGROUND_SIDE_SLICE_PX = 165
 private const val STORY_BACKGROUND_VERTICAL_PADDING_PX = 135f
-private const val STORY_BACKGROUND_SIDE_RATIO = STORY_BACKGROUND_SIDE_SLICE_PX.toFloat() / STORY_BACKGROUND_SOURCE_SIZE.toFloat()
+private const val STORY_BACKGROUND_SIDE_RATIO = 165f / STORY_BACKGROUND_SOURCE_SIZE.toFloat()
 private val STORY_DIALOG_DESKTOP_WIDTH = 960.dp
 private val STORY_DIALOG_DESKTOP_HEIGHT = 700.dp
 private val EWHAD_DIALOG_DESKTOP_WIDTH = 700.dp
@@ -307,12 +307,12 @@ private fun StoryMessageBackground(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
         val sideSlicePx = STORY_BACKGROUND_SIDE_SLICE_PX
         val centerSlicePx = source.width - (sideSlicePx * 2)
-        val destinationHeight = size.height.roundToInt().coerceAtLeast(1) // drawImage requires a destination size greater than zero
+        val destinationHeight = size.height.roundToInt().coerceAtLeast(1) // defensive: avoid invalid rendering sizes if the canvas height rounds down to zero
         val destinationSideWidth =
             minOf(
                 size.height * STORY_BACKGROUND_SIDE_RATIO,
                 size.width / 2f,
-            ).roundToInt().coerceAtLeast(1) // drawImage requires a destination size greater than zero
+            ).roundToInt().coerceAtLeast(1) // defensive: avoid invalid rendering sizes if the computed side width rounds down to zero
         val destinationCenterWidth = (size.width.roundToInt() - (destinationSideWidth * 2)).coerceAtLeast(0) // a zero-width center is safe because the draw below only runs when destinationCenterWidth > 0
 
         drawImage(
