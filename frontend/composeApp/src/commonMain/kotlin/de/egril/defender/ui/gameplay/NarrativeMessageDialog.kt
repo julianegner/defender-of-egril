@@ -57,7 +57,7 @@ enum class NarrativeMessageType {
 
 private const val KEYBOARD_SCROLL_STEP = 150
 
-// story_message_background.png is a 500×500 frame image whose wooden side rails start at 165 px
+// story_message_background.png has original source dimensions of 500×500 px, with wooden side rails starting at 165 px
 // and whose parchment content begins 135 px from the top and bottom.
 private const val STORY_BACKGROUND_SOURCE_SIZE = 500
 private const val STORY_BACKGROUND_SIDE_SLICE_PX = 165
@@ -307,13 +307,13 @@ private fun StoryMessageBackground(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
         val sideSlicePx = STORY_BACKGROUND_SIDE_SLICE_PX
         val centerSlicePx = source.width - (sideSlicePx * 2)
-        val destinationHeight = size.height.roundToInt().coerceAtLeast(1) // drawImage requires a positive destination size
+        val destinationHeight = size.height.roundToInt().coerceAtLeast(1) // drawImage requires a destination size greater than zero
         val destinationSideWidth =
             minOf(
                 size.height * STORY_BACKGROUND_SIDE_RATIO,
                 size.width / 2f,
-            ).roundToInt().coerceAtLeast(1) // drawImage requires a positive destination size
-        val destinationCenterWidth = (size.width.roundToInt() - (destinationSideWidth * 2)).coerceAtLeast(0) // a zero-width center is safe because we skip drawing it below
+            ).roundToInt().coerceAtLeast(1) // drawImage requires a destination size greater than zero
+        val destinationCenterWidth = (size.width.roundToInt() - (destinationSideWidth * 2)).coerceAtLeast(0) // a zero-width center is safe because the draw below only runs when destinationCenterWidth > 0
 
         drawImage(
             image = source,
