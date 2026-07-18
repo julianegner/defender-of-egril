@@ -62,6 +62,9 @@ private const val KEYBOARD_SCROLL_STEP = 150
 private const val STORY_BACKGROUND_SOURCE_SIZE = 500
 private const val STORY_BACKGROUND_SIDE_SLICE_PX = 165
 private const val STORY_BACKGROUND_VERTICAL_PADDING_PX = 135f
+
+// Keep the precomputed ratio alongside the source-asset constants so every sizing calculation uses
+// the same scaling factor instead of re-deriving it at each call site.
 private const val STORY_BACKGROUND_SIDE_RATIO = 165f / STORY_BACKGROUND_SOURCE_SIZE.toFloat()
 private val STORY_DIALOG_DESKTOP_WIDTH = 960.dp
 private val STORY_DIALOG_DESKTOP_HEIGHT = 700.dp
@@ -313,7 +316,7 @@ private fun StoryMessageBackground(modifier: Modifier = Modifier) {
                 size.height * STORY_BACKGROUND_SIDE_RATIO,
                 size.width / 2f,
             ).roundToInt().coerceAtLeast(1) // defensive: avoid invalid rendering sizes if the computed side width rounds down to zero
-        val destinationCenterWidth = (size.width.roundToInt() - (destinationSideWidth * 2)).coerceAtLeast(0) // a zero-width center is safe because the draw below only runs when destinationCenterWidth > 0
+        val destinationCenterWidth = (size.width.roundToInt() - (destinationSideWidth * 2)).coerceAtLeast(0) // prevents negative center widths when the side slices overlap; a zero-width center is safe because the draw below only runs when destinationCenterWidth > 0
 
         drawImage(
             image = source,
