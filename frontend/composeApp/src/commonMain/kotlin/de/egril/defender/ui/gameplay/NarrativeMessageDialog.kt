@@ -310,13 +310,16 @@ private fun StoryMessageBackground(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
         val sideSlicePx = STORY_BACKGROUND_SIDE_SLICE_PX
         val centerSlicePx = source.width - (sideSlicePx * 2)
-        val destinationHeight = size.height.roundToInt().coerceAtLeast(1) // defensive: avoid invalid rendering sizes if the canvas height rounds down to zero
+        // Defensive: avoid invalid rendering sizes if the canvas height rounds down to zero.
+        val destinationHeight = size.height.roundToInt().coerceAtLeast(1)
         val destinationSideWidth =
             minOf(
                 size.height * STORY_BACKGROUND_SIDE_RATIO,
                 size.width / 2f,
-            ).roundToInt().coerceAtLeast(1) // defensive: avoid invalid rendering sizes if the computed side width rounds down to zero
-        val destinationCenterWidth = (size.width.roundToInt() - (destinationSideWidth * 2)).coerceAtLeast(0) // prevents negative center widths when the side slices overlap; a zero-width center is safe because the draw below only runs when destinationCenterWidth > 0
+            ).roundToInt().coerceAtLeast(1)
+        // Prevent negative center widths when the side slices overlap.
+        // A zero-width center is safe because the draw below only runs when destinationCenterWidth > 0.
+        val destinationCenterWidth = (size.width.roundToInt() - (destinationSideWidth * 2)).coerceAtLeast(0)
 
         drawImage(
             image = source,
