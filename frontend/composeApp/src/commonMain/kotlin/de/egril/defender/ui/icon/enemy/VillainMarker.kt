@@ -25,14 +25,15 @@ fun DrawScope.drawVillainMarker(
     val goldOutline = Color(0xFF8A6A12)
 
     // Faint golden aura ring behind the unit so villains "glow" on the map.
+    val auraRadius = iconSize * 0.46f
     drawCircle(
         color = gold.copy(alpha = 0.22f),
-        radius = iconSize * 0.46f,
+        radius = auraRadius,
         center = Offset(centerX, centerY),
     )
     drawCircle(
         color = gold.copy(alpha = 0.5f),
-        radius = iconSize * 0.46f,
+        radius = auraRadius,
         center = Offset(centerX, centerY),
         style = Stroke(width = iconSize * 0.02f),
     )
