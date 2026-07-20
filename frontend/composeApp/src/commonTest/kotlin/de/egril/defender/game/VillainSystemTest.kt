@@ -147,6 +147,54 @@ class VillainSystemTest {
     }
 
     @Test
+    fun villainReachingTargetLosesTheLevel() {
+        // A villain breaching a target loses the level immediately, even with health points left.
+        val pathCells = (0..9).map { Position(it, 2) }.toSet()
+        val level =
+            Level(
+                id = 1,
+                name = "Villain Target Test",
+                gridWidth = 10,
+                gridHeight = 6,
+                startPositions = listOf(Position(0, 2)),
+                targetPositions = listOf(Position(9, 2)),
+                pathCells = pathCells,
+                attackerWaves = listOf(AttackerWave(listOf(AttackerType.GAROKK))),
+                initialCoins = 100,
+                healthPoints = 100,
+            )
+        val state = GameState(level)
+        val engine = GameEngine(state)
+
+        val garokk =
+            Attacker(
+                id = 1,
+                type = AttackerType.GAROKK,
+                position = mutableStateOf(Position(8, 2)),
+                level = mutableStateOf(1),
+            )
+        state.attackers.add(garokk)
+        assertFalse(state.villainReachedTarget.value)
+        assertFalse(state.isLevelLost())
+
+        var turnCount = 0
+        while (!garokk.isDefeated.value && turnCount < 20) {
+            val movements = engine.calculateEnemyTurnMovements()
+            for (movementStep in movements.allMovementSteps) {
+                for ((attackerId, newPosition) in movementStep) {
+                    engine.applyMovement(attackerId, newPosition)
+                }
+            }
+            turnCount++
+        }
+
+        assertTrue(garokk.isDefeated.value, "Villain should have reached the target")
+        assertTrue(state.villainReachedTarget.value, "Reaching a target must flag the villain breach")
+        assertTrue(state.healthPoints.value > 0, "Health should remain, yet the level is still lost")
+        assertTrue(state.isLevelLost(), "A villain reaching a target loses the level")
+    }
+
+    @Test
     fun woundedVillainKeepsPermanentSelfSpeedBonus() {
         val level = createTestLevel()
         val state = GameState(level)

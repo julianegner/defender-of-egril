@@ -439,6 +439,11 @@ class EnemyMovementSystem(
             val damage = attacker.calculateTargetDamage()
             state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
         }
+        // A villain breaching a target loses the level immediately (see issue #538), regardless of
+        // how much health remains. Record it so GameState.isLevelLost() reports the loss.
+        if (attacker.type.isVillain) {
+            state.villainReachedTarget.value = true
+        }
         attacker.isDefeated.value = true
     }
 

@@ -242,6 +242,9 @@ data class GameState(
     val constructionLevel: Int = 0, // Construction level from player stats (0-3+, gates tower abilities)
     val spellTargeting: MutableState<SpellTargetingState?> = mutableStateOf(null), // Active spell targeting state (null when not targeting)
     val instantTowerSpellActive: MutableState<Boolean> = mutableStateOf(false), // True when Instant Tower spell is active (waiting for next tower placement)
+    // Villains: set to true when any villain reaches a target. A villain breaching a target loses the
+    // level immediately, regardless of remaining health points (see issue #538).
+    val villainReachedTarget: MutableState<Boolean> = mutableStateOf(false),
     // SINGLE_HIT target tracking
     val takenTargets: SnapshotStateList<Position> = mutableStateListOf(), // Positions of taken SINGLE_HIT targets
     val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf(), // Messages queued for display
@@ -401,6 +404,8 @@ data class GameState(
 
     fun isLevelLost(): Boolean {
         if (healthPoints.value <= 0) return true
+        // A villain breaching a target loses the level immediately, regardless of remaining health.
+        if (villainReachedTarget.value) return true
         // Level is also lost when all SINGLE_HIT targets have been taken
         val singleHitTargets = level.targetInfoMap.filter { it.value.type == TargetType.SINGLE_HIT }.keys
         if (singleHitTargets.isNotEmpty() && takenTargets.containsAll(singleHitTargets)) return true
@@ -434,6 +439,8 @@ data class GameState(
      *  - Not during the player's turn (e.g. building phase or enemy turn).
      *  - Levels with SINGLE_HIT targets, which can be lost regardless of remaining health.
      *  - When a summoner enemy remains, since it can create an unbounded number of additional units.
+     *  - When a villain remains (on the field or still to spawn), since a villain reaching a target
+     *    loses the level outright, regardless of remaining health.
      */
     fun canWinLevelNow(): Boolean {
         // Sandbox levels can never be won, so never offer the instant win.
@@ -448,6 +455,9 @@ data class GameState(
         if (aliveEnemies.isEmpty() && enemiesToSpawn.isEmpty()) return false
         // Summoners can create additional enemies, so the total threat cannot be bounded.
         if (aliveEnemies.any { it.type.isSummoner() } || enemiesToSpawn.any { it.attackerType.isSummoner() }) return false
+        // A villain (on the field or still to spawn) loses the level the moment it reaches a target,
+        // regardless of remaining health, so a guaranteed win can never be offered while one remains.
+        if (aliveEnemies.any { it.type.isVillain } || enemiesToSpawn.any { it.attackerType.isVillain }) return false
 
         return getRemainingEnemyThreat() < healthPoints.value.toLong()
     }
