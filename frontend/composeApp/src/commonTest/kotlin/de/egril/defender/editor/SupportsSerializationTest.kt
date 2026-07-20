@@ -126,8 +126,18 @@ class SupportsSerializationTest {
 
         val level = EditorJsonSerializer.deserializeLevel(json)
         assertNotNull(level, "Level should be deserialized")
-        assertEquals(INDEFINITE_SUPPORT_COUNT, level.supports.objects.single().count)
-        assertEquals(INDEFINITE_SUPPORT_COUNT, level.supports.spells.single().count)
+        assertEquals(
+            INDEFINITE_SUPPORT_COUNT,
+            level.supports.objects
+                .single()
+                .count,
+        )
+        assertEquals(
+            INDEFINITE_SUPPORT_COUNT,
+            level.supports.spells
+                .single()
+                .count,
+        )
     }
 
     @Test

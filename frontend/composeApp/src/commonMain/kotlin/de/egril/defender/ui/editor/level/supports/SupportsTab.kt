@@ -46,8 +46,8 @@ import defender_of_egril.composeapp.generated.resources.cooldown_turns_label
 import defender_of_egril.composeapp.generated.resources.damage_label
 import defender_of_egril.composeapp.generated.resources.health_points
 import defender_of_egril.composeapp.generated.resources.start_active_label
-import defender_of_egril.composeapp.generated.resources.supports_count_indefinitely
 import defender_of_egril.composeapp.generated.resources.supports_cooldown_powers_section
+import defender_of_egril.composeapp.generated.resources.supports_count_indefinitely
 import defender_of_egril.composeapp.generated.resources.supports_intro
 import defender_of_egril.composeapp.generated.resources.supports_objects_section
 import defender_of_egril.composeapp.generated.resources.supports_spells_section
