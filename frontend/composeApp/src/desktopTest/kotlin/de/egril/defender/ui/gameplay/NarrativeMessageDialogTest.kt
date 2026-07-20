@@ -2,6 +2,7 @@ package de.egril.defender.ui.gameplay
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -176,5 +177,34 @@ class NarrativeMessageDialogTest {
         composeTestRule.waitForIdle()
 
         assert(dismissed) { "onDismiss should be called when OK is clicked" }
+    }
+
+    @Test
+    fun testStoryDialogUsesMoreWidthThanEwhadDialog() {
+        composeTestRule.setContent {
+            NarrativeMessageDialog(
+                type = NarrativeMessageType.EWHAD,
+                title = "Ewhad retreats",
+                text = "A long message that gives the dialog enough content to measure.",
+                onDismiss = {},
+            )
+        }
+        composeTestRule.waitForIdle()
+        val ewhadBounds = composeTestRule.onNodeWithTag("narrativeMessageDialog").getUnclippedBoundsInRoot()
+        val ewhadWidth = ewhadBounds.right - ewhadBounds.left
+
+        composeTestRule.setContent {
+            NarrativeMessageDialog(
+                type = NarrativeMessageType.STORY,
+                title = "A Tale Begins",
+                text = "A long message that gives the dialog enough content to measure.",
+                onDismiss = {},
+            )
+        }
+        composeTestRule.waitForIdle()
+        val storyBounds = composeTestRule.onNodeWithTag("narrativeMessageDialog").getUnclippedBoundsInRoot()
+        val storyWidth = storyBounds.right - storyBounds.left
+
+        assertTrue("Story dialogs should use more width than Ewhad dialogs", storyWidth > ewhadWidth)
     }
 }
