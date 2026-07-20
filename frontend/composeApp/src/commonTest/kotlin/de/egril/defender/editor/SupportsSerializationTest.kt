@@ -4,6 +4,7 @@ import de.egril.defender.model.AttackerType
 import de.egril.defender.model.CooldownPower
 import de.egril.defender.model.CooldownPowerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObject
@@ -110,6 +111,33 @@ class SupportsSerializationTest {
         val manaWell = level.supports.cooldownPowers.first { it.type == CooldownPowerType.MANA_WELL }
         assertEquals(CooldownPowerType.MANA_WELL.defaultCooldown, manaWell.cooldownTurns, "Default cooldown should be used")
         assertEquals(true, manaWell.startActive, "startActive should default to true")
+    }
+
+    @Test
+    fun testSerializeDeserializeIndefiniteSupportCountsRoundTrip() {
+        val supports =
+            LevelSupports(
+                objects = listOf(SupportObject(SupportObjectType.DWARVEN_TRAP, count = INDEFINITE_SUPPORT_COUNT)),
+                spells = listOf(SupportSpell(SpellType.FREEZE_SPELL, count = INDEFINITE_SUPPORT_COUNT)),
+            )
+
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(supports))
+        assertTrue(json.contains(""""count": "INDEFINITELY""""), "JSON should store indefinite counts explicitly")
+
+        val level = EditorJsonSerializer.deserializeLevel(json)
+        assertNotNull(level, "Level should be deserialized")
+        assertEquals(
+            INDEFINITE_SUPPORT_COUNT,
+            level.supports.objects
+                .single()
+                .count,
+        )
+        assertEquals(
+            INDEFINITE_SUPPORT_COUNT,
+            level.supports.spells
+                .single()
+                .count,
+        )
     }
 
     @Test

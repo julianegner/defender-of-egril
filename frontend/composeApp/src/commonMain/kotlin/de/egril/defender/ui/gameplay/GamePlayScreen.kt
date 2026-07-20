@@ -1,7 +1,6 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +18,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.hyperether.resources.stringResource
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
@@ -106,6 +106,9 @@ fun GamePlayScreen(
     onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
     activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
     onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
+    onSandboxSpawnEnemy: ((de.egril.defender.model.AttackerType, Int, de.egril.defender.model.Position?) -> Unit)? = null, // Sandbox: spawn an adjustable test enemy at an optional spawn point
+    onSandboxAddCoins: (() -> Unit)? = null, // Sandbox: add coins
+    onSandboxPaintTile: ((de.egril.defender.model.Position, de.egril.defender.editor.TileType, de.egril.defender.model.RiverFlow, Int) -> Unit)? = null, // Sandbox: repaint a map tile (with river flow when RIVER)
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -171,6 +174,9 @@ fun GamePlayScreen(
         onCastSupportSpellToken = onCastSupportSpellToken,
         activeSpellToken = activeSpellToken,
         onActivateCooldownPower = onActivateCooldownPower,
+        onSandboxSpawnEnemy = onSandboxSpawnEnemy,
+        onSandboxAddCoins = onSandboxAddCoins,
+        onSandboxPaintTile = onSandboxPaintTile,
     )
 }
 
@@ -241,6 +247,9 @@ private fun GamePlayScreenContent(
     onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
     activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
     onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
+    onSandboxSpawnEnemy: ((de.egril.defender.model.AttackerType, Int, de.egril.defender.model.Position?) -> Unit)? = null, // Sandbox: spawn an adjustable test enemy at an optional spawn point
+    onSandboxAddCoins: (() -> Unit)? = null, // Sandbox: add coins
+    onSandboxPaintTile: ((de.egril.defender.model.Position, de.egril.defender.editor.TileType, de.egril.defender.model.RiverFlow, Int) -> Unit)? = null, // Sandbox: repaint a map tile (with river flow when RIVER)
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedSupportObject by remember { mutableStateOf<SupportObjectType?>(null) }
@@ -249,6 +258,12 @@ private fun GamePlayScreenContent(
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
     var selectedTargetPosition by remember { mutableStateOf<Position?>(null) }
     var showCheatDialog by remember { mutableStateOf(false) }
+    var showSandboxTools by remember { mutableStateOf(false) }
+    // Sandbox: active map tile-paint type; when non-null, tapping a tile repaints it to this type.
+    var sandboxPaintTileType by remember { mutableStateOf<de.egril.defender.editor.TileType?>(null) }
+    // Sandbox: water flow direction/speed applied when painting RIVER tiles.
+    var sandboxRiverFlow by remember { mutableStateOf(de.egril.defender.model.RiverFlow.EAST) }
+    var sandboxRiverSpeed by remember { mutableStateOf(1) }
     var cheatCodeInput by remember { mutableStateOf("") }
     var showMineActionDialog by remember { mutableStateOf(false) }
     var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
@@ -1544,9 +1559,13 @@ private fun GamePlayScreenContent(
                         isShortcutBindingPressed(event, AppSettings.shortcutBackToWorldMap.value) &&
                         !isDemoMode -> {
                         // Skip unsaved changes check if in initial building phase with no defenders placed
+                        val hasSandboxMapEdits =
+                            gameState.level.isSandbox &&
+                                (gameState.sandboxPaintedTiles.isNotEmpty() || gameState.sandboxPaintedRiverTiles.isNotEmpty())
                         val isInitialWithNothingDone =
                             gameState.phase.value == GamePhase.INITIAL_BUILDING &&
-                                gameState.defenders.isEmpty()
+                                gameState.defenders.isEmpty() &&
+                                !hasSandboxMapEdits
                         if (!isInitialWithNothingDone && unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
                             showUnsavedChangesDialog = true
                         } else {
@@ -1750,6 +1769,12 @@ private fun GamePlayScreenContent(
                             },
                         onEnemyCountClick = { showOverlay = !showOverlay },
                         onWinLevelInfoClick = { showEndTurnConfirmation = true },
+                        onSandboxTools =
+                            if (onSandboxSpawnEnemy != null && !isDemoMode) {
+                                { showSandboxTools = true }
+                            } else {
+                                null
+                            },
                         onManaClick =
                             if (onOpenMagicPanel != null && gameState.maxMana.value > 0 && !isDemoMode) {
                                 {
@@ -1797,6 +1822,13 @@ private fun GamePlayScreenContent(
                             selectedBarricadeAction = selectedBarricadeAction,
                             extraFocusTrigger = mapRefocusTrigger,
                             onCellClick = { position ->
+                                // Sandbox: map tile painting takes precedence over all other interactions.
+                                val paintType = sandboxPaintTileType
+                                if (paintType != null) {
+                                    onSandboxPaintTile?.invoke(position, paintType, sandboxRiverFlow, sandboxRiverSpeed)
+                                    return@GameGrid
+                                }
+
                                 // Handle spell targeting mode first
                                 val targeting = gameState.spellTargeting.value
                                 if (targeting != null) {
@@ -2061,6 +2093,26 @@ private fun GamePlayScreenContent(
                             keyboardPlacementCursor = keyboardPlacementTile,
                             selectedSupportObject = selectedSupportObject,
                         )
+
+                        // Sandbox: persistent map-tile selector (from the map editor), always
+                        // available while playing a sandbox level. Selecting a tile type activates
+                        // painting; tapping a map tile then repaints it. Drawn as an overlay OVER the
+                        // map (left-center, high zIndex) so it is never hidden behind the map plane.
+                        if (gameState.level.isSandbox) {
+                            SandboxTilePalette(
+                                selectedTileType = sandboxPaintTileType,
+                                onSelectTileType = { sandboxPaintTileType = it },
+                                selectedRiverFlow = sandboxRiverFlow,
+                                onSelectRiverFlow = { sandboxRiverFlow = it },
+                                selectedRiverSpeed = sandboxRiverSpeed,
+                                onSelectRiverSpeed = { sandboxRiverSpeed = it },
+                                modifier =
+                                    Modifier
+                                        .align(Alignment.CenterStart)
+                                        .padding(start = 8.dp)
+                                        .zIndex(30f),
+                            )
+                        }
 
                         val captionText = soundCaptionText
                         if (captionsEnabled && captionText != null) {
@@ -2884,6 +2936,15 @@ private fun GamePlayScreenContent(
                             showHints = true,
                             initialInput = cheatCodeInput,
                             onInputChange = { cheatCodeInput = it },
+                        )
+                    }
+
+                    if (showSandboxTools && onSandboxSpawnEnemy != null) {
+                        SandboxToolsDialog(
+                            spawnPoints = gameState.level.startPositions,
+                            onSpawnEnemy = { type, level, spawnPoint -> onSandboxSpawnEnemy(type, level, spawnPoint) },
+                            onAddCoins = { onSandboxAddCoins?.invoke() },
+                            onDismiss = { showSandboxTools = false },
                         )
                     }
 

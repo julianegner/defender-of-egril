@@ -9,6 +9,7 @@ import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
 import de.egril.defender.model.EventCondition
 import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
 import de.egril.defender.model.LevelEvent
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.LevelSupports
@@ -17,6 +18,7 @@ import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObject
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.SupportSpell
+import de.egril.defender.model.isIndefiniteSupportCount
 import de.egril.defender.utils.JsonUtils
 
 /**
@@ -383,6 +385,13 @@ object EditorJsonSerializer {
                 ""
             }
 
+        val isSandboxJson =
+            if (level.isSandbox) {
+                ",\n  \"isSandbox\": true"
+            } else {
+                ""
+            }
+
         val isOfficialJson =
             if (level.isOfficial) {
                 ",\n  \"isOfficial\": true"
@@ -418,7 +427,7 @@ object EditorJsonSerializer {
                 if (level.supports.objects.isNotEmpty()) {
                     val objectsData =
                         level.supports.objects.joinToString(",\n      ") { obj ->
-                            """{"type": "${obj.type.name}", "count": ${obj.count}, "damage": ${obj.damage}, "healthPoints": ${obj.healthPoints}}"""
+                            """{"type": "${obj.type.name}", "count": ${serializeSupportCount(obj.count)}, "damage": ${obj.damage}, "healthPoints": ${obj.healthPoints}}"""
                         }
                     parts.add(
                         """"objects": [
@@ -429,7 +438,7 @@ object EditorJsonSerializer {
                 if (level.supports.spells.isNotEmpty()) {
                     val spellsData =
                         level.supports.spells.joinToString(",\n      ") { supportSpell ->
-                            """{"spell": "${supportSpell.spell.name}", "count": ${supportSpell.count}}"""
+                            """{"spell": "${supportSpell.spell.name}", "count": ${serializeSupportCount(supportSpell.count)}}"""
                         }
                     parts.add(
                         """"spells": [
@@ -584,7 +593,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isSandboxJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
 }"""
         return """{
   "metadata": {
@@ -811,6 +820,18 @@ object EditorJsonSerializer {
                 if (dataJson.contains("\"connectedToPreviousLevel\"")) {
                     try {
                         JsonUtils.extractValue(dataJson, "connectedToPreviousLevel").toBoolean()
+                    } catch (e: Exception) {
+                        false
+                    }
+                } else {
+                    false
+                }
+
+            // Parse isSandbox (optional, defaults to false)
+            val isSandbox =
+                if (dataJson.contains("\"isSandbox\"")) {
+                    try {
+                        JsonUtils.extractValue(dataJson, "isSandbox").toBoolean()
                     } catch (e: Exception) {
                         false
                     }
@@ -1358,7 +1379,8 @@ object EditorJsonSerializer {
                 testingOnly,
                 allowAutoAttack,
                 connectedToPreviousLevel,
-                isOfficial,
+                isSandbox = isSandbox,
+                isOfficial = isOfficial,
                 author = author,
                 communityDescription = communityDescription,
                 supports = supports,
@@ -1729,7 +1751,7 @@ object EditorJsonSerializer {
             for (entry in splitJsonArrayObjects(objectsSection)) {
                 val typeName = runCatching { JsonUtils.extractValue(entry, "type") }.getOrNull() ?: continue
                 val type = runCatching { SupportObjectType.valueOf(typeName) }.getOrNull() ?: continue
-                val count = runCatching { JsonUtils.extractValue(entry, "count").toInt() }.getOrDefault(1)
+                val count = parseSupportCount(runCatching { JsonUtils.extractValue(entry, "count") }.getOrDefault(""))
                 val damage = runCatching { JsonUtils.extractValue(entry, "damage").toInt() }.getOrDefault(10)
                 val healthPoints = runCatching { JsonUtils.extractValue(entry, "healthPoints").toInt() }.getOrDefault(50)
                 objects.add(SupportObject(type = type, count = count, damage = damage, healthPoints = healthPoints))
@@ -1742,7 +1764,7 @@ object EditorJsonSerializer {
             for (entry in splitJsonArrayObjects(spellsSection)) {
                 val spellName = runCatching { JsonUtils.extractValue(entry, "spell") }.getOrNull() ?: continue
                 val spell = runCatching { SpellType.valueOf(spellName) }.getOrNull() ?: continue
-                val count = runCatching { JsonUtils.extractValue(entry, "count").toInt() }.getOrDefault(1)
+                val count = parseSupportCount(runCatching { JsonUtils.extractValue(entry, "count") }.getOrDefault(""))
                 spells.add(SupportSpell(spell = spell, count = count))
             }
         }
@@ -1767,6 +1789,20 @@ object EditorJsonSerializer {
 
         return LevelSupports(objects = objects, spells = spells, cooldownPowers = cooldownPowers)
     }
+
+    private fun serializeSupportCount(count: Int): String =
+        if (isIndefiniteSupportCount(count)) {
+            "\"INDEFINITELY\""
+        } else {
+            "$count"
+        }
+
+    private fun parseSupportCount(rawCount: String): Int =
+        if (rawCount == "INDEFINITELY") {
+            INDEFINITE_SUPPORT_COUNT
+        } else {
+            rawCount.toIntOrNull() ?: 1
+        }
 
     /**
      * Serialize a single [LevelEvent] to a compact single-line JSON object.

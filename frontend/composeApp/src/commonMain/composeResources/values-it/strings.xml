@@ -773,6 +773,7 @@
     <string name="support_type_object">Oggetto Posizionabile</string>
     <string name="support_type_spell">Gettone Incantesimo</string>
     <string name="support_type_power">Potere a Ricarica</string>
+    <string name="supports_count_indefinitely">Indefinitamente</string>
     <string name="cooldown_turns_label">Ricarica</string>
     <string name="start_active_label">Inizia attivo</string>
     <string name="cooldown_power_coin_surge">Ondata di Monete</string>
@@ -1130,6 +1131,18 @@
     <string name="level_status_unknown">Sconosciuto</string>
     <string name="show_testing_levels">Mostra livelli di test</string>
     <string name="test_level">Livello di test</string>
+    <string name="sandbox_level">Livello sandbox</string>
+    <string name="sandbox">Sandbox</string>
+    <string name="sandbox_tools">Strumenti sandbox</string>
+    <string name="sandbox_spawn_enemy">Genera nemico</string>
+    <string name="sandbox_add_coins">Aggiungi 1000 monete</string>
+    <string name="sandbox_edit_map">Modifica caselle mappa</string>
+    <string name="sandbox_tile_build_area">Area di costruzione</string>
+    <string name="sandbox_tile_no_play">Bloccato</string>
+    <string name="sandbox_paint_hint">Tocca le caselle per dipingerle. Tocca Fatto al termine.</string>
+    <string name="sandbox_done_editing">Termina modifica mappa</string>
+    <string name="sandbox_tools_hint">Apri gli Strumenti sandbox per generare nemici di prova, aggiungere monete e modificare la mappa.</string>
+    <string name="sandbox_spawn_point_auto">Automatico (primo punto di generazione libero)</string>
     <string name="allow_auto_attack">Consenti Attacco Automatico</string>
     <string name="connected_to_previous_level">Collegato al livello precedente</string>
     <string name="auto_attack_info_title">Funzione Attacco Automatico</string>

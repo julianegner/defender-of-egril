@@ -5,6 +5,7 @@ import de.egril.defender.model.CooldownPowerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.GameState
+import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
 import de.egril.defender.model.Level
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
@@ -92,6 +93,21 @@ class SupportShortcutTest {
 
         val slots = visibleSupportSlots(gameState)
         assertEquals(listOf<SupportSlot>(SupportSlot.PowerSlot(CooldownPowerType.COIN_SURGE)), slots)
+    }
+
+    @Test
+    fun testIndefiniteObjectsAndSpellsStayVisible() {
+        val supports =
+            LevelSupports(
+                objects = listOf(SupportObject(SupportObjectType.DWARVEN_TRAP, count = INDEFINITE_SUPPORT_COUNT)),
+                spells = listOf(SupportSpell(SpellType.FREEZE_SPELL, count = INDEFINITE_SUPPORT_COUNT)),
+            )
+        val gameState = GameState(createLevel(supports))
+        gameState.initializePrePlacedElements()
+
+        val slots = visibleSupportSlots(gameState)
+        assertTrue(slots.contains(SupportSlot.ObjectSlot(SupportObjectType.DWARVEN_TRAP)))
+        assertTrue(slots.contains(SupportSlot.SpellSlot(SpellType.FREEZE_SPELL)))
     }
 
     @Test

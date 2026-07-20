@@ -2,6 +2,7 @@ package de.egril.defender.game
 
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.GameState
+import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
 import de.egril.defender.model.Level
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
@@ -49,6 +50,20 @@ class SupportPlacementTest {
 
         assertEquals(2, gameState.supportObjectsRemaining[SupportObjectType.DWARVEN_TRAP])
         assertEquals(3, gameState.supportSpellsRemaining[SpellType.FREEZE_SPELL])
+    }
+
+    @Test
+    fun testInitializePrePlacedElementsPreservesIndefiniteCounts() {
+        val supports =
+            LevelSupports(
+                objects = listOf(SupportObject(SupportObjectType.DWARVEN_TRAP, count = INDEFINITE_SUPPORT_COUNT)),
+                spells = listOf(SupportSpell(SpellType.FREEZE_SPELL, count = INDEFINITE_SUPPORT_COUNT)),
+            )
+        val gameState = GameState(createLevel(supports))
+        gameState.initializePrePlacedElements()
+
+        assertEquals(INDEFINITE_SUPPORT_COUNT, gameState.supportObjectsRemaining[SupportObjectType.DWARVEN_TRAP])
+        assertEquals(INDEFINITE_SUPPORT_COUNT, gameState.supportSpellsRemaining[SpellType.FREEZE_SPELL])
     }
 
     @Test

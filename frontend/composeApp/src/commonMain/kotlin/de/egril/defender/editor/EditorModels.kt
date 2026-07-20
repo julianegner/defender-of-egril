@@ -312,6 +312,7 @@ data class EditorLevel(
     val testingOnly: Boolean = false, // If true, level is only shown when "show testing levels" setting is enabled
     val allowAutoAttack: Boolean = false, // If true, shows auto-attack button in end turn confirmation dialog
     val connectedToPreviousLevel: Boolean = false, // If true, player can carry over towers/coins from the previous level (must be on the same map)
+    val isSandbox: Boolean = false, // If true, level is a Sandbox: free building/spawning, no scripted events, cannot be won, no XP
     val isOfficial: Boolean = false, // True if level is from official repository (read-only in editor)
     val author: String = "", // Optional author name
     val isCommunity: Boolean = false, // True if level is a community-shared level from the backend
@@ -363,7 +364,8 @@ data class EditorLevel(
      * Checks if this level is ready to play (level-specific checks only).
      * A level is ready if:
      * - It has at least one available tower
-     * - It has at least one enemy spawn configured (each EditorEnemySpawn represents one enemy unit)
+     * - It has at least one enemy spawn configured, unless it is a sandbox level
+     *   (each EditorEnemySpawn represents one enemy unit)
      * - Start coins are greater than zero
      * - Start health points are greater than zero
      *
@@ -373,7 +375,7 @@ data class EditorLevel(
      */
     fun isReadyToPlay(): Boolean =
         availableTowers.isNotEmpty() &&
-            enemySpawns.isNotEmpty() &&
+            (isSandbox || enemySpawns.isNotEmpty()) &&
             startCoins > 0 &&
             startHealthPoints > 0
 

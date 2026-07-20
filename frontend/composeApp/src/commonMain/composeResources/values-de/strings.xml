@@ -773,6 +773,7 @@
     <string name="support_type_object">Platzierbares Objekt</string>
     <string name="support_type_spell">Zauber-Marke</string>
     <string name="support_type_power">Abkling-Kraft</string>
+    <string name="supports_count_indefinitely">Unbegrenzt</string>
     <string name="cooldown_turns_label">Abklingzeit</string>
     <string name="start_active_label">Aktiv starten</string>
     <string name="cooldown_power_coin_surge">Münzflut</string>
@@ -1129,6 +1130,18 @@
     <string name="level_status_unknown">Unbekannt</string>
     <string name="show_testing_levels">Test-Level anzeigen</string>
     <string name="test_level">Test-Level</string>
+    <string name="sandbox_level">Sandbox-Level</string>
+    <string name="sandbox">Sandbox</string>
+    <string name="sandbox_tools">Sandbox-Werkzeuge</string>
+    <string name="sandbox_spawn_enemy">Gegner beschwören</string>
+    <string name="sandbox_add_coins">1000 Münzen hinzufügen</string>
+    <string name="sandbox_edit_map">Kartenfelder bearbeiten</string>
+    <string name="sandbox_tile_build_area">Baubereich</string>
+    <string name="sandbox_tile_no_play">Gesperrt</string>
+    <string name="sandbox_paint_hint">Felder antippen, um sie zu malen. Zum Beenden auf Fertig tippen.</string>
+    <string name="sandbox_done_editing">Kartenbearbeitung beenden</string>
+    <string name="sandbox_tools_hint">Öffne die Sandbox-Werkzeuge, um Testgegner zu erzeugen, Münzen hinzuzufügen und die Karte zu bearbeiten.</string>
+    <string name="sandbox_spawn_point_auto">Automatisch (erster freier Startpunkt)</string>
     <string name="allow_auto_attack">Auto-Angriff erlauben</string>
     <string name="connected_to_previous_level">Mit vorherigem Level verbinden</string>
     <string name="auto_attack_info_title">Auto-Angriff-Funktion</string>

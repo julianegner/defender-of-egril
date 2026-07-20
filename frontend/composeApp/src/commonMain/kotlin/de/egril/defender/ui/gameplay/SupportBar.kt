@@ -39,6 +39,8 @@ import de.egril.defender.model.Position
 import de.egril.defender.model.SpellTargetType
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObjectType
+import de.egril.defender.model.isIndefiniteSupportCount
+import de.egril.defender.model.supportCountDisplayText
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.ExplosionIcon
@@ -518,7 +520,7 @@ private fun SupportCountBadge(
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = "$count",
+            text = supportCountDisplayText(count),
             color = Color.White.copy(alpha = alpha),
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
@@ -730,7 +732,14 @@ private fun SupportSummaryRow(
     ) {
         icon()
         Text(
-            text = if (count > 1) "$label ×$count" else label,
+            text =
+                if (isIndefiniteSupportCount(count)) {
+                    "$label ∞"
+                } else if (count > 1) {
+                    "$label ×$count"
+                } else {
+                    label
+                },
             style = MaterialTheme.typography.bodyMedium,
             color = Color(0xFF333333),
         )

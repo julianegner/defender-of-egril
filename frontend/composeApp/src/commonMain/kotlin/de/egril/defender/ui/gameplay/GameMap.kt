@@ -116,6 +116,11 @@ private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
  */
 private const val COIN_BUBBLE_COIN_SIZE_FRACTION = 0.14f
 
+internal fun displayedRiverTile(
+    levelRiverTile: RiverTile?,
+    sandboxPaintedRiverTile: RiverTile?,
+): RiverTile? = sandboxPaintedRiverTile ?: levelRiverTile
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GameGrid(
@@ -138,6 +143,11 @@ fun GameGrid(
     selectedSupportObject: SupportObjectType? = null, // support object currently selected for placement (barricade/trap/magical trap)
     extraFocusTrigger: Int = 0,
 ) {
+    // Establish a snapshot dependency on runtime map edits (sandbox tile painting) so the entire
+    // grid recomposes and re-derives its tile sets from the updated level when a tile is repainted.
+    @Suppress("UNUSED_VARIABLE")
+    val mapEditVersion = gameState.mapEditVersion.value
+
     // State for pan and zoom
     var scale by remember { mutableStateOf(1f) }
     var offsetX by remember { mutableStateOf(0f) }
@@ -890,6 +900,14 @@ fun GameGrid(
                         }
                     }
 
+                // Sandbox: a tile repainted at runtime must show its new tile image even when the
+                // original map is rendered from a single pre-rendered image. For such tiles we force a
+                // non-transparent (opaque tile-image) background so the new type overlays the old map.
+                val sandboxPaintedType =
+                    if (gameState.level.isSandbox) gameState.sandboxPaintedTiles[position] else null
+                val sandboxPaintedRiverTile =
+                    if (gameState.level.isSandbox) gameState.sandboxPaintedRiverTiles[position] else null
+
                 GridCell(
                     position = position,
                     gameState = gameState,
@@ -925,7 +943,9 @@ fun GameGrid(
                     onClick = cellOnClick,
                     hexSize = hexSize,
                     onHoverChange = cellOnHoverChange,
-                    useTransparentBackground = hasMapImage,
+                    useTransparentBackground = hasMapImage && sandboxPaintedType == null,
+                    sandboxPaintedType = sandboxPaintedType,
+                    sandboxPaintedRiverTile = sandboxPaintedRiverTile,
                 )
             }
 
@@ -1086,6 +1106,14 @@ fun GridCell(
     hexSize: androidx.compose.ui.unit.Dp = 48.dp,
     onHoverChange: ((Boolean) -> Unit)? = null,
     useTransparentBackground: Boolean = false,
+    // Sandbox runtime map edits mutate the non-observable `level` field in place, so Compose cannot
+    // detect them by reading gameState.level. These two parameters carry the repainted tile type and
+    // river flow for this exact cell; when either changes (e.g. river -> different river flow, or
+    // river -> NO_PLAY) the parameter comparison differs and Compose recomposes this cell immediately,
+    // re-reading the updated level. Without them a repaint that leaves other parameters unchanged
+    // (notably repainting one river tile over another) would be skipped and never re-render.
+    sandboxPaintedType: de.egril.defender.editor.TileType? = null,
+    sandboxPaintedRiverTile: RiverTile? = null,
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
 
@@ -1169,19 +1197,21 @@ fun GridCell(
     // Check for mine dig animation at this position
     val mineDigEffect = gameState.mineDigEffects.find { it.position == position }
 
-    // Determine the tile type for background image loading
-    val riverTile = gameState.level.getRiverTile(position)
+    // Determine the tile type for background image loading. Prefer the sandbox-painted river tile so
+    // a runtime repaint (which mutates the non-observable level in place) is reflected immediately.
+    val riverTile = displayedRiverTile(gameState.level.getRiverTile(position), sandboxPaintedRiverTile)
     val isMaelstrom = riverTile?.flowDirection == RiverFlow.MAELSTROM
 
     val tileType =
-        when {
-            isSpawnPoint -> de.egril.defender.editor.TileType.SPAWN_POINT
-            isTarget -> de.egril.defender.editor.TileType.TARGET
-            isRiverTile -> de.egril.defender.editor.TileType.RIVER
-            isOnPath -> de.egril.defender.editor.TileType.PATH
-            isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
-            else -> de.egril.defender.editor.TileType.NO_PLAY
-        }
+        sandboxPaintedType
+            ?: when {
+                isSpawnPoint -> de.egril.defender.editor.TileType.SPAWN_POINT
+                isTarget -> de.egril.defender.editor.TileType.TARGET
+                isRiverTile -> de.egril.defender.editor.TileType.RIVER
+                isOnPath -> de.egril.defender.editor.TileType.PATH
+                isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
+                else -> de.egril.defender.editor.TileType.NO_PLAY
+            }
 
     // Get tile background painter (will be null if images are disabled or not available)
     // Suppress tile image when unit backgrounds are ON so the colored background is visible:
@@ -1835,6 +1865,7 @@ fun GridCell(
                 healingEffect = healingEffect,
                 damageEffect = damageEffect,
                 defender = defender,
+                riverTile = riverTile,
                 fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
@@ -1902,6 +1933,7 @@ fun GridCell(
                 healingEffect = healingEffect,
                 damageEffect = damageEffect,
                 defender = defender,
+                riverTile = riverTile,
                 fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
@@ -1966,6 +1998,7 @@ private fun BoxScope.GridCellContent(
     healingEffect: HealingEffect?,
     damageEffect: DamageEffect?,
     defender: Defender?,
+    riverTile: RiverTile?,
     fieldEffect: FieldEffect?,
     trap: Trap?,
     barricade: Barricade?,
@@ -2516,7 +2549,6 @@ private fun BoxScope.GridCellContent(
                 BridgeVisualization(bridge = bridge)
             } else {
                 // Show river flow direction arrows
-                val riverTile = gameState.level.getRiverTile(position)
                 if (riverTile != null) {
                     // Don't show trap icon on maelstrom when tile images are enabled
                     // (the tile_river_maelstrom.png image already shows the maelstrom visually)

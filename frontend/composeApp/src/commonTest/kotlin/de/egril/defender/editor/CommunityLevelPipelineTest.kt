@@ -1016,6 +1016,21 @@ $tileEntries
     }
 
     @Test
+    fun testSimulatedIsReadyToPlay_SandboxWithoutEnemySpawnsIsValid() {
+        val map = buildValidEditorMap(id = "sandbox_map")
+        val level =
+            buildValidEditorLevel(
+                id = "sandbox_level",
+                mapId = "sandbox_map",
+            ).copy(
+                enemySpawns = emptyList(),
+                isSandbox = true,
+            )
+
+        assertTrue(simulateIsLevelReadyToPlay(level, map), "Sandbox levels should be ready without prepared enemy spawns")
+    }
+
+    @Test
     fun testSimulatedIsReadyToPlay_NullMapFails() {
         val level = buildValidEditorLevel(id = "no_map_level", mapId = "missing_map")
         assertFalse(simulateIsLevelReadyToPlay(level, null), "Null map should fail")

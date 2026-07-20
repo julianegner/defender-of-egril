@@ -1814,7 +1814,9 @@ class GameViewModel {
     ) {
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
         val rawXpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
-        val xpEarned = calculateAwardedXpForLevelCompletion(rawXpEarned, won)
+        val isSandbox = _gameState.value?.level?.isSandbox == true
+        // Sandbox levels never award XP.
+        val xpEarned = if (isSandbox) 0 else calculateAwardedXpForLevelCompletion(rawXpEarned, won)
         val levelName = _gameState.value?.level?.name ?: "unknown"
         val turnNumber = _gameState.value?.turnNumber?.value
         var newPlayerLevel = 0
@@ -2343,6 +2345,41 @@ class GameViewModel {
             }
     }
 
+    /**
+     * Sandbox: spawn an adjustable test enemy (type + level) onto the running level.
+     */
+    fun sandboxSpawnEnemy(
+        type: de.egril.defender.model.AttackerType,
+        level: Int,
+        spawnPoint: de.egril.defender.model.Position? = null,
+    ) {
+        if (_gameState.value?.level?.isSandbox != true) return
+        gameEngine?.spawnEnemy(type, level.coerceAtLeast(1), spawnPoint)
+        surfaceNextPendingMessageIfIdle()
+    }
+
+    /**
+     * Sandbox: add coins to the running level.
+     */
+    fun sandboxAddCoins(amount: Int = 1000) {
+        if (_gameState.value?.level?.isSandbox != true) return
+        gameEngine?.addCoins(amount)
+    }
+
+    /**
+     * Sandbox: repaint a map tile at runtime to the given tile type.
+     */
+    fun sandboxPaintTile(
+        position: de.egril.defender.model.Position,
+        tileType: de.egril.defender.editor.TileType,
+        riverFlow: de.egril.defender.model.RiverFlow = de.egril.defender.model.RiverFlow.EAST,
+        riverSpeed: Int = 1,
+    ) {
+        val state = _gameState.value ?: return
+        if (!state.level.isSandbox) return
+        state.sandboxPaintTile(position, tileType, riverFlow, riverSpeed)
+    }
+
     fun applyCheatCode(code: String): Boolean {
         // Check for reminder testing cheat codes first
         val lowerCode = code.lowercase().trim()
@@ -2819,6 +2856,20 @@ class GameViewModel {
             }
             append("|effects:${state.fieldEffects.size}")
             append("|traps:${state.traps.size}")
+            if (state.level.isSandbox) {
+                append("|sandboxTiles:${state.sandboxPaintedTiles.size}")
+                state.sandboxPaintedTiles.entries
+                    .sortedWith(compareBy({ it.key.x }, { it.key.y }))
+                    .forEach { (position, tileType) ->
+                        append("|st:${position.x},${position.y},$tileType")
+                    }
+                append("|sandboxRivers:${state.sandboxPaintedRiverTiles.size}")
+                state.sandboxPaintedRiverTiles.entries
+                    .sortedWith(compareBy({ it.key.x }, { it.key.y }))
+                    .forEach { (position, riverTile) ->
+                        append("|sr:${position.x},${position.y},${riverTile.flowDirection},${riverTile.flowSpeed}")
+                    }
+            }
         }
     }
 
@@ -4021,7 +4072,7 @@ class GameViewModel {
             // Consume one support token instead of mana.
             val remaining = gameState.supportSpellsRemaining[spell] ?: 0
             if (remaining > 0) {
-                gameState.supportSpellsRemaining[spell] = remaining - 1
+                gameState.supportSpellsRemaining[spell] = consumeSupportCount(remaining)
             }
             if (LogConfig.ENABLE_SPELL_LOGGING) {
                 println("=== SPELL: Support token consumed - ${gameState.supportSpellsRemaining[spell]} remaining")
@@ -4474,7 +4525,7 @@ class GameViewModel {
             }
 
         if (success) {
-            gameState.supportObjectsRemaining[type] = remaining - 1
+            gameState.supportObjectsRemaining[type] = consumeSupportCount(remaining)
         }
         return success
     }

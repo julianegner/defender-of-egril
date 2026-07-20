@@ -70,6 +70,12 @@ data class SavedGame(
     val triggeredEventIds: List<String> = emptyList(), // IDs of scripted events that have already fired
     val enemiesKilledTotal: Int = 0, // Total enemies killed (for event conditions)
     val enemiesKilledByType: Map<AttackerType, Int> = emptyMap(), // Kills per enemy type (for event conditions)
+    // Sandbox: only the tiles whose type differs from the original map (position -> new type),
+    // persisted so the runtime edits are restored on load without storing the whole map.
+    val sandboxMapTiles: Map<Position, de.egril.defender.editor.TileType>? = null,
+    // Sandbox: flow direction/speed chosen for runtime-painted river tiles, persisted so the
+    // chosen water direction is restored on load (position -> river flow).
+    val sandboxRiverTiles: Map<Position, de.egril.defender.model.RiverTile>? = null,
 )
 
 /**

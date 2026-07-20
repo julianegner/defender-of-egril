@@ -11,12 +11,16 @@ import de.egril.defender.model.EventCondition
 import de.egril.defender.model.EventConditionType
 import de.egril.defender.model.GameMessageType
 import de.egril.defender.model.GameState
+import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
 import de.egril.defender.model.Level
 import de.egril.defender.model.LevelEvent
 import de.egril.defender.model.LevelEvents
+import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
 import de.egril.defender.model.SpellType
+import de.egril.defender.model.SupportObject
 import de.egril.defender.model.SupportObjectType
+import de.egril.defender.model.SupportSpell
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -295,6 +299,57 @@ class EventScriptSystemTest {
         system.evaluate(EventTrigger.PLAYER_TURN_START)
         assertEquals(1, state.supportObjectsRemaining[SupportObjectType.entries.first()])
         assertEquals(1, state.supportSpellsRemaining[SpellType.entries.first()])
+    }
+
+    @Test
+    fun testGiveSupportActionsPreserveIndefiniteCounts() {
+        val event =
+            LevelEvent(
+                id = "support_infinite",
+                condition = EventCondition(type = EventConditionType.TURN_START),
+                actions =
+                    listOf(
+                        EventAction(
+                            type = EventActionType.GIVE_SUPPORT_OBJECT,
+                            amount = 2,
+                            supportObjectType = SupportObjectType.BARRICADE,
+                        ),
+                        EventAction(
+                            type = EventActionType.GIVE_SUPPORT_SPELL,
+                            amount = 1,
+                            spellType = SpellType.FREEZE_SPELL,
+                        ),
+                    ),
+            )
+        val state =
+            GameState(
+                createLevel(LevelEvents(listOf(event))).copy(
+                    supports =
+                        LevelSupports(
+                            objects =
+                                listOf(
+                                    SupportObject(
+                                        type = SupportObjectType.BARRICADE,
+                                        count = INDEFINITE_SUPPORT_COUNT,
+                                    ),
+                                ),
+                            spells =
+                                listOf(
+                                    SupportSpell(
+                                        spell = SpellType.FREEZE_SPELL,
+                                        count = INDEFINITE_SUPPORT_COUNT,
+                                    ),
+                                ),
+                        ),
+                ),
+            )
+        state.initializePrePlacedElements()
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(INDEFINITE_SUPPORT_COUNT, state.supportObjectsRemaining[SupportObjectType.BARRICADE])
+        assertEquals(INDEFINITE_SUPPORT_COUNT, state.supportSpellsRemaining[SpellType.FREEZE_SPELL])
     }
 
     @Test

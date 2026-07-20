@@ -214,6 +214,124 @@ class SaveDataTest {
     }
 
     @Test
+    fun testSandboxMapTilesRoundTrip() {
+        val tiles =
+            mapOf(
+                Position(1, 1) to de.egril.defender.editor.TileType.PATH,
+                Position(2, 1) to de.egril.defender.editor.TileType.BUILD_AREA,
+                Position(0, 0) to de.egril.defender.editor.TileType.SPAWN_POINT,
+                Position(9, 4) to de.egril.defender.editor.TileType.TARGET,
+            )
+        val savedGame =
+            SavedGame(
+                id = "sandbox_save",
+                timestamp = System.currentTimeMillis(),
+                levelId = 7,
+                levelName = "Sandbox",
+                turnNumber = 2,
+                coins = 500,
+                healthPoints = 10,
+                phase = GamePhase.PLAYER_TURN,
+                defenders = emptyList(),
+                attackers = emptyList(),
+                nextDefenderId = 1,
+                nextAttackerId = 1,
+                currentWaveIndex = 0,
+                spawnCounter = 0,
+                attackersToSpawn = emptyList(),
+                fieldEffects = emptyList(),
+                traps = emptyList(),
+                sandboxMapTiles = tiles,
+            )
+
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        assertNotNull(json)
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals(tiles, deserialized.sandboxMapTiles)
+    }
+
+    @Test
+    fun testSandboxRiverTilesRoundTrip() {
+        val tiles =
+            mapOf(
+                Position(3, 3) to de.egril.defender.editor.TileType.RIVER,
+                Position(4, 3) to de.egril.defender.editor.TileType.RIVER,
+            )
+        val rivers =
+            mapOf(
+                Position(3, 3) to
+                    de.egril.defender.model.RiverTile(
+                        position = Position(3, 3),
+                        flowDirection = de.egril.defender.model.RiverFlow.NORTH_WEST,
+                        flowSpeed = 2,
+                    ),
+                Position(4, 3) to
+                    de.egril.defender.model.RiverTile(
+                        position = Position(4, 3),
+                        flowDirection = de.egril.defender.model.RiverFlow.SOUTH_EAST,
+                        flowSpeed = 1,
+                    ),
+            )
+        val savedGame =
+            SavedGame(
+                id = "sandbox_river_save",
+                timestamp = System.currentTimeMillis(),
+                levelId = 7,
+                levelName = "Sandbox",
+                turnNumber = 2,
+                coins = 500,
+                healthPoints = 10,
+                phase = GamePhase.PLAYER_TURN,
+                defenders = emptyList(),
+                attackers = emptyList(),
+                nextDefenderId = 1,
+                nextAttackerId = 1,
+                currentWaveIndex = 0,
+                spawnCounter = 0,
+                attackersToSpawn = emptyList(),
+                fieldEffects = emptyList(),
+                traps = emptyList(),
+                sandboxMapTiles = tiles,
+                sandboxRiverTiles = rivers,
+            )
+
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        assertNotNull(json)
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals(rivers, deserialized.sandboxRiverTiles)
+    }
+
+    @Test
+    fun testNonSandboxSaveHasNullMapTiles() {
+        val savedGame =
+            SavedGame(
+                id = "normal_save",
+                timestamp = System.currentTimeMillis(),
+                levelId = 1,
+                levelName = "The First Wave",
+                turnNumber = 1,
+                coins = 100,
+                healthPoints = 10,
+                phase = GamePhase.PLAYER_TURN,
+                defenders = emptyList(),
+                attackers = emptyList(),
+                nextDefenderId = 1,
+                nextAttackerId = 1,
+                currentWaveIndex = 0,
+                spawnCounter = 0,
+                attackersToSpawn = emptyList(),
+                fieldEffects = emptyList(),
+                traps = emptyList(),
+            )
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals(null, deserialized.sandboxMapTiles)
+    }
+
+    @Test
     fun testUpcomingSpawnsCalculation() {
         // Test the spawn plan filtering logic
         val waves =

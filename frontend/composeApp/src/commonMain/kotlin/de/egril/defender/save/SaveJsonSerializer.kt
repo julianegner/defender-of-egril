@@ -207,6 +207,27 @@ object SaveJsonSerializer {
                 "\"${type.name}\": $count"
             }
 
+        // Sandbox map tiles: array of {x, y, type}. Serialized as null when not a sandbox save.
+        val sandboxMapTilesJson =
+            savedGame.sandboxMapTiles?.let { tiles ->
+                val entries =
+                    tiles.entries.joinToString(", ") { (position, type) ->
+                        "{\"x\": ${position.x}, \"y\": ${position.y}, \"type\": \"${type.name}\"}"
+                    }
+                "[$entries]"
+            } ?: "null"
+
+        // Sandbox river tiles: array of {x, y, flowDirection, flowSpeed}. Null when no painted rivers.
+        val sandboxRiverTilesJson =
+            savedGame.sandboxRiverTiles?.let { rivers ->
+                val entries =
+                    rivers.entries.joinToString(", ") { (position, river) ->
+                        "{\"x\": ${position.x}, \"y\": ${position.y}, " +
+                            "\"flowDirection\": \"${river.flowDirection.name}\", \"flowSpeed\": ${river.flowSpeed}}"
+                    }
+                "[$entries]"
+            } ?: "null"
+
         val data = """{
   "id": "${savedGame.id}",
   "timestamp": ${savedGame.timestamp},
@@ -254,7 +275,9 @@ object SaveJsonSerializer {
   "coinSurgeActive": ${savedGame.coinSurgeActive},
   "triggeredEventIds": [$triggeredEventIdsJson],
   "enemiesKilledTotal": ${savedGame.enemiesKilledTotal},
-  "enemiesKilledByType": {$enemiesKilledByTypeJson}
+  "enemiesKilledByType": {$enemiesKilledByTypeJson},
+  "sandboxMapTiles": $sandboxMapTilesJson,
+  "sandboxRiverTiles": $sandboxRiverTilesJson
 }"""
         return """{
   "metadata": {
@@ -494,6 +517,70 @@ object SaveJsonSerializer {
             val enemiesKilledByType =
                 parseEnumIntMap(dataJson, "enemiesKilledByType") { AttackerType.valueOf(it) }
 
+            // Parse sandbox map tiles (optional; only present for sandbox saves). Null when absent.
+            val sandboxMapTiles: Map<Position, de.egril.defender.editor.TileType>? =
+                if (dataJson.contains("\"sandboxMapTiles\": [")) {
+                    val tilesSection =
+                        try {
+                            dataJson.substringAfter("\"sandboxMapTiles\": [").substringBefore("]")
+                        } catch (e: Exception) {
+                            ""
+                        }
+                    val result = mutableMapOf<Position, de.egril.defender.editor.TileType>()
+                    if (tilesSection.isNotBlank()) {
+                        for (entry in JsonUtils.splitJsonArray(tilesSection)) {
+                            try {
+                                val x = JsonUtils.extractValue(entry, "x").toInt()
+                                val y = JsonUtils.extractValue(entry, "y").toInt()
+                                val type =
+                                    de.egril.defender.editor.TileType
+                                        .valueOf(JsonUtils.extractValue(entry, "type"))
+                                result[Position(x, y)] = type
+                            } catch (e: Exception) {
+                                // Skip malformed tile entries.
+                            }
+                        }
+                    }
+                    result
+                } else {
+                    null
+                }
+
+            // Parse sandbox river tiles (optional; only present for sandbox saves with painted rivers).
+            val sandboxRiverTiles: Map<Position, de.egril.defender.model.RiverTile>? =
+                if (dataJson.contains("\"sandboxRiverTiles\": [")) {
+                    val riverSection =
+                        try {
+                            dataJson.substringAfter("\"sandboxRiverTiles\": [").substringBefore("]")
+                        } catch (e: Exception) {
+                            ""
+                        }
+                    val result = mutableMapOf<Position, de.egril.defender.model.RiverTile>()
+                    if (riverSection.isNotBlank()) {
+                        for (entry in JsonUtils.splitJsonArray(riverSection)) {
+                            try {
+                                val x = JsonUtils.extractValue(entry, "x").toInt()
+                                val y = JsonUtils.extractValue(entry, "y").toInt()
+                                val flow =
+                                    de.egril.defender.model.RiverFlow
+                                        .valueOf(JsonUtils.extractValue(entry, "flowDirection"))
+                                val speed = JsonUtils.extractValue(entry, "flowSpeed").toInt()
+                                result[Position(x, y)] =
+                                    de.egril.defender.model.RiverTile(
+                                        position = Position(x, y),
+                                        flowDirection = flow,
+                                        flowSpeed = speed,
+                                    )
+                            } catch (e: Exception) {
+                                // Skip malformed river entries.
+                            }
+                        }
+                    }
+                    result
+                } else {
+                    null
+                }
+
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -538,6 +625,8 @@ object SaveJsonSerializer {
                 triggeredEventIds = triggeredEventIds,
                 enemiesKilledTotal = enemiesKilledTotal,
                 enemiesKilledByType = enemiesKilledByType,
+                sandboxMapTiles = sandboxMapTiles,
+                sandboxRiverTiles = sandboxRiverTiles,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {

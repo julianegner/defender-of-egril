@@ -776,6 +776,7 @@
     <string name="support_type_object">Placeable Object</string>
     <string name="support_type_spell">Spell Token</string>
     <string name="support_type_power">Cooldown Power</string>
+    <string name="supports_count_indefinitely">Indefinitely</string>
     <string name="cooldown_turns_label">Cooldown</string>
     <string name="start_active_label">Start active</string>
     <string name="cooldown_power_coin_surge">Coin Surge</string>
@@ -1131,6 +1132,18 @@
     <string name="level_status_unknown">Unknown</string>
     <string name="show_testing_levels">Show Testing Levels</string>
     <string name="test_level">Test Level</string>
+    <string name="sandbox_level">Sandbox Level</string>
+    <string name="sandbox">Sandbox</string>
+    <string name="sandbox_tools">Sandbox Tools</string>
+    <string name="sandbox_spawn_enemy">Spawn Enemy</string>
+    <string name="sandbox_add_coins">Add 1000 Coins</string>
+    <string name="sandbox_edit_map">Edit Map Tiles</string>
+    <string name="sandbox_tile_build_area">Build Area</string>
+    <string name="sandbox_tile_no_play">Blocked</string>
+    <string name="sandbox_paint_hint">Tap tiles to paint them. Tap Done when finished.</string>
+    <string name="sandbox_done_editing">Done Editing Map</string>
+    <string name="sandbox_tools_hint">Open Sandbox Tools to spawn test enemies, add coins, and edit the map.</string>
+    <string name="sandbox_spawn_point_auto">Automatic (first free spawn point)</string>
     <string name="allow_auto_attack">Allow Auto-Attack</string>
     <string name="connected_to_previous_level">Connected to Previous Level</string>
     <string name="auto_attack_info_title">Auto-Attack Feature</string>
