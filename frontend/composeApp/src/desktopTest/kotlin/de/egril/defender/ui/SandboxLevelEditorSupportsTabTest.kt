@@ -54,7 +54,7 @@ class SandboxLevelEditorSupportsTabTest {
         composeTestRule.waitForIdle()
 
         composeTestRule
-            .onNodeWithText("Placable Objects", substring = true, ignoreCase = true)
+            .onNodeWithText("spell tokens the player can use", substring = true, ignoreCase = true)
             .assertExists()
     }
 }
