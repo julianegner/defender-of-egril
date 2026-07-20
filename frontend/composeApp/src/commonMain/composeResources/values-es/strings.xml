@@ -431,6 +431,8 @@
     <string name="enemy_type">Tipo de enemigo:</string>
     <string name="add_enemy_to_turn">Añadir enemigo al turno %d</string>
     <string name="ewhad_warning">Ewhad solo puede aparecer una vez por nivel!</string>
+    <string name="villains">Villanos</string>
+    <string name="villain_once_warning">Cada villano solo puede aparecer una vez por nivel!</string>
     <string name="level_lv">Nv%d</string>
     <string name="arrange_level_order">Organizar orden de niveles:</string>
     <string name="levels_in_sequence">Niveles en secuencia:</string>

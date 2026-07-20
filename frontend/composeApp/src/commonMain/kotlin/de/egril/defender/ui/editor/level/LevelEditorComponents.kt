@@ -36,7 +36,7 @@ import defender_of_egril.composeapp.generated.resources.*
  */
 @Composable
 fun AddEnemyDialog(
-    ewhadCount: Int = 0,
+    presentVillainTypes: Set<AttackerType> = emptySet(),
     turn: Int,
     map: EditorMap?,
     onDismiss: () -> Unit,
@@ -46,6 +46,12 @@ fun AddEnemyDialog(
     var level by remember { mutableStateOf("1") }
     var amount by remember { mutableStateOf("1") }
 
+    // Villains are unique enemy "heroes": they are listed separately, may only be added once per
+    // level, and never use the amount field (see issue #538).
+    val regularTypes = remember { AttackerType.entries.filter { !it.isVillain } }
+    val villainTypes = remember { AttackerType.entries.filter { it.isVillain } }
+    val isVillainSelected = selectedType.isVillain
+
     // Get available spawn points from the map
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
     var selectedSpawnPoint by remember { mutableStateOf<Position?>(spawnPoints.firstOrNull()) }
@@ -53,8 +59,9 @@ fun AddEnemyDialog(
     // State for spawn point selection dialog
     var showSpawnPointDialog by remember { mutableStateOf(false) }
 
-    // Check if trying to add Ewhad when one already exists
-    val canAddEwhad = selectedType != AttackerType.EWHAD || ewhadCount == 0
+    // A villain can only be added if one of the same type is not already in the level.
+    val villainAlreadyInLevel = isVillainSelected && selectedType in presentVillainTypes
+    val canAdd = !villainAlreadyInLevel
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -65,43 +72,58 @@ fun AddEnemyDialog(
                 LazyColumn(
                     modifier = Modifier.height(150.dp).padding(bottom = 8.dp),
                 ) {
-                    items(AttackerType.entries) { type ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth().clickable { selectedType = type }.padding(4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            RadioButton(
-                                selected = selectedType == type,
-                                onClick = { selectedType = type },
-                            )
-                            // Add enemy icon in hexagon
-                            Box(modifier = Modifier.size(24.dp)) {
-                                EnemyIconOnHexagon(
-                                    attackerType = type,
-                                    size = 24.dp,
-                                )
-                            }
-                            Text("${type.getLocalizedName()} (${stringResource(Res.string.hp_label)}: ${type.health})")
-                        }
+                    items(regularTypes) { type ->
+                        EnemyTypeSelectableRow(
+                            type = type,
+                            selected = selectedType == type,
+                            enabled = true,
+                            onSelect = { selectedType = type },
+                        )
+                    }
+                    // Villains are shown in their own labelled list, separate from normal enemies.
+                    item {
+                        Text(
+                            text = stringResource(Res.string.villains),
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                        )
+                    }
+                    items(villainTypes) { type ->
+                        val alreadyPresent = type in presentVillainTypes
+                        EnemyTypeSelectableRow(
+                            type = type,
+                            selected = selectedType == type,
+                            enabled = !alreadyPresent,
+                            onSelect = { selectedType = type },
+                        )
                     }
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
+                // Villains are unique per level, so they never use the amount field.
+                if (isVillainSelected) {
                     OutlinedTextField(
                         value = level,
                         onValueChange = { if (it.all { c -> c.isDigit() }) level = it },
                         label = { Text(stringResource(Res.string.enemy_level)) },
-                        modifier = Modifier.weight(1f).padding(bottom = 8.dp),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                     )
-                    OutlinedTextField(
-                        value = amount,
-                        onValueChange = { if (it.all { c -> c.isDigit() } && it.isNotEmpty()) amount = it },
-                        label = { Text(stringResource(Res.string.amount)) },
-                        modifier = Modifier.weight(1f).padding(bottom = 8.dp),
-                    )
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        OutlinedTextField(
+                            value = level,
+                            onValueChange = { if (it.all { c -> c.isDigit() }) level = it },
+                            label = { Text(stringResource(Res.string.enemy_level)) },
+                            modifier = Modifier.weight(1f).padding(bottom = 8.dp),
+                        )
+                        OutlinedTextField(
+                            value = amount,
+                            onValueChange = { if (it.all { c -> c.isDigit() } && it.isNotEmpty()) amount = it },
+                            label = { Text(stringResource(Res.string.amount)) },
+                            modifier = Modifier.weight(1f).padding(bottom = 8.dp),
+                        )
+                    }
                 }
 
                 // Spawn point selection button (opens dialog with minimap)
@@ -124,9 +146,9 @@ fun AddEnemyDialog(
                 }
 
                 Text(stringResource(Res.string.hp_with_level, selectedType.health * (level.toIntOrNull() ?: 1)), fontSize = 12.sp)
-                if (!canAddEwhad) {
+                if (villainAlreadyInLevel) {
                     Text(
-                        text = stringResource(Res.string.ewhad_warning),
+                        text = stringResource(Res.string.villain_once_warning),
                         color = MaterialTheme.colorScheme.error,
                         fontSize = 12.sp,
                     )
@@ -136,10 +158,11 @@ fun AddEnemyDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val amountValue = amount.toIntOrNull() ?: 1
+                    // Villains are unique per level, so their amount is always 1.
+                    val amountValue = if (isVillainSelected) 1 else (amount.toIntOrNull() ?: 1)
                     onAdd(selectedType, level.toIntOrNull() ?: 1, amountValue, selectedSpawnPoint)
                 },
-                enabled = canAddEwhad,
+                enabled = canAdd,
             ) {
                 Text(stringResource(Res.string.add))
             }
@@ -164,6 +187,48 @@ fun AddEnemyDialog(
                 showSpawnPointDialog = false
             },
         )
+    }
+}
+
+/**
+ * A single selectable enemy/villain row (radio button, icon, and name) used in [AddEnemyDialog].
+ * When [enabled] is false the row is shown greyed out and cannot be selected (e.g. a villain that is
+ * already present in the level).
+ */
+@Composable
+private fun EnemyTypeSelectableRow(
+    type: AttackerType,
+    selected: Boolean,
+    enabled: Boolean,
+    onSelect: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .then(if (enabled) Modifier.clickable { onSelect() } else Modifier)
+                .padding(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = if (enabled) onSelect else null,
+            enabled = enabled,
+        )
+        // Add enemy icon in hexagon
+        Box(modifier = Modifier.size(24.dp)) {
+            EnemyIconOnHexagon(
+                attackerType = type,
+                size = 24.dp,
+            )
+        }
+        val label = "${type.getLocalizedName()} (${stringResource(Res.string.hp_label)}: ${type.health})"
+        if (enabled) {
+            Text(label)
+        } else {
+            Text(label, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f))
+        }
     }
 }
 
@@ -574,7 +639,6 @@ fun SpawnTurnSection(
     onMoveTurnDown: () -> Unit,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
-    ewhadCount: Int,
     onChangeSpawnPoint: (EditorEnemySpawn) -> Unit,
     onChangeLevel: (EditorEnemySpawn) -> Unit,
     onChangeTurnLevel: () -> Unit,

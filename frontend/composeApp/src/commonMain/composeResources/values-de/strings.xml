@@ -431,6 +431,8 @@
     <string name="enemy_type">Gegnertyp:</string>
     <string name="add_enemy_to_turn">Gegner zu Runde %d hinzufügen</string>
     <string name="ewhad_warning">Ewhad kann nur einmal pro Level erscheinen!</string>
+    <string name="villains">Schurken</string>
+    <string name="villain_once_warning">Jeder Schurke kann nur einmal pro Level erscheinen!</string>
     <string name="level_lv">Lv%d</string>
     <string name="arrange_level_order">Level-Reihenfolge festlegen:</string>
     <string name="levels_in_sequence">Level in Reihenfolge:</string>
