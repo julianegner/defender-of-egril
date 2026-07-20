@@ -79,7 +79,7 @@ fun EnemyIcon(
             )
         }
 
-        // Health number at bottom center - 10dp from bottom edge (hidden for Ewhad and villains)
+        // Health number at bottom center - 10dp from bottom edge (hidden for the Ewhad boss and villains)
         if (!attacker.type.hidesHealthBar) {
             Text(
                 text = "${healthOverride ?: attacker.currentHealth.value}",

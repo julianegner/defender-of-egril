@@ -57,7 +57,8 @@ class VillainSystemTest {
             )
         val attackers = listOf(garokk)
         assertTrue(isUniqueEnemyAlreadyPresent(AttackerType.GAROKK, attackers))
-        assertTrue(isUniqueEnemyAlreadyPresent(AttackerType.EWHAD, listOf(Attacker(2, AttackerType.EWHAD, mutableStateOf(Position(1, 3))))))
+        val ewhad = Attacker(2, AttackerType.EWHAD, mutableStateOf(Position(1, 3)))
+        assertTrue(isUniqueEnemyAlreadyPresent(AttackerType.EWHAD, listOf(ewhad)))
         assertFalse(isUniqueEnemyAlreadyPresent(AttackerType.GOBLIN, attackers), "Regular enemies are not unique")
 
         // A defeated villain no longer blocks a new one

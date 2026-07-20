@@ -71,7 +71,7 @@ enum class AttackerType(
     // --- Villains (unique enemy heroes) ---
 
     // Garokk the Skullsplitter: tyrannical warchief who unites the Horde. War Cry (every 3 rounds)
-    // grants +1 movement to nearby Horde units. Immune to nothing special, but a tough boss.
+    // grants +1 movement to nearby Horde units. Has no damage immunities, but is a tough boss.
     GAROKK(
         "Garokk the Skullsplitter",
         health = 250,
