@@ -94,6 +94,11 @@ fun NarrativeMessageDialog(
     onDismiss: () -> Unit,
     supports: de.egril.defender.model.LevelSupports? = null,
     eventGains: List<EventAction>? = null,
+    // Optional per-message frame overrides. Used to give each villain its own distinct message
+    // border/background (see issue #538): pass the villain's dedicated background image and an accent
+    // colour for the button. When null, the [type]-based defaults are used.
+    backgroundOverride: org.jetbrains.compose.resources.DrawableResource? = null,
+    accentColorOverride: Color? = null,
 ) {
     val isMobile = isPlatformMobile
     val useWideStoryLayout = type == NarrativeMessageType.STORY && !isMobile
@@ -122,11 +127,12 @@ fun NarrativeMessageDialog(
         val coroutineScope = rememberCoroutineScope()
 
         val backgroundPainter =
-            when (type) {
-                NarrativeMessageType.STORY -> painterResource(Res.drawable.story_message_background)
-                NarrativeMessageType.EWHAD -> painterResource(Res.drawable.ewhad_message_background)
+            when {
+                backgroundOverride != null -> painterResource(backgroundOverride)
+                type == NarrativeMessageType.STORY -> painterResource(Res.drawable.story_message_background)
+                else -> painterResource(Res.drawable.ewhad_message_background)
             }
-        val buttonColor = if (type == NarrativeMessageType.EWHAD) Color(0xFF4A2060) else Color(0xFF5C3A1E)
+        val buttonColor = accentColorOverride ?: if (type == NarrativeMessageType.EWHAD) Color(0xFF4A2060) else Color(0xFF5C3A1E)
 
         // Both background images are square (500×500 and 1024×1024).
         // Padding keeps text inside the frame border, computed as a fixed fraction of

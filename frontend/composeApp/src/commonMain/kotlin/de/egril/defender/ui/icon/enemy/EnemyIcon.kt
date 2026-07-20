@@ -49,6 +49,11 @@ fun EnemyIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
 
+            // Villains get a shared aura ring behind their symbol so they stand out on the map.
+            if (attacker.type.isVillain) {
+                drawVillainMarker(centerX, centerY, iconSize)
+            }
+
             when (attacker.type) {
                 AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
@@ -61,7 +66,7 @@ fun EnemyIcon(
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
-                AttackerType.GAROKK -> drawOrkSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
+                AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
             }
         }
 
@@ -134,6 +139,11 @@ fun EnemyTypeIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
 
+            // Villains get a shared aura ring behind their symbol so they stand out on the map.
+            if (attackerType.isVillain) {
+                drawVillainMarker(centerX, centerY, iconSize)
+            }
+
             when (attackerType) {
                 AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
@@ -146,7 +156,7 @@ fun EnemyTypeIcon(
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
-                AttackerType.GAROKK -> drawOrkSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
+                AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
             }
         }
     }

@@ -3250,6 +3250,7 @@ private fun GamePlayScreenContent(
                                     title = villainTitle,
                                     text = villainText,
                                     onDismiss = { onDismissGameMessage?.invoke() },
+                                    backgroundOverride = villainMessageBackground(msg.name),
                                 )
                             }
                             GameMessageType.STORY_INTRO -> {
@@ -3630,3 +3631,31 @@ private fun SupportBarKeyboardHints(modifier: Modifier = Modifier) {
         )
     }
 }
+
+/**
+ * Returns the dedicated message background/border image for a villain's backstory dialog, or null to
+ * use the default (Ewhad) frame. This is the single place to give a villain its own distinct message
+ * border (see issue #538).
+ *
+ * How to add a villain-specific message border:
+ *  1. Add the frame image (see requirements below) to
+ *     `frontend/composeApp/src/commonMain/composeResources/drawable/` using the name
+ *     `villain_<name>_message_background.png` (e.g. `villain_garokk_message_background.png`).
+ *  2. Rebuild so the generated `Res.drawable.villain_<name>_message_background` becomes available.
+ *  3. Return it from the matching branch below, e.g.:
+ *       `AttackerType.GAROKK.name -> Res.drawable.villain_garokk_message_background`.
+ *
+ * Image requirements (matching the existing `ewhad_message_background.png`):
+ *  - Format: PNG with transparency.
+ *  - Shape: square (the dialog is rendered as a square box); 1024×1024 px is recommended.
+ *  - Layout: the decorative frame/border must run around the edges, leaving a clear inner content
+ *    area. The text is inset by ~16% of the width horizontally and ~27% of the height vertically, so
+ *    keep the innermost ~66% (horizontal) / ~46% (vertical) of the image free of important artwork.
+ *  - The image is stretched to fill the dialog (ContentScale.FillBounds), so design it to scale.
+ */
+private fun villainMessageBackground(name: String?): org.jetbrains.compose.resources.DrawableResource? =
+    when (name) {
+        // No villain-specific frames have been supplied yet; villains fall back to the default frame.
+        // Add `AttackerType.<VILLAIN>.name -> Res.drawable.villain_<name>_message_background` here.
+        else -> null
+    }
