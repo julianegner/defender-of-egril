@@ -128,6 +128,18 @@ class EditorStorageTest {
             )
         assertTrue(!noSpawnsLevel.isReadyToPlay())
 
+        val sandboxWithoutSpawnsLevel =
+            EditorLevel(
+                id = "sandbox_without_spawns",
+                mapId = "test_map",
+                title = "Sandbox Without Spawns",
+                startCoins = 100,
+                enemySpawns = emptyList(),
+                availableTowers = setOf(DefenderType.SPIKE_TOWER),
+                isSandbox = true,
+            )
+        assertTrue(sandboxWithoutSpawnsLevel.isReadyToPlay())
+
         // Level with neither - should not be ready
         val emptyLevel =
             EditorLevel(
@@ -175,6 +187,20 @@ class EditorStorageTest {
             )
 
         assertTrue(!invalidLevel.isReadyToPlay())
+
+        val sandboxLevel =
+            EditorLevel(
+                id = "sandbox_test",
+                mapId = "valid_map",
+                title = "Sandbox Test",
+                startCoins = 100,
+                startHealthPoints = 10,
+                enemySpawns = emptyList(),
+                availableTowers = setOf(DefenderType.SPIKE_TOWER),
+                isSandbox = true,
+            )
+
+        assertTrue(sandboxLevel.isReadyToPlay())
     }
 
     @Test

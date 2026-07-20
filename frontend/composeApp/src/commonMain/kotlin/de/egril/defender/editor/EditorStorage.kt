@@ -1157,7 +1157,7 @@ object EditorStorage {
      * Checks if a level is ready to play.
      * A level is ready if:
      * - It has at least one available tower
-     * - It has at least one enemy spawn configured
+     * - It has at least one enemy spawn configured, unless it is a sandbox level
      * - Start coins are greater than zero
      * - Start health points are greater than zero
      * - Its associated map is ready to use (has valid path from spawn to target)

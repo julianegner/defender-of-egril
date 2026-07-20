@@ -532,7 +532,7 @@ fun LevelEditorView(
     val coinsInt = startCoins.toIntOrNull() ?: 0
     val hpInt = startHP.toIntOrNull() ?: 0
     val isLevelInfoReady = coinsInt > 0 && hpInt > 0
-    val isEnemySpawnsReady = enemySpawns.isNotEmpty()
+    val isEnemySpawnsReady = isSandbox || enemySpawns.isNotEmpty()
     val isTowersReady = availableTowersState.isNotEmpty()
     // Waypoints are optional, but if present they should be valid
     val isWaypointsValid = areWaypointsValid(waypointsState, currentMap, level)
