@@ -44,6 +44,37 @@ import defender_of_egril.composeapp.generated.resources.official_level_saved_war
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
+internal data class LevelEditorTabIndices(
+    val levelInfo: Int,
+    val enemySpawns: Int?,
+    val towers: Int,
+    val waypoints: Int,
+    val initialSetup: Int,
+    val supports: Int,
+    val events: Int?,
+)
+
+internal fun levelEditorTabIndices(isSandbox: Boolean): LevelEditorTabIndices {
+    var nextIndex = 0
+    val levelInfo = nextIndex++
+    val enemySpawns = if (isSandbox) null else nextIndex++
+    val towers = nextIndex++
+    val waypoints = nextIndex++
+    val initialSetup = nextIndex++
+    val supports = nextIndex++
+    val events = if (isSandbox) null else nextIndex++
+
+    return LevelEditorTabIndices(
+        levelInfo = levelInfo,
+        enemySpawns = enemySpawns,
+        towers = towers,
+        waypoints = waypoints,
+        initialSetup = initialSetup,
+        supports = supports,
+        events = events,
+    )
+}
+
 /**
  * Main content for the Level Editor tab
  */
@@ -438,12 +469,20 @@ fun LevelEditorView(
     var showOfficialLevelSavedWarning by remember { mutableStateOf(false) }
     var pendingLevelToSave by remember { mutableStateOf<EditorLevel?>(null) }
     var selectedTabIndex by remember { mutableStateOf(0) }
-    // Sandbox levels have no scripted enemy waves: the player launches test attacks while playing, so
-    // this hides the Enemy Spawns tab (index 1). The Events tab (index 6) is also hidden (see below);
-    // reset the selection to the Level Info tab if either hidden tab is currently selected.
+    val tabIndices = remember(isSandbox) { levelEditorTabIndices(isSandbox) }
     LaunchedEffect(isSandbox) {
-        if (isSandbox && (selectedTabIndex == 1 || selectedTabIndex == 6)) {
-            selectedTabIndex = 0
+        val visibleTabIndices =
+            listOfNotNull(
+                tabIndices.levelInfo,
+                tabIndices.enemySpawns,
+                tabIndices.towers,
+                tabIndices.waypoints,
+                tabIndices.initialSetup,
+                tabIndices.supports,
+                tabIndices.events,
+            )
+        if (selectedTabIndex !in visibleTabIndices) {
+            selectedTabIndex = tabIndices.levelInfo
         }
     }
     var communityUploadStatus by remember { mutableStateOf<String?>(null) }
@@ -558,8 +597,8 @@ fun LevelEditorView(
         // Tab Row with badges
         PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
             Tab(
-                selected = selectedTabIndex == 0,
-                onClick = { selectedTabIndex = 0 },
+                selected = selectedTabIndex == tabIndices.levelInfo,
+                onClick = { selectedTabIndex = tabIndices.levelInfo },
                 text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -574,8 +613,8 @@ fun LevelEditorView(
             )
             if (!isSandbox) {
                 Tab(
-                    selected = selectedTabIndex == 1,
-                    onClick = { selectedTabIndex = 1 },
+                    selected = selectedTabIndex == tabIndices.enemySpawns,
+                    onClick = { selectedTabIndex = requireNotNull(tabIndices.enemySpawns) },
                     text = {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -592,8 +631,8 @@ fun LevelEditorView(
                 )
             }
             Tab(
-                selected = selectedTabIndex == 2,
-                onClick = { selectedTabIndex = 2 },
+                selected = selectedTabIndex == tabIndices.towers,
+                onClick = { selectedTabIndex = tabIndices.towers },
                 text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -607,8 +646,8 @@ fun LevelEditorView(
                 },
             )
             Tab(
-                selected = selectedTabIndex == 3,
-                onClick = { selectedTabIndex = 3 },
+                selected = selectedTabIndex == tabIndices.waypoints,
+                onClick = { selectedTabIndex = tabIndices.waypoints },
                 text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -622,8 +661,8 @@ fun LevelEditorView(
                 },
             )
             Tab(
-                selected = selectedTabIndex == 4,
-                onClick = { selectedTabIndex = 4 },
+                selected = selectedTabIndex == tabIndices.initialSetup,
+                onClick = { selectedTabIndex = tabIndices.initialSetup },
                 text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -634,8 +673,8 @@ fun LevelEditorView(
                 },
             )
             Tab(
-                selected = selectedTabIndex == 5,
-                onClick = { selectedTabIndex = 5 },
+                selected = selectedTabIndex == tabIndices.supports,
+                onClick = { selectedTabIndex = tabIndices.supports },
                 text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -647,8 +686,8 @@ fun LevelEditorView(
             )
             if (!isSandbox) {
                 Tab(
-                    selected = selectedTabIndex == 6,
-                    onClick = { selectedTabIndex = 6 },
+                    selected = selectedTabIndex == tabIndices.events,
+                    onClick = { selectedTabIndex = requireNotNull(tabIndices.events) },
                     text = {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -664,7 +703,7 @@ fun LevelEditorView(
         // Tab Content
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             when (selectedTabIndex) {
-                0 ->
+                tabIndices.levelInfo ->
                     LevelInfoTab(
                         title = title,
                         onTitleChange = { title = it },
@@ -692,7 +731,7 @@ fun LevelEditorView(
                         isOfficial = level.isOfficial,
                         canEnableConnectedToPreviousLevel = hasOtherLevelsOnSameMap,
                     )
-                1 ->
+                tabIndices.enemySpawns ->
                     EnemySpawnsTab(
                         enemySpawns = enemySpawns,
                         maxTurnNumber = maxTurnNumber,
@@ -706,31 +745,31 @@ fun LevelEditorView(
                         onShowRemoveAllTurnsDialog = { showRemoveAllTurnsDialog = true },
                         map = currentMap,
                     )
-                2 ->
+                tabIndices.towers ->
                     TowersTab(
                         availableTowers = availableTowersState,
                         onAvailableTowersChange = { availableTowersState = it },
                     )
-                3 ->
+                tabIndices.waypoints ->
                     WaypointsTab(
                         waypoints = waypointsState.toList(),
                         onWaypointsChange = { waypointsState = it.toMutableList() },
                         map = currentMap,
                         isValid = isWaypointsValid,
                     )
-                4 ->
+                tabIndices.initialSetup ->
                     de.egril.defender.ui.editor.level.initialsetup.InitialSetupTab(
                         initialData = initialDataState,
                         onInitialDataChange = { initialDataState = it },
                         map = currentMap,
                         availableTowers = availableTowersState,
                     )
-                5 ->
+                tabIndices.supports ->
                     de.egril.defender.ui.editor.level.supports.SupportsTab(
                         supports = supportsState,
                         onSupportsChange = { supportsState = it },
                     )
-                6 ->
+                tabIndices.events ->
                     de.egril.defender.ui.editor.level.events.EventsTab(
                         events = eventsState,
                         onEventsChange = { eventsState = it },
