@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.hidesHealthBar
 import de.egril.defender.utils.BigHeadMode
 
 /**
@@ -59,6 +60,7 @@ fun EnemyIcon(
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
+                AttackerType.GAROKK -> drawOrkSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
             }
         }
 
@@ -77,8 +79,8 @@ fun EnemyIcon(
             )
         }
 
-        // Health number at bottom center - 10dp from bottom edge (hidden for Ewhad)
-        if (attacker.type != AttackerType.EWHAD) {
+        // Health number at bottom center - 10dp from bottom edge (hidden for Ewhad and villains)
+        if (!attacker.type.hidesHealthBar) {
             Text(
                 text = "${healthOverride ?: attacker.currentHealth.value}",
                 style = MaterialTheme.typography.labelSmall,
@@ -129,6 +131,7 @@ fun EnemyTypeIcon(
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
+                AttackerType.GAROKK -> drawOrkSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
             }
         }
     }

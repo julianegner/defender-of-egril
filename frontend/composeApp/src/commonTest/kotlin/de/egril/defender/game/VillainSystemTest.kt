@@ -1,0 +1,153 @@
+package de.egril.defender.game
+
+import androidx.compose.runtime.mutableStateOf
+import de.egril.defender.model.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
+
+/**
+ * Tests for the Villain System (issue #538): unique enemy heroes with configurable, range-based
+ * aura abilities, hidden health display, and uniqueness on the battlefield.
+ */
+class VillainSystemTest {
+    private fun createTestLevel(): Level =
+        Level(
+            id = 1,
+            name = "Test Level",
+            gridWidth = 12,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(11, 3)),
+            pathCells = (0..11).map { Position(it, 3) }.toSet(),
+            buildAreas = setOf(Position(2, 1), Position(2, 2)),
+            attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
+            initialCoins = 1000,
+            healthPoints = 10,
+        )
+
+    @Test
+    fun garokkIsAConfiguredVillain() {
+        val type = AttackerType.GAROKK
+        assertTrue(type.isVillain, "Garokk should be a villain")
+        assertTrue(type.hidesHealthBar, "Villains must not display their health")
+        assertEquals(EnemyFaction.HORDE, type.faction, "Garokk leads the Horde")
+        val ability = type.villainAbility
+        assertNotNull(ability, "Garokk should have a configured ability")
+        assertEquals(VillainAuraEffect.SPEED, ability.effect)
+        assertTrue(ability.range > 0, "Villain aura should have a positive range")
+    }
+
+    @Test
+    fun regularEnemiesHideNoHealthButVillainsDo() {
+        assertFalse(AttackerType.GOBLIN.hidesHealthBar)
+        assertTrue(AttackerType.EWHAD.hidesHealthBar, "Ewhad still hides health")
+        assertTrue(AttackerType.GAROKK.hidesHealthBar)
+    }
+
+    @Test
+    fun villainsAndBossesAreUniqueOnTheBattlefield() {
+        val garokk =
+            Attacker(
+                id = 1,
+                type = AttackerType.GAROKK,
+                position = mutableStateOf(Position(5, 3)),
+            )
+        val attackers = listOf(garokk)
+        assertTrue(isUniqueEnemyAlreadyPresent(AttackerType.GAROKK, attackers))
+        assertTrue(isUniqueEnemyAlreadyPresent(AttackerType.EWHAD, listOf(Attacker(2, AttackerType.EWHAD, mutableStateOf(Position(1, 3))))))
+        assertFalse(isUniqueEnemyAlreadyPresent(AttackerType.GOBLIN, attackers), "Regular enemies are not unique")
+
+        // A defeated villain no longer blocks a new one
+        garokk.isDefeated.value = true
+        assertFalse(isUniqueEnemyAlreadyPresent(AttackerType.GAROKK, attackers))
+    }
+
+    @Test
+    fun warCryGrantsSpeedBonusToNearbyHordeUnits() {
+        val level = createTestLevel()
+        val state = GameState(level)
+        val abilitySystem = EnemyAbilitySystem(state)
+
+        val garokk =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.GAROKK,
+                position = mutableStateOf(Position(3, 3)),
+                level = mutableStateOf(1),
+            )
+        val nearbyGoblin =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.GOBLIN,
+                position = mutableStateOf(Position(4, 3)),
+                level = mutableStateOf(1),
+            )
+        val farGoblin =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.GOBLIN,
+                position = mutableStateOf(Position(11, 3)),
+                level = mutableStateOf(1),
+            )
+        state.attackers.addAll(listOf(garokk, nearbyGoblin, farGoblin))
+
+        // First activation happens immediately (cooldown starts at 0).
+        abilitySystem.processEnemyAbilities()
+
+        assertEquals(1, nearbyGoblin.speedBonus.value, "Nearby Horde unit should be buffed by War Cry")
+        assertEquals(0, farGoblin.speedBonus.value, "Out-of-range units should not be buffed")
+    }
+
+    @Test
+    fun warCryOnlyBuffsOwnFaction() {
+        val level = createTestLevel()
+        val state = GameState(level)
+        val abilitySystem = EnemyAbilitySystem(state)
+
+        val garokk =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.GAROKK,
+                position = mutableStateOf(Position(3, 3)),
+                level = mutableStateOf(1),
+            )
+        val skeleton =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SKELETON,
+                position = mutableStateOf(Position(4, 3)),
+                level = mutableStateOf(1),
+            )
+        state.attackers.addAll(listOf(garokk, skeleton))
+
+        abilitySystem.processEnemyAbilities()
+
+        assertEquals(0, skeleton.speedBonus.value, "Undead units are not part of the Horde faction")
+    }
+
+    @Test
+    fun woundedVillainKeepsPermanentSelfSpeedBonus() {
+        val level = createTestLevel()
+        val state = GameState(level)
+        val abilitySystem = EnemyAbilitySystem(state)
+
+        val garokk =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.GAROKK,
+                position = mutableStateOf(Position(3, 3)),
+                level = mutableStateOf(1),
+            )
+        // Below 50% health
+        garokk.currentHealth.value = garokk.maxHealth / 3
+        state.attackers.add(garokk)
+
+        // Advance a few rounds; even on non-activation rounds a wounded villain keeps its self bonus.
+        repeat(2) { abilitySystem.processEnemyAbilities() }
+
+        assertEquals(1, garokk.speedBonus.value, "Wounded villain keeps its permanent movement bonus")
+    }
+}

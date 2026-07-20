@@ -1739,6 +1739,13 @@
     <string name="ewhad_retreats_text">¡Has forzado a Ewhad a retirarse!</string>
     <string name="ewhad_defeated_title">Ewhad es derrotado</string>
     <string name="ewhad_defeated_text">¡Derrotaste a Ewhad! ¡Ahora acaba con los demás Enemigos y gana el juego!</string>
+    <!-- Villain system (issue #538) -->
+    <string name="garokk_name">Garokk el Rompecráneos</string>
+    <string name="villain_enters_title">Un villano entra al campo de batalla</string>
+    <string name="villain_enters_text">¡Un héroe enemigo único ha entrado al campo de batalla! Mientras viva, potencia a sus aliados. Sus puntos de vida están ocultos.</string>
+    <string name="villain_garokk_title">Garokk el Rompecráneos</string>
+    <string name="villain_garokk_backstory">El tiránico caudillo de guerra que unió a orcos y ogros bajo su estandarte, un coloso enorme cubierto de hierro negro.
+Su grito de guerra enardece a las unidades de la Horda cercanas, permitiéndoles avanzar más rápido. ¡Derríbalo antes de que su rugido arrase tus defensas!</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Hay Goblins atacando una remota zona rural. Esto no es inusual, pero los rumores nos dicen que esta vez más monstruos de lo normal están entrando en nuestro reino.</string>
     <string name="story_mixed_forces">La misma zona enfrenta más ataques. Los rumores incluso hablan de muertos que se levantan de las tumbas y atacan a los aldeanos.</string>

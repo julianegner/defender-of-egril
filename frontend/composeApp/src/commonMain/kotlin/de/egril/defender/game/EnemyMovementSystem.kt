@@ -90,16 +90,10 @@ class EnemyMovementSystem(
                 return@forEachIndexed
             }
 
-            // Ensure only one Ewhad exists at a time (boss is unique)
-            if (plannedSpawn.attackerType == AttackerType.EWHAD) {
-                val ewhadExists =
-                    state.attackers.any {
-                        it.type == AttackerType.EWHAD && !it.isDefeated.value
-                    }
-                if (ewhadExists) {
-                    // Skip spawning another Ewhad if one already exists
-                    return@forEachIndexed
-                }
+            // Ensure unique enemies (Ewhad boss and villains) only exist once at a time
+            if (isUniqueEnemyAlreadyPresent(plannedSpawn.attackerType, state.attackers)) {
+                // Skip spawning another copy of this unique enemy if one already exists
+                return@forEachIndexed
             }
 
             val attacker =
@@ -128,6 +122,13 @@ class EnemyMovementSystem(
             if (plannedSpawn.attackerType == AttackerType.EWHAD) {
                 state.pendingMessages.add(
                     GameMessage(type = GameMessageType.EWHAD_ENTERS),
+                )
+            }
+
+            // Queue villain backstory message when a villain enters the battlefield
+            if (plannedSpawn.attackerType.isVillain) {
+                state.pendingMessages.add(
+                    GameMessage(type = GameMessageType.VILLAIN_ENTERS, name = plannedSpawn.attackerType.name),
                 )
             }
         }

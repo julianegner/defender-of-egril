@@ -688,16 +688,10 @@ class GameEngine(
                 return@forEachIndexed
             }
 
-            // Ensure only one Ewhad exists at a time (boss is unique)
-            if (plannedSpawn.attackerType == AttackerType.EWHAD) {
-                val ewhadExists =
-                    state.attackers.any {
-                        it.type == AttackerType.EWHAD && !it.isDefeated.value
-                    }
-                if (ewhadExists) {
-                    // Skip spawning another Ewhad if one already exists
-                    return@forEachIndexed
-                }
+            // Ensure unique enemies (Ewhad boss and villains) only exist once at a time
+            if (isUniqueEnemyAlreadyPresent(plannedSpawn.attackerType, state.attackers)) {
+                // Skip spawning another copy of this unique enemy if one already exists
+                return@forEachIndexed
             }
 
             // Get initial target based on preferred spawn point (BEFORE congestion offsets)
@@ -722,6 +716,13 @@ class GameEngine(
             if (plannedSpawn.attackerType == AttackerType.EWHAD) {
                 state.pendingMessages.add(
                     GameMessage(type = GameMessageType.EWHAD_ENTERS),
+                )
+            }
+
+            // Queue villain backstory message when a villain enters the battlefield
+            if (plannedSpawn.attackerType.isVillain) {
+                state.pendingMessages.add(
+                    GameMessage(type = GameMessageType.VILLAIN_ENTERS, name = plannedSpawn.attackerType.name),
                 )
             }
         }
@@ -788,7 +789,7 @@ class GameEngine(
         }
 
         // Find the maximum speed to know how many steps to simulate
-        val maxSpeed = regularAttackers.maxOfOrNull { it.type.speed } ?: 0
+        val maxSpeed = regularAttackers.maxOfOrNull { it.type.speed + it.speedBonus.value } ?: 0
 
         // Pre-compute imminent bombs (turnsRemaining <= 1) for flee behavior
         val imminentBombs = state.activeSpellEffects.filter { it.spell == SpellType.BOMB && it.position != null && it.turnsRemaining <= 1 }
@@ -821,7 +822,8 @@ class GameEngine(
                 }
 
                 // Calculate effective speed by subtracting movement penalty from spike barbs
-                var effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                // and adding any villain-aura movement bonus (e.g. Garokk's War Cry).
+                var effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value) + attacker.speedBonus.value
 
                 // Check if attacker is in a cooling area (reduces speed by 1)
                 val isInCoolingArea =
@@ -1661,7 +1663,7 @@ class GameEngine(
         val attackersStoppedByBarricade = mutableSetOf<Int>()
 
         // Find the maximum speed to know how many steps to simulate
-        val maxSpeed = newlySpawned.maxOfOrNull { it.type.speed } ?: 0
+        val maxSpeed = newlySpawned.maxOfOrNull { it.type.speed + it.speedBonus.value } ?: 0
 
         // Simulate movement step by step
         for (stepIndex in 0 until maxSpeed) {
@@ -1675,7 +1677,8 @@ class GameEngine(
                 if (attackersStoppedByBarricade.contains(attacker.id)) continue
 
                 // Calculate effective speed by subtracting movement penalty from spike barbs
-                val effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                // and adding any villain-aura movement bonus (e.g. Garokk's War Cry).
+                val effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value) + attacker.speedBonus.value
 
                 // Check if this attacker has more moves left
                 if (stepIndex >= effectiveSpeed) continue

@@ -3235,6 +3235,23 @@ private fun GamePlayScreenContent(
                                     text = stringResource(Res.string.ewhad_defeated_text),
                                     onDismiss = { onDismissGameMessage?.invoke() },
                                 )
+                            GameMessageType.VILLAIN_ENTERS -> {
+                                val (villainTitle, villainText) =
+                                    when (msg.name) {
+                                        AttackerType.GAROKK.name ->
+                                            stringResource(Res.string.villain_garokk_title) to
+                                                stringResource(Res.string.villain_garokk_backstory)
+                                        else ->
+                                            stringResource(Res.string.villain_enters_title) to
+                                                stringResource(Res.string.villain_enters_text)
+                                    }
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.EWHAD,
+                                    title = villainTitle,
+                                    text = villainText,
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                )
+                            }
                             GameMessageType.STORY_INTRO -> {
                                 val levelEditorId = msg.name
                                 if (levelEditorId != null) {
