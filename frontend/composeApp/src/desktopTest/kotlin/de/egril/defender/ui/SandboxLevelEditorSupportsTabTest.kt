@@ -21,7 +21,7 @@ class SandboxLevelEditorSupportsTabTest {
     }
 
     @Test
-    fun sandboxLevelCanOpenSupportsTabWithoutEnemySpawns() {
+    fun sandboxLevelWithoutSpawnsCanOpenSupportsTab() {
         composeTestRule.setContent {
             LevelEditorView(
                 level =

@@ -1027,7 +1027,7 @@ $tileEntries
                 isSandbox = true,
             )
 
-        assertTrue(simulateIsLevelReadyToPlay(level, map), "Sandbox levels should stay ready without prepared enemy spawns")
+        assertTrue(simulateIsLevelReadyToPlay(level, map), "Sandbox levels should be ready without prepared enemy spawns")
     }
 
     @Test

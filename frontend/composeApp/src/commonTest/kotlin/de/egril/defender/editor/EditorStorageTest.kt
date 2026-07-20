@@ -134,6 +134,7 @@ class EditorStorageTest {
                 mapId = "test_map",
                 title = "Sandbox Without Spawns",
                 startCoins = 100,
+                startHealthPoints = 10,
                 enemySpawns = emptyList(),
                 availableTowers = setOf(DefenderType.SPIKE_TOWER),
                 isSandbox = true,
