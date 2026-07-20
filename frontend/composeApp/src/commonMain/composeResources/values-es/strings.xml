@@ -1741,7 +1741,6 @@
     <string name="ewhad_defeated_text">¡Derrotaste a Ewhad! ¡Ahora acaba con los demás Enemigos y gana el juego!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk el Rompecráneos</string>
-    <string name="garokk_short">Garokk</string>
     <string name="villain_enters_title">Un villano entra al campo de batalla</string>
     <string name="villain_enters_text">¡Un héroe enemigo único ha entrado al campo de batalla! Mientras viva, potencia a sus aliados. Sus puntos de vida están ocultos.</string>
     <string name="villain_garokk_title">Garokk el Rompecráneos</string>

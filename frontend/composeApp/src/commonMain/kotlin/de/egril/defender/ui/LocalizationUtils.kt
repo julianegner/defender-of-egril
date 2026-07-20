@@ -107,15 +107,14 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
 /**
  * Get localized short name for an AttackerType (for compact displays such as the
  * battlefield icon where villains show their name in place of health points).
- * Falls back to [getLocalizedName] for enemy types without a dedicated short name.
+ *
+ * Villains carry a language-independent proper name ([AttackerType.villainName]) in the enum
+ * itself, because their names are identical in every language and therefore do not belong in the
+ * translated string resources. Regular enemies fall back to their translated [getLocalizedName].
  */
 fun AttackerType.getLocalizedShortName(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String {
-    val key =
-        when (this) {
-            AttackerType.GAROKK -> "garokk_short"
-            else -> return getLocalizedName(locale)
-        }
-    return LocalizedStrings.get(key, locale)
+    villainName?.let { return it }
+    return getLocalizedName(locale)
 }
 
 /**

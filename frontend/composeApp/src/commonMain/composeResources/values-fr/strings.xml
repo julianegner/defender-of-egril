@@ -1742,7 +1742,6 @@
     <string name="ewhad_defeated_text">Vous avez vaincu Ewhad ! Terminez maintenant les autres Ennemis et gagnez le jeu !</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk le Fendeur de Crânes</string>
-    <string name="garokk_short">Garokk</string>
     <string name="villain_enters_title">Un scélérat entre sur le champ de bataille</string>
     <string name="villain_enters_text">Un héros ennemi unique est entré sur le champ de bataille ! Tant qu'il vit, il renforce ses alliés. Ses points de vie sont masqués.</string>
     <string name="villain_garokk_title">Garokk le Fendeur de Crânes</string>

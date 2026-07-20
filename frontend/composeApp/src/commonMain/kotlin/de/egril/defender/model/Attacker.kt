@@ -55,6 +55,11 @@ enum class AttackerType(
     val isVillain: Boolean = false,
     val faction: EnemyFaction = EnemyFaction.NONE,
     val villainAbility: VillainAbility? = null,
+    // Language-independent short name for villains, shown on the battlefield icon in place of the
+    // health points. Villain proper names are identical in every language, so they live here in the
+    // enum rather than in the translated string resources (see issue discussion). Null for regular
+    // enemies, whose (translated) names come from the string resources instead.
+    val villainName: String? = null,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
@@ -65,7 +70,18 @@ enum class AttackerType(
     RED_DEMON("Red Demon", health = 60, speed = 1, reward = 15, xp = 9, immuneToFireball = true),
     RED_WITCH("Red Witch", health = 30, speed = 5, reward = 18, xp = 11, canDisableTowers = true),
     GREEN_WITCH("Green Witch", health = 25, speed = 5, reward = 15, xp = 9, canHeal = true),
-    EWHAD("Ewhad", health = 200, speed = 1, reward = 100, xp = 60, canSummon = true, isBoss = true, canBuildBridge = true),
+    EWHAD(
+        "Ewhad",
+        health = 200,
+        speed = 1,
+        reward = 100,
+        xp = 60,
+        canSummon = true,
+        isBoss = true,
+        canBuildBridge = true,
+        isVillain = true,
+        villainName = "Ewhad",
+    ),
     DRAGON("Dragon", health = 500, speed = 2, reward = 0, xp = 50, isDragon = true, isBoss = true), // Speed will be overridden: 2 on turn 1, 10 on turn 2+. XP is given per level lost, not multiplied
 
     // --- Villains (unique enemy heroes) ---
@@ -83,6 +99,7 @@ enum class AttackerType(
         isVillain = true,
         faction = EnemyFaction.HORDE,
         villainAbility = VillainAbility(effect = VillainAuraEffect.SPEED, range = 3, cooldown = 3, magnitude = 1),
+        villainName = "Garokk",
     ),
 }
 
@@ -97,10 +114,10 @@ enum class EnemyFaction {
 
 /**
  * True if a given attacker type's health should be hidden on its battlefield icon.
- * Villains (and the Ewhad boss) never show their health points.
+ * Villains (including the Ewhad boss, which is a villain) never show their health points.
  */
 val AttackerType.hidesHealthBar: Boolean
-    get() = isVillain || this == AttackerType.EWHAD
+    get() = isVillain
 
 data class Attacker(
     val id: Int,
@@ -219,13 +236,13 @@ fun Attacker.isImmuneToAttackFrom(defenderType: DefenderType): Boolean =
 
 /**
  * Returns true if a unique enemy of [type] cannot spawn because one is already alive on the
- * battlefield. Villains (see [AttackerType.isVillain]) and the Ewhad boss are unique: only one
- * of each subtype may exist at a time.
+ * battlefield. Villains (see [AttackerType.isVillain]) are unique: only one of each subtype may
+ * exist at a time. The Ewhad boss is a villain and therefore also unique.
  */
 fun isUniqueEnemyAlreadyPresent(
     type: AttackerType,
     attackers: List<Attacker>,
 ): Boolean {
-    val mustBeUnique = type.isVillain || type == AttackerType.EWHAD
+    val mustBeUnique = type.isVillain
     return mustBeUnique && attackers.any { it.type == type && !it.isDefeated.value }
 }

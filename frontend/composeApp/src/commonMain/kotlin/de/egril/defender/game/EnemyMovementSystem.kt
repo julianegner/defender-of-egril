@@ -125,8 +125,10 @@ class EnemyMovementSystem(
                 )
             }
 
-            // Queue villain backstory message when a villain enters the battlefield
-            if (plannedSpawn.attackerType.isVillain) {
+            // Queue villain backstory message when a villain enters the battlefield.
+            // Ewhad is a villain but has its own dedicated narrative (EWHAD_ENTERS above), so it is
+            // excluded here to avoid showing two dialogs.
+            if (plannedSpawn.attackerType.isVillain && plannedSpawn.attackerType != AttackerType.EWHAD) {
                 state.pendingMessages.add(
                     GameMessage(type = GameMessageType.VILLAIN_ENTERS, name = plannedSpawn.attackerType.name),
                 )

@@ -41,6 +41,23 @@ class VillainSystemTest {
     }
 
     @Test
+    fun ewhadIsAVillainWithLanguageIndependentName() {
+        val type = AttackerType.EWHAD
+        assertTrue(type.isVillain, "Ewhad should be a villain")
+        assertTrue(type.hidesHealthBar, "Ewhad must not display its health")
+        assertTrue(type.isBoss, "Ewhad remains a boss")
+        assertEquals("Ewhad", type.villainName, "Ewhad's name lives in the enum, not the translations")
+    }
+
+    @Test
+    fun villainNamesLiveInTheEnum() {
+        assertEquals("Garokk", AttackerType.GAROKK.villainName)
+        assertEquals("Ewhad", AttackerType.EWHAD.villainName)
+        // Regular enemies have no enum name; their (translated) names come from the string resources.
+        assertEquals(null, AttackerType.GOBLIN.villainName)
+    }
+
+    @Test
     fun regularEnemiesHideNoHealthButVillainsDo() {
         assertFalse(AttackerType.GOBLIN.hidesHealthBar)
         assertTrue(AttackerType.EWHAD.hidesHealthBar, "Ewhad still hides health")
