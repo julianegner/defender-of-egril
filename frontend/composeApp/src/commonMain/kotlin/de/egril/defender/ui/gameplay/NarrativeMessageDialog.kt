@@ -1,5 +1,6 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -17,11 +18,15 @@ import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.EventAction
@@ -38,7 +43,9 @@ import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
+import kotlin.math.roundToInt
 
 /**
  * The type of narrative message popup.
@@ -49,6 +56,19 @@ enum class NarrativeMessageType {
 }
 
 private const val KEYBOARD_SCROLL_STEP = 150
+
+// story_message_background.png has original source dimensions of 500×500 px, with wooden side rails starting at 165 px
+// and whose parchment content begins 135 px from the top and bottom.
+private const val STORY_BACKGROUND_SOURCE_SIZE = 500
+private const val STORY_BACKGROUND_SIDE_SLICE_PX = 165
+private const val STORY_BACKGROUND_VERTICAL_PADDING_PX = 135f
+
+// Keep the precomputed ratio alongside the source-asset constants so every sizing calculation uses
+// the same scaling factor instead of re-deriving it at each call site.
+private const val STORY_BACKGROUND_SIDE_RATIO = 165f / STORY_BACKGROUND_SOURCE_SIZE.toFloat()
+private val STORY_DIALOG_DESKTOP_WIDTH = 960.dp
+private val STORY_DIALOG_DESKTOP_HEIGHT = 700.dp
+private val EWHAD_DIALOG_DESKTOP_WIDTH = 700.dp
 
 /**
  * A popup dialog for narrative messages (story events and Ewhad events).
@@ -75,7 +95,13 @@ fun NarrativeMessageDialog(
     supports: de.egril.defender.model.LevelSupports? = null,
     eventGains: List<EventAction>? = null,
 ) {
-    Dialog(onDismissRequest = onDismiss) {
+    val isMobile = isPlatformMobile
+    val useWideStoryLayout = type == NarrativeMessageType.STORY && !isMobile
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = !useWideStoryLayout),
+    ) {
         val focusRequester = remember { FocusRequester() }
         LaunchedEffect(Unit) {
             try {
@@ -83,7 +109,6 @@ fun NarrativeMessageDialog(
             } catch (_: IllegalStateException) {
             }
         }
-        val isMobile = isPlatformMobile
         val titleFontSize =
             when {
                 isMobile && type == NarrativeMessageType.EWHAD -> 16.sp
@@ -114,8 +139,11 @@ fun NarrativeMessageDialog(
         // the actual device screen size rather than using a fixed narrow value.
         BoxWithConstraints(
             modifier =
-                (if (isMobile) Modifier.fillMaxWidth() else Modifier.width(700.dp))
-                    .focusRequester(focusRequester)
+                when {
+                    isMobile -> Modifier.fillMaxWidth()
+                    useWideStoryLayout -> Modifier.width(STORY_DIALOG_DESKTOP_WIDTH)
+                    else -> Modifier.width(EWHAD_DIALOG_DESKTOP_WIDTH)
+                }.focusRequester(focusRequester)
                     .focusTarget()
                     .onPreviewKeyEvent { event ->
                         if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
@@ -144,26 +172,34 @@ fun NarrativeMessageDialog(
             contentAlignment = Alignment.Center,
         ) {
             // dialogWidth equals the actual rendered width on all platforms.
-            // Keep the dialog square to match the square source images.
             val dialogWidth = maxWidth
-            val dialogHeight = dialogWidth
-            val horizontalPadding = dialogWidth * (165f / 500f)
-            val verticalPadding = dialogHeight * (135f / 500f)
+            val dialogHeight = if (useWideStoryLayout) STORY_DIALOG_DESKTOP_HEIGHT else dialogWidth
+            val horizontalPadding =
+                if (useWideStoryLayout) {
+                    dialogHeight * STORY_BACKGROUND_SIDE_RATIO
+                } else {
+                    dialogWidth * STORY_BACKGROUND_SIDE_RATIO
+                }
+            val verticalPadding = dialogHeight * (STORY_BACKGROUND_VERTICAL_PADDING_PX / STORY_BACKGROUND_SOURCE_SIZE)
 
             Box(
                 modifier =
                     Modifier
                         .width(dialogWidth)
-                        .height(dialogHeight),
+                        .height(dialogHeight)
+                        .testTag("narrativeMessageDialog"),
                 contentAlignment = Alignment.Center,
             ) {
-                // Background image
-                Image(
-                    painter = backgroundPainter,
-                    contentDescription = null,
-                    modifier = Modifier.matchParentSize(),
-                    contentScale = ContentScale.FillBounds,
-                )
+                if (useWideStoryLayout) {
+                    StoryMessageBackground(modifier = Modifier.matchParentSize())
+                } else {
+                    Image(
+                        painter = backgroundPainter,
+                        contentDescription = null,
+                        modifier = Modifier.matchParentSize(),
+                        contentScale = ContentScale.FillBounds,
+                    )
+                }
 
                 // Content overlaid on background – scrollable so long texts never overflow the frame
                 Column(
@@ -264,6 +300,50 @@ fun NarrativeMessageDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StoryMessageBackground(modifier: Modifier = Modifier) {
+    val source = imageResource(Res.drawable.story_message_background)
+
+    Canvas(modifier = modifier) {
+        val sideSlicePx = STORY_BACKGROUND_SIDE_SLICE_PX
+        val centerSlicePx = source.width - (sideSlicePx * 2)
+        // Defensive: avoid invalid rendering sizes if the canvas height rounds down to zero.
+        val destinationHeight = size.height.roundToInt().coerceAtLeast(1)
+        val destinationSideWidth =
+            minOf(
+                size.height * STORY_BACKGROUND_SIDE_RATIO,
+                size.width / 2f,
+            ).roundToInt().coerceAtLeast(1)
+        // Prevent negative center widths when the side slices overlap.
+        // A zero-width center is safe because the draw below only runs when destinationCenterWidth > 0.
+        val destinationCenterWidth = (size.width.roundToInt() - (destinationSideWidth * 2)).coerceAtLeast(0)
+
+        drawImage(
+            image = source,
+            srcOffset = IntOffset.Zero,
+            srcSize = IntSize(sideSlicePx, source.height),
+            dstOffset = IntOffset.Zero,
+            dstSize = IntSize(destinationSideWidth, destinationHeight),
+        )
+        if (destinationCenterWidth > 0) {
+            drawImage(
+                image = source,
+                srcOffset = IntOffset(sideSlicePx, 0),
+                srcSize = IntSize(centerSlicePx, source.height),
+                dstOffset = IntOffset(destinationSideWidth, 0),
+                dstSize = IntSize(destinationCenterWidth, destinationHeight),
+            )
+        }
+        drawImage(
+            image = source,
+            srcOffset = IntOffset(source.width - sideSlicePx, 0),
+            srcSize = IntSize(sideSlicePx, source.height),
+            dstOffset = IntOffset(destinationSideWidth + destinationCenterWidth, 0),
+            dstSize = IntSize(destinationSideWidth, destinationHeight),
+        )
     }
 }
 
