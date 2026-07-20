@@ -23,11 +23,14 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.CooldownPower
 import de.egril.defender.model.CooldownPowerType
+import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObject
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.SupportSpell
+import de.egril.defender.model.isIndefiniteSupportCount
+import de.egril.defender.model.supportCountDisplayText
 import de.egril.defender.ui.gameplay.SpellTargetIcon
 import de.egril.defender.ui.gameplay.localizedCooldownPowerName
 import de.egril.defender.ui.gameplay.localizedSupportName
@@ -43,6 +46,7 @@ import defender_of_egril.composeapp.generated.resources.cooldown_turns_label
 import defender_of_egril.composeapp.generated.resources.damage_label
 import defender_of_egril.composeapp.generated.resources.health_points
 import defender_of_egril.composeapp.generated.resources.start_active_label
+import defender_of_egril.composeapp.generated.resources.supports_count_indefinitely
 import defender_of_egril.composeapp.generated.resources.supports_cooldown_powers_section
 import defender_of_egril.composeapp.generated.resources.supports_intro
 import defender_of_egril.composeapp.generated.resources.supports_objects_section
@@ -287,30 +291,46 @@ private fun CountStepper(
     count: Int,
     onCountChange: (Int) -> Unit,
 ) {
+    val isIndefinite = isIndefiniteSupportCount(count)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         OutlinedButton(
             onClick = { onCountChange((count - 1).coerceAtLeast(1)) },
-            enabled = count > 1,
+            enabled = !isIndefinite && count > 1,
             contentPadding = PaddingValues(0.dp),
             modifier = Modifier.size(32.dp),
         ) {
             Text("-")
         }
         Text(
-            text = "$count",
+            text = supportCountDisplayText(count),
             modifier = Modifier.width(28.dp),
             fontWeight = FontWeight.Bold,
         )
         OutlinedButton(
             onClick = { onCountChange((count + 1).coerceAtMost(MAX_SUPPORT_COUNT)) },
-            enabled = count < MAX_SUPPORT_COUNT,
+            enabled = !isIndefinite && count < MAX_SUPPORT_COUNT,
             contentPadding = PaddingValues(0.dp),
             modifier = Modifier.size(32.dp),
         ) {
             Text("+")
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Checkbox(
+                checked = isIndefinite,
+                onCheckedChange = { checked ->
+                    onCountChange(if (checked) INDEFINITE_SUPPORT_COUNT else 1)
+                },
+            )
+            Text(
+                text = stringResource(Res.string.supports_count_indefinitely),
+                style = MaterialTheme.typography.bodySmall,
+            )
         }
     }
 }

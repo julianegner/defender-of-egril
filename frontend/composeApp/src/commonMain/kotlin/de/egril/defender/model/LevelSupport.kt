@@ -1,5 +1,23 @@
 package de.egril.defender.model
 
+const val INDEFINITE_SUPPORT_COUNT = Int.MAX_VALUE
+
+fun isIndefiniteSupportCount(count: Int): Boolean = count == INDEFINITE_SUPPORT_COUNT
+
+fun combineSupportCounts(
+    existing: Int,
+    added: Int,
+): Int =
+    if (isIndefiniteSupportCount(existing) || isIndefiniteSupportCount(added)) {
+        INDEFINITE_SUPPORT_COUNT
+    } else {
+        existing + added
+    }
+
+fun consumeSupportCount(count: Int): Int = if (isIndefiniteSupportCount(count)) count else count - 1
+
+fun supportCountDisplayText(count: Int): String = if (isIndefiniteSupportCount(count)) "∞" else "$count"
+
 /**
  * Types of placable support objects a player can deploy from level-granted tokens.
  * These mirror the objects that can already be placed via towers, but supports let the

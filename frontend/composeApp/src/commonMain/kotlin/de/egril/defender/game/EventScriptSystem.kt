@@ -12,6 +12,7 @@ import de.egril.defender.model.GameState
 import de.egril.defender.model.LevelEvent
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObjectType
+import de.egril.defender.model.combineSupportCounts
 
 /**
  * When scripted-event evaluation is triggered during the turn cycle.
@@ -127,13 +128,15 @@ class EventScriptSystem(
                 // persisted (the editor displayed the first entry as selected) still grant one.
                 val type = action.supportObjectType ?: SupportObjectType.entries.first()
                 val count = if (action.amount > 0) action.amount else 1
-                state.supportObjectsRemaining[type] = (state.supportObjectsRemaining[type] ?: 0) + count
+                state.supportObjectsRemaining[type] =
+                    combineSupportCounts(state.supportObjectsRemaining[type] ?: 0, count)
             }
             EventActionType.GIVE_SUPPORT_SPELL -> {
                 // Fall back to the first spell for events authored before a type was persisted.
                 val spell = action.spellType ?: SpellType.entries.first()
                 val count = if (action.amount > 0) action.amount else 1
-                state.supportSpellsRemaining[spell] = (state.supportSpellsRemaining[spell] ?: 0) + count
+                state.supportSpellsRemaining[spell] =
+                    combineSupportCounts(state.supportSpellsRemaining[spell] ?: 0, count)
             }
             EventActionType.DESTROY_MINE -> {
                 val position = action.position ?: return

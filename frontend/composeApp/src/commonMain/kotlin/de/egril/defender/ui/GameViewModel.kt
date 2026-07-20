@@ -4072,7 +4072,7 @@ class GameViewModel {
             // Consume one support token instead of mana.
             val remaining = gameState.supportSpellsRemaining[spell] ?: 0
             if (remaining > 0) {
-                gameState.supportSpellsRemaining[spell] = remaining - 1
+                gameState.supportSpellsRemaining[spell] = consumeSupportCount(remaining)
             }
             if (LogConfig.ENABLE_SPELL_LOGGING) {
                 println("=== SPELL: Support token consumed - ${gameState.supportSpellsRemaining[spell]} remaining")
@@ -4525,7 +4525,7 @@ class GameViewModel {
             }
 
         if (success) {
-            gameState.supportObjectsRemaining[type] = remaining - 1
+            gameState.supportObjectsRemaining[type] = consumeSupportCount(remaining)
         }
         return success
     }

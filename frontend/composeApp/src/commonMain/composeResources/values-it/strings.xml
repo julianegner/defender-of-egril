@@ -773,6 +773,7 @@
     <string name="support_type_object">Oggetto Posizionabile</string>
     <string name="support_type_spell">Gettone Incantesimo</string>
     <string name="support_type_power">Potere a Ricarica</string>
+    <string name="supports_count_indefinitely">Indefinitamente</string>
     <string name="cooldown_turns_label">Ricarica</string>
     <string name="start_active_label">Inizia attivo</string>
     <string name="cooldown_power_coin_surge">Ondata di Monete</string>

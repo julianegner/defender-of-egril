@@ -700,12 +700,12 @@ data class GameState(
         supportObjectsRemaining.clear()
         for (supportObject in level.supports.objects) {
             supportObjectsRemaining[supportObject.type] =
-                (supportObjectsRemaining[supportObject.type] ?: 0) + supportObject.count
+                combineSupportCounts(supportObjectsRemaining[supportObject.type] ?: 0, supportObject.count)
         }
         supportSpellsRemaining.clear()
         for (supportSpell in level.supports.spells) {
             supportSpellsRemaining[supportSpell.spell] =
-                (supportSpellsRemaining[supportSpell.spell] ?: 0) + supportSpell.count
+                combineSupportCounts(supportSpellsRemaining[supportSpell.spell] ?: 0, supportSpell.count)
         }
 
         // Initialize cooldown-based support powers. Powers that start active are immediately usable
