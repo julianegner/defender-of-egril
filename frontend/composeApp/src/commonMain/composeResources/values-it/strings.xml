@@ -1743,6 +1743,7 @@
     <string name="ewhad_defeated_text">Hai sconfitto Ewhad! Ora elimina gli altri Nemici e vinci il gioco!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk lo Spaccateschi</string>
+    <string name="garokk_short">Garokk</string>
     <string name="villain_enters_title">Un malvagio entra nel campo di battaglia</string>
     <string name="villain_enters_text">Un eroe nemico unico è entrato nel campo di battaglia! Finché è vivo, potenzia i suoi alleati. I suoi punti vita sono nascosti.</string>
     <string name="villain_garokk_title">Garokk lo Spaccateschi</string>

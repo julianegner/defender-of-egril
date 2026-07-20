@@ -1740,6 +1740,7 @@
     <string name="ewhad_defeated_text">Du hast Ewhad besiegt! Beende jetzt die anderen Feinde und gewinne das Spiel!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk der Schädelspalter</string>
+    <string name="garokk_short">Garokk</string>
     <string name="villain_enters_title">Ein Schurke betritt das Schlachtfeld</string>
     <string name="villain_enters_text">Ein einzigartiger Feind-Held hat das Schlachtfeld betreten! Solange er lebt, stärkt er seine Verbündeten. Seine Lebenspunkte werden nicht angezeigt.</string>
     <string name="villain_garokk_title">Garokk der Schädelspalter</string>

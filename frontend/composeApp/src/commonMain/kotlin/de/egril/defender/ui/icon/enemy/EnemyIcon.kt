@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.hidesHealthBar
+import de.egril.defender.ui.getLocalizedShortName
 import de.egril.defender.utils.BigHeadMode
 
 /**
@@ -79,8 +80,22 @@ fun EnemyIcon(
             )
         }
 
-        // Health number at bottom center - 10dp from bottom edge (hidden for the Ewhad boss and villains)
-        if (!attacker.type.hidesHealthBar) {
+        // Health number at bottom center - 10dp from bottom edge (hidden for the Ewhad boss and villains).
+        // Villains show their short name in place of the health points instead.
+        if (attacker.type.isVillain) {
+            Text(
+                text = attacker.type.getLocalizedShortName(),
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 11.sp,
+                color = healthTextColor,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 10.dp),
+            )
+        } else if (!attacker.type.hidesHealthBar) {
             Text(
                 text = "${healthOverride ?: attacker.currentHealth.value}",
                 style = MaterialTheme.typography.labelSmall,
