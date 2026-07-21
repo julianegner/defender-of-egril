@@ -1756,6 +1756,8 @@
     <string name="garokk_name">Garokk the Skullsplitter</string>
     <string name="villain_enters_title">A villain enters the battlefield</string>
     <string name="villain_enters_text">A unique enemy hero has entered the battlefield! While they live, they empower their allies. Their health points are hidden.</string>
+    <string name="villain_gribnak_title">Gribnak the Squealer enters the battlefield</string>
+    <string name="villain_gribnak_backstory">Gribnak the Squealer has entered the battlefield! This Snotling Chieftain will summon many small snotlings around his position.</string>
     <string name="villain_garokk_title">Garokk the Skullsplitter</string>
     <string name="villain_garokk_backstory">The tyrannical warchief who united the Orks and Ogres under his banner, a massive colossus clad in black iron.
 His War Cry drives nearby Horde units into a frenzy, letting them advance faster. Cut him down before his roar overwhelms your defenses!</string>

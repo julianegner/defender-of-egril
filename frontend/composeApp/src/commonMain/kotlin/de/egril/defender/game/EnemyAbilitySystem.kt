@@ -216,8 +216,9 @@ class EnemyAbilitySystem(
 
     /**
      * Snotling Rally: Gribnak the Squealer summons a rabble of very weak snotlings on every
-     * free path tile within distance 2 (its neighbours and their neighbours). Snotlings are
-     * only 5 HP but nimble, adding light early-game pressure. Uses a cooldown to stay weak.
+     * path tile within distance 2. If a candidate tile is blocked by a non-snotling enemy or is
+     * not a path tile at all, the snotling is redirected to the closest applicable tile instead
+     * (tiles already occupied by snotlings are valid targets, since snotlings merge on arrival).
      */
     private fun handleSnotlingRally(boss: Attacker) {
         if (boss.summonCooldown.value > 0) return
@@ -232,17 +233,47 @@ class EnemyAbilitySystem(
         }
         candidateTiles.remove(bossPos)
 
-        val validTiles =
-            candidateTiles.filter { pos ->
-                pos.x >= 0 &&
-                    pos.x < state.level.gridWidth &&
-                    pos.y >= 0 &&
-                    pos.y < state.level.gridHeight &&
-                    state.level.isOnPath(pos) &&
-                    !state.attackers.any { it.position.value == pos && !it.isDefeated.value }
-            }
+        // A tile is valid for spawning if it is on the path and not blocked by a non-snotling unit.
+        fun isValidSpawnTile(pos: Position): Boolean =
+            pos.x >= 0 &&
+                pos.x < state.level.gridWidth &&
+                pos.y >= 0 &&
+                pos.y < state.level.gridHeight &&
+                state.level.isOnPath(pos) &&
+                state.attackers.none {
+                    it.position.value == pos && !it.isDefeated.value && it.type != AttackerType.SNOTLING
+                }
 
-        if (validTiles.isEmpty()) return
+        // For each candidate tile, resolve the actual spawn position. If the candidate itself is
+        // not valid, expand the search outward (BFS by hex distance) to find the nearest free tile.
+        val spawnPositions = mutableSetOf<Position>()
+        for (candidate in candidateTiles) {
+            if (isValidSpawnTile(candidate)) {
+                spawnPositions.add(candidate)
+            } else {
+                // BFS: find the nearest valid path tile, growing ring by ring
+                val visited = mutableSetOf(candidate)
+                var frontier = candidate.getHexNeighbors().toMutableList()
+                var found = false
+                repeat(5) { // cap at 5 rings to avoid runaway searches
+                    if (found) return@repeat
+                    val nextFrontier = mutableListOf<Position>()
+                    for (pos in frontier) {
+                        if (pos in visited) continue
+                        visited.add(pos)
+                        if (isValidSpawnTile(pos)) {
+                            spawnPositions.add(pos)
+                            found = true
+                            break
+                        }
+                        nextFrontier.addAll(pos.getHexNeighbors())
+                    }
+                    frontier = nextFrontier
+                }
+            }
+        }
+
+        if (spawnPositions.isEmpty()) return
 
         // Snotlings follow the same waypoint chain as Gribnak
         val inheritedTarget =
@@ -254,7 +285,7 @@ class EnemyAbilitySystem(
                 state.level.targetPositions.first()
             }
 
-        for (spawnPos in validTiles) {
+        for (spawnPos in spawnPositions) {
             val snotling =
                 Attacker(
                     id = state.nextAttackerId.value++,

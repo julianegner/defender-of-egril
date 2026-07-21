@@ -97,27 +97,6 @@ fun DrawScope.drawSnotlingBossSymbol(
         drawCircle(color = Color.Yellow, radius = size * 0.06f, center = Offset(centerX + size * 0.11f, centerY - size * 0.15f))
         drawCircle(color = Color.Black, radius = size * 0.03f, center = Offset(centerX - size * 0.11f, centerY - size * 0.15f))
         drawCircle(color = Color.Black, radius = size * 0.03f, center = Offset(centerX + size * 0.11f, centerY - size * 0.15f))
-
-        // Crooked golden crown on top of the head
-        val crownTop = headCenterY - size * 0.32f
-        val crownBottom = headCenterY - size * 0.16f
-        val crownLeft = centerX - size * 0.22f
-        val crownRight = centerX + size * 0.22f
-        val crown =
-            Path().apply {
-                moveTo(crownLeft, crownBottom)
-                lineTo(crownLeft, crownTop + size * 0.05f)
-                lineTo(centerX - size * 0.11f, crownBottom - size * 0.05f)
-                lineTo(centerX, crownTop)
-                lineTo(centerX + size * 0.11f, crownBottom - size * 0.05f)
-                lineTo(crownRight, crownTop + size * 0.05f)
-                lineTo(crownRight, crownBottom)
-                close()
-            }
-        drawPath(crown, Color(0xFFFFD700)) // Gold
-        if (outlineColor != null) {
-            drawPath(crown, outlineColor, style = Stroke(width = outlineWidth))
-        }
     }
 
     // Body (small, not scaled) - hidden in bighead mode
