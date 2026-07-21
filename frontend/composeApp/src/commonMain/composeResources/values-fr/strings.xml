@@ -431,6 +431,7 @@
     <string name="enemy_type">Type d'ennemi:</string>
     <string name="add_enemy_to_turn">Ajouter un ennemi au tour %d</string>
     <string name="ewhad_warning">Ewhad ne peut apparaître qu'une fois par niveau!</string>
+    <string name="villain">Scélérat</string>
     <string name="villains">Scélérats</string>
     <string name="villain_once_warning">Chaque scélérat ne peut apparaître qu'une fois par niveau!</string>
     <string name="level_lv">Niv%d</string>

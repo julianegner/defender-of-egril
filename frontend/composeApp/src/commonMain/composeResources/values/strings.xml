@@ -435,6 +435,7 @@
     <string name="enemy_type">Enemy Type:</string>
     <string name="add_enemy_to_turn">Add Enemy to Turn %d</string>
     <string name="ewhad_warning">Ewhad can only be spawned once per level!</string>
+    <string name="villain">Villain</string>
     <string name="villains">Villains</string>
     <string name="villain_once_warning">Each villain can only be spawned once per level!</string>
     <string name="level_lv">Lv%d</string>

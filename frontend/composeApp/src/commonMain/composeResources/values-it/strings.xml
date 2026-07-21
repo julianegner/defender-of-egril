@@ -431,6 +431,7 @@
     <string name="enemy_type">Tipo di nemico:</string>
     <string name="add_enemy_to_turn">Aggiungi nemico al turno %d</string>
     <string name="ewhad_warning">Ewhad può apparire solo una volta per livello!</string>
+    <string name="villain">Cattivo</string>
     <string name="villains">Cattivi</string>
     <string name="villain_once_warning">Ogni cattivo può apparire solo una volta per livello!</string>
     <string name="level_lv">Liv%d</string>
