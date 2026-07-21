@@ -33,17 +33,17 @@ private const val SNOTLING_ICON_SCALE = 0.2f
 
 /**
  * Relative offsets (xFactor, yFactor) for each snotling in the diamond layout, in units of the
- * grid spacing. Filled from the centre outward so small stacks look natural. Maximum 15 icons:
+ * grid spacing. Filled from the center outward so small stacks look natural. Maximum 15 icons:
  *
  * Row 1 (top):   1 slot  (y = -2)
  * Row 2:         4 slots (y = -1)
- * Row 3 (centre):5 slots (y =  0)
+ * Row 3 (center):5 slots (y =  0)
  * Row 4:         4 slots (y = +1)
  * Row 5 (bottom):1 slot  (y = +2)
  */
 private val SNOTLING_DIAMOND_OFFSETS =
     listOf(
-        // 1 – centre/centre
+        // 1 – center/center
         Pair(0f, 0f),
         // 2–3 – row 4 inner pair
         Pair(-0.5f, 1f),
@@ -105,7 +105,7 @@ fun EnemyIcon(
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING -> {
-                    // Snotlings: diamond layout, up to 15 icons, filled from the centre outward.
+                    // Snotlings: diamond layout, up to 15 icons, filled from the center outward.
                     // Each icon is 20 % of goblin size; the grid is shifted up slightly to leave
                     // room for the HP counter that is always shown at the bottom.
                     val hp = healthOverride ?: attacker.currentHealth.value
