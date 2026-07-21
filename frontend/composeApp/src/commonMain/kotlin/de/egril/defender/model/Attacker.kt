@@ -27,6 +27,12 @@ enum class AttackerType(
     RED_DEMON("Red Demon", health = 60, speed = 1, reward = 15, xp = 9, immuneToFireball = true),
     RED_WITCH("Red Witch", health = 30, speed = 5, reward = 18, xp = 11, canDisableTowers = true),
     GREEN_WITCH("Green Witch", health = 25, speed = 5, reward = 15, xp = 9, canHeal = true),
+
+    // Weak early-game minion summoned by Gribnak the Squealer: 5 HP but very nimble (5 tiles/turn)
+    SNOTLING("Snotling", health = 5, speed = 5, reward = 1, xp = 1),
+
+    // Gribnak the Squealer: weak early-game mini-boss that rallies snotlings around itself
+    SNOTLING_BOSS("Gribnak the Squealer", health = 30, speed = 3, reward = 25, xp = 15, canSummon = true),
     EWHAD("Ewhad", health = 200, speed = 1, reward = 100, xp = 60, canSummon = true, isBoss = true, canBuildBridge = true),
     DRAGON("Dragon", health = 500, speed = 2, reward = 0, xp = 50, isDragon = true, isBoss = true), // Speed will be overridden: 2 on turn 1, 10 on turn 2+. XP is given per level lost, not multiplied
 }
@@ -129,7 +135,7 @@ fun attackerTargetDamage(
  * Such enemies can create an unbounded number of extra units, so the maximum threat they
  * pose to the player's health points cannot be reliably bounded ahead of time.
  */
-fun AttackerType.isSummoner(): Boolean = this == AttackerType.EVIL_WIZARD || this == AttackerType.EWHAD
+fun AttackerType.isSummoner(): Boolean = this == AttackerType.EVIL_WIZARD || this == AttackerType.EWHAD || this == AttackerType.SNOTLING_BOSS
 
 /**
  * Returns true if this attacker is immune to a single attack from a defender of [defenderType].

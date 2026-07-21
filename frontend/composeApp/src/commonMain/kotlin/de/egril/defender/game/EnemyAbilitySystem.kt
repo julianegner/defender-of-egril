@@ -110,6 +110,10 @@ class EnemyAbilitySystem(
                     // Disable nearby tower (instead of moving to target)
                     disableNearestTower(attacker)
                 }
+                AttackerType.SNOTLING_BOSS -> {
+                    // Snotling Rally: summon a rabble of weak snotlings around Gribnak
+                    handleSnotlingRally(attacker)
+                }
                 else -> {
                     // Check if this unit should build a bridge
                     // Units build bridges when adjacent to rivers blocking their path
@@ -143,6 +147,61 @@ class EnemyAbilitySystem(
             }
             attacker.summonCooldown.value = 3
         }
+    }
+
+    /**
+     * Snotling Rally: Gribnak the Squealer summons a rabble of very weak snotlings on every
+     * free path tile within distance 2 (its neighbours and their neighbours). Snotlings are
+     * only 5 HP but nimble, adding light early-game pressure. Uses a cooldown to stay weak.
+     */
+    private fun handleSnotlingRally(boss: Attacker) {
+        if (boss.summonCooldown.value > 0) return
+
+        val bossPos = boss.position.value
+
+        // Collect all tiles within a distance of 2 (neighbours and neighbours-of-neighbours)
+        val candidateTiles = mutableSetOf<Position>()
+        for (neighbor in bossPos.getHexNeighbors()) {
+            candidateTiles.add(neighbor)
+            candidateTiles.addAll(neighbor.getHexNeighbors())
+        }
+        candidateTiles.remove(bossPos)
+
+        val validTiles =
+            candidateTiles.filter { pos ->
+                pos.x >= 0 &&
+                    pos.x < state.level.gridWidth &&
+                    pos.y >= 0 &&
+                    pos.y < state.level.gridHeight &&
+                    state.level.isOnPath(pos) &&
+                    !state.attackers.any { it.position.value == pos && !it.isDefeated.value }
+            }
+
+        if (validTiles.isEmpty()) return
+
+        // Snotlings follow the same waypoint chain as Gribnak
+        val inheritedTarget =
+            boss.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
+                state.level.waypoints
+                    .first()
+                    .nextTarget
+            } else {
+                state.level.targetPositions.first()
+            }
+
+        for (spawnPos in validTiles) {
+            val snotling =
+                Attacker(
+                    id = state.nextAttackerId.value++,
+                    type = AttackerType.SNOTLING,
+                    position = mutableStateOf(spawnPos),
+                    level = mutableStateOf(1),
+                    currentTarget = mutableStateOf(inheritedTarget),
+                )
+            state.attackers.add(snotling)
+        }
+
+        boss.summonCooldown.value = 3
     }
 
     /**
