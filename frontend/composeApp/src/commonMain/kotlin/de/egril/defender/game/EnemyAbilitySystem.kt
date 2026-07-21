@@ -224,6 +224,8 @@ class EnemyAbilitySystem(
         if (boss.summonCooldown.value > 0) return
 
         val bossPos = boss.position.value
+        // Maximum BFS rings to search outward when a candidate tile is blocked.
+        val maxSpawnSearchRings = 5
 
         // Collect all tiles within a distance of 2 (neighbours and neighbours-of-neighbours)
         val candidateTiles = mutableSetOf<Position>()
@@ -255,7 +257,7 @@ class EnemyAbilitySystem(
                 val visited = mutableSetOf(candidate)
                 var frontier = candidate.getHexNeighbors().toMutableList()
                 var found = false
-                repeat(5) { // cap at 5 rings to avoid runaway searches
+                repeat(maxSpawnSearchRings) { // cap at maxSpawnSearchRings rings to avoid runaway searches
                     if (found) return@repeat
                     val nextFrontier = mutableListOf<Position>()
                     for (pos in frontier) {
