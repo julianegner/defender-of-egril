@@ -433,6 +433,8 @@
     <string name="ewhad_warning">Ewhad ne peut apparaître qu'une fois par niveau!</string>
     <string name="villain">Scélérat</string>
     <string name="villains">Scélérats</string>
+    <string name="villain_defeated_title">%1$s a été vaincu</string>
+    <string name="villain_defeated_text">Le scélérat est tombé. Son aura sombre ne renforce plus les ennemis proches.</string>
     <string name="villain_once_warning">Chaque scélérat ne peut apparaître qu'une fois par niveau!</string>
     <string name="level_lv">Niv%d</string>
     <string name="arrange_level_order">Organiser l'ordre des niveaux:</string>

@@ -85,6 +85,9 @@ private val EWHAD_DIALOG_DESKTOP_WIDTH = 700.dp
  *   available player supports (objects + spell tokens) is shown below the body text.
  * @param eventGains Optional scripted-event actions; when non-null and non-empty, the granted
  *   elements (coins, mana, supports, …) are shown with symbols, names and amounts below the body.
+ * @param iconAttackerTypeOverride Optional attacker type used for the top icon in Ewhad-style
+ *   narrative dialogs (including villain messages that reuse this frame). When null, Ewhad is
+ *   shown as before.
  */
 @Composable
 fun NarrativeMessageDialog(
@@ -99,6 +102,7 @@ fun NarrativeMessageDialog(
     // colour for the button. When null, the [type]-based defaults are used.
     backgroundOverride: org.jetbrains.compose.resources.DrawableResource? = null,
     accentColorOverride: Color? = null,
+    iconAttackerTypeOverride: AttackerType? = null,
 ) {
     val isMobile = isPlatformMobile
     val useWideStoryLayout = type == NarrativeMessageType.STORY && !isMobile
@@ -241,7 +245,7 @@ fun NarrativeMessageDialog(
                             contentAlignment = Alignment.Center,
                         ) {
                             EnemyTypeIcon(
-                                attackerType = AttackerType.EWHAD,
+                                attackerType = iconAttackerTypeOverride ?: AttackerType.EWHAD,
                                 modifier = Modifier.fillMaxSize(),
                             )
                         }

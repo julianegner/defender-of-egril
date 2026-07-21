@@ -3236,6 +3236,7 @@ private fun GamePlayScreenContent(
                                     onDismiss = { onDismissGameMessage?.invoke() },
                                 )
                             GameMessageType.VILLAIN_ENTERS -> {
+                                val villainType = attackerTypeFromMessageName(msg.name)
                                 val (villainTitle, villainText) =
                                     when (msg.name) {
                                         AttackerType.GAROKK.name ->
@@ -3251,6 +3252,19 @@ private fun GamePlayScreenContent(
                                     text = villainText,
                                     onDismiss = { onDismissGameMessage?.invoke() },
                                     backgroundOverride = villainMessageBackground(msg.name),
+                                    iconAttackerTypeOverride = villainType,
+                                )
+                            }
+                            GameMessageType.VILLAIN_DEFEATED -> {
+                                val villainType = attackerTypeFromMessageName(msg.name)
+                                val villainName = villainType?.villainName ?: stringResource(Res.string.villain)
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.EWHAD,
+                                    title = stringResource(Res.string.villain_defeated_title, villainName),
+                                    text = stringResource(Res.string.villain_defeated_text),
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                    backgroundOverride = villainMessageBackground(msg.name),
+                                    iconAttackerTypeOverride = villainType,
                                 )
                             }
                             GameMessageType.STORY_INTRO -> {
@@ -3659,3 +3673,12 @@ private fun villainMessageBackground(name: String?): org.jetbrains.compose.resou
         // Add `AttackerType.<VILLAIN>.name -> Res.drawable.villain_<name>_message_background` here.
         else -> null
     }
+
+/**
+ * Safely converts a queued game-message name to [AttackerType].
+ * Returns null when the name is null or does not map to a valid enum constant.
+ *
+ * Villain narrative messages carry the attacker type as a string in [GameMessage.name],
+ * so this helper prevents crashes from invalid payloads and keeps message rendering resilient.
+ */
+private fun attackerTypeFromMessageName(name: String?): AttackerType? = name?.let { runCatching { AttackerType.valueOf(it) }.getOrNull() }

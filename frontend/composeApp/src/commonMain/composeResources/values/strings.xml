@@ -437,6 +437,8 @@
     <string name="ewhad_warning">Ewhad can only be spawned once per level!</string>
     <string name="villain">Villain</string>
     <string name="villains">Villains</string>
+    <string name="villain_defeated_title">%1$s was defeated</string>
+    <string name="villain_defeated_text">The villain has fallen. Their dark aura no longer empowers nearby enemies.</string>
     <string name="villain_once_warning">Each villain can only be spawned once per level!</string>
     <string name="level_lv">Lv%d</string>
     <string name="arrange_level_order">Arrange level order:</string>

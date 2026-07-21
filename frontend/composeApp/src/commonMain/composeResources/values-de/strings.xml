@@ -433,6 +433,8 @@
     <string name="ewhad_warning">Ewhad kann nur einmal pro Level erscheinen!</string>
     <string name="villain">Schurke</string>
     <string name="villains">Schurken</string>
+    <string name="villain_defeated_title">%1$s wurde besiegt</string>
+    <string name="villain_defeated_text">Der Schurke ist gefallen. Seine dunkle Aura stärkt nahe Feinde nicht mehr.</string>
     <string name="villain_once_warning">Jeder Schurke kann nur einmal pro Level erscheinen!</string>
     <string name="level_lv">Lv%d</string>
     <string name="arrange_level_order">Level-Reihenfolge festlegen:</string>
