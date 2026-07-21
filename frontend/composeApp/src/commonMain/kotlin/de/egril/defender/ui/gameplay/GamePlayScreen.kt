@@ -3245,6 +3245,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.SNOTLING_BOSS.name ->
                                             stringResource(Res.string.villain_gribnak_title) to
                                                 stringResource(Res.string.villain_gribnak_backstory)
+                                        AttackerType.MORGUK_BONEWHISPER.name ->
+                                            stringResource(Res.string.villain_morguk_title) to
+                                                stringResource(Res.string.villain_morguk_backstory)
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)

@@ -127,6 +127,7 @@ fun EnemyIcon(
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
                 AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
             }
         }
 
@@ -222,6 +223,7 @@ fun EnemyTypeIcon(
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
                 AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
             }
         }
     }

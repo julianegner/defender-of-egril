@@ -894,7 +894,7 @@ class GameEngine(
                                 ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
                                 ?: state.level.targetPositions.first()
                         }
-                    } else if (attacker.type == AttackerType.RED_WITCH) {
+                    } else if (attacker.type == AttackerType.RED_WITCH || attacker.type == AttackerType.MORGUK_BONEWHISPER) {
                         val towerTarget = enemyAbilities.findTowerTarget(attacker)
                         if (towerTarget != null) {
                             // Move towards the tower to disable it
@@ -1747,7 +1747,7 @@ class GameEngine(
                                 ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
                                 ?: state.level.targetPositions.first()
                         }
-                    } else if (attacker.type == AttackerType.RED_WITCH) {
+                    } else if (attacker.type == AttackerType.RED_WITCH || attacker.type == AttackerType.MORGUK_BONEWHISPER) {
                         val towerTarget = enemyAbilities.findTowerTarget(attacker)
                         if (towerTarget != null) {
                             // Move towards the tower to disable it
