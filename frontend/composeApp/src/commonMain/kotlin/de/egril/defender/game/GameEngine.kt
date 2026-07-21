@@ -1820,7 +1820,8 @@ class GameEngine(
                                 currentPositions.any { (id, pos) ->
                                     id != attacker.id && pos == newPos &&
                                         state.attackers.find { it.id == id }?.type != AttackerType.SNOTLING
-                                }
+                                } ||
+                                barricadeSystem.getBarricadeAt(newPos) != null
                         )
                     } else {
                         state.attackers.any {

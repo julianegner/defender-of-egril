@@ -25,6 +25,9 @@ import de.egril.defender.utils.BigHeadMode
  *   in the health bar. Used to delay the health display during attack animations so the number
  *   only changes after the projectile impact flash has completed.
  */
+
+/** Scale factor for snotling icons relative to the goblin icon (20% of goblin size). */
+private const val SNOTLING_ICON_SCALE = 0.2f
 @Composable
 fun EnemyIcon(
     attacker: Attacker,
@@ -61,7 +64,7 @@ fun EnemyIcon(
                     // Snotlings: display one small icon per health point (max 5), each at 20% of goblin icon size
                     val hp = healthOverride ?: attacker.currentHealth.value
                     val count = minOf(hp, 5)
-                    val snotlingSize = iconSize * 0.7f * 0.2f // 20% of goblin icon size
+                    val snotlingSize = iconSize * 0.7f * SNOTLING_ICON_SCALE
                     for (i in 0 until count) {
                         val xCenter = (i + 1) * size.width / (count + 1)
                         drawGoblinSymbol(xCenter, centerY, snotlingSize, headScale = headScale)
@@ -153,7 +156,7 @@ fun EnemyTypeIcon(
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 // Snotlings: show a single small icon (20% of goblin icon size) in type previews
-                AttackerType.SNOTLING -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f * 0.2f, headScale = headScale)
+                AttackerType.SNOTLING -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
                 AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
