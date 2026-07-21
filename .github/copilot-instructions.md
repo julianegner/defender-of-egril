@@ -7,6 +7,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 ## Project Architecture
 
 ### Module Structure
+
 - `composeApp/src/commonMain/`: Platform-independent code (game logic, models, UI)
   - `kotlin/com/defenderofegril/`
     - `model/`: Domain models (Position, Attacker, Defender, Level, GameState, HexUtils, Trap, MineAction)
@@ -38,6 +39,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - `composeApp/src/commonTest/`: Platform-independent tests
 
 ### Core Components
+
 - **Model Layer** (`model/`): Domain entities with hexagonal grid support
   - `Position`: Hexagonal grid coordinates with offset coordinate system
   - `Attacker`: Enemy units with abilities (summoning, healing, tower disabling)
@@ -83,6 +85,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 ## Development Guidelines
 
 ### Code Organization
+
 - Keep domain logic platform-independent in `commonMain`
 - Use Kotlin coding conventions
 - Maintain immutability where possible for state management
@@ -91,6 +94,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - Manual JSON serialization for cross-platform compatibility (see `EditorJsonSerializer`, `SaveJsonSerializer`)
 
 ### Tile Icon Sizes
+
 - **All tile-based icon sizes** must be defined in `GamePlayConstants.TileIconSizes` object
 - This includes icons for traps, barricades, and any other elements displayed on map tiles
 - Use these constants consistently across all tile rendering code (e.g., in `GameMap.kt`)
@@ -102,14 +106,18 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
   - `GamePlayConstants.TileIconSizes.TrapPreview` - Used for trap preview during placement mode
 
 ### JSON Formatting for Level Files
+
 - **Enemy Spawns**: Always write enemy spawn objects on a single line for compactness and readability
+
   ```json
   "enemySpawns": [
     {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 1}},
     {"attackerType": "ORK", "level": 2, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 4}}
   ]
-```
+  ```
+
 - **Waypoints**: Write each waypoint object on its own line (not all on one line, not fully expanded). **Always add one space after commas** within objects.
+
   ```json
   "waypoints": [
     {"position": {"x": 20, "y": 0}, "nextTargetPosition": {"x": 20, "y": 36}},
@@ -117,50 +125,66 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
     {"position": {"x": 0, "y": 39}, "nextTargetPosition": {"x": 18, "y": 39}}
   ]
   ```
+
   Note: Use `{"x": 20, "y": 0}` (with spaces) NOT `{"x":20,"y":0}` (without spaces)
 - **Rationale**: Enemy spawn format saves hundreds of lines per level file while maintaining readability. Waypoints use one-per-line for better readability when editing pathfinding.
 - **When Creating/Editing Levels**: Always use compact single-line format for enemy spawns, and one-per-line format for waypoints
 - **Other Fields**: Keep other JSON fields (id, title, startCoins, etc.) on separate lines with normal formatting
 
 ### JSON Formatting for Map Files
+
 - **River Tiles**: Always write river tile objects on a single line for compactness and readability
+
   ```json
   "riverTiles": {
     "36,22": {"flowDirection": "WEST", "flowSpeed": 1},
     "35,22": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
     "34,21": {"flowDirection": "NORTH_WEST", "flowSpeed": 1}
   }
-```
+  ```
+
 - **Rationale**: This format saves hundreds of lines per map file while maintaining readability
 - **When Creating/Editing Maps**: Always use this compact single-line format for river tile entries
 - **Other Fields**: Keep other JSON fields (id, name, width, height, tiles, etc.) on separate lines with normal formatting
 
 ### JSON Formatting for Worldmap Files
+
 - **Position Objects**: Always write position objects on a single line for compactness and readability
+
   ```json
   "position": {"x": 82, "y": 873}
   ```
+
 - **Level ID Arrays**: Always write levelIds arrays on a single line for compactness and readability
+
   ```json
   "levelIds": ["welcome_to_defender_of_egril"]
-```
+  ```
+
   or with multiple entries:
+
   ```json
   "levelIds": ["the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises"]
   ```
+
 - **Control Points**: Always write controlPoints arrays on a single line with compact position objects
+
   ```json
   "controlPoints": [{"x": 668, "y": 488}, {"x": 629, "y": 406}]
-```
+  ```
+
 - **Segment Types**: Always write segmentTypes arrays on a single line
+
   ```json
   "segmentTypes": ["SEA_ROUTE", "SEA_ROUTE", "SEA_ROUTE", "ROAD", "ROAD"]
   ```
+
 - **Rationale**: This format saves hundreds of lines in worldmap files while maintaining readability
 - **When Creating/Editing Worldmap**: Always use this compact single-line format for position, levelIds, controlPoints, and segmentTypes
 - **Other Fields**: Keep other JSON fields (id, name, fromLocationId, etc.) on separate lines with normal formatting
 
 ### Localization System
+
 - **Plugin**: Uses `compose-multiplatform-localize` plugin (version 2.0.1) for string resource management
 - **String Resources**: Located in `composeApp/src/commonMain/composeResources/`
   - `values/strings.xml`: Default English strings
@@ -193,20 +217,23 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
   - Run `TranslationCoverageTest` to verify complete translation coverage
 
 ### Icons and Emojis
+
 - **DO NOT use Unicode emojis/icons in Kotlin code** - They don't display correctly on WASM
 - **DO NOT include Unicode emojis/icons in string resources** - Use icon components instead
 - **Use Icon Components**: All icons are in `ui/icon/IconUtils.kt` (e.g., `WarningIcon`, `InfoIcon`, `LightningIcon`, `HeartIcon`, `LockIcon`)
 - **Display Icons**: Use composable icon functions with `Row` and proper spacing
 - **Validation**: Run `UnicodeEmojiValidationTest` to ensure no Unicode emojis exist in code or language files
 - **Example**: Instead of `"⚠️ Warning text"`, use:
+
   ```kotlin
   Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
       WarningIcon(size = 14.dp)
       Text("Warning text")
   }
-```
+  ```
+
 - **Adding New Emojis**: If a new emoji is needed:
-  1. Look it up at https://api.github.com/repos/googlefonts/noto-emoji
+  1. Look it up at <https://api.github.com/repos/googlefonts/noto-emoji>
   2. Download the PNG version
   3. Add it as `emoji_*.png` in `composeResources/drawable/`
   4. Create an Icon component in `ui/icon/IconUtils.kt`
@@ -220,6 +247,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **STRICT RULE — SelectableText must NEVER be used inside Button composables** (including `Button`, `TextButton`, `OutlinedButton`, `ElevatedButton`, `FilledTonalButton`, `IconButton`). `SelectableText` wraps content in a `SelectionContainer` which conflicts with button click handling. Always use plain `Text()` inside any button composable. This rule is enforced by `SelectableTextInButtonValidationTest`.
 
 ### Tower Info Messages
+
 - **Display Pattern**: Tower info messages are NEVER shown automatically during gameplay
 - **Info Icon**: Each tower has a clickable info icon in DefenderInfo.kt (same position for all towers)
 - **Combined Dialog**: Clicking the icon opens a single dialog showing ALL relevant info messages for that tower:
@@ -230,10 +258,11 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Implementation**: See `getTowerInfoMessages()` and `TowerInfoButtonArea()` in DefenderInfo.kt
 
 ### Grid System
+
 - **Hexagonal Grid**: Uses offset coordinate system (even-q vertical layout)
 - **HexUtils**: Provides neighbor detection, distance calculation, and line-of-sight
 - **Tile Types**: PATH, BUILD_AREA, ISLAND (2x2), NO_PLAY, SPAWN_POINT, TARGET, WAYPOINT
-- **Tile Rendering**: 
+- **Tile Rendering**:
   - Color-based backgrounds (always available as fallback)
   - Optional image backgrounds: Random images loaded from `files/tiles/{TileType}/` subdirectories
   - `TileImageProvider.kt` handles image loading and caching
@@ -241,6 +270,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Pathfinding**: Custom hexagonal pathfinding with blocked tile detection
 
 ### Attack Types
+
 - **MELEE**: Single target, close range
 - **RANGED**: Single target, long range
 - **AREA** (Fireball): Area of Effect - affects multiple enemies in range
@@ -248,6 +278,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **NONE**: Special structures (mines, dragon's lair) with no attack capability
 
 ### Current Tower Types
+
 - **Spike Tower** (Pike): Melee defense, 1 range, cheapest tower (10 coins), max range 2 at level 5+
 - **Spear Tower**: Medium-range piercing, 2 range (15 coins)
 - **Bow Tower**: Long-range archery, 3 range (20 coins)
@@ -258,6 +289,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Dragon's Lair**: Spawns dragons, cannot be sold or upgraded (0 coins - special placement)
 
 ### Current Enemy Types
+
 - **Goblin**: Fast, weak (20 HP, speed 2, 5 coins base reward × level)
 - **Ork**: Slow, tough (40 HP, speed 1, 10 coins base reward × level)
 - **Ogre**: Very tough (80 HP, speed 1, 20 coins base reward × level)
@@ -275,6 +307,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 ### Adding New Features
 
 #### New Enemy Type
+
 1. Add entry to `AttackerType` enum in `Attacker.kt`
 2. Define stats: health, speed, reward, special abilities (immunities, summoning, healing, tower disabling)
 3. Add icon in `ui/icon/enemy/` directory (follow existing pattern)
@@ -282,6 +315,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 5. If enemy has special abilities, update `EnemyAbilitySystem.kt`
 
 #### New Tower Type
+
 1. Add entry to `DefenderType` enum in `Defender.kt`
 2. Define: baseCost, baseDamage, baseRange, attackType, actionsPerTurn, buildTime, minRange (optional)
 3. Create icon in `ui/icon/defender/` directory (follow existing pattern)
@@ -290,7 +324,9 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 6. If tower has special mechanics (like Dwarven Mine), update `TowerManager.kt` and relevant game systems
 
 #### Level Editor UI Guidelines (LevelInfoTab Layout)
+
 When adding new level-wide toggle options in the Level Editor:
+
 - **Location**: Level Editor → First tab (Level Info)
 - **Layout Structure**:
   - Left side: Title and Subtitle input fields in a Column (takes weight(1f))
@@ -304,6 +340,7 @@ When adding new level-wide toggle options in the Level Editor:
 - **Rationale**: This layout groups all level settings together and allows the container to grow vertically as more toggles are added, while keeping input fields cleanly separated on the left
 
 #### New Level (Editor Method - Recommended)
+
 1. Use the in-game Level Editor (desktop and web/wasm only):
    - Create or select a map in Map Editor tab
    - Create level in Level Editor tab
@@ -312,7 +349,9 @@ When adding new level-wide toggle options in the Level Editor:
 2. Files are saved in `~/.defender-of-egril/gamedata/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\gamedata\` (Windows)
 
 #### New Level (Code Method - Legacy)
+
 Add to `LevelData.createLevels()` with:
+
 - Unique level ID
 - Map reference (from editor or procedurally generated)
 - Level name and subtitle
@@ -321,9 +360,11 @@ Add to `LevelData.createLevels()` with:
 - Available tower types
 
 #### New Language (Localization)
+
 1. Create directory: `composeApp/src/commonMain/composeResources/values-{lang}/`
    - Use ISO 639-1 language codes (e.g., `de` for German, `es` for Spanish, `fr` for French)
 2. Create `strings.xml` with translated strings:
+
    ```xml
    <?xml version="1.0" encoding="utf-8"?>
    <resources>
@@ -332,6 +373,7 @@ Add to `LevelData.createLevels()` with:
        <!-- ... translate all strings from values/strings.xml ... -->
    </resources>
    ```
+
 3. Clean and rebuild: `./gradlew clean build`
 4. Plugin automatically generates `AppLocale.{LANG}` enum value
 5. Update `LanguageChooser.kt`'s `getCountryCode()` function if language code differs from country code
@@ -341,6 +383,7 @@ Add to `LevelData.createLevels()` with:
 9. **Add the language to the Keycloak realm**: In `local-keycloak/egril-realm.json`, add the ISO 639-1 code to the `"supportedLocales"` array so the Keycloak login/logout UI is also available in the new language.
 
 #### Adding New UI Strings
+
 1. **Add to English first**: Add new string to `values/strings.xml`
 2. **Translate to all languages**: Add identical key to values-de/, values-es/, values-fr/, values-it/
 3. **Use in code**: Use `stringResource(Res.string.your_key)` in Composables
@@ -355,6 +398,7 @@ Add to `LevelData.createLevels()` with:
 ## Build and Test Commands
 
 ### Building
+
 ```bash
 # Build all platforms
 ./gradlew build
@@ -370,6 +414,7 @@ Add to `LevelData.createLevels()` with:
 ```
 
 ### Running
+
 ```bash
 # Run desktop version
 ./gradlew :composeApp:run
@@ -383,6 +428,7 @@ Add to `LevelData.createLevels()` with:
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 ./gradlew test
@@ -395,6 +441,7 @@ Add to `LevelData.createLevels()` with:
 ```
 
 ### Translation Testing
+
 - **TranslationCoverageTest**: Automated test that verifies all user-facing strings are properly translated
   - Scans all UI code for hardcoded strings (except cheat codes and symbols)
   - Verifies all language files have identical keys
@@ -404,13 +451,16 @@ Add to `LevelData.createLevels()` with:
 ## Code Style
 
 ### Naming Conventions
+
 - Classes: PascalCase
 - Functions/variables: camelCase
 - Constants: UPPER_SNAKE_CASE
 - Enum values: UPPER_SNAKE_CASE
 
 ### Control Flow
+
 - **Use if-else for boolean conditions**: When checking a boolean for both true and false cases, use `if-else` instead of two separate `if` statements:
+
   ```kotlin
   // DON'T do this:
   if (condition) {
@@ -426,14 +476,16 @@ Add to `LevelData.createLevels()` with:
   } else {
       doSomethingElse()
   }
-```
+  ```
 
 ### File Structure
+
 - One class per file (unless nested/sealed classes)
 - Group related functionality
 - Keep files focused and cohesive
 
 ### Documentation Files
+
 - **NEVER** add markdown files to the root directory (except README.md and INSTALL.md which are allowed)
 - **ALWAYS** place documentation files under `/docs` in appropriate subfolders:
   - `/docs/changes/`: Implementation summaries and change documentation
@@ -445,6 +497,7 @@ Add to `LevelData.createLevels()` with:
 - Use UPPERCASE_WITH_UNDERSCORES naming convention for documentation files
 
 ### Installation Guide Maintenance
+
 - **Installation instructions** are maintained in **two places**:
   1. `INSTALL.md` - Detailed English installation guide for all platforms (root directory)
   2. `InstallationInfoScreen.kt` - In-app installation info screen (web version only, all supported languages)
@@ -455,6 +508,7 @@ Add to `LevelData.createLevels()` with:
 - The installation info screen is accessible only on the web version via an Info button on the main menu
 
 ### Comments
+
 - Use KDoc for public APIs
 - Avoid obvious comments
 - Explain "why" not "what" for complex logic
@@ -462,12 +516,14 @@ Add to `LevelData.createLevels()` with:
 ## Testing Strategy
 
 ### Test Structure
+
 - Unit tests in `commonTest/kotlin/` (run on all platforms including WASM)
 - UI tests in `desktopTest/kotlin/` for Compose UI testing (desktop only)
 - Test game logic in isolation
 - Use descriptive test names
 
 ### Test Coverage
+
 - Core game mechanics (tower placement, attacks, movement)
 - Edge cases (boundary conditions, invalid inputs)
 - State transitions
@@ -480,6 +536,7 @@ Add to `LevelData.createLevels()` with:
   - Example: For end turn warning changes, test scenarios where warning should/shouldn't appear
 
 ### UI Testing Guidelines
+
 - Use Compose Test Rule for UI component testing
 - Test user interactions (button clicks, text input, etc.)
 - Verify UI state changes based on game state
@@ -487,7 +544,9 @@ Add to `LevelData.createLevels()` with:
 - See `GamePlayScreenTest.kt` for examples of UI tests
 
 ### Cheat Codes (for testing)
+
 **In-Game** (click coins display):
+
 - `cash`: Add 1000 coins
 - `mmmoney`: Add 1000000 coins
 - `spawn <type> <level>`: Spawn enemy
@@ -495,6 +554,7 @@ Add to `LevelData.createLevels()` with:
   - Level is optional (scales enemy health)
 
 **World Map** (click title):
+
 - `unlock`, `unlockall`: Unlock all levels
 
 ## Common Pitfalls to Avoid
@@ -513,15 +573,18 @@ Add to `LevelData.createLevels()` with:
 ## Dependencies
 
 ### Required
+
 - JDK 11 or higher
 - Gradle 8.9 (included via wrapper)
 
 ### Localization
+
 - **compose-multiplatform-localize** plugin (v2.0.1): String resource management and code generation
 - **FlagKit** (v1.1.0): Vector flag icons for language selection UI
 - **multiplatform-settings** (v1.3.0): Cross-platform settings persistence (prepared for future use)
 
 ### Platform-Specific
+
 - **Android**: Android SDK, compileSdk 34, minSdk 24, targetSdk 34
 - **iOS**: macOS with Xcode
 - **Web/WASM**: Modern browsers (Chrome, Firefox, Safari, Edge) with WebAssembly support
@@ -546,21 +609,24 @@ Add to `LevelData.createLevels()` with:
 ## Version Control
 
 ### Commit Messages
+
 - Use descriptive commit messages
 - Reference issue numbers when applicable
 - Keep commits focused and atomic
 
 ### Pull Requests
+
 - Test on at least one platform before submitting
 - Run MegaLinter before finishing and fix all issues found
 - Update documentation for new features
 - Ensure all tests pass
 - Do not change the PR title after initial naming; only removing a leading [WIP] is allowed
 - **Always include closing keywords** in the PR description for every issue the PR resolves, so GitHub auto-closes the issue on merge. Use the format `Closes #<issue-number>` (one per line if multiple). Example:
-  ```
+
+  ```text
   Closes #42
   Closes #57
-```
+  ```
 
 ## Important Notes
 
@@ -584,6 +650,7 @@ Add to `LevelData.createLevels()` with:
 ## Resources
 
 For more details, refer to:
+
 - Architecture: `docs/root/DEVELOPMENT.md`
 - Game rules: `docs/root/GAMEPLAY.md`
 - Testing: `docs/guides/TESTING_GUIDE.md`

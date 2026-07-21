@@ -259,6 +259,9 @@
     <string name="red_demon_name">Roter Dämon</string>
     <string name="red_witch_name">Rote Hexe</string>
     <string name="green_witch_name">Grüne Hexe</string>
+    <string name="snotling_name">Snotling</string>
+    <string name="snotlings_name">Snotlings</string>
+    <string name="snotling_boss_name">Gribnak der Kreischer</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Drache</string>
     
@@ -1747,6 +1750,8 @@
     <string name="garokk_name">Garokk der Schädelspalter</string>
     <string name="villain_enters_title">Ein Schurke betritt das Schlachtfeld</string>
     <string name="villain_enters_text">Ein einzigartiger Feind-Held hat das Schlachtfeld betreten! Solange er lebt, stärkt er seine Verbündeten. Seine Lebenspunkte werden nicht angezeigt.</string>
+    <string name="villain_gribnak_title">Gribnak der Kreischer betritt das Schlachtfeld</string>
+    <string name="villain_gribnak_backstory">Gribnak der Kreischer hat das Schlachtfeld betreten! Dieser Snotling-Häuptling wird viele kleine Snotlings um sich herum beschwören.</string>
     <string name="villain_garokk_title">Garokk der Schädelspalter</string>
     <string name="villain_garokk_backstory">Der tyrannische Kriegshäuptling, der die Orks und Oger unter seinem Banner vereint hat, ein massiver, in schwarzes Eisen gehüllter Koloss.
 Sein Kriegsschrei treibt nahe Horde-Einheiten in Raserei und lässt sie schneller vorrücken. Streckt ihn nieder, bevor sein Gebrüll eure Verteidigung überrollt!</string>

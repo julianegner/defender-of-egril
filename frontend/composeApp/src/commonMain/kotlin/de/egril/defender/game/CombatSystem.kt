@@ -598,12 +598,19 @@ class CombatSystem(
     fun processDefeatedAttackers() {
         val defeated = state.attackers.filter { it.isDefeated.value && !state.level.isTargetPosition(it.position.value) }
 
+        // Snotlings defeated by merging are not real kills: exclude them from kill counts and rewards.
+        val mergedSnotlings = defeated.filter { it.wasMerged.value }
+        val actualKills = defeated.filter { !it.wasMerged.value }
+
         // Track kills for this attack
-        val killsThisAttack = defeated.size
-        val killedTypes = defeated.map { it.type }
+        val killsThisAttack = actualKills.size
+        val killedTypes = actualKills.map { it.type }
 
         if (killsThisAttack > 0) {
             GameLogBuffer.log("COMBAT", "Defeated $killsThisAttack enemies: ${killedTypes.joinToString()}")
+        }
+        if (mergedSnotlings.isNotEmpty()) {
+            GameLogBuffer.log("COMBAT", "Merged ${mergedSnotlings.size} snotling(s) — no reward")
         }
 
         // Update turn totals
@@ -628,8 +635,8 @@ class CombatSystem(
             )
         }
 
-        // Calculate XP and coins for defeated enemies
-        for (attacker in defeated) {
+        // Calculate XP and coins for defeated enemies (merged snotlings are excluded)
+        for (attacker in actualKills) {
             // Coin reward is calculated here and stored in CoinGainEffect.amount; the actual
             // state.coins.value increment is performed by the UI (GameMap) when the coin gain
             // animation plays, so the counter visually updates in sync with the animation.

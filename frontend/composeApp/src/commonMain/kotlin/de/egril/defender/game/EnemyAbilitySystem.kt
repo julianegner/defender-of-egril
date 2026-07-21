@@ -116,6 +116,10 @@ class EnemyAbilitySystem(
                     // Disable nearby tower (instead of moving to target)
                     disableNearestTower(attacker)
                 }
+                AttackerType.SNOTLING_BOSS -> {
+                    // Snotling Rally: summon a rabble of weak snotlings around Gribnak
+                    handleSnotlingRally(attacker)
+                }
                 else -> {
                     // Check if this unit should build a bridge
                     // Units build bridges when adjacent to rivers blocking their path
@@ -208,6 +212,94 @@ class EnemyAbilitySystem(
             }
             attacker.summonCooldown.value = 3
         }
+    }
+
+    /**
+     * Snotling Rally: Gribnak the Squealer summons a rabble of very weak snotlings on every
+     * path tile within distance 2. If a candidate tile is blocked by a non-snotling enemy or is
+     * not a path tile at all, the snotling is redirected to the closest applicable tile instead
+     * (tiles already occupied by snotlings are valid targets, since snotlings merge on arrival).
+     */
+    private fun handleSnotlingRally(boss: Attacker) {
+        if (boss.summonCooldown.value > 0) return
+
+        val bossPos = boss.position.value
+        // Maximum BFS rings to search outward when a candidate tile is blocked.
+        val maxSpawnSearchRings = 5
+
+        // Collect all tiles within a distance of 2 (neighbours and neighbours-of-neighbours)
+        val candidateTiles = mutableSetOf<Position>()
+        for (neighbor in bossPos.getHexNeighbors()) {
+            candidateTiles.add(neighbor)
+            candidateTiles.addAll(neighbor.getHexNeighbors())
+        }
+        candidateTiles.remove(bossPos)
+
+        // A tile is valid for spawning if it is on the path and not blocked by a non-snotling unit.
+        fun isValidSpawnTile(pos: Position): Boolean =
+            pos.x >= 0 &&
+                pos.x < state.level.gridWidth &&
+                pos.y >= 0 &&
+                pos.y < state.level.gridHeight &&
+                state.level.isOnPath(pos) &&
+                state.attackers.none {
+                    it.position.value == pos && !it.isDefeated.value && it.type != AttackerType.SNOTLING
+                }
+
+        // For each candidate tile, resolve the actual spawn position. If the candidate itself is
+        // not valid, expand the search outward (BFS by hex distance) to find the nearest free tile.
+        val spawnPositions = mutableSetOf<Position>()
+        for (candidate in candidateTiles) {
+            if (isValidSpawnTile(candidate)) {
+                spawnPositions.add(candidate)
+            } else {
+                // BFS: find the nearest valid path tile, growing ring by ring
+                val visited = mutableSetOf(candidate)
+                var frontier = candidate.getHexNeighbors().toMutableList()
+                var found = false
+                repeat(maxSpawnSearchRings) { // cap at maxSpawnSearchRings rings to avoid runaway searches
+                    if (found) return@repeat
+                    val nextFrontier = mutableListOf<Position>()
+                    for (pos in frontier) {
+                        if (pos in visited) continue
+                        visited.add(pos)
+                        if (isValidSpawnTile(pos)) {
+                            spawnPositions.add(pos)
+                            found = true
+                            break
+                        }
+                        nextFrontier.addAll(pos.getHexNeighbors())
+                    }
+                    frontier = nextFrontier
+                }
+            }
+        }
+
+        if (spawnPositions.isEmpty()) return
+
+        // Snotlings follow the same waypoint chain as Gribnak
+        val inheritedTarget =
+            boss.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
+                state.level.waypoints
+                    .first()
+                    .nextTarget
+            } else {
+                state.level.targetPositions.first()
+            }
+
+        for (spawnPos in spawnPositions) {
+            val snotling =
+                Attacker(
+                    id = state.nextAttackerId.value++,
+                    type = AttackerType.SNOTLING,
+                    position = mutableStateOf(spawnPos),
+                    level = mutableStateOf(1),
+                    currentTarget = mutableStateOf(inheritedTarget),
+                )
+            state.attackers.add(snotling)
+        }
+
+        boss.summonCooldown.value = 3
     }
 
     /**

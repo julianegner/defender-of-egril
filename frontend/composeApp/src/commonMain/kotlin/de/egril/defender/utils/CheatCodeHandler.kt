@@ -118,6 +118,8 @@ object CheatCodeHandler {
                         "wizard", "evil_wizard", "evilwizard" -> AttackerType.EVIL_WIZARD
                         "greenwitch" -> AttackerType.GREEN_WITCH
                         "redwitch" -> AttackerType.RED_WITCH
+                        "snotling" -> AttackerType.SNOTLING
+                        "snotlingboss", "gribnak" -> AttackerType.SNOTLING_BOSS
                         else -> return Pair(false, null)
                     }
 

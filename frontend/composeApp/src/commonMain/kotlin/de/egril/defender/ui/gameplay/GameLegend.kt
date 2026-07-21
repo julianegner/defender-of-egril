@@ -396,7 +396,7 @@ fun EnemyItemDetailed(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    if (attacker.type != AttackerType.EWHAD) {
+                    if (!attacker.type.hidesHealthBar) {
                         Text(
                             "${stringResource(Res.string.hp_short)}: ${attacker.currentHealth.value}/${attacker.maxHealth}",
                             style = MaterialTheme.typography.bodySmall,
@@ -466,11 +466,13 @@ fun PlannedEnemyItem(
                         )
                     }
                 }
-                Text(
-                    "${stringResource(Res.string.hp_short)}: ${plannedSpawn.healthPoints}",
-                    style = MaterialTheme.typography.bodySmall,
-                    fontSize = 10.sp,
-                )
+                if (!plannedSpawn.attackerType.hidesHealthBar) {
+                    Text(
+                        "${stringResource(Res.string.hp_short)}: ${plannedSpawn.healthPoints}",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 10.sp,
+                    )
+                }
             }
 
             // Spawn turn

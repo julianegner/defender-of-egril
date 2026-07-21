@@ -40,7 +40,7 @@ fun AttackerInfo(
         if (attacker.type.isDragon && attacker.dragonName != null) {
             "${stringResource(Res.string.the_dragon)} ${attacker.dragonName}"
         } else {
-            attacker.type.getLocalizedName(locale)
+            attacker.getLocalizedName(locale)
         }
     val healthLabel = stringResource(Res.string.health)
     val healthPointsLabel = stringResource(Res.string.health_points)
@@ -48,14 +48,16 @@ fun AttackerInfo(
     val attackerCardLabel =
         buildString {
             append(attackerDisplayName)
-            append(", ")
-            append(healthLabel)
-            append(": ")
-            append(attacker.currentHealth.value)
-            append(", ")
-            append(healthPointsLabel)
-            append(": ")
-            append(attacker.maxHealth)
+            if (!attacker.type.hidesHealthBar) {
+                append(", ")
+                append(healthLabel)
+                append(": ")
+                append(attacker.currentHealth.value)
+                append(", ")
+                append(healthPointsLabel)
+                append(": ")
+                append(attacker.maxHealth)
+            }
             append(", ")
             append(speedLabel)
             append(": ")
@@ -138,7 +140,7 @@ fun AttackerInfo(
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        if (attacker.type != AttackerType.EWHAD) {
+                        if (!attacker.type.hidesHealthBar) {
                             Text(
                                 "${stringResource(Res.string.hp_short)}: ${attacker.currentHealth.value}/${attacker.maxHealth}",
                                 style = MaterialTheme.typography.bodySmall,

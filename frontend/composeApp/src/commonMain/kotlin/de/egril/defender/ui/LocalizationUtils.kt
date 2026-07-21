@@ -3,6 +3,7 @@ package de.egril.defender.ui
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.LocalizedStrings
 import de.egril.defender.model.AttackType
+import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.SpellType
@@ -97,6 +98,8 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
             AttackerType.RED_DEMON -> "red_demon_name"
             AttackerType.RED_WITCH -> "red_witch_name"
             AttackerType.GREEN_WITCH -> "green_witch_name"
+            AttackerType.SNOTLING -> "snotling_name"
+            AttackerType.SNOTLING_BOSS -> "snotling_boss_name"
             AttackerType.EWHAD -> "ewhad_name"
             AttackerType.DRAGON -> "dragon_name"
             AttackerType.GAROKK -> "garokk_name"
@@ -116,6 +119,17 @@ fun AttackerType.getLocalizedShortName(locale: AppLocale = com.hyperether.resour
     villainName?.let { return it }
     return getLocalizedName(locale)
 }
+
+/**
+ * Get localized name for an Attacker instance, applying plural forms where appropriate.
+ * For snotlings, uses the plural form when the stack has more than one snotling (hp > 1).
+ */
+fun Attacker.getLocalizedName(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String =
+    if (type == AttackerType.SNOTLING && currentHealth.value > 1) {
+        LocalizedStrings.get("snotlings_name", locale)
+    } else {
+        type.getLocalizedName(locale)
+    }
 
 /**
  * Get localized short name for a DefenderType (for compact displays)
