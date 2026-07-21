@@ -25,7 +25,6 @@ import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.EditorWaypoint
-import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.*
 import de.egril.defender.ui.editor.ConfirmationDialog
@@ -516,8 +515,8 @@ fun LevelEditorView(
     // Get current map to access waypoint tiles and target
     val currentMap = remember(selectedMapId) { EditorStorage.getMap(selectedMapId) }
 
-    // Check if Ewhad is already in spawn list
-    val ewhadCount = enemySpawns.count { it.attackerType == AttackerType.EWHAD }
+    // Villains are unique enemy heroes: only one of each type may be placed in a level.
+    val presentVillainTypes = enemySpawns.filter { it.attackerType.isVillain }.map { it.attackerType }.toSet()
 
     // Check if any enemies are spawned outside valid spawn points
     val mapSpawnPoints = remember(currentMap) { currentMap?.getSpawnPoints()?.toSet() ?: emptySet() }
@@ -737,7 +736,6 @@ fun LevelEditorView(
                         maxTurnNumber = maxTurnNumber,
                         onMaxTurnNumberChange = { maxTurnNumber = it },
                         onEnemySpawnsChange = { enemySpawns = it },
-                        ewhadCount = ewhadCount,
                         onShowEnemyDialog = { turn ->
                             showEnemyDialog = true
                             showEnemyDialogForTurn = turn
@@ -1005,7 +1003,7 @@ fun LevelEditorView(
 
     if (showEnemyDialog) {
         AddEnemyDialog(
-            ewhadCount = ewhadCount,
+            presentVillainTypes = presentVillainTypes,
             turn = showEnemyDialogForTurn,
             map = currentMap,
             onDismiss = { showEnemyDialog = false },

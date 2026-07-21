@@ -679,6 +679,13 @@ class CombatSystem(
                         GameMessageType.EWHAD_RETREATS
                     }
                 state.pendingMessages.add(GameMessage(type = messageType))
+            } else if (attacker.type.isVillain) {
+                state.pendingMessages.add(
+                    GameMessage(
+                        type = GameMessageType.VILLAIN_DEFEATED,
+                        name = attacker.type.name,
+                    ),
+                )
             }
         }
         state.attackers.removeAll { it.isDefeated.value }

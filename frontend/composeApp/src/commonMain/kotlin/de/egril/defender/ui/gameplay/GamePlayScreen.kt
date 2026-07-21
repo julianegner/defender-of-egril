@@ -3235,6 +3235,38 @@ private fun GamePlayScreenContent(
                                     text = stringResource(Res.string.ewhad_defeated_text),
                                     onDismiss = { onDismissGameMessage?.invoke() },
                                 )
+                            GameMessageType.VILLAIN_ENTERS -> {
+                                val villainType = attackerTypeFromMessageName(msg.name)
+                                val (villainTitle, villainText) =
+                                    when (msg.name) {
+                                        AttackerType.GAROKK.name ->
+                                            stringResource(Res.string.villain_garokk_title) to
+                                                stringResource(Res.string.villain_garokk_backstory)
+                                        else ->
+                                            stringResource(Res.string.villain_enters_title) to
+                                                stringResource(Res.string.villain_enters_text)
+                                    }
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.EWHAD,
+                                    title = villainTitle,
+                                    text = villainText,
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                    backgroundOverride = villainMessageBackground(msg.name),
+                                    iconAttackerTypeOverride = villainType,
+                                )
+                            }
+                            GameMessageType.VILLAIN_DEFEATED -> {
+                                val villainType = attackerTypeFromMessageName(msg.name)
+                                val villainName = villainType?.villainName ?: stringResource(Res.string.villain)
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.EWHAD,
+                                    title = stringResource(Res.string.villain_defeated_title, villainName),
+                                    text = stringResource(Res.string.villain_defeated_text),
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                    backgroundOverride = villainMessageBackground(msg.name),
+                                    iconAttackerTypeOverride = villainType,
+                                )
+                            }
                             GameMessageType.STORY_INTRO -> {
                                 val levelEditorId = msg.name
                                 if (levelEditorId != null) {
@@ -3613,3 +3645,27 @@ private fun SupportBarKeyboardHints(modifier: Modifier = Modifier) {
         )
     }
 }
+
+/**
+ * Returns a villain's message frame from drawables named `message_background_<abbreviated_villain_name>`.
+ *
+ * The lookup is automatic and uses [AttackerType.villainName]. Example:
+ * `message_background_garokk.png` is used for "Garokk".
+ */
+private fun villainMessageBackground(name: String?): org.jetbrains.compose.resources.DrawableResource? {
+    val attackerType = attackerTypeFromMessageName(name) ?: return null
+    if (!attackerType.isVillain) return null
+    val villainShortName = attackerType.villainName ?: return null
+    val normalizedVillainName = villainShortName.lowercase().replace(Regex("[^a-z0-9]+"), "_").trim('_')
+    if (normalizedVillainName.isEmpty()) return null
+    return Res.allDrawableResources["message_background_$normalizedVillainName"]
+}
+
+/**
+ * Safely converts a queued game-message name to [AttackerType].
+ * Returns null when the name is null or does not map to a valid enum constant.
+ *
+ * Villain narrative messages carry the attacker type as a string in [GameMessage.name],
+ * so this helper prevents crashes from invalid payloads and keeps message rendering resilient.
+ */
+private fun attackerTypeFromMessageName(name: String?): AttackerType? = name?.let { runCatching { AttackerType.valueOf(it) }.getOrNull() }

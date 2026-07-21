@@ -431,6 +431,11 @@
     <string name="enemy_type">Gegnertyp:</string>
     <string name="add_enemy_to_turn">Gegner zu Runde %d hinzufügen</string>
     <string name="ewhad_warning">Ewhad kann nur einmal pro Level erscheinen!</string>
+    <string name="villain">Schurke</string>
+    <string name="villains">Schurken</string>
+    <string name="villain_defeated_title">%1$s wurde besiegt</string>
+    <string name="villain_defeated_text">Der Schurke ist gefallen. Seine dunkle Aura stärkt nahe Feinde nicht mehr.</string>
+    <string name="villain_once_warning">Jeder Schurke kann nur einmal pro Level erscheinen!</string>
     <string name="level_lv">Lv%d</string>
     <string name="arrange_level_order">Level-Reihenfolge festlegen:</string>
     <string name="levels_in_sequence">Level in Reihenfolge:</string>
@@ -1738,6 +1743,13 @@
     <string name="ewhad_retreats_text">Du hast Ewhad zum Rückzug gezwungen!</string>
     <string name="ewhad_defeated_title">Ewhad ist besiegt</string>
     <string name="ewhad_defeated_text">Du hast Ewhad besiegt! Beende jetzt die anderen Feinde und gewinne das Spiel!</string>
+    <!-- Villain system (issue #538) -->
+    <string name="garokk_name">Garokk der Schädelspalter</string>
+    <string name="villain_enters_title">Ein Schurke betritt das Schlachtfeld</string>
+    <string name="villain_enters_text">Ein einzigartiger Feind-Held hat das Schlachtfeld betreten! Solange er lebt, stärkt er seine Verbündeten. Seine Lebenspunkte werden nicht angezeigt.</string>
+    <string name="villain_garokk_title">Garokk der Schädelspalter</string>
+    <string name="villain_garokk_backstory">Der tyrannische Kriegshäuptling, der die Orks und Oger unter seinem Banner vereint hat, ein massiver, in schwarzes Eisen gehüllter Koloss.
+Sein Kriegsschrei treibt nahe Horde-Einheiten in Raserei und lässt sie schneller vorrücken. Streckt ihn nieder, bevor sein Gebrüll eure Verteidigung überrollt!</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">In einem abgelegenen ländlichen Gebiet greifen Goblins an. Das ist nicht ungewöhnlich, aber Gerüchten zufolge wandern diesmal mehr Monster als sonst in unser Reich.</string>
     <string name="story_mixed_forces">Dasselbe Gebiet ist weiteren Angriffen ausgesetzt. Gerüchte sprechen sogar davon, dass Tote aus ihren Gräbern auferstehen und die Dorfbewohner angreifen.</string>

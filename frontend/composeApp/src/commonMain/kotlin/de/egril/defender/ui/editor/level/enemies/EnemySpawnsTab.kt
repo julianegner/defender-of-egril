@@ -50,7 +50,6 @@ fun EnemySpawnsTab(
     maxTurnNumber: Int,
     onMaxTurnNumberChange: (Int) -> Unit,
     onEnemySpawnsChange: (MutableList<EditorEnemySpawn>) -> Unit,
-    ewhadCount: Int,
     onShowEnemyDialog: (Int) -> Unit,
     onShowRemoveAllTurnsDialog: () -> Unit,
     map: EditorMap?,
@@ -252,7 +251,6 @@ fun EnemySpawnsTab(
                     },
                     canMoveUp = index > 0,
                     canMoveDown = index < allTurns.size - 1,
-                    ewhadCount = ewhadCount,
                     onChangeSpawnPoint = { spawn ->
                         spawnToChange = spawn
                     },
