@@ -148,7 +148,6 @@ fun EnemyIcon(
         // Health number at bottom center - 10dp from bottom edge.
         // Villains show their short name in place of health points.
         // All other enemies (including snotlings) always show their health points.
-        val displayedHealth = healthOverride ?: attacker.currentHealth.value
         if (attacker.type.isVillain) {
             Text(
                 text = attacker.type.getLocalizedShortName(),
@@ -162,9 +161,9 @@ fun EnemyIcon(
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 10.dp),
             )
-        } else {
+        } else if (!attacker.type.hidesHealthBar) {
             Text(
-                text = "$displayedHealth",
+                text = "${healthOverride ?: attacker.currentHealth.value}",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 13.sp,
                 color = healthTextColor,
