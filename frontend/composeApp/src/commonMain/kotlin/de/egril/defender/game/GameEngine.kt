@@ -1487,8 +1487,9 @@ class GameEngine(
                         it.position.value == newPosition && it.type == AttackerType.SNOTLING
                 }
             if (existingSnotling != null) {
-                // Merge: combine HP into the existing snotling and remove this one
+                // Merge: combine HP into the existing snotling and remove this one (no XP/coins awarded)
                 existingSnotling.currentHealth.value += attacker.currentHealth.value
+                attacker.wasMerged.value = true
                 attacker.isDefeated.value = true
                 return
             }

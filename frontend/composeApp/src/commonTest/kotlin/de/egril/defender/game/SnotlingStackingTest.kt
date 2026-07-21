@@ -155,4 +155,103 @@ class SnotlingStackingTest {
         // Snotling should not be defeated
         assertTrue(!snotling.isDefeated.value, "Snotling should not be defeated")
     }
+
+    @Test
+    fun testNoCoinsAwardedWhenSnotlingMerges() {
+        val level = createStraightLevel()
+        val state = GameState(level)
+        val engine = GameEngine(state)
+
+        val stationary =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING,
+                position = mutableStateOf(Position(5, 0)),
+                level = mutableStateOf(1),
+            )
+        val moving =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING,
+                position = mutableStateOf(Position(4, 0)),
+                level = mutableStateOf(1),
+            )
+        state.attackers.addAll(listOf(stationary, moving))
+
+        val coinsBefore = state.pendingCoinGains.value
+
+        // Merge moving into stationary
+        engine.applyMovement(moving.id, stationary.position.value)
+        engine.processDefeatedAttackers()
+
+        assertEquals(
+            coinsBefore,
+            state.pendingCoinGains.value,
+            "No coins should be awarded when a snotling is absorbed by another snotling",
+        )
+    }
+
+    @Test
+    fun testNoXpAwardedWhenSnotlingMerges() {
+        val level = createStraightLevel()
+        val state = GameState(level)
+        val engine = GameEngine(state)
+
+        val stationary =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING,
+                position = mutableStateOf(Position(5, 0)),
+                level = mutableStateOf(1),
+            )
+        val moving =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING,
+                position = mutableStateOf(Position(4, 0)),
+                level = mutableStateOf(1),
+            )
+        state.attackers.addAll(listOf(stationary, moving))
+
+        val xpBefore = state.xpEarnedThisLevel.value
+
+        // Merge moving into stationary
+        engine.applyMovement(moving.id, stationary.position.value)
+        engine.processDefeatedAttackers()
+
+        assertEquals(
+            xpBefore,
+            state.xpEarnedThisLevel.value,
+            "No XP should be awarded when a snotling is absorbed by another snotling",
+        )
+    }
+
+    @Test
+    fun testMergedSnotlingHasWasMergedFlag() {
+        val level = createStraightLevel()
+        val state = GameState(level)
+        val engine = GameEngine(state)
+
+        val stationary =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING,
+                position = mutableStateOf(Position(5, 0)),
+                level = mutableStateOf(1),
+            )
+        val moving =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING,
+                position = mutableStateOf(Position(4, 0)),
+                level = mutableStateOf(1),
+            )
+        state.attackers.addAll(listOf(stationary, moving))
+
+        engine.applyMovement(moving.id, stationary.position.value)
+
+        assertTrue(moving.wasMerged.value, "Merged snotling should have wasMerged = true")
+        assertTrue(moving.isDefeated.value, "Merged snotling should be defeated")
+        assertTrue(!stationary.wasMerged.value, "Surviving snotling should not have wasMerged set")
+    }
 }

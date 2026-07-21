@@ -44,6 +44,7 @@ data class Attacker(
     val level: MutableState<Int> = mutableStateOf(1), // Made mutable for dragons to scale with health
     val currentHealth: MutableState<Int> = mutableStateOf(type.health * level.value),
     val isDefeated: MutableState<Boolean> = mutableStateOf(false),
+    val wasMerged: MutableState<Boolean> = mutableStateOf(false), // True when a snotling was absorbed by another snotling (no XP/coins awarded)
     val isDisabled: MutableState<Boolean> = mutableStateOf(false), // For towers disabled by Red Witch
     val disabledTurnsRemaining: MutableState<Int> = mutableStateOf(0),
     val summonCooldown: MutableState<Int> = mutableStateOf(0), // Cooldown for summoning abilities
