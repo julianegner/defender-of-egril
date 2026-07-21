@@ -57,16 +57,24 @@ fun EnemyIcon(
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
-                // Snotlings reuse the goblin symbol shrunk by 50%
-                AttackerType.SNOTLING -> drawGoblinSymbol(centerX, centerY, iconSize * 0.35f, headScale = headScale)
+                AttackerType.SNOTLING -> {
+                    // Snotlings: display one small icon per health point (max 5), each at 20% of goblin icon size
+                    val hp = healthOverride ?: attacker.currentHealth.value
+                    val count = minOf(hp, 5)
+                    val snotlingSize = iconSize * 0.7f * 0.2f // 20% of goblin icon size
+                    for (i in 0 until count) {
+                        val xCenter = (i + 1) * size.width / (count + 1)
+                        drawGoblinSymbol(xCenter, centerY, snotlingSize, headScale = headScale)
+                    }
+                }
                 AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
             }
         }
 
-        // Level number at top center - only if level > 1
-        if (attacker.level.value > 1) {
+        // Level number at top center - only if level > 1 (not shown for snotlings)
+        if (attacker.level.value > 1 && attacker.type != AttackerType.SNOTLING) {
             Text(
                 text = "${attacker.level.value}",
                 style = MaterialTheme.typography.labelSmall,
@@ -80,10 +88,11 @@ fun EnemyIcon(
             )
         }
 
-        // Health number at bottom center - 10dp from bottom edge (hidden for Ewhad)
-        if (attacker.type != AttackerType.EWHAD) {
+        // Health number at bottom center - 10dp from bottom edge (hidden for Ewhad and snotlings with ≤5 HP)
+        val displayedHealth = healthOverride ?: attacker.currentHealth.value
+        if (attacker.type != AttackerType.EWHAD && attacker.type != AttackerType.SNOTLING) {
             Text(
-                text = "${healthOverride ?: attacker.currentHealth.value}",
+                text = "$displayedHealth",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 13.sp,
                 color = healthTextColor,
@@ -91,7 +100,20 @@ fun EnemyIcon(
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 10.dp), // 10dp from bottom as requested
+                        .padding(bottom = 10.dp),
+            )
+        } else if (attacker.type == AttackerType.SNOTLING && displayedHealth > 5) {
+            // Show total HP when there are more snotlings than the 5 icons can represent
+            Text(
+                text = "$displayedHealth",
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 13.sp,
+                color = healthTextColor,
+                fontWeight = FontWeight.Bold,
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 10.dp),
             )
         }
     }
@@ -130,8 +152,8 @@ fun EnemyTypeIcon(
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
-                // Snotlings reuse the goblin symbol shrunk by 50%
-                AttackerType.SNOTLING -> drawGoblinSymbol(centerX, centerY, iconSize * 0.35f, headScale = headScale)
+                // Snotlings: show a single small icon (20% of goblin icon size) in type previews
+                AttackerType.SNOTLING -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f * 0.2f, headScale = headScale)
                 AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)

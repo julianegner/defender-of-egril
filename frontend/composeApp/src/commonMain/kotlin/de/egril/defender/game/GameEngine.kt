@@ -1014,9 +1014,16 @@ class GameEngine(
 
                 // Check if this position is already occupied or will be occupied by another unit in this step
                 // Exception: Allow multiple units to move to an active target position (they get defeated immediately)
+                // Exception: Snotlings can move to positions occupied by other snotlings (they merge on arrival)
                 val isOccupied =
                     if (state.isActiveTargetPosition(newPos)) {
                         false // Active target position can accommodate multiple units
+                    } else if (attacker.type == AttackerType.SNOTLING) {
+                        // Snotlings are only blocked by non-snotling units and barricades
+                        currentPositions.any { (id, pos) ->
+                            id != attacker.id && pos == newPos &&
+                                state.attackers.find { it.id == id }?.type != AttackerType.SNOTLING
+                        } || barricadeSystem.getBarricadeAt(newPos) != null
                     } else {
                         currentPositions.any { (id, pos) ->
                             id != attacker.id && pos == newPos
@@ -1472,6 +1479,21 @@ class GameEngine(
         }
 
         // Regular unit movement (non-dragons)
+        // Special handling for snotlings: when a snotling moves to a tile with another snotling, merge their HP
+        if (attacker.type == AttackerType.SNOTLING && !state.isActiveTargetPosition(newPosition)) {
+            val existingSnotling =
+                state.attackers.find {
+                    it.id != attacker.id && !it.isDefeated.value &&
+                        it.position.value == newPosition && it.type == AttackerType.SNOTLING
+                }
+            if (existingSnotling != null) {
+                // Merge: combine HP into the existing snotling and remove this one
+                existingSnotling.currentHealth.value += attacker.currentHealth.value
+                attacker.isDefeated.value = true
+                return
+            }
+        }
+
         // Check if position is occupied by another alive attacker
         // Exception: Allow movement to active target position even if occupied (units get defeated immediately)
         val isOccupied =
@@ -1784,9 +1806,22 @@ class GameEngine(
 
                 // Check if this position is already occupied or will be occupied by another unit in this step
                 // Exception: Allow multiple units to move to an active target position (they get defeated immediately)
+                // Exception: Snotlings can move to positions occupied by other snotlings (they merge on arrival)
                 val isOccupied =
                     if (state.isActiveTargetPosition(newPos)) {
                         false // Active target position can accommodate multiple units
+                    } else if (attacker.type == AttackerType.SNOTLING) {
+                        // Snotlings are only blocked by non-snotling units and barricades
+                        (
+                            state.attackers.any {
+                                it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos &&
+                                    it.type != AttackerType.SNOTLING
+                            } ||
+                                currentPositions.any { (id, pos) ->
+                                    id != attacker.id && pos == newPos &&
+                                        state.attackers.find { it.id == id }?.type != AttackerType.SNOTLING
+                                }
+                        )
                     } else {
                         state.attackers.any {
                             it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
