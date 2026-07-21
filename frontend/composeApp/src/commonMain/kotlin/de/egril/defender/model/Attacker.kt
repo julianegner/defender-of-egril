@@ -90,7 +90,6 @@ enum class AttackerType(
 
     // --- Villains (unique enemy heroes) ---
 
-
     // Gribnak the Squealer: weak early-game mini-boss that rallies snotlings around itself.
     // Snotling Rally: spawns snotlings on free path tiles within range 2 (3-turn cooldown).
     SNOTLING_BOSS(
