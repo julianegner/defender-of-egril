@@ -7,13 +7,13 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 
 /**
- * Draws a shared "villain" marker: a small golden crown centred above an enemy icon, plus a faint
+ * Draws a shared "villain" marker: a small golden crown centered above an enemy icon, plus a faint
  * golden aura ring behind it. It is drawn for every villain (see [de.egril.defender.model.AttackerType.isVillain])
  * regardless of the villain's own symbol, giving a consistent, at-a-glance way to tell villains apart
  * from regular units on the battlefield (see issue #538).
  *
- * @param centerX  horizontal centre of the icon.
- * @param centerY  vertical centre of the icon.
+ * @param centerX  horizontal center of the icon.
+ * @param centerY  vertical center of the icon.
  * @param iconSize the icon's drawing size (usually min(width, height)).
  */
 fun DrawScope.drawVillainMarker(
@@ -38,7 +38,7 @@ fun DrawScope.drawVillainMarker(
         style = Stroke(width = iconSize * 0.02f),
     )
 
-    // Small three-point crown centred above the head.
+    // Small three-point crown centered above the head.
     val crownWidth = iconSize * 0.34f
     val crownHeight = iconSize * 0.16f
     val crownTop = centerY - iconSize * 0.5f

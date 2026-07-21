@@ -70,6 +70,10 @@ enum class AttackerType(
     RED_DEMON("Red Demon", health = 60, speed = 1, reward = 15, xp = 9, immuneToFireball = true),
     RED_WITCH("Red Witch", health = 30, speed = 5, reward = 18, xp = 11, canDisableTowers = true),
     GREEN_WITCH("Green Witch", health = 25, speed = 5, reward = 15, xp = 9, canHeal = true),
+
+    // Weak early-game minion summoned by Gribnak the Squealer: 5 HP but very nimble (5 tiles/turn)
+    SNOTLING("Snotling", health = 5, speed = 5, reward = 1, xp = 1),
+
     EWHAD(
         "Ewhad",
         health = 200,
@@ -85,6 +89,20 @@ enum class AttackerType(
     DRAGON("Dragon", health = 500, speed = 2, reward = 0, xp = 50, isDragon = true, isBoss = true), // Speed will be overridden: 2 on turn 1, 10 on turn 2+. XP is given per level lost, not multiplied
 
     // --- Villains (unique enemy heroes) ---
+
+    // Gribnak the Squealer: weak early-game mini-boss that rallies snotlings around itself.
+    // Snotling Rally: spawns snotlings on free path tiles within range 2 (3-turn cooldown).
+    SNOTLING_BOSS(
+        "Gribnak the Squealer",
+        health = 30,
+        speed = 3,
+        reward = 25,
+        xp = 15,
+        canSummon = true,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Gribnak",
+    ),
 
     // Garokk the Skullsplitter: tyrannical warchief who unites the Horde. War Cry (every 3 rounds)
     // grants +1 movement to nearby Horde units. Has no damage immunities, but is a tough boss.
@@ -126,6 +144,7 @@ data class Attacker(
     val level: MutableState<Int> = mutableStateOf(1), // Made mutable for dragons to scale with health
     val currentHealth: MutableState<Int> = mutableStateOf(type.health * level.value),
     val isDefeated: MutableState<Boolean> = mutableStateOf(false),
+    val wasMerged: MutableState<Boolean> = mutableStateOf(false), // True when a snotling was absorbed by another snotling (no XP/coins awarded)
     val isDisabled: MutableState<Boolean> = mutableStateOf(false), // For towers disabled by Red Witch
     val disabledTurnsRemaining: MutableState<Int> = mutableStateOf(0),
     val summonCooldown: MutableState<Int> = mutableStateOf(0), // Cooldown for summoning abilities
@@ -220,7 +239,7 @@ fun attackerTargetDamage(
  * Such enemies can create an unbounded number of extra units, so the maximum threat they
  * pose to the player's health points cannot be reliably bounded ahead of time.
  */
-fun AttackerType.isSummoner(): Boolean = this == AttackerType.EVIL_WIZARD || this == AttackerType.EWHAD
+fun AttackerType.isSummoner(): Boolean = this == AttackerType.EVIL_WIZARD || this == AttackerType.EWHAD || this == AttackerType.SNOTLING_BOSS
 
 /**
  * Returns true if this attacker is immune to a single attack from a defender of [defenderType].

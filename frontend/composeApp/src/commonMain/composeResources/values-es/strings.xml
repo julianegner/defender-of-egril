@@ -259,6 +259,9 @@
     <string name="red_demon_name">Demonio rojo</string>
     <string name="red_witch_name">Bruja roja</string>
     <string name="green_witch_name">Bruja verde</string>
+    <string name="snotling_name">Snotling</string>
+    <string name="snotlings_name">Snotlings</string>
+    <string name="snotling_boss_name">Gribnak el Chillón</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragón</string>
     
@@ -1748,6 +1751,8 @@
     <string name="garokk_name">Garokk el Rompecráneos</string>
     <string name="villain_enters_title">Un villano entra al campo de batalla</string>
     <string name="villain_enters_text">¡Un héroe enemigo único ha entrado al campo de batalla! Mientras viva, potencia a sus aliados. Sus puntos de vida están ocultos.</string>
+    <string name="villain_gribnak_title">Gribnak el Chillón entra al campo de batalla</string>
+    <string name="villain_gribnak_backstory">¡Gribnak el Chillón ha entrado al campo de batalla! Este Jefe Snotling invocará muchos pequeños snotlings alrededor de su posición.</string>
     <string name="villain_garokk_title">Garokk el Rompecráneos</string>
     <string name="villain_garokk_backstory">El tiránico caudillo de guerra que unió a orcos y ogros bajo su estandarte, un coloso enorme cubierto de hierro negro.
 Su grito de guerra enardece a las unidades de la Horda cercanas, permitiéndoles avanzar más rápido. ¡Derríbalo antes de que su rugido arrase tus defensas!</string>

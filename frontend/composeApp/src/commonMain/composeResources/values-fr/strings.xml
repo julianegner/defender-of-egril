@@ -259,6 +259,9 @@
     <string name="red_demon_name">Démon rouge</string>
     <string name="red_witch_name">Sorcière rouge</string>
     <string name="green_witch_name">Sorcière verte</string>
+    <string name="snotling_name">Snotling</string>
+    <string name="snotlings_name">Snotlings</string>
+    <string name="snotling_boss_name">Gribnak le Couineur</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragon</string>
     
@@ -1749,6 +1752,8 @@
     <string name="garokk_name">Garokk le Fendeur de Crânes</string>
     <string name="villain_enters_title">Un scélérat entre sur le champ de bataille</string>
     <string name="villain_enters_text">Un héros ennemi unique est entré sur le champ de bataille ! Tant qu'il vit, il renforce ses alliés. Ses points de vie sont masqués.</string>
+    <string name="villain_gribnak_title">Gribnak le Couineur entre sur le champ de bataille</string>
+    <string name="villain_gribnak_backstory">Gribnak le Couineur est entré sur le champ de bataille ! Ce Chef Snotling va invoquer de nombreux petits snotlings autour de sa position.</string>
     <string name="villain_garokk_title">Garokk le Fendeur de Crânes</string>
     <string name="villain_garokk_backstory">Le chef de guerre tyrannique qui a uni les Orcs et les Ogres sous sa bannière, un colosse massif vêtu de fer noir.
 Son cri de guerre pousse les unités de la Horde proches à la frénésie et leur permet d'avancer plus vite. Abattez-le avant que son rugissement ne submerge vos défenses !</string>
