@@ -18,6 +18,12 @@ class EnemyAbilitySystem(
         // when spawning new demons during iteration
         val attackersSnapshot = state.attackers.toList()
 
+        // Villain auras are recomputed from scratch each enemy turn, so clear last turn's bonuses.
+        for (attacker in attackersSnapshot) {
+            attacker.speedBonus.value = 0
+        }
+        processVillainAuras(attackersSnapshot)
+
         for (attacker in attackersSnapshot) {
             if (attacker.isDefeated.value) continue
 
@@ -123,6 +129,65 @@ class EnemyAbilitySystem(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Apply villain aura abilities (issue #538). A villain buffs friendly units of its own faction
+     * within the ability's range while it is on the battlefield. War Cry style abilities activate on
+     * a cooldown; while below 50% health the villain also permanently benefits from its own aura.
+     */
+    private fun processVillainAuras(attackers: List<Attacker>) {
+        for (villain in attackers) {
+            if (villain.isDefeated.value) continue
+            val ability = villain.type.villainAbility ?: continue
+
+            // Decrement the villain's ability cooldown each round.
+            if (villain.villainCooldown.value > 0) {
+                villain.villainCooldown.value--
+            }
+
+            val isBelowHalfHealth = villain.currentHealth.value * 2 <= villain.maxHealth
+            val activatesThisRound = villain.villainCooldown.value == 0
+            if (activatesThisRound) {
+                villain.villainCooldown.value = ability.cooldown
+            }
+
+            // Nothing to do this round unless the ability triggers or the wounded villain keeps its
+            // permanent self-buff.
+            if (!activatesThisRound && !isBelowHalfHealth) continue
+
+            when (ability.effect) {
+                VillainAuraEffect.SPEED ->
+                    applySpeedAura(
+                        villain = villain,
+                        ability = ability,
+                        applyToAllies = activatesThisRound,
+                        applyToSelf = isBelowHalfHealth,
+                    )
+            }
+        }
+    }
+
+    private fun applySpeedAura(
+        villain: Attacker,
+        ability: VillainAbility,
+        applyToAllies: Boolean,
+        applyToSelf: Boolean,
+    ) {
+        if (applyToSelf) {
+            villain.speedBonus.value = maxOf(villain.speedBonus.value, ability.magnitude)
+        }
+        if (!applyToAllies || villain.type.faction == EnemyFaction.NONE) return
+        for (ally in state.attackers) {
+            if (ally.isDefeated.value || ally.id == villain.id) continue
+            if (ally.type.faction != villain.type.faction) continue
+            val inRange =
+                ability.range == VillainAbility.FULL_BATTLEFIELD ||
+                    villain.position.value.hexDistanceTo(ally.position.value) <= ability.range
+            if (inRange) {
+                ally.speedBonus.value = maxOf(ally.speedBonus.value, ability.magnitude)
             }
         }
     }

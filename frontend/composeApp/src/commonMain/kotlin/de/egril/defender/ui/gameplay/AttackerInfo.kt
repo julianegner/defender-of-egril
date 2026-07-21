@@ -40,7 +40,7 @@ fun AttackerInfo(
         if (attacker.type.isDragon && attacker.dragonName != null) {
             "${stringResource(Res.string.the_dragon)} ${attacker.dragonName}"
         } else {
-            attacker.type.getLocalizedName(locale)
+            attacker.getLocalizedName(locale)
         }
     val healthLabel = stringResource(Res.string.health)
     val healthPointsLabel = stringResource(Res.string.health_points)

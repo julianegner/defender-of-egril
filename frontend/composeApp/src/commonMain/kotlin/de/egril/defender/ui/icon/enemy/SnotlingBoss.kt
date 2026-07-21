@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 
 /**
  * Draw the Snotling Boss "Gribnak the Squealer": a small goblinoid rabble-leader wearing a
- * crooked golden crown. Distinct from the plain goblin so players can recognise the mini-boss.
+ * crooked golden crown. Distinct from the plain goblin so players can recognize the mini-boss.
  */
 fun DrawScope.drawSnotlingBossSymbol(
     centerX: Float,

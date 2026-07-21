@@ -260,6 +260,7 @@
     <string name="red_witch_name">Sorcière rouge</string>
     <string name="green_witch_name">Sorcière verte</string>
     <string name="snotling_name">Snotling</string>
+    <string name="snotlings_name">Snotlings</string>
     <string name="snotling_boss_name">Gribnak le Couineur</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragon</string>
@@ -433,6 +434,11 @@
     <string name="enemy_type">Type d'ennemi:</string>
     <string name="add_enemy_to_turn">Ajouter un ennemi au tour %d</string>
     <string name="ewhad_warning">Ewhad ne peut apparaître qu'une fois par niveau!</string>
+    <string name="villain">Scélérat</string>
+    <string name="villains">Scélérats</string>
+    <string name="villain_defeated_title">%1$s a été vaincu</string>
+    <string name="villain_defeated_text">Le scélérat est tombé. Son aura sombre ne renforce plus les ennemis proches.</string>
+    <string name="villain_once_warning">Chaque scélérat ne peut apparaître qu'une fois par niveau!</string>
     <string name="level_lv">Niv%d</string>
     <string name="arrange_level_order">Organiser l'ordre des niveaux:</string>
     <string name="levels_in_sequence">Niveaux dans la séquence:</string>
@@ -1742,6 +1748,13 @@
     <string name="ewhad_retreats_text">Vous avez forcé Ewhad à se retirer !</string>
     <string name="ewhad_defeated_title">Ewhad est vaincu</string>
     <string name="ewhad_defeated_text">Vous avez vaincu Ewhad ! Terminez maintenant les autres Ennemis et gagnez le jeu !</string>
+    <!-- Villain system (issue #538) -->
+    <string name="garokk_name">Garokk le Fendeur de Crânes</string>
+    <string name="villain_enters_title">Un scélérat entre sur le champ de bataille</string>
+    <string name="villain_enters_text">Un héros ennemi unique est entré sur le champ de bataille ! Tant qu'il vit, il renforce ses alliés. Ses points de vie sont masqués.</string>
+    <string name="villain_garokk_title">Garokk le Fendeur de Crânes</string>
+    <string name="villain_garokk_backstory">Le chef de guerre tyrannique qui a uni les Orcs et les Ogres sous sa bannière, un colosse massif vêtu de fer noir.
+Son cri de guerre pousse les unités de la Horde proches à la frénésie et leur permet d'avancer plus vite. Abattez-le avant que son rugissement ne submerge vos défenses !</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Des Gobelins attaquent une zone rurale isolée. Cela n\'est pas rare, mais les rumeurs nous disent que cette fois, plus de monstres que d\'habitude errent dans notre royaume.</string>
     <string name="story_mixed_forces">La même zone subit davantage d\'attaques. Les rumeurs parlent même de morts se levant de leurs tombes pour attaquer les villageois.</string>
