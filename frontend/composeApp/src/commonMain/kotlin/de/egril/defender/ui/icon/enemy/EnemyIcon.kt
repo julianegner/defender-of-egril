@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.hidesHealthBar
+import de.egril.defender.ui.getLocalizedShortName
 import de.egril.defender.utils.BigHeadMode
 
 /**
@@ -47,6 +49,11 @@ fun EnemyIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
 
+            // Villains get a shared aura ring behind their symbol so they stand out on the map.
+            if (attacker.type.isVillain) {
+                drawVillainMarker(centerX, centerY, iconSize)
+            }
+
             when (attacker.type) {
                 AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
@@ -59,6 +66,7 @@ fun EnemyIcon(
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
+                AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
             }
         }
 
@@ -77,8 +85,22 @@ fun EnemyIcon(
             )
         }
 
-        // Health number at bottom center - 10dp from bottom edge (hidden for Ewhad)
-        if (attacker.type != AttackerType.EWHAD) {
+        // Health number at bottom center - 10dp from bottom edge (hidden for the Ewhad boss and villains).
+        // Villains show their short name in place of the health points instead.
+        if (attacker.type.isVillain) {
+            Text(
+                text = attacker.type.getLocalizedShortName(),
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 11.sp,
+                color = healthTextColor,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 10.dp),
+            )
+        } else if (!attacker.type.hidesHealthBar) {
             Text(
                 text = "${healthOverride ?: attacker.currentHealth.value}",
                 style = MaterialTheme.typography.labelSmall,
@@ -117,6 +139,11 @@ fun EnemyTypeIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
 
+            // Villains get a shared aura ring behind their symbol so they stand out on the map.
+            if (attackerType.isVillain) {
+                drawVillainMarker(centerX, centerY, iconSize)
+            }
+
             when (attackerType) {
                 AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
@@ -129,6 +156,7 @@ fun EnemyTypeIcon(
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
+                AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
             }
         }
     }

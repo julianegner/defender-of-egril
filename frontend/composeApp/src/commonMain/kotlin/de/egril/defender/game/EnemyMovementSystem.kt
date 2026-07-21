@@ -90,16 +90,10 @@ class EnemyMovementSystem(
                 return@forEachIndexed
             }
 
-            // Ensure only one Ewhad exists at a time (boss is unique)
-            if (plannedSpawn.attackerType == AttackerType.EWHAD) {
-                val ewhadExists =
-                    state.attackers.any {
-                        it.type == AttackerType.EWHAD && !it.isDefeated.value
-                    }
-                if (ewhadExists) {
-                    // Skip spawning another Ewhad if one already exists
-                    return@forEachIndexed
-                }
+            // Ensure unique enemies (Ewhad boss and villains) only exist once at a time
+            if (isUniqueEnemyAlreadyPresent(plannedSpawn.attackerType, state.attackers)) {
+                // Skip spawning another copy of this unique enemy if one already exists
+                return@forEachIndexed
             }
 
             val attacker =
@@ -128,6 +122,15 @@ class EnemyMovementSystem(
             if (plannedSpawn.attackerType == AttackerType.EWHAD) {
                 state.pendingMessages.add(
                     GameMessage(type = GameMessageType.EWHAD_ENTERS),
+                )
+            }
+
+            // Queue villain backstory message when a villain enters the battlefield.
+            // Ewhad is a villain but has its own dedicated narrative (EWHAD_ENTERS above), so it is
+            // excluded here to avoid showing two dialogs.
+            if (plannedSpawn.attackerType.isVillain && plannedSpawn.attackerType != AttackerType.EWHAD) {
+                state.pendingMessages.add(
+                    GameMessage(type = GameMessageType.VILLAIN_ENTERS, name = plannedSpawn.attackerType.name),
                 )
             }
         }
@@ -435,6 +438,11 @@ class EnemyMovementSystem(
         } else {
             val damage = attacker.calculateTargetDamage()
             state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+        }
+        // A villain breaching a target loses the level immediately (see issue #538), regardless of
+        // how much health remains. Record it so GameState.isLevelLost() reports the loss.
+        if (attacker.type.isVillain) {
+            state.villainReachedTarget.value = true
         }
         attacker.isDefeated.value = true
     }
