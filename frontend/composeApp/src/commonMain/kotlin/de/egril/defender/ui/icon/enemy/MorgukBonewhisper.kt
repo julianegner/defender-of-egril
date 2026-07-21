@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 /**
  * Draw Morguk Bonewhisper, the Goblin Shaman villain.
  *
- * A dedicated icon distinct from a regular [drawGoblinSymbol]: Morguk is recognisable by his
+ * A dedicated icon distinct from a regular [drawGoblinSymbol]: Morguk is recognizable by his
  * bone-staff totem, orange-tinted skin (ritual war-paint), glowing yellow eyes and a small
  * skull-ornament on his head so players can immediately spot him in a goblin wave.
  */
