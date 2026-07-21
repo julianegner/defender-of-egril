@@ -57,7 +57,7 @@ enum class NarrativeMessageType {
 
 private const val KEYBOARD_SCROLL_STEP = 150
 
-// story_message_background.png has original source dimensions of 500×500 px, with wooden side rails starting at 165 px
+// message_background_story.png has original source dimensions of 500×500 px, with wooden side rails starting at 165 px
 // and whose parchment content begins 135 px from the top and bottom.
 private const val STORY_BACKGROUND_SOURCE_SIZE = 500
 private const val STORY_BACKGROUND_SIDE_SLICE_PX = 165
@@ -133,17 +133,17 @@ fun NarrativeMessageDialog(
         val backgroundPainter =
             when {
                 backgroundOverride != null -> painterResource(backgroundOverride)
-                type == NarrativeMessageType.STORY -> painterResource(Res.drawable.story_message_background)
-                else -> painterResource(Res.drawable.ewhad_message_background)
+                type == NarrativeMessageType.STORY -> painterResource(Res.drawable.message_background_story)
+                else -> painterResource(Res.drawable.message_background_ewhad)
             }
         val buttonColor = accentColorOverride ?: if (type == NarrativeMessageType.EWHAD) Color(0xFF4A2060) else Color(0xFF5C3A1E)
 
         // Both background images are square (500×500 and 1024×1024).
         // Padding keeps text inside the frame border, computed as a fixed fraction of
         // the dialog dimensions:
-        //   story_message_background.png: inner parchment starts at px ≈ 165/500 per side (h)
+        //   message_background_story.png: inner parchment starts at px ≈ 165/500 per side (h)
         //                                 and px ≈ 135/500 per side (v).
-        //   ewhad_message_background.png: inner area at ≈ 280/1024 per side — smaller, so the
+        //   message_background_ewhad.png: inner area at ≈ 280/1024 per side — smaller, so the
         //                                 story fractions cover both.
         // On mobile, BoxWithConstraints fills the available popup width so the dialog scales to
         // the actual device screen size rather than using a fixed narrow value.
@@ -315,7 +315,7 @@ fun NarrativeMessageDialog(
 
 @Composable
 private fun StoryMessageBackground(modifier: Modifier = Modifier) {
-    val source = imageResource(Res.drawable.story_message_background)
+    val source = imageResource(Res.drawable.message_background_story)
 
     Canvas(modifier = modifier) {
         val sideSlicePx = STORY_BACKGROUND_SIDE_SLICE_PX
