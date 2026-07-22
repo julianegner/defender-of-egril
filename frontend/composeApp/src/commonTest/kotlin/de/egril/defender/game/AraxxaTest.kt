@@ -395,63 +395,6 @@ class AraxxaTest {
             )
         }
 
-        @Test
-        fun araxxaSummonsSpiderlingsEveryTurn() {
-            val state = GameState(createOpenLevel())
-            val araxxaPos = Position(5, 4)
-            val araxxa =
-                Attacker(
-                    id = state.nextAttackerId.value++,
-                    type = AttackerType.ARAXXA,
-                    position = mutableStateOf(araxxaPos),
-                )
-            state.attackers.add(araxxa)
-            val abilities = EnemyAbilitySystem(state)
-
-            abilities.processEnemyAbilities()
-            val firstTurnSummonedCount = state.attackers.count { it.type == AttackerType.SPIDERLING && !it.isDefeated.value }
-
-            abilities.processEnemyAbilities()
-            val secondTurnSummonedCount = state.attackers.count { it.type == AttackerType.SPIDERLING && !it.isDefeated.value }
-
-            assertTrue(firstTurnSummonedCount > 0, "Araxxa should summon spiderlings on the first turn")
-            assertTrue(
-                secondTurnSummonedCount > firstTurnSummonedCount,
-                "Araxxa should summon additional spiderlings again on the next turn",
-            )
-        }
-
-        @Test
-        fun araxxaMovesOnlyEverySecondTurn() {
-            val state = GameState(createOpenLevel())
-            val engine = GameEngine(state)
-            val araxxa =
-                Attacker(
-                    id = state.nextAttackerId.value++,
-                    type = AttackerType.ARAXXA,
-                    position = mutableStateOf(Position(2, 4)),
-                    currentTarget = mutableStateOf(Position(11, 4)),
-                )
-            state.attackers.add(araxxa)
-
-            val firstTurn = engine.calculateEnemyTurnMovements()
-            val secondTurn = engine.calculateEnemyTurnMovements()
-            val thirdTurn = engine.calculateEnemyTurnMovements()
-
-            assertTrue(
-                firstTurn.allMovementSteps.flatten().any { it.first == araxxa.id },
-                "Araxxa should move on her first enemy turn",
-            )
-            assertFalse(
-                secondTurn.allMovementSteps.flatten().any { it.first == araxxa.id },
-                "Araxxa should skip movement on the next enemy turn",
-            )
-            assertTrue(
-                thirdTurn.allMovementSteps.flatten().any { it.first == araxxa.id },
-                "Araxxa should move again on every second enemy turn",
-            )
-        }
-
         EnemyAbilitySystem(state).processEnemyAbilities()
 
         assertEquals(
@@ -460,6 +403,63 @@ class AraxxaTest {
                 it.type == AttackerType.SPIDERLING && !it.isDefeated.value && it.position.value == stackTile
             },
             "Araxxa should summon one spiderling per adjacent tile, redirecting blocked spawns onto valid spiderling stacks",
+        )
+    }
+
+    @Test
+    fun araxxaSummonsSpiderlingsEveryTurn() {
+        val state = GameState(createOpenLevel())
+        val araxxaPos = Position(5, 4)
+        val araxxa =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.ARAXXA,
+                position = mutableStateOf(araxxaPos),
+            )
+        state.attackers.add(araxxa)
+        val abilities = EnemyAbilitySystem(state)
+
+        abilities.processEnemyAbilities()
+        val firstTurnSummonedCount = state.attackers.count { it.type == AttackerType.SPIDERLING && !it.isDefeated.value }
+
+        abilities.processEnemyAbilities()
+        val secondTurnSummonedCount = state.attackers.count { it.type == AttackerType.SPIDERLING && !it.isDefeated.value }
+
+        assertTrue(firstTurnSummonedCount > 0, "Araxxa should summon spiderlings on the first turn")
+        assertTrue(
+            secondTurnSummonedCount > firstTurnSummonedCount,
+            "Araxxa should summon additional spiderlings again on the next turn",
+        )
+    }
+
+    @Test
+    fun araxxaMovesOnlyEverySecondTurn() {
+        val state = GameState(createOpenLevel())
+        val engine = GameEngine(state)
+        val araxxa =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.ARAXXA,
+                position = mutableStateOf(Position(2, 4)),
+                currentTarget = mutableStateOf(Position(11, 4)),
+            )
+        state.attackers.add(araxxa)
+
+        val firstTurn = engine.calculateEnemyTurnMovements()
+        val secondTurn = engine.calculateEnemyTurnMovements()
+        val thirdTurn = engine.calculateEnemyTurnMovements()
+
+        assertTrue(
+            firstTurn.allMovementSteps.flatten().any { it.first == araxxa.id },
+            "Araxxa should move on her first enemy turn",
+        )
+        assertFalse(
+            secondTurn.allMovementSteps.flatten().any { it.first == araxxa.id },
+            "Araxxa should skip movement on the next enemy turn",
+        )
+        assertTrue(
+            thirdTurn.allMovementSteps.flatten().any { it.first == araxxa.id },
+            "Araxxa should move again on every second enemy turn",
         )
     }
 
