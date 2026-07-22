@@ -764,6 +764,15 @@ class GameEngine(
         // Handle regular attacker movement
         if (regularAttackers.isEmpty()) return EnemyTurnMovements(allMovementSteps, emptySet())
 
+        // Araxxa moves only every second enemy turn while on the battlefield.
+        val araxxaCanMoveThisTurn =
+            regularAttackers
+                .filter { it.type == AttackerType.ARAXXA }
+                .associate { attacker ->
+                    attacker.movementTurnsElapsed.value += 1
+                    attacker.id to (attacker.movementTurnsElapsed.value % 2 == 1)
+                }
+
         // Track current positions for collision detection during simulation
         val currentPositions = mutableMapOf<Int, Position>()
         regularAttackers.forEach { currentPositions[it.id] = it.position.value }
@@ -820,6 +829,10 @@ class GameEngine(
                         .map { it.id }
                         .contains(attacker.id)
                 ) {
+                    continue
+                }
+
+                if (attacker.type == AttackerType.ARAXXA && araxxaCanMoveThisTurn[attacker.id] == false) {
                     continue
                 }
 

@@ -362,8 +362,6 @@ class EnemyAbilitySystem(
      * and may share tiles with other spiderlings, just like snotlings.
      */
     private fun handleAraxxaSpiderlings(araxxa: Attacker) {
-        if (araxxa.summonCooldown.value > 0) return
-
         val inheritedTarget =
             araxxa.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
                 state.level.waypoints
@@ -401,8 +399,6 @@ class EnemyAbilitySystem(
                 ),
             )
         }
-
-        araxxa.summonCooldown.value = 3
     }
 
     private fun resolveSwarmSpawnPositions(

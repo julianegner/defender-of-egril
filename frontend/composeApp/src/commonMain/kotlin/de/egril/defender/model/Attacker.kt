@@ -195,6 +195,7 @@ data class Attacker(
     val movementPenalty: MutableState<Int> = mutableStateOf(0), // Movement points lost due to spike tower barbs (level 10+)
     val speedBonus: MutableState<Int> = mutableStateOf(0), // Extra movement granted by a villain aura (e.g. Garokk's War Cry)
     val villainCooldown: MutableState<Int> = mutableStateOf(0), // Rounds until this villain's ability next activates
+    val movementTurnsElapsed: MutableState<Int> = mutableStateOf(0), // Enemy turns elapsed on battlefield (for alternating movement patterns)
 ) {
     // Callback for dragon level changes (for achievements)
     var onDragonLevelChanged: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
