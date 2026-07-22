@@ -604,7 +604,7 @@
     <string name="greed_level_label">Avidità</string>
     <string name="dragon_info_button">Cosa fa un drago?</string>
     <string name="mighty_unit_warning">Unità potente! Infligge %d PS di danno se raggiunge il bersaglio (livello × 1 PS)</string>
-    <string name="ewhad_target_warning">BOSS! Se Ewhad raggiunge il bersaglio, il livello è perso!</string>
+    <string name="ewhad_target_warning">VILLAIN! Se %1$s raggiunge il bersaglio, il livello è perso!</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Punti di Passaggio</string>
     <string name="waypoints_title">Connessioni dei Punti di Passaggio</string>
@@ -1751,13 +1751,20 @@
     <string name="ewhad_defeated_text">Hai sconfitto Ewhad! Ora elimina gli altri Nemici e vinci il gioco!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk lo Spaccateschi</string>
+    <string name="morguk_name">Morguk Sussurraossa</string>
     <string name="villain_enters_title">Un malvagio entra nel campo di battaglia</string>
     <string name="villain_enters_text">Un eroe nemico unico è entrato nel campo di battaglia! Finché è vivo, potenzia i suoi alleati. I suoi punti vita sono nascosti.</string>
     <string name="villain_gribnak_title">Gribnak lo Strillone entra nel campo di battaglia</string>
-    <string name="villain_gribnak_backstory">Gribnak lo Strillone è entrato nel campo di battaglia! Questo Capo Snotling evocherà molti piccoli snotling intorno alla sua posizione.</string>
+    <string name="villain_gribnak_backstory">Gribnak lo Strillone è entrato nel campo di battaglia!</string>
+    <string name="villain_gribnak_description">Questo Capo Snotling evocherà molti piccoli snotling intorno alla sua posizione.</string>
     <string name="villain_garokk_title">Garokk lo Spaccateschi</string>
-    <string name="villain_garokk_backstory">Il tirannico condottiero che ha unito Orchi e Ogre sotto il suo vessillo, un colosso massiccio rivestito di ferro nero.
-Il suo grido di guerra spinge le unità dell'Orda vicine alla frenesia, permettendo loro di avanzare più in fretta. Abbattetelo prima che il suo ruggito travolga le vostre difese!</string>
+    <string name="villain_garokk_backstory">Il tirannico condottiero che ha unito Orchi e Ogre sotto il suo vessillo, un colosso massiccio rivestito di ferro nero.</string>
+    <string name="villain_garokk_description">Il suo grido di guerra spinge le unità dell'Orda vicine alla frenesia, permettendo loro di avanzare più in fretta. Abbattetelo prima che il suo ruggito travolga le vostre difese!</string>
+    <string name="villain_ewhad_description">Evoca Demoni ogni turno, sempre più potenti, e se raggiunge il bersaglio la battaglia è persa all'istante.
+Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
+    <string name="villain_morguk_title">Morguk Sussurraossa entra nel campo di battaglia</string>
+    <string name="villain_morguk_backstory">Morguk Sussurraossa, Sciamano Goblin del clan Sussurraossa, è entrato nel campo di battaglia!</string>
+    <string name="villain_morguk_description">La sua Aura del Totem di Guerra accelera i goblin vicini, il suo Malocchio del Silenzio disattiva le torri e ogni pochi turni evoca nuovi goblin nelle caselle adiacenti.\nEliminatelo prima che i suoi rituali travolgano le vostre difese!</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Dei Goblin stanno attaccando una zona rurale remota. Non è insolito, ma le voci ci dicono che questa volta più mostri del solito stanno vagando nel nostro regno.</string>
     <string name="story_mixed_forces">La stessa zona subisce altri attacchi. Le voci parlano addirittura di morti che si alzano dalle tombe e attaccano i villici.</string>

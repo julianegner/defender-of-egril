@@ -604,7 +604,7 @@
     <string name="greed_level_label">Greed</string>
     <string name="dragon_info_button">What does a dragon do?</string>
     <string name="mighty_unit_warning">Mighty unit! Deals %d HP damage if it reaches the target (level × 1 HP)</string>
-    <string name="ewhad_target_warning">BOSS! If Ewhad reaches the target, the level is lost!</string>
+    <string name="ewhad_target_warning">VILLAIN! If %1$s reaches the target, the level is lost!</string>
     
     <!-- Dragon Names -->
     <string name="the_dragon">The dragon</string>
@@ -1754,13 +1754,20 @@
     <string name="ewhad_defeated_text">You defeated Ewhad! Now finish off the other Enemies and Win the Game!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk the Skullsplitter</string>
+    <string name="morguk_name">Morguk Bonewhisper</string>
     <string name="villain_enters_title">A villain enters the battlefield</string>
     <string name="villain_enters_text">A unique enemy hero has entered the battlefield! While they live, they empower their allies. Their health points are hidden.</string>
-    <string name="villain_gribnak_title">Gribnak the Squealer enters the battlefield</string>
-    <string name="villain_gribnak_backstory">Gribnak the Squealer has entered the battlefield! This Snotling Chieftain will summon many small snotlings around his position.</string>
     <string name="villain_garokk_title">Garokk the Skullsplitter</string>
-    <string name="villain_garokk_backstory">The tyrannical warchief who united the Orks and Ogres under his banner, a massive colossus clad in black iron.
-His War Cry drives nearby Horde units into a frenzy, letting them advance faster. Cut him down before his roar overwhelms your defenses!</string>
+    <string name="villain_garokk_backstory">The tyrannical warchief who united the Orks and Ogres under his banner, a massive colossus clad in black iron.</string>
+    <string name="villain_garokk_description">His War Cry drives nearby Horde units into a frenzy, letting them advance faster. Cut him down before his roar overwhelms your defenses!</string>
+    <string name="villain_gribnak_title">Gribnak the Squealer enters the battlefield</string>
+    <string name="villain_gribnak_backstory">Gribnak the Squealer has entered the battlefield!</string>
+    <string name="villain_gribnak_description">This Snotling Chieftain will summon many small snotlings around his position.</string>
+    <string name="villain_ewhad_description">He summons increasingly powerful Demons every turn, and if he reaches the target the battle is lost instantly.
+Bring him down fast before his host overwhelms your defenses!</string>
+    <string name="villain_morguk_title">Morguk Bonewhisper enters the battlefield</string>
+    <string name="villain_morguk_backstory">Morguk Bonewhisper, Goblin Shaman of the Bonewhisper clan, has entered the battlefield!</string>
+    <string name="villain_morguk_description">His War Totem Aura hastens nearby goblins, his Hex of Silence disables towers, and every few turns Spirit Summon calls new goblins on adjacent tiles.\nTake him down before his rituals overwhelm your defenses!</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">There are Goblins attacking a remote rural area. This is not uncommon, but rumors tell us that this time more monsters than usual are wandering into our realm.</string>
     <string name="story_mixed_forces">The same area faces more attacks, Rumors even talk about dead rising from the graves and attacking the villagers.</string>

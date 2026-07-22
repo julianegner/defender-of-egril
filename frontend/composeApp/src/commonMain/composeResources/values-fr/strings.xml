@@ -604,7 +604,7 @@
     <string name="greed_level_label">Avidité</string>
     <string name="dragon_info_button">Que fait un dragon ?</string>
     <string name="mighty_unit_warning">Unité puissante ! Inflige %d PV de dégâts si elle atteint la cible (niveau × 1 PV)</string>
-    <string name="ewhad_target_warning">BOSS ! Si Ewhad atteint la cible, le niveau est perdu !</string>
+    <string name="ewhad_target_warning">VILLAIN ! Si %1$s atteint la cible, le niveau est perdu !</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Points de Passage</string>
     <string name="waypoints_title">Connexions des Points de Passage</string>
@@ -1750,13 +1750,20 @@
     <string name="ewhad_defeated_text">Vous avez vaincu Ewhad ! Terminez maintenant les autres Ennemis et gagnez le jeu !</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk le Fendeur de Crânes</string>
+    <string name="morguk_name">Morguk Chuchotosselets</string>
     <string name="villain_enters_title">Un scélérat entre sur le champ de bataille</string>
     <string name="villain_enters_text">Un héros ennemi unique est entré sur le champ de bataille ! Tant qu'il vit, il renforce ses alliés. Ses points de vie sont masqués.</string>
     <string name="villain_gribnak_title">Gribnak le Couineur entre sur le champ de bataille</string>
-    <string name="villain_gribnak_backstory">Gribnak le Couineur est entré sur le champ de bataille ! Ce Chef Snotling va invoquer de nombreux petits snotlings autour de sa position.</string>
+    <string name="villain_gribnak_backstory">Gribnak le Couineur est entré sur le champ de bataille !</string>
+    <string name="villain_gribnak_description">Ce Chef Snotling va invoquer de nombreux petits snotlings autour de sa position.</string>
     <string name="villain_garokk_title">Garokk le Fendeur de Crânes</string>
-    <string name="villain_garokk_backstory">Le chef de guerre tyrannique qui a uni les Orcs et les Ogres sous sa bannière, un colosse massif vêtu de fer noir.
-Son cri de guerre pousse les unités de la Horde proches à la frénésie et leur permet d'avancer plus vite. Abattez-le avant que son rugissement ne submerge vos défenses !</string>
+    <string name="villain_garokk_backstory">Le chef de guerre tyrannique qui a uni les Orcs et les Ogres sous sa bannière, un colosse massif vêtu de fer noir.</string>
+    <string name="villain_garokk_description">Son cri de guerre pousse les unités de la Horde proches à la frénésie et leur permet d'avancer plus vite. Abattez-le avant que son rugissement ne submerge vos défenses !</string>
+    <string name="villain_ewhad_description">Il invoque chaque tour des Démons de plus en plus puissants, et s'il atteint la cible la bataille est immédiatement perdue.
+Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
+    <string name="villain_morguk_title">Morguk Chuchotosselets entre sur le champ de bataille</string>
+    <string name="villain_morguk_backstory">Morguk Chuchotosselets, Chaman Gobelin du clan Chuchotosselets, est entré sur le champ de bataille !</string>
+    <string name="villain_morguk_description">Son Aura de Totem de Guerre accélère les gobelins proches, son Maléfice du Silence désactive les tours et tous les quelques tours il invoque de nouveaux gobelins sur les cases adjacentes.\nÉliminez-le avant que ses rituels ne submergent vos défenses !</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Des Gobelins attaquent une zone rurale isolée. Cela n\'est pas rare, mais les rumeurs nous disent que cette fois, plus de monstres que d\'habitude errent dans notre royaume.</string>
     <string name="story_mixed_forces">La même zone subit davantage d\'attaques. Les rumeurs parlent même de morts se levant de leurs tombes pour attaquer les villageois.</string>

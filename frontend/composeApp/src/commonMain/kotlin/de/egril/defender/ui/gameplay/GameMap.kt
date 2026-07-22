@@ -2161,6 +2161,7 @@ private fun BoxScope.GridCellContent(
                         backgroundColor = attackerTileBackground,
                         healthTextColor = healthTextColor,
                         healthOverride = displayedHealth,
+                        moveVillainNameUp = true,
                     )
                     // Show healing effect overlay if present
                     if (healingEffect != null) {

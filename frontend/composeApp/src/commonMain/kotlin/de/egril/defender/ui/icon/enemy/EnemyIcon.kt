@@ -74,6 +74,7 @@ fun EnemyIcon(
     healthTextColor: Color = Color.White,
     backgroundColor: Color? = null,
     healthOverride: Int? = null,
+    moveVillainNameUp: Boolean = false,
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
@@ -127,6 +128,7 @@ fun EnemyIcon(
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
                 AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
             }
         }
 
@@ -160,7 +162,7 @@ fun EnemyIcon(
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 10.dp),
+                        .padding(bottom = if (moveVillainNameUp) 22.dp else 10.dp),
             )
         } else if (!attacker.type.hidesHealthBar) {
             Text(
@@ -222,6 +224,7 @@ fun EnemyTypeIcon(
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
                 AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
             }
         }
     }

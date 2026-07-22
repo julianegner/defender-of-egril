@@ -55,6 +55,11 @@ enum class NarrativeMessageType {
     EWHAD, // Ewhad message with dark gargoyle frame background
 }
 
+internal data class NarrativeTextFramePaddingFractions(
+    val top: Float,
+    val bottom: Float,
+)
+
 private const val KEYBOARD_SCROLL_STEP = 150
 
 // message_background_story.png has original source dimensions of 500×500 px, with wooden side rails starting at 165 px
@@ -66,6 +71,7 @@ private const val STORY_BACKGROUND_VERTICAL_PADDING_PX = 135f
 // Keep the precomputed ratio alongside the source-asset constants so every sizing calculation uses
 // the same scaling factor instead of re-deriving it at each call site.
 private const val STORY_BACKGROUND_SIDE_RATIO = 165f / STORY_BACKGROUND_SOURCE_SIZE.toFloat()
+private const val NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO = STORY_BACKGROUND_VERTICAL_PADDING_PX / STORY_BACKGROUND_SOURCE_SIZE
 private val STORY_DIALOG_DESKTOP_WIDTH = 960.dp
 private val STORY_DIALOG_DESKTOP_HEIGHT = 700.dp
 private val EWHAD_DIALOG_DESKTOP_WIDTH = 700.dp
@@ -190,7 +196,9 @@ fun NarrativeMessageDialog(
                 } else {
                     dialogWidth * STORY_BACKGROUND_SIDE_RATIO
                 }
-            val verticalPadding = dialogHeight * (STORY_BACKGROUND_VERTICAL_PADDING_PX / STORY_BACKGROUND_SOURCE_SIZE)
+            val verticalPaddingFractions = narrativeTextFramePaddingFractions(type, iconAttackerTypeOverride)
+            val topPadding = dialogHeight * verticalPaddingFractions.top
+            val bottomPadding = dialogHeight * verticalPaddingFractions.bottom
 
             Box(
                 modifier =
@@ -214,12 +222,25 @@ fun NarrativeMessageDialog(
                 // Content overlaid on background – scrollable so long texts never overflow the frame
                 Column(
                     modifier =
-                        Modifier
-                            .padding(
-                                horizontal = horizontalPadding,
-                                vertical = verticalPadding,
-                            ).fillMaxWidth()
-                            .verticalScroll(scrollState),
+                        if (type == NarrativeMessageType.EWHAD) {
+                            Modifier
+                                .fillMaxSize()
+                                .padding(
+                                    start = horizontalPadding,
+                                    end = horizontalPadding,
+                                    top = topPadding,
+                                    bottom = bottomPadding,
+                                ).verticalScroll(scrollState)
+                        } else {
+                            Modifier
+                                .padding(
+                                    start = horizontalPadding,
+                                    end = horizontalPadding,
+                                    top = topPadding,
+                                    bottom = bottomPadding,
+                                ).fillMaxWidth()
+                                .verticalScroll(scrollState)
+                        },
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
@@ -280,7 +301,7 @@ fun NarrativeMessageDialog(
                     }
 
                     // Optional summary of the level's available player supports
-                    if (supports != null && supports.isNotEmpty()) {
+                    if (type == NarrativeMessageType.STORY && supports != null && supports.isNotEmpty()) {
                         LevelSupportsSummary(
                             supports = supports,
                             title = stringResource(Res.string.level_supports_title),
@@ -312,6 +333,30 @@ fun NarrativeMessageDialog(
         }
     }
 }
+
+internal fun narrativeTextFramePaddingFractions(
+    type: NarrativeMessageType,
+    attackerType: AttackerType?,
+): NarrativeTextFramePaddingFractions =
+    when {
+        type == NarrativeMessageType.EWHAD && attackerType == AttackerType.SNOTLING_BOSS ->
+            NarrativeTextFramePaddingFractions(
+                top = 0.31f,
+                bottom = 0.33f,
+            )
+
+        type == NarrativeMessageType.EWHAD && attackerType == AttackerType.MORGUK_BONEWHISPER ->
+            NarrativeTextFramePaddingFractions(
+                top = 0.30f,
+                bottom = 0.33f,
+            )
+
+        else ->
+            NarrativeTextFramePaddingFractions(
+                top = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,
+                bottom = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,
+            )
+    }
 
 @Composable
 private fun StoryMessageBackground(modifier: Modifier = Modifier) {
