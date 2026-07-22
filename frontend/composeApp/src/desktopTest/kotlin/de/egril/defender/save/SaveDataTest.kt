@@ -4,6 +4,7 @@ import de.egril.defender.model.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -211,6 +212,39 @@ class SaveDataTest {
         assertEquals(AttackerType.GOBLIN, attacker.type)
         assertEquals(Position(2, 1), attacker.position)
         assertEquals(20, attacker.currentHealth)
+    }
+
+    @Test
+    fun testDeserializeSavedGameReturnsNullForEmptyRequiredInteger() {
+        val json =
+            """{
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "savegame"
+  },
+  "data": {
+    "id": "broken_save",
+    "timestamp": 123,
+    "levelId": "",
+    "levelName": "Broken",
+    "turnNumber": 1,
+    "coins": 100,
+    "healthPoints": 10,
+    "phase": "PLAYER_TURN",
+    "defenders": [],
+    "attackers": [],
+    "nextDefenderId": 1,
+    "nextAttackerId": 1,
+    "currentWaveIndex": 0,
+    "spawnCounter": 0,
+    "attackersToSpawn": [],
+    "fieldEffects": [],
+    "traps": []
+  }
+}"""
+
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNull(deserialized)
     }
 
     @Test

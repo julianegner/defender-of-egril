@@ -3,7 +3,6 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -258,8 +257,7 @@ kotlin {
     }
     
     listOf(
-        iosArm64(),
-        iosSimulatorArm64()
+        iosArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "DefenderOfEgril"
@@ -280,10 +278,8 @@ kotlin {
         
         // Connect each iOS target's main compilation to iosMain
         val iosArm64Main by getting
-        val iosSimulatorArm64Main by getting
         
         iosArm64Main.dependsOn(iosMain)
-        iosSimulatorArm64Main.dependsOn(iosMain)
         
         // Add generated source directory to commonMain
         commonMain {
