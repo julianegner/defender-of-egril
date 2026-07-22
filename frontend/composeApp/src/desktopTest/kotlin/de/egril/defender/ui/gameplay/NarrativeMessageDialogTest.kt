@@ -102,12 +102,34 @@ class NarrativeMessageDialogTest {
     }
 
     @Test
-    fun testEwhadDialogShowsSupportsSummary() {
+    fun testEwhadDialogDoesNotShowSupportsSummary() {
         composeTestRule.setContent {
             NarrativeMessageDialog(
                 type = NarrativeMessageType.EWHAD,
                 title = "Gribnak enters the battlefield",
                 text = "A villain story message with support info.",
+                onDismiss = {},
+                supports =
+                    LevelSupports(
+                        objects = listOf(SupportObject(type = SupportObjectType.DWARVEN_TRAP, count = 2)),
+                    ),
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithText("Available Support", substring = true)
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun testStoryDialogShowsSupportsSummary() {
+        composeTestRule.setContent {
+            NarrativeMessageDialog(
+                type = NarrativeMessageType.STORY,
+                title = "Level story",
+                text = "A story message with support info.",
                 onDismiss = {},
                 supports =
                     LevelSupports(
