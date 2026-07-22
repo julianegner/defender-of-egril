@@ -379,7 +379,7 @@ fun AttackerInfo(
                         infoEntries.add(
                             AttackerInfoEntry(
                                 icon = AttackerInfoEntryIcon.WARNING,
-                                text = stringResource(Res.string.ewhad_target_warning),
+                                text = stringResource(Res.string.ewhad_target_warning, attacker.type.getLocalizedShortName(locale)),
                                 color = GamePlayColors.ErrorDark,
                                 isBold = true,
                             ),
