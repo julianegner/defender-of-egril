@@ -411,6 +411,7 @@ class AraxxaTest {
         val state = GameState(createAraxxaSpawnLevel())
         val engine = GameEngine(state)
 
+        engine.startFirstPlayerTurn()
         engine.startEnemyTurn()
         engine.spawnEnemyTurnAttackers()
         val newSpawnMovements = engine.calculateNewlySpawnedMovements()
