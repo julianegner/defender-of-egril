@@ -604,7 +604,7 @@
     <string name="greed_level_label">Avidità</string>
     <string name="dragon_info_button">Cosa fa un drago?</string>
     <string name="mighty_unit_warning">Unità potente! Infligge %d PS di danno se raggiunge il bersaglio (livello × 1 PS)</string>
-    <string name="ewhad_target_warning">BOSS! Se Ewhad raggiunge il bersaglio, il livello è perso!</string>
+    <string name="ewhad_target_warning">VILLAIN! Se questo villain raggiunge il bersaglio, il livello è perso!</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Punti di Passaggio</string>
     <string name="waypoints_title">Connessioni dei Punti di Passaggio</string>
