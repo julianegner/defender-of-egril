@@ -602,7 +602,7 @@
     <string name="greed_level_label">Avaricia</string>
     <string name="dragon_info_button">¿Qué hace un dragón?</string>
     <string name="mighty_unit_warning">¡Unidad poderosa! Inflige %d PV de daño si alcanza el objetivo (nivel × 1 PV)</string>
-    <string name="ewhad_target_warning">¡JEFE! Si Ewhad alcanza el objetivo, ¡el nivel se pierde!</string>
+    <string name="ewhad_target_warning">¡VILLAIN! Si %1$s alcanza el objetivo, ¡el nivel se pierde!</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Puntos de Paso</string>
     <string name="waypoints_title">Conexiones de Puntos de Paso</string>
@@ -1749,13 +1749,20 @@
     <string name="ewhad_defeated_text">¡Derrotaste a Ewhad! ¡Ahora acaba con los demás Enemigos y gana el juego!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk el Rompecráneos</string>
+    <string name="morguk_name">Morguk Susurrahuesos</string>
     <string name="villain_enters_title">Un villano entra al campo de batalla</string>
     <string name="villain_enters_text">¡Un héroe enemigo único ha entrado al campo de batalla! Mientras viva, potencia a sus aliados. Sus puntos de vida están ocultos.</string>
     <string name="villain_gribnak_title">Gribnak el Chillón entra al campo de batalla</string>
-    <string name="villain_gribnak_backstory">¡Gribnak el Chillón ha entrado al campo de batalla! Este Jefe Snotling invocará muchos pequeños snotlings alrededor de su posición.</string>
+    <string name="villain_gribnak_backstory">¡Gribnak el Chillón ha entrado al campo de batalla!</string>
+    <string name="villain_gribnak_description">Este Jefe Snotling invocará muchos pequeños snotlings alrededor de su posición.</string>
     <string name="villain_garokk_title">Garokk el Rompecráneos</string>
-    <string name="villain_garokk_backstory">El tiránico caudillo de guerra que unió a orcos y ogros bajo su estandarte, un coloso enorme cubierto de hierro negro.
-Su grito de guerra enardece a las unidades de la Horda cercanas, permitiéndoles avanzar más rápido. ¡Derríbalo antes de que su rugido arrase tus defensas!</string>
+    <string name="villain_garokk_backstory">El tiránico caudillo de guerra que unió a orcos y ogros bajo su estandarte, un coloso enorme cubierto de hierro negro.</string>
+    <string name="villain_garokk_description">Su grito de guerra enardece a las unidades de la Horda cercanas, permitiéndoles avanzar más rápido. ¡Derríbalo antes de que su rugido arrase tus defensas!</string>
+    <string name="villain_ewhad_description">Invoca Demonios cada turno, cada vez más poderosos, y si alcanza el objetivo la batalla se pierde al instante.
+¡Acaba con él rápido antes de que su hueste abrume tus defensas!</string>
+    <string name="villain_morguk_title">Morguk Susurrahuesos entra al campo de batalla</string>
+    <string name="villain_morguk_backstory">¡Morguk Susurrahuesos, Chamán Goblin del clan Susurrahuesos, ha entrado al campo de batalla!</string>
+    <string name="villain_morguk_description">Su Aura del Tótem de Guerra acelera goblins cercanos, su Maldición del Silencio desactiva torres y cada pocos turnos invoca nuevos goblins en casillas adyacentes.\n¡Elimínalo antes de que sus rituales abrumen tus defensas!</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Hay Goblins atacando una remota zona rural. Esto no es inusual, pero los rumores nos dicen que esta vez más monstruos de lo normal están entrando en nuestro reino.</string>
     <string name="story_mixed_forces">La misma zona enfrenta más ataques. Los rumores incluso hablan de muertos que se levantan de las tumbas y atacan a los aldeanos.</string>

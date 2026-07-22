@@ -602,7 +602,7 @@
     <string name="greed_level_label">Gier</string>
     <string name="dragon_info_button">Was macht ein Drache?</string>
     <string name="mighty_unit_warning">Mächtige Einheit! Verursacht %d LP Schaden, wenn sie das Ziel erreicht (Stufe × 1 LP)</string>
-    <string name="ewhad_target_warning">BOSS! Wenn Ewhad das Ziel erreicht, ist die Stufe verloren!</string>
+    <string name="ewhad_target_warning">VILLAIN! Wenn %1$s das Ziel erreicht, ist die Stufe verloren!</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Wegpunkte</string>
     <string name="waypoints_title">Wegpunkt-Verbindungen</string>
@@ -1748,13 +1748,20 @@
     <string name="ewhad_defeated_text">Du hast Ewhad besiegt! Beende jetzt die anderen Feinde und gewinne das Spiel!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk der Schädelspalter</string>
+    <string name="morguk_name">Morguk Knochenwisper</string>
     <string name="villain_enters_title">Ein Schurke betritt das Schlachtfeld</string>
     <string name="villain_enters_text">Ein einzigartiger Feind-Held hat das Schlachtfeld betreten! Solange er lebt, stärkt er seine Verbündeten. Seine Lebenspunkte werden nicht angezeigt.</string>
     <string name="villain_gribnak_title">Gribnak der Kreischer betritt das Schlachtfeld</string>
-    <string name="villain_gribnak_backstory">Gribnak der Kreischer hat das Schlachtfeld betreten! Dieser Snotling-Häuptling wird viele kleine Snotlings um sich herum beschwören.</string>
+    <string name="villain_gribnak_backstory">Gribnak der Kreischer hat das Schlachtfeld betreten!</string>
+    <string name="villain_gribnak_description">Dieser Snotling-Häuptling wird viele kleine Snotlings um sich herum beschwören.</string>
     <string name="villain_garokk_title">Garokk der Schädelspalter</string>
-    <string name="villain_garokk_backstory">Der tyrannische Kriegshäuptling, der die Orks und Oger unter seinem Banner vereint hat, ein massiver, in schwarzes Eisen gehüllter Koloss.
-Sein Kriegsschrei treibt nahe Horde-Einheiten in Raserei und lässt sie schneller vorrücken. Streckt ihn nieder, bevor sein Gebrüll eure Verteidigung überrollt!</string>
+    <string name="villain_garokk_backstory">Der tyrannische Kriegshäuptling, der die Orks und Oger unter seinem Banner vereint hat, ein massiver, in schwarzes Eisen gehüllter Koloss.</string>
+    <string name="villain_garokk_description">Sein Kriegsschrei treibt nahe Horde-Einheiten in Raserei und lässt sie schneller vorrücken. Streckt ihn nieder, bevor sein Gebrüll eure Verteidigung überrollt!</string>
+    <string name="villain_ewhad_description">Er beschwört jede Runde immer mächtigere Dämonen, und wenn er das Ziel erreicht, ist die Schlacht sofort verloren.
+Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</string>
+    <string name="villain_morguk_title">Morguk Knochenwisper betritt das Schlachtfeld</string>
+    <string name="villain_morguk_backstory">Morguk Knochenwisper, Goblin-Schamane des Knochenwisper-Clans, hat das Schlachtfeld betreten!</string>
+    <string name="villain_morguk_description">Seine Kriegs-Totem-Aura beschleunigt nahe Goblins, sein Schweige-Fluch deaktiviert Türme und alle paar Runden beschwört er neue Goblins auf benachbarten Feldern.\nSchaltet ihn aus, bevor seine Rituale eure Verteidigung überwältigen!</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">In einem abgelegenen ländlichen Gebiet greifen Goblins an. Das ist nicht ungewöhnlich, aber Gerüchten zufolge wandern diesmal mehr Monster als sonst in unser Reich.</string>
     <string name="story_mixed_forces">Dasselbe Gebiet ist weiteren Angriffen ausgesetzt. Gerüchte sprechen sogar davon, dass Tote aus ihren Gräbern auferstehen und die Dorfbewohner angreifen.</string>

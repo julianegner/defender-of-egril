@@ -3241,10 +3241,13 @@ private fun GamePlayScreenContent(
                                     when (msg.name) {
                                         AttackerType.GAROKK.name ->
                                             stringResource(Res.string.villain_garokk_title) to
-                                                stringResource(Res.string.villain_garokk_backstory)
+                                                (stringResource(Res.string.villain_garokk_backstory) + "\n" + stringResource(Res.string.villain_garokk_description))
                                         AttackerType.SNOTLING_BOSS.name ->
                                             stringResource(Res.string.villain_gribnak_title) to
-                                                stringResource(Res.string.villain_gribnak_backstory)
+                                                (stringResource(Res.string.villain_gribnak_backstory) + "\n" + stringResource(Res.string.villain_gribnak_description))
+                                        AttackerType.MORGUK_BONEWHISPER.name ->
+                                            stringResource(Res.string.villain_morguk_title) to
+                                                (stringResource(Res.string.villain_morguk_backstory) + "\n" + stringResource(Res.string.villain_morguk_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)
@@ -3254,6 +3257,7 @@ private fun GamePlayScreenContent(
                                     title = villainTitle,
                                     text = villainText,
                                     onDismiss = { onDismissGameMessage?.invoke() },
+                                    supports = gameState.level.supports,
                                     backgroundOverride = villainMessageBackground(msg.name),
                                     iconAttackerTypeOverride = villainType,
                                 )

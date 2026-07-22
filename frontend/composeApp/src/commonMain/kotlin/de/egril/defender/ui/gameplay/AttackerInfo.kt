@@ -24,6 +24,23 @@ import de.egril.defender.ui.icon.WarningIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import defender_of_egril.composeapp.generated.resources.*
 
+private const val VILLAIN_INFO_FIRST_COLUMN_MAX_ENTRIES = 4
+
+private enum class AttackerInfoEntryIcon {
+    WARNING,
+    LIGHTNING,
+    HEART,
+    LOCK,
+    SHIELD,
+}
+
+private data class AttackerInfoEntry(
+    val icon: AttackerInfoEntryIcon,
+    val text: String,
+    val color: Color,
+    val isBold: Boolean = false,
+)
+
 /**
  * Display details about a selected enemy attacker
  * Similar to DefenderInfo but for enemies
@@ -357,70 +374,61 @@ fun AttackerInfo(
                     }
 
                     // Additional info about special abilities
+                    val infoEntries = mutableListOf<AttackerInfoEntry>()
+                    if (attacker.type.isVillain) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.WARNING,
+                                text = stringResource(Res.string.ewhad_target_warning, attacker.type.getLocalizedShortName(locale)),
+                                color = GamePlayColors.ErrorDark,
+                                isBold = true,
+                            ),
+                        )
+                    }
                     if (attacker.type.canSummon) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            LightningIcon(size = 14.dp)
-                            Text(
-                                stringResource(Res.string.can_summon),
-                                style = MaterialTheme.typography.bodySmall,
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.can_summon),
                                 color = GamePlayColors.Warning,
-                            )
-                        }
+                            ),
+                        )
                     }
                     if (attacker.type.canHeal) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            HeartIcon(size = 14.dp)
-                            Text(
-                                stringResource(Res.string.can_heal),
-                                style = MaterialTheme.typography.bodySmall,
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.HEART,
+                                text = stringResource(Res.string.can_heal),
                                 color = GamePlayColors.Success,
-                            )
-                        }
+                            ),
+                        )
                     }
                     if (attacker.type.canDisableTowers) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            LockIcon(size = 14.dp)
-                            Text(
-                                stringResource(Res.string.can_disable_towers),
-                                style = MaterialTheme.typography.bodySmall,
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LOCK,
+                                text = stringResource(Res.string.can_disable_towers),
                                 color = GamePlayColors.ErrorDark,
-                            )
-                        }
+                            ),
+                        )
                     }
                     if (attacker.type.immuneToAcid) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            ShieldIcon(size = 14.dp)
-                            Text(
-                                stringResource(Res.string.immune_to_acid),
-                                style = MaterialTheme.typography.bodySmall,
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.immune_to_acid),
                                 color = GamePlayColors.InfoDark,
-                            )
-                        }
+                            ),
+                        )
                     }
                     if (attacker.type.immuneToFireball) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            ShieldIcon(size = 14.dp)
-                            Text(
-                                stringResource(Res.string.immune_to_fireball),
-                                style = MaterialTheme.typography.bodySmall,
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.immune_to_fireball),
                                 color = GamePlayColors.InfoDark,
-                            )
-                        }
+                            ),
+                        )
                     }
 
                     // Mighty unit warning - for wizards, witches, demons, dragons
@@ -435,40 +443,94 @@ fun AttackerInfo(
                             -> true
                             else -> false
                         }
-
                     if (isMightyUnit) {
                         val damage = attacker.level.value
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            WarningIcon(size = 14.dp)
-                            Text(
-                                stringResource(Res.string.mighty_unit_warning, damage),
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold,
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.WARNING,
+                                text = stringResource(Res.string.mighty_unit_warning, damage),
                                 color = GamePlayColors.ErrorDark,
+                                isBold = true,
                             )
-                        }
+                        )
                     }
 
-                    // Special Ewhad warning
-                    if (attacker.type == AttackerType.EWHAD) {
+                    if (attacker.type.isVillain && !isMobile && infoEntries.size > VILLAIN_INFO_FIRST_COLUMN_MAX_ENTRIES) {
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            WarningIcon(size = 14.dp)
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                            ) {
+                                infoEntries
+                                    .take(VILLAIN_INFO_FIRST_COLUMN_MAX_ENTRIES)
+                                    .forEach { entry -> AttackerInfoEntryRow(entry) }
+                            }
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                            ) {
+                                infoEntries
+                                    .drop(VILLAIN_INFO_FIRST_COLUMN_MAX_ENTRIES)
+                                    .forEach { entry -> AttackerInfoEntryRow(entry) }
+                            }
+                        }
+                    } else {
+                        infoEntries.forEach { entry -> AttackerInfoEntryRow(entry) }
+                    }
+                }
+                // Villain description column (desktop only – right of the stats column)
+                if (attacker.type.isVillain && !isMobile) {
+                    val villainDescription =
+                        when (attacker.type) {
+                            AttackerType.EWHAD -> stringResource(Res.string.villain_ewhad_description)
+                            AttackerType.GAROKK -> stringResource(Res.string.villain_garokk_description)
+                            AttackerType.SNOTLING_BOSS -> stringResource(Res.string.villain_gribnak_description)
+                            AttackerType.MORGUK_BONEWHISPER -> stringResource(Res.string.villain_morguk_description)
+                            else -> ""
+                        }
+                    if (villainDescription.isNotEmpty()) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column(
+                            modifier =
+                                Modifier
+                                    .weight(1f)
+                                    .padding(end = 8.dp, top = 4.dp, bottom = 4.dp),
+                        ) {
                             Text(
-                                stringResource(Res.string.ewhad_target_warning),
+                                text = villainDescription,
                                 style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold,
-                                color = GamePlayColors.ErrorDark,
+                                color = Color.Gray,
                             )
                         }
                     }
                 }
+
             }
         }
+    }
+}
+
+@Composable
+private fun AttackerInfoEntryRow(entry: AttackerInfoEntry) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        when (entry.icon) {
+            AttackerInfoEntryIcon.WARNING -> WarningIcon(size = 14.dp)
+            AttackerInfoEntryIcon.LIGHTNING -> LightningIcon(size = 14.dp)
+            AttackerInfoEntryIcon.HEART -> HeartIcon(size = 14.dp)
+            AttackerInfoEntryIcon.LOCK -> LockIcon(size = 14.dp)
+            AttackerInfoEntryIcon.SHIELD -> ShieldIcon(size = 14.dp)
+        }
+        Text(
+            text = entry.text,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = if (entry.isBold) FontWeight.Bold else FontWeight.Normal,
+            color = entry.color,
+        )
     }
 }

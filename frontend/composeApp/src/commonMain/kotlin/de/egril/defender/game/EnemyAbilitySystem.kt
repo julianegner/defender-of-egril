@@ -120,6 +120,12 @@ class EnemyAbilitySystem(
                     // Snotling Rally: summon a rabble of weak snotlings around Gribnak
                     handleSnotlingRally(attacker)
                 }
+                AttackerType.MORGUK_BONEWHISPER -> {
+                    // Spirit Summon: spawn goblins on all adjacent path tiles every 3 turns
+                    handleMorgukSpiritSummon(attacker)
+                    // Hex of Silence: disable an adjacent defender
+                    disableNearestTower(attacker)
+                }
                 else -> {
                     // Check if this unit should build a bridge
                     // Units build bridges when adjacent to rivers blocking their path
@@ -300,6 +306,47 @@ class EnemyAbilitySystem(
         }
 
         boss.summonCooldown.value = 3
+    }
+
+    /**
+     * Spirit Summon: Morguk Bonewhisper conjures goblins on every adjacent path tile.
+     * Each goblin spawns at the same level as Morguk. Activates every 3 turns.
+     */
+    private fun handleMorgukSpiritSummon(morguk: Attacker) {
+        if (morguk.summonCooldown.value > 0) return
+
+        val morgukPos = morguk.position.value
+        val inheritedTarget =
+            morguk.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
+                state.level.waypoints.first().nextTarget
+            } else {
+                state.level.targetPositions.first()
+            }
+
+        // Spawn on adjacent path tiles that are not already occupied by a living unit
+        val adjacentPathTiles =
+            morgukPos.getHexNeighbors().filter { pos ->
+                pos.x >= 0 &&
+                    pos.x < state.level.gridWidth &&
+                    pos.y >= 0 &&
+                    pos.y < state.level.gridHeight &&
+                    state.level.isOnPath(pos) &&
+                    state.attackers.none { !it.isDefeated.value && it.position.value == pos }
+            }
+
+        for (spawnPos in adjacentPathTiles) {
+            val goblin =
+                Attacker(
+                    id = state.nextAttackerId.value++,
+                    type = AttackerType.GOBLIN,
+                    position = mutableStateOf(spawnPos),
+                    level = mutableStateOf(morguk.level.value),
+                    currentTarget = mutableStateOf(inheritedTarget),
+                )
+            state.attackers.add(goblin)
+        }
+
+        morguk.summonCooldown.value = 3
     }
 
     /**

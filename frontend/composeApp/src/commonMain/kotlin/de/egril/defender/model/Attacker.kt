@@ -119,6 +119,25 @@ enum class AttackerType(
         villainAbility = VillainAbility(effect = VillainAuraEffect.SPEED, range = 3, cooldown = 3, magnitude = 1),
         villainName = "Garokk",
     ),
+
+    // Morguk Bonewhisper: Goblin Shaman who supports goblin forces and disrupts defenders.
+    // War Totem Aura: every turn, grants +1 movement to nearby Horde units (range 3).
+    // Hex of Silence: disables an adjacent defender each turn.
+    // Spirit Summon: every 3 turns, spawns goblins on all adjacent path tiles.
+    MORGUK_BONEWHISPER(
+        "Morguk Bonewhisper",
+        health = 80,
+        speed = 3,
+        reward = 75,
+        xp = 45,
+        canSummon = true,
+        canDisableTowers = true,
+        isBoss = true,
+        isVillain = true,
+        faction = EnemyFaction.HORDE,
+        villainAbility = VillainAbility(effect = VillainAuraEffect.SPEED, range = 3, cooldown = 1, magnitude = 1),
+        villainName = "Morguk",
+    ),
 }
 
 /**
@@ -231,6 +250,7 @@ fun attackerTargetDamage(
         -> level
         AttackerType.EWHAD -> Int.MAX_VALUE // Special marker for "all HP" - caller must handle
         AttackerType.GAROKK -> level // Boss villain: 1 HP per level, like other mighty enemies
+        AttackerType.MORGUK_BONEWHISPER -> level // Goblin Shaman villain: 1 HP per level
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
 
@@ -239,7 +259,7 @@ fun attackerTargetDamage(
  * Such enemies can create an unbounded number of extra units, so the maximum threat they
  * pose to the player's health points cannot be reliably bounded ahead of time.
  */
-fun AttackerType.isSummoner(): Boolean = this == AttackerType.EVIL_WIZARD || this == AttackerType.EWHAD || this == AttackerType.SNOTLING_BOSS
+fun AttackerType.isSummoner(): Boolean = this == AttackerType.EVIL_WIZARD || this == AttackerType.EWHAD || this == AttackerType.SNOTLING_BOSS || this == AttackerType.MORGUK_BONEWHISPER
 
 /**
  * Returns true if this attacker is immune to a single attack from a defender of [defenderType].
