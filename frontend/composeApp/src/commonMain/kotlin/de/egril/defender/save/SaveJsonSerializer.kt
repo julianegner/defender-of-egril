@@ -293,6 +293,13 @@ object SaveJsonSerializer {
             de.egril.defender.utils.JsonUtils
                 .extractDataSection(json)
         try {
+            fun parseRequiredInt(field: String): Int? =
+                try {
+                    JsonUtils.extractValue(dataJson, field).toIntOrNull()
+                } catch (e: Exception) {
+                    null
+                }
+
             val id = JsonUtils.extractValue(dataJson, "id")
             val rawTimestamp = JsonUtils.extractValue(dataJson, "timestamp")
             val timestamp =
@@ -302,16 +309,16 @@ object SaveJsonSerializer {
                     }
                     currentTimeMillis()
                 }
-            val levelId = JsonUtils.extractValue(dataJson, "levelId").toInt()
+            val levelId = parseRequiredInt("levelId") ?: return null
             val levelName = JsonUtils.extractValue(dataJson, "levelName")
-            val turnNumber = JsonUtils.extractValue(dataJson, "turnNumber").toInt()
-            val coins = JsonUtils.extractValue(dataJson, "coins").toInt()
-            val healthPoints = JsonUtils.extractValue(dataJson, "healthPoints").toInt()
+            val turnNumber = parseRequiredInt("turnNumber") ?: return null
+            val coins = parseRequiredInt("coins") ?: return null
+            val healthPoints = parseRequiredInt("healthPoints") ?: return null
             val phase = GamePhase.valueOf(JsonUtils.extractValue(dataJson, "phase"))
-            val nextDefenderId = JsonUtils.extractValue(dataJson, "nextDefenderId").toInt()
-            val nextAttackerId = JsonUtils.extractValue(dataJson, "nextAttackerId").toInt()
-            val currentWaveIndex = JsonUtils.extractValue(dataJson, "currentWaveIndex").toInt()
-            val spawnCounter = JsonUtils.extractValue(dataJson, "spawnCounter").toInt()
+            val nextDefenderId = parseRequiredInt("nextDefenderId") ?: return null
+            val nextAttackerId = parseRequiredInt("nextAttackerId") ?: return null
+            val currentWaveIndex = parseRequiredInt("currentWaveIndex") ?: return null
+            val spawnCounter = parseRequiredInt("spawnCounter") ?: return null
 
             // Parse defenders
             val defenders = mutableListOf<SavedDefender>()
@@ -631,8 +638,8 @@ object SaveJsonSerializer {
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("Error deserializing saved game: ${e.message}")
+                e.printStackTrace()
             }
-            e.printStackTrace()
             return null
         }
     }
