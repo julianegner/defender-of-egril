@@ -339,8 +339,13 @@ internal fun narrativeTextFramePaddingFractions(
     attackerType: AttackerType?,
 ): NarrativeTextFramePaddingFractions =
     when {
-        type == NarrativeMessageType.EWHAD &&
-            (attackerType == AttackerType.SNOTLING_BOSS || attackerType == AttackerType.MORGUK_BONEWHISPER) ->
+        type == NarrativeMessageType.EWHAD && attackerType == AttackerType.SNOTLING_BOSS ->
+            NarrativeTextFramePaddingFractions(
+                top = 0.31f,
+                bottom = 0.33f,
+            )
+
+        type == NarrativeMessageType.EWHAD && attackerType == AttackerType.MORGUK_BONEWHISPER ->
             NarrativeTextFramePaddingFractions(
                 top = 0.30f,
                 bottom = 0.33f,

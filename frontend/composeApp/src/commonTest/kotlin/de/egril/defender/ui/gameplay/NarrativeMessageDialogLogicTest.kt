@@ -14,6 +14,7 @@ class NarrativeMessageDialogLogicTest {
 
         assertTrue(gribnakPadding.top > defaultPadding.top)
         assertTrue(gribnakPadding.bottom > defaultPadding.bottom)
-        assertEquals(gribnakPadding, morgukPadding)
+        assertEquals(gribnakPadding.bottom, morgukPadding.bottom)
+        assertTrue(gribnakPadding.top > morgukPadding.top)
     }
 }
