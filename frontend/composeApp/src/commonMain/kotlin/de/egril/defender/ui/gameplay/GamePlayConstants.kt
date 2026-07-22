@@ -161,6 +161,9 @@ object GamePlayConstants {
 
         /** Icon size for static damage effect overlay (shown when animations are disabled) */
         val DamageEffect = 24.dp
+
+        /** Icon size for spider web background rendered on web-affected tiles */
+        val SpiderWebBackground = 44.dp
     }
 
     /**

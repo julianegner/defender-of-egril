@@ -1185,6 +1185,7 @@ fun GridCell(
 
     // Check for enemy spawn animation effect at this position
     val enemySpawnEffect = gameState.enemySpawnEffects.find { it.position == position }
+    val shouldShowEnemySpawnAnimation = enemySpawnEffect?.attackerType?.isSpider() != true
 
     // Check for trap trigger animation effect at this position
     val trapTriggerEffect = gameState.trapTriggerEffects.find { it.position == position }
@@ -2165,6 +2166,12 @@ private fun BoxScope.GridCellContent(
                             Modifier
                         },
                 ) {
+                    if (fieldEffect?.type == FieldEffectType.WEB) {
+                        WebIcon(
+                            size = GamePlayConstants.TileIconSizes.SpiderWebBackground,
+                            color = Color(0xFFE6E0F8).copy(alpha = 0.7f),
+                        )
+                    }
                     EnemyIcon(
                         attacker = attacker,
                         backgroundColor = attackerTileBackground,
@@ -2993,7 +3000,7 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show enemy spawn portal overlay when an enemy just appeared at this position
-    if (enemySpawnEffect != null) {
+    if (enemySpawnEffect != null && shouldShowEnemySpawnAnimation) {
         EnemySpawnAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(16f),

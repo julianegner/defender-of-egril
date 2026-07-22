@@ -115,6 +115,7 @@ class EnemyMovementSystem(
                 EnemySpawnEffect(
                     position = preferredSpawnPoint,
                     turnNumber = state.turnNumber.value,
+                    attackerType = plannedSpawn.attackerType,
                 ),
             )
 
