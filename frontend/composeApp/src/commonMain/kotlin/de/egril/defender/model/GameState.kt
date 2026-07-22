@@ -17,6 +17,7 @@ enum class GamePhase {
 enum class FieldEffectType {
     FIREBALL, // Visual effect for wizard fireball area
     ACID, // Visual effect for alchemy acid with duration
+    WEB, // Araxxa's spreading spider web area
 }
 
 enum class HealingEffectType {

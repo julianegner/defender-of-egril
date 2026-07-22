@@ -627,6 +627,61 @@ fun WarningIcon(
 }
 
 /**
+ * Displays a stylized spider web icon using Canvas.
+ */
+@Composable
+fun WebIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    color: Color = Color(0xFFE6E0F8),
+) {
+    Canvas(
+        modifier = modifier.size(size),
+    ) {
+        val radius = minOf(this.size.width, this.size.height) * 0.42f
+        val center = Offset(this.size.width / 2f, this.size.height / 2f)
+        val spokeAngles = List(8) { it * (PI / 4.0) }
+        val stroke = radius * 0.12f
+
+        spokeAngles.forEach { angle ->
+            val end =
+                Offset(
+                    x = center.x + (radius * cos(angle)).toFloat(),
+                    y = center.y + (radius * sin(angle)).toFloat(),
+                )
+            drawLine(
+                color = color,
+                start = center,
+                end = end,
+                strokeWidth = stroke,
+                cap = StrokeCap.Round,
+            )
+        }
+
+        listOf(0.35f, 0.62f, 0.88f).forEach { scale ->
+            val points =
+                spokeAngles.map { angle ->
+                    Offset(
+                        x = center.x + (radius * scale * cos(angle)).toFloat(),
+                        y = center.y + (radius * scale * sin(angle)).toFloat(),
+                    )
+                }
+            for (i in points.indices) {
+                val start = points[i]
+                val end = points[(i + 1) % points.size]
+                drawLine(
+                    color = color,
+                    start = start,
+                    end = end,
+                    strokeWidth = stroke * 0.75f,
+                    cap = StrokeCap.Round,
+                )
+            }
+        }
+    }
+}
+
+/**
  * Displays a right arrow icon
  */
 @Composable

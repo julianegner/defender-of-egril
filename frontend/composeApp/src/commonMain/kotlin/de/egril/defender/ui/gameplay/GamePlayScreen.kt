@@ -3248,6 +3248,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.MORGUK_BONEWHISPER.name ->
                                             stringResource(Res.string.villain_morguk_title) to
                                                 (stringResource(Res.string.villain_morguk_backstory) + "\n" + stringResource(Res.string.villain_morguk_description))
+                                        AttackerType.ARAXXA.name ->
+                                            stringResource(Res.string.villain_araxxa_title) to
+                                                (stringResource(Res.string.villain_araxxa_backstory) + "\n" + stringResource(Res.string.villain_araxxa_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)

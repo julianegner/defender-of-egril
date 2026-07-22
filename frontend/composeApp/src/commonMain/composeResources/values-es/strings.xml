@@ -2091,4 +2091,10 @@
     <string name="daily_hint_min_range_message">La Balista tiene alcance mínimo 3 — no puede golpear a los enemigos justo al lado. Combínala con torres cuerpo a cuerpo (Pinchos, Lanza) para cubrir el corto alcance.</string>
     <string name="daily_hint_immunities_message">Algunos enemigos son inmunes a ciertos ataques: los Demonios Rojos resisten las bolas de fuego, los Demonios Azules resisten el ácido. Observa la próxima oleada y trae torres variadas.</string>
 
+    <string name="spiderling_name">Arañita</string>
+    <string name="spiderlings_name">Arañitas</string>
+    <string name="araxxa_name">Araxxa la Araña Gigante</string>
+    <string name="villain_araxxa_title">Araxxa la Araña Gigante entra al campo de batalla</string>
+    <string name="villain_araxxa_backstory">¡Araxxa la Araña Gigante ha descendido sobre el campo de batalla!</string>
+    <string name="villain_araxxa_description">Invoca arañitas, extiende una telaraña creciente por el camino y toda araña que se encuentre en la red se mueve más rápido. ¡Quema o disuelve la telaraña con fuego y ácido antes de que el enjambre arrase tus defensas!</string>
 </resources>

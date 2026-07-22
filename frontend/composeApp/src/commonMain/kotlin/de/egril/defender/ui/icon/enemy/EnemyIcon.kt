@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.hidesHealthBar
+import de.egril.defender.model.isSwarmUnit
 import de.egril.defender.ui.getLocalizedShortName
 import de.egril.defender.utils.BigHeadMode
 
@@ -105,8 +106,10 @@ fun EnemyIcon(
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
-                AttackerType.SNOTLING -> {
-                    // Snotlings: diamond layout, up to 15 icons, filled from the center outward.
+                AttackerType.SNOTLING,
+                AttackerType.SPIDERLING,
+                -> {
+                    // Swarm units: diamond layout, up to 15 icons, filled from the center outward.
                     // Each icon is 20 % of goblin size; the grid is shifted up slightly to leave
                     // room for the HP counter that is always shown at the bottom.
                     val hp = healthOverride ?: attacker.currentHealth.value
@@ -116,12 +119,21 @@ fun EnemyIcon(
                     val gridCenterY = centerY - iconSize * 0.06f
                     for (i in 0 until count) {
                         val (xFactor, yFactor) = SNOTLING_DIAMOND_OFFSETS[i]
-                        drawGoblinSymbol(
-                            centerX + xFactor * gridUnit,
-                            gridCenterY + yFactor * gridUnit,
-                            snotlingSize,
-                            headScale = headScale,
-                        )
+                        if (attacker.type == AttackerType.SPIDERLING) {
+                            drawSpiderlingSymbol(
+                                centerX + xFactor * gridUnit,
+                                gridCenterY + yFactor * gridUnit,
+                                snotlingSize,
+                                headScale = headScale,
+                            )
+                        } else {
+                            drawGoblinSymbol(
+                                centerX + xFactor * gridUnit,
+                                gridCenterY + yFactor * gridUnit,
+                                snotlingSize,
+                                headScale = headScale,
+                            )
+                        }
                     }
                 }
                 AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
@@ -129,11 +141,12 @@ fun EnemyIcon(
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
                 AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.ARAXXA -> drawAraxxaSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
             }
         }
 
         // Level number at top center - only if level > 1 (not shown for snotlings)
-        if (attacker.level.value > 1 && attacker.type != AttackerType.SNOTLING) {
+        if (attacker.level.value > 1 && !attacker.type.isSwarmUnit()) {
             Text(
                 text = "${attacker.level.value}",
                 style = MaterialTheme.typography.labelSmall,
@@ -220,11 +233,13 @@ fun EnemyTypeIcon(
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 // Snotlings: show a single small icon (20% of goblin icon size) in type previews
                 AttackerType.SNOTLING -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
+                AttackerType.SPIDERLING -> drawSpiderlingSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
                 AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
                 AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.ARAXXA -> drawAraxxaSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
             }
         }
     }

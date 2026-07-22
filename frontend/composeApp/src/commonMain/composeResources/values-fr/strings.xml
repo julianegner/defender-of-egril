@@ -2092,4 +2092,10 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="daily_hint_min_range_message">La Baliste a une portée minimale de 3 — elle ne peut pas frapper les ennemis juste à côté. Associe-la à des tours de mêlée (Pieu, Lance) pour couvrir le corps-à-corps.</string>
     <string name="daily_hint_immunities_message">Certains ennemis sont immunisés à certaines attaques : les Démons rouges résistent aux boules de feu, les Démons bleus résistent à l\'acide. Surveille la prochaine vague et varie tes tours.</string>
 
+    <string name="spiderling_name">Petite araignée</string>
+    <string name="spiderlings_name">Petites araignées</string>
+    <string name="araxxa_name">Araxxa l'Araignée Géante</string>
+    <string name="villain_araxxa_title">Araxxa l'Araignée Géante entre sur le champ de bataille</string>
+    <string name="villain_araxxa_backstory">Araxxa l'Araignée Géante s'est abattue sur le champ de bataille !</string>
+    <string name="villain_araxxa_description">Elle invoque de petites araignées, étend une toile grandissante sur le chemin et chaque araignée dans la toile se déplace plus vite. Brûlez ou dissolvez la toile avec le feu et l'acide avant que l'essaim ne submerge vos défenses !</string>
 </resources>

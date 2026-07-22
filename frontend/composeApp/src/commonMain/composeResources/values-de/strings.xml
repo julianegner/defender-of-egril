@@ -2090,4 +2090,10 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="daily_hint_min_range_message">Die Ballista hat eine Mindestreichweite von 3 — sie kann Gegner direkt neben sich nicht treffen. Kombiniere sie mit Nahkampftürmen (Pike, Speer), um die Lücke zu schließen.</string>
     <string name="daily_hint_immunities_message">Manche Gegner sind gegen bestimmte Angriffe immun: Rote Dämonen widerstehen Feuerbällen, Blaue Dämonen sind säureresistent. Beobachte die nächste Welle und baue verschiedene Turmtypen.</string>
 
+    <string name="spiderling_name">Spinnling</string>
+    <string name="spiderlings_name">Spinnlinge</string>
+    <string name="araxxa_name">Araxxa die Riesenspinne</string>
+    <string name="villain_araxxa_title">Araxxa die Riesenspinne betritt das Schlachtfeld</string>
+    <string name="villain_araxxa_backstory">Araxxa die Riesenspinne ist auf das Schlachtfeld herabgestiegen!</string>
+    <string name="villain_araxxa_description">Sie beschwört Spinnlinge, breitet ein wachsendes Netz über den Pfad aus, und jede Spinne im Netz bewegt sich schneller. Verbrennt oder zersetzt das Netz mit Feuer und Säure, bevor der Schwarm eure Verteidigung überrennt!</string>
 </resources>

@@ -13,6 +13,11 @@ class EnemyAbilitySystem(
 ) {
     private val bridgeSystem = BridgeSystem(state)
 
+    companion object {
+        private const val WEB_DURATION_TURNS = 3
+        private const val SPIDER_WEB_SPEED_BONUS = 1
+    }
+
     fun processEnemyAbilities() {
         // Create a snapshot of attackers to avoid ConcurrentModificationException
         // when spawning new demons during iteration
@@ -126,6 +131,10 @@ class EnemyAbilitySystem(
                     // Hex of Silence: disable an adjacent defender
                     disableNearestTower(attacker)
                 }
+                AttackerType.ARAXXA -> {
+                    handleAraxxaWeb(attacker)
+                    handleAraxxaSpiderlings(attacker)
+                }
                 else -> {
                     // Check if this unit should build a bridge
                     // Units build bridges when adjacent to rivers blocking their path
@@ -137,6 +146,8 @@ class EnemyAbilitySystem(
                 }
             }
         }
+
+        applySpiderWebBonuses()
     }
 
     /**
@@ -263,7 +274,8 @@ class EnemyAbilitySystem(
                 val visited = mutableSetOf(candidate)
                 var frontier = candidate.getHexNeighbors().toMutableList()
                 var found = false
-                repeat(maxSpawnSearchRings) { // cap at maxSpawnSearchRings rings to avoid runaway searches
+                repeat(maxSpawnSearchRings) {
+                    // cap at maxSpawnSearchRings rings to avoid runaway searches
                     if (found) return@repeat
                     val nextFrontier = mutableListOf<Position>()
                     for (pos in frontier) {
@@ -318,7 +330,9 @@ class EnemyAbilitySystem(
         val morgukPos = morguk.position.value
         val inheritedTarget =
             morguk.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
-                state.level.waypoints.first().nextTarget
+                state.level.waypoints
+                    .first()
+                    .nextTarget
             } else {
                 state.level.targetPositions.first()
             }
@@ -347,6 +361,129 @@ class EnemyAbilitySystem(
         }
 
         morguk.summonCooldown.value = 3
+    }
+
+    /**
+     * Araxxa spreads a persistent spider web that grows by one tile per enemy turn and always
+     * remains under the villain herself.
+     */
+    private fun handleAraxxaWeb(araxxa: Attacker) {
+        refreshSpiderWebAt(araxxa.position.value)
+
+        state.fieldEffects
+            .filter { it.type == FieldEffectType.WEB }
+            .forEach { it.turnsRemaining = WEB_DURATION_TURNS }
+
+        val webPositions =
+            state.fieldEffects
+                .filter { it.type == FieldEffectType.WEB }
+                .mapTo(mutableSetOf()) { it.position }
+
+        val candidate =
+            webPositions
+                .flatMap { it.getHexNeighbors() }
+                .filter { pos ->
+                    pos.x >= 0 &&
+                        pos.x < state.level.gridWidth &&
+                        pos.y >= 0 &&
+                        pos.y < state.level.gridHeight &&
+                        state.level.isEnemyTraversable(pos) &&
+                        pos !in webPositions
+                }.distinct()
+                .sortedWith(compareBy<Position> { araxxa.position.value.hexDistanceTo(it) }.thenBy { it.x }.thenBy { it.y })
+                .firstOrNull()
+
+        if (candidate != null) {
+            refreshSpiderWebAt(candidate)
+        }
+    }
+
+    /**
+     * Araxxa summons spiderlings on adjacent enemy-traversable tiles. Spiderlings are swarm units
+     * and may share tiles with other spiderlings, just like snotlings.
+     */
+    private fun handleAraxxaSpiderlings(araxxa: Attacker) {
+        if (araxxa.summonCooldown.value > 0) return
+
+        val inheritedTarget =
+            araxxa.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
+                state.level.waypoints
+                    .first()
+                    .nextTarget
+            } else {
+                state.level.targetPositions.first()
+            }
+
+        val spawnPositions =
+            araxxa.position.value.getHexNeighbors().filter { pos ->
+                pos.x >= 0 &&
+                    pos.x < state.level.gridWidth &&
+                    pos.y >= 0 &&
+                    pos.y < state.level.gridHeight &&
+                    state.level.isEnemyTraversable(pos) &&
+                    state.attackers.none {
+                        !it.isDefeated.value &&
+                            it.position.value == pos &&
+                            (!it.type.isSwarmUnit() || it.type != AttackerType.SPIDERLING)
+                    }
+            }
+
+        if (spawnPositions.isEmpty()) return
+
+        for (spawnPos in spawnPositions) {
+            state.attackers.add(
+                Attacker(
+                    id = state.nextAttackerId.value++,
+                    type = AttackerType.SPIDERLING,
+                    position = mutableStateOf(spawnPos),
+                    level = mutableStateOf(araxxa.level.value),
+                    currentTarget = mutableStateOf(inheritedTarget),
+                ),
+            )
+            state.enemySpawnEffects.add(
+                EnemySpawnEffect(
+                    position = spawnPos,
+                    turnNumber = state.turnNumber.value,
+                ),
+            )
+        }
+
+        araxxa.summonCooldown.value = 3
+    }
+
+    private fun refreshSpiderWebAt(position: Position) {
+        val existingEffect =
+            state.fieldEffects.find {
+                it.type == FieldEffectType.WEB && it.position == position
+            }
+        if (existingEffect != null) {
+            existingEffect.turnsRemaining = WEB_DURATION_TURNS
+            return
+        }
+
+        state.fieldEffects.add(
+            FieldEffect(
+                position = position,
+                type = FieldEffectType.WEB,
+                damage = 0,
+                turnsRemaining = WEB_DURATION_TURNS,
+                defenderId = 0,
+            ),
+        )
+    }
+
+    private fun applySpiderWebBonuses() {
+        val webPositions =
+            state.fieldEffects
+                .filter { it.type == FieldEffectType.WEB }
+                .mapTo(mutableSetOf()) { it.position }
+
+        for (attacker in state.attackers) {
+            if (attacker.isDefeated.value || !attacker.type.isSpider()) continue
+            if (attacker.position.value in webPositions) {
+                attacker.speedBonus.value = maxOf(attacker.speedBonus.value, SPIDER_WEB_SPEED_BONUS)
+            }
+        }
     }
 
     /**

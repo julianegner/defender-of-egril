@@ -2099,4 +2099,10 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="daily_hint_min_range_message">The Ballista has a minimum range of 3 — it cannot hit enemies right next to it. Pair it with melee towers (Spike, Spear) to cover the close-range gap.</string>
     <string name="daily_hint_immunities_message">Some enemies are immune to certain attacks: Red Demons resist fireballs, Blue Demons resist acid. Watch the upcoming wave and bring a varied set of towers.</string>
 
+    <string name="spiderling_name">Spiderling</string>
+    <string name="spiderlings_name">Spiderlings</string>
+    <string name="araxxa_name">Araxxa the Giant Spider</string>
+    <string name="villain_araxxa_title">Araxxa the Giant Spider enters the battlefield</string>
+    <string name="villain_araxxa_backstory">Araxxa the Giant Spider has descended onto the battlefield!</string>
+    <string name="villain_araxxa_description">She summons spiderlings, spreads a growing web across the path, and every spider standing in the web moves faster. Burn or dissolve the web with fire and acid before the swarm overruns your defenses!</string>
 </resources>

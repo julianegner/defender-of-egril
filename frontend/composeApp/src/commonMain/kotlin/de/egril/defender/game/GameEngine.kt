@@ -1018,16 +1018,18 @@ class GameEngine(
 
                 // Check if this position is already occupied or will be occupied by another unit in this step
                 // Exception: Allow multiple units to move to an active target position (they get defeated immediately)
-                // Exception: Snotlings can move to positions occupied by other snotlings (they merge on arrival)
+                // Exception: swarm units can move to positions occupied by their own type (they merge on arrival)
                 val isOccupied =
                     if (state.isActiveTargetPosition(newPos)) {
                         false // Active target position can accommodate multiple units
-                    } else if (attacker.type == AttackerType.SNOTLING) {
-                        // Snotlings are only blocked by non-snotling units and barricades
+                    } else if (attacker.type.isSwarmUnit()) {
+                        // Swarm units are only blocked by non-matching units and barricades
                         currentPositions.any { (id, pos) ->
-                            id != attacker.id && pos == newPos &&
-                                state.attackers.find { it.id == id }?.type != AttackerType.SNOTLING
-                        } || barricadeSystem.getBarricadeAt(newPos) != null
+                            id != attacker.id &&
+                                pos == newPos &&
+                                state.attackers.find { it.id == id }?.type != attacker.type
+                        } ||
+                            barricadeSystem.getBarricadeAt(newPos) != null
                     } else {
                         currentPositions.any { (id, pos) ->
                             id != attacker.id && pos == newPos
@@ -1488,16 +1490,18 @@ class GameEngine(
         }
 
         // Regular unit movement (non-dragons)
-        // Special handling for snotlings: when a snotling moves to a tile with another snotling, merge their HP
-        if (attacker.type == AttackerType.SNOTLING && !state.isActiveTargetPosition(newPosition)) {
-            val existingSnotling =
+        // Special handling for swarm units: when one moves onto the same type, merge their HP.
+        if (attacker.type.isSwarmUnit() && !state.isActiveTargetPosition(newPosition)) {
+            val existingSwarmUnit =
                 state.attackers.find {
-                    it.id != attacker.id && !it.isDefeated.value &&
-                        it.position.value == newPosition && it.type == AttackerType.SNOTLING
+                    it.id != attacker.id &&
+                        !it.isDefeated.value &&
+                        it.position.value == newPosition &&
+                        it.type == attacker.type
                 }
-            if (existingSnotling != null) {
-                // Merge: combine HP into the existing snotling and remove this one (no XP/coins awarded)
-                existingSnotling.currentHealth.value += attacker.currentHealth.value
+            if (existingSwarmUnit != null) {
+                // Merge: combine HP into the existing stack and remove this one (no XP/coins awarded)
+                existingSwarmUnit.currentHealth.value += attacker.currentHealth.value
                 attacker.wasMerged.value = true
                 attacker.isDefeated.value = true
                 return
@@ -1817,20 +1821,23 @@ class GameEngine(
 
                 // Check if this position is already occupied or will be occupied by another unit in this step
                 // Exception: Allow multiple units to move to an active target position (they get defeated immediately)
-                // Exception: Snotlings can move to positions occupied by other snotlings (they merge on arrival)
+                // Exception: swarm units can move to positions occupied by their own type (they merge on arrival)
                 val isOccupied =
                     if (state.isActiveTargetPosition(newPos)) {
                         false // Active target position can accommodate multiple units
-                    } else if (attacker.type == AttackerType.SNOTLING) {
-                        // Snotlings are only blocked by non-snotling units and barricades
+                    } else if (attacker.type.isSwarmUnit()) {
+                        // Swarm units are only blocked by non-matching units and barricades
                         (
                             state.attackers.any {
-                                it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos &&
-                                    it.type != AttackerType.SNOTLING
+                                it.id != attacker.id &&
+                                    !it.isDefeated.value &&
+                                    it.position.value == newPos &&
+                                    it.type != attacker.type
                             } ||
                                 currentPositions.any { (id, pos) ->
-                                    id != attacker.id && pos == newPos &&
-                                        state.attackers.find { it.id == id }?.type != AttackerType.SNOTLING
+                                    id != attacker.id &&
+                                        pos == newPos &&
+                                        state.attackers.find { it.id == id }?.type != attacker.type
                                 } ||
                                 barricadeSystem.getBarricadeAt(newPos) != null
                         )
