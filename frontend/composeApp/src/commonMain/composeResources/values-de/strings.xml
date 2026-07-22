@@ -1752,12 +1752,14 @@
     <string name="villain_enters_title">Ein Schurke betritt das Schlachtfeld</string>
     <string name="villain_enters_text">Ein einzigartiger Feind-Held hat das Schlachtfeld betreten! Solange er lebt, stärkt er seine Verbündeten. Seine Lebenspunkte werden nicht angezeigt.</string>
     <string name="villain_gribnak_title">Gribnak der Kreischer betritt das Schlachtfeld</string>
-    <string name="villain_gribnak_backstory">Gribnak der Kreischer hat das Schlachtfeld betreten! Dieser Snotling-Häuptling wird viele kleine Snotlings um sich herum beschwören.</string>
+    <string name="villain_gribnak_backstory">Gribnak der Kreischer hat das Schlachtfeld betreten!</string>
+    <string name="villain_gribnak_description">Dieser Snotling-Häuptling wird viele kleine Snotlings um sich herum beschwören.</string>
     <string name="villain_garokk_title">Garokk der Schädelspalter</string>
-    <string name="villain_garokk_backstory">Der tyrannische Kriegshäuptling, der die Orks und Oger unter seinem Banner vereint hat, ein massiver, in schwarzes Eisen gehüllter Koloss.
-Sein Kriegsschrei treibt nahe Horde-Einheiten in Raserei und lässt sie schneller vorrücken. Streckt ihn nieder, bevor sein Gebrüll eure Verteidigung überrollt!</string>
+    <string name="villain_garokk_backstory">Der tyrannische Kriegshäuptling, der die Orks und Oger unter seinem Banner vereint hat, ein massiver, in schwarzes Eisen gehüllter Koloss.</string>
+    <string name="villain_garokk_description">Sein Kriegsschrei treibt nahe Horde-Einheiten in Raserei und lässt sie schneller vorrücken. Streckt ihn nieder, bevor sein Gebrüll eure Verteidigung überrollt!</string>
     <string name="villain_morguk_title">Morguk Knochenwisper betritt das Schlachtfeld</string>
-    <string name="villain_morguk_backstory">Morguk Knochenwisper, Goblin-Schamane des Knochenwisper-Clans, hat das Schlachtfeld betreten!\nSeine Kriegs-Totem-Aura beschleunigt nahe Goblins. Sein Schweige-Fluch kann eure Türme deaktivieren. Und alle paar Runden ruft er neue Goblins aus dem Geisterreich auf den benachbarten Feldern herbei.\nSchaltet ihn schnell aus, bevor seine Rituale eure Verteidigung überwältigen!</string>
+    <string name="villain_morguk_backstory">Morguk Knochenwisper, Goblin-Schamane des Knochenwisper-Clans, hat das Schlachtfeld betreten!</string>
+    <string name="villain_morguk_description">Seine Kriegs-Totem-Aura beschleunigt nahe Goblins, sein Schweige-Fluch deaktiviert Türme und alle paar Runden beschwört er neue Goblins auf benachbarten Feldern.\nSchaltet ihn aus, bevor seine Rituale eure Verteidigung überwältigen!</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">In einem abgelegenen ländlichen Gebiet greifen Goblins an. Das ist nicht ungewöhnlich, aber Gerüchten zufolge wandern diesmal mehr Monster als sonst in unser Reich.</string>
     <string name="story_mixed_forces">Dasselbe Gebiet ist weiteren Angriffen ausgesetzt. Gerüchte sprechen sogar davon, dass Tote aus ihren Gräbern auferstehen und die Dorfbewohner angreifen.</string>

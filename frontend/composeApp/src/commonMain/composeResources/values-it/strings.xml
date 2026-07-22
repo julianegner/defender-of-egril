@@ -1755,12 +1755,14 @@
     <string name="villain_enters_title">Un malvagio entra nel campo di battaglia</string>
     <string name="villain_enters_text">Un eroe nemico unico è entrato nel campo di battaglia! Finché è vivo, potenzia i suoi alleati. I suoi punti vita sono nascosti.</string>
     <string name="villain_gribnak_title">Gribnak lo Strillone entra nel campo di battaglia</string>
-    <string name="villain_gribnak_backstory">Gribnak lo Strillone è entrato nel campo di battaglia! Questo Capo Snotling evocherà molti piccoli snotling intorno alla sua posizione.</string>
+    <string name="villain_gribnak_backstory">Gribnak lo Strillone è entrato nel campo di battaglia!</string>
+    <string name="villain_gribnak_description">Questo Capo Snotling evocherà molti piccoli snotling intorno alla sua posizione.</string>
     <string name="villain_garokk_title">Garokk lo Spaccateschi</string>
-    <string name="villain_garokk_backstory">Il tirannico condottiero che ha unito Orchi e Ogre sotto il suo vessillo, un colosso massiccio rivestito di ferro nero.
-Il suo grido di guerra spinge le unità dell'Orda vicine alla frenesia, permettendo loro di avanzare più in fretta. Abbattetelo prima che il suo ruggito travolga le vostre difese!</string>
+    <string name="villain_garokk_backstory">Il tirannico condottiero che ha unito Orchi e Ogre sotto il suo vessillo, un colosso massiccio rivestito di ferro nero.</string>
+    <string name="villain_garokk_description">Il suo grido di guerra spinge le unità dell'Orda vicine alla frenesia, permettendo loro di avanzare più in fretta. Abbattetelo prima che il suo ruggito travolga le vostre difese!</string>
     <string name="villain_morguk_title">Morguk Sussurraossa entra nel campo di battaglia</string>
-    <string name="villain_morguk_backstory">Morguk Sussurraossa, Sciamano Goblin del clan Sussurraossa, è entrato nel campo di battaglia!\nLa sua Aura del Totem di Guerra accelera i goblin vicini. Il suo Malocchio del Silenzio può disattivare le vostre torri. E ogni pochi turni, evoca nuovi goblin dal regno degli spiriti nelle caselle adiacenti.\nEliminatelo rapidamente prima che i suoi rituali travolgano le vostre difese!</string>
+    <string name="villain_morguk_backstory">Morguk Sussurraossa, Sciamano Goblin del clan Sussurraossa, è entrato nel campo di battaglia!</string>
+    <string name="villain_morguk_description">La sua Aura del Totem di Guerra accelera i goblin vicini, il suo Malocchio del Silenzio disattiva le torri e ogni pochi turni evoca nuovi goblin nelle caselle adiacenti.\nEliminatelo prima che i suoi rituali travolgano le vostre difese!</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Dei Goblin stanno attaccando una zona rurale remota. Non è insolito, ma le voci ci dicono che questa volta più mostri del solito stanno vagando nel nostro regno.</string>
     <string name="story_mixed_forces">La stessa zona subisce altri attacchi. Le voci parlano addirittura di morti che si alzano dalle tombe e attaccano i villici.</string>

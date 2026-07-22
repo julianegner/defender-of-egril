@@ -74,6 +74,7 @@ fun EnemyIcon(
     healthTextColor: Color = Color.White,
     backgroundColor: Color? = null,
     healthOverride: Int? = null,
+    moveVillainNameUp: Boolean = false,
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
@@ -161,7 +162,7 @@ fun EnemyIcon(
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 10.dp),
+                        .padding(bottom = if (moveVillainNameUp) 22.dp else 10.dp),
             )
         } else if (!attacker.type.hidesHealthBar) {
             Text(
