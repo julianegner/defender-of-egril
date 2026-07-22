@@ -195,6 +195,7 @@ data class GameState(
     val currentWaveIndex: MutableState<Int> = mutableStateOf(0),
     val spawnCounter: MutableState<Int> = mutableStateOf(0),
     val attackersToSpawn: SnapshotStateList<AttackerType> = mutableStateListOf(),
+    val enemyTurnStartPositions: SnapshotStateMap<Int, Position> = mutableStateMapOf(), // Snapshot of enemy positions at start of enemy turn
     val turnNumber: MutableState<Int> = mutableStateOf(0),
     val actionsRemainingThisTurn: MutableState<Int> = mutableStateOf(0),
     val spawnPlan: List<PlannedEnemySpawn> = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves),

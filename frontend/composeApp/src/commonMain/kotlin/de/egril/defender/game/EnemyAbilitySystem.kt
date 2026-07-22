@@ -14,8 +14,9 @@ class EnemyAbilitySystem(
     private val bridgeSystem = BridgeSystem(state)
 
     companion object {
-        private const val WEB_DURATION_TURNS = 3
+        private const val WEB_DURATION_TURNS = 10
         private const val SPIDER_WEB_SPEED_BONUS = 1
+        private const val MAX_SPIDERLING_SPAWN_SEARCH_RINGS = 5
     }
 
     fun processEnemyAbilities() {
@@ -368,33 +369,26 @@ class EnemyAbilitySystem(
      * remains under the villain herself.
      */
     private fun handleAraxxaWeb(araxxa: Attacker) {
-        refreshSpiderWebAt(araxxa.position.value)
+        val araxxaPosition = araxxa.position.value
+        val turnStartPosition = state.enemyTurnStartPositions[araxxa.id]
+        val didMoveThisTurn = turnStartPosition != null && turnStartPosition != araxxaPosition
 
-        state.fieldEffects
-            .filter { it.type == FieldEffectType.WEB }
-            .forEach { it.turnsRemaining = WEB_DURATION_TURNS }
+        val webPositions = mutableSetOf<Position>()
+        webPositions.add(araxxaPosition)
+        webPositions.addAll(
+            araxxaPosition.getHexNeighbors().filter { state.level.isEnemyTraversable(it) },
+        )
 
-        val webPositions =
-            state.fieldEffects
-                .filter { it.type == FieldEffectType.WEB }
-                .mapTo(mutableSetOf()) { it.position }
+        if (!didMoveThisTurn) {
+            webPositions.addAll(
+                araxxaPosition
+                    .getHexNeighborsWithinRadius(2, state.level.gridWidth, state.level.gridHeight)
+                    .filter { it.hexDistanceTo(araxxaPosition) == 2 && state.level.isEnemyTraversable(it) },
+            )
+        }
 
-        val candidate =
-            webPositions
-                .flatMap { it.getHexNeighbors() }
-                .filter { pos ->
-                    pos.x >= 0 &&
-                        pos.x < state.level.gridWidth &&
-                        pos.y >= 0 &&
-                        pos.y < state.level.gridHeight &&
-                        state.level.isEnemyTraversable(pos) &&
-                        pos !in webPositions
-                }.distinct()
-                .sortedWith(compareBy<Position> { araxxa.position.value.hexDistanceTo(it) }.thenBy { it.x }.thenBy { it.y })
-                .firstOrNull()
-
-        if (candidate != null) {
-            refreshSpiderWebAt(candidate)
+        for (position in webPositions) {
+            refreshSpiderWebAt(position)
         }
     }
 
@@ -414,19 +408,44 @@ class EnemyAbilitySystem(
                 state.level.targetPositions.first()
             }
 
-        val spawnPositions =
-            araxxa.position.value.getHexNeighbors().filter { pos ->
-                pos.x >= 0 &&
-                    pos.x < state.level.gridWidth &&
-                    pos.y >= 0 &&
-                    pos.y < state.level.gridHeight &&
-                    state.level.isEnemyTraversable(pos) &&
-                    state.attackers.none {
-                        !it.isDefeated.value &&
-                            it.position.value == pos &&
-                            (!it.type.isSwarmUnit() || it.type != AttackerType.SPIDERLING)
+        fun isValidSpawnTile(pos: Position): Boolean =
+            pos.x >= 0 &&
+                pos.x < state.level.gridWidth &&
+                pos.y >= 0 &&
+                pos.y < state.level.gridHeight &&
+                state.level.isEnemyTraversable(pos) &&
+                state.attackers.none {
+                    !it.isDefeated.value &&
+                        it.position.value == pos &&
+                        it.type != AttackerType.SPIDERLING
+                }
+
+        val spawnPositions = mutableSetOf<Position>()
+        val candidates = araxxa.position.value.getHexNeighbors()
+        for (candidate in candidates) {
+            if (isValidSpawnTile(candidate)) {
+                spawnPositions.add(candidate)
+            } else {
+                val visited = mutableSetOf(candidate)
+                var frontier = candidate.getHexNeighbors().toMutableList()
+                var found = false
+                repeat(MAX_SPIDERLING_SPAWN_SEARCH_RINGS) {
+                    if (found) return@repeat
+                    val nextFrontier = mutableListOf<Position>()
+                    for (pos in frontier) {
+                        if (pos in visited) continue
+                        visited.add(pos)
+                        if (isValidSpawnTile(pos)) {
+                            spawnPositions.add(pos)
+                            found = true
+                            break
+                        }
+                        nextFrontier.addAll(pos.getHexNeighbors())
                     }
+                    frontier = nextFrontier
+                }
             }
+        }
 
         if (spawnPositions.isEmpty()) return
 

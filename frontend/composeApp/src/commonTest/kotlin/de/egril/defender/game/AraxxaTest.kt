@@ -1,13 +1,7 @@
 package de.egril.defender.game
 
 import androidx.compose.runtime.mutableStateOf
-import de.egril.defender.model.Attacker
-import de.egril.defender.model.AttackerType
-import de.egril.defender.model.DefenderType
-import de.egril.defender.model.FieldEffectType
-import de.egril.defender.model.GameState
-import de.egril.defender.model.Level
-import de.egril.defender.model.Position
+import de.egril.defender.model.*
 import de.egril.defender.model.isSummoner
 import de.egril.defender.model.isUniqueEnemyAlreadyPresent
 import kotlin.test.Test
@@ -112,16 +106,19 @@ class AraxxaTest {
         val abilities = EnemyAbilitySystem(state)
         abilities.processEnemyAbilities()
         val firstWebCount = state.fieldEffects.count { it.type == FieldEffectType.WEB }
+        val webAtDistanceTwo =
+            state.fieldEffects.count {
+                it.type == FieldEffectType.WEB && it.position.hexDistanceTo(araxxaPos) == 2
+            }
+        val webDurations = state.fieldEffects.filter { it.type == FieldEffectType.WEB }.map { it.turnsRemaining }
 
-        assertTrue(firstWebCount >= 2, "Araxxa should create a web under herself and spread it")
+        assertTrue(firstWebCount >= 7, "Araxxa should web her own tile and nearby path tiles")
+        assertTrue(webAtDistanceTwo > 0, "Stationary Araxxa should also web tiles at distance 2")
         assertTrue(state.fieldEffects.any { it.type == FieldEffectType.WEB && it.position == araxxaPos }, "Araxxa's tile should always be webbed")
+        assertTrue(webDurations.all { it == 10 }, "Araxxa web tiles should last 10 turns when created")
         assertEquals(1, araxxa.speedBonus.value, "Araxxa should gain a speed bonus while in her web")
         assertEquals(1, spiderling.speedBonus.value, "Spiderlings inside the web should gain a speed bonus")
         assertEquals(0, goblin.speedBonus.value, "Non-spider enemies must not gain the web bonus")
-
-        abilities.processEnemyAbilities()
-        val secondWebCount = state.fieldEffects.count { it.type == FieldEffectType.WEB }
-        assertTrue(secondWebCount > firstWebCount, "The web area should expand over time")
     }
 
     @Test
@@ -198,5 +195,87 @@ class AraxxaTest {
         assertTrue(first.isDefeated.value, "Moving spiderling should be absorbed into the existing stack")
         assertTrue(first.wasMerged.value, "Merged spiderlings should not count as real kills")
         assertEquals(10, second.currentHealth.value, "Spiderling stacks should merge their health like snotlings")
+    }
+
+    @Test
+    fun araxxaWebCoversOnlyDistanceOneAfterMoving() {
+        val state = GameState(createOpenLevel())
+        val araxxaStart = Position(3, 3)
+        val araxxaEnd = Position(4, 3)
+        val araxxa =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.ARAXXA,
+                position = mutableStateOf(araxxaEnd),
+            )
+        state.attackers.add(araxxa)
+        state.enemyTurnStartPositions[araxxa.id] = araxxaStart
+
+        EnemyAbilitySystem(state).processEnemyAbilities()
+
+        val distanceTwoTiles =
+            state.fieldEffects.filter {
+                it.type == FieldEffectType.WEB && it.position.hexDistanceTo(araxxaEnd) == 2
+            }
+        assertEquals(0, distanceTwoTiles.size, "Araxxa should not create distance-2 web when she moved this turn")
+    }
+
+    @Test
+    fun spiderlingsUseNearbyFallbackLikeSnotlings() {
+        val state = GameState(createOpenLevel())
+        val araxxaPos = Position(5, 4)
+        val araxxa =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.ARAXXA,
+                position = mutableStateOf(araxxaPos),
+            )
+        state.attackers.add(araxxa)
+
+        araxxaPos.getHexNeighbors().forEachIndexed { index, neighbor ->
+            state.attackers.add(
+                Attacker(
+                    id = state.nextAttackerId.value++,
+                    type = if (index == 0) AttackerType.SPIDERLING else AttackerType.GOBLIN,
+                    position = mutableStateOf(neighbor),
+                ),
+            )
+        }
+
+        EnemyAbilitySystem(state).processEnemyAbilities()
+
+        val summonedSpiderlings =
+            state.attackers.filter {
+                it.type == AttackerType.SPIDERLING && !it.isDefeated.value && it.id != araxxa.id
+            }
+        assertTrue(summonedSpiderlings.size > 1, "Araxxa should still summon spiderlings when adjacent tiles are blocked")
+        assertTrue(
+            summonedSpiderlings.any { it.position.value.hexDistanceTo(araxxaPos) > 1 },
+            "Blocked adjacent spawns should fall back to nearby valid tiles",
+        )
+    }
+
+    @Test
+    fun swarmUnitsDealBarricadeDamageFromCurrentHealth() {
+        val state = GameState(createOpenLevel())
+        val engine = GameEngine(state)
+
+        val snotling =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING,
+                position = mutableStateOf(Position(2, 2)),
+            )
+        snotling.currentHealth.value = 24
+        val spiderling =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SPIDERLING,
+                position = mutableStateOf(Position(2, 3)),
+            )
+        spiderling.currentHealth.value = 4
+
+        assertEquals(4, engine.getBarricadeDamageForEnemyUnit(snotling), "Snotlings should deal floor(HP/5) barricade damage")
+        assertEquals(1, engine.getBarricadeDamageForEnemyUnit(spiderling), "Spiderlings should deal at least 1 barricade damage")
     }
 }

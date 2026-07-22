@@ -1603,15 +1603,13 @@ class GameEngine(
         return false
     }
 
-    fun getBarricadeDamageForEnemyUnit(attacker: Attacker): Int {
-        val damage =
-            if (attacker.type.isDragon) {
-                attacker.level.value * 5
-            } else {
-                attacker.level.value
-            }
-        return damage
-    }
+    fun getBarricadeDamageForEnemyUnit(attacker: Attacker): Int =
+        when {
+            attacker.type == AttackerType.SNOTLING || attacker.type == AttackerType.SPIDERLING ->
+                maxOf(1, attacker.currentHealth.value / 5)
+            attacker.type.isDragon -> attacker.level.value * 5
+            else -> attacker.level.value
+        }
 
     /**
      * Prepare for enemy turn: set phase but don't spawn yet.
@@ -1628,6 +1626,12 @@ class GameEngine(
 
         state.turnNumber.value++
         state.phase.value = GamePhase.ENEMY_TURN
+        state.enemyTurnStartPositions.clear()
+        state.attackers
+            .filter { !it.isDefeated.value }
+            .forEach { attacker ->
+                state.enemyTurnStartPositions[attacker.id] = attacker.position.value
+            }
 
         // Evaluate scripted events at the start of the enemy turn
         eventScriptSystem.evaluate(EventTrigger.ENEMY_TURN_START)
