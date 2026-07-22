@@ -105,6 +105,7 @@ class EnemyMovementSystem(
                     currentTarget = mutableStateOf(initialTarget),
                 )
             state.attackers.add(attacker)
+            state.enemyTurnStartPositions[attacker.id] = spawnPos
             GameLogBuffer.log("SPAWN", "${attacker.type} Lv${attacker.level.value} spawned at $spawnPos (turn $currentTurn)")
 
             // Record enemy spawn visual effect for animation.

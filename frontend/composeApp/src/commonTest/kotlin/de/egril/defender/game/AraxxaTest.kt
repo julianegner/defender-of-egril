@@ -44,6 +44,31 @@ class AraxxaTest {
             healthPoints = 10,
         )
 
+    private fun createAraxxaSpawnLevel(): Level {
+        val pathCells = (1..9).map { Position(it, 3) }.toSet()
+        return Level(
+            id = 2,
+            name = "Araxxa Spawn Test",
+            gridWidth = 12,
+            gridHeight = 8,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(10, 3)),
+            pathCells = pathCells,
+            attackerWaves = emptyList(),
+            directSpawnPlan =
+                listOf(
+                    PlannedEnemySpawn(
+                        attackerType = AttackerType.ARAXXA,
+                        spawnTurn = 1,
+                        level = 1,
+                        spawnPoint = Position(0, 3),
+                    ),
+                ),
+            initialCoins = 1000,
+            healthPoints = 10,
+        )
+    }
+
     @Test
     fun araxxaIsConfiguredAsVillainAndSummoner() {
         val type = AttackerType.ARAXXA
@@ -323,6 +348,91 @@ class AraxxaTest {
                 it.type == AttackerType.SPIDERLING && !it.isDefeated.value && it.position.value == stackTile
             } > 1,
             "Blocked spiderling spawns should be redirected to valid spiderling stacks",
+        )
+    }
+
+    @Test
+    fun araxxaSummonsOneSpiderlingPerAdjacentTileEvenWhenBlocked() {
+        val araxxaPos = Position(5, 4)
+        val neighbors = araxxaPos.getHexNeighbors()
+        val stackTile = neighbors.first()
+        val traversableTiles = (neighbors + araxxaPos).toSet()
+        val level =
+            Level(
+                id = 3,
+                name = "Araxxa Blocked Summon Test",
+                gridWidth = 12,
+                gridHeight = 8,
+                startPositions = listOf(Position(0, 4)),
+                targetPositions = listOf(Position(11, 4)),
+                pathCells = traversableTiles,
+                attackerWaves = emptyList(),
+                initialCoins = 1000,
+                healthPoints = 10,
+            )
+        val state = GameState(level)
+        val araxxa =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.ARAXXA,
+                position = mutableStateOf(araxxaPos),
+            )
+        state.attackers.add(araxxa)
+        state.attackers.add(
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SPIDERLING,
+                position = mutableStateOf(stackTile),
+            ),
+        )
+        neighbors.drop(1).forEach { blocked ->
+            state.attackers.add(
+                Attacker(
+                    id = state.nextAttackerId.value++,
+                    type = AttackerType.GOBLIN,
+                    position = mutableStateOf(blocked),
+                ),
+            )
+        }
+
+        EnemyAbilitySystem(state).processEnemyAbilities()
+
+        assertEquals(
+            7,
+            state.attackers.count {
+                it.type == AttackerType.SPIDERLING && !it.isDefeated.value && it.position.value == stackTile
+            },
+            "Araxxa should summon one spiderling per adjacent tile, redirecting blocked spawns onto valid spiderling stacks",
+        )
+    }
+
+    @Test
+    fun araxxaSpawnTurnSummonsAfterMovingAndUsesMovedWebRadius() {
+        val state = GameState(createAraxxaSpawnLevel())
+        val engine = GameEngine(state)
+
+        engine.startEnemyTurn()
+        engine.spawnEnemyTurnAttackers()
+        val newSpawnMovements = engine.calculateNewlySpawnedMovements()
+        for (stepMovements in newSpawnMovements) {
+            for ((attackerId, newPosition) in stepMovements) {
+                engine.applyMovement(attackerId, newPosition)
+            }
+        }
+        engine.completeEnemyTurn()
+
+        val araxxa = state.attackers.first { it.type == AttackerType.ARAXXA && !it.isDefeated.value }
+        assertTrue(araxxa.position.value != Position(0, 3), "Araxxa should move away from her spawn tile on entry turn")
+        assertTrue(
+            state.attackers.any { it.type == AttackerType.SPIDERLING && !it.isDefeated.value },
+            "Araxxa should summon spiderlings on the same turn she enters and moves",
+        )
+        assertEquals(
+            0,
+            state.fieldEffects.count {
+                it.type == FieldEffectType.WEB && it.position.hexDistanceTo(araxxa.position.value) == 2
+            },
+            "After moving on her entry turn, Araxxa should only create distance-1 web tiles",
         )
     }
 

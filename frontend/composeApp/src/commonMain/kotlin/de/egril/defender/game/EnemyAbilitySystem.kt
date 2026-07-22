@@ -410,7 +410,7 @@ class EnemyAbilitySystem(
         stackableType: AttackerType,
         isBaseTraversable: (Position) -> Boolean,
         maxSearchRings: Int,
-    ): Set<Position> {
+    ): List<Position> {
         fun isValidSpawnTile(pos: Position): Boolean =
             isWithinBounds(pos) &&
                 isBaseTraversable(pos) &&
@@ -421,7 +421,7 @@ class EnemyAbilitySystem(
                         it.type != stackableType
                 }
 
-        val spawnPositions = mutableSetOf<Position>()
+        val spawnPositions = mutableListOf<Position>()
         for (candidate in candidates) {
             if (isValidSpawnTile(candidate)) {
                 spawnPositions.add(candidate)
