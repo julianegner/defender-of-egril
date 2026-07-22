@@ -1757,6 +1757,8 @@
     <string name="villain_garokk_title">Garokk der Schädelspalter</string>
     <string name="villain_garokk_backstory">Der tyrannische Kriegshäuptling, der die Orks und Oger unter seinem Banner vereint hat, ein massiver, in schwarzes Eisen gehüllter Koloss.</string>
     <string name="villain_garokk_description">Sein Kriegsschrei treibt nahe Horde-Einheiten in Raserei und lässt sie schneller vorrücken. Streckt ihn nieder, bevor sein Gebrüll eure Verteidigung überrollt!</string>
+    <string name="villain_ewhad_description">Er beschwört jede Runde immer mächtigere Dämonen, und wenn er das Ziel erreicht, ist die Schlacht sofort verloren.
+Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</string>
     <string name="villain_morguk_title">Morguk Knochenwisper betritt das Schlachtfeld</string>
     <string name="villain_morguk_backstory">Morguk Knochenwisper, Goblin-Schamane des Knochenwisper-Clans, hat das Schlachtfeld betreten!</string>
     <string name="villain_morguk_description">Seine Kriegs-Totem-Aura beschleunigt nahe Goblins, sein Schweige-Fluch deaktiviert Türme und alle paar Runden beschwört er neue Goblins auf benachbarten Feldern.\nSchaltet ihn aus, bevor seine Rituale eure Verteidigung überwältigen!</string>

@@ -1760,6 +1760,8 @@
     <string name="villain_garokk_title">Garokk lo Spaccateschi</string>
     <string name="villain_garokk_backstory">Il tirannico condottiero che ha unito Orchi e Ogre sotto il suo vessillo, un colosso massiccio rivestito di ferro nero.</string>
     <string name="villain_garokk_description">Il suo grido di guerra spinge le unità dell'Orda vicine alla frenesia, permettendo loro di avanzare più in fretta. Abbattetelo prima che il suo ruggito travolga le vostre difese!</string>
+    <string name="villain_ewhad_description">Evoca Demoni ogni turno, sempre più potenti, e se raggiunge il bersaglio la battaglia è persa all'istante.
+Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_morguk_title">Morguk Sussurraossa entra nel campo di battaglia</string>
     <string name="villain_morguk_backstory">Morguk Sussurraossa, Sciamano Goblin del clan Sussurraossa, è entrato nel campo di battaglia!</string>
     <string name="villain_morguk_description">La sua Aura del Totem di Guerra accelera i goblin vicini, il suo Malocchio del Silenzio disattiva le torri e ogni pochi turni evoca nuovi goblin nelle caselle adiacenti.\nEliminatelo prima che i suoi rituali travolgano le vostre difese!</string>

@@ -1763,6 +1763,8 @@
     <string name="villain_gribnak_title">Gribnak the Squealer enters the battlefield</string>
     <string name="villain_gribnak_backstory">Gribnak the Squealer has entered the battlefield!</string>
     <string name="villain_gribnak_description">This Snotling Chieftain will summon many small snotlings around his position.</string>
+    <string name="villain_ewhad_description">He summons increasingly powerful Demons every turn, and if he reaches the target the battle is lost instantly.
+Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_morguk_title">Morguk Bonewhisper enters the battlefield</string>
     <string name="villain_morguk_backstory">Morguk Bonewhisper, Goblin Shaman of the Bonewhisper clan, has entered the battlefield!</string>
     <string name="villain_morguk_description">His War Totem Aura hastens nearby goblins, his Hex of Silence disables towers, and every few turns Spirit Summon calls new goblins on adjacent tiles.\nTake him down before his rituals overwhelm your defenses!</string>

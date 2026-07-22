@@ -1758,6 +1758,8 @@
     <string name="villain_garokk_title">Garokk el Rompecráneos</string>
     <string name="villain_garokk_backstory">El tiránico caudillo de guerra que unió a orcos y ogros bajo su estandarte, un coloso enorme cubierto de hierro negro.</string>
     <string name="villain_garokk_description">Su grito de guerra enardece a las unidades de la Horda cercanas, permitiéndoles avanzar más rápido. ¡Derríbalo antes de que su rugido arrase tus defensas!</string>
+    <string name="villain_ewhad_description">Invoca Demonios cada turno, cada vez más poderosos, y si alcanza el objetivo la batalla se pierde al instante.
+¡Acaba con él rápido antes de que su hueste abrume tus defensas!</string>
     <string name="villain_morguk_title">Morguk Susurrahuesos entra al campo de batalla</string>
     <string name="villain_morguk_backstory">¡Morguk Susurrahuesos, Chamán Goblin del clan Susurrahuesos, ha entrado al campo de batalla!</string>
     <string name="villain_morguk_description">Su Aura del Tótem de Guerra acelera goblins cercanos, su Maldición del Silencio desactiva torres y cada pocos turnos invoca nuevos goblins en casillas adyacentes.\n¡Elimínalo antes de que sus rituales abrumen tus defensas!</string>
