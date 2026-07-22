@@ -471,13 +471,13 @@ fun AttackerInfo(
                 // Villain description column (desktop only – right of the stats column)
                 if (attacker.type.isVillain && !isMobile) {
                     val villainDescription =
-                            when (attacker.type) {
-                                AttackerType.EWHAD -> stringResource(Res.string.villain_ewhad_description)
-                                AttackerType.GAROKK -> stringResource(Res.string.villain_garokk_description)
-                                AttackerType.SNOTLING_BOSS -> stringResource(Res.string.villain_gribnak_description)
-                                AttackerType.MORGUK_BONEWHISPER -> stringResource(Res.string.villain_morguk_description)
-                                else -> ""
-                            }
+                        when (attacker.type) {
+                            AttackerType.EWHAD -> stringResource(Res.string.villain_ewhad_description)
+                            AttackerType.GAROKK -> stringResource(Res.string.villain_garokk_description)
+                            AttackerType.SNOTLING_BOSS -> stringResource(Res.string.villain_gribnak_description)
+                            AttackerType.MORGUK_BONEWHISPER -> stringResource(Res.string.villain_morguk_description)
+                            else -> ""
+                        }
                     if (villainDescription.isNotEmpty()) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Column(
