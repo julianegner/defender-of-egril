@@ -133,4 +133,74 @@ class SnotlingRallyTest {
             state.attackers.any { it.type == AttackerType.SNOTLING && it.position.value == occupied }
         assertFalse(snotlingOnOccupied, "Snotlings must not spawn on an already-occupied tile")
     }
+
+    @Test
+    fun testSnotlingRallyAvoidsBarricadesAndRedirectsToSnotlingStacks() {
+        val level = createOpenLevel()
+        val state = GameState(level)
+        val bossPos = Position(5, 4)
+        val neighbors = bossPos.getHexNeighbors()
+        val stackTile = neighbors.first()
+        val barricadeTile = neighbors[1]
+
+        val boss =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING_BOSS,
+                position = mutableStateOf(bossPos),
+                level = mutableStateOf(1),
+            )
+        state.attackers.add(boss)
+        state.attackers.add(
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING,
+                position = mutableStateOf(stackTile),
+            ),
+        )
+        state.barricades.add(
+            Barricade(
+                id = 1,
+                position = barricadeTile,
+                healthPoints = mutableStateOf(120),
+                defenderId = 0,
+            ),
+        )
+        neighbors.drop(2).forEach { blocked ->
+            state.attackers.add(
+                Attacker(
+                    id = state.nextAttackerId.value++,
+                    type = AttackerType.GOBLIN,
+                    position = mutableStateOf(blocked),
+                ),
+            )
+        }
+        barricadeTile
+            .getHexNeighbors()
+            .filter { it != bossPos && it != stackTile }
+            .forEach { blocked ->
+                state.attackers.add(
+                    Attacker(
+                        id = state.nextAttackerId.value++,
+                        type = AttackerType.GOBLIN,
+                        position = mutableStateOf(blocked),
+                    ),
+                )
+            }
+
+        EnemyAbilitySystem(state).processEnemyAbilities()
+
+        assertFalse(
+            state.attackers.any {
+                it.type == AttackerType.SNOTLING && !it.isDefeated.value && it.position.value == barricadeTile
+            },
+            "Snotlings must not spawn on barricade tiles",
+        )
+        assertTrue(
+            state.attackers.count {
+                it.type == AttackerType.SNOTLING && !it.isDefeated.value && it.position.value == stackTile
+            } > 1,
+            "Blocked snotling spawns should be redirected to valid snotling stacks",
+        )
+    }
 }

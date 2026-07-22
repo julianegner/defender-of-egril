@@ -256,6 +256,77 @@ class AraxxaTest {
     }
 
     @Test
+    fun araxxaAvoidsBarricadesForWebAndSpiderlingSpawns() {
+        val state = GameState(createOpenLevel())
+        val araxxaPos = Position(5, 4)
+        val neighbors = araxxaPos.getHexNeighbors()
+        val stackTile = neighbors.first()
+        val barricadeTile = neighbors[1]
+        val araxxa =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.ARAXXA,
+                position = mutableStateOf(araxxaPos),
+            )
+        state.attackers.add(araxxa)
+        state.attackers.add(
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SPIDERLING,
+                position = mutableStateOf(stackTile),
+            ),
+        )
+        state.barricades.add(
+            Barricade(
+                id = 1,
+                position = barricadeTile,
+                healthPoints = mutableStateOf(120),
+                defenderId = 0,
+            ),
+        )
+        neighbors.drop(2).forEach { blocked ->
+            state.attackers.add(
+                Attacker(
+                    id = state.nextAttackerId.value++,
+                    type = AttackerType.GOBLIN,
+                    position = mutableStateOf(blocked),
+                ),
+            )
+        }
+        barricadeTile
+            .getHexNeighbors()
+            .filter { it != araxxaPos && it != stackTile }
+            .forEach { blocked ->
+                state.attackers.add(
+                    Attacker(
+                        id = state.nextAttackerId.value++,
+                        type = AttackerType.GOBLIN,
+                        position = mutableStateOf(blocked),
+                    ),
+                )
+            }
+
+        EnemyAbilitySystem(state).processEnemyAbilities()
+
+        assertFalse(
+            state.fieldEffects.any { it.type == FieldEffectType.WEB && it.position == barricadeTile },
+            "Araxxa must not place web on a barricade tile",
+        )
+        assertFalse(
+            state.attackers.any {
+                it.type == AttackerType.SPIDERLING && !it.isDefeated.value && it.position.value == barricadeTile
+            },
+            "Spiderlings must not spawn on a barricade tile",
+        )
+        assertTrue(
+            state.attackers.count {
+                it.type == AttackerType.SPIDERLING && !it.isDefeated.value && it.position.value == stackTile
+            } > 1,
+            "Blocked spiderling spawns should be redirected to valid spiderling stacks",
+        )
+    }
+
+    @Test
     fun swarmUnitsDealBarricadeDamageFromCurrentHealth() {
         val state = GameState(createOpenLevel())
         val engine = GameEngine(state)
