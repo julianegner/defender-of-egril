@@ -3257,6 +3257,7 @@ private fun GamePlayScreenContent(
                                     title = villainTitle,
                                     text = villainText,
                                     onDismiss = { onDismissGameMessage?.invoke() },
+                                    supports = gameState.level.supports,
                                     backgroundOverride = villainMessageBackground(msg.name),
                                     iconAttackerTypeOverride = villainType,
                                 )

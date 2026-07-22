@@ -2,6 +2,9 @@ package de.egril.defender.ui.gameplay
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import de.egril.defender.model.LevelSupports
+import de.egril.defender.model.SupportObject
+import de.egril.defender.model.SupportObjectType
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -96,6 +99,31 @@ class NarrativeMessageDialogTest {
         composeTestRule.waitForIdle()
 
         assert(dismissed) { "onDismiss should be called when OK is clicked" }
+    }
+
+    @Test
+    fun testEwhadDialogShowsSupportsSummary() {
+        composeTestRule.setContent {
+            NarrativeMessageDialog(
+                type = NarrativeMessageType.EWHAD,
+                title = "Gribnak enters the battlefield",
+                text = "A villain story message with support info.",
+                onDismiss = {},
+                supports =
+                    LevelSupports(
+                        objects = listOf(SupportObject(type = SupportObjectType.DWARVEN_TRAP, count = 2)),
+                    ),
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithText("Available Support", substring = true)
+            .assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText("Dwarven Trap ×2", substring = true)
+            .assertIsDisplayed()
     }
 
     // ── STORY type ──────────────────────────────────────────────────────────
