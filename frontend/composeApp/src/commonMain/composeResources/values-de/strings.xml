@@ -261,9 +261,11 @@
     <string name="green_witch_name">Grüne Hexe</string>
     <string name="snotling_name">Snotling</string>
     <string name="snotlings_name">Snotlings</string>
+    <string name="robotic_goblin_name">Robotischer Goblin</string>
     <string name="snotling_boss_name">Gribnak der Kreischer</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Drache</string>
+    <string name="baron_ratterzahn_name">Baron Ratterzahn</string>
     
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Feinde auf der Karte:</string>
@@ -1762,6 +1764,9 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_morguk_title">Morguk Knochenwisper betritt das Schlachtfeld</string>
     <string name="villain_morguk_backstory">Morguk Knochenwisper, Goblin-Schamane des Knochenwisper-Clans, hat das Schlachtfeld betreten!</string>
     <string name="villain_morguk_description">Seine Kriegs-Totem-Aura beschleunigt nahe Goblins, sein Schweige-Fluch deaktiviert Türme und alle paar Runden beschwört er neue Goblins auf benachbarten Feldern.\nSchaltet ihn aus, bevor seine Rituale eure Verteidigung überwältigen!</string>
+    <string name="villain_ratterzahn_title">Baron Ratterzahn betritt das Schlachtfeld</string>
+    <string name="villain_ratterzahn_backstory">Ein brillanter, aber völlig wahnsinniger Goblin-Erfinder auf einer dampfbetriebenen mechanischen Spinne hat das Schlachtfeld betreten.</string>
+    <string name="villain_ratterzahn_description">Alle 4 Runden wirft er Schrotthaufen ab, aus denen in der nächsten Runde zwei robotische Goblins mit verstärkten Metallkörpern entstehen. Alle 5 Runden feuert er eine Rakete, die einen Turm aus großer Entfernung für 3 Runden betäubt.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">In einem abgelegenen ländlichen Gebiet greifen Goblins an. Das ist nicht ungewöhnlich, aber Gerüchten zufolge wandern diesmal mehr Monster als sonst in unser Reich.</string>
     <string name="story_mixed_forces">Dasselbe Gebiet ist weiteren Angriffen ausgesetzt. Gerüchte sprechen sogar davon, dass Tote aus ihren Gräbern auferstehen und die Dorfbewohner angreifen.</string>

@@ -50,6 +50,7 @@ enum class AttackerType(
     val isBoss: Boolean = false,
     val isDragon: Boolean = false,
     val canBuildBridge: Boolean = false, // Can build bridges (Ork, Troll, Evil Wizard, Ewhad)
+    val isRobotic: Boolean = false,
     // Villain system: villains are unique enemy "heroes" (see issue #538). Only one attacker of a
     // given villain subtype can exist on the battlefield at once and their health is never displayed.
     val isVillain: Boolean = false,
@@ -60,6 +61,9 @@ enum class AttackerType(
     // enum rather than in the translated string resources (see issue discussion). Null for regular
     // enemies, whose (translated) names come from the string resources instead.
     val villainName: String? = null,
+    val towerDisableRangeBase: Int? = null,
+    val towerDisableCooldown: Int? = null,
+    val towerDisableDurationTurns: Int? = null,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
@@ -76,6 +80,9 @@ enum class AttackerType(
 
     // Weak spider swarm unit summoned by Araxxa. Behaves like a snotling stack.
     SPIDERLING("Spiderling", health = 10, speed = 5, reward = 1, xp = 1),
+
+    // Mechanical goblin spawned by Baron Ratterzahn's Scrap-Bot wreckage.
+    ROBOTIC_GOBLIN("Robotic Goblin", health = 40, speed = 5, reward = 6, xp = 4, isRobotic = true, faction = EnemyFaction.HORDE),
 
     EWHAD(
         "Ewhad",
@@ -154,6 +161,22 @@ enum class AttackerType(
         isBoss = true,
         isVillain = true,
         villainName = "Araxxa",
+    ),
+    BARON_RATTERZAHN(
+        "Baron Ratterzahn",
+        health = 140,
+        speed = 2,
+        reward = 120,
+        xp = 60,
+        canSummon = true,
+        canDisableTowers = true,
+        isBoss = true,
+        isVillain = true,
+        faction = EnemyFaction.HORDE,
+        villainName = "Ratterzahn",
+        towerDisableRangeBase = 5,
+        towerDisableCooldown = 5,
+        towerDisableDurationTurns = 3,
     ),
 }
 
@@ -270,6 +293,7 @@ fun attackerTargetDamage(
         AttackerType.GAROKK -> level // Boss villain: 1 HP per level, like other mighty enemies
         AttackerType.MORGUK_BONEWHISPER -> level // Goblin Shaman villain: 1 HP per level
         AttackerType.ARAXXA -> level // Giant spider villain: 1 HP per level
+        AttackerType.BARON_RATTERZAHN -> level // Baron villain: 1 HP per level
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
 
@@ -283,7 +307,8 @@ fun AttackerType.isSummoner(): Boolean =
         this == AttackerType.EWHAD ||
         this == AttackerType.SNOTLING_BOSS ||
         this == AttackerType.MORGUK_BONEWHISPER ||
-        this == AttackerType.ARAXXA
+        this == AttackerType.ARAXXA ||
+        this == AttackerType.BARON_RATTERZAHN
 
 /**
  * Swarm units can stack by moving onto the same tile, merging their health into one unit.

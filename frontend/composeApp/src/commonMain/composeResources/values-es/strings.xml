@@ -261,9 +261,11 @@
     <string name="green_witch_name">Bruja verde</string>
     <string name="snotling_name">Snotling</string>
     <string name="snotlings_name">Snotlings</string>
+    <string name="robotic_goblin_name">Goblin robótico</string>
     <string name="snotling_boss_name">Gribnak el Chillón</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragón</string>
+    <string name="baron_ratterzahn_name">Barón Ratterzahn</string>
     
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Enemigos en el mapa:</string>
@@ -1763,6 +1765,9 @@
     <string name="villain_morguk_title">Morguk Susurrahuesos entra al campo de batalla</string>
     <string name="villain_morguk_backstory">¡Morguk Susurrahuesos, Chamán Goblin del clan Susurrahuesos, ha entrado al campo de batalla!</string>
     <string name="villain_morguk_description">Su Aura del Tótem de Guerra acelera goblins cercanos, su Maldición del Silencio desactiva torres y cada pocos turnos invoca nuevos goblins en casillas adyacentes.\n¡Elimínalo antes de que sus rituales abrumen tus defensas!</string>
+    <string name="villain_ratterzahn_title">El Barón Ratterzahn entra al campo de batalla</string>
+    <string name="villain_ratterzahn_backstory">Un brillante pero completamente demente inventor goblin montado en una araña mecánica a vapor ha entrado al campo de batalla.</string>
+    <string name="villain_ratterzahn_description">Cada 4 rondas deja montones de chatarra que en la siguiente ronda se convierten en dos goblins robóticos con cuerpos metálicos reforzados. Cada 5 rondas dispara un cohete que aturde una torre durante 3 rondas a larga distancia.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Hay Goblins atacando una remota zona rural. Esto no es inusual, pero los rumores nos dicen que esta vez más monstruos de lo normal están entrando en nuestro reino.</string>
     <string name="story_mixed_forces">La misma zona enfrenta más ataques. Los rumores incluso hablan de muertos que se levantan de las tumbas y atacan a los aldeanos.</string>

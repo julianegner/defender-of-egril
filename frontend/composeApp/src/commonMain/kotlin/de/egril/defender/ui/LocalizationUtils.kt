@@ -101,12 +101,14 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
             AttackerType.GREEN_WITCH -> "green_witch_name"
             AttackerType.SNOTLING -> "snotling_name"
             AttackerType.SPIDERLING -> "spiderling_name"
+            AttackerType.ROBOTIC_GOBLIN -> "robotic_goblin_name"
             AttackerType.SNOTLING_BOSS -> "snotling_boss_name"
             AttackerType.EWHAD -> "ewhad_name"
             AttackerType.DRAGON -> "dragon_name"
             AttackerType.GAROKK -> "garokk_name"
             AttackerType.MORGUK_BONEWHISPER -> "morguk_name"
             AttackerType.ARAXXA -> "araxxa_name"
+            AttackerType.BARON_RATTERZAHN -> "baron_ratterzahn_name"
         }
     return LocalizedStrings.get(key, locale)
 }

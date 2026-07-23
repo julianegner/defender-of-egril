@@ -264,9 +264,11 @@
     <string name="green_witch_name">Green Witch</string>
     <string name="snotling_name">Snotling</string>
     <string name="snotlings_name">Snotlings</string>
+    <string name="robotic_goblin_name">Robotic Goblin</string>
     <string name="snotling_boss_name">Gribnak the Squealer</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragon</string>
+    <string name="baron_ratterzahn_name">Baron Ratterzahn</string>
     <string name="dragon_name_label">Dragon Name</string>
 
     <!-- SavedGameCard strings -->
@@ -1768,6 +1770,9 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_morguk_title">Morguk Bonewhisper enters the battlefield</string>
     <string name="villain_morguk_backstory">Morguk Bonewhisper, Goblin Shaman of the Bonewhisper clan, has entered the battlefield!</string>
     <string name="villain_morguk_description">His War Totem Aura hastens nearby goblins, his Hex of Silence disables towers, and every few turns Spirit Summon calls new goblins on adjacent tiles.\nTake him down before his rituals overwhelm your defenses!</string>
+    <string name="villain_ratterzahn_title">Baron Ratterzahn enters the battlefield</string>
+    <string name="villain_ratterzahn_backstory">A brilliant but utterly insane goblin inventor riding a steam-powered mechanical spider has entered the battlefield.</string>
+    <string name="villain_ratterzahn_description">Every 4 rounds he drops scrap piles that hatch into two robotic goblins on the next round, each with reinforced metal bodies. Every 5 rounds he launches a rocket that stuns a tower for 3 rounds at long range.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">There are Goblins attacking a remote rural area. This is not uncommon, but rumors tell us that this time more monsters than usual are wandering into our realm.</string>
     <string name="story_mixed_forces">The same area faces more attacks, Rumors even talk about dead rising from the graves and attacking the villagers.</string>

@@ -2040,6 +2040,7 @@ class GameEngine(
         state.spearAttackEffects.clear()
         state.wizardAttackEffects.clear()
         state.alchemyAttackEffects.clear()
+        state.rocketAttackEffects.clear()
 
         // Check and activate traps after all movements
         checkAndActivateTraps()

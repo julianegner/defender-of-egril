@@ -261,9 +261,11 @@
     <string name="green_witch_name">Sorcière verte</string>
     <string name="snotling_name">Snotling</string>
     <string name="snotlings_name">Snotlings</string>
+    <string name="robotic_goblin_name">Gobelin robotique</string>
     <string name="snotling_boss_name">Gribnak le Couineur</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragon</string>
+    <string name="baron_ratterzahn_name">Baron Ratterzahn</string>
     
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Ennemis sur la carte:</string>
@@ -1764,6 +1766,9 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_morguk_title">Morguk Chuchotosselets entre sur le champ de bataille</string>
     <string name="villain_morguk_backstory">Morguk Chuchotosselets, Chaman Gobelin du clan Chuchotosselets, est entré sur le champ de bataille !</string>
     <string name="villain_morguk_description">Son Aura de Totem de Guerre accélère les gobelins proches, son Maléfice du Silence désactive les tours et tous les quelques tours il invoque de nouveaux gobelins sur les cases adjacentes.\nÉliminez-le avant que ses rituels ne submergent vos défenses !</string>
+    <string name="villain_ratterzahn_title">Le Baron Ratterzahn entre sur le champ de bataille</string>
+    <string name="villain_ratterzahn_backstory">Un inventeur gobelin brillant mais complètement dément, juché sur une araignée mécanique à vapeur, est entré sur le champ de bataille.</string>
+    <string name="villain_ratterzahn_description">Toutes les 4 manches, il largue des tas de ferraille qui deviennent deux gobelins robotiques à la manche suivante. Toutes les 5 manches, il tire une roquette qui étourdit une tour pendant 3 manches à longue portée.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Des Gobelins attaquent une zone rurale isolée. Cela n\'est pas rare, mais les rumeurs nous disent que cette fois, plus de monstres que d\'habitude errent dans notre royaume.</string>
     <string name="story_mixed_forces">La même zone subit davantage d\'attaques. Les rumeurs parlent même de morts se levant de leurs tombes pour attaquer les villageois.</string>

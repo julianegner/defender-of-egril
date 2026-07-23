@@ -261,9 +261,11 @@
     <string name="green_witch_name">Strega verde</string>
     <string name="snotling_name">Snotling</string>
     <string name="snotlings_name">Snotlings</string>
+    <string name="robotic_goblin_name">Goblin robotico</string>
     <string name="snotling_boss_name">Gribnak lo Strillone</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Drago</string>
+    <string name="baron_ratterzahn_name">Barone Ratterzahn</string>
     
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Nemici sulla mappa:</string>
@@ -1765,6 +1767,9 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_morguk_title">Morguk Sussurraossa entra nel campo di battaglia</string>
     <string name="villain_morguk_backstory">Morguk Sussurraossa, Sciamano Goblin del clan Sussurraossa, è entrato nel campo di battaglia!</string>
     <string name="villain_morguk_description">La sua Aura del Totem di Guerra accelera i goblin vicini, il suo Malocchio del Silenzio disattiva le torri e ogni pochi turni evoca nuovi goblin nelle caselle adiacenti.\nEliminatelo prima che i suoi rituali travolgano le vostre difese!</string>
+    <string name="villain_ratterzahn_title">Il Barone Ratterzahn entra nel campo di battaglia</string>
+    <string name="villain_ratterzahn_backstory">Un brillante ma totalmente folle inventore goblin in sella a un ragno meccanico a vapore è entrato nel campo di battaglia.</string>
+    <string name="villain_ratterzahn_description">Ogni 4 turni lascia cumuli di rottami che nel turno successivo diventano due goblin robotici con corpi metallici rinforzati. Ogni 5 turni lancia un razzo che stordisce una torre per 3 turni a lunga distanza.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Dei Goblin stanno attaccando una zona rurale remota. Non è insolito, ma le voci ci dicono che questa volta più mostri del solito stanno vagando nel nostro regno.</string>
     <string name="story_mixed_forces">La stessa zona subisce altri attacchi. Le voci parlano addirittura di morti che si alzano dalle tombe e attaccano i villici.</string>
