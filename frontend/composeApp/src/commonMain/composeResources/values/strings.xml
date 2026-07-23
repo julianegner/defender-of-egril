@@ -269,6 +269,7 @@
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragon</string>
     <string name="baron_ratterzahn_name">Baron Ratterzahn</string>
+    <string name="silas_name">Silas the Maskmaster</string>
     <string name="dragon_name_label">Dragon Name</string>
 
     <!-- SavedGameCard strings -->
@@ -1773,6 +1774,11 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_ratterzahn_title">Baron Ratterzahn enters the battlefield</string>
     <string name="villain_ratterzahn_backstory">A brilliant but utterly insane goblin inventor riding a steam-powered mechanical spider has entered the battlefield.</string>
     <string name="villain_ratterzahn_description">Every 4 rounds he drops scrap piles that hatch into two robotic goblins on the next round, each with reinforced metal bodies. Every 5 rounds he launches a rocket that stuns a tower for 3 rounds at long range.</string>
+    <string name="villain_silas_title">Silas the Maskmaster enters the battlefield</string>
+    <string name="villain_silas_backstory">Silas the Maskmaster, a wandering illusionist wrapped in velvet and lies, has stepped onto the battlefield.</string>
+    <string name="villain_silas_description">Every 3 rounds he creates two mirror images on nearby path tiles. Only the real Silas can be hurt; when a tower strikes an illusion, the image vanishes and that tower is blinded for 2 rounds. Silas may swap places with his fresh doubles the moment they appear, so watch carefully before you fire!</string>
+    <string name="villain_silas_mirror_hit_title">The mask was a lie</string>
+    <string name="villain_silas_mirror_hit_text">The tower struck only a mirror image of Silas. The illusion shattered, but the attacking tower is now blinded for 2 rounds and cannot attack.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">There are Goblins attacking a remote rural area. This is not uncommon, but rumors tell us that this time more monsters than usual are wandering into our realm.</string>
     <string name="story_mixed_forces">The same area faces more attacks, Rumors even talk about dead rising from the graves and attacking the villagers.</string>

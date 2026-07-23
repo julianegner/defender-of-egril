@@ -303,7 +303,9 @@ class MineOperations(
                 when (trap.type) {
                     TrapType.DWARVEN -> {
                         // Deal damage to enemy
-                        enemyAtPosition.currentHealth.value -= trap.damage
+                        if (!enemyAtPosition.type.isMirrorImage) {
+                            enemyAtPosition.currentHealth.value -= trap.damage
+                        }
 
                         // Check if defeated
                         if (enemyAtPosition.currentHealth.value <= 0) {
@@ -462,7 +464,9 @@ class MineOperations(
             when (trapAtPosition.type) {
                 TrapType.DWARVEN -> {
                     // Deal damage to enemy
-                    attacker.currentHealth.value -= trapAtPosition.damage
+                    if (!attacker.type.isMirrorImage) {
+                        attacker.currentHealth.value -= trapAtPosition.damage
+                    }
 
                     // Check if defeated
                     if (attacker.currentHealth.value <= 0) {

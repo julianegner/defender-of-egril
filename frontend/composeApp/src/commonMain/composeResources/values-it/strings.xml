@@ -1754,6 +1754,7 @@
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk lo Spaccateschi</string>
     <string name="morguk_name">Morguk Sussurraossa</string>
+    <string name="silas_name">Silas il Maestro delle Maschere</string>
     <string name="villain_enters_title">Un malvagio entra nel campo di battaglia</string>
     <string name="villain_enters_text">Un eroe nemico unico è entrato nel campo di battaglia! Finché è vivo, potenzia i suoi alleati. I suoi punti vita sono nascosti.</string>
     <string name="villain_gribnak_title">Gribnak lo Strillone entra nel campo di battaglia</string>
@@ -1770,6 +1771,11 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_ratterzahn_title">Il Barone Ratterzahn entra nel campo di battaglia</string>
     <string name="villain_ratterzahn_backstory">Un brillante ma totalmente folle inventore goblin in sella a un ragno meccanico a vapore è entrato nel campo di battaglia.</string>
     <string name="villain_ratterzahn_description">Ogni 4 turni lascia cumuli di rottami che nel turno successivo diventano due goblin robotici con corpi metallici rinforzati. Ogni 5 turni lancia un razzo che stordisce una torre per 3 turni a lunga distanza.</string>
+    <string name="villain_silas_title">Silas il Maestro delle Maschere entra nel campo di battaglia</string>
+    <string name="villain_silas_backstory">Silas il Maestro delle Maschere, un illusionista errante avvolto in velluto e menzogne, è entrato nel campo di battaglia.</string>
+    <string name="villain_silas_description">Ogni 3 turni crea due immagini speculari sulle caselle del percorso vicine. Solo il vero Silas può essere ferito; quando una torre colpisce un'illusione, l'immagine svanisce e quella torre viene accecata per 2 turni. Silas può scambiarsi di posto con i suoi nuovi doppi nel momento in cui appaiono, quindi mira con attenzione prima di attaccare!</string>
+    <string name="villain_silas_mirror_hit_title">La maschera era una menzogna</string>
+    <string name="villain_silas_mirror_hit_text">La torre ha colpito solo un'immagine speculare di Silas. L'illusione si è infranta, ma la torre attaccante ora è accecata per 2 turni e non può attaccare.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Dei Goblin stanno attaccando una zona rurale remota. Non è insolito, ma le voci ci dicono che questa volta più mostri del solito stanno vagando nel nostro regno.</string>
     <string name="story_mixed_forces">La stessa zona subisce altri attacchi. Le voci parlano addirittura di morti che si alzano dalle tombe e attaccano i villici.</string>

@@ -491,6 +491,9 @@ fun AttackerInfo(
                             AttackerType.MORGUK_BONEWHISPER -> stringResource(Res.string.villain_morguk_description)
                             AttackerType.ARAXXA -> stringResource(Res.string.villain_araxxa_description)
                             AttackerType.BARON_RATTERZAHN -> stringResource(Res.string.villain_ratterzahn_description)
+                            AttackerType.SILAS_THE_MASKMASTER,
+                            AttackerType.SILAS_MIRROR_IMAGE,
+                            -> stringResource(Res.string.villain_silas_description)
                             else -> ""
                         }
                     if (villainDescription.isNotEmpty()) {

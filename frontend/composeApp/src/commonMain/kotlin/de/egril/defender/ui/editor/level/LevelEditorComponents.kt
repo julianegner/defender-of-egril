@@ -19,6 +19,7 @@ import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.Position
+import de.egril.defender.model.isRealVillain
 import de.egril.defender.model.isSpecialEnemy
 import de.egril.defender.ui.*
 import de.egril.defender.ui.hexagon.EnemyIconOnHexagon
@@ -55,17 +56,18 @@ fun AddEnemyDialog(
 
     // Villains are unique enemy "heroes": they are listed separately, may only be added once per
     // level, and never use the amount field (see issue #538).
-    val specialTypes = remember { AttackerType.entries.filter { it.isSpecialEnemy() }.toSet() }
-    val regularTypes = remember { AttackerType.entries.filter { !it.isVillain && !it.isSpecialEnemy() } }
-    val shownSpecialTypes = remember { AttackerType.entries.filter { it.isSpecialEnemy() } }
-    val villainTypes = remember { AttackerType.entries.filter { it.isVillain } }
-    val isVillainSelected = selectedType.isVillain
+    val spawnableTypes = remember { AttackerType.entries.filterNot { it.isMirrorImage } }
+    val specialTypes = remember { spawnableTypes.filter { it.isSpecialEnemy() }.toSet() }
+    val regularTypes = remember { spawnableTypes.filter { !it.isRealVillain && !it.isSpecialEnemy() } }
+    val shownSpecialTypes = remember { spawnableTypes.filter { it.isSpecialEnemy() } }
+    val villainTypes = remember { spawnableTypes.filter { it.isRealVillain } }
+    val isVillainSelected = selectedType.isRealVillain
     var selectedCategory by remember { mutableStateOf(EnemyCategory.REGULAR) }
 
     LaunchedEffect(selectedType) {
         selectedCategory =
             when {
-                selectedType.isVillain -> EnemyCategory.VILLAIN
+                selectedType.isRealVillain -> EnemyCategory.VILLAIN
                 selectedType in specialTypes -> EnemyCategory.SPECIAL
                 else -> EnemyCategory.REGULAR
             }

@@ -42,6 +42,24 @@ class CombatSystem(
         private const val LASTING_DAMAGE_DIVISOR = 2
     }
 
+    private fun blindTowerAfterMirrorHit(defender: Defender) {
+        val blindDurationTurns = (AttackerType.SILAS_THE_MASKMASTER.mirrorBlindDurationTurns ?: 2) + 1
+        defender.isDisabled.value = true
+        defender.disabledTurnsRemaining.value = blindDurationTurns
+        defender.actionsRemaining.value = 0
+        state.pendingMessages.add(GameMessage(type = GameMessageType.SILAS_MIRROR_HIT))
+    }
+
+    private fun removeHitMirrorImages(
+        defender: Defender,
+        targets: List<Attacker>,
+    ) {
+        val hitMirrors = targets.filter { it.type.isMirrorImage && !it.isDefeated.value }
+        if (hitMirrors.isEmpty()) return
+        hitMirrors.forEach { it.isDefeated.value = true }
+        blindTowerAfterMirrorHit(defender)
+    }
+
     /**
      * Calculate effective damage for a defender, accounting for level buffs
      */
@@ -183,7 +201,11 @@ class CombatSystem(
             }
         }
 
-        defender.actionsRemaining.value--
+        if (defender.isDisabled.value) {
+            defender.actionsRemaining.value = 0
+        } else {
+            defender.actionsRemaining.value--
+        }
 
         // Process defeated attackers immediately to give coins
         processDefeated()
@@ -354,7 +376,11 @@ class CombatSystem(
             }
         }
 
-        defender.actionsRemaining.value--
+        if (defender.isDisabled.value) {
+            defender.actionsRemaining.value = 0
+        } else {
+            defender.actionsRemaining.value--
+        }
 
         // Process defeated attackers immediately to give coins
         processDefeated()
@@ -366,6 +392,10 @@ class CombatSystem(
         defender: Defender,
         target: Attacker,
     ) {
+        if (target.type.isMirrorImage) {
+            removeHitMirrorImages(defender, listOf(target))
+            return
+        }
         target.currentHealth.value -= getEffectiveDamage(defender)
         if (target.currentHealth.value <= 0) {
             target.isDefeated.value = true
@@ -419,8 +449,10 @@ class CombatSystem(
             state.attackers.filter {
                 !it.isDefeated.value && affectedPositions.contains(it.position.value)
             }
+        removeHitMirrorImages(defender, targets)
 
         for (target in targets) {
+            if (target.type.isMirrorImage) continue
             // Check immunity to fireball (Red Demons)
             if (target.canBeDamagedByFireball()) {
                 target.currentHealth.value -= getEffectiveDamage(defender)
@@ -506,8 +538,10 @@ class CombatSystem(
             state.attackers.filter {
                 !it.isDefeated.value && affectedPositions.contains(it.position.value)
             }
+        removeHitMirrorImages(defender, targets)
 
         for (target in targets) {
+            if (target.type.isMirrorImage) continue
             // Check immunity to acid (Blue Demons)
             if (target.canBeDamagedByAcid()) {
                 // Initial damage is same as DOT tick damage (not full damage)
@@ -594,6 +628,7 @@ class CombatSystem(
                 }
 
             for (attacker in enemiesInAcid) {
+                if (attacker.type.isMirrorImage) continue
                 // Check immunity to acid (Blue Demons)
                 if (attacker.canBeDamagedByAcid()) {
                     attacker.currentHealth.value -= effect.damage
@@ -610,7 +645,7 @@ class CombatSystem(
 
         // Swarm units defeated by merging are not real kills: exclude them from kill counts and rewards.
         val mergedSwarmUnits = defeated.filter { it.wasMerged.value }
-        val actualKills = defeated.filter { !it.wasMerged.value }
+        val actualKills = defeated.filter { !it.wasMerged.value && !it.type.isMirrorImage }
 
         // Track kills for this attack
         val killsThisAttack = actualKills.size
@@ -696,7 +731,7 @@ class CombatSystem(
                         GameMessageType.EWHAD_RETREATS
                     }
                 state.pendingMessages.add(GameMessage(type = messageType))
-            } else if (attacker.type.isVillain) {
+            } else if (attacker.type.isRealVillain) {
                 state.pendingMessages.add(
                     GameMessage(
                         type = GameMessageType.VILLAIN_DEFEATED,

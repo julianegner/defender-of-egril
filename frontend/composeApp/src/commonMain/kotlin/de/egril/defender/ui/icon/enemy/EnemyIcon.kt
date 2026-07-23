@@ -144,6 +144,9 @@ fun EnemyIcon(
                 AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ARAXXA -> drawAraxxaSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
                 AttackerType.BARON_RATTERZAHN -> drawBaronRatterzahnSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
+                AttackerType.SILAS_THE_MASKMASTER,
+                AttackerType.SILAS_MIRROR_IMAGE,
+                -> drawSilasSymbol(centerX, centerY, iconSize * 0.74f, headScale = headScale)
             }
         }
 
@@ -244,6 +247,9 @@ fun EnemyTypeIcon(
                 AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ARAXXA -> drawAraxxaSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
                 AttackerType.BARON_RATTERZAHN -> drawBaronRatterzahnSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
+                AttackerType.SILAS_THE_MASKMASTER,
+                AttackerType.SILAS_MIRROR_IMAGE,
+                -> drawSilasSymbol(centerX, centerY, iconSize * 0.74f, headScale = headScale)
             }
         }
     }

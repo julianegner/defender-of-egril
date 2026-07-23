@@ -130,7 +130,7 @@ class EnemyMovementSystem(
             // Queue villain backstory message when a villain enters the battlefield.
             // Ewhad is a villain but has its own dedicated narrative (EWHAD_ENTERS above), so it is
             // excluded here to avoid showing two dialogs.
-            if (plannedSpawn.attackerType.isVillain && plannedSpawn.attackerType != AttackerType.EWHAD) {
+            if (plannedSpawn.attackerType.isRealVillain && plannedSpawn.attackerType != AttackerType.EWHAD) {
                 state.pendingMessages.add(
                     GameMessage(type = GameMessageType.VILLAIN_ENTERS, name = plannedSpawn.attackerType.name),
                 )
@@ -443,7 +443,7 @@ class EnemyMovementSystem(
         }
         // A villain breaching a target loses the level immediately (see issue #538), regardless of
         // how much health remains. Record it so GameState.isLevelLost() reports the loss.
-        if (attacker.type.isVillain) {
+        if (attacker.type.isRealVillain) {
             state.villainReachedTarget.value = true
         }
         attacker.isDefeated.value = true

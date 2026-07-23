@@ -61,6 +61,13 @@ enum class AttackerType(
     // enum rather than in the translated string resources (see issue discussion). Null for regular
     // enemies, whose (translated) names come from the string resources instead.
     val villainName: String? = null,
+    // Mirror images reuse villain presentation (hidden HP, same icon/name) but must not count as
+    // the unique "real" villain for spawn limits, defeat messages, or instant-loss target breaches.
+    val isMirrorImage: Boolean = false,
+    val mirrorImageCount: Int? = null,
+    val mirrorImageRange: Int? = null,
+    val mirrorImageCooldown: Int? = null,
+    val mirrorBlindDurationTurns: Int? = null,
     val towerDisableRangeBase: Int? = null,
     val towerDisableCooldown: Int? = null,
     val towerDisableDurationTurns: Int? = null,
@@ -178,6 +185,35 @@ enum class AttackerType(
         towerDisableCooldown = 5,
         towerDisableDurationTurns = 3,
     ),
+    SILAS_THE_MASKMASTER(
+        "Silas the Maskmaster",
+        health = 110,
+        speed = 2,
+        reward = 130,
+        xp = 65,
+        canSummon = true,
+        canDisableTowers = true,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Silas",
+        mirrorImageCount = 2,
+        mirrorImageRange = 2,
+        mirrorImageCooldown = 3,
+        mirrorBlindDurationTurns = 2,
+    ),
+    SILAS_MIRROR_IMAGE(
+        "Silas Mirror Image",
+        health = 110,
+        speed = 2,
+        reward = 0,
+        xp = 0,
+        canSummon = true,
+        canDisableTowers = true,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Silas",
+        isMirrorImage = true,
+    ),
 }
 
 /**
@@ -195,6 +231,13 @@ enum class EnemyFaction {
  */
 val AttackerType.hidesHealthBar: Boolean
     get() = isVillain
+
+/**
+ * True for battlefield-persistent villains that count for uniqueness, narrative enter/defeat
+ * messages, and instant-loss target breaches. Mirror-image decoys intentionally do not count.
+ */
+val AttackerType.isRealVillain: Boolean
+    get() = isVillain && !isMirrorImage
 
 data class Attacker(
     val id: Int,
@@ -294,6 +337,8 @@ fun attackerTargetDamage(
         AttackerType.MORGUK_BONEWHISPER -> level // Goblin Shaman villain: 1 HP per level
         AttackerType.ARAXXA -> level // Giant spider villain: 1 HP per level
         AttackerType.BARON_RATTERZAHN -> level // Baron villain: 1 HP per level
+        AttackerType.SILAS_THE_MASKMASTER -> level // Villain illusionist: 1 HP per level
+        AttackerType.SILAS_MIRROR_IMAGE -> 0 // Illusions are decoys and never damage the target
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
 
@@ -308,7 +353,8 @@ fun AttackerType.isSummoner(): Boolean =
         this == AttackerType.SNOTLING_BOSS ||
         this == AttackerType.MORGUK_BONEWHISPER ||
         this == AttackerType.ARAXXA ||
-        this == AttackerType.BARON_RATTERZAHN
+        this == AttackerType.BARON_RATTERZAHN ||
+        this == AttackerType.SILAS_THE_MASKMASTER
 
 /**
  * Swarm units can stack by moving onto the same tile, merging their health into one unit.
@@ -329,7 +375,8 @@ fun AttackerType.isSpecialEnemy(): Boolean =
         this == AttackerType.ROBOTIC_GOBLIN ||
         this == AttackerType.BLUE_DEMON ||
         this == AttackerType.RED_DEMON ||
-        this == AttackerType.DRAGON
+        this == AttackerType.DRAGON ||
+        this == AttackerType.SILAS_MIRROR_IMAGE
 
 /**
  * Returns true if this attacker is immune to a single attack from a defender of [defenderType].
@@ -352,6 +399,6 @@ fun isUniqueEnemyAlreadyPresent(
     type: AttackerType,
     attackers: List<Attacker>,
 ): Boolean {
-    val mustBeUnique = type.isVillain
+    val mustBeUnique = type.isRealVillain
     return mustBeUnique && attackers.any { it.type == type && !it.isDefeated.value }
 }
