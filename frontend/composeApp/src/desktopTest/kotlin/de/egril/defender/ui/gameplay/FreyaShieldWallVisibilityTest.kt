@@ -60,6 +60,6 @@ class FreyaShieldWallVisibilityTest {
 
         composeTestRule
             .onAllNodesWithContentDescription("Shield Wall")
-            .assertCountEquals(2)
+            .assertCountEquals(1)
     }
 }

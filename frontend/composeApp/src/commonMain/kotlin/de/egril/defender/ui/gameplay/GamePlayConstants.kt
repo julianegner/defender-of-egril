@@ -165,9 +165,6 @@ object GamePlayConstants {
         /** Icon size for spider web background rendered on web-affected tiles */
         val SpiderWebBackground = 44.dp
 
-        /** Icon size for Freya's visible shield wall markers on flank tile borders */
-        val ShieldWall = 24.dp
-
         /** Icon size for Baron Ratterzahn scrap piles waiting to hatch */
         val ScrapPile = 40.dp
     }

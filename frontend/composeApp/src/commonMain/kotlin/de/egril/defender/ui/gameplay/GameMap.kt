@@ -37,7 +37,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.LogConfig
-import de.egril.defender.game.freyaShieldWallVisibleOverlays
+import de.egril.defender.game.freyaShieldWallVisiblePositions
 import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
@@ -121,72 +121,169 @@ private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
  * fitted (smaller) side. The fly-to-counter coins use this so they match the bubbling coins' size.
  */
 private const val COIN_BUBBLE_COIN_SIZE_FRACTION = 0.14f
-private const val SHIELD_WALL_EDGE_OFFSET_X_FRACTION = 0.36f
-private const val SHIELD_WALL_EDGE_OFFSET_Y_FRACTION = 0.26f
-private const val SHIELD_WALL_ARC_FORWARD_OFFSET_FRACTION = 0.2f
-private const val SHIELD_WALL_ARC_LINE_SPACING_FRACTION = 0.1f
-private const val SHIELD_WALL_ARC_HALF_LENGTH_FRACTION = 0.3f
-private const val SHIELD_WALL_ARC_CURVE_DEPTH_FRACTION = 0.16f
 
-private fun shieldWallDirectionVector(frontDirection: Int): Offset =
-    when (frontDirection.mod(6)) {
-        0 -> Offset(1f, 0f)
-        1 -> Offset(0.5f, -0.8660254f)
-        2 -> Offset(-0.5f, -0.8660254f)
-        3 -> Offset(-1f, 0f)
-        4 -> Offset(-0.5f, 0.8660254f)
-        5 -> Offset(0.5f, 0.8660254f)
-        else -> Offset.Zero
+// The CW traversal start/end corner index for each edge direction.
+// CW order of edges: NE(1), E(0), SE(5), SW(4), W(3), NW(2).
+// CW order of corners: top(0), top-right(1), bottom-right(2), bottom(3), bottom-left(4), top-left(5).
+private val SHIELD_WALL_EDGE_START_CORNER = intArrayOf(1, 0, 5, 4, 3, 2)
+private val SHIELD_WALL_EDGE_END_CORNER = intArrayOf(2, 1, 0, 5, 4, 3)
+
+// For corner K of tile P, the two neighbor-directions whose tiles also share that corner.
+private val SHIELD_WALL_CORNER_DIR_PAIRS =
+    arrayOf(
+        intArrayOf(1, 2), // Corner 0 (top): NE and NW neighbors
+        intArrayOf(0, 1), // Corner 1 (top-right): E and NE neighbors
+        intArrayOf(5, 0), // Corner 2 (bottom-right): SE and E neighbors
+        intArrayOf(4, 5), // Corner 3 (bottom): SW and SE neighbors
+        intArrayOf(3, 4), // Corner 4 (bottom-left): W and SW neighbors
+        intArrayOf(2, 3), // Corner 5 (top-left): NW and W neighbors
+    )
+
+/** Edge between a shield-wall tile and a non-shield-wall neighbor, identified by its midpoint and its two endpoint corner keys. */
+private data class ShieldWallBoundaryEdge(
+    val midpoint: Offset,
+    val startKey: String,
+    val endKey: String,
+)
+
+/** Returns a canonical key for a hex corner shared by three tiles (tile P and two neighbors). */
+private fun shieldWallCornerKey(
+    pos: Position,
+    cornerIndex: Int,
+): String {
+    val dirPair = SHIELD_WALL_CORNER_DIR_PAIRS[cornerIndex]
+    val neighbors = pos.getHexNeighbors()
+    val sorted =
+        listOf(pos, neighbors[dirPair[0]], neighbors[dirPair[1]])
+            .sortedWith(compareBy({ it.y }, { it.x }))
+    return "${sorted[0].x},${sorted[0].y}|${sorted[1].x},${sorted[1].y}|${sorted[2].x},${sorted[2].y}"
+}
+
+/**
+ * Map-level overlay that draws the Freya shield wall boundary as three parallel curvy lines
+ * (grey, shield-blue, grey) following the outer edge of the shield wall formation.
+ *
+ * The boundary is found by collecting all edges between shield-wall and non-shield-wall tiles,
+ * connecting them into closed loops via a shared-corner graph, and smoothing each loop with the
+ * midpoint quadratic-bezier technique so every hex vertex becomes a smooth curve.
+ */
+@Composable
+private fun FreyaShieldWallMapOverlay(
+    shieldWallPositions: Set<Position>,
+    hexSizeDp: Float,
+    contentSize: IntSize,
+    modifier: Modifier = Modifier,
+) {
+    if (shieldWallPositions.isEmpty()) return
+
+    val density = androidx.compose.ui.platform.LocalDensity.current.density
+    val hexSizePx = hexSizeDp * density
+    val hexWidthPx = hexSizePx * sqrt(3f)
+    val hexHeightPx = hexSizePx * 2f
+    val rowSpacingPx =
+        hexHeightPx * 0.75f - hexHeightPx + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT * density
+    val colSpacingPx = HexagonalGridConstants.HORIZONTAL_SPACING * density
+    val oddOffsetPx = hexWidthPx * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
+
+    fun tileCenterPx(pos: Position): Offset {
+        val oddRowOffset = if (pos.y % 2 == 1) oddOffsetPx else 0f
+        return Offset(
+            pos.x * (hexWidthPx + colSpacingPx) + hexWidthPx / 2f + oddRowOffset,
+            pos.y * (hexHeightPx + rowSpacingPx) + hexHeightPx / 2f,
+        )
     }
 
-private fun Offset.scale(factor: Float): Offset = Offset(x * factor, y * factor)
+    // Collect all edges between a shield-wall tile and a non-shield-wall neighbor.
+    val boundaryEdges = mutableListOf<ShieldWallBoundaryEdge>()
+    for (pos in shieldWallPositions) {
+        val center = tileCenterPx(pos)
+        val neighbors = pos.getHexNeighbors()
+        for (dir in 0..5) {
+            if (neighbors[dir] !in shieldWallPositions) {
+                val nbrCenter = tileCenterPx(neighbors[dir])
+                val mid = Offset((center.x + nbrCenter.x) / 2f, (center.y + nbrCenter.y) / 2f)
+                boundaryEdges.add(
+                    ShieldWallBoundaryEdge(
+                        midpoint = mid,
+                        startKey = shieldWallCornerKey(pos, SHIELD_WALL_EDGE_START_CORNER[dir]),
+                        endKey = shieldWallCornerKey(pos, SHIELD_WALL_EDGE_END_CORNER[dir]),
+                    ),
+                )
+            }
+        }
+    }
 
-@Composable
-private fun ShieldWallArcOverlay(
-    frontDirection: Int,
-    modifier: Modifier = Modifier,
-    alpha: Float = 1f,
-) {
+    if (boundaryEdges.isEmpty()) return
+
+    // Build adjacency: corner key → edges that touch this corner.
+    val cornerToEdges = mutableMapOf<String, MutableList<ShieldWallBoundaryEdge>>()
+    for (edge in boundaryEdges) {
+        cornerToEdges.getOrPut(edge.startKey) { mutableListOf() }.add(edge)
+        cornerToEdges.getOrPut(edge.endKey) { mutableListOf() }.add(edge)
+    }
+
+    // Trace closed boundary loops by walking from edge to edge through shared corners.
+    val visited = mutableSetOf<ShieldWallBoundaryEdge>()
+    val loops = mutableListOf<List<Offset>>()
+
+    for (startEdge in boundaryEdges) {
+        if (startEdge in visited) continue
+        val midpoints = mutableListOf<Offset>()
+        var cur = startEdge
+        var prevKey: String? = null
+
+        while (cur !in visited) {
+            visited.add(cur)
+            midpoints.add(cur.midpoint)
+            val exitKey = if (prevKey != null && prevKey == cur.endKey) cur.startKey else cur.endKey
+            val next = cornerToEdges[exitKey]?.firstOrNull { it !== cur } ?: break
+            prevKey = exitKey
+            cur = next
+        }
+
+        if (midpoints.size >= 3) loops.add(midpoints)
+    }
+
+    if (loops.isEmpty()) return
+
+    // Build a smooth closed path per loop using the midpoint quadratic-bezier technique:
+    // each waypoint becomes a smooth quadratic curve (waypoint = control point, midpoint to
+    // next waypoint = curve endpoint), so no sharp hexagonal corners appear.
+    val smoothPaths =
+        loops.map { pts ->
+            val n = pts.size
+            Path().apply {
+                val firstMid = Offset((pts[n - 1].x + pts[0].x) / 2f, (pts[n - 1].y + pts[0].y) / 2f)
+                moveTo(firstMid.x, firstMid.y)
+                for (i in 0 until n) {
+                    val p = pts[i]
+                    val nextP = pts[(i + 1) % n]
+                    val nextMid = Offset((p.x + nextP.x) / 2f, (p.y + nextP.y) / 2f)
+                    quadraticTo(p.x, p.y, nextMid.x, nextMid.y)
+                }
+                close()
+            }
+        }
+
+    val outerStrokeWidth = hexSizePx * 0.22f // total stripe width (grey)
+    val innerStrokeWidth = hexSizePx * 0.08f // blue center width; grey = (outer - inner) / 2 per side
+    val blueColor = Color(0xFF7EAAC8).copy(alpha = 0.9f)
+    val greyColor = Color(0xFFAAAAAA).copy(alpha = 0.9f)
+
+    val contentWidthDp = (contentSize.width / density).dp
+    val contentHeightDp = (contentSize.height / density).dp
+
     Canvas(
         modifier =
-            modifier.semantics {
-                contentDescription = "Shield Wall"
-            },
+            modifier
+                .requiredSize(contentWidthDp, contentHeightDp)
+                .semantics { contentDescription = "Shield Wall" },
     ) {
-        val minDimension = size.minDimension
-        val center = Offset(size.width / 2f, size.height / 2f)
-        val normal = shieldWallDirectionVector(frontDirection)
-        val tangent = Offset(-normal.y, normal.x)
-        val shieldColors =
-            listOf(
-                Color(0xFF7EAAC8).copy(alpha = alpha),
-                Color(0xFFC7E6ED).copy(alpha = alpha),
-                Color(0xFFF7FCFF).copy(alpha = alpha),
-            )
-
-        shieldColors.forEachIndexed { index, color ->
-            val lineCenter =
-                center +
-                    normal.scale(
-                        minDimension *
-                            (SHIELD_WALL_ARC_FORWARD_OFFSET_FRACTION - index * SHIELD_WALL_ARC_LINE_SPACING_FRACTION),
-                    )
-            val halfLength = minDimension * (SHIELD_WALL_ARC_HALF_LENGTH_FRACTION - index * 0.03f)
-            val controlPoint =
-                lineCenter +
-                    normal.scale(minDimension * (SHIELD_WALL_ARC_CURVE_DEPTH_FRACTION - index * 0.02f))
-            val start = lineCenter - tangent.scale(halfLength)
-            val end = lineCenter + tangent.scale(halfLength)
-
-            drawPath(
-                path =
-                    Path().apply {
-                        moveTo(start.x, start.y)
-                        quadraticTo(controlPoint.x, controlPoint.y, end.x, end.y)
-                    },
-                color = color,
-                style = Stroke(width = minDimension * (0.12f - index * 0.02f)),
-            )
+        for (path in smoothPaths) {
+            // Grey outer stroke defines total stripe width, leaving grey visible on both sides.
+            drawPath(path = path, color = greyColor, style = Stroke(width = outerStrokeWidth))
+            // Blue inner stroke covers the centre, creating the grey–blue–grey stripe effect.
+            drawPath(path = path, color = blueColor, style = Stroke(width = innerStrokeWidth))
         }
     }
 }
@@ -195,26 +292,6 @@ internal fun displayedRiverTile(
     levelRiverTile: RiverTile?,
     sandboxPaintedRiverTile: RiverTile?,
 ): RiverTile? = sandboxPaintedRiverTile ?: levelRiverTile
-
-private fun shieldWallOverlayOffsetX(
-    hexSize: Dp,
-    frontDirection: Int,
-): Dp =
-    when (frontDirection.mod(6)) {
-        0, 1, 5 -> hexSize * SHIELD_WALL_EDGE_OFFSET_X_FRACTION
-        2, 3, 4 -> hexSize * -SHIELD_WALL_EDGE_OFFSET_X_FRACTION
-        else -> 0.dp
-    }
-
-private fun shieldWallOverlayOffsetY(
-    hexSize: Dp,
-    frontDirection: Int,
-): Dp =
-    when (frontDirection.mod(6)) {
-        1, 2 -> hexSize * -SHIELD_WALL_EDGE_OFFSET_Y_FRACTION
-        4, 5 -> hexSize * SHIELD_WALL_EDGE_OFFSET_Y_FRACTION
-        else -> 0.dp
-    }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -323,7 +400,7 @@ fun GameGrid(
     // Find the selected defender and track its actions for dependency tracking
     val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
     val selectedDefenderActions = selectedDefender?.actionsRemaining?.value
-    val freyaShieldWallVisibleTiles = gameState.freyaShieldWallVisibleOverlays()
+    val freyaShieldWallPositions = gameState.freyaShieldWallVisiblePositions()
 
     val targetCircleMap =
         remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size) {
@@ -890,6 +967,15 @@ fun GameGrid(
                         contentSize = measuredContentSize,
                         animate = AppSettings.enableAnimations.value,
                     )
+                    // Freya shield wall boundary: three curvy parallel lines (grey, blue, grey)
+                    // drawn above the map following the outer edge of the shield wall formation.
+                    if (freyaShieldWallPositions.isNotEmpty()) {
+                        FreyaShieldWallMapOverlay(
+                            shieldWallPositions = freyaShieldWallPositions,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                        )
+                    }
                 },
             ) { position ->
                 // Pre-compute the two hover-position-dependent booleans per cell.
@@ -1018,7 +1104,6 @@ fun GameGrid(
                     gameState = gameState,
                     defender = defendersByPosition[position],
                     attacker = activeAttackersByPosition[position],
-                    freyaShieldWallFrontDirection = freyaShieldWallVisibleTiles[position]?.frontDirection,
                     selectedDefender = selectedDefenderForGrid,
                     isHovering = isHovering,
                     isInPreviewRange = isInPreviewRange,
@@ -1167,7 +1252,6 @@ fun GridCell(
     gameState: GameState,
     defender: Defender?,
     attacker: Attacker?,
-    freyaShieldWallFrontDirection: Int?,
     selectedDefender: Defender?,
     // isHovering and isInPreviewRange replace the old hoveredPosition: Position? and
     // hoveredPositionIsBuildable: Boolean parameters.  Passing per-cell Booleans means only
@@ -1985,7 +2069,6 @@ fun GridCell(
                 position = position,
                 gameState = gameState,
                 attacker = attacker,
-                freyaShieldWallFrontDirection = freyaShieldWallFrontDirection,
                 healingEffect = healingEffect,
                 damageEffect = damageEffect,
                 defender = defender,
@@ -2057,7 +2140,6 @@ fun GridCell(
                 position = position,
                 gameState = gameState,
                 attacker = attacker,
-                freyaShieldWallFrontDirection = freyaShieldWallFrontDirection,
                 healingEffect = healingEffect,
                 damageEffect = damageEffect,
                 defender = defender,
@@ -2126,7 +2208,6 @@ private fun BoxScope.GridCellContent(
     position: Position,
     gameState: GameState,
     attacker: Attacker?,
-    freyaShieldWallFrontDirection: Int?,
     healingEffect: HealingEffect?,
     damageEffect: DamageEffect?,
     defender: Defender?,
@@ -2234,20 +2315,6 @@ private fun BoxScope.GridCellContent(
             }
             displayedHealth = currentHealth
         }
-    }
-
-    if (freyaShieldWallFrontDirection != null) {
-        ShieldWallArcOverlay(
-            frontDirection = freyaShieldWallFrontDirection,
-            modifier =
-                Modifier
-                    .align(Alignment.Center)
-                    .offset(
-                        x = shieldWallOverlayOffsetX(hexSize, freyaShieldWallFrontDirection),
-                        y = shieldWallOverlayOffsetY(hexSize, freyaShieldWallFrontDirection),
-                    ).size(GamePlayConstants.TileIconSizes.ShieldWall)
-                    .graphicsLayer(alpha = if (attacker == null) 0.75f else 0.5f),
-        )
     }
 
     when {
