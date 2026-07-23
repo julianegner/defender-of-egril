@@ -159,9 +159,10 @@ class SnotlingRallyTest {
             ),
         )
         val stackBefore =
-            state.attackers.first {
-                it.type == AttackerType.SNOTLING && it.position.value == stackTile
-            }.currentHealth.value
+            state.attackers
+                .first {
+                    it.type == AttackerType.SNOTLING && it.position.value == stackTile
+                }.currentHealth.value
         state.barricades.add(
             Barricade(
                 id = 1,

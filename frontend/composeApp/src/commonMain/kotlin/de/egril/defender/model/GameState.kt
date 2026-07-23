@@ -175,6 +175,7 @@ enum class GameMessageType {
     EWHAD_DEFEATED, // Ewhad is defeated (health reached 0, final stand level)
     VILLAIN_ENTERS, // A villain has entered the battlefield (name = AttackerType.name)
     VILLAIN_DEFEATED, // A non-Ewhad villain was defeated (name = AttackerType.name)
+    SILAS_MIRROR_HIT, // A tower struck Silas's illusion and was blinded
     STORY_INTRO, // Story narrative shown at the start of a level (name = editorLevelId)
     EVENT_MESSAGE, // Scripted-event story message (name = string-resource key of the predefined text)
 }
@@ -475,7 +476,7 @@ data class GameState(
         if (aliveEnemies.any { it.type.isSummoner() } || enemiesToSpawn.any { it.attackerType.isSummoner() }) return false
         // A villain (on the field or still to spawn) loses the level the moment it reaches a target,
         // regardless of remaining health, so a guaranteed win can never be offered while one remains.
-        if (aliveEnemies.any { it.type.isVillain } || enemiesToSpawn.any { it.attackerType.isVillain }) return false
+        if (aliveEnemies.any { it.type.isRealVillain } || enemiesToSpawn.any { it.attackerType.isRealVillain }) return false
 
         return getRemainingEnemyThreat() < healthPoints.value.toLong()
     }

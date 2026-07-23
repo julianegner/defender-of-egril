@@ -302,9 +302,10 @@ class AraxxaTest {
             ),
         )
         val stackBefore =
-            state.attackers.first {
-                it.type == AttackerType.SPIDERLING && it.position.value == stackTile
-            }.currentHealth.value
+            state.attackers
+                .first {
+                    it.type == AttackerType.SPIDERLING && it.position.value == stackTile
+                }.currentHealth.value
         state.barricades.add(
             Barricade(
                 id = 1,
@@ -438,16 +439,18 @@ class AraxxaTest {
         abilities.processEnemyAbilities()
         val firstTurnSummonedCount = state.attackers.count { it.type == AttackerType.SPIDERLING && !it.isDefeated.value }
         val firstTurnSummonedHealth =
-            state.attackers.filter {
-                it.type == AttackerType.SPIDERLING && !it.isDefeated.value
-            }.sumOf { it.currentHealth.value }
+            state.attackers
+                .filter {
+                    it.type == AttackerType.SPIDERLING && !it.isDefeated.value
+                }.sumOf { it.currentHealth.value }
 
         abilities.processEnemyAbilities()
         val secondTurnSummonedCount = state.attackers.count { it.type == AttackerType.SPIDERLING && !it.isDefeated.value }
         val secondTurnSummonedHealth =
-            state.attackers.filter {
-                it.type == AttackerType.SPIDERLING && !it.isDefeated.value
-            }.sumOf { it.currentHealth.value }
+            state.attackers
+                .filter {
+                    it.type == AttackerType.SPIDERLING && !it.isDefeated.value
+                }.sumOf { it.currentHealth.value }
 
         assertTrue(firstTurnSummonedCount > 0, "Araxxa should summon spiderlings on the first turn")
         assertTrue(

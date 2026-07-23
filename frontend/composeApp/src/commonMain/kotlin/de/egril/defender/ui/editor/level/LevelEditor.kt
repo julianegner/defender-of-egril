@@ -26,6 +26,7 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.EditorWaypoint
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.isRealVillain
 import de.egril.defender.ui.*
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.editor.CreateLevelDialog
@@ -516,7 +517,7 @@ fun LevelEditorView(
     val currentMap = remember(selectedMapId) { EditorStorage.getMap(selectedMapId) }
 
     // Villains are unique enemy heroes: only one of each type may be placed in a level.
-    val presentVillainTypes = enemySpawns.filter { it.attackerType.isVillain }.map { it.attackerType }.toSet()
+    val presentVillainTypes = enemySpawns.filter { it.attackerType.isRealVillain }.map { it.attackerType }.toSet()
 
     // Check if any enemies are spawned outside valid spawn points
     val mapSpawnPoints = remember(currentMap) { currentMap?.getSpawnPoints()?.toSet() ?: emptySet() }

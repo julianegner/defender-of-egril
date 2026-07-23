@@ -11,11 +11,11 @@ import de.egril.defender.model.Position
 import de.egril.defender.model.ScrapPile
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.model.isSpecialEnemy
-import de.egril.defender.model.isSwarmUnit
 import de.egril.defender.model.isSummoner
+import de.egril.defender.model.isSwarmUnit
 import kotlin.test.Test
-import kotlin.test.assertFalse
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class BaronRatterzahnTest {
@@ -70,7 +70,10 @@ class BaronRatterzahnTest {
         assertEquals(2, state.scrapPiles.size, "Baron should drop two scrap piles")
         assertEquals(0, state.attackers.count { it.type == AttackerType.ROBOTIC_GOBLIN }, "Scraps hatch one round later")
         assertTrue(
-            state.scrapPiles.map { it.position }.distinct().size == 2,
+            state.scrapPiles
+                .map { it.position }
+                .distinct()
+                .size == 2,
             "Scrap piles should be on different tiles",
         )
         assertTrue(

@@ -3254,6 +3254,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.BARON_RATTERZAHN.name ->
                                             stringResource(Res.string.villain_ratterzahn_title) to
                                                 (stringResource(Res.string.villain_ratterzahn_backstory) + "\n" + stringResource(Res.string.villain_ratterzahn_description))
+                                        AttackerType.SILAS_THE_MASKMASTER.name ->
+                                            stringResource(Res.string.villain_silas_title) to
+                                                (stringResource(Res.string.villain_silas_backstory) + "\n" + stringResource(Res.string.villain_silas_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)
@@ -3280,6 +3283,15 @@ private fun GamePlayScreenContent(
                                     iconAttackerTypeOverride = villainType,
                                 )
                             }
+                            GameMessageType.SILAS_MIRROR_HIT ->
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.EWHAD,
+                                    title = stringResource(Res.string.villain_silas_mirror_hit_title),
+                                    text = stringResource(Res.string.villain_silas_mirror_hit_text),
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                    backgroundOverride = villainMessageBackground(AttackerType.SILAS_THE_MASKMASTER.name),
+                                    iconAttackerTypeOverride = AttackerType.SILAS_THE_MASKMASTER,
+                                )
                             GameMessageType.STORY_INTRO -> {
                                 val levelEditorId = msg.name
                                 if (levelEditorId != null) {

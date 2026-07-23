@@ -480,7 +480,7 @@ fun AttackerConfigPanel(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
             ) {
-                AttackerType.entries.forEach { type ->
+                AttackerType.entries.filterNot { it.isMirrorImage }.forEach { type ->
                     DropdownMenuItem(
                         text = {
                             Row(

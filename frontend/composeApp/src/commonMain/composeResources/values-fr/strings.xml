@@ -1753,6 +1753,7 @@
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk le Fendeur de Crânes</string>
     <string name="morguk_name">Morguk Chuchotosselets</string>
+    <string name="silas_name">Silas le Maître des Masques</string>
     <string name="villain_enters_title">Un scélérat entre sur le champ de bataille</string>
     <string name="villain_enters_text">Un héros ennemi unique est entré sur le champ de bataille ! Tant qu'il vit, il renforce ses alliés. Ses points de vie sont masqués.</string>
     <string name="villain_gribnak_title">Gribnak le Couineur entre sur le champ de bataille</string>
@@ -1769,6 +1770,11 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_ratterzahn_title">Le Baron Ratterzahn entre sur le champ de bataille</string>
     <string name="villain_ratterzahn_backstory">Un inventeur gobelin brillant mais complètement dément, juché sur une araignée mécanique à vapeur, est entré sur le champ de bataille.</string>
     <string name="villain_ratterzahn_description">Toutes les 4 manches, il largue des tas de ferraille qui deviennent deux gobelins robotiques à la manche suivante. Toutes les 5 manches, il tire une roquette qui étourdit une tour pendant 3 manches à longue portée.</string>
+    <string name="villain_silas_title">Silas le Maître des Masques entre sur le champ de bataille</string>
+    <string name="villain_silas_backstory">Silas le Maître des Masques, un illusionniste errant drapé de velours et de mensonges, est entré sur le champ de bataille.</string>
+    <string name="villain_silas_description">Tous les 3 tours, il crée deux images miroir sur des cases de chemin proches. Seul le vrai Silas peut être blessé ; lorsqu'une tour frappe une illusion, l'image disparaît et cette tour est aveuglée pendant 2 tours. Silas peut échanger sa place avec ses nouveaux doubles dès leur apparition, alors visez avec soin avant de tirer !</string>
+    <string name="villain_silas_mirror_hit_title">Le masque n'était qu'un mensonge</string>
+    <string name="villain_silas_mirror_hit_text">La tour n'a frappé qu'une image miroir de Silas. L'illusion s'est brisée, mais la tour attaquante est maintenant aveuglée pendant 2 tours et ne peut pas attaquer.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Des Gobelins attaquent une zone rurale isolée. Cela n\'est pas rare, mais les rumeurs nous disent que cette fois, plus de monstres que d\'habitude errent dans notre royaume.</string>
     <string name="story_mixed_forces">La même zone subit davantage d\'attaques. Les rumeurs parlent même de morts se levant de leurs tombes pour attaquer les villageois.</string>

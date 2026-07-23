@@ -399,6 +399,9 @@ class GameEngine(
             AttackerType.EVIL_WIZARD -> 65
             AttackerType.RED_DEMON -> 60
             AttackerType.BLUE_DEMON -> 55
+            AttackerType.SILAS_THE_MASKMASTER,
+            AttackerType.SILAS_MIRROR_IMAGE,
+            -> 85
             else -> 0
         }
     }
@@ -722,7 +725,7 @@ class GameEngine(
             // Queue villain backstory message when a villain enters the battlefield.
             // Ewhad is a villain but has its own dedicated narrative (EWHAD_ENTERS above), so it is
             // excluded here to avoid showing two dialogs.
-            if (plannedSpawn.attackerType.isVillain && plannedSpawn.attackerType != AttackerType.EWHAD) {
+            if (plannedSpawn.attackerType.isRealVillain && plannedSpawn.attackerType != AttackerType.EWHAD) {
                 state.pendingMessages.add(
                     GameMessage(type = GameMessageType.VILLAIN_ENTERS, name = plannedSpawn.attackerType.name),
                 )
@@ -1337,7 +1340,7 @@ class GameEngine(
         }
         // A villain breaching a target loses the level immediately (see issue #538), regardless of
         // how much health remains. Record it so GameState.isLevelLost() reports the loss.
-        if (attacker.type.isVillain) {
+        if (attacker.type.isRealVillain) {
             state.villainReachedTarget.value = true
         }
         attacker.isDefeated.value = true
@@ -2185,7 +2188,7 @@ class GameEngine(
         state.attackers.forEach { attacker ->
             if (!attacker.isDefeated.value) {
                 val distance = attacker.position.value.hexDistanceTo(position)
-                if (distance <= explosionRange) {
+                if (distance <= explosionRange && !attacker.type.isMirrorImage) {
                     val dmg = damageAt(distance)
                     attacker.currentHealth.value = (attacker.currentHealth.value - dmg).coerceAtLeast(0)
                     enemiesDamaged++
