@@ -219,7 +219,7 @@ class AraxxaTest {
 
         assertTrue(first.isDefeated.value, "Moving spiderling should be absorbed into the existing stack")
         assertTrue(first.wasMerged.value, "Merged spiderlings should not count as real kills")
-        assertEquals(10, second.currentHealth.value, "Spiderling stacks should merge their health like snotlings")
+        assertEquals(20, second.currentHealth.value, "Spiderling stacks should merge their health like snotlings")
     }
 
     @Test
@@ -301,6 +301,10 @@ class AraxxaTest {
                 position = mutableStateOf(stackTile),
             ),
         )
+        val stackBefore =
+            state.attackers.first {
+                it.type == AttackerType.SPIDERLING && it.position.value == stackTile
+            }.currentHealth.value
         state.barricades.add(
             Barricade(
                 id = 1,
@@ -343,11 +347,14 @@ class AraxxaTest {
             },
             "Spiderlings must not spawn on a barricade tile",
         )
-        assertTrue(
-            state.attackers.count {
+        val stackedSpiderlings =
+            state.attackers.filter {
                 it.type == AttackerType.SPIDERLING && !it.isDefeated.value && it.position.value == stackTile
-            } > 1,
-            "Blocked spiderling spawns should be redirected to valid spiderling stacks",
+            }
+        assertEquals(1, stackedSpiderlings.size, "Blocked spiderling spawns should merge into one existing stack")
+        assertTrue(
+            stackedSpiderlings.single().currentHealth.value > stackBefore,
+            "Blocked spiderling spawns should add their HP to the existing spiderling stack",
         )
     }
 
@@ -376,6 +383,7 @@ class AraxxaTest {
                 id = state.nextAttackerId.value++,
                 type = AttackerType.ARAXXA,
                 position = mutableStateOf(araxxaPos),
+                level = mutableStateOf(2),
             )
         state.attackers.add(araxxa)
         state.attackers.add(
@@ -383,6 +391,7 @@ class AraxxaTest {
                 id = state.nextAttackerId.value++,
                 type = AttackerType.SPIDERLING,
                 position = mutableStateOf(stackTile),
+                level = mutableStateOf(2),
             ),
         )
         neighbors.drop(1).forEach { blocked ->
@@ -397,12 +406,19 @@ class AraxxaTest {
 
         EnemyAbilitySystem(state).processEnemyAbilities()
 
-        assertEquals(
-            7,
-            state.attackers.count {
+        val stackedSpiderlings =
+            state.attackers.filter {
                 it.type == AttackerType.SPIDERLING && !it.isDefeated.value && it.position.value == stackTile
-            },
-            "Araxxa should summon one spiderling per adjacent tile, redirecting blocked spawns onto valid spiderling stacks",
+            }
+        assertEquals(
+            1,
+            stackedSpiderlings.size,
+            "Araxxa should keep blocked spiderling summons in one existing stack",
+        )
+        assertEquals(
+            AttackerType.SPIDERLING.health * araxxa.level.value * (neighbors.size + 1),
+            stackedSpiderlings.single().currentHealth.value,
+            "Araxxa should transfer every blocked spiderling's HP into the existing spiderling stack",
         )
     }
 
@@ -421,14 +437,26 @@ class AraxxaTest {
 
         abilities.processEnemyAbilities()
         val firstTurnSummonedCount = state.attackers.count { it.type == AttackerType.SPIDERLING && !it.isDefeated.value }
+        val firstTurnSummonedHealth =
+            state.attackers.filter {
+                it.type == AttackerType.SPIDERLING && !it.isDefeated.value
+            }.sumOf { it.currentHealth.value }
 
         abilities.processEnemyAbilities()
         val secondTurnSummonedCount = state.attackers.count { it.type == AttackerType.SPIDERLING && !it.isDefeated.value }
+        val secondTurnSummonedHealth =
+            state.attackers.filter {
+                it.type == AttackerType.SPIDERLING && !it.isDefeated.value
+            }.sumOf { it.currentHealth.value }
 
         assertTrue(firstTurnSummonedCount > 0, "Araxxa should summon spiderlings on the first turn")
         assertTrue(
-            secondTurnSummonedCount > firstTurnSummonedCount,
-            "Araxxa should summon additional spiderlings again on the next turn",
+            secondTurnSummonedCount >= firstTurnSummonedCount,
+            "Araxxa should keep at least as many live spiderling stacks on the next turn",
+        )
+        assertTrue(
+            secondTurnSummonedHealth > firstTurnSummonedHealth,
+            "Araxxa should add more spiderling health again on the next turn even when summons merge into existing stacks",
         )
     }
 

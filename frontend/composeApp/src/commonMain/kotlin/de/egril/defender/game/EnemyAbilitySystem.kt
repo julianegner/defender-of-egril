@@ -271,15 +271,12 @@ class EnemyAbilitySystem(
             }
 
         for (spawnPos in spawnPositions) {
-            val snotling =
-                Attacker(
-                    id = state.nextAttackerId.value++,
-                    type = AttackerType.SNOTLING,
-                    position = mutableStateOf(spawnPos),
-                    level = mutableStateOf(1),
-                    currentTarget = mutableStateOf(inheritedTarget),
-                )
-            state.attackers.add(snotling)
+            summonSwarmUnit(
+                type = AttackerType.SNOTLING,
+                spawnPos = spawnPos,
+                level = 1,
+                currentTarget = inheritedTarget,
+            )
         }
 
         boss.summonCooldown.value = 3
@@ -382,14 +379,11 @@ class EnemyAbilitySystem(
         if (spawnPositions.isEmpty()) return
 
         for (spawnPos in spawnPositions) {
-            state.attackers.add(
-                Attacker(
-                    id = state.nextAttackerId.value++,
-                    type = AttackerType.SPIDERLING,
-                    position = mutableStateOf(spawnPos),
-                    level = mutableStateOf(araxxa.level.value),
-                    currentTarget = mutableStateOf(inheritedTarget),
-                ),
+            summonSwarmUnit(
+                type = AttackerType.SPIDERLING,
+                spawnPos = spawnPos,
+                level = araxxa.level.value,
+                currentTarget = inheritedTarget,
             )
             state.enemySpawnEffects.add(
                 EnemySpawnEffect(
@@ -399,6 +393,34 @@ class EnemyAbilitySystem(
                 ),
             )
         }
+    }
+
+    private fun summonSwarmUnit(
+        type: AttackerType,
+        spawnPos: Position,
+        level: Int,
+        currentTarget: Position,
+    ) {
+        val existingSwarmUnit =
+            state.attackers.find {
+                !it.isDefeated.value &&
+                    it.position.value == spawnPos &&
+                    it.type == type
+            }
+        if (existingSwarmUnit != null) {
+            existingSwarmUnit.currentHealth.value += type.health * level
+            return
+        }
+
+        state.attackers.add(
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = type,
+                position = mutableStateOf(spawnPos),
+                level = mutableStateOf(level),
+                currentTarget = mutableStateOf(currentTarget),
+            ),
+        )
     }
 
     private fun resolveSwarmSpawnPositions(
