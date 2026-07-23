@@ -133,4 +133,136 @@ class SnotlingRallyTest {
             state.attackers.any { it.type == AttackerType.SNOTLING && it.position.value == occupied }
         assertFalse(snotlingOnOccupied, "Snotlings must not spawn on an already-occupied tile")
     }
+
+    @Test
+    fun testSnotlingRallyAvoidsBarricadesAndRedirectsToSnotlingStacks() {
+        val level = createOpenLevel()
+        val state = GameState(level)
+        val bossPos = Position(5, 4)
+        val neighbors = bossPos.getHexNeighbors()
+        val stackTile = neighbors.first()
+        val barricadeTile = neighbors[1]
+
+        val boss =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING_BOSS,
+                position = mutableStateOf(bossPos),
+                level = mutableStateOf(1),
+            )
+        state.attackers.add(boss)
+        state.attackers.add(
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING,
+                position = mutableStateOf(stackTile),
+            ),
+        )
+        val stackBefore =
+            state.attackers.first {
+                it.type == AttackerType.SNOTLING && it.position.value == stackTile
+            }.currentHealth.value
+        state.barricades.add(
+            Barricade(
+                id = 1,
+                position = barricadeTile,
+                healthPoints = mutableStateOf(120),
+                defenderId = 0,
+            ),
+        )
+        neighbors.drop(2).forEach { blocked ->
+            state.attackers.add(
+                Attacker(
+                    id = state.nextAttackerId.value++,
+                    type = AttackerType.GOBLIN,
+                    position = mutableStateOf(blocked),
+                ),
+            )
+        }
+        barricadeTile
+            .getHexNeighbors()
+            .filter { it != bossPos && it != stackTile }
+            .forEach { blocked ->
+                state.attackers.add(
+                    Attacker(
+                        id = state.nextAttackerId.value++,
+                        type = AttackerType.GOBLIN,
+                        position = mutableStateOf(blocked),
+                    ),
+                )
+            }
+
+        EnemyAbilitySystem(state).processEnemyAbilities()
+
+        assertFalse(
+            state.attackers.any {
+                it.type == AttackerType.SNOTLING && !it.isDefeated.value && it.position.value == barricadeTile
+            },
+            "Snotlings must not spawn on barricade tiles",
+        )
+        val stackedSnotlings =
+            state.attackers.filter {
+                it.type == AttackerType.SNOTLING && !it.isDefeated.value && it.position.value == stackTile
+            }
+        assertEquals(1, stackedSnotlings.size, "Blocked snotling spawns should merge into one existing stack")
+        assertTrue(
+            stackedSnotlings.single().currentHealth.value > stackBefore,
+            "Blocked snotling spawns should add their HP to the existing snotling stack",
+        )
+    }
+
+    @Test
+    fun testSnotlingRallyTransfersAllBlockedSummonHpIntoExistingStack() {
+        val bossPos = Position(5, 4)
+        val stackTile = bossPos.getHexNeighbors().first()
+        val candidateTiles = mutableSetOf<Position>()
+        for (neighbor in bossPos.getHexNeighbors()) {
+            candidateTiles.add(neighbor)
+            candidateTiles.addAll(neighbor.getHexNeighbors())
+        }
+        candidateTiles.remove(bossPos)
+
+        val level =
+            Level(
+                id = 2,
+                name = "Blocked Snotling Rally Test",
+                gridWidth = 12,
+                gridHeight = 10,
+                startPositions = listOf(bossPos),
+                targetPositions = listOf(stackTile),
+                pathCells = setOf(bossPos, stackTile),
+                attackerWaves = emptyList(),
+                initialCoins = 1000,
+                healthPoints = 10,
+            )
+        val state = GameState(level)
+        val boss =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING_BOSS,
+                position = mutableStateOf(bossPos),
+                level = mutableStateOf(1),
+            )
+        val stackedSnotling =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING,
+                position = mutableStateOf(stackTile),
+                level = mutableStateOf(1),
+            )
+        state.attackers.addAll(listOf(boss, stackedSnotling))
+
+        EnemyAbilitySystem(state).processEnemyAbilities()
+
+        val liveSnotlingsAtStackTile =
+            state.attackers.filter {
+                it.type == AttackerType.SNOTLING && !it.isDefeated.value && it.position.value == stackTile
+            }
+        assertEquals(1, liveSnotlingsAtStackTile.size, "Blocked snotling summons should stay merged into one stack")
+        assertEquals(
+            AttackerType.SNOTLING.health * (candidateTiles.size + 1),
+            liveSnotlingsAtStackTile.single().currentHealth.value,
+            "Every blocked snotling summon should contribute its HP to the existing snotling stack",
+        )
+    }
 }

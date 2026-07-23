@@ -351,6 +351,12 @@ internal fun narrativeTextFramePaddingFractions(
                 bottom = 0.33f,
             )
 
+        type == NarrativeMessageType.EWHAD && attackerType == AttackerType.ARAXXA ->
+            NarrativeTextFramePaddingFractions(
+                top = 0.36f,
+                bottom = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,
+            )
+
         else ->
             NarrativeTextFramePaddingFractions(
                 top = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,

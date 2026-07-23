@@ -2093,4 +2093,10 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="daily_hint_min_range_message">La Balista ha una portata minima di 3 — non può colpire i nemici proprio accanto a sé. Abbinala a torri da mischia (Picca, Lancia) per coprire la corta distanza.</string>
     <string name="daily_hint_immunities_message">Alcuni nemici sono immuni a certi attacchi: i Demoni Rossi resistono alle palle di fuoco, i Demoni Blu resistono all\'acido. Osserva l\'ondata in arrivo e porta torri di tipi diversi.</string>
 
+    <string name="spiderling_name">Ragnetto</string>
+    <string name="spiderlings_name">Ragnetti</string>
+    <string name="araxxa_name">Araxxa il Ragno Gigante</string>
+    <string name="villain_araxxa_title">Araxxa il Ragno Gigante entra nel campo di battaglia</string>
+    <string name="villain_araxxa_backstory">Araxxa il Ragno Gigante è piombata sul campo di battaglia!</string>
+    <string name="villain_araxxa_description">Evoca ragnetti, stende una ragnatela crescente lungo il sentiero e ogni ragno che si trova nella tela si muove più velocemente. Brucia o sciogli la ragnatela con fuoco e acido prima che lo sciame travolga le tue difese!</string>
 </resources>

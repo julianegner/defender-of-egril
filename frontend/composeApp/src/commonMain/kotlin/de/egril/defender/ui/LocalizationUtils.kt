@@ -7,6 +7,7 @@ import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.SpellType
+import de.egril.defender.model.isSwarmUnit
 
 /**
  * Get localized name for a DefenderType
@@ -99,11 +100,13 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
             AttackerType.RED_WITCH -> "red_witch_name"
             AttackerType.GREEN_WITCH -> "green_witch_name"
             AttackerType.SNOTLING -> "snotling_name"
+            AttackerType.SPIDERLING -> "spiderling_name"
             AttackerType.SNOTLING_BOSS -> "snotling_boss_name"
             AttackerType.EWHAD -> "ewhad_name"
             AttackerType.DRAGON -> "dragon_name"
             AttackerType.GAROKK -> "garokk_name"
             AttackerType.MORGUK_BONEWHISPER -> "morguk_name"
+            AttackerType.ARAXXA -> "araxxa_name"
         }
     return LocalizedStrings.get(key, locale)
 }
@@ -123,11 +126,17 @@ fun AttackerType.getLocalizedShortName(locale: AppLocale = com.hyperether.resour
 
 /**
  * Get localized name for an Attacker instance, applying plural forms where appropriate.
- * For snotlings, uses the plural form when the stack has more than one snotling (hp > 1).
+ * For swarm units, uses the plural form when the stack has more than one creature (hp > 1).
  */
 fun Attacker.getLocalizedName(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String =
-    if (type == AttackerType.SNOTLING && currentHealth.value > 1) {
-        LocalizedStrings.get("snotlings_name", locale)
+    if (type.isSwarmUnit() && currentHealth.value > 1) {
+        val key =
+            if (type == AttackerType.SPIDERLING) {
+                "spiderlings_name"
+            } else {
+                "snotlings_name"
+            }
+        LocalizedStrings.get(key, locale)
     } else {
         type.getLocalizedName(locale)
     }

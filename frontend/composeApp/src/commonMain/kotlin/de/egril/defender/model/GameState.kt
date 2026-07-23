@@ -17,6 +17,7 @@ enum class GamePhase {
 enum class FieldEffectType {
     FIREBALL, // Visual effect for wizard fireball area
     ACID, // Visual effect for alchemy acid with duration
+    WEB, // Araxxa's spreading spider web area
 }
 
 enum class HealingEffectType {
@@ -85,6 +86,7 @@ data class TowerConstructionEffect(
 data class EnemySpawnEffect(
     val position: Position, // Spawn position of the newly appeared enemy
     val turnNumber: Int, // Turn when this spawn occurred
+    val attackerType: AttackerType? = null, // Spawned enemy type (used to suppress specific spawn visuals)
 )
 
 data class TrapTriggerEffect(
@@ -193,6 +195,7 @@ data class GameState(
     val currentWaveIndex: MutableState<Int> = mutableStateOf(0),
     val spawnCounter: MutableState<Int> = mutableStateOf(0),
     val attackersToSpawn: SnapshotStateList<AttackerType> = mutableStateListOf(),
+    val enemyTurnStartPositions: SnapshotStateMap<Int, Position> = mutableStateMapOf(), // Snapshot of enemy positions at start of enemy turn
     val turnNumber: MutableState<Int> = mutableStateOf(0),
     val actionsRemainingThisTurn: MutableState<Int> = mutableStateOf(0),
     val spawnPlan: List<PlannedEnemySpawn> = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves),

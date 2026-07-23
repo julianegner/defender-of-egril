@@ -13,6 +13,12 @@ class EnemyAbilitySystem(
 ) {
     private val bridgeSystem = BridgeSystem(state)
 
+    companion object {
+        private const val WEB_DURATION_TURNS = 10
+        private const val SPIDER_WEB_SPEED_BONUS = 1
+        private const val MAX_SWARM_SPAWN_SEARCH_RINGS = 5
+    }
+
     fun processEnemyAbilities() {
         // Create a snapshot of attackers to avoid ConcurrentModificationException
         // when spawning new demons during iteration
@@ -126,6 +132,10 @@ class EnemyAbilitySystem(
                     // Hex of Silence: disable an adjacent defender
                     disableNearestTower(attacker)
                 }
+                AttackerType.ARAXXA -> {
+                    handleAraxxaWeb(attacker)
+                    handleAraxxaSpiderlings(attacker)
+                }
                 else -> {
                     // Check if this unit should build a bridge
                     // Units build bridges when adjacent to rivers blocking their path
@@ -137,6 +147,8 @@ class EnemyAbilitySystem(
                 }
             }
         }
+
+        applySpiderWebBonuses()
     }
 
     /**
@@ -230,9 +242,6 @@ class EnemyAbilitySystem(
         if (boss.summonCooldown.value > 0) return
 
         val bossPos = boss.position.value
-        // Maximum BFS rings to search outward when a candidate tile is blocked.
-        val maxSpawnSearchRings = 5
-
         // Collect all tiles within a distance of 2 (neighbours and neighbours-of-neighbours)
         val candidateTiles = mutableSetOf<Position>()
         for (neighbor in bossPos.getHexNeighbors()) {
@@ -241,45 +250,13 @@ class EnemyAbilitySystem(
         }
         candidateTiles.remove(bossPos)
 
-        // A tile is valid for spawning if it is on the path and not blocked by a non-snotling unit.
-        fun isValidSpawnTile(pos: Position): Boolean =
-            pos.x >= 0 &&
-                pos.x < state.level.gridWidth &&
-                pos.y >= 0 &&
-                pos.y < state.level.gridHeight &&
-                state.level.isOnPath(pos) &&
-                state.attackers.none {
-                    it.position.value == pos && !it.isDefeated.value && it.type != AttackerType.SNOTLING
-                }
-
-        // For each candidate tile, resolve the actual spawn position. If the candidate itself is
-        // not valid, expand the search outward (BFS by hex distance) to find the nearest free tile.
-        val spawnPositions = mutableSetOf<Position>()
-        for (candidate in candidateTiles) {
-            if (isValidSpawnTile(candidate)) {
-                spawnPositions.add(candidate)
-            } else {
-                // BFS: find the nearest valid path tile, growing ring by ring
-                val visited = mutableSetOf(candidate)
-                var frontier = candidate.getHexNeighbors().toMutableList()
-                var found = false
-                repeat(maxSpawnSearchRings) { // cap at maxSpawnSearchRings rings to avoid runaway searches
-                    if (found) return@repeat
-                    val nextFrontier = mutableListOf<Position>()
-                    for (pos in frontier) {
-                        if (pos in visited) continue
-                        visited.add(pos)
-                        if (isValidSpawnTile(pos)) {
-                            spawnPositions.add(pos)
-                            found = true
-                            break
-                        }
-                        nextFrontier.addAll(pos.getHexNeighbors())
-                    }
-                    frontier = nextFrontier
-                }
-            }
-        }
+        val spawnPositions =
+            resolveSwarmSpawnPositions(
+                candidates = candidateTiles,
+                stackableType = AttackerType.SNOTLING,
+                isBaseTraversable = { state.level.isOnPath(it) },
+                maxSearchRings = MAX_SWARM_SPAWN_SEARCH_RINGS,
+            )
 
         if (spawnPositions.isEmpty()) return
 
@@ -294,15 +271,12 @@ class EnemyAbilitySystem(
             }
 
         for (spawnPos in spawnPositions) {
-            val snotling =
-                Attacker(
-                    id = state.nextAttackerId.value++,
-                    type = AttackerType.SNOTLING,
-                    position = mutableStateOf(spawnPos),
-                    level = mutableStateOf(1),
-                    currentTarget = mutableStateOf(inheritedTarget),
-                )
-            state.attackers.add(snotling)
+            summonSwarmUnit(
+                type = AttackerType.SNOTLING,
+                spawnPos = spawnPos,
+                level = 1,
+                currentTarget = inheritedTarget,
+            )
         }
 
         boss.summonCooldown.value = 3
@@ -318,7 +292,9 @@ class EnemyAbilitySystem(
         val morgukPos = morguk.position.value
         val inheritedTarget =
             morguk.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
-                state.level.waypoints.first().nextTarget
+                state.level.waypoints
+                    .first()
+                    .nextTarget
             } else {
                 state.level.targetPositions.first()
             }
@@ -347,6 +323,194 @@ class EnemyAbilitySystem(
         }
 
         morguk.summonCooldown.value = 3
+    }
+
+    /**
+     * Araxxa spreads a persistent spider web that grows by one tile per enemy turn and always
+     * remains under the villain herself.
+     */
+    private fun handleAraxxaWeb(araxxa: Attacker) {
+        val araxxaPosition = araxxa.position.value
+        val turnStartPosition = state.enemyTurnStartPositions[araxxa.id]
+        val didMoveThisTurn = turnStartPosition != null && turnStartPosition != araxxaPosition
+
+        val webPositions = mutableSetOf<Position>()
+        webPositions.add(araxxaPosition)
+        webPositions.addAll(
+            araxxaPosition.getHexNeighbors().filter { state.level.isEnemyTraversable(it) },
+        )
+
+        if (!didMoveThisTurn) {
+            webPositions.addAll(
+                araxxaPosition
+                    .getHexNeighborsWithinRadius(2, state.level.gridWidth, state.level.gridHeight)
+                    .filter { it.hexDistanceTo(araxxaPosition) == 2 && state.level.isEnemyTraversable(it) },
+            )
+        }
+
+        for (position in webPositions) {
+            if (isTileOccupiedByStaticObject(position)) continue
+            refreshSpiderWebAt(position)
+        }
+    }
+
+    /**
+     * Araxxa summons spiderlings on adjacent enemy-traversable tiles. Spiderlings are swarm units
+     * and may share tiles with other spiderlings, just like snotlings.
+     */
+    private fun handleAraxxaSpiderlings(araxxa: Attacker) {
+        val inheritedTarget =
+            araxxa.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
+                state.level.waypoints
+                    .first()
+                    .nextTarget
+            } else {
+                state.level.targetPositions.first()
+            }
+
+        val spawnPositions =
+            resolveSwarmSpawnPositions(
+                candidates = araxxa.position.value.getHexNeighbors(),
+                stackableType = AttackerType.SPIDERLING,
+                isBaseTraversable = { state.level.isEnemyTraversable(it) },
+                maxSearchRings = MAX_SWARM_SPAWN_SEARCH_RINGS,
+            )
+
+        if (spawnPositions.isEmpty()) return
+
+        for (spawnPos in spawnPositions) {
+            summonSwarmUnit(
+                type = AttackerType.SPIDERLING,
+                spawnPos = spawnPos,
+                level = araxxa.level.value,
+                currentTarget = inheritedTarget,
+            )
+            state.enemySpawnEffects.add(
+                EnemySpawnEffect(
+                    position = spawnPos,
+                    turnNumber = state.turnNumber.value,
+                    attackerType = AttackerType.SPIDERLING,
+                ),
+            )
+        }
+    }
+
+    private fun summonSwarmUnit(
+        type: AttackerType,
+        spawnPos: Position,
+        level: Int,
+        currentTarget: Position,
+    ) {
+        val existingSwarmUnit =
+            state.attackers.find {
+                !it.isDefeated.value &&
+                    it.position.value == spawnPos &&
+                    it.type == type
+            }
+        if (existingSwarmUnit != null) {
+            existingSwarmUnit.currentHealth.value += type.health * level
+            return
+        }
+
+        state.attackers.add(
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = type,
+                position = mutableStateOf(spawnPos),
+                level = mutableStateOf(level),
+                currentTarget = mutableStateOf(currentTarget),
+            ),
+        )
+    }
+
+    private fun resolveSwarmSpawnPositions(
+        candidates: Collection<Position>,
+        stackableType: AttackerType,
+        isBaseTraversable: (Position) -> Boolean,
+        maxSearchRings: Int,
+    ): List<Position> {
+        fun isValidSpawnTile(pos: Position): Boolean =
+            isWithinBounds(pos) &&
+                isBaseTraversable(pos) &&
+                !isTileOccupiedByStaticObject(pos) &&
+                state.attackers.none {
+                    !it.isDefeated.value &&
+                        it.position.value == pos &&
+                        it.type != stackableType
+                }
+
+        val spawnPositions = mutableListOf<Position>()
+        for (candidate in candidates) {
+            if (isValidSpawnTile(candidate)) {
+                spawnPositions.add(candidate)
+            } else {
+                val visited = mutableSetOf(candidate)
+                var frontier = candidate.getHexNeighbors().toMutableList()
+                var found = false
+                repeat(maxSearchRings) {
+                    if (found) return@repeat
+                    val nextFrontier = mutableListOf<Position>()
+                    for (pos in frontier) {
+                        if (pos in visited) continue
+                        visited.add(pos)
+                        if (isValidSpawnTile(pos)) {
+                            spawnPositions.add(pos)
+                            found = true
+                            break
+                        }
+                        nextFrontier.addAll(pos.getHexNeighbors())
+                    }
+                    frontier = nextFrontier
+                }
+            }
+        }
+        return spawnPositions
+    }
+
+    private fun isWithinBounds(position: Position): Boolean =
+        position.x >= 0 &&
+            position.x < state.level.gridWidth &&
+            position.y >= 0 &&
+            position.y < state.level.gridHeight
+
+    private fun isTileOccupiedByStaticObject(position: Position): Boolean =
+        state.defenders.any { it.position.value == position } ||
+            state.barricades.any { it.position == position && !it.isDestroyed() } ||
+            state.traps.any { it.position == position }
+
+    private fun refreshSpiderWebAt(position: Position) {
+        val existingEffect =
+            state.fieldEffects.find {
+                it.type == FieldEffectType.WEB && it.position == position
+            }
+        if (existingEffect != null) {
+            existingEffect.turnsRemaining = WEB_DURATION_TURNS
+            return
+        }
+
+        state.fieldEffects.add(
+            FieldEffect(
+                position = position,
+                type = FieldEffectType.WEB,
+                damage = 0,
+                turnsRemaining = WEB_DURATION_TURNS,
+                defenderId = 0,
+            ),
+        )
+    }
+
+    private fun applySpiderWebBonuses() {
+        val webPositions =
+            state.fieldEffects
+                .filter { it.type == FieldEffectType.WEB }
+                .mapTo(mutableSetOf()) { it.position }
+
+        for (attacker in state.attackers) {
+            if (attacker.isDefeated.value || !attacker.type.isSpider()) continue
+            if (attacker.position.value in webPositions) {
+                attacker.speedBonus.value = maxOf(attacker.speedBonus.value, SPIDER_WEB_SPEED_BONUS)
+            }
+        }
     }
 
     /**

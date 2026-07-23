@@ -86,6 +86,7 @@ import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.TrapIcon
+import de.egril.defender.ui.icon.WebIcon
 import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreview
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
@@ -1609,6 +1610,7 @@ fun GridCell(
                 when (effectiveFieldEffect.type) {
                     FieldEffectType.FIREBALL -> GamePlayColors.Warning.copy(alpha = 0.5f) // Orange tint for fireball
                     FieldEffectType.ACID -> GamePlayColors.Success.copy(alpha = 0.6f) // Green tint for acid
+                    FieldEffectType.WEB -> Color(0xFF8E7CC3).copy(alpha = 0.5f) // Violet tint for spider web
                 }
             }
 
@@ -1694,8 +1696,10 @@ fun GridCell(
             isInPreviewRange -> GamePlayColors.Success // Green border for range preview tiles
 
             // Barricade and trap placement range - brown borders (light brown diagonal stripes)
-            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement ||
-                cellIsSupportBarricadePlacement || cellIsSupportDwarvenTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
+            cellIsInBarricadeRange ||
+                cellIsValidForMineTrapPlacement ||
+                cellIsSupportBarricadePlacement ||
+                cellIsSupportDwarvenTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
 
             // Magical trap placement range - lilac borders
             cellIsValidForMagicalTrapPlacement || cellIsSupportMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight // Lilac border for magical trap placement range
@@ -1728,6 +1732,7 @@ fun GridCell(
                 when (effectiveFieldEffect.type) {
                     FieldEffectType.FIREBALL -> GamePlayColors.WarningDeep // Deep orange border for fireball
                     FieldEffectType.ACID -> GamePlayColors.Success // Green border for acid
+                    FieldEffectType.WEB -> Color(0xFF5E35B1) // Deep violet border for spider web
                 }
             }
 
@@ -1742,8 +1747,12 @@ fun GridCell(
             isKeyboardPlacementCursor -> 6.dp // Prominent border for the keyboard placement/targeting cursor
             showPlacementPreview -> 6.dp // Double thickness for hovered build tile
             isInPreviewRange -> 3.dp // Medium border for range preview
-            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement ||
-                cellIsSupportBarricadePlacement || cellIsSupportDwarvenTrapPlacement || cellIsSupportMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
+            cellIsInBarricadeRange ||
+                cellIsValidForMineTrapPlacement ||
+                cellIsValidForMagicalTrapPlacement ||
+                cellIsSupportBarricadePlacement ||
+                cellIsSupportDwarvenTrapPlacement ||
+                cellIsSupportMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
             isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp // Medium border for buildable tiles and tower bases
             isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp // Extra thick border for selected defender (not during initial building)
             cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> 2.dp // Thin purple border for double-reach-only tiles
@@ -2156,6 +2165,12 @@ private fun BoxScope.GridCellContent(
                             Modifier
                         },
                 ) {
+                    if (fieldEffect?.type == FieldEffectType.WEB) {
+                        WebIcon(
+                            size = GamePlayConstants.TileIconSizes.SpiderWebBackground,
+                            color = Color(0xFFE6E0F8).copy(alpha = 0.7f),
+                        )
+                    }
                     EnemyIcon(
                         attacker = attacker,
                         backgroundColor = attackerTileBackground,
@@ -2340,6 +2355,20 @@ private fun BoxScope.GridCellContent(
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                         )
+                        Text(
+                            "${fieldEffect.turnsRemaining}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = GamePlayColors.Yellow,
+                        )
+                    }
+                }
+
+                FieldEffectType.WEB -> {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        WebIcon(size = 20.dp)
                         Text(
                             "${fieldEffect.turnsRemaining}T",
                             style = MaterialTheme.typography.labelSmall,
@@ -2970,7 +2999,7 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show enemy spawn portal overlay when an enemy just appeared at this position
-    if (enemySpawnEffect != null) {
+    if (enemySpawnEffect != null && enemySpawnEffect.attackerType?.isSpider() != true) {
         EnemySpawnAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(16f),

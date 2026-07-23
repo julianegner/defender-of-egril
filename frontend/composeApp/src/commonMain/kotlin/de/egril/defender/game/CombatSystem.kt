@@ -440,6 +440,11 @@ class CombatSystem(
             it.type == FieldEffectType.ACID && it.position in affectedPositions
         }
 
+        // Fire also burns away spider webs.
+        state.fieldEffects.removeAll {
+            it.type == FieldEffectType.WEB && it.position in affectedPositions
+        }
+
         // Damage all bridges in affected positions
         affectedPositions.forEach { pos ->
             val bridge = state.getBridgeAt(pos)
@@ -518,6 +523,11 @@ class CombatSystem(
 
         // Create field effects for acid DOT on all affected positions
         // Don't remove existing acid effects - they should persist until they expire
+
+        // Acid dissolves spider webs on the targeted tiles.
+        state.fieldEffects.removeAll {
+            it.type == FieldEffectType.WEB && it.position in affectedPositions
+        }
 
         // Get all positions with active fireball effects (fire burns away acid)
         val fireballPositions =
@@ -598,8 +608,8 @@ class CombatSystem(
     fun processDefeatedAttackers() {
         val defeated = state.attackers.filter { it.isDefeated.value && !state.level.isTargetPosition(it.position.value) }
 
-        // Snotlings defeated by merging are not real kills: exclude them from kill counts and rewards.
-        val mergedSnotlings = defeated.filter { it.wasMerged.value }
+        // Swarm units defeated by merging are not real kills: exclude them from kill counts and rewards.
+        val mergedSwarmUnits = defeated.filter { it.wasMerged.value }
         val actualKills = defeated.filter { !it.wasMerged.value }
 
         // Track kills for this attack
@@ -609,8 +619,8 @@ class CombatSystem(
         if (killsThisAttack > 0) {
             GameLogBuffer.log("COMBAT", "Defeated $killsThisAttack enemies: ${killedTypes.joinToString()}")
         }
-        if (mergedSnotlings.isNotEmpty()) {
-            GameLogBuffer.log("COMBAT", "Merged ${mergedSnotlings.size} snotling(s) — no reward")
+        if (mergedSwarmUnits.isNotEmpty()) {
+            GameLogBuffer.log("COMBAT", "Merged ${mergedSwarmUnits.size} swarm unit(s) — no reward")
         }
 
         // Update turn totals
@@ -635,7 +645,7 @@ class CombatSystem(
             )
         }
 
-        // Calculate XP and coins for defeated enemies (merged snotlings are excluded)
+        // Calculate XP and coins for defeated enemies (merged swarm units are excluded)
         for (attacker in actualKills) {
             // Coin reward is calculated here and stored in CoinGainEffect.amount; the actual
             // state.coins.value increment is performed by the UI (GameMap) when the coin gain

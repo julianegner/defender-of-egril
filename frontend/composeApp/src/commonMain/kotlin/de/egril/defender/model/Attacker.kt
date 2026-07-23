@@ -74,6 +74,9 @@ enum class AttackerType(
     // Weak early-game minion summoned by Gribnak the Squealer: 5 HP but very nimble (5 tiles/turn)
     SNOTLING("Snotling", health = 5, speed = 5, reward = 1, xp = 1),
 
+    // Weak spider swarm unit summoned by Araxxa. Behaves like a snotling stack.
+    SPIDERLING("Spiderling", health = 10, speed = 5, reward = 1, xp = 1),
+
     EWHAD(
         "Ewhad",
         health = 200,
@@ -138,6 +141,20 @@ enum class AttackerType(
         villainAbility = VillainAbility(effect = VillainAuraEffect.SPEED, range = 3, cooldown = 1, magnitude = 1),
         villainName = "Morguk",
     ),
+
+    // Araxxa the Giant Spider: villain that spawns spiderlings and spreads a web area that
+    // empowers spiders standing inside it.
+    ARAXXA(
+        "Araxxa the Giant Spider",
+        health = 90,
+        speed = 2,
+        reward = 80,
+        xp = 48,
+        canSummon = true,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Araxxa",
+    ),
 }
 
 /**
@@ -178,6 +195,7 @@ data class Attacker(
     val movementPenalty: MutableState<Int> = mutableStateOf(0), // Movement points lost due to spike tower barbs (level 10+)
     val speedBonus: MutableState<Int> = mutableStateOf(0), // Extra movement granted by a villain aura (e.g. Garokk's War Cry)
     val villainCooldown: MutableState<Int> = mutableStateOf(0), // Rounds until this villain's ability next activates
+    val movementTurnsElapsed: MutableState<Int> = mutableStateOf(0), // Enemy turns elapsed on battlefield (for alternating movement patterns)
 ) {
     // Callback for dragon level changes (for achievements)
     var onDragonLevelChanged: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
@@ -251,6 +269,7 @@ fun attackerTargetDamage(
         AttackerType.EWHAD -> Int.MAX_VALUE // Special marker for "all HP" - caller must handle
         AttackerType.GAROKK -> level // Boss villain: 1 HP per level, like other mighty enemies
         AttackerType.MORGUK_BONEWHISPER -> level // Goblin Shaman villain: 1 HP per level
+        AttackerType.ARAXXA -> level // Giant spider villain: 1 HP per level
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
 
@@ -259,7 +278,22 @@ fun attackerTargetDamage(
  * Such enemies can create an unbounded number of extra units, so the maximum threat they
  * pose to the player's health points cannot be reliably bounded ahead of time.
  */
-fun AttackerType.isSummoner(): Boolean = this == AttackerType.EVIL_WIZARD || this == AttackerType.EWHAD || this == AttackerType.SNOTLING_BOSS || this == AttackerType.MORGUK_BONEWHISPER
+fun AttackerType.isSummoner(): Boolean =
+    this == AttackerType.EVIL_WIZARD ||
+        this == AttackerType.EWHAD ||
+        this == AttackerType.SNOTLING_BOSS ||
+        this == AttackerType.MORGUK_BONEWHISPER ||
+        this == AttackerType.ARAXXA
+
+/**
+ * Swarm units can stack by moving onto the same tile, merging their health into one unit.
+ */
+fun AttackerType.isSwarmUnit(): Boolean = this == AttackerType.SNOTLING || this == AttackerType.SPIDERLING
+
+/**
+ * Spider units receive a bonus while standing inside Araxxa's spider web.
+ */
+fun AttackerType.isSpider(): Boolean = this == AttackerType.SPIDERLING || this == AttackerType.ARAXXA
 
 /**
  * Returns true if this attacker is immune to a single attack from a defender of [defenderType].

@@ -451,7 +451,7 @@ fun AttackerInfo(
                                 text = stringResource(Res.string.mighty_unit_warning, damage),
                                 color = GamePlayColors.ErrorDark,
                                 isBold = true,
-                            )
+                            ),
                         )
                     }
 
@@ -489,6 +489,7 @@ fun AttackerInfo(
                             AttackerType.GAROKK -> stringResource(Res.string.villain_garokk_description)
                             AttackerType.SNOTLING_BOSS -> stringResource(Res.string.villain_gribnak_description)
                             AttackerType.MORGUK_BONEWHISPER -> stringResource(Res.string.villain_morguk_description)
+                            AttackerType.ARAXXA -> stringResource(Res.string.villain_araxxa_description)
                             else -> ""
                         }
                     if (villainDescription.isNotEmpty()) {
@@ -507,7 +508,6 @@ fun AttackerInfo(
                         }
                     }
                 }
-
             }
         }
     }
