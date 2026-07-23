@@ -67,18 +67,18 @@ class FreyaShieldWallTest {
     }
 
     @Test
-    fun sideAttacksStillDamageFreya() {
+    fun rearAttacksStillDamageFreya() {
         val state = GameState(createTestLevel())
         val engine = GameEngine(state)
-        val sideTower = defender(1, DefenderType.BOW_TOWER, Position(4, 1))
+        val rearTower = defender(1, DefenderType.BOW_TOWER, Position(1, 3))
         val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
 
-        state.defenders.add(sideTower)
+        state.defenders.add(rearTower)
         state.attackers.add(freya)
 
-        assertTrue(engine.defenderAttack(sideTower.id, freya.id), "Side tower should be allowed to attack Freya")
+        assertTrue(engine.defenderAttack(rearTower.id, freya.id), "Rear tower should be allowed to attack Freya")
 
-        assertEquals(freya.maxHealth - sideTower.type.baseDamage, freya.currentHealth.value, "Side attacks should not be blocked")
+        assertEquals(freya.maxHealth - rearTower.type.baseDamage, freya.currentHealth.value, "Rear attacks should not be blocked")
     }
 
     @Test
