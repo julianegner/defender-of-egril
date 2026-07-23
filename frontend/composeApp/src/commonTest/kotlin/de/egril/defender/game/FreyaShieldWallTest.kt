@@ -49,21 +49,21 @@ class FreyaShieldWallTest {
     )
 
     @Test
-    fun frontAttacksAreBlockedForFreyaAndRearTiles() {
+    fun frontAttacksAreBlockedForFreyaAndShieldFlanks() {
         val state = GameState(createTestLevel())
         val engine = GameEngine(state)
         val frontTower = defender(1, DefenderType.BOW_TOWER, Position(6, 3), actions = 2)
         val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
-        val rearSkeleton = attacker(2, AttackerType.SKELETON, Position(3, 3))
+        val upperSkeleton = attacker(2, AttackerType.SKELETON, Position(4, 2))
 
         state.defenders.add(frontTower)
-        state.attackers.addAll(listOf(freya, rearSkeleton))
+        state.attackers.addAll(listOf(freya, upperSkeleton))
 
         assertTrue(engine.defenderAttack(frontTower.id, freya.id), "Front tower should be allowed to attack Freya")
-        assertTrue(engine.defenderAttack(frontTower.id, rearSkeleton.id), "Front tower should be allowed to attack the rear unit")
+        assertTrue(engine.defenderAttack(frontTower.id, upperSkeleton.id), "Front tower should be allowed to attack the protected flank unit")
 
         assertEquals(freya.maxHealth, freya.currentHealth.value, "Freya should block frontal damage on herself")
-        assertEquals(rearSkeleton.maxHealth, rearSkeleton.currentHealth.value, "Freya should block frontal damage for the tile behind her")
+        assertEquals(upperSkeleton.maxHealth, upperSkeleton.currentHealth.value, "Freya should block frontal damage for the flank tile")
     }
 
     @Test
@@ -82,17 +82,41 @@ class FreyaShieldWallTest {
     }
 
     @Test
+    fun sideAttacksStillDamageShieldFlank() {
+        val state = GameState(createTestLevel())
+        val engine = GameEngine(state)
+        val sideTower = defender(1, DefenderType.BOW_TOWER, Position(1, 2))
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+        val upperSkeleton = attacker(2, AttackerType.SKELETON, Position(4, 2))
+
+        state.defenders.add(sideTower)
+        state.attackers.addAll(listOf(freya, upperSkeleton))
+
+        assertTrue(sideTower.canAttack(upperSkeleton), "Side tower should be in range of the protected flank tile")
+        assertTrue(engine.defenderAttack(sideTower.id, upperSkeleton.id), "Side tower should be allowed to attack the protected flank tile")
+
+        assertEquals(
+            upperSkeleton.maxHealth - sideTower.type.baseDamage,
+            upperSkeleton.currentHealth.value,
+            "Attacks from the side should not be blocked for the flank tile",
+        )
+    }
+
+    @Test
     fun ballistaBypassesShieldWallFromTheFront() {
         val state = GameState(createTestLevel())
         val engine = GameEngine(state)
-        val ballista = defender(1, DefenderType.BALLISTA_TOWER, Position(7, 3))
+        val ballista = defender(1, DefenderType.BALLISTA_TOWER, Position(7, 3), actions = 2)
         val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+        val lowerSkeleton = attacker(2, AttackerType.SKELETON, Position(4, 4))
 
         state.defenders.add(ballista)
-        state.attackers.add(freya)
+        state.attackers.addAll(listOf(freya, lowerSkeleton))
 
         assertTrue(engine.defenderAttack(ballista.id, freya.id), "Ballista should be allowed to attack Freya")
+        assertTrue(engine.defenderAttack(ballista.id, lowerSkeleton.id), "Ballista should be allowed to attack the protected flank tile")
 
         assertEquals(freya.maxHealth - ballista.type.baseDamage, freya.currentHealth.value, "Ballista shots should bypass the shield wall")
+        assertEquals(lowerSkeleton.maxHealth - ballista.type.baseDamage, lowerSkeleton.currentHealth.value, "Ballista shots should bypass the shield wall for flank tiles too")
     }
 }

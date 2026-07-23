@@ -48,7 +48,7 @@ class VillainSystemTest {
         assertTrue(type.isBoss, "Freya should be a boss villain")
         assertEquals(EnemyFaction.UNDEAD, type.faction, "Freya should lead the undead")
         assertEquals("Freya", type.villainName, "Freya's short name should live in the enum")
-        assertEquals(2, type.shieldWallRangeBehind, "Freya should protect the next two tiles behind her")
+        assertEquals(3, type.shieldWallFormationWidth, "Freya's shield wall should span her tile and both flank tiles")
     }
 
     @Test

@@ -11,6 +11,7 @@ import de.egril.defender.model.hexDistanceTo
 
 private const val HEX_DIRECTION_COUNT = 6
 private val SHIELD_WALL_FRONT_ARC_OFFSETS = listOf(0, 1, -1)
+private val SHIELD_WALL_FLANK_OFFSETS = listOf(2, -2)
 
 fun GameState.isShieldWallAttackBlocked(
     defender: Defender,
@@ -27,7 +28,7 @@ fun GameState.isShieldWallAttackBlocked(
     return attackers.any { freya ->
         !freya.isDefeated.value &&
             freya.type == AttackerType.FALLEN_SHIELDMAIDEN_FREYA &&
-            freya.type.shieldWallRangeBehind > 0 &&
+            freya.type.shieldWallFormationWidth > 0 &&
             isProtectedByFreyaShieldWall(
                 freya = freya,
                 protectedPosition = targetPosition,
@@ -45,9 +46,9 @@ private fun GameState.isProtectedByFreyaShieldWall(
 ): Boolean {
     val freyaPosition = freya.position.value
     val frontDirection = shieldWallFrontDirection(freya, pathfinding) ?: return false
-    if (!isOnFreyaShieldLine(freyaPosition, protectedPosition, frontDirection, freya.type.shieldWallRangeBehind)) return false
+    if (!isOnFreyaShieldLine(freyaPosition, protectedPosition, frontDirection, freya.type.shieldWallFormationWidth)) return false
 
-    val attackDirection = hexDirectionToward(freyaPosition, attackOrigin) ?: return false
+    val attackDirection = hexDirectionToward(protectedPosition, attackOrigin) ?: return false
     return SHIELD_WALL_FRONT_ARC_OFFSETS.any { offset ->
         (frontDirection + offset).mod(HEX_DIRECTION_COUNT) == attackDirection
     }
@@ -71,16 +72,18 @@ private fun isOnFreyaShieldLine(
     freyaPosition: Position,
     protectedPosition: Position,
     frontDirection: Int,
-    shieldWallRangeBehind: Int,
+    shieldWallFormationWidth: Int,
 ): Boolean {
+    val flankRadius = shieldWallFormationWidth / 2
     if (protectedPosition == freyaPosition) return true
 
-    var current = freyaPosition
-    val behindDirection = (frontDirection + 3).mod(HEX_DIRECTION_COUNT)
-    repeat(shieldWallRangeBehind) {
-        current = current.getHexNeighbor(behindDirection)
-        if (current == protectedPosition) {
-            return true
+    SHIELD_WALL_FLANK_OFFSETS.forEach { flankOffset ->
+        var current = freyaPosition
+        repeat(flankRadius) {
+            current = current.getHexNeighbor(frontDirection + flankOffset)
+            if (current == protectedPosition) {
+                return true
+            }
         }
     }
     return false

@@ -430,7 +430,7 @@ fun AttackerInfo(
                             ),
                         )
                     }
-                    if (attacker.type.shieldWallRangeBehind > 0) {
+                    if (attacker.type.shieldWallFormationWidth > 0) {
                         infoEntries.add(
                             AttackerInfoEntry(
                                 icon = AttackerInfoEntryIcon.SHIELD,

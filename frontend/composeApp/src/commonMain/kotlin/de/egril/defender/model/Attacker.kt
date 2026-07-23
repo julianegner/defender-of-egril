@@ -71,7 +71,7 @@ enum class AttackerType(
     val towerDisableRangeBase: Int? = null,
     val towerDisableCooldown: Int? = null,
     val towerDisableDurationTurns: Int? = null,
-    val shieldWallRangeBehind: Int = 0,
+    val shieldWallFormationWidth: Int = 0,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
@@ -225,7 +225,7 @@ enum class AttackerType(
         isVillain = true,
         faction = EnemyFaction.UNDEAD,
         villainName = "Freya",
-        shieldWallRangeBehind = 2,
+        shieldWallFormationWidth = 3,
     ),
 }
 
