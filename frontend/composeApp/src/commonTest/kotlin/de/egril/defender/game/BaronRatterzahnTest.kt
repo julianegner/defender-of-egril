@@ -62,6 +62,7 @@ class BaronRatterzahnTest {
                 currentTarget = mutableStateOf(Position(11, 3)),
             )
         state.attackers.add(baron)
+        state.enemyTurnStartPositions[baron.id] = Position(4, 3)
 
         val abilities = EnemyAbilitySystem(state)
         abilities.processEnemyAbilities()
@@ -84,7 +85,7 @@ class BaronRatterzahnTest {
 
         val roboticGoblins = state.attackers.filter { it.type == AttackerType.ROBOTIC_GOBLIN }
         assertEquals(2, roboticGoblins.size, "Both scrap piles should hatch into robotic goblins")
-        assertTrue(state.scrapPiles.isEmpty(), "Scrap piles should be consumed after hatching")
+        assertEquals(2, state.scrapPiles.size, "Moved Baron should drop two new scrap piles after hatching")
         assertTrue(roboticGoblins.all { it.level.value == 2 }, "Robotic goblins should inherit Baron's level")
     }
 
@@ -130,7 +131,7 @@ class BaronRatterzahnTest {
     }
 
     @Test
-    fun movingBaronClearsOwnedScrapPilesBeforeHatch() {
+    fun movingBaronHatchesThenDropsFreshScrapPiles() {
         val state = GameState(createLevel())
         val baron =
             Attacker(
@@ -148,11 +149,10 @@ class BaronRatterzahnTest {
             ),
         )
         state.enemyTurnStartPositions[baron.id] = Position(5, 3)
-        baron.summonCooldown.value = 2
 
         EnemyAbilitySystem(state).processEnemyAbilities()
 
-        assertEquals(0, state.attackers.count { it.type == AttackerType.ROBOTIC_GOBLIN }, "Moved Baron should not hatch existing scrap piles")
-        assertTrue(state.scrapPiles.none { it.ownerAttackerId == baron.id }, "Moved Baron should lose previously dropped scrap piles")
+        assertEquals(2, state.attackers.count { it.type == AttackerType.ROBOTIC_GOBLIN }, "Moved Baron should hatch existing scrap piles")
+        assertEquals(2, state.scrapPiles.count { it.ownerAttackerId == baron.id }, "Moved Baron should then drop two fresh scrap piles")
     }
 }

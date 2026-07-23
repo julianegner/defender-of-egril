@@ -18,7 +18,6 @@ class EnemyAbilitySystem(
         private const val SPIDER_WEB_SPEED_BONUS = 1
         private const val MAX_SWARM_SPAWN_SEARCH_RINGS = 5
         private const val BARON_SCRAP_BOT_COUNT = 2
-        private const val BARON_SCRAP_COOLDOWN_TURNS = 4
     }
 
     fun processEnemyAbilities() {
@@ -157,16 +156,17 @@ class EnemyAbilitySystem(
     }
 
     private fun handleBaronRatterzahn(baron: Attacker) {
-        clearBaronScrapPilesAfterMovement(baron)
         hatchBaronScrapPiles(baron)
-        dropBaronScrapPiles(baron)
+        val movedThisTurn = clearBaronScrapPilesAfterMovement(baron)
+        dropBaronScrapPiles(baron, movedThisTurn)
         fireBaronRocket(baron)
     }
 
-    private fun clearBaronScrapPilesAfterMovement(baron: Attacker) {
-        val turnStartPosition = state.enemyTurnStartPositions[baron.id] ?: return
-        if (turnStartPosition == baron.position.value) return
+    private fun clearBaronScrapPilesAfterMovement(baron: Attacker): Boolean {
+        val turnStartPosition = state.enemyTurnStartPositions[baron.id] ?: return false
+        if (turnStartPosition == baron.position.value) return false
         state.scrapPiles.removeAll { it.ownerAttackerId == baron.id }
+        return true
     }
 
     private fun hatchBaronScrapPiles(baron: Attacker) {
@@ -238,9 +238,11 @@ class EnemyAbilitySystem(
         return state.attackers.none { !it.isDefeated.value && it.position.value == position }
     }
 
-    private fun dropBaronScrapPiles(baron: Attacker) {
-        if (baron.summonCooldown.value > 0) return
-
+    private fun dropBaronScrapPiles(
+        baron: Attacker,
+        movedThisTurn: Boolean,
+    ) {
+        if (!movedThisTurn) return
         val droppedPositions = mutableSetOf<Position>()
         val candidates = baronScrapDropCandidates(baron)
         for (candidate in candidates) {
@@ -254,10 +256,6 @@ class EnemyAbilitySystem(
                     hatchTurn = state.turnNumber.value + 1,
                 ),
             )
-        }
-
-        if (droppedPositions.isNotEmpty()) {
-            baron.summonCooldown.value = BARON_SCRAP_COOLDOWN_TURNS
         }
     }
 

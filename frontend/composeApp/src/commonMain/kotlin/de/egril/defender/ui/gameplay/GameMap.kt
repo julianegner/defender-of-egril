@@ -59,7 +59,7 @@ import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.MineDigAnimation
 import de.egril.defender.ui.animations.PikeAttackOverlay
-import de.egril.defender.ui.animations.RocketAttackAnimation
+import de.egril.defender.ui.animations.RocketAttackOverlay
 import de.egril.defender.ui.animations.SkyIsFallingAnimation
 import de.egril.defender.ui.animations.SpearAttackOverlay
 import de.egril.defender.ui.animations.SpellDoubleReachColor
@@ -777,6 +777,15 @@ fun GameGrid(
                     if (alchemyEffects.isNotEmpty()) {
                         AlchemyAttackOverlay(
                             effects = alchemyEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
+                    val rocketEffects = gameState.rocketAttackEffects.toList()
+                    if (rocketEffects.isNotEmpty()) {
+                        RocketAttackOverlay(
+                            effects = rocketEffects,
                             hexSizeDp = hexSize.value,
                             contentSize = measuredContentSize,
                             animate = AppSettings.enableAnimations.value,
@@ -3070,22 +3079,6 @@ private fun BoxScope.GridCellContent(
             animate = AppSettings.enableAnimations.value,
             directionAngle = angle,
             isTargetTile = isArrowTargetTile,
-            modifier = Modifier.fillMaxSize().zIndex(18f),
-        )
-    }
-
-    if (rocketAttackEffect != null) {
-        val dx = (rocketAttackEffect.targetPosition.x - rocketAttackEffect.sourcePosition.x).toFloat()
-        val dy = (rocketAttackEffect.targetPosition.y - rocketAttackEffect.sourcePosition.y).toFloat()
-        val angle =
-            if (dx == 0f && dy == 0f) {
-                0f
-            } else {
-                (atan2(dy.toDouble(), dx.toDouble()) * GamePlayConstants.AnimationTimings.RADIANS_TO_DEGREES).toFloat()
-            }
-        RocketAttackAnimation(
-            animate = AppSettings.enableAnimations.value,
-            directionAngle = angle,
             modifier = Modifier.fillMaxSize().zIndex(18f),
         )
     }
