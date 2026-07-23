@@ -143,6 +143,7 @@ fun NarrativeMessageDialog(
                 else -> painterResource(Res.drawable.message_background_ewhad)
             }
         val buttonColor = accentColorOverride ?: if (type == NarrativeMessageType.EWHAD) Color(0xFF4A2060) else Color(0xFF5C3A1E)
+        val textColors = narrativeTextColors(iconAttackerTypeOverride)
 
         // Both background images are square (500×500 and 1024×1024).
         // Padding keeps text inside the frame border, computed as a fixed fraction of
@@ -276,7 +277,7 @@ fun NarrativeMessageDialog(
                         text = title,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1A1A1A),
+                        color = textColors.title,
                         textAlign = TextAlign.Center,
                         fontSize = titleFontSize,
                     )
@@ -286,7 +287,7 @@ fun NarrativeMessageDialog(
                         SelectableText(
                             text = text,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF333333),
+                            color = textColors.body,
                             textAlign = TextAlign.Center,
                             fontSize = bodyFontSize,
                         )
@@ -363,6 +364,24 @@ internal fun narrativeTextFramePaddingFractions(
                 bottom = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,
             )
     }
+
+internal fun narrativeTextColors(attackerType: AttackerType?): NarrativeTextColors =
+    if (attackerType == AttackerType.SILAS_THE_MASKMASTER) {
+        NarrativeTextColors(
+            title = Color(0xFFF7F1E8),
+            body = Color(0xFFE9DFD2),
+        )
+    } else {
+        NarrativeTextColors(
+            title = Color(0xFF1A1A1A),
+            body = Color(0xFF333333),
+        )
+    }
+
+internal data class NarrativeTextColors(
+    val title: Color,
+    val body: Color,
+)
 
 @Composable
 private fun StoryMessageBackground(modifier: Modifier = Modifier) {
