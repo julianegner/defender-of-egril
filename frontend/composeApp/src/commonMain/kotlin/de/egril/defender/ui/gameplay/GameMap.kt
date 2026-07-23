@@ -35,7 +35,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.LogConfig
-import de.egril.defender.game.freyaShieldWallVisiblePositions
+import de.egril.defender.game.freyaShieldWallVisibleOverlays
 import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
@@ -120,11 +120,33 @@ private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
  * fitted (smaller) side. The fly-to-counter coins use this so they match the bubbling coins' size.
  */
 private const val COIN_BUBBLE_COIN_SIZE_FRACTION = 0.14f
+private const val SHIELD_WALL_EDGE_OFFSET_X_FRACTION = 0.36f
+private const val SHIELD_WALL_EDGE_OFFSET_Y_FRACTION = 0.26f
 
 internal fun displayedRiverTile(
     levelRiverTile: RiverTile?,
     sandboxPaintedRiverTile: RiverTile?,
 ): RiverTile? = sandboxPaintedRiverTile ?: levelRiverTile
+
+private fun shieldWallOverlayOffsetX(
+    hexSize: Dp,
+    frontDirection: Int,
+): Dp =
+    when (frontDirection.mod(6)) {
+        0, 1, 5 -> hexSize * SHIELD_WALL_EDGE_OFFSET_X_FRACTION
+        2, 3, 4 -> hexSize * -SHIELD_WALL_EDGE_OFFSET_X_FRACTION
+        else -> 0.dp
+    }
+
+private fun shieldWallOverlayOffsetY(
+    hexSize: Dp,
+    frontDirection: Int,
+): Dp =
+    when (frontDirection.mod(6)) {
+        1, 2 -> hexSize * -SHIELD_WALL_EDGE_OFFSET_Y_FRACTION
+        4, 5 -> hexSize * SHIELD_WALL_EDGE_OFFSET_Y_FRACTION
+        else -> 0.dp
+    }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -233,7 +255,7 @@ fun GameGrid(
     // Find the selected defender and track its actions for dependency tracking
     val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
     val selectedDefenderActions = selectedDefender?.actionsRemaining?.value
-    val freyaShieldWallVisibleTiles = gameState.freyaShieldWallVisiblePositions()
+    val freyaShieldWallVisibleTiles = gameState.freyaShieldWallVisibleOverlays()
 
     val targetCircleMap =
         remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size) {
@@ -928,7 +950,7 @@ fun GameGrid(
                     gameState = gameState,
                     defender = defendersByPosition[position],
                     attacker = activeAttackersByPosition[position],
-                    showFreyaShieldWallOverlay = freyaShieldWallVisibleTiles.contains(position),
+                    freyaShieldWallFrontDirection = freyaShieldWallVisibleTiles[position]?.frontDirection,
                     selectedDefender = selectedDefenderForGrid,
                     isHovering = isHovering,
                     isInPreviewRange = isInPreviewRange,
@@ -1077,7 +1099,7 @@ fun GridCell(
     gameState: GameState,
     defender: Defender?,
     attacker: Attacker?,
-    showFreyaShieldWallOverlay: Boolean,
+    freyaShieldWallFrontDirection: Int?,
     selectedDefender: Defender?,
     // isHovering and isInPreviewRange replace the old hoveredPosition: Position? and
     // hoveredPositionIsBuildable: Boolean parameters.  Passing per-cell Booleans means only
@@ -1895,7 +1917,7 @@ fun GridCell(
                 position = position,
                 gameState = gameState,
                 attacker = attacker,
-                showFreyaShieldWallOverlay = showFreyaShieldWallOverlay,
+                freyaShieldWallFrontDirection = freyaShieldWallFrontDirection,
                 healingEffect = healingEffect,
                 damageEffect = damageEffect,
                 defender = defender,
@@ -1967,7 +1989,7 @@ fun GridCell(
                 position = position,
                 gameState = gameState,
                 attacker = attacker,
-                showFreyaShieldWallOverlay = showFreyaShieldWallOverlay,
+                freyaShieldWallFrontDirection = freyaShieldWallFrontDirection,
                 healingEffect = healingEffect,
                 damageEffect = damageEffect,
                 defender = defender,
@@ -2036,7 +2058,7 @@ private fun BoxScope.GridCellContent(
     position: Position,
     gameState: GameState,
     attacker: Attacker?,
-    showFreyaShieldWallOverlay: Boolean,
+    freyaShieldWallFrontDirection: Int?,
     healingEffect: HealingEffect?,
     damageEffect: DamageEffect?,
     defender: Defender?,
@@ -2146,12 +2168,15 @@ private fun BoxScope.GridCellContent(
         }
     }
 
-    if (showFreyaShieldWallOverlay) {
+    if (freyaShieldWallFrontDirection != null) {
         ShieldIcon(
             modifier =
                 Modifier
                     .align(Alignment.Center)
-                    .graphicsLayer(alpha = if (attacker == null) 0.75f else 0.5f),
+                    .offset(
+                        x = shieldWallOverlayOffsetX(hexSize, freyaShieldWallFrontDirection),
+                        y = shieldWallOverlayOffsetY(hexSize, freyaShieldWallFrontDirection),
+                    ).graphicsLayer(alpha = if (attacker == null) 0.75f else 0.5f),
             size = GamePlayConstants.TileIconSizes.ShieldWall,
         )
     }

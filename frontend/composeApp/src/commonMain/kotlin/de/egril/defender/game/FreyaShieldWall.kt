@@ -13,6 +13,10 @@ private const val HEX_DIRECTION_COUNT = 6
 private val SHIELD_WALL_FRONT_ARC_OFFSETS = listOf(0, 1, -1)
 private val SHIELD_WALL_FLANK_OFFSETS = listOf(2, -2)
 
+data class FreyaShieldWallOverlay(
+    val frontDirection: Int,
+)
+
 fun GameState.isShieldWallAttackBlocked(
     defender: Defender,
     target: Attacker,
@@ -38,7 +42,9 @@ fun GameState.isShieldWallAttackBlocked(
     }
 }
 
-fun GameState.freyaShieldWallVisiblePositions(): Set<Position> {
+fun GameState.freyaShieldWallVisiblePositions(): Set<Position> = freyaShieldWallVisibleOverlays().keys
+
+fun GameState.freyaShieldWallVisibleOverlays(): Map<Position, FreyaShieldWallOverlay> {
     val pathfinding = PathfindingSystem(this)
     return attackers
         .filter {
@@ -46,12 +52,15 @@ fun GameState.freyaShieldWallVisiblePositions(): Set<Position> {
                 it.type == AttackerType.FALLEN_SHIELDMAIDEN_FREYA &&
                 it.type.shieldWallFormationWidth > 0
         }.flatMap { freya ->
+            val frontDirection = shieldWallFrontDirection(freya, pathfinding) ?: return@flatMap emptyList()
             freyaShieldWallPositions(
                 freya = freya,
                 pathfinding = pathfinding,
                 includeFreyaTile = false,
-            )
-        }.toSet()
+            ).map { position ->
+                position to FreyaShieldWallOverlay(frontDirection = frontDirection)
+            }
+        }.toMap()
 }
 
 private fun GameState.isProtectedByFreyaShieldWall(

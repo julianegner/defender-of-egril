@@ -136,6 +136,23 @@ class FreyaShieldWallTest {
     }
 
     @Test
+    fun visibleShieldWallOverlaysUseFreyaFrontDirectionForEachFlankTile() {
+        val state = GameState(createTestLevel())
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+
+        state.attackers.add(freya)
+
+        assertEquals(
+            mapOf(
+                Position(4, 2) to FreyaShieldWallOverlay(frontDirection = 0),
+                Position(4, 4) to FreyaShieldWallOverlay(frontDirection = 0),
+            ),
+            state.freyaShieldWallVisibleOverlays(),
+            "Freya's visible wall overlays should carry the same front direction for both flank tiles",
+        )
+    }
+
+    @Test
     fun defeatedFreyaDoesNotRenderShieldWallTiles() {
         val state = GameState(createTestLevel())
         val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
