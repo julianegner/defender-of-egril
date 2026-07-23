@@ -26,4 +26,3 @@ fun ScrapPileIcon(
         drawCircle(color = Color(0xFFAAAFAF), radius = r * 0.14f, center = Offset(cX + r * 1.1f, cY + r * 0.2f))
     }
 }
-

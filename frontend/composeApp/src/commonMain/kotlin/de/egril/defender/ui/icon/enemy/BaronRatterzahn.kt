@@ -32,7 +32,6 @@ fun DrawScope.drawBaronRatterzahnSymbol(
             size = Size(size * 0.05f, size * 0.26f),
         )
     }
-
     withTransform({ scale(headScale, headScale, Offset(centerX, centerY - size * 0.18f)) }) {
         // Goblin rider
         drawCircle(
@@ -60,4 +59,3 @@ fun DrawScope.drawBaronRatterzahnSymbol(
         drawCircle(color = Color.Red, radius = size * 0.035f, center = Offset(centerX + size * 0.06f, centerY - size * 0.23f))
     }
 }
-
