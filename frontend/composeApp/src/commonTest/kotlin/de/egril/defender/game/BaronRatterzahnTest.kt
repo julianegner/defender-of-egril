@@ -90,7 +90,7 @@ class BaronRatterzahnTest {
     }
 
     @Test
-    fun rocketStunsTowerAndUsesCooldown() {
+    fun rocketTargetsHighestDamageTowerAndUsesCooldown() {
         val state = GameState(createLevel())
         val baron =
             Attacker(
@@ -110,7 +110,7 @@ class BaronRatterzahnTest {
         val secondTower =
             Defender(
                 id = 2,
-                type = DefenderType.SPEAR_TOWER,
+                type = DefenderType.BALLISTA_TOWER,
                 position = mutableStateOf(Position(7, 2)),
                 level = mutableStateOf(1),
                 buildTimeRemaining = mutableStateOf(0),
@@ -120,8 +120,9 @@ class BaronRatterzahnTest {
 
         val abilities = EnemyAbilitySystem(state)
         abilities.processEnemyAbilities()
-        assertTrue(firstTower.isDisabled.value || secondTower.isDisabled.value, "Rocket should disable a tower immediately")
-        assertEquals(4, (if (firstTower.isDisabled.value) firstTower else secondTower).disabledTurnsRemaining.value)
+        assertFalse(firstTower.isDisabled.value, "Lower-damage tower should not be targeted when stronger tower is in range")
+        assertTrue(secondTower.isDisabled.value, "Rocket should target the highest-damage tower in range")
+        assertEquals(4, secondTower.disabledTurnsRemaining.value)
         assertEquals(1, state.rocketAttackEffects.size, "Rocket attack should create an animation effect")
 
         val disabledBeforeSecondTurn = state.defenders.count { it.isDisabled.value }

@@ -309,7 +309,10 @@ class EnemyAbilitySystem(
             state.defenders
                 .filter { it.isReady && !it.isDisabled.value }
                 .filter { baron.position.value.hexDistanceTo(it.position.value) <= range }
-                .minByOrNull { baron.position.value.hexDistanceTo(it.position.value) }
+                .maxWithOrNull(
+                    compareBy<Defender> { it.actualDamage }
+                        .thenByDescending { baron.position.value.hexDistanceTo(it.position.value) },
+                )
 
         if (targetTower != null) {
             targetTower.isDisabled.value = true
