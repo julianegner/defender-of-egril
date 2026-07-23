@@ -392,6 +392,9 @@ class CombatSystem(
         defender: Defender,
         target: Attacker,
     ) {
+        if (state.isShieldWallAttackBlocked(defender, target)) {
+            return
+        }
         if (target.type.isMirrorImage) {
             removeHitMirrorImages(defender, listOf(target))
             return
@@ -449,9 +452,15 @@ class CombatSystem(
             state.attackers.filter {
                 !it.isDefeated.value && affectedPositions.contains(it.position.value)
             }
-        removeHitMirrorImages(defender, targets)
+        val unblockedTargets = targets.filterNot { state.isShieldWallAttackBlocked(defender, it) }
+        removeHitMirrorImages(defender, unblockedTargets)
 
-        for (target in targets) {
+        val blockedPositions =
+            affectedPositions.filterTo(mutableSetOf()) { position ->
+                state.isShieldWallAttackBlocked(defender, position)
+            }
+
+        for (target in unblockedTargets) {
             if (target.type.isMirrorImage) continue
             // Check immunity to fireball (Red Demons)
             if (target.canBeDamagedByFireball()) {
@@ -469,16 +478,17 @@ class CombatSystem(
 
         // Remove acid effects from affected positions (fire burns away the acid)
         state.fieldEffects.removeAll {
-            it.type == FieldEffectType.ACID && it.position in affectedPositions
+            it.type == FieldEffectType.ACID && it.position in affectedPositions && it.position !in blockedPositions
         }
 
         // Fire also burns away spider webs.
         state.fieldEffects.removeAll {
-            it.type == FieldEffectType.WEB && it.position in affectedPositions
+            it.type == FieldEffectType.WEB && it.position in affectedPositions && it.position !in blockedPositions
         }
 
         // Damage all bridges in affected positions
         affectedPositions.forEach { pos ->
+            if (pos in blockedPositions) return@forEach
             val bridge = state.getBridgeAt(pos)
             if (bridge != null && bridge.isActive) {
                 bridgeSystem.damageBridge(pos, getEffectiveDamage(defender))
@@ -487,6 +497,7 @@ class CombatSystem(
 
         // Add new fireball effects (visual only, last for 1 turn to show affected area)
         for (pos in affectedPositions) {
+            if (pos in blockedPositions) continue
             state.fieldEffects.add(
                 FieldEffect(
                     position = pos,
@@ -538,9 +549,15 @@ class CombatSystem(
             state.attackers.filter {
                 !it.isDefeated.value && affectedPositions.contains(it.position.value)
             }
-        removeHitMirrorImages(defender, targets)
+        val unblockedTargets = targets.filterNot { state.isShieldWallAttackBlocked(defender, it) }
+        removeHitMirrorImages(defender, unblockedTargets)
 
-        for (target in targets) {
+        val blockedPositions =
+            affectedPositions.filterTo(mutableSetOf()) { position ->
+                state.isShieldWallAttackBlocked(defender, position)
+            }
+
+        for (target in unblockedTargets) {
             if (target.type.isMirrorImage) continue
             // Check immunity to acid (Blue Demons)
             if (target.canBeDamagedByAcid()) {
@@ -570,6 +587,7 @@ class CombatSystem(
                 .mapTo(mutableSetOf()) { it.position }
 
         for (pos in affectedPositions) {
+            if (pos in blockedPositions) continue
             // Skip this position if there's an active fireball
             if (pos in fireballPositions) continue
 

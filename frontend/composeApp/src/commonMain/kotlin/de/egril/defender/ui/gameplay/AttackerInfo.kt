@@ -430,6 +430,15 @@ fun AttackerInfo(
                             ),
                         )
                     }
+                    if (attacker.type.shieldWallRangeBehind > 0) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.villain_freya_shield_wall_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
 
                     // Mighty unit warning - for wizards, witches, demons, dragons
                     val isMightyUnit =
@@ -491,6 +500,7 @@ fun AttackerInfo(
                             AttackerType.MORGUK_BONEWHISPER -> stringResource(Res.string.villain_morguk_description)
                             AttackerType.ARAXXA -> stringResource(Res.string.villain_araxxa_description)
                             AttackerType.BARON_RATTERZAHN -> stringResource(Res.string.villain_ratterzahn_description)
+                            AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> stringResource(Res.string.villain_freya_description)
                             AttackerType.SILAS_THE_MASKMASTER,
                             AttackerType.SILAS_MIRROR_IMAGE,
                             -> stringResource(Res.string.villain_silas_description)

@@ -170,6 +170,7 @@ class CheatCodeHandlerTest {
                 Triple("spawn roboticgoblin", AttackerType.ROBOTIC_GOBLIN, 1),
                 Triple("spawn araxxa", AttackerType.ARAXXA, 1),
                 Triple("spawn baron", AttackerType.BARON_RATTERZAHN, 1),
+                Triple("spawn freya", AttackerType.FALLEN_SHIELDMAIDEN_FREYA, 1),
                 Triple("spawn goblin 5", AttackerType.GOBLIN, 5),
                 Triple("spawn ork 10", AttackerType.ORK, 10),
             )

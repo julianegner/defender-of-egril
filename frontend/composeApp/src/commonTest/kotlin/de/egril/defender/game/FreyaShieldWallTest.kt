@@ -1,0 +1,98 @@
+package de.egril.defender.game
+
+import androidx.compose.runtime.mutableStateOf
+import de.egril.defender.model.Attacker
+import de.egril.defender.model.AttackerType
+import de.egril.defender.model.AttackerWave
+import de.egril.defender.model.Defender
+import de.egril.defender.model.DefenderType
+import de.egril.defender.model.GameState
+import de.egril.defender.model.Level
+import de.egril.defender.model.Position
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+class FreyaShieldWallTest {
+    private fun createTestLevel(): Level =
+        Level(
+            id = 1,
+            name = "Freya Shield Wall Test",
+            gridWidth = 10,
+            gridHeight = 7,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (0..9).map { Position(it, 3) }.toSet(),
+            attackerWaves = listOf(AttackerWave(listOf(AttackerType.FALLEN_SHIELDMAIDEN_FREYA))),
+            initialCoins = 1000,
+            healthPoints = 10,
+        )
+
+    private fun attacker(
+        id: Int,
+        type: AttackerType,
+        position: Position,
+    ) = Attacker(id, type, mutableStateOf(position), mutableStateOf(1))
+
+    private fun defender(
+        id: Int,
+        type: DefenderType,
+        position: Position,
+        actions: Int = 1,
+    ) = Defender(
+        id = id,
+        type = type,
+        position = mutableStateOf(position),
+        level = mutableStateOf(1),
+        buildTimeRemaining = mutableStateOf(0),
+        actionsRemaining = mutableStateOf(actions),
+    )
+
+    @Test
+    fun frontAttacksAreBlockedForFreyaAndRearTiles() {
+        val state = GameState(createTestLevel())
+        val engine = GameEngine(state)
+        val frontTower = defender(1, DefenderType.BOW_TOWER, Position(6, 3), actions = 2)
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+        val rearSkeleton = attacker(2, AttackerType.SKELETON, Position(3, 3))
+
+        state.defenders.add(frontTower)
+        state.attackers.addAll(listOf(freya, rearSkeleton))
+
+        assertTrue(engine.defenderAttack(frontTower.id, freya.id), "Front tower should be allowed to attack Freya")
+        assertTrue(engine.defenderAttack(frontTower.id, rearSkeleton.id), "Front tower should be allowed to attack the rear unit")
+
+        assertEquals(freya.maxHealth, freya.currentHealth.value, "Freya should block frontal damage on herself")
+        assertEquals(rearSkeleton.maxHealth, rearSkeleton.currentHealth.value, "Freya should block frontal damage for the tile behind her")
+    }
+
+    @Test
+    fun sideAttacksStillDamageFreya() {
+        val state = GameState(createTestLevel())
+        val engine = GameEngine(state)
+        val sideTower = defender(1, DefenderType.BOW_TOWER, Position(4, 1))
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+
+        state.defenders.add(sideTower)
+        state.attackers.add(freya)
+
+        assertTrue(engine.defenderAttack(sideTower.id, freya.id), "Side tower should be allowed to attack Freya")
+
+        assertEquals(freya.maxHealth - sideTower.type.baseDamage, freya.currentHealth.value, "Side attacks should not be blocked")
+    }
+
+    @Test
+    fun ballistaBypassesShieldWallFromTheFront() {
+        val state = GameState(createTestLevel())
+        val engine = GameEngine(state)
+        val ballista = defender(1, DefenderType.BALLISTA_TOWER, Position(7, 3))
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+
+        state.defenders.add(ballista)
+        state.attackers.add(freya)
+
+        assertTrue(engine.defenderAttack(ballista.id, freya.id), "Ballista should be allowed to attack Freya")
+
+        assertEquals(freya.maxHealth - ballista.type.baseDamage, freya.currentHealth.value, "Ballista shots should bypass the shield wall")
+    }
+}

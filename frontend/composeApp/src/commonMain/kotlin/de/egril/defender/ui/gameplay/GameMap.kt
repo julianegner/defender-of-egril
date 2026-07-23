@@ -1412,7 +1412,7 @@ fun GridCell(
                     gameState.activeSpellEffects.any {
                         it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == sel.id
                     }
-                enemyAttackPreview(attacker, sel, hasDoubleLevelBuff)
+                enemyAttackPreview(attacker, sel, hasDoubleLevelBuff, gameState)
             }
         }
 

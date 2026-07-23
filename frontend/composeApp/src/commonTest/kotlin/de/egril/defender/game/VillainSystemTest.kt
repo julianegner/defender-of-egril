@@ -41,6 +41,17 @@ class VillainSystemTest {
     }
 
     @Test
+    fun freyaIsAnUndeadVillainWithShieldWall() {
+        val type = AttackerType.FALLEN_SHIELDMAIDEN_FREYA
+        assertTrue(type.isVillain, "Freya should be a villain")
+        assertTrue(type.hidesHealthBar, "Villains must not display their health")
+        assertTrue(type.isBoss, "Freya should be a boss villain")
+        assertEquals(EnemyFaction.UNDEAD, type.faction, "Freya should lead the undead")
+        assertEquals("Freya", type.villainName, "Freya's short name should live in the enum")
+        assertEquals(2, type.shieldWallRangeBehind, "Freya should protect the next two tiles behind her")
+    }
+
+    @Test
     fun ewhadIsAVillainWithLanguageIndependentName() {
         val type = AttackerType.EWHAD
         assertTrue(type.isVillain, "Ewhad should be a villain")
@@ -53,6 +64,7 @@ class VillainSystemTest {
     fun villainNamesLiveInTheEnum() {
         assertEquals("Garokk", AttackerType.GAROKK.villainName)
         assertEquals("Ewhad", AttackerType.EWHAD.villainName)
+        assertEquals("Freya", AttackerType.FALLEN_SHIELDMAIDEN_FREYA.villainName)
         // Regular enemies have no enum name; their (translated) names come from the string resources.
         assertEquals(null, AttackerType.GOBLIN.villainName)
     }

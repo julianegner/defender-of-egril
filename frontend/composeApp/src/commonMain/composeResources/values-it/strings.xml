@@ -266,6 +266,7 @@
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Drago</string>
     <string name="baron_ratterzahn_name">Barone Ratterzahn</string>
+    <string name="fallen_shieldmaiden_freya_name">Freya la Scudiera Caduta</string>
     
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Nemici sulla mappa:</string>
@@ -490,6 +491,7 @@
     <string name="disabled">Disabilitato</string>
     <string name="immune_to_acid">Immune all'acido</string>
     <string name="immune_to_fireball">Immune alla palla di fuoco</string>
+    <string name="villain_freya_shield_wall_short">Il muro di scudi blocca gli attacchi frontali</string>
 
     <!-- Tutorial -->
     <string name="tutorial_welcome_title">Benvenuto in Defender of Egril!</string>
@@ -1771,6 +1773,9 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_ratterzahn_title">Il Barone Ratterzahn entra nel campo di battaglia</string>
     <string name="villain_ratterzahn_backstory">Un brillante ma totalmente folle inventore goblin in sella a un ragno meccanico a vapore è entrato nel campo di battaglia.</string>
     <string name="villain_ratterzahn_description">Ogni 4 turni lascia cumuli di rottami che nel turno successivo diventano due goblin robotici con corpi metallici rinforzati. Ogni 5 turni lancia un razzo che stordisce una torre per 3 turni a lunga distanza.</string>
+    <string name="villain_freya_title">Freya la Scudiera Caduta entra nel campo di battaglia</string>
+    <string name="villain_freya_backstory">Un tempo eroica scudiera, Freya cadde in battaglia e si rialzò come un'inarrestabile cavaliere della morte avvolta in acciaio nero e magia sepolcrale.</string>
+    <string name="villain_freya_description">Il suo Muro di Scudi blocca tutti gli attacchi frontali non scagliati da una ballista per se stessa e per le 2 caselle dietro di lei. Attaccala di lato o alle spalle, oppure spara sopra lo scudo con una Ballista, prima che la campionessa non morta spezzi la tua linea.</string>
     <string name="villain_silas_title">Silas il Maestro delle Maschere entra nel campo di battaglia</string>
     <string name="villain_silas_backstory">Silas il Maestro delle Maschere, un illusionista errante avvolto in velluto e menzogne, è entrato nel campo di battaglia.</string>
     <string name="villain_silas_description">Ogni 3 turni crea due immagini speculari sulle caselle del percorso vicine. Solo il vero Silas può essere ferito; quando una torre colpisce un'illusione, l'immagine svanisce e quella torre viene accecata per 2 turni. Silas può scambiarsi di posto con i suoi nuovi doppi nel momento in cui appaiono, quindi mira con attenzione prima di attaccare!</string>

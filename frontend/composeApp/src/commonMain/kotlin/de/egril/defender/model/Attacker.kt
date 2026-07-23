@@ -71,6 +71,7 @@ enum class AttackerType(
     val towerDisableRangeBase: Int? = null,
     val towerDisableCooldown: Int? = null,
     val towerDisableDurationTurns: Int? = null,
+    val shieldWallRangeBehind: Int = 0,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
@@ -214,6 +215,18 @@ enum class AttackerType(
         villainName = "Silas",
         isMirrorImage = true,
     ),
+    FALLEN_SHIELDMAIDEN_FREYA(
+        "Fallen Shieldmaiden Freya",
+        health = 280,
+        speed = 1,
+        reward = 150,
+        xp = 80,
+        isBoss = true,
+        isVillain = true,
+        faction = EnemyFaction.UNDEAD,
+        villainName = "Freya",
+        shieldWallRangeBehind = 2,
+    ),
 }
 
 /**
@@ -339,6 +352,7 @@ fun attackerTargetDamage(
         AttackerType.BARON_RATTERZAHN -> level // Baron villain: 1 HP per level
         AttackerType.SILAS_THE_MASKMASTER -> level // Villain illusionist: 1 HP per level
         AttackerType.SILAS_MIRROR_IMAGE -> 0 // Illusions are decoys and never damage the target
+        AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> level // Death-knight villain: 1 HP per level
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
 

@@ -326,6 +326,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, s * 1.0f, outlineColor)
                             AttackerType.ARAXXA -> drawAraxxaSymbol(centerX, centerY, s * 1.0f, outlineColor)
                             AttackerType.BARON_RATTERZAHN -> drawBaronRatterzahnSymbol(centerX, centerY, s * 1.1f)
+                            AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> drawFallenShieldmaidenFreyaSymbol(centerX, centerY, s * 1.05f, outlineColor)
                             AttackerType.SILAS_THE_MASKMASTER,
                             AttackerType.SILAS_MIRROR_IMAGE,
                             -> drawSilasSymbol(centerX, centerY, s * 1.05f, outlineColor)

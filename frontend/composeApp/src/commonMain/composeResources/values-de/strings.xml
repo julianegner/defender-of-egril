@@ -266,6 +266,7 @@
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Drache</string>
     <string name="baron_ratterzahn_name">Baron Ratterzahn</string>
+    <string name="fallen_shieldmaiden_freya_name">Die gefallene Schildmaid Freya</string>
     
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Feinde auf der Karte:</string>
@@ -488,6 +489,7 @@
     <string name="disabled">Deaktiviert</string>
     <string name="immune_to_acid">Immun gegen Säure</string>
     <string name="immune_to_fireball">Immun gegen Feuerball</string>
+    <string name="villain_freya_shield_wall_short">Schildmauer blockt Frontalangriffe</string>
 
     <!-- Tutorial -->
     <string name="tutorial_welcome_title">Willkommen bei Defender of Egril!</string>
@@ -1768,6 +1770,9 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_ratterzahn_title">Baron Ratterzahn betritt das Schlachtfeld</string>
     <string name="villain_ratterzahn_backstory">Ein brillanter, aber völlig wahnsinniger Goblin-Erfinder auf einer dampfbetriebenen mechanischen Spinne hat das Schlachtfeld betreten.</string>
     <string name="villain_ratterzahn_description">Alle 4 Runden wirft er Schrotthaufen ab, aus denen in der nächsten Runde zwei robotische Goblins mit verstärkten Metallkörpern entstehen. Alle 5 Runden feuert er eine Rakete, die einen Turm aus großer Entfernung für 3 Runden betäubt.</string>
+    <string name="villain_freya_title">Die gefallene Schildmaid Freya betritt das Schlachtfeld</string>
+    <string name="villain_freya_backstory">Einst war Freya eine heldenhafte Schildmaid. Im Kampf fiel sie und erhob sich als unaufhaltsame Todesritterin in schwarzem Stahl und Grabmagie.</string>
+    <string name="villain_freya_description">Ihre Schildmauer blockt alle Nicht-Ballista-Angriffe von vorne – für sich selbst und für die nächsten 2 Felder hinter ihr. Greife von der Seite oder von hinten an oder schieße mit einer Ballista über den Schild, bevor die untote Kriegerin deine Linie zerschlägt.</string>
     <string name="villain_silas_title">Silas der Maskenmeister betritt das Schlachtfeld</string>
     <string name="villain_silas_backstory">Silas der Maskenmeister, ein wandernder Illusionist, gehüllt in Samt und Lügen, hat das Schlachtfeld betreten.</string>
     <string name="villain_silas_description">Alle 3 Runden erschafft er zwei Spiegelbilder auf nahen Pfadfeldern. Nur der echte Silas kann verletzt werden; trifft ein Turm eine Illusion, verschwindet sie und dieser Turm ist 2 Runden lang geblendet. Silas kann im Moment ihrer Erschaffung den Platz mit seinen frischen Doppelgängern tauschen – zielt also genau, bevor ihr feuert!</string>
