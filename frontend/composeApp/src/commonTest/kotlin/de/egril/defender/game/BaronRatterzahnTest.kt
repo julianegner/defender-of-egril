@@ -9,8 +9,10 @@ import de.egril.defender.model.GameState
 import de.egril.defender.model.Level
 import de.egril.defender.model.Position
 import de.egril.defender.model.getHexNeighbors
+import de.egril.defender.model.isSwarmUnit
 import de.egril.defender.model.isSummoner
 import kotlin.test.Test
+import kotlin.test.assertFalse
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -40,6 +42,7 @@ class BaronRatterzahnTest {
         assertEquals("Ratterzahn", baron.villainName)
         assertEquals(AttackerType.GOBLIN.health * 2, AttackerType.ROBOTIC_GOBLIN.health)
         assertTrue(AttackerType.ROBOTIC_GOBLIN.isRobotic)
+        assertFalse(AttackerType.ROBOTIC_GOBLIN.isSwarmUnit())
     }
 
     @Test

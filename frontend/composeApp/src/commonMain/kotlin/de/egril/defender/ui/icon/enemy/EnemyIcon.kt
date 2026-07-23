@@ -108,7 +108,6 @@ fun EnemyIcon(
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING,
                 AttackerType.SPIDERLING,
-                AttackerType.ROBOTIC_GOBLIN,
                 -> {
                     // Swarm units: diamond layout, up to 15 icons, filled from the center outward.
                     // Each icon is 20 % of goblin size; the grid is shifted up slightly to leave
@@ -127,13 +126,6 @@ fun EnemyIcon(
                                 snotlingSize,
                                 headScale = headScale,
                             )
-                        } else if (attacker.type == AttackerType.ROBOTIC_GOBLIN) {
-                            drawRoboticGoblinSymbol(
-                                centerX + xFactor * gridUnit,
-                                gridCenterY + yFactor * gridUnit,
-                                snotlingSize,
-                                headScale = headScale,
-                            )
                         } else {
                             drawGoblinSymbol(
                                 centerX + xFactor * gridUnit,
@@ -144,6 +136,7 @@ fun EnemyIcon(
                         }
                     }
                 }
+                AttackerType.ROBOTIC_GOBLIN -> drawRoboticGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
@@ -243,7 +236,7 @@ fun EnemyTypeIcon(
                 // Snotlings: show a single small icon (20% of goblin icon size) in type previews
                 AttackerType.SNOTLING -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
                 AttackerType.SPIDERLING -> drawSpiderlingSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
-                AttackerType.ROBOTIC_GOBLIN -> drawRoboticGoblinSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
+                AttackerType.ROBOTIC_GOBLIN -> drawRoboticGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)

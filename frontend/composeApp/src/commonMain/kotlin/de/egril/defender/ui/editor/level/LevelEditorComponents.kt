@@ -31,6 +31,12 @@ import de.egril.defender.ui.icon.TriangleRightIcon
 import de.egril.defender.ui.icon.UpArrowIcon
 import defender_of_egril.composeapp.generated.resources.*
 
+private enum class EnemyCategory {
+    REGULAR,
+    SPECIAL,
+    VILLAIN,
+}
+
 /**
  * Dialog for adding an enemy to a specific turn
  */
@@ -48,9 +54,21 @@ fun AddEnemyDialog(
 
     // Villains are unique enemy "heroes": they are listed separately, may only be added once per
     // level, and never use the amount field (see issue #538).
-    val regularTypes = remember { AttackerType.entries.filter { !it.isVillain } }
+    val specialTypes = remember { setOf(AttackerType.SNOTLING, AttackerType.SPIDERLING, AttackerType.ROBOTIC_GOBLIN) }
+    val regularTypes = remember { AttackerType.entries.filter { !it.isVillain && it !in specialTypes } }
+    val shownSpecialTypes = remember { AttackerType.entries.filter { it in specialTypes } }
     val villainTypes = remember { AttackerType.entries.filter { it.isVillain } }
     val isVillainSelected = selectedType.isVillain
+    var selectedCategory by remember { mutableStateOf(EnemyCategory.REGULAR) }
+
+    LaunchedEffect(selectedType) {
+        selectedCategory =
+            when {
+                selectedType.isVillain -> EnemyCategory.VILLAIN
+                selectedType in specialTypes -> EnemyCategory.SPECIAL
+                else -> EnemyCategory.REGULAR
+            }
+    }
 
     // Get available spawn points from the map
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
@@ -69,33 +87,60 @@ fun AddEnemyDialog(
         text = {
             Column {
                 Text(stringResource(Res.string.enemy_type), modifier = Modifier.padding(bottom = 4.dp))
+                PrimaryTabRow(selectedTabIndex = selectedCategory.ordinal, modifier = Modifier.padding(bottom = 8.dp)) {
+                    Tab(
+                        selected = selectedCategory == EnemyCategory.REGULAR,
+                        onClick = { selectedCategory = EnemyCategory.REGULAR },
+                        text = { Text(stringResource(Res.string.enemies)) },
+                    )
+                    Tab(
+                        selected = selectedCategory == EnemyCategory.SPECIAL,
+                        onClick = { selectedCategory = EnemyCategory.SPECIAL },
+                        text = { Text(stringResource(Res.string.special_label)) },
+                    )
+                    Tab(
+                        selected = selectedCategory == EnemyCategory.VILLAIN,
+                        onClick = { selectedCategory = EnemyCategory.VILLAIN },
+                        text = { Text(stringResource(Res.string.villains)) },
+                    )
+                }
                 LazyColumn(
                     modifier = Modifier.height(150.dp).padding(bottom = 8.dp),
                 ) {
-                    items(regularTypes) { type ->
-                        EnemyTypeSelectableRow(
-                            type = type,
-                            selected = selectedType == type,
-                            enabled = true,
-                            onSelect = { selectedType = type },
-                        )
-                    }
-                    // Villains are shown in their own labelled list, separate from normal enemies.
-                    item {
-                        Text(
-                            text = stringResource(Res.string.villains),
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
-                        )
-                    }
-                    items(villainTypes) { type ->
-                        val alreadyPresent = type in presentVillainTypes
-                        EnemyTypeSelectableRow(
-                            type = type,
-                            selected = selectedType == type,
-                            enabled = !alreadyPresent,
-                            onSelect = { selectedType = type },
-                        )
+                    when (selectedCategory) {
+                        EnemyCategory.REGULAR -> {
+                            items(regularTypes) { type ->
+                                EnemyTypeSelectableRow(
+                                    type = type,
+                                    selected = selectedType == type,
+                                    enabled = true,
+                                    onSelect = { selectedType = type },
+                                )
+                            }
+                        }
+
+                        EnemyCategory.SPECIAL -> {
+                            items(shownSpecialTypes) { type ->
+                                EnemyTypeSelectableRow(
+                                    type = type,
+                                    selected = selectedType == type,
+                                    enabled = true,
+                                    onSelect = { selectedType = type },
+                                )
+                            }
+                        }
+
+                        EnemyCategory.VILLAIN -> {
+                            items(villainTypes) { type ->
+                                val alreadyPresent = type in presentVillainTypes
+                                EnemyTypeSelectableRow(
+                                    type = type,
+                                    selected = selectedType == type,
+                                    enabled = !alreadyPresent,
+                                    onSelect = { selectedType = type },
+                                )
+                            }
+                        }
                     }
                 }
                 // Villains are unique per level, so they never use the amount field.
