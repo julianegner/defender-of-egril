@@ -107,8 +107,7 @@ fun Position.getHexNeighbor(directionIndex: Int): Position = getHexNeighbors()[d
  * Returns the direction index of an adjacent [neighbor], or null when the position is not directly
  * adjacent. The index order matches [getHexNeighbors]: E, NE, NW, W, SW, SE.
  */
-fun Position.getHexDirectionTo(neighbor: Position): Int? =
-    getHexNeighbors().indexOf(neighbor).takeIf { it >= 0 }
+fun Position.getHexDirectionTo(neighbor: Position): Int? = getHexNeighbors().indexOf(neighbor).takeIf { it >= 0 }
 
 /**
  * Convert axial coordinates to pixel position for rendering
