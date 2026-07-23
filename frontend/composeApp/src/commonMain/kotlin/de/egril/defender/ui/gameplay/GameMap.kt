@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -87,7 +89,6 @@ import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.ScrapPileIcon
-import de.egril.defender.ui.icon.ShieldIcon
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WebIcon
@@ -122,6 +123,73 @@ private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
 private const val COIN_BUBBLE_COIN_SIZE_FRACTION = 0.14f
 private const val SHIELD_WALL_EDGE_OFFSET_X_FRACTION = 0.36f
 private const val SHIELD_WALL_EDGE_OFFSET_Y_FRACTION = 0.26f
+private const val SHIELD_WALL_ARC_FORWARD_OFFSET_FRACTION = 0.2f
+private const val SHIELD_WALL_ARC_LINE_SPACING_FRACTION = 0.1f
+private const val SHIELD_WALL_ARC_HALF_LENGTH_FRACTION = 0.3f
+private const val SHIELD_WALL_ARC_CURVE_DEPTH_FRACTION = 0.16f
+
+private fun shieldWallDirectionVector(frontDirection: Int): Offset =
+    when (frontDirection.mod(6)) {
+        0 -> Offset(1f, 0f)
+        1 -> Offset(0.5f, -0.8660254f)
+        2 -> Offset(-0.5f, -0.8660254f)
+        3 -> Offset(-1f, 0f)
+        4 -> Offset(-0.5f, 0.8660254f)
+        5 -> Offset(0.5f, 0.8660254f)
+        else -> Offset.Zero
+    }
+
+private fun Offset.scale(factor: Float): Offset = Offset(x * factor, y * factor)
+
+@Composable
+private fun ShieldWallArcOverlay(
+    frontDirection: Int,
+    modifier: Modifier = Modifier,
+    alpha: Float = 1f,
+) {
+    Canvas(
+        modifier =
+            modifier.semantics {
+                contentDescription = "Shield Wall"
+            },
+    ) {
+        val minDimension = size.minDimension
+        val center = Offset(size.width / 2f, size.height / 2f)
+        val normal = shieldWallDirectionVector(frontDirection)
+        val tangent = Offset(-normal.y, normal.x)
+        val shieldColors =
+            listOf(
+                Color(0xFF7EAAC8).copy(alpha = alpha),
+                Color(0xFFC7E6ED).copy(alpha = alpha),
+                Color(0xFFF7FCFF).copy(alpha = alpha),
+            )
+
+        shieldColors.forEachIndexed { index, color ->
+            val lineCenter =
+                center +
+                    normal.scale(
+                        minDimension *
+                            (SHIELD_WALL_ARC_FORWARD_OFFSET_FRACTION - index * SHIELD_WALL_ARC_LINE_SPACING_FRACTION),
+                    )
+            val halfLength = minDimension * (SHIELD_WALL_ARC_HALF_LENGTH_FRACTION - index * 0.03f)
+            val controlPoint =
+                lineCenter +
+                    normal.scale(minDimension * (SHIELD_WALL_ARC_CURVE_DEPTH_FRACTION - index * 0.02f))
+            val start = lineCenter - tangent.scale(halfLength)
+            val end = lineCenter + tangent.scale(halfLength)
+
+            drawPath(
+                path =
+                    Path().apply {
+                        moveTo(start.x, start.y)
+                        quadraticTo(controlPoint.x, controlPoint.y, end.x, end.y)
+                    },
+                color = color,
+                style = Stroke(width = minDimension * (0.12f - index * 0.02f)),
+            )
+        }
+    }
+}
 
 internal fun displayedRiverTile(
     levelRiverTile: RiverTile?,
@@ -2169,15 +2237,16 @@ private fun BoxScope.GridCellContent(
     }
 
     if (freyaShieldWallFrontDirection != null) {
-        ShieldIcon(
+        ShieldWallArcOverlay(
+            frontDirection = freyaShieldWallFrontDirection,
             modifier =
                 Modifier
                     .align(Alignment.Center)
                     .offset(
                         x = shieldWallOverlayOffsetX(hexSize, freyaShieldWallFrontDirection),
                         y = shieldWallOverlayOffsetY(hexSize, freyaShieldWallFrontDirection),
-                    ).graphicsLayer(alpha = if (attacker == null) 0.75f else 0.5f),
-            size = GamePlayConstants.TileIconSizes.ShieldWall,
+                    ).size(GamePlayConstants.TileIconSizes.ShieldWall)
+                    .graphicsLayer(alpha = if (attacker == null) 0.75f else 0.5f),
         )
     }
 

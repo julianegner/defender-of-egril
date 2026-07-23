@@ -19,7 +19,7 @@ class FreyaShieldWallVisibilityTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun flankTilesShowShieldWallIcon() {
+    fun flankTilesShowShieldWallOverlay() {
         val level =
             Level(
                 id = 1,
@@ -59,7 +59,7 @@ class FreyaShieldWallVisibilityTest {
         composeTestRule.waitForIdle()
 
         composeTestRule
-            .onAllNodesWithContentDescription("Shield")
+            .onAllNodesWithContentDescription("Shield Wall")
             .assertCountEquals(2)
     }
 }
