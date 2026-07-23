@@ -19,6 +19,7 @@ import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.Position
+import de.egril.defender.model.isSpecialEnemy
 import de.egril.defender.ui.*
 import de.egril.defender.ui.hexagon.EnemyIconOnHexagon
 import de.egril.defender.ui.icon.CheckmarkIcon
@@ -54,9 +55,9 @@ fun AddEnemyDialog(
 
     // Villains are unique enemy "heroes": they are listed separately, may only be added once per
     // level, and never use the amount field (see issue #538).
-    val specialTypes = remember { setOf(AttackerType.SNOTLING, AttackerType.SPIDERLING, AttackerType.ROBOTIC_GOBLIN) }
-    val regularTypes = remember { AttackerType.entries.filter { !it.isVillain && it !in specialTypes } }
-    val shownSpecialTypes = remember { AttackerType.entries.filter { it in specialTypes } }
+    val specialTypes = remember { AttackerType.entries.filter { it.isSpecialEnemy() }.toSet() }
+    val regularTypes = remember { AttackerType.entries.filter { !it.isVillain && !it.isSpecialEnemy() } }
+    val shownSpecialTypes = remember { AttackerType.entries.filter { it.isSpecialEnemy() } }
     val villainTypes = remember { AttackerType.entries.filter { it.isVillain } }
     val isVillainSelected = selectedType.isVillain
     var selectedCategory by remember { mutableStateOf(EnemyCategory.REGULAR) }

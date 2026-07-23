@@ -157,9 +157,16 @@ class EnemyAbilitySystem(
     }
 
     private fun handleBaronRatterzahn(baron: Attacker) {
+        clearBaronScrapPilesAfterMovement(baron)
         hatchBaronScrapPiles(baron)
         dropBaronScrapPiles(baron)
         fireBaronRocket(baron)
+    }
+
+    private fun clearBaronScrapPilesAfterMovement(baron: Attacker) {
+        val turnStartPosition = state.enemyTurnStartPositions[baron.id] ?: return
+        if (turnStartPosition == baron.position.value) return
+        state.scrapPiles.removeAll { it.ownerAttackerId == baron.id }
     }
 
     private fun hatchBaronScrapPiles(baron: Attacker) {

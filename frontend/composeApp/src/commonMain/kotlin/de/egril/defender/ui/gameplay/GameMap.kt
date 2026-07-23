@@ -1156,8 +1156,6 @@ fun GridCell(
     val rocketAttackEffect =
         gameState.rocketAttackEffects.let { effects ->
             effects.find { it.sourcePosition == position }
-                ?: effects.find { it.targetPosition == position }
-                ?: effects.find { isOnArrowLinePath(it.sourcePosition, it.targetPosition, position) }
         }
     // True when this tile is the endpoint of an arrow attack (hit animation should be delayed)
     val isArrowTargetTile = gameState.arrowAttackEffects.any { it.targetPosition == position }
@@ -3024,7 +3022,7 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show enemy spawn portal overlay when an enemy just appeared at this position
-    if (enemySpawnEffect != null && enemySpawnEffect.attackerType?.isSpider() != true) {
+    if (enemySpawnEffect != null && enemySpawnEffect.attackerType?.isSpecialEnemy() != true) {
         EnemySpawnAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(16f),
@@ -3088,7 +3086,6 @@ private fun BoxScope.GridCellContent(
         RocketAttackAnimation(
             animate = AppSettings.enableAnimations.value,
             directionAngle = angle,
-            isTargetTile = isRocketTargetTile,
             modifier = Modifier.fillMaxSize().zIndex(18f),
         )
     }

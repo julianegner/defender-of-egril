@@ -321,6 +321,17 @@ fun AttackerType.isSwarmUnit(): Boolean = this == AttackerType.SNOTLING || this 
 fun AttackerType.isSpider(): Boolean = this == AttackerType.SPIDERLING || this == AttackerType.ARAXXA
 
 /**
+ * Special enemies are grouped separately in the level editor.
+ */
+fun AttackerType.isSpecialEnemy(): Boolean =
+    this == AttackerType.SNOTLING ||
+        this == AttackerType.SPIDERLING ||
+        this == AttackerType.ROBOTIC_GOBLIN ||
+        this == AttackerType.BLUE_DEMON ||
+        this == AttackerType.RED_DEMON ||
+        this == AttackerType.DRAGON
+
+/**
  * Returns true if this attacker is immune to a single attack from a defender of [defenderType].
  * Red Demons are immune to fireballs (AREA), Blue Demons are immune to acid (LASTING).
  * Used for attack-damage previews shown when a defender is selected.

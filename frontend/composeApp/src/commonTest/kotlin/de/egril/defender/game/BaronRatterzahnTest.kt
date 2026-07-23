@@ -8,7 +8,9 @@ import de.egril.defender.model.DefenderType
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Level
 import de.egril.defender.model.Position
+import de.egril.defender.model.ScrapPile
 import de.egril.defender.model.getHexNeighbors
+import de.egril.defender.model.isSpecialEnemy
 import de.egril.defender.model.isSwarmUnit
 import de.egril.defender.model.isSummoner
 import kotlin.test.Test
@@ -43,6 +45,9 @@ class BaronRatterzahnTest {
         assertEquals(AttackerType.GOBLIN.health * 2, AttackerType.ROBOTIC_GOBLIN.health)
         assertTrue(AttackerType.ROBOTIC_GOBLIN.isRobotic)
         assertFalse(AttackerType.ROBOTIC_GOBLIN.isSwarmUnit())
+        assertTrue(AttackerType.BLUE_DEMON.isSpecialEnemy())
+        assertTrue(AttackerType.RED_DEMON.isSpecialEnemy())
+        assertTrue(AttackerType.DRAGON.isSpecialEnemy())
     }
 
     @Test
@@ -122,5 +127,32 @@ class BaronRatterzahnTest {
         state.turnNumber.value = 1
         abilities.processEnemyAbilities()
         assertEquals(disabledBeforeSecondTurn, state.defenders.count { it.isDisabled.value }, "Rocket should respect cooldown")
+    }
+
+    @Test
+    fun movingBaronClearsOwnedScrapPilesBeforeHatch() {
+        val state = GameState(createLevel())
+        val baron =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.BARON_RATTERZAHN,
+                position = mutableStateOf(Position(6, 3)),
+                level = mutableStateOf(1),
+                currentTarget = mutableStateOf(Position(11, 3)),
+            )
+        state.attackers.add(baron)
+        state.scrapPiles.addAll(
+            listOf(
+                ScrapPile(Position(4, 3), baron.id, hatchTurn = 0),
+                ScrapPile(Position(5, 3), baron.id, hatchTurn = 0),
+            ),
+        )
+        state.enemyTurnStartPositions[baron.id] = Position(5, 3)
+        baron.summonCooldown.value = 2
+
+        EnemyAbilitySystem(state).processEnemyAbilities()
+
+        assertEquals(0, state.attackers.count { it.type == AttackerType.ROBOTIC_GOBLIN }, "Moved Baron should not hatch existing scrap piles")
+        assertTrue(state.scrapPiles.none { it.ownerAttackerId == baron.id }, "Moved Baron should lose previously dropped scrap piles")
     }
 }
