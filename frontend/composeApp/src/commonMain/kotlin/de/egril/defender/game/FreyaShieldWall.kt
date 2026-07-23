@@ -38,20 +38,58 @@ fun GameState.isShieldWallAttackBlocked(
     }
 }
 
+fun GameState.freyaShieldWallVisiblePositions(): Set<Position> {
+    val pathfinding = PathfindingSystem(this)
+    return attackers
+        .filter {
+            !it.isDefeated.value &&
+                it.type == AttackerType.FALLEN_SHIELDMAIDEN_FREYA &&
+                it.type.shieldWallFormationWidth > 0
+        }.flatMap { freya ->
+            freyaShieldWallPositions(
+                freya = freya,
+                pathfinding = pathfinding,
+                includeFreyaTile = false,
+            )
+        }.toSet()
+}
+
 private fun GameState.isProtectedByFreyaShieldWall(
     freya: Attacker,
     protectedPosition: Position,
     attackOrigin: Position,
     pathfinding: PathfindingSystem,
 ): Boolean {
-    val freyaPosition = freya.position.value
     val frontDirection = shieldWallFrontDirection(freya, pathfinding) ?: return false
-    if (!isOnFreyaShieldLine(freyaPosition, protectedPosition, frontDirection, freya.type.shieldWallFormationWidth)) return false
+    if (protectedPosition !in freyaShieldWallPositions(freya, pathfinding, includeFreyaTile = true)) return false
 
     val attackDirection = hexDirectionToward(protectedPosition, attackOrigin) ?: return false
     return SHIELD_WALL_FRONT_ARC_OFFSETS.any { offset ->
         (frontDirection + offset).mod(HEX_DIRECTION_COUNT) == attackDirection
     }
+}
+
+private fun GameState.freyaShieldWallPositions(
+    freya: Attacker,
+    pathfinding: PathfindingSystem,
+    includeFreyaTile: Boolean,
+): Set<Position> {
+    val freyaPosition = freya.position.value
+    val frontDirection = shieldWallFrontDirection(freya, pathfinding) ?: return emptySet()
+    val flankRadius = freya.type.shieldWallFormationWidth / 2
+    val positions = linkedSetOf<Position>()
+    if (includeFreyaTile) {
+        positions += freyaPosition
+    }
+
+    SHIELD_WALL_FLANK_OFFSETS.forEach { flankOffset ->
+        var current = freyaPosition
+        repeat(flankRadius) {
+            current = current.getHexNeighbor(frontDirection + flankOffset)
+            positions += current
+        }
+    }
+    return positions
 }
 
 private fun GameState.shieldWallFrontDirection(
@@ -66,27 +104,6 @@ private fun GameState.shieldWallFrontDirection(
     val nextStep = pathfinding.moveTowards(freya.position.value, goal, freya)
     if (nextStep == freya.position.value) return null
     return freya.position.value.getHexDirectionTo(nextStep)
-}
-
-private fun isOnFreyaShieldLine(
-    freyaPosition: Position,
-    protectedPosition: Position,
-    frontDirection: Int,
-    shieldWallFormationWidth: Int,
-): Boolean {
-    val flankRadius = shieldWallFormationWidth / 2
-    if (protectedPosition == freyaPosition) return true
-
-    SHIELD_WALL_FLANK_OFFSETS.forEach { flankOffset ->
-        var current = freyaPosition
-        repeat(flankRadius) {
-            current = current.getHexNeighbor(frontDirection + flankOffset)
-            if (current == protectedPosition) {
-                return true
-            }
-        }
-    }
-    return false
 }
 
 private fun hexDirectionToward(

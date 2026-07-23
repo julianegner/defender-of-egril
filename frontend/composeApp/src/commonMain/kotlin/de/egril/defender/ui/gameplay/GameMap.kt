@@ -35,6 +35,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.LogConfig
+import de.egril.defender.game.freyaShieldWallVisiblePositions
 import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
@@ -86,6 +87,7 @@ import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.ScrapPileIcon
+import de.egril.defender.ui.icon.ShieldIcon
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WebIcon
@@ -231,6 +233,7 @@ fun GameGrid(
     // Find the selected defender and track its actions for dependency tracking
     val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
     val selectedDefenderActions = selectedDefender?.actionsRemaining?.value
+    val freyaShieldWallVisibleTiles = gameState.freyaShieldWallVisiblePositions()
 
     val targetCircleMap =
         remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size) {
@@ -925,6 +928,7 @@ fun GameGrid(
                     gameState = gameState,
                     defender = defendersByPosition[position],
                     attacker = activeAttackersByPosition[position],
+                    showFreyaShieldWallOverlay = freyaShieldWallVisibleTiles.contains(position),
                     selectedDefender = selectedDefenderForGrid,
                     isHovering = isHovering,
                     isInPreviewRange = isInPreviewRange,
@@ -1073,6 +1077,7 @@ fun GridCell(
     gameState: GameState,
     defender: Defender?,
     attacker: Attacker?,
+    showFreyaShieldWallOverlay: Boolean,
     selectedDefender: Defender?,
     // isHovering and isInPreviewRange replace the old hoveredPosition: Position? and
     // hoveredPositionIsBuildable: Boolean parameters.  Passing per-cell Booleans means only
@@ -1890,6 +1895,7 @@ fun GridCell(
                 position = position,
                 gameState = gameState,
                 attacker = attacker,
+                showFreyaShieldWallOverlay = showFreyaShieldWallOverlay,
                 healingEffect = healingEffect,
                 damageEffect = damageEffect,
                 defender = defender,
@@ -1961,6 +1967,7 @@ fun GridCell(
                 position = position,
                 gameState = gameState,
                 attacker = attacker,
+                showFreyaShieldWallOverlay = showFreyaShieldWallOverlay,
                 healingEffect = healingEffect,
                 damageEffect = damageEffect,
                 defender = defender,
@@ -2029,6 +2036,7 @@ private fun BoxScope.GridCellContent(
     position: Position,
     gameState: GameState,
     attacker: Attacker?,
+    showFreyaShieldWallOverlay: Boolean,
     healingEffect: HealingEffect?,
     damageEffect: DamageEffect?,
     defender: Defender?,
@@ -2136,6 +2144,16 @@ private fun BoxScope.GridCellContent(
             }
             displayedHealth = currentHealth
         }
+    }
+
+    if (showFreyaShieldWallOverlay) {
+        ShieldIcon(
+            modifier =
+                Modifier
+                    .align(Alignment.Center)
+                    .graphicsLayer(alpha = if (attacker == null) 0.75f else 0.5f),
+            size = GamePlayConstants.TileIconSizes.ShieldWall,
+        )
     }
 
     when {

@@ -11,6 +11,7 @@ import de.egril.defender.model.Level
 import de.egril.defender.model.Position
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class FreyaShieldWallTest {
@@ -118,5 +119,33 @@ class FreyaShieldWallTest {
 
         assertEquals(freya.maxHealth - ballista.type.baseDamage, freya.currentHealth.value, "Ballista shots should bypass the shield wall")
         assertEquals(lowerSkeleton.maxHealth - ballista.type.baseDamage, lowerSkeleton.currentHealth.value, "Ballista shots should bypass the shield wall for flank tiles too")
+    }
+
+    @Test
+    fun visibleShieldWallMarksBothFlankTiles() {
+        val state = GameState(createTestLevel())
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+
+        state.attackers.add(freya)
+
+        assertEquals(
+            setOf(Position(4, 2), Position(4, 4)),
+            state.freyaShieldWallVisiblePositions(),
+            "Freya should render shield wall indicators on both flank tiles",
+        )
+    }
+
+    @Test
+    fun defeatedFreyaDoesNotRenderShieldWallTiles() {
+        val state = GameState(createTestLevel())
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+        freya.isDefeated.value = true
+
+        state.attackers.add(freya)
+
+        assertFalse(
+            state.freyaShieldWallVisiblePositions().isNotEmpty(),
+            "Defeated Freya should no longer render shield wall indicators",
+        )
     }
 }
