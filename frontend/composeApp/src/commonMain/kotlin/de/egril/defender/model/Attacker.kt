@@ -75,7 +75,7 @@ enum class AttackerType(
     SNOTLING("Snotling", health = 5, speed = 5, reward = 1, xp = 1),
 
     // Weak spider swarm unit summoned by Araxxa. Behaves like a snotling stack.
-    SPIDERLING("Spiderling", health = 5, speed = 5, reward = 1, xp = 1),
+    SPIDERLING("Spiderling", health = 10, speed = 5, reward = 1, xp = 1),
 
     EWHAD(
         "Ewhad",
