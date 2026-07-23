@@ -89,6 +89,12 @@ data class EnemySpawnEffect(
     val attackerType: AttackerType? = null, // Spawned enemy type (used to suppress specific spawn visuals)
 )
 
+data class ScrapPile(
+    val position: Position,
+    val ownerAttackerId: Int,
+    val hatchTurn: Int,
+)
+
 data class TrapTriggerEffect(
     val position: Position, // Position of the trap that was triggered
     val turnNumber: Int, // Turn when this trap triggered
@@ -150,6 +156,12 @@ data class AlchemyAttackEffect(
     val sourcePosition: Position, // Alchemy tower's tile
     val targetPosition: Position, // Target tile
     val turnNumber: Int, // Turn when this attack occurred
+)
+
+data class RocketAttackEffect(
+    val sourcePosition: Position,
+    val targetPosition: Position,
+    val turnNumber: Int,
 )
 
 /**
@@ -214,6 +226,7 @@ data class GameState(
     val attackTriggerCount: MutableState<Int> = mutableStateOf(0), // Monotonically-increasing counter, incremented on every attack (bypasses per-tile deduplication)
     val constructionCompleteEffects: SnapshotStateList<TowerConstructionEffect> = mutableStateListOf(), // Track tower construction complete visual effects
     val enemySpawnEffects: SnapshotStateList<EnemySpawnEffect> = mutableStateListOf(), // Track enemy spawn portal visual effects
+    val scrapPiles: SnapshotStateList<ScrapPile> = mutableStateListOf(), // Scrap-Bot wreckage markers waiting to hatch
     val trapTriggerEffects: SnapshotStateList<TrapTriggerEffect> = mutableStateListOf(), // Track trap trigger visual effects
     val enemyMoveEffects: SnapshotStateList<EnemyMoveEffect> = mutableStateListOf(), // Track enemy movement trail visual effects
     val dragonLevelChangeEffects: SnapshotStateList<DragonLevelChangeEffect> = mutableStateListOf(), // Track dragon level change visual effects
@@ -225,6 +238,7 @@ data class GameState(
     val pikeAttackEffects: SnapshotStateList<PikeAttackEffect> = mutableStateListOf(), // Track pike extend overlay effects
     val wizardAttackEffects: SnapshotStateList<WizardAttackEffect> = mutableStateListOf(), // Track wizard fireball overlay effects
     val alchemyAttackEffects: SnapshotStateList<AlchemyAttackEffect> = mutableStateListOf(), // Track alchemy acid vial overlay effects
+    val rocketAttackEffects: SnapshotStateList<RocketAttackEffect> = mutableStateListOf(), // Track Baron rocket projectile overlay effects
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM, // Track difficulty for this game session
     val tutorialState: MutableState<TutorialState> =
         mutableStateOf(

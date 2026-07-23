@@ -490,6 +490,7 @@ fun AttackerInfo(
                             AttackerType.SNOTLING_BOSS -> stringResource(Res.string.villain_gribnak_description)
                             AttackerType.MORGUK_BONEWHISPER -> stringResource(Res.string.villain_morguk_description)
                             AttackerType.ARAXXA -> stringResource(Res.string.villain_araxxa_description)
+                            AttackerType.BARON_RATTERZAHN -> stringResource(Res.string.villain_ratterzahn_description)
                             else -> ""
                         }
                     if (villainDescription.isNotEmpty()) {

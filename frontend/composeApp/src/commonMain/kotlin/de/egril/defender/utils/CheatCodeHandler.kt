@@ -120,8 +120,10 @@ object CheatCodeHandler {
                         "redwitch" -> AttackerType.RED_WITCH
                         "snotling" -> AttackerType.SNOTLING
                         "spiderling" -> AttackerType.SPIDERLING
+                        "roboticgoblin", "robotic_goblin", "scrapbot" -> AttackerType.ROBOTIC_GOBLIN
                         "snotlingboss", "gribnak" -> AttackerType.SNOTLING_BOSS
                         "araxxa", "giantspider", "giant_spider" -> AttackerType.ARAXXA
+                        "baron", "ratterzahn", "baronratterzahn", "baron_ratterzahn" -> AttackerType.BARON_RATTERZAHN
                         else -> return Pair(false, null)
                     }
 

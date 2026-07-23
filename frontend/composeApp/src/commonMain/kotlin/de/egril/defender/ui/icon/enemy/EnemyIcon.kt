@@ -136,12 +136,14 @@ fun EnemyIcon(
                         }
                     }
                 }
+                AttackerType.ROBOTIC_GOBLIN -> drawRoboticGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
                 AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ARAXXA -> drawAraxxaSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
+                AttackerType.BARON_RATTERZAHN -> drawBaronRatterzahnSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
             }
         }
 
@@ -234,12 +236,14 @@ fun EnemyTypeIcon(
                 // Snotlings: show a single small icon (20% of goblin icon size) in type previews
                 AttackerType.SNOTLING -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
                 AttackerType.SPIDERLING -> drawSpiderlingSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
+                AttackerType.ROBOTIC_GOBLIN -> drawRoboticGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
                 AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ARAXXA -> drawAraxxaSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
+                AttackerType.BARON_RATTERZAHN -> drawBaronRatterzahnSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
             }
         }
     }

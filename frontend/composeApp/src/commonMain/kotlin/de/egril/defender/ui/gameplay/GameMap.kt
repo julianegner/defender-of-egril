@@ -59,6 +59,7 @@ import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.MineDigAnimation
 import de.egril.defender.ui.animations.PikeAttackOverlay
+import de.egril.defender.ui.animations.RocketAttackOverlay
 import de.egril.defender.ui.animations.SkyIsFallingAnimation
 import de.egril.defender.ui.animations.SpearAttackOverlay
 import de.egril.defender.ui.animations.SpellDoubleReachColor
@@ -84,6 +85,7 @@ import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.PentagramIcon
+import de.egril.defender.ui.icon.ScrapPileIcon
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WebIcon
@@ -780,6 +782,15 @@ fun GameGrid(
                             animate = AppSettings.enableAnimations.value,
                         )
                     }
+                    val rocketEffects = gameState.rocketAttackEffects.toList()
+                    if (rocketEffects.isNotEmpty()) {
+                        RocketAttackOverlay(
+                            effects = rocketEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
                     // Full-map falling-meteor shower for the "Sky is Falling" support power.
                     SkyIsFallingAnimation(
                         triggerKey = gameState.skyIsFallingTrigger.value,
@@ -1151,6 +1162,10 @@ fun GridCell(
                 ?: effects.find { it.targetPosition == position }
                 ?: effects.find { isOnArrowLinePath(it.sourcePosition, it.targetPosition, position) }
         }
+    val rocketAttackEffect =
+        gameState.rocketAttackEffects.let { effects ->
+            effects.find { it.sourcePosition == position }
+        }
     // True when this tile is the endpoint of an arrow attack (hit animation should be delayed)
     val isArrowTargetTile = gameState.arrowAttackEffects.any { it.targetPosition == position }
     // True when this tile is the endpoint of a ballista attack (hit animation should be delayed)
@@ -1161,6 +1176,8 @@ fun GridCell(
     val isSpearTargetTile = gameState.spearAttackEffects.any { it.targetPosition == position }
     // True when this tile is the endpoint of a pike attack (hit animation should be delayed)
     val isPikeTargetTile = gameState.pikeAttackEffects.any { it.targetPosition == position }
+    // True when this tile is the endpoint of a Baron rocket attack.
+    val isRocketTargetTile = gameState.rocketAttackEffects.any { it.targetPosition == position }
     // True when this tile is the endpoint of a wizard fireball attack (hit animation should be delayed)
     val isWizardTargetTile = gameState.wizardAttackEffects.any { it.targetPosition == position }
     // True when this tile is the endpoint of an alchemy acid vial attack (hit animation should be delayed)
@@ -1185,6 +1202,8 @@ fun GridCell(
 
     // Check for enemy spawn animation effect at this position
     val enemySpawnEffect = gameState.enemySpawnEffects.find { it.position == position }
+    // Scrap-Bot wreckage marker (Baron Ratterzahn)
+    val scrapPile = gameState.scrapPiles.find { it.position == position }
 
     // Check for trap trigger animation effect at this position
     val trapTriggerEffect = gameState.trapTriggerEffects.find { it.position == position }
@@ -1906,16 +1925,19 @@ fun GridCell(
                 towerAttackEffect = towerAttackEffect,
                 constructionCompleteEffect = constructionCompleteEffect,
                 enemySpawnEffect = enemySpawnEffect,
+                scrapPile = scrapPile,
                 trapTriggerEffect = trapTriggerEffect,
                 enemyMoveEffect = enemyMoveEffect,
                 dragonLevelChangeEffect = dragonLevelChangeEffect,
                 mineDigEffect = mineDigEffect,
                 arrowAttackEffect = arrowAttackEffect,
+                rocketAttackEffect = rocketAttackEffect,
                 isArrowTargetTile = isArrowTargetTile,
                 isBallistaTargetTile = isBallistaTargetTile,
                 isBowTargetTile = isBowTargetTile,
                 isSpearTargetTile = isSpearTargetTile,
                 isPikeTargetTile = isPikeTargetTile,
+                isRocketTargetTile = isRocketTargetTile,
                 isWizardTargetTile = isWizardTargetTile,
                 isAlchemyTargetTile = isAlchemyTargetTile,
                 isInWizardAttackArea = isInWizardAttackArea,
@@ -1974,16 +1996,19 @@ fun GridCell(
                 towerAttackEffect = towerAttackEffect,
                 constructionCompleteEffect = constructionCompleteEffect,
                 enemySpawnEffect = enemySpawnEffect,
+                scrapPile = scrapPile,
                 trapTriggerEffect = trapTriggerEffect,
                 enemyMoveEffect = enemyMoveEffect,
                 dragonLevelChangeEffect = dragonLevelChangeEffect,
                 mineDigEffect = mineDigEffect,
                 arrowAttackEffect = arrowAttackEffect,
+                rocketAttackEffect = rocketAttackEffect,
                 isArrowTargetTile = isArrowTargetTile,
                 isBallistaTargetTile = isBallistaTargetTile,
                 isBowTargetTile = isBowTargetTile,
                 isSpearTargetTile = isSpearTargetTile,
                 isPikeTargetTile = isPikeTargetTile,
+                isRocketTargetTile = isRocketTargetTile,
                 isWizardTargetTile = isWizardTargetTile,
                 isAlchemyTargetTile = isAlchemyTargetTile,
                 isInWizardAttackArea = isInWizardAttackArea,
@@ -2043,16 +2068,19 @@ private fun BoxScope.GridCellContent(
     towerAttackEffect: TowerAttackEffect? = null,
     constructionCompleteEffect: TowerConstructionEffect? = null,
     enemySpawnEffect: EnemySpawnEffect? = null,
+    scrapPile: ScrapPile? = null,
     trapTriggerEffect: TrapTriggerEffect? = null,
     enemyMoveEffect: EnemyMoveEffect? = null,
     dragonLevelChangeEffect: DragonLevelChangeEffect? = null,
     mineDigEffect: MineDigEffect? = null,
     arrowAttackEffect: ArrowAttackEffect? = null,
+    rocketAttackEffect: RocketAttackEffect? = null,
     isArrowTargetTile: Boolean = false,
     isBallistaTargetTile: Boolean = false,
     isBowTargetTile: Boolean = false,
     isSpearTargetTile: Boolean = false,
     isPikeTargetTile: Boolean = false,
+    isRocketTargetTile: Boolean = false,
     isWizardTargetTile: Boolean = false,
     isAlchemyTargetTile: Boolean = false,
     isInWizardAttackArea: Boolean = false,
@@ -2332,6 +2360,10 @@ private fun BoxScope.GridCellContent(
                     }
                 }
             }
+        }
+
+        scrapPile != null -> {
+            ScrapPileIcon(size = GamePlayConstants.TileIconSizes.ScrapPile)
         }
 
         fieldEffect != null -> {
@@ -2999,7 +3031,7 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show enemy spawn portal overlay when an enemy just appeared at this position
-    if (enemySpawnEffect != null && enemySpawnEffect.attackerType?.isSpider() != true) {
+    if (enemySpawnEffect != null && enemySpawnEffect.attackerType?.isSpecialEnemy() != true) {
         EnemySpawnAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(16f),

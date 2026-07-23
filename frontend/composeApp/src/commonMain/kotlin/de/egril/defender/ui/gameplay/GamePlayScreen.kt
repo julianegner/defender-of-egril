@@ -3251,6 +3251,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.ARAXXA.name ->
                                             stringResource(Res.string.villain_araxxa_title) to
                                                 (stringResource(Res.string.villain_araxxa_backstory) + "\n" + stringResource(Res.string.villain_araxxa_description))
+                                        AttackerType.BARON_RATTERZAHN.name ->
+                                            stringResource(Res.string.villain_ratterzahn_title) to
+                                                (stringResource(Res.string.villain_ratterzahn_backstory) + "\n" + stringResource(Res.string.villain_ratterzahn_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)
