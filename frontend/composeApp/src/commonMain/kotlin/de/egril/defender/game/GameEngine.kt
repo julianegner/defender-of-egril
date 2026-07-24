@@ -276,7 +276,9 @@ class GameEngine(
     ): Attacker? {
         val attackable =
             candidates.filter { attacker ->
-                !attacker.isDefeated.value && defender.canAttack(attacker, getEffectiveRange(defender))
+                !attacker.isDefeated.value &&
+                    defender.canAttack(attacker, getEffectiveRange(defender)) &&
+                    !state.isShieldWallAttackBlocked(defender, attacker)
             }
         if (attackable.isEmpty()) return null
 
@@ -360,6 +362,7 @@ class GameEngine(
                     candidates.filter { attacker ->
                         !attacker.isDefeated.value &&
                             affectedPositions.contains(attacker.position.value) &&
+                            !state.isShieldWallAttackBlocked(defender, attacker) &&
                             when (defender.type.attackType) {
                                 AttackType.AREA -> attacker.canBeDamagedByFireball()
                                 AttackType.LASTING -> attacker.canBeDamagedByAcid()
@@ -383,6 +386,7 @@ class GameEngine(
         // Select position with highest score (most enemies + highest threat)
         // Tie-breaker: closest to goal
         return positionScores
+            .filter { it.second > 0 }
             .maxWithOrNull(
                 compareBy<Triple<Position, Int, Double>> { it.second }
                     .thenBy { -it.third }, // Negative because lower distance is better
