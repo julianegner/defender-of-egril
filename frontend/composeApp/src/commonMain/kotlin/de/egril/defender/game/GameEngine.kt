@@ -680,6 +680,7 @@ class GameEngine(
                     position = spawnPos,
                     turnNumber = state.turnNumber.value,
                     attackerType = pending.attackerType,
+                    suppressPortalAnimation = pending.attackerType == AttackerType.SKELETON,
                 ),
             )
         }

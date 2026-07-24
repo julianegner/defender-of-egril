@@ -3279,7 +3279,11 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show enemy spawn portal overlay when an enemy just appeared at this position
-    if (enemySpawnEffect != null && enemySpawnEffect.attackerType?.isSpecialEnemy() != true) {
+    if (
+        enemySpawnEffect != null &&
+        !enemySpawnEffect.suppressPortalAnimation &&
+        enemySpawnEffect.attackerType?.isSpecialEnemy() != true
+    ) {
         EnemySpawnAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(16f),

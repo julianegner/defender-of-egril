@@ -125,4 +125,34 @@ class ValeriusSoulCallTest {
         assertFalse(adjacentGoblin.isDefeated.value, "Undead dragons must not eat adjacent units")
         assertEquals(0, undeadDragon.greed, "Undead dragons should not use dragon greed mechanics")
     }
+
+    @Test
+    fun soulCallSkeletonSpawnSuppressesPortalHighlight() {
+        val state = GameState(createTestLevel(), phase = mutableStateOf(GamePhase.PLAYER_TURN))
+        state.turnNumber.value = 1
+        val combatSystem = CombatSystem(state, BridgeSystem(state))
+        val engine = GameEngine(state)
+
+        val valerius =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.PRINCE_VALERIUS_THE_SOULREAPER,
+                position = mutableStateOf(Position(4, 3)),
+            )
+        val zombie =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.ZOMBIE,
+                position = mutableStateOf(Position(6, 3)),
+                currentTarget = mutableStateOf(Position(11, 3)),
+            )
+        state.attackers.addAll(listOf(valerius, zombie))
+
+        zombie.isDefeated.value = true
+        combatSystem.processDefeatedAttackers()
+        engine.startEnemyTurn()
+
+        assertEquals(AttackerType.SKELETON, state.enemySpawnEffects.single().attackerType)
+        assertTrue(state.enemySpawnEffects.single().suppressPortalAnimation)
+    }
 }

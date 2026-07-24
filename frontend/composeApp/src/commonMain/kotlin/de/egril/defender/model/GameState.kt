@@ -87,6 +87,7 @@ data class EnemySpawnEffect(
     val position: Position, // Spawn position of the newly appeared enemy
     val turnNumber: Int, // Turn when this spawn occurred
     val attackerType: AttackerType? = null, // Spawned enemy type (used to suppress specific spawn visuals)
+    val suppressPortalAnimation: Boolean = false,
 )
 
 data class ScrapPile(
