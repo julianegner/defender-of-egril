@@ -153,6 +153,36 @@ class FreyaShieldWallTest {
     }
 
     @Test
+    fun northAndSouthTowersAreBlockedSymmetrically() {
+        // Freya is moving East on row 3 (odd row). Her NW flank is (4,2) and SW flank is (4,4).
+        // Towers placed "due north" (same column, rows above) and "due south" (same column, rows
+        // below) are side attackers and must behave the same regardless of hex tie-breaking.
+        val state = GameState(createTestLevel())
+        val engine = GameEngine(state)
+        // Place towers far enough to have range but clearly north/south of Freya.
+        val northTower = defender(1, DefenderType.BOW_TOWER, Position(4, 1), actions = 3)
+        val southTower = defender(2, DefenderType.BOW_TOWER, Position(4, 5), actions = 3)
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+
+        state.defenders.addAll(listOf(northTower, southTower))
+        state.attackers.add(freya)
+
+        // Both towers should be allowed to attack Freya (they are side attacks, not frontal).
+        val northDamaged = engine.defenderAttack(northTower.id, freya.id)
+        val southDamaged = engine.defenderAttack(southTower.id, freya.id)
+
+        assertTrue(northDamaged, "North tower should be allowed to attack Freya (side attack)")
+        assertTrue(southDamaged, "South tower should be allowed to attack Freya (side attack)")
+
+        val expectedHealth = freya.maxHealth - northTower.type.baseDamage - southTower.type.baseDamage
+        assertEquals(
+            expectedHealth,
+            freya.currentHealth.value,
+            "Both north and south towers should deal damage (neither is a frontal attack)",
+        )
+    }
+
+    @Test
     fun defeatedFreyaDoesNotRenderShieldWallTiles() {
         val state = GameState(createTestLevel())
         val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))

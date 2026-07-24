@@ -100,9 +100,15 @@ private fun GameState.isProtectedByFreyaShieldWall(
     val frontDirection = shieldWallFrontDirection(freya, pathfinding) ?: return false
     if (protectedPosition !in freyaShieldWallPositions(freya, pathfinding, includeFreyaTile = true)) return false
 
-    val attackDirection = hexDirectionToward(protectedPosition, attackOrigin) ?: return false
-    return SHIELD_WALL_FRONT_ARC_OFFSETS.any { offset ->
-        (frontDirection + offset).mod(HEX_DIRECTION_COUNT) == attackDirection
+    // Use all minimum-distance directions so that ambiguous "side" angles (which tie between a
+    // front-arc direction and a non-front-arc direction) are treated as side attacks and allowed
+    // through the shield instead of being blocked asymmetrically.
+    val attackDirections = hexDirectionsToward(protectedPosition, attackOrigin)
+    if (attackDirections.isEmpty()) return false
+    return attackDirections.all { attackDirection ->
+        SHIELD_WALL_FRONT_ARC_OFFSETS.any { offset ->
+            (frontDirection + offset).mod(HEX_DIRECTION_COUNT) == attackDirection
+        }
     }
 }
 
@@ -143,11 +149,15 @@ private fun GameState.shieldWallFrontDirection(
     return freya.position.value.getHexDirectionTo(nextStep)
 }
 
-private fun hexDirectionToward(
+/** Returns all hex direction indices that equally minimise the distance from [from] to [to]. */
+private fun hexDirectionsToward(
     from: Position,
     to: Position,
-): Int? {
-    if (from == to) return null
-    return (0 until HEX_DIRECTION_COUNT)
-        .minByOrNull { direction -> from.getHexNeighbor(direction).hexDistanceTo(to) }
+): List<Int> {
+    if (from == to) return emptyList()
+    val distances = (0 until HEX_DIRECTION_COUNT).map { direction ->
+        from.getHexNeighbor(direction).hexDistanceTo(to)
+    }
+    val minDist = distances.min()
+    return distances.indices.filter { distances[it] == minDist }
 }
