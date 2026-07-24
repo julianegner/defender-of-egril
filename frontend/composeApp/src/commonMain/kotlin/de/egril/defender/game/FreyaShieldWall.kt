@@ -8,6 +8,8 @@ import de.egril.defender.model.Position
 import de.egril.defender.model.getHexDirectionTo
 import de.egril.defender.model.getHexNeighbor
 import de.egril.defender.model.hexDistanceTo
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 private const val HEX_DIRECTION_COUNT = 6
 private val SHIELD_WALL_FRONT_ARC_OFFSETS = listOf(0, 1, -1)
@@ -98,12 +100,39 @@ private fun GameState.isProtectedByFreyaShieldWall(
     pathfinding: PathfindingSystem,
 ): Boolean {
     val frontDirection = shieldWallFrontDirection(freya, pathfinding) ?: return false
-    if (protectedPosition !in freyaShieldWallPositions(freya, pathfinding, includeFreyaTile = true)) return false
+    val shieldWallTiles = freyaShieldWallPositions(freya, pathfinding, includeFreyaTile = true)
 
-    // Use all minimum-distance directions so that ambiguous "side" angles (which tie between a
-    // front-arc direction and a non-front-arc direction) are treated as side attacks and allowed
-    // through the shield instead of being blocked asymmetrically.
-    val attackDirections = hexDirectionsToward(protectedPosition, attackOrigin)
+    return if (protectedPosition in shieldWallTiles) {
+        // Target IS a shield tile: block only if the attacker approaches from the front arc of
+        // that tile.  Using all tied minimum-distance directions ensures that ambiguous "side"
+        // angles (which tie between a frontal and a non-frontal direction) are never blocked.
+        isInShieldFrontArc(protectedPosition, attackOrigin, frontDirection)
+    } else {
+        // Target is NOT a shield tile: block if the hex line-of-sight from the attacker to the
+        // target passes through any shield tile that faces the attacker from the front arc.
+        // This implements the shield wall as a true physical barrier that protects everything
+        // behind it (e.g. a goblin directly west of Freya when a tower attacks from the north).
+        hexLine(attackOrigin, protectedPosition).any { tile ->
+            tile != attackOrigin &&
+                tile in shieldWallTiles &&
+                isInShieldFrontArc(tile, attackOrigin, frontDirection)
+        }
+    }
+}
+
+/**
+ * Returns true when [attackOrigin] lies in the front arc of the shield [shieldTile].
+ *
+ * All minimum-distance hex directions from [shieldTile] toward [attackOrigin] must fall inside
+ * the front arc (offsets 0, ±1 from [frontDirection]).  Ties that include a non-frontal direction
+ * are treated as side attacks and are therefore allowed through.
+ */
+private fun isInShieldFrontArc(
+    shieldTile: Position,
+    attackOrigin: Position,
+    frontDirection: Int,
+): Boolean {
+    val attackDirections = hexDirectionsToward(shieldTile, attackOrigin)
     if (attackDirections.isEmpty()) return false
     return attackDirections.all { attackDirection ->
         SHIELD_WALL_FRONT_ARC_OFFSETS.any { offset ->
@@ -160,4 +189,66 @@ private fun hexDirectionsToward(
     }
     val minDist = distances.min()
     return distances.indices.filter { distances[it] == minDist }
+}
+
+// ---------------------------------------------------------------------------
+// Hex line-of-sight (cube-coordinate lerp, Red Blob Games algorithm)
+// ---------------------------------------------------------------------------
+
+private data class CubeCoord(
+    val q: Int,
+    val r: Int,
+    val s: Int,
+)
+
+private fun Position.toCube(): CubeCoord {
+    val q = x - (y - (y and 1)) / 2
+    val r = y
+    return CubeCoord(q, r, -q - r)
+}
+
+private fun CubeCoord.toOffset(): Position {
+    val col = q + (r - (r and 1)) / 2
+    return Position(col, r)
+}
+
+private fun cubeRound(
+    fq: Float,
+    fr: Float,
+    fs: Float,
+): CubeCoord {
+    var q = fq.roundToInt()
+    var r = fr.roundToInt()
+    var s = fs.roundToInt()
+    val dq = abs(q - fq)
+    val dr = abs(r - fr)
+    val ds = abs(s - fs)
+    when {
+        dq > dr && dq > ds -> q = -r - s
+        dr > ds -> r = -q - s
+        else -> s = -q - r
+    }
+    return CubeCoord(q, r, s)
+}
+
+/**
+ * Returns all hex tiles on the straight line from [from] to [to], inclusive of both endpoints,
+ * using the cube-coordinate lerp algorithm from Red Blob Games.
+ */
+private fun hexLine(
+    from: Position,
+    to: Position,
+): List<Position> {
+    val n = from.hexDistanceTo(to)
+    if (n == 0) return listOf(from)
+    val fc = from.toCube()
+    val tc = to.toCube()
+    return (0..n).map { i ->
+        val t = i.toFloat() / n
+        cubeRound(
+            fc.q + (tc.q - fc.q) * t,
+            fc.r + (tc.r - fc.r) * t,
+            fc.s + (tc.s - fc.s) * t,
+        ).toOffset()
+    }
 }

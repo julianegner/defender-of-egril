@@ -183,6 +183,50 @@ class FreyaShieldWallTest {
     }
 
     @Test
+    fun northTowerIsBlockedFromAttackingGoblinBehindShield() {
+        // Freya at (4,3) moving East.  Her NW-flank tile is (4,2) — directly above her on the same
+        // column (odd-row hex grid).  A tower to the north at (4,1) tries to attack a goblin at
+        // (3,3) which is directly WEST of Freya.  The hex line from the tower to the goblin passes
+        // through the NW-flank shield tile, so the attack must be blocked.
+        val state = GameState(createTestLevel())
+        val engine = GameEngine(state)
+        val northTower = defender(1, DefenderType.BOW_TOWER, Position(4, 1))
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+        val goblin = attacker(2, AttackerType.GOBLIN, Position(3, 3))
+
+        state.defenders.add(northTower)
+        state.attackers.addAll(listOf(freya, goblin))
+
+        assertTrue(engine.defenderAttack(northTower.id, goblin.id), "Tower should be allowed to target the goblin")
+        assertEquals(
+            goblin.maxHealth,
+            goblin.currentHealth.value,
+            "Goblin west of Freya should be shielded from north tower (shield line of sight)",
+        )
+    }
+
+    @Test
+    fun southTowerIsAlsoBlockedFromAttackingGoblinBehindShield() {
+        // Mirror of the north case: south tower at (4,5) → goblin at (3,3).
+        // The hex line passes through the SW-flank at (4,4), blocking the attack.
+        val state = GameState(createTestLevel())
+        val engine = GameEngine(state)
+        val southTower = defender(1, DefenderType.BOW_TOWER, Position(4, 5))
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+        val goblin = attacker(2, AttackerType.GOBLIN, Position(3, 3))
+
+        state.defenders.add(southTower)
+        state.attackers.addAll(listOf(freya, goblin))
+
+        assertTrue(engine.defenderAttack(southTower.id, goblin.id), "Tower should be allowed to target the goblin")
+        assertEquals(
+            goblin.maxHealth,
+            goblin.currentHealth.value,
+            "Goblin west of Freya should be shielded from south tower (shield line of sight)",
+        )
+    }
+
+    @Test
     fun defeatedFreyaDoesNotRenderShieldWallTiles() {
         val state = GameState(createTestLevel())
         val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
