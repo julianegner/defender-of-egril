@@ -42,6 +42,34 @@ fun GameState.isShieldWallAttackBlocked(
     }
 }
 
+/**
+ * Arc data used by the map overlay to draw the shield wall front face.
+ *
+ * @param positions All tiles covered by the shield wall, including Freya's own tile.
+ * @param frontDirection The hex direction Freya is moving (0=E, 1=NE, 2=NW, 3=W, 4=SW, 5=SE).
+ */
+data class FreyaShieldWallArc(
+    val positions: Set<Position>,
+    val frontDirection: Int,
+)
+
+/** Returns one [FreyaShieldWallArc] per active Freya for rendering the front-facing arc overlay. */
+fun GameState.freyaShieldWallArcs(): List<FreyaShieldWallArc> {
+    val pathfinding = PathfindingSystem(this)
+    return attackers
+        .filter {
+            !it.isDefeated.value &&
+                it.type == AttackerType.FALLEN_SHIELDMAIDEN_FREYA &&
+                it.type.shieldWallFormationWidth > 0
+        }.mapNotNull { freya ->
+            val frontDirection = shieldWallFrontDirection(freya, pathfinding) ?: return@mapNotNull null
+            FreyaShieldWallArc(
+                positions = freyaShieldWallPositions(freya, pathfinding, includeFreyaTile = true),
+                frontDirection = frontDirection,
+            )
+        }
+}
+
 fun GameState.freyaShieldWallVisiblePositions(): Set<Position> = freyaShieldWallVisibleOverlays().keys
 
 fun GameState.freyaShieldWallVisibleOverlays(): Map<Position, FreyaShieldWallOverlay> {

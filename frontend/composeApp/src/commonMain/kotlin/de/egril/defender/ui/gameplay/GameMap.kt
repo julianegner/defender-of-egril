@@ -37,7 +37,8 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.LogConfig
-import de.egril.defender.game.freyaShieldWallVisiblePositions
+import de.egril.defender.game.FreyaShieldWallArc
+import de.egril.defender.game.freyaShieldWallArcs
 import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
@@ -160,21 +161,21 @@ private fun shieldWallCornerKey(
 }
 
 /**
- * Map-level overlay that draws the Freya shield wall boundary as three parallel curvy lines
- * (grey, shield-blue, grey) following the outer edge of the shield wall formation.
+ * Map-level overlay that draws the Freya shield wall as a smooth open arc along the front-facing
+ * edges of the shield wall formation.
  *
- * The boundary is found by collecting all edges between shield-wall and non-shield-wall tiles,
- * connecting them into closed loops via a shared-corner graph, and smoothing each loop with the
- * midpoint quadratic-bezier technique so every hex vertex becomes a smooth curve.
+ * Only edges whose direction falls within the front arc (forward ± 1 direction) are included,
+ * producing a visual barrier on the side facing the enemy. The arc is rendered as a
+ * grey–blue–grey stripe, rounded via [PathEffect.cornerPathEffect] for a smooth appearance.
  */
 @Composable
 private fun FreyaShieldWallMapOverlay(
-    shieldWallPositions: Set<Position>,
+    shieldWallArcs: List<FreyaShieldWallArc>,
     hexSizeDp: Float,
     contentSize: IntSize,
     modifier: Modifier = Modifier,
 ) {
-    if (shieldWallPositions.isEmpty()) return
+    if (shieldWallArcs.isEmpty()) return
 
     val density = androidx.compose.ui.platform.LocalDensity.current.density
     val hexSizePx = hexSizeDp * density
@@ -193,82 +194,84 @@ private fun FreyaShieldWallMapOverlay(
         )
     }
 
-    // Collect all edges between a shield-wall tile and a non-shield-wall neighbor.
-    val boundaryEdges = mutableListOf<ShieldWallBoundaryEdge>()
-    for (pos in shieldWallPositions) {
-        val center = tileCenterPx(pos)
-        val neighbors = pos.getHexNeighbors()
-        for (dir in 0..5) {
-            if (neighbors[dir] !in shieldWallPositions) {
-                val nbrCenter = tileCenterPx(neighbors[dir])
-                val mid = Offset((center.x + nbrCenter.x) / 2f, (center.y + nbrCenter.y) / 2f)
-                boundaryEdges.add(
-                    ShieldWallBoundaryEdge(
-                        midpoint = mid,
-                        startKey = shieldWallCornerKey(pos, SHIELD_WALL_EDGE_START_CORNER[dir]),
-                        endKey = shieldWallCornerKey(pos, SHIELD_WALL_EDGE_END_CORNER[dir]),
-                    ),
-                )
+    // Build an open-chain arc path for each Freya.
+    val arcPaths = mutableListOf<Path>()
+
+    for (arc in shieldWallArcs) {
+        val shieldWallPositions = arc.positions
+        val frontDirection = arc.frontDirection
+        // Only edges facing the front arc (forward, forward-left, forward-right).
+        val frontArcDirs =
+            setOf(
+                frontDirection.mod(6),
+                (frontDirection + 1).mod(6),
+                (frontDirection + 5).mod(6),
+            )
+
+        // Collect front-arc boundary edges (edges between a shield tile and a non-shield tile).
+        val boundaryEdges = mutableListOf<ShieldWallBoundaryEdge>()
+        for (pos in shieldWallPositions) {
+            val center = tileCenterPx(pos)
+            val neighbors = pos.getHexNeighbors()
+            for (dir in 0..5) {
+                if (dir in frontArcDirs && neighbors[dir] !in shieldWallPositions) {
+                    val nbrCenter = tileCenterPx(neighbors[dir])
+                    val mid = Offset((center.x + nbrCenter.x) / 2f, (center.y + nbrCenter.y) / 2f)
+                    boundaryEdges.add(
+                        ShieldWallBoundaryEdge(
+                            midpoint = mid,
+                            startKey = shieldWallCornerKey(pos, SHIELD_WALL_EDGE_START_CORNER[dir]),
+                            endKey = shieldWallCornerKey(pos, SHIELD_WALL_EDGE_END_CORNER[dir]),
+                        ),
+                    )
+                }
             }
         }
-    }
+        if (boundaryEdges.isEmpty()) continue
 
-    if (boundaryEdges.isEmpty()) return
+        // Build adjacency: corner key → edges touching that corner.
+        val cornerToEdges = mutableMapOf<String, MutableList<ShieldWallBoundaryEdge>>()
+        for (edge in boundaryEdges) {
+            cornerToEdges.getOrPut(edge.startKey) { mutableListOf() }.add(edge)
+            cornerToEdges.getOrPut(edge.endKey) { mutableListOf() }.add(edge)
+        }
 
-    // Build adjacency: corner key → edges that touch this corner.
-    val cornerToEdges = mutableMapOf<String, MutableList<ShieldWallBoundaryEdge>>()
-    for (edge in boundaryEdges) {
-        cornerToEdges.getOrPut(edge.startKey) { mutableListOf() }.add(edge)
-        cornerToEdges.getOrPut(edge.endKey) { mutableListOf() }.add(edge)
-    }
+        // Find terminal corners (degree 1) — the two endpoints of the open chain.
+        val startKey =
+            cornerToEdges.entries.firstOrNull { it.value.size == 1 }?.key ?: continue
 
-    // Trace closed boundary loops by walking from edge to edge through shared corners.
-    val visited = mutableSetOf<ShieldWallBoundaryEdge>()
-    val loops = mutableListOf<List<Offset>>()
-
-    for (startEdge in boundaryEdges) {
-        if (startEdge in visited) continue
+        // Walk the chain from one terminal to the other, collecting midpoints in order.
         val midpoints = mutableListOf<Offset>()
-        var cur = startEdge
-        var prevKey: String? = null
-
-        while (cur !in visited) {
+        val visited = mutableSetOf<ShieldWallBoundaryEdge>()
+        var prevKey = startKey
+        var cur = cornerToEdges[startKey]!!.first()
+        while (true) {
+            if (cur in visited) break
             visited.add(cur)
             midpoints.add(cur.midpoint)
-            val exitKey = if (prevKey != null && prevKey == cur.endKey) cur.startKey else cur.endKey
-            val next = cornerToEdges[exitKey]?.firstOrNull { it !== cur } ?: break
-            prevKey = exitKey
+            val nextKey = if (prevKey == cur.startKey) cur.endKey else cur.startKey
+            val next = cornerToEdges[nextKey]?.firstOrNull { it !in visited } ?: break
+            prevKey = nextKey
             cur = next
         }
+        if (midpoints.size < 2) continue
 
-        if (midpoints.size >= 3) loops.add(midpoints)
+        // Build as straight segments; smoothing is applied via PathEffect.cornerPathEffect.
+        arcPaths.add(
+            Path().apply {
+                moveTo(midpoints[0].x, midpoints[0].y)
+                for (i in 1 until midpoints.size) lineTo(midpoints[i].x, midpoints[i].y)
+            },
+        )
     }
 
-    if (loops.isEmpty()) return
+    if (arcPaths.isEmpty()) return
 
-    // Build a smooth closed path per loop using the midpoint quadratic-bezier technique:
-    // each waypoint becomes a smooth quadratic curve (waypoint = control point, midpoint to
-    // next waypoint = curve endpoint), so no sharp hexagonal corners appear.
-    val smoothPaths =
-        loops.map { pts ->
-            val n = pts.size
-            Path().apply {
-                val firstMid = Offset((pts[n - 1].x + pts[0].x) / 2f, (pts[n - 1].y + pts[0].y) / 2f)
-                moveTo(firstMid.x, firstMid.y)
-                for (i in 0 until n) {
-                    val p = pts[i]
-                    val nextP = pts[(i + 1) % n]
-                    val nextMid = Offset((p.x + nextP.x) / 2f, (p.y + nextP.y) / 2f)
-                    quadraticTo(p.x, p.y, nextMid.x, nextMid.y)
-                }
-                close()
-            }
-        }
-
-    val outerStrokeWidth = hexSizePx * 0.22f // total stripe width (grey)
-    val innerStrokeWidth = hexSizePx * 0.08f // blue center width; grey = (outer - inner) / 2 per side
-    val blueColor = Color(0xFF7EAAC8).copy(alpha = 0.9f)
-    val greyColor = Color(0xFFAAAAAA).copy(alpha = 0.9f)
+    val outerStrokeWidth = hexSizePx * 0.26f
+    val innerStrokeWidth = hexSizePx * 0.10f
+    val cornerRadius = hexSizePx * 0.45f
+    val blueColor = Color(0xFF7EAAC8).copy(alpha = 0.95f)
+    val greyColor = Color(0xFFAAAAAA).copy(alpha = 0.95f)
 
     val contentWidthDp = (contentSize.width / density).dp
     val contentHeightDp = (contentSize.height / density).dp
@@ -279,11 +282,27 @@ private fun FreyaShieldWallMapOverlay(
                 .requiredSize(contentWidthDp, contentHeightDp)
                 .semantics { contentDescription = "Shield Wall" },
     ) {
-        for (path in smoothPaths) {
-            // Grey outer stroke defines total stripe width, leaving grey visible on both sides.
-            drawPath(path = path, color = greyColor, style = Stroke(width = outerStrokeWidth))
-            // Blue inner stroke covers the centre, creating the grey–blue–grey stripe effect.
-            drawPath(path = path, color = blueColor, style = Stroke(width = innerStrokeWidth))
+        for (path in arcPaths) {
+            // Grey outer stroke (wider) drawn first, leaving grey visible on both sides of the arc.
+            drawPath(
+                path = path,
+                color = greyColor,
+                style =
+                    Stroke(
+                        width = outerStrokeWidth,
+                        pathEffect = PathEffect.cornerPathEffect(cornerRadius),
+                    ),
+            )
+            // Blue inner stroke drawn on top, creating the grey–blue–grey stripe effect.
+            drawPath(
+                path = path,
+                color = blueColor,
+                style =
+                    Stroke(
+                        width = innerStrokeWidth,
+                        pathEffect = PathEffect.cornerPathEffect(cornerRadius),
+                    ),
+            )
         }
     }
 }
@@ -400,7 +419,7 @@ fun GameGrid(
     // Find the selected defender and track its actions for dependency tracking
     val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
     val selectedDefenderActions = selectedDefender?.actionsRemaining?.value
-    val freyaShieldWallPositions = gameState.freyaShieldWallVisiblePositions()
+    val freyaShieldWallArcs = gameState.freyaShieldWallArcs()
 
     val targetCircleMap =
         remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size) {
@@ -969,9 +988,9 @@ fun GameGrid(
                     )
                     // Freya shield wall boundary: three curvy parallel lines (grey, blue, grey)
                     // drawn above the map following the outer edge of the shield wall formation.
-                    if (freyaShieldWallPositions.isNotEmpty()) {
+                    if (freyaShieldWallArcs.isNotEmpty()) {
                         FreyaShieldWallMapOverlay(
-                            shieldWallPositions = freyaShieldWallPositions,
+                            shieldWallArcs = freyaShieldWallArcs,
                             hexSizeDp = hexSize.value,
                             contentSize = measuredContentSize,
                         )
