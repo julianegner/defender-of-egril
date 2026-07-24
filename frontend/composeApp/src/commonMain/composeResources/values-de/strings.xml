@@ -253,6 +253,7 @@
     <string name="ork_name">Ork</string>
     <string name="ogre_name">Oger</string>
     <string name="skeleton_name">Skelett</string>
+    <string name="zombie_name">Zombie</string>
     <string name="evil_wizard_name">Böser Zauberer</string>
     <string name="witch_name">Hexe</string>
     <string name="blue_demon_name">Blauer Dämon</string>
@@ -265,8 +266,10 @@
     <string name="snotling_boss_name">Gribnak der Kreischer</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Drache</string>
+    <string name="undead_dragon_name">Untoter Drache</string>
     <string name="baron_ratterzahn_name">Baron Ratterzahn</string>
     <string name="fallen_shieldmaiden_freya_name">Die gefallene Schildmaid Freya</string>
+    <string name="prince_valerius_the_soulreaper_name">Fürst Valerius der Seelenschnitter</string>
     
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Feinde auf der Karte:</string>
@@ -577,6 +580,7 @@
     
     <!-- Dragon Names -->
     <string name="the_dragon">Der Drache</string>
+    <string name="undead_dragon_label">untoter Drache</string>
     <string name="awakens">erwacht</string>
     <string name="lair_of_the_dragon">Höhle des Drachen</string>
 
@@ -1773,6 +1777,10 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_freya_title">Die gefallene Schildmaid Freya betritt das Schlachtfeld</string>
     <string name="villain_freya_backstory">Einst war Freya eine heldenhafte Schildmaid. Im Kampf fiel sie und erhob sich als unaufhaltsame Todesritterin in schwarzem Stahl und Grabmagie.</string>
     <string name="villain_freya_description">Ihre Schildmauer blockt alle Nicht-Ballista-Angriffe von vorne – für ihr eigenes Feld und die Felder links und rechts von ihr, während sie vorrückt. Greife von der Seite oder von hinten an oder schieße mit einer Ballista über den Schild, bevor die untote Kriegerin deine Linie zerschlägt.</string>
+    <string name="villain_valerius_title">Fürst Valerius der Seelenschnitter betritt das Schlachtfeld</string>
+<string name="villain_valerius_backstory">Fürst Valerius der Seelenschnitter, ein uralter Lich und Herrscher der Skelettarmeen, tritt in einer Welle eisiger Grabeskälte auf das Schlachtfeld.</string>
+<string name="villain_valerius_description">Sein Seelenruf erweckt gefallene Verbündete im Umkreis von 3 Feldern zu Beginn der nächsten Runde wieder. Lebende kehren als Zombies zurück, Untote erheben sich erneut als Skelette, und selbst Drachen können als untote Drachen wiederkehren. Vernichtet ihn schnell, bevor jeder Verlust sein Heer verstärkt.</string>
+<string name="villain_valerius_soul_call_short">Seelenruf: tote Verbündete im Umkreis von 3 Feldern erheben sich nächste Runde</string>
     <string name="villain_silas_title">Silas der Maskenmeister betritt das Schlachtfeld</string>
     <string name="villain_silas_backstory">Silas der Maskenmeister, ein wandernder Illusionist, gehüllt in Samt und Lügen, hat das Schlachtfeld betreten.</string>
     <string name="villain_silas_description">Alle 3 Runden erschafft er zwei Spiegelbilder auf nahen Pfadfeldern. Nur der echte Silas kann verletzt werden; trifft ein Turm eine Illusion, verschwindet sie und dieser Turm ist 2 Runden lang geblendet. Silas kann im Moment ihrer Erschaffung den Platz mit seinen frischen Doppelgängern tauschen – zielt also genau, bevor ihr feuert!</string>

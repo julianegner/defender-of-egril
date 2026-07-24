@@ -253,6 +253,7 @@
     <string name="ork_name">Orc</string>
     <string name="ogre_name">Ogre</string>
     <string name="skeleton_name">Squelette</string>
+    <string name="zombie_name">Zombie</string>
     <string name="evil_wizard_name">Sorcier maléfique</string>
     <string name="witch_name">Sorcière</string>
     <string name="blue_demon_name">Démon bleu</string>
@@ -265,8 +266,10 @@
     <string name="snotling_boss_name">Gribnak le Couineur</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragon</string>
+    <string name="undead_dragon_name">Dragon mort-vivant</string>
     <string name="baron_ratterzahn_name">Baron Ratterzahn</string>
     <string name="fallen_shieldmaiden_freya_name">Freya la Porte-bouclier Déchue</string>
+    <string name="prince_valerius_the_soulreaper_name">Prince Valerius le Faucheur d&apos;Âmes</string>
     
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Ennemis sur la carte:</string>
@@ -579,6 +582,7 @@
     
     <!-- Dragon Names -->
     <string name="the_dragon">Le dragon</string>
+    <string name="undead_dragon_label">dragon mort-vivant</string>
     <string name="awakens">se réveille</string>
     <string name="lair_of_the_dragon">Repaire du Dragon</string>
 
@@ -1775,6 +1779,10 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_freya_title">Freya la Porte-bouclier Déchue entre sur le champ de bataille</string>
     <string name="villain_freya_backstory">Autrefois héroïque porte-bouclier, Freya est tombée au combat avant de se relever en chevalier de la mort implacable drapée d'acier noir et de magie funéraire.</string>
     <string name="villain_freya_description">Son Mur de Boucliers bloque toutes les attaques frontales non tirées par une baliste pour sa propre case et pour les cases à sa gauche et à sa droite pendant qu'elle avance. Attaquez-la de côté ou de dos, ou tirez au-dessus du bouclier avec une Ballista, avant que la championne morte-vivante n'écrase votre ligne.</string>
+    <string name="villain_valerius_title">Prince Valerius le Faucheur d&apos;Âmes entre sur le champ de bataille</string>
+<string name="villain_valerius_backstory">Prince Valerius le Faucheur d&apos;Âmes, une liche ancestrale et souverain des armées de squelettes, s&apos;avance sur le champ de bataille dans une vague de froid sépulcral.</string>
+<string name="villain_valerius_description">Son Appel des Âmes relève les alliés tombés dans un rayon de 3 cases au début du tour suivant. Les vivants reviennent en zombies, les morts-vivants se relèvent en squelettes, et même les dragons peuvent revenir comme dragons morts-vivants. Détruisez-le vite avant que chaque perte ne renforce son ost.</string>
+<string name="villain_valerius_soul_call_short">Appel des Âmes : les alliés morts dans 3 cases se relèvent au prochain tour</string>
     <string name="villain_silas_title">Silas le Maître des Masques entre sur le champ de bataille</string>
     <string name="villain_silas_backstory">Silas le Maître des Masques, un illusionniste errant drapé de velours et de mensonges, est entré sur le champ de bataille.</string>
     <string name="villain_silas_description">Tous les 3 tours, il crée deux images miroir sur des cases de chemin proches. Seul le vrai Silas peut être blessé ; lorsqu'une tour frappe une illusion, l'image disparaît et cette tour est aveuglée pendant 2 tours. Silas peut échanger sa place avec ses nouveaux doubles dès leur apparition, alors visez avec soin avant de tirer !</string>

@@ -253,6 +253,7 @@
     <string name="ork_name">Orco</string>
     <string name="ogre_name">Ogro</string>
     <string name="skeleton_name">Esqueleto</string>
+    <string name="zombie_name">Zombi</string>
     <string name="evil_wizard_name">Mago malvado</string>
     <string name="witch_name">Bruja</string>
     <string name="blue_demon_name">Demonio azul</string>
@@ -265,8 +266,10 @@
     <string name="snotling_boss_name">Gribnak el Chillón</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragón</string>
+    <string name="undead_dragon_name">Dragón no muerto</string>
     <string name="baron_ratterzahn_name">Barón Ratterzahn</string>
     <string name="fallen_shieldmaiden_freya_name">Freya, la Doncella del Escudo Caída</string>
+    <string name="prince_valerius_the_soulreaper_name">Príncipe Valerius el Segador de Almas</string>
     
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Enemigos en el mapa:</string>
@@ -577,6 +580,7 @@
     
     <!-- Dragon Names -->
     <string name="the_dragon">El dragón</string>
+    <string name="undead_dragon_label">dragón no muerto</string>
     <string name="awakens">despierta</string>
     <string name="lair_of_the_dragon">Guarida del Dragón</string>
 
@@ -1774,6 +1778,10 @@
     <string name="villain_freya_title">Freya, la Doncella del Escudo Caída, entra al campo de batalla</string>
     <string name="villain_freya_backstory">Freya fue una heroica doncella del escudo, pero cayó en combate y se alzó de nuevo como una imparable caballera de la muerte envuelta en acero negro y magia funeraria.</string>
     <string name="villain_freya_description">Su Muro de Escudos bloquea todos los ataques frontales que no sean de ballista para su propia casilla y para las casillas a su izquierda y a su derecha mientras avanza. Ataca desde el flanco o la retaguardia, o dispara por encima del escudo con una Ballista, antes de que la campeona no muerta destroce tu línea.</string>
+    <string name="villain_valerius_title">Príncipe Valerius el Segador de Almas entra en el campo de batalla</string>
+<string name="villain_valerius_backstory">Príncipe Valerius el Segador de Almas, un antiguo lich y soberano de los ejércitos esqueléticos, pisa el campo de batalla envuelto en una ola de frío sepulcral.</string>
+<string name="villain_valerius_description">Su Llamado de las Almas hace que los aliados caídos dentro de 3 casillas se alcen al inicio de la siguiente ronda. Los vivos regresan como zombis, los no muertos vuelven a levantarse como esqueletos, e incluso los dragones pueden regresar como dragones no muertos. Destrúyelo rápido antes de que cada baja fortalezca a su hueste.</string>
+<string name="villain_valerius_soul_call_short">Llamado de las Almas: los aliados muertos en 3 casillas se alzan la próxima ronda</string>
     <string name="villain_silas_title">Silas el Maestro de las Máscaras entra al campo de batalla</string>
     <string name="villain_silas_backstory">Silas el Maestro de las Máscaras, un ilusionista errante envuelto en terciopelo y mentiras, ha entrado al campo de batalla.</string>
     <string name="villain_silas_description">Cada 3 rondas crea dos imágenes especulares en casillas del camino cercanas. Solo el verdadero Silas puede resultar herido; cuando una torre golpea una ilusión, la imagen se desvanece y esa torre queda cegada durante 2 rondas. Silas puede intercambiarse con sus dobles recién creados en el mismo momento en que aparecen, ¡así que apunta con cuidado antes de disparar!</string>

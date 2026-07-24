@@ -87,6 +87,7 @@ data class EnemySpawnEffect(
     val position: Position, // Spawn position of the newly appeared enemy
     val turnNumber: Int, // Turn when this spawn occurred
     val attackerType: AttackerType? = null, // Spawned enemy type (used to suppress specific spawn visuals)
+    val suppressPortalAnimation: Boolean = false,
 )
 
 data class ScrapPile(
@@ -194,6 +195,15 @@ data class GameMessage(
     val eventActions: List<EventAction>? = null,
 )
 
+data class PendingSoulCall(
+    val position: Position,
+    val attackerType: AttackerType,
+    val level: Int,
+    val reviveTurn: Int,
+    val dragonName: String? = null,
+    val currentTarget: Position? = null,
+)
+
 data class GameState(
     var level: Level,
     val phase: MutableState<GamePhase> = mutableStateOf(GamePhase.INITIAL_BUILDING),
@@ -267,6 +277,7 @@ data class GameState(
     // SINGLE_HIT target tracking
     val takenTargets: SnapshotStateList<Position> = mutableStateListOf(), // Positions of taken SINGLE_HIT targets
     val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf(), // Messages queued for display
+    val pendingSoulCalls: SnapshotStateList<PendingSoulCall> = mutableStateListOf(), // Valerius resurrection queue for the next round
     // Player-usable supports remaining this level (placable objects + spell tokens)
     val supportObjectsRemaining: SnapshotStateMap<SupportObjectType, Int> = mutableStateMapOf(),
     val supportSpellsRemaining: SnapshotStateMap<SpellType, Int> = mutableStateMapOf(),

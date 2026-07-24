@@ -3257,6 +3257,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.FALLEN_SHIELDMAIDEN_FREYA.name ->
                                             stringResource(Res.string.villain_freya_title) to
                                                 (stringResource(Res.string.villain_freya_backstory) + "\n" + stringResource(Res.string.villain_freya_description))
+                                        AttackerType.PRINCE_VALERIUS_THE_SOULREAPER.name ->
+                                            stringResource(Res.string.villain_valerius_title) to
+                                                (stringResource(Res.string.villain_valerius_backstory) + "\n" + stringResource(Res.string.villain_valerius_description))
                                         AttackerType.SILAS_THE_MASKMASTER.name ->
                                             stringResource(Res.string.villain_silas_title) to
                                                 (stringResource(Res.string.villain_silas_backstory) + "\n" + stringResource(Res.string.villain_silas_description))

@@ -256,6 +256,7 @@
     <string name="ork_name">Ork</string>
     <string name="ogre_name">Ogre</string>
     <string name="skeleton_name">Skeleton</string>
+    <string name="zombie_name">Zombie</string>
     <string name="evil_wizard_name">Evil Wizard</string>
     <string name="witch_name">Witch</string>
     <string name="blue_demon_name">Blue Demon</string>
@@ -268,9 +269,11 @@
     <string name="snotling_boss_name">Gribnak the Squealer</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragon</string>
+    <string name="undead_dragon_name">Undead Dragon</string>
     <string name="baron_ratterzahn_name">Baron Ratterzahn</string>
     <string name="silas_name">Silas the Maskmaster</string>
     <string name="fallen_shieldmaiden_freya_name">Fallen Shieldmaiden Freya</string>
+    <string name="prince_valerius_the_soulreaper_name">Prince Valerius the Soulreaper</string>
     <string name="dragon_name_label">Dragon Name</string>
 
     <!-- SavedGameCard strings -->
@@ -613,6 +616,7 @@
     
     <!-- Dragon Names -->
     <string name="the_dragon">The dragon</string>
+    <string name="undead_dragon_label">undead dragon</string>
     <string name="awakens">awakens</string>
     <string name="lair_of_the_dragon">Lair of the Dragon</string>
 
@@ -1779,6 +1783,10 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_freya_title">Fallen Shieldmaiden Freya enters the battlefield</string>
     <string name="villain_freya_backstory">Once a heroic shieldmaiden, Freya fell in battle and rose again as an unstoppable death knight wrapped in black steel and grave magic.</string>
     <string name="villain_freya_description">Her Shield Wall blocks all non-ballista attacks from the front for her own tile and the tiles to her left and right as she advances. Strike from the side or rear, or shoot over the shield with a Ballista, before the undead champion crushes your line.</string>
+    <string name="villain_valerius_title">Prince Valerius the Soulreaper enters the battlefield</string>
+    <string name="villain_valerius_backstory">Prince Valerius the Soulreaper, an ancient lich and ruler of the skeleton armies, steps onto the battlefield in a wave of icy grave-cold.</string>
+    <string name="villain_valerius_description">His Soul Call raises fallen allies within 3 tiles at the start of the next round. The living return as zombies, the undead rise again as skeletons, and even dragons can return as undead dragons. Destroy him quickly before every casualty strengthens his host.</string>
+    <string name="villain_valerius_soul_call_short">Soul Call: dead allies within 3 tiles rise next round</string>
     <string name="villain_silas_title">Silas the Maskmaster enters the battlefield</string>
     <string name="villain_silas_backstory">Silas the Maskmaster, a wandering illusionist wrapped in velvet and lies, has stepped onto the battlefield.</string>
     <string name="villain_silas_description">Every 3 rounds he creates two mirror images on nearby path tiles. Only the real Silas can be hurt; when a tower strikes an illusion, the image vanishes and that tower is blinded for 2 rounds. Silas may swap places with his fresh doubles the moment they appear, so watch carefully before you fire!</string>

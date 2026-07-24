@@ -253,6 +253,7 @@
     <string name="ork_name">Orco</string>
     <string name="ogre_name">Ogre</string>
     <string name="skeleton_name">Scheletro</string>
+    <string name="zombie_name">Zombie</string>
     <string name="evil_wizard_name">Mago malvagio</string>
     <string name="witch_name">Strega</string>
     <string name="blue_demon_name">Demone blu</string>
@@ -265,8 +266,10 @@
     <string name="snotling_boss_name">Gribnak lo Strillone</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Drago</string>
+    <string name="undead_dragon_name">Drago non morto</string>
     <string name="baron_ratterzahn_name">Barone Ratterzahn</string>
     <string name="fallen_shieldmaiden_freya_name">Freya la Scudiera Caduta</string>
+    <string name="prince_valerius_the_soulreaper_name">Principe Valerius il Mietitore di Anime</string>
     
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Nemici sulla mappa:</string>
@@ -579,6 +582,7 @@
     
     <!-- Dragon Names -->
     <string name="the_dragon">Il drago</string>
+    <string name="undead_dragon_label">drago non morto</string>
     <string name="awakens">si sveglia</string>
     <string name="lair_of_the_dragon">Tana del Drago</string>
 
@@ -1776,6 +1780,10 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_freya_title">Freya la Scudiera Caduta entra nel campo di battaglia</string>
     <string name="villain_freya_backstory">Un tempo eroica scudiera, Freya cadde in battaglia e si rialzò come un'inarrestabile cavaliere della morte avvolta in acciaio nero e magia sepolcrale.</string>
     <string name="villain_freya_description">Il suo Muro di Scudi blocca tutti gli attacchi frontali non scagliati da una ballista per la sua casella e per le caselle alla sua sinistra e alla sua destra mentre avanza. Attaccala di lato o alle spalle, oppure spara sopra lo scudo con una Ballista, prima che la campionessa non morta spezzi la tua linea.</string>
+    <string name="villain_valerius_title">Principe Valerius il Mietitore di Anime entra nel campo di battaglia</string>
+<string name="villain_valerius_backstory">Principe Valerius il Mietitore di Anime, un antico lich e sovrano degli eserciti scheletrici, avanza sul campo di battaglia in un&apos;ondata di gelo sepolcrale.</string>
+<string name="villain_valerius_description">Il suo Richiamo delle Anime fa rialzare gli alleati caduti entro 3 caselle all&apos;inizio del round successivo. I vivi tornano come zombie, i non morti si rialzano come scheletri, e perfino i draghi possono tornare come draghi non morti. Distruggetelo in fretta prima che ogni perdita rafforzi la sua orda.</string>
+<string name="villain_valerius_soul_call_short">Richiamo delle Anime: gli alleati morti entro 3 caselle si rialzano il prossimo round</string>
     <string name="villain_silas_title">Silas il Maestro delle Maschere entra nel campo di battaglia</string>
     <string name="villain_silas_backstory">Silas il Maestro delle Maschere, un illusionista errante avvolto in velluto e menzogne, è entrato nel campo di battaglia.</string>
     <string name="villain_silas_description">Ogni 3 turni crea due immagini speculari sulle caselle del percorso vicine. Solo il vero Silas può essere ferito; quando una torre colpisce un'illusione, l'immagine svanisce e quella torre viene accecata per 2 turni. Silas può scambiarsi di posto con i suoi nuovi doppi nel momento in cui appaiono, quindi mira con attenzione prima di attaccare!</string>

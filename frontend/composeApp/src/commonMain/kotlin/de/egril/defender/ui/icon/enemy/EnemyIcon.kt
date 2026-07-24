@@ -101,6 +101,7 @@ fun EnemyIcon(
                 AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
                 AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, iconSize * 0.7f, contrastOutlineColor, headScale)
+                AttackerType.ZOMBIE -> drawZombieSymbol(centerX, centerY, iconSize * 0.72f, contrastOutlineColor, headScale)
                 AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
@@ -140,11 +141,13 @@ fun EnemyIcon(
                 AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
+                AttackerType.UNDEAD_DRAGON -> drawUndeadDragonSymbol(centerX, centerY, iconSize * 0.9f, contrastOutlineColor, headScale)
                 AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ARAXXA -> drawAraxxaSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
                 AttackerType.BARON_RATTERZAHN -> drawBaronRatterzahnSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
                 AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> drawFallenShieldmaidenFreyaSymbol(centerX, centerY, iconSize * 0.82f, headScale = headScale)
+                AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> drawPrinceValeriusSymbol(centerX, centerY, iconSize * 0.8f, contrastOutlineColor, headScale)
                 AttackerType.SILAS_THE_MASKMASTER,
                 AttackerType.SILAS_MIRROR_IMAGE,
                 -> drawSilasSymbol(centerX, centerY, iconSize * 0.74f, headScale = headScale)
@@ -232,6 +235,7 @@ fun EnemyTypeIcon(
                 AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
                 AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, iconSize * 0.7f, contrastOutlineColor, headScale)
+                AttackerType.ZOMBIE -> drawZombieSymbol(centerX, centerY, iconSize * 0.72f, contrastOutlineColor, headScale)
                 AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
@@ -244,11 +248,13 @@ fun EnemyTypeIcon(
                 AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
                 AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
+                AttackerType.UNDEAD_DRAGON -> drawUndeadDragonSymbol(centerX, centerY, iconSize * 0.9f, contrastOutlineColor, headScale)
                 AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ARAXXA -> drawAraxxaSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
                 AttackerType.BARON_RATTERZAHN -> drawBaronRatterzahnSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
                 AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> drawFallenShieldmaidenFreyaSymbol(centerX, centerY, iconSize * 0.82f, headScale = headScale)
+                AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> drawPrinceValeriusSymbol(centerX, centerY, iconSize * 0.8f, contrastOutlineColor, headScale)
                 AttackerType.SILAS_THE_MASKMASTER,
                 AttackerType.SILAS_MIRROR_IMAGE,
                 -> drawSilasSymbol(centerX, centerY, iconSize * 0.74f, headScale = headScale)
