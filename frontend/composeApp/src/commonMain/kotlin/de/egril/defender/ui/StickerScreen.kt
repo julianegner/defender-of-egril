@@ -311,6 +311,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.ORK -> drawOrkSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, s * 1.05f, outlineColor)
                             AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, s, outlineColor)
+                            AttackerType.ZOMBIE -> drawZombieSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, s * 1.05f, outlineColor)
@@ -322,11 +323,13 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, s * 1.1f, outlineColor)
                             AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, s * 1.2f, outlineColor)
+                            AttackerType.UNDEAD_DRAGON -> drawUndeadDragonSymbol(centerX, centerY, s * 1.2f, outlineColor)
                             AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, s * 1.1f, outlineColor)
                             AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(centerX, centerY, s * 1.0f, outlineColor)
                             AttackerType.ARAXXA -> drawAraxxaSymbol(centerX, centerY, s * 1.0f, outlineColor)
                             AttackerType.BARON_RATTERZAHN -> drawBaronRatterzahnSymbol(centerX, centerY, s * 1.1f)
                             AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> drawFallenShieldmaidenFreyaSymbol(centerX, centerY, s * 1.05f, outlineColor)
+                            AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> drawPrinceValeriusSymbol(centerX, centerY, s * 1.05f, outlineColor)
                             AttackerType.SILAS_THE_MASKMASTER,
                             AttackerType.SILAS_MIRROR_IMAGE,
                             -> drawSilasSymbol(centerX, centerY, s * 1.05f, outlineColor)

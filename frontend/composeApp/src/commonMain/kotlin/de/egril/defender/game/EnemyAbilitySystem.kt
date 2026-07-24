@@ -365,6 +365,9 @@ class EnemyAbilitySystem(
                         applyToAllies = activatesThisRound,
                         applyToSelf = isBelowHalfHealth,
                     )
+                VillainAuraEffect.SOUL_CALL -> {
+                    // Soul Call is recorded when nearby units die and resolved at the next round start.
+                }
             }
         }
     }

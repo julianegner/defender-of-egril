@@ -9,6 +9,9 @@ import androidx.compose.runtime.mutableStateOf
 enum class VillainAuraEffect {
     /** Grants extra movement (cells per turn) to friendly units of the villain's faction. */
     SPEED,
+
+    /** Passive necromancy that resurrects fallen allies on the next round. */
+    SOUL_CALL,
 }
 
 /**
@@ -71,12 +74,14 @@ enum class AttackerType(
     val towerDisableRangeBase: Int? = null,
     val towerDisableCooldown: Int? = null,
     val towerDisableDurationTurns: Int? = null,
+    val soulCallRange: Int? = null,
     val shieldWallFormationWidth: Int = 0,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
     OGRE("Ogre", health = 80, speed = 1, reward = 20, xp = 12, canBuildBridge = true, faction = EnemyFaction.HORDE),
     SKELETON("Skeleton", health = 15, speed = 5, reward = 7, xp = 4, faction = EnemyFaction.UNDEAD),
+    ZOMBIE("Zombie", health = 25, speed = 1, reward = 6, xp = 4, faction = EnemyFaction.UNDEAD),
     EVIL_WIZARD("Evil Wizard", health = 30, speed = 2, reward = 15, xp = 9, canBuildBridge = true),
     BLUE_DEMON("Blue Demon", health = 15, speed = 6, reward = 10, xp = 6, immuneToAcid = true),
     RED_DEMON("Red Demon", health = 60, speed = 1, reward = 15, xp = 9, immuneToFireball = true),
@@ -105,6 +110,7 @@ enum class AttackerType(
         villainName = "Ewhad",
     ),
     DRAGON("Dragon", health = 500, speed = 2, reward = 0, xp = 50, isDragon = true, isBoss = true), // Speed will be overridden: 2 on turn 1, 10 on turn 2+. XP is given per level lost, not multiplied
+    UNDEAD_DRAGON("Undead Dragon", health = 500, speed = 2, reward = 0, xp = 50, isDragon = true, isBoss = true, faction = EnemyFaction.UNDEAD),
 
     // --- Villains (unique enemy heroes) ---
 
@@ -227,6 +233,19 @@ enum class AttackerType(
         villainName = "Freya",
         shieldWallFormationWidth = 3,
     ),
+    PRINCE_VALERIUS_THE_SOULREAPER(
+        "Prince Valerius the Soulreaper",
+        health = 180,
+        speed = 2,
+        reward = 140,
+        xp = 75,
+        isBoss = true,
+        isVillain = true,
+        faction = EnemyFaction.UNDEAD,
+        villainAbility = VillainAbility(effect = VillainAuraEffect.SOUL_CALL, range = 3, cooldown = 1),
+        villainName = "Valerius",
+        soulCallRange = 3,
+    ),
 }
 
 /**
@@ -288,7 +307,7 @@ data class Attacker(
      * Level 5-9: greed = 1
      * Level 10-14: greed = 2, etc.
      */
-    val greed: Int get() = if (type.isDragon) level.value / 5 else 0
+    val greed: Int get() = if (type == AttackerType.DRAGON) level.value / 5 else 0
 
     /**
      * Check if dragon is very greedy (greed > 5, meaning level > 25)
@@ -344,6 +363,7 @@ fun attackerTargetDamage(
         AttackerType.BLUE_DEMON,
         AttackerType.RED_DEMON,
         AttackerType.DRAGON,
+        AttackerType.UNDEAD_DRAGON,
         -> level
         AttackerType.EWHAD -> Int.MAX_VALUE // Special marker for "all HP" - caller must handle
         AttackerType.GAROKK -> level // Boss villain: 1 HP per level, like other mighty enemies
@@ -353,6 +373,7 @@ fun attackerTargetDamage(
         AttackerType.SILAS_THE_MASKMASTER -> level // Villain illusionist: 1 HP per level
         AttackerType.SILAS_MIRROR_IMAGE -> 0 // Illusions are decoys and never damage the target
         AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> level // Death-knight villain: 1 HP per level
+        AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> level // Lich villain: 1 HP per level
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
 
@@ -368,7 +389,8 @@ fun AttackerType.isSummoner(): Boolean =
         this == AttackerType.MORGUK_BONEWHISPER ||
         this == AttackerType.ARAXXA ||
         this == AttackerType.BARON_RATTERZAHN ||
-        this == AttackerType.SILAS_THE_MASKMASTER
+        this == AttackerType.SILAS_THE_MASKMASTER ||
+        this == AttackerType.PRINCE_VALERIUS_THE_SOULREAPER
 
 /**
  * Swarm units can stack by moving onto the same tile, merging their health into one unit.
@@ -387,10 +409,30 @@ fun AttackerType.isSpecialEnemy(): Boolean =
     this == AttackerType.SNOTLING ||
         this == AttackerType.SPIDERLING ||
         this == AttackerType.ROBOTIC_GOBLIN ||
+        this == AttackerType.ZOMBIE ||
         this == AttackerType.BLUE_DEMON ||
         this == AttackerType.RED_DEMON ||
         this == AttackerType.DRAGON ||
+        this == AttackerType.UNDEAD_DRAGON ||
         this == AttackerType.SILAS_MIRROR_IMAGE
+
+/**
+ * Undead units rise in a stronger second form under Valerius's necromancy.
+ */
+fun AttackerType.isUndead(): Boolean = faction == EnemyFaction.UNDEAD
+
+/**
+ * Returns the unit Soul Call should summon for a fallen attacker, or null when the unit cannot be
+ * resurrected.
+ */
+fun AttackerType.getSoulCallResurrectionType(): AttackerType? =
+    when {
+        isRobotic || this == AttackerType.SKELETON || this == AttackerType.UNDEAD_DRAGON || isMirrorImage -> null
+        this == AttackerType.ZOMBIE -> AttackerType.SKELETON
+        this == AttackerType.DRAGON -> AttackerType.UNDEAD_DRAGON
+        isUndead() -> AttackerType.SKELETON
+        else -> AttackerType.ZOMBIE
+    }
 
 /**
  * Returns true if this attacker is immune to a single attack from a defender of [defenderType].

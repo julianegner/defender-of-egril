@@ -55,7 +55,13 @@ fun AttackerInfo(
     val locale = com.hyperether.resources.currentLanguage.value
     val attackerDisplayName =
         if (attacker.type.isDragon && attacker.dragonName != null) {
-            "${stringResource(Res.string.the_dragon)} ${attacker.dragonName}"
+            val dragonLabel =
+                if (attacker.type == AttackerType.UNDEAD_DRAGON) {
+                    stringResource(Res.string.undead_dragon_label)
+                } else {
+                    stringResource(Res.string.the_dragon)
+                }
+            "$dragonLabel ${attacker.dragonName}"
         } else {
             attacker.getLocalizedName(locale)
         }
@@ -439,6 +445,15 @@ fun AttackerInfo(
                             ),
                         )
                     }
+                    if (attacker.type == AttackerType.PRINCE_VALERIUS_THE_SOULREAPER) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.villain_valerius_soul_call_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
 
                     // Mighty unit warning - for wizards, witches, demons, dragons
                     val isMightyUnit =
@@ -501,6 +516,7 @@ fun AttackerInfo(
                             AttackerType.ARAXXA -> stringResource(Res.string.villain_araxxa_description)
                             AttackerType.BARON_RATTERZAHN -> stringResource(Res.string.villain_ratterzahn_description)
                             AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> stringResource(Res.string.villain_freya_description)
+                            AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> stringResource(Res.string.villain_valerius_description)
                             AttackerType.SILAS_THE_MASKMASTER,
                             AttackerType.SILAS_MIRROR_IMAGE,
                             -> stringResource(Res.string.villain_silas_description)

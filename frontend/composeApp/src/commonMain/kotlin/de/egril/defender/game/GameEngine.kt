@@ -394,6 +394,8 @@ class GameEngine(
         return when (attacker.type) {
             AttackerType.EWHAD -> 100
             AttackerType.DRAGON -> 90
+            AttackerType.UNDEAD_DRAGON -> 88
+            AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> 88
             AttackerType.GREEN_WITCH -> 80
             AttackerType.RED_WITCH -> 75
             AttackerType.EVIL_WIZARD -> 65
@@ -424,7 +426,7 @@ class GameEngine(
      * Called after dragon movement.
      */
     private fun processDragonGreed(dragon: Attacker) {
-        if (!dragon.type.isDragon || dragon.greed <= 0) return
+        if (dragon.type != AttackerType.DRAGON || dragon.greed <= 0) return
 
         val dragonPos = dragon.position.value
         val neighbors = dragonPos.getHexNeighbors()
@@ -514,7 +516,7 @@ class GameEngine(
      * Updates dragon's target if needed.
      */
     private fun updateDragonMineTargeting(dragon: Attacker) {
-        if (!dragon.type.isDragon || dragon.greed <= 5) {
+        if (dragon.type != AttackerType.DRAGON || dragon.greed <= 5) {
             // Not greedy enough, clear mine target if set
             if (dragon.targetMineId.value != null) {
                 dragon.targetMineId.value = null
@@ -570,6 +572,7 @@ class GameEngine(
      * Warning is shown when dragon could reach mine on next move based on its movement pattern.
      */
     private fun checkMineWarning(dragon: Attacker) {
+        if (dragon.type != AttackerType.DRAGON) return
         if (dragon.targetMineId.value == null || dragon.mineWarningShown.value) return
 
         val targetMine = state.defenders.find { it.id == dragon.targetMineId.value }
@@ -607,6 +610,7 @@ class GameEngine(
      * Dragon gains health equal to a new dragon (500 HP).
      */
     private fun checkAndDestroyMine(dragon: Attacker) {
+        if (dragon.type != AttackerType.DRAGON) return
         if (dragon.targetMineId.value == null) return
 
         val targetMine = state.defenders.find { it.id == dragon.targetMineId.value }
@@ -642,6 +646,64 @@ class GameEngine(
             dragon.mineWarningShown.value = false
         }
     }
+
+    private fun processSoulCallResurrections() {
+        val dueResurrections = state.pendingSoulCalls.filter { it.reviveTurn <= state.turnNumber.value }
+        if (dueResurrections.isEmpty()) return
+
+        val reservedPositions = mutableSetOf<Position>()
+        for (pending in dueResurrections) {
+            val spawnPos =
+                if (canSpawnSoulCallAt(pending.position, reservedPositions)) {
+                    pending.position
+                } else {
+                    enemyMovement.findFreePositionNear(pending.position)
+                } ?: continue
+
+            reservedPositions.add(spawnPos)
+            val currentTarget = pending.currentTarget ?: enemyMovement.getInitialTarget(spawnPos)
+            val attacker =
+                Attacker(
+                    id = state.nextAttackerId.value++,
+                    type = pending.attackerType,
+                    position = mutableStateOf(spawnPos),
+                    level = mutableStateOf(pending.level),
+                    dragonName = pending.dragonName,
+                    currentTarget = mutableStateOf(currentTarget),
+                )
+            if (pending.attackerType.isDragon) {
+                attacker.onDragonLevelChanged = dragonLevelChangeCallback
+            }
+            state.attackers.add(attacker)
+            state.enemySpawnEffects.add(
+                EnemySpawnEffect(
+                    position = spawnPos,
+                    turnNumber = state.turnNumber.value,
+                    attackerType = pending.attackerType,
+                ),
+            )
+        }
+
+        state.pendingSoulCalls.removeAll(dueResurrections.toSet())
+    }
+
+    private fun canSpawnSoulCallAt(
+        position: Position,
+        reservedPositions: Set<Position>,
+    ): Boolean =
+        position.x >= 0 &&
+            position.x < state.level.gridWidth &&
+            position.y >= 0 &&
+            position.y < state.level.gridHeight &&
+            position !in reservedPositions &&
+            state.level.isEnemyTraversable(position) &&
+            !isOccupiedByStaticObject(position) &&
+            state.attackers.none { !it.isDefeated.value && it.position.value == position }
+
+    private fun isOccupiedByStaticObject(position: Position): Boolean =
+        state.defenders.any { it.position.value == position } ||
+            state.barricades.any { it.position == position && !it.isDestroyed() } ||
+            state.traps.any { it.position == position }
 
     // Turn Management
     fun startFirstPlayerTurn() {
@@ -1367,7 +1429,7 @@ class GameEngine(
                     it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
                 }
 
-            if (unitAtPosition != null && unitAtPosition.type != AttackerType.EWHAD) {
+            if (attacker.type == AttackerType.DRAGON && unitAtPosition != null && unitAtPosition.type != AttackerType.EWHAD) {
                 // Dragon eats the unit and gains its health
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println(
@@ -1641,6 +1703,7 @@ class GameEngine(
         }
 
         state.turnNumber.value++
+        processSoulCallResurrections()
         state.phase.value = GamePhase.ENEMY_TURN
         state.enemyTurnStartPositions.clear()
         state.attackers

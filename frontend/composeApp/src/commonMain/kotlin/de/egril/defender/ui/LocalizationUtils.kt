@@ -94,6 +94,7 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
             AttackerType.ORK -> "ork_name"
             AttackerType.OGRE -> "ogre_name"
             AttackerType.SKELETON -> "skeleton_name"
+            AttackerType.ZOMBIE -> "zombie_name"
             AttackerType.EVIL_WIZARD -> "evil_wizard_name"
             AttackerType.BLUE_DEMON -> "blue_demon_name"
             AttackerType.RED_DEMON -> "red_demon_name"
@@ -105,6 +106,7 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
             AttackerType.SNOTLING_BOSS -> "snotling_boss_name"
             AttackerType.EWHAD -> "ewhad_name"
             AttackerType.DRAGON -> "dragon_name"
+            AttackerType.UNDEAD_DRAGON -> "undead_dragon_name"
             AttackerType.GAROKK -> "garokk_name"
             AttackerType.MORGUK_BONEWHISPER -> "morguk_name"
             AttackerType.ARAXXA -> "araxxa_name"
@@ -113,6 +115,7 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
             AttackerType.SILAS_MIRROR_IMAGE,
             -> "silas_name"
             AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> "fallen_shieldmaiden_freya_name"
+            AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> "prince_valerius_the_soulreaper_name"
         }
     return LocalizedStrings.get(key, locale)
 }

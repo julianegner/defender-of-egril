@@ -700,6 +700,8 @@ class CombatSystem(
 
         // Calculate XP and coins for defeated enemies (merged swarm units are excluded)
         for (attacker in actualKills) {
+            queueSoulCallResurrection(attacker)
+
             // Coin reward is calculated here and stored in CoinGainEffect.amount; the actual
             // state.coins.value increment is performed by the UI (GameMap) when the coin gain
             // animation plays, so the counter visually updates in sync with the animation.
@@ -759,6 +761,27 @@ class CombatSystem(
             }
         }
         state.attackers.removeAll { it.isDefeated.value }
+    }
+
+    private fun queueSoulCallResurrection(attacker: Attacker) {
+        val resurrectedType = attacker.type.getSoulCallResurrectionType() ?: return
+        val valeriusInRange =
+            state.attackers.any { other ->
+                other.type == AttackerType.PRINCE_VALERIUS_THE_SOULREAPER &&
+                    !other.isDefeated.value &&
+                    other.position.value.hexDistanceTo(attacker.position.value) <= (other.type.soulCallRange ?: 0)
+            }
+        if (!valeriusInRange) return
+        state.pendingSoulCalls.add(
+            PendingSoulCall(
+                position = attacker.position.value,
+                attackerType = resurrectedType,
+                level = attacker.level.value,
+                reviveTurn = state.turnNumber.value + 1,
+                dragonName = attacker.dragonName,
+                currentTarget = attacker.currentTarget?.value,
+            ),
+        )
     }
 
     /**
