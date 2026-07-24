@@ -25,8 +25,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.egril.defender.game.isShieldWallAttackBlocked
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.Defender
+import de.egril.defender.model.GameState
 import de.egril.defender.model.isImmuneToAttackFrom
 import de.egril.defender.model.previewAttackDamage
 
@@ -52,8 +54,11 @@ fun enemyAttackPreview(
     attacker: Attacker,
     defender: Defender,
     hasDoubleLevelBuff: Boolean,
+    gameState: GameState? = null,
 ): EnemyAttackPreview {
-    val isImmune = attacker.isImmuneToAttackFrom(defender.type)
+    val isImmune =
+        attacker.isImmuneToAttackFrom(defender.type) ||
+            (gameState?.isShieldWallAttackBlocked(defender, attacker) == true)
     val damage = defender.previewAttackDamage(hasDoubleLevelBuff)
     return EnemyAttackPreview(
         damage = damage,

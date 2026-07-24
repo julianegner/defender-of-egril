@@ -3254,6 +3254,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.BARON_RATTERZAHN.name ->
                                             stringResource(Res.string.villain_ratterzahn_title) to
                                                 (stringResource(Res.string.villain_ratterzahn_backstory) + "\n" + stringResource(Res.string.villain_ratterzahn_description))
+                                        AttackerType.FALLEN_SHIELDMAIDEN_FREYA.name ->
+                                            stringResource(Res.string.villain_freya_title) to
+                                                (stringResource(Res.string.villain_freya_backstory) + "\n" + stringResource(Res.string.villain_freya_description))
                                         AttackerType.SILAS_THE_MASKMASTER.name ->
                                             stringResource(Res.string.villain_silas_title) to
                                                 (stringResource(Res.string.villain_silas_backstory) + "\n" + stringResource(Res.string.villain_silas_description))

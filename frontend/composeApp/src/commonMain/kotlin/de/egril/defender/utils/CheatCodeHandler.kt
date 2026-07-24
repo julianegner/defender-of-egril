@@ -124,6 +124,7 @@ object CheatCodeHandler {
                         "snotlingboss", "gribnak" -> AttackerType.SNOTLING_BOSS
                         "araxxa", "giantspider", "giant_spider" -> AttackerType.ARAXXA
                         "baron", "ratterzahn", "baronratterzahn", "baron_ratterzahn" -> AttackerType.BARON_RATTERZAHN
+                        "freya", "shieldmaiden", "fallenfreya", "fallen_shieldmaiden_freya" -> AttackerType.FALLEN_SHIELDMAIDEN_FREYA
                         else -> return Pair(false, null)
                     }
 
