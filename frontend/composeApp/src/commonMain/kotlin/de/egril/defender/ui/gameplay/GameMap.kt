@@ -161,6 +161,51 @@ private fun shieldWallCornerKey(
 }
 
 /**
+ * Trim [trimFraction] (0..1) of the total arc length from each end of an ordered list of path
+ * points. Returns a new list whose first/last points are interpolated so that the rendered arc
+ * does not extend all the way to the sharp tip corners.
+ */
+private fun trimArcPathEnds(points: List<Offset>, trimFraction: Float): List<Offset> {
+    if (points.size < 2) return points
+    val segLens =
+        FloatArray(points.size - 1) { i ->
+            val dx = points[i + 1].x - points[i].x
+            val dy = points[i + 1].y - points[i].y
+            sqrt(dx * dx + dy * dy)
+        }
+    val totalLen = segLens.sum()
+    if (totalLen == 0f) return points
+    val startDist = totalLen * trimFraction
+    val endDist = totalLen * (1f - trimFraction)
+
+    fun pointAt(dist: Float): Offset {
+        var cum = 0f
+        for (i in segLens.indices) {
+            val segEnd = cum + segLens[i]
+            if (dist <= segEnd || i == segLens.lastIndex) {
+                val t = if (segLens[i] > 0f) ((dist - cum) / segLens[i]).coerceIn(0f, 1f) else 0f
+                return Offset(
+                    points[i].x + t * (points[i + 1].x - points[i].x),
+                    points[i].y + t * (points[i + 1].y - points[i].y),
+                )
+            }
+            cum = segEnd
+        }
+        return points.last()
+    }
+
+    val result = mutableListOf(pointAt(startDist))
+    var cum = 0f
+    for (i in segLens.indices) {
+        val segEnd = cum + segLens[i]
+        if (segEnd > startDist && segEnd < endDist) result.add(points[i + 1])
+        cum = segEnd
+    }
+    result.add(pointAt(endDist))
+    return result
+}
+
+/**
  * Map-level overlay that draws the Freya shield wall as a smooth open arc along the front-facing
  * edges of the shield wall formation.
  *
@@ -256,11 +301,15 @@ private fun FreyaShieldWallMapOverlay(
         }
         if (midpoints.size < 2) continue
 
+        // Trim 12% from each end so the arc does not extend too far at its tips.
+        val trimmed = trimArcPathEnds(midpoints, 0.12f)
+        if (trimmed.size < 2) continue
+
         // Build as straight segments; smoothing is applied via PathEffect.cornerPathEffect.
         arcPaths.add(
             Path().apply {
-                moveTo(midpoints[0].x, midpoints[0].y)
-                for (i in 1 until midpoints.size) lineTo(midpoints[i].x, midpoints[i].y)
+                moveTo(trimmed[0].x, trimmed[0].y)
+                for (i in 1 until trimmed.size) lineTo(trimmed[i].x, trimmed[i].y)
             },
         )
     }
@@ -270,7 +319,8 @@ private fun FreyaShieldWallMapOverlay(
     val outerStrokeWidth = hexSizePx * 0.26f
     val innerStrokeWidth = hexSizePx * 0.10f
     val cornerRadius = hexSizePx * 0.45f
-    val blueColor = Color(0xFF7EAAC8).copy(alpha = 0.95f)
+    // Match the shield trim color from Freya's icon (FallenShieldmaidenFreya.kt shieldTrim).
+    val blueColor = Color(0xFF7DD7FF).copy(alpha = 0.95f)
     val greyColor = Color(0xFFAAAAAA).copy(alpha = 0.95f)
 
     val contentWidthDp = (contentSize.width / density).dp
