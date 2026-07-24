@@ -227,6 +227,74 @@ class FreyaShieldWallTest {
     }
 
     @Test
+    fun autoAttackSkipsShieldedFreyaAndHitsAnotherTarget() {
+        val state = GameState(createTestLevel())
+        val engine = GameEngine(state)
+        val frontTower = defender(1, DefenderType.BOW_TOWER, Position(6, 3))
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+        val goblin = attacker(2, AttackerType.GOBLIN, Position(7, 3))
+
+        state.defenders.add(frontTower)
+        state.attackers.addAll(listOf(freya, goblin))
+
+        assertEquals(
+            goblin.position.value,
+            engine.getNextAutoAttackTargetPosition(frontTower),
+            "Auto-attack should ignore Freya when the shield wall blocks all damage",
+        )
+        assertTrue(engine.performOneAutoAttack(frontTower.id), "Auto-attack should still fire at another valid target")
+        assertEquals(freya.maxHealth, freya.currentHealth.value, "Shielded Freya should remain unharmed")
+        assertEquals(
+            goblin.maxHealth - frontTower.type.baseDamage,
+            goblin.currentHealth.value,
+            "Auto-attack should damage the alternate unshielded target",
+        )
+    }
+
+    @Test
+    fun autoAttackDoesNothingWhenOnlyShieldedTargetsAreAvailable() {
+        val state = GameState(createTestLevel())
+        val engine = GameEngine(state)
+        val frontTower = defender(1, DefenderType.BOW_TOWER, Position(6, 3))
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+
+        state.defenders.add(frontTower)
+        state.attackers.add(freya)
+
+        assertEquals(null, engine.getNextAutoAttackTargetPosition(frontTower))
+        assertFalse(engine.performOneAutoAttack(frontTower.id), "Auto-attack should not waste an action on a fully blocked target")
+        assertEquals(1, frontTower.actionsRemaining.value, "Blocked auto-attacks should keep the tower action available")
+        assertEquals(freya.maxHealth, freya.currentHealth.value, "Shielded Freya should take no damage")
+    }
+
+    @Test
+    fun areaAutoAttackSkipsShieldedClusterAndTargetsDamageableEnemy() {
+        val state = GameState(createTestLevel())
+        val engine = GameEngine(state)
+        val wizard = defender(1, DefenderType.WIZARD_TOWER, Position(6, 3))
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+        val shieldedGoblin = attacker(2, AttackerType.GOBLIN, Position(3, 3))
+        val openGoblin = attacker(3, AttackerType.GOBLIN, Position(7, 3))
+
+        state.defenders.add(wizard)
+        state.attackers.addAll(listOf(freya, shieldedGoblin, openGoblin))
+
+        assertEquals(
+            openGoblin.position.value,
+            engine.getNextAutoAttackTargetPosition(wizard),
+            "Area auto-attack should skip shielded targets when they would take no damage",
+        )
+        assertTrue(engine.performOneAutoAttack(wizard.id), "Wizard should auto-attack a damageable target")
+        assertEquals(freya.maxHealth, freya.currentHealth.value, "Shielded Freya should remain unharmed")
+        assertEquals(shieldedGoblin.maxHealth, shieldedGoblin.currentHealth.value, "Enemies behind the shield should remain unharmed")
+        assertEquals(
+            openGoblin.maxHealth - wizard.type.baseDamage,
+            openGoblin.currentHealth.value,
+            "Area auto-attack should damage the unshielded enemy instead",
+        )
+    }
+
+    @Test
     fun defeatedFreyaDoesNotRenderShieldWallTiles() {
         val state = GameState(createTestLevel())
         val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
