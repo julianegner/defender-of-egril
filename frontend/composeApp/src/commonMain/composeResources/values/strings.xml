@@ -1756,7 +1756,7 @@
     <string name="gate_tower_base_info_description">A gate guards the entrance. Enemies will attack and try to break through. Defend it to keep the path blocked. This gate is strong enough to serve as a tower base — you can place a tower on it.</string>
     <!-- Ewhad narrative messages -->
     <string name="ewhad_enters_title">Ewhad enters the battlefield</string>
-    <string name="ewhad_enters_text">Ewhad has entered the Battlefield! Beware, he spawns Demons every Turn, which will be increasingly powerful.</string>
+    <string name="ewhad_enters_text">Ewhad has entered the Battlefield! Beware of his dark powers and relentless minions!</string>
     <string name="ewhad_retreats_title">Ewhad retreats</string>
     <string name="ewhad_retreats_text">You have forced Ewhad to retreat!</string>
     <string name="ewhad_defeated_title">Ewhad is defeated</string>
@@ -1772,17 +1772,16 @@
     <string name="villain_gribnak_title">Gribnak the Squealer enters the battlefield</string>
     <string name="villain_gribnak_backstory">Gribnak the Squealer has entered the battlefield!</string>
     <string name="villain_gribnak_description">This Snotling Chieftain will summon many small snotlings around his position.</string>
-    <string name="villain_ewhad_description">He summons increasingly powerful Demons every turn, and if he reaches the target the battle is lost instantly.
-Bring him down fast before his host overwhelms your defenses!</string>
+    <string name="villain_ewhad_description">He commands formidable dark powers that will test your defenses. If he reaches the target the battle is lost instantly.\nBring him down fast before his power overwhelms you!</string>
     <string name="villain_morguk_title">Morguk Bonewhisper enters the battlefield</string>
     <string name="villain_morguk_backstory">Morguk Bonewhisper, Goblin Shaman of the Bonewhisper clan, has entered the battlefield!</string>
-    <string name="villain_morguk_description">His War Totem Aura hastens nearby goblins, his Hex of Silence disables towers, and every few turns Spirit Summon calls new goblins on adjacent tiles.\nTake him down before his rituals overwhelm your defenses!</string>
+    <string name="villain_morguk_description">His mystical powers aid nearby goblins, he can disable your towers, and he summons new goblins to reinforce his ranks.\nTake him down before his rituals overwhelm your defenses!</string>
     <string name="villain_ratterzahn_title">Baron Ratterzahn enters the battlefield</string>
     <string name="villain_ratterzahn_backstory">A brilliant but utterly insane goblin inventor riding a steam-powered mechanical spider has entered the battlefield.</string>
-    <string name="villain_ratterzahn_description">Every 4 rounds he drops scrap piles that hatch into two robotic goblins on the next round, each with reinforced metal bodies. Every 5 rounds he launches a rocket that stuns a tower for 3 rounds at long range.</string>
+    <string name="villain_ratterzahn_description">This mad inventor harnesses scrap metal and rockets to devastate your defenses. His creations and explosions will test your tactical skills.</string>
     <string name="villain_freya_title">Fallen Shieldmaiden Freya enters the battlefield</string>
     <string name="villain_freya_backstory">Once a heroic shieldmaiden, Freya fell in battle and rose again as an unstoppable death knight wrapped in black steel and grave magic.</string>
-    <string name="villain_freya_description">Her Shield Wall blocks all non-ballista attacks from the front for her own tile and the tiles to her left and right as she advances. Strike from the side or rear, or shoot over the shield with a Ballista, before the undead champion crushes your line.</string>
+    <string name="villain_freya_description">Her magical defenses protect her and nearby allies as she advances. You must find a way through her protective magic, or strike from an angle she cannot defend.</string>
     <string name="villain_valerius_title">Prince Valerius the Soulreaper enters the battlefield</string>
     <string name="villain_valerius_backstory">Prince Valerius the Soulreaper, an ancient lich and ruler of the skeleton armies, steps onto the battlefield in a wave of icy grave-cold.</string>
     <string name="villain_valerius_description">His Soul Call raises fallen allies within 3 tiles at the start of the next round. The living return as zombies, the undead rise again as skeletons, and even dragons can return as undead dragons. Destroy him quickly before every casualty strengthens his host.</string>

@@ -1749,7 +1749,7 @@
     <string name="gate_tower_base_info_description">Ein Tor bewacht den Eingang. Feinde werden es angreifen und versuchen, es zu durchbrechen. Verteidige es, um den Weg blockiert zu halten. Dieses Tor ist stark genug, um als Turmbasis zu dienen – du kannst einen Turm darauf platzieren.</string>
     <!-- Ewhad narrative messages -->
     <string name="ewhad_enters_title">Ewhad betritt das Schlachtfeld</string>
-    <string name="ewhad_enters_text">Ewhad hat das Schlachtfeld betreten! Vorsicht, er beschwört jeden Zug Dämonen, die zunehmend mächtiger werden.</string>
+    <string name="ewhad_enters_text">Ewhad hat das Schlachtfeld betreten! Vorsicht vor seiner dunklen Macht und seinen erbarmungslosen Häschern!</string>
     <string name="ewhad_retreats_title">Ewhad zieht sich zurück</string>
     <string name="ewhad_retreats_text">Du hast Ewhad zum Rückzug gezwungen!</string>
     <string name="ewhad_defeated_title">Ewhad ist besiegt</string>
@@ -1766,17 +1766,17 @@
     <string name="villain_garokk_title">Garokk der Schädelspalter</string>
     <string name="villain_garokk_backstory">Der tyrannische Kriegshäuptling, der die Orks und Oger unter seinem Banner vereint hat, ein massiver, in schwarzes Eisen gehüllter Koloss.</string>
     <string name="villain_garokk_description">Sein Kriegsschrei treibt nahe Horde-Einheiten in Raserei und lässt sie schneller vorrücken. Streckt ihn nieder, bevor sein Gebrüll eure Verteidigung überrollt!</string>
-    <string name="villain_ewhad_description">Er beschwört jede Runde immer mächtigere Dämonen, und wenn er das Ziel erreicht, ist die Schlacht sofort verloren.
-Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</string>
+    <string name="villain_ewhad_description">Er beherrscht gewaltige dunkle Mächte, die deine Verteidigung auf die Probe stellen. Wenn er das Ziel erreicht, ist die Schlacht sofort verloren.
+Streckt ihn schnell nieder, bevor seine Macht euch überrollt!</string>
     <string name="villain_morguk_title">Morguk Knochenwisper betritt das Schlachtfeld</string>
     <string name="villain_morguk_backstory">Morguk Knochenwisper, Goblin-Schamane des Knochenwisper-Clans, hat das Schlachtfeld betreten!</string>
-    <string name="villain_morguk_description">Seine Kriegs-Totem-Aura beschleunigt nahe Goblins, sein Schweige-Fluch deaktiviert Türme und alle paar Runden beschwört er neue Goblins auf benachbarten Feldern.\nSchaltet ihn aus, bevor seine Rituale eure Verteidigung überwältigen!</string>
+    <string name="villain_morguk_description">Seine mystischen Kräfte unterstützen nahe Goblins, er kann deine Türme deaktivieren und beschwört neue Goblins um seine Reihen zu verstärken.\nSchaltet ihn aus, bevor seine Rituale eure Verteidigung überwältigen!</string>
     <string name="villain_ratterzahn_title">Baron Ratterzahn betritt das Schlachtfeld</string>
     <string name="villain_ratterzahn_backstory">Ein brillanter, aber völlig wahnsinniger Goblin-Erfinder auf einer dampfbetriebenen mechanischen Spinne hat das Schlachtfeld betreten.</string>
-    <string name="villain_ratterzahn_description">Alle 4 Runden wirft er Schrotthaufen ab, aus denen in der nächsten Runde zwei robotische Goblins mit verstärkten Metallkörpern entstehen. Alle 5 Runden feuert er eine Rakete, die einen Turm aus großer Entfernung für 3 Runden betäubt.</string>
+    <string name="villain_ratterzahn_description">Dieser wahnsinnige Erfinder nutzt Schrott und Raketen um deine Verteidigung zu verwüsten. Seine Kreationen und Explosionen werden deine taktischen Fähigkeiten auf die Probe stellen.</string>
     <string name="villain_freya_title">Die gefallene Schildmaid Freya betritt das Schlachtfeld</string>
     <string name="villain_freya_backstory">Einst war Freya eine heldenhafte Schildmaid. Im Kampf fiel sie und erhob sich als unaufhaltsame Todesritterin in schwarzem Stahl und Grabmagie.</string>
-    <string name="villain_freya_description">Ihre Schildmauer blockt alle Nicht-Ballista-Angriffe von vorne – für ihr eigenes Feld und die Felder links und rechts von ihr, während sie vorrückt. Greife von der Seite oder von hinten an oder schieße mit einer Ballista über den Schild, bevor die untote Kriegerin deine Linie zerschlägt.</string>
+    <string name="villain_freya_description">Ihre magischen Verteidigungen schützen sie und ihre Verbündeten, während sie vorrückt. Du musst einen Weg durch ihre Schutzmagie finden oder sie aus einem Winkel angreifen, den sie nicht verteidigen kann.</string>
     <string name="villain_valerius_title">Fürst Valerius der Seelenschnitter betritt das Schlachtfeld</string>
 <string name="villain_valerius_backstory">Fürst Valerius der Seelenschnitter, ein uralter Lich und Herrscher der Skelettarmeen, tritt in einer Welle eisiger Grabeskälte auf das Schlachtfeld.</string>
 <string name="villain_valerius_description">Sein Seelenruf erweckt gefallene Verbündete im Umkreis von 3 Feldern zu Beginn der nächsten Runde wieder. Lebende kehren als Zombies zurück, Untote erheben sich erneut als Skelette, und selbst Drachen können als untote Drachen wiederkehren. Vernichtet ihn schnell, bevor jeder Verlust sein Heer verstärkt.</string>

@@ -1750,7 +1750,7 @@
     <string name="gate_tower_base_info_description">Una puerta guarda la entrada. Los enemigos la atacarán e intentarán abrirse paso. Defiéndela para mantener el camino bloqueado. Esta puerta es lo bastante resistente para servir de base de torre: puedes colocar una torre sobre ella.</string>
     <!-- Ewhad narrative messages -->
     <string name="ewhad_enters_title">Ewhad entra al campo de batalla</string>
-    <string name="ewhad_enters_text">¡Ewhad ha entrado al campo de batalla! Cuidado, invoca Demonios cada Turno, que serán cada vez más poderosos.</string>
+    <string name="ewhad_enters_text">¡Ewhad ha entrado al campo de batalla! ¡Cuidado con su poder oscuro y sus despiadados secuaces!</string>
     <string name="ewhad_retreats_title">Ewhad se retira</string>
     <string name="ewhad_retreats_text">¡Has forzado a Ewhad a retirarse!</string>
     <string name="ewhad_defeated_title">Ewhad es derrotado</string>
@@ -1767,17 +1767,17 @@
     <string name="villain_garokk_title">Garokk el Rompecráneos</string>
     <string name="villain_garokk_backstory">El tiránico caudillo de guerra que unió a orcos y ogros bajo su estandarte, un coloso enorme cubierto de hierro negro.</string>
     <string name="villain_garokk_description">Su grito de guerra enardece a las unidades de la Horda cercanas, permitiéndoles avanzar más rápido. ¡Derríbalo antes de que su rugido arrase tus defensas!</string>
-    <string name="villain_ewhad_description">Invoca Demonios cada turno, cada vez más poderosos, y si alcanza el objetivo la batalla se pierde al instante.
-¡Acaba con él rápido antes de que su hueste abrume tus defensas!</string>
+    <string name="villain_ewhad_description">Controla poderes oscuros formidables que pondrán a prueba tus defensas. Si alcanza el objetivo la batalla se pierde al instante.
+¡Elimínalo rápido antes de que su poder te abrume!</string>
     <string name="villain_morguk_title">Morguk Susurrahuesos entra al campo de batalla</string>
     <string name="villain_morguk_backstory">¡Morguk Susurrahuesos, Chamán Goblin del clan Susurrahuesos, ha entrado al campo de batalla!</string>
-    <string name="villain_morguk_description">Su Aura del Tótem de Guerra acelera goblins cercanos, su Maldición del Silencio desactiva torres y cada pocos turnos invoca nuevos goblins en casillas adyacentes.\n¡Elimínalo antes de que sus rituales abrumen tus defensas!</string>
+    <string name="villain_morguk_description">Sus poderes místicos ayudan a los goblins cercanos, puede desactivar tus torres e invoca nuevos goblins para reforzar sus filas.\n¡Elimínalo antes de que sus rituales abrumen tus defensas!</string>
     <string name="villain_ratterzahn_title">El Barón Ratterzahn entra al campo de batalla</string>
     <string name="villain_ratterzahn_backstory">Un brillante pero completamente demente inventor goblin montado en una araña mecánica a vapor ha entrado al campo de batalla.</string>
-    <string name="villain_ratterzahn_description">Cada 4 rondas deja montones de chatarra que en la siguiente ronda se convierten en dos goblins robóticos con cuerpos metálicos reforzados. Cada 5 rondas dispara un cohete que aturde una torre durante 3 rondas a larga distancia.</string>
+    <string name="villain_ratterzahn_description">Este inventor loco aprovecha chatarra y cohetes para devastar tus defensas. Sus creaciones y explosiones pondrán a prueba tus habilidades tácticas.</string>
     <string name="villain_freya_title">Freya, la Doncella del Escudo Caída, entra al campo de batalla</string>
     <string name="villain_freya_backstory">Freya fue una heroica doncella del escudo, pero cayó en combate y se alzó de nuevo como una imparable caballera de la muerte envuelta en acero negro y magia funeraria.</string>
-    <string name="villain_freya_description">Su Muro de Escudos bloquea todos los ataques frontales que no sean de ballista para su propia casilla y para las casillas a su izquierda y a su derecha mientras avanza. Ataca desde el flanco o la retaguardia, o dispara por encima del escudo con una Ballista, antes de que la campeona no muerta destroce tu línea.</string>
+    <string name="villain_freya_description">Sus defensas mágicas la protegen a ella y a los aliados cercanos mientras avanza. Debes encontrar un camino a través de su magia protectora, o atacarla desde un ángulo que no pueda defender.</string>
     <string name="villain_valerius_title">Príncipe Valerius el Segador de Almas entra en el campo de batalla</string>
 <string name="villain_valerius_backstory">Príncipe Valerius el Segador de Almas, un antiguo lich y soberano de los ejércitos esqueléticos, pisa el campo de batalla envuelto en una ola de frío sepulcral.</string>
 <string name="villain_valerius_description">Su Llamado de las Almas hace que los aliados caídos dentro de 3 casillas se alcen al inicio de la siguiente ronda. Los vivos regresan como zombis, los no muertos vuelven a levantarse como esqueletos, e incluso los dragones pueden regresar como dragones no muertos. Destrúyelo rápido antes de que cada baja fortalezca a su hueste.</string>
