@@ -6,7 +6,7 @@ Earn coins by defeating enemies, then buy new towers or upgrade the ones you alr
 
 Later in the game, dwarven mines can dig up gold and gems - but they can also wake a dragon that destroys mines and devours enemy units. You can also build rafts on water in addition to towers, and those rafts move with the current.
 
-Evil wizards summon demons and skeletons. Red Witches disable towers, Green Witches heal enemy units, and in the end Ewhad himself appears with dangerous powers beyond your imagination.
+Evil wizards summon demons and skeletons. Red Witches disable towers, Green Witches heal enemy units, and in the end Ewhad himself appears and spawns mighty demons every 3 turns that grow stronger and stronger.
 
 Upgrade your towers to unlock new options, including barricades so strong that a tower can even be built on top of one.
 

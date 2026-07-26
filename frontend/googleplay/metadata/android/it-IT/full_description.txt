@@ -6,7 +6,7 @@ Guadagna monete sconfiggendo i nemici, poi usale per acquistare nuove torri o po
 
 Più avanti nel gioco, le miniere naniche possono scavare oro e gemme, ma possono anche risvegliare un drago che distrugge le miniere e divora le unità nemiche. Oltre alle torri, in seguito potrai costruire anche zattere sull'acqua, e queste zattere si muoveranno con la corrente.
 
-I maghi malvagi evocano demoni e scheletri. Le Streghe Rosse disattivano le torri, le Streghe Verdi curano le unità nemiche e, alla fine, compare Ewhad in persona con poteri pericolosi oltre la vostra immaginazione.
+I maghi malvagi evocano demoni e scheletri. Le Streghe Rosse disattivano le torri, le Streghe Verdi curano le unità nemiche e, alla fine, compare Ewhad in persona, che genera potenti demoni ogni 3 turni, sempre più forti.
 
 Potenzia le tue torri per sbloccare nuove opzioni, comprese barricate così robuste che sopra di esse può perfino essere costruita una torre.
 
