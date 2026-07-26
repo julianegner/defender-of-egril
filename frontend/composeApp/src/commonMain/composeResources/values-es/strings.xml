@@ -1791,7 +1791,7 @@
     <string name="villain_silas_mirror_hit_text">La torre solo golpeó una imagen especular de Silas. La ilusión se hizo añicos, pero la torre atacante ahora está cegada durante 2 rondas y no puede atacar.</string>
     <string name="villain_coven_synergy_short">Sinergia del Aquelarre: potencia a las brujas cercanas</string>
     <string name="villain_sybilla_title">La Gran Madre del Aquelarre Sybilla entra al campo de batalla</string>
-    <string name="villain_sybilla_backstory">¡La bruja más poderosa del aquelarre ha llegado! La Gran Madre del Aquelarre Sybilla comanda toda la fuerza del Aquelarre de Brujas — y trae consigo a sus tenientes gemelas Haga y Zussa.</string>
+    <string name="villain_sybilla_backstory">¡La bruja más poderosa del aquelarre ha llegado! La Gran Madre del Aquelarre Sybilla comanda toda la fuerza del Aquelarre de Brujas — y trae consigo a las gemelas Haga y Zussa.</string>
     <string name="villain_sybilla_description">Siempre llega con las gemelas Haga y Zussa. Sinergia del Aquelarre: las brujas verdes a 3 casillas sanan un 50% más de PS por ronda; las brujas rojas a 3 casillas deshabilitan torres por +1 ronda extra. También sana aliados cercanos como una bruja verde y deshabilita torres a rango 3 como una bruja roja. Cada 5 rondas intercambia posición con una bruja a 3 casillas.</string>
     <string name="villain_haga_title">Haga la Gemela Sanadora entra al campo de batalla</string>
     <string name="villain_haga_backstory">Haga, la mayor de las desiguales gemelas de Sybilla, entra al campo. Donde fluye su magia, los aliados heridos se recuperan mucho más rápido que con cualquier sanadora ordinaria.</string>

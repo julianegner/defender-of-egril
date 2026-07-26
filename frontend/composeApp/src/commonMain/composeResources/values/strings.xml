@@ -1797,7 +1797,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_silas_mirror_hit_text">The tower struck only a mirror image of Silas. The illusion shattered, but the attacking tower is now blinded for 2 rounds and cannot attack.</string>
     <string name="villain_coven_synergy_short">Coven Synergy: boosts nearby witches</string>
     <string name="villain_sybilla_title">Grand Coven-Mother Sybilla enters the battlefield</string>
-    <string name="villain_sybilla_backstory">The most powerful witch in the coven has arrived! Grand Coven-Mother Sybilla commands the full might of the Witch Coven — and she brings her twin lieutenants Haga and Zussa with her.</string>
+    <string name="villain_sybilla_backstory">The most powerful witch in the coven has arrived! Grand Coven-Mother Sybilla commands the full might of the Witch Coven — and she brings the twins Haga and Zussa with her.</string>
     <string name="villain_sybilla_description">Always arrives with twins Haga and Zussa. Coven Synergy: Green witches within 3 tiles heal 50% more HP each round; Red witches within 3 tiles disable towers for +1 extra round. She also heals nearby allies like a green witch and disables adjacent towers at range 3 like a red witch. Every 5 rounds she swaps places with a witch within 3 tiles.</string>
     <string name="villain_haga_title">Haga the Healing Twin enters the battlefield</string>
     <string name="villain_haga_backstory">Haga, the elder of Sybilla\'s unequal twins, steps onto the field. Where her magic flows, wounded allies are restored far faster than any ordinary healer could manage.</string>
