@@ -151,6 +151,9 @@ fun EnemyIcon(
                 AttackerType.SILAS_THE_MASKMASTER,
                 AttackerType.SILAS_MIRROR_IMAGE,
                 -> drawSilasSymbol(centerX, centerY, iconSize * 0.74f, headScale = headScale)
+                AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> drawSybillaSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
+                AttackerType.HAGA -> drawHagaSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.ZUSSA -> drawZussaSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
             }
         }
 
@@ -258,6 +261,9 @@ fun EnemyTypeIcon(
                 AttackerType.SILAS_THE_MASKMASTER,
                 AttackerType.SILAS_MIRROR_IMAGE,
                 -> drawSilasSymbol(centerX, centerY, iconSize * 0.74f, headScale = headScale)
+                AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> drawSybillaSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
+                AttackerType.HAGA -> drawHagaSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.ZUSSA -> drawZussaSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
             }
         }
     }

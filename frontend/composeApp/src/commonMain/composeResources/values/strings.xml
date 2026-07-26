@@ -274,6 +274,9 @@
     <string name="silas_name">Silas the Maskmaster</string>
     <string name="fallen_shieldmaiden_freya_name">Fallen Shieldmaiden Freya</string>
     <string name="prince_valerius_the_soulreaper_name">Prince Valerius the Soulreaper</string>
+    <string name="grand_coven_mother_sybilla_name">Grand Coven-Mother Sybilla</string>
+    <string name="haga_name">Haga</string>
+    <string name="zussa_name">Zussa</string>
     <string name="dragon_name_label">Dragon Name</string>
 
     <!-- SavedGameCard strings -->
@@ -1792,6 +1795,16 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_silas_description">Every 3 rounds he creates two mirror images on nearby path tiles. Only the real Silas can be hurt; when a tower strikes an illusion, the image vanishes and that tower is blinded for 2 rounds. Silas may swap places with his fresh doubles the moment they appear, so watch carefully before you fire!</string>
     <string name="villain_silas_mirror_hit_title">The mask was a lie</string>
     <string name="villain_silas_mirror_hit_text">The tower struck only a mirror image of Silas. The illusion shattered, but the attacking tower is now blinded for 2 rounds and cannot attack.</string>
+    <string name="villain_coven_synergy_short">Coven Synergy: boosts nearby witches</string>
+    <string name="villain_sybilla_title">Grand Coven-Mother Sybilla enters the battlefield</string>
+    <string name="villain_sybilla_backstory">The most powerful witch in the coven has arrived! Grand Coven-Mother Sybilla commands the full might of the Witch Coven and coordinates both healers and disruptors.</string>
+    <string name="villain_sybilla_description">Coven Synergy: Green witches within 3 tiles heal 50% more HP each round; Red witches within 3 tiles disable towers for +1 extra round. She also heals nearby allies like a green witch and disables adjacent towers at range 3 like a red witch. Every 5 rounds she swaps places with a witch within 3 tiles.</string>
+    <string name="villain_haga_title">Haga the Healing Twin enters the battlefield</string>
+    <string name="villain_haga_backstory">Haga, the elder of Sybilla\'s unequal twins, steps onto the field. Where her magic flows, wounded allies are restored far faster than any ordinary healer could manage.</string>
+    <string name="villain_haga_description">A Green Witch with all standard green-witch abilities. Coven Synergy: Green witches within 3 tiles heal 50% more HP per round. Defeat her to slow the coven\'s recovery.</string>
+    <string name="villain_zussa_title">Zussa the Disabling Twin enters the battlefield</string>
+    <string name="villain_zussa_backstory">Zussa, the younger of Sybilla\'s unequal twins, arrives crackling with disruptive magic. Towers near her allies fall silent for longer than usual.</string>
+    <string name="villain_zussa_description">A Red Witch with all standard red-witch abilities. Coven Synergy: Red witches within 3 tiles extend tower disables by +1 extra round. Defeat her to restore your defenses\' resilience.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">There are Goblins attacking a remote rural area. This is not uncommon, but rumors tell us that this time more monsters than usual are wandering into our realm.</string>
     <string name="story_mixed_forces">The same area faces more attacks, Rumors even talk about dead rising from the graves and attacking the villagers.</string>

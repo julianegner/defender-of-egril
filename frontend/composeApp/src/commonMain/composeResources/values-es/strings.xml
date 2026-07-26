@@ -270,7 +270,9 @@
     <string name="baron_ratterzahn_name">Barón Ratterzahn</string>
     <string name="fallen_shieldmaiden_freya_name">Freya, la Doncella del Escudo Caída</string>
     <string name="prince_valerius_the_soulreaper_name">Príncipe Valerius el Segador de Almas</string>
-    
+    <string name="grand_coven_mother_sybilla_name">Gran Madre del Aquelarre Sybilla</string>
+    <string name="haga_name">Haga</string>
+    <string name="zussa_name">Zussa</string>
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Enemigos en el mapa:</string>
     <string name="enemies_to_come">Enemigos por venir:</string>
@@ -1787,6 +1789,16 @@
     <string name="villain_silas_description">Cada 3 rondas crea dos imágenes especulares en casillas del camino cercanas. Solo el verdadero Silas puede resultar herido; cuando una torre golpea una ilusión, la imagen se desvanece y esa torre queda cegada durante 2 rondas. Silas puede intercambiarse con sus dobles recién creados en el mismo momento en que aparecen, ¡así que apunta con cuidado antes de disparar!</string>
     <string name="villain_silas_mirror_hit_title">La máscara era una mentira</string>
     <string name="villain_silas_mirror_hit_text">La torre solo golpeó una imagen especular de Silas. La ilusión se hizo añicos, pero la torre atacante ahora está cegada durante 2 rondas y no puede atacar.</string>
+    <string name="villain_coven_synergy_short">Sinergia del Aquelarre: potencia a las brujas cercanas</string>
+    <string name="villain_sybilla_title">La Gran Madre del Aquelarre Sybilla entra al campo de batalla</string>
+    <string name="villain_sybilla_backstory">¡La bruja más poderosa del aquelarre ha llegado! La Gran Madre del Aquelarre Sybilla comanda toda la fuerza del Aquelarre de Brujas y coordina tanto a las sanadoras como a las disruptoras.</string>
+    <string name="villain_sybilla_description">Sinergia del Aquelarre: las brujas verdes a 3 casillas sanan un 50% más de PS por ronda; las brujas rojas a 3 casillas deshabilitan torres por +1 ronda extra. También sana aliados cercanos como una bruja verde y deshabilita torres a rango 3 como una bruja roja. Cada 5 rondas intercambia posición con una bruja a 3 casillas.</string>
+    <string name="villain_haga_title">Haga la Gemela Sanadora entra al campo de batalla</string>
+    <string name="villain_haga_backstory">Haga, la mayor de las desiguales gemelas de Sybilla, entra al campo. Donde fluye su magia, los aliados heridos se recuperan mucho más rápido que con cualquier sanadora ordinaria.</string>
+    <string name="villain_haga_description">Una Bruja Verde con todas las habilidades normales de bruja verde. Sinergia del Aquelarre: las brujas verdes a 3 casillas sanan un 50% más de PS por ronda. Derrótala para ralentizar la recuperación del aquelarre.</string>
+    <string name="villain_zussa_title">Zussa la Gemela Disruptora entra al campo de batalla</string>
+    <string name="villain_zussa_backstory">Zussa, la menor de las desiguales gemelas de Sybilla, llega cargada de magia disruptora. Las torres cerca de sus aliadas permanecen en silencio más tiempo de lo habitual.</string>
+    <string name="villain_zussa_description">Una Bruja Roja con todas las habilidades normales de bruja roja. Sinergia del Aquelarre: las brujas rojas a 3 casillas extienden las deshabilitaciones de torres en +1 ronda extra. Derrótala para restaurar la resiliencia de tus defensas.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Hay Goblins atacando una remota zona rural. Esto no es inusual, pero los rumores nos dicen que esta vez más monstruos de lo normal están entrando en nuestro reino.</string>
     <string name="story_mixed_forces">La misma zona enfrenta más ataques. Los rumores incluso hablan de muertos que se levantan de las tumbas y atacan a los aldeanos.</string>

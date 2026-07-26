@@ -454,6 +454,18 @@ fun AttackerInfo(
                             ),
                         )
                     }
+                    if (attacker.type == AttackerType.GRAND_COVEN_MOTHER_SYBILLA ||
+                        attacker.type == AttackerType.HAGA ||
+                        attacker.type == AttackerType.ZUSSA
+                    ) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.villain_coven_synergy_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
 
                     // Mighty unit warning - for wizards, witches, demons, dragons
                     val isMightyUnit =
@@ -520,6 +532,9 @@ fun AttackerInfo(
                             AttackerType.SILAS_THE_MASKMASTER,
                             AttackerType.SILAS_MIRROR_IMAGE,
                             -> stringResource(Res.string.villain_silas_description)
+                            AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> stringResource(Res.string.villain_sybilla_description)
+                            AttackerType.HAGA -> stringResource(Res.string.villain_haga_description)
+                            AttackerType.ZUSSA -> stringResource(Res.string.villain_zussa_description)
                             else -> ""
                         }
                     if (villainDescription.isNotEmpty()) {
