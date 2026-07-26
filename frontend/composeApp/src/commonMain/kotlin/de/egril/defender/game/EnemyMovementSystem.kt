@@ -164,12 +164,8 @@ class EnemyMovementSystem(
                         attackerType = companionType,
                     ),
                 )
-                // Queue villain backstory message for each companion.
-                if (companionType.isRealVillain) {
-                    state.pendingMessages.add(
-                        GameMessage(type = GameMessageType.VILLAIN_ENTERS, name = companionType.name),
-                    )
-                }
+                // Companion villains (e.g., Haga and Zussa) are not queued with their own VILLAIN_ENTERS
+                // message; instead, they are mentioned as part of their parent villain's message (e.g., Sybilla).
             }
         }
         // Play spawn sound

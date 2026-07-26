@@ -3266,12 +3266,6 @@ private fun GamePlayScreenContent(
                                         AttackerType.GRAND_COVEN_MOTHER_SYBILLA.name ->
                                             stringResource(Res.string.villain_sybilla_title) to
                                                 (stringResource(Res.string.villain_sybilla_backstory) + "\n" + stringResource(Res.string.villain_sybilla_description))
-                                        AttackerType.HAGA.name ->
-                                            stringResource(Res.string.villain_haga_title) to
-                                                (stringResource(Res.string.villain_haga_backstory) + "\n" + stringResource(Res.string.villain_haga_description))
-                                        AttackerType.ZUSSA.name ->
-                                            stringResource(Res.string.villain_zussa_title) to
-                                                (stringResource(Res.string.villain_zussa_backstory) + "\n" + stringResource(Res.string.villain_zussa_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)
