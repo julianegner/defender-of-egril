@@ -1751,7 +1751,7 @@
     <string name="gate_tower_base_info_description">Une porte garde l\'entrée. Les ennemis l\'attaqueront et essaieront de passer. Défendez-la pour garder le chemin bloqué. Cette porte est assez solide pour servir de base de tour : vous pouvez y placer une tour.</string>
     <!-- Ewhad narrative messages -->
     <string name="ewhad_enters_title">Ewhad entre sur le champ de bataille</string>
-    <string name="ewhad_enters_text">Ewhad est entré sur le champ de bataille ! Attention à ses pouvoirs ténébreux et ses acolytes impitoyables !</string>
+    <string name="ewhad_enters_text">Ewhad est entré sur le champ de bataille ! Attention, il invoque des Démons à chaque Tour, qui seront de plus en plus puissants.</string>
     <string name="ewhad_retreats_title">Ewhad se retire</string>
     <string name="ewhad_retreats_text">Vous avez forcé Ewhad à se retirer !</string>
     <string name="ewhad_defeated_title">Ewhad est vaincu</string>
@@ -1768,26 +1768,26 @@
     <string name="villain_garokk_title">Garokk le Fendeur de Crânes</string>
     <string name="villain_garokk_backstory">Le chef de guerre tyrannique qui a uni les Orcs et les Ogres sous sa bannière, un colosse massif vêtu de fer noir.</string>
     <string name="villain_garokk_description">Son cri de guerre pousse les unités de la Horde proches à la frénésie et leur permet d'avancer plus vite. Abattez-le avant que son rugissement ne submerge vos défenses !</string>
-    <string name="villain_ewhad_description">Il maîtrise d'énormes pouvoirs ténébreux qui mettront vos défenses à l'épreuve. S'il atteint la cible la bataille est immédiatement perdue.
-Abattez-le vite avant que sa puissance ne vous submerge !</string>
+    <string name="villain_ewhad_description">Il invoque des Démons de plus en plus puissants, et s'il atteint la cible la bataille est immédiatement perdue.
+Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_morguk_title">Morguk Chuchotosselets entre sur le champ de bataille</string>
     <string name="villain_morguk_backstory">Morguk Chuchotosselets, Chaman Gobelin du clan Chuchotosselets, est entré sur le champ de bataille !</string>
-    <string name="villain_morguk_description">Ses pouvoirs mystiques aident les gobelins proches, il peut désactiver vos tours et invoque de nouveaux gobelins pour renforcer ses rangs.\nÉliminez-le avant que ses rituels ne submergent vos défenses !</string>
+    <string name="villain_morguk_description">Son Aura de Totem de Guerre accélère les gobelins proches, son Maléfice du Silence désactive les tours et tous les quelques tours il invoque de nouveaux gobelins sur les cases adjacentes.\nÉliminez-le avant que ses rituels ne submergent vos défenses !</string>
     <string name="villain_ratterzahn_title">Le Baron Ratterzahn entre sur le champ de bataille</string>
     <string name="villain_ratterzahn_backstory">Un inventeur gobelin brillant mais complètement dément, juché sur une araignée mécanique à vapeur, est entré sur le champ de bataille.</string>
-    <string name="villain_ratterzahn_description">Cet inventeur fou exploite la ferraille et les roquettes pour dévaster vos défenses. Ses créations et explosions mettront vos compétences tactiques à l'épreuve.</string>
+    <string name="villain_ratterzahn_description">Périodiquement, il largue des tas de ferraille qui deviennent des gobelins robotiques. Périodiquement, il tire une roquette qui étourdit une tour à longue portée.</string>
     <string name="villain_freya_title">Freya la Porte-bouclier Déchue entre sur le champ de bataille</string>
     <string name="villain_freya_backstory">Autrefois héroïque porte-bouclier, Freya est tombée au combat avant de se relever en chevalier de la mort implacable drapée d'acier noir et de magie funéraire.</string>
-    <string name="villain_freya_description">Ses défenses magiques la protègent ainsi que ses alliés proches pendant qu'elle avance. Vous devez trouver un chemin à travers sa magie protectrice, ou l'attaquer d'un angle qu'elle ne peut pas défendre.</string>
+    <string name="villain_freya_description">Son Mur de Boucliers bloque toutes les attaques frontales non tirées par une baliste pour sa propre case et pour les cases à sa gauche et à sa droite pendant qu'elle avance. Attaquez-la de côté ou de dos, ou tirez au-dessus du bouclier avec une Ballista, avant que la championne morte-vivante n'écrase votre ligne.</string>
     <string name="villain_valerius_title">Prince Valerius le Faucheur d&apos;Âmes entre sur le champ de bataille</string>
 <string name="villain_valerius_backstory">Prince Valerius le Faucheur d&apos;Âmes, une liche ancestrale et souverain des armées de squelettes, s&apos;avance sur le champ de bataille dans une vague de froid sépulcral.</string>
-<string name="villain_valerius_description">Son Appel des Âmes relève les alliés tombés dans un rayon de 3 cases au début du tour suivant. Les vivants reviennent en zombies, les morts-vivants se relèvent en squelettes, et même les dragons peuvent revenir comme dragons morts-vivants. Détruisez-le vite avant que chaque perte ne renforce son ost.</string>
-<string name="villain_valerius_soul_call_short">Appel des Âmes : les alliés morts dans 3 cases se relèvent au prochain tour</string>
+<string name="villain_valerius_description">Son Appel des Âmes relève les alliés tombés à proximité au début du tour suivant. Les vivants reviennent en zombies, les morts-vivants se relèvent en squelettes, et même les dragons peuvent revenir comme dragons morts-vivants. Détruisez-le vite avant que chaque perte ne renforce son ost.</string>
+<string name="villain_valerius_soul_call_short">Appel des Âmes : les alliés morts à proximité se relèvent au prochain tour</string>
     <string name="villain_silas_title">Silas le Maître des Masques entre sur le champ de bataille</string>
     <string name="villain_silas_backstory">Silas le Maître des Masques, un illusionniste errant drapé de velours et de mensonges, est entré sur le champ de bataille.</string>
-    <string name="villain_silas_description">Tous les 3 tours, il crée deux images miroir sur des cases de chemin proches. Seul le vrai Silas peut être blessé ; lorsqu'une tour frappe une illusion, l'image disparaît et cette tour est aveuglée pendant 2 tours. Silas peut échanger sa place avec ses nouveaux doubles dès leur apparition, alors visez avec soin avant de tirer !</string>
+    <string name="villain_silas_description">Périodiquement, il crée des images miroir sur des cases de chemin proches. Seul le vrai Silas peut être blessé ; lorsqu'une tour frappe une illusion, l'image disparaît et cette tour est aveuglée pendant plusieurs tours. Silas peut échanger sa place avec ses nouveaux doubles dès leur apparition, alors visez avec soin avant de tirer !</string>
     <string name="villain_silas_mirror_hit_title">Le masque n'était qu'un mensonge</string>
-    <string name="villain_silas_mirror_hit_text">La tour n'a frappé qu'une image miroir de Silas. L'illusion s'est brisée, mais la tour attaquante est maintenant aveuglée pendant 2 tours et ne peut pas attaquer.</string>
+    <string name="villain_silas_mirror_hit_text">La tour n'a frappé qu'une image miroir de Silas. L'illusion s'est brisée, mais la tour attaquante est maintenant aveuglée pendant plusieurs tours et ne peut pas attaquer.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Des Gobelins attaquent une zone rurale isolée. Cela n\'est pas rare, mais les rumeurs nous disent que cette fois, plus de monstres que d\'habitude errent dans notre royaume.</string>
     <string name="story_mixed_forces">La même zone subit davantage d\'attaques. Les rumeurs parlent même de morts se levant de leurs tombes pour attaquer les villageois.</string>
