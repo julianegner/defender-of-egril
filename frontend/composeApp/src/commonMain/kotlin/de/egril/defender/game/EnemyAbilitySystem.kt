@@ -1024,7 +1024,9 @@ class EnemyAbilitySystem(
                 val notDisabled = !tower.isDisabled.value
                 val withinRange =
                     if (range == 1) {
-                        witch.position.value.getHexNeighbors().contains(tower.position.value)
+                        witch.position.value
+                            .getHexNeighbors()
+                            .contains(tower.position.value)
                     } else {
                         witch.position.value.hexDistanceTo(tower.position.value) <= range
                     }

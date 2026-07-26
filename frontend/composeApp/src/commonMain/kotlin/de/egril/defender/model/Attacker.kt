@@ -332,6 +332,18 @@ val AttackerType.hidesHealthBar: Boolean
 val AttackerType.isRealVillain: Boolean
     get() = isVillain && !isMirrorImage
 
+/**
+ * Companion attacker types that are automatically spawned alongside this attacker when it first
+ * enters the battlefield. Each companion is spawned once at a free position near the same spawn
+ * point. Companions that are already on the battlefield (unique-villain check) are not re-spawned.
+ */
+val AttackerType.arrivalCompanions: List<AttackerType>
+    get() =
+        when (this) {
+            AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> listOf(AttackerType.HAGA, AttackerType.ZUSSA)
+            else -> emptyList()
+        }
+
 data class Attacker(
     val id: Int,
     val type: AttackerType,
