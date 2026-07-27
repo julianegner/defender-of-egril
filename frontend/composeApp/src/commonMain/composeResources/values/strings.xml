@@ -1805,6 +1805,8 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_zussa_title">Zussa the Disabling Twin enters the battlefield</string>
     <string name="villain_zussa_backstory">Zussa, the younger of Sybilla\'s unequal twins, arrives crackling with disruptive magic. Towers near her allies fall silent for longer than usual.</string>
     <string name="villain_zussa_description">A Red Witch with all standard red-witch abilities. Coven Synergy: Red witches within 3 tiles extend tower disables by +1 extra round. Defeat her to restore your defenses\' resilience.</string>
+    <string name="villain_coven_swap_title">The Coven shifts</string>
+    <string name="villain_coven_swap_text">Sybilla teleports into position, swapping places with %1$s to better command the battle.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">There are Goblins attacking a remote rural area. This is not uncommon, but rumors tell us that this time more monsters than usual are wandering into our realm.</string>
     <string name="story_mixed_forces">The same area faces more attacks, Rumors even talk about dead rising from the graves and attacking the villagers.</string>

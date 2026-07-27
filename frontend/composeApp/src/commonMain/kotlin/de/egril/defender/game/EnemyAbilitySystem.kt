@@ -10,6 +10,7 @@ import kotlin.math.min
  */
 class EnemyAbilitySystem(
     private val state: GameState,
+    private val pathfinding: PathfindingSystem,
 ) {
     private val bridgeSystem = BridgeSystem(state)
 
@@ -542,22 +543,61 @@ class EnemyAbilitySystem(
         range: Int,
     ) {
         val sybillaPos = sybilla.position.value
+        val sybillaStartPos = state.enemyTurnStartPositions[sybilla.id] ?: return
+
+        // Sybilla can't swap if she's already moved this turn
+        if (sybillaPos != sybillaStartPos) {
+            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                println("DEBUG: Sybilla ${sybilla.id} skipped swap because she already moved this turn")
+            }
+            return
+        }
+
         val witchTypes = setOf(AttackerType.GREEN_WITCH, AttackerType.RED_WITCH, AttackerType.HAGA, AttackerType.ZUSSA)
-        val target =
+        val nearbyWitches =
             state.attackers
                 .filter { ally ->
                     !ally.isDefeated.value &&
                         ally.id != sybilla.id &&
                         ally.type in witchTypes &&
                         sybillaPos.hexDistanceTo(ally.position.value) <= range
-                }.minByOrNull { ally -> sybillaPos.hexDistanceTo(ally.position.value) }
+                }
 
-        if (target != null) {
+        // Find valid swap targets: witches that are either
+        // (1) close to target (1-2 moves away) or
+        // (2) part of a group of 3+ witches in range
+        val validTargets =
+            nearbyWitches
+                .filter { witch ->
+                    val target = witch.currentTarget?.value ?: state.level.targetPositions.first()
+                    val distanceToTarget = pathfinding.findPath(witch.position.value, target, witch).size - 1
+                    val isCloseToTarget = distanceToTarget in 1..2
+                    val isManyWitchesNearby = nearbyWitches.size >= 3
+                    isCloseToTarget || isManyWitchesNearby
+                }
+
+        // If valid targets exist, swap with the closest one
+        if (validTargets.isNotEmpty()) {
+            val target = validTargets.minByOrNull { sybillaPos.hexDistanceTo(it.position.value) } ?: return
             val targetPos = target.position.value
             target.position.value = sybillaPos
             sybilla.position.value = targetPos
+
+            // Queue the swap message with highlight positions
+            state.pendingMessages.add(
+                GameMessage(
+                    type = GameMessageType.COVEN_SWAP,
+                    name = target.type.name,
+                    highlightPositions = sybillaStartPos to targetPos,
+                ),
+            )
+
+            // Add visual effects for both positions to show the swap
+            state.enemyMoveEffects.add(EnemyMoveEffect(sybillaStartPos, state.turnNumber.value))
+            state.enemyMoveEffects.add(EnemyMoveEffect(targetPos, state.turnNumber.value))
+
             if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                println("DEBUG: Sybilla ${sybilla.id} swapped with ${target.type} ${target.id} ($sybillaPos <-> $targetPos)")
+                println("DEBUG: Sybilla ${sybilla.id} swapped with ${target.type} ${target.id} ($sybillaStartPos <-> $targetPos)")
             }
         }
     }

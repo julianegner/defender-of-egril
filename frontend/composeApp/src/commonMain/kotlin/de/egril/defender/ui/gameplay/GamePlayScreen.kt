@@ -30,6 +30,7 @@ import de.egril.defender.ui.animations.CoinFlightOverlay
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.getGameplayUIScale
 import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.getLocalizedShortName
 import de.egril.defender.ui.icon.SpeakerHighIcon
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.AppSettings
@@ -3301,6 +3302,18 @@ private fun GamePlayScreenContent(
                                     backgroundOverride = villainMessageBackground(AttackerType.SILAS_THE_MASKMASTER.name),
                                     iconAttackerTypeOverride = AttackerType.SILAS_THE_MASKMASTER,
                                 )
+                            GameMessageType.COVEN_SWAP -> {
+                                val witchType = attackerTypeFromMessageName(msg.name)
+                                val witchName = witchType?.getLocalizedShortName() ?: msg.name ?: "witch"
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.EWHAD,
+                                    title = stringResource(Res.string.villain_coven_swap_title),
+                                    text = stringResource(Res.string.villain_coven_swap_text, witchName),
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                    backgroundOverride = villainMessageBackground(AttackerType.GRAND_COVEN_MOTHER_SYBILLA.name),
+                                    iconAttackerTypeOverride = AttackerType.GRAND_COVEN_MOTHER_SYBILLA,
+                                )
+                            }
                             GameMessageType.STORY_INTRO -> {
                                 val levelEditorId = msg.name
                                 if (levelEditorId != null) {

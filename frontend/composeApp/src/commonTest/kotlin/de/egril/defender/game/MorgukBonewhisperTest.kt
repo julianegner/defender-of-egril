@@ -77,7 +77,8 @@ class MorgukBonewhisperTest {
     fun warTotemAuraBuffsNearbyGoblins() {
         val level = createOpenLevel()
         val state = GameState(level)
-        val abilities = EnemyAbilitySystem(state)
+        val pathfinding = PathfindingSystem(state)
+        val abilities = EnemyAbilitySystem(state, pathfinding)
 
         val morguk =
             Attacker(
@@ -109,7 +110,8 @@ class MorgukBonewhisperTest {
     fun warTotemAuraDoesNotBuffNonHordeUnits() {
         val level = createOpenLevel()
         val state = GameState(level)
-        val abilities = EnemyAbilitySystem(state)
+        val pathfinding = PathfindingSystem(state)
+        val abilities = EnemyAbilitySystem(state, pathfinding)
 
         val morguk =
             Attacker(
@@ -147,7 +149,7 @@ class MorgukBonewhisperTest {
             )
         state.attackers.add(morguk)
 
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
         val summoned = state.attackers.filter { it.type == AttackerType.GOBLIN && !it.isDefeated.value }
         assertTrue(summoned.isNotEmpty(), "Spirit Summon should have spawned at least one goblin")
@@ -174,7 +176,8 @@ class MorgukBonewhisperTest {
             )
         state.attackers.add(morguk)
 
-        val abilities = EnemyAbilitySystem(state)
+        val pathfinding = PathfindingSystem(state)
+        val abilities = EnemyAbilitySystem(state, pathfinding)
         abilities.processEnemyAbilities()
         val firstCount = state.attackers.count { it.type == AttackerType.GOBLIN }
         assertTrue(firstCount > 0, "First Spirit Summon should produce goblins")
@@ -215,7 +218,7 @@ class MorgukBonewhisperTest {
         }
 
         val goblinsBefore = state.attackers.count { it.type == AttackerType.GOBLIN }
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
         val goblinsAfter = state.attackers.count { it.type == AttackerType.GOBLIN }
 
         assertEquals(goblinsBefore, goblinsAfter, "Spirit Summon must not spawn on an occupied tile")
@@ -262,7 +265,7 @@ class MorgukBonewhisperTest {
             )
         state.attackers.add(morguk)
 
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
         assertTrue(tower.isDisabled.value, "Hex of Silence should disable the adjacent tower")
         assertTrue(tower.disabledTurnsRemaining.value > 0, "Disabled tower must have turns remaining")

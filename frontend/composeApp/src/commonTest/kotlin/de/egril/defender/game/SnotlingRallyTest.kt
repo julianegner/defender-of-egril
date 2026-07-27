@@ -60,7 +60,7 @@ class SnotlingRallyTest {
             )
         state.attackers.add(boss)
 
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
         val snotlings = state.attackers.filter { it.type == AttackerType.SNOTLING }
         assertTrue(snotlings.isNotEmpty(), "Gribnak should have summoned snotlings")
@@ -90,7 +90,8 @@ class SnotlingRallyTest {
             )
         state.attackers.add(boss)
 
-        val abilities = EnemyAbilitySystem(state)
+        val pathfinding = PathfindingSystem(state)
+        val abilities = EnemyAbilitySystem(state, pathfinding)
         abilities.processEnemyAbilities()
         val countAfterFirst = state.attackers.count { it.type == AttackerType.SNOTLING }
         assertTrue(countAfterFirst > 0, "First rally should summon snotlings")
@@ -127,7 +128,7 @@ class SnotlingRallyTest {
             )
         state.attackers.add(blocker)
 
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
         val snotlingOnOccupied =
             state.attackers.any { it.type == AttackerType.SNOTLING && it.position.value == occupied }
@@ -193,7 +194,7 @@ class SnotlingRallyTest {
                 )
             }
 
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
         assertFalse(
             state.attackers.any {
@@ -253,7 +254,7 @@ class SnotlingRallyTest {
             )
         state.attackers.addAll(listOf(boss, stackedSnotling))
 
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
         val liveSnotlingsAtStackTile =
             state.attackers.filter {

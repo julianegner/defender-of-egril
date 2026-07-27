@@ -1799,6 +1799,8 @@
     <string name="villain_zussa_title">Zussa la Gemela Disruptora entra al campo de batalla</string>
     <string name="villain_zussa_backstory">Zussa, la menor de las desiguales gemelas de Sybilla, llega cargada de magia disruptora. Las torres cerca de sus aliadas permanecen en silencio más tiempo de lo habitual.</string>
     <string name="villain_zussa_description">Una Bruja Roja con todas las habilidades normales de bruja roja. Sinergia del Aquelarre: las brujas rojas a 3 casillas extienden las deshabilitaciones de torres en +1 ronda extra. Derrótala para restaurar la resiliencia de tus defensas.</string>
+    <string name="villain_coven_swap_title">El Aquelarre se desplaza</string>
+    <string name="villain_coven_swap_text">Sybilla se teletransporta a posición, intercambiando lugares con %1$s para comandar mejor la batalla.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Hay Goblins atacando una remota zona rural. Esto no es inusual, pero los rumores nos dicen que esta vez más monstruos de lo normal están entrando en nuestro reino.</string>
     <string name="story_mixed_forces">La misma zona enfrenta más ataques. Los rumores incluso hablan de muertos que se levantan de las tumbas y atacan a los aldeanos.</string>

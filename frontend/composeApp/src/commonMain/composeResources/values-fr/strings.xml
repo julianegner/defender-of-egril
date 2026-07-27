@@ -1800,6 +1800,8 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_zussa_title">Zussa la Jumelle Perturbatrice entre sur le champ de bataille</string>
     <string name="villain_zussa_backstory">Zussa, la cadette des jumelles inégales de Sybilla, arrive crépitante de magie perturbatrice. Les tours près de ses alliées restent silencieuses plus longtemps que d'habitude.</string>
     <string name="villain_zussa_description">Une Sorcière Rouge avec toutes les capacités normales de sorcière rouge. Synergie du Coven : les sorcières rouges à 3 cases prolongent les désactivations de tours de +1 tour supplémentaire. Battez-la pour restaurer la résilience de vos défenses.</string>
+    <string name="villain_coven_swap_title">Le Coven se déplace</string>
+    <string name="villain_coven_swap_text">Sybilla se téléporte en position, échangeant sa place avec %1$s pour mieux commander la bataille.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Des Gobelins attaquent une zone rurale isolée. Cela n\'est pas rare, mais les rumeurs nous disent que cette fois, plus de monstres que d\'habitude errent dans notre royaume.</string>
     <string name="story_mixed_forces">La même zone subit davantage d\'attaques. Les rumeurs parlent même de morts se levant de leurs tombes pour attaquer les villageois.</string>

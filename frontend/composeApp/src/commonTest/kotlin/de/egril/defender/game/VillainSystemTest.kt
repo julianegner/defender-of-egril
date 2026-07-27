@@ -99,7 +99,7 @@ class VillainSystemTest {
     fun warCryGrantsSpeedBonusToNearbyHordeUnits() {
         val level = createTestLevel()
         val state = GameState(level)
-        val abilitySystem = EnemyAbilitySystem(state)
+        val abilitySystem = EnemyAbilitySystem(state, PathfindingSystem(state))
 
         val garokk =
             Attacker(
@@ -135,7 +135,7 @@ class VillainSystemTest {
     fun warCryOnlyBuffsOwnFaction() {
         val level = createTestLevel()
         val state = GameState(level)
-        val abilitySystem = EnemyAbilitySystem(state)
+        val abilitySystem = EnemyAbilitySystem(state, PathfindingSystem(state))
 
         val garokk =
             Attacker(
@@ -210,7 +210,7 @@ class VillainSystemTest {
     fun woundedVillainKeepsPermanentSelfSpeedBonus() {
         val level = createTestLevel()
         val state = GameState(level)
-        val abilitySystem = EnemyAbilitySystem(state)
+        val abilitySystem = EnemyAbilitySystem(state, PathfindingSystem(state))
 
         val garokk =
             Attacker(
