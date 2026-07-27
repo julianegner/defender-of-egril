@@ -466,6 +466,22 @@ fun AttackerInfo(
                             ),
                         )
                     }
+                    if (attacker.type == AttackerType.SYLVANAS_THE_MOLDING) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LOCK,
+                                text = stringResource(Res.string.villain_sylvanas_root_grip_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.HEART,
+                                text = stringResource(Res.string.villain_sylvanas_self_heal_short),
+                                color = GamePlayColors.Success,
+                            ),
+                        )
+                    }
 
                     // Mighty unit warning - for wizards, witches, demons, dragons
                     val isMightyUnit =
@@ -535,6 +551,7 @@ fun AttackerInfo(
                             AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> stringResource(Res.string.villain_sybilla_description)
                             AttackerType.HAGA -> stringResource(Res.string.villain_haga_description)
                             AttackerType.ZUSSA -> stringResource(Res.string.villain_zussa_description)
+                            AttackerType.SYLVANAS_THE_MOLDING -> stringResource(Res.string.villain_sylvanas_description)
                             else -> ""
                         }
                     if (villainDescription.isNotEmpty()) {

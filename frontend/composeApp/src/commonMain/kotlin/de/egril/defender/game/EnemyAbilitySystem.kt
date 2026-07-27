@@ -140,6 +140,11 @@ class EnemyAbilitySystem(
                         extraDisableTurns = if (attacker.id in covenEnhancedDisableWitchIds) COVEN_DISABLE_EXTRA_TURNS else 0,
                     )
                 }
+                AttackerType.SYLVANAS_THE_MOLDING -> {
+                    // Root Grip: every 3 rounds, thorny vines block a tower within range 3 for 2 player turns
+                    handleSylvanasRootGrip(attacker)
+                    // Self-Healing: restore selfHealPerTurn HP each enemy turn (handled below)
+                }
                 else -> {
                     // Check if this unit should build a bridge
                     // Units build bridges when adjacent to rivers blocking their path
@@ -149,6 +154,12 @@ class EnemyAbilitySystem(
                         }
                     }
                 }
+            }
+
+            // Generic self-healing for any attacker type with selfHealPerTurn > 0
+            if (attacker.type.selfHealPerTurn > 0 && attacker.currentHealth.value < attacker.maxHealth) {
+                val healAmount = minOf(attacker.type.selfHealPerTurn, attacker.maxHealth - attacker.currentHealth.value)
+                attacker.currentHealth.value += healAmount
             }
         }
 
@@ -330,7 +341,43 @@ class EnemyAbilitySystem(
     }
 
     /**
-     * Apply villain aura abilities (issue #538). A villain buffs friendly units of its own faction
+     * Sylvanas's Root Grip: every [towerDisableCooldown] rounds, thorny vines burst from beneath
+     * the highest-damage non-disabled tower within [towerDisableRangeBase] tiles, blocking it for
+     * [towerDisableDurationTurns] player turns (+1 to account for the immediate decrement at the
+     * end of the enemy turn).
+     */
+    private fun handleSylvanasRootGrip(sylvanas: Attacker) {
+        val cooldown = sylvanas.type.towerDisableCooldown ?: return
+        if (sylvanas.villainCooldown.value > 0) {
+            sylvanas.villainCooldown.value--
+            return
+        }
+
+        val range = sylvanas.type.towerDisableRangeBase ?: 0
+        // +1 to account for the immediate decrement in updateTowerDisableStatus at enemy-turn end
+        val disableDurationTurns = (sylvanas.type.towerDisableDurationTurns ?: 0) + 1
+
+        val targetTower =
+            state.defenders
+                .filter { tower ->
+                    tower.isReady &&
+                        !tower.isDisabled.value &&
+                        sylvanas.position.value.hexDistanceTo(tower.position.value) <= range
+                }
+                .maxWithOrNull(
+                    compareBy<Defender> { it.actualDamage }
+                        .thenByDescending { sylvanas.position.value.hexDistanceTo(it.position.value) },
+                )
+
+        if (targetTower != null) {
+            targetTower.isDisabled.value = true
+            targetTower.disabledTurnsRemaining.value = disableDurationTurns
+        }
+
+        sylvanas.villainCooldown.value = cooldown
+    }
+
+    /**
      * within the ability's range while it is on the battlefield. War Cry style abilities activate on
      * a cooldown; while below 50% health the villain also permanently benefits from its own aura.
      */

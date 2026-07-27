@@ -1801,6 +1801,12 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_zussa_title">Zussa la Gemella Disturbatrice entra nel campo di battaglia</string>
     <string name="villain_zussa_backstory">Zussa, la minore delle gemelle diseguali di Sybilla, arriva crepitante di magia disturbatrice. Le torri vicino alle sue alleate rimangono silenziose più a lungo del solito.</string>
     <string name="villain_zussa_description">Una Strega Rossa con tutte le normali abilità di strega rossa. Sinergia del Coven: le streghe rosse entro 3 celle prolungano le disabilitazioni delle torri di +1 turno extra. Sconfiggila per ripristinare la resilienza delle tue difese.</string>
+    <string name="villain_sylvanas_title">Sylvanas la Marcescente entra nel campo di battaglia</string>
+    <string name="villain_sylvanas_backstory">Un tempo maestoso spirito della foresta, Sylvanas è stata corrotta dalla magia oscura delle streghe. Lascia una scia di putrefazione dietro di sé — e le viti spinose che comanda possono mettere a tacere le tue torri.</string>
+    <string name="villain_sylvanas_description">Morsa delle Radici (ogni 3 turni): viti spinose erompono sotto la torre più pericolosa entro 3 celle, bloccandola per 2 turni. Si cura anche di 10 PS ogni turno. Distruggila prima che le sue viti strangolino le tue difese!</string>
+    <string name="villain_sylvanas_root_grip_short">Morsa delle Radici: radici bloccano una torre vicina ogni 3 turni</string>
+    <string name="villain_sylvanas_self_heal_short">Autoguarigione: ripristina 10 PS ogni turno</string>
+    <string name="sylvanas_name">Sylvanas la Marcescente</string>
     <string name="villain_coven_swap_title">Il Coven si sposta</string>
     <string name="villain_coven_swap_text">Sybilla scambia il suo posto con un'altra strega per comandare meglio la battaglia.</string>
     <!-- Story intro messages shown at the start of each level -->

@@ -154,6 +154,7 @@ fun EnemyIcon(
                 AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> drawSybillaSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
                 AttackerType.HAGA -> drawHagaSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ZUSSA -> drawZussaSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.SYLVANAS_THE_MOLDING -> drawSylvanasTheMoldingSymbol(centerX, centerY, iconSize * 0.76f, headScale = headScale)
             }
         }
 
@@ -264,6 +265,7 @@ fun EnemyTypeIcon(
                 AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> drawSybillaSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
                 AttackerType.HAGA -> drawHagaSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ZUSSA -> drawZussaSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.SYLVANAS_THE_MOLDING -> drawSylvanasTheMoldingSymbol(centerX, centerY, iconSize * 0.76f, headScale = headScale)
             }
         }
     }

@@ -336,6 +336,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> drawSybillaSymbol(centerX, centerY, s * 1.05f, outlineColor)
                             AttackerType.HAGA -> drawHagaSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.ZUSSA -> drawZussaSymbol(centerX, centerY, s, outlineColor)
+                            AttackerType.SYLVANAS_THE_MOLDING -> drawSylvanasTheMoldingSymbol(centerX, centerY, s * 1.0f, outlineColor)
                         }
                     }
                 }

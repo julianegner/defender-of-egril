@@ -1805,6 +1805,12 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_zussa_title">Zussa the Disabling Twin enters the battlefield</string>
     <string name="villain_zussa_backstory">Zussa, the younger of Sybilla\'s unequal twins, arrives crackling with disruptive magic. Towers near her allies fall silent for longer than usual.</string>
     <string name="villain_zussa_description">A Red Witch with all standard red-witch abilities. Coven Synergy: Red witches within 3 tiles extend tower disables by +1 extra round. Defeat her to restore your defenses\' resilience.</string>
+    <string name="villain_sylvanas_title">Sylvanas the Molding enters the battlefield</string>
+    <string name="villain_sylvanas_backstory">Once a majestic forest spirit, Sylvanas was corrupted by the witches\' dark magic. She leaves a trail of rot behind her — and the thorned vines she commands can silence your towers.</string>
+    <string name="villain_sylvanas_description">Root Grip (every 3 rounds): thorny vines burst from beneath the most dangerous tower within 3 tiles, blocking it for 2 rounds. She also heals herself for 10 HP every turn. Destroy her before her vines strangle your defenses!</string>
+    <string name="villain_sylvanas_root_grip_short">Root Grip: vines block a nearby tower every 3 rounds</string>
+    <string name="villain_sylvanas_self_heal_short">Self-Healing: restores 10 HP each round</string>
+    <string name="sylvanas_name">Sylvanas the Molding</string>
     <string name="villain_coven_swap_title">The Coven shifts</string>
     <string name="villain_coven_swap_text">Sybilla swaps her place with another witch to better command the battle.</string>
     <!-- Story intro messages shown at the start of each level -->
