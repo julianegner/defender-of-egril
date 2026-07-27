@@ -2143,4 +2143,11 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_araxxa_title">Araxxa il Ragno Gigante entra nel campo di battaglia</string>
     <string name="villain_araxxa_backstory">Araxxa il Ragno Gigante è piombata sul campo di battaglia!</string>
     <string name="villain_araxxa_description">Evoca ragnetti, stende una ragnatela crescente lungo il sentiero e ogni ragno che si trova nella tela si muove più velocemente. Brucia o sciogli la ragnatela con fuoco e acido prima che lo sciame travolga le tue difese!</string>
+
+    <string name="archmage_malakor_the_renegade_name">Arcimagio Malakor il Rinnegato</string>
+    <string name="villain_malakor_title">Arcimagio Malakor il Rinnegato entra nel campo di battaglia</string>
+    <string name="villain_malakor_backstory">Un tempo il più grande arcimagio del regno, Malakor fu consumato dalla magia astrale proibita. Ora fluttua sopra il suolo in silenziosa meditazione, con gli occhi che ardono di fredda luce stellare.</string>
+    <string name="villain_malakor_description">Ciclo Temporale: ogni 2 round rallenta il flusso del tempo in un raggio di 5 celle — tutte le torri in quell\'area devono saltare il loro prossimo turno. Fluttua su qualsiasi terreno e può scivolare sugli ostacoli, ma deve atterrare su una cella di sentiero.</string>
+    <string name="villain_malakor_time_loop_short">Ciclo Temporale: tutte le torri nel raggio 5 saltano un turno ogni 2 round</string>
+    <string name="villain_malakor_flies_short">Fluttuante: scivola su qualsiasi terreno, atterra su celle di sentiero</string>
 </resources>

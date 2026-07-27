@@ -90,6 +90,9 @@ enum class AttackerType(
     val covenSwapCooldown: Int? = null,
     // Self-heal amount per enemy turn (0 = no self-healing). Used by Sylvanas the Molding.
     val selfHealPerTurn: Int = 0,
+    // Floating movement: can pass over any tile type during movement but must end turn on a path
+    // tile. Used by Archmage Malakor the Renegade.
+    val canFlyOverTerrain: Boolean = false,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
@@ -329,6 +332,26 @@ enum class AttackerType(
         towerDisableDurationTurns = 2,
         selfHealPerTurn = 20,
     ),
+
+    // Archmage Malakor the Renegade: powerful mage corrupted by forbidden astral magic.
+    // Time Loop (every 2 rounds): slows the flow of time in a radius of 5 tiles, forcing all
+    // affected towers to skip their current round.
+    // Floating: moves over any terrain (path, water, towers…) but must end his turn on a path tile.
+    ARCHMAGE_MALAKOR_THE_RENEGADE(
+        "Archmage Malakor the Renegade",
+        health = 160,
+        speed = 2,
+        reward = 200,
+        xp = 90,
+        canDisableTowers = true,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Malakor",
+        towerDisableRangeBase = 5,
+        towerDisableCooldown = 2,
+        towerDisableDurationTurns = 1,
+        canFlyOverTerrain = true,
+    ),
 }
 
 /**
@@ -473,6 +496,7 @@ fun attackerTargetDamage(
         AttackerType.HAGA -> level // Witch twin villain: 1 HP per level
         AttackerType.ZUSSA -> level // Witch twin villain: 1 HP per level
         AttackerType.SYLVANAS_THE_MOLDING -> level // Wild-nature villain: 1 HP per level
+        AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> level // Archmage villain: 1 HP per level
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
 

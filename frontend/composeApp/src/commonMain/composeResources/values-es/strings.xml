@@ -2141,4 +2141,11 @@
     <string name="villain_araxxa_title">Araxxa la Araña Gigante entra al campo de batalla</string>
     <string name="villain_araxxa_backstory">¡Araxxa la Araña Gigante ha descendido sobre el campo de batalla!</string>
     <string name="villain_araxxa_description">Invoca arañitas, extiende una telaraña creciente por el camino y toda araña que se encuentre en la red se mueve más rápido. ¡Quema o disuelve la telaraña con fuego y ácido antes de que el enjambre arrase tus defensas!</string>
+
+    <string name="archmage_malakor_the_renegade_name">Archimago Malakor el Renegado</string>
+    <string name="villain_malakor_title">Archimago Malakor el Renegado entra al campo de batalla</string>
+    <string name="villain_malakor_backstory">Fue el mayor archimago del reino, pero Malakor fue consumido por la magia astral prohibida. Ahora flota sobre el suelo en silenciosa meditación, con los ojos ardiendo con fría luz estelar.</string>
+    <string name="villain_malakor_description">Bucle Temporal: cada 2 rondas ralentiza el flujo del tiempo en un radio de 5 casillas — todas las torres en esa área deben saltar su próxima ronda. Flota sobre cualquier terreno y puede deslizarse sobre obstáculos, pero debe aterrizar en una casilla de camino.</string>
+    <string name="villain_malakor_time_loop_short">Bucle Temporal: todas las torres en radio 5 saltan una ronda cada 2 rondas</string>
+    <string name="villain_malakor_flies_short">Flotando: se desliza sobre cualquier terreno, aterriza en casillas de camino</string>
 </resources>

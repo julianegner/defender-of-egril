@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import Color
+import androidx.compose.ui.graphics.Color
 import com.hyperether.resources.stringResource
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
@@ -3271,6 +3271,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.SYLVANAS_THE_MOLDING.name ->
                                             stringResource(Res.string.villain_sylvanas_title) to
                                                 (stringResource(Res.string.villain_sylvanas_backstory) + "\n" + stringResource(Res.string.villain_sylvanas_description))
+                                        AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE.name ->
+                                            stringResource(Res.string.villain_malakor_title) to
+                                                (stringResource(Res.string.villain_malakor_backstory) + "\n" + stringResource(Res.string.villain_malakor_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)
@@ -3754,6 +3757,8 @@ private fun villainMessageButtonColor(name: String?): Color? {
         AttackerType.ZUSSA -> Color(0xFF6B0000)
         // Corrupted nature – dark emerald
         AttackerType.SYLVANAS_THE_MOLDING -> Color(0xFF1A3A20)
+        // Archmage forbidden astral magic – deep void blue
+        AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> Color(0xFF0D1B3E)
         // Default for EWHAD and other villains (if any added in future)
         else -> null
     }

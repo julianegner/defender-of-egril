@@ -447,7 +447,68 @@ class EnemyMovementSystem(
     }
 
     /**
-     * Apply damage to health points when an enemy reaches the target.
+     * Calculate floating movement path for enemies with [AttackerType.canFlyOverTerrain] (e.g.
+     * Archmage Malakor). The unit glides over any terrain — it may traverse non-path tiles during
+     * movement — but it **must land on a path tile** at the end of the turn.
+     *
+     * Uses BFS to enumerate every reachable tile within [AttackerType.speed] hexagonal steps,
+     * then picks the path-tile destination closest to the current target.
+     *
+     * @return A one-element list containing the final destination, or an empty list if no
+     *         reachable path tile exists (the unit stays in place).
+     */
+    fun calculateFloatingMovementPath(floater: Attacker): List<Position> {
+        val startPos = floater.position.value
+        val speed = floater.type.speed
+
+        val target =
+            floater.currentTarget?.value
+                ?: state.getActiveTargetPositions().minByOrNull { startPos.distanceTo(it) }
+                ?: state.level.targetPositions.first()
+
+        // BFS over all tiles within the speed radius, ignoring terrain restrictions.
+        val visited = mutableSetOf(startPos)
+        val queue = mutableListOf(Pair(startPos, 0))
+        val reachablePathPositions = mutableListOf<Pair<Position, Int>>()
+
+        while (queue.isNotEmpty()) {
+            val (pos, dist) = queue.removeAt(0)
+
+            if (pos != startPos) {
+                val isValidLandingSpot =
+                    state.level.isOnPath(pos) ||
+                        state.level.isTargetPosition(pos)
+                if (isValidLandingSpot) {
+                    reachablePathPositions.add(Pair(pos, dist))
+                }
+            }
+
+            if (dist < speed) {
+                for (neighbor in pos.getHexNeighbors()) {
+                    if (neighbor.x < 0 || neighbor.x >= state.level.gridWidth ||
+                        neighbor.y < 0 || neighbor.y >= state.level.gridHeight
+                    ) {
+                        continue
+                    }
+                    if (neighbor !in visited) {
+                        visited.add(neighbor)
+                        queue.add(Pair(neighbor, dist + 1))
+                    }
+                }
+            }
+        }
+
+        val bestPosition =
+            reachablePathPositions.minByOrNull { (pos, _) -> pos.distanceTo(target) }?.first
+
+        return if (bestPosition != null && bestPosition != startPos) {
+            listOf(bestPosition)
+        } else {
+            emptyList()
+        }
+    }
+
+    /**
      * For SINGLE_HIT targets, the target is "taken" instead of dealing HP damage.
      * Handles variable damage based on enemy type and marks the attacker as defeated.
      */

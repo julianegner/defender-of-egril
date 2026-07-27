@@ -2142,4 +2142,11 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_araxxa_title">Araxxa l'Araignée Géante entre sur le champ de bataille</string>
     <string name="villain_araxxa_backstory">Araxxa l'Araignée Géante s'est abattue sur le champ de bataille !</string>
     <string name="villain_araxxa_description">Elle invoque de petites araignées, étend une toile grandissante sur le chemin et chaque araignée dans la toile se déplace plus vite. Brûlez ou dissolvez la toile avec le feu et l'acide avant que l'essaim ne submerge vos défenses !</string>
+
+    <string name="archmage_malakor_the_renegade_name">Archimage Malakor le Renégat</string>
+    <string name="villain_malakor_title">Archimage Malakor le Renégat entre sur le champ de bataille</string>
+    <string name="villain_malakor_backstory">Autrefois le plus grand archimage du royaume, Malakor fut consumé par une magie astrale interdite. Il flotte désormais au-dessus du sol, plongé dans une méditation silencieuse, les yeux brillant d'une froide lumière stellaire.</string>
+    <string name="villain_malakor_description">Boucle Temporelle : toutes les 2 rondes, il ralentit l'écoulement du temps dans un rayon de 5 cases — toutes les tours dans cette zone doivent passer leur prochain tour. Il flotte au-dessus de tout terrain et peut glisser sur les obstacles, mais doit atterrir sur une case de chemin.</string>
+    <string name="villain_malakor_time_loop_short">Boucle Temporelle : toutes les tours du rayon 5 passent un tour tous les 2 tours</string>
+    <string name="villain_malakor_flies_short">Flottant : glisse sur tout terrain, atterrit sur des cases de chemin</string>
 </resources>

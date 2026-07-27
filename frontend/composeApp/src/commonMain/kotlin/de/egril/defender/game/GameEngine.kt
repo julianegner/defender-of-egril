@@ -816,10 +816,11 @@ class GameEngine(
     fun calculateEnemyTurnMovements(): EnemyTurnMovements {
         val allMovementSteps = mutableListOf<List<Pair<Int, Position>>>()
 
-        // Get all non-defeated attackers, separating dragons from regular units
+        // Get all non-defeated attackers, separating special-movement units from regular units
         val allAttackers = state.attackers.filter { !it.isDefeated.value }
         val dragons = allAttackers.filter { it.type.isDragon }
-        val regularAttackers = allAttackers.filter { !it.type.isDragon }.toMutableList()
+        val floaters = allAttackers.filter { it.type.canFlyOverTerrain }
+        val regularAttackers = allAttackers.filter { !it.type.isDragon && !it.type.canFlyOverTerrain }.toMutableList()
 
         if (allAttackers.isEmpty()) return EnemyTurnMovements(allMovementSteps, emptySet())
 
@@ -828,6 +829,14 @@ class GameEngine(
             val movementPath = enemyMovement.calculateDragonMovementPath(dragon)
             for (position in movementPath) {
                 allMovementSteps.add(listOf(Pair(dragon.id, position)))
+            }
+        }
+
+        // Handle floating movement separately (glide over any terrain, land on path tile)
+        for (floater in floaters) {
+            val movementPath = enemyMovement.calculateFloatingMovementPath(floater)
+            for (position in movementPath) {
+                allMovementSteps.add(listOf(Pair(floater.id, position)))
             }
         }
 

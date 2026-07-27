@@ -145,6 +145,10 @@ class EnemyAbilitySystem(
                     handleSylvanasRootGrip(attacker)
                     // Self-Healing: restore selfHealPerTurn HP each enemy turn (handled below)
                 }
+                AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> {
+                    // Time Loop: every 2 rounds, slow time within radius 5 — all towers skip a round
+                    handleMalakorTimeLoop(attacker)
+                }
                 else -> {
                     // Check if this unit should build a bridge
                     // Units build bridges when adjacent to rivers blocking their path
@@ -376,6 +380,37 @@ class EnemyAbilitySystem(
         }
 
         sylvanas.villainCooldown.value = cooldown
+    }
+
+    /**
+     * Time Loop (Archmage Malakor the Renegade): every [towerDisableCooldown] rounds, Malakor
+     * slows the flow of time in a radius of [towerDisableRangeBase] tiles. All ready, non-disabled
+     * towers within that radius must skip their next player turn.
+     */
+    private fun handleMalakorTimeLoop(malakor: Attacker) {
+        val cooldown = malakor.type.towerDisableCooldown ?: return
+        if (malakor.villainCooldown.value > 0) {
+            malakor.villainCooldown.value--
+            return
+        }
+
+        val range = malakor.type.towerDisableRangeBase ?: 0
+        // +1 to account for the immediate decrement in updateTowerDisableStatus at enemy-turn end
+        val disableDurationTurns = (malakor.type.towerDisableDurationTurns ?: 0) + 1
+
+        // Time Loop affects ALL towers in range, not just the nearest one
+        state.defenders
+            .filter { tower ->
+                tower.isReady &&
+                    !tower.isDisabled.value &&
+                    malakor.position.value.hexDistanceTo(tower.position.value) <= range
+            }
+            .forEach { tower ->
+                tower.isDisabled.value = true
+                tower.disabledTurnsRemaining.value = disableDurationTurns
+            }
+
+        malakor.villainCooldown.value = cooldown
     }
 
     /**
