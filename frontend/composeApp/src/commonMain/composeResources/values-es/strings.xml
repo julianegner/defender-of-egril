@@ -2156,4 +2156,10 @@
     <string name="villain_ignis_va_call_short">Llamada de la Cría: convoca Terrores Dracónicos voladores cada 3 turnos</string>
     <string name="villain_ignis_va_immune_short">Inmune al fuego: las bolas de fuego no pueden dañarla</string>
     <string name="villain_ignis_va_burning_short">Pira de Muerte: el suelo ardiente deshabilita torres cercanas al morir</string>
+    <string name="xarithon_name">Xarithon el Dragón Sombra</string>
+    <string name="villain_xarithon_title">Xarithon el Dragón Sombra entra al campo de batalla</string>
+    <string name="villain_xarithon_backstory">Xarithon es el campeón personal del mago malvado Ewhad — un dragón de las sombras lleno de energía oscura que borra la luz a su paso. Actúa de forma independiente, cazando torres con fría y ancestral ferocidad.</string>
+    <string name="villain_xarithon_description">Escupefuego Sombrío: cada pocos turnos, llamas de sombra estallan en un área amplia, deshabilitando todas las torres alcanzadas.\nResistencia a las Sombras: solo los ataques mágicos pueden herirle — las armas ordinarias atraviesan su forma oscura sin efecto.</string>
+    <string name="villain_xarithon_shadow_spew_short">Escupefuego Sombrío: deshabilita todas las torres del área cada 3 turnos</string>
+    <string name="villain_xarithon_immune_short">Resistencia a las Sombras: inmune a ataques de melee, a distancia y ácido</string>
 </resources>

@@ -153,6 +153,10 @@ class EnemyAbilitySystem(
                     // Call of the Brood: every 3 rounds, summon two Dragon-Terrors
                     handleIgnisVaCallOfTheBrood(attacker)
                 }
+                AttackerType.XARITHON_THE_SHADOW_DRAGON -> {
+                    // Shadow Spew: every 3 rounds, dark flames erupt in a 2×2 area disabling towers
+                    handleXarithonShadowSpew(attacker)
+                }
                 else -> {
                     // Check if this unit should build a bridge
                     // Units build bridges when adjacent to rivers blocking their path
@@ -1381,5 +1385,87 @@ class EnemyAbilitySystem(
             }
 
         return nearestTower?.position?.value
+    }
+
+    /**
+     * Shadow Spew: Xarithon the Shadow Dragon breathes shadowy flames onto a 2×2 area every
+     * [AttackerType.shadowSpewCooldown] rounds. All ready towers inside the area are disabled for
+     * [AttackerType.shadowSpewDurationTurns] player turns.
+     *
+     * The 2×2 area is chosen to maximise the number of towers it overlaps. Xarithon does not need
+     * to be adjacent to the target — the shadow flames reach any location on the battlefield.
+     */
+    private fun handleXarithonShadowSpew(xarithon: Attacker) {
+        val cooldown = xarithon.type.shadowSpewCooldown ?: return
+        val duration = xarithon.type.shadowSpewDurationTurns
+        if (duration <= 0) return
+
+        // Decrement (or initialise) the spew cooldown via the shared villain cooldown field.
+        if (xarithon.villainCooldown.value > 0) {
+            xarithon.villainCooldown.value--
+            return
+        }
+
+        // Cooldown has expired — activate Shadow Spew.
+        xarithon.villainCooldown.value = cooldown
+
+        // Find the best 2×2 area: pick the top-left corner of whichever 2×2 block contains the
+        // most ready, non-disabled towers.
+        val readyTowers =
+            state.defenders.filter { tower ->
+                tower.isReady && !tower.isDisabled.value
+            }
+        if (readyTowers.isEmpty()) return
+
+        // Enumerate candidate top-left corners using the positions of existing towers, then pick
+        // the corner whose 2×2 square covers the most towers.
+        val bestCorner =
+            readyTowers
+                .flatMap { tower ->
+                    val (tx, ty) = tower.position.value
+                    // A tower at (tx, ty) is inside a 2×2 block whose top-left is any of:
+                    // (tx, ty), (tx-1, ty), (tx, ty-1), (tx-1, ty-1)
+                    listOf(
+                        Position(tx, ty),
+                        Position(tx - 1, ty),
+                        Position(tx, ty - 1),
+                        Position(tx - 1, ty - 1),
+                    )
+                }.distinct()
+                .maxByOrNull { corner ->
+                    val (cx, cy) = corner
+                    val affected =
+                        setOf(
+                            Position(cx, cy),
+                            Position(cx + 1, cy),
+                            Position(cx, cy + 1),
+                            Position(cx + 1, cy + 1),
+                        )
+                    readyTowers.count { t -> t.position.value in affected }
+                } ?: return
+
+        // Disable all ready towers inside the chosen 2×2 area.
+        val (cx, cy) = bestCorner
+        val spewArea =
+            setOf(
+                Position(cx, cy),
+                Position(cx + 1, cy),
+                Position(cx, cy + 1),
+                Position(cx + 1, cy + 1),
+            )
+        // +1 accounts for the immediate decrement at the end of this enemy turn.
+        val adjustedDuration = duration + 1
+        for (tower in state.defenders) {
+            if (tower.isReady && !tower.isDisabled.value && tower.position.value in spewArea) {
+                tower.isDisabled.value = true
+                tower.disabledTurnsRemaining.value = adjustedDuration
+                if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                    println(
+                        "DEBUG: Xarithon Shadow Spew disabled ${tower.type} id=${tower.id} at " +
+                            "${tower.position.value} for $duration turns",
+                    )
+                }
+            }
+        }
     }
 }

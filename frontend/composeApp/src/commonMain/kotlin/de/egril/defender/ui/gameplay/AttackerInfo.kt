@@ -499,6 +499,23 @@ fun AttackerInfo(
                         )
                     }
 
+                    if (attacker.type == AttackerType.XARITHON_THE_SHADOW_DRAGON) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LOCK,
+                                text = stringResource(Res.string.villain_xarithon_shadow_spew_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.villain_xarithon_immune_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
+
                     // Mighty unit warning - for wizards, witches, demons, dragons
                     val isMightyUnit =
                         when (attacker.type) {
@@ -569,6 +586,7 @@ fun AttackerInfo(
                             AttackerType.ZUSSA -> stringResource(Res.string.villain_zussa_description)
                             AttackerType.SYLVANAS_THE_MOLDING -> stringResource(Res.string.villain_sylvanas_description)
                             AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> stringResource(Res.string.villain_malakor_description)
+                            AttackerType.XARITHON_THE_SHADOW_DRAGON -> stringResource(Res.string.villain_xarithon_description)
                             else -> ""
                         }
                     if (villainDescription.isNotEmpty()) {
