@@ -2148,4 +2148,12 @@
     <string name="villain_malakor_description">Ralentiza el flujo del tiempo — todas las torres en esa área deben saltar su próxima ronda. Flota sobre cualquier terreno y puede deslizarse sobre obstáculos.</string>
     <string name="villain_malakor_time_loop_short">Bucle Temporal: todas las torres en radio 5 saltan una ronda cada 2 rondas</string>
     <string name="villain_malakor_flies_short">Flotando: se desliza sobre cualquier terreno, aterriza en casillas de camino</string>
+    <string name="ignis_va_name">Ignis-Va, la Voz del Dragón</string>
+    <string name="dragon_terror_name">Terror Dracónico</string>
+    <string name="villain_ignis_va_title">Ignis-Va, la Voz del Dragón entra al campo de batalla</string>
+    <string name="villain_ignis_va_backstory">Ignis-Va es una siniestra cultista de dragones — mitad humana, mitad dragón — que sirve como heraldo oscuro antes de que lleguen los grandes wyrms. Su presencia llena el aire con el acritud del fuego de dragón.</string>
+    <string name="villain_ignis_va_description">Llamada de la Cría: cada pocos turnos convoca Terrores Dracónicos voladores que planean sobre cualquier obstáculo y atacan directamente al objetivo. Al ser derrotada, su cuerpo estalla en fuego de dragón, abrasando el suelo y deshabilitando las torres cercanas.\nNo puede ser dañada por fuego ni bolas de fuego.</string>
+    <string name="villain_ignis_va_call_short">Llamada de la Cría: convoca Terrores Dracónicos voladores cada 3 turnos</string>
+    <string name="villain_ignis_va_immune_short">Inmune al fuego: las bolas de fuego no pueden dañarla</string>
+    <string name="villain_ignis_va_burning_short">Pira de Muerte: el suelo ardiente deshabilita torres cercanas al morir</string>
 </resources>

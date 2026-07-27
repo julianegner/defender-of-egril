@@ -18,6 +18,7 @@ enum class FieldEffectType {
     FIREBALL, // Visual effect for wizard fireball area
     ACID, // Visual effect for alchemy acid with duration
     WEB, // Araxxa's spreading spider web area
+    BURNING_TILE, // Ignis-Va death: burning ground that disables nearby towers
 }
 
 enum class HealingEffectType {

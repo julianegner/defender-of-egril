@@ -2157,4 +2157,12 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_malakor_description">He slows the flow of time — all towers within the radius must skip their next round. He floats above any terrain and can glide over obstacles.</string>
     <string name="villain_malakor_time_loop_short">Time Loop: all towers in radius 5 skip a round every 2 rounds</string>
     <string name="villain_malakor_flies_short">Floats: glides over any terrain, lands on path tiles</string>
+    <string name="ignis_va_name">Ignis-Va, the Dragonvoice</string>
+    <string name="dragon_terror_name">Dragon-Terror</string>
+    <string name="villain_ignis_va_title">Ignis-Va, the Dragonvoice enters the battlefield</string>
+    <string name="villain_ignis_va_backstory">Ignis-Va is a sinister dragon cultist — half human, half dragon — who serves as a dark herald before the great wyrms arrive. Her presence turns the air acrid with the promise of dragonfire.</string>
+    <string name="villain_ignis_va_description">Call of the Brood: every few rounds she summons flying Dragon-Terrors that soar over any obstacle and strike straight for the target. When slain, her body erupts in dragonfire, scorching the ground and disabling nearby towers.\nShe cannot be harmed by fire or fireballs.</string>
+    <string name="villain_ignis_va_call_short">Call of the Brood: summons flying Dragon-Terrors every 3 rounds</string>
+    <string name="villain_ignis_va_immune_short">Immune to fire: fireballs cannot harm her</string>
+    <string name="villain_ignis_va_burning_short">Death Pyre: burning ground disables nearby towers on defeat</string>
 </resources>

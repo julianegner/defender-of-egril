@@ -2149,4 +2149,12 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_malakor_description">Il ralentit l'écoulement du temps — toutes les tours dans cette zone doivent passer leur prochain tour. Il flotte au-dessus de tout terrain et peut glisser sur les obstacles.</string>
     <string name="villain_malakor_time_loop_short">Boucle Temporelle : toutes les tours du rayon 5 passent un tour tous les 2 tours</string>
     <string name="villain_malakor_flies_short">Flottant : glisse sur tout terrain, atterrit sur des cases de chemin</string>
+    <string name="ignis_va_name">Ignis-Va, la Voix du Dragon</string>
+    <string name="dragon_terror_name">Terror-Dragon</string>
+    <string name="villain_ignis_va_title">Ignis-Va, la Voix du Dragon entre sur le champ de bataille</string>
+    <string name="villain_ignis_va_backstory">Ignis-Va est une sinistre cultiste du dragon — mi-humaine, mi-dragon — servant de héraut sombre avant l\'arrivée des grands wyrms. Sa présence imprègne l\'air de l\'odeur du feu draconique.</string>
+    <string name="villain_ignis_va_description">Appel de la Couvée : tous les quelques tours, elle invoque des Terrors-Dragons volants qui planent au-dessus de tout obstacle et fondent directement sur la cible. Lorsqu\'elle est vaincue, son corps explose en feu draconique, incendiant le sol et désactivant les tours proches.\nElle ne peut être blessée par le feu ni par les boules de feu.</string>
+    <string name="villain_ignis_va_call_short">Appel de la Couvée : invoque des Terrors-Dragons volants tous les 3 tours</string>
+    <string name="villain_ignis_va_immune_short">Immune au feu : les boules de feu ne peuvent pas lui faire de mal</string>
+    <string name="villain_ignis_va_burning_short">Bûcher Mortel : le sol en feu désactive les tours proches à la mort</string>
 </resources>
