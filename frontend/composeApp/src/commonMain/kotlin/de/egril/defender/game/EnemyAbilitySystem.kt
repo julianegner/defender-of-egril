@@ -483,6 +483,7 @@ class EnemyAbilitySystem(
             EnemySpawnEffect(
                 position = spawnPos,
                 turnNumber = state.turnNumber.value,
+                attackerType = AttackerType.DRAGON_TERROR,
             ),
         )
     }
