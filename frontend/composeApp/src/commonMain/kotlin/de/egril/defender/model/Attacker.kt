@@ -377,7 +377,7 @@ enum class AttackerType(
     DRAGON_TERROR(
         "Dragon-Terror",
         health = 250,
-        speed = 4,
+        speed = 6,
         reward = 20,
         xp = 25,
         isBoss = false,
