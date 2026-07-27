@@ -2147,4 +2147,12 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_malakor_description">Er verlangsamt den Zeitfluss — alle Türme in diesem Bereich müssen ihre nächste Runde aussetzen. Er schwebt über jedes Gelände und kann Hindernisse überqueren.</string>
     <string name="villain_malakor_time_loop_short">Zeitschleife: alle Türme in Radius 5 setzen alle 2 Runden aus</string>
     <string name="villain_malakor_flies_short">Schwebend: gleitet über jedes Gelände, landet auf Pfadfeldern</string>
+    <string name="ignis_va_name">Ignis-Va, die Drachenstimme</string>
+    <string name="dragon_terror_name">Drachenschreck</string>
+    <string name="villain_ignis_va_title">Ignis-Va, die Drachenstimme betritt das Schlachtfeld</string>
+    <string name="villain_ignis_va_backstory">Ignis-Va ist eine sinistre Drachenkultistin — halb Mensch, halb Drache — und dient als dunkle Vorbote, bevor die großen Wyrms eintreffen. Ihre Anwesenheit lässt die Luft nach Drachenfeuer riechen.</string>
+    <string name="villain_ignis_va_description">Ruf der Brut: Alle paar Runden beschwört sie fliegende Drachenschrecken, die über jedes Hindernis gleiten und direkt auf das Ziel zufliegen. Wenn sie erschlagen wird, bricht ihr Körper in Drachenfeuer aus und legt den Boden in Brand, was nahe Türme außer Gefecht setzt.\nSie kann durch Feuer oder Feuerball nicht verletzt werden.</string>
+    <string name="villain_ignis_va_call_short">Ruf der Brut: beschwört alle 3 Runden fliegende Drachenschrecken</string>
+    <string name="villain_ignis_va_immune_short">Feuerimmun: Feuerbälle können ihr nichts anhaben</string>
+    <string name="villain_ignis_va_burning_short">Todespyre: brennender Boden legt beim Tod nahe Türme lahm</string>
 </resources>

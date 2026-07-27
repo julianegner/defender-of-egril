@@ -338,6 +338,8 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.ZUSSA -> drawZussaSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.SYLVANAS_THE_MOLDING -> drawSylvanasTheMoldingSymbol(centerX, centerY, s * 1.0f, outlineColor)
                             AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> drawArchmageMalakorSymbol(centerX, centerY, s * 1.0f, outlineColor)
+                            AttackerType.IGNIS_VA_THE_DRAGONVOICE -> drawIgnisVaSymbol(centerX, centerY, s * 1.0f, outlineColor)
+                            AttackerType.DRAGON_TERROR -> drawDragonTerrorSymbol(centerX, centerY, s * 1.1f, outlineColor)
                         }
                     }
                 }

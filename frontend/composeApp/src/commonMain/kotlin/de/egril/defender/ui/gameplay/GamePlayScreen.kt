@@ -3274,6 +3274,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE.name ->
                                             stringResource(Res.string.villain_malakor_title) to
                                                 (stringResource(Res.string.villain_malakor_backstory) + "\n" + stringResource(Res.string.villain_malakor_description))
+                                        AttackerType.IGNIS_VA_THE_DRAGONVOICE.name ->
+                                            stringResource(Res.string.villain_ignis_va_title) to
+                                                (stringResource(Res.string.villain_ignis_va_backstory) + "\n" + stringResource(Res.string.villain_ignis_va_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)
@@ -3759,6 +3762,8 @@ private fun villainMessageButtonColor(name: String?): Color? {
         AttackerType.SYLVANAS_THE_MOLDING -> Color(0xFF1A3A20)
         // Archmage forbidden astral magic – deep void blue
         AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> Color(0xFF0D1B3E)
+        // Dragon cultist – deep dragon-fire crimson
+        AttackerType.IGNIS_VA_THE_DRAGONVOICE -> Color(0xFF8B1A00)
         // Default for EWHAD and other villains (if any added in future)
         else -> null
     }

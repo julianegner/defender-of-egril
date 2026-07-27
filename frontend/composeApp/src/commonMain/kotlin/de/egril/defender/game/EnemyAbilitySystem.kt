@@ -149,6 +149,10 @@ class EnemyAbilitySystem(
                     // Time Loop: every 2 rounds, slow time within radius 5 — all towers skip a round
                     handleMalakorTimeLoop(attacker)
                 }
+                AttackerType.IGNIS_VA_THE_DRAGONVOICE -> {
+                    // Call of the Brood: every 3 rounds, summon two Dragon-Terrors
+                    handleIgnisVaCallOfTheBrood(attacker)
+                }
                 else -> {
                     // Check if this unit should build a bridge
                     // Units build bridges when adjacent to rivers blocking their path
@@ -414,6 +418,77 @@ class EnemyAbilitySystem(
     }
 
     /**
+     * Ignis-Va's Call of the Brood: every 3 rounds summons two flying Dragon-Terrors near her
+     * position. Each Dragon-Terror spawns at the villain's level (minimum level 2).
+     */
+    private fun handleIgnisVaCallOfTheBrood(ignisVa: Attacker) {
+        if (ignisVa.summonCooldown.value > 0) return
+
+        val spawnLevel = maxOf(2, ignisVa.level.value)
+        repeat(2) {
+            spawnDragonTerrorNear(ignisVa, spawnLevel)
+        }
+        ignisVa.summonCooldown.value = 3
+    }
+
+    /**
+     * Spawn a Dragon-Terror near the given summoner on a free path tile.
+     * Dragon-Terrors are always at least level 2.
+     */
+    private fun spawnDragonTerrorNear(
+        summoner: Attacker,
+        level: Int,
+    ) {
+        val summonerPos = summoner.position.value
+
+        val possiblePositions = mutableListOf<Position>()
+        possiblePositions.addAll(summonerPos.getHexNeighbors())
+        for (neighbor in summonerPos.getHexNeighbors()) {
+            possiblePositions.addAll(neighbor.getHexNeighbors())
+        }
+
+        val validPositions =
+            possiblePositions
+                .filter { pos ->
+                    pos.x >= 0 &&
+                        pos.x < state.level.gridWidth &&
+                        pos.y >= 0 &&
+                        pos.y < state.level.gridHeight &&
+                        state.level.isOnPath(pos) &&
+                        !state.attackers.any { it.position.value == pos && !it.isDefeated.value }
+                }.distinct()
+
+        if (validPositions.isEmpty()) return
+
+        val spawnPos = validPositions.random()
+
+        val inheritedTarget =
+            summoner.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
+                state.level.waypoints.first().nextTarget
+            } else {
+                state.level.targetPositions.first()
+            }
+
+        val dragonTerror =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.DRAGON_TERROR,
+                position = mutableStateOf(spawnPos),
+                level = mutableStateOf(level),
+                currentTarget = mutableStateOf(inheritedTarget),
+            )
+        state.attackers.add(dragonTerror)
+
+        state.enemySpawnEffects.add(
+            EnemySpawnEffect(
+                position = spawnPos,
+                turnNumber = state.turnNumber.value,
+            ),
+        )
+    }
+
+    /**
+     * Applies the aura of every villain that is currently on the battlefield to all friendly units
      * within the ability's range while it is on the battlefield. War Cry style abilities activate on
      * a cooldown; while below 50% health the villain also permanently benefits from its own aura.
      */

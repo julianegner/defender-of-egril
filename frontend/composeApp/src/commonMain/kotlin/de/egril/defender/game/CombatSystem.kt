@@ -40,6 +40,15 @@ class CombatSystem(
     companion object {
         // LASTING damage is applied at half the initial damage per turn
         private const val LASTING_DAMAGE_DIVISOR = 2
+
+        /** Hex-distance radius of the burning tile's tower-disable effect. */
+        private const val BURNING_TILE_RANGE = 2
+
+        /** Number of player turns that towers near the burning tile are disabled. */
+        private const val BURNING_TILE_DISABLE_TURNS = 2
+
+        /** How many enemy turns the burning tile visual effect remains visible. */
+        private const val BURNING_TILE_VISUAL_TURNS = 2
     }
 
     private fun blindTowerAfterMirrorHit(defender: Defender) {
@@ -758,6 +767,10 @@ class CombatSystem(
                         name = attacker.type.name,
                     ),
                 )
+                // Ignis-Va leaves a burning tile on defeat that disables nearby towers for 2 rounds.
+                if (attacker.type == AttackerType.IGNIS_VA_THE_DRAGONVOICE) {
+                    applyIgnisVaBurningTile(attacker)
+                }
             }
         }
         state.attackers.removeAll { it.isDefeated.value }
@@ -788,4 +801,41 @@ class CombatSystem(
      * Get total kills this turn (for achievements)
      */
     fun getKillsThisTurn(): Int = killsThisTurn
+
+    /**
+     * When Ignis-Va is defeated, she leaves a burning tile at her last position.
+     *
+     * The burning tile:
+     * - Creates a [FieldEffectType.BURNING_TILE] visual effect (lasts 2 rounds for rendering).
+     * - Disables all towers within [BURNING_TILE_RANGE] hexes for [BURNING_TILE_DISABLE_TURNS]
+     *   player turns. The extra +1 compensates for the decrement in [updateTowerDisableStatus]
+     *   that happens at the end of the current enemy turn when she dies during the enemy turn.
+     *   When she dies during the player turn there is no immediate decrement, so we accept up to
+     *   one turn of overshoot in that rare case.
+     */
+    private fun applyIgnisVaBurningTile(ignisVa: Attacker) {
+        val burnPosition = ignisVa.position.value
+
+        state.fieldEffects.add(
+            FieldEffect(
+                position = burnPosition,
+                type = FieldEffectType.BURNING_TILE,
+                damage = 0,
+                turnsRemaining = BURNING_TILE_VISUAL_TURNS,
+                defenderId = -1,
+            ),
+        )
+
+        state.defenders
+            .filter { tower ->
+                tower.position.value.hexDistanceTo(burnPosition) <= BURNING_TILE_RANGE
+            }
+            .forEach { tower ->
+                if (!tower.isDisabled.value || tower.disabledTurnsRemaining.value < BURNING_TILE_DISABLE_TURNS + 1) {
+                    tower.isDisabled.value = true
+                    tower.disabledTurnsRemaining.value =
+                        maxOf(tower.disabledTurnsRemaining.value, BURNING_TILE_DISABLE_TURNS + 1)
+                }
+            }
+    }
 }

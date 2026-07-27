@@ -352,6 +352,37 @@ enum class AttackerType(
         towerDisableDurationTurns = 1,
         canFlyOverTerrain = true,
     ),
+
+    // Ignis-Va, the Dragonvoice: sinister dragon cultist, half human and half dragon.
+    // Call of the Brood (every 3 rounds): summons two flying Dragon-Terrors that can fly over obstacles.
+    // On defeat: leaves behind a burning tile that disables nearby towers for 2 rounds.
+    // Immune to fireball attacks.
+    IGNIS_VA_THE_DRAGONVOICE(
+        "Ignis-Va, the Dragonvoice",
+        health = 200,
+        speed = 2,
+        reward = 200,
+        xp = 90,
+        immuneToFireball = true,
+        canSummon = true,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Ignis-Va",
+    ),
+
+    // Dragon-Terror: small flying dragon summoned by Ignis-Va. Always airborne — flies over water,
+    // impassable terrain, and barricades. Does not target mines; always attacks the target objective.
+    // Speed is double a regular dragon's base speed. Health is half a regular dragon's.
+    // Every Dragon-Terror spawns at least level 2 and deals its level as target damage.
+    DRAGON_TERROR(
+        "Dragon-Terror",
+        health = 250,
+        speed = 4,
+        reward = 20,
+        xp = 25,
+        isBoss = false,
+        canFlyOverTerrain = true,
+    ),
 }
 
 /**
@@ -497,6 +528,8 @@ fun attackerTargetDamage(
         AttackerType.ZUSSA -> level // Witch twin villain: 1 HP per level
         AttackerType.SYLVANAS_THE_MOLDING -> level // Wild-nature villain: 1 HP per level
         AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> level // Archmage villain: 1 HP per level
+        AttackerType.IGNIS_VA_THE_DRAGONVOICE -> level // Dragon-cultist villain: 1 HP per level
+        AttackerType.DRAGON_TERROR -> level // Summoned flying dragon-terror: level damage on reach
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
 
@@ -513,7 +546,8 @@ fun AttackerType.isSummoner(): Boolean =
         this == AttackerType.ARAXXA ||
         this == AttackerType.BARON_RATTERZAHN ||
         this == AttackerType.SILAS_THE_MASKMASTER ||
-        this == AttackerType.PRINCE_VALERIUS_THE_SOULREAPER
+        this == AttackerType.PRINCE_VALERIUS_THE_SOULREAPER ||
+        this == AttackerType.IGNIS_VA_THE_DRAGONVOICE
 
 /**
  * Swarm units can stack by moving onto the same tile, merging their health into one unit.
@@ -537,7 +571,8 @@ fun AttackerType.isSpecialEnemy(): Boolean =
         this == AttackerType.RED_DEMON ||
         this == AttackerType.DRAGON ||
         this == AttackerType.UNDEAD_DRAGON ||
-        this == AttackerType.SILAS_MIRROR_IMAGE
+        this == AttackerType.SILAS_MIRROR_IMAGE ||
+        this == AttackerType.DRAGON_TERROR
 
 /**
  * Undead units rise in a stronger second form under Valerius's necromancy.

@@ -156,6 +156,8 @@ fun EnemyIcon(
                 AttackerType.ZUSSA -> drawZussaSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SYLVANAS_THE_MOLDING -> drawSylvanasTheMoldingSymbol(centerX, centerY, iconSize * 0.76f, headScale = headScale)
                 AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> drawArchmageMalakorSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
+                AttackerType.IGNIS_VA_THE_DRAGONVOICE -> drawIgnisVaSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
+                AttackerType.DRAGON_TERROR -> drawDragonTerrorSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
             }
         }
 
@@ -268,6 +270,8 @@ fun EnemyTypeIcon(
                 AttackerType.ZUSSA -> drawZussaSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SYLVANAS_THE_MOLDING -> drawSylvanasTheMoldingSymbol(centerX, centerY, iconSize * 0.76f, headScale = headScale)
                 AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> drawArchmageMalakorSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
+                AttackerType.IGNIS_VA_THE_DRAGONVOICE -> drawIgnisVaSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
+                AttackerType.DRAGON_TERROR -> drawDragonTerrorSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
             }
         }
     }

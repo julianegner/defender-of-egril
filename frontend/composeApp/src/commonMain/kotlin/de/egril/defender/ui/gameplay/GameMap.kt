@@ -1879,6 +1879,7 @@ fun GridCell(
                     FieldEffectType.FIREBALL -> GamePlayColors.Warning.copy(alpha = 0.5f) // Orange tint for fireball
                     FieldEffectType.ACID -> GamePlayColors.Success.copy(alpha = 0.6f) // Green tint for acid
                     FieldEffectType.WEB -> Color(0xFF8E7CC3).copy(alpha = 0.5f) // Violet tint for spider web
+                    FieldEffectType.BURNING_TILE -> Color(0xFFFF4500).copy(alpha = 0.55f) // Red-orange for burning tile
                 }
             }
 
@@ -2001,6 +2002,7 @@ fun GridCell(
                     FieldEffectType.FIREBALL -> GamePlayColors.WarningDeep // Deep orange border for fireball
                     FieldEffectType.ACID -> GamePlayColors.Success // Green border for acid
                     FieldEffectType.WEB -> Color(0xFF5E35B1) // Deep violet border for spider web
+                    FieldEffectType.BURNING_TILE -> Color(0xFFCC2200) // Deep red border for burning tile
                 }
             }
 
@@ -2657,6 +2659,20 @@ private fun BoxScope.GridCellContent(
                         verticalArrangement = Arrangement.Center,
                     ) {
                         WebIcon(size = 20.dp)
+                        Text(
+                            "${fieldEffect.turnsRemaining}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = GamePlayColors.Yellow,
+                        )
+                    }
+                }
+
+                FieldEffectType.BURNING_TILE -> {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        ExplosionIcon(size = 22.dp)
                         Text(
                             "${fieldEffect.turnsRemaining}T",
                             style = MaterialTheme.typography.labelSmall,
