@@ -88,6 +88,8 @@ enum class AttackerType(
     // Coven swap ability for Sybilla: every N rounds she can swap places with a nearby witch.
     // Null means no swap ability. The runtime cooldown is tracked via [Attacker.summonCooldown].
     val covenSwapCooldown: Int? = null,
+    // Self-heal amount per enemy turn (0 = no self-healing). Used by Sylvanas the Molding.
+    val selfHealPerTurn: Int = 0,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
@@ -307,6 +309,26 @@ enum class AttackerType(
         villainName = "Zussa",
         villainAbility = VillainAbility(effect = VillainAuraEffect.COVEN_DISABLE_BOOST, range = 3, cooldown = 1),
     ),
+
+    // Sylvanas the Molding: corrupted forest spirit who leaves a trail of rot.
+    // Root Grip (every 3 rounds): thorny vines burst from beneath a tower within range 3,
+    // blocking it for 2 player turns.
+    // Self-Healing: restores 10 HP every enemy turn.
+    SYLVANAS_THE_MOLDING(
+        "Sylvanas the Molding",
+        health = 120,
+        speed = 3,
+        reward = 120,
+        xp = 80,
+        canDisableTowers = true,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Sylvanas",
+        towerDisableRangeBase = 4,
+        towerDisableCooldown = 1,
+        towerDisableDurationTurns = 2,
+        selfHealPerTurn = 20,
+    ),
 }
 
 /**
@@ -450,6 +472,7 @@ fun attackerTargetDamage(
         AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> level // Coven-Mother villain: 1 HP per level
         AttackerType.HAGA -> level // Witch twin villain: 1 HP per level
         AttackerType.ZUSSA -> level // Witch twin villain: 1 HP per level
+        AttackerType.SYLVANAS_THE_MOLDING -> level // Wild-nature villain: 1 HP per level
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
 

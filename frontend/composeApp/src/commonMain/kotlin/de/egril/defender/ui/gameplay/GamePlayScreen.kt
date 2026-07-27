@@ -3267,6 +3267,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.GRAND_COVEN_MOTHER_SYBILLA.name ->
                                             stringResource(Res.string.villain_sybilla_title) to
                                                 (stringResource(Res.string.villain_sybilla_backstory) + "\n" + stringResource(Res.string.villain_sybilla_description))
+                                        AttackerType.SYLVANAS_THE_MOLDING.name ->
+                                            stringResource(Res.string.villain_sylvanas_title) to
+                                                (stringResource(Res.string.villain_sylvanas_backstory) + "\n" + stringResource(Res.string.villain_sylvanas_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)

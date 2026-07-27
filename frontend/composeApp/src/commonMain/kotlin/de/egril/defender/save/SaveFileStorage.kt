@@ -286,6 +286,7 @@ object SaveFileStorage {
                     dragonName = defender.dragonName,
                     raftId = defender.raftId.value,
                     towerBaseBarricadeId = defender.towerBaseBarricadeId.value,
+                    hasRootGripAnimation = defender.hasRootGripAnimation.value,
                 )
             }
 
@@ -493,6 +494,7 @@ object SaveFileStorage {
             defender.actionsRemaining.value = savedDefender.actionsRemaining
             defender.raftId.value = savedDefender.raftId // Restore raft linkage
             defender.towerBaseBarricadeId.value = savedDefender.towerBaseBarricadeId // Restore tower base linkage
+            defender.hasRootGripAnimation.value = savedDefender.hasRootGripAnimation // Restore Sylvanas vine animation
             gameState.defenders.add(defender)
         }
 

@@ -1800,6 +1800,12 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_zussa_title">Zussa la Jumelle Perturbatrice entre sur le champ de bataille</string>
     <string name="villain_zussa_backstory">Zussa, la cadette des jumelles inégales de Sybilla, arrive crépitante de magie perturbatrice. Les tours près de ses alliées restent silencieuses plus longtemps que d'habitude.</string>
     <string name="villain_zussa_description">Une Sorcière Rouge avec toutes les capacités normales de sorcière rouge. Synergie du Coven : les sorcières rouges à 3 cases prolongent les désactivations de tours de +1 tour supplémentaire. Battez-la pour restaurer la résilience de vos défenses.</string>
+    <string name="villain_sylvanas_title">Sylvanas la Pourrissante entre sur le champ de bataille</string>
+    <string name="villain_sylvanas_backstory">Jadis un esprit de la forêt majestueux, Sylvanas a été corrompue par la magie noire des sorcières. Elle laisse une traînée de pourriture derrière elle — et les vignes épineuses qu\'elle maîtrise peuvent réduire vos tours au silence.</string>
+    <string name="villain_sylvanas_description">Étreinte des Racines : des vignes épineuses surgissent sous une tour, la bloquant. Elle se soigne également chaque ronde. Détruisez-la avant que ses vignes n\'étranglent vos défenses !</string>
+    <string name="villain_sylvanas_root_grip_short">Étreinte des Racines : des vignes bloquent une tour proche toutes les 3 rondes</string>
+    <string name="villain_sylvanas_self_heal_short">Autosoin : restaure 10 PV chaque ronde</string>
+    <string name="sylvanas_name">Sylvanas la Pourrissante</string>
     <string name="villain_coven_swap_title">Le Coven se déplace</string>
     <string name="villain_coven_swap_text">Sybilla échange sa place avec une autre sorcière pour mieux commander la bataille.</string>
     <!-- Story intro messages shown at the start of each level -->

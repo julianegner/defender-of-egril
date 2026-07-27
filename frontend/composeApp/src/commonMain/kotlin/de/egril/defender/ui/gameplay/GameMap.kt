@@ -74,6 +74,7 @@ import de.egril.defender.ui.animations.TrapTriggerAnimation
 import de.egril.defender.ui.animations.WaterFlowAnimation
 import de.egril.defender.ui.animations.WizardAttackOverlay
 import de.egril.defender.ui.animations.WizardIdleAnimation
+import de.egril.defender.ui.animations.SylvanasRootGripAnimation
 import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.ui.editor.map.MapControlState
 import de.egril.defender.ui.editor.map.MapControls
@@ -2593,6 +2594,13 @@ private fun BoxScope.GridCellContent(
                     // Show Double Tower Level spell animation overlay (same animation as instant tower)
                     if (doubleLevelActive) {
                         InstantTowerSpellAnimation(
+                            animate = AppSettings.enableAnimations.value,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                    // Show Sylvanas vine animation overlay if tower is disabled by Root Grip
+                    if (defender.hasRootGripAnimation.value) {
+                        SylvanasRootGripAnimation(
                             animate = AppSettings.enableAnimations.value,
                             modifier = Modifier.fillMaxSize(),
                         )
