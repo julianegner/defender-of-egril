@@ -358,6 +358,12 @@ internal fun narrativeTextFramePaddingFractions(
                 bottom = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,
             )
 
+        type == NarrativeMessageType.EWHAD && attackerType == AttackerType.GRAND_COVEN_MOTHER_SYBILLA ->
+            NarrativeTextFramePaddingFractions(
+                top = 0.31f,
+                bottom = 0.33f,
+            )
+
         else ->
             NarrativeTextFramePaddingFractions(
                 top = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,
