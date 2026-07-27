@@ -1772,26 +1772,26 @@
     <string name="villain_gribnak_title">Gribnak the Squealer enters the battlefield</string>
     <string name="villain_gribnak_backstory">Gribnak the Squealer has entered the battlefield!</string>
     <string name="villain_gribnak_description">This Snotling Chieftain will summon many small snotlings around his position.</string>
-    <string name="villain_ewhad_description">He summons increasingly powerful Demons every turn, and if he reaches the target the battle is lost instantly.
+    <string name="villain_ewhad_description">He summons increasingly powerful Demons, and if he reaches the target the battle is lost instantly.
 Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_morguk_title">Morguk Bonewhisper enters the battlefield</string>
     <string name="villain_morguk_backstory">Morguk Bonewhisper, Goblin Shaman of the Bonewhisper clan, has entered the battlefield!</string>
     <string name="villain_morguk_description">His War Totem Aura hastens nearby goblins, his Hex of Silence disables towers, and every few turns Spirit Summon calls new goblins on adjacent tiles.\nTake him down before his rituals overwhelm your defenses!</string>
     <string name="villain_ratterzahn_title">Baron Ratterzahn enters the battlefield</string>
     <string name="villain_ratterzahn_backstory">A brilliant but utterly insane goblin inventor riding a steam-powered mechanical spider has entered the battlefield.</string>
-    <string name="villain_ratterzahn_description">Every 4 rounds he drops scrap piles that hatch into two robotic goblins on the next round, each with reinforced metal bodies. Every 5 rounds he launches a rocket that stuns a tower for 3 rounds at long range.</string>
+    <string name="villain_ratterzahn_description">He periodically drops scrap piles that hatch into robotic goblins, each with reinforced metal bodies. He launches rockets that stun towers at long range.</string>
     <string name="villain_freya_title">Fallen Shieldmaiden Freya enters the battlefield</string>
     <string name="villain_freya_backstory">Once a heroic shieldmaiden, Freya fell in battle and rose again as an unstoppable death knight wrapped in black steel and grave magic.</string>
     <string name="villain_freya_description">Her Shield Wall blocks all non-ballista attacks from the front for her own tile and the tiles to her left and right as she advances. Strike from the side or rear, or shoot over the shield with a Ballista, before the undead champion crushes your line.</string>
     <string name="villain_valerius_title">Prince Valerius the Soulreaper enters the battlefield</string>
     <string name="villain_valerius_backstory">Prince Valerius the Soulreaper, an ancient lich and ruler of the skeleton armies, steps onto the battlefield in a wave of icy grave-cold.</string>
-    <string name="villain_valerius_description">His Soul Call raises fallen allies within 3 tiles at the start of the next round. The living return as zombies, the undead rise again as skeletons, and even dragons can return as undead dragons. Destroy him quickly before every casualty strengthens his host.</string>
-    <string name="villain_valerius_soul_call_short">Soul Call: dead allies within 3 tiles rise next round</string>
+    <string name="villain_valerius_description">His Soul Call raises nearby fallen allies at the start of the next round. The living return as zombies, the undead rise again as skeletons, and even dragons can return as undead dragons. Destroy him quickly before every casualty strengthens his host.</string>
+    <string name="villain_valerius_soul_call_short">Soul Call: nearby dead allies rise next round</string>
     <string name="villain_silas_title">Silas the Maskmaster enters the battlefield</string>
     <string name="villain_silas_backstory">Silas the Maskmaster, a wandering illusionist wrapped in velvet and lies, has stepped onto the battlefield.</string>
-    <string name="villain_silas_description">Every 3 rounds he creates two mirror images on nearby path tiles. Only the real Silas can be hurt; when a tower strikes an illusion, the image vanishes and that tower is blinded for 2 rounds. Silas may swap places with his fresh doubles the moment they appear, so watch carefully before you fire!</string>
+    <string name="villain_silas_description">Periodically he creates mirror images on nearby path tiles. Only the real Silas can be hurt; when a tower strikes an illusion, the image vanishes and that tower is blinded for a few rounds. Silas may swap places with his fresh doubles the moment they appear, so watch carefully before you fire!</string>
     <string name="villain_silas_mirror_hit_title">The mask was a lie</string>
-    <string name="villain_silas_mirror_hit_text">The tower struck only a mirror image of Silas. The illusion shattered, but the attacking tower is now blinded for 2 rounds and cannot attack.</string>
+    <string name="villain_silas_mirror_hit_text">The tower struck only a mirror image of Silas. The illusion shattered, but the attacking tower is now blinded for a few rounds and cannot attack.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">There are Goblins attacking a remote rural area. This is not uncommon, but rumors tell us that this time more monsters than usual are wandering into our realm.</string>
     <string name="story_mixed_forces">The same area faces more attacks, Rumors even talk about dead rising from the graves and attacking the villagers.</string>

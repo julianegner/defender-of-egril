@@ -1766,26 +1766,26 @@
     <string name="villain_garokk_title">Garokk der Schädelspalter</string>
     <string name="villain_garokk_backstory">Der tyrannische Kriegshäuptling, der die Orks und Oger unter seinem Banner vereint hat, ein massiver, in schwarzes Eisen gehüllter Koloss.</string>
     <string name="villain_garokk_description">Sein Kriegsschrei treibt nahe Horde-Einheiten in Raserei und lässt sie schneller vorrücken. Streckt ihn nieder, bevor sein Gebrüll eure Verteidigung überrollt!</string>
-    <string name="villain_ewhad_description">Er beschwört jede Runde immer mächtigere Dämonen, und wenn er das Ziel erreicht, ist die Schlacht sofort verloren.
+    <string name="villain_ewhad_description">Er beschwört immer mächtigere Dämonen, und wenn er das Ziel erreicht, ist die Schlacht sofort verloren.
 Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</string>
     <string name="villain_morguk_title">Morguk Knochenwisper betritt das Schlachtfeld</string>
     <string name="villain_morguk_backstory">Morguk Knochenwisper, Goblin-Schamane des Knochenwisper-Clans, hat das Schlachtfeld betreten!</string>
     <string name="villain_morguk_description">Seine Kriegs-Totem-Aura beschleunigt nahe Goblins, sein Schweige-Fluch deaktiviert Türme und alle paar Runden beschwört er neue Goblins auf benachbarten Feldern.\nSchaltet ihn aus, bevor seine Rituale eure Verteidigung überwältigen!</string>
     <string name="villain_ratterzahn_title">Baron Ratterzahn betritt das Schlachtfeld</string>
     <string name="villain_ratterzahn_backstory">Ein brillanter, aber völlig wahnsinniger Goblin-Erfinder auf einer dampfbetriebenen mechanischen Spinne hat das Schlachtfeld betreten.</string>
-    <string name="villain_ratterzahn_description">Alle 4 Runden wirft er Schrotthaufen ab, aus denen in der nächsten Runde zwei robotische Goblins mit verstärkten Metallkörpern entstehen. Alle 5 Runden feuert er eine Rakete, die einen Turm aus großer Entfernung für 3 Runden betäubt.</string>
+    <string name="villain_ratterzahn_description">Er wirft periodisch Schrotthaufen ab, aus denen robotische Goblins mit verstärkten Metallkörpern entstehen. Er feuert Raketen ab, die einen Turm aus großer Entfernung betäuben.</string>
     <string name="villain_freya_title">Die gefallene Schildmaid Freya betritt das Schlachtfeld</string>
     <string name="villain_freya_backstory">Einst war Freya eine heldenhafte Schildmaid. Im Kampf fiel sie und erhob sich als unaufhaltsame Todesritterin in schwarzem Stahl und Grabmagie.</string>
     <string name="villain_freya_description">Ihre Schildmauer blockt alle Nicht-Ballista-Angriffe von vorne – für ihr eigenes Feld und die Felder links und rechts von ihr, während sie vorrückt. Greife von der Seite oder von hinten an oder schieße mit einer Ballista über den Schild, bevor die untote Kriegerin deine Linie zerschlägt.</string>
     <string name="villain_valerius_title">Fürst Valerius der Seelenschnitter betritt das Schlachtfeld</string>
 <string name="villain_valerius_backstory">Fürst Valerius der Seelenschnitter, ein uralter Lich und Herrscher der Skelettarmeen, tritt in einer Welle eisiger Grabeskälte auf das Schlachtfeld.</string>
-<string name="villain_valerius_description">Sein Seelenruf erweckt gefallene Verbündete im Umkreis von 3 Feldern zu Beginn der nächsten Runde wieder. Lebende kehren als Zombies zurück, Untote erheben sich erneut als Skelette, und selbst Drachen können als untote Drachen wiederkehren. Vernichtet ihn schnell, bevor jeder Verlust sein Heer verstärkt.</string>
-<string name="villain_valerius_soul_call_short">Seelenruf: tote Verbündete im Umkreis von 3 Feldern erheben sich nächste Runde</string>
+<string name="villain_valerius_description">Sein Seelenruf erweckt gefallene Verbündete in der Nähe zu Beginn der nächsten Runde wieder. Lebende kehren als Zombies zurück, Untote erheben sich erneut als Skelette, und selbst Drachen können als untote Drachen wiederkehren. Vernichtet ihn schnell, bevor jeder Verlust sein Heer verstärkt.</string>
+<string name="villain_valerius_soul_call_short">Seelenruf: nahe tote Verbündete erheben sich nächste Runde</string>
     <string name="villain_silas_title">Silas der Maskenmeister betritt das Schlachtfeld</string>
     <string name="villain_silas_backstory">Silas der Maskenmeister, ein wandernder Illusionist, gehüllt in Samt und Lügen, hat das Schlachtfeld betreten.</string>
-    <string name="villain_silas_description">Alle 3 Runden erschafft er zwei Spiegelbilder auf nahen Pfadfeldern. Nur der echte Silas kann verletzt werden; trifft ein Turm eine Illusion, verschwindet sie und dieser Turm ist 2 Runden lang geblendet. Silas kann im Moment ihrer Erschaffung den Platz mit seinen frischen Doppelgängern tauschen – zielt also genau, bevor ihr feuert!</string>
+    <string name="villain_silas_description">Periodisch erschafft er Spiegelbilder auf nahen Pfadfeldern. Nur der echte Silas kann verletzt werden; trifft ein Turm eine Illusion, verschwindet sie und dieser Turm ist für einige Runden lang geblendet. Silas kann im Moment ihrer Erschaffung den Platz mit seinen frischen Doppelgängern tauschen – zielt also genau, bevor ihr feuert!</string>
     <string name="villain_silas_mirror_hit_title">Die Maske war eine Lüge</string>
-    <string name="villain_silas_mirror_hit_text">Der Turm traf nur ein Spiegelbild von Silas. Die Illusion zersprang, doch der angreifende Turm ist nun 2 Runden lang geblendet und kann nicht angreifen.</string>
+    <string name="villain_silas_mirror_hit_text">Der Turm traf nur ein Spiegelbild von Silas. Die Illusion zersprang, doch der angreifende Turm ist nun für einige Runden lang geblendet und kann nicht angreifen.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">In einem abgelegenen ländlichen Gebiet greifen Goblins an. Das ist nicht ungewöhnlich, aber Gerüchten zufolge wandern diesmal mehr Monster als sonst in unser Reich.</string>
     <string name="story_mixed_forces">Dasselbe Gebiet ist weiteren Angriffen ausgesetzt. Gerüchte sprechen sogar davon, dass Tote aus ihren Gräbern auferstehen und die Dorfbewohner angreifen.</string>

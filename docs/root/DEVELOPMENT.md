@@ -87,6 +87,28 @@ TROLL("Troll", health = 100, speed = 1, reward = 25)
 CATAPULT("Catapult", baseCost = 60, baseDamage = 40, baseRange = 4, attackType = AttackType.AOE)
 ```
 
+#### Villain Story Text Guidelines
+
+When writing story text or descriptions for villains (bosses with special abilities):
+
+**DO NOT include specific ability mechanics** in story text. Avoid details like:
+- Exact frequencies: "every 3 turns", "every 5 turns"
+- Specific numbers: "3 minions", "8 spiderlings", "creates 5 summons"
+- Precise ability descriptions: "spawns mighty demons every 3 turns"
+
+**INSTEAD, use vague descriptions** that hint at the ability without specifics:
+- "from time to time, he creates minions"
+- "possesses mysterious powers"
+- "summons creatures to aid him"
+- "dangerous powers beyond imagination"
+
+**Rationale:** Players should discover villain abilities through gameplay, not from story text. Specific details diminish the mystery and discovery aspect of facing a new villain for the first time.
+
+**Update Locations:** Villain story text appears in:
+- `frontend/googleplay/metadata/android/*/full_description.txt` (all 6 language versions)
+- Any in-game narrative or description text
+- Level/villain introduction messages
+
 #### Adding a New Level (Code Method - Legacy)
 
 Add to `LevelData.createLevels()`:

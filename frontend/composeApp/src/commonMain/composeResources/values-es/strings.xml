@@ -1767,26 +1767,26 @@
     <string name="villain_garokk_title">Garokk el Rompecráneos</string>
     <string name="villain_garokk_backstory">El tiránico caudillo de guerra que unió a orcos y ogros bajo su estandarte, un coloso enorme cubierto de hierro negro.</string>
     <string name="villain_garokk_description">Su grito de guerra enardece a las unidades de la Horda cercanas, permitiéndoles avanzar más rápido. ¡Derríbalo antes de que su rugido arrase tus defensas!</string>
-    <string name="villain_ewhad_description">Invoca Demonios cada turno, cada vez más poderosos, y si alcanza el objetivo la batalla se pierde al instante.
+    <string name="villain_ewhad_description">Invoca Demonios cada vez más poderosos, y si alcanza el objetivo la batalla se pierde al instante.
 ¡Acaba con él rápido antes de que su hueste abrume tus defensas!</string>
     <string name="villain_morguk_title">Morguk Susurrahuesos entra al campo de batalla</string>
     <string name="villain_morguk_backstory">¡Morguk Susurrahuesos, Chamán Goblin del clan Susurrahuesos, ha entrado al campo de batalla!</string>
     <string name="villain_morguk_description">Su Aura del Tótem de Guerra acelera goblins cercanos, su Maldición del Silencio desactiva torres y cada pocos turnos invoca nuevos goblins en casillas adyacentes.\n¡Elimínalo antes de que sus rituales abrumen tus defensas!</string>
     <string name="villain_ratterzahn_title">El Barón Ratterzahn entra al campo de batalla</string>
     <string name="villain_ratterzahn_backstory">Un brillante pero completamente demente inventor goblin montado en una araña mecánica a vapor ha entrado al campo de batalla.</string>
-    <string name="villain_ratterzahn_description">Cada 4 rondas deja montones de chatarra que en la siguiente ronda se convierten en dos goblins robóticos con cuerpos metálicos reforzados. Cada 5 rondas dispara un cohete que aturde una torre durante 3 rondas a larga distancia.</string>
+    <string name="villain_ratterzahn_description">Periódicamente deja montones de chatarra que se convierten en goblins robóticos con cuerpos metálicos reforzados. Dispara cohetes que aturden torres a larga distancia.</string>
     <string name="villain_freya_title">Freya, la Doncella del Escudo Caída, entra al campo de batalla</string>
     <string name="villain_freya_backstory">Freya fue una heroica doncella del escudo, pero cayó en combate y se alzó de nuevo como una imparable caballera de la muerte envuelta en acero negro y magia funeraria.</string>
     <string name="villain_freya_description">Su Muro de Escudos bloquea todos los ataques frontales que no sean de ballista para su propia casilla y para las casillas a su izquierda y a su derecha mientras avanza. Ataca desde el flanco o la retaguardia, o dispara por encima del escudo con una Ballista, antes de que la campeona no muerta destroce tu línea.</string>
     <string name="villain_valerius_title">Príncipe Valerius el Segador de Almas entra en el campo de batalla</string>
 <string name="villain_valerius_backstory">Príncipe Valerius el Segador de Almas, un antiguo lich y soberano de los ejércitos esqueléticos, pisa el campo de batalla envuelto en una ola de frío sepulcral.</string>
-<string name="villain_valerius_description">Su Llamado de las Almas hace que los aliados caídos dentro de 3 casillas se alcen al inicio de la siguiente ronda. Los vivos regresan como zombis, los no muertos vuelven a levantarse como esqueletos, e incluso los dragones pueden regresar como dragones no muertos. Destrúyelo rápido antes de que cada baja fortalezca a su hueste.</string>
-<string name="villain_valerius_soul_call_short">Llamado de las Almas: los aliados muertos en 3 casillas se alzan la próxima ronda</string>
+<string name="villain_valerius_description">Su Llamado de las Almas hace que los aliados caídos cercanos se alcen al inicio de la siguiente ronda. Los vivos regresan como zombis, los no muertos vuelven a levantarse como esqueletos, e incluso los dragones pueden regresar como dragones no muertos. Destrúyelo rápido antes de que cada baja fortalezca a su hueste.</string>
+<string name="villain_valerius_soul_call_short">Llamado de las Almas: los aliados muertos cercanos se alzan la próxima ronda</string>
     <string name="villain_silas_title">Silas el Maestro de las Máscaras entra al campo de batalla</string>
     <string name="villain_silas_backstory">Silas el Maestro de las Máscaras, un ilusionista errante envuelto en terciopelo y mentiras, ha entrado al campo de batalla.</string>
-    <string name="villain_silas_description">Cada 3 rondas crea dos imágenes especulares en casillas del camino cercanas. Solo el verdadero Silas puede resultar herido; cuando una torre golpea una ilusión, la imagen se desvanece y esa torre queda cegada durante 2 rondas. Silas puede intercambiarse con sus dobles recién creados en el mismo momento en que aparecen, ¡así que apunta con cuidado antes de disparar!</string>
+    <string name="villain_silas_description">Periódicamente crea imágenes especulares en casillas del camino cercanas. Solo el verdadero Silas puede resultar herido; cuando una torre golpea una ilusión, la imagen se desvanece y esa torre queda cegada durante algunos turnos. Silas puede intercambiarse con sus dobles recién creados en el mismo momento en que aparecen, ¡así que apunta con cuidado antes de disparar!</string>
     <string name="villain_silas_mirror_hit_title">La máscara era una mentira</string>
-    <string name="villain_silas_mirror_hit_text">La torre solo golpeó una imagen especular de Silas. La ilusión se hizo añicos, pero la torre atacante ahora está cegada durante 2 rondas y no puede atacar.</string>
+    <string name="villain_silas_mirror_hit_text">La torre solo golpeó una imagen especular de Silas. La ilusión se hizo añicos, pero la torre atacante ahora está cegada durante algunos turnos y no puede atacar.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Hay Goblins atacando una remota zona rural. Esto no es inusual, pero los rumores nos dicen que esta vez más monstruos de lo normal están entrando en nuestro reino.</string>
     <string name="story_mixed_forces">La misma zona enfrenta más ataques. Los rumores incluso hablan de muertos que se levantan de las tumbas y atacan a los aldeanos.</string>
