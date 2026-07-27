@@ -317,17 +317,17 @@ enum class AttackerType(
     SYLVANAS_THE_MOLDING(
         "Sylvanas the Molding",
         health = 120,
-        speed = 2,
+        speed = 3,
         reward = 120,
-        xp = 60,
+        xp = 80,
         canDisableTowers = true,
         isBoss = true,
         isVillain = true,
         villainName = "Sylvanas",
-        towerDisableRangeBase = 3,
-        towerDisableCooldown = 3,
+        towerDisableRangeBase = 4,
+        towerDisableCooldown = 1,
         towerDisableDurationTurns = 2,
-        selfHealPerTurn = 10,
+        selfHealPerTurn = 20,
     ),
 }
 
