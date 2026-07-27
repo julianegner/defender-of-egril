@@ -11,13 +11,13 @@
     <string name="exit_game_confirm_title">Quitter le jeu ?</string>
     <string name="exit_game_confirm_message">Êtes-vous sûr de vouloir quitter le jeu ?</string>
     <string name="exit">Quitter</string>
-    
+
     <!-- Commit Info Dialog -->
     <string name="commit_info_title">Informations de build</string>
     <string name="commit_hash_label">Hash du commit :</string>
     <string name="commit_date_label">Date du commit :</string>
     <string name="commit_message_label">Message du commit :</string>
-    
+
     <!-- Level Complete Screen -->
     <string name="victory">Victoire !</string>
     <string name="battle_won">Bataille gagnée !</string>
@@ -29,7 +29,7 @@
     <string name="world_map">Carte du monde</string>
     <string name="next_level">Niveau suivant</string>
     <string name="continue_with_level">Continuer avec le niveau : %1$s</string>
-    
+
     <!-- Settings -->
     <string name="settings">Paramètres</string>
     <string name="language">Langue</string>
@@ -78,7 +78,7 @@
     <string name="accessibility_banner_title">Paramètres d'accessibilité</string>
     <string name="accessibility_banner_message">Options pour les besoins visuels, auditifs et moteurs.</string>
     <string name="accessibility_banner_open_settings">Ouvrir les paramètres d'accessibilité</string>
-    
+
     <!-- Common Actions -->
     <string name="back">Retour</string>
     <string name="ok">OK</string>
@@ -86,7 +86,7 @@
     <string name="save">Sauvegarder</string>
     <string name="delete">Supprimer</string>
     <string name="edit">Modifier</string>
-    
+
     <!-- Game Play -->
     <string name="coins">Pièces</string>
     <string name="health">Santé</string>
@@ -121,35 +121,35 @@
     <string name="import_error">Erreur d'importation</string>
     <string name="import_error_message">Impossible d'importer certains fichiers. Veuillez vérifier le format du fichier.</string>
     <string name="in_x_turns">dans %s tours</string>
-    
+
     <!-- Towers -->
     <string name="tower">Tour</string>
     <string name="raft">Radeau</string>
     <string name="damage">Dégâts</string>
     <string name="range">Portée</string>
     <string name="actions">Actions</string>
-    
+
     <!-- Enemies -->
     <string name="enemy">Ennemi</string>
     <string name="enemies">Ennemis</string>
-    
+
     <!-- Status Messages -->
     <string name="locked">Verrouillé</string>
     <string name="unlocked">Déverrouillé</string>
     <string name="completed">Terminé</string>
-    
+
     <!-- World Map -->
     <string name="world_map_title">Carte du monde</string>
     <string name="world_map_subtitle">Prairies d\'Egril</string>
     <string name="back_to_world_map">Retour à la carte du monde</string>
     <string name="play_level">Jouer au niveau</string>
     <string name="requires_completing">Nécessite de compléter:</string>
-    
+
     <!-- Load Game Screen -->
     <string name="no_saved_games">Aucune partie sauvegardée trouvée</string>
     <string name="loading_remote_savefiles">chargement des sauvegardes distantes</string>
     <string name="savegame_folder">dossier de sauvegarde:</string>
-    
+
     <!-- Rules Screen -->
     <string name="how_to_play">Comment jouer</string>
     <string name="game_overview">Aperçu du jeu</string>
@@ -201,7 +201,7 @@
     <string name="focus_fire">Concentrez le tir sur les ennemis résistants (Ogres, Orcs)</string>
     <string name="wizard_for_aoe">Tours de sorcier pour des dégâts de zone massifs</string>
     <string name="upgrade_vs_build">Améliorez les tours de haut niveau plutôt que d'en construire de nouvelles</string>
-    
+
     <!-- Additional RulesScreen strings -->
     <string name="attack_enemies_desc">Attaquer les ennemis - cliquez sur la tour avec des actions, puis sur l'ennemi à portée</string>
     <string name="build_timers_advance">Les minuteries de construction avancent (compte à rebours)</string>
@@ -227,10 +227,10 @@
     <string name="hp_label">PV</string>
     <string name="speed_label">Vitesse</string>
     <string name="slowed_by_barbs">Ralenti par les barbes</string>
-    
+
     <!-- Status text -->
     <string name="available">Disponible</string>
-    
+
     <!-- Defender/Tower names -->
     <string name="spike_tower_name">Tour à piques</string>
     <string name="spear_tower_name">Tour à lances</string>
@@ -240,14 +240,14 @@
     <string name="ballista_tower_name">Tour de baliste</string>
     <string name="dwarven_mine_name">Mine</string>
     <string name="dragons_lair_name">Repaire du dragon</string>
-    
+
     <!-- Attack type names -->
     <string name="attack_type_melee">Corps-à-corps</string>
     <string name="attack_type_ranged">À distance</string>
     <string name="attack_type_fireball">Boule de feu</string>
     <string name="attack_type_acid">Acide</string>
     <string name="attack_type_special">Spécial</string>
-    
+
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Gobelin</string>
     <string name="ork_name">Orc</string>
@@ -277,7 +277,7 @@
     <string name="enemies_on_map">Ennemis sur la carte:</string>
     <string name="enemies_to_come">Ennemis à venir:</string>
     <string name="delete_savegame">Supprimer la sauvegarde</string>
-    
+
     <!-- Gameplay UI strings -->
     <string name="attack_button">ATTAQUE</string>
     <string name="attack_area_button">ATTAQUE DE ZONE</string>
@@ -317,7 +317,7 @@
     <string name="building_label">Construction</string>
     <string name="active_label">Actifs</string>
     <string name="planned_label">Prévus</string>
-    
+
     <!-- GameLegend strings -->
     <string name="legend">Légende</string>
     <string name="areas_label">Zones</string>
@@ -341,23 +341,23 @@
     <string name="legend_info_tower_icons">Icônes montrent type de tour/ennemi</string>
     <string name="legend_info_tower_actions">Niveau et actions affichés sur tours</string>
     <string name="legend_info_enemy_health">Santé affichée sur ennemis</string>
-    
+
     <!-- EditorButtonCard strings -->
     <string name="level_editor">Éditeur de niveaux</string>
     <string name="create_edit_maps_levels">Créer &amp; modifier les cartes et niveaux</string>
-    
+
     <!-- SavedGameCard additional strings -->
     <string name="built_towers">Tours construites:</string>
-    
+
     <!-- Gameplay page strings -->
     <string name="spawn">Spawn</string>
     <string name="target">Cible</string>
     <string name="start_battle">Commencer la bataille</string>
     <string name="your_turn_message">Votre tour - Placez des tours et attaquez les ennemis</string>
     <string name="building">en construction</string>
-    
+
     <!-- DefenderInfo mining strings -->
-    
+
     <!-- Tower short names -->
     <string name="spike_tower_short">Piques</string>
     <string name="spear_tower_short">Lance</string>
@@ -367,7 +367,7 @@
     <string name="ballista_tower_short">Baliste</string>
     <string name="dwarven_mine_short">Mine</string>
     <string name="dragons_lair_short">Repaire</string>
-    
+
     <!-- Editor strings -->
     <string name="map_editor">Éditeur de carte</string>
     <string name="level_sequence">Séquence de niveaux</string>
@@ -567,7 +567,7 @@
     <string name="show_control_pad">Afficher le pavé directionnel</string>
     <string name="control_pad_enabled">Pavé Directionnel</string>
     <string name="control_pad_disabled">Sans Pavé Directionnel</string>
-    
+
     <!-- Difficulty Settings -->
     <string name="difficulty">Difficulté</string>
     <string name="difficulty_baby">Bébé</string>
@@ -581,7 +581,7 @@
     <string name="difficulty_hard_desc">Les ennemis ont le double de niveaux</string>
     <string name="difficulty_nightmare_desc">Les ennemis apparaissent 3 fois avec des niveaux croissants</string>
     <string name="difficulty_info_current_level">Remarque : La modification de la difficulté n\'affecte pas le niveau actuel. Démarrez ou redémarrez un niveau pour l'appliquer.</string>
-    
+
     <!-- Dragon Names -->
     <string name="the_dragon">Le dragon</string>
     <string name="undead_dragon_label">dragon mort-vivant</string>
@@ -605,7 +605,7 @@
     <string name="mine_targeted_by_dragon">Cette mine est ciblée par le dragon</string>
     <string name="one_hp_warning_title">Avertissement Critique !</string>
     <string name="one_hp_warning_message">Vous n\'avez qu'1 point de vie ! Pas un seul ennemi ne peut atteindre la cible, sinon vous perdrez. Défendez avec une extrême prudence !</string>
-    
+
     <!-- Enemy Info Display -->
     <string name="greedy_label">avide</string>
     <string name="very_greedy_label">très avide</string>
@@ -711,7 +711,7 @@
     <string name="dwarven_trap">Piège Nain</string>
     <string name="no_map_selected">Aucune carte sélectionnée. Veuillez d'abord sélectionner ou créer une carte.</string>
     <string name="deselect">Désélectionner</string>
-    
+
     <!-- Plurals -->
     <plurals name="enemy_count">
         <item quantity="one">%d ennemi</item>
@@ -729,7 +729,7 @@
         <item quantity="one">%d point de vie</item>
         <item quantity="other">%d points de vie</item>
     </plurals>
-    
+
     <!-- New Repository Data Dialog -->
     <string name="new_repository_data_title">Nouveau contenu disponible</string>
     <string name="new_repository_data_message">De nouvelles cartes et niveaux ont été trouvés dans le référentiel qui ne sont pas dans vos données de jeu. Voulez-vous les ajouter ?</string>
@@ -739,13 +739,13 @@
     <string name="sequence_will_be_replaced">La séquence de niveaux sera mise à jour.</string>
     <string name="sequence_backup_warning">Remarque : Si vous avez modifié le fichier de séquence, vous devrez refaire ces modifications. Votre séquence actuelle sera sauvegardée dans sequence-N.json.</string>
     <string name="add_data">Ajouter du nouveau contenu</string>
-    
+
     <!-- Unsaved Changes Dialog -->
     <string name="unsaved_changes_title">Modifications non enregistrées</string>
     <string name="unsaved_changes_message">Vous avez des progrès non enregistrés dans ce niveau. Que souhaitez-vous faire ?</string>
     <string name="save_and_exit">Enregistrer et Quitter</string>
     <string name="discard_changes">Ignorer les Modifications</string>
-    
+
     <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">Terminer le tour ?</string>
     <string name="end_turn_confirmation_message">Vous avez des tours avec des points d'action inutilisés et des ennemis à portée, ou des mines avec des actions inutilisées. Êtes-vous sûr de vouloir terminer votre tour ?</string>
@@ -763,7 +763,7 @@
     <string name="wizard_tower_actions">Tours de Magicien : Peuvent placer des pièges magiques (niveau 10+)</string>
     <string name="spike_spear_tower_actions">Tours de Piques/Lances : Peuvent construire des barricades (niveau 10+)</string>
     <string name="continue_turn">Continuer le Tour</string>
-    
+
     <!-- Barricade Feature -->
     <string name="barricade">Barricade</string>
     <string name="gate">Porte</string>
@@ -775,11 +775,11 @@
     <string name="remove_barricade_title">Retirer la Barricade?</string>
     <string name="remove_barricade_message">Êtes-vous sûr de vouloir retirer cette barricade?</string>
     <string name="remove_barricade_with_tower_message">Cette barricade est une base de tour. La retirer détruira également la tour et vous recevrez la valeur de vente de la tour (%d pièces). Êtes-vous sûr?</string>
-    
+
     <!-- Spike Barbs Feature -->
     <string name="spike_barbs_info_title">Barbes de Piques Débloquées !</string>
     <string name="spike_barbs_info_message">Votre tour de Piques a atteint le niveau 10 et possède maintenant des barbes !\nLorsqu'une tour de Piques de niveau 10+ attaque un ennemi, elle réduit le mouvement de l'ennemi de 1 case par attaque.\nCet effet s'accumule - plusieurs attaques de tours de Piques de niveau 10+ réduiront davantage le mouvement ennemi.\nLes ennemis se déplaceront toujours d'au moins 1 case par tour, même avec plusieurs effets de barbes.</string>
-    
+
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Piège Magique</string>
     <string name="level_supports_title">Soutien Disponible</string>
@@ -859,13 +859,13 @@
     <string name="magical_trap_tutorial_message">Votre tour de magicien a atteint le niveau 10 et peut désormais placer des pièges magiques ! Ces pièges téléportent les ennemis à leur point d'apparition lorsqu'ils sont déclenchés. Après avoir placé un piège, il y a un temps de recharge de 10 tours avant de pouvoir en placer un autre.</string>
     <string name="remove_magical_trap_title">Retirer le Piège Magique?</string>
     <string name="remove_magical_trap_message">Êtes-vous sûr de vouloir retirer ce piège magique?</string>
-    
+
     <!-- Trap Feature -->
     <string name="defensive_items">Objets Défensifs</string>
     <string name="remove_trap_title">Retirer le Piège?</string>
     <string name="remove_trap_message">Êtes-vous sûr de vouloir retirer ce piège?</string>
     <string name="no">Non</string>
-    
+
     <!-- Level Prerequisites -->
     <string name="level_dependencies">Dépendances des Niveaux</string>
     <string name="validation_passed">Validation Réussie</string>
@@ -881,12 +881,12 @@
     <string name="all">tous</string>
     <string name="requires">Nécessite</string>
     <string name="entry_point">Point d'Entrée</string>
-    
+
     <!-- World Map Locations -->
     <string name="levels_at_location">%s niveau(x) à cet emplacement</string>
     <string name="requires_any_of">Nécessite de compléter %s de :</string>
     <string name="requires_all">Nécessite de compléter tous :</string>
-    
+
     <!-- World Map Position Editor -->
     <string name="world_map_positions">Carte du Monde</string>
     <string name="world_map_position_instructions">Sélectionnez une carte dans la liste, puis cliquez sur la carte du monde pour définir sa position. La position est enregistrée en pour mille (0-1000) des dimensions de la carte.</string>
@@ -977,7 +977,7 @@
     <string name="no_icon_selected">Aucune icône sélectionnée (utilisera un marqueur numéroté)</string>
     <string name="available_icons">Icônes disponibles :</string>
     <string name="invalid_icon">Icône non valide</string>
-    
+
     <!-- Editor Info Page -->
     <string name="info">Info</string>
     <string name="editor_info_title">Guide de l'Éditeur de Niveaux</string>
@@ -1008,7 +1008,7 @@
     <string name="editor_info_tips_text">Sauvegardez fréquemment pour éviter de perdre du travail - Testez vos niveaux dans le jeu pour vous assurer qu'ils sont équilibrés - Utilisez les niveaux existants comme modèles - Les cartes peuvent être réutilisées sur plusieurs niveaux - La séquence détermine quels niveaux sont jouables</string>
 
     <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
-    
+
     <!-- Level Names -->
     <string name="level_welcome_to_defender_of_egril_title">Bienvenue à Defender of Egril</string>
     <string name="level_welcome_to_defender_of_egril_subtitle">Tutoriel</string>
@@ -1081,7 +1081,7 @@
     <string name="map_back_and_forth_path_name">Chemin Aller-Retour</string>
     <string name="map_curved_path_name">Chemin Courbé</string>
     <string name="map_obstacle_path_name">Chemin avec Obstacles</string>
-    
+
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutoriel</string>
     <string name="location_the_beginning_name">Le Début</string>
@@ -1349,7 +1349,7 @@
     <string name="achievement_build_barricade_desc">Construisez votre première barricade</string>
     <string name="achievement_add_health_barricade_name">Fortifié</string>
     <string name="achievement_add_health_barricade_desc">Ajoutez des points de vie à une barricade existante</string>
-    
+
     <string name="achievement_first_stat_upgrade_name">Première Amélioration</string>
     <string name="achievement_first_stat_upgrade_desc">Dépensez votre premier point de capacité pour améliorer une capacité</string>
     <string name="achievement_first_spell_unlock_name">Sorcier</string>
@@ -1370,7 +1370,7 @@
     <string name="user_level">Niveau Utilisateur</string>
     <string name="official_map_info">Ceci est une carte officielle. Vous pouvez la copier pour créer une version utilisateur.</string>
     <string name="official_level_info">Ceci est un niveau officiel. Vous pouvez le copier pour créer une version utilisateur.</string>
-    
+
     <!-- Official Data Change Warning -->
     <string name="official_data_changed_title">Données Officielles du Jeu Modifiées</string>
     <string name="official_data_changed_message">Vous avez apporté des modifications aux données officielles du jeu (cartes ou niveaux).\n\nCes modifications seront écrasées lorsque vous redémarrerez le jeu, car le contenu officiel est restauré depuis le dépôt à chaque lancement.\n\nPour conserver vos modifications, envisagez de copier le contenu officiel pour créer des versions utilisateur à la place.</string>
@@ -1462,7 +1462,7 @@
     <string name="license_agpl_network_clause_description">L\'AGPL étend la GPL avec une clause spéciale : si vous exécutez une version modifiée de ce programme sur un serveur et permettez aux utilisateurs d\'interagir avec lui via un réseau, vous devez leur fournir l\'accès au code source de votre version modifiée.</string>
     <string name="license_agpl_full_text_label">Texte Complet de la Licence:</string>
     <string name="license_agpl_attribution_note">Ce logiciel est fourni selon les termes de la licence AGPL-3.0. Pour les termes et conditions complets, veuillez consulter le texte complet de la licence.</string>
-    
+
     <!-- Audio Licenses -->
     <string name="audio_licenses_title">Fichiers Audio et Licences</string>
     <string name="audio_background_music_title">Musique de Fond</string>
@@ -1471,7 +1471,7 @@
     <string name="audio_enemy_events_subtitle">Événements Ennemis</string>
     <string name="audio_mine_events_subtitle">Événements de Mine</string>
     <string name="audio_other_events_subtitle">Autres Événements du Jeu</string>
-    
+
     <!-- Background Music - Music piece names are not translated, the original names are used -->
     <string name="audio_fantasy_ambience_name">Fantasy Ambience</string>
     <string name="audio_fantasy_ambience_license">100% libre de droits, aucune attribution requise. Ne peut pas être revendu en tant qu\'audio, doit être utilisé dans le contexte d\'un projet.</string>
@@ -1480,23 +1480,23 @@
     <string name="audio_fesliyan_license">Musique libre de droits de Fesliyan Studios. Utilisation dans les jeux vidéo autorisée.</string>
     <string name="audio_fantasy_orchestral_name">Mystic Fantasy Orchestral Music</string>
     <string name="audio_pixabay_license">Licence de Contenu Pixabay - Utilisation gratuite, aucune attribution requise</string>
-    
+
     <!-- Tower Attacks -->
     <string name="audio_melee_attack_name">Attaque au Corps à Corps</string>
     <string name="audio_ranged_attack_name">Attaque à Distance</string>
     <string name="audio_fireball_attack_name">Attaque de Boule de Feu</string>
     <string name="audio_acid_attack_name">Attaque Acide</string>
-    
+
     <!-- Enemy Events -->
     <string name="audio_enemy_spawn_name">Apparition d\'Ennemi</string>
     <string name="audio_enemy_destroyed_name">Ennemi Détruit</string>
-    
+
     <!-- Mine Events -->
     <string name="audio_mine_dig_name">Excavation de Mine</string>
     <string name="audio_mine_coin_name">Pièces Trouvées</string>
     <string name="audio_mine_trap_name">Piège Construit</string>
     <string name="audio_mine_dragon_name">Réveil du Dragon</string>
-    
+
     <!-- Other Events -->
     <string name="audio_trap_trigger_name">Déclenchement de Piège</string>
     <string name="audio_life_lost_name">Vie Perdue</string>
@@ -1514,11 +1514,11 @@
     <string name="towers">Tours</string>
     <string name="traps">Pièges</string>
     <string name="barricades">Barricades</string>
-    
+
     <!-- Tower Base -->
     <string name="tower_base_hp_label">Base: %d PV</string>
     <string name="tower_base_info">Tour sur base (destructible à &lt;100 PV)</string>
-    
+
     <!-- Tower Info Dialog -->
     <string name="tower_info_title">Informations sur la Tour</string>
     <string name="special_towers_info_title">Tours Spéciales</string>
@@ -1770,26 +1770,26 @@
     <string name="villain_garokk_title">Garokk le Fendeur de Crânes</string>
     <string name="villain_garokk_backstory">Le chef de guerre tyrannique qui a uni les Orcs et les Ogres sous sa bannière, un colosse massif vêtu de fer noir.</string>
     <string name="villain_garokk_description">Son cri de guerre pousse les unités de la Horde proches à la frénésie et leur permet d'avancer plus vite. Abattez-le avant que son rugissement ne submerge vos défenses !</string>
-    <string name="villain_ewhad_description">Il invoque chaque tour des Démons de plus en plus puissants, et s'il atteint la cible la bataille est immédiatement perdue.
+    <string name="villain_ewhad_description">Il invoque des Démons de plus en plus puissants, et s'il atteint la cible la bataille est immédiatement perdue.
 Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_morguk_title">Morguk Chuchotosselets entre sur le champ de bataille</string>
     <string name="villain_morguk_backstory">Morguk Chuchotosselets, Chaman Gobelin du clan Chuchotosselets, est entré sur le champ de bataille !</string>
     <string name="villain_morguk_description">Son Aura de Totem de Guerre accélère les gobelins proches, son Maléfice du Silence désactive les tours et tous les quelques tours il invoque de nouveaux gobelins sur les cases adjacentes.\nÉliminez-le avant que ses rituels ne submergent vos défenses !</string>
     <string name="villain_ratterzahn_title">Le Baron Ratterzahn entre sur le champ de bataille</string>
     <string name="villain_ratterzahn_backstory">Un inventeur gobelin brillant mais complètement dément, juché sur une araignée mécanique à vapeur, est entré sur le champ de bataille.</string>
-    <string name="villain_ratterzahn_description">Toutes les 4 manches, il largue des tas de ferraille qui deviennent deux gobelins robotiques à la manche suivante. Toutes les 5 manches, il tire une roquette qui étourdit une tour pendant 3 manches à longue portée.</string>
+    <string name="villain_ratterzahn_description">Périodiquement, il largue des tas de ferraille qui deviennent des gobelins robotiques. Périodiquement, il tire une roquette qui étourdit une tour à longue portée.</string>
     <string name="villain_freya_title">Freya la Porte-bouclier Déchue entre sur le champ de bataille</string>
     <string name="villain_freya_backstory">Autrefois héroïque porte-bouclier, Freya est tombée au combat avant de se relever en chevalier de la mort implacable drapée d'acier noir et de magie funéraire.</string>
     <string name="villain_freya_description">Son Mur de Boucliers bloque toutes les attaques frontales non tirées par une baliste pour sa propre case et pour les cases à sa gauche et à sa droite pendant qu'elle avance. Attaquez-la de côté ou de dos, ou tirez au-dessus du bouclier avec une Ballista, avant que la championne morte-vivante n'écrase votre ligne.</string>
     <string name="villain_valerius_title">Prince Valerius le Faucheur d&apos;Âmes entre sur le champ de bataille</string>
 <string name="villain_valerius_backstory">Prince Valerius le Faucheur d&apos;Âmes, une liche ancestrale et souverain des armées de squelettes, s&apos;avance sur le champ de bataille dans une vague de froid sépulcral.</string>
-<string name="villain_valerius_description">Son Appel des Âmes relève les alliés tombés dans un rayon de 3 cases au début du tour suivant. Les vivants reviennent en zombies, les morts-vivants se relèvent en squelettes, et même les dragons peuvent revenir comme dragons morts-vivants. Détruisez-le vite avant que chaque perte ne renforce son ost.</string>
-<string name="villain_valerius_soul_call_short">Appel des Âmes : les alliés morts dans 3 cases se relèvent au prochain tour</string>
+<string name="villain_valerius_description">Son Appel des Âmes relève les alliés tombés à proximité au début du tour suivant. Les vivants reviennent en zombies, les morts-vivants se relèvent en squelettes, et même les dragons peuvent revenir comme dragons morts-vivants. Détruisez-le vite avant que chaque perte ne renforce son ost.</string>
+<string name="villain_valerius_soul_call_short">Appel des Âmes : les alliés morts à proximité se relèvent au prochain tour</string>
     <string name="villain_silas_title">Silas le Maître des Masques entre sur le champ de bataille</string>
     <string name="villain_silas_backstory">Silas le Maître des Masques, un illusionniste errant drapé de velours et de mensonges, est entré sur le champ de bataille.</string>
-    <string name="villain_silas_description">Tous les 3 tours, il crée deux images miroir sur des cases de chemin proches. Seul le vrai Silas peut être blessé ; lorsqu'une tour frappe une illusion, l'image disparaît et cette tour est aveuglée pendant 2 tours. Silas peut échanger sa place avec ses nouveaux doubles dès leur apparition, alors visez avec soin avant de tirer !</string>
+    <string name="villain_silas_description">Périodiquement, il crée des images miroir sur des cases de chemin proches. Seul le vrai Silas peut être blessé ; lorsqu'une tour frappe une illusion, l'image disparaît et cette tour est aveuglée pendant plusieurs tours. Silas peut échanger sa place avec ses nouveaux doubles dès leur apparition, alors visez avec soin avant de tirer !</string>
     <string name="villain_silas_mirror_hit_title">Le masque n'était qu'un mensonge</string>
-    <string name="villain_silas_mirror_hit_text">La tour n'a frappé qu'une image miroir de Silas. L'illusion s'est brisée, mais la tour attaquante est maintenant aveuglée pendant 2 tours et ne peut pas attaquer.</string>
+    <string name="villain_silas_mirror_hit_text">La tour n'a frappé qu'une image miroir de Silas. L'illusion s'est brisée, mais la tour attaquante est maintenant aveuglée pendant plusieurs tours et ne peut pas attaquer.</string>
     <string name="villain_coven_synergy_short">Synergie du Coven : renforce les sorcières proches</string>
     <string name="villain_sybilla_title">La Grande Mère du Coven Sybilla entre sur le champ de bataille</string>
     <string name="villain_sybilla_backstory">La sorcière la plus puissante du coven est arrivée ! La Grande Mère du Coven Sybilla commande toute la puissance du Coven des Sorcières — et elle amène avec elle les jumelles Haga et Zussa.</string>

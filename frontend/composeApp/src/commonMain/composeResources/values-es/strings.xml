@@ -11,13 +11,13 @@
     <string name="exit_game_confirm_title">¿Salir del juego?</string>
     <string name="exit_game_confirm_message">¿Está seguro de que desea salir del juego?</string>
     <string name="exit">Salir</string>
-    
+
     <!-- Commit Info Dialog -->
     <string name="commit_info_title">Información de compilación</string>
     <string name="commit_hash_label">Hash del commit:</string>
     <string name="commit_date_label">Fecha del commit:</string>
     <string name="commit_message_label">Mensaje del commit:</string>
-    
+
     <!-- Level Complete Screen -->
     <string name="victory">¡Victoria!</string>
     <string name="battle_won">¡Batalla ganada!</string>
@@ -29,7 +29,7 @@
     <string name="world_map">Mapa del mundo</string>
     <string name="next_level">Siguiente nivel</string>
     <string name="continue_with_level">Continuar con el nivel: %1$s</string>
-    
+
     <!-- Settings -->
     <string name="settings">Configuración</string>
     <string name="language">Idioma</string>
@@ -78,7 +78,7 @@
     <string name="accessibility_banner_title">Configuración de accesibilidad</string>
     <string name="accessibility_banner_message">Opciones para necesidades visuales, auditivas y motoras.</string>
     <string name="accessibility_banner_open_settings">Abrir configuración de accesibilidad</string>
-    
+
     <!-- Common Actions -->
     <string name="back">Atrás</string>
     <string name="ok">OK</string>
@@ -86,7 +86,7 @@
     <string name="save">Guardar</string>
     <string name="delete">Eliminar</string>
     <string name="edit">Editar</string>
-    
+
     <!-- Game Play -->
     <string name="coins">Monedas</string>
     <string name="health">Salud</string>
@@ -121,35 +121,35 @@
     <string name="import_error">Error de importación</string>
     <string name="import_error_message">No se pudieron importar algunos archivos. Por favor, verifica el formato del archivo.</string>
     <string name="in_x_turns">en %s turnos</string>
-    
+
     <!-- Towers -->
     <string name="tower">Torre</string>
     <string name="raft">Balsa</string>
     <string name="damage">Daño</string>
     <string name="range">Alcance</string>
     <string name="actions">Acciones</string>
-    
+
     <!-- Enemies -->
     <string name="enemy">Enemigo</string>
     <string name="enemies">Enemigos</string>
-    
+
     <!-- Status Messages -->
     <string name="locked">Bloqueado</string>
     <string name="unlocked">Desbloqueado</string>
     <string name="completed">Completado</string>
-    
+
     <!-- World Map -->
     <string name="world_map_title">Mapa del mundo</string>
     <string name="world_map_subtitle">Prados de Egril</string>
     <string name="back_to_world_map">Volver al mapa del mundo</string>
     <string name="play_level">Jugar nivel</string>
     <string name="requires_completing">Requiere completar:</string>
-    
+
     <!-- Load Game Screen -->
     <string name="no_saved_games">No se encontraron partidas guardadas</string>
     <string name="loading_remote_savefiles">cargando partidas remotas</string>
     <string name="savegame_folder">carpeta de guardados:</string>
-    
+
     <!-- Rules Screen -->
     <string name="how_to_play">Cómo jugar</string>
     <string name="game_overview">Descripción del juego</string>
@@ -201,7 +201,7 @@
     <string name="focus_fire">Concentra el fuego en enemigos resistentes (Ogros, Orcos)</string>
     <string name="wizard_for_aoe">Torres de mago para daño de área masivo</string>
     <string name="upgrade_vs_build">Mejora torres de alto nivel en lugar de construir nuevas</string>
-    
+
     <!-- Additional RulesScreen strings -->
     <string name="attack_enemies_desc">Atacar enemigos - haz clic en la torre con acciones, luego en el enemigo al alcance</string>
     <string name="build_timers_advance">Los temporizadores de construcción avanzan (cuentan hacia atrás)</string>
@@ -227,10 +227,10 @@
     <string name="hp_label">PS</string>
     <string name="speed_label">Velocidad</string>
     <string name="slowed_by_barbs">Ralentizado por púas</string>
-    
+
     <!-- Status text -->
     <string name="available">Disponible</string>
-    
+
     <!-- Defender/Tower names -->
     <string name="spike_tower_name">Torre de púas</string>
     <string name="spear_tower_name">Torre de lanzas</string>
@@ -240,14 +240,14 @@
     <string name="ballista_tower_name">Torre de balista</string>
     <string name="dwarven_mine_name">Mina</string>
     <string name="dragons_lair_name">Guarida del dragón</string>
-    
+
     <!-- Attack type names -->
     <string name="attack_type_melee">Cuerpo a cuerpo</string>
     <string name="attack_type_ranged">A distancia</string>
     <string name="attack_type_fireball">Bola de fuego</string>
     <string name="attack_type_acid">Ácido</string>
     <string name="attack_type_special">Especial</string>
-    
+
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Goblin</string>
     <string name="ork_name">Orco</string>
@@ -277,7 +277,7 @@
     <string name="enemies_on_map">Enemigos en el mapa:</string>
     <string name="enemies_to_come">Enemigos por venir:</string>
     <string name="delete_savegame">Eliminar partida guardada</string>
-    
+
     <!-- Gameplay UI strings -->
     <string name="attack_button">ATAQUE</string>
     <string name="attack_area_button">ATAQUE DE ÁREA</string>
@@ -317,7 +317,7 @@
     <string name="building_label">Construcción</string>
     <string name="active_label">Activos</string>
     <string name="planned_label">Planificados</string>
-    
+
     <!-- GameLegend strings -->
     <string name="legend">Leyenda</string>
     <string name="areas_label">Áreas</string>
@@ -341,23 +341,23 @@
     <string name="legend_info_tower_icons">Iconos muestran tipo de torre/enemigo</string>
     <string name="legend_info_tower_actions">Nivel y acciones mostradas en torres</string>
     <string name="legend_info_enemy_health">Salud mostrada en enemigos</string>
-    
+
     <!-- EditorButtonCard strings -->
     <string name="level_editor">Editor de niveles</string>
     <string name="create_edit_maps_levels">Crear &amp; editar mapas y niveles</string>
-    
+
     <!-- SavedGameCard additional strings -->
     <string name="built_towers">Torres construidas:</string>
-    
+
     <!-- Gameplay page strings -->
     <string name="spawn">Spawn</string>
     <string name="target">Objetivo</string>
     <string name="start_battle">Iniciar batalla</string>
     <string name="your_turn_message">Tu turno - Coloca torres y ataca enemigos</string>
     <string name="building">en construcción</string>
-    
+
     <!-- DefenderInfo mining strings -->
-    
+
     <!-- Tower short names -->
     <string name="spike_tower_short">Púas</string>
     <string name="spear_tower_short">Lanza</string>
@@ -367,7 +367,7 @@
     <string name="ballista_tower_short">Balista</string>
     <string name="dwarven_mine_short">Mina</string>
     <string name="dragons_lair_short">Guarida</string>
-    
+
     <!-- Editor strings -->
     <string name="map_editor">Editor de mapas</string>
     <string name="level_sequence">Secuencia de niveles</string>
@@ -565,7 +565,7 @@
     <string name="show_control_pad">Mostrar panel de control</string>
     <string name="control_pad_enabled">Panel de Control</string>
     <string name="control_pad_disabled">Sin Panel de Control</string>
-    
+
     <!-- Difficulty Settings -->
     <string name="difficulty">Dificultad</string>
     <string name="difficulty_baby">Bebé</string>
@@ -579,7 +579,7 @@
     <string name="difficulty_hard_desc">Los enemigos tienen el doble de niveles</string>
     <string name="difficulty_nightmare_desc">Los enemigos aparecen 3 veces con niveles crecientes</string>
     <string name="difficulty_info_current_level">Nota: Cambiar la dificultad no afecta al nivel actual. Inicia o reinicia un nivel para aplicarlo.</string>
-    
+
     <!-- Dragon Names -->
     <string name="the_dragon">El dragón</string>
     <string name="undead_dragon_label">dragón no muerto</string>
@@ -603,7 +603,7 @@
     <string name="mine_targeted_by_dragon">Esta mina es el objetivo del dragón</string>
     <string name="one_hp_warning_title">¡Advertencia Crítica!</string>
     <string name="one_hp_warning_message">¡Solo tienes 1 punto de salud! Ni un solo enemigo puede alcanzar el objetivo, o perderás. ¡Defiende con extrema precaución!</string>
-    
+
     <!-- Enemy Info Display -->
     <string name="greedy_label">codicioso</string>
     <string name="very_greedy_label">muy codicioso</string>
@@ -711,7 +711,7 @@
     <string name="dwarven_trap">Trampa Enana</string>
     <string name="no_map_selected">Ningún mapa seleccionado. Por favor selecciona o crea un mapa primero.</string>
     <string name="deselect">Deseleccionar</string>
-    
+
     <!-- Plurals -->
     <plurals name="enemy_count">
         <item quantity="one">%d enemigo</item>
@@ -729,7 +729,7 @@
         <item quantity="one">%d punto de salud</item>
         <item quantity="other">%d puntos de salud</item>
     </plurals>
-    
+
     <!-- New Repository Data Dialog -->
     <string name="new_repository_data_title">Nuevo contenido disponible</string>
     <string name="new_repository_data_message">Se han encontrado nuevos mapas y niveles en el repositorio que no están en sus datos del juego. ¿Desea agregarlos?</string>
@@ -739,13 +739,13 @@
     <string name="sequence_will_be_replaced">La secuencia de niveles se actualizará.</string>
     <string name="sequence_backup_warning">Nota: Si ha modificado el archivo de secuencia, deberá rehacer esos cambios. Su secuencia actual se respaldará en sequence-N.json.</string>
     <string name="add_data">Agregar nuevo contenido</string>
-    
+
     <!-- Unsaved Changes Dialog -->
     <string name="unsaved_changes_title">Cambios no guardados</string>
     <string name="unsaved_changes_message">Tienes progreso no guardado en este nivel. ¿Qué te gustaría hacer?</string>
     <string name="save_and_exit">Guardar y Salir</string>
     <string name="discard_changes">Descartar Cambios</string>
-    
+
     <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">¿Terminar turno?</string>
     <string name="end_turn_confirmation_message">Tienes torres con puntos de acción sin usar y enemigos al alcance, o minas con acciones sin usar. ¿Estás seguro de que quieres terminar tu turno?</string>
@@ -763,7 +763,7 @@
     <string name="wizard_tower_actions">Torres de Mago: Pueden colocar trampas mágicas (nivel 10+)</string>
     <string name="spike_spear_tower_actions">Torres de Picas/Lanzas: Pueden construir barricadas (nivel 10+)</string>
     <string name="continue_turn">Continuar Turno</string>
-    
+
     <!-- Barricade Feature -->
     <string name="barricade">Barricada</string>
     <string name="gate">Puerta</string>
@@ -775,11 +775,11 @@
     <string name="remove_barricade_title">¿Eliminar Barricada?</string>
     <string name="remove_barricade_message">¿Está seguro de que desea eliminar esta barricada?</string>
     <string name="remove_barricade_with_tower_message">Esta barricada es una base de torre. Quitarla también destruirá la torre y recibirás el valor de venta de la torre (%d monedas). ¿Estás seguro?</string>
-    
+
     <!-- Spike Barbs Feature -->
     <string name="spike_barbs_info_title">¡Púas con Barbas Desbloqueadas!</string>
     <string name="spike_barbs_info_message">¡Tu torre de Picas ha alcanzado el nivel 10 y ahora tiene barbas!\nCuando una torre de Picas de nivel 10+ ataca a un enemigo, reduce el movimiento del enemigo en 1 casilla por ataque.\nEste efecto se acumula: múltiples ataques de torres de Picas de nivel 10+ reducirán aún más el movimiento enemigo.\nLos enemigos siempre se moverán al menos 1 casilla por turno, incluso con múltiples efectos de barbas.</string>
-    
+
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trampa Mágica</string>
     <string name="level_supports_title">Apoyo Disponible</string>
@@ -859,13 +859,13 @@
     <string name="magical_trap_tutorial_message">¡Tu torre de mago ha alcanzado el nivel 10 y ahora puede colocar trampas mágicas! Estas trampas teletransportan a los enemigos de vuelta a su punto de aparición cuando se activan. Después de colocar una trampa, hay un tiempo de enfriamiento de 10 turnos antes de poder colocar otra.</string>
     <string name="remove_magical_trap_title">¿Eliminar Trampa Mágica?</string>
     <string name="remove_magical_trap_message">¿Está seguro de que desea eliminar esta trampa mágica?</string>
-    
+
     <!-- Trap Feature -->
     <string name="defensive_items">Objetos Defensivos</string>
     <string name="remove_trap_title">¿Eliminar Trampa?</string>
     <string name="remove_trap_message">¿Está seguro de que desea eliminar esta trampa?</string>
     <string name="no">No</string>
-    
+
     <!-- Level Prerequisites -->
     <string name="level_dependencies">Dependencias de Nivel</string>
     <string name="validation_passed">Validación Exitosa</string>
@@ -881,12 +881,12 @@
     <string name="all">todos</string>
     <string name="requires">Requiere</string>
     <string name="entry_point">Punto de Entrada</string>
-    
+
     <!-- World Map Locations -->
     <string name="levels_at_location">%s nivel(es) en esta ubicación</string>
     <string name="requires_any_of">Requiere completar %s de:</string>
     <string name="requires_all">Requiere completar todos:</string>
-    
+
     <!-- World Map Position Editor -->
     <string name="world_map_positions">Mapa Mundial</string>
     <string name="world_map_position_instructions">Seleccione un mapa de la lista, luego haga clic en el mapa mundial para establecer su posición. La posición se guarda como un permil (0-1000) de las dimensiones del mapa.</string>
@@ -977,7 +977,7 @@
     <string name="no_icon_selected">Ningún icono seleccionado (usará marcador numerado)</string>
     <string name="available_icons">Iconos disponibles:</string>
     <string name="invalid_icon">Icono no válido</string>
-    
+
     <!-- Editor Info Page -->
     <string name="info">Info</string>
     <string name="editor_info_title">Guía del Editor de Niveles</string>
@@ -1008,7 +1008,7 @@
     <string name="editor_info_tips_text">Guarda frecuentemente para evitar perder trabajo - Prueba tus niveles en el juego para asegurarte de que estén balanceados - Usa los niveles existentes como plantillas - Los mapas pueden reutilizarse en múltiples niveles - La secuencia determina qué niveles son jugables</string>
 
     <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
-    
+
     <!-- Level Names -->
     <string name="level_welcome_to_defender_of_egril_title">Bienvenido a Defender of Egril</string>
     <string name="level_welcome_to_defender_of_egril_subtitle">Tutorial</string>
@@ -1081,7 +1081,7 @@
     <string name="map_back_and_forth_path_name">Camino de Ida y Vuelta</string>
     <string name="map_curved_path_name">Camino Curvo</string>
     <string name="map_obstacle_path_name">Camino con Obstáculos</string>
-    
+
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
     <string name="location_the_beginning_name">El Comienzo</string>
@@ -1349,7 +1349,7 @@
     <string name="achievement_build_barricade_desc">Construye tu primera barricada</string>
     <string name="achievement_add_health_barricade_name">Fortificado</string>
     <string name="achievement_add_health_barricade_desc">Añade puntos de salud a una barricada existente</string>
-    
+
     <string name="achievement_first_stat_upgrade_name">Primera Mejora</string>
     <string name="achievement_first_stat_upgrade_desc">Gasta tu primer punto de habilidad para mejorar una habilidad</string>
     <string name="achievement_first_spell_unlock_name">Hechicero</string>
@@ -1370,7 +1370,7 @@
     <string name="user_level">Nivel de Usuario</string>
     <string name="official_map_info">Este es un mapa oficial. Puedes copiarlo para crear una versión de usuario.</string>
     <string name="official_level_info">Este es un nivel oficial. Puedes copiarlo para crear una versión de usuario.</string>
-    
+
     <!-- Official Data Change Warning -->
     <string name="official_data_changed_title">Datos Oficiales del Juego Modificados</string>
     <string name="official_data_changed_message">Has realizado cambios en los datos oficiales del juego (mapas o niveles).\n\nEstos cambios se sobrescribirán cuando reinicies el juego, ya que el contenido oficial se restaura desde el repositorio en cada inicio.\n\nPara conservar tus cambios, considera copiar el contenido oficial para crear versiones de usuario en su lugar.</string>
@@ -1462,7 +1462,7 @@
     <string name="license_agpl_network_clause_description">La AGPL extiende la GPL con una cláusula especial: si ejecuta una versión modificada de este programa en un servidor y permite que los usuarios interactúen con él a través de una red, debe proporcionarles acceso al código fuente de su versión modificada.</string>
     <string name="license_agpl_full_text_label">Texto Completo de la Licencia:</string>
     <string name="license_agpl_attribution_note">Este software se proporciona bajo los términos de la licencia AGPL-3.0. Para los términos y condiciones completos, consulte el texto completo de la licencia.</string>
-    
+
     <!-- Audio Licenses -->
     <string name="audio_licenses_title">Archivos de Audio y Licencias</string>
     <string name="audio_background_music_title">Música de Fondo</string>
@@ -1471,7 +1471,7 @@
     <string name="audio_enemy_events_subtitle">Eventos de Enemigos</string>
     <string name="audio_mine_events_subtitle">Eventos de Minas</string>
     <string name="audio_other_events_subtitle">Otros Eventos del Juego</string>
-    
+
     <!-- Background Music - Music piece names are not translated, the original names are used -->
     <string name="audio_fantasy_ambience_name">Fantasy Ambience</string>
     <string name="audio_fantasy_ambience_license">100% libre de derechos de autor, no requiere atribución. No puede revenderse como audio, debe usarse en el contexto de un proyecto.</string>
@@ -1480,23 +1480,23 @@
     <string name="audio_fesliyan_license">Música libre de regalías de Fesliyan Studios. Uso en videojuegos permitido.</string>
     <string name="audio_fantasy_orchestral_name">Mystic Fantasy Orchestral Music</string>
     <string name="audio_pixabay_license">Licencia de Contenido Pixabay - Uso gratuito, no requiere atribución</string>
-    
+
     <!-- Tower Attacks -->
     <string name="audio_melee_attack_name">Ataque Cuerpo a Cuerpo</string>
     <string name="audio_ranged_attack_name">Ataque a Distancia</string>
     <string name="audio_fireball_attack_name">Ataque de Bola de Fuego</string>
     <string name="audio_acid_attack_name">Ataque de Ácido</string>
-    
+
     <!-- Enemy Events -->
     <string name="audio_enemy_spawn_name">Aparición de Enemigo</string>
     <string name="audio_enemy_destroyed_name">Enemigo Destruido</string>
-    
+
     <!-- Mine Events -->
     <string name="audio_mine_dig_name">Excavación de Mina</string>
     <string name="audio_mine_coin_name">Monedas Encontradas</string>
     <string name="audio_mine_trap_name">Trampa Construida</string>
     <string name="audio_mine_dragon_name">Despertar del Dragón</string>
-    
+
     <!-- Other Events -->
     <string name="audio_trap_trigger_name">Activación de Trampa</string>
     <string name="audio_life_lost_name">Vida Perdida</string>
@@ -1514,11 +1514,11 @@
     <string name="towers">Torres</string>
     <string name="traps">Trampas</string>
     <string name="barricades">Barricadas</string>
-    
+
     <!-- Tower Base -->
     <string name="tower_base_hp_label">Base: %d PV</string>
     <string name="tower_base_info">Torre sobre base (destructible a &lt;100 PV)</string>
-    
+
     <!-- Tower Info Dialog -->
     <string name="tower_info_title">Información de la Torre</string>
     <string name="special_towers_info_title">Torres Especiales</string>
@@ -1769,26 +1769,26 @@
     <string name="villain_garokk_title">Garokk el Rompecráneos</string>
     <string name="villain_garokk_backstory">El tiránico caudillo de guerra que unió a orcos y ogros bajo su estandarte, un coloso enorme cubierto de hierro negro.</string>
     <string name="villain_garokk_description">Su grito de guerra enardece a las unidades de la Horda cercanas, permitiéndoles avanzar más rápido. ¡Derríbalo antes de que su rugido arrase tus defensas!</string>
-    <string name="villain_ewhad_description">Invoca Demonios cada turno, cada vez más poderosos, y si alcanza el objetivo la batalla se pierde al instante.
+    <string name="villain_ewhad_description">Invoca Demonios cada vez más poderosos, y si alcanza el objetivo la batalla se pierde al instante.
 ¡Acaba con él rápido antes de que su hueste abrume tus defensas!</string>
     <string name="villain_morguk_title">Morguk Susurrahuesos entra al campo de batalla</string>
     <string name="villain_morguk_backstory">¡Morguk Susurrahuesos, Chamán Goblin del clan Susurrahuesos, ha entrado al campo de batalla!</string>
     <string name="villain_morguk_description">Su Aura del Tótem de Guerra acelera goblins cercanos, su Maldición del Silencio desactiva torres y cada pocos turnos invoca nuevos goblins en casillas adyacentes.\n¡Elimínalo antes de que sus rituales abrumen tus defensas!</string>
     <string name="villain_ratterzahn_title">El Barón Ratterzahn entra al campo de batalla</string>
     <string name="villain_ratterzahn_backstory">Un brillante pero completamente demente inventor goblin montado en una araña mecánica a vapor ha entrado al campo de batalla.</string>
-    <string name="villain_ratterzahn_description">Cada 4 rondas deja montones de chatarra que en la siguiente ronda se convierten en dos goblins robóticos con cuerpos metálicos reforzados. Cada 5 rondas dispara un cohete que aturde una torre durante 3 rondas a larga distancia.</string>
+    <string name="villain_ratterzahn_description">Periódicamente deja montones de chatarra que se convierten en goblins robóticos con cuerpos metálicos reforzados. Dispara cohetes que aturden torres a larga distancia.</string>
     <string name="villain_freya_title">Freya, la Doncella del Escudo Caída, entra al campo de batalla</string>
     <string name="villain_freya_backstory">Freya fue una heroica doncella del escudo, pero cayó en combate y se alzó de nuevo como una imparable caballera de la muerte envuelta en acero negro y magia funeraria.</string>
     <string name="villain_freya_description">Su Muro de Escudos bloquea todos los ataques frontales que no sean de ballista para su propia casilla y para las casillas a su izquierda y a su derecha mientras avanza. Ataca desde el flanco o la retaguardia, o dispara por encima del escudo con una Ballista, antes de que la campeona no muerta destroce tu línea.</string>
     <string name="villain_valerius_title">Príncipe Valerius el Segador de Almas entra en el campo de batalla</string>
 <string name="villain_valerius_backstory">Príncipe Valerius el Segador de Almas, un antiguo lich y soberano de los ejércitos esqueléticos, pisa el campo de batalla envuelto en una ola de frío sepulcral.</string>
-<string name="villain_valerius_description">Su Llamado de las Almas hace que los aliados caídos dentro de 3 casillas se alcen al inicio de la siguiente ronda. Los vivos regresan como zombis, los no muertos vuelven a levantarse como esqueletos, e incluso los dragones pueden regresar como dragones no muertos. Destrúyelo rápido antes de que cada baja fortalezca a su hueste.</string>
-<string name="villain_valerius_soul_call_short">Llamado de las Almas: los aliados muertos en 3 casillas se alzan la próxima ronda</string>
+<string name="villain_valerius_description">Su Llamado de las Almas hace que los aliados caídos cercanos se alcen al inicio de la siguiente ronda. Los vivos regresan como zombis, los no muertos vuelven a levantarse como esqueletos, e incluso los dragones pueden regresar como dragones no muertos. Destrúyelo rápido antes de que cada baja fortalezca a su hueste.</string>
+<string name="villain_valerius_soul_call_short">Llamado de las Almas: los aliados muertos cercanos se alzan la próxima ronda</string>
     <string name="villain_silas_title">Silas el Maestro de las Máscaras entra al campo de batalla</string>
     <string name="villain_silas_backstory">Silas el Maestro de las Máscaras, un ilusionista errante envuelto en terciopelo y mentiras, ha entrado al campo de batalla.</string>
-    <string name="villain_silas_description">Cada 3 rondas crea dos imágenes especulares en casillas del camino cercanas. Solo el verdadero Silas puede resultar herido; cuando una torre golpea una ilusión, la imagen se desvanece y esa torre queda cegada durante 2 rondas. Silas puede intercambiarse con sus dobles recién creados en el mismo momento en que aparecen, ¡así que apunta con cuidado antes de disparar!</string>
+    <string name="villain_silas_description">Periódicamente crea imágenes especulares en casillas del camino cercanas. Solo el verdadero Silas puede resultar herido; cuando una torre golpea una ilusión, la imagen se desvanece y esa torre queda cegada durante algunos turnos. Silas puede intercambiarse con sus dobles recién creados en el mismo momento en que aparecen, ¡así que apunta con cuidado antes de disparar!</string>
     <string name="villain_silas_mirror_hit_title">La máscara era una mentira</string>
-    <string name="villain_silas_mirror_hit_text">La torre solo golpeó una imagen especular de Silas. La ilusión se hizo añicos, pero la torre atacante ahora está cegada durante 2 rondas y no puede atacar.</string>
+    <string name="villain_silas_mirror_hit_text">La torre solo golpeó una imagen especular de Silas. La ilusión se hizo añicos, pero la torre atacante ahora está cegada durante algunos turnos y no puede atacar.</string>
     <string name="villain_coven_synergy_short">Sinergia del Aquelarre: potencia a las brujas cercanas</string>
     <string name="villain_sybilla_title">La Gran Madre del Aquelarre Sybilla entra al campo de batalla</string>
     <string name="villain_sybilla_backstory">¡La bruja más poderosa del aquelarre ha llegado! La Gran Madre del Aquelarre Sybilla comanda toda la fuerza del Aquelarre de Brujas — y trae consigo a las gemelas Haga y Zussa.</string>
