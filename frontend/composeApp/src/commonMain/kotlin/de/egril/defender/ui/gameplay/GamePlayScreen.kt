@@ -3281,6 +3281,7 @@ private fun GamePlayScreenContent(
                                     onDismiss = { onDismissGameMessage?.invoke() },
                                     supports = gameState.level.supports,
                                     backgroundOverride = villainMessageBackground(msg.name),
+                                    accentColorOverride = villainMessageButtonColor(msg.name),
                                     iconAttackerTypeOverride = villainType,
                                 )
                             }
@@ -3293,6 +3294,7 @@ private fun GamePlayScreenContent(
                                     text = stringResource(Res.string.villain_defeated_text),
                                     onDismiss = { onDismissGameMessage?.invoke() },
                                     backgroundOverride = villainMessageBackground(msg.name),
+                                    accentColorOverride = villainMessageButtonColor(msg.name),
                                     iconAttackerTypeOverride = villainType,
                                 )
                             }
@@ -3303,6 +3305,7 @@ private fun GamePlayScreenContent(
                                     text = stringResource(Res.string.villain_silas_mirror_hit_text),
                                     onDismiss = { onDismissGameMessage?.invoke() },
                                     backgroundOverride = villainMessageBackground(AttackerType.SILAS_THE_MASKMASTER.name),
+                                    accentColorOverride = villainMessageButtonColor(AttackerType.SILAS_THE_MASKMASTER.name),
                                     iconAttackerTypeOverride = AttackerType.SILAS_THE_MASKMASTER,
                                 )
                             GameMessageType.COVEN_SWAP -> {
@@ -3312,6 +3315,7 @@ private fun GamePlayScreenContent(
                                     text = stringResource(Res.string.villain_coven_swap_text),
                                     onDismiss = { onDismissGameMessage?.invoke() },
                                     backgroundOverride = villainMessageBackground(AttackerType.GRAND_COVEN_MOTHER_SYBILLA.name),
+                                    accentColorOverride = villainMessageButtonColor(AttackerType.GRAND_COVEN_MOTHER_SYBILLA.name),
                                     iconAttackerTypeOverride = AttackerType.GRAND_COVEN_MOTHER_SYBILLA,
                                 )
                             }
@@ -3707,6 +3711,51 @@ private fun villainMessageBackground(name: String?): org.jetbrains.compose.resou
     val normalizedVillainName = villainShortName.lowercase().replace(Regex("[^a-z0-9]+"), "_").trim('_')
     if (normalizedVillainName.isEmpty()) return null
     return Res.allDrawableResources["message_background_$normalizedVillainName"]
+}
+
+/**
+ * Returns a villain-specific button color for narrative message dialogs.
+ *
+ * Each villain gets a thematic button color based on their visual design and personality.
+ * For non-villains or unrecognized types, returns null (uses default color).
+ *
+ * The color should be distinct, fitting to the villain's character, and maintain good
+ * contrast with white text on the button.
+ */
+private fun villainMessageButtonColor(name: String?): androidx.compose.ui.graphics.Color? {
+    val attackerType = attackerTypeFromMessageName(name) ?: return null
+    if (!attackerType.isVillain) return null
+
+    return when (attackerType) {
+        // Horde warchief – aggressive red
+        AttackerType.GAROKK -> androidx.compose.ui.graphics.Color(0xFFE31C1C)
+        // Goblin summoner – olive green
+        AttackerType.SNOTLING_BOSS -> androidx.compose.ui.graphics.Color(0xFF6B8E23)
+        // Shaman summoner – dark indigo
+        AttackerType.MORGUK_BONEWHISPER -> androidx.compose.ui.graphics.Color(0xFF4B0082)
+        // Giant spider – earthy brown
+        AttackerType.ARAXXA -> androidx.compose.ui.graphics.Color(0xFF2F1B0C)
+        // Rat warlord – dark steel gray
+        AttackerType.BARON_RATTERZAHN -> androidx.compose.ui.graphics.Color(0xFF4B4F56)
+        // Illusionist – deep purple magic
+        AttackerType.SILAS_THE_MASKMASTER -> androidx.compose.ui.graphics.Color(0xFF5D3A8C)
+        // Mirror images use the same color as Silas
+        AttackerType.SILAS_MIRROR_IMAGE -> androidx.compose.ui.graphics.Color(0xFF5D3A8C)
+        // Undead shieldmaiden – dark armor blue
+        AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> androidx.compose.ui.graphics.Color(0xFF2A2F3A)
+        // Undead prince – soul-reaper purple
+        AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> androidx.compose.ui.graphics.Color(0xFF28304D)
+        // Witch coven leader – magical purple
+        AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> androidx.compose.ui.graphics.Color(0xFF5B2C6F)
+        // Green witch – healing green
+        AttackerType.HAGA -> androidx.compose.ui.graphics.Color(0xFF006400)
+        // Red witch – disabling crimson
+        AttackerType.ZUSSA -> androidx.compose.ui.graphics.Color(0xFF6B0000)
+        // Corrupted nature – dark emerald
+        AttackerType.SYLVANAS_THE_MOLDING -> androidx.compose.ui.graphics.Color(0xFF1A3A20)
+        // Default for EWHAD and other villains (if any added in future)
+        else -> null
+    }
 }
 
 /**

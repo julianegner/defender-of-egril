@@ -118,11 +118,13 @@ fun NarrativeMessageDialog(
         properties = DialogProperties(usePlatformDefaultWidth = !useWideStoryLayout),
     ) {
         val focusRequester = remember { FocusRequester() }
+        val scrollState = rememberScrollState()
         LaunchedEffect(Unit) {
             try {
                 focusRequester.requestFocus()
             } catch (_: IllegalStateException) {
             }
+            scrollState.scrollTo(0)
         }
         val titleFontSize =
             when {
@@ -133,7 +135,6 @@ fun NarrativeMessageDialog(
             }
         val bodyFontSize = if (isMobile) 12.sp else MaterialTheme.typography.bodyMedium.fontSize
         val iconSize = if (isMobile) 56.dp else 80.dp
-        val scrollState = rememberScrollState()
         val coroutineScope = rememberCoroutineScope()
 
         val backgroundPainter =
