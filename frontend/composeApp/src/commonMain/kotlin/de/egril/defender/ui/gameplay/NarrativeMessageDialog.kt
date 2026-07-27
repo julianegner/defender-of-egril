@@ -360,8 +360,8 @@ internal fun narrativeTextFramePaddingFractions(
 
         type == NarrativeMessageType.EWHAD && attackerType == AttackerType.GRAND_COVEN_MOTHER_SYBILLA ->
             NarrativeTextFramePaddingFractions(
-                top = 0.31f,
-                bottom = 0.33f,
+                top = 0.29f,
+                bottom = 0.45f,
             )
 
         else ->
