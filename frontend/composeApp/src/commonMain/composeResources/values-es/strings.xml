@@ -1801,7 +1801,7 @@
     <string name="villain_zussa_description">Una Bruja Roja con todas las habilidades normales de bruja roja. Sinergia del Aquelarre: las brujas rojas a 3 casillas extienden las deshabilitaciones de torres en +1 ronda extra. Derrótala para restaurar la resiliencia de tus defensas.</string>
     <string name="villain_sylvanas_title">Sylvanas la Putrefacta entra al campo de batalla</string>
     <string name="villain_sylvanas_backstory">Antaño un majestuoso espíritu del bosque, Sylvanas fue corrompida por la magia oscura de las brujas. Deja un rastro de podredumbre a su paso — y las enredaderas espinosas que controla pueden silenciar tus torres.</string>
-    <string name="villain_sylvanas_description">Abrazo de Raíces (cada 3 rondas): enredaderas espinosas brotan bajo la torre más peligrosa a 3 casillas, bloqueándola durante 2 rondas. Además se cura 10 PS cada ronda. ¡Destrúyela antes de que sus raíces estrangule tus defensas!</string>
+    <string name="villain_sylvanas_description">Abrazo de Raíces: enredaderas espinosas brotan bajo una torre, bloqueándola. Además se cura cada ronda. ¡Destrúyela antes de que sus raíces estrangule tus defensas!</string>
     <string name="villain_sylvanas_root_grip_short">Abrazo de Raíces: raíces bloquean una torre cercana cada 3 rondas</string>
     <string name="villain_sylvanas_self_heal_short">Autocuración: restaura 10 PS cada ronda</string>
     <string name="sylvanas_name">Sylvanas la Putrefacta</string>

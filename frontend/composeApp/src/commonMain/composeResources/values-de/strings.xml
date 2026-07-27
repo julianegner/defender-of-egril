@@ -1800,7 +1800,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_zussa_description">Eine Rote Hexe mit allen normalen Rot-Hexen-Fähigkeiten. Covensynergie: Rote Hexen im Umkreis von 3 Feldern verlängern Turmdeaktivierungen um +1 Extrarunde. Besiegt sie, um die Widerstandsfähigkeit eurer Verteidigungen wiederherzustellen.</string>
     <string name="villain_sylvanas_title">Sylvanas die Modrige betritt das Schlachtfeld</string>
     <string name="villain_sylvanas_backstory">Einst ein majestätischer Waldgeist, wurde Sylvanas durch die dunkle Magie der Hexen korrumpiert. Sie hinterlässt eine Spur der Fäulnis — und die Ranken, die sie beherrscht, können eure Türme zum Schweigen bringen.</string>
-    <string name="villain_sylvanas_description">Wurzelgriff (alle 3 Runden): Dornenranken schießen unter dem gefährlichsten Turm im Umkreis von 3 Feldern hervor und blockieren ihn für 2 Runden. Außerdem heilt sie sich jede Runde um 10 LP. Vernichtet sie, bevor ihre Ranken eure Verteidigungen erwürgen!</string>
+    <string name="villain_sylvanas_description">Wurzelgriff: Dornenranken schießen unter einem Turm hervor und blockieren ihn. Außerdem heilt sie sich jede Runde. Vernichtet sie, bevor ihre Ranken eure Verteidigungen erwürgen!</string>
     <string name="villain_sylvanas_root_grip_short">Wurzelgriff: Ranken blockieren alle 3 Runden einen nahen Turm</string>
     <string name="villain_sylvanas_self_heal_short">Selbstheilung: stellt jede Runde 10 LP wieder her</string>
     <string name="sylvanas_name">Sylvanas die Modrige</string>
