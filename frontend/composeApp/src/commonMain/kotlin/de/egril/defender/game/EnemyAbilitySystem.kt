@@ -563,31 +563,35 @@ class EnemyAbilitySystem(
                         sybillaPos.hexDistanceTo(ally.position.value) <= range
                 }
 
-        // Find valid swap targets: witches that are either
-        // (1) close to target (1-2 moves away) or
-        // (2) part of a group of 3+ witches in range
-        val validTargets =
+        // Find witches close to target (1-2 moves away)
+        val targetAdjacentWitches =
             nearbyWitches
-                .filter { witch ->
+                .mapNotNull { witch ->
                     val target = witch.currentTarget?.value ?: state.level.targetPositions.first()
                     val distanceToTarget = pathfinding.findPath(witch.position.value, target, witch).size - 1
-                    val isCloseToTarget = distanceToTarget in 1..2
-                    val isManyWitchesNearby = nearbyWitches.size >= 3
-                    isCloseToTarget || isManyWitchesNearby
+                    if (distanceToTarget in 1..2) witch else null
                 }
 
-        // If valid targets exist, swap with the closest one
-        if (validTargets.isNotEmpty()) {
-            val target = validTargets.minByOrNull { sybillaPos.hexDistanceTo(it.position.value) } ?: return
-            val targetPos = target.position.value
-            target.position.value = sybillaPos
+        // Prefer target-adjacent witches; if none, consider witches in a crowd (3+ witches)
+        val swapTarget =
+            if (targetAdjacentWitches.isNotEmpty()) {
+                targetAdjacentWitches.minByOrNull { sybillaPos.hexDistanceTo(it.position.value) }
+            } else if (nearbyWitches.size >= 3) {
+                nearbyWitches.minByOrNull { sybillaPos.hexDistanceTo(it.position.value) }
+            } else {
+                null
+            }
+
+        if (swapTarget != null) {
+            val targetPos = swapTarget.position.value
+            swapTarget.position.value = sybillaPos
             sybilla.position.value = targetPos
 
             // Queue the swap message with highlight positions
             state.pendingMessages.add(
                 GameMessage(
                     type = GameMessageType.COVEN_SWAP,
-                    name = target.type.name,
+                    name = null,
                     highlightPositions = sybillaStartPos to targetPos,
                 ),
             )
@@ -597,7 +601,7 @@ class EnemyAbilitySystem(
             state.enemyMoveEffects.add(EnemyMoveEffect(targetPos, state.turnNumber.value))
 
             if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                println("DEBUG: Sybilla ${sybilla.id} swapped with ${target.type} ${target.id} ($sybillaStartPos <-> $targetPos)")
+                println("DEBUG: Sybilla ${sybilla.id} swapped with ${swapTarget.type} ${swapTarget.id} ($sybillaStartPos <-> $targetPos)")
             }
         }
     }

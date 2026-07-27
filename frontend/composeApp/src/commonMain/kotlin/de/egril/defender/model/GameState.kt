@@ -177,7 +177,7 @@ enum class GameMessageType {
     VILLAIN_ENTERS, // A villain has entered the battlefield (name = AttackerType.name)
     VILLAIN_DEFEATED, // A non-Ewhad villain was defeated (name = AttackerType.name)
     SILAS_MIRROR_HIT, // A tower struck Silas's illusion and was blinded
-    COVEN_SWAP, // Sybilla swapped places with a witch (name = witch AttackerType.name)
+    COVEN_SWAP, // Sybilla swapped places with a witch
     STORY_INTRO, // Story narrative shown at the start of a level (name = editorLevelId)
     EVENT_MESSAGE, // Scripted-event story message (name = string-resource key of the predefined text)
 }

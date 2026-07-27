@@ -1802,7 +1802,7 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_zussa_backstory">Zussa, la minore delle gemelle diseguali di Sybilla, arriva crepitante di magia disturbatrice. Le torri vicino alle sue alleate rimangono silenziose più a lungo del solito.</string>
     <string name="villain_zussa_description">Una Strega Rossa con tutte le normali abilità di strega rossa. Sinergia del Coven: le streghe rosse entro 3 celle prolungano le disabilitazioni delle torri di +1 turno extra. Sconfiggila per ripristinare la resilienza delle tue difese.</string>
     <string name="villain_coven_swap_title">Il Coven si sposta</string>
-    <string name="villain_coven_swap_text">Sybilla si teletrasporta in posizione, scambiando il posto con %1$s per comandare meglio la battaglia.</string>
+    <string name="villain_coven_swap_text">Sybilla scambia il suo posto con un'altra strega per comandare meglio la battaglia.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">Dei Goblin stanno attaccando una zona rurale remota. Non è insolito, ma le voci ci dicono che questa volta più mostri del solito stanno vagando nel nostro regno.</string>
     <string name="story_mixed_forces">La stessa zona subisce altri attacchi. Le voci parlano addirittura di morti che si alzano dalle tombe e attaccano i villici.</string>

@@ -3303,12 +3303,10 @@ private fun GamePlayScreenContent(
                                     iconAttackerTypeOverride = AttackerType.SILAS_THE_MASKMASTER,
                                 )
                             GameMessageType.COVEN_SWAP -> {
-                                val witchType = attackerTypeFromMessageName(msg.name)
-                                val witchName = witchType?.getLocalizedShortName() ?: msg.name ?: "witch"
                                 NarrativeMessageDialog(
                                     type = NarrativeMessageType.EWHAD,
                                     title = stringResource(Res.string.villain_coven_swap_title),
-                                    text = stringResource(Res.string.villain_coven_swap_text, witchName),
+                                    text = stringResource(Res.string.villain_coven_swap_text),
                                     onDismiss = { onDismissGameMessage?.invoke() },
                                     backgroundOverride = villainMessageBackground(AttackerType.GRAND_COVEN_MOTHER_SYBILLA.name),
                                     iconAttackerTypeOverride = AttackerType.GRAND_COVEN_MOTHER_SYBILLA,

@@ -1799,7 +1799,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_zussa_backstory">Zussa, die jüngere von Sybillas ungleichen Zwillingsschwestern, tritt knisternd mit störender Magie auf. Türme in der Nähe ihrer Verbündeten schweigen länger als gewöhnlich.</string>
     <string name="villain_zussa_description">Eine Rote Hexe mit allen normalen Rot-Hexen-Fähigkeiten. Covensynergie: Rote Hexen im Umkreis von 3 Feldern verlängern Turmdeaktivierungen um +1 Extrarunde. Besiegt sie, um die Widerstandsfähigkeit eurer Verteidigungen wiederherzustellen.</string>
     <string name="villain_coven_swap_title">Das Coven verschiebt sich</string>
-    <string name="villain_coven_swap_text">Sybilla teleportiert sich in Position und tauscht Plätze mit %1$s, um die Schlacht besser zu befehligen.</string>
+    <string name="villain_coven_swap_text">Sybilla tauscht ihren Platz mit einer anderen Hexe aus, um die Schlacht besser zu befehligen.</string>
     <!-- Story intro messages shown at the start of each level -->
     <string name="story_the_first_wave">In einem abgelegenen ländlichen Gebiet greifen Goblins an. Das ist nicht ungewöhnlich, aber Gerüchten zufolge wandern diesmal mehr Monster als sonst in unser Reich.</string>
     <string name="story_mixed_forces">Dasselbe Gebiet ist weiteren Angriffen ausgesetzt. Gerüchte sprechen sogar davon, dass Tote aus ihren Gräbern auferstehen und die Dorfbewohner angreifen.</string>
