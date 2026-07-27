@@ -2144,7 +2144,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="archmage_malakor_the_renegade_name">Erzmagier Malakor der Abtrünnige</string>
     <string name="villain_malakor_title">Erzmagier Malakor der Abtrünnige betritt das Schlachtfeld</string>
     <string name="villain_malakor_backstory">Einst der größte Erzmagier des Reiches, wurde Malakor von verbotener Astralmacht verschlungen. Nun schwebt er über dem Boden, in stille Meditation versunken, seine Augen brennen mit kaltem Sternenlicht.</string>
-    <string name="villain_malakor_description">Zeitschleife: alle 2 Runden verlangsamt er den Zeitfluss in einem Radius von 5 Feldern — alle Türme in diesem Bereich müssen ihre nächste Runde aussetzen. Er schwebt über jedes Gelände und kann Hindernisse überqueren, muss aber auf einem Pfadfeld landen.</string>
+    <string name="villain_malakor_description">Er verlangsamt den Zeitfluss — alle Türme in diesem Bereich müssen ihre nächste Runde aussetzen. Er schwebt über jedes Gelände und kann Hindernisse überqueren.</string>
     <string name="villain_malakor_time_loop_short">Zeitschleife: alle Türme in Radius 5 setzen alle 2 Runden aus</string>
     <string name="villain_malakor_flies_short">Schwebend: gleitet über jedes Gelände, landet auf Pfadfeldern</string>
 </resources>

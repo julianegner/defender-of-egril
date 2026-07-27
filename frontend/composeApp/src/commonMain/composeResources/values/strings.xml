@@ -2154,7 +2154,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="archmage_malakor_the_renegade_name">Archmage Malakor the Renegade</string>
     <string name="villain_malakor_title">Archmage Malakor the Renegade enters the battlefield</string>
     <string name="villain_malakor_backstory">Once the greatest archmage of the realm, Malakor was consumed by forbidden astral magic. Now he floats above the ground, locked in silent meditation, his eyes blazing with cold starlight.</string>
-    <string name="villain_malakor_description">Time Loop: every 2 rounds he slows the flow of time in a radius of 5 tiles — all towers within that radius must skip their next round. He floats above any terrain and can glide over obstacles, but must land on a path tile each turn.</string>
+    <string name="villain_malakor_description">He slows the flow of time — all towers within the radius must skip their next round. He floats above any terrain and can glide over obstacles.</string>
     <string name="villain_malakor_time_loop_short">Time Loop: all towers in radius 5 skip a round every 2 rounds</string>
     <string name="villain_malakor_flies_short">Floats: glides over any terrain, lands on path tiles</string>
 </resources>
