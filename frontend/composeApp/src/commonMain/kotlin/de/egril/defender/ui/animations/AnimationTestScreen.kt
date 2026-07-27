@@ -365,4 +365,5 @@ private fun AnimationType.displayName(): String =
         AnimationType.ALCHEMY_ATTACK -> "Alchemy Attack (Acid Vial)"
         AnimationType.WORLD_MAP_WAVES -> "World Map Waves"
         AnimationType.WORLD_MAP_RIVERS -> "World Map Rivers"
+        AnimationType.SYLVANAS_ROOT_GRIP -> "Sylvanas Root Grip"
     }

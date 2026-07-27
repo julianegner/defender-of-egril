@@ -98,6 +98,7 @@ data class SavedDefender(
     val dragonName: String? = null, // Dragon's name (for dragon's lair only)
     val raftId: Int? = null, // ID of the raft this tower is on (null if not on raft)
     val towerBaseBarricadeId: Int? = null, // ID of barricade this tower is on (null if not on tower base)
+    val hasRootGripAnimation: Boolean = false, // Tower is being engulfed by Sylvanas vines (default false for backward compatibility)
 )
 
 data class SavedAttacker(

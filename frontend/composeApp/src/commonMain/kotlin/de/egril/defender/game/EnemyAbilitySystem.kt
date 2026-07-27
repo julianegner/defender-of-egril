@@ -372,6 +372,7 @@ class EnemyAbilitySystem(
         if (targetTower != null) {
             targetTower.isDisabled.value = true
             targetTower.disabledTurnsRemaining.value = disableDurationTurns
+            targetTower.hasRootGripAnimation.value = true // Show vine animation while disabled
         }
 
         sylvanas.villainCooldown.value = cooldown
@@ -1176,6 +1177,7 @@ class EnemyAbilitySystem(
                 tower.disabledTurnsRemaining.value--
                 if (tower.disabledTurnsRemaining.value <= 0) {
                     tower.isDisabled.value = false
+                    tower.hasRootGripAnimation.value = false // Clear vine animation when disable expires
                 }
             }
         }
