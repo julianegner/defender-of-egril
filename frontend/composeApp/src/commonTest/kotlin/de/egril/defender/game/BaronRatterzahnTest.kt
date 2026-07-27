@@ -64,7 +64,8 @@ class BaronRatterzahnTest {
         state.attackers.add(baron)
         state.enemyTurnStartPositions[baron.id] = Position(4, 3)
 
-        val abilities = EnemyAbilitySystem(state)
+        val pathfinding = PathfindingSystem(state)
+        val abilities = EnemyAbilitySystem(state, pathfinding)
         abilities.processEnemyAbilities()
 
         assertEquals(2, state.scrapPiles.size, "Baron should drop two scrap piles")
@@ -121,7 +122,8 @@ class BaronRatterzahnTest {
         state.attackers.add(baron)
         state.defenders.addAll(listOf(firstTower, secondTower))
 
-        val abilities = EnemyAbilitySystem(state)
+        val pathfinding = PathfindingSystem(state)
+        val abilities = EnemyAbilitySystem(state, pathfinding)
         abilities.processEnemyAbilities()
         assertFalse(firstTower.isDisabled.value, "Lower-damage tower should not be targeted when stronger tower is in range")
         assertTrue(secondTower.isDisabled.value, "Rocket should target the highest-damage tower in range")
@@ -154,7 +156,7 @@ class BaronRatterzahnTest {
         )
         state.enemyTurnStartPositions[baron.id] = Position(5, 3)
 
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
         assertEquals(2, state.attackers.count { it.type == AttackerType.ROBOTIC_GOBLIN }, "Moved Baron should hatch existing scrap piles")
         assertEquals(2, state.scrapPiles.count { it.ownerAttackerId == baron.id }, "Moved Baron should then drop two fresh scrap piles")

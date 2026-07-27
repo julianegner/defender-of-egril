@@ -12,6 +12,15 @@ enum class VillainAuraEffect {
 
     /** Passive necromancy that resurrects fallen allies on the next round. */
     SOUL_CALL,
+
+    /** Nearby Green Witch units heal allied enemies for 50 % more HP per round. */
+    COVEN_HEAL_BOOST,
+
+    /** Nearby Red Witch units extend their tower-disable duration by +1 extra round. */
+    COVEN_DISABLE_BOOST,
+
+    /** Combined coven synergy: both COVEN_HEAL_BOOST and COVEN_DISABLE_BOOST simultaneously. */
+    COVEN_SYNERGY,
 }
 
 /**
@@ -76,6 +85,9 @@ enum class AttackerType(
     val towerDisableDurationTurns: Int? = null,
     val soulCallRange: Int? = null,
     val shieldWallFormationWidth: Int = 0,
+    // Coven swap ability for Sybilla: every N rounds she can swap places with a nearby witch.
+    // Null means no swap ability. The runtime cooldown is tracked via [Attacker.summonCooldown].
+    val covenSwapCooldown: Int? = null,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
@@ -246,6 +258,55 @@ enum class AttackerType(
         villainName = "Valerius",
         soulCallRange = 3,
     ),
+
+    // Grand Coven-Mother Sybilla: powerful witch coven leader who coordinates red and green witches.
+    // Coven Synergy (passive): Green witches within 3 tiles heal 50% more; Red witches within 3 tiles
+    // extend tower disables by +1 extra round. Also has all green- and red-witch abilities herself.
+    // Every 5 rounds she swaps places with a witch within 3 tiles.
+    GRAND_COVEN_MOTHER_SYBILLA(
+        "Grand Coven-Mother Sybilla",
+        health = 180,
+        speed = 2,
+        reward = 200,
+        xp = 90,
+        canHeal = true,
+        canDisableTowers = true,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Sybilla",
+        villainAbility = VillainAbility(effect = VillainAuraEffect.COVEN_SYNERGY, range = 3, cooldown = 1),
+        covenSwapCooldown = 5,
+    ),
+
+    // Haga: the healing twin. Green Witch with all normal green-witch abilities.
+    // Coven synergy: Green witches within 3 tiles heal 50% more HP per round.
+    HAGA(
+        "Haga",
+        health = 40,
+        speed = 3,
+        reward = 60,
+        xp = 30,
+        canHeal = true,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Haga",
+        villainAbility = VillainAbility(effect = VillainAuraEffect.COVEN_HEAL_BOOST, range = 3, cooldown = 1),
+    ),
+
+    // Zussa: the disabling twin. Red Witch with all normal red-witch abilities.
+    // Coven synergy: Red witches within 3 tiles extend tower disables by +1 extra round.
+    ZUSSA(
+        "Zussa",
+        health = 40,
+        speed = 3,
+        reward = 60,
+        xp = 30,
+        canDisableTowers = true,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Zussa",
+        villainAbility = VillainAbility(effect = VillainAuraEffect.COVEN_DISABLE_BOOST, range = 3, cooldown = 1),
+    ),
 }
 
 /**
@@ -270,6 +331,18 @@ val AttackerType.hidesHealthBar: Boolean
  */
 val AttackerType.isRealVillain: Boolean
     get() = isVillain && !isMirrorImage
+
+/**
+ * Companion attacker types that are automatically spawned alongside this attacker when it first
+ * enters the battlefield. Each companion is spawned once at a free position near the same spawn
+ * point. Companions that are already on the battlefield (unique-villain check) are not re-spawned.
+ */
+val AttackerType.arrivalCompanions: List<AttackerType>
+    get() =
+        when (this) {
+            AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> listOf(AttackerType.HAGA, AttackerType.ZUSSA)
+            else -> emptyList()
+        }
 
 data class Attacker(
     val id: Int,
@@ -374,6 +447,9 @@ fun attackerTargetDamage(
         AttackerType.SILAS_MIRROR_IMAGE -> 0 // Illusions are decoys and never damage the target
         AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> level // Death-knight villain: 1 HP per level
         AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> level // Lich villain: 1 HP per level
+        AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> level // Coven-Mother villain: 1 HP per level
+        AttackerType.HAGA -> level // Witch twin villain: 1 HP per level
+        AttackerType.ZUSSA -> level // Witch twin villain: 1 HP per level
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
 

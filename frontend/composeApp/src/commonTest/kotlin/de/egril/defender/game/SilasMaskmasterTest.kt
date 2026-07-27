@@ -1,6 +1,7 @@
 package de.egril.defender.game
 
 import androidx.compose.runtime.mutableStateOf
+import de.egril.defender.game.PathfindingSystem
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.Defender
@@ -63,7 +64,7 @@ class SilasMaskmasterTest {
             )
         state.attackers.add(silas)
 
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
         val mirrors = state.attackers.filter { it.type == AttackerType.SILAS_MIRROR_IMAGE }
         assertEquals(2, mirrors.size, "Silas should create two mirror images")

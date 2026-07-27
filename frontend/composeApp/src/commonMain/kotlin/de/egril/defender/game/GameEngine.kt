@@ -26,7 +26,7 @@ class GameEngine(
             getEffectiveRange = { defender -> getEffectiveRange(defender) },
         )
     private val enemyMovement = EnemyMovementSystem(state, pathfinding)
-    private val enemyAbilities = EnemyAbilitySystem(state)
+    private val enemyAbilities = EnemyAbilitySystem(state, pathfinding)
     private val mineOperations = MineOperations(state)
     private val raftSystem = RaftSystem(state)
     private val barricadeSystem = BarricadeSystem(state) // Add barricade system

@@ -135,6 +135,38 @@ class EnemyMovementSystem(
                     GameMessage(type = GameMessageType.VILLAIN_ENTERS, name = plannedSpawn.attackerType.name),
                 )
             }
+
+            // Spawn arrival companions (e.g. Haga and Zussa always arrive with Sybilla).
+            // Each companion is spawned at a free position near the same spawn point.
+            // The unique-villain check still applies: already-present companions are skipped.
+            for (companionType in plannedSpawn.attackerType.arrivalCompanions) {
+                if (isUniqueEnemyAlreadyPresent(companionType, state.attackers)) continue
+                val companionPos = findFreePositionNear(preferredSpawnPoint) ?: continue
+                val companionTarget = getInitialTarget(preferredSpawnPoint)
+                val companion =
+                    Attacker(
+                        id = state.nextAttackerId.value++,
+                        type = companionType,
+                        position = mutableStateOf(companionPos),
+                        level = mutableStateOf(plannedSpawn.level),
+                        currentTarget = mutableStateOf(companionTarget),
+                    )
+                state.attackers.add(companion)
+                state.enemyTurnStartPositions[companion.id] = companionPos
+                GameLogBuffer.log(
+                    "SPAWN",
+                    "${companion.type} Lv${companion.level.value} spawned as companion at $companionPos (turn $currentTurn)",
+                )
+                state.enemySpawnEffects.add(
+                    EnemySpawnEffect(
+                        position = preferredSpawnPoint,
+                        turnNumber = state.turnNumber.value,
+                        attackerType = companionType,
+                    ),
+                )
+                // Companion villains (e.g., Haga and Zussa) are not queued with their own VILLAIN_ENTERS
+                // message; instead, they are mentioned as part of their parent villain's message (e.g., Sybilla).
+            }
         }
         // Play spawn sound
         GlobalSoundManager.playSound(SoundEvent.ENEMY_SPAWN)

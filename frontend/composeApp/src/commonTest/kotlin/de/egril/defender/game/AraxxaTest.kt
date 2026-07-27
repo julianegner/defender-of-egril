@@ -1,6 +1,7 @@
 package de.egril.defender.game
 
 import androidx.compose.runtime.mutableStateOf
+import de.egril.defender.game.PathfindingSystem
 import de.egril.defender.model.*
 import de.egril.defender.model.isSummoner
 import de.egril.defender.model.isUniqueEnemyAlreadyPresent
@@ -93,7 +94,7 @@ class AraxxaTest {
             )
         state.attackers.add(araxxa)
 
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
         val spiderlings = state.attackers.filter { it.type == AttackerType.SPIDERLING && !it.isDefeated.value }
         assertTrue(spiderlings.isNotEmpty(), "Araxxa should spawn spiderlings")
@@ -128,7 +129,8 @@ class AraxxaTest {
             )
         state.attackers.addAll(listOf(araxxa, spiderling, goblin))
 
-        val abilities = EnemyAbilitySystem(state)
+        val pathfinding = PathfindingSystem(state)
+        val abilities = EnemyAbilitySystem(state, pathfinding)
         abilities.processEnemyAbilities()
         val firstWebCount = state.fieldEffects.count { it.type == FieldEffectType.WEB }
         val webAtDistanceTwo =
@@ -160,7 +162,7 @@ class AraxxaTest {
                     position = mutableStateOf(Position(4, 3)),
                 )
             state.attackers.add(araxxa)
-            EnemyAbilitySystem(state).processEnemyAbilities()
+            EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
             assertTrue(engine.placeDefender(DefenderType.WIZARD_TOWER, Position(2, 1)))
             val wizard = state.defenders.first()
@@ -183,7 +185,7 @@ class AraxxaTest {
                     position = mutableStateOf(Position(3, 3)),
                 )
             state.attackers.add(araxxa)
-            EnemyAbilitySystem(state).processEnemyAbilities()
+            EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
             assertTrue(engine.placeDefender(DefenderType.ALCHEMY_TOWER, Position(2, 1)))
             val alchemy = state.defenders.first()
@@ -236,7 +238,7 @@ class AraxxaTest {
         state.attackers.add(araxxa)
         state.enemyTurnStartPositions[araxxa.id] = araxxaStart
 
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
         val distanceTwoTiles =
             state.fieldEffects.filter {
@@ -267,7 +269,7 @@ class AraxxaTest {
             )
         }
 
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
         val summonedSpiderlings =
             state.attackers.filter {
@@ -336,7 +338,7 @@ class AraxxaTest {
                 )
             }
 
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
         assertFalse(
             state.fieldEffects.any { it.type == FieldEffectType.WEB && it.position == barricadeTile },
@@ -405,7 +407,7 @@ class AraxxaTest {
             )
         }
 
-        EnemyAbilitySystem(state).processEnemyAbilities()
+        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
 
         val stackedSpiderlings =
             state.attackers.filter {
@@ -434,7 +436,8 @@ class AraxxaTest {
                 position = mutableStateOf(araxxaPos),
             )
         state.attackers.add(araxxa)
-        val abilities = EnemyAbilitySystem(state)
+        val pathfinding = PathfindingSystem(state)
+        val abilities = EnemyAbilitySystem(state, pathfinding)
 
         abilities.processEnemyAbilities()
         val firstTurnSummonedCount = state.attackers.count { it.type == AttackerType.SPIDERLING && !it.isDefeated.value }

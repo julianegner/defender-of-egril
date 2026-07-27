@@ -10,6 +10,7 @@ import kotlin.math.min
  */
 class EnemyAbilitySystem(
     private val state: GameState,
+    private val pathfinding: PathfindingSystem,
 ) {
     private val bridgeSystem = BridgeSystem(state)
 
@@ -18,7 +19,25 @@ class EnemyAbilitySystem(
         private const val SPIDER_WEB_SPEED_BONUS = 1
         private const val MAX_SWARM_SPAWN_SEARCH_RINGS = 5
         private const val BARON_SCRAP_BOT_COUNT = 2
+
+        /** Heal multiplier applied to green witches empowered by the Coven Synergy aura (50 % extra). */
+        private const val COVEN_HEAL_BOOST_MULTIPLIER = 1.5f
+
+        /** Extra disable rounds granted to red witches empowered by the Coven Synergy aura. */
+        private const val COVEN_DISABLE_EXTRA_TURNS = 1
     }
+
+    /**
+     * Attacker IDs of GREEN_WITCH units that benefit from a Coven Heal Boost this round.
+     * Recomputed at the start of every [processEnemyAbilities] call.
+     */
+    private val covenEnhancedHealWitchIds = mutableSetOf<Int>()
+
+    /**
+     * Attacker IDs of RED_WITCH units that benefit from a Coven Disable Boost this round.
+     * Recomputed at the start of every [processEnemyAbilities] call.
+     */
+    private val covenEnhancedDisableWitchIds = mutableSetOf<Int>()
 
     fun processEnemyAbilities() {
         // Create a snapshot of attackers to avoid ConcurrentModificationException
@@ -29,6 +48,8 @@ class EnemyAbilitySystem(
         for (attacker in attackersSnapshot) {
             attacker.speedBonus.value = 0
         }
+        covenEnhancedHealWitchIds.clear()
+        covenEnhancedDisableWitchIds.clear()
         processVillainAuras(attackersSnapshot)
 
         for (attacker in attackersSnapshot) {
@@ -59,69 +80,15 @@ class EnemyAbilitySystem(
                     )
                 }
                 AttackerType.GREEN_WITCH -> {
-                    // Heal adjacent units (5x level healing amount)
-                    val adjacentPositions = attacker.position.value.getHexNeighbors()
-                    if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                        println(
-                            "DEBUG: Green witch ${attacker.id} at ${attacker.position.value} checking ${adjacentPositions.size} adjacent positions",
-                        )
-                    }
-                    var healedCount = 0
-                    for (adjacent in adjacentPositions) {
-                        val adjacentEnemy =
-                            state.attackers.find {
-                                !it.isDefeated.value && it.id != attacker.id && it.position.value == adjacent
-                            }
-                        if (adjacentEnemy != null) {
-                            // Heal 5x witch level, but never exceed max health
-                            val healAmount = min(attacker.level.value * 5, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
-                            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                                println(
-                                    "DEBUG: Found ${adjacentEnemy.type} at $adjacent, HP ${adjacentEnemy.currentHealth.value}/${adjacentEnemy.maxHealth}, heal amount: $healAmount",
-                                )
-                            }
-                            if (healAmount > 0) {
-                                adjacentEnemy.currentHealth.value += healAmount
-                                healedCount++
-                                // Add visual healing effect
-                                state.healingEffects.add(
-                                    HealingEffect(
-                                        position = adjacent,
-                                        type = HealingEffectType.GREEN_WITCH,
-                                        healAmount = healAmount,
-                                        turnNumber = state.turnNumber.value,
-                                    ),
-                                )
-                                if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                                    println(
-                                        "DEBUG: Healed ${adjacentEnemy.type} for $healAmount HP (new HP: ${adjacentEnemy.currentHealth.value})",
-                                    )
-                                }
-                            }
-
-                            // Remove up to 3 barbs from adjacent enemy
-                            if (adjacentEnemy.movementPenalty.value > 0) {
-                                val barbsToRemove = minOf(3, adjacentEnemy.movementPenalty.value)
-                                adjacentEnemy.movementPenalty.value -= barbsToRemove
-                                if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                                    println(
-                                        "DEBUG: Green witch removed $barbsToRemove barbs from ${adjacentEnemy.type}, remaining penalty: ${adjacentEnemy.movementPenalty.value}",
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    if (healedCount > 0) {
-                        println("DEBUG: Green witch ${attacker.id} healed $healedCount enemies")
-                    } else {
-                        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                            println("DEBUG: Green witch ${attacker.id} found no adjacent damaged enemies to heal")
-                        }
-                    }
+                    applyGreenWitchHealing(attacker, enhanced = attacker.id in covenEnhancedHealWitchIds)
                 }
                 AttackerType.RED_WITCH -> {
-                    // Disable nearby tower (instead of moving to target)
-                    disableNearestTower(attacker)
+                    // Disable nearby tower within range 1, with optional coven disable boost
+                    disableNearestTowerInRange(
+                        witch = attacker,
+                        range = 1,
+                        extraDisableTurns = if (attacker.id in covenEnhancedDisableWitchIds) COVEN_DISABLE_EXTRA_TURNS else 0,
+                    )
                 }
                 AttackerType.SNOTLING_BOSS -> {
                     // Snotling Rally: summon a rabble of weak snotlings around Gribnak
@@ -131,7 +98,7 @@ class EnemyAbilitySystem(
                     // Spirit Summon: spawn goblins on all adjacent path tiles every 3 turns
                     handleMorgukSpiritSummon(attacker)
                     // Hex of Silence: disable an adjacent defender
-                    disableNearestTower(attacker)
+                    disableNearestTowerInRange(attacker, range = 1)
                 }
                 AttackerType.ARAXXA -> {
                     handleAraxxaWeb(attacker)
@@ -142,6 +109,36 @@ class EnemyAbilitySystem(
                 }
                 AttackerType.SILAS_THE_MASKMASTER -> {
                     handleSilasMirrorImages(attacker)
+                }
+                AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> {
+                    // Green-witch ability: heal adjacent units with optional coven boost
+                    applyGreenWitchHealing(attacker, enhanced = attacker.id in covenEnhancedHealWitchIds)
+                    // Red-witch ability: disable nearest tower within range 3
+                    disableNearestTowerInRange(
+                        witch = attacker,
+                        range = 3,
+                        extraDisableTurns = if (attacker.id in covenEnhancedDisableWitchIds) COVEN_DISABLE_EXTRA_TURNS else 0,
+                    )
+                    // Coven Swap: every 5 rounds, swap places with a witch within range 3
+                    if (attacker.summonCooldown.value == 0) {
+                        val swapCooldown = attacker.type.covenSwapCooldown
+                        if (swapCooldown != null) {
+                            handleCovenSwap(attacker, range = 3)
+                            attacker.summonCooldown.value = swapCooldown
+                        }
+                    }
+                }
+                AttackerType.HAGA -> {
+                    // All green-witch abilities with optional coven heal boost
+                    applyGreenWitchHealing(attacker, enhanced = attacker.id in covenEnhancedHealWitchIds)
+                }
+                AttackerType.ZUSSA -> {
+                    // All red-witch abilities with optional coven disable boost
+                    disableNearestTowerInRange(
+                        witch = attacker,
+                        range = 1,
+                        extraDisableTurns = if (attacker.id in covenEnhancedDisableWitchIds) COVEN_DISABLE_EXTRA_TURNS else 0,
+                    )
                 }
                 else -> {
                     // Check if this unit should build a bridge
@@ -368,6 +365,18 @@ class EnemyAbilitySystem(
                 VillainAuraEffect.SOUL_CALL -> {
                     // Soul Call is recorded when nearby units die and resolved at the next round start.
                 }
+                VillainAuraEffect.COVEN_HEAL_BOOST -> {
+                    if (activatesThisRound) applyCovenHealBoost(villain, ability)
+                }
+                VillainAuraEffect.COVEN_DISABLE_BOOST -> {
+                    if (activatesThisRound) applyCovenDisableBoost(villain, ability)
+                }
+                VillainAuraEffect.COVEN_SYNERGY -> {
+                    if (activatesThisRound) {
+                        applyCovenHealBoost(villain, ability)
+                        applyCovenDisableBoost(villain, ability)
+                    }
+                }
             }
         }
     }
@@ -413,6 +422,187 @@ class EnemyAbilitySystem(
                 spawnUndeadNear(attacker, 10 + (fixedLevel ?: state.turnNumber.value))
             }
             attacker.summonCooldown.value = 3
+        }
+    }
+
+    /**
+     * Apply green-witch healing to adjacent units.
+     *
+     * @param witch     The healer (GREEN_WITCH, HAGA, or GRAND_COVEN_MOTHER_SYBILLA).
+     * @param enhanced  When true, healing is multiplied by [COVEN_HEAL_BOOST_MULTIPLIER] (coven synergy).
+     */
+    private fun applyGreenWitchHealing(
+        witch: Attacker,
+        enhanced: Boolean = false,
+    ) {
+        val adjacentPositions = witch.position.value.getHexNeighbors()
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+            println(
+                "DEBUG: Green witch ${witch.id} at ${witch.position.value} checking ${adjacentPositions.size} adjacent positions" +
+                    if (enhanced) " (COVEN BOOST)" else "",
+            )
+        }
+        var healedCount = 0
+        for (adjacent in adjacentPositions) {
+            val adjacentEnemy =
+                state.attackers.find {
+                    !it.isDefeated.value && it.id != witch.id && it.position.value == adjacent
+                }
+            if (adjacentEnemy != null) {
+                // Heal 5x witch level (×1.5 with coven boost), capped at missing HP
+                val baseHeal = witch.level.value * 5
+                val scaledHeal = if (enhanced) (baseHeal * COVEN_HEAL_BOOST_MULTIPLIER).toInt() else baseHeal
+                val healAmount = min(scaledHeal, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
+                if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                    println(
+                        "DEBUG: Found ${adjacentEnemy.type} at $adjacent, HP ${adjacentEnemy.currentHealth.value}/${adjacentEnemy.maxHealth}, heal amount: $healAmount",
+                    )
+                }
+                if (healAmount > 0) {
+                    adjacentEnemy.currentHealth.value += healAmount
+                    healedCount++
+                    state.healingEffects.add(
+                        HealingEffect(
+                            position = adjacent,
+                            type = HealingEffectType.GREEN_WITCH,
+                            healAmount = healAmount,
+                            turnNumber = state.turnNumber.value,
+                        ),
+                    )
+                    if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                        println(
+                            "DEBUG: Healed ${adjacentEnemy.type} for $healAmount HP (new HP: ${adjacentEnemy.currentHealth.value})",
+                        )
+                    }
+                }
+
+                // Remove up to 3 barbs from adjacent enemy
+                if (adjacentEnemy.movementPenalty.value > 0) {
+                    val barbsToRemove = minOf(3, adjacentEnemy.movementPenalty.value)
+                    adjacentEnemy.movementPenalty.value -= barbsToRemove
+                    if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                        println(
+                            "DEBUG: Green witch removed $barbsToRemove barbs from ${adjacentEnemy.type}, remaining penalty: ${adjacentEnemy.movementPenalty.value}",
+                        )
+                    }
+                }
+            }
+        }
+        if (healedCount > 0) {
+            println("DEBUG: Green witch ${witch.id} healed $healedCount enemies${if (enhanced) " (coven boost)" else ""}")
+        } else {
+            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                println("DEBUG: Green witch ${witch.id} found no adjacent damaged enemies to heal")
+            }
+        }
+    }
+
+    /**
+     * Mark all GREEN_WITCH attackers within the villain's aura range as having enhanced healing.
+     * The boost is applied when [applyGreenWitchHealing] is called with enhanced=true.
+     */
+    private fun applyCovenHealBoost(
+        villain: Attacker,
+        ability: VillainAbility,
+    ) {
+        for (ally in state.attackers) {
+            if (ally.isDefeated.value || ally.id == villain.id) continue
+            if (ally.type != AttackerType.GREEN_WITCH) continue
+            val inRange =
+                ability.range == VillainAbility.FULL_BATTLEFIELD ||
+                    villain.position.value.hexDistanceTo(ally.position.value) <= ability.range
+            if (inRange) covenEnhancedHealWitchIds.add(ally.id)
+        }
+    }
+
+    /**
+     * Mark all RED_WITCH attackers within the villain's aura range as having enhanced disabling.
+     * The boost adds [COVEN_DISABLE_EXTRA_TURNS] to the disable duration in [disableNearestTowerInRange].
+     */
+    private fun applyCovenDisableBoost(
+        villain: Attacker,
+        ability: VillainAbility,
+    ) {
+        for (ally in state.attackers) {
+            if (ally.isDefeated.value || ally.id == villain.id) continue
+            if (ally.type != AttackerType.RED_WITCH) continue
+            val inRange =
+                ability.range == VillainAbility.FULL_BATTLEFIELD ||
+                    villain.position.value.hexDistanceTo(ally.position.value) <= ability.range
+            if (inRange) covenEnhancedDisableWitchIds.add(ally.id)
+        }
+    }
+
+    /**
+     * Coven Swap: Sybilla teleports to a witch within [range] tiles (and that witch moves to
+     * Sybilla's former position). Prioritises the witch that is closest to Sybilla.
+     * Does nothing if no suitable witch is found.
+     */
+    private fun handleCovenSwap(
+        sybilla: Attacker,
+        range: Int,
+    ) {
+        val sybillaPos = sybilla.position.value
+        val sybillaStartPos = state.enemyTurnStartPositions[sybilla.id] ?: return
+
+        // Sybilla can't swap if she's already moved this turn
+        if (sybillaPos != sybillaStartPos) {
+            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                println("DEBUG: Sybilla ${sybilla.id} skipped swap because she already moved this turn")
+            }
+            return
+        }
+
+        val witchTypes = setOf(AttackerType.GREEN_WITCH, AttackerType.RED_WITCH, AttackerType.HAGA, AttackerType.ZUSSA)
+        val nearbyWitches =
+            state.attackers
+                .filter { ally ->
+                    !ally.isDefeated.value &&
+                        ally.id != sybilla.id &&
+                        ally.type in witchTypes &&
+                        sybillaPos.hexDistanceTo(ally.position.value) <= range
+                }
+
+        // Find witches close to target (1-2 moves away)
+        val targetAdjacentWitches =
+            nearbyWitches
+                .mapNotNull { witch ->
+                    val target = witch.currentTarget?.value ?: state.level.targetPositions.first()
+                    val distanceToTarget = pathfinding.findPath(witch.position.value, target, witch).size - 1
+                    if (distanceToTarget in 1..2) witch else null
+                }
+
+        // Prefer target-adjacent witches; if none, consider witches in a crowd (3+ witches)
+        val swapTarget =
+            if (targetAdjacentWitches.isNotEmpty()) {
+                targetAdjacentWitches.minByOrNull { sybillaPos.hexDistanceTo(it.position.value) }
+            } else if (nearbyWitches.size >= 3) {
+                nearbyWitches.minByOrNull { sybillaPos.hexDistanceTo(it.position.value) }
+            } else {
+                null
+            }
+
+        if (swapTarget != null) {
+            val targetPos = swapTarget.position.value
+            swapTarget.position.value = sybillaPos
+            sybilla.position.value = targetPos
+
+            // Queue the swap message with highlight positions
+            state.pendingMessages.add(
+                GameMessage(
+                    type = GameMessageType.COVEN_SWAP,
+                    name = null,
+                    highlightPositions = sybillaStartPos to targetPos,
+                ),
+            )
+
+            // Add visual effects for both positions to show the swap
+            state.enemyMoveEffects.add(EnemyMoveEffect(sybillaStartPos, state.turnNumber.value))
+            state.enemyMoveEffects.add(EnemyMoveEffect(targetPos, state.turnNumber.value))
+
+            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                println("DEBUG: Sybilla ${sybilla.id} swapped with ${swapTarget.type} ${swapTarget.id} ($sybillaStartPos <-> $targetPos)")
+            }
         }
     }
 
@@ -836,22 +1026,23 @@ class EnemyAbilitySystem(
     }
 
     /**
-     * Red Witch disables adjacent towers (within 1 hex distance).
+     * Red Witch disables towers within [range] hex distance.
      * Disables one tower per turn.
-     * Duration: 1 turn base, +1 turn for every 5 levels (level 5=2 turns, level 10=3 turns, level 20=4 turns, etc.)
+     * Duration: 1 turn base, +1 turn for every 5 levels (level 5=2 turns, level 10=3 turns, etc.)
+     * +1 for immediate decrement at end of this turn.
+     * An optional [extraDisableTurns] is added when a Coven Synergy villain is nearby.
      * Can only disable towers where tower level <= witch level.
      */
-    private fun disableNearestTower(witch: Attacker) {
-        // Get adjacent positions (1 hex distance)
-        val adjacentPositions = witch.position.value.getHexNeighbors()
-
+    private fun disableNearestTowerInRange(
+        witch: Attacker,
+        range: Int,
+        extraDisableTurns: Int = 0,
+    ) {
         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
             println(
-                "DEBUG: Red witch ${witch.id} level ${witch.level.value} at ${witch.position.value} checking ${adjacentPositions.size} adjacent positions",
+                "DEBUG: Disabler ${witch.id} level ${witch.level.value} at ${witch.position.value} checking range=$range" +
+                    if (extraDisableTurns > 0) " (coven boost +$extraDisableTurns)" else "",
             )
-        }
-        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-            println("DEBUG: Adjacent positions: $adjacentPositions")
         }
 
         // Log all towers in the game for debugging
@@ -866,38 +1057,48 @@ class EnemyAbilitySystem(
             }
         }
 
-        // Find adjacent towers that:
-        // - Is ready (not building)
-        // - Is not already disabled
-        // - Is adjacent (within 1 hex)
+        // Find towers within range that:
+        // - Are ready (not building)
+        // - Are not already disabled
+        // - Are within the given hex range
         // - Can be disabled by this witch (tower level <= witch level)
-        val adjacentTowers =
+        val eligibleTowers =
             state.defenders.filter { tower ->
                 val isReady = tower.isReady
                 val notDisabled = !tower.isDisabled.value
-                val isAdjacent = adjacentPositions.contains(tower.position.value)
+                val withinRange =
+                    if (range == 1) {
+                        witch.position.value
+                            .getHexNeighbors()
+                            .contains(tower.position.value)
+                    } else {
+                        witch.position.value.hexDistanceTo(tower.position.value) <= range
+                    }
                 val canDisable = tower.level.value <= witch.level.value
 
                 if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                     println(
-                        "DEBUG: Checking tower ${tower.type} id=${tower.id}: isReady=$isReady, notDisabled=$notDisabled, isAdjacent=$isAdjacent, canDisable=$canDisable (tower level ${tower.level.value} vs witch level ${witch.level.value})",
+                        "DEBUG: Checking tower ${tower.type} id=${tower.id}: isReady=$isReady, notDisabled=$notDisabled, withinRange=$withinRange, canDisable=$canDisable",
                     )
                 }
 
-                isReady && notDisabled && isAdjacent && canDisable
+                isReady && notDisabled && withinRange && canDisable
             }
 
         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-            println("DEBUG: Found ${adjacentTowers.size} eligible adjacent towers to disable")
+            println("DEBUG: Found ${eligibleTowers.size} eligible towers to disable")
         }
 
-        if (adjacentTowers.isEmpty()) {
-            println("DEBUG: Red witch ${witch.id} found no eligible adjacent towers to disable")
+        if (eligibleTowers.isEmpty()) {
+            println("DEBUG: Disabler ${witch.id} found no eligible towers to disable")
             return
         }
 
-        // Pick the first adjacent tower (any adjacent tower is valid)
-        val targetTower = adjacentTowers.firstOrNull()
+        // Pick the closest tower (any eligible tower is valid; prefer closest)
+        val targetTower =
+            eligibleTowers.minByOrNull { tower ->
+                witch.position.value.hexDistanceTo(tower.position.value)
+            }
 
         if (targetTower != null) {
             // Calculate disable duration: 1 turn base + 1 per 5 levels
@@ -906,14 +1107,14 @@ class EnemyAbilitySystem(
             // Level 5-9: 3 turns (disabled for 2 player turns)
             // Level 10-14: 4 turns (disabled for 3 player turns)
             // Level 20-24: 5 turns (disabled for 4 player turns), etc.
-            val disableDuration = 1 + (witch.level.value / 5) + 1
+            val disableDuration = 1 + (witch.level.value / 5) + 1 + extraDisableTurns
 
             targetTower.isDisabled.value = true
             targetTower.disabledTurnsRemaining.value = disableDuration
 
             if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                 println(
-                    "DEBUG: Red witch ${witch.id} disabled ${targetTower.type} id=${targetTower.id} at ${targetTower.position.value} for $disableDuration turns",
+                    "DEBUG: Disabler ${witch.id} disabled ${targetTower.type} id=${targetTower.id} at ${targetTower.position.value} for $disableDuration turns",
                 )
             }
         }
