@@ -136,6 +136,8 @@ data class Defender(
     val towerBaseBarricadeId: MutableState<Int?> = mutableStateOf(null), // ID of barricade this tower is on (null if not on tower base)
     // Sylvanas Root Grip animation state
     val hasRootGripAnimation: MutableState<Boolean> = mutableStateOf(false), // Tower is being engulfed by Sylvanas vines (for animation)
+    // Xarithon Shadow Spew animation state
+    val hasShadowSpewAnimation: MutableState<Boolean> = mutableStateOf(false), // Tower is engulfed by Xarithon's shadow cloud (for animation)
 ) {
     val damage: Int get() = type.baseDamage + (level.value - 1) * 5
     val range: Int get() {

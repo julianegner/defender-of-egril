@@ -2121,6 +2121,7 @@ class GameEngine(
         state.wizardAttackEffects.clear()
         state.alchemyAttackEffects.clear()
         state.rocketAttackEffects.clear()
+        state.shadowSpewEffects.clear()
 
         // Check and activate traps after all movements
         checkAndActivateTraps()

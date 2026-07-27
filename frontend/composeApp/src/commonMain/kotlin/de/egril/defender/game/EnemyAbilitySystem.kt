@@ -1293,6 +1293,7 @@ class EnemyAbilitySystem(
                 if (tower.disabledTurnsRemaining.value <= 0) {
                     tower.isDisabled.value = false
                     tower.hasRootGripAnimation.value = false // Clear vine animation when disable expires
+                    tower.hasShadowSpewAnimation.value = false // Clear shadow cloud animation when disable expires
                 }
             }
         }
@@ -1455,16 +1456,33 @@ class EnemyAbilitySystem(
             )
         // +1 accounts for the immediate decrement at the end of this enemy turn.
         val adjustedDuration = duration + 1
+        var anyDisabled = false
         for (tower in state.defenders) {
             if (tower.isReady && !tower.isDisabled.value && tower.position.value in spewArea) {
                 tower.isDisabled.value = true
                 tower.disabledTurnsRemaining.value = adjustedDuration
+                tower.hasShadowSpewAnimation.value = true // Show shadow cloud while disabled
+                anyDisabled = true
                 if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                     println(
                         "DEBUG: Xarithon Shadow Spew disabled ${tower.type} id=${tower.id} at " +
                             "${tower.position.value} for $duration turns",
                     )
                 }
+            }
+        }
+
+        // Trigger the shadow fireball flying animation from Xarithon to the target area center.
+        if (anyDisabled) {
+            val targetCenter = Position(cx, cy)
+            if (state.shadowSpewEffects.none { it.sourcePosition == xarithon.position.value }) {
+                state.shadowSpewEffects.add(
+                    ShadowSpewEffect(
+                        sourcePosition = xarithon.position.value,
+                        targetPosition = targetCenter,
+                        turnNumber = state.turnNumber.value,
+                    ),
+                )
             }
         }
     }

@@ -75,6 +75,8 @@ import de.egril.defender.ui.animations.WaterFlowAnimation
 import de.egril.defender.ui.animations.WizardAttackOverlay
 import de.egril.defender.ui.animations.WizardIdleAnimation
 import de.egril.defender.ui.animations.SylvanasRootGripAnimation
+import de.egril.defender.ui.animations.XarithonShadowCloudAnimation
+import de.egril.defender.ui.animations.XarithonShadowSpewOverlay
 import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.ui.editor.map.MapControlState
 import de.egril.defender.ui.editor.map.MapControls
@@ -1008,6 +1010,15 @@ fun GameGrid(
                     if (wizardEffects.isNotEmpty()) {
                         WizardAttackOverlay(
                             effects = wizardEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
+                    val shadowSpewEffects = gameState.shadowSpewEffects.toList()
+                    if (shadowSpewEffects.isNotEmpty()) {
+                        XarithonShadowSpewOverlay(
+                            effects = shadowSpewEffects,
                             hexSizeDp = hexSize.value,
                             contentSize = measuredContentSize,
                             animate = AppSettings.enableAnimations.value,
@@ -2603,6 +2614,13 @@ private fun BoxScope.GridCellContent(
                     // Show Sylvanas vine animation overlay if tower is disabled by Root Grip
                     if (defender.hasRootGripAnimation.value) {
                         SylvanasRootGripAnimation(
+                            animate = AppSettings.enableAnimations.value,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                    // Show Xarithon shadow cloud overlay if tower is disabled by Shadow Spew
+                    if (defender.hasShadowSpewAnimation.value) {
+                        XarithonShadowCloudAnimation(
                             animate = AppSettings.enableAnimations.value,
                             modifier = Modifier.fillMaxSize(),
                         )
