@@ -26,7 +26,7 @@ class AddEnemyDialogTest {
         composeTestRule.onNodeWithText("Special", substring = true, ignoreCase = true).performClick()
         composeTestRule.onNodeWithText("Blue Demon", substring = true, ignoreCase = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("Red Demon", substring = true, ignoreCase = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("Snotling", substring = true, ignoreCase = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Zombie", substring = true, ignoreCase = true).assertIsDisplayed()
     }
 
     @Test

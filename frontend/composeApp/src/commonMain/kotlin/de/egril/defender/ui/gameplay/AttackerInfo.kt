@@ -482,6 +482,22 @@ fun AttackerInfo(
                             ),
                         )
                     }
+                    if (attacker.type == AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LOCK,
+                                text = stringResource(Res.string.villain_malakor_time_loop_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.villain_malakor_flies_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
 
                     // Mighty unit warning - for wizards, witches, demons, dragons
                     val isMightyUnit =
@@ -552,6 +568,7 @@ fun AttackerInfo(
                             AttackerType.HAGA -> stringResource(Res.string.villain_haga_description)
                             AttackerType.ZUSSA -> stringResource(Res.string.villain_zussa_description)
                             AttackerType.SYLVANAS_THE_MOLDING -> stringResource(Res.string.villain_sylvanas_description)
+                            AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> stringResource(Res.string.villain_malakor_description)
                             else -> ""
                         }
                     if (villainDescription.isNotEmpty()) {

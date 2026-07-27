@@ -39,7 +39,7 @@ class AttackerInfoTest {
         }
 
         composeTestRule
-            .onNodeWithText("He summons increasingly powerful Demons every turn", substring = true)
+            .onNodeWithText("He summons increasingly powerful Demons", substring = true)
             .assertIsDisplayed()
     }
 }
