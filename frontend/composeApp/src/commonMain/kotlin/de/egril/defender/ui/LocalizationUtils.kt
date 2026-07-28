@@ -125,6 +125,7 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
             AttackerType.DRAGON_TERROR -> "dragon_terror_name"
             AttackerType.XARITHON_THE_SHADOW_DRAGON -> "xarithon_name"
             AttackerType.CAPTAIN_RODERICH -> "captain_roderich_name"
+            AttackerType.THE_KRAKEN -> "the_kraken_name"
         }
     return LocalizedStrings.get(key, locale)
 }

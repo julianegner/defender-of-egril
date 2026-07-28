@@ -362,7 +362,8 @@ fun UndoOrSellButton(
 
     // Determine if undo or sell is available
     val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
-    val canSell = defender.isReady && defender.actionsRemaining.value > 0
+    // Cannot sell while the Kraken has gripped this barge
+    val canSell = defender.isReady && defender.actionsRemaining.value > 0 && !defender.isGrippedByKraken.value
     val shortcutHint =
         if (AppSettings.showButtonShortcutHints.value) {
             formatShortcutBindingForDisplay(AppSettings.shortcutUndoOrSellSelectedTower.value)

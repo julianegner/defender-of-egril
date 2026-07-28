@@ -999,7 +999,8 @@ private fun GamePlayScreenContent(
                         val defender = gameState.defenders.find { it.id == selectedDefenderId }
                         if (defender != null) {
                             val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
-                            val canSell = defender.isReady && defender.actionsRemaining.value > 0
+                            // Cannot sell while the Kraken has gripped this barge
+                            val canSell = defender.isReady && defender.actionsRemaining.value > 0 && !defender.isGrippedByKraken.value
                             when {
                                 canUndo -> {
                                     // Show confirmation dialog: isUndo = true (full refund)
@@ -3282,6 +3283,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.CAPTAIN_RODERICH.name ->
                                             stringResource(Res.string.villain_roderich_title) to
                                                 (stringResource(Res.string.villain_roderich_backstory) + "\n" + stringResource(Res.string.villain_roderich_description))
+                                        AttackerType.THE_KRAKEN.name ->
+                                            stringResource(Res.string.villain_kraken_title) to
+                                                (stringResource(Res.string.villain_kraken_backstory) + "\n" + stringResource(Res.string.villain_kraken_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)
@@ -3773,6 +3777,8 @@ private fun villainMessageButtonColor(name: String?): Color? {
         AttackerType.XARITHON_THE_SHADOW_DRAGON -> Color(0xFF1E0040)
         // Pirate captain – deep ocean blue
         AttackerType.CAPTAIN_RODERICH -> Color(0xFF0D4E74)
+        // Ancient deep-sea horror – dark abyss teal
+        AttackerType.THE_KRAKEN -> Color(0xFF0A3D4A)
         // Default for EWHAD and other villains (if any added in future)
         else -> null
     }

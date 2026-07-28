@@ -625,7 +625,7 @@ data class GameState(
      */
     fun hasDefendersWithUnusedActions(): Boolean {
         // Get active attackers (not defeated, not building bridges)
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value && !it.isDiving.value }
 
         return defenders.any { defender ->
             if (!defender.isReady ||
@@ -660,7 +660,7 @@ data class GameState(
      * left-to-right) for deterministic Tab cycling.
      */
     fun getActionableTowersForTab(): List<Defender> {
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value && !it.isDiving.value }
         return defenders
             .filter { defender ->
                 if (!defender.isReady ||
@@ -688,7 +688,7 @@ data class GameState(
      * Excludes special actions like mines, traps, and alchemy towers.
      */
     fun hasDefendersForAutoAttack(): Boolean {
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value && !it.isDiving.value }
         if (activeAttackers.isEmpty()) return false
 
         return defenders.any { defender ->
@@ -720,7 +720,7 @@ data class GameState(
      */
     fun getDefenderTypesWithSpecialActions(): List<DefenderType> {
         val typesWithActions = mutableSetOf<DefenderType>()
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value && !it.isDiving.value }
 
         defenders.forEach { defender ->
             if (!defender.isReady || defender.actionsRemaining.value <= 0 || defender.isDisabled.value) {

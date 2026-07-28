@@ -533,6 +533,30 @@ fun AttackerInfo(
                         )
                     }
 
+                    if (attacker.type == AttackerType.THE_KRAKEN) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.villain_kraken_barge_grip_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.villain_kraken_dive_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.villain_kraken_water_domain_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
+
                     // Mighty unit warning - for wizards, witches, demons, dragons
                     val isMightyUnit =
                         when (attacker.type) {
@@ -605,6 +629,7 @@ fun AttackerInfo(
                             AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> stringResource(Res.string.villain_malakor_description)
                             AttackerType.XARITHON_THE_SHADOW_DRAGON -> stringResource(Res.string.villain_xarithon_description)
                             AttackerType.CAPTAIN_RODERICH -> stringResource(Res.string.villain_roderich_description)
+                            AttackerType.THE_KRAKEN -> stringResource(Res.string.villain_kraken_description)
                             else -> ""
                         }
                     if (villainDescription.isNotEmpty()) {

@@ -204,6 +204,9 @@ class TowerManager(
         // Cannot sell dragon's lair
         if (!defender.canSell) return false
 
+        // Cannot sell while the tower's barge is gripped by the Kraken
+        if (defender.isGrippedByKraken.value) return false
+
         // Can only sell if tower is ready and has actions remaining
         if (!defender.isReady) return false
         if (defender.actionsRemaining.value <= 0) return false
