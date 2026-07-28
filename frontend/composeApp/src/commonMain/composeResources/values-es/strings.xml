@@ -2157,9 +2157,15 @@
     <string name="villain_ignis_va_immune_short">Inmune al fuego: las bolas de fuego no pueden dañarla</string>
     <string name="villain_ignis_va_burning_short">Pira de Muerte: el suelo ardiente deshabilita torres cercanas al morir</string>
     <string name="xarithon_name">Xarithon el Dragón Sombra</string>
+    <string name="captain_roderich_name">Capitán Roderich, el Azote de los Mares</string>
     <string name="villain_xarithon_title">Xarithon el Dragón Sombra entra al campo de batalla</string>
     <string name="villain_xarithon_backstory">Xarithon es el campeón personal del mago malvado Ewhad — un dragón de las sombras lleno de energía oscura que borra la luz a su paso. Actúa de forma independiente, cazando torres con fría y ancestral ferocidad.</string>
     <string name="villain_xarithon_description">Escupefuego Sombrío: cada pocos turnos, llamas de sombra estallan en un área amplia, deshabilitando todas las torres alcanzadas.\nResistencia a las Sombras: solo los ataques mágicos pueden herirle — las armas ordinarias atraviesan su forma oscura sin efecto.</string>
     <string name="villain_xarithon_shadow_spew_short">Escupefuego Sombrío: deshabilita todas las torres del área cada 3 turnos</string>
     <string name="villain_xarithon_immune_short">Resistencia a las Sombras: inmune a ataques de melee, a distancia y ácido</string>
+    <string name="villain_roderich_title">El Capitán Roderich, el Azote de los Mares, entra al campo de batalla</string>
+    <string name="villain_roderich_backstory">¡El Capitán Roderich, el Azote de los Mares, ha navegado hasta el campo de batalla! Este notorio y codicioso terror pirata amenaza las vías fluviales del reino. Sus bolsillos rebosan de riquezas robadas.</string>
+    <string name="villain_roderich_description">Marinero: navega tanto por tierra como por agua y sufre mucho menos daño de las torres en barcazas.\nBandazo: periódicamente dispara una bala de cañón a la barcaza más cercana, hundiéndola al instante — la torre se pierde y su coste pasa a su tesoro.\nTesoro de Oro: saquea riquezas cada turno. Al ser derrotado, suelta todo el botín acumulado — ¡una enorme recompensa para vuestras arcas!</string>
+    <string name="villain_roderich_seaworthy_short">Marinero: recibe un 50 % menos de daño de las torres en barcazas</string>
+    <string name="villain_roderich_broadside_short">Bandazo: hunde la barcaza más cercana cada 3 turnos</string>
 </resources>

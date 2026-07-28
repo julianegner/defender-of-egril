@@ -2158,9 +2158,15 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_ignis_va_immune_short">Immune au feu : les boules de feu ne peuvent pas lui faire de mal</string>
     <string name="villain_ignis_va_burning_short">Bûcher Mortel : le sol en feu désactive les tours proches à la mort</string>
     <string name="xarithon_name">Xarithon le Dragon des Ombres</string>
+    <string name="captain_roderich_name">Capitaine Roderich, Fléau des Mers</string>
     <string name="villain_xarithon_title">Xarithon le Dragon des Ombres entre sur le champ de bataille</string>
     <string name="villain_xarithon_backstory">Xarithon est le champion personnel du mage maléfique Ewhad — un dragon des ombres rempli d\'énergie obscure qui efface la lumière sur son passage. Il agit de manière indépendante, chassant les tours avec une fureur froide et ancestrale.</string>
     <string name="villain_xarithon_description">Crachat d\'Ombre : tous les quelques tours, des flammes sombres jaillissent sur une large zone, désactivant toutes les tours touchées.\nRésistance des Ombres : seules les attaques magiques peuvent lui nuire — les armes ordinaires traversent sa forme sombre sans effet.</string>
     <string name="villain_xarithon_shadow_spew_short">Crachat d\'Ombre : désactive toutes les tours d\'une zone tous les 3 tours</string>
     <string name="villain_xarithon_immune_short">Résistance des Ombres : immune aux attaques de mêlée, à distance et acide</string>
+    <string name="villain_roderich_title">Le Capitaine Roderich, Fléau des Mers, entre sur le champ de bataille</string>
+    <string name="villain_roderich_backstory">Le Capitaine Roderich, Fléau des Mers, a vogué jusqu\'au champ de bataille ! Ce notoire et cupide terreur pirate menace les voies navigables du royaume. Ses poches débordent de richesses volées.</string>
+    <string name="villain_roderich_description">Marin aguerri : navigue aussi bien sur terre que sur l\'eau et subit bien moins de dégâts des tours montées sur barges.\nBordée : tire périodiquement un boulet de canon sur la barge la plus proche, la coulant instantanément — la tour est perdue et son coût rejoint son trésor.\nTrésor d\'or : pille des richesses chaque tour. Lorsqu\'il est vaincu, il lâche tout le butin accumulé — une récompense massive pour vos coffres !</string>
+    <string name="villain_roderich_seaworthy_short">Marin aguerri : subit 50 % moins de dégâts des tours sur barges</string>
+    <string name="villain_roderich_broadside_short">Bordée : coule la barge la plus proche tous les 3 tours</string>
 </resources>

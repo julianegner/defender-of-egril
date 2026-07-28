@@ -2156,9 +2156,15 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_ignis_va_immune_short">Feuerimmun: Feuerbälle können ihr nichts anhaben</string>
     <string name="villain_ignis_va_burning_short">Todespyre: brennender Boden legt beim Tod nahe Türme lahm</string>
     <string name="xarithon_name">Xarithon der Schattendrache</string>
+    <string name="captain_roderich_name">Käpt\'n Roderich, Schrecken der Meere</string>
     <string name="villain_xarithon_title">Xarithon der Schattendrache betritt das Schlachtfeld</string>
     <string name="villain_xarithon_backstory">Xarithon ist der persönliche Champion des bösen Magiers Ewhad — ein Schattendrache, erfüllt von dunkler Energie, die das Licht auslöscht, wo immer er vorbeizieht. Er handelt eigenständig und jagt Türme mit kalter, uralter Wildheit.</string>
     <string name="villain_xarithon_description">Schattenspeier: Alle paar Runden brechen Schattenflammen über eine weite Fläche herein und legen alle Türme im Bereich lahm.\nSchattenresistenz: Nur magische Angriffe können ihm schaden — gewöhnliche Waffen gehen harmlos durch seine dunkle Gestalt hindurch.</string>
     <string name="villain_xarithon_shadow_spew_short">Schattenspeier: legt alle Türme in einem Bereich alle 3 Runden lahm</string>
     <string name="villain_xarithon_immune_short">Schattenresistenz: immun gegen Nahkampf, Fernkampf und Säure</string>
+    <string name="villain_roderich_title">Käpt\'n Roderich, Schrecken der Meere, betritt das Schlachtfeld</string>
+    <string name="villain_roderich_backstory">Käpt\'n Roderich, Schrecken der Meere, ist auf das Schlachtfeld gesegelt! Dieser berüchtigte, gierige Piratenschrecken bedroht die Wasserwege des Reiches. Seine Taschen quellen über vor gestohlenen Reichtümern.</string>
+    <string name="villain_roderich_description">Seetüchtig: navigiert auf Land und Wasser und erleidet deutlich weniger Schaden von Flusslastentürmen.\nBreitseitensalve: feuert periodisch eine Kanonenkugel auf die nächste Lastenkahn-Verteidigung und versenkt sie sofort — der Turm ist verloren und seine Kosten wandern in seinen Schatz.\nGoldschatz: plündert jede Runde Reichtümer. Bei seiner Niederlage lässt er seinen gesamten angehäuften Plunder fallen — eine riesige Belohnung für eure Kassen!</string>
+    <string name="villain_roderich_seaworthy_short">Seetüchtig: erleidet 50 % weniger Schaden von Flusslastentürmen</string>
+    <string name="villain_roderich_broadside_short">Breitseite: versenkt alle 3 Runden den nächsten Lastenkahn</string>
 </resources>

@@ -214,6 +214,17 @@ data class PendingSoulCall(
     val currentTarget: Position? = null,
 )
 
+/**
+ * Pending barge (raft + defender) deletion from Roderich's Broadside attack.
+ * The barge is removed after the cannonball animation completes.
+ */
+data class PendingBargeDeletion(
+    val raftId: Int,
+    val defenderId: Int,
+    val towerCost: Int, // Cost to add to Roderich's treasure
+    val bargePosition: Position, // For logging
+)
+
 data class GameState(
     var level: Level,
     val phase: MutableState<GamePhase> = mutableStateOf(GamePhase.INITIAL_BUILDING),
@@ -289,6 +300,7 @@ data class GameState(
     val takenTargets: SnapshotStateList<Position> = mutableStateListOf(), // Positions of taken SINGLE_HIT targets
     val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf(), // Messages queued for display
     val pendingSoulCalls: SnapshotStateList<PendingSoulCall> = mutableStateListOf(), // Valerius resurrection queue for the next round
+    val pendingBargeDeletions: SnapshotStateList<PendingBargeDeletion> = mutableStateListOf(), // Barges (rafts + defenders) to be deleted after animation completes
     // Player-usable supports remaining this level (placable objects + spell tokens)
     val supportObjectsRemaining: SnapshotStateMap<SupportObjectType, Int> = mutableStateMapOf(),
     val supportSpellsRemaining: SnapshotStateMap<SpellType, Int> = mutableStateMapOf(),

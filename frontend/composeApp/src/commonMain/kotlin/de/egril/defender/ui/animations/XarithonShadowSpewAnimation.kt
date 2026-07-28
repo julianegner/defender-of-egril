@@ -169,38 +169,58 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawShadowFireball(
         // Outer shadow trail (near-black void, widest)
         drawShadowFlameTrail(
             ballCenter = ballCenter,
-            nx = nx, ny = ny, px = px, py = py,
+            nx = nx,
+            ny = ny,
+            px = px,
+            py = py,
             tailLength = tailLength,
             halfWidth = ballRadius * 1.30f,
             color = Color(0xAA0D0020),
-            segments = 6, flickerT = flickerT, flickerAmp = 0.18f,
+            segments = 6,
+            flickerT = flickerT,
+            flickerAmp = 0.18f,
         )
         // Mid void purple trail
         drawShadowFlameTrail(
             ballCenter = ballCenter,
-            nx = nx, ny = ny, px = px, py = py,
+            nx = nx,
+            ny = ny,
+            px = px,
+            py = py,
             tailLength = tailLength * 0.75f,
             halfWidth = ballRadius * 1.00f,
             color = Color(0xBB200050),
-            segments = 6, flickerT = flickerT + 1f, flickerAmp = 0.14f,
+            segments = 6,
+            flickerT = flickerT + 1f,
+            flickerAmp = 0.14f,
         )
         // Inner deep violet trail
         drawShadowFlameTrail(
             ballCenter = ballCenter,
-            nx = nx, ny = ny, px = px, py = py,
+            nx = nx,
+            ny = ny,
+            px = px,
+            py = py,
             tailLength = tailLength * 0.50f,
             halfWidth = ballRadius * 0.70f,
             color = Color(0xCC5000A0),
-            segments = 5, flickerT = flickerT + 2f, flickerAmp = 0.10f,
+            segments = 5,
+            flickerT = flickerT + 2f,
+            flickerAmp = 0.10f,
         )
         // Bright core trail (glowing violet, narrow)
         drawShadowFlameTrail(
             ballCenter = ballCenter,
-            nx = nx, ny = ny, px = px, py = py,
+            nx = nx,
+            ny = ny,
+            px = px,
+            py = py,
             tailLength = tailLength * 0.28f,
             halfWidth = ballRadius * 0.38f,
             color = Color(0xDD8800FF),
-            segments = 4, flickerT = flickerT + 3f, flickerAmp = 0.06f,
+            segments = 4,
+            flickerT = flickerT + 3f,
+            flickerAmp = 0.06f,
         )
 
         // Shadow fireball outer glow (dark void halo)

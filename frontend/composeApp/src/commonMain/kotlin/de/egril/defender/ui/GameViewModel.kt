@@ -13,6 +13,7 @@ import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
 import de.egril.defender.ui.animations.SKY_IS_FALLING_DURATION_MS
+import de.egril.defender.ui.gameplay.GamePlayConstants
 import de.egril.defender.ui.infopage.NewVersionInfo
 import de.egril.defender.ui.infopage.checkForNewerVersion
 import de.egril.defender.ui.settings.AppSettings
@@ -1745,6 +1746,13 @@ class GameViewModel {
 
             // Complete enemy turn: apply effects and return to player turn
             engine.completeEnemyTurn()
+
+            // Process pending barge deletions from Roderich's Broadside after the cannonball animation completes.
+            // The animation duration is BALLISTA_FLIGHT_DELAY_MS (1000ms), so we delay before processing.
+            if (_gameState.value?.pendingBargeDeletions?.isNotEmpty() == true) {
+                delay(GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS)
+                engine.processPendingBargeDeletions()
+            }
 
             // Trigger camera pan to bomb explosion position if any bomb exploded this turn
             val currentStateForBombs = _gameState.value

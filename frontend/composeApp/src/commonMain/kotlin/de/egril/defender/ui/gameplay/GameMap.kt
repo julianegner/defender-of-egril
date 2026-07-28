@@ -67,6 +67,7 @@ import de.egril.defender.ui.animations.RocketAttackOverlay
 import de.egril.defender.ui.animations.SkyIsFallingAnimation
 import de.egril.defender.ui.animations.SpearAttackOverlay
 import de.egril.defender.ui.animations.SpellDoubleReachColor
+import de.egril.defender.ui.animations.SylvanasRootGripAnimation
 import de.egril.defender.ui.animations.TowerAttackImpactAnimation
 import de.egril.defender.ui.animations.TowerConstructionCompleteAnimation
 import de.egril.defender.ui.animations.TowerReadyPulseAnimation
@@ -74,7 +75,6 @@ import de.egril.defender.ui.animations.TrapTriggerAnimation
 import de.egril.defender.ui.animations.WaterFlowAnimation
 import de.egril.defender.ui.animations.WizardAttackOverlay
 import de.egril.defender.ui.animations.WizardIdleAnimation
-import de.egril.defender.ui.animations.SylvanasRootGripAnimation
 import de.egril.defender.ui.animations.XarithonShadowCloudAnimation
 import de.egril.defender.ui.animations.XarithonShadowSpewOverlay
 import de.egril.defender.ui.editor.RiverFlowIndicator
@@ -168,7 +168,10 @@ private fun shieldWallCornerKey(
  * points. Returns a new list whose first/last points are interpolated so that the rendered arc
  * does not extend all the way to the sharp tip corners.
  */
-private fun trimArcPathEnds(points: List<Offset>, trimFraction: Float): List<Offset> {
+private fun trimArcPathEnds(
+    points: List<Offset>,
+    trimFraction: Float,
+): List<Offset> {
     if (points.size < 2) return points
     val segLens =
         FloatArray(points.size - 1) { i ->
@@ -2648,7 +2651,8 @@ private fun BoxScope.GridCellContent(
                     }
                     // Show red "XT" overlay if tower is disabled by Red Witch, Root Grip, or Shadow Spew.
                     // For Shadow Spew, wait until the fireball animation has landed before revealing.
-                    if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0 &&
+                    if (defender.isDisabled.value &&
+                        defender.disabledTurnsRemaining.value > 0 &&
                         (!defender.hasShadowSpewAnimation.value || showShadowSpewOnTower)
                     ) {
                         Text(

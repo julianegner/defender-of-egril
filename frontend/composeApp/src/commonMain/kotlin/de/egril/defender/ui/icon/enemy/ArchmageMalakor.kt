@@ -28,13 +28,13 @@ fun DrawScope.drawArchmageMalakorSymbol(
     val pathOutlineWidth = 2.5f
     val headCenterY = centerY + size * 0.12f
 
-    val robeColor = Color(0xFF0D1B3E)       // Deep void-blue robe
-    val hatColor = Color(0xFF0A0F2E)        // Near-black astral hat
-    val skinColor = Color(0xFFD8D0C8)       // Gaunt, pale skin
-    val eyeColor = Color(0xFFB0C8FF)        // Cold astral-white/blue glow
-    val orbColor = Color(0xFF7FAAFF)        // Bright astral orb
-    val runeColor = Color(0xFF3A5A9A)       // Subtle rune marks on hat
-    val wispColor = Color(0xFF5580CC)       // Faint energy wisps
+    val robeColor = Color(0xFF0D1B3E) // Deep void-blue robe
+    val hatColor = Color(0xFF0A0F2E) // Near-black astral hat
+    val skinColor = Color(0xFFD8D0C8) // Gaunt, pale skin
+    val eyeColor = Color(0xFFB0C8FF) // Cold astral-white/blue glow
+    val orbColor = Color(0xFF7FAAFF) // Bright astral orb
+    val runeColor = Color(0xFF3A5A9A) // Subtle rune marks on hat
+    val wispColor = Color(0xFF5580CC) // Faint energy wisps
 
     // --- Robe / body (not scaled) ---
     if (headScale == 1.0f) {
@@ -58,16 +58,20 @@ fun DrawScope.drawArchmageMalakorSymbol(
             Path().apply {
                 moveTo(centerX - size * 0.14f, centerY + size * 0.46f)
                 quadraticTo(
-                    centerX - size * 0.22f, centerY + size * 0.56f,
-                    centerX - size * 0.18f, centerY + size * 0.64f,
+                    centerX - size * 0.22f,
+                    centerY + size * 0.56f,
+                    centerX - size * 0.18f,
+                    centerY + size * 0.64f,
                 )
             }
         val rightWisp =
             Path().apply {
                 moveTo(centerX + size * 0.10f, centerY + size * 0.46f)
                 quadraticTo(
-                    centerX + size * 0.20f, centerY + size * 0.56f,
-                    centerX + size * 0.14f, centerY + size * 0.64f,
+                    centerX + size * 0.20f,
+                    centerY + size * 0.56f,
+                    centerX + size * 0.14f,
+                    centerY + size * 0.64f,
                 )
             }
         drawPath(leftWisp, wispColor, style = Stroke(width = size * 0.035f))
@@ -209,8 +213,10 @@ fun DrawScope.drawArchmageMalakorSymbol(
             Path().apply {
                 moveTo(centerX - size * 0.06f, headCenterY + size * 0.20f)
                 quadraticTo(
-                    centerX, headCenterY + size * 0.28f,
-                    centerX + size * 0.06f, headCenterY + size * 0.20f,
+                    centerX,
+                    headCenterY + size * 0.28f,
+                    centerX + size * 0.06f,
+                    headCenterY + size * 0.20f,
                 )
             }
         drawPath(beard, Color(0xFFCCCCCC), style = Stroke(width = size * 0.022f))

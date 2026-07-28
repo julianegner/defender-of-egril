@@ -341,6 +341,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.IGNIS_VA_THE_DRAGONVOICE -> drawIgnisVaSymbol(centerX, centerY, s * 1.0f, outlineColor)
                             AttackerType.DRAGON_TERROR -> drawDragonTerrorSymbol(centerX, centerY, s * 1.1f, outlineColor)
                             AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(centerX, centerY, s * 1.2f, outlineColor)
+                            AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, centerY, s * 1.05f, outlineColor)
                         }
                     }
                 }

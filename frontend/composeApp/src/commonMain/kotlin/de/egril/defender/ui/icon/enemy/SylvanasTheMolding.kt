@@ -53,16 +53,20 @@ fun DrawScope.drawSylvanasTheMoldingSymbol(
             Path().apply {
                 moveTo(centerX - size * 0.12f, centerY + size * 0.42f)
                 quadraticTo(
-                    centerX - size * 0.2f, centerY + size * 0.52f,
-                    centerX - size * 0.15f, centerY + size * 0.60f,
+                    centerX - size * 0.2f,
+                    centerY + size * 0.52f,
+                    centerX - size * 0.15f,
+                    centerY + size * 0.60f,
                 )
             }
         val rightTendril =
             Path().apply {
                 moveTo(centerX + size * 0.08f, centerY + size * 0.42f)
                 quadraticTo(
-                    centerX + size * 0.18f, centerY + size * 0.52f,
-                    centerX + size * 0.12f, centerY + size * 0.60f,
+                    centerX + size * 0.18f,
+                    centerY + size * 0.52f,
+                    centerX + size * 0.12f,
+                    centerY + size * 0.60f,
                 )
             }
         drawPath(leftTendril, vineColor, style = Stroke(width = size * 0.04f))
@@ -73,9 +77,12 @@ fun DrawScope.drawSylvanasTheMoldingSymbol(
             Path().apply {
                 moveTo(centerX - size * 0.28f, centerY + size * 0.12f)
                 cubicTo(
-                    centerX - size * 0.38f, centerY - size * 0.08f,
-                    centerX - size * 0.32f, centerY - size * 0.30f,
-                    centerX - size * 0.26f, centerY - size * 0.48f,
+                    centerX - size * 0.38f,
+                    centerY - size * 0.08f,
+                    centerX - size * 0.32f,
+                    centerY - size * 0.30f,
+                    centerX - size * 0.26f,
+                    centerY - size * 0.48f,
                 )
             }
         drawPath(staffVine, vineColor, style = Stroke(width = size * 0.05f))
@@ -115,27 +122,36 @@ fun DrawScope.drawSylvanasTheMoldingSymbol(
             Path().apply {
                 moveTo(centerX - size * 0.18f, headCenterY - size * 0.26f)
                 cubicTo(
-                    centerX - size * 0.26f, headCenterY - size * 0.44f,
-                    centerX - size * 0.12f, headCenterY - size * 0.52f,
-                    centerX - size * 0.06f, headCenterY - size * 0.40f,
+                    centerX - size * 0.26f,
+                    headCenterY - size * 0.44f,
+                    centerX - size * 0.12f,
+                    headCenterY - size * 0.52f,
+                    centerX - size * 0.06f,
+                    headCenterY - size * 0.40f,
                 )
             }
         val crownCenter =
             Path().apply {
                 moveTo(centerX - size * 0.04f, headCenterY - size * 0.28f)
                 cubicTo(
-                    centerX - size * 0.02f, headCenterY - size * 0.50f,
-                    centerX + size * 0.06f, headCenterY - size * 0.54f,
-                    centerX + size * 0.08f, headCenterY - size * 0.40f,
+                    centerX - size * 0.02f,
+                    headCenterY - size * 0.50f,
+                    centerX + size * 0.06f,
+                    headCenterY - size * 0.54f,
+                    centerX + size * 0.08f,
+                    headCenterY - size * 0.40f,
                 )
             }
         val crownRight =
             Path().apply {
                 moveTo(centerX + size * 0.14f, headCenterY - size * 0.24f)
                 cubicTo(
-                    centerX + size * 0.24f, headCenterY - size * 0.42f,
-                    centerX + size * 0.18f, headCenterY - size * 0.50f,
-                    centerX + size * 0.10f, headCenterY - size * 0.38f,
+                    centerX + size * 0.24f,
+                    headCenterY - size * 0.42f,
+                    centerX + size * 0.18f,
+                    headCenterY - size * 0.50f,
+                    centerX + size * 0.10f,
+                    headCenterY - size * 0.38f,
                 )
             }
         drawPath(crownLeft, vineColor, style = Stroke(width = size * 0.045f))
@@ -193,8 +209,10 @@ fun DrawScope.drawSylvanasTheMoldingSymbol(
             Path().apply {
                 moveTo(centerX - size * 0.10f, headCenterY + size * 0.13f)
                 quadraticTo(
-                    centerX, headCenterY + size * 0.17f,
-                    centerX + size * 0.10f, headCenterY + size * 0.13f,
+                    centerX,
+                    headCenterY + size * 0.17f,
+                    centerX + size * 0.10f,
+                    headCenterY + size * 0.13f,
                 )
             }
         drawPath(mouth, Color(0xFF8A7A6A), style = Stroke(width = size * 0.025f))

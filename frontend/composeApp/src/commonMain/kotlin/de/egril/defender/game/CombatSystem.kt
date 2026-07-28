@@ -78,6 +78,23 @@ class CombatSystem(
     }
 
     /**
+     * Returns the damage dealt by [defender] to [target], applying any target-side passive
+     * reductions. Currently this handles Cap'n Roderich's **Seaworthy** passive: attacks from
+     * barge-mounted towers (defenders on a raft) deal only 50 % damage to him.
+     */
+    private fun getEffectiveDamageAgainst(
+        defender: Defender,
+        target: Attacker,
+    ): Int {
+        val raw = getEffectiveDamage(defender)
+        val reduction = target.type.seaworthyDamageReduction
+        if (reduction <= 0f) return raw
+        // Seaworthy: only reduce when the attacker is on a barge (raft-mounted).
+        val isOnBarge = defender.raftId.value != null
+        return if (isOnBarge) (raw * (1f - reduction)).toInt().coerceAtLeast(1) else raw
+    }
+
+    /**
      * Returns true if the given position is a valid area-attack target tile:
      * on the enemy path, a bridge, or a spawn point.
      */
@@ -412,7 +429,7 @@ class CombatSystem(
         if (target.type.immuneToNonMagical) {
             return
         }
-        target.currentHealth.value -= getEffectiveDamage(defender)
+        target.currentHealth.value -= getEffectiveDamageAgainst(defender, target)
         if (target.currentHealth.value <= 0) {
             target.isDefeated.value = true
         }
@@ -477,7 +494,7 @@ class CombatSystem(
             if (target.type.isMirrorImage) continue
             // Check immunity to fireball (Red Demons)
             if (target.canBeDamagedByFireball()) {
-                target.currentHealth.value -= getEffectiveDamage(defender)
+                target.currentHealth.value -= getEffectiveDamageAgainst(defender, target)
                 if (target.currentHealth.value <= 0) {
                     target.isDefeated.value = true
                 }
@@ -575,7 +592,7 @@ class CombatSystem(
             // Check immunity to acid (Blue Demons)
             if (target.canBeDamagedByAcid()) {
                 // Initial damage is same as DOT tick damage (not full damage)
-                target.currentHealth.value -= getEffectiveDamage(defender) / LASTING_DAMAGE_DIVISOR
+                target.currentHealth.value -= getEffectiveDamageAgainst(defender, target) / LASTING_DAMAGE_DIVISOR
                 // Mark for additional rounds of DOT based on tower level
                 defender.dotRoundsRemaining[target.id] = defender.dotDuration
 
@@ -720,8 +737,11 @@ class CombatSystem(
             // animation plays, so the counter visually updates in sync with the animation.
             // pendingCoinGains tracks the total not yet credited; completeEnemyTurn flushes it
             // as a safety net in case the animation coroutine is cancelled before it fires.
-            val baseCoins = attacker.type.reward * attacker.level.value
-            val modifiedCoins = (baseCoins * state.incomeMultiplier).toInt() * state.coinSurgeMultiplier()
+            val baseCoins = attacker.type.reward * attacker.level.value * attacker.type.goldRewardMultiplier
+            // Cap'n Roderich also drops his accumulated treasure on defeat.
+            val treasureBonus = attacker.treasureCoins.value
+            val modifiedCoins =
+                (baseCoins * state.incomeMultiplier).toInt() * state.coinSurgeMultiplier() + treasureBonus
             if (modifiedCoins > 0) {
                 state.pendingCoinGains.value += modifiedCoins
             }
@@ -833,8 +853,7 @@ class CombatSystem(
         state.defenders
             .filter { tower ->
                 tower.position.value.hexDistanceTo(burnPosition) <= BURNING_TILE_RANGE
-            }
-            .forEach { tower ->
+            }.forEach { tower ->
                 if (!tower.isDisabled.value || tower.disabledTurnsRemaining.value < BURNING_TILE_DISABLE_TURNS + 1) {
                     tower.isDisabled.value = true
                     tower.disabledTurnsRemaining.value =

@@ -37,9 +37,10 @@ fun XarithonShadowCloudAnimation(
     val rotationAngle by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(5000, easing = LinearEasing),
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(5000, easing = LinearEasing),
+            ),
         label = "Shadow Cloud Rotation",
     )
 

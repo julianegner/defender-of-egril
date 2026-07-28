@@ -2448,6 +2448,12 @@ class GameEngine(
     fun processDefeatedAttackers() = combatSystem.processDefeatedAttackers()
 
     /**
+     * Process pending barge deletions from Roderich's Broadside attacks.
+     * Called after the cannonball animation duration has passed.
+     */
+    fun processPendingBargeDeletions() = enemyAbilities.processPendingBargeDeletions()
+
+    /**
      * Set callback for raft loss events (for achievements)
      */
     fun setRaftLossCallback(callback: (RaftLossReason) -> Unit) {

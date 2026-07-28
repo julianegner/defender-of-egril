@@ -184,9 +184,10 @@ private fun hexDirectionsToward(
     to: Position,
 ): List<Int> {
     if (from == to) return emptyList()
-    val distances = (0 until HEX_DIRECTION_COUNT).map { direction ->
-        from.getHexNeighbor(direction).hexDistanceTo(to)
-    }
+    val distances =
+        (0 until HEX_DIRECTION_COUNT).map { direction ->
+            from.getHexNeighbor(direction).hexDistanceTo(to)
+        }
     val minDist = distances.min()
     return distances.indices.filter { distances[it] == minDist }
 }

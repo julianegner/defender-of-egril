@@ -185,6 +185,7 @@ class PathfindingSystem(
         excludedPositions: Set<Position> = emptySet(),
         ignoreBarricades: Boolean = false,
     ): List<Position> {
+        val canUseRiver = attacker?.type?.canTraverseRiver == true
         // Use hexagonal neighbors instead of square grid
         return pos.getHexNeighbors().filter { neighbor ->
             neighbor.x >= 0 &&
@@ -196,7 +197,9 @@ class PathfindingSystem(
                         state.level.isTargetPosition(neighbor) ||
                         isGoalMineForDragon(neighbor, goal, attacker) ||
                         isDestroyedMinePosition(neighbor) ||
-                        state.isBridgeAt(neighbor)
+                        state.isBridgeAt(neighbor) ||
+                        // River-traversal units (e.g. Cap'n Roderich) can navigate over river tiles.
+                        (canUseRiver && state.level.isRiverTile(neighbor))
                 ) &&
                 // Bridges are walkable for enemies
                 !isBlocked(neighbor, attacker, ignoreBarricades) &&

@@ -157,6 +157,12 @@ class EnemyAbilitySystem(
                     // Shadow Spew: every 3 rounds, dark flames erupt in a 2×2 area disabling towers
                     handleXarithonShadowSpew(attacker)
                 }
+                AttackerType.CAPTAIN_RODERICH -> {
+                    // Broadside: every 3 rounds, fire a cannonball at the nearest barge, sinking it
+                    handleRoderichBroadside(attacker)
+                    // Gold Treasure: accumulate coins each enemy turn
+                    handleRoderichCoinGain(attacker)
+                }
                 else -> {
                     // Check if this unit should build a bridge
                     // Units build bridges when adjacent to rivers blocking their path
@@ -375,8 +381,7 @@ class EnemyAbilitySystem(
                     tower.isReady &&
                         !tower.isDisabled.value &&
                         sylvanas.position.value.hexDistanceTo(tower.position.value) <= range
-                }
-                .maxWithOrNull(
+                }.maxWithOrNull(
                     compareBy<Defender> { it.actualDamage }
                         .thenByDescending { sylvanas.position.value.hexDistanceTo(it.position.value) },
                 )
@@ -412,8 +417,7 @@ class EnemyAbilitySystem(
                 tower.isReady &&
                     !tower.isDisabled.value &&
                     malakor.position.value.hexDistanceTo(tower.position.value) <= range
-            }
-            .forEach { tower ->
+            }.forEach { tower ->
                 tower.isDisabled.value = true
                 tower.disabledTurnsRemaining.value = disableDurationTurns
             }
@@ -468,7 +472,9 @@ class EnemyAbilitySystem(
 
         val inheritedTarget =
             summoner.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
-                state.level.waypoints.first().nextTarget
+                state.level.waypoints
+                    .first()
+                    .nextTarget
             } else {
                 state.level.targetPositions.first()
             }
@@ -1485,5 +1491,131 @@ class EnemyAbilitySystem(
                 )
             }
         }
+    }
+
+    /**
+     * Broadside (Cap'n Roderich): every [AttackerType.broadsideCooldown] rounds Roderich fires a
+     * heavy cannonball at the nearest barge (raft-mounted tower). The barge is immediately sunk —
+     * no coins are refunded to the player. Instead, the tower's total build cost is added to
+     * Roderich's personal treasure chest ([Attacker.treasureCoins]).
+     *
+     * The ballista attack animation is reused for the cannonball visual.
+     */
+    private fun handleRoderichBroadside(roderich: Attacker) {
+        val cooldown = roderich.type.broadsideCooldown ?: return
+        if (roderich.villainCooldown.value > 0) {
+            roderich.villainCooldown.value--
+            return
+        }
+
+        // Calculate broadside range: 9 + level
+        val broadsideRange = 9 + roderich.level.value
+
+        // Find the nearest barge (any defender mounted on a raft) within range.
+        val nearestBarge =
+            state.rafts
+                .filter { raft -> raft.isActive }
+                .mapNotNull { raft ->
+                    val defender = state.defenders.find { it.id == raft.defenderId } ?: return@mapNotNull null
+                    val distance = roderich.position.value.hexDistanceTo(raft.currentPosition.value)
+                    if (distance <= broadsideRange) {
+                        Pair(raft, defender)
+                    } else {
+                        null
+                    }
+                }.minByOrNull { (raft, _) ->
+                    roderich.position.value.hexDistanceTo(raft.currentPosition.value)
+                }
+
+        if (nearestBarge != null) {
+            val (raft, defender) = nearestBarge
+            val bargePosition = raft.currentPosition.value
+
+            // Fire the cannonball animation (reuse ballista effect).
+            state.ballistaAttackEffects.add(
+                BallistaAttackEffect(
+                    sourcePosition = roderich.position.value,
+                    targetPosition = bargePosition,
+                    turnNumber = state.turnNumber.value,
+                ),
+            )
+
+            // Queue the barge for deletion after the animation completes.
+            // The barge removal is deferred to allow the cannonball animation to play.
+            state.pendingBargeDeletions.add(
+                PendingBargeDeletion(
+                    raftId = raft.id,
+                    defenderId = defender.id,
+                    towerCost = defender.totalCost,
+                    bargePosition = bargePosition,
+                ),
+            )
+
+            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                println(
+                    "DEBUG: Roderich Broadside fired at ${defender.type} id=${defender.id} at $bargePosition; " +
+                        "range=$broadsideRange (9 + level ${roderich.level.value})",
+                )
+            }
+
+            // Set cooldown since broadside was fired
+            roderich.villainCooldown.value = cooldown
+        }
+        // If no barge in range, cannonball stays ready (don't set cooldown, don't fire)
+    }
+
+    /**
+     * Gold Treasure passive (Cap'n Roderich): each enemy turn, Roderich loots [AttackerType.coinsPerTurn]
+     * coins and stashes them in his treasure chest ([Attacker.treasureCoins]). The full treasure
+     * is awarded to the player when Roderich is eventually defeated.
+     */
+    private fun handleRoderichCoinGain(roderich: Attacker) {
+        val gain = roderich.type.coinsPerTurn
+        if (gain <= 0) return
+        roderich.treasureCoins.value += gain
+
+        // Show a coin gain animation at Roderich's position to signal the looting.
+        state.coinGainEffects.add(
+            CoinGainEffect(
+                position = roderich.position.value,
+                amount = gain,
+                turnNumber = state.turnNumber.value,
+            ),
+        )
+    }
+
+    /**
+     * Process pending barge deletions from Roderich's Broadside attacks.
+     * Called after animation effects have been displayed to clean up the barges.
+     */
+    fun processPendingBargeDeletions() {
+        for (deletion in state.pendingBargeDeletions) {
+            // Find and destroy the raft
+            val raft = state.rafts.find { it.id == deletion.raftId }
+            if (raft != null) {
+                raft.isDestroyed.value = true
+            }
+
+            // Remove the defender
+            val defender = state.defenders.find { it.id == deletion.defenderId }
+            if (defender != null) {
+                state.defenders.remove(defender)
+            }
+
+            // Find Roderich and add treasure (he should exist since this was queued from his broadside)
+            val roderich = state.attackers.find { it.type == AttackerType.CAPTAIN_RODERICH && !it.isDefeated.value }
+            if (roderich != null) {
+                roderich.treasureCoins.value += deletion.towerCost
+
+                if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                    println(
+                        "DEBUG: Processed barge deletion - sank tower at ${deletion.bargePosition}, " +
+                            "treasure now ${roderich.treasureCoins.value}",
+                    )
+                }
+            }
+        }
+
+        state.pendingBargeDeletions.clear()
     }
 }
