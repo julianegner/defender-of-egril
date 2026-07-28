@@ -2157,4 +2157,10 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_ignis_va_call_short">Appel de la Couvée : invoque des Terrors-Dragons volants tous les 3 tours</string>
     <string name="villain_ignis_va_immune_short">Immune au feu : les boules de feu ne peuvent pas lui faire de mal</string>
     <string name="villain_ignis_va_burning_short">Bûcher Mortel : le sol en feu désactive les tours proches à la mort</string>
+    <string name="xarithon_name">Xarithon le Dragon des Ombres</string>
+    <string name="villain_xarithon_title">Xarithon le Dragon des Ombres entre sur le champ de bataille</string>
+    <string name="villain_xarithon_backstory">Xarithon est le champion personnel du mage maléfique Ewhad — un dragon des ombres rempli d\'énergie obscure qui efface la lumière sur son passage. Il agit de manière indépendante, chassant les tours avec une fureur froide et ancestrale.</string>
+    <string name="villain_xarithon_description">Crachat d\'Ombre : tous les quelques tours, des flammes sombres jaillissent sur une large zone, désactivant toutes les tours touchées.\nRésistance des Ombres : seules les attaques magiques peuvent lui nuire — les armes ordinaires traversent sa forme sombre sans effet.</string>
+    <string name="villain_xarithon_shadow_spew_short">Crachat d\'Ombre : désactive toutes les tours d\'une zone tous les 3 tours</string>
+    <string name="villain_xarithon_immune_short">Résistance des Ombres : immune aux attaques de mêlée, à distance et acide</string>
 </resources>

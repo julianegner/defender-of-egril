@@ -93,6 +93,13 @@ enum class AttackerType(
     // Floating movement: can pass over any tile type during movement but must end turn on a path
     // tile. Used by Archmage Malakor the Renegade.
     val canFlyOverTerrain: Boolean = false,
+    // Shadow resistance: immune to all non-magical attacks (MELEE and RANGED). Only magical attacks
+    // (AREA/fireball and mana spells) can pierce this dark shroud. Used by Xarithon the Shadow Dragon.
+    val immuneToNonMagical: Boolean = false,
+    // Shadow Spew: every N rounds, shadowy flames erupt in a 2×2 area, disabling all towers there
+    // for a fixed number of turns. Null means no shadow spew ability.
+    val shadowSpewCooldown: Int? = null,
+    val shadowSpewDurationTurns: Int = 0,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
@@ -383,6 +390,28 @@ enum class AttackerType(
         isBoss = false,
         canFlyOverTerrain = true,
     ),
+
+    // Xarithon the Shadow Dragon: the personal champion of Ewhad, a shadow dragon filled with dark
+    // energy. Uses the standard dragon alternating walk/fly movement mechanic.
+    // Shadow Spew (every 3 rounds): dark flames erupt in a 2×2 area, shutting down all towers there
+    // for 2 rounds — an enhanced version of the Red Witch disable effect.
+    // Shadow Resistance (passive): immune to all non-magical attacks (melee, ranged, acid); only
+    // fireball (wizard) and mana spells can pierce the dark shroud.
+    XARITHON_THE_SHADOW_DRAGON(
+        "Xarithon the Shadow Dragon",
+        health = 800,
+        speed = 2,
+        reward = 500,
+        xp = 150,
+        isDragon = true,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Xarithon",
+        immuneToAcid = true,
+        immuneToNonMagical = true,
+        shadowSpewCooldown = 3,
+        shadowSpewDurationTurns = 2,
+    ),
 }
 
 /**
@@ -530,6 +559,7 @@ fun attackerTargetDamage(
         AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> level // Archmage villain: 1 HP per level
         AttackerType.IGNIS_VA_THE_DRAGONVOICE -> level // Dragon-cultist villain: 1 HP per level
         AttackerType.DRAGON_TERROR -> level // Summoned flying dragon-terror: level damage on reach
+        AttackerType.XARITHON_THE_SHADOW_DRAGON -> level // Shadow dragon finale boss: level damage on reach
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
 
@@ -595,12 +625,14 @@ fun AttackerType.getSoulCallResurrectionType(): AttackerType? =
 /**
  * Returns true if this attacker is immune to a single attack from a defender of [defenderType].
  * Red Demons are immune to fireballs (AREA), Blue Demons are immune to acid (LASTING).
+ * Xarithon is immune to non-magical attacks (MELEE and RANGED).
  * Used for attack-damage previews shown when a defender is selected.
  */
 fun Attacker.isImmuneToAttackFrom(defenderType: DefenderType): Boolean =
     when (defenderType.attackType) {
         AttackType.AREA -> type.immuneToFireball
         AttackType.LASTING -> type.immuneToAcid
+        AttackType.MELEE, AttackType.RANGED -> type.immuneToNonMagical
         else -> false
     }
 

@@ -1548,9 +1548,12 @@ class GameViewModel {
         if (result) {
             // Surface any messages queued by the attack (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
             surfaceNextPendingMessageIfIdle()
-            // Check for immediate victory after attack
+            // Check for immediate level end after attack
+            // Check loss first: a villain breaching a target loses immediately, even if all enemies are defeated
             val state = _gameState.value
-            if (state != null && state.isLevelWon()) {
+            if (state != null && state.isLevelLost()) {
+                completeLevel(state.level.id, won = false)
+            } else if (state != null && state.isLevelWon()) {
                 completeLevel(state.level.id, won = true)
             }
         }
@@ -1567,9 +1570,12 @@ class GameViewModel {
 
             // Surface any messages queued by the attack (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
             surfaceNextPendingMessageIfIdle()
-            // Check for immediate victory after attack
+            // Check for immediate level end after attack
+            // Check loss first: a villain breaching a target loses immediately, even if all enemies are defeated
             val state = _gameState.value
-            if (state != null && state.isLevelWon()) {
+            if (state != null && state.isLevelLost()) {
+                completeLevel(state.level.id, won = false)
+            } else if (state != null && state.isLevelWon()) {
                 completeLevel(state.level.id, won = true)
             }
         }
@@ -1759,10 +1765,11 @@ class GameViewModel {
             val updatedState = _gameState.value ?: return@launch
             // Track turn count achievement (100 turns in a single level)
             achievementManager?.onTurnReached(updatedState.turnNumber.value)
-            if (updatedState.isLevelWon()) {
-                completeLevel(updatedState.level.id, won = true)
-            } else if (updatedState.isLevelLost()) {
+            // Check loss first: a villain breaching a target loses immediately, even if all enemies are defeated
+            if (updatedState.isLevelLost()) {
                 completeLevel(updatedState.level.id, won = false)
+            } else if (updatedState.isLevelWon()) {
+                completeLevel(updatedState.level.id, won = true)
             }
         }
     }
@@ -2224,15 +2231,16 @@ class GameViewModel {
                     val success = engine.performOneAutoAttack(id)
                     if (!success) break
 
-                    // Check for immediate level end (last enemy killed) — trigger completeLevel
+                    // Check for immediate level end (last enemy killed or villain breached) — trigger completeLevel
                     // right now instead of waiting for endPlayerTurn so the demo advances immediately.
+                    // Check loss first: a villain breaching a target loses immediately, even if all enemies are defeated
                     val stateAfterAttack = _gameState.value
                     if (stateAfterAttack != null) {
-                        if (stateAfterAttack.isLevelWon()) {
-                            completeLevel(stateAfterAttack.level.id, won = true)
-                            return
-                        } else if (stateAfterAttack.isLevelLost()) {
+                        if (stateAfterAttack.isLevelLost()) {
                             completeLevel(stateAfterAttack.level.id, won = false)
+                            return
+                        } else if (stateAfterAttack.isLevelWon()) {
+                            completeLevel(stateAfterAttack.level.id, won = true)
                             return
                         }
                     }
@@ -4104,10 +4112,13 @@ class GameViewModel {
         // scripted event the spell triggered.
         surfaceNextPendingMessageIfIdle()
 
-        // Check if the spell killed the last enemy and the level is now won
+        // Check if the spell killed the last enemy or caused a villain to breach a target
+        // A villain breaching a target loses immediately, even if all enemies are defeated
         if (spell == SpellType.ATTACK_AIMED || spell == SpellType.ATTACK_AREA) {
             val currentStateAfterSpell = _gameState.value
-            if (currentStateAfterSpell != null && currentStateAfterSpell.isLevelWon()) {
+            if (currentStateAfterSpell != null && currentStateAfterSpell.isLevelLost()) {
+                completeLevel(currentStateAfterSpell.level.id, won = false)
+            } else if (currentStateAfterSpell != null && currentStateAfterSpell.isLevelWon()) {
                 completeLevel(currentStateAfterSpell.level.id, won = true)
             }
         }
@@ -4604,7 +4615,10 @@ class GameViewModel {
         gameEngine?.processDefeatedAttackers()
         surfaceNextPendingMessageIfIdle()
         val stateAfter = _gameState.value
-        if (stateAfter != null && stateAfter.isLevelWon()) {
+        // Check loss first: a villain breaching a target loses immediately, even if all enemies are defeated
+        if (stateAfter != null && stateAfter.isLevelLost()) {
+            completeLevel(stateAfter.level.id, won = false)
+        } else if (stateAfter != null && stateAfter.isLevelWon()) {
             completeLevel(stateAfter.level.id, won = true)
         }
     }

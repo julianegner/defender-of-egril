@@ -408,6 +408,10 @@ class CombatSystem(
             removeHitMirrorImages(defender, listOf(target))
             return
         }
+        // Shadow resistance: immune to non-magical (melee/ranged) attacks
+        if (target.type.immuneToNonMagical) {
+            return
+        }
         target.currentHealth.value -= getEffectiveDamage(defender)
         if (target.currentHealth.value <= 0) {
             target.isDefeated.value = true

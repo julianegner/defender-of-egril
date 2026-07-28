@@ -75,6 +75,8 @@ import de.egril.defender.ui.animations.WaterFlowAnimation
 import de.egril.defender.ui.animations.WizardAttackOverlay
 import de.egril.defender.ui.animations.WizardIdleAnimation
 import de.egril.defender.ui.animations.SylvanasRootGripAnimation
+import de.egril.defender.ui.animations.XarithonShadowCloudAnimation
+import de.egril.defender.ui.animations.XarithonShadowSpewOverlay
 import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.ui.editor.map.MapControlState
 import de.egril.defender.ui.editor.map.MapControls
@@ -1008,6 +1010,15 @@ fun GameGrid(
                     if (wizardEffects.isNotEmpty()) {
                         WizardAttackOverlay(
                             effects = wizardEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
+                    val shadowSpewEffects = gameState.shadowSpewEffects.toList()
+                    if (shadowSpewEffects.isNotEmpty()) {
+                        XarithonShadowSpewOverlay(
+                            effects = shadowSpewEffects,
                             hexSizeDp = hexSize.value,
                             contentSize = measuredContentSize,
                             animate = AppSettings.enableAnimations.value,
@@ -2389,6 +2400,27 @@ private fun BoxScope.GridCellContent(
         }
     }
 
+    // When a shadow spew fireball is actively flying (shadowSpewEffects non-empty) and this tower
+    // was just disabled by shadow spew, delay revealing the shadow cloud overlay and the disabled
+    // turn counter until the fireball animation has landed — mirroring the field-effect delay used
+    // for wizard/alchemy attacks.  When animations are off, or when the tower was already disabled
+    // from a previous turn (no active fireball), show immediately.
+    val hasShadowSpewAnim = defender?.hasShadowSpewAnimation?.value == true
+    val shadowSpewFlyingNow = animationsEnabled && gameState.shadowSpewEffects.isNotEmpty()
+    var showShadowSpewOnTower by remember { mutableStateOf(hasShadowSpewAnim && !shadowSpewFlyingNow) }
+    LaunchedEffect(hasShadowSpewAnim, shadowSpewFlyingNow) {
+        when {
+            !hasShadowSpewAnim -> showShadowSpewOnTower = false
+            shadowSpewFlyingNow -> {
+                // Fireball is in flight — hide until it lands
+                showShadowSpewOnTower = false
+                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.SHADOW_SPEW_FLIGHT_DELAY_MS)
+                showShadowSpewOnTower = true
+            }
+            else -> showShadowSpewOnTower = true // Tower already disabled from a prior turn
+        }
+    }
+
     when {
         attacker != null -> {
             // Use graphical icon for enemy units
@@ -2607,8 +2639,18 @@ private fun BoxScope.GridCellContent(
                             modifier = Modifier.fillMaxSize(),
                         )
                     }
-                    // Show red "XT" overlay if tower is disabled by Red Witch
-                    if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0) {
+                    // Show Xarithon shadow cloud overlay if tower is disabled by Shadow Spew
+                    if (showShadowSpewOnTower) {
+                        XarithonShadowCloudAnimation(
+                            animate = AppSettings.enableAnimations.value,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                    // Show red "XT" overlay if tower is disabled by Red Witch, Root Grip, or Shadow Spew.
+                    // For Shadow Spew, wait until the fireball animation has landed before revealing.
+                    if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0 &&
+                        (!defender.hasShadowSpewAnimation.value || showShadowSpewOnTower)
+                    ) {
                         Text(
                             "${defender.disabledTurnsRemaining.value}T",
                             style = MaterialTheme.typography.headlineMedium,

@@ -2165,4 +2165,10 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_ignis_va_call_short">Call of the Brood: summons flying Dragon-Terrors every 3 rounds</string>
     <string name="villain_ignis_va_immune_short">Immune to fire: fireballs cannot harm her</string>
     <string name="villain_ignis_va_burning_short">Death Pyre: burning ground disables nearby towers on defeat</string>
+    <string name="xarithon_name">Xarithon the Shadow Dragon</string>
+    <string name="villain_xarithon_title">Xarithon the Shadow Dragon enters the battlefield</string>
+    <string name="villain_xarithon_backstory">Xarithon is the personal champion of the evil mage Ewhad — a shadow dragon filled with dark energy that blots out the light wherever he passes. He acts independently, hunting towers with cold, ancient fury.</string>
+    <string name="villain_xarithon_description">Shadow Spew: every few rounds, shadowy flames erupt across a wide area, shutting down all towers caught in the blast.\nShadow Resistance: only magical attacks can harm him — ordinary weapons pass harmlessly through his dark form.</string>
+    <string name="villain_xarithon_shadow_spew_short">Shadow Spew: disables all towers in an area every 3 rounds</string>
+    <string name="villain_xarithon_immune_short">Shadow Resistance: immune to melee, ranged, and acid attacks</string>
 </resources>

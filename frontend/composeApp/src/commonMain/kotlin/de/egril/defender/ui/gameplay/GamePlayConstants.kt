@@ -201,6 +201,9 @@ object GamePlayConstants {
         /** Delay before the wizard fireball hit animation so the fireball visibly arrives first. */
         const val WIZARD_FLIGHT_DELAY_MS = 1000L
 
+        /** Delay for Xarithon's shadow spew fireball flight animation. */
+        const val SHADOW_SPEW_FLIGHT_DELAY_MS = 1100L
+
         /** Delay before the alchemy acid vial hit animation so the vial visibly arrives first. */
         const val ALCHEMY_FLIGHT_DELAY_MS = 1000L
 

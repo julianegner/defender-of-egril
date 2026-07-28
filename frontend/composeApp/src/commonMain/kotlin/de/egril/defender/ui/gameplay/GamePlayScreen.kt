@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -19,7 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.compose.ui.graphics.Color
 import com.hyperether.resources.stringResource
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
@@ -31,7 +31,6 @@ import de.egril.defender.ui.animations.CoinFlightOverlay
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.getGameplayUIScale
 import de.egril.defender.ui.getLocalizedName
-import de.egril.defender.ui.getLocalizedShortName
 import de.egril.defender.ui.icon.SpeakerHighIcon
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.AppSettings
@@ -3277,6 +3276,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.IGNIS_VA_THE_DRAGONVOICE.name ->
                                             stringResource(Res.string.villain_ignis_va_title) to
                                                 (stringResource(Res.string.villain_ignis_va_backstory) + "\n" + stringResource(Res.string.villain_ignis_va_description))
+                                        AttackerType.XARITHON_THE_SHADOW_DRAGON.name ->
+                                            stringResource(Res.string.villain_xarithon_title) to
+                                                (stringResource(Res.string.villain_xarithon_backstory) + "\n" + stringResource(Res.string.villain_xarithon_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)
@@ -3764,6 +3766,8 @@ private fun villainMessageButtonColor(name: String?): Color? {
         AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> Color(0xFF0D1B3E)
         // Dragon cultist – deep dragon-fire crimson
         AttackerType.IGNIS_VA_THE_DRAGONVOICE -> Color(0xFF8B1A00)
+        // Shadow dragon – void purple-black
+        AttackerType.XARITHON_THE_SHADOW_DRAGON -> Color(0xFF1E0040)
         // Default for EWHAD and other villains (if any added in future)
         else -> null
     }

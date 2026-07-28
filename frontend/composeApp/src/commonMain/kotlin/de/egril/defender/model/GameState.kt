@@ -166,6 +166,12 @@ data class RocketAttackEffect(
     val turnNumber: Int,
 )
 
+data class ShadowSpewEffect(
+    val sourcePosition: Position, // Xarithon's tile
+    val targetPosition: Position, // Center of the 2×2 target area
+    val turnNumber: Int, // Turn when Shadow Spew was activated
+)
+
 /**
  * Types of in-game event messages that are shown to the player.
  */
@@ -254,6 +260,7 @@ data class GameState(
     val wizardAttackEffects: SnapshotStateList<WizardAttackEffect> = mutableStateListOf(), // Track wizard fireball overlay effects
     val alchemyAttackEffects: SnapshotStateList<AlchemyAttackEffect> = mutableStateListOf(), // Track alchemy acid vial overlay effects
     val rocketAttackEffects: SnapshotStateList<RocketAttackEffect> = mutableStateListOf(), // Track Baron rocket projectile overlay effects
+    val shadowSpewEffects: SnapshotStateList<ShadowSpewEffect> = mutableStateListOf(), // Track Xarithon shadow spew flying fireball effects
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM, // Track difficulty for this game session
     val tutorialState: MutableState<TutorialState> =
         mutableStateOf(

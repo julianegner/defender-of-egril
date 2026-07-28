@@ -2158,4 +2158,10 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_ignis_va_call_short">Richiamo della Covata: evoca Terrori Draconici volanti ogni 3 turni</string>
     <string name="villain_ignis_va_immune_short">Immune al fuoco: le palle di fuoco non possono farle del male</string>
     <string name="villain_ignis_va_burning_short">Pira Mortale: il suolo ardente disabilita le torri vicine alla morte</string>
+    <string name="xarithon_name">Xarithon il Drago delle Ombre</string>
+    <string name="villain_xarithon_title">Xarithon il Drago delle Ombre entra nel campo di battaglia</string>
+    <string name="villain_xarithon_backstory">Xarithon è il campione personale del mago malvagio Ewhad — un drago delle ombre pieno di energia oscura che cancella la luce ovunque passi. Agisce in modo indipendente, cacciando le torri con una furia fredda e ancestrale.</string>
+    <string name="villain_xarithon_description">Soffio d\'Ombra: ogni pochi turni, fiamme oscure eruttano su un\'ampia zona, disabilitando tutte le torri colpite.\nResistenza delle Ombre: solo gli attacchi magici possono ferirlo — le armi ordinarie attraversano la sua forma oscura senza effetto.</string>
+    <string name="villain_xarithon_shadow_spew_short">Soffio d\'Ombra: disabilita tutte le torri in un\'area ogni 3 turni</string>
+    <string name="villain_xarithon_immune_short">Resistenza delle Ombre: immune ad attacchi corpo a corpo, a distanza e acido</string>
 </resources>
