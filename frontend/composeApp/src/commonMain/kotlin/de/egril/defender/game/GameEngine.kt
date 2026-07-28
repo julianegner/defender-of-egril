@@ -2138,6 +2138,9 @@ class GameEngine(
         // Process special enemy abilities
         enemyAbilities.processEnemyAbilities()
 
+        // Process pending barge deletions from Roderich's Broadside after animations complete
+        enemyAbilities.processPendingBargeDeletions()
+
         // Process bridge building and bridge turn updates
         bridgeSystem.processBridges()
 

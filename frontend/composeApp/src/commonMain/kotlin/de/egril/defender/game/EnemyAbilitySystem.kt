@@ -1508,13 +1508,21 @@ class EnemyAbilitySystem(
             return
         }
 
-        // Find the nearest barge (any defender mounted on a raft).
+        // Calculate broadside range: 9 + level
+        val broadsideRange = 9 + roderich.level.value
+
+        // Find the nearest barge (any defender mounted on a raft) within range.
         val nearestBarge =
             state.rafts
                 .filter { raft -> raft.isActive }
                 .mapNotNull { raft ->
                     val defender = state.defenders.find { it.id == raft.defenderId } ?: return@mapNotNull null
-                    Pair(raft, defender)
+                    val distance = roderich.position.value.hexDistanceTo(raft.currentPosition.value)
+                    if (distance <= broadsideRange) {
+                        Pair(raft, defender)
+                    } else {
+                        null
+                    }
                 }.minByOrNull { (raft, _) ->
                     roderich.position.value.hexDistanceTo(raft.currentPosition.value)
                 }
@@ -1532,23 +1540,30 @@ class EnemyAbilitySystem(
                 ),
             )
 
-            // Add the tower's build cost to Roderich's treasure.
-            roderich.treasureCoins.value += defender.totalCost
-
-            // Sink the barge: mark raft destroyed, remove the tower from the game.
-            raft.isDestroyed.value = true
-            state.defenders.remove(defender)
+            // Queue the barge for deletion after the animation completes.
+            // The barge removal is deferred to allow the cannonball animation to play.
+            state.pendingBargeDeletions.add(
+                PendingBargeDeletion(
+                    raftId = raft.id,
+                    defenderId = defender.id,
+                    towerCost = defender.totalCost,
+                    bargePosition = bargePosition,
+                ),
+            )
 
             if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                 println(
-                    "DEBUG: Roderich Broadside sank ${defender.type} id=${defender.id} at $bargePosition; " +
-                        "treasure now ${roderich.treasureCoins.value}",
+                    "DEBUG: Roderich Broadside fired at ${defender.type} id=${defender.id} at $bargePosition; " +
+                        "range=$broadsideRange (9 + level ${roderich.level.value})",
                 )
             }
-        }
 
-        roderich.villainCooldown.value = cooldown
+            // Set cooldown since broadside was fired
+            roderich.villainCooldown.value = cooldown
+        }
+        // If no barge in range, cannonball stays ready (don't set cooldown, don't fire)
     }
+
 
     /**
      * Gold Treasure passive (Cap'n Roderich): each enemy turn, Roderich loots [AttackerType.coinsPerTurn]
@@ -1569,4 +1584,40 @@ class EnemyAbilitySystem(
             ),
         )
     }
+
+    /**
+     * Process pending barge deletions from Roderich's Broadside attacks.
+     * Called after animation effects have been displayed to clean up the barges.
+     */
+    fun processPendingBargeDeletions() {
+        for (deletion in state.pendingBargeDeletions) {
+            // Find and destroy the raft
+            val raft = state.rafts.find { it.id == deletion.raftId }
+            if (raft != null) {
+                raft.isDestroyed.value = true
+            }
+
+            // Remove the defender
+            val defender = state.defenders.find { it.id == deletion.defenderId }
+            if (defender != null) {
+                state.defenders.remove(defender)
+            }
+
+            // Find Roderich and add treasure (he should exist since this was queued from his broadside)
+            val roderich = state.attackers.find { it.type == AttackerType.CAPTAIN_RODERICH && !it.isDefeated.value }
+            if (roderich != null) {
+                roderich.treasureCoins.value += deletion.towerCost
+
+                if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                    println(
+                        "DEBUG: Processed barge deletion - sank tower at ${deletion.bargePosition}, " +
+                            "treasure now ${roderich.treasureCoins.value}",
+                    )
+                }
+            }
+        }
+
+        state.pendingBargeDeletions.clear()
+    }
 }
+
