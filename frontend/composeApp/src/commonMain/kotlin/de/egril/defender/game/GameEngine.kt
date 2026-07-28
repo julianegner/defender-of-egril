@@ -2138,9 +2138,6 @@ class GameEngine(
         // Process special enemy abilities
         enemyAbilities.processEnemyAbilities()
 
-        // Process pending barge deletions from Roderich's Broadside after animations complete
-        enemyAbilities.processPendingBargeDeletions()
-
         // Process bridge building and bridge turn updates
         bridgeSystem.processBridges()
 
@@ -2449,6 +2446,12 @@ class GameEngine(
      * Process defeated attackers (award coins, remove from list). Used after spell effects.
      */
     fun processDefeatedAttackers() = combatSystem.processDefeatedAttackers()
+
+    /**
+     * Process pending barge deletions from Roderich's Broadside attacks.
+     * Called after the cannonball animation duration has passed.
+     */
+    fun processPendingBargeDeletions() = enemyAbilities.processPendingBargeDeletions()
 
     /**
      * Set callback for raft loss events (for achievements)
