@@ -196,12 +196,16 @@ fun DrawScope.drawCaptainRoderichSymbol(
             Path().apply {
                 moveTo(centerX - size * 0.26f, headCenterY + size * 0.05f)
                 quadraticTo(
-                    centerX, headCenterY + size * 0.35f,
-                    centerX + size * 0.26f, headCenterY + size * 0.05f,
+                    centerX,
+                    headCenterY + size * 0.35f,
+                    centerX + size * 0.26f,
+                    headCenterY + size * 0.05f,
                 )
                 quadraticTo(
-                    centerX, headCenterY + size * 0.22f,
-                    centerX - size * 0.26f, headCenterY + size * 0.05f,
+                    centerX,
+                    headCenterY + size * 0.22f,
+                    centerX - size * 0.26f,
+                    headCenterY + size * 0.05f,
                 )
                 close()
             }
@@ -243,8 +247,10 @@ fun DrawScope.drawCaptainRoderichSymbol(
             Path().apply {
                 moveTo(centerX - size * 0.14f, headCenterY + size * 0.13f)
                 quadraticTo(
-                    centerX - size * 0.04f, headCenterY + size * 0.18f,
-                    centerX + size * 0.04f, headCenterY + size * 0.14f,
+                    centerX - size * 0.04f,
+                    headCenterY + size * 0.18f,
+                    centerX + size * 0.04f,
+                    headCenterY + size * 0.14f,
                 )
             }
         drawPath(smirkPath, Color(0xFF7A4820), style = Stroke(width = size * 0.025f))

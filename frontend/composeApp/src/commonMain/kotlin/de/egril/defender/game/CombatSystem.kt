@@ -853,8 +853,7 @@ class CombatSystem(
         state.defenders
             .filter { tower ->
                 tower.position.value.hexDistanceTo(burnPosition) <= BURNING_TILE_RANGE
-            }
-            .forEach { tower ->
+            }.forEach { tower ->
                 if (!tower.isDisabled.value || tower.disabledTurnsRemaining.value < BURNING_TILE_DISABLE_TURNS + 1) {
                     tower.isDisabled.value = true
                     tower.disabledTurnsRemaining.value =

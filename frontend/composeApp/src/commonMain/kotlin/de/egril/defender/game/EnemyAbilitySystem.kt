@@ -381,8 +381,7 @@ class EnemyAbilitySystem(
                     tower.isReady &&
                         !tower.isDisabled.value &&
                         sylvanas.position.value.hexDistanceTo(tower.position.value) <= range
-                }
-                .maxWithOrNull(
+                }.maxWithOrNull(
                     compareBy<Defender> { it.actualDamage }
                         .thenByDescending { sylvanas.position.value.hexDistanceTo(it.position.value) },
                 )
@@ -418,8 +417,7 @@ class EnemyAbilitySystem(
                 tower.isReady &&
                     !tower.isDisabled.value &&
                     malakor.position.value.hexDistanceTo(tower.position.value) <= range
-            }
-            .forEach { tower ->
+            }.forEach { tower ->
                 tower.isDisabled.value = true
                 tower.disabledTurnsRemaining.value = disableDurationTurns
             }
@@ -474,7 +472,9 @@ class EnemyAbilitySystem(
 
         val inheritedTarget =
             summoner.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
-                state.level.waypoints.first().nextTarget
+                state.level.waypoints
+                    .first()
+                    .nextTarget
             } else {
                 state.level.targetPositions.first()
             }
@@ -1515,8 +1515,7 @@ class EnemyAbilitySystem(
                 .mapNotNull { raft ->
                     val defender = state.defenders.find { it.id == raft.defenderId } ?: return@mapNotNull null
                     Pair(raft, defender)
-                }
-                .minByOrNull { (raft, _) ->
+                }.minByOrNull { (raft, _) ->
                     roderich.position.value.hexDistanceTo(raft.currentPosition.value)
                 }
 

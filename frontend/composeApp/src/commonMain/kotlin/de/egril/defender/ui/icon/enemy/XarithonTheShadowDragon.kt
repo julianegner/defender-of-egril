@@ -176,10 +176,11 @@ fun DrawScope.drawXarithonTheShadowDragonSymbol(
         drawCircle(
             color = flameColor,
             radius = size * 0.07f - i * size * 0.01f,
-            center = Offset(
-                headCenterX + size * 0.22f + i * size * 0.10f,
-                headCenterY - size * 0.12f + i * size * 0.04f,
-            ),
+            center =
+                Offset(
+                    headCenterX + size * 0.22f + i * size * 0.10f,
+                    headCenterY - size * 0.12f + i * size * 0.04f,
+                ),
         )
     }
 }

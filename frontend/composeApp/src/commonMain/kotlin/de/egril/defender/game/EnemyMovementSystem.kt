@@ -485,8 +485,10 @@ class EnemyMovementSystem(
 
             if (dist < speed) {
                 for (neighbor in pos.getHexNeighbors()) {
-                    if (neighbor.x < 0 || neighbor.x >= state.level.gridWidth ||
-                        neighbor.y < 0 || neighbor.y >= state.level.gridHeight
+                    if (neighbor.x < 0 ||
+                        neighbor.x >= state.level.gridWidth ||
+                        neighbor.y < 0 ||
+                        neighbor.y >= state.level.gridHeight
                     ) {
                         continue
                     }
