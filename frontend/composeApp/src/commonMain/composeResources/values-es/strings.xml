@@ -2168,4 +2168,12 @@
     <string name="villain_roderich_description">Marinero: navega tanto por tierra como por agua y sufre mucho menos daño de las torres en barcazas.\nBandazo: periódicamente dispara una bala de cañón a la barcaza más cercana, hundiéndola al instante — la torre se pierde y su coste pasa a su tesoro.\nTesoro de Oro: saquea riquezas cada turno. Al ser derrotado, suelta todo el botín acumulado — ¡una enorme recompensa para vuestras arcas!</string>
     <string name="villain_roderich_seaworthy_short">Marinero: recibe un 50 % menos de daño de las torres en barcazas</string>
     <string name="villain_roderich_broadside_short">Bandazo: hunde la barcaza más cercana cada 3 turnos</string>
+
+    <string name="kraken_name">El Kraken</string>
+    <string name="villain_kraken_barge_grip_short">El Kraken tiene esta barcaza en su agarre. La barcaza será destruida en el próximo turno</string>
+    <string name="villain_kraken_dive_short">El Kraken puede sumergirse</string>
+    <string name="villain_kraken_water_domain_short">El Kraken vive en el agua y solo se mueve por ella</string>
+    <string name="villain_kraken_description">El Kraken es un enorme monstruo marino que puede atacar barcazas y hundirlas, y puede sumergirse para evitar el daño. Es un rival formidable que requiere una estrategia cuidadosa.</string>
+    <string name="villain_kraken_title">El Kraken entra al campo de batalla</string>
+    <string name="villain_kraken_backstory">El Kraken ha emergido de las profundidades del océano, amenazando a todos los que navegan por los mares. Sus tentáculos pueden aplastar barcos y su presencia infunde miedo incluso en los marineros más valientes.</string>
 </resources>
