@@ -160,6 +160,7 @@ fun EnemyIcon(
                 AttackerType.DRAGON_TERROR -> drawDragonTerrorSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
                 AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(centerX, centerY, iconSize * 0.90f, headScale = headScale)
                 AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, centerY, iconSize * 0.80f, headScale = headScale)
+                AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
             }
         }
 
@@ -276,6 +277,7 @@ fun EnemyTypeIcon(
                 AttackerType.DRAGON_TERROR -> drawDragonTerrorSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
                 AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(centerX, centerY, iconSize * 0.90f, headScale = headScale)
                 AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, centerY, iconSize * 0.80f, headScale = headScale)
+                AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
             }
         }
     }

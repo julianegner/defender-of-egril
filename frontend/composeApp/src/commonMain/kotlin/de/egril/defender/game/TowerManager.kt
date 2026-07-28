@@ -102,6 +102,8 @@ class TowerManager(
     fun upgradeDefender(defenderId: Int): Boolean {
         val defender = state.defenders.find { it.id == defenderId } ?: return false
         if (!state.canUpgradeDefender(defender)) return false
+        // cannot upgrade a barge that is gripped by a kraken
+        if (defender.isGrippedByKraken.value) return false
 
         // Store the old actionsPerTurn before upgrade
         val oldActionsPerTurn = defender.actionsPerTurnCalculated

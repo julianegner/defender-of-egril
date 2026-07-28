@@ -381,7 +381,7 @@ fun AttackerInfo(
 
                     // Additional info about special abilities
                     val infoEntries = mutableListOf<AttackerInfoEntry>()
-                    if (attacker.type.isVillain) {
+                    if (attacker.type.isVillain && attacker.type != AttackerType.THE_KRAKEN) {
                         infoEntries.add(
                             AttackerInfoEntry(
                                 icon = AttackerInfoEntryIcon.WARNING,
@@ -536,8 +536,8 @@ fun AttackerInfo(
                     if (attacker.type == AttackerType.THE_KRAKEN) {
                         infoEntries.add(
                             AttackerInfoEntry(
-                                icon = AttackerInfoEntryIcon.LIGHTNING,
-                                text = stringResource(Res.string.villain_kraken_barge_grip_short),
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.villain_kraken_water_domain_short),
                                 color = GamePlayColors.InfoDark,
                             ),
                         )
@@ -545,13 +545,6 @@ fun AttackerInfo(
                             AttackerInfoEntry(
                                 icon = AttackerInfoEntryIcon.SHIELD,
                                 text = stringResource(Res.string.villain_kraken_dive_short),
-                                color = GamePlayColors.InfoDark,
-                            ),
-                        )
-                        infoEntries.add(
-                            AttackerInfoEntry(
-                                icon = AttackerInfoEntryIcon.SHIELD,
-                                text = stringResource(Res.string.villain_kraken_water_domain_short),
                                 color = GamePlayColors.InfoDark,
                             ),
                         )

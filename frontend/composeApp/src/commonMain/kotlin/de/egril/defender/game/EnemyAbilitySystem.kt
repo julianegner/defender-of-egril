@@ -25,6 +25,12 @@ class EnemyAbilitySystem(
 
         /** Extra disable rounds granted to red witches empowered by the Coven Synergy aura. */
         private const val COVEN_DISABLE_EXTRA_TURNS = 1
+
+        /** Fixed cooldown (enemy turns) between consecutive Kraken dives. */
+        private const val KRAKEN_DIVE_COOLDOWN = 3
+
+        /** How many enemy turns the Kraken stays submerged per dive. */
+        private const val KRAKEN_DIVE_DURATION = 2
     }
 
     /**
@@ -1628,14 +1634,6 @@ class EnemyAbilitySystem(
     // ─────────────────────────────────────────────────────────────────────────
     // The Kraken
     // ─────────────────────────────────────────────────────────────────────────
-
-    companion object KrakenConstants {
-        /** Fixed cooldown (enemy turns) between consecutive Kraken dives. */
-        private const val KRAKEN_DIVE_COOLDOWN = 7
-
-        /** How many enemy turns the Kraken stays submerged per dive. */
-        private const val KRAKEN_DIVE_DURATION = 1
-    }
 
     /**
      * Dive tick: called every enemy turn for The Kraken.

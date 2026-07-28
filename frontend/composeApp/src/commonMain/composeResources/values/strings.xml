@@ -2177,4 +2177,12 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_roderich_description">Seaworthy: navigates both land and water, and suffers far less damage from barge-mounted towers.\nBroadside: periodically fires a cannonball at the nearest barge, sinking it instantly — the tower is lost and its cost joins his treasure.\nGold Treasure: loots riches every turn. When defeated he drops all of his accumulated plunder — a massive reward for your coffers!</string>
     <string name="villain_roderich_seaworthy_short">Seaworthy: takes 50% less damage from barge-mounted towers</string>
     <string name="villain_roderich_broadside_short">Broadside: sinks the nearest barge every 3 rounds</string>
+
+    <string name="kraken_name">The Kraken</string>
+    <string name="villain_kraken_barge_grip_short">The Kraken has this Barge in his Grip. The Barge will be destroyed in the next turn</string>
+    <string name="villain_kraken_dive_short">The Kraken can dive</string>
+    <string name="villain_kraken_water_domain_short">The Kraken lives in the Water and only moves there</string>
+    <string name="villain_kraken_description">The Kraken is a massive sea monster that can attack barges and sink them and can dive to avoid damage. It is a formidable opponent that requires careful strategy to defeat.</string>
+    <string name="villain_kraken_title">The Kraken enters the battlefield</string>
+    <string name="villain_kraken_backstory">The Kraken has emerged from the depths of the ocean, threatening all who sail the seas. Its tentacles can crush ships and its presence instills fear in even the bravest sailors.</string>
 </resources>

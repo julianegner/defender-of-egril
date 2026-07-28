@@ -267,6 +267,21 @@ fun DefenderInfo(
                     }
                 }
 
+                if (defender.isGrippedByKraken.value) {
+                    Spacer(modifier = Modifier.width(horizontalSpacing))
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            stringResource(Res.string.villain_kraken_barge_grip_short),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = GamePlayColors.ErrorDark,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+
                 if (defender.isReady) {
                     if (defender.type == DefenderType.DRAGONS_LAIR) {
                         // Dragon's lair - no actions, can't be sold

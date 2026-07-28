@@ -283,14 +283,11 @@ class EnemyMovementSystem(
      *
      * The unit moves on river tiles only, heading toward the nearest active barge (raft).
      * If no barge exists on the map, the unit stays in place.
-     * While diving ([Attacker.isDiving] is true) the unit does not move.
      *
      * @return A list of intermediate positions to move through (up to [AttackerType.speed] steps),
      *         or an empty list when no move is possible.
      */
     fun calculateKrakenMovementPath(kraken: Attacker): List<Position> {
-        if (kraken.isDiving.value) return emptyList()
-
         val startPos = kraken.position.value
         val speed = kraken.type.speed
 
