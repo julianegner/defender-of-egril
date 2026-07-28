@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import de.egril.defender.model.isRealVillain
 import de.egril.defender.ui.common.ScrollableTabRowWithHints
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.icon.defender.*
@@ -36,7 +38,8 @@ import org.jetbrains.compose.resources.painterResource
  * Tab 0: Original sticker with ApplicationBanner, tagline and URL
  * Tab 1: Banner enemies sticker (Goblin, Ork, EvilWizard group with outline)
  * Tab 2: Banner towers sticker (Bow, Wizard group)
- * Tabs 3-14: One tab per enemy type (each with outline), following AttackerType order
+ * Tab 3: All villains in a 3-row × 6-column grid
+ * Tabs 4+: One tab per enemy type (each with outline), following AttackerType order
  * Last tab: QR code sticker with URL title below
  */
 @Composable
@@ -52,6 +55,7 @@ fun StickerScreen(
             buildList {
                 add(SymbolTab.BannerEnemies)
                 add(SymbolTab.BannerTowers)
+                add(SymbolTab.VillainsGroup)
                 AttackerType.entries.filterNot { it.isMirrorImage }.forEach { add(SymbolTab.SingleEnemy(it)) }
             }
         }
@@ -162,6 +166,9 @@ private sealed interface SymbolTab {
     /** The two banner towers (Bow, Wizard) */
     data object BannerTowers : SymbolTab
 
+    /** The group of villains */
+    data object VillainsGroup : SymbolTab
+
     /** A single enemy type with outline */
     data class SingleEnemy(
         val type: AttackerType,
@@ -176,6 +183,7 @@ private fun SymbolTab.label(): String =
     when (this) {
         is SymbolTab.BannerEnemies -> stringResource(Res.string.sticker_tab_enemies)
         is SymbolTab.BannerTowers -> stringResource(Res.string.sticker_tab_towers)
+        is SymbolTab.VillainsGroup -> stringResource(Res.string.sticker_tab_villains)  // ← add this line
         is SymbolTab.SingleEnemy -> type.getLocalizedName()
     }
 
@@ -243,6 +251,11 @@ private fun StickerSymbolTab(tab: SymbolTab) {
             Color.Black
         }
     val greatVibesFont = FontFamily(Font(Res.font.greatvibes_regular))
+
+    if (tab is SymbolTab.VillainsGroup) {
+        StickerVillainsGroupContent(outlineColor, greatVibesFont)
+        return
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -374,6 +387,102 @@ private fun StickerSymbolTab(tab: SymbolTab) {
             fontSize = 18.sp,
             color = MaterialTheme.colorScheme.onBackground,
         )
+    }
+}
+
+/**
+ * Content for the villains group sticker: all real villains in a 3-row × 6-column grid,
+ * followed by the "Defender of Egril" text and URL.
+ */
+@Composable
+private fun StickerVillainsGroupContent(
+    outlineColor: Color,
+    greatVibesFont: FontFamily,
+) {
+    val villains = remember { AttackerType.entries.filter { it.isRealVillain } }
+    val rows = villains.chunked(6)
+    val cellSize = if (isPlatformMobile) 52.dp else 76.dp
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        rows.forEach { row ->
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                row.forEach { type ->
+                    Box(modifier = Modifier.size(cellSize)) {
+                        Canvas(modifier = Modifier.fillMaxSize()) {
+                            val cx = size.width / 2
+                            val cy = size.height / 2
+                            val s = minOf(size.width, size.height) * 0.75f
+                            drawVillainSymbol(type, cx, cy, s, outlineColor)
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = "Defender of",
+            fontSize = 28.sp,
+            fontFamily = greatVibesFont,
+            fontWeight = FontWeight.Normal,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+        Text(
+            text = "Egril",
+            fontSize = 48.sp,
+            fontFamily = greatVibesFont,
+            fontWeight = FontWeight.Normal,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            "defender.egril.de",
+            style = MaterialTheme.typography.bodyLarge,
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+    }
+}
+
+private fun DrawScope.drawVillainSymbol(
+    type: AttackerType,
+    cx: Float,
+    cy: Float,
+    s: Float,
+    outlineColor: Color,
+) {
+    when (type) {
+        AttackerType.EWHAD -> drawEwhadSymbol(cx, cy, s * 1.1f, outlineColor)
+        AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(cx, cy, s, outlineColor)
+        AttackerType.GAROKK -> drawGarokkSymbol(cx, cy, s * 1.1f, outlineColor)
+        AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(cx, cy, s, outlineColor)
+        AttackerType.ARAXXA -> drawAraxxaSymbol(cx, cy, s, outlineColor)
+        AttackerType.BARON_RATTERZAHN -> drawBaronRatterzahnSymbol(cx, cy, s * 1.1f)
+        AttackerType.SILAS_THE_MASKMASTER,
+        AttackerType.SILAS_MIRROR_IMAGE,
+        -> drawSilasSymbol(cx, cy, s * 1.05f, outlineColor)
+        AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> drawFallenShieldmaidenFreyaSymbol(cx, cy, s * 1.05f, outlineColor)
+        AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> drawPrinceValeriusSymbol(cx, cy, s * 1.05f, outlineColor)
+        AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> drawSybillaSymbol(cx, cy, s * 1.05f, outlineColor)
+        AttackerType.HAGA -> drawHagaSymbol(cx, cy, s, outlineColor)
+        AttackerType.ZUSSA -> drawZussaSymbol(cx, cy, s, outlineColor)
+        AttackerType.SYLVANAS_THE_MOLDING -> drawSylvanasTheMoldingSymbol(cx, cy, s, outlineColor)
+        AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> drawArchmageMalakorSymbol(cx, cy, s, outlineColor)
+        AttackerType.IGNIS_VA_THE_DRAGONVOICE -> drawIgnisVaSymbol(cx, cy, s, outlineColor)
+        AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(cx, cy, s * 1.2f, outlineColor)
+        AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(cx, cy, s * 1.05f, outlineColor)
+        AttackerType.THE_KRAKEN -> drawKrakenSymbol(cx, cy, s * 0.85f, outlineColor)
+        else -> {}
     }
 }
 
