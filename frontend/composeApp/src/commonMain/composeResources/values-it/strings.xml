@@ -2170,4 +2170,12 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_roderich_description">Navigatore: si muove sia su terra che su acqua e subisce molti meno danni dalle torri sulle chiatte.\nFilata: periodicamente spara una palla di cannone alla chiatta più vicina, affondandola all\'istante — la torre è persa e il suo costo entra nel suo tesoro.\nTesoro d\'Oro: saccheggia ricchezze ogni turno. Quando viene sconfitto, lascia cadere tutto il bottino accumulato — una ricompensa enorme per le vostre casse!</string>
     <string name="villain_roderich_seaworthy_short">Navigatore: subisce il 50 % in meno di danni dalle torri sulle chiatte</string>
     <string name="villain_roderich_broadside_short">Filata: affonda la chiatta più vicina ogni 3 turni</string>
+
+    <string name="kraken_name">Il Kraken</string>
+    <string name="villain_kraken_barge_grip_short">Il Kraken tiene questa chiatta nella sua morsa. La chiatta verrà distrutta nel prossimo turno</string>
+    <string name="villain_kraken_dive_short">Il Kraken può immergersi</string>
+    <string name="villain_kraken_water_domain_short">Il Kraken vive nell\'acqua e si muove solo lì</string>
+    <string name="villain_kraken_description">Il Kraken è un enorme mostro marino che può attaccare le chiatte e affondarle e può immergersi per evitare i danni. È un avversario formidabile che richiede una strategia attenta.</string>
+    <string name="villain_kraken_title">Il Kraken entra nel campo di battaglia</string>
+    <string name="villain_kraken_backstory">Il Kraken è emerso dalle profondità dell\'oceano, minacciando chiunque navighi i mari. I suoi tentacoli possono schiacciare le navi e la sua presenza incute paura anche ai marinai più coraggiosi.</string>
 </resources>

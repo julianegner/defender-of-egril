@@ -186,6 +186,7 @@ class PathfindingSystem(
         ignoreBarricades: Boolean = false,
     ): List<Position> {
         val canUseRiver = attacker?.type?.canTraverseRiver == true
+        val isWaterOnly = attacker?.type?.canOnlyMoveOnWater == true
         // Use hexagonal neighbors instead of square grid
         return pos.getHexNeighbors().filter { neighbor ->
             neighbor.x >= 0 &&
@@ -193,13 +194,18 @@ class PathfindingSystem(
                 neighbor.y >= 0 &&
                 neighbor.y < state.level.gridHeight &&
                 (
-                    state.level.isOnPath(neighbor) ||
-                        state.level.isTargetPosition(neighbor) ||
-                        isGoalMineForDragon(neighbor, goal, attacker) ||
-                        isDestroyedMinePosition(neighbor) ||
-                        state.isBridgeAt(neighbor) ||
-                        // River-traversal units (e.g. Cap'n Roderich) can navigate over river tiles.
-                        (canUseRiver && state.level.isRiverTile(neighbor))
+                    if (isWaterOnly) {
+                        // Water-only enemies (e.g. The Kraken) may ONLY traverse river tiles.
+                        state.level.isRiverTile(neighbor)
+                    } else {
+                        state.level.isOnPath(neighbor) ||
+                            state.level.isTargetPosition(neighbor) ||
+                            isGoalMineForDragon(neighbor, goal, attacker) ||
+                            isDestroyedMinePosition(neighbor) ||
+                            state.isBridgeAt(neighbor) ||
+                            // River-traversal units (e.g. Cap'n Roderich) can navigate over river tiles.
+                            (canUseRiver && state.level.isRiverTile(neighbor))
+                    }
                 ) &&
                 // Bridges are walkable for enemies
                 !isBlocked(neighbor, attacker, ignoreBarricades) &&

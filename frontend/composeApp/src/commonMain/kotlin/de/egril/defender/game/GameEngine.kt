@@ -820,7 +820,11 @@ class GameEngine(
         val allAttackers = state.attackers.filter { !it.isDefeated.value }
         val dragons = allAttackers.filter { it.type.isDragon }
         val floaters = allAttackers.filter { it.type.canFlyOverTerrain }
-        val regularAttackers = allAttackers.filter { !it.type.isDragon && !it.type.canFlyOverTerrain }.toMutableList()
+        val krakens = allAttackers.filter { it.type.canOnlyMoveOnWater }
+        val regularAttackers =
+            allAttackers
+                .filter { !it.type.isDragon && !it.type.canFlyOverTerrain && !it.type.canOnlyMoveOnWater }
+                .toMutableList()
 
         if (allAttackers.isEmpty()) return EnemyTurnMovements(allMovementSteps, emptySet())
 
@@ -837,6 +841,14 @@ class GameEngine(
             val movementPath = enemyMovement.calculateFloatingMovementPath(floater)
             for (position in movementPath) {
                 allMovementSteps.add(listOf(Pair(floater.id, position)))
+            }
+        }
+
+        // Handle water-only movement (e.g. The Kraken) – river tiles only, targets nearest barge
+        for (kraken in krakens) {
+            val movementPath = enemyMovement.calculateKrakenMovementPath(kraken)
+            for (position in movementPath) {
+                allMovementSteps.add(listOf(Pair(kraken.id, position)))
             }
         }
 

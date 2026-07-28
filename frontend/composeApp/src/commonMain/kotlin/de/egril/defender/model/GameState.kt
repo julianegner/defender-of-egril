@@ -452,7 +452,9 @@ data class GameState(
         if (level.isSandbox) return false
         // Check if all planned spawns have occurred and all enemies are defeated
         val allSpawned = spawnPlan.all { it.spawnTurn <= turnNumber.value }
-        return allSpawned && attackers.all { it.isDefeated.value }
+        return allSpawned && attackers
+            .filter { it.type != AttackerType.THE_KRAKEN }
+            .all { it.isDefeated.value }
     }
 
     fun isLevelLost(): Boolean {
@@ -510,7 +512,13 @@ data class GameState(
         if (aliveEnemies.any { it.type.isSummoner() } || enemiesToSpawn.any { it.attackerType.isSummoner() }) return false
         // A villain (on the field or still to spawn) loses the level the moment it reaches a target,
         // regardless of remaining health, so a guaranteed win can never be offered while one remains.
-        if (aliveEnemies.any { it.type.isRealVillain } || enemiesToSpawn.any { it.attackerType.isRealVillain }) return false
+        if (aliveEnemies
+                .filter { it.type != AttackerType.THE_KRAKEN }
+                .any { it.type.isRealVillain }
+            || enemiesToSpawn
+                .filter { it.attackerType != AttackerType.THE_KRAKEN }
+                .any { it.attackerType.isRealVillain }
+            ) return false
 
         return getRemainingEnemyThreat() < healthPoints.value.toLong()
     }
@@ -559,7 +567,7 @@ data class GameState(
 
     fun canPlaceDefender(type: DefenderType): Boolean = (level.isSandbox || coins.value >= type.baseCost) && level.availableTowers.contains(type)
 
-    fun canUpgradeDefender(defender: Defender): Boolean = level.isSandbox || coins.value >= defender.upgradeCost
+    fun canUpgradeDefender(defender: Defender): Boolean = (level.isSandbox || coins.value >= defender.upgradeCost) && !defender.isGrippedByKraken.value
 
     fun hasActionsRemaining(): Boolean = actionsRemainingThisTurn.value > 0
 
@@ -625,7 +633,7 @@ data class GameState(
      */
     fun hasDefendersWithUnusedActions(): Boolean {
         // Get active attackers (not defeated, not building bridges)
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value && !it.isDiving.value }
 
         return defenders.any { defender ->
             if (!defender.isReady ||
@@ -660,7 +668,7 @@ data class GameState(
      * left-to-right) for deterministic Tab cycling.
      */
     fun getActionableTowersForTab(): List<Defender> {
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value && !it.isDiving.value }
         return defenders
             .filter { defender ->
                 if (!defender.isReady ||
@@ -688,7 +696,7 @@ data class GameState(
      * Excludes special actions like mines, traps, and alchemy towers.
      */
     fun hasDefendersForAutoAttack(): Boolean {
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value && !it.isDiving.value }
         if (activeAttackers.isEmpty()) return false
 
         return defenders.any { defender ->
@@ -720,7 +728,7 @@ data class GameState(
      */
     fun getDefenderTypesWithSpecialActions(): List<DefenderType> {
         val typesWithActions = mutableSetOf<DefenderType>()
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value && !it.isDiving.value }
 
         defenders.forEach { defender ->
             if (!defender.isReady || defender.actionsRemaining.value <= 0 || defender.isDisabled.value) {

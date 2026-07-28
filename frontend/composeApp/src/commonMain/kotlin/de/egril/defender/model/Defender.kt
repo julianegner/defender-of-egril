@@ -138,6 +138,8 @@ data class Defender(
     val hasRootGripAnimation: MutableState<Boolean> = mutableStateOf(false), // Tower is being engulfed by Sylvanas vines (for animation)
     // Xarithon Shadow Spew animation state
     val hasShadowSpewAnimation: MutableState<Boolean> = mutableStateOf(false), // Tower is engulfed by Xarithon's shadow cloud (for animation)
+    // Kraken Barge Grip: true while this tower's barge is held by the Kraken (cannot be sold).
+    val isGrippedByKraken: MutableState<Boolean> = mutableStateOf(false),
 ) {
     val damage: Int get() = type.baseDamage + (level.value - 1) * 5
     val range: Int get() {

@@ -115,6 +115,22 @@ enum class AttackerType(
     // Gold reward multiplier: multiplies the base coin reward on defeat.
     // Roderich drops 3× coins; accumulated treasure is also awarded on defeat.
     val goldRewardMultiplier: Int = 1,
+    // Water-only movement: unit can ONLY traverse river tiles and may NOT move on land/path tiles.
+    // Combined with canTraverseRiver = true so both water occupancy and pathfinding work.
+    // Used by The Kraken.
+    val canOnlyMoveOnWater: Boolean = false,
+    // Barge Grip: every N rounds the unit grips an adjacent barge for one turn (player cannot sell
+    // the tower while gripped) then drags it under and sinks it (no refund). Null = no grip ability.
+    val bargeGripCooldown: Int? = null,
+    // Barge grip range: maximum hex distance at which the unit can grip a barge.
+    val bargeGripRange: Int = 1,
+    // Dive ability: unit can submerge below the water surface for a turn, becoming invisible and
+    // unattackable. True = dive is available; false = no dive ability.
+    val canDive: Boolean = false,
+    // How many enemy turns the dive lasts before the unit re-surfaces.
+    val diveDurationTurns: Int = 1,
+    // Dive cooldown: minimum number of enemy turns between consecutive dives.
+    val diveCooldown: Int = 5,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
@@ -455,6 +471,37 @@ enum class AttackerType(
         coinsPerTurn = 10,
         goldRewardMultiplier = 3,
     ),
+
+    // The Kraken: an ancient deep-sea horror that haunts waterways and drags barges to the abyss.
+    //
+    // Water Domain (passive): moves exclusively on river/water tiles; cannot set foot on land.
+    //
+    // Barge Grip (every 4 rounds): seizes an adjacent barge in its tentacles, holding it for one
+    // turn — the tower on that barge cannot be sold while gripped. On the following turn the Kraken
+    // drags the barge under, sinking it instantly (no coins refunded).
+    //
+    // Dive (periodic): the Kraken plunges beneath the surface for one turn, becoming invisible and
+    // unattackable by any tower.
+    //
+    // Immune to acid (water creature).
+    THE_KRAKEN(
+        "The Kraken",
+        health = 400,
+        speed = 2,
+        reward = 250,
+        xp = 120,
+        immuneToAcid = true,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Kraken",
+        canTraverseRiver = true,
+        canOnlyMoveOnWater = true,
+        bargeGripCooldown = 4,
+        bargeGripRange = 2,
+        canDive = true,
+        diveDurationTurns = 1,
+        diveCooldown = 7,
+    ),
 }
 
 /**
@@ -518,6 +565,15 @@ data class Attacker(
     // Cap'n Roderich's accumulated treasure: grows by coinsPerTurn each enemy turn and by the cost
     // of each barge he sinks via Broadside. The entire treasure is awarded to the player on defeat.
     val treasureCoins: MutableState<Int> = mutableStateOf(0),
+    // Kraken: true while the unit is submerged (diving). Diving enemies are invisible and cannot
+    // be targeted by towers.
+    val isDiving: MutableState<Boolean> = mutableStateOf(false),
+    // Number of enemy turns remaining in the current dive before the Kraken re-surfaces.
+    val diveTurnsRemaining: MutableState<Int> = mutableStateOf(0),
+    // Kraken Barge Grip: ID of the raft currently held in the Kraken's grip (null when not gripping).
+    val grippedRaftId: MutableState<Int?> = mutableStateOf(null),
+    // Kraken Barge Grip phase: 0 = no grip (cooldown), 1 = gripping (tower locked), 2 = dragging under (sinks next).
+    val bargeGripPhase: MutableState<Int> = mutableStateOf(0),
 ) {
     // Callback for dragon level changes (for achievements)
     var onDragonLevelChanged: ((oldLevel: Int, newLevel: Int) -> Unit)? = null

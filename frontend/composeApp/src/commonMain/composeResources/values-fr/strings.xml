@@ -2169,4 +2169,12 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_roderich_description">Marin aguerri : navigue aussi bien sur terre que sur l\'eau et subit bien moins de dégâts des tours montées sur barges.\nBordée : tire périodiquement un boulet de canon sur la barge la plus proche, la coulant instantanément — la tour est perdue et son coût rejoint son trésor.\nTrésor d\'or : pille des richesses chaque tour. Lorsqu\'il est vaincu, il lâche tout le butin accumulé — une récompense massive pour vos coffres !</string>
     <string name="villain_roderich_seaworthy_short">Marin aguerri : subit 50 % moins de dégâts des tours sur barges</string>
     <string name="villain_roderich_broadside_short">Bordée : coule la barge la plus proche tous les 3 tours</string>
+
+    <string name="kraken_name">Le Kraken</string>
+    <string name="villain_kraken_barge_grip_short">Le Kraken tient cette barge dans ses griffes. La barge sera détruite au prochain tour</string>
+    <string name="villain_kraken_dive_short">Le Kraken peut plonger</string>
+    <string name="villain_kraken_water_domain_short">Le Kraken vit dans l\'eau et ne se déplace que là</string>
+    <string name="villain_kraken_description">Le Kraken est un immense monstre marin qui peut attaquer les barges et les couler, et peut plonger pour éviter les dégâts. C\'est un adversaire redoutable qui requiert une stratégie minutieuse.</string>
+    <string name="villain_kraken_title">Le Kraken entre sur le champ de bataille</string>
+    <string name="villain_kraken_backstory">Le Kraken a émergé des profondeurs de l\'océan, menaçant tous ceux qui naviguent sur les mers. Ses tentacules peuvent broyer des navires et sa présence inspire la peur même aux marins les plus courageux.</string>
 </resources>

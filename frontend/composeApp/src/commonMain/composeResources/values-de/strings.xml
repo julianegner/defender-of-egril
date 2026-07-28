@@ -612,7 +612,7 @@
     <string name="greed_level_label">Gier</string>
     <string name="dragon_info_button">Was macht ein Drache?</string>
     <string name="mighty_unit_warning">Mächtige Einheit! Verursacht %d LP Schaden, wenn sie das Ziel erreicht (Stufe × 1 LP)</string>
-    <string name="ewhad_target_warning">VILLAIN! Wenn %1$s das Ziel erreicht, ist die Stufe verloren!</string>
+    <string name="ewhad_target_warning">VILLAIN! Wenn %1$s das Ziel erreicht, ist das Level verloren!</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Wegpunkte</string>
     <string name="waypoints_title">Wegpunkt-Verbindungen</string>
@@ -2167,4 +2167,12 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_roderich_description">Seetüchtig: navigiert auf Land und Wasser und erleidet deutlich weniger Schaden von Flusslastentürmen.\nBreitseitensalve: feuert periodisch eine Kanonenkugel auf die nächste Lastenkahn-Verteidigung und versenkt sie sofort — der Turm ist verloren und seine Kosten wandern in seinen Schatz.\nGoldschatz: plündert jede Runde Reichtümer. Bei seiner Niederlage lässt er seinen gesamten angehäuften Plunder fallen — eine riesige Belohnung für eure Kassen!</string>
     <string name="villain_roderich_seaworthy_short">Seetüchtig: erleidet 50 % weniger Schaden von Flusslastentürmen</string>
     <string name="villain_roderich_broadside_short">Breitseite: versenkt alle 3 Runden den nächsten Lastenkahn</string>
+
+    <string name="kraken_name">Der Kraken</string>
+    <string name="villain_kraken_barge_grip_short">Der Kraken hat diesen Lastenkahn im Griff. Der Lastenkahn wird in der nächsten Runde zerstört</string>
+    <string name="villain_kraken_dive_short">Der Kraken kann tauchen</string>
+    <string name="villain_kraken_water_domain_short">Der Kraken lebt im Wasser und bewegt sich nur dort</string>
+    <string name="villain_kraken_description">Der Kraken ist ein riesiges Seemonster, das Lastenkähne angreifen und versenken kann und tauchen kann, um Schaden zu vermeiden. Er ist ein furchtbarer Gegner, der eine sorgfältige Strategie erfordert.</string>
+    <string name="villain_kraken_title">Der Kraken betritt das Schlachtfeld</string>
+    <string name="villain_kraken_backstory">Der Kraken ist aus den Tiefen des Ozeans aufgetaucht und bedroht alle, die auf den Meeren segeln. Seine Tentakel können Schiffe zerquetschen und seine Anwesenheit flößt selbst den mutigsten Seemännern Angst ein.</string>
 </resources>

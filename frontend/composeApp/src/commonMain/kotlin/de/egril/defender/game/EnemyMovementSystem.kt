@@ -81,8 +81,12 @@ class EnemyMovementSystem(
             // Get the initial target based on the preferred spawn point (before finding actual position)
             val initialTarget = getInitialTarget(preferredSpawnPoint)
 
-            // Find a free position near the preferred spawn point
-            val spawnPos = findFreePositionNear(preferredSpawnPoint)
+            // Find a free position near the preferred spawn point.
+            // Water-only enemies spawn on river tiles; all others spawn on path tiles.
+            val spawnPos = findFreePositionNear(
+                preferredSpawnPoint,
+                waterOnly = plannedSpawn.attackerType.canOnlyMoveOnWater,
+            )
 
             if (spawnPos == null) {
                 // No free position found - skip this enemy for now
@@ -209,14 +213,18 @@ class EnemyMovementSystem(
     /**
      * Find a free position for spawning, starting from the preferred spawn point.
      * If the spawn point is occupied, search neighboring path tiles using hex grid neighbors.
+     * For water-only enemies (e.g. The Kraken), the fallback searches river tiles instead.
      */
-    fun findFreePositionNear(preferredSpawnPoint: Position): Position? {
+    fun findFreePositionNear(
+        preferredSpawnPoint: Position,
+        waterOnly: Boolean = false,
+    ): Position? {
         // First, check if the preferred spawn point is free
         if (!state.attackers.any { it.position.value == preferredSpawnPoint && !it.isDefeated.value }) {
             return preferredSpawnPoint
         }
 
-        // BFS to find nearest free position on path
+        // BFS to find nearest free position on path (or river for water-only enemies)
         val visited = mutableSetOf<Position>()
         val queue = mutableListOf(preferredSpawnPoint)
         visited.add(preferredSpawnPoint)
@@ -230,7 +238,7 @@ class EnemyMovementSystem(
                 // Skip if already visited
                 if (neighbor in visited) continue
 
-                // Check if position is valid and on path
+                // Check if position is valid
                 if (neighbor.x < 0 ||
                     neighbor.x >= state.level.gridWidth ||
                     neighbor.y < 0 ||
@@ -239,10 +247,14 @@ class EnemyMovementSystem(
                     continue
                 }
 
-                // Must be on path or a spawn point
-                if (!state.level.isEnemyTraversable(neighbor)) {
-                    continue
-                }
+                // Must be on an appropriate tile type for this enemy
+                val isValidTile =
+                    if (waterOnly) {
+                        state.level.isRiverTile(neighbor)
+                    } else {
+                        state.level.isEnemyTraversable(neighbor)
+                    }
+                if (!isValidTile) continue
 
                 visited.add(neighbor)
 
@@ -264,6 +276,38 @@ class EnemyMovementSystem(
         }
 
         return null // No free position found nearby
+    }
+
+    /**
+     * Calculate movement path for water-only enemies such as [AttackerType.THE_KRAKEN].
+     *
+     * The unit moves on river tiles only, heading toward the nearest active barge (raft).
+     * If no barge exists on the map, the unit stays in place.
+     *
+     * @return A list of intermediate positions to move through (up to [AttackerType.speed] steps),
+     *         or an empty list when no move is possible.
+     */
+    fun calculateKrakenMovementPath(kraken: Attacker): List<Position> {
+        val startPos = kraken.position.value
+        val speed = kraken.type.speed
+
+        // Target the nearest active barge (raft with a defender on it)
+        val target =
+            state.rafts
+                .filter { it.isActive }
+                .minByOrNull { it.currentPosition.value.hexDistanceTo(startPos) }
+                ?.currentPosition?.value
+                ?: return emptyList() // No barges – stay put
+
+        val path = pathfinding.findPath(startPos, target, kraken)
+        if (path.size <= 1) return emptyList()
+
+        val stepsToTake = minOf(speed, path.size - 1)
+        val result = mutableListOf<Position>()
+        for (i in 1..stepsToTake) {
+            result.add(path[i])
+        }
+        return result
     }
 
     /**

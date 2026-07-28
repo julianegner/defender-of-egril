@@ -836,7 +836,7 @@ fun GameGrid(
     val activeAttackersByPosition by remember {
         derivedStateOf {
             gameState.attackers
-                .filter { !it.isDefeated.value }
+                .filter { !it.isDefeated.value && !it.isDiving.value }
                 .associateBy { it.position.value }
         }
     }
