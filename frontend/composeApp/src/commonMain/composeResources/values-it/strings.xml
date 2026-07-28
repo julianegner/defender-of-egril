@@ -2159,9 +2159,15 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_ignis_va_immune_short">Immune al fuoco: le palle di fuoco non possono farle del male</string>
     <string name="villain_ignis_va_burning_short">Pira Mortale: il suolo ardente disabilita le torri vicine alla morte</string>
     <string name="xarithon_name">Xarithon il Drago delle Ombre</string>
+    <string name="captain_roderich_name">Capitan Roderich, il Terrore dei Mari</string>
     <string name="villain_xarithon_title">Xarithon il Drago delle Ombre entra nel campo di battaglia</string>
     <string name="villain_xarithon_backstory">Xarithon è il campione personale del mago malvagio Ewhad — un drago delle ombre pieno di energia oscura che cancella la luce ovunque passi. Agisce in modo indipendente, cacciando le torri con una furia fredda e ancestrale.</string>
     <string name="villain_xarithon_description">Soffio d\'Ombra: ogni pochi turni, fiamme oscure eruttano su un\'ampia zona, disabilitando tutte le torri colpite.\nResistenza delle Ombre: solo gli attacchi magici possono ferirlo — le armi ordinarie attraversano la sua forma oscura senza effetto.</string>
     <string name="villain_xarithon_shadow_spew_short">Soffio d\'Ombra: disabilita tutte le torri in un\'area ogni 3 turni</string>
     <string name="villain_xarithon_immune_short">Resistenza delle Ombre: immune ad attacchi corpo a corpo, a distanza e acido</string>
+    <string name="villain_roderich_title">Capitan Roderich, il Terrore dei Mari, entra nel campo di battaglia</string>
+    <string name="villain_roderich_backstory">Capitan Roderich, il Terrore dei Mari, ha navigato fino al campo di battaglia! Questo famigerato e avido terrore pirata minaccia le vie d\'acqua del regno. Le sue tasche traboccano di ricchezze rubate.</string>
+    <string name="villain_roderich_description">Navigatore: si muove sia su terra che su acqua e subisce molti meno danni dalle torri sulle chiatte.\nFilata: periodicamente spara una palla di cannone alla chiatta più vicina, affondandola all\'istante — la torre è persa e il suo costo entra nel suo tesoro.\nTesoro d\'Oro: saccheggia ricchezze ogni turno. Quando viene sconfitto, lascia cadere tutto il bottino accumulato — una ricompensa enorme per le vostre casse!</string>
+    <string name="villain_roderich_seaworthy_short">Navigatore: subisce il 50 % in meno di danni dalle torri sulle chiatte</string>
+    <string name="villain_roderich_broadside_short">Filata: affonda la chiatta più vicina ogni 3 turni</string>
 </resources>

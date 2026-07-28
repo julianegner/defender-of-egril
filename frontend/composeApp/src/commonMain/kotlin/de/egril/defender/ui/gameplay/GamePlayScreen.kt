@@ -3279,6 +3279,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.XARITHON_THE_SHADOW_DRAGON.name ->
                                             stringResource(Res.string.villain_xarithon_title) to
                                                 (stringResource(Res.string.villain_xarithon_backstory) + "\n" + stringResource(Res.string.villain_xarithon_description))
+                                        AttackerType.CAPTAIN_RODERICH.name ->
+                                            stringResource(Res.string.villain_roderich_title) to
+                                                (stringResource(Res.string.villain_roderich_backstory) + "\n" + stringResource(Res.string.villain_roderich_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)
@@ -3768,6 +3771,8 @@ private fun villainMessageButtonColor(name: String?): Color? {
         AttackerType.IGNIS_VA_THE_DRAGONVOICE -> Color(0xFF8B1A00)
         // Shadow dragon – void purple-black
         AttackerType.XARITHON_THE_SHADOW_DRAGON -> Color(0xFF1E0040)
+        // Pirate captain – deep ocean blue
+        AttackerType.CAPTAIN_RODERICH -> Color(0xFF0D4E74)
         // Default for EWHAD and other villains (if any added in future)
         else -> null
     }

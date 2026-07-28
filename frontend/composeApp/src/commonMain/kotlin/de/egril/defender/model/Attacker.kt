@@ -100,6 +100,21 @@ enum class AttackerType(
     // for a fixed number of turns. Null means no shadow spew ability.
     val shadowSpewCooldown: Int? = null,
     val shadowSpewDurationTurns: Int = 0,
+    // Seaworthy: the unit can traverse river tiles (move on them) and land there at end of turn.
+    // Used by Cap'n Roderich.
+    val canTraverseRiver: Boolean = false,
+    // Broadside: every N rounds, fires a cannonball at the nearest barge (water tower), sinking it.
+    // The tower cost is added to Roderich's treasure. Null means no Broadside ability.
+    val broadsideCooldown: Int? = null,
+    // Seaworthy damage reduction: fraction of damage absorbed (0.5 = 50% reduction) when attacked
+    // by a tower mounted on a barge (raft). 0f means no reduction.
+    val seaworthyDamageReduction: Float = 0f,
+    // Coins per enemy turn: coins added to this unit's personal treasure chest each enemy turn.
+    // Used by Cap'n Roderich's Gold Treasure passive.
+    val coinsPerTurn: Int = 0,
+    // Gold reward multiplier: multiplies the base coin reward on defeat.
+    // Roderich drops 3× coins; accumulated treasure is also awarded on defeat.
+    val goldRewardMultiplier: Int = 1,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
@@ -412,6 +427,34 @@ enum class AttackerType(
         shadowSpewCooldown = 3,
         shadowSpewDurationTurns = 2,
     ),
+
+    // Cap'n Roderich, Scourge of the Seas: a notorious seafaring pirate villain who menaces the
+    // waterways of the fantasy realm. His pockets overflow with stolen riches.
+    //
+    // Seaworthy (passive): navigates both land and water; takes 50 % less damage from barge (raft-
+    // mounted) towers. When on a river tile the barge icon is drawn beneath him.
+    //
+    // Broadside (every 3 rounds): fires a cannonball at the nearest barge, sinking it immediately.
+    // The player receives no refund; the tower's cost is added to Roderich's treasure instead.
+    //
+    // Gold Treasure (passive): each enemy turn he collects coins (coinsPerTurn). When defeated he
+    // drops 3× the normal villain reward plus all accumulated treasure — immediately added to the
+    // player's treasury so they can spend it on powerful upgrades.
+    CAPTAIN_RODERICH(
+        "Cap'n Roderich, Scourge of the Seas",
+        health = 300,
+        speed = 2,
+        reward = 200,
+        xp = 100,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Roderich",
+        canTraverseRiver = true,
+        broadsideCooldown = 3,
+        seaworthyDamageReduction = 0.5f,
+        coinsPerTurn = 10,
+        goldRewardMultiplier = 3,
+    ),
 }
 
 /**
@@ -472,6 +515,9 @@ data class Attacker(
     val speedBonus: MutableState<Int> = mutableStateOf(0), // Extra movement granted by a villain aura (e.g. Garokk's War Cry)
     val villainCooldown: MutableState<Int> = mutableStateOf(0), // Rounds until this villain's ability next activates
     val movementTurnsElapsed: MutableState<Int> = mutableStateOf(0), // Enemy turns elapsed on battlefield (for alternating movement patterns)
+    // Cap'n Roderich's accumulated treasure: grows by coinsPerTurn each enemy turn and by the cost
+    // of each barge he sinks via Broadside. The entire treasure is awarded to the player on defeat.
+    val treasureCoins: MutableState<Int> = mutableStateOf(0),
 ) {
     // Callback for dragon level changes (for achievements)
     var onDragonLevelChanged: ((oldLevel: Int, newLevel: Int) -> Unit)? = null

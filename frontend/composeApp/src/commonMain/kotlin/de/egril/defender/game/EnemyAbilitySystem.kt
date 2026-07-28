@@ -157,6 +157,12 @@ class EnemyAbilitySystem(
                     // Shadow Spew: every 3 rounds, dark flames erupt in a 2×2 area disabling towers
                     handleXarithonShadowSpew(attacker)
                 }
+                AttackerType.CAPTAIN_RODERICH -> {
+                    // Broadside: every 3 rounds, fire a cannonball at the nearest barge, sinking it
+                    handleRoderichBroadside(attacker)
+                    // Gold Treasure: accumulate coins each enemy turn
+                    handleRoderichCoinGain(attacker)
+                }
                 else -> {
                     // Check if this unit should build a bridge
                     // Units build bridges when adjacent to rivers blocking their path
@@ -1485,5 +1491,83 @@ class EnemyAbilitySystem(
                 )
             }
         }
+    }
+
+    /**
+     * Broadside (Cap'n Roderich): every [AttackerType.broadsideCooldown] rounds Roderich fires a
+     * heavy cannonball at the nearest barge (raft-mounted tower). The barge is immediately sunk —
+     * no coins are refunded to the player. Instead, the tower's total build cost is added to
+     * Roderich's personal treasure chest ([Attacker.treasureCoins]).
+     *
+     * The ballista attack animation is reused for the cannonball visual.
+     */
+    private fun handleRoderichBroadside(roderich: Attacker) {
+        val cooldown = roderich.type.broadsideCooldown ?: return
+        if (roderich.villainCooldown.value > 0) {
+            roderich.villainCooldown.value--
+            return
+        }
+
+        // Find the nearest barge (any defender mounted on a raft).
+        val nearestBarge =
+            state.rafts
+                .filter { raft -> raft.isActive }
+                .mapNotNull { raft ->
+                    val defender = state.defenders.find { it.id == raft.defenderId } ?: return@mapNotNull null
+                    Pair(raft, defender)
+                }
+                .minByOrNull { (raft, _) ->
+                    roderich.position.value.hexDistanceTo(raft.currentPosition.value)
+                }
+
+        if (nearestBarge != null) {
+            val (raft, defender) = nearestBarge
+            val bargePosition = raft.currentPosition.value
+
+            // Fire the cannonball animation (reuse ballista effect).
+            state.ballistaAttackEffects.add(
+                BallistaAttackEffect(
+                    sourcePosition = roderich.position.value,
+                    targetPosition = bargePosition,
+                    turnNumber = state.turnNumber.value,
+                ),
+            )
+
+            // Add the tower's build cost to Roderich's treasure.
+            roderich.treasureCoins.value += defender.totalCost
+
+            // Sink the barge: mark raft destroyed, remove the tower from the game.
+            raft.isDestroyed.value = true
+            state.defenders.remove(defender)
+
+            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                println(
+                    "DEBUG: Roderich Broadside sank ${defender.type} id=${defender.id} at $bargePosition; " +
+                        "treasure now ${roderich.treasureCoins.value}",
+                )
+            }
+        }
+
+        roderich.villainCooldown.value = cooldown
+    }
+
+    /**
+     * Gold Treasure passive (Cap'n Roderich): each enemy turn, Roderich loots [AttackerType.coinsPerTurn]
+     * coins and stashes them in his treasure chest ([Attacker.treasureCoins]). The full treasure
+     * is awarded to the player when Roderich is eventually defeated.
+     */
+    private fun handleRoderichCoinGain(roderich: Attacker) {
+        val gain = roderich.type.coinsPerTurn
+        if (gain <= 0) return
+        roderich.treasureCoins.value += gain
+
+        // Show a coin gain animation at Roderich's position to signal the looting.
+        state.coinGainEffects.add(
+            CoinGainEffect(
+                position = roderich.position.value,
+                amount = gain,
+                turnNumber = state.turnNumber.value,
+            ),
+        )
     }
 }
