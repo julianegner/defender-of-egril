@@ -1564,7 +1564,6 @@ class EnemyAbilitySystem(
         // If no barge in range, cannonball stays ready (don't set cooldown, don't fire)
     }
 
-
     /**
      * Gold Treasure passive (Cap'n Roderich): each enemy turn, Roderich loots [AttackerType.coinsPerTurn]
      * coins and stashes them in his treasure chest ([Attacker.treasureCoins]). The full treasure
@@ -1620,4 +1619,3 @@ class EnemyAbilitySystem(
         state.pendingBargeDeletions.clear()
     }
 }
-

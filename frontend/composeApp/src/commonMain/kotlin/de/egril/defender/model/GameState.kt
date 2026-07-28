@@ -301,7 +301,6 @@ data class GameState(
     val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf(), // Messages queued for display
     val pendingSoulCalls: SnapshotStateList<PendingSoulCall> = mutableStateListOf(), // Valerius resurrection queue for the next round
     val pendingBargeDeletions: SnapshotStateList<PendingBargeDeletion> = mutableStateListOf(), // Barges (rafts + defenders) to be deleted after animation completes
-
     // Player-usable supports remaining this level (placable objects + spell tokens)
     val supportObjectsRemaining: SnapshotStateMap<SupportObjectType, Int> = mutableStateMapOf(),
     val supportSpellsRemaining: SnapshotStateMap<SpellType, Int> = mutableStateMapOf(),
