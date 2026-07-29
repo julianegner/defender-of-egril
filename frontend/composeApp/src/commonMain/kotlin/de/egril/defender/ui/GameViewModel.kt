@@ -52,6 +52,8 @@ sealed class Screen {
         val initialTab: de.egril.defender.ui.infopage.InfoTab,
     ) : Screen()
 
+    object VillainsAnnouncement : Screen()
+
     object LevelEditor : Screen()
 
     object LoadGame : Screen()
@@ -894,6 +896,10 @@ class GameViewModel {
 
     fun navigateToDownloadInfo() {
         _currentScreen.value = Screen.InstallationInfoAtTab(de.egril.defender.ui.infopage.InfoTab.DOWNLOAD)
+    }
+
+    fun navigateToVillainsAnnouncement() {
+        _currentScreen.value = Screen.VillainsAnnouncement
     }
 
     fun navigateToLevelEditor() {
@@ -4643,6 +4649,9 @@ class GameViewModel {
             DeepLink.Settings -> {
                 _currentScreen.value = Screen.MainMenu
                 _pendingSettingsDeepLink.value = true
+            }
+            DeepLink.VillainsAnnouncement -> {
+                _currentScreen.value = Screen.VillainsAnnouncement
             }
             DeepLink.None -> {
                 // No deep link, proceed normally

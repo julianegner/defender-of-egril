@@ -8,6 +8,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import de.egril.defender.iam.initPlatformIam
 import de.egril.defender.ui.*
+import de.egril.defender.ui.announcements.villains.VillainsAnnouncementScreen
 import de.egril.defender.ui.animations.AnimationTestScreen
 import de.egril.defender.ui.editor.level.LevelEditorScreen
 import de.egril.defender.ui.gameplay.GamePlayScreen
@@ -25,7 +26,7 @@ import kotlinx.coroutines.delay
 /**
  * Maps app screens to the mobile browser orientation overlay behavior:
  * - Gameplay requires landscape orientation.
- * - Main menu and info pages prefer portrait orientation.
+ * - Main menu, info pages, and announcement pages prefer portrait orientation.
  * - All other screens do not force an orientation hint.
  */
 internal fun mobileOrientationOverlayModeForScreen(screen: Screen): MobileOrientationOverlayMode =
@@ -34,6 +35,7 @@ internal fun mobileOrientationOverlayModeForScreen(screen: Screen): MobileOrient
         is Screen.MainMenu,
         is Screen.InstallationInfo,
         is Screen.InstallationInfoAtTab,
+        is Screen.VillainsAnnouncement,
         -> MobileOrientationOverlayMode.PORTRAIT_REQUIRED
         else -> MobileOrientationOverlayMode.NONE
     }
@@ -410,6 +412,7 @@ fun App() {
                             onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
                             onShowDownloadInfo = { viewModel.navigateToDownloadInfo() },
                             onShowBackendInfo = { viewModel.navigateToBackendInfo() },
+                            onOpenVillainsAnnouncement = { viewModel.navigateToVillainsAnnouncement() },
                             onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                             currentPlayerName = currentPlayer?.name,
                             iamState = iamState,
@@ -476,6 +479,12 @@ fun App() {
                         InfoPageScreen(
                             onBack = { viewModel.navigateToMainMenu() },
                             initialTab = screen.initialTab,
+                        )
+                    }
+
+                    is Screen.VillainsAnnouncement -> {
+                        VillainsAnnouncementScreen(
+                            onBack = { viewModel.navigateToMainMenu() },
                         )
                     }
 

@@ -123,6 +123,24 @@ class DeepLinkHandlerTest {
         assertIs<DeepLink.Settings>(result)
     }
 
+    @Test
+    fun `parseDeepLink villains announcement`() {
+        val result = parseDeepLink("/announcement/villains")
+        assertIs<DeepLink.VillainsAnnouncement>(result)
+    }
+
+    @Test
+    fun `parseDeepLink villains announcement is case insensitive`() {
+        val result = parseDeepLink("/Announcement/Villains")
+        assertIs<DeepLink.VillainsAnnouncement>(result)
+    }
+
+    @Test
+    fun `parseDeepLink villains announcement with trailing slash`() {
+        val result = parseDeepLink("/announcement/villains/")
+        assertIs<DeepLink.VillainsAnnouncement>(result)
+    }
+
     // ---------------------------------------------------------------
     // parseDeepLink – info page routes (all tabs)
     // ---------------------------------------------------------------
