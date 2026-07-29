@@ -81,7 +81,12 @@ internal fun resolveInfoPageBrowserNavigation(
             val tab = if (InfoTab.BACKEND in visibleTabs) InfoTab.BACKEND else fallbackTab
             InfoPageBrowserNavigation.SelectTab(tab)
         }
-        DeepLink.Tutorial, DeepLink.Demo, DeepLink.Settings, DeepLink.None -> InfoPageBrowserNavigation.NavigateBack
+        DeepLink.Tutorial,
+        DeepLink.Demo,
+        DeepLink.Settings,
+        DeepLink.VillainsAnnouncement,
+        DeepLink.None,
+        -> InfoPageBrowserNavigation.NavigateBack
     }
 }
 

@@ -29,7 +29,7 @@
     <string name="world_map">Weltkarte</string>
     <string name="next_level">Nächstes Level</string>
     <string name="continue_with_level">Weiter mit Level: %1$s</string>
-    
+
     <!-- Settings -->
     <string name="settings">Einstellungen</string>
     <string name="language">Sprache</string>
@@ -78,7 +78,7 @@
     <string name="accessibility_banner_title">Barrierefreiheits-Einstellungen</string>
     <string name="accessibility_banner_message">Optionen für visuelle, auditive und motorische Bedürfnisse.</string>
     <string name="accessibility_banner_open_settings">Barrierefreiheits-Einstellungen öffnen</string>
-    
+
     <!-- Common Actions -->
     <string name="back">Zurück</string>
     <string name="ok">OK</string>
@@ -86,7 +86,7 @@
     <string name="save">Speichern</string>
     <string name="delete">Löschen</string>
     <string name="edit">Bearbeiten</string>
-    
+
     <!-- Game Play -->
     <string name="coins">Münzen</string>
     <string name="health">Gesundheit</string>
@@ -121,35 +121,35 @@
     <string name="import_error">Import-Fehler</string>
     <string name="import_error_message">Einige Dateien konnten nicht importiert werden. Bitte überprüfen Sie das Dateiformat.</string>
     <string name="in_x_turns">in %s Runden</string>
-    
+
     <!-- Towers -->
     <string name="tower">Turm</string>
     <string name="raft">Floß</string>
     <string name="damage">Schaden</string>
     <string name="range">Reichweite</string>
     <string name="actions">Aktionen</string>
-    
+
     <!-- Enemies -->
     <string name="enemy">Feind</string>
     <string name="enemies">Feinde</string>
-    
+
     <!-- Status Messages -->
     <string name="locked">Gesperrt</string>
     <string name="unlocked">Freigeschaltet</string>
     <string name="completed">Abgeschlossen</string>
-    
+
     <!-- World Map -->
     <string name="world_map_title">Weltkarte</string>
     <string name="world_map_subtitle">Wiesen von Egril</string>
     <string name="back_to_world_map">Zurück zur Weltkarte</string>
     <string name="play_level">Level spielen</string>
     <string name="requires_completing">Erfordert Abschluss von:</string>
-    
+
     <!-- Load Game Screen -->
     <string name="no_saved_games">Keine gespeicherten Spiele gefunden</string>
     <string name="loading_remote_savefiles">Remote-Spielstände werden geladen</string>
     <string name="savegame_folder">Speicherort:</string>
-    
+
     <!-- Rules Screen -->
     <string name="how_to_play">Wie man spielt</string>
     <string name="game_overview">Spielübersicht</string>
@@ -201,7 +201,7 @@
     <string name="focus_fire">Konzentriere Feuer auf zähe Feinde (Oger, Orks)</string>
     <string name="wizard_for_aoe">Zaubertürme für massiven Flächenschaden</string>
     <string name="upgrade_vs_build">Werte Türme auf statt Neue zu bauen</string>
-    
+
     <!-- Additional RulesScreen strings -->
     <string name="attack_enemies_desc">Feinde angreifen - Turm mit Aktionen anklicken, dann Feind in Reichweite</string>
     <string name="build_timers_advance">Bauzeiten laufen ab (zählen herunter)</string>
@@ -227,10 +227,10 @@
     <string name="hp_label">HP</string>
     <string name="speed_label">Geschwindigkeit</string>
     <string name="slowed_by_barbs">Verlangsamt durch Widerhaken</string>
-    
+
     <!-- Status text -->
     <string name="available">Verfügbar</string>
-    
+
     <!-- Defender/Tower names -->
     <string name="spike_tower_name">Stachelturm (Pike)</string>
     <string name="spear_tower_name">Speerturm</string>
@@ -240,14 +240,14 @@
     <string name="ballista_tower_name">Ballisteturm</string>
     <string name="dwarven_mine_name">Mine</string>
     <string name="dragons_lair_name">Drachenhöhle</string>
-    
+
     <!-- Attack type names -->
     <string name="attack_type_melee">Nahkampf</string>
     <string name="attack_type_ranged">Fernkampf</string>
     <string name="attack_type_fireball">Feuerball</string>
     <string name="attack_type_acid">Säure</string>
     <string name="attack_type_special">Spezial</string>
-    
+
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Goblin</string>
     <string name="ork_name">Ork</string>
@@ -261,12 +261,12 @@
     <string name="green_witch_name">Grüne Hexe</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Drache</string>
-    
+
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Feinde auf der Karte:</string>
     <string name="enemies_to_come">Kommende Feinde:</string>
     <string name="delete_savegame">Spielstand löschen</string>
-    
+
     <!-- Gameplay UI strings -->
     <string name="attack_button">ANGRIFF</string>
     <string name="attack_area_button">FLÄCHEN-ANGRIFF</string>
@@ -306,7 +306,7 @@
     <string name="building_label">Bau</string>
     <string name="active_label">Aktiv</string>
     <string name="planned_label">Geplant</string>
-    
+
     <!-- GameLegend strings -->
     <string name="legend">Legende</string>
     <string name="areas_label">Bereiche</string>
@@ -330,23 +330,23 @@
     <string name="legend_info_tower_icons">Symbole zeigen Turm-/Feindtyp</string>
     <string name="legend_info_tower_actions">Türme zeigen Level und Aktionen</string>
     <string name="legend_info_enemy_health">Feinde zeigen Gesundheit</string>
-    
+
     <!-- EditorButtonCard strings -->
     <string name="level_editor">Level-Editor</string>
     <string name="create_edit_maps_levels">Karten und Levels erstellen &amp; bearbeiten</string>
-    
+
     <!-- SavedGameCard additional strings -->
     <string name="built_towers">Gebaute Türme:</string>
-    
+
     <!-- Gameplay page strings -->
     <string name="spawn">Spawn</string>
     <string name="target">Ziel</string>
     <string name="start_battle">Schlacht beginnen</string>
     <string name="your_turn_message">Dein Zug - Platziere Türme und greife Feinde an</string>
     <string name="building">im Bau</string>
-    
+
     <!-- DefenderInfo mining strings -->
-    
+
     <!-- Tower short names -->
     <string name="spike_tower_short">Pike</string>
     <string name="spear_tower_short">Speer</string>
@@ -356,7 +356,7 @@
     <string name="ballista_tower_short">Balliste</string>
     <string name="dwarven_mine_short">Mine</string>
     <string name="dragons_lair_short">Höhle</string>
-    
+
     <!-- Editor strings -->
     <string name="map_editor">Karteneditor</string>
     <string name="level_sequence">Level-Reihenfolge</string>
@@ -548,7 +548,7 @@
     <string name="show_control_pad">Steuerkreuz anzeigen</string>
     <string name="control_pad_enabled">Steuerkreuz</string>
     <string name="control_pad_disabled">Kein Steuerkreuz</string>
-    
+
     <!-- Difficulty Settings -->
     <string name="difficulty">Schwierigkeitsgrad</string>
     <string name="difficulty_baby">Baby</string>
@@ -562,7 +562,7 @@
     <string name="difficulty_hard_desc">Gegner haben doppelte Stufen</string>
     <string name="difficulty_nightmare_desc">Gegner erscheinen 3-mal mit steigenden Stufen</string>
     <string name="difficulty_info_current_level">Hinweis: Das Ändern der Schwierigkeit wirkt sich nicht auf das aktuelle Level aus. Starten oder starten Sie ein Level neu, um es anzuwenden.</string>
-    
+
     <!-- Dragon Names -->
     <string name="the_dragon">Der Drache</string>
     <string name="awakens">erwacht</string>
@@ -585,7 +585,7 @@
     <string name="mine_targeted_by_dragon">Diese Mine wird vom Drachen anvisiert</string>
     <string name="one_hp_warning_title">Kritische Warnung!</string>
     <string name="one_hp_warning_message">Du hast nur 1 Lebenspunkt! Kein einziger Feind darf das Ziel erreichen, sonst verlierst du. Verteidige mit äußerster Vorsicht!</string>
-    
+
     <!-- Enemy Info Display -->
     <string name="greedy_label">gierig</string>
     <string name="very_greedy_label">sehr gierig</string>
@@ -693,7 +693,7 @@
     <string name="dwarven_trap">Zwergenfalle</string>
     <string name="no_map_selected">Keine Karte ausgewählt. Bitte wähle zuerst eine Karte aus oder erstelle eine neue.</string>
     <string name="deselect">Abwählen</string>
-    
+
     <!-- Plurals -->
     <plurals name="enemy_count">
         <item quantity="one">%d Feind</item>
@@ -711,7 +711,7 @@
         <item quantity="one">%d Lebenspunkt</item>
         <item quantity="other">%d Lebenspunkte</item>
     </plurals>
-    
+
     <!-- New Repository Data Dialog -->
     <string name="new_repository_data_title">Neue Inhalte verfügbar</string>
     <string name="new_repository_data_message">Neue Karten und Level wurden im Repository gefunden, die nicht in Ihren Spieldaten vorhanden sind. Möchten Sie diese hinzufügen?</string>
@@ -721,13 +721,13 @@
     <string name="sequence_will_be_replaced">Die Level-Reihenfolge wird aktualisiert.</string>
     <string name="sequence_backup_warning">Hinweis: Wenn Sie die Sequenzdatei geändert haben, müssen Sie diese Änderungen erneut vornehmen. Ihre aktuelle Sequenz wird unter sequence-N.json gesichert.</string>
     <string name="add_data">Neue Inhalte hinzufügen</string>
-    
+
     <!-- Unsaved Changes Dialog -->
     <string name="unsaved_changes_title">Nicht gespeicherte Änderungen</string>
     <string name="unsaved_changes_message">Sie haben nicht gespeicherten Fortschritt in diesem Level. Was möchten Sie tun?</string>
     <string name="save_and_exit">Speichern und Beenden</string>
     <string name="discard_changes">Änderungen verwerfen</string>
-    
+
     <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">Runde beenden?</string>
     <string name="end_turn_confirmation_message">Sie haben Türme mit ungenutzten Aktionspunkten und Feinden in Reichweite, oder Minen mit ungenutzten Aktionen. Möchten Sie Ihre Runde wirklich beenden?</string>
@@ -745,7 +745,7 @@
     <string name="wizard_tower_actions">Zauber-Türme: Können magische Fallen platzieren (Stufe 10+)</string>
     <string name="spike_spear_tower_actions">Pike-/Speertürme: Können Barrikaden bauen (Stufe 10+)</string>
     <string name="continue_turn">Runde fortsetzen</string>
-    
+
     <!-- Barricade Feature -->
     <string name="barricade">Barrikade</string>
     <string name="gate">Tor</string>
@@ -757,11 +757,11 @@
     <string name="remove_barricade_title">Barrikade entfernen?</string>
     <string name="remove_barricade_message">Möchten Sie diese Barrikade wirklich entfernen?</string>
     <string name="remove_barricade_with_tower_message">Diese Barrikade ist eine Turmbasis. Beim Entfernen wird auch der Turm zerstört und Sie erhalten den Verkaufswert des Turms (%d Münzen). Sind Sie sicher?</string>
-    
+
     <!-- Spike Barbs Feature -->
     <string name="spike_barbs_info_title">Pike-Widerhaken freigeschaltet!</string>
     <string name="spike_barbs_info_message">Ihr Pike-Turm hat Stufe 10 erreicht und hat jetzt Widerhaken!\nWenn ein Pike-Turm der Stufe 10+ einen Feind angreift, reduziert er die Bewegung des Feindes um 1 Feld pro Angriff.\nDieser Effekt stapelt sich - mehrere Angriffe von Pike-Türmen der Stufe 10+ reduzieren die Feindbewegung weiter.\nFeinde bewegen sich immer mindestens 1 Feld pro Runde, auch bei mehreren Widerhaken-Effekten.</string>
-    
+
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magische Falle</string>
     <string name="level_supports_title">Verfügbare Unterstützung</string>
@@ -841,13 +841,13 @@
     <string name="magical_trap_tutorial_message">Ihr Zauberturm hat Stufe 10 erreicht und kann jetzt magische Fallen platzieren! Diese Fallen teleportieren Feinde zurück zu ihrem Startpunkt. Nach dem Platzieren einer Falle gibt es eine Abklingzeit von 10 Runden, bevor Sie eine weitere platzieren können.</string>
     <string name="remove_magical_trap_title">Magische Falle entfernen?</string>
     <string name="remove_magical_trap_message">Möchten Sie diese magische Falle wirklich entfernen?</string>
-    
+
     <!-- Trap Feature -->
     <string name="defensive_items">Verteidigungsgegenstände</string>
     <string name="remove_trap_title">Falle entfernen?</string>
     <string name="remove_trap_message">Möchten Sie diese Falle wirklich entfernen?</string>
     <string name="no">Nein</string>
-    
+
     <!-- Level Prerequisites -->
     <string name="level_dependencies">Level-Abhängigkeiten</string>
     <string name="validation_passed">Validierung bestanden</string>
@@ -863,12 +863,12 @@
     <string name="all">alle</string>
     <string name="requires">Erfordert</string>
     <string name="entry_point">Einstiegspunkt</string>
-    
+
     <!-- World Map Locations -->
     <string name="levels_at_location">%s Level an diesem Ort</string>
     <string name="requires_any_of">Erfordert %s von:</string>
     <string name="requires_all">Erfordert alle:</string>
-    
+
     <!-- World Map Position Editor -->
     <string name="world_map_positions">Weltkarte</string>
     <string name="world_map_position_instructions">Wählen Sie eine Karte aus der Liste, dann klicken Sie auf die Weltkarte, um ihre Position festzulegen. Die Position wird als Promille (0-1000) der Kartenabmessungen gespeichert.</string>
@@ -959,7 +959,7 @@
     <string name="no_icon_selected">Kein Symbol ausgewählt (verwendet nummerierten Marker)</string>
     <string name="available_icons">Verfügbare Symbole:</string>
     <string name="invalid_icon">Ungültiges Symbol</string>
-    
+
     <!-- Editor Info Page -->
     <string name="info">Info</string>
     <string name="editor_info_title">Level-Editor-Anleitung</string>
@@ -989,7 +989,7 @@
     <string name="editor_info_tips_title">Tipps</string>
     <string name="editor_info_tips_text">Speichern Sie häufig, um Arbeitsverlust zu vermeiden - Testen Sie Ihre Level im Spiel, um sicherzustellen, dass sie ausgewogen sind - Verwenden Sie vorhandene Level als Vorlagen - Karten können über mehrere Level hinweg wiederverwendet werden - Die Sequenz bestimmt, welche Level spielbar sind</string>
     <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
-    
+
     <!-- Level Names -->
     <string name="level_welcome_to_defender_of_egril_title">Willkommen bei Defender of Egril</string>
     <string name="level_welcome_to_defender_of_egril_subtitle">Tutorial</string>
@@ -1062,7 +1062,7 @@
     <string name="map_back_and_forth_path_name">Hin-und-Her-Pfad</string>
     <string name="map_curved_path_name">Kurvenreicher Pfad</string>
     <string name="map_obstacle_path_name">Hindernispfad</string>
-    
+
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
     <string name="location_the_beginning_name">Der Anfang</string>
@@ -1232,7 +1232,7 @@
     <string name="installation_steam_deck_step7">7. Das Symbol "Zurück zum Gaming-Modus" auf dem Desktop doppelklicken</string>
     <string name="installation_steam_deck_note">Das Spiel erscheint nun in der Bibliothek unter dem Tab "Nicht-Steam".</string>
     <string name="installation_details_link">Für detaillierte Anweisungen siehe INSTALL.md im GitHub-Repository.</string>
-    
+
     <!-- Player Profile Screen -->
     <string name="player_profile">Spielerprofil</string>
     <string name="player_created">Erstellt</string>
@@ -1328,7 +1328,7 @@
     <string name="achievement_build_barricade_desc">Baue deine erste Barrikade</string>
     <string name="achievement_add_health_barricade_name">Verstärkt</string>
     <string name="achievement_add_health_barricade_desc">Füge einer bestehenden Barrikade Lebenspunkte hinzu</string>
-    
+
     <string name="achievement_first_stat_upgrade_name">Erstes Upgrade</string>
     <string name="achievement_first_stat_upgrade_desc">Gib deinen ersten Fähigkeitspunkt aus, um eine Fähigkeit zu verbessern</string>
     <string name="achievement_first_spell_unlock_name">Zauberer</string>
@@ -1349,7 +1349,7 @@
     <string name="user_level">Benutzer-Level</string>
     <string name="official_map_info">Dies ist eine offizielle Karte. Sie können sie kopieren, um eine Benutzerversion zu erstellen.</string>
     <string name="official_level_info">Dies ist ein offizielles Level. Sie können es kopieren, um eine Benutzerversion zu erstellen.</string>
-    
+
     <!-- Official Data Change Warning -->
     <string name="official_data_changed_title">Offizielle Spieldaten geändert</string>
     <string name="official_data_changed_message">Sie haben Änderungen an offiziellen Spieldaten (Karten oder Level) vorgenommen.\n\nDiese Änderungen werden beim Neustart des Spiels überschrieben, da der offizielle Inhalt bei jedem Start aus dem Repository wiederhergestellt wird.\n\nUm Ihre Änderungen zu bewahren, kopieren Sie den offiziellen Inhalt, um stattdessen Benutzerversionen zu erstellen.</string>
@@ -1441,7 +1441,7 @@
     <string name="license_agpl_network_clause_description">Die AGPL erweitert die GPL um eine spezielle Klausel: Wenn Sie eine modifizierte Version dieses Programms auf einem Server ausführen und Benutzern die Interaktion darüber ermöglichen, müssen Sie ihnen Zugriff auf den Quellcode Ihrer modifizierten Version gewähren.</string>
     <string name="license_agpl_full_text_label">Vollständiger Lizenztext:</string>
     <string name="license_agpl_attribution_note">Diese Software wird unter den Bedingungen der AGPL-3.0-Lizenz bereitgestellt. Für vollständige Bedingungen verweisen wir auf den vollständigen Lizenztext.</string>
-    
+
     <!-- Audio Licenses -->
     <string name="audio_licenses_title">Audiodateien und Lizenzen</string>
     <string name="audio_background_music_title">Hintergrundmusik</string>
@@ -1450,7 +1450,7 @@
     <string name="audio_enemy_events_subtitle">Feind-Ereignisse</string>
     <string name="audio_mine_events_subtitle">Minen-Ereignisse</string>
     <string name="audio_other_events_subtitle">Andere Spiel-Ereignisse</string>
-    
+
     <!-- Background Music - Music piece names are not translated, the original names are used -->
     <string name="audio_fantasy_ambience_name">Fantasy Ambience</string>
     <string name="audio_fantasy_ambience_license">100% urheberrechtsfrei, keine Namensnennung erforderlich. Darf nicht als Audio weiterverkauft werden, muss im Kontext eines Projekts verwendet werden.</string>
@@ -1459,23 +1459,23 @@
     <string name="audio_fesliyan_license">Lizenzfreie Musik von Fesliyan Studios. Verwendung in Videospielen erlaubt.</string>
     <string name="audio_fantasy_orchestral_name">Mystic Fantasy Orchestral Music</string>
     <string name="audio_pixabay_license">Pixabay-Inhaltslizenz - Kostenlos verwendbar, keine Namensnennung erforderlich</string>
-    
+
     <!-- Tower Attacks -->
     <string name="audio_melee_attack_name">Nahkampfangriff</string>
     <string name="audio_ranged_attack_name">Fernkampfangriff</string>
     <string name="audio_fireball_attack_name">Feuerballangriff</string>
     <string name="audio_acid_attack_name">Säureangriff</string>
-    
+
     <!-- Enemy Events -->
     <string name="audio_enemy_spawn_name">Feinderscheinung</string>
     <string name="audio_enemy_destroyed_name">Feind zerstört</string>
-    
+
     <!-- Mine Events -->
     <string name="audio_mine_dig_name">Minengrabung</string>
     <string name="audio_mine_coin_name">Münzen gefunden</string>
     <string name="audio_mine_trap_name">Falle gebaut</string>
     <string name="audio_mine_dragon_name">Drachenerwachen</string>
-    
+
     <!-- Other Events -->
     <string name="audio_trap_trigger_name">Fallenauslösung</string>
     <string name="audio_life_lost_name">Leben verloren</string>
@@ -1494,11 +1494,11 @@
     <string name="towers">Türme</string>
     <string name="traps">Fallen</string>
     <string name="barricades">Barrikaden</string>
-    
+
     <!-- Tower Base -->
     <string name="tower_base_hp_label">Basis: %d TP</string>
     <string name="tower_base_info">Turm auf Basis (zerstörbar bei &lt;100 TP)</string>
-    
+
     <!-- Tower Info Dialog -->
     <string name="tower_info_title">Turminformationen</string>
     <string name="special_towers_info_title">Spezielle Türme</string>
@@ -2066,4 +2066,8 @@
     <string name="daily_hint_min_range_message">Die Ballista hat eine Mindestreichweite von 3 — sie kann Gegner direkt neben sich nicht treffen. Kombiniere sie mit Nahkampftürmen (Pike, Speer), um die Lücke zu schließen.</string>
     <string name="daily_hint_immunities_message">Manche Gegner sind gegen bestimmte Angriffe immun: Rote Dämonen widerstehen Feuerbällen, Blaue Dämonen sind säureresistent. Beobachte die nächste Welle und baue verschiedene Turmtypen.</string>
 
+    <string name="villains_announcement_content_description">Ankündigung für kommendes Schurken-Feature</string>
+    <string name="villains_announcement_coming_soon">Demnächst: Version 1.1: Villains</string>
+    <string name="villains_announcement_page_title">Vorschau: Die ersten Villains betreten das Schlachtfeld!</string>
+    <string name="villains_announcement_page_text">Mach dich bereit für eine neue Herausforderung! Mit dem kommenden Update halten **Villains** Einzug in Defender of Egril.\n\n### Was sind Villains?\n\nVillains sind mächtige Boss-Gegner, die an der Spitze der gegnerischen Wellen auftauchen. Sie sind deutlich zäher als normale Feinde und besitzen einzigartige Fähigkeiten, die deine Verteidigung auf die Probe stellen: Sie betäuben Türme, rufen Verstärkung oder schützen nachfolgende Truppen. Um sie zu besiegen, reicht reine Feuerkraft nicht aus – du musst deine Strategie anpassen!\n\n---\n\n### Erste Einblicke: Diese Schurken erwarten dich zu Beginn\n\n* **Baron Ratterzahn (Goblin-Erfinder):** Ein wahnsinniger Erfinder auf einer mächtigen Spinnenmaschine. Er wirft Wrackteile ab, aus denen Roboter-Goblins entstehen, und setzt deine Türme mit gezielten Raketen außer Gefecht.\n* **Die Gefallene Schildmaid Freya (Todesritterin):** Eine einst unbesiegbare Kriegerin. Mit ihrem magischen Schildwall fängt sie frontal eingehenden Turmschaden für sich und nachfolgende Einheiten ab.\n* **Fürst Valerius der Seelenernter (Skelett-Herrscher):** Ein uralter Lich und Herrscher der Untoten. Solange er auf dem Feld steht, verwandelt er jeden besiegten Gegner in seiner Nähe in einen Untoten.\n* **Käpt\'n Roderich (Der Freibeuter):** Taucht auf Karten mit Wasserwegen auf und nimmt gezielt deine Flöße unter Beschuss. Besiegst du ihn, bekommst du seinen Piratenschatz!\n\n*Mach deine Türme bereit – bald musst du zeigen, ob deine Verteidigung den ersten mächtigen Schurken gewachsen ist!*</string>
 </resources>

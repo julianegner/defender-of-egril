@@ -206,6 +206,7 @@ fun MainMenuScreen(
     onShowInstallationInfo: () -> Unit,
     onShowDownloadInfo: () -> Unit = {},
     onShowBackendInfo: () -> Unit = {},
+    onOpenVillainsAnnouncement: () -> Unit = {},
     onEditPlayerName: () -> Unit,
     currentPlayerName: String?,
     iamState: IamState = IamState(),
@@ -1143,7 +1144,10 @@ fun MainMenuScreen(
                             .heightIn(max = (maxHeight - 56.dp).coerceAtLeast(140.dp)),
                 )
             }
-            VillainsAnnouncementTriangle(modifier = Modifier.fillMaxSize())
+            VillainsAnnouncementTriangle(
+                modifier = Modifier.fillMaxSize(),
+                onClick = onOpenVillainsAnnouncement,
+            )
         }
 
         // Exit confirmation dialog
