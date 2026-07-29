@@ -1,15 +1,15 @@
 Package: defender-of-egril
-Version: 1.0.7
+Version: 1.0.8
 Architecture: amd64
 Maintainer: Unknown <Unknown>
-Installed-Size: 316452
+Installed-Size: 317039
 Depends: libasound2t64, libbrotli1, libbsd0, libbz2-1.0, libc6, libexpat1, libfontconfig1, libfreetype6, libgcc-s1, libgl1, libglvnd0, libglx0, libmd0, libpng16-16t64, libstdc++6, libx11-6, libxau6, libxcb1, libxdmcp6, libxext6, libxi6, libxrender1, libxtst6, xdg-utils, zlib1g
 Provides: defender-of-egril
-Filename: pool/main/d/defender-of-egril/defender-of-egril_1.0.7_amd64.deb
-Size: 224705598
-MD5sum: 5fb1374793dfa4130ab0cc825f195c9e
-SHA1: 2d85180d3fd1d0dbe10e891fc3403295f6920d5c
-SHA256: 36741bf5a466731dea8c6472bdfcf5d677e8abbef6f2cff0c64672c1cb7c4d5f
+Filename: pool/main/d/defender-of-egril/defender-of-egril_1.0.8_amd64.deb
+Size: 225367630
+MD5sum: c241545a410428fd4c6768e02dbca304
+SHA1: 7a116597d9394e6e5e6c328338d72c07feb0d3b6
+SHA256: 1535cc4c310e053ff894a87d1b68c684dbaeab22761fc95edc68185d7d4f66f5
 Section: misc
 Priority: optional
 Description: DefenderOfEgril
