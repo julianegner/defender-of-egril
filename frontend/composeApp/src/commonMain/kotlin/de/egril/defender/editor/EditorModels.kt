@@ -5,6 +5,7 @@ import de.egril.defender.model.DefenderType
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.TargetType
 import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 
@@ -49,6 +50,7 @@ data class EditorMap(
     val isCommunity: Boolean = false, // True if map is a community-shared map from the backend
     val communityAuthorUsername: String = "", // Username of the community author (only set if isCommunity == true)
     val targetInfoMap: Map<String, EditorTargetInfo> = emptyMap(), // "x,y" -> EditorTargetInfo for TARGET tiles
+    val spawnPointInfoMap: Map<String, SpawnPointType> = emptyMap(), // "x,y" -> SpawnPointType for SPAWN_POINT tiles (LAND or WATER)
     val mapToolingInfo: String = DEFAULT_MAP_TOOLING_INFO, // Free-form map tooling text; known standard values are localized at runtime
 ) {
     fun getTileType(

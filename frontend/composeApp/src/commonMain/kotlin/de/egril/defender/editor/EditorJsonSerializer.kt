@@ -14,6 +14,7 @@ import de.egril.defender.model.LevelEvent
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObject
 import de.egril.defender.model.SupportObjectType
@@ -88,6 +89,17 @@ object EditorJsonSerializer {
                 ""
             }
 
+        val spawnPointInfoJson =
+            if (map.spawnPointInfoMap.isNotEmpty()) {
+                val spawnData =
+                    map.spawnPointInfoMap.entries.joinToString(",\n    ") { (pos, type) ->
+                        "\"$pos\": \"${type.name}\""
+                    }
+                ",\n  \"spawnPointInfo\": {\n    $spawnData\n  }"
+            } else {
+                ""
+            }
+
         val data = """{
   "id": "${map.id}",
   "name": "${map.name}"$nameKeyJson,
@@ -97,7 +109,7 @@ object EditorJsonSerializer {
   "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson$mapToolingInfoJson,
   "tiles": {
     $tilesJson
-  }$riverTilesJson$targetInfoJson
+  }$riverTilesJson$targetInfoJson$spawnPointInfoJson
 }"""
         return """{
   "metadata": {
@@ -299,6 +311,45 @@ object EditorJsonSerializer {
                 // targetInfo is optional, continue without it
             }
 
+            // Parse optional spawnPointInfo section
+            val spawnPointInfoMap = mutableMapOf<String, SpawnPointType>()
+            try {
+                if (dataJson.contains("\"spawnPointInfo\"")) {
+                    val startMarker = "\"spawnPointInfo\": {"
+                    val startIdx = dataJson.indexOf(startMarker)
+                    if (startIdx != -1) {
+                        val contentStart = startIdx + startMarker.length
+                        var braceCount = 1
+                        var endIdx = contentStart
+                        while (endIdx < dataJson.length && braceCount > 0) {
+                            when (dataJson[endIdx]) {
+                                '{' -> braceCount++
+                                '}' -> braceCount--
+                            }
+                            endIdx++
+                        }
+                        if (braceCount == 0) {
+                            val spawnSection = dataJson.substring(contentStart, endIdx - 1)
+                            // Each entry looks like: "x,y": "LAND" or "x,y": "WATER"
+                            val entryRegex = Regex(""""(\d+,\d+)":\s*"([A-Z_]+)"""")
+                            for (match in entryRegex.findAll(spawnSection)) {
+                                val pos = match.groupValues[1]
+                                val typeStr = match.groupValues[2]
+                                try {
+                                    spawnPointInfoMap[pos] = SpawnPointType.valueOf(typeStr)
+                                } catch (e: Exception) {
+                                    println("Unknown SpawnPointType '$typeStr' for pos '$pos', defaulting to LAND")
+                                    spawnPointInfoMap[pos] = SpawnPointType.LAND
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                println("Error deserializing spawnPointInfo: ${e.message}")
+                // spawnPointInfo is optional, continue without it
+            }
+
             return EditorMap(
                 id = id,
                 name = name,
@@ -312,6 +363,7 @@ object EditorJsonSerializer {
                 isOfficial = isOfficial,
                 author = author,
                 targetInfoMap = targetInfoMap,
+                spawnPointInfoMap = spawnPointInfoMap,
                 mapToolingInfo = mapToolingInfo,
             )
         } catch (e: Exception) {

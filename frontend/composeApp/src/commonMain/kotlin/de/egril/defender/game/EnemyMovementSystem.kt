@@ -72,11 +72,15 @@ class EnemyMovementSystem(
 
         if (enemiesToSpawnThisTurn.isEmpty()) return
 
-        val spawnPoints = state.level.startPositions
-
         enemiesToSpawnThisTurn.forEachIndexed { index, plannedSpawn ->
-            // Use fixed spawn point if specified, otherwise use round-robin
-            val preferredSpawnPoint = plannedSpawn.spawnPoint ?: spawnPoints[index % spawnPoints.size]
+            // Use fixed spawn point if specified; otherwise pick a compatible spawn point via
+            // round-robin, honouring the enemy's canSpawnOnLand/canSpawnOnWater flags.
+            val preferredSpawnPoint =
+                plannedSpawn.spawnPoint
+                    ?: run {
+                        val compatiblePoints = state.level.getCompatibleSpawnPoints(plannedSpawn.attackerType)
+                        compatiblePoints[index % compatiblePoints.size]
+                    }
 
             // Get the initial target based on the preferred spawn point (before finding actual position)
             val initialTarget = getInitialTarget(preferredSpawnPoint)

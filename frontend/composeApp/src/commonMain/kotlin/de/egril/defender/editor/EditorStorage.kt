@@ -1521,6 +1521,15 @@ object EditorStorage {
                         )
                 }.toMap()
 
+        // Convert editor spawn point info map to model SpawnPointType map
+        val gameSpawnPointTypeMap: Map<Position, de.egril.defender.model.SpawnPointType> =
+            map.spawnPointInfoMap.entries
+                .mapNotNull { (key, spawnType) ->
+                    val parts = key.split(",")
+                    val pos = Position(parts[0].toInt(), parts[1].toInt())
+                    pos to spawnType
+                }.toMap()
+
         val level =
             Level(
                 id = numericId,
@@ -1548,6 +1557,7 @@ object EditorStorage {
                 connectedToPreviousLevel = editorLevel.connectedToPreviousLevel, // Connected level flag
                 isSandbox = editorLevel.isSandbox, // Sandbox mode flag (free building, no win, no XP, no events)
                 targetInfoMap = gameTargetInfoMap, // Named / SINGLE_HIT target metadata
+                spawnPointTypeMap = gameSpawnPointTypeMap, // LAND/WATER classification per spawn point
                 supports = editorLevel.supports, // Player-usable supports (objects + spell tokens)
                 events = editorLevel.events, // Scripted level events (conditions + actions + messages)
                 initialData = editorLevel.getEffectiveInitialData(), // Pre-placed elements using new structure

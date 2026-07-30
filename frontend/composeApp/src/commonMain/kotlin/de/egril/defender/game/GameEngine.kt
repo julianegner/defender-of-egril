@@ -743,11 +743,16 @@ class GameEngine(
     private fun spawnInitialEnemies() {
         // Spawn all enemies scheduled for turn 1 from the spawn plan
         val turn1Spawns = state.spawnPlan.filter { it.spawnTurn == 1 }
-        val spawnPoints = state.level.startPositions
 
         turn1Spawns.forEachIndexed { index, plannedSpawn ->
-            // Use fixed spawn point if specified, otherwise use round-robin
-            val preferredSpawnPoint = plannedSpawn.spawnPoint ?: spawnPoints[index % spawnPoints.size]
+            // Use fixed spawn point if specified; otherwise pick a compatible spawn point via
+            // round-robin, honouring the enemy's canSpawnOnLand/canSpawnOnWater flags.
+            val preferredSpawnPoint =
+                plannedSpawn.spawnPoint
+                    ?: run {
+                        val compatiblePoints = state.level.getCompatibleSpawnPoints(plannedSpawn.attackerType)
+                        compatiblePoints[index % compatiblePoints.size]
+                    }
 
             // Find a free position near the preferred spawn point
             val spawnPos = enemyMovement.findFreePositionNear(preferredSpawnPoint)
