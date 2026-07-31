@@ -259,7 +259,7 @@ object EditorStorage {
         val pngExists = fileStorage.fileExists(pngPath)
         val tilesChanged =
             existingMap == null ||
-                normalizeForImageComparison(existingMap.tiles) != normalizeForImageComparison(validatedMap.tiles)
+                normalizeForImageComparison(existingMap) != normalizeForImageComparison(validatedMap)
         val imageNeedsRegeneration = !pngExists || tilesChanged
 
         if (!imageNeedsRegeneration) {
@@ -366,15 +366,19 @@ object EditorStorage {
         } ?: fileStorage.readBinaryFile("$LEGACY_MAPS_DIR/$mapId.png")
 
     /**
-     * Normalizes tile types for the purpose of deciding whether the map image needs to be
-     * regenerated. SPAWN_POINT and TARGET use the same visual biome as PATH in the image
-     * generator, so they are mapped to PATH so that changes between these types do not
-     * trigger an unnecessary repaint.
+     * Normalizes tile types for deciding whether map image regeneration is needed.
+     * TARGET always uses PATH visuals. SPAWN_POINT uses PATH when LAND and RIVER when WATER.
      */
-    internal fun normalizeForImageComparison(tiles: Map<String, TileType>): Map<String, TileType> =
-        tiles.mapValues { (_, tileType) ->
+    internal fun normalizeForImageComparison(map: EditorMap): Map<String, TileType> =
+        map.tiles.mapValues { (pos, tileType) ->
             when (tileType) {
-                TileType.SPAWN_POINT, TileType.TARGET -> TileType.PATH
+                TileType.SPAWN_POINT ->
+                    if (map.spawnPointInfoMap[pos] == de.egril.defender.model.SpawnPointType.WATER) {
+                        TileType.RIVER
+                    } else {
+                        TileType.PATH
+                    }
+                TileType.TARGET -> TileType.PATH
                 else -> tileType
             }
         }

@@ -90,6 +90,7 @@ class EnemyMovementSystem(
             val spawnPos = findFreePositionNear(
                 preferredSpawnPoint,
                 waterOnly = plannedSpawn.attackerType.canOnlyMoveOnWater,
+                canUseRiver = plannedSpawn.attackerType.canTraverseRiver,
             )
 
             if (spawnPos == null) {
@@ -149,7 +150,12 @@ class EnemyMovementSystem(
             // The unique-villain check still applies: already-present companions are skipped.
             for (companionType in plannedSpawn.attackerType.arrivalCompanions) {
                 if (isUniqueEnemyAlreadyPresent(companionType, state.attackers)) continue
-                val companionPos = findFreePositionNear(preferredSpawnPoint) ?: continue
+                val companionPos =
+                    findFreePositionNear(
+                        preferredSpawnPoint,
+                        waterOnly = companionType.canOnlyMoveOnWater,
+                        canUseRiver = companionType.canTraverseRiver,
+                    ) ?: continue
                 val companionTarget = getInitialTarget(preferredSpawnPoint)
                 val companion =
                     Attacker(
@@ -217,11 +223,12 @@ class EnemyMovementSystem(
     /**
      * Find a free position for spawning, starting from the preferred spawn point.
      * If the spawn point is occupied, search neighboring path tiles using hex grid neighbors.
-     * For water-only enemies (e.g. The Kraken), the fallback searches river tiles instead.
+     * For water-capable enemies, the fallback includes river tiles.
      */
     fun findFreePositionNear(
         preferredSpawnPoint: Position,
         waterOnly: Boolean = false,
+        canUseRiver: Boolean = false,
     ): Position? {
         // First, check if the preferred spawn point is free
         if (!state.attackers.any { it.position.value == preferredSpawnPoint && !it.isDefeated.value }) {
@@ -255,6 +262,8 @@ class EnemyMovementSystem(
                 val isValidTile =
                     if (waterOnly) {
                         state.level.isRiverTile(neighbor)
+                    } else if (canUseRiver) {
+                        state.level.isEnemyOccupiable(neighbor)
                     } else {
                         state.level.isEnemyTraversable(neighbor)
                     }

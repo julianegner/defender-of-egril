@@ -54,6 +54,8 @@ fun MapEditorHeader(
     onTargetNameChange: (String) -> Unit = {},
     selectedTargetType: de.egril.defender.model.TargetType = de.egril.defender.model.TargetType.STANDARD,
     onTargetTypeChange: (de.egril.defender.model.TargetType) -> Unit = {},
+    selectedSpawnPointType: de.egril.defender.model.SpawnPointType = de.egril.defender.model.SpawnPointType.LAND,
+    onSpawnPointTypeChange: (de.egril.defender.model.SpawnPointType) -> Unit = {},
 ) {
     if (isExpanded) {
         ExpandedMapEditorHeader(
@@ -79,6 +81,8 @@ fun MapEditorHeader(
             onTargetNameChange = onTargetNameChange,
             selectedTargetType = selectedTargetType,
             onTargetTypeChange = onTargetTypeChange,
+            selectedSpawnPointType = selectedSpawnPointType,
+            onSpawnPointTypeChange = onSpawnPointTypeChange,
         )
     } else {
         CollapsedMapEditorHeader(
@@ -93,6 +97,8 @@ fun MapEditorHeader(
             onTargetNameChange = onTargetNameChange,
             selectedTargetType = selectedTargetType,
             onTargetTypeChange = onTargetTypeChange,
+            selectedSpawnPointType = selectedSpawnPointType,
+            onSpawnPointTypeChange = onSpawnPointTypeChange,
         )
     }
 }
@@ -124,6 +130,8 @@ private fun ExpandedMapEditorHeader(
     onTargetNameChange: (String) -> Unit = {},
     selectedTargetType: de.egril.defender.model.TargetType = de.egril.defender.model.TargetType.STANDARD,
     onTargetTypeChange: (de.egril.defender.model.TargetType) -> Unit = {},
+    selectedSpawnPointType: de.egril.defender.model.SpawnPointType = de.egril.defender.model.SpawnPointType.LAND,
+    onSpawnPointTypeChange: (de.egril.defender.model.SpawnPointType) -> Unit = {},
 ) {
     Card(
         modifier =
@@ -302,6 +310,47 @@ private fun ExpandedMapEditorHeader(
                                 ) {
                                     Text(flow.name.replace("_", " "), fontSize = 10.sp)
                                 }
+
+                                if (selectedTileType == TileType.SPAWN_POINT) {
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                                        colors =
+                                            CardDefaults.cardColors(
+                                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                            ),
+                                    ) {
+                                        Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                            Text(
+                                                text = stringResource(Res.string.spawn_point_type),
+                                                style = MaterialTheme.typography.bodySmall,
+                                            )
+                                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                                de.egril.defender.model.SpawnPointType.entries.forEach { type ->
+                                                    val label =
+                                                        when (type) {
+                                                            de.egril.defender.model.SpawnPointType.LAND -> stringResource(Res.string.spawn_point_type_land)
+                                                            de.egril.defender.model.SpawnPointType.WATER -> stringResource(Res.string.spawn_point_type_water)
+                                                        }
+                                                    Button(
+                                                        onClick = { onSpawnPointTypeChange(type) },
+                                                        colors =
+                                                            ButtonDefaults.buttonColors(
+                                                                containerColor =
+                                                                    if (selectedSpawnPointType == type) {
+                                                                        MaterialTheme.colorScheme.primary
+                                                                    } else {
+                                                                        MaterialTheme.colorScheme.secondary
+                                                                    },
+                                                            ),
+                                                        modifier = Modifier.height(32.dp),
+                                                    ) {
+                                                        Text(label, fontSize = 10.sp)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -344,6 +393,21 @@ private fun ExpandedMapEditorHeader(
                             ) {
                                 Text(stringResource(Res.string.speed_fast), fontSize = 10.sp)
                             }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Button(
+                            onClick = {
+                                onTileTypeChange(TileType.SPAWN_POINT)
+                                onSpawnPointTypeChange(de.egril.defender.model.SpawnPointType.WATER)
+                            },
+                            modifier = Modifier.height(32.dp),
+                        ) {
+                            Text(
+                                "${stringResource(Res.string.spawn_point)} (${stringResource(Res.string.spawn_point_type_water)})",
+                                fontSize = 10.sp,
+                            )
                         }
                     }
                 }
@@ -436,9 +500,12 @@ private fun CollapsedMapEditorHeader(
     onTargetNameChange: (String) -> Unit = {},
     selectedTargetType: de.egril.defender.model.TargetType = de.egril.defender.model.TargetType.STANDARD,
     onTargetTypeChange: (de.egril.defender.model.TargetType) -> Unit = {},
+    selectedSpawnPointType: de.egril.defender.model.SpawnPointType = de.egril.defender.model.SpawnPointType.LAND,
+    onSpawnPointTypeChange: (de.egril.defender.model.SpawnPointType) -> Unit = {},
 ) {
     var showRiverPropertiesDialog by remember { mutableStateOf(false) }
     var showTargetPropertiesDialog by remember { mutableStateOf(false) }
+    var showSpawnPointPropertiesDialog by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
 
     Card(
@@ -549,6 +616,8 @@ private fun CollapsedMapEditorHeader(
                                     showRiverPropertiesDialog = true
                                 } else if (tileType == TileType.TARGET) {
                                     showTargetPropertiesDialog = true
+                                } else if (tileType == TileType.SPAWN_POINT) {
+                                    showSpawnPointPropertiesDialog = true
                                 }
                             },
                         )
@@ -556,11 +625,16 @@ private fun CollapsedMapEditorHeader(
                 }
             }
 
-            // Show target properties button when TARGET is already selected
-            if (selectedTileType == TileType.TARGET) {
+            if (selectedTileType == TileType.TARGET || selectedTileType == TileType.SPAWN_POINT) {
                 val editLabel = stringResource(Res.string.edit)
                 IconButton(
-                    onClick = { showTargetPropertiesDialog = true },
+                    onClick = {
+                        if (selectedTileType == TileType.TARGET) {
+                            showTargetPropertiesDialog = true
+                        } else {
+                            showSpawnPointPropertiesDialog = true
+                        }
+                    },
                     modifier = Modifier.size(32.dp).semantics { contentDescription = editLabel },
                 ) {
                     de.egril.defender.ui.icon
@@ -684,6 +758,22 @@ private fun CollapsedMapEditorHeader(
                             Text(stringResource(Res.string.speed_fast), fontSize = 10.sp)
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = {
+                            onTileTypeChange(TileType.SPAWN_POINT)
+                            onSpawnPointTypeChange(de.egril.defender.model.SpawnPointType.WATER)
+                            showRiverPropertiesDialog = false
+                        },
+                        modifier = Modifier.height(32.dp),
+                    ) {
+                        Text(
+                            "${stringResource(Res.string.spawn_point)} (${stringResource(Res.string.spawn_point_type_water)})",
+                            fontSize = 10.sp,
+                        )
+                    }
                 }
             },
             confirmButton = {
@@ -731,6 +821,51 @@ private fun CollapsedMapEditorHeader(
                                 modifier = Modifier.height(36.dp),
                             ) {
                                 Text(label, fontSize = 11.sp)
+                            }
+
+                            if (showSpawnPointPropertiesDialog) {
+                                AlertDialog(
+                                    onDismissRequest = { showSpawnPointPropertiesDialog = false },
+                                    title = { Text(stringResource(Res.string.spawn_point_type)) },
+                                    text = {
+                                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                                de.egril.defender.model.SpawnPointType.entries.forEach { type ->
+                                                    val label =
+                                                        when (type) {
+                                                            de.egril.defender.model.SpawnPointType.LAND -> stringResource(Res.string.spawn_point_type_land)
+                                                            de.egril.defender.model.SpawnPointType.WATER -> stringResource(Res.string.spawn_point_type_water)
+                                                        }
+                                                    Button(
+                                                        onClick = { onSpawnPointTypeChange(type) },
+                                                        colors =
+                                                            ButtonDefaults.buttonColors(
+                                                                containerColor =
+                                                                    if (selectedSpawnPointType == type) {
+                                                                        MaterialTheme.colorScheme.primary
+                                                                    } else {
+                                                                        MaterialTheme.colorScheme.secondary
+                                                                    },
+                                                            ),
+                                                        modifier = Modifier.height(36.dp),
+                                                    ) {
+                                                        Text(label, fontSize = 11.sp)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    confirmButton = {
+                                        Button(onClick = { showSpawnPointPropertiesDialog = false }) {
+                                            Text(stringResource(Res.string.ok))
+                                        }
+                                    },
+                                    dismissButton = {
+                                        Button(onClick = { showSpawnPointPropertiesDialog = false }) {
+                                            Text(stringResource(Res.string.cancel))
+                                        }
+                                    },
+                                )
                             }
                         }
                     }

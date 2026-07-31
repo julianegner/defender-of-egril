@@ -22,6 +22,7 @@ import de.egril.defender.editor.EditorTargetInfo
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.Position
 import de.egril.defender.model.RiverTile
+import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.TargetType
 import de.egril.defender.ui.constrainMapOffsets
 import de.egril.defender.ui.editor.ConfirmationDialog
@@ -63,11 +64,13 @@ fun MapEditorView(
     var tiles by remember { mutableStateOf(map.tiles.toMutableMap()) }
     var riverTiles by remember { mutableStateOf(map.riverTiles.toMutableMap()) }
     var targetInfoMap by remember { mutableStateOf(map.targetInfoMap.toMutableMap()) }
+    var spawnPointInfoMap by remember { mutableStateOf(map.spawnPointInfoMap.toMutableMap()) }
     var selectedTileType by remember { mutableStateOf(TileType.PATH) }
     var selectedRiverFlow by remember { mutableStateOf(de.egril.defender.model.RiverFlow.EAST) }
     var selectedRiverSpeed by remember { mutableStateOf(1) }
     var selectedTargetName by remember { mutableStateOf("") }
     var selectedTargetType by remember { mutableStateOf(TargetType.STANDARD) }
+    var selectedSpawnPointType by remember { mutableStateOf(SpawnPointType.LAND) }
     var editTargetKey by remember { mutableStateOf<String?>(null) } // Key of a tile being edited in the inline dialog
     var mapName by remember { mutableStateOf(map.name) }
     var mapAuthor by remember { mutableStateOf(map.author) }
@@ -91,11 +94,12 @@ fun MapEditorView(
 
     // Create updated map for minimap that reflects current tiles state
     val currentMap =
-        remember(tiles, riverTiles, targetInfoMap, mapToolingInfo) {
+        remember(tiles, riverTiles, targetInfoMap, spawnPointInfoMap, mapToolingInfo) {
             map.copy(
                 tiles = tiles.toMap(),
                 riverTiles = riverTiles.toMap(),
                 targetInfoMap = targetInfoMap.toMap(),
+                spawnPointInfoMap = spawnPointInfoMap.toMap(),
                 mapToolingInfo = mapToolingInfo,
             )
         }
@@ -146,6 +150,18 @@ fun MapEditorView(
             } else {
                 targetInfoMap =
                     targetInfoMap.toMutableMap().apply {
+                        remove(key)
+                    }
+            }
+
+            if (selectedTileType == TileType.SPAWN_POINT) {
+                spawnPointInfoMap =
+                    spawnPointInfoMap.toMutableMap().apply {
+                        this[key] = selectedSpawnPointType
+                    }
+            } else {
+                spawnPointInfoMap =
+                    spawnPointInfoMap.toMutableMap().apply {
                         remove(key)
                     }
             }
@@ -221,9 +237,18 @@ fun MapEditorView(
                     val key = "${position.x},${position.y}"
                     val tileType = tiles[key] ?: TileType.NO_PLAY
                     val riverTile = riverTiles[key]
+                    val isWaterSpawnPoint =
+                        tileType == TileType.SPAWN_POINT &&
+                            spawnPointInfoMap[key] == SpawnPointType.WATER
+                    val tileBackgroundColor =
+                        if (isWaterSpawnPoint) {
+                            Color(0xFF8A2BE2)
+                        } else {
+                            getTileColor(tileType)
+                        }
                     BaseGridCell(
                         hexSize = hexSize,
-                        backgroundColor = getTileColor(tileType),
+                        backgroundColor = tileBackgroundColor,
                         borderColor = Color.Black,
                         borderWidth = 1.5.dp,
                         onClick = {
@@ -267,6 +292,18 @@ fun MapEditorView(
                                             remove(key)
                                         }
                                 }
+
+                                if (selectedTileType == TileType.SPAWN_POINT) {
+                                    spawnPointInfoMap =
+                                        spawnPointInfoMap.toMutableMap().apply {
+                                            this[key] = selectedSpawnPointType
+                                        }
+                                } else {
+                                    spawnPointInfoMap =
+                                        spawnPointInfoMap.toMutableMap().apply {
+                                            remove(key)
+                                        }
+                                }
                             }
                         },
                     ) {
@@ -296,6 +333,14 @@ fun MapEditorView(
                                     flowDirection = riverTile.flowDirection,
                                     flowSpeed = riverTile.flowSpeed,
                                     size = 20.dp,
+                                )
+                            }
+
+                            if (isWaterSpawnPoint) {
+                                Text(
+                                    text = "SPAWN",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White,
                                 )
                             }
                         }
@@ -430,6 +475,7 @@ fun MapEditorView(
                                 tiles = tiles.toMap(),
                                 riverTiles = riverTiles.toMap(),
                                 targetInfoMap = targetInfoMap.toMap(),
+                                spawnPointInfoMap = spawnPointInfoMap.toMap(),
                             )
                         // Validate and set readyToUse flag
                         val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
@@ -460,12 +506,13 @@ fun MapEditorView(
             val iamState by de.egril.defender.iam.IamService.state
             if (!map.isOfficial && iamState.isAuthenticated) {
                 val currentMapJson =
-                    remember(map.id, map.hashCode(), tiles.hashCode(), riverTiles.hashCode(), mapToolingInfo) {
+                    remember(map.id, map.hashCode(), tiles.hashCode(), riverTiles.hashCode(), spawnPointInfoMap.hashCode(), mapToolingInfo) {
                         val updatedMap =
                             map.copy(
                                 tiles = tiles.toMap(),
                                 riverTiles = riverTiles.toMap(),
                                 targetInfoMap = targetInfoMap.toMap(),
+                                spawnPointInfoMap = spawnPointInfoMap.toMap(),
                                 mapToolingInfo = mapToolingInfo,
                             )
                         de.egril.defender.editor.EditorJsonSerializer
@@ -497,6 +544,7 @@ fun MapEditorView(
                                     tiles = tiles.toMap(),
                                     riverTiles = riverTiles.toMap(),
                                     targetInfoMap = targetInfoMap.toMap(),
+                                    spawnPointInfoMap = spawnPointInfoMap.toMap(),
                                     mapToolingInfo = mapToolingInfo,
                                 )
                             de.egril.defender.editor.EditorStorage.saveCommunityMap(
@@ -612,6 +660,8 @@ fun MapEditorView(
             onTargetNameChange = { selectedTargetName = it },
             selectedTargetType = selectedTargetType,
             onTargetTypeChange = { selectedTargetType = it },
+            selectedSpawnPointType = selectedSpawnPointType,
+            onSpawnPointTypeChange = { selectedSpawnPointType = it },
         )
     }
 
@@ -636,6 +686,7 @@ fun MapEditorView(
                         tiles = tiles.toMap(),
                         riverTiles = riverTiles.toMap(),
                         targetInfoMap = targetInfoMap.toMap(),
+                        spawnPointInfoMap = spawnPointInfoMap.toMap(),
                         isOfficial = false, // Save as new always creates a user map
                     )
                 // Validate and set readyToUse flag

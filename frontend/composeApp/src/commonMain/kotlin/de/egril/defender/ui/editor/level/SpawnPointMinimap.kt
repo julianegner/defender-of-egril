@@ -23,6 +23,7 @@ import kotlin.math.sqrt
 fun SpawnPointMinimap(
     map: EditorMap,
     selectedSpawnPoint: Position?,
+    visibleSpawnPoints: Set<Position>? = null,
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
 
@@ -72,12 +73,20 @@ fun SpawnPointMinimap(
 
                 // Determine if this position is the selected spawn point
                 val isSelected = pos == selectedSpawnPoint
+                val isVisibleSpawnPoint = visibleSpawnPoints == null || pos in visibleSpawnPoints
 
                 // Get color for tile type
                 val color =
                     when {
                         isSelected -> Color(0xFF00FF00) // Bright green for selected spawn point
-                        tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
+                        tileType == TileType.SPAWN_POINT && isVisibleSpawnPoint ->
+                            when (map.getSpawnPointType(pos)) {
+                                de.egril.defender.model.SpawnPointType.WATER ->
+                                    if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF1E88E5)
+                                de.egril.defender.model.SpawnPointType.LAND ->
+                                    if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
+                            }
+                        tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
                         tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
                         tileType == TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
                         tileType == TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90)

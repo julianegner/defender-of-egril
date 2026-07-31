@@ -6,6 +6,8 @@ import de.egril.defender.model.Level
 import de.egril.defender.model.PlannedEnemySpawn
 import de.egril.defender.model.Position
 import de.egril.defender.model.SpawnPointType
+import de.egril.defender.model.Attacker
+import androidx.compose.runtime.mutableStateOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -121,6 +123,13 @@ class WaterSpawnPointTest {
         assertEquals(level.startPositions, compatible, "Should fall back to all spawn points when none are compatible")
     }
 
+    @Test
+    fun waterSpawnPointIsTreatedAsRiverTile() {
+        val level = levelWithBothSpawnTypes()
+        assertTrue(level.isRiverTile(waterSpawn), "Water spawn point must be treated as a river tile")
+        assertFalse(level.isRiverTile(landSpawn), "Land spawn point must not be treated as a river tile")
+    }
+
     // ─── Spawn-point filtering during actual game spawning ───────────────────────
 
     @Test
@@ -151,5 +160,101 @@ class WaterSpawnPointTest {
         assertEquals(1, state.attackers.size)
         val orkPos = state.attackers.first().position.value
         assertEquals(landSpawn, orkPos, "Ork must have spawned at the land spawn point")
+    }
+
+    @Test
+    fun krakenMoveTowardsUsesRiverNeighborsWhenNoPathFound() {
+        val spawn = Position(0, 0)
+        val nextRiver = Position(1, 0)
+        val unreachableTarget = Position(5, 5)
+        val level =
+            Level(
+                id = 3,
+                name = "Kraken MoveTowards",
+                gridWidth = 6,
+                gridHeight = 6,
+                startPositions = listOf(spawn),
+                targetPositions = listOf(Position(5, 0)),
+                pathCells = emptySet(),
+                attackerWaves = emptyList(),
+                riverTiles = mapOf(nextRiver to de.egril.defender.model.RiverTile(nextRiver)),
+                spawnPointTypeMap = mapOf(spawn to SpawnPointType.WATER),
+            )
+        val state = GameState(level = level)
+        val pathfinding = PathfindingSystem(state)
+        val kraken =
+            Attacker(
+                id = 1,
+                type = AttackerType.THE_KRAKEN,
+                position = mutableStateOf(spawn),
+            )
+
+        val next = pathfinding.moveTowards(spawn, unreachableTarget, kraken)
+        assertEquals(nextRiver, next, "Kraken fallback movement must follow river-capable neighbors")
+    }
+
+    @Test
+    fun roderichCanSpawnFromFixedWaterSpawnPoint() {
+        val waterSpawn = Position(0, 0)
+        val level =
+            Level(
+                id = 4,
+                name = "Roderich Fixed Water Spawn",
+                gridWidth = 4,
+                gridHeight = 2,
+                startPositions = listOf(waterSpawn),
+                targetPositions = listOf(Position(3, 0)),
+                pathCells = emptySet(),
+                attackerWaves = emptyList(),
+                spawnPointTypeMap = mapOf(waterSpawn to SpawnPointType.WATER),
+                directSpawnPlan =
+                    listOf(
+                        PlannedEnemySpawn(AttackerType.CAPTAIN_RODERICH, spawnTurn = 1, level = 1, spawnPoint = waterSpawn),
+                    ),
+            )
+
+        val state = GameState(level = level)
+        val engine = GameEngine(state)
+        engine.startFirstPlayerTurn()
+
+        assertEquals(1, state.attackers.size, "Roderich should spawn")
+        assertEquals(waterSpawn, state.attackers.first().position.value, "Roderich should spawn at the fixed water spawn point")
+    }
+
+    @Test
+    fun findFreePositionNearAllowsRiverFallbackForRoderich() {
+        val waterSpawn = Position(0, 0)
+        val riverNeighbor = Position(1, 0)
+        val level =
+            Level(
+                id = 5,
+                name = "Roderich River Fallback",
+                gridWidth = 4,
+                gridHeight = 2,
+                startPositions = listOf(waterSpawn),
+                targetPositions = listOf(Position(3, 0)),
+                pathCells = emptySet(),
+                attackerWaves = emptyList(),
+                riverTiles = mapOf(riverNeighbor to de.egril.defender.model.RiverTile(riverNeighbor)),
+                spawnPointTypeMap = mapOf(waterSpawn to SpawnPointType.WATER),
+            )
+        val state = GameState(level = level)
+        val pathfinding = PathfindingSystem(state)
+        val movement = EnemyMovementSystem(state, pathfinding)
+        state.attackers.add(
+            Attacker(
+                id = 99,
+                type = AttackerType.GOBLIN,
+                position = mutableStateOf(waterSpawn),
+            ),
+        )
+
+        val fallback =
+            movement.findFreePositionNear(
+                preferredSpawnPoint = waterSpawn,
+                waterOnly = false,
+                canUseRiver = true,
+            )
+        assertEquals(riverNeighbor, fallback, "River-capable spawn fallback should use neighboring river tiles")
     }
 }

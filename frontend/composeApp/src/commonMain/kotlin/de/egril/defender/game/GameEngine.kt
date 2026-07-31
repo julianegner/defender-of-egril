@@ -661,7 +661,11 @@ class GameEngine(
                 if (canSpawnSoulCallAt(pending.position, reservedPositions)) {
                     pending.position
                 } else {
-                    enemyMovement.findFreePositionNear(pending.position)
+                    enemyMovement.findFreePositionNear(
+                        pending.position,
+                        waterOnly = pending.attackerType.canOnlyMoveOnWater,
+                        canUseRiver = pending.attackerType.canTraverseRiver,
+                    )
                 } ?: continue
 
             reservedPositions.add(spawnPos)
@@ -755,7 +759,12 @@ class GameEngine(
                     }
 
             // Find a free position near the preferred spawn point
-            val spawnPos = enemyMovement.findFreePositionNear(preferredSpawnPoint)
+            val spawnPos =
+                enemyMovement.findFreePositionNear(
+                    preferredSpawnPoint,
+                    waterOnly = plannedSpawn.attackerType.canOnlyMoveOnWater,
+                    canUseRiver = plannedSpawn.attackerType.canTraverseRiver,
+                )
 
             if (spawnPos == null) {
                 // No free position found - skip this enemy for now
@@ -2400,7 +2409,11 @@ class GameEngine(
         // Find a free spawn position, honoring a requested spawn point when given.
         val spawnPos =
             if (preferredSpawnPoint != null) {
-                enemyMovement.findFreePositionNear(preferredSpawnPoint)
+                enemyMovement.findFreePositionNear(
+                    preferredSpawnPoint,
+                    waterOnly = type.canOnlyMoveOnWater,
+                    canUseRiver = type.canTraverseRiver,
+                )
             } else {
                 enemyMovement.findFreeSpawnPosition()
             } ?: return

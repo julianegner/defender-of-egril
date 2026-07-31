@@ -129,6 +129,12 @@ data class Level(
     fun isSpawnPoint(position: Position): Boolean = startPositions.contains(position)
 
     /**
+     * Returns true when this spawn point is explicitly marked as WATER.
+     */
+    fun isWaterSpawnPoint(position: Position): Boolean =
+        isSpawnPoint(position) && getSpawnPointType(position) == SpawnPointType.WATER
+
+    /**
      * Returns the type of the given spawn point (LAND or WATER).
      * Defaults to LAND if the position has no explicit type entry.
      */
@@ -153,7 +159,7 @@ data class Level(
 
     fun getWaypointAt(position: Position): Waypoint? = waypoints.firstOrNull { it.position == position }
 
-    fun isRiverTile(position: Position): Boolean = riverTiles.containsKey(position)
+    fun isRiverTile(position: Position): Boolean = riverTiles.containsKey(position) || isWaterSpawnPoint(position)
 
     fun getRiverTile(position: Position): RiverTile? = riverTiles[position]
 

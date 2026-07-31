@@ -164,4 +164,30 @@ class SpawnPointTest {
         assertNotNull(map)
         assertTrue(map.spawnPointInfoMap.isEmpty(), "Legacy map without spawnPointInfo must have empty spawn point info map")
     }
+
+    @Test
+    fun testEditorMapGetCompatibleSpawnPointsFiltersByType() {
+        val map =
+            EditorMap(
+                id = "compat_map",
+                width = 4,
+                height = 2,
+                tiles =
+                    mapOf(
+                        "0,0" to TileType.SPAWN_POINT,
+                        "0,1" to TileType.SPAWN_POINT,
+                    ),
+                spawnPointInfoMap =
+                    mapOf(
+                        "0,0" to SpawnPointType.LAND,
+                        "0,1" to SpawnPointType.WATER,
+                    ),
+            )
+
+        val krakenPoints = map.getCompatibleSpawnPoints(AttackerType.THE_KRAKEN)
+        val goblinPoints = map.getCompatibleSpawnPoints(AttackerType.GOBLIN)
+
+        assertEquals(listOf(Position(0, 1)), krakenPoints)
+        assertEquals(listOf(Position(0, 0)), goblinPoints)
+    }
 }
