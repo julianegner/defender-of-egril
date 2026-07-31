@@ -73,9 +73,15 @@ fun AddEnemyDialog(
             }
     }
 
-    // Get available spawn points from the map
-    val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
-    var selectedSpawnPoint by remember { mutableStateOf<Position?>(spawnPoints.firstOrNull()) }
+    // Get spawn points from the map that are compatible with the selected enemy type.
+    val compatibleSpawnPoints = remember(map, selectedType) { map?.getCompatibleSpawnPoints(selectedType) ?: emptyList() }
+    var selectedSpawnPoint by remember { mutableStateOf<Position?>(null) }
+
+    LaunchedEffect(compatibleSpawnPoints) {
+        selectedSpawnPoint =
+            selectedSpawnPoint?.takeIf { it in compatibleSpawnPoints }
+                ?: compatibleSpawnPoints.firstOrNull()
+    }
 
     // State for spawn point selection dialog
     var showSpawnPointDialog by remember { mutableStateOf(false) }
@@ -175,7 +181,7 @@ fun AddEnemyDialog(
                 }
 
                 // Spawn point selection button (opens dialog with minimap)
-                if (spawnPoints.isNotEmpty()) {
+                if (compatibleSpawnPoints.isNotEmpty()) {
                     Text(
                         text = stringResource(Res.string.spawn_point),
                         modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
@@ -297,8 +303,11 @@ fun SpawnPointSelectionDialog(
     onDismiss: () -> Unit,
     onConfirm: (Position) -> Unit,
 ) {
-    val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
-    var selectedSpawnPoint by remember { mutableStateOf(currentSelection ?: spawnPoints.firstOrNull()) }
+    val compatibleSpawnPoints = remember(map, attackerType) { map?.getCompatibleSpawnPoints(attackerType) ?: emptyList() }
+    var selectedSpawnPoint by remember(attackerType, map, currentSelection) {
+        mutableStateOf(currentSelection?.takeIf { it in compatibleSpawnPoints } ?: compatibleSpawnPoints.firstOrNull())
+    }
+    val compatibleSpawnPointSet = remember(compatibleSpawnPoints) { compatibleSpawnPoints.toSet() }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -337,7 +346,7 @@ fun SpawnPointSelectionDialog(
                 HorizontalDivider()
 
                 // Minimap showing spawn points
-                if (map != null && spawnPoints.isNotEmpty()) {
+                if (map != null && compatibleSpawnPoints.isNotEmpty()) {
                     Box(
                         modifier =
                             Modifier
@@ -350,6 +359,7 @@ fun SpawnPointSelectionDialog(
                         SpawnPointMinimap(
                             map = map,
                             selectedSpawnPoint = selectedSpawnPoint,
+                            visibleSpawnPoints = compatibleSpawnPointSet,
                         )
                     }
                 }
@@ -362,7 +372,7 @@ fun SpawnPointSelectionDialog(
                 )
 
                 // Spawn point selection chips
-                if (spawnPoints.isNotEmpty()) {
+                if (compatibleSpawnPoints.isNotEmpty()) {
                     Text(
                         text = stringResource(Res.string.spawn_point),
                         style = MaterialTheme.typography.titleSmall,
@@ -373,11 +383,24 @@ fun SpawnPointSelectionDialog(
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        spawnPoints.forEach { point ->
+                        compatibleSpawnPoints.forEach { point ->
+                            val isWaterSpawn = map?.getSpawnPointType(point) == de.egril.defender.model.SpawnPointType.WATER
                             FilterChip(
                                 modifier = Modifier.height(32.dp),
                                 selected = selectedSpawnPoint == point,
                                 onClick = { selectedSpawnPoint = point },
+                                colors =
+                                    if (isWaterSpawn) {
+                                        FilterChipDefaults.filterChipColors(
+                                            containerColor = Color(0xFFB3D9FF),
+                                            labelColor = Color(0xFF0D47A1),
+                                            selectedContainerColor = Color(0xFF1565C0),
+                                            selectedLabelColor = Color.White,
+                                            selectedLeadingIconColor = Color.White,
+                                        )
+                                    } else {
+                                        FilterChipDefaults.filterChipColors()
+                                    },
                                 label = {
                                     Text(
                                         text = "S(${point.x},${point.y})",
@@ -396,7 +419,7 @@ fun SpawnPointSelectionDialog(
                     }
                 } else {
                     Text(
-                        text = stringResource(Res.string.no_spawn_points_available),
+                        text = stringResource(Res.string.no_compatible_spawn_points_available),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -987,6 +1010,7 @@ fun ChangeAllSpawnPointsDialog(
                         SpawnPointMinimap(
                             map = map,
                             selectedSpawnPoint = null,
+                            visibleSpawnPoints = null,
                         )
                     }
 

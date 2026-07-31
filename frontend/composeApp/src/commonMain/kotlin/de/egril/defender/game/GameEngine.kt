@@ -661,7 +661,11 @@ class GameEngine(
                 if (canSpawnSoulCallAt(pending.position, reservedPositions)) {
                     pending.position
                 } else {
-                    enemyMovement.findFreePositionNear(pending.position)
+                    enemyMovement.findFreePositionNear(
+                        pending.position,
+                        waterOnly = pending.attackerType.canOnlyMoveOnWater,
+                        canUseRiver = pending.attackerType.canTraverseRiver,
+                    )
                 } ?: continue
 
             reservedPositions.add(spawnPos)
@@ -743,14 +747,24 @@ class GameEngine(
     private fun spawnInitialEnemies() {
         // Spawn all enemies scheduled for turn 1 from the spawn plan
         val turn1Spawns = state.spawnPlan.filter { it.spawnTurn == 1 }
-        val spawnPoints = state.level.startPositions
 
         turn1Spawns.forEachIndexed { index, plannedSpawn ->
-            // Use fixed spawn point if specified, otherwise use round-robin
-            val preferredSpawnPoint = plannedSpawn.spawnPoint ?: spawnPoints[index % spawnPoints.size]
+            // Use fixed spawn point if specified; otherwise pick a compatible spawn point via
+            // round-robin, honouring the enemy's canSpawnOnLand/canSpawnOnWater flags.
+            val preferredSpawnPoint =
+                plannedSpawn.spawnPoint
+                    ?: run {
+                        val compatiblePoints = state.level.getCompatibleSpawnPoints(plannedSpawn.attackerType)
+                        compatiblePoints[index % compatiblePoints.size]
+                    }
 
             // Find a free position near the preferred spawn point
-            val spawnPos = enemyMovement.findFreePositionNear(preferredSpawnPoint)
+            val spawnPos =
+                enemyMovement.findFreePositionNear(
+                    preferredSpawnPoint,
+                    waterOnly = plannedSpawn.attackerType.canOnlyMoveOnWater,
+                    canUseRiver = plannedSpawn.attackerType.canTraverseRiver,
+                )
 
             if (spawnPos == null) {
                 // No free position found - skip this enemy for now
@@ -2395,7 +2409,11 @@ class GameEngine(
         // Find a free spawn position, honoring a requested spawn point when given.
         val spawnPos =
             if (preferredSpawnPoint != null) {
-                enemyMovement.findFreePositionNear(preferredSpawnPoint)
+                enemyMovement.findFreePositionNear(
+                    preferredSpawnPoint,
+                    waterOnly = type.canOnlyMoveOnWater,
+                    canUseRiver = type.canTraverseRiver,
+                )
             } else {
                 enemyMovement.findFreeSpawnPosition()
             } ?: return

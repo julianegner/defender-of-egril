@@ -635,6 +635,10 @@
     <string name="change_spawn_point">Cambia Punto di Spawn</string>
     <string name="select_spawn_point_for_enemy">Seleziona il punto di spawn per questo nemico</string>
     <string name="no_spawn_points_available">Nessun punto di spawn disponibile su questa mappa</string>
+    <string name="no_compatible_spawn_points_available">Nessun punto di spawn compatibile disponibile per questo nemico</string>
+    <string name="spawn_point_type">Tipo di Punto di Spawn</string>
+    <string name="spawn_point_type_land">Terra</string>
+    <string name="spawn_point_type_water">Acqua</string>
     <string name="no_spawn_point_set">Nessun punto di spawn impostato</string>
     <string name="change">Cambia</string>
     <string name="select">Seleziona</string>

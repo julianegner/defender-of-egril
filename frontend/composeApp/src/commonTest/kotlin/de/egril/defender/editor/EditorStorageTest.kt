@@ -2,6 +2,7 @@ package de.egril.defender.editor
 
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.SpawnPointType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -732,8 +733,24 @@ class EditorStorageTest {
                 "2,2" to TileType.BUILD_AREA,
             )
 
-        val normalizedPath = EditorStorage.normalizeForImageComparison(tilesWithPath)
-        val normalizedSpawnTarget = EditorStorage.normalizeForImageComparison(tilesWithSpawnAndTarget)
+        val normalizedPath =
+            EditorStorage.normalizeForImageComparison(
+                EditorMap(
+                    id = "normalize_path",
+                    width = 3,
+                    height = 3,
+                    tiles = tilesWithPath,
+                ),
+            )
+        val normalizedSpawnTarget =
+            EditorStorage.normalizeForImageComparison(
+                EditorMap(
+                    id = "normalize_spawn_target",
+                    width = 3,
+                    height = 3,
+                    tiles = tilesWithSpawnAndTarget,
+                ),
+            )
 
         assertEquals(
             normalizedPath,
@@ -751,10 +768,32 @@ class EditorStorageTest {
                 "1,1" to TileType.NO_PLAY,
                 "2,2" to TileType.RIVER,
             )
-        val normalized = EditorStorage.normalizeForImageComparison(tiles)
+        val normalized =
+            EditorStorage.normalizeForImageComparison(
+                EditorMap(
+                    id = "normalize_unchanged",
+                    width = 3,
+                    height = 3,
+                    tiles = tiles,
+                ),
+            )
         assertEquals(TileType.BUILD_AREA, normalized["0,0"])
         assertEquals(TileType.NO_PLAY, normalized["1,1"])
         assertEquals(TileType.RIVER, normalized["2,2"])
+    }
+
+    @Test
+    fun testNormalizeForImageComparisonWaterSpawnPointTreatedAsRiver() {
+        val mapWithWaterSpawn =
+            EditorMap(
+                id = "normalize_water_spawn",
+                width = 2,
+                height = 2,
+                tiles = mapOf("0,0" to TileType.SPAWN_POINT),
+                spawnPointInfoMap = mapOf("0,0" to SpawnPointType.WATER),
+            )
+        val normalized = EditorStorage.normalizeForImageComparison(mapWithWaterSpawn)
+        assertEquals(TileType.RIVER, normalized["0,0"])
     }
 
     @Test

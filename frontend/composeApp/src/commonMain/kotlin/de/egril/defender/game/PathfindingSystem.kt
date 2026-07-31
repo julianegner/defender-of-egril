@@ -267,6 +267,8 @@ class PathfindingSystem(
         attacker: Attacker? = null,
         excludedPositions: Set<Position> = emptySet(),
     ): Position {
+        val canUseRiver = attacker?.type?.canTraverseRiver == true
+        val isWaterOnly = attacker?.type?.canOnlyMoveOnWater == true
         // Use hexagonal neighbors to find the best next position
         val hexNeighbors = from.getHexNeighbors()
 
@@ -278,11 +280,16 @@ class PathfindingSystem(
                     neighbor.y >= 0 &&
                     neighbor.y < state.level.gridHeight &&
                     (
-                        state.level.isOnPath(neighbor) ||
-                            state.level.isTargetPosition(neighbor) ||
-                            isGoalMineForDragon(neighbor, to, attacker) ||
-                            isDestroyedMinePosition(neighbor) ||
-                            state.isBridgeAt(neighbor)
+                        if (isWaterOnly) {
+                            state.level.isRiverTile(neighbor)
+                        } else {
+                            state.level.isOnPath(neighbor) ||
+                                state.level.isTargetPosition(neighbor) ||
+                                isGoalMineForDragon(neighbor, to, attacker) ||
+                                isDestroyedMinePosition(neighbor) ||
+                                state.isBridgeAt(neighbor) ||
+                                (canUseRiver && state.level.isRiverTile(neighbor))
+                        }
                     ) &&
                     // Bridges are walkable for enemies
                     !excludedPositions.contains(neighbor) // Exclude specified positions

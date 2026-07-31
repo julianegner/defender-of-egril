@@ -2,6 +2,7 @@ package de.egril.defender.mapgen
 
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.TileType
+import de.egril.defender.model.SpawnPointType
 import kotlin.math.ceil
 import kotlin.math.exp
 import kotlin.math.floor
@@ -169,9 +170,17 @@ object MapImageGenerator {
             for (gy in 0 until map.height) {
                 val (cx, cy) = hexCenter(gx, gy)
                 val tileType = map.tiles["$gx,$gy"] ?: TileType.NO_PLAY
-                val biome = TILE_BIOME[tileType] ?: DEFAULT_BIOME
+                val effectiveTileType =
+                    if (tileType == TileType.SPAWN_POINT &&
+                        map.spawnPointInfoMap["$gx,$gy"] == SpawnPointType.WATER
+                    ) {
+                        TileType.RIVER
+                    } else {
+                        tileType
+                    }
+                val biome = TILE_BIOME[effectiveTileType] ?: DEFAULT_BIOME
                 cX[idx] = cx
-                cY[idx] = if (tileType == TileType.RIVER) cy + RIVER_Y_BIAS else cy
+                cY[idx] = if (effectiveTileType == TileType.RIVER) cy + RIVER_Y_BIAS else cy
                 elevBase[idx] = biome.elevation
                 moistBase[idx] = biome.moisture
                 noiseAmps[idx] = biome.noiseAmp

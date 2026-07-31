@@ -131,6 +131,12 @@ enum class AttackerType(
     val diveDurationTurns: Int = 1,
     // Dive cooldown: minimum number of enemy turns between consecutive dives.
     val diveCooldown: Int = 5,
+    // Spawn point compatibility: determines which type of spawn point this unit may use.
+    // canSpawnOnLand = true: unit can enter from a land spawn point (default for most enemies).
+    // canSpawnOnWater = true: unit can enter from a water spawn point (river/sea entry).
+    // Both flags may be true (e.g. Cap'n Roderich, who sails rivers but can also march on land).
+    val canSpawnOnLand: Boolean = true,
+    val canSpawnOnWater: Boolean = false,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
@@ -470,6 +476,8 @@ enum class AttackerType(
         seaworthyDamageReduction = 0.5f,
         coinsPerTurn = 10,
         goldRewardMultiplier = 3,
+        canSpawnOnLand = true,
+        canSpawnOnWater = true,
     ),
 
     // The Kraken: an ancient deep-sea horror that haunts waterways and drags barges to the abyss.
@@ -501,6 +509,8 @@ enum class AttackerType(
         canDive = true,
         diveDurationTurns = 1,
         diveCooldown = 7,
+        canSpawnOnLand = false,
+        canSpawnOnWater = true,
     ),
 }
 

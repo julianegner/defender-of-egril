@@ -633,6 +633,10 @@
     <string name="change_spawn_point">Cambiar Punto de Aparición</string>
     <string name="select_spawn_point_for_enemy">Seleccione el punto de aparición para este enemigo</string>
     <string name="no_spawn_points_available">No hay puntos de aparición disponibles en este mapa</string>
+    <string name="no_compatible_spawn_points_available">No hay puntos de aparición compatibles para este enemigo</string>
+    <string name="spawn_point_type">Tipo de Punto de Aparición</string>
+    <string name="spawn_point_type_land">Tierra</string>
+    <string name="spawn_point_type_water">Agua</string>
     <string name="no_spawn_point_set">Sin punto de aparición establecido</string>
     <string name="change">Cambiar</string>
     <string name="select">Seleccionar</string>
