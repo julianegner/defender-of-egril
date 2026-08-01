@@ -44,6 +44,7 @@ import defender_of_egril.composeapp.generated.resources.sandbox_level
 import defender_of_egril.composeapp.generated.resources.start_coins
 import defender_of_egril.composeapp.generated.resources.start_hp
 import defender_of_egril.composeapp.generated.resources.subtitle_optional
+import defender_of_egril.composeapp.generated.resources.split_build_tower_button
 import defender_of_egril.composeapp.generated.resources.test_level
 import defender_of_egril.composeapp.generated.resources.user_map_not_allowed_message
 import defender_of_egril.composeapp.generated.resources.user_map_not_allowed_title
@@ -77,6 +78,8 @@ fun LevelInfoTab(
     onAllowAutoAttackChange: (Boolean) -> Unit,
     connectedToPreviousLevel: Boolean,
     onConnectedToPreviousLevelChange: (Boolean) -> Unit,
+    splitBuildTowerButton: Boolean,
+    onSplitBuildTowerButtonChange: (Boolean) -> Unit,
     isSandbox: Boolean = false,
     onIsSandboxChange: (Boolean) -> Unit = {},
     isOfficial: Boolean = false,
@@ -204,6 +207,21 @@ fun LevelInfoTab(
                             checked = connectedToPreviousLevel,
                             onCheckedChange = onConnectedToPreviousLevelChange,
                             enabled = canEnableConnectedToPreviousLevel,
+                        )
+                    }
+
+                    // Split build tower button toggle
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.split_build_tower_button),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Switch(
+                            checked = splitBuildTowerButton,
+                            onCheckedChange = onSplitBuildTowerButtonChange,
                         )
                     }
 

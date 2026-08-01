@@ -1146,6 +1146,7 @@
     <string name="sandbox_spawn_point_auto">Automatic (first free spawn point)</string>
     <string name="allow_auto_attack">Allow Auto-Attack</string>
     <string name="connected_to_previous_level">Connected to Previous Level</string>
+    <string name="split_build_tower_button">Split Build Tower Button</string>
     <string name="auto_attack_info_title">Auto-Attack Feature</string>
     <string name="auto_attack_info_message">You can now use the Auto-Attack function. When you select "End Turn" and there are usable action points left, the dialog gives the option "Auto-Attack and End Turn". Then, towers with action points left automatically attack enemies. Targets enemies by priority (bosses first, then special enemies). If there are actions left (mines, traps, acid attacks with no enemy in range), you get a message stating which kind of action is still usable, otherwise the turn ends.</string>
 

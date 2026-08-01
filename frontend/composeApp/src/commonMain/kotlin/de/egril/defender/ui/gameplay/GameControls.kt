@@ -1,10 +1,12 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,8 +20,11 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
+import de.egril.defender.ui.animations.InstantTowerSpellAnimation
+import de.egril.defender.ui.animations.SpellInstantTowerColor
 import de.egril.defender.ui.gameplay.defenderButtons.CompactDefenderButton
 import de.egril.defender.ui.gameplay.defenderButtons.DefenderButton
+import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.HeaderTextSize
@@ -119,6 +124,126 @@ fun ColumnScope.TurnButton(
             }
         }
     }
+}
+
+@Composable
+private fun ColumnScope.SplitTowerBuildControls(
+    availableTypes: List<DefenderType>,
+    selectedDefenderType: DefenderType?,
+    coinsState: State<Int>,
+    instantTowerActive: Boolean,
+    onSelectDefenderType: (DefenderType?) -> Unit,
+    isPlayerTurn: Boolean,
+    onPrimaryAction: () -> Unit,
+    highlightEndTurnButton: Boolean,
+    autoAttackAvailable: Boolean,
+) {
+    if (availableTypes.isEmpty()) {
+        TurnButton(
+            isPlayerTurn = isPlayerTurn,
+            modifier = Modifier.fillMaxWidth(),
+            onPrimaryAction = onPrimaryAction,
+            highlighted = highlightEndTurnButton,
+            autoAttackAvailable = autoAttackAvailable,
+        )
+        return
+    }
+
+    var preferredType by remember(availableTypes) { mutableStateOf(availableTypes.first()) }
+    var selectorExpanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(selectedDefenderType, availableTypes) {
+        if (selectedDefenderType != null && availableTypes.contains(selectedDefenderType)) {
+            preferredType = selectedDefenderType
+        } else if (!availableTypes.contains(preferredType)) {
+            preferredType = availableTypes.first()
+        }
+    }
+
+    val selectedType = if (availableTypes.contains(preferredType)) preferredType else availableTypes.first()
+    val selectedIndex = availableTypes.indexOf(selectedType)
+    val selectedCanAfford = coinsState.value >= selectedType.baseCost
+    val splitButtonHeight = if (isPlatformMobile || isMobileWebBrowser()) 80.dp else 70.dp
+
+    if (selectorExpanded) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            availableTypes.forEachIndexed { index, type ->
+                DefenderButton(
+                    type = type,
+                    isSelected = selectedType == type,
+                    canAfford = coinsState.value >= type.baseCost,
+                    coinsState = coinsState,
+                    instantTowerActive = false,
+                    shortcutIndex = index,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        preferredType = type
+                        selectorExpanded = false
+                    },
+                )
+            }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().height(splitButtonHeight),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            DefenderButton(
+                type = selectedType,
+                isSelected = selectedDefenderType == selectedType,
+                canAfford = selectedCanAfford,
+                coinsState = coinsState,
+                instantTowerActive = false,
+                shortcutIndex = selectedIndex.takeIf { it >= 0 },
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    onSelectDefenderType(
+                        if (selectedDefenderType == selectedType) {
+                            null
+                        } else {
+                            selectedType
+                        },
+                    )
+                },
+            )
+            Button(
+                onClick = { selectorExpanded = !selectorExpanded },
+                enabled = availableTypes.size > 1,
+                modifier = Modifier.width(48.dp).fillMaxHeight(),
+            ) {
+                TriangleDownIcon(size = 22.dp, tint = LocalContentColor.current)
+            }
+        }
+
+        if (instantTowerActive && selectedCanAfford) {
+            InstantTowerSpellAnimation(
+                animate = AppSettings.enableAnimations.value,
+                modifier = Modifier.fillMaxSize(),
+            )
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50)),
+            )
+        }
+    }
+
+    Spacer(modifier = Modifier.height(4.dp))
+
+    TurnButton(
+        isPlayerTurn = isPlayerTurn,
+        modifier = Modifier.fillMaxWidth(),
+        onPrimaryAction = onPrimaryAction,
+        highlighted = highlightEndTurnButton,
+        autoAttackAvailable = autoAttackAvailable,
+    )
 }
 
 @Composable
@@ -288,45 +413,62 @@ fun GameControlsPanel(
                                         .fillMaxWidth()
                                         .height(if (isMobile) 45.dp else 45.dp)
 
-                                // Compact buy buttons
-                                LazyVerticalGrid(
-                                    modifier = Modifier.padding(top = 8.dp),
-                                    columns = GridCells.Fixed(4),
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                                ) {
+                                if (gameState.level.splitBuildTowerButton) {
                                     val types =
                                         gameState.level.availableTowers
-                                            // hack: we need an additional entry
-                                            // that is overridden by the start game/end turn button
-                                            // in the compact view
-                                            .plus(DefenderType.DRAGONS_LAIR)
-                                            .toTypedArray()
+                                            .filter { it != DefenderType.DRAGONS_LAIR }
+                                    SplitTowerBuildControls(
+                                        availableTypes = types,
+                                        selectedDefenderType = selectedDefenderType,
+                                        coinsState = coinsState,
+                                        instantTowerActive = gameState.instantTowerSpellActive.value,
+                                        onSelectDefenderType = onSelectDefenderType,
+                                        isPlayerTurn = isPlayerTurn,
+                                        onPrimaryAction = onPrimaryAction,
+                                        highlightEndTurnButton = highlightEndTurnButton,
+                                        autoAttackAvailable = autoAttackAvailable,
+                                    )
+                                } else {
+                                    // Compact buy buttons
+                                    LazyVerticalGrid(
+                                        modifier = Modifier.padding(top = 8.dp),
+                                        columns = GridCells.Fixed(4),
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    ) {
+                                        val types =
+                                            gameState.level.availableTowers
+                                                // hack: we need an additional entry
+                                                // that is overridden by the start game/end turn button
+                                                // in the compact view
+                                                .plus(DefenderType.DRAGONS_LAIR)
+                                                .toTypedArray()
 
-                                    itemsIndexed(
-                                        types,
-                                        key = { index: Int, type: DefenderType -> "${type.name}_folded_${coinsState.value}" },
-                                    ) { index: Int, type: DefenderType ->
-                                        val isLast = index == types.lastIndex
-                                        CompactDefenderButton(
-                                            type = type,
-                                            isSelected = selectedDefenderType == type,
-                                            canAfford = coinsState.value >= type.baseCost,
-                                            instantTowerActive = gameState.instantTowerSpellActive.value,
-                                            shortcutIndex = if (type != DefenderType.DRAGONS_LAIR) index else null,
-                                            modifier = compactDefenderButtonModifier,
-                                            onClick = {
-                                                onSelectDefenderType(if (selectedDefenderType == type) null else type)
-                                            },
-                                        )
-                                        if (isLast) {
-                                            TurnButton(
-                                                isPlayerTurn,
+                                        itemsIndexed(
+                                            types,
+                                            key = { index: Int, type: DefenderType -> "${type.name}_folded_${coinsState.value}" },
+                                        ) { index: Int, type: DefenderType ->
+                                            val isLast = index == types.lastIndex
+                                            CompactDefenderButton(
+                                                type = type,
+                                                isSelected = selectedDefenderType == type,
+                                                canAfford = coinsState.value >= type.baseCost,
+                                                instantTowerActive = gameState.instantTowerSpellActive.value,
+                                                shortcutIndex = if (type != DefenderType.DRAGONS_LAIR) index else null,
                                                 modifier = compactDefenderButtonModifier,
-                                                onPrimaryAction,
-                                                highlighted = highlightEndTurnButton,
-                                                autoAttackAvailable = autoAttackAvailable,
+                                                onClick = {
+                                                    onSelectDefenderType(if (selectedDefenderType == type) null else type)
+                                                },
                                             )
+                                            if (isLast) {
+                                                TurnButton(
+                                                    isPlayerTurn,
+                                                    modifier = compactDefenderButtonModifier,
+                                                    onPrimaryAction,
+                                                    highlighted = highlightEndTurnButton,
+                                                    autoAttackAvailable = autoAttackAvailable,
+                                                )
+                                            }
                                         }
                                     }
                                 }

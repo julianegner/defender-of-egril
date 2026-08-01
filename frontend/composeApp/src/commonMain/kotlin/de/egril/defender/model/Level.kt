@@ -58,6 +58,7 @@ data class Level(
     val riverTiles: Map<Position, RiverTile> = emptyMap(), // River tiles with flow direction and speed (not walkable in gameplay, but treated as walkable during map validation for levels with ORK, EVIL_WIZARD, or EWHAD enemies)
     val allowAutoAttack: Boolean = false, // If true, shows auto-attack button in end turn confirmation dialog
     val connectedToPreviousLevel: Boolean = false, // If true, player can carry over towers/coins from the previous level
+    val splitBuildTowerButton: Boolean = true, // If true, use split build-tower button in compact controls to free info area space
     val isSandbox: Boolean = false, // If true, level is a Sandbox: free building/spawning, no scripted events, cannot be won, no XP
     val targetInfoMap: Map<Position, TargetInfo> = emptyMap(), // Optional metadata (name, type) per target position
     val supports: LevelSupports = LevelSupports(), // Player-usable supports (placable objects + spell tokens) for this level
