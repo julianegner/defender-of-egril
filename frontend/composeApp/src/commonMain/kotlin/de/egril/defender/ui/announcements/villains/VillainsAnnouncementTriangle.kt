@@ -1,57 +1,59 @@
 package de.egril.defender.ui.announcements.villains
 
-import de.egril.defender.ui.settings.AppSettings
-import de.egril.defender.ui.isMobileWebBrowser
-import de.egril.defender.utils.isPlatformMobile
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.Alignment
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.width
-import androidx.compose.ui.text.style.TextOverflow
-import org.jetbrains.compose.resources.painterResource
-import androidx.compose.material3.*
 import androidx.compose.ui.zIndex
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.isMobileWebBrowser
+import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
-import defender_of_egril.composeapp.generated.resources.banner_villains_light
 import defender_of_egril.composeapp.generated.resources.banner_villains_dark
+import defender_of_egril.composeapp.generated.resources.banner_villains_light
+import org.jetbrains.compose.resources.painterResource
 
 // Defines a right-angled triangle shape matching /_|
-val RightTriangleShape = GenericShape { size, _ ->
-    moveTo(size.width, -40f)            // Top-right corner (tip)
-    lineTo(size.width, size.height)   // Bottom-right corner (right angle)
-    lineTo(-40f, size.height)           // Bottom-left corner
-    close()                           // Draws line back to top-right
-}
+val RightTriangleShape =
+    GenericShape { size, _ ->
+        moveTo(size.width, -40f) // Top-right corner (tip)
+        lineTo(size.width, size.height) // Bottom-right corner (right angle)
+        lineTo(-40f, size.height) // Bottom-left corner
+        close() // Draws line back to top-right
+    }
 
-val AnnouncementLabelShape = GenericShape { size, _ ->
-    // cut the left side diagonally
-    // moveTo(size.width * 0.22f, 0f)
-    lineTo(size.width, 0f)
-    lineTo(size.width, size.height)
-    lineTo(0f, size.height)
-    close()
-}
+val AnnouncementLabelShape =
+    GenericShape { size, _ ->
+        // cut the left side diagonally
+        // moveTo(size.width * 0.22f, 0f)
+        lineTo(size.width, 0f)
+        lineTo(size.width, size.height)
+        lineTo(0f, size.height)
+        close()
+    }
 
 @Composable
 fun VillainsAnnouncementTriangle(
@@ -94,12 +96,13 @@ fun VillainsAnnouncementTriangle(
         Image(
             painter = painter,
             contentDescription = stringResource(Res.string.villains_announcement_content_description),
-            modifier = Modifier
-                .size(triangleSize)
-                .offset(x = windowInsetCompensation, y = windowInsetCompensation + verticalOffset)
-                .clip(RightTriangleShape)
-                .pointerHoverIcon(PointerIcon.Hand)
-                .clickable(role = Role.Button) { onClick() },
+            modifier =
+                Modifier
+                    .size(triangleSize)
+                    .offset(x = windowInsetCompensation, y = windowInsetCompensation + verticalOffset)
+                    .clip(RightTriangleShape)
+                    .pointerHoverIcon(PointerIcon.Hand)
+                    .clickable(role = Role.Button) { onClick() },
         )
 
         Box(
@@ -116,8 +119,7 @@ fun VillainsAnnouncementTriangle(
                         end = textPadding,
                         top = (textPadding.value * 0.4f).dp,
                         bottom = textPadding,
-                    )
-                    .pointerHoverIcon(PointerIcon.Hand)
+                    ).pointerHoverIcon(PointerIcon.Hand)
                     .clickable(role = Role.Button) { onClick() },
         ) {
             Text(
