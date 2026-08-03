@@ -1318,6 +1318,16 @@ private fun SoundTabContent(
     onVolumeIndexChanged: (Int) -> Unit = {},
 ) {
     var showDetailedSoundSettings by remember { mutableStateOf(false) }
+    var musicPreviewActive by remember { mutableStateOf(false) }
+
+    // Stop music preview when leaving the sound tab or closing settings
+    DisposableEffect(Unit) {
+        onDispose {
+            if (musicPreviewActive) {
+                de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+            }
+        }
+    }
 
     // Handle keyboard trigger for showing details
     LaunchedEffect(triggerShowDetails) {
@@ -1533,6 +1543,17 @@ private fun SoundTabContent(
                                 SpeakerHighIcon(size = 20.dp)
                             }
                         }
+
+                        // Play effect preview button
+                        OutlinedButton(
+                            onClick = {
+                                de.egril.defender.audio.GlobalSoundManager
+                                   .playSound(de.egril.defender.audio.SoundEvent.ATTACK_AREA)
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(text = stringResource(Res.string.sound_preview_play_effect))
+                        }
                     }
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -1566,6 +1587,34 @@ private fun SoundTabContent(
                             },
                             modifier = Modifier.fillMaxWidth(),
                         )
+                    }
+
+                    // Play/Stop background music preview button
+                    if (AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
+                        OutlinedButton(
+                            onClick = {
+                                if (musicPreviewActive) {
+                                    de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+                                    musicPreviewActive = false
+                                } else {
+                                    de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                                        de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
+                                        loop = true,
+                                    )
+                                    musicPreviewActive = true
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                text =
+                                    if (musicPreviewActive) {
+                                        stringResource(Res.string.sound_preview_stop_music)
+                                    } else {
+                                        stringResource(Res.string.sound_preview_play_music)
+                                    },
+                            )
+                        }
                     }
 
                     if (AppSettings.isMusicEnabled.value) {

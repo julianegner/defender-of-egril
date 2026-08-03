@@ -544,6 +544,9 @@
     <string name="gameplay_music_volume">Volume musica di gioco</string>
     <string name="show_detailed_sound_settings">Mostra impostazioni sonore dettagliate</string>
     <string name="hide_detailed_sound_settings">Nascondi impostazioni sonore dettagliate</string>
+    <string name="sound_preview_play_effect">Riproduci effetto</string>
+    <string name="sound_preview_play_music">Riproduci musica</string>
+    <string name="sound_preview_stop_music">Ferma musica</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controlli</string>
