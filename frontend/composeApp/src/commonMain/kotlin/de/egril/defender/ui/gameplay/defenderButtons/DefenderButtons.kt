@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,6 +61,7 @@ fun DefenderButton(
     coinsState: State<Int>,
     instantTowerActive: Boolean = false,
     shortcutIndex: Int? = null,
+    shape: Shape = ButtonDefaults.shape,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
@@ -93,6 +95,7 @@ fun DefenderButton(
                     disabledContainerColor = GamePlayColors.DisabledButton,
                     disabledContentColor = GamePlayColors.DisabledButtonText,
                 ),
+            shape = shape,
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(2.dp),
         ) {
@@ -162,7 +165,7 @@ fun DefenderButton(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50)),
+                        .border(2.dp, SpellInstantTowerColor, shape),
             )
         }
         // Show shortcut number chip - positioned left of the stats column
