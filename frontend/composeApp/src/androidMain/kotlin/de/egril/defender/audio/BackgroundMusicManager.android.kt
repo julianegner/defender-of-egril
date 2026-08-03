@@ -121,9 +121,9 @@ class AndroidBackgroundMusicManager(
                                     BackgroundMusic.FINAL_CREDITS -> AppSettings.gameplayMusicVolume.value
                                 }
 
-                            // Set volume (master * category * track * baseMultiplier)
+                            // Set volume (master * music * category * track * baseMultiplier)
                             val effectiveVolume =
-                                (AppSettings.soundVolume.value * categoryVolume * trackVolume * baseMultiplier).coerceIn(
+                                (AppSettings.soundVolume.value * AppSettings.musicVolume.value * categoryVolume * trackVolume * baseMultiplier).coerceIn(
                                     0f,
                                     1f,
                                 )

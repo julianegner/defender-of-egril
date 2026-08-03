@@ -1318,16 +1318,6 @@ private fun SoundTabContent(
     onVolumeIndexChanged: (Int) -> Unit = {},
 ) {
     var showDetailedSoundSettings by remember { mutableStateOf(false) }
-    var musicPreviewActive by remember { mutableStateOf(false) }
-
-    // Stop music preview when leaving the sound tab or closing settings
-    DisposableEffect(Unit) {
-        onDispose {
-            if (musicPreviewActive) {
-                de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
-            }
-        }
-    }
 
     // Handle keyboard trigger for showing details
     LaunchedEffect(triggerShowDetails) {
@@ -1544,11 +1534,11 @@ private fun SoundTabContent(
                             }
                         }
 
-                        // Play effect preview button
+                        // Play effect preview button (bow tower attack sound)
                         OutlinedButton(
                             onClick = {
                                 de.egril.defender.audio.GlobalSoundManager
-                                   .playSound(de.egril.defender.audio.SoundEvent.ATTACK_AREA)
+                                   .playSound(de.egril.defender.audio.SoundEvent.ATTACK_RANGED)
                             },
                             modifier = Modifier.fillMaxWidth(),
                         ) {
@@ -1591,29 +1581,39 @@ private fun SoundTabContent(
 
                     // Play/Stop background music preview button
                     if (AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
-                        OutlinedButton(
-                            onClick = {
-                                if (musicPreviewActive) {
-                                    de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
-                                    musicPreviewActive = false
-                                } else {
-                                    de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
-                                        de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
-                                        loop = true,
-                                    )
-                                    musicPreviewActive = true
-                                }
-                            },
+                        // Background music volume slider
+                        Column(
                             modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             Text(
-                                text =
-                                    if (musicPreviewActive) {
-                                        stringResource(Res.string.sound_preview_stop_music)
-                                    } else {
-                                        stringResource(Res.string.sound_preview_play_music)
-                                    },
+                                text = stringResource(Res.string.music_volume),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                SpeakerLowIcon(size = 20.dp)
+                                Slider(
+                                    value = AppSettings.musicVolume.value,
+                                    onValueChange = { volume ->
+                                        AppSettings.saveMusicVolume(volume)
+                                        val currentMusic =
+                                            de.egril.defender.audio.GlobalBackgroundMusicManager
+                                                .getCurrentMusic()
+                                        if (currentMusic != null) {
+                                            de.egril.defender.audio.GlobalBackgroundMusicManager
+                                                .playMusic(currentMusic, loop = true)
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    valueRange = 0f..1f,
+                                )
+                                SpeakerHighIcon(size = 20.dp)
+                            }
                         }
                     }
 
@@ -1719,6 +1719,21 @@ private fun SoundTabContent(
                                         )
                                         SpeakerHighIcon(size = 20.dp)
                                     }
+                                }
+                            }
+
+                            if (AppSettings.isSoundEnabled.value) {
+                                // Start worldmap background music persistently (not stopped when leaving settings)
+                                OutlinedButton(
+                                    onClick = {
+                                        de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                                            de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
+                                            loop = true,
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text(text = stringResource(Res.string.worldmap_music))
                                 }
                             }
                         }
@@ -1829,6 +1844,21 @@ private fun SoundTabContent(
                                             valueRange = 0f..1f,
                                         )
                                         SpeakerHighIcon(size = 20.dp)
+                                    }
+                                }
+
+                                if (AppSettings.isSoundEnabled.value) {
+                                    // Start gameplay background music persistently (not stopped when leaving settings)
+                                    OutlinedButton(
+                                        onClick = {
+                                            de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                                                de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL,
+                                                loop = true,
+                                            )
+                                        },
+                                        modifier = Modifier.fillMaxWidth(),
+                                    ) {
+                                        Text(text = stringResource(Res.string.start_gameplay_background_music))
                                     }
                                 }
                             }

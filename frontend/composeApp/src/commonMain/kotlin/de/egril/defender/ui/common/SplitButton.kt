@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,12 +13,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -27,13 +30,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
 import de.egril.defender.ui.icon.TriangleDownIcon
+import de.egril.defender.ui.settings.AppSettings
 
 /** Shared size and shape constants for [SplitButton]. */
 object SplitButtonDefaults {
@@ -59,14 +68,16 @@ object SplitButtonDefaults {
         )
 
     /**
-     * Shape of the chevron selector button — flat on the start side, rounded on the end side.
+     * Shape of the chevron selector button — flat start side, fully rounded end side.
+     * Uses a large fixed corner size that gets clamped to height/2 by the renderer,
+     * giving the same semicircle curvature as the left side of [MainButtonShape].
      */
     val SelectorButtonShape: Shape =
         RoundedCornerShape(
             topStartPercent = 0,
             bottomStartPercent = 0,
-            topEndPercent = 50,
-            bottomEndPercent = 50,
+            topEndPercent = 100,
+            bottomEndPercent = 100,
         )
 }
 
@@ -91,7 +102,10 @@ object SplitButtonDefaults {
  * @param buttonHeight     Height of the split button row.
  * @param modifier         Modifier applied to the outer [Box] container.
  * @param enabled          When `false` the selector chevron is disabled and cannot be clicked.
- * @param itemHeight       Height of each dropdown item; defaults to [SplitButtonDefaults.ItemHeight].
+ * @param selectorShortcutText Optional keyboard shortcut label shown on the selector button when
+ *                             [AppSettings.showButtonShortcutHints] is enabled.
+ * @param onDropdownKeyEvent   Optional key event handler invoked while the dropdown is focused/open.
+ *                             Return `true` to consume the event, `false` to let it propagate.
  * @param dropdownContent  Composable content for the dropdown list (rendered in a [ColumnScope]).
  * @param mainContent      Composable content for the main button area (rendered in a [RowScope]).
  *                         Apply `Modifier.weight(1f)` inside here so the area fills available width.
@@ -105,6 +119,8 @@ fun SplitButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     itemHeight: Dp = SplitButtonDefaults.ItemHeight,
+    selectorShortcutText: String? = null,
+    onDropdownKeyEvent: ((KeyEvent) -> Boolean)? = null,
     dropdownContent: @Composable ColumnScope.() -> Unit,
     mainContent: @Composable RowScope.() -> Unit,
 ) {
@@ -130,9 +146,10 @@ fun SplitButton(
                 Modifier
                     .let { if (buttonRowWidth > 0.dp) it.width(buttonRowWidth) else it.fillMaxWidth() }
                     .background(color = MaterialTheme.colorScheme.surface, shape = rectangularShape)
-                    .border(1.dp, MaterialTheme.colorScheme.outline, rectangularShape),
+                    .border(1.dp, MaterialTheme.colorScheme.outline, rectangularShape)
+                    .let { if (onDropdownKeyEvent != null) it.onPreviewKeyEvent(onDropdownKeyEvent) else it },
             offset = DpOffset(0.dp, -(listHeightEstimate + buttonHeight + SplitButtonDefaults.Gap)),
-            properties = PopupProperties(focusable = true),
+            properties = PopupProperties(focusable = false),
             content = dropdownContent,
         )
 
@@ -157,12 +174,40 @@ fun SplitButton(
                 shape = SplitButtonDefaults.SelectorButtonShape,
                 contentPadding = PaddingValues(0.dp),
             ) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    TriangleDownIcon(
-                        size = 32.dp,
-                        tint = LocalContentColor.current,
-                        modifier = Modifier.graphicsLayer(rotationZ = if (expanded) 180f else 0f),
-                    )
+                if (selectorShortcutText != null && AppSettings.showButtonShortcutHints.value) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        TriangleDownIcon(
+                            size = 24.dp,
+                            tint = LocalContentColor.current,
+                            modifier = Modifier.graphicsLayer(rotationZ = if (expanded) 180f else 0f),
+                        )
+                        Box(
+                            modifier =
+                                Modifier
+                                    .border(1.dp, LocalContentColor.current, RoundedCornerShape(0.dp))
+                                    .padding(horizontal = 4.dp, vertical = 1.dp),
+                        ) {
+                            Text(
+                                text = selectorShortcutText,
+                                color = LocalContentColor.current,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                            )
+                        }
+                    }
+                } else {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        TriangleDownIcon(
+                            size = 32.dp,
+                            tint = LocalContentColor.current,
+                            modifier = Modifier.graphicsLayer(rotationZ = if (expanded) 180f else 0f),
+                        )
+                    }
                 }
             }
         }

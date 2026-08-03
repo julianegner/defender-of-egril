@@ -545,6 +545,7 @@
     <string name="sound_preview_play_effect">Reproducir efecto</string>
     <string name="sound_preview_play_music">Reproducir música</string>
     <string name="sound_preview_stop_music">Detener música</string>
+    <string name="start_gameplay_background_music">Iniciar música de fondo del juego</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controles</string>
