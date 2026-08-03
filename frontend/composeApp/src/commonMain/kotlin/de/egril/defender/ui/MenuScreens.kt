@@ -32,6 +32,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.AppBuildInfo
 import de.egril.defender.WithImpressum
 import de.egril.defender.iam.IamState
+import de.egril.defender.ui.announcements.villains.VillainsAnnouncementTriangle
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.icon.HelpIcon
@@ -57,7 +58,6 @@ import defender_of_egril.composeapp.generated.resources.emoji_sword
 import dev.vicart.compose.material.symbols.FilledSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import org.jetbrains.compose.resources.painterResource
-import de.egril.defender.ui.announcements.villains.VillainsAnnouncementTriangle
 
 internal fun shouldUseStackedMainMenuLayout(
     isNativeMobile: Boolean,

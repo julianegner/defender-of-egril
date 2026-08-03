@@ -41,9 +41,9 @@ import de.egril.defender.utils.observeBrowserPathChanges
 import de.egril.defender.utils.parseDeepLink
 import de.egril.defender.utils.updateBrowserUrl
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.back
 import defender_of_egril.composeapp.generated.resources.banner_villains_dark
 import defender_of_egril.composeapp.generated.resources.banner_villains_light
-import defender_of_egril.composeapp.generated.resources.back
 import defender_of_egril.composeapp.generated.resources.villains_announcement_content_description
 import defender_of_egril.composeapp.generated.resources.villains_announcement_page_text
 import defender_of_egril.composeapp.generated.resources.villains_announcement_page_title
@@ -200,4 +200,3 @@ fun VillainsAnnouncementScreen(
         }
     }
 }
-

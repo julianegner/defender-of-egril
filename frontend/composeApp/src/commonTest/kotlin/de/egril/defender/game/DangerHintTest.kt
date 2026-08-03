@@ -26,12 +26,13 @@ class DangerHintTest {
     @Test
     fun marksEnemyThatReachesTargetNextTurn() {
         val gameState = state(pathLength = 2)
-        val attacker = Attacker(
-            id = 1,
-            type = AttackerType.GOBLIN,
-            position = mutableStateOf(Position(0, 1)),
-            level = mutableStateOf(1),
-        )
+        val attacker =
+            Attacker(
+                id = 1,
+                type = AttackerType.GOBLIN,
+                position = mutableStateOf(Position(0, 1)),
+                level = mutableStateOf(1),
+            )
         gameState.attackers.add(attacker)
 
         assertTrue(EnemyMovementSystem(gameState, PathfindingSystem(gameState)).canReachTargetNextTurn(attacker))
@@ -40,12 +41,13 @@ class DangerHintTest {
     @Test
     fun doesNotMarkEnemyTooFarAway() {
         val gameState = state(pathLength = 8)
-        val attacker = Attacker(
-            id = 1,
-            type = AttackerType.GOBLIN,
-            position = mutableStateOf(Position(0, 1)),
-            level = mutableStateOf(1),
-        )
+        val attacker =
+            Attacker(
+                id = 1,
+                type = AttackerType.GOBLIN,
+                position = mutableStateOf(Position(0, 1)),
+                level = mutableStateOf(1),
+            )
         gameState.attackers.add(attacker)
 
         assertFalse(EnemyMovementSystem(gameState, PathfindingSystem(gameState)).canReachTargetNextTurn(attacker))
