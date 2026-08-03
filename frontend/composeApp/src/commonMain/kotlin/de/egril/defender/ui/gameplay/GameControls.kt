@@ -1,9 +1,7 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -15,15 +13,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.PopupProperties
 import com.hyperether.resources.stringResource
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
@@ -32,9 +24,6 @@ import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.SpellInstantTowerColor
 import de.egril.defender.ui.gameplay.defenderButtons.CompactDefenderButton
 import de.egril.defender.ui.gameplay.defenderButtons.DefenderButton
-import de.egril.defender.ui.gameplay.defenderButtons.TowerStats
-import de.egril.defender.ui.icon.MoneyIcon
-import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.HeaderTextSize
@@ -130,298 +119,6 @@ fun ColumnScope.TurnButton(
                 ShortcutKeyChip(
                     text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
                     color = shortcutHintColor,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ColumnScope.SplitTowerBuildControls(
-    availableTypes: List<DefenderType>,
-    selectedDefenderType: DefenderType?,
-    coinsState: State<Int>,
-    instantTowerActive: Boolean,
-    onSelectDefenderType: (DefenderType?) -> Unit,
-    isPlayerTurn: Boolean,
-    onPrimaryAction: () -> Unit,
-    highlightEndTurnButton: Boolean,
-    autoAttackAvailable: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    if (availableTypes.isEmpty()) {
-        TurnButton(
-            isPlayerTurn = isPlayerTurn,
-            modifier = Modifier.fillMaxWidth(),
-            onPrimaryAction = onPrimaryAction,
-            highlighted = highlightEndTurnButton,
-            autoAttackAvailable = autoAttackAvailable,
-        )
-        return
-    }
-
-    var preferredType by remember(availableTypes) { mutableStateOf(availableTypes.first()) }
-    var selectorExpanded by remember { mutableStateOf(false) }
-
-    LaunchedEffect(selectedDefenderType, availableTypes) {
-        if (selectedDefenderType != null && availableTypes.contains(selectedDefenderType)) {
-            preferredType = selectedDefenderType
-        } else if (!availableTypes.contains(preferredType)) {
-            preferredType = availableTypes.first()
-        }
-    }
-
-    val selectedType = if (availableTypes.contains(preferredType)) preferredType else availableTypes.first()
-    val selectedIndex = availableTypes.indexOf(selectedType)
-    val selectedCanAfford = coinsState.value >= selectedType.baseCost
-    val splitButtonHeight = if (isPlatformMobile || isMobileWebBrowser()) 80.dp else 70.dp
-    val selectorButtonWidth = 42.dp
-    val splitButtonGap = 3.dp
-    val controlMaxWidth = GamePlayConstants.ButtonSizes.DefenderButtonMaxWidth + selectorButtonWidth + splitButtonGap
-    val listItemHeight = 64.dp
-    val listVerticalPadding = 16.dp
-    val listHeightEstimate = (listItemHeight * availableTypes.size) + listVerticalPadding
-    val selectorVerticalOffset = splitButtonGap
-    val locale = com.hyperether.resources.currentLanguage.value
-    val rectangularShape = RoundedCornerShape(0.dp)
-    var splitButtonWidthPx by remember { mutableIntStateOf(0) }
-    val density = LocalDensity.current
-    val splitButtonWidth =
-        remember(splitButtonWidthPx, density) {
-            with(density) {
-                if (splitButtonWidthPx > 0) splitButtonWidthPx.toDp() else 0.dp
-            }
-        }
-
-    Column(
-        modifier = modifier.widthIn(max = controlMaxWidth),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            DropdownMenu(
-                expanded = selectorExpanded,
-                onDismissRequest = { selectorExpanded = false },
-                modifier =
-                    Modifier
-                        .let {
-                            if (splitButtonWidth > 0.dp) {
-                                it.width(splitButtonWidth)
-                            } else {
-                                it.fillMaxWidth()
-                            }
-                        }
-                        .background(
-                            color = MaterialTheme.colorScheme.surface,
-                            shape = rectangularShape,
-                        )
-                        .border(1.dp, MaterialTheme.colorScheme.outline, rectangularShape),
-                offset = DpOffset(0.dp, -(listHeightEstimate + splitButtonHeight + selectorVerticalOffset)),
-                properties = PopupProperties(focusable = true),
-            ) {
-                availableTypes.forEachIndexed { index, type ->
-                    SplitTowerListItem(
-                        type = type,
-                        index = index,
-                        selected = selectedType == type,
-                        affordable = coinsState.value >= type.baseCost,
-                        locale = locale,
-                        shortcutIndex = index,
-                        onClick = {
-                            preferredType = type
-                            selectorExpanded = false
-                        },
-                    )
-                }
-            }
-
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(splitButtonHeight)
-                    .onGloballyPositioned { splitButtonWidthPx = it.size.width },
-            horizontalArrangement = Arrangement.spacedBy(splitButtonGap),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            DefenderButton(
-                type = selectedType,
-                isSelected = selectedDefenderType == selectedType,
-                canAfford = selectedCanAfford,
-                coinsState = coinsState,
-                instantTowerActive = false,
-                shortcutIndex = selectedIndex.takeIf { it >= 0 },
-                shape =
-                    RoundedCornerShape(
-                        topStartPercent = 50,
-                        bottomStartPercent = 50,
-                        topEndPercent = 0,
-                        bottomEndPercent = 0,
-                    ),
-                modifier = Modifier.weight(1f),
-                onClick = {
-                    onSelectDefenderType(
-                        if (selectedDefenderType == selectedType) {
-                            null
-                        } else {
-                            selectedType
-                        },
-                    )
-                },
-            )
-            Button(
-                onClick = { selectorExpanded = !selectorExpanded },
-                enabled = availableTypes.size > 1,
-                modifier =
-                    Modifier
-                        .width(selectorButtonWidth)
-                        .fillMaxHeight(),
-                shape =
-                    RoundedCornerShape(
-                        topStartPercent = 0,
-                        bottomStartPercent = 0,
-                        topEndPercent = 50,
-                        bottomEndPercent = 50,
-                    ),
-                contentPadding = PaddingValues(0.dp),
-            ) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    TriangleDownIcon(
-                        size = 32.dp,
-                        tint = LocalContentColor.current,
-                        modifier = Modifier.graphicsLayer(rotationZ = if (selectorExpanded) 180f else 0f),
-                    )
-                }
-            }
-        }
-
-        if (instantTowerActive && selectedCanAfford) {
-            InstantTowerSpellAnimation(
-                animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize(),
-            )
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50)),
-            )
-        }
-    }
-
-        TurnButton(
-            isPlayerTurn = isPlayerTurn,
-            modifier = Modifier.fillMaxWidth().height(splitButtonHeight),
-            onPrimaryAction = onPrimaryAction,
-            highlighted = highlightEndTurnButton,
-            autoAttackAvailable = autoAttackAvailable,
-        )
-    }
-}
-
-@Composable
-private fun SplitTowerListItem(
-    type: DefenderType,
-    index: Int,
-    selected: Boolean,
-    affordable: Boolean,
-    locale: com.hyperether.resources.AppLocale,
-    shortcutIndex: Int,
-    onClick: () -> Unit,
-) {
-    val baseBackgroundColor =
-        if (index % 2 == 0) {
-            MaterialTheme.colorScheme.surfaceContainerHigh
-        } else {
-            MaterialTheme.colorScheme.surfaceContainerHighest
-        }
-    val backgroundColor =
-        if (selected) {
-            MaterialTheme.colorScheme.secondaryContainer
-        } else {
-            baseBackgroundColor
-        }
-    val baseContentColor =
-        if (selected) {
-            MaterialTheme.colorScheme.onSecondaryContainer
-        } else {
-            MaterialTheme.colorScheme.onSurface
-        }
-    val contentColor = if (affordable) baseContentColor else baseContentColor.copy(alpha = 0.55f)
-
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(64.dp)
-                .background(backgroundColor, RoundedCornerShape(0.dp))
-                .clickable(enabled = affordable, onClick = onClick)
-                .padding(horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        val infoColor =
-            if (affordable) {
-                if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-            } else {
-                contentColor.copy(alpha = 0.55f)
-            }
-        TowerTypeIcon(defenderType = type, modifier = Modifier.size(46.dp))
-        Column(
-            modifier = Modifier.width(36.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        )
-        {
-            MoneyIcon(size = 14.dp)
-            Text(
-                text = type.baseCost.toString(),
-                style = MaterialTheme.typography.labelSmall,
-                color = contentColor,
-            )
-        }
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Start,
-        ) {
-            Text(
-                text = type.getLocalizedShortName(locale),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                color = contentColor,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = "#${shortcutIndex + 1}",
-                style = MaterialTheme.typography.labelSmall,
-                color = contentColor.copy(alpha = 0.75f),
-                maxLines = 1,
-            )
-            Text(
-                text = type.attackType.getLocalizedName(locale),
-                style = MaterialTheme.typography.labelSmall,
-                color = infoColor,
-                maxLines = 1,
-            )
-            if (type.buildTime > 0) {
-                Text(
-                    text = "${type.buildTime}T",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = contentColor,
-                    maxLines = 1,
-                )
-            }
-        }
-        // Fixed width so stats always start at the same horizontal position across all rows
-        Box(modifier = Modifier.width(40.dp)) {
-            CompositionLocalProvider(LocalContentColor provides contentColor) {
-                TowerStats(
-                    minRange = type.minRange,
-                    damage = type.baseDamage,
-                    range = type.baseRange,
-                    actionsPerTurn = type.actionsPerTurn,
-                    rangeColor = contentColor,
                 )
             }
         }
@@ -583,11 +280,9 @@ fun GameControlsPanel(
                             // Right side: buy buttons and End Turn button
                             // When using the split button, use exactly the split control width so the
                             // info area on the left gets all remaining horizontal space.
-                            val splitControlMaxWidth =
-                                GamePlayConstants.ButtonSizes.DefenderButtonMaxWidth + 42.dp + 3.dp
                             val rightColumnModifier =
                                 if (gameState.level.splitBuildTowerButton) {
-                                    Modifier.width(splitControlMaxWidth)
+                                    Modifier.width(SplitControlMaxWidth)
                                 } else {
                                     Modifier.widthIn(max = 600.dp).fillMaxWidth()
                                 }
