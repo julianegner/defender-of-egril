@@ -12,9 +12,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.audio.BackgroundMusic
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
-import de.egril.defender.audio.BackgroundMusic
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.settings
 import dev.vicart.compose.material.symbols.FilledSymbol

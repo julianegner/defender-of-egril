@@ -73,16 +73,22 @@ fun SettingsDialog(
     fun dismissSettingsDialog() {
         if (shouldRestoreBackgroundMusicOnDismiss) {
             if (!AppSettings.isSoundEnabled.value || !AppSettings.isMusicEnabled.value) {
-                de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+                de.egril.defender.audio.GlobalBackgroundMusicManager
+                    .stopMusic()
             } else {
-                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+                val currentMusic =
+                    de.egril.defender.audio.GlobalBackgroundMusicManager
+                        .getCurrentMusic()
                 if (pageBackgroundMusic == null) {
                     if (currentMusic != null) {
-                        de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+                        de.egril.defender.audio.GlobalBackgroundMusicManager
+                            .stopMusic()
                     }
                 } else if (currentMusic != pageBackgroundMusic) {
-                    de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
-                    de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(pageBackgroundMusic, loop = true)
+                    de.egril.defender.audio.GlobalBackgroundMusicManager
+                        .stopMusic()
+                    de.egril.defender.audio.GlobalBackgroundMusicManager
+                        .playMusic(pageBackgroundMusic, loop = true)
                 }
             }
         }
@@ -1563,7 +1569,7 @@ private fun SoundTabContent(
                         OutlinedButton(
                             onClick = {
                                 de.egril.defender.audio.GlobalSoundManager
-                                   .playSound(de.egril.defender.audio.SoundEvent.ATTACK_RANGED)
+                                    .playSound(de.egril.defender.audio.SoundEvent.ATTACK_RANGED)
                             },
                             modifier = Modifier.fillMaxWidth(),
                         ) {
