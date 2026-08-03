@@ -60,6 +60,7 @@ private val COLOR_BLIND_OPTION_LABEL_TOP_PADDING = 10.dp
 fun SettingsDialog(
     onDismiss: () -> Unit,
     initialTab: SettingsTab = SettingsTab.GENERAL,
+    pageBackgroundMusic: de.egril.defender.audio.BackgroundMusic? = null,
 ) {
     val tabCount = 6 // GENERAL, WORLD_MAP, LEVEL, SOUND, ACCESSIBILITY, SHORTCUTS
     var selectedTabIndex by remember(initialTab) {
@@ -67,7 +68,28 @@ fun SettingsDialog(
             SettingsTab.entries.indexOf(initialTab).coerceAtLeast(0),
         )
     }
-    Dialog(onDismissRequest = onDismiss) {
+    var shouldRestoreBackgroundMusicOnDismiss by remember { mutableStateOf(false) }
+
+    fun dismissSettingsDialog() {
+        if (shouldRestoreBackgroundMusicOnDismiss) {
+            if (!AppSettings.isSoundEnabled.value || !AppSettings.isMusicEnabled.value) {
+                de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+            } else {
+                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+                if (pageBackgroundMusic == null) {
+                    if (currentMusic != null) {
+                        de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+                    }
+                } else if (currentMusic != pageBackgroundMusic) {
+                    de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+                    de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(pageBackgroundMusic, loop = true)
+                }
+            }
+        }
+        onDismiss()
+    }
+
+    Dialog(onDismissRequest = ::dismissSettingsDialog) {
         val focusRequester = remember { FocusRequester() }
         val scope = rememberCoroutineScope()
         val settingsScrollState = rememberScrollState()
@@ -103,7 +125,7 @@ fun SettingsDialog(
                         if (event.type == KeyEventType.KeyDown) {
                             when (event.key) {
                                 Key.Back, Key.Escape -> {
-                                    onDismiss()
+                                    dismissSettingsDialog()
                                     true
                                 }
                                 Key.DirectionRight -> {
@@ -346,7 +368,7 @@ fun SettingsDialog(
                     when (selectedTabType) {
                         SettingsTab.GENERAL ->
                             ScrollableSettingsTabContent(settingsScrollState) {
-                                GeneralTabContent(onDismissSettings = onDismiss, triggerRestore = triggerRestoreData, onRestoreHandled = {
+                                GeneralTabContent(onDismissSettings = ::dismissSettingsDialog, triggerRestore = triggerRestoreData, onRestoreHandled = {
                                     triggerRestoreData =
                                         false
                                 }, triggerOpenLanguage = triggerOpenLanguage, onOpenLanguageHandled = {
@@ -363,7 +385,9 @@ fun SettingsDialog(
                                 SoundTabContent(triggerShowDetails = triggerShowSoundDetails, onShowDetailsHandled = {
                                     triggerShowSoundDetails =
                                         false
-                                }, selectedVolumeIndex = selectedVolumeIndex, onVolumeIndexChanged = { selectedVolumeIndex = it })
+                                }, selectedVolumeIndex = selectedVolumeIndex, onVolumeIndexChanged = { selectedVolumeIndex = it }, onManualBackgroundMusicStart = {
+                                    shouldRestoreBackgroundMusicOnDismiss = true
+                                })
                             }
                         SettingsTab.ACCESSIBILITY ->
                             ScrollableSettingsTabContent(settingsScrollState) {
@@ -1316,6 +1340,7 @@ private fun SoundTabContent(
     onShowDetailsHandled: () -> Unit = {},
     selectedVolumeIndex: Int = 0,
     onVolumeIndexChanged: (Int) -> Unit = {},
+    onManualBackgroundMusicStart: () -> Unit = {},
 ) {
     var showDetailedSoundSettings by remember { mutableStateOf(false) }
 
@@ -1726,6 +1751,7 @@ private fun SoundTabContent(
                                 // Start worldmap background music persistently (not stopped when leaving settings)
                                 OutlinedButton(
                                     onClick = {
+                                        onManualBackgroundMusicStart()
                                         de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
                                             de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
                                             loop = true,
@@ -1851,6 +1877,7 @@ private fun SoundTabContent(
                                     // Start gameplay background music persistently (not stopped when leaving settings)
                                     OutlinedButton(
                                         onClick = {
+                                            onManualBackgroundMusicStart()
                                             de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
                                                 de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL,
                                                 loop = true,

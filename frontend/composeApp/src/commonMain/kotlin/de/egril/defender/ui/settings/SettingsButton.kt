@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.audio.BackgroundMusic
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.settings
 import dev.vicart.compose.material.symbols.FilledSymbol
@@ -34,6 +35,7 @@ fun SettingsButton(
     onTriggerHandled: (() -> Unit)? = null,
     triggerOpenWithTab: SettingsTab? = null,
     onTriggerWithTabHandled: (() -> Unit)? = null,
+    pageBackgroundMusic: BackgroundMusic? = null,
 ) {
     var showSettings by remember { mutableStateOf(false) }
     var autoOpenConsumed by remember { mutableStateOf(false) }
@@ -91,6 +93,7 @@ fun SettingsButton(
         SettingsDialog(
             onDismiss = { showSettings = false },
             initialTab = activeTab,
+            pageBackgroundMusic = pageBackgroundMusic,
         )
     }
 }
