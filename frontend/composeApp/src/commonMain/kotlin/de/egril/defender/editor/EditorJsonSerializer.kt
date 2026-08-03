@@ -378,6 +378,13 @@ object EditorJsonSerializer {
                 ""
             }
 
+        val splitBuildTowerButtonJson =
+            if (!level.splitBuildTowerButton) {
+                ",\n  \"splitBuildTowerButton\": false"
+            } else {
+                ""
+            }
+
         val connectedToPreviousLevelJson =
             if (level.connectedToPreviousLevel) {
                 ",\n  \"connectedToPreviousLevel\": true"
@@ -593,7 +600,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isSandboxJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$splitBuildTowerButtonJson$connectedToPreviousLevelJson$isSandboxJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
 }"""
         return """{
   "metadata": {
@@ -813,6 +820,18 @@ object EditorJsonSerializer {
                     }
                 } else {
                     false
+                }
+
+            // Parse splitBuildTowerButton (optional, defaults to true)
+            val splitBuildTowerButton =
+                if (dataJson.contains("\"splitBuildTowerButton\"")) {
+                    try {
+                        JsonUtils.extractValue(dataJson, "splitBuildTowerButton").toBoolean()
+                    } catch (e: Exception) {
+                        true
+                    }
+                } else {
+                    true
                 }
 
             // Parse connectedToPreviousLevel (optional, defaults to false)
@@ -1363,22 +1382,23 @@ object EditorJsonSerializer {
             val events = parseEvents(dataJson)
 
             return EditorLevel(
-                id,
-                mapId,
-                title,
-                titleKey,
-                subtitle,
-                subtitleKey,
-                startCoins,
-                startHealthPoints,
-                spawns,
-                towers,
-                waypoints,
-                prerequisites,
-                requiredPrerequisiteCount,
-                testingOnly,
-                allowAutoAttack,
-                connectedToPreviousLevel,
+                id = id,
+                mapId = mapId,
+                title = title,
+                titleKey = titleKey,
+                subtitle = subtitle,
+                subtitleKey = subtitleKey,
+                startCoins = startCoins,
+                startHealthPoints = startHealthPoints,
+                enemySpawns = spawns,
+                availableTowers = towers,
+                waypoints = waypoints,
+                prerequisites = prerequisites,
+                requiredPrerequisiteCount = requiredPrerequisiteCount,
+                testingOnly = testingOnly,
+                allowAutoAttack = allowAutoAttack,
+                connectedToPreviousLevel = connectedToPreviousLevel,
+                splitBuildTowerButton = splitBuildTowerButton,
                 isSandbox = isSandbox,
                 isOfficial = isOfficial,
                 author = author,

@@ -1,0 +1,324 @@
+Unable to find image 'oxsecurity/megalinter:v9' locally
+v9: Pulling from oxsecurity/megalinter
+589002ba0eae: Pulling fs layer
+98914020a3be: Pulling fs layer
+be2fee0bf4ec: Pulling fs layer
+79a000d511eb: Pulling fs layer
+5b181de9e72e: Pulling fs layer
+a2116a6f27f3: Pulling fs layer
+f184bada085e: Pulling fs layer
+e988e58b3ee4: Pulling fs layer
+e4d40ae1c474: Pulling fs layer
+d2137a8c78bb: Pulling fs layer
+19c600cabbf1: Pulling fs layer
+b136407b2afd: Pulling fs layer
+06b92569b6d8: Pulling fs layer
+200207342d31: Pulling fs layer
+3442262f1a17: Pulling fs layer
+28b3bfc22615: Pulling fs layer
+379d046ec20c: Pulling fs layer
+1ff20891a0b3: Pulling fs layer
+23f57affdc97: Pulling fs layer
+a5ba015d7e94: Pulling fs layer
+0274b4d4e808: Pulling fs layer
+f4aef0e45e05: Pulling fs layer
+49f987366468: Pulling fs layer
+2be5af0e5f1b: Pulling fs layer
+0cb1c8f6c133: Pulling fs layer
+986bd682e251: Pulling fs layer
+76f0ede18f21: Pulling fs layer
+b37375ddbb9d: Pulling fs layer
+11fcf317efa4: Pulling fs layer
+cedf19bd8a65: Pulling fs layer
+76a023a6d612: Pulling fs layer
+98b5faf93514: Pulling fs layer
+bf215a0d9bb3: Pulling fs layer
+3eecc34931bc: Pulling fs layer
+5037d1beb922: Pulling fs layer
+86ecbe1af24e: Pulling fs layer
+ebc5d56fe107: Pulling fs layer
+bc6318cef5cf: Pulling fs layer
+77eb6d986ee6: Pulling fs layer
+b81181192c57: Pulling fs layer
+8f419a3c63c7: Pulling fs layer
+cb9abcf734e6: Pulling fs layer
+b079161577b6: Pulling fs layer
+649cc484f8b2: Pulling fs layer
+cf71814f907b: Pulling fs layer
+a4b7fc31ac77: Pulling fs layer
+342c7b8f8452: Pulling fs layer
+7d90c531ff7e: Pulling fs layer
+4eceffe002b6: Pulling fs layer
+0f8f154e7ae2: Pulling fs layer
+55d948f0717d: Pulling fs layer
+2308a495e18f: Pulling fs layer
+3023a64db9b9: Pulling fs layer
+751948c88ee4: Pulling fs layer
+370c4d5766cd: Pulling fs layer
+6b9b3187b248: Pulling fs layer
+7523b4e7539d: Pulling fs layer
+63413487c49b: Pulling fs layer
+e2bb79b469dd: Pulling fs layer
+d9f66ef17fbd: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+6502eb37d8ac: Pulling fs layer
+b136407b2afd: Waiting
+06b92569b6d8: Waiting
+200207342d31: Waiting
+3442262f1a17: Waiting
+28b3bfc22615: Waiting
+379d046ec20c: Waiting
+1ff20891a0b3: Waiting
+23f57affdc97: Waiting
+a5ba015d7e94: Waiting
+0274b4d4e808: Waiting
+f4aef0e45e05: Waiting
+79a000d511eb: Waiting
+49f987366468: Waiting
+5b181de9e72e: Waiting
+a2116a6f27f3: Waiting
+f184bada085e: Waiting
+e988e58b3ee4: Waiting
+e4d40ae1c474: Waiting
+d2137a8c78bb: Waiting
+2be5af0e5f1b: Waiting
+19c600cabbf1: Waiting
+0cb1c8f6c133: Waiting
+986bd682e251: Waiting
+76f0ede18f21: Waiting
+b37375ddbb9d: Waiting
+a4b7fc31ac77: Waiting
+11fcf317efa4: Waiting
+342c7b8f8452: Waiting
+cedf19bd8a65: Waiting
+7d90c531ff7e: Waiting
+76a023a6d612: Waiting
+4eceffe002b6: Waiting
+98b5faf93514: Waiting
+bf215a0d9bb3: Waiting
+b81181192c57: Waiting
+3eecc34931bc: Waiting
+8f419a3c63c7: Waiting
+5037d1beb922: Waiting
+86ecbe1af24e: Waiting
+cb9abcf734e6: Waiting
+ebc5d56fe107: Waiting
+b079161577b6: Waiting
+bc6318cef5cf: Waiting
+649cc484f8b2: Waiting
+77eb6d986ee6: Waiting
+cf71814f907b: Waiting
+6b9b3187b248: Waiting
+7523b4e7539d: Waiting
+63413487c49b: Waiting
+e2bb79b469dd: Waiting
+55d948f0717d: Waiting
+d9f66ef17fbd: Waiting
+2308a495e18f: Waiting
+4f4fb700ef54: Waiting
+3023a64db9b9: Waiting
+6502eb37d8ac: Waiting
+370c4d5766cd: Waiting
+751948c88ee4: Waiting
+0f8f154e7ae2: Waiting
+98914020a3be: Verifying Checksum
+98914020a3be: Download complete
+589002ba0eae: Verifying Checksum
+589002ba0eae: Download complete
+79a000d511eb: Verifying Checksum
+79a000d511eb: Download complete
+be2fee0bf4ec: Verifying Checksum
+be2fee0bf4ec: Download complete
+5b181de9e72e: Verifying Checksum
+5b181de9e72e: Download complete
+e988e58b3ee4: Verifying Checksum
+e988e58b3ee4: Download complete
+a2116a6f27f3: Verifying Checksum
+a2116a6f27f3: Download complete
+589002ba0eae: Pull complete
+98914020a3be: Pull complete
+d2137a8c78bb: Verifying Checksum
+d2137a8c78bb: Download complete
+19c600cabbf1: Verifying Checksum
+19c600cabbf1: Download complete
+be2fee0bf4ec: Pull complete
+b136407b2afd: Verifying Checksum
+b136407b2afd: Download complete
+06b92569b6d8: Verifying Checksum
+06b92569b6d8: Download complete
+200207342d31: Download complete
+3442262f1a17: Verifying Checksum
+3442262f1a17: Download complete
+28b3bfc22615: Verifying Checksum
+28b3bfc22615: Download complete
+379d046ec20c: Verifying Checksum
+379d046ec20c: Download complete
+1ff20891a0b3: Download complete
+23f57affdc97: Verifying Checksum
+23f57affdc97: Download complete
+a5ba015d7e94: Verifying Checksum
+a5ba015d7e94: Download complete
+0274b4d4e808: Download complete
+f4aef0e45e05: Verifying Checksum
+f4aef0e45e05: Download complete
+49f987366468: Verifying Checksum
+49f987366468: Download complete
+2be5af0e5f1b: Verifying Checksum
+2be5af0e5f1b: Download complete
+0cb1c8f6c133: Verifying Checksum
+0cb1c8f6c133: Download complete
+986bd682e251: Verifying Checksum
+986bd682e251: Download complete
+76f0ede18f21: Verifying Checksum
+76f0ede18f21: Download complete
+f184bada085e: Verifying Checksum
+f184bada085e: Download complete
+b37375ddbb9d: Verifying Checksum
+b37375ddbb9d: Download complete
+11fcf317efa4: Download complete
+76a023a6d612: Verifying Checksum
+76a023a6d612: Download complete
+98b5faf93514: Verifying Checksum
+98b5faf93514: Download complete
+cedf19bd8a65: Verifying Checksum
+cedf19bd8a65: Download complete
+bf215a0d9bb3: Verifying Checksum
+bf215a0d9bb3: Download complete
+3eecc34931bc: Verifying Checksum
+3eecc34931bc: Download complete
+5037d1beb922: Verifying Checksum
+5037d1beb922: Download complete
+86ecbe1af24e: Verifying Checksum
+86ecbe1af24e: Download complete
+ebc5d56fe107: Verifying Checksum
+ebc5d56fe107: Download complete
+77eb6d986ee6: Verifying Checksum
+77eb6d986ee6: Download complete
+e4d40ae1c474: Download complete
+8f419a3c63c7: Verifying Checksum
+8f419a3c63c7: Download complete
+bc6318cef5cf: Verifying Checksum
+bc6318cef5cf: Download complete
+b079161577b6: Verifying Checksum
+b079161577b6: Download complete
+b81181192c57: Verifying Checksum
+b81181192c57: Download complete
+cf71814f907b: Verifying Checksum
+cf71814f907b: Download complete
+79a000d511eb: Pull complete
+649cc484f8b2: Verifying Checksum
+649cc484f8b2: Download complete
+a4b7fc31ac77: Verifying Checksum
+a4b7fc31ac77: Download complete
+7d90c531ff7e: Verifying Checksum
+7d90c531ff7e: Download complete
+342c7b8f8452: Verifying Checksum
+342c7b8f8452: Download complete
+4eceffe002b6: Download complete
+0f8f154e7ae2: Verifying Checksum
+0f8f154e7ae2: Download complete
+cb9abcf734e6: Verifying Checksum
+cb9abcf734e6: Download complete
+55d948f0717d: Verifying Checksum
+55d948f0717d: Download complete
+751948c88ee4: Verifying Checksum
+751948c88ee4: Download complete
+2308a495e18f: Verifying Checksum
+2308a495e18f: Download complete
+370c4d5766cd: Verifying Checksum
+370c4d5766cd: Download complete
+7523b4e7539d: Verifying Checksum
+7523b4e7539d: Download complete
+63413487c49b: Verifying Checksum
+63413487c49b: Download complete
+e2bb79b469dd: Verifying Checksum
+e2bb79b469dd: Download complete
+d9f66ef17fbd: Verifying Checksum
+d9f66ef17fbd: Download complete
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+6502eb37d8ac: Verifying Checksum
+6502eb37d8ac: Download complete
+6b9b3187b248: Verifying Checksum
+6b9b3187b248: Download complete
+3023a64db9b9: Verifying Checksum
+3023a64db9b9: Download complete
+5b181de9e72e: Pull complete
+a2116a6f27f3: Pull complete
+f184bada085e: Pull complete
+e988e58b3ee4: Pull complete
+e4d40ae1c474: Pull complete
+d2137a8c78bb: Pull complete
+19c600cabbf1: Pull complete
+b136407b2afd: Pull complete
+06b92569b6d8: Pull complete
+200207342d31: Pull complete
+3442262f1a17: Pull complete
+28b3bfc22615: Pull complete
+379d046ec20c: Pull complete
+1ff20891a0b3: Pull complete
+23f57affdc97: Pull complete
+a5ba015d7e94: Pull complete
+0274b4d4e808: Pull complete
+f4aef0e45e05: Pull complete
+49f987366468: Pull complete
+2be5af0e5f1b: Pull complete
+0cb1c8f6c133: Pull complete
+986bd682e251: Pull complete
+76f0ede18f21: Pull complete
+b37375ddbb9d: Pull complete
+11fcf317efa4: Pull complete
+cedf19bd8a65: Pull complete
+76a023a6d612: Pull complete
+98b5faf93514: Pull complete
+bf215a0d9bb3: Pull complete
+3eecc34931bc: Pull complete
+5037d1beb922: Pull complete
+86ecbe1af24e: Pull complete
+ebc5d56fe107: Pull complete
+bc6318cef5cf: Pull complete
+77eb6d986ee6: Pull complete
+b81181192c57: Pull complete
+8f419a3c63c7: Pull complete
+cb9abcf734e6: Pull complete
+b079161577b6: Pull complete
+649cc484f8b2: Pull complete
+cf71814f907b: Pull complete
+a4b7fc31ac77: Pull complete
+342c7b8f8452: Pull complete
+7d90c531ff7e: Pull complete
+4eceffe002b6: Pull complete
+0f8f154e7ae2: Pull complete
+55d948f0717d: Pull complete
+2308a495e18f: Pull complete
+3023a64db9b9: Pull complete
+751948c88ee4: Pull complete
+370c4d5766cd: Pull complete
+6b9b3187b248: Pull complete
+7523b4e7539d: Pull complete
+63413487c49b: Pull complete
+e2bb79b469dd: Pull complete
+d9f66ef17fbd: Pull complete
+4f4fb700ef54: Pull complete
+6502eb37d8ac: Pull complete
+Digest: sha256:ed944524cb36342a3693f5297ab92aef7188beff0a20a396fe9e90b4dcbbacfb
+Status: Downloaded newer image for oxsecurity/megalinter:v9
+Skipped setting git safe.directory DEFAULT_WORKSPACE:  ...
+Setting git safe.directory default: /github/workspace ...
+Setting git safe.directory to /tmp/lint ...
+[MegaLinter init] ONE-SHOT RUN
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/megalinter/run.py", line 11, in <module>
+    linter = megalinter.Megalinter({"cli": True, "request_id": str(uuid.uuid1())})
+  File "/megalinter/MegaLinter.py", line 74, in __init__
+    self.workspace = self.get_workspace(params)
+                     ~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/megalinter/MegaLinter.py", line 489, in get_workspace
+    raise FileNotFoundError(
+    ...<3 lines>...
+    )
+FileNotFoundError: [Context] Unable to find a workspace to lint 
+DEFAULT_WORKSPACE: 
+GITHUB_WORKSPACE: 

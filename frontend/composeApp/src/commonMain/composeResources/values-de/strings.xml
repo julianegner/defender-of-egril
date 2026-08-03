@@ -1144,6 +1144,7 @@
     <string name="sandbox_spawn_point_auto">Automatisch (erster freier Startpunkt)</string>
     <string name="allow_auto_attack">Auto-Angriff erlauben</string>
     <string name="connected_to_previous_level">Mit vorherigem Level verbinden</string>
+    <string name="split_build_tower_button">Geteilter Turmbau-Button</string>
     <string name="auto_attack_info_title">Auto-Angriff-Funktion</string>
     <string name="auto_attack_info_message">Sie können nun die Auto-Angriff-Funktion verwenden. Wenn Sie "Zug beenden" wählen und noch verwendbare Aktionspunkte übrig sind, bietet der Dialog die Option "Auto-Angriff und Zug beenden". Dann greifen Türme mit verbleibenden Aktionspunkten automatisch Feinde an. Greift Feinde nach Priorität an (zuerst Bosse, dann spezielle Feinde). Wenn noch Aktionen übrig sind (Minen, Fallen, Säureangriffe ohne Feind in Reichweite), erhalten Sie eine Nachricht, welche Art von Aktion noch verwendbar ist, andernfalls endet der Zug.</string>
 
