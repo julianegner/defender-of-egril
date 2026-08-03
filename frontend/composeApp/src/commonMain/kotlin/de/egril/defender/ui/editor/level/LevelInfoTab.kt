@@ -41,10 +41,10 @@ import defender_of_egril.composeapp.generated.resources.level_title
 import defender_of_egril.composeapp.generated.resources.map_label
 import defender_of_egril.composeapp.generated.resources.ok
 import defender_of_egril.composeapp.generated.resources.sandbox_level
+import defender_of_egril.composeapp.generated.resources.split_build_tower_button
 import defender_of_egril.composeapp.generated.resources.start_coins
 import defender_of_egril.composeapp.generated.resources.start_hp
 import defender_of_egril.composeapp.generated.resources.subtitle_optional
-import defender_of_egril.composeapp.generated.resources.split_build_tower_button
 import defender_of_egril.composeapp.generated.resources.test_level
 import defender_of_egril.composeapp.generated.resources.user_map_not_allowed_message
 import defender_of_egril.composeapp.generated.resources.user_map_not_allowed_title
