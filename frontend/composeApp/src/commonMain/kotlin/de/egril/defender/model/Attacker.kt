@@ -786,6 +786,7 @@ fun AttackerType.getSoulCallResurrectionType(): AttackerType? =
 fun Attacker.isImmuneToAttackFrom(defenderType: DefenderType): Boolean =
     when {
         type.immuneToNonMagicTowerDamage && defenderType.attackType != AttackType.AREA -> true
+        type.immuneToBladeAttacks && (defenderType.attackType == AttackType.MELEE || defenderType.attackType == AttackType.RANGED) -> true
         else ->
             when (defenderType.attackType) {
                 AttackType.AREA -> type.immuneToFireball
