@@ -348,6 +348,12 @@ fun GameHeader(
                         shortcutKey = ",",
                         triggerOpen = externalShowSettings,
                         onTriggerHandled = onExternalShowSettingsHandled,
+                        pageBackgroundMusic =
+                            if (gameState.healthPoints.value < 5) {
+                                de.egril.defender.audio.BackgroundMusic.GAMEPLAY_LOW_HEALTH
+                            } else {
+                                de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL
+                            },
                     )
 
                     if (onSandboxTools != null && gameState.level.isSandbox) {

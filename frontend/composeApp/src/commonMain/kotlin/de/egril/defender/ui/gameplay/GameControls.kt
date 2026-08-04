@@ -153,6 +153,8 @@ fun GameControlsPanel(
     uiScale: Float = 1f, // Add platform scale parameter
     onShowDragonInfo: () -> Unit = {}, // Add dragon info callback
     highlightEndTurnButton: Boolean = false, // Visually highlight the End Turn button (keyboard focus)
+    splitSelectorToggle: Int = 0, // Counter incremented to toggle the split selector dropdown via keyboard
+    onSplitSelectorExpandedChanged: (Boolean) -> Unit = {},
 ) {
     de.egril.defender.ui.a11y.FontSizeUnscaled {
         // Automatically fold buy panel when a defender, attacker, or barricade is selected
@@ -311,6 +313,8 @@ fun GameControlsPanel(
                                         onPrimaryAction = onPrimaryAction,
                                         highlightEndTurnButton = highlightEndTurnButton,
                                         autoAttackAvailable = autoAttackAvailable,
+                                        toggleSelectorKey = splitSelectorToggle,
+                                        onSelectorExpandedChanged = onSplitSelectorExpandedChanged,
                                     )
                                 } else {
                                     // Compact buy buttons

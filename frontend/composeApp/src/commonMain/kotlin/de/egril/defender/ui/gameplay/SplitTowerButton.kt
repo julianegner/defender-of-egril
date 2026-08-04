@@ -29,6 +29,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -77,6 +81,8 @@ fun ColumnScope.SplitTowerBuildControls(
     onPrimaryAction: () -> Unit,
     highlightEndTurnButton: Boolean,
     autoAttackAvailable: Boolean,
+    toggleSelectorKey: Int = 0,
+    onSelectorExpandedChanged: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     if (availableTypes.isEmpty()) {
@@ -92,6 +98,14 @@ fun ColumnScope.SplitTowerBuildControls(
 
     var preferredType by remember(availableTypes) { mutableStateOf(availableTypes.first()) }
     var selectorExpanded by remember { mutableStateOf(false) }
+
+    // Toggle the selector dropdown when the external trigger key changes (keyboard shortcut)
+    LaunchedEffect(toggleSelectorKey) {
+        if (toggleSelectorKey > 0) {
+            selectorExpanded = !selectorExpanded
+            onSelectorExpandedChanged(selectorExpanded)
+        }
+    }
 
     LaunchedEffect(selectedDefenderType, availableTypes) {
         if (selectedDefenderType != null && availableTypes.contains(selectedDefenderType)) {
@@ -114,11 +128,52 @@ fun ColumnScope.SplitTowerBuildControls(
         Box(modifier = Modifier.fillMaxWidth()) {
             SplitButton(
                 expanded = selectorExpanded,
-                onExpandedChange = { selectorExpanded = it },
+                onExpandedChange = {
+                    selectorExpanded = it
+                    onSelectorExpandedChanged(it)
+                },
                 itemCount = availableTypes.size,
                 buttonHeight = splitButtonHeight,
                 enabled = availableTypes.size > 1,
                 modifier = Modifier.fillMaxWidth(),
+                selectorShortcutText = "B",
+                onDropdownKeyEvent = { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when {
+                            event.key == Key.B || event.key == Key.Escape -> {
+                                selectorExpanded = false
+                                onSelectorExpandedChanged(false)
+                                true
+                            }
+                            else -> {
+                                val digit =
+                                    when (event.key) {
+                                        Key.One -> 1
+                                        Key.Two -> 2
+                                        Key.Three -> 3
+                                        Key.Four -> 4
+                                        Key.Five -> 5
+                                        Key.Six -> 6
+                                        Key.Seven -> 7
+                                        Key.Eight -> 8
+                                        else -> 0
+                                    }
+                                if (digit > 0 && digit <= availableTypes.size) {
+                                    val type = availableTypes[digit - 1]
+                                    preferredType = type
+                                    onSelectDefenderType(type)
+                                    selectorExpanded = false
+                                    onSelectorExpandedChanged(false)
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                        }
+                    } else {
+                        false
+                    }
+                },
                 dropdownContent = {
                     availableTypes.forEachIndexed { index, type ->
                         SplitTowerListItem(
@@ -131,6 +186,7 @@ fun ColumnScope.SplitTowerBuildControls(
                             onClick = {
                                 preferredType = type
                                 selectorExpanded = false
+                                onSelectorExpandedChanged(false)
                             },
                         )
                     }
@@ -156,12 +212,13 @@ fun ColumnScope.SplitTowerBuildControls(
             if (instantTowerActive && selectedCanAfford) {
                 InstantTowerSpellAnimation(
                     animate = AppSettings.enableAnimations.value,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.height(splitButtonHeight).fillMaxWidth(),
                 )
                 Box(
                     modifier =
                         Modifier
-                            .fillMaxSize()
+                            .height(splitButtonHeight)
+                            .fillMaxWidth()
                             .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50)),
                 )
             }
@@ -241,11 +298,9 @@ private fun SplitTowerListItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Text(
-                text = "#${shortcutIndex + 1}",
-                style = MaterialTheme.typography.labelSmall,
+            ShortcutKeyChip(
+                text = "${shortcutIndex + 1}",
                 color = contentColor.copy(alpha = 0.75f),
-                maxLines = 1,
             )
             Text(
                 text = type.attackType.getLocalizedName(locale),

@@ -60,6 +60,7 @@ private val COLOR_BLIND_OPTION_LABEL_TOP_PADDING = 10.dp
 fun SettingsDialog(
     onDismiss: () -> Unit,
     initialTab: SettingsTab = SettingsTab.GENERAL,
+    pageBackgroundMusic: de.egril.defender.audio.BackgroundMusic? = null,
 ) {
     val tabCount = 6 // GENERAL, WORLD_MAP, LEVEL, SOUND, ACCESSIBILITY, SHORTCUTS
     var selectedTabIndex by remember(initialTab) {
@@ -67,7 +68,34 @@ fun SettingsDialog(
             SettingsTab.entries.indexOf(initialTab).coerceAtLeast(0),
         )
     }
-    Dialog(onDismissRequest = onDismiss) {
+    var shouldRestoreBackgroundMusicOnDismiss by remember { mutableStateOf(false) }
+
+    fun dismissSettingsDialog() {
+        if (shouldRestoreBackgroundMusicOnDismiss) {
+            if (!AppSettings.isSoundEnabled.value || !AppSettings.isMusicEnabled.value) {
+                de.egril.defender.audio.GlobalBackgroundMusicManager
+                    .stopMusic()
+            } else {
+                val currentMusic =
+                    de.egril.defender.audio.GlobalBackgroundMusicManager
+                        .getCurrentMusic()
+                if (pageBackgroundMusic == null) {
+                    if (currentMusic != null) {
+                        de.egril.defender.audio.GlobalBackgroundMusicManager
+                            .stopMusic()
+                    }
+                } else if (currentMusic != pageBackgroundMusic) {
+                    de.egril.defender.audio.GlobalBackgroundMusicManager
+                        .stopMusic()
+                    de.egril.defender.audio.GlobalBackgroundMusicManager
+                        .playMusic(pageBackgroundMusic, loop = true)
+                }
+            }
+        }
+        onDismiss()
+    }
+
+    Dialog(onDismissRequest = ::dismissSettingsDialog) {
         val focusRequester = remember { FocusRequester() }
         val scope = rememberCoroutineScope()
         val settingsScrollState = rememberScrollState()
@@ -103,7 +131,7 @@ fun SettingsDialog(
                         if (event.type == KeyEventType.KeyDown) {
                             when (event.key) {
                                 Key.Back, Key.Escape -> {
-                                    onDismiss()
+                                    dismissSettingsDialog()
                                     true
                                 }
                                 Key.DirectionRight -> {
@@ -346,7 +374,7 @@ fun SettingsDialog(
                     when (selectedTabType) {
                         SettingsTab.GENERAL ->
                             ScrollableSettingsTabContent(settingsScrollState) {
-                                GeneralTabContent(onDismissSettings = onDismiss, triggerRestore = triggerRestoreData, onRestoreHandled = {
+                                GeneralTabContent(onDismissSettings = ::dismissSettingsDialog, triggerRestore = triggerRestoreData, onRestoreHandled = {
                                     triggerRestoreData =
                                         false
                                 }, triggerOpenLanguage = triggerOpenLanguage, onOpenLanguageHandled = {
@@ -363,7 +391,9 @@ fun SettingsDialog(
                                 SoundTabContent(triggerShowDetails = triggerShowSoundDetails, onShowDetailsHandled = {
                                     triggerShowSoundDetails =
                                         false
-                                }, selectedVolumeIndex = selectedVolumeIndex, onVolumeIndexChanged = { selectedVolumeIndex = it })
+                                }, selectedVolumeIndex = selectedVolumeIndex, onVolumeIndexChanged = { selectedVolumeIndex = it }, onManualBackgroundMusicStart = {
+                                    shouldRestoreBackgroundMusicOnDismiss = true
+                                })
                             }
                         SettingsTab.ACCESSIBILITY ->
                             ScrollableSettingsTabContent(settingsScrollState) {
@@ -1316,6 +1346,7 @@ private fun SoundTabContent(
     onShowDetailsHandled: () -> Unit = {},
     selectedVolumeIndex: Int = 0,
     onVolumeIndexChanged: (Int) -> Unit = {},
+    onManualBackgroundMusicStart: () -> Unit = {},
 ) {
     var showDetailedSoundSettings by remember { mutableStateOf(false) }
 
@@ -1533,6 +1564,17 @@ private fun SoundTabContent(
                                 SpeakerHighIcon(size = 20.dp)
                             }
                         }
+
+                        // Play effect preview button (bow tower attack sound)
+                        OutlinedButton(
+                            onClick = {
+                                de.egril.defender.audio.GlobalSoundManager
+                                    .playSound(de.egril.defender.audio.SoundEvent.ATTACK_RANGED)
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(text = stringResource(Res.string.sound_preview_play_effect))
+                        }
                     }
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -1566,6 +1608,44 @@ private fun SoundTabContent(
                             },
                             modifier = Modifier.fillMaxWidth(),
                         )
+                    }
+
+                    // Play/Stop background music preview button
+                    if (AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
+                        // Background music volume slider
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.music_volume),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                SpeakerLowIcon(size = 20.dp)
+                                Slider(
+                                    value = AppSettings.musicVolume.value,
+                                    onValueChange = { volume ->
+                                        AppSettings.saveMusicVolume(volume)
+                                        val currentMusic =
+                                            de.egril.defender.audio.GlobalBackgroundMusicManager
+                                                .getCurrentMusic()
+                                        if (currentMusic != null) {
+                                            de.egril.defender.audio.GlobalBackgroundMusicManager
+                                                .playMusic(currentMusic, loop = true)
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    valueRange = 0f..1f,
+                                )
+                                SpeakerHighIcon(size = 20.dp)
+                            }
+                        }
                     }
 
                     if (AppSettings.isMusicEnabled.value) {
@@ -1670,6 +1750,22 @@ private fun SoundTabContent(
                                         )
                                         SpeakerHighIcon(size = 20.dp)
                                     }
+                                }
+                            }
+
+                            if (AppSettings.isSoundEnabled.value) {
+                                // Start worldmap background music persistently (not stopped when leaving settings)
+                                OutlinedButton(
+                                    onClick = {
+                                        onManualBackgroundMusicStart()
+                                        de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                                            de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
+                                            loop = true,
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text(text = stringResource(Res.string.worldmap_music))
                                 }
                             }
                         }
@@ -1780,6 +1876,22 @@ private fun SoundTabContent(
                                             valueRange = 0f..1f,
                                         )
                                         SpeakerHighIcon(size = 20.dp)
+                                    }
+                                }
+
+                                if (AppSettings.isSoundEnabled.value) {
+                                    // Start gameplay background music persistently (not stopped when leaving settings)
+                                    OutlinedButton(
+                                        onClick = {
+                                            onManualBackgroundMusicStart()
+                                            de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                                                de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL,
+                                                loop = true,
+                                            )
+                                        },
+                                        modifier = Modifier.fillMaxWidth(),
+                                    ) {
+                                        Text(text = stringResource(Res.string.start_gameplay_background_music))
                                     }
                                 }
                             }
