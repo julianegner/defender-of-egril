@@ -275,14 +275,23 @@ data class InitialBarricade(
 }
 
 /**
+ * Initial fief placement for level start
+ */
+data class InitialFief(
+    val position: Position,
+    val type: de.egril.defender.model.FiefType,
+)
+
+/**
  * Wrapper for all initial placement data
- * This groups defenders, attackers, traps, and barricades in a single object
+ * This groups defenders, attackers, traps, barricades, and fiefs in a single object
  */
 data class InitialData(
     val defenders: List<InitialDefender> = emptyList(),
     val attackers: List<InitialAttacker> = emptyList(),
     val traps: List<InitialTrap> = emptyList(),
     val barricades: List<InitialBarricade> = emptyList(),
+    val fiefs: List<InitialFief> = emptyList(),
 ) {
     companion object {
         val EMPTY = InitialData()

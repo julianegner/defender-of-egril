@@ -248,6 +248,7 @@ data class GameState(
     val damageEffects: SnapshotStateList<DamageEffect> = mutableStateListOf(), // Track barricade damage effects
     val traps: SnapshotStateList<Trap> = mutableStateListOf(), // Track active traps
     val barricades: SnapshotStateList<Barricade> = mutableStateListOf(), // Track active barricades
+    val fiefs: SnapshotStateList<Fief> = mutableStateListOf(), // Track active fiefs (income-generating path objects)
     val bridges: SnapshotStateList<Bridge> = mutableStateListOf(), // Track active bridges
     val rafts: SnapshotStateList<Raft> = mutableStateListOf(), // Track active rafts (towers on rivers)
     val bombExplosionEffects: SnapshotStateList<BombExplosionEffect> = mutableStateListOf(), // Track bomb explosion visual effects
@@ -868,6 +869,11 @@ data class GameState(
                     type = trapType,
                 )
             traps.add(trap)
+        }
+
+        // Place initial fiefs
+        for (initialFief in initialData.fiefs) {
+            fiefs.add(Fief(position = initialFief.position, type = initialFief.type))
         }
     }
 }

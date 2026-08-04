@@ -679,11 +679,13 @@
     <string name="initial_setup_map">Mapa</string>
     <string name="initial_setup_click_to_place">Haz clic en el mapa para colocar el elemento seleccionado</string>
     <string name="initial_setup">Configuración Inicial</string>
-    <string name="initial_setup_info">Coloca torres, enemigos, trampas y barricadas en el mapa antes de que comience el nivel (opcional)</string>
+    <string name="initial_setup_info">Coloca torres, enemigos, trampas, barricadas y feudos en el mapa antes de que comience el nivel (opcional)</string>
     <string name="initial_setup_towers">Torres</string>
     <string name="initial_setup_enemies">Enemigos</string>
     <string name="initial_setup_traps">Trampas</string>
     <string name="initial_setup_barricades">Barricadas</string>
+    <string name="initial_setup_fiefs">Feudos</string>
+    <string name="fief_configuration">Configuración de Feudo</string>
     <string name="initial_setup_configuration">Configuración</string>
     <string name="element_type">Tipo de Elemento</string>
     <string name="selection_mode">Modo de Selección</string>
@@ -2191,4 +2193,9 @@
     <string name="villain_kraken_description">El Kraken es un enorme monstruo marino que puede atacar barcazas y hundirlas, y puede sumergirse para evitar el daño. Es un rival formidable que requiere una estrategia cuidadosa.</string>
     <string name="villain_kraken_title">El Kraken entra al campo de batalla</string>
     <string name="villain_kraken_backstory">El Kraken ha emergido de las profundidades del océano, amenazando a todos los que navegan por los mares. Sus tentáculos pueden aplastar barcos y su presencia infunde miedo incluso en los marineros más valientes.</string>
+
+    <string name="fief_type_fisher">Pescador</string>
+    <string name="fief_type_woodcutter">Leñador</string>
+    <string name="fief_type_quarry">Cantera</string>
+    <string name="fief_type_marketplace">Mercado</string>
 </resources>

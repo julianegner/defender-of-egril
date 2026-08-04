@@ -10,7 +10,10 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.editor.*
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.FiefType
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnPointType
+import de.egril.defender.model.getHexNeighbors
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -55,6 +58,7 @@ fun InitialSetupTab(
     var barricadeHealthPoints by remember { mutableStateOf(10) }
     var barricadeName by remember { mutableStateOf("") }
     var barricadeIsGate by remember { mutableStateOf(false) }
+    var selectedFiefType by remember { mutableStateOf(FiefType.FISHER) }
 
     var editBarricadeIndex by remember { mutableStateOf<Int?>(null) } // Index of barricade being edited
 
@@ -97,6 +101,7 @@ fun InitialSetupTab(
                     InitialSetupMinimap(
                         map = map,
                         placementMode = placementMode,
+                        selectedFiefType = selectedFiefType,
                         initialData = initialData,
                         selectedElement = selectedElement,
                         onTileClick = { position ->
@@ -171,6 +176,16 @@ fun InitialSetupTab(
                                         onInitialDataChange(initialData.copy(barricades = initialData.barricades + newBarricade))
                                     }
                                 }
+                                PlacementMode.FIEF -> {
+                                    if (canPlaceFief(position, selectedFiefType, initialData, map)) {
+                                        val newFief =
+                                            InitialFief(
+                                                position = position,
+                                                type = selectedFiefType,
+                                            )
+                                        onInitialDataChange(initialData.copy(fiefs = initialData.fiefs + newFief))
+                                    }
+                                }
                                 null -> {
                                     // Selection mode - find clicked element
                                     val clickedElement =
@@ -220,6 +235,8 @@ fun InitialSetupTab(
             onBarricadeNameChange = { barricadeName = it },
             barricadeIsGate = barricadeIsGate,
             onBarricadeIsGateChange = { barricadeIsGate = it },
+            selectedFiefType = selectedFiefType,
+            onSelectedFiefTypeChange = { selectedFiefType = it },
             availableTowers = availableTowers,
             initialData = initialData,
             onRemoveDefender = { index ->
@@ -244,6 +261,12 @@ fun InitialSetupTab(
                 val newList = initialData.barricades.toMutableList()
                 newList.removeAt(index)
                 onInitialDataChange(initialData.copy(barricades = newList))
+                selectedElement = null
+            },
+            onRemoveFief = { index ->
+                val newList = initialData.fiefs.toMutableList()
+                newList.removeAt(index)
+                onInitialDataChange(initialData.copy(fiefs = newList))
                 selectedElement = null
             },
             selectedElement = selectedElement,
@@ -350,7 +373,8 @@ private fun isPositionOccupied(
     initialData.defenders.any { it.position == position } ||
         initialData.attackers.any { it.position == position } ||
         initialData.traps.any { it.position == position } ||
-        initialData.barricades.any { it.position == position }
+        initialData.barricades.any { it.position == position } ||
+        initialData.fiefs.any { it.position == position }
 
 private fun canPlaceDefender(
     position: Position,
@@ -414,6 +438,38 @@ private fun canPlaceBarricade(
     return !isPositionOccupied(position, initialData)
 }
 
+private fun canPlaceFief(
+    position: Position,
+    fiefType: FiefType,
+    initialData: InitialData,
+    map: EditorMap,
+): Boolean {
+    // Must be valid tile type for fiefs (PATH only)
+    if (!isValidPlacement(position, PlacementMode.FIEF, map)) {
+        return false
+    }
+    if (fiefType == FiefType.FISHER && !hasAdjacentWaterTile(position, map)) {
+        return false
+    }
+    // Must not be occupied by any element
+    return !isPositionOccupied(position, initialData)
+}
+
+private fun hasAdjacentWaterTile(
+    position: Position,
+    map: EditorMap,
+): Boolean =
+    position
+        .getHexNeighbors()
+        .any { neighbor ->
+            if (neighbor.x !in 0 until map.width || neighbor.y !in 0 until map.height) {
+                return@any false
+            }
+            val neighborTileType = map.getTileType(neighbor.x, neighbor.y)
+            neighborTileType == TileType.RIVER ||
+                (neighborTileType == TileType.SPAWN_POINT && map.getSpawnPointType(neighbor) == SpawnPointType.WATER)
+        }
+
 /**
  * Represents a selected element on the map
  */
@@ -436,6 +492,11 @@ sealed class SelectedElement {
     data class Barricade(
         val index: Int,
         val barricade: InitialBarricade,
+    ) : SelectedElement()
+
+    data class Fief(
+        val index: Int,
+        val fief: InitialFief,
     ) : SelectedElement()
 }
 
@@ -461,6 +522,11 @@ private fun findElementAtPosition(
     initialData.barricades.forEachIndexed { index, barricade ->
         if (barricade.position == position) {
             return SelectedElement.Barricade(index, barricade)
+        }
+    }
+    initialData.fiefs.forEachIndexed { index, fief ->
+        if (fief.position == position) {
+            return SelectedElement.Fief(index, fief)
         }
     }
     return null

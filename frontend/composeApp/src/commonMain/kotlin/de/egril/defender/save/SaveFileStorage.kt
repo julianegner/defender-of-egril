@@ -346,6 +346,14 @@ object SaveFileStorage {
                 )
             }
 
+        val fiefs =
+            gameState.fiefs.map { fief ->
+                SavedFief(
+                    position = fief.position,
+                    type = fief.type.name,
+                )
+            }
+
         val spellEffects =
             gameState.activeSpellEffects.map { effect ->
                 SavedSpellEffect(
@@ -381,6 +389,7 @@ object SaveFileStorage {
             rafts = rafts,
             nextRaftId = gameState.nextRaftId.value,
             barricades = barricades,
+            fiefs = fiefs,
             worldMapSave = null, // Don't automatically include world map - only on explicit export
             currentMana = gameState.currentMana.value,
             maxMana = gameState.maxMana.value,
@@ -573,6 +582,20 @@ object SaveFileStorage {
                     defenderId = barricade.defenderId,
                     supportedTowerId = mutableStateOf(barricade.supportedTowerId),
                 )
+            },
+        )
+
+        // Restore fiefs
+        gameState.fiefs.clear()
+        gameState.fiefs.addAll(
+            savedGame.fiefs.mapNotNull { savedFief ->
+                val fiefType =
+                    try {
+                        FiefType.valueOf(savedFief.type)
+                    } catch (e: Exception) {
+                        null
+                    }
+                fiefType?.let { Fief(position = savedFief.position, type = it) }
             },
         )
 

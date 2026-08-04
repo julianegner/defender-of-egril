@@ -4374,6 +4374,7 @@ class GameViewModel {
                         val occupiedByBarricade = gameState.barricades.map { it.position }.toSet()
                         val occupiedByFieldEffect = gameState.fieldEffects.map { it.position }.toSet()
                         val occupiedByTrap = gameState.traps.map { it.position }.toSet()
+                        val occupiedByFief = gameState.fiefs.map { it.position }.toSet()
                         val occupiedByBomb =
                             gameState.activeSpellEffects
                                 .filter { it.spell == SpellType.BOMB && it.position != null }
@@ -4381,7 +4382,7 @@ class GameViewModel {
                                 .toSet()
                         val blocked =
                             occupiedByEnemy + occupiedByBarricade + occupiedByFieldEffect +
-                                occupiedByTrap + occupiedByBomb
+                                occupiedByTrap + occupiedByBomb + occupiedByFief
                         val positions = mutableSetOf<Position>()
                         for (x in 0 until gameState.level.gridWidth) {
                             for (y in 0 until gameState.level.gridHeight) {

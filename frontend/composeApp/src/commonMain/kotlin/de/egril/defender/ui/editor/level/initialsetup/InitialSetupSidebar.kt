@@ -11,6 +11,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.editor.*
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.FiefType
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.hexagon.TowerIconOnHexagon
 import de.egril.defender.ui.icon.PentagramIcon
@@ -53,12 +54,15 @@ fun InitialSetupSidebar(
     onBarricadeNameChange: (String) -> Unit,
     barricadeIsGate: Boolean,
     onBarricadeIsGateChange: (Boolean) -> Unit,
+    selectedFiefType: FiefType,
+    onSelectedFiefTypeChange: (FiefType) -> Unit,
     availableTowers: Set<DefenderType>,
     initialData: InitialData,
     onRemoveDefender: (Int) -> Unit,
     onRemoveAttacker: (Int) -> Unit,
     onRemoveTrap: (Int) -> Unit,
     onRemoveBarricade: (Int) -> Unit,
+    onRemoveFief: (Int) -> Unit,
     selectedElement: SelectedElement?,
     onSelectedElementChange: (SelectedElement?) -> Unit,
 ) {
@@ -188,6 +192,30 @@ fun InitialSetupSidebar(
                 }
             }
 
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Button(
+                        onClick = { onPlacementModeChange(PlacementMode.FIEF) },
+                        modifier = Modifier.weight(1f),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor =
+                                    if (placementMode == PlacementMode.FIEF) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.secondary
+                                    },
+                            ),
+                    ) {
+                        Text(stringResource(Res.string.initial_setup_fiefs))
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+
             // Clear mode button
             item {
                 Button(
@@ -264,6 +292,14 @@ fun InitialSetupSidebar(
                         )
                     }
                 }
+                PlacementMode.FIEF -> {
+                    item {
+                        FiefConfigPanel(
+                            selectedType = selectedFiefType,
+                            onTypeChange = onSelectedFiefTypeChange,
+                        )
+                    }
+                }
                 null -> {
                     // Selection mode - show selected element details
                     if (selectedElement != null) {
@@ -276,6 +312,7 @@ fun InitialSetupSidebar(
                                         is SelectedElement.Attacker -> onRemoveAttacker(selectedElement.index)
                                         is SelectedElement.Trap -> onRemoveTrap(selectedElement.index)
                                         is SelectedElement.Barricade -> onRemoveBarricade(selectedElement.index)
+                                        is SelectedElement.Fief -> onRemoveFief(selectedElement.index)
                                     }
                                 },
                                 onDeselect = { onSelectedElementChange(null) },
@@ -318,6 +355,7 @@ fun InitialSetupSidebar(
                     attackers = initialData.attackers,
                     traps = initialData.traps,
                     barricades = initialData.barricades,
+                    fiefs = initialData.fiefs,
                 )
             }
         }
@@ -676,6 +714,59 @@ fun BarricadeConfigPanel(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FiefConfigPanel(
+    selectedType: FiefType,
+    onTypeChange: (FiefType) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = stringResource(Res.string.fief_configuration),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it },
+        ) {
+            OutlinedTextField(
+                value = selectedType.getLocalizedName(),
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(Res.string.element_type)) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                FiefType.entries.forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text(type.getLocalizedName()) },
+                        onClick = {
+                            onTypeChange(type)
+                            expanded = false
+                        },
+                    )
+                }
+            }
+        }
+
+        Text(
+            text = "${stringResource(Res.string.stat_income)}: +${selectedType.incomePerTurn}",
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
+}
+
 @Composable
 fun SelectedElementPanel(
     selectedElement: SelectedElement,
@@ -810,6 +901,24 @@ fun SelectedElementPanel(
                         }
                     }
                 }
+                is SelectedElement.Fief -> {
+                    Column {
+                        Text(
+                            text = selectedElement.fief.type.getLocalizedName(),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            text = "${stringResource(Res.string.stat_income)}: +${selectedElement.fief.type.incomePerTurn}",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Text(
+                            text = "${stringResource(
+                                Res.string.position_label,
+                            )}: (${selectedElement.fief.position.x}, ${selectedElement.fief.position.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
             }
 
             Row(
@@ -843,6 +952,7 @@ fun PlacedElementsSummary(
     attackers: List<InitialAttacker>,
     traps: List<InitialTrap>,
     barricades: List<InitialBarricade>,
+    fiefs: List<InitialFief>,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -863,5 +973,18 @@ fun PlacedElementsSummary(
             text = "${stringResource(Res.string.barricades)}: ${barricades.size}",
             style = MaterialTheme.typography.bodySmall,
         )
+        Text(
+            text = "${stringResource(Res.string.initial_setup_fiefs)}: ${fiefs.size}",
+            style = MaterialTheme.typography.bodySmall,
+        )
     }
 }
+
+@Composable
+private fun FiefType.getLocalizedName(): String =
+    when (this) {
+        FiefType.FISHER -> stringResource(Res.string.fief_type_fisher)
+        FiefType.WOODCUTTER -> stringResource(Res.string.fief_type_woodcutter)
+        FiefType.QUARRY -> stringResource(Res.string.fief_type_quarry)
+        FiefType.MARKETPLACE -> stringResource(Res.string.fief_type_marketplace)
+    }

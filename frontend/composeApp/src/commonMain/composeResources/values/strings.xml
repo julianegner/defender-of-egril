@@ -685,11 +685,13 @@
 
     <!-- Initial Setup Tab -->
     <string name="initial_setup">Initial Setup</string>
-    <string name="initial_setup_info">Place towers, enemies, traps, and barricades on the map before the level starts (optional)</string>
+    <string name="initial_setup_info">Place towers, enemies, traps, barricades, and fiefs on the map before the level starts (optional)</string>
     <string name="initial_setup_towers">Towers</string>
     <string name="initial_setup_enemies">Enemies</string>
     <string name="initial_setup_traps">Traps</string>
     <string name="initial_setup_barricades">Barricades</string>
+    <string name="initial_setup_fiefs">Fiefs</string>
+    <string name="fief_configuration">Fief Configuration</string>
     <string name="initial_defenders">Initial Towers</string>
     <string name="initial_attackers">Initial Enemies</string>
     <string name="initial_traps">Initial Traps</string>
@@ -2200,4 +2202,9 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_kraken_description">The Kraken is a massive sea monster that can attack barges and sink them and can dive to avoid damage. It is a formidable opponent that requires careful strategy to defeat.</string>
     <string name="villain_kraken_title">The Kraken enters the battlefield</string>
     <string name="villain_kraken_backstory">The Kraken has emerged from the depths of the ocean, threatening all who sail the seas. Its tentacles can crush ships and its presence instills fear in even the bravest sailors.</string>
+
+    <string name="fief_type_fisher">Fisher</string>
+    <string name="fief_type_woodcutter">Woodcutter</string>
+    <string name="fief_type_quarry">Quarry</string>
+    <string name="fief_type_marketplace">Marketplace</string>
 </resources>

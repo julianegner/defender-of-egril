@@ -2,6 +2,7 @@ package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -15,6 +16,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -107,8 +109,10 @@ import de.egril.defender.ui.icon.enemy.enemyAttackPreview
 import de.egril.defender.ui.rememberMapImageState
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 import kotlin.math.abs
 import kotlin.math.atan2
+import kotlin.math.PI
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
@@ -127,6 +131,32 @@ private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
  * fitted (smaller) side. The fly-to-counter coins use this so they match the bubbling coins' size.
  */
 private const val COIN_BUBBLE_COIN_SIZE_FRACTION = 0.14f
+
+private const val HEX_ROW_VERTICAL_SPACING_FACTOR = 0.75f
+
+private fun getFisherRodRotationDegrees(
+    position: Position,
+    level: Level,
+): Float {
+    val waterNeighbor =
+        position
+            .getHexNeighbors()
+            .filter { neighbor ->
+                neighbor.x in 0 until level.gridWidth &&
+                    neighbor.y in 0 until level.gridHeight
+            }.firstOrNull { neighbor ->
+                level.isRiverTile(neighbor)
+            } ?: return 0f
+
+    val sourceX = position.x + if (position.y % 2 == 1) 0.5f else 0f
+    val sourceY = position.y * HEX_ROW_VERTICAL_SPACING_FACTOR
+    val targetX = waterNeighbor.x + if (waterNeighbor.y % 2 == 1) 0.5f else 0f
+    val targetY = waterNeighbor.y * HEX_ROW_VERTICAL_SPACING_FACTOR
+    val dx = targetX - sourceX
+    val dy = targetY - sourceY
+
+    return (atan2(dy, dx) * 180f / PI.toFloat())
+}
 
 // The CW traversal start/end corner index for each edge direction.
 // CW order of edges: NE(1), E(0), SE(5), SW(4), W(3), NW(2).
@@ -1574,6 +1604,9 @@ fun GridCell(
     // Check for barricades at this position
     val barricade = gameState.barricades.find { it.position == position }
 
+    // Check for fiefs at this position
+    val fief = gameState.fiefs.find { it.position == position }
+
     // Check if this tile is in a cooling spell area (show snowflake on affected path tiles)
     val isInCoolingArea =
         isEnemyTraversable &&
@@ -1703,7 +1736,8 @@ fun GridCell(
                 val hasEnemy = attacker != null
                 val hasTrap = trap != null
                 val hasFieldEffect = fieldEffect != null
-                isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect
+                val hasFief = fief != null
+                isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect && !hasFief
             } ?: false
         } else {
             false
@@ -1723,7 +1757,7 @@ fun GridCell(
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= 3
                 // Check if empty path tile (no defender, no attacker, can have existing barricade for reinforcement)
-                val isEmptyPath = isOnPath && defender == null && attacker == null
+                val isEmptyPath = isOnPath && defender == null && attacker == null && fief == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -1740,7 +1774,7 @@ fun GridCell(
             selectedDefender?.let { sel ->
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
+                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -1754,7 +1788,7 @@ fun GridCell(
             selectedDefender?.let { sel ->
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
+                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -2176,6 +2210,7 @@ fun GridCell(
                 fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
+                fief = fief,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -2248,6 +2283,7 @@ fun GridCell(
                 fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
+                fief = fief,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -2318,6 +2354,7 @@ private fun BoxScope.GridCellContent(
     fieldEffect: FieldEffect?,
     trap: Trap?,
     barricade: Barricade?,
+    fief: de.egril.defender.model.Fief? = null,
     isSpawnPoint: Boolean,
     isTarget: Boolean,
     isRiverTile: Boolean,
@@ -2752,6 +2789,85 @@ private fun BoxScope.GridCellContent(
                         )
                     }
                 }
+            }
+        }
+
+        fief != null -> {
+            // Show fief image, type name, and coin income
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                val fiefName =
+                    when (fief.type) {
+                        de.egril.defender.model.FiefType.FISHER -> stringResource(Res.string.fief_type_fisher)
+                        de.egril.defender.model.FiefType.WOODCUTTER -> stringResource(Res.string.fief_type_woodcutter)
+                        de.egril.defender.model.FiefType.QUARRY -> stringResource(Res.string.fief_type_quarry)
+                        de.egril.defender.model.FiefType.MARKETPLACE -> stringResource(Res.string.fief_type_marketplace)
+                    }
+
+                when (fief.type) {
+                    de.egril.defender.model.FiefType.FISHER -> {
+                        val rodRotation = getFisherRodRotationDegrees(position, gameState.level)
+                        Box(
+                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Image(
+                                painter = painterResource(Res.drawable.fief_fisher_hut),
+                                contentDescription = fiefName,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                            Image(
+                                painter = painterResource(Res.drawable.fief_fishing_rod),
+                                contentDescription = null,
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .graphicsLayer(
+                                            rotationZ = rodRotation,
+                                            transformOrigin = TransformOrigin(0.38f, 0.56f),
+                                        ),
+                            )
+                        }
+                    }
+                    de.egril.defender.model.FiefType.WOODCUTTER -> {
+                        Image(
+                            painter = painterResource(Res.drawable.fief_woodcutter),
+                            contentDescription = fiefName,
+                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
+                        )
+                    }
+                    de.egril.defender.model.FiefType.QUARRY -> {
+                        Image(
+                            painter = painterResource(Res.drawable.fief_quarry),
+                            contentDescription = fiefName,
+                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
+                        )
+                    }
+                    de.egril.defender.model.FiefType.MARKETPLACE -> {
+                        Image(
+                            painter = painterResource(Res.drawable.fief_marketplace),
+                            contentDescription = fiefName,
+                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
+                        )
+                    }
+                }
+                Text(
+                    fiefName,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.offset(y = (-3).dp),
+                )
+                Text(
+                    "+${fief.type.incomePerTurn}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = GamePlayColors.Yellow,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.offset(y = (-3).dp),
+                )
             }
         }
 

@@ -105,7 +105,8 @@ class BarricadeSystem(
             state.defenders.any { defender ->
                 defender.position.value == barricadePosition && defender.towerBaseBarricadeId.value == null
             }
-        if (hasAttacker || hasDefenderNotOnTowerBase) return false
+        val hasFief = state.fiefs.any { it.position == barricadePosition }
+        if (hasAttacker || hasDefenderNotOnTowerBase || hasFief) return false
 
         // Calculate HP to add
         val hpToAdd = calculateBarricadeHP(tower)

@@ -525,6 +525,13 @@ class CombatSystem(
             }
         }
 
+        // Destroy fiefs in affected positions (fireball destroys fiefs)
+        affectedPositions.forEach { pos ->
+            if (pos !in blockedPositions) {
+                state.fiefs.removeAll { it.position == pos }
+            }
+        }
+
         // Add new fireball effects (visual only, last for 1 turn to show affected area)
         for (pos in affectedPositions) {
             if (pos in blockedPositions) continue
@@ -608,6 +615,13 @@ class CombatSystem(
         // Acid dissolves spider webs on the targeted tiles.
         state.fieldEffects.removeAll {
             it.type == FieldEffectType.WEB && it.position in affectedPositions
+        }
+
+        // Acid destroys fiefs on the targeted tiles
+        affectedPositions.forEach { pos ->
+            if (pos !in blockedPositions) {
+                state.fiefs.removeAll { it.position == pos }
+            }
         }
 
         // Get all positions with active fireball effects (fire burns away acid)

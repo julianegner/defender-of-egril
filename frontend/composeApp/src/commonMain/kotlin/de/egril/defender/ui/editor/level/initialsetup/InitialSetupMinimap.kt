@@ -19,7 +19,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.InitialData
 import de.egril.defender.editor.TileType
+import de.egril.defender.model.FiefType
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnPointType
+import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.settings.AppSettings
 import kotlin.math.PI
 import kotlin.math.cos
@@ -36,6 +39,7 @@ enum class PlacementMode {
     ATTACKER, // Enemies: PATH or SPAWN_POINT
     TRAP, // Traps: PATH
     BARRICADE, // Barricades: PATH
+    FIEF, // Fiefs: PATH
 }
 
 /**
@@ -52,8 +56,24 @@ fun isValidPlacement(
         PlacementMode.ATTACKER -> tileType == TileType.PATH || tileType == TileType.SPAWN_POINT
         PlacementMode.TRAP -> tileType == TileType.PATH
         PlacementMode.BARRICADE -> tileType == TileType.PATH
+        PlacementMode.FIEF -> tileType == TileType.PATH
     }
 }
+
+private fun hasAdjacentWaterTile(
+    position: Position,
+    map: EditorMap,
+): Boolean =
+    position
+        .getHexNeighbors()
+        .any { neighbor ->
+            if (neighbor.x !in 0 until map.width || neighbor.y !in 0 until map.height) {
+                return@any false
+            }
+            val neighborTileType = map.getTileType(neighbor.x, neighbor.y)
+            neighborTileType == TileType.RIVER ||
+                (neighborTileType == TileType.SPAWN_POINT && map.getSpawnPointType(neighbor) == SpawnPointType.WATER)
+        }
 
 /**
  * Data class to hold hexagon geometry calculations
@@ -106,6 +126,7 @@ private fun calculateHexGeometry(
 fun InitialSetupMinimap(
     map: EditorMap,
     placementMode: PlacementMode?,
+    selectedFiefType: FiefType? = null,
     initialData: InitialData = InitialData.EMPTY,
     selectedElement: de.egril.defender.ui.editor.level.initialsetup.SelectedElement? = null,
     onTileClick: (Position) -> Unit = {},
@@ -203,6 +224,7 @@ fun InitialSetupMinimap(
                 val hasAttacker = initialData.attackers.any { it.position == pos }
                 val hasTrap = initialData.traps.any { it.position == pos }
                 val hasBarricade = initialData.barricades.any { it.position == pos }
+                val hasFief = initialData.fiefs.any { it.position == pos }
                 val barricadeAtPos = initialData.barricades.find { it.position == pos }
                 val isTowerBase = barricadeAtPos?.canSupportTower() == true
 
@@ -210,6 +232,15 @@ fun InitialSetupMinimap(
                     when (placementMode) {
                         PlacementMode.DEFENDER ->
                             isValidPlacement(pos, placementMode, map) || (isTowerBase && !hasDefender)
+                        PlacementMode.FIEF -> {
+                            val isPath = isValidPlacement(pos, placementMode, map)
+                            val isFisher = selectedFiefType == FiefType.FISHER
+                            if (isPath && isFisher) {
+                                hasAdjacentWaterTile(pos, map)
+                            } else {
+                                isPath
+                            }
+                        }
                         else -> placementMode?.let { isValidPlacement(pos, it, map) } ?: false
                     }
                 val isHovered = pos == hoveredPosition
@@ -225,19 +256,20 @@ fun InitialSetupMinimap(
                         is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Barricade ->
                             selectedElement.barricade.position ==
                                 pos
+                        is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Fief -> selectedElement.fief.position == pos
                         null -> false
                     }
 
                 // Validation checks for placement conflicts
                 // Rule: Only one element (tower, trap, barricade, OR unit) is possible on a tile,
                 //       except towers can be placed on top of barricades that support towers (HP >= 100)
-                val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade
+                val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade || hasFief
                 val hasConflict =
                     when (placementMode) {
                         PlacementMode.DEFENDER ->
                             // Allow tower on tower base as long as no tower is already there
                             if (isTowerBase && !hasDefender) false else hasAnyElement
-                        PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE -> hasAnyElement
+                        PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE, PlacementMode.FIEF -> hasAnyElement
                         else -> false
                     }
 
@@ -319,6 +351,19 @@ fun InitialSetupMinimap(
                 color = Color(0xFF8D6E63),
                 topLeft = Offset(centerX - iconSize / 2, centerY - iconSize / 2),
                 size = Size(iconSize, iconSize),
+            )
+        }
+
+        // Draw fiefs
+        initialData.fiefs.forEach { fief ->
+            val offsetXHex = if (fief.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+            val centerX = geometry.offsetXCanvas + fief.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
+            val centerY = geometry.offsetYCanvas + fief.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
+
+            drawCircle(
+                color = Color(0xFF4CAF50),
+                radius = iconSize / 2,
+                center = Offset(centerX, centerY),
             )
         }
     }

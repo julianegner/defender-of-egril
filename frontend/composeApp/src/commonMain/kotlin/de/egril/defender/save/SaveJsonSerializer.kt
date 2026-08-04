@@ -144,6 +144,11 @@ object SaveJsonSerializer {
     }"""
             }
 
+        val fiefsJson =
+            savedGame.fiefs.joinToString(",\n    ") { fief ->
+                """{"position": {"x": ${fief.position.x}, "y": ${fief.position.y}}, "type": "${fief.type}"}"""
+            }
+
         val spellEffectsJson =
             savedGame.spellEffects.joinToString(",\n    ") { effect ->
                 val posStr = effect.position?.let { """{"x": ${it.x}, "y": ${it.y}}""" } ?: "null"
@@ -260,6 +265,9 @@ object SaveJsonSerializer {
   "nextRaftId": ${savedGame.nextRaftId},
   "barricades": [
     $barricadesJson
+  ],
+  "fiefs": [
+    $fiefsJson
   ],
   "spellEffects": [
     $spellEffectsJson
@@ -415,6 +423,27 @@ object SaveJsonSerializer {
                     val barricadeEntries = JsonUtils.splitJsonArray(barricadesSection)
                     for (entry in barricadeEntries) {
                         barricades.add(parseSavedBarricade(entry))
+                    }
+                }
+            }
+
+            // Parse fiefs (optional field for backward compatibility with old saves)
+            val fiefs = mutableListOf<SavedFief>()
+            if (dataJson.contains("\"fiefs\":")) {
+                val fiefsSection =
+                    try {
+                        dataJson.substringAfter("\"fiefs\": [").substringBefore("],")
+                    } catch (e: Exception) {
+                        ""
+                    }
+                if (fiefsSection.isNotBlank()) {
+                    val fiefEntries = JsonUtils.splitJsonArray(fiefsSection)
+                    for (entry in fiefEntries) {
+                        val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                        val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                        val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                        val type = JsonUtils.extractValue(entry, "type")
+                        fiefs.add(SavedFief(Position(x, y), type))
                     }
                 }
             }
@@ -611,6 +640,7 @@ object SaveJsonSerializer {
                 rafts = rafts,
                 nextRaftId = nextRaftId,
                 barricades = barricades,
+                fiefs = fiefs,
                 worldMapSave = worldMapSave,
                 currentMana =
                     try {
