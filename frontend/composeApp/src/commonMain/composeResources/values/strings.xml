@@ -2211,7 +2211,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="goblin_description">Fast and nimble, goblins are the weakest enemies but move quickly. Use area attacks to handle multiple goblins at once.</string>
     <string name="ork_description">Muscular and tough, Orks are the standard Horde infantry. They move slower than goblins but pack more health and damage.</string>
     <string name="ogre_description">Massive and powerful, Ogres are formidable enemies with high health. Despite their size, they can be extremely dangerous in groups.</string>
-    <string name="troll_description">A creature of stone immune to blade attacks — melee and ranged towers deal no damage. Only fire and acid can harm it. The Troll moves every other turn and tramples smaller enemies. It destroys barricades rapidly with 10× damage.</string>
+    <string name="troll_description">A creature of stone immune to blade attacks — melee and ranged towers deal no damage. Only fire and acid can harm it. The Troll moves every other turn and tramples smaller enemies. It destroys barricades with tremendous force.</string>
     <string name="skeleton_description">Undead and fast-moving, skeletons are nimble warriors that quickly close the distance. Their undead nature makes them resilient to certain attacks.</string>
     <string name="zombie_description">Shambling undead reanimated by dark magic. Slower than skeletons but still dangerous in numbers, especially when healed by Green Witches.</string>
     <string name="evil_wizard_description">A magic user who channels destructive spells from the air. Defeat them quickly before they rain fire upon your defenses.</string>
