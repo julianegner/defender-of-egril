@@ -341,7 +341,8 @@ class EnemyMovementSystem(
             state.rafts
                 .filter { it.isActive }
                 .minByOrNull { it.currentPosition.value.hexDistanceTo(startPos) }
-                ?.currentPosition?.value
+                ?.currentPosition
+                ?.value
                 ?: return emptyList() // No barges – stay put
 
         val path = pathfinding.findPath(startPos, target, kraken)

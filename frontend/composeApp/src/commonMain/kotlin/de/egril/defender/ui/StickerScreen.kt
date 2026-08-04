@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -18,7 +19,6 @@ import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import de.egril.defender.model.isRealVillain
 import de.egril.defender.ui.common.ScrollableTabRowWithHints
 import de.egril.defender.ui.feedback.FeedbackButton
@@ -183,7 +183,7 @@ private fun SymbolTab.label(): String =
     when (this) {
         is SymbolTab.BannerEnemies -> stringResource(Res.string.sticker_tab_enemies)
         is SymbolTab.BannerTowers -> stringResource(Res.string.sticker_tab_towers)
-        is SymbolTab.VillainsGroup -> stringResource(Res.string.sticker_tab_villains)  // ← add this line
+        is SymbolTab.VillainsGroup -> stringResource(Res.string.sticker_tab_villains)
         is SymbolTab.SingleEnemy -> type.getLocalizedName()
     }
 

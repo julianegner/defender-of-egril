@@ -70,8 +70,9 @@ data class EditorMap(
      * Returns the type of a spawn point at [position].
      * Defaults to LAND when no explicit metadata exists (backward compatible).
      */
-    fun getSpawnPointType(position: Position): SpawnPointType =
-        spawnPointInfoMap["${position.x},${position.y}"] ?: SpawnPointType.LAND
+    fun getSpawnPointType(position: Position): SpawnPointType {
+        return spawnPointInfoMap["${position.x},${position.y}"] ?: SpawnPointType.LAND
+    }
 
     /**
      * Returns spawn points compatible with [attackerType] based on LAND/WATER flags.

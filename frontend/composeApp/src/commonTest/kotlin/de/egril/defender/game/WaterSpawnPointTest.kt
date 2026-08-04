@@ -1,13 +1,13 @@
 package de.egril.defender.game
 
+import androidx.compose.runtime.mutableStateOf
+import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Level
 import de.egril.defender.model.PlannedEnemySpawn
 import de.egril.defender.model.Position
 import de.egril.defender.model.SpawnPointType
-import de.egril.defender.model.Attacker
-import androidx.compose.runtime.mutableStateOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -22,7 +22,6 @@ import kotlin.test.assertTrue
  * - The Kraken is water-only; Cap'n Roderich can use both; all other enemies are land-only.
  */
 class WaterSpawnPointTest {
-
     // ─── AttackerType flag sanity checks ────────────────────────────────────────
 
     @Test
@@ -62,8 +61,9 @@ class WaterSpawnPointTest {
     private val waterSpawn = Position(0, 2)
 
     private fun levelWithBothSpawnTypes(): Level {
-        val pathCells = (0..5).map { x -> Position(x, 0) }.toSet() +
-            (0..5).map { x -> Position(x, 2) }.toSet()
+        val pathCells =
+            (0..5).map { x -> Position(x, 0) }.toSet() +
+                (0..5).map { x -> Position(x, 2) }.toSet()
         return Level(
             id = 1,
             name = "Mixed Spawn Test",
@@ -143,7 +143,10 @@ class WaterSpawnPointTest {
         engine.startFirstPlayerTurn()
 
         assertEquals(1, state.attackers.size)
-        val krakenPos = state.attackers.first().position.value
+        val krakenPos = state.attackers
+            .first()
+            .position
+            .value
         assertEquals(waterSpawn, krakenPos, "Kraken must have spawned at the water spawn point")
     }
 
@@ -158,7 +161,10 @@ class WaterSpawnPointTest {
         engine.startFirstPlayerTurn()
 
         assertEquals(1, state.attackers.size)
-        val orkPos = state.attackers.first().position.value
+        val orkPos = state.attackers
+            .first()
+            .position
+            .value
         assertEquals(landSpawn, orkPos, "Ork must have spawned at the land spawn point")
     }
 
@@ -218,7 +224,14 @@ class WaterSpawnPointTest {
         engine.startFirstPlayerTurn()
 
         assertEquals(1, state.attackers.size, "Roderich should spawn")
-        assertEquals(waterSpawn, state.attackers.first().position.value, "Roderich should spawn at the fixed water spawn point")
+        assertEquals(
+            waterSpawn,
+            state.attackers
+                .first()
+                .position
+                .value,
+            "Roderich should spawn at the fixed water spawn point"
+        )
     }
 
     @Test

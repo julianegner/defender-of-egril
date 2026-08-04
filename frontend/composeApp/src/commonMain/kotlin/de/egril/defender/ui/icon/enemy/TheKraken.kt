@@ -112,19 +112,28 @@ fun DrawScope.drawKrakenSymbol(
             Path().apply {
                 moveTo(centerX, headCenterY - size * 0.52f) // Crown / apex
                 cubicTo(
-                    centerX + size * 0.30f, headCenterY - size * 0.52f,
-                    centerX + size * 0.38f, headCenterY - size * 0.10f,
-                    centerX + size * 0.32f, headCenterY + size * 0.18f, // Lower right
+                    centerX + size * 0.30f,
+                    headCenterY - size * 0.52f,
+                    centerX + size * 0.38f,
+                    headCenterY - size * 0.10f,
+                    centerX + size * 0.32f,
+                    headCenterY + size * 0.18f, // Lower right
                 )
                 cubicTo(
-                    centerX + size * 0.24f, headCenterY + size * 0.30f,
-                    centerX - size * 0.24f, headCenterY + size * 0.30f,
-                    centerX - size * 0.32f, headCenterY + size * 0.18f, // Lower left
+                    centerX + size * 0.24f,
+                    headCenterY + size * 0.30f,
+                    centerX - size * 0.24f,
+                    headCenterY + size * 0.30f,
+                    centerX - size * 0.32f,
+                    headCenterY + size * 0.18f, // Lower left
                 )
                 cubicTo(
-                    centerX - size * 0.38f, headCenterY - size * 0.10f,
-                    centerX - size * 0.30f, headCenterY - size * 0.52f,
-                    centerX, headCenterY - size * 0.52f,
+                    centerX - size * 0.38f,
+                    headCenterY - size * 0.10f,
+                    centerX - size * 0.30f,
+                    headCenterY - size * 0.52f,
+                    centerX,
+                    headCenterY - size * 0.52f,
                 )
                 close()
             }

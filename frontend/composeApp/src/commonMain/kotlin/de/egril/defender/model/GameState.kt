@@ -452,9 +452,10 @@ data class GameState(
         if (level.isSandbox) return false
         // Check if all planned spawns have occurred and all enemies are defeated
         val allSpawned = spawnPlan.all { it.spawnTurn <= turnNumber.value }
-        return allSpawned && attackers
-            .filter { it.type != AttackerType.THE_KRAKEN }
-            .all { it.isDefeated.value }
+        return allSpawned &&
+            attackers
+                .filter { it.type != AttackerType.THE_KRAKEN }
+                .all { it.isDefeated.value }
     }
 
     fun isLevelLost(): Boolean {
@@ -514,11 +515,13 @@ data class GameState(
         // regardless of remaining health, so a guaranteed win can never be offered while one remains.
         if (aliveEnemies
                 .filter { it.type != AttackerType.THE_KRAKEN }
-                .any { it.type.isRealVillain }
-            || enemiesToSpawn
+                .any { it.type.isRealVillain } ||
+            enemiesToSpawn
                 .filter { it.attackerType != AttackerType.THE_KRAKEN }
                 .any { it.attackerType.isRealVillain }
-            ) return false
+        ) {
+            return false
+        }
 
         return getRemainingEnemyThreat() < healthPoints.value.toLong()
     }
