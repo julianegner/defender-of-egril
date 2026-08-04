@@ -328,6 +328,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, s * 1.05f, outlineColor)
+                            AttackerType.GHOST -> drawGhostSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.SNOTLING -> drawGoblinSymbol(centerX, centerY, s * 0.5f, outlineColor)

@@ -93,6 +93,9 @@ enum class AttackerType(
     // Floating movement: can pass over any tile type during movement but must end turn on a path
     // tile. Used by Archmage Malakor the Renegade.
     val canFlyOverTerrain: Boolean = false,
+    // Ethereal resistance: immune to all tower attacks except direct magic (wizard fireball).
+    // Player-cast spells still affect the unit normally. Used by Ghost.
+    val immuneToNonMagicTowerDamage: Boolean = false,
     // Shadow resistance: immune to all non-magical attacks (MELEE and RANGED). Only magical attacks
     // (AREA/fireball and mana spells) can pierce this dark shroud. Used by Xarithon the Shadow Dragon.
     val immuneToNonMagical: Boolean = false,
@@ -146,6 +149,17 @@ enum class AttackerType(
     EVIL_WIZARD("Evil Wizard", health = 30, speed = 2, reward = 15, xp = 9, canBuildBridge = true),
     BLUE_DEMON("Blue Demon", health = 15, speed = 6, reward = 10, xp = 6, immuneToAcid = true),
     RED_DEMON("Red Demon", health = 60, speed = 1, reward = 15, xp = 9, immuneToFireball = true),
+    GHOST(
+        "Ghost",
+        health = 20,
+        speed = 3,
+        reward = 10,
+        xp = 6,
+        canFlyOverTerrain = true,
+        immuneToAcid = true,
+        immuneToNonMagicTowerDamage = true,
+        faction = EnemyFaction.UNDEAD,
+    ),
     RED_WITCH("Red Witch", health = 30, speed = 5, reward = 18, xp = 11, canDisableTowers = true),
     GREEN_WITCH("Green Witch", health = 25, speed = 5, reward = 15, xp = 9, canHeal = true),
 
@@ -711,6 +725,7 @@ fun AttackerType.isSpecialEnemy(): Boolean =
         this == AttackerType.ZOMBIE ||
         this == AttackerType.BLUE_DEMON ||
         this == AttackerType.RED_DEMON ||
+        this == AttackerType.GHOST ||
         this == AttackerType.DRAGON ||
         this == AttackerType.UNDEAD_DRAGON ||
         this == AttackerType.SILAS_MIRROR_IMAGE ||
@@ -741,11 +756,15 @@ fun AttackerType.getSoulCallResurrectionType(): AttackerType? =
  * Used for attack-damage previews shown when a defender is selected.
  */
 fun Attacker.isImmuneToAttackFrom(defenderType: DefenderType): Boolean =
-    when (defenderType.attackType) {
-        AttackType.AREA -> type.immuneToFireball
-        AttackType.LASTING -> type.immuneToAcid
-        AttackType.MELEE, AttackType.RANGED -> type.immuneToNonMagical
-        else -> false
+    when {
+        type.immuneToNonMagicTowerDamage && defenderType.attackType != AttackType.AREA -> true
+        else ->
+            when (defenderType.attackType) {
+                AttackType.AREA -> type.immuneToFireball
+                AttackType.LASTING -> type.immuneToAcid
+                AttackType.MELEE, AttackType.RANGED -> type.immuneToNonMagical
+                else -> false
+            }
     }
 
 /**

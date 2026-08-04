@@ -261,6 +261,7 @@
     <string name="witch_name">Witch</string>
     <string name="blue_demon_name">Blue Demon</string>
     <string name="red_demon_name">Red Demon</string>
+    <string name="ghost_name">Ghost</string>
     <string name="red_witch_name">Red Witch</string>
     <string name="green_witch_name">Green Witch</string>
     <string name="snotling_name">Snotling</string>
@@ -502,6 +503,8 @@
     <string name="can_disable_towers">Can disable towers</string>
     <string name="disabled">Disabled</string>
     <string name="immune_to_acid">Immune to acid</string>
+    <string name="can_only_be_harmed_by_magical_attacks">Can only be harmed by magical attacks</string>
+    <string name="ghost_movement_short">Ethereal: moves through barricades, but must end on an empty tile</string>
     <string name="immune_to_fireball">Immune to fireball</string>
     <string name="villain_freya_shield_wall_short">Shield Wall blocks frontal attacks</string>
 

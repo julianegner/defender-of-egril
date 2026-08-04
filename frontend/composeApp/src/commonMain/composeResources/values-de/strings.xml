@@ -258,6 +258,7 @@
     <string name="witch_name">Hexe</string>
     <string name="blue_demon_name">Blauer Dämon</string>
     <string name="red_demon_name">Roter Dämon</string>
+    <string name="ghost_name">Geist</string>
     <string name="red_witch_name">Rote Hexe</string>
     <string name="green_witch_name">Grüne Hexe</string>
     <string name="snotling_name">Snotling</string>
@@ -493,6 +494,8 @@
     <string name="can_disable_towers">Kann Türme deaktivieren</string>
     <string name="disabled">Deaktiviert</string>
     <string name="immune_to_acid">Immun gegen Säure</string>
+    <string name="can_only_be_harmed_by_magical_attacks">Kann nur durch magische Angriffe verletzt werden</string>
+    <string name="ghost_movement_short">Ätherisch: bewegt sich durch Barrikaden, muss aber auf einem leeren Feld enden</string>
     <string name="immune_to_fireball">Immun gegen Feuerball</string>
     <string name="villain_freya_shield_wall_short">Schildmauer blockt Frontalangriffe</string>
 

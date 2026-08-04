@@ -418,7 +418,22 @@ fun AttackerInfo(
                             ),
                         )
                     }
-                    if (attacker.type.immuneToAcid) {
+                    if (attacker.type == AttackerType.GHOST) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.can_only_be_harmed_by_magical_attacks),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.ghost_movement_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    } else if (attacker.type.immuneToAcid) {
                         infoEntries.add(
                             AttackerInfoEntry(
                                 icon = AttackerInfoEntryIcon.SHIELD,

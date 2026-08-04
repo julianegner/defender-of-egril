@@ -63,6 +63,15 @@ class AttackDamagePreviewTest {
     }
 
     @Test
+    fun ghostIsOnlyVulnerableToWizardTower() {
+        val ghost = attacker(AttackerType.GHOST)
+        assertTrue(ghost.isImmuneToAttackFrom(DefenderType.SPIKE_TOWER))
+        assertTrue(ghost.isImmuneToAttackFrom(DefenderType.BOW_TOWER))
+        assertTrue(ghost.isImmuneToAttackFrom(DefenderType.ALCHEMY_TOWER))
+        assertFalse(ghost.isImmuneToAttackFrom(DefenderType.WIZARD_TOWER))
+    }
+
+    @Test
     fun regularEnemyNotImmune() {
         val goblin = attacker(AttackerType.GOBLIN)
         assertFalse(goblin.isImmuneToAttackFrom(DefenderType.WIZARD_TOWER))
