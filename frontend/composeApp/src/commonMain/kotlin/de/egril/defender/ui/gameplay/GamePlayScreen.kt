@@ -279,6 +279,8 @@ private fun GamePlayScreenContent(
     var trapToRemove by remember { mutableStateOf<Position?>(null) }
 
     var highlightEndTurnButton by remember { mutableStateOf(false) }
+    var splitSelectorToggle by remember { mutableStateOf(0) }
+    var splitSelectorExpanded by remember { mutableStateOf(false) }
     var tabScrollPosition by remember { mutableStateOf<Position?>(null) } // Tab-triggered scroll-to-tower
     var keyboardSelectedBuildTile by remember { mutableStateOf<Position?>(null) }
     // Position of the keyboard cursor while placing a support object or targeting a spell on the map.
@@ -932,6 +934,16 @@ private fun GamePlayScreenContent(
                         }
                         true
                     }
+                    // B: Toggle split tower selector dropdown (only when split build button is active)
+                    event.type == KeyEventType.KeyDown &&
+                        event.key == Key.B &&
+                        !event.isCtrlPressed &&
+                        !event.isAltPressed &&
+                        gameState.level.splitBuildTowerButton &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                        splitSelectorToggle++
+                        true
+                    }
                     // Spell menu keyboard mode: Tab/Shift+Tab navigates spells
                     event.type == KeyEventType.KeyDown &&
                         showMagicPanel &&
@@ -1422,12 +1434,12 @@ private fun GamePlayScreenContent(
                         // Always consume the key so it never falls through to tower placement / attack.
                         true
                     }
-                    // 1-8: Select defender type by index (only when NOT in tower-selected mode)
+                    // 1-8: Select defender type by index.
+                    // Keys 1-2 are intentionally always enabled for tower-type selection as well.
                     event.type == KeyEventType.KeyDown &&
                         event.key in setOf(Key.One, Key.Two, Key.Three, Key.Four, Key.Five, Key.Six, Key.Seven, Key.Eight) &&
                         !event.isCtrlPressed &&
                         !event.isAltPressed &&
-                        selectedDefenderId == null &&
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) &&
                         !showMagicPanel -> {
                         val digit =
@@ -1468,6 +1480,7 @@ private fun GamePlayScreenContent(
                         !event.isCtrlPressed &&
                         !event.isAltPressed &&
                         selectedDefenderId != null &&
+                        !splitSelectorExpanded &&
                         gameState.phase.value == GamePhase.PLAYER_TURN -> {
                         val defender = gameState.defenders.find { it.id == selectedDefenderId }
                         if (defender != null && defender.isReady && defender.actionsRemaining.value > 0) {
@@ -1519,6 +1532,7 @@ private fun GamePlayScreenContent(
                         !event.isCtrlPressed &&
                         !event.isAltPressed &&
                         selectedDefenderId != null &&
+                        !splitSelectorExpanded &&
                         gameState.phase.value == GamePhase.PLAYER_TURN -> {
                         val defender = gameState.defenders.find { it.id == selectedDefenderId }
                         if (defender != null && defender.isReady && defender.actionsRemaining.value > 0) {
@@ -2762,6 +2776,8 @@ private fun GamePlayScreenContent(
                                             onShowDragonInfo = {
                                                 gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
                                             },
+                                            splitSelectorToggle = splitSelectorToggle,
+                                            onSplitSelectorExpandedChanged = { splitSelectorExpanded = it },
                                         )
                                     }
 
@@ -2866,6 +2882,8 @@ private fun GamePlayScreenContent(
                                                 gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
                                             },
                                             highlightEndTurnButton = highlightEndTurnButton,
+                                            splitSelectorToggle = splitSelectorToggle,
+                                            onSplitSelectorExpandedChanged = { splitSelectorExpanded = it },
                                         )
                                     }
 

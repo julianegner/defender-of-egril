@@ -559,6 +559,10 @@
     <string name="gameplay_music_volume">Gameplay-Musiklautstärke</string>
     <string name="show_detailed_sound_settings">Detaillierte Soundeinstellungen anzeigen</string>
     <string name="hide_detailed_sound_settings">Detaillierte Soundeinstellungen ausblenden</string>
+    <string name="sound_preview_play_effect">Effekt abspielen</string>
+    <string name="sound_preview_play_music">Musik abspielen</string>
+    <string name="sound_preview_stop_music">Musik stoppen</string>
+    <string name="start_gameplay_background_music">Gameplay-Hintergrundmusik starten</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Steuerung</string>
@@ -1166,6 +1170,7 @@
     <string name="sandbox_spawn_point_auto">Automatisch (erster freier Startpunkt)</string>
     <string name="allow_auto_attack">Auto-Angriff erlauben</string>
     <string name="connected_to_previous_level">Mit vorherigem Level verbinden</string>
+    <string name="split_build_tower_button">Geteilter Turmbau-Button</string>
     <string name="auto_attack_info_title">Auto-Angriff-Funktion</string>
     <string name="auto_attack_info_message">Sie können nun die Auto-Angriff-Funktion verwenden. Wenn Sie "Zug beenden" wählen und noch verwendbare Aktionspunkte übrig sind, bietet der Dialog die Option "Auto-Angriff und Zug beenden". Dann greifen Türme mit verbleibenden Aktionspunkten automatisch Feinde an. Greift Feinde nach Priorität an (zuerst Bosse, dann spezielle Feinde). Wenn noch Aktionen übrig sind (Minen, Fallen, Säureangriffe ohne Feind in Reichweite), erhalten Sie eine Nachricht, welche Art von Aktion noch verwendbar ist, andernfalls endet der Zug.</string>
 
@@ -2138,6 +2143,11 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="daily_hint_aoe_message">Magiertürme verursachen Flächenschaden. Platziere sie dort, wo sich Gegner ballen — nahe Spawnpunkten oder hinter Barrikaden — um mehrere Ziele gleichzeitig zu treffen.</string>
     <string name="daily_hint_min_range_message">Die Ballista hat eine Mindestreichweite von 3 — sie kann Gegner direkt neben sich nicht treffen. Kombiniere sie mit Nahkampftürmen (Pike, Speer), um die Lücke zu schließen.</string>
     <string name="daily_hint_immunities_message">Manche Gegner sind gegen bestimmte Angriffe immun: Rote Dämonen widerstehen Feuerbällen, Blaue Dämonen sind säureresistent. Beobachte die nächste Welle und baue verschiedene Turmtypen.</string>
+
+    <string name="villains_announcement_content_description">Ankündigung für kommendes Schurken-Feature</string>
+    <string name="villains_announcement_coming_soon">Demnächst: Version 1.1: Villains</string>
+    <string name="villains_announcement_page_title">Vorschau: Die ersten Villains betreten das Schlachtfeld!</string>
+    <string name="villains_announcement_page_text">Mach dich bereit für eine neue Herausforderung! Mit dem kommenden Update halten **Villains** Einzug in Defender of Egril.\n\n### Was sind Villains?\n\nVillains sind mächtige Boss-Gegner, die an der Spitze der gegnerischen Wellen auftauchen. Sie sind deutlich zäher als normale Feinde und besitzen einzigartige Fähigkeiten, die deine Verteidigung auf die Probe stellen: Sie betäuben Türme, rufen Verstärkung oder schützen nachfolgende Truppen. Um sie zu besiegen, reicht reine Feuerkraft nicht aus – du musst deine Strategie anpassen!\n\n---\n\n### Erste Einblicke: Diese Schurken erwarten dich zu Beginn\n\n* **Baron Ratterzahn (Goblin-Erfinder):** Ein wahnsinniger Erfinder auf einer mächtigen Spinnenmaschine. Er wirft Wrackteile ab, aus denen Roboter-Goblins entstehen, und setzt deine Türme mit gezielten Raketen außer Gefecht.\n* **Die Gefallene Schildmaid Freya (Todesritterin):** Eine einst unbesiegbare Kriegerin. Mit ihrem magischen Schildwall fängt sie frontal eingehenden Turmschaden für sich und nachfolgende Einheiten ab.\n* **Fürst Valerius der Seelenernter (Skelett-Herrscher):** Ein uralter Lich und Herrscher der Untoten. Solange er auf dem Feld steht, verwandelt er jeden besiegten Gegner in seiner Nähe in einen Untoten.\n* **Käpt\'n Roderich (Der Freibeuter):** Taucht auf Karten mit Wasserwegen auf und nimmt gezielt deine Flöße unter Beschuss. Besiegst du ihn, bekommst du seinen Piratenschatz!\n\n*Mach deine Türme bereit – bald musst du zeigen, ob deine Verteidigung den ersten mächtigen Schurken gewachsen ist!*</string>
 
     <string name="spiderling_name">Spinnling</string>
     <string name="spiderlings_name">Spinnlinge</string>

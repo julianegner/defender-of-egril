@@ -2291,11 +2291,13 @@
           "selected": true,
           "text": [
             "c6dfa6c3-5d26-4328-b4f1-5a50e77132eb",
-            "473b8eff-6a8c-4c31-ac28-3aa26b10cd6b"
+            "473b8eff-6a8c-4c31-ac28-3aa26b10cd6b",
+            "f91f288f-e63e-43b5-b6f0-759429c29895"
           ],
           "value": [
             "c6dfa6c3-5d26-4328-b4f1-5a50e77132eb",
-            "473b8eff-6a8c-4c31-ac28-3aa26b10cd6b"
+            "473b8eff-6a8c-4c31-ac28-3aa26b10cd6b",
+            "f91f288f-e63e-43b5-b6f0-759429c29895"
           ]
         },
         "options": [
@@ -2308,9 +2310,14 @@
             "selected": true,
             "text": "473b8eff-6a8c-4c31-ac28-3aa26b10cd6b",
             "value": "473b8eff-6a8c-4c31-ac28-3aa26b10cd6b"
+          },
+          {
+            "selected": true,
+            "text": "f91f288f-e63e-43b5-b6f0-759429c29895",
+            "value": "f91f288f-e63e-43b5-b6f0-759429c29895"
           }
         ],
-        "query": "c6dfa6c3-5d26-4328-b4f1-5a50e77132eb,473b8eff-6a8c-4c31-ac28-3aa26b10cd6b",
+        "query": "c6dfa6c3-5d26-4328-b4f1-5a50e77132eb,473b8eff-6a8c-4c31-ac28-3aa26b10cd6b,f91f288f-e63e-43b5-b6f0-759429c29895",
         "hide": 0,
         "skipUrlSync": false,
         "description": "Install IDs to exclude from all event and feedback panels when 'filter_install_ids' is true. Add more IDs by editing this variable's options list.",

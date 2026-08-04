@@ -441,6 +441,7 @@ fun LevelEditorView(
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
     var connectedToPreviousLevel by remember { mutableStateOf(level.connectedToPreviousLevel) }
+    var splitBuildTowerButton by remember { mutableStateOf(level.splitBuildTowerButton) }
     var isSandbox by remember { mutableStateOf(level.isSandbox) }
     var supportsState by remember { mutableStateOf(level.supports) }
     var eventsState by remember { mutableStateOf(level.events) }
@@ -726,6 +727,8 @@ fun LevelEditorView(
                         onAllowAutoAttackChange = { allowAutoAttack = it },
                         connectedToPreviousLevel = connectedToPreviousLevel,
                         onConnectedToPreviousLevelChange = { connectedToPreviousLevel = it },
+                        splitBuildTowerButton = splitBuildTowerButton,
+                        onSplitBuildTowerButtonChange = { splitBuildTowerButton = it },
                         isSandbox = isSandbox,
                         onIsSandboxChange = { isSandbox = it },
                         isOfficial = level.isOfficial,
@@ -808,6 +811,7 @@ fun LevelEditorView(
                                 testingOnly = testingOnly,
                                 allowAutoAttack = allowAutoAttack,
                                 connectedToPreviousLevel = connectedToPreviousLevel,
+                                splitBuildTowerButton = splitBuildTowerButton,
                                 isSandbox = isSandbox,
                                 supports = supportsState,
                                 events = eventsState,
@@ -1064,6 +1068,7 @@ fun LevelEditorView(
                         testingOnly = testingOnly,
                         allowAutoAttack = allowAutoAttack,
                         connectedToPreviousLevel = connectedToPreviousLevel,
+                        splitBuildTowerButton = splitBuildTowerButton,
                         isSandbox = isSandbox,
                         supports = supportsState,
                         events = eventsState,

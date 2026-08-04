@@ -568,6 +568,10 @@
     <string name="gameplay_music_volume">Gameplay Music Volume</string>
     <string name="show_detailed_sound_settings">Show Detailed Sound Settings</string>
     <string name="hide_detailed_sound_settings">Hide Detailed Sound Settings</string>
+    <string name="sound_preview_play_effect">Play Effect</string>
+    <string name="sound_preview_play_music">Play Music</string>
+    <string name="sound_preview_stop_music">Stop Music</string>
+    <string name="start_gameplay_background_music">Start Gameplay Background Music</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controls</string>
@@ -1170,6 +1174,7 @@
     <string name="sandbox_spawn_point_auto">Automatic (first free spawn point)</string>
     <string name="allow_auto_attack">Allow Auto-Attack</string>
     <string name="connected_to_previous_level">Connected to Previous Level</string>
+    <string name="split_build_tower_button">Split Build Tower Button</string>
     <string name="auto_attack_info_title">Auto-Attack Feature</string>
     <string name="auto_attack_info_message">You can now use the Auto-Attack function. When you select "End Turn" and there are usable action points left, the dialog gives the option "Auto-Attack and End Turn". Then, towers with action points left automatically attack enemies. Targets enemies by priority (bosses first, then special enemies). If there are actions left (mines, traps, acid attacks with no enemy in range), you get a message stating which kind of action is still usable, otherwise the turn ends.</string>
 
@@ -2148,6 +2153,11 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="daily_hint_aoe_message">Wizard towers deal area-of-effect damage. Place them where enemies bunch up — near spawn points or behind barricades — to hit multiple targets at once.</string>
     <string name="daily_hint_min_range_message">The Ballista has a minimum range of 3 — it cannot hit enemies right next to it. Pair it with melee towers (Spike, Spear) to cover the close-range gap.</string>
     <string name="daily_hint_immunities_message">Some enemies are immune to certain attacks: Red Demons resist fireballs, Blue Demons resist acid. Watch the upcoming wave and bring a varied set of towers.</string>
+
+    <string name="villains_announcement_content_description">Announcement for upcoming villains feature</string>
+    <string name="villains_announcement_coming_soon">Coming soon: Version 1.1: Villains</string>
+    <string name="villains_announcement_page_title">Preview: The First Villains Enter the Battlefield!</string>
+    <string name="villains_announcement_page_text">Get ready for a new challenge! With the upcoming update, **Villains** are coming to Defender of Egril.\n\n### What Are Villains?\n\nVillains are powerful boss enemies that appear at the head of enemy waves. They are significantly tougher than regular foes and possess unique abilities that will put your defenses to the test: they stun towers, call for reinforcements, or shield the troops that follow. Defeating them requires more than raw firepower – you\'ll need to adapt your strategy!\n\n---\n\n### First Look: These Villains Await You at the Start\n\n* **Baron Rattlejaw (Goblin Inventor):** A mad inventor riding a mighty spider machine. He drops wreckage that spawns robot goblins and knocks out your towers with targeted rockets.\n* **The Fallen Shield-Maiden Freya (Death Knight):** Once an undefeatable warrior. With her magical shield wall, she absorbs frontal tower damage for herself and the units behind her.\n* **Prince Valerius the Soul Reaper (Skeleton Lord):** An ancient lich and ruler of the undead. As long as he stands on the field, he transforms every defeated enemy nearby into an undead minion.\n* **Captain Roderich (The Buccaneer):** Appears on maps with waterways and takes targeted shots at your rafts. Defeat him and claim his pirate treasure!\n\n*Prepare your towers – soon you\'ll need to prove whether your defenses can withstand the first powerful villains!*</string>
 
     <string name="spiderling_name">Spiderling</string>
     <string name="spiderlings_name">Spiderlings</string>

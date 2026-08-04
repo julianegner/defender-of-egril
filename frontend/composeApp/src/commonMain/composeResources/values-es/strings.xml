@@ -559,6 +559,10 @@
     <string name="gameplay_music_volume">Volumen de música del juego</string>
     <string name="show_detailed_sound_settings">Mostrar configuración de sonido detallada</string>
     <string name="hide_detailed_sound_settings">Ocultar configuración de sonido detallada</string>
+    <string name="sound_preview_play_effect">Reproducir efecto</string>
+    <string name="sound_preview_play_music">Reproducir música</string>
+    <string name="sound_preview_stop_music">Detener música</string>
+    <string name="start_gameplay_background_music">Iniciar música de fondo del juego</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controles</string>
@@ -1167,6 +1171,7 @@
     <string name="sandbox_spawn_point_auto">Automático (primer punto de aparición libre)</string>
     <string name="allow_auto_attack">Permitir Auto-Ataque</string>
     <string name="connected_to_previous_level">Conectar con el nivel anterior</string>
+    <string name="split_build_tower_button">Botón dividido de construir torre</string>
     <string name="auto_attack_info_title">Función de Auto-Ataque</string>
     <string name="auto_attack_info_message">Ahora puede usar la función de Auto-Ataque. Cuando selecciona "Terminar Turno" y quedan puntos de acción utilizables, el diálogo ofrece la opción "Auto-Ataque y Terminar Turno". Entonces, las torres con puntos de acción restantes atacan automáticamente a los enemigos. Ataca a los enemigos por prioridad (primero jefes, luego enemigos especiales). Si quedan acciones (minas, trampas, ataques de ácido sin enemigo en alcance), recibe un mensaje indicando qué tipo de acción sigue siendo utilizable, de lo contrario el turno termina.</string>
 
@@ -2139,6 +2144,11 @@
     <string name="daily_hint_aoe_message">Las torres de Mago hacen daño en área. Colócalas donde se agrupen los enemigos — cerca de los puntos de aparición o detrás de barricadas — para alcanzar varios objetivos a la vez.</string>
     <string name="daily_hint_min_range_message">La Balista tiene alcance mínimo 3 — no puede golpear a los enemigos justo al lado. Combínala con torres cuerpo a cuerpo (Pinchos, Lanza) para cubrir el corto alcance.</string>
     <string name="daily_hint_immunities_message">Algunos enemigos son inmunes a ciertos ataques: los Demonios Rojos resisten las bolas de fuego, los Demonios Azules resisten el ácido. Observa la próxima oleada y trae torres variadas.</string>
+
+    <string name="villains_announcement_content_description">Anuncio de la próxima función de villanos</string>
+    <string name="villains_announcement_coming_soon">Próximamente: Versión 1.1: Villanos</string>
+    <string name="villains_announcement_page_title">Avance: ¡Los primeros Villanos entran al campo de batalla!</string>
+    <string name="villains_announcement_page_text">¡Prepárate para un nuevo desafío! Con la próxima actualización, los **Villanos** llegan a Defender of Egril.\n\n### ¿Qué son los Villanos?\n\nLos Villanos son poderosos enemigos jefe que aparecen al frente de las oleadas enemigas. Son considerablemente más resistentes que los enemigos normales y poseen habilidades únicas que pondrán a prueba tus defensas: aturden torres, llaman refuerzos o protegen a las tropas que los siguen. Derrotarlos requiere más que pura potencia de fuego: ¡tendrás que adaptar tu estrategia!\n\n---\n\n### Primeros vistazo: Estos villanos te esperan al principio\n\n* **Barón Rechiniente (Inventor Goblin):** Un inventor enloquecido sobre una poderosa máquina araña. Lanza restos de chatarra que crean goblins robóticos e inutiliza tus torres con cohetes dirigidos.\n* **La Doncella Escudo Caída Freya (Caballera de la Muerte):** En su día una guerrera invencible. Con su muro de escudos mágico, absorbe el daño frontal de las torres para ella y las unidades que la siguen.\n* **Príncipe Valerius el Cosechador de Almas (Señor Esqueleto):** Un antiguo liche y gobernante de los no-muertos. Mientras permanece en el campo, transforma a cada enemigo derrotado cercano en un no-muerto.\n* **Capitán Roderich (El Bucanero):** Aparece en mapas con vías fluviales y ataca directamente tus balsas. ¡Derrótalo y hazte con su tesoro pirata!\n\n*¡Prepara tus torres – pronto tendrás que demostrar si tus defensas pueden resistir a los primeros y poderosos villanos!*</string>
 
     <string name="spiderling_name">Arañita</string>
     <string name="spiderlings_name">Arañitas</string>

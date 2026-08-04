@@ -37,6 +37,8 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.LogConfig
+import de.egril.defender.game.EnemyMovementSystem
+import de.egril.defender.game.PathfindingSystem
 import de.egril.defender.game.FreyaShieldWallArc
 import de.egril.defender.game.freyaShieldWallArcs
 import de.egril.defender.model.*
@@ -840,6 +842,14 @@ fun GameGrid(
                 .associateBy { it.position.value }
         }
     }
+    val dangerousAttackerPositions by remember {
+        derivedStateOf {
+            val movementSystem = EnemyMovementSystem(gameState, PathfindingSystem(gameState))
+            gameState.attackers
+                .filter { movementSystem.canReachTargetNextTurn(it) }
+                .mapTo(mutableSetOf()) { it.position.value }
+        }
+    }
 
     // Pre-compute the selected defender once (replaces 6+ O(n) searches per GridCell).
     // selectedDefenderId is a plain Int? parameter (not a State), so derivedStateOf cannot
@@ -1188,6 +1198,7 @@ fun GameGrid(
                     gameState = gameState,
                     defender = defendersByPosition[position],
                     attacker = activeAttackersByPosition[position],
+                    isDangerous = dangerousAttackerPositions.contains(position),
                     selectedDefender = selectedDefenderForGrid,
                     isHovering = isHovering,
                     isInPreviewRange = isInPreviewRange,
@@ -1336,6 +1347,7 @@ fun GridCell(
     gameState: GameState,
     defender: Defender?,
     attacker: Attacker?,
+    isDangerous: Boolean = false,
     selectedDefender: Defender?,
     // isHovering and isInPreviewRange replace the old hoveredPosition: Position? and
     // hoveredPositionIsBuildable: Boolean parameters.  Passing per-cell Booleans means only
@@ -2001,6 +2013,7 @@ fun GridCell(
             isValidSpellTarget &&
                 spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
                 spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> Color(0xFF9C27B0) // Purple border for valid spell targets
+            isDangerous -> GamePlayColors.Error
 
             isSpawnPoint -> GamePlayColors.WarningDark // Darker orange border for spawn in dark mode
             isTarget -> GamePlayColors.Success // Green border for target (adapts to dark mode automatically)
@@ -2044,6 +2057,7 @@ fun GridCell(
             isValidSpellTarget &&
                 spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
                 spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> 4.dp // Thick purple border for valid spell targets
+            isDangerous -> 4.dp
             isSpawnPoint || isTarget -> 3.dp
             (attacker != null || defender != null) && AppSettings.showUnitTowerBackground.value -> 3.dp
             effectiveFieldEffect != null -> 3.dp // Thick border for field effects
@@ -2210,6 +2224,7 @@ fun GridCell(
                 dragonIsTargetingMine = dragonIsTargetingMine,
                 suppressEnemyBackground = suppressEnemyBackground,
                 attackPreview = attackPreview,
+                isDangerous = isDangerous,
             )
         }
     } else {
@@ -2281,6 +2296,7 @@ fun GridCell(
                 dragonIsTargetingMine = dragonIsTargetingMine,
                 suppressEnemyBackground = suppressEnemyBackground,
                 attackPreview = attackPreview,
+                isDangerous = isDangerous,
             )
         }
     }
@@ -2294,6 +2310,7 @@ private fun BoxScope.GridCellContent(
     position: Position,
     gameState: GameState,
     attacker: Attacker?,
+    isDangerous: Boolean = false,
     healingEffect: HealingEffect?,
     damageEffect: DamageEffect?,
     defender: Defender?,
@@ -2492,6 +2509,15 @@ private fun BoxScope.GridCellContent(
                         healthOverride = displayedHealth,
                         moveVillainNameUp = true,
                     )
+                    if (isDangerous) {
+                        Text(
+                            text = "!",
+                            color = GamePlayColors.Error,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 14.dp),
+                        )
+                    }
                     // Show healing effect overlay if present
                     if (healingEffect != null) {
                         GreenWitchHealingAnimation(

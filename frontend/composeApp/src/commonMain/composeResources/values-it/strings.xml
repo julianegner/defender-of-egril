@@ -561,6 +561,10 @@
     <string name="gameplay_music_volume">Volume musica di gioco</string>
     <string name="show_detailed_sound_settings">Mostra impostazioni sonore dettagliate</string>
     <string name="hide_detailed_sound_settings">Nascondi impostazioni sonore dettagliate</string>
+    <string name="sound_preview_play_effect">Riproduci effetto</string>
+    <string name="sound_preview_play_music">Riproduci musica</string>
+    <string name="sound_preview_stop_music">Ferma musica</string>
+    <string name="start_gameplay_background_music">Avvia musica di sottofondo del gioco</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controlli</string>
@@ -1167,6 +1171,7 @@
     <string name="sandbox_spawn_point_auto">Automatico (primo punto di generazione libero)</string>
     <string name="allow_auto_attack">Consenti Attacco Automatico</string>
     <string name="connected_to_previous_level">Collegato al livello precedente</string>
+    <string name="split_build_tower_button">Pulsante diviso Costruisci torre</string>
     <string name="auto_attack_info_title">Funzione Attacco Automatico</string>
     <string name="auto_attack_info_message">Ora puoi usare la funzione Attacco Auto. Quando selezioni "Termina Turno" e ci sono punti azione utilizzabili rimasti, il dialogo offre l'opzione "Attacco Auto e Termina Turno". Quindi, le torri con punti azione rimasti attaccano automaticamente i nemici. Colpisce i nemici per priorità (prima i boss, poi i nemici speciali). Se rimangono azioni (miniere, trappole, attacchi acidi senza nemici a portata), ricevi un messaggio che indica quale tipo di azione è ancora utilizzabile, altrimenti il turno termina.</string>
 
@@ -2141,6 +2146,11 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="daily_hint_aoe_message">Le torri di Mago infliggono danni ad area. Piazzale dove i nemici si raggruppano — vicino ai punti di apparizione o dietro le barricate — per colpire più bersagli contemporaneamente.</string>
     <string name="daily_hint_min_range_message">La Balista ha una portata minima di 3 — non può colpire i nemici proprio accanto a sé. Abbinala a torri da mischia (Picca, Lancia) per coprire la corta distanza.</string>
     <string name="daily_hint_immunities_message">Alcuni nemici sono immuni a certi attacchi: i Demoni Rossi resistono alle palle di fuoco, i Demoni Blu resistono all\'acido. Osserva l\'ondata in arrivo e porta torri di tipi diversi.</string>
+
+    <string name="villains_announcement_content_description">Annuncio della prossima funzionalità dei cattivi</string>
+    <string name="villains_announcement_coming_soon">Prossimamente: Versione 1.1: Cattivi</string>
+    <string name="villains_announcement_page_title">Anteprima: I primi Villain scendono sul campo di battaglia!</string>
+    <string name="villains_announcement_page_text">Preparati a una nuova sfida! Con il prossimo aggiornamento, i **Villain** arrivano in Defender of Egril.\n\n### Cosa sono i Villain?\n\nI Villain sono potenti nemici boss che appaiono in testa alle ondate nemiche. Sono notevolmente più resistenti dei nemici normali e possiedono abilità uniche che metteranno a dura prova le tue difese: stordiscono le torri, chiamano rinforzi o proteggono le truppe che li seguono. Sconfiggerli richiede più della semplice potenza di fuoco – dovrai adattare la tua strategia!\n\n---\n\n### Primi sguardi: Questi scagnozzi ti aspettano fin dall\'inizio\n\n* **Barone Stridenzio (Inventore Goblin):** Un inventore pazzo su una potente macchina-ragno. Lancia rottami da cui nascono goblin robotici e mette fuori combattimento le tue torri con razzi mirati.\n* **La Scudiera Caduta Freya (Cavaliera della Morte):** Un tempo una guerriera invincibile. Con il suo muro di scudi magico, assorbe i danni frontali delle torri per sé e per le unità che la seguono.\n* **Principe Valerius il Mietitore di Anime (Signore degli Scheletri):** Un antico lich e signore dei non-morti. Finché è sul campo, trasforma ogni nemico sconfitto nelle vicinanze in un non-morto.\n* **Capitano Roderich (Il Bucaniere):** Appare nelle mappe con corsi d\'acqua e prende di mira le tue zattere. Sconfiggilo e conquista il suo tesoro pirata!\n\n*Prepara le tue torri – presto dovrai dimostrare se le tue difese sono all\'altezza dei primi potenti villain!*</string>
 
     <string name="spiderling_name">Ragnetto</string>
     <string name="spiderlings_name">Ragnetti</string>

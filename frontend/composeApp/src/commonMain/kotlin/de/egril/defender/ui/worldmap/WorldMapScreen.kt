@@ -672,6 +672,7 @@ fun WorldMapScreen(
                             shortcutKey = ",",
                             triggerOpen = triggerSettings,
                             onTriggerHandled = { triggerSettings = false },
+                            pageBackgroundMusic = de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
                         )
                     }
                 }

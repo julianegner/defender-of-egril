@@ -561,6 +561,10 @@
     <string name="gameplay_music_volume">Volume de la musique de jeu</string>
     <string name="show_detailed_sound_settings">Afficher les paramètres sonores détaillés</string>
     <string name="hide_detailed_sound_settings">Masquer les paramètres sonores détaillés</string>
+    <string name="sound_preview_play_effect">Jouer l'effet</string>
+    <string name="sound_preview_play_music">Jouer la musique</string>
+    <string name="sound_preview_stop_music">Arrêter la musique</string>
+    <string name="start_gameplay_background_music">Démarrer la musique de fond du jeu</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Contrôles</string>
@@ -1167,6 +1171,7 @@
     <string name="sandbox_spawn_point_auto">Automatique (premier point d'apparition libre)</string>
     <string name="allow_auto_attack">Autoriser l'Attaque Automatique</string>
     <string name="connected_to_previous_level">Connecter au niveau précédent</string>
+    <string name="split_build_tower_button">Bouton fractionné Construire une tour</string>
     <string name="auto_attack_info_title">Fonction d'Attaque Automatique</string>
     <string name="auto_attack_info_message">Vous pouvez maintenant utiliser la fonction Attaque Auto. Lorsque vous sélectionnez "Terminer le Tour" et qu'il reste des points d'action utilisables, le dialogue propose l'option "Attaque Auto et Terminer le Tour". Ensuite, les tours avec des points d'action restants attaquent automatiquement les ennemis. Cible les ennemis par priorité (d'abord les boss, puis les ennemis spéciaux). S'il reste des actions (mines, pièges, attaques acides sans ennemi à portée), vous recevez un message indiquant quel type d'action est encore utilisable, sinon le tour se termine.</string>
 
@@ -2140,6 +2145,11 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="daily_hint_aoe_message">Les tours de Mage infligent des dégâts de zone. Place-les là où les ennemis se regroupent — près des points d\'apparition ou derrière des barricades — pour toucher plusieurs cibles.</string>
     <string name="daily_hint_min_range_message">La Baliste a une portée minimale de 3 — elle ne peut pas frapper les ennemis juste à côté. Associe-la à des tours de mêlée (Pieu, Lance) pour couvrir le corps-à-corps.</string>
     <string name="daily_hint_immunities_message">Certains ennemis sont immunisés à certaines attaques : les Démons rouges résistent aux boules de feu, les Démons bleus résistent à l\'acide. Surveille la prochaine vague et varie tes tours.</string>
+
+    <string name="villains_announcement_content_description">Annonce de la prochaine fonctionnalité des méchants</string>
+    <string name="villains_announcement_coming_soon">Bientôt : Version 1.1 : Méchants</string>
+    <string name="villains_announcement_page_title">Aperçu : Les premiers Villains arrivent sur le champ de bataille !</string>
+    <string name="villains_announcement_page_text">Préparez-vous à un nouveau défi ! Avec la prochaine mise à jour, les **Villains** font leur entrée dans Defender of Egril.\n\n### Que sont les Villains ?\n\nLes Villains sont de puissants ennemis de type boss qui apparaissent en tête des vagues ennemies. Ils sont nettement plus résistants que les ennemis ordinaires et possèdent des capacités uniques qui mettront vos défenses à rude épreuve : ils paralysent les tours, appellent des renforts ou protègent les troupes qui les suivent. Les vaincre demande plus que de la puissance de feu brute – vous devrez adapter votre stratégie !\n\n---\n\n### Premiers aperçus : Ces scélérats vous attendent dès le début\n\n* **Baron Grincecroc (Inventeur Gobelin) :** Un inventeur fou sur une puissante machine-araignée. Il largue des débris qui font naître des gobelins robotiques et met vos tours hors combat avec des roquettes ciblées.\n* **La Bouclière Déchue Freya (Chevalière de la Mort) :** Autrefois une guerrière invincible. Grâce à son mur de boucliers magique, elle absorbe les dégâts frontaux des tours pour elle-même et les unités qui la suivent.\n* **Prince Valerius le Faucheur d\'Âmes (Seigneur Squelette) :** Un ancien liche et souverain des morts-vivants. Tant qu\'il est sur le terrain, il transforme chaque ennemi vaincu à proximité en un mort-vivant.\n* **Capitaine Roderich (Le Flibustier) :** Apparaît sur les cartes comportant des voies navigables et prend vos radeaux pour cible. Vainquez-le et empochez son trésor de pirate !\n\n*Préparez vos tours – vous devrez bientôt prouver si vos défenses sont à la hauteur des premiers puissants scélérats !*</string>
 
     <string name="spiderling_name">Petite araignée</string>
     <string name="spiderlings_name">Petites araignées</string>

@@ -1,10 +1,12 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +20,8 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
+import de.egril.defender.ui.animations.InstantTowerSpellAnimation
+import de.egril.defender.ui.animations.SpellInstantTowerColor
 import de.egril.defender.ui.gameplay.defenderButtons.CompactDefenderButton
 import de.egril.defender.ui.gameplay.defenderButtons.DefenderButton
 import de.egril.defender.ui.isMobileWebBrowser
@@ -149,6 +153,8 @@ fun GameControlsPanel(
     uiScale: Float = 1f, // Add platform scale parameter
     onShowDragonInfo: () -> Unit = {}, // Add dragon info callback
     highlightEndTurnButton: Boolean = false, // Visually highlight the End Turn button (keyboard focus)
+    splitSelectorToggle: Int = 0, // Counter incremented to toggle the split selector dropdown via keyboard
+    onSplitSelectorExpandedChanged: (Boolean) -> Unit = {},
 ) {
     de.egril.defender.ui.a11y.FontSizeUnscaled {
         // Automatically fold buy panel when a defender, attacker, or barricade is selected
@@ -274,11 +280,16 @@ fun GameControlsPanel(
                             }
 
                             // Right side: buy buttons and End Turn button
+                            // When using the split button, use exactly the split control width so the
+                            // info area on the left gets all remaining horizontal space.
+                            val rightColumnModifier =
+                                if (gameState.level.splitBuildTowerButton) {
+                                    Modifier.width(SplitControlMaxWidth)
+                                } else {
+                                    Modifier.widthIn(max = 600.dp).fillMaxWidth()
+                                }
                             Column(
-                                modifier =
-                                    Modifier
-                                        .widthIn(max = 600.dp)
-                                        .fillMaxWidth(),
+                                modifier = rightColumnModifier,
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(4.dp),
                             ) {
@@ -288,45 +299,64 @@ fun GameControlsPanel(
                                         .fillMaxWidth()
                                         .height(if (isMobile) 45.dp else 45.dp)
 
-                                // Compact buy buttons
-                                LazyVerticalGrid(
-                                    modifier = Modifier.padding(top = 8.dp),
-                                    columns = GridCells.Fixed(4),
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                                ) {
+                                if (gameState.level.splitBuildTowerButton) {
                                     val types =
                                         gameState.level.availableTowers
-                                            // hack: we need an additional entry
-                                            // that is overridden by the start game/end turn button
-                                            // in the compact view
-                                            .plus(DefenderType.DRAGONS_LAIR)
-                                            .toTypedArray()
+                                            .filter { it != DefenderType.DRAGONS_LAIR }
+                                    SplitTowerBuildControls(
+                                        availableTypes = types,
+                                        selectedDefenderType = selectedDefenderType,
+                                        coinsState = coinsState,
+                                        instantTowerActive = gameState.instantTowerSpellActive.value,
+                                        onSelectDefenderType = onSelectDefenderType,
+                                        isPlayerTurn = isPlayerTurn,
+                                        onPrimaryAction = onPrimaryAction,
+                                        highlightEndTurnButton = highlightEndTurnButton,
+                                        autoAttackAvailable = autoAttackAvailable,
+                                        toggleSelectorKey = splitSelectorToggle,
+                                        onSelectorExpandedChanged = onSplitSelectorExpandedChanged,
+                                    )
+                                } else {
+                                    // Compact buy buttons
+                                    LazyVerticalGrid(
+                                        modifier = Modifier.padding(top = 8.dp),
+                                        columns = GridCells.Fixed(4),
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    ) {
+                                        val types =
+                                            gameState.level.availableTowers
+                                                // hack: we need an additional entry
+                                                // that is overridden by the start game/end turn button
+                                                // in the compact view
+                                                .plus(DefenderType.DRAGONS_LAIR)
+                                                .toTypedArray()
 
-                                    itemsIndexed(
-                                        types,
-                                        key = { index: Int, type: DefenderType -> "${type.name}_folded_${coinsState.value}" },
-                                    ) { index: Int, type: DefenderType ->
-                                        val isLast = index == types.lastIndex
-                                        CompactDefenderButton(
-                                            type = type,
-                                            isSelected = selectedDefenderType == type,
-                                            canAfford = coinsState.value >= type.baseCost,
-                                            instantTowerActive = gameState.instantTowerSpellActive.value,
-                                            shortcutIndex = if (type != DefenderType.DRAGONS_LAIR) index else null,
-                                            modifier = compactDefenderButtonModifier,
-                                            onClick = {
-                                                onSelectDefenderType(if (selectedDefenderType == type) null else type)
-                                            },
-                                        )
-                                        if (isLast) {
-                                            TurnButton(
-                                                isPlayerTurn,
+                                        itemsIndexed(
+                                            types,
+                                            key = { index: Int, type: DefenderType -> "${type.name}_folded_${coinsState.value}" },
+                                        ) { index: Int, type: DefenderType ->
+                                            val isLast = index == types.lastIndex
+                                            CompactDefenderButton(
+                                                type = type,
+                                                isSelected = selectedDefenderType == type,
+                                                canAfford = coinsState.value >= type.baseCost,
+                                                instantTowerActive = gameState.instantTowerSpellActive.value,
+                                                shortcutIndex = if (type != DefenderType.DRAGONS_LAIR) index else null,
                                                 modifier = compactDefenderButtonModifier,
-                                                onPrimaryAction,
-                                                highlighted = highlightEndTurnButton,
-                                                autoAttackAvailable = autoAttackAvailable,
+                                                onClick = {
+                                                    onSelectDefenderType(if (selectedDefenderType == type) null else type)
+                                                },
                                             )
+                                            if (isLast) {
+                                                TurnButton(
+                                                    isPlayerTurn,
+                                                    modifier = compactDefenderButtonModifier,
+                                                    onPrimaryAction,
+                                                    highlighted = highlightEndTurnButton,
+                                                    autoAttackAvailable = autoAttackAvailable,
+                                                )
+                                            }
                                         }
                                     }
                                 }
