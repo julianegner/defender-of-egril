@@ -1490,6 +1490,8 @@ class GameEngine(
 
                 // Check for traps at the new position
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
+                // Destroy any fief at the new position
+                destroyFiefAt(newPosition, attacker)
 
                 // Only continue if dragon was not defeated by trap
                 if (!attacker.isDefeated.value) {
@@ -1567,6 +1569,8 @@ class GameEngine(
 
                 // Check for traps at the new position
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
+                // Destroy any fief at the new position
+                destroyFiefAt(newPosition, attacker)
             }
 
             // Check if reached a waypoint and update target
@@ -1645,6 +1649,8 @@ class GameEngine(
             // Check for traps at the new position (only if enemy actually moved)
             if (oldPosition != newPosition) {
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
+                // Destroy any fief at the new position (enemies destroy fiefs by passing through)
+                destroyFiefAt(newPosition, attacker)
             }
 
             // Only continue if enemy was not defeated by trap
@@ -1698,6 +1704,8 @@ class GameEngine(
 
                 // Check for traps at the new position
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
+                // Destroy any fief at the new position
+                destroyFiefAt(newPosition, attacker)
 
                 // Only continue if enemy was not defeated by trap
                 if (!attacker.isDefeated.value) {
@@ -2194,6 +2202,12 @@ class GameEngine(
         }
         state.coinSurgeActive.value = false
 
+        // Grant fief income for each active fief at the start of each player turn
+        val fiefIncome = state.fiefs.sumOf { it.type.incomePerTurn }
+        if (fiefIncome > 0) {
+            state.coins.value += fiefIncome
+        }
+
         state.phase.value = GamePhase.PLAYER_TURN
         resetDefenderActions()
 
@@ -2387,6 +2401,25 @@ class GameEngine(
     // Cheat code support for testing
     fun addCoins(amount: Int) {
         state.coins.value += amount
+    }
+
+    /**
+     * Destroy a fief at [position] if one exists.
+     * Called whenever an enemy moves through a tile — fiefs are destroyed by enemy passage.
+     * If [attacker] is Cap'n Roderich, 10× the fief's per-turn income is added to his treasure.
+     */
+    private fun destroyFiefAt(
+        position: Position,
+        attacker: Attacker? = null,
+    ) {
+        val fief = state.fiefs.find { it.position == position }
+        if (fief != null) {
+            state.fiefs.remove(fief)
+            // Cap'n Roderich loots the fief: 10× its per-turn income goes to his treasure
+            if (attacker?.type == AttackerType.CAPTAIN_RODERICH) {
+                attacker.treasureCoins.value += fief.type.incomePerTurn * 10
+            }
+        }
     }
 
     fun setCoins(amount: Int) {

@@ -540,7 +540,8 @@ object EditorJsonSerializer {
             if (initialData.defenders.isNotEmpty() ||
                 initialData.attackers.isNotEmpty() ||
                 initialData.traps.isNotEmpty() ||
-                initialData.barricades.isNotEmpty()
+                initialData.barricades.isNotEmpty() ||
+                initialData.fiefs.isNotEmpty()
             ) {
                 val parts = mutableListOf<String>()
 
@@ -628,6 +629,22 @@ object EditorJsonSerializer {
                     parts.add(
                         """"barricades": [
       $barricadesData
+    ]""",
+                    )
+                }
+
+                // Fiefs
+                if (initialData.fiefs.isNotEmpty()) {
+                    val fiefsData =
+                        initialData.fiefs.joinToString(",\n      ") { fief ->
+                            val x = fief.position.x
+                            val y = fief.position.y
+                            val type = fief.type.name
+                            """{"position": {"x": $x, "y": $y}, "type": "$type"}"""
+                        }
+                    parts.add(
+                        """"fiefs": [
+      $fiefsData
     ]""",
                     )
                 }
@@ -939,6 +956,7 @@ object EditorJsonSerializer {
             var initialAttackers = mutableListOf<InitialAttacker>()
             var initialTraps = mutableListOf<InitialTrap>()
             var initialBarricades = mutableListOf<InitialBarricade>()
+            var initialFiefs = mutableListOf<InitialFief>()
 
             if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING && id == "t3") {
                 println("")
@@ -1243,6 +1261,39 @@ object EditorJsonSerializer {
                             }
                         }
                     }
+
+                    // Parse fiefs from new format
+                    if (initialDataSection.contains("\"fiefs\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"fiefs\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val afterBracket = afterKey.substring(openBracketIndex + 1)
+                            val fiefsSection =
+                                if (afterBracket.contains("],")) {
+                                    afterBracket.substringBefore("],")
+                                } else {
+                                    afterBracket.substringBefore("]")
+                                }
+                            if (fiefsSection.isNotBlank()) {
+                                val fiefEntries = splitJsonArrayObjects(fiefsSection)
+                                for (entry in fiefEntries) {
+                                    if (!entry.contains("position")) continue
+                                    val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                    val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                    val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                    val position = Position(x, y)
+                                    val type =
+                                        try {
+                                            val typeStr = JsonUtils.extractValue(entry, "type")
+                                            de.egril.defender.model.FiefType.valueOf(typeStr)
+                                        } catch (e: Exception) {
+                                            de.egril.defender.model.FiefType.FISHER
+                                        }
+                                    initialFiefs.add(InitialFief(position, type))
+                                }
+                            }
+                        }
+                    }
                 } catch (e: Exception) {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Error parsing initial data (new format): ${e.message}")
@@ -1254,7 +1305,8 @@ object EditorJsonSerializer {
             if (initialDefenders.isEmpty() &&
                 initialAttackers.isEmpty() &&
                 initialTraps.isEmpty() &&
-                initialBarricades.isEmpty()
+                initialBarricades.isEmpty() &&
+                initialFiefs.isEmpty()
             ) {
                 // Parse initial defenders (legacy flat format)
                 if (dataJson.contains("\"initialDefenders\"")) {
@@ -1410,8 +1462,15 @@ object EditorJsonSerializer {
             } // End of legacy format fallback
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                val defenderCount = initialDefenders.size
+                val attackerCount = initialAttackers.size
+                val trapCount = initialTraps.size
+                val barricadeCount = initialBarricades.size
+                val fiefCount = initialFiefs.size
                 println(
-                    "EditorJsonSerializer.deserializeLevel: Parsed level $id with ${initialDefenders.size} defenders, ${initialAttackers.size} attackers, ${initialTraps.size} traps, ${initialBarricades.size} barricades",
+                    "EditorJsonSerializer.deserializeLevel: Parsed level $id " +
+                        "with $defenderCount defenders, $attackerCount attackers, " +
+                        "$trapCount traps, $barricadeCount barricades, $fiefCount fiefs",
                 )
             }
 
@@ -1420,9 +1479,10 @@ object EditorJsonSerializer {
                 if (initialDefenders.isNotEmpty() ||
                     initialAttackers.isNotEmpty() ||
                     initialTraps.isNotEmpty() ||
-                    initialBarricades.isNotEmpty()
+                    initialBarricades.isNotEmpty() ||
+                    initialFiefs.isNotEmpty()
                 ) {
-                    InitialData(initialDefenders, initialAttackers, initialTraps, initialBarricades)
+                    InitialData(initialDefenders, initialAttackers, initialTraps, initialBarricades, initialFiefs)
                 } else {
                     null
                 }

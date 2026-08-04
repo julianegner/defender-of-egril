@@ -153,6 +153,9 @@ object GamePlayConstants {
         /** Icon size for barricades on tiles */
         val Barricade = 48.dp
 
+        /** Icon size for fiefs on tiles */
+        val Fief = 48.dp
+
         /** Icon size for trap preview when hovering during placement mode */
         val TrapPreview = 48.dp
 

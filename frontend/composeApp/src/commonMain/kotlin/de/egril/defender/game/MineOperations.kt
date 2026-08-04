@@ -123,6 +123,9 @@ class MineOperations(
         // Check if there's a field effect at this position
         if (state.fieldEffects.any { it.position == trapPosition }) return false
 
+        // Check if there's a fief at this position
+        if (state.fiefs.any { it.position == trapPosition }) return false
+
         // Create trap with current mine damage
         val trap =
             Trap(
@@ -168,6 +171,9 @@ class MineOperations(
 
         // Check if there's a field effect at this position
         if (state.fieldEffects.any { it.position == trapPosition }) return false
+
+        // Check if there's a fief at this position
+        if (state.fiefs.any { it.position == trapPosition }) return false
 
         val trap =
             Trap(
@@ -366,6 +372,9 @@ class MineOperations(
 
         // Check if there's a field effect at this position
         if (state.fieldEffects.any { it.position == trapPosition }) return false
+
+        // Check if there's a fief at this position
+        if (state.fiefs.any { it.position == trapPosition }) return false
 
         // Create magical trap (no damage, just teleports)
         val trap =

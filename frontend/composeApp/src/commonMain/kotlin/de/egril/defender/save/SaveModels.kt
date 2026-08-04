@@ -56,6 +56,7 @@ data class SavedGame(
     val rafts: List<SavedRaft> = emptyList(), // Rafts on river tiles
     val nextRaftId: Int = 1, // Next raft ID to use
     val barricades: List<SavedBarricade> = emptyList(), // Barricades placed by spike/spear towers
+    val fiefs: List<SavedFief> = emptyList(), // Active fiefs (income-generating path objects)
     val worldMapSave: WorldMapSave? = null, // World map progress at the time of saving (for conflict detection on load)
     val playerProfileData: PlayerProfileData? = null, // Player profile data (achievements, XP, stats) when game data transfer is ON
     val currentMana: Int = 0, // Current mana at the time of saving
@@ -126,6 +127,11 @@ data class SavedTrap(
     val damage: Int,
     val defenderId: Int, // Changed from mineId to defenderId to support both mine and wizard traps
     val type: String = "DWARVEN", // Trap type as string for serialization
+)
+
+data class SavedFief(
+    val position: Position,
+    val type: String, // FiefType name as string for serialization
 )
 
 data class SavedRaft(

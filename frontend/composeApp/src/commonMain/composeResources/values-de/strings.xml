@@ -679,11 +679,13 @@
     <string name="initial_setup_map">Karte</string>
     <string name="initial_setup_click_to_place">Klicke auf die Karte um das ausgewählte Element zu platzieren</string>
     <string name="initial_setup">Anfangsaufbau</string>
-    <string name="initial_setup_info">Platziere Türme, Gegner, Fallen und Barrikaden auf der Karte bevor das Level startet (optional)</string>
+    <string name="initial_setup_info">Platziere Türme, Gegner, Fallen, Barrikaden und Lehen auf der Karte bevor das Level startet (optional)</string>
     <string name="initial_setup_towers">Türme</string>
     <string name="initial_setup_enemies">Gegner</string>
     <string name="initial_setup_traps">Fallen</string>
     <string name="initial_setup_barricades">Barrikaden</string>
+    <string name="initial_setup_fiefs">Lehen</string>
+    <string name="fief_configuration">Lehen-Konfiguration</string>
     <string name="initial_setup_configuration">Konfiguration</string>
     <string name="element_type">Elementtyp</string>
     <string name="selection_mode">Auswahlmodus</string>
@@ -2190,4 +2192,9 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_kraken_description">Der Kraken ist ein riesiges Seemonster, das Lastenkähne angreifen und versenken kann und tauchen kann, um Schaden zu vermeiden. Er ist ein furchtbarer Gegner, der eine sorgfältige Strategie erfordert.</string>
     <string name="villain_kraken_title">Der Kraken betritt das Schlachtfeld</string>
     <string name="villain_kraken_backstory">Der Kraken ist aus den Tiefen des Ozeans aufgetaucht und bedroht alle, die auf den Meeren segeln. Seine Tentakel können Schiffe zerquetschen und seine Anwesenheit flößt selbst den mutigsten Seemännern Angst ein.</string>
+
+    <string name="fief_type_fisher">Fischer</string>
+    <string name="fief_type_woodcutter">Holzfäller</string>
+    <string name="fief_type_quarry">Steinbruch</string>
+    <string name="fief_type_marketplace">Marktplatz</string>
 </resources>

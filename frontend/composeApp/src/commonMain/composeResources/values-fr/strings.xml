@@ -679,11 +679,13 @@
     <string name="initial_setup_map">Carte</string>
     <string name="initial_setup_click_to_place">Cliquez sur la carte pour placer l'élément sélectionné</string>
     <string name="initial_setup">Configuration Initiale</string>
-    <string name="initial_setup_info">Placez des tours, des ennemis, des pièges et des barricades sur la carte avant que le niveau ne commence (optionnel)</string>
+    <string name="initial_setup_info">Placez des tours, des ennemis, des pièges, des barricades et des fiefs sur la carte avant que le niveau ne commence (optionnel)</string>
     <string name="initial_setup_towers">Tours</string>
     <string name="initial_setup_enemies">Ennemis</string>
     <string name="initial_setup_traps">Pièges</string>
     <string name="initial_setup_barricades">Barricades</string>
+    <string name="initial_setup_fiefs">Fiefs</string>
+    <string name="fief_configuration">Configuration de Fief</string>
     <string name="initial_setup_configuration">Configuration</string>
     <string name="element_type">Type d'Élément</string>
     <string name="selection_mode">Mode de Sélection</string>
@@ -2192,4 +2194,9 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_kraken_description">Le Kraken est un immense monstre marin qui peut attaquer les barges et les couler, et peut plonger pour éviter les dégâts. C\'est un adversaire redoutable qui requiert une stratégie minutieuse.</string>
     <string name="villain_kraken_title">Le Kraken entre sur le champ de bataille</string>
     <string name="villain_kraken_backstory">Le Kraken a émergé des profondeurs de l\'océan, menaçant tous ceux qui naviguent sur les mers. Ses tentacules peuvent broyer des navires et sa présence inspire la peur même aux marins les plus courageux.</string>
+
+    <string name="fief_type_fisher">Pêcheur</string>
+    <string name="fief_type_woodcutter">Bûcheron</string>
+    <string name="fief_type_quarry">Carrière</string>
+    <string name="fief_type_marketplace">Marché</string>
 </resources>
