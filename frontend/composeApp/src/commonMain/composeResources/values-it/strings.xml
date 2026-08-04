@@ -496,6 +496,8 @@
     <string name="can_disable_towers">Può disabilitare le torri</string>
     <string name="disabled">Disabilitato</string>
     <string name="immune_to_acid">Immune all'acido</string>
+    <string name="can_only_be_harmed_by_magical_attacks">Può essere ferito solo da attacchi magici</string>
+    <string name="ghost_movement_short">Etereo: attraversa le barricate, ma deve terminare su una casella vuota</string>
     <string name="immune_to_fireball">Immune alla palla di fuoco</string>
     <string name="villain_freya_shield_wall_short">Il muro di scudi blocca gli attacchi frontali</string>
 

@@ -42,4 +42,27 @@ class AttackerInfoTest {
             .onNodeWithText("He summons increasingly powerful Demons", substring = true)
             .assertIsDisplayed()
     }
+
+    @Test
+    fun ghostShowsMagicalAttacksOnlyInfo() {
+        val attacker =
+            Attacker(
+                id = 1,
+                type = AttackerType.GHOST,
+                position = mutableStateOf(Position(0, 0)),
+            )
+
+        composeTestRule.setContent {
+            MaterialTheme {
+                AttackerInfo(attacker = attacker)
+            }
+        }
+
+        composeTestRule
+            .onNodeWithText("Can only be harmed by magical attacks")
+            .assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText("Ethereal: moves through barricades, but must end on an empty tile")
+            .assertIsDisplayed()
+    }
 }

@@ -496,6 +496,8 @@
     <string name="can_disable_towers">Peut désactiver les tours</string>
     <string name="disabled">Désactivé</string>
     <string name="immune_to_acid">Immunisé contre l'acide</string>
+    <string name="can_only_be_harmed_by_magical_attacks">Ne peut être blessé que par des attaques magiques</string>
+    <string name="ghost_movement_short">Éthéré : traverse les barricades, mais doit finir sur une case vide</string>
     <string name="immune_to_fireball">Immunisé contre la boule de feu</string>
     <string name="villain_freya_shield_wall_short">Le mur de boucliers bloque les attaques frontales</string>
 
