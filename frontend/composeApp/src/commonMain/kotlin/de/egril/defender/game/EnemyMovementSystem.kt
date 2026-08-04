@@ -549,7 +549,7 @@ class EnemyMovementSystem(
      */
     fun calculateFloatingMovementPath(floater: Attacker): List<Position> {
         val startPos = floater.position.value
-        val speed = floater.type.speed
+        val speed = maxOf(1, floater.type.speed - floater.movementPenalty.value)
 
         val target =
             floater.currentTarget?.value
@@ -566,8 +566,11 @@ class EnemyMovementSystem(
 
             if (pos != startPos) {
                 val isValidLandingSpot =
-                    state.level.isOnPath(pos) ||
-                        state.level.isTargetPosition(pos)
+                    (state.level.isOnPath(pos) ||
+                        state.level.isTargetPosition(pos) ||
+                        state.level.isSpawnPoint(pos)) &&
+                        state.barricades.none { it.position == pos && !it.isDestroyed() } &&
+                        state.attackers.none { it.id != floater.id && !it.isDefeated.value && it.position.value == pos }
                 if (isValidLandingSpot) {
                     reachablePathPositions.add(Pair(pos, dist))
                 }

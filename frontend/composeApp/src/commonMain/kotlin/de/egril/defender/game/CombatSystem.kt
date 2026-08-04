@@ -425,6 +425,9 @@ class CombatSystem(
             removeHitMirrorImages(defender, listOf(target))
             return
         }
+        if (target.type.immuneToNonMagicTowerDamage && defender.type.attackType != AttackType.AREA) {
+            return
+        }
         // Shadow resistance: immune to non-magical (melee/ranged) attacks
         if (target.type.immuneToNonMagical) {
             return
@@ -597,7 +600,7 @@ class CombatSystem(
         for (target in unblockedTargets) {
             if (target.type.isMirrorImage) continue
             // Check immunity to acid (Blue Demons)
-            if (target.canBeDamagedByAcid()) {
+            if (target.canBeDamagedByAcid() && !target.type.immuneToNonMagicTowerDamage) {
                 // Initial damage is same as DOT tick damage (not full damage)
                 target.currentHealth.value -= getEffectiveDamageAgainst(defender, target) / LASTING_DAMAGE_DIVISOR
                 // Mark for additional rounds of DOT based on tower level
