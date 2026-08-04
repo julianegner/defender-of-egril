@@ -2207,6 +2207,25 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_kraken_title">The Kraken enters the battlefield</string>
     <string name="villain_kraken_backstory">The Kraken has emerged from the depths of the ocean, threatening all who sail the seas. Its tentacles can crush ships and its presence instills fear in even the bravest sailors.</string>
 
+    <!-- Enemy Unit Descriptions -->
+    <string name="goblin_description">Fast and nimble, goblins are the weakest enemies but move quickly. Use area attacks to handle multiple goblins at once.</string>
+    <string name="ork_description">Muscular and tough, Orks are the standard Horde infantry. They move slower than goblins but pack more health and damage.</string>
+    <string name="ogre_description">Massive and powerful, Ogres are formidable enemies with high health. Despite their size, they can be extremely dangerous in groups.</string>
+    <string name="troll_description">A creature of stone immune to blade attacks — melee and ranged towers deal no damage. Only fire and acid can harm it. The Troll moves every other turn and tramples smaller enemies. It destroys barricades rapidly with 10× damage.</string>
+    <string name="skeleton_description">Undead and fast-moving, skeletons are nimble warriors that quickly close the distance. Their undead nature makes them resilient to certain attacks.</string>
+    <string name="zombie_description">Shambling undead reanimated by dark magic. Slower than skeletons but still dangerous in numbers, especially when healed by Green Witches.</string>
+    <string name="evil_wizard_description">A magic user who channels destructive spells from the air. Defeat them quickly before they rain fire upon your defenses.</string>
+    <string name="blue_demon_description">A fast demon that thrives in acidic environments — it is immune to acid damage. Dispose of it with fire, physical attacks, or magical spells.</string>
+    <string name="red_demon_description">A powerful demon wreathed in flames that shrugs off fireballs and area attacks. Use acid, piercing attacks, or physical force to overcome its resistance.</string>
+    <string name="ghost_description">An ethereal undead spirit that floats over terrain obstacles. It resists non-magical attacks — only magical tower attacks like fireballs can harm it directly.</string>
+    <string name="red_witch_description">A dark magic user who can disable your towers for several turns, rendering them helpless. Prioritize defeating her to restore your defenses.</string>
+    <string name="green_witch_description">A healer who mends nearby allies each turn, making battles much harder. Defeat her quickly before she sustains the enemy army too much.</string>
+    <string name="snotling_description">A small, weak minion summoned by goblin shamans. While individually harmless, they can become dangerous in large numbers.</string>
+    <string name="spiderling_description">A tiny spider spawned by Araxxa's webs. Like snotlings, individual spiderlings are weak but threatening when they swarm together.</string>
+    <string name="robotic_goblin_description">A mechanical goblin constructed from scrap metal with reinforced armor. These constructs are tougher and harder to destroy than regular goblins.</string>
+    <string name="dragon_description">An ancient and mighty creature with immense power. The Dragon flies after its first turn, moving faster and becoming even more dangerous.</string>
+    <string name="undead_dragon_description">A reanimated dragon cursed to eternal servitude. It possesses the same fearsome power as the living dragon but carries the curse of undeath.</string>
+
     <string name="fief_type_fisher">Fisher</string>
     <string name="fief_type_woodcutter">Woodcutter</string>
     <string name="fief_type_quarry">Quarry</string>

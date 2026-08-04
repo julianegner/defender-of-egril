@@ -2197,6 +2197,25 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_kraken_title">Der Kraken betritt das Schlachtfeld</string>
     <string name="villain_kraken_backstory">Der Kraken ist aus den Tiefen des Ozeans aufgetaucht und bedroht alle, die auf den Meeren segeln. Seine Tentakel können Schiffe zerquetschen und seine Anwesenheit flößt selbst den mutigsten Seemännern Angst ein.</string>
 
+    <!-- Beschreibungen der Feindeseinheiten -->
+    <string name="goblin_description">Schnell und wendig, Goblins sind die schwächsten Gegner, bewegen sich aber schnell. Verwende Flächenattacken, um mehrere Goblins auf einmal zu bekämpfen.</string>
+    <string name="ork_description">Muskulös und zäh, Orks sind die Standard-Infanterie der Horde. Sie bewegen sich langsamer als Goblins, haben aber mehr Gesundheit und Schaden.</string>
+    <string name="ogre_description">Massiv und mächtig, Oger sind gefährliche Gegner mit hoher Lebenspunkte. Trotz ihrer Größe können sie besonders in Gruppen äußerst gefährlich sein.</string>
+    <string name="troll_description">Eine Kreatur aus Stein, die gegen Klingenangriffe immun ist — Nahkampf- und Fernkampftürme fügen keinen Schaden zu. Nur Feuer und Säure können es verletzen. Der Troll bewegt sich jeden zweiten Zug und zertrampelt kleinere Gegner. Er zerstört Barrikaden schnell mit 10× Schaden.</string>
+    <string name="skeleton_description">Untot und schnell beweglich, Skelette sind flinke Krieger, die schnell die Distanz überbrücken. Ihre untote Natur macht sie resistent gegen bestimmte Angriffe.</string>
+    <string name="zombie_description">Schlurfende Untote, die durch dunkle Magie wiederbelebt wurden. Langsamer als Skelette, aber immer noch gefährlich in Gruppen, besonders wenn sie von Grünen Hexen geheilt werden.</string>
+    <string name="evil_wizard_description">Ein Magier, der destruktive Zauber von oben kanalisiert. Besiege ihn schnell, bevor er Feuer auf deine Verteidigungen regnen lässt.</string>
+    <string name="blue_demon_description">Ein schneller Dämon, der in saurer Umgebung gedeiht — er ist gegen Säureschaden immun. Beseitige ihn mit Feuer, physischen Angriffen oder magischen Zaubersprüchen.</string>
+    <string name="red_demon_description">Ein mächtiger Dämon, der von Flammen umhüllt ist und Feuerball- und Flächenattacken abwehrt. Verwende Säure, durchbohrende Angriffe oder körperliche Kraft, um seine Resistenz zu überwinden.</string>
+    <string name="ghost_description">Ein ätherischer Geist der Untoten, der über Geländeobstanden schwebt. Er widersetzt sich nichtmagischen Angriffen — nur magische Turmangriffe wie Feuerbälle können ihn direkt verletzen.</string>
+    <string name="red_witch_description">Eine dunkle Magierin, die deine Türme mehrere Runden lang deaktivieren kann, wodurch sie wehrlos werden. Konzentriere dich darauf, sie schnell zu besiegen, um deine Verteidigungen wiederherzustellen.</string>
+    <string name="green_witch_description">Eine Heilerin, die jede Runde nahegelegene Verbündete heilt und die Schlacht viel schwieriger macht. Besiege sie schnell, bevor sie die Feindearmee zu sehr unterstützt.</string>
+    <string name="snotling_description">Ein kleiner, schwacher Scherge, der von Goblin-Schamanen beschworen wird. Während einzelne Snotlinge harmlos sind, können sie in großer Anzahl gefährlich werden.</string>
+    <string name="spiderling_description">Eine winzige Spinne, die von Araxxa's Netzen erzeugt wird. Wie Snotlinge sind einzelne Spiderling schwach, aber bedrohlich, wenn sie zusammenschwärmen.</string>
+    <string name="robotic_goblin_description">Ein mechanischer Goblin, der aus Schrott mit verstärkter Rüstung gebaut wurde. Diese Konstrukte sind zäher und schwerer zu zerstören als normale Goblins.</string>
+    <string name="dragon_description">Eine alte und mächtige Kreatur mit immenser Kraft. Der Drache fliegt nach seiner ersten Runde, bewegt sich schneller und wird noch gefährlicher.</string>
+    <string name="undead_dragon_description">Ein wiederbelebter Drache, verflucht zu ewiger Knechtschaft. Er besitzt dieselbe furchteinflößende Kraft wie der lebende Drache, trägt aber den Fluch der Untodheit.</string>
+
     <string name="fief_type_fisher">Fischer</string>
     <string name="fief_type_woodcutter">Holzfäller</string>
     <string name="fief_type_quarry">Steinbruch</string>
