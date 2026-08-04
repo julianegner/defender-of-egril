@@ -908,7 +908,8 @@ fun SelectedElementPanel(
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         Text(
-                            text = "${stringResource(Res.string.stat_income)}: +${selectedElement.fief.type.incomePerTurn}",
+                            text = "${stringResource(Res.string.stat_income)}: " +
+                                "+${selectedElement.fief.type.incomePerTurn}",
                             style = MaterialTheme.typography.bodySmall,
                         )
                         Text(

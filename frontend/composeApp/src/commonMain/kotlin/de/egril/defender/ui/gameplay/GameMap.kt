@@ -2800,10 +2800,14 @@ private fun BoxScope.GridCellContent(
             ) {
                 val fiefName =
                     when (fief.type) {
-                        de.egril.defender.model.FiefType.FISHER -> stringResource(Res.string.fief_type_fisher)
-                        de.egril.defender.model.FiefType.WOODCUTTER -> stringResource(Res.string.fief_type_woodcutter)
-                        de.egril.defender.model.FiefType.QUARRY -> stringResource(Res.string.fief_type_quarry)
-                        de.egril.defender.model.FiefType.MARKETPLACE -> stringResource(Res.string.fief_type_marketplace)
+                        de.egril.defender.model.FiefType.FISHER ->
+                            stringResource(Res.string.fief_type_fisher)
+                        de.egril.defender.model.FiefType.WOODCUTTER ->
+                            stringResource(Res.string.fief_type_woodcutter)
+                        de.egril.defender.model.FiefType.QUARRY ->
+                            stringResource(Res.string.fief_type_quarry)
+                        de.egril.defender.model.FiefType.MARKETPLACE ->
+                            stringResource(Res.string.fief_type_marketplace)
                     }
 
                 when (fief.type) {

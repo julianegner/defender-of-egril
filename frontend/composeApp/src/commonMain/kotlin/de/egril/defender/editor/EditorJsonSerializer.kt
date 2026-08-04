@@ -637,7 +637,10 @@ object EditorJsonSerializer {
                 if (initialData.fiefs.isNotEmpty()) {
                     val fiefsData =
                         initialData.fiefs.joinToString(",\n      ") { fief ->
-                            """{"position": {"x": ${fief.position.x}, "y": ${fief.position.y}}, "type": "${fief.type.name}"}"""
+                            val x = fief.position.x
+                            val y = fief.position.y
+                            val type = fief.type.name
+                            """{"position": {"x": $x, "y": $y}, "type": "$type"}"""
                         }
                     parts.add(
                         """"fiefs": [
@@ -1281,7 +1284,8 @@ object EditorJsonSerializer {
                                     val position = Position(x, y)
                                     val type =
                                         try {
-                                            de.egril.defender.model.FiefType.valueOf(JsonUtils.extractValue(entry, "type"))
+                                            val typeStr = JsonUtils.extractValue(entry, "type")
+                                            de.egril.defender.model.FiefType.valueOf(typeStr)
                                         } catch (e: Exception) {
                                             de.egril.defender.model.FiefType.FISHER
                                         }
@@ -1458,8 +1462,15 @@ object EditorJsonSerializer {
             } // End of legacy format fallback
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                val defenderCount = initialDefenders.size
+                val attackerCount = initialAttackers.size
+                val trapCount = initialTraps.size
+                val barricadeCount = initialBarricades.size
+                val fiefCount = initialFiefs.size
                 println(
-                    "EditorJsonSerializer.deserializeLevel: Parsed level $id with ${initialDefenders.size} defenders, ${initialAttackers.size} attackers, ${initialTraps.size} traps, ${initialBarricades.size} barricades, ${initialFiefs.size} fiefs",
+                    "EditorJsonSerializer.deserializeLevel: Parsed level $id " +
+                        "with $defenderCount defenders, $attackerCount attackers, " +
+                        "$trapCount traps, $barricadeCount barricades, $fiefCount fiefs",
                 )
             }
 
