@@ -878,6 +878,15 @@ class GameEngine(
                     attacker.id to (attacker.movementTurnsElapsed.value % 2 == 1)
                 }
 
+        // Units with movesEveryOtherTurn (e.g. Troll) alternate: move on odd turns, pause on even.
+        val alternatingCanMoveThisTurn =
+            regularAttackers
+                .filter { it.type.movesEveryOtherTurn }
+                .associate { attacker ->
+                    attacker.movementTurnsElapsed.value += 1
+                    attacker.id to (attacker.movementTurnsElapsed.value % 2 == 1)
+                }
+
         // Track current positions for collision detection during simulation
         val currentPositions = mutableMapOf<Int, Position>()
         regularAttackers.forEach { currentPositions[it.id] = it.position.value }
@@ -938,6 +947,10 @@ class GameEngine(
                 }
 
                 if (attacker.type == AttackerType.ARAXXA && araxxaCanMoveThisTurn[attacker.id] == false) {
+                    continue
+                }
+
+                if (attacker.type.movesEveryOtherTurn && alternatingCanMoveThisTurn[attacker.id] == false) {
                     continue
                 }
 
@@ -1137,6 +1150,30 @@ class GameEngine(
                 // Check if this position is already occupied or will be occupied by another unit in this step
                 // Exception: Allow multiple units to move to an active target position (they get defeated immediately)
                 // Exception: swarm units can move to positions occupied by their own type (they merge on arrival)
+                // Exception: units with canTrampleSmallerEnemies may trample small enemies on newPos.
+                val trampledByAttacker =
+                    if (attacker.type.canTrampleSmallerEnemies && !state.isActiveTargetPosition(newPos)) {
+                        // Find a small enemy unit at the target position that can be trampled.
+                        // Small = smaller than ORK (goblin, skeleton, wizard, witch, any -lings).
+                        // Villains and dragons are never trampled.
+                        state.attackers.find { victim ->
+                            !victim.isDefeated.value &&
+                                victim.id != attacker.id &&
+                                currentPositions[victim.id] == newPos &&
+                                !victim.type.isVillain &&
+                                !victim.type.isDragon &&
+                                victim.type.health < AttackerType.ORK.health
+                        }
+                    } else {
+                        null
+                    }
+                if (trampledByAttacker != null) {
+                    // Troll tramples the small enemy – mark it as defeated instantly.
+                    trampledByAttacker.isDefeated.value = true
+                    currentPositions.remove(trampledByAttacker.id)
+                    println("Troll ${attacker.id} trampled ${trampledByAttacker.type} (id=${trampledByAttacker.id}) at $newPos")
+                }
+
                 val isOccupied =
                     if (state.isActiveTargetPosition(newPos)) {
                         false // Active target position can accommodate multiple units
@@ -1729,13 +1766,16 @@ class GameEngine(
         return false
     }
 
-    fun getBarricadeDamageForEnemyUnit(attacker: Attacker): Int =
-        when {
-            attacker.type == AttackerType.SNOTLING || attacker.type == AttackerType.SPIDERLING ->
-                maxOf(1, attacker.currentHealth.value / 5)
-            attacker.type.isDragon -> attacker.level.value * 5
-            else -> attacker.level.value
-        }
+    fun getBarricadeDamageForEnemyUnit(attacker: Attacker): Int {
+        val baseDamage =
+            when {
+                attacker.type == AttackerType.SNOTLING || attacker.type == AttackerType.SPIDERLING ->
+                    maxOf(1, attacker.currentHealth.value / 5)
+                attacker.type.isDragon -> attacker.level.value * 5
+                else -> attacker.level.value
+            }
+        return baseDamage * attacker.type.barricadeDamageMultiplier
+    }
 
     /**
      * Prepare for enemy turn: set phase but don't spawn yet.

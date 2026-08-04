@@ -93,6 +93,7 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
             AttackerType.GOBLIN -> "goblin_name"
             AttackerType.ORK -> "ork_name"
             AttackerType.OGRE -> "ogre_name"
+            AttackerType.TROLL -> "troll_name"
             AttackerType.SKELETON -> "skeleton_name"
             AttackerType.ZOMBIE -> "zombie_name"
             AttackerType.EVIL_WIZARD -> "evil_wizard_name"

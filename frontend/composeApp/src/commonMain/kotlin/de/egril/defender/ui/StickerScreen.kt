@@ -323,6 +323,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.ORK -> drawOrkSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, s * 1.05f, outlineColor)
+                            AttackerType.TROLL -> drawTrollSymbol(centerX, centerY, s * 1.1f, outlineColor)
                             AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.ZOMBIE -> drawZombieSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, s, outlineColor)

@@ -251,6 +251,7 @@
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Gobelin</string>
     <string name="ork_name">Orc</string>
+    <string name="troll_name">Troll</string>
     <string name="ogre_name">Ogre</string>
     <string name="skeleton_name">Squelette</string>
     <string name="zombie_name">Zombie</string>
@@ -1672,7 +1673,7 @@
     <string name="cheat_addmana_desc">Ajouter du mana (ex. addmana 50)</string>
     <string name="cheat_removemana_desc">Retirer du mana (ex. removemana 20)</string>
     <string name="cheat_spawn_desc">Générer un ennemi (ex. spawn goblin 5)</string>
-    <string name="cheat_spawn_types">Types d\'ennemis: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_spawn_types">Types d\'ennemis: goblin, ork, ogre, troll, skeleton, wizard, greenwitch, redwitch</string>
     <string name="cheat_dig_nothing_desc">Résultat de creusement: rien</string>
     <string name="cheat_dig_treasure_desc">Résultat de creusement: trésor</string>
     <string name="cheat_dig_gems_desc">Résultat de creusement: gemmes/diamant</string>

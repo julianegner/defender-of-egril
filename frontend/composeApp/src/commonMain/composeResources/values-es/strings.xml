@@ -251,6 +251,7 @@
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Goblin</string>
     <string name="ork_name">Orco</string>
+    <string name="troll_name">Trol</string>
     <string name="ogre_name">Ogro</string>
     <string name="skeleton_name">Esqueleto</string>
     <string name="zombie_name">Zombi</string>
@@ -1671,7 +1672,7 @@
     <string name="cheat_addmana_desc">Agregar maná (ej. addmana 50)</string>
     <string name="cheat_removemana_desc">Quitar maná (ej. removemana 20)</string>
     <string name="cheat_spawn_desc">Generar enemigo (ej. spawn goblin 5)</string>
-    <string name="cheat_spawn_types">Tipos de enemigos: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_spawn_types">Tipos de enemigos: goblin, ork, ogre, troll, skeleton, wizard, greenwitch, redwitch</string>
     <string name="cheat_dig_nothing_desc">Resultado de excavación: nada</string>
     <string name="cheat_dig_treasure_desc">Resultado de excavación: tesoro</string>
     <string name="cheat_dig_gems_desc">Resultado de excavación: gemas/diamante</string>

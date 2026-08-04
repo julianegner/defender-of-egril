@@ -432,6 +432,13 @@ class CombatSystem(
         if (target.type.immuneToNonMagical) {
             return
         }
+        // Blade immunity: immune to melee and ranged (physical/blade) tower attacks.
+        // Only area (fireball) and lasting (acid) attacks can damage a troll.
+        if (target.type.immuneToBladeAttacks &&
+            (defender.type.attackType == AttackType.MELEE || defender.type.attackType == AttackType.RANGED)
+        ) {
+            return
+        }
         target.currentHealth.value -= getEffectiveDamageAgainst(defender, target)
         if (target.currentHealth.value <= 0) {
             target.isDefeated.value = true

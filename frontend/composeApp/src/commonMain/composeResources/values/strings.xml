@@ -255,6 +255,7 @@
     <string name="goblin_name">Goblin</string>
     <string name="ork_name">Ork</string>
     <string name="ogre_name">Ogre</string>
+    <string name="troll_name">Troll</string>
     <string name="skeleton_name">Skeleton</string>
     <string name="zombie_name">Zombie</string>
     <string name="evil_wizard_name">Evil Wizard</string>
@@ -1676,7 +1677,7 @@
     <string name="cheat_addmana_desc">Add mana (e.g., addmana 50)</string>
     <string name="cheat_removemana_desc">Remove mana (e.g., removemana 20)</string>
     <string name="cheat_spawn_desc">Spawn enemy (e.g., spawn goblin 5)</string>
-    <string name="cheat_spawn_types">Enemy types: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_spawn_types">Enemy types: goblin, ork, ogre, troll, skeleton, wizard, greenwitch, redwitch</string>
     <string name="cheat_dig_nothing_desc">Dig outcome: nothing</string>
     <string name="cheat_dig_treasure_desc">Dig outcome: treasure</string>
     <string name="cheat_dig_gems_desc">Dig outcome: gems/diamond</string>
