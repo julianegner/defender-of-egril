@@ -114,6 +114,7 @@ object CheatCodeHandler {
                         "goblin" -> AttackerType.GOBLIN
                         "ork", "orc" -> AttackerType.ORK
                         "ogre" -> AttackerType.OGRE
+                        "troll" -> AttackerType.TROLL
                         "skeleton" -> AttackerType.SKELETON
                         "wizard", "evil_wizard", "evilwizard" -> AttackerType.EVIL_WIZARD
                         "greenwitch" -> AttackerType.GREEN_WITCH

@@ -251,6 +251,7 @@
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Goblin</string>
     <string name="ork_name">Orco</string>
+    <string name="troll_name">Troll</string>
     <string name="ogre_name">Ogre</string>
     <string name="skeleton_name">Scheletro</string>
     <string name="zombie_name">Zombie</string>
@@ -1673,7 +1674,7 @@
     <string name="cheat_addmana_desc">Aggiungi mana (es. addmana 50)</string>
     <string name="cheat_removemana_desc">Rimuovi mana (es. removemana 20)</string>
     <string name="cheat_spawn_desc">Genera nemico (es. spawn goblin 5)</string>
-    <string name="cheat_spawn_types">Tipi di nemici: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_spawn_types">Tipi di nemici: goblin, ork, ogre, troll, skeleton, wizard, greenwitch, redwitch</string>
     <string name="cheat_dig_nothing_desc">Risultato scavo: niente</string>
     <string name="cheat_dig_treasure_desc">Risultato scavo: tesoro</string>
     <string name="cheat_dig_gems_desc">Risultato scavo: gemme/diamante</string>
@@ -2198,6 +2199,25 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_kraken_description">Il Kraken è un enorme mostro marino che può attaccare le chiatte e affondarle e può immergersi per evitare i danni. È un avversario formidabile che richiede una strategia attenta.</string>
     <string name="villain_kraken_title">Il Kraken entra nel campo di battaglia</string>
     <string name="villain_kraken_backstory">Il Kraken è emerso dalle profondità dell\'oceano, minacciando chiunque navighi i mari. I suoi tentacoli possono schiacciare le navi e la sua presenza incute paura anche ai marinai più coraggiosi.</string>
+
+    <!-- Descrizioni delle Unità Nemiche -->
+    <string name="goblin_description">Veloci e agili, i goblin sono i nemici più deboli ma si muovono rapidamente. Usa gli attacchi di area per gestire più goblin contemporaneamente.</string>
+    <string name="ork_description">Muscolosi e resistenti, gli Ork sono la fanteria standard dell\'Orda. Si muovono più lentamente dei goblin ma hanno più punti vita e danno.</string>
+    <string name="ogre_description">Massicce e potenti, gli Ogre sono nemici formidabili con molti punti vita. Nonostante le loro dimensioni, possono essere estremamente pericolose in gruppi.</string>
+    <string name="troll_description">Una creatura di pietra immune agli attacchi di lama — le torri da mischia e a distanza non infliggono danno. Solo il fuoco e l\'acido possono ferirla. Il Troll si muove ogni altro turno e calpesta i nemici più piccoli. Distrugge le barricate con una forza tremenda.</string>
+    <string name="skeleton_description">Non-morti veloci, gli scheletri sono guerrieri agili che riducono rapidamente la distanza. La loro natura di non-morte li rende resistenti a certi attacchi.</string>
+    <string name="zombie_description">Non-morti che si trascinano rianimati dalla magia oscura. Più lenti degli scheletri ma ancora pericolosi in numero, soprattutto quando guariti dalle Streghe Verdi.</string>
+    <string name="evil_wizard_description">Un utilizzatore di magia che canalizza incantesimi distruttivi dall\'aria. Sconfiggilo rapidamente prima che facciano piovere fuoco sulle tue difese.</string>
+    <string name="blue_demon_description">Un demone veloce che prospera negli ambienti acidi — è immune ai danni acidi. Eliminalo con fuoco, attacchi fisici o incantesimi magici.</string>
+    <string name="red_demon_description">Un demone potente avvolto dalle fiamme che resiste alle palle di fuoco e agli attacchi di area. Usa acido, attacchi perforanti o forza fisica per superare la sua resistenza.</string>
+    <string name="ghost_description">Uno spirito etereo non-morto che vola sopra gli ostacoli del terreno. Resiste agli attacchi non-magici — solo gli attacchi magici dalle torri come le palle di fuoco possono ferirlo direttamente.</string>
+    <string name="red_witch_description">Un\'utilizzatrice di magia oscura che può disabilitare le tue torri per diversi turni, lasciandole indifese. Dai priorità a sconfiggerla per ripristinare le tue difese.</string>
+    <string name="green_witch_description">Una guaritrice che guarisce gli alleati vicini ogni turno, rendendo le battaglie molto più difficili. Sconfiggila rapidamente prima che sostenga troppo l\'esercito nemico.</string>
+    <string name="snotling_description">Un piccolo e debole servitore convocato dagli sciamani goblin. Mentre gli snotling singoli sono innocui, possono diventare pericolosi in grandi numeri.</string>
+    <string name="spiderling_description">Un\'esile ragno generato dalle ragnatele di Araxxa. Come gli snotling, i ragni singoli sono deboli ma minacciosi quando si rassemblano.</string>
+    <string name="robotic_goblin_description">Un goblin meccanico costruito con rottami di metallo e armatura rinforzata. Questi costrutti sono più resistenti e più difficili da distruggere rispetto ai goblin comuni.</string>
+    <string name="dragon_description">Una creatura antica e potente con un potere immenso. Il Drago vola dopo il suo primo turno, muovendosi più velocemente e diventando ancora più pericoloso.</string>
+    <string name="undead_dragon_description">Un drago rianimato maledetto al servizio eterno. Possiede lo stesso potere terrificante del drago vivente ma porta la maledizione della non-morte.</string>
 
     <string name="fief_type_fisher">Pescatore</string>
     <string name="fief_type_woodcutter">Taglialegna</string>

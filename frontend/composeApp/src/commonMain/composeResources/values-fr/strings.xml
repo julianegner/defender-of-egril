@@ -251,6 +251,7 @@
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Gobelin</string>
     <string name="ork_name">Orc</string>
+    <string name="troll_name">Troll</string>
     <string name="ogre_name">Ogre</string>
     <string name="skeleton_name">Squelette</string>
     <string name="zombie_name">Zombie</string>
@@ -1672,7 +1673,7 @@
     <string name="cheat_addmana_desc">Ajouter du mana (ex. addmana 50)</string>
     <string name="cheat_removemana_desc">Retirer du mana (ex. removemana 20)</string>
     <string name="cheat_spawn_desc">Générer un ennemi (ex. spawn goblin 5)</string>
-    <string name="cheat_spawn_types">Types d\'ennemis: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_spawn_types">Types d\'ennemis: goblin, ork, ogre, troll, skeleton, wizard, greenwitch, redwitch</string>
     <string name="cheat_dig_nothing_desc">Résultat de creusement: rien</string>
     <string name="cheat_dig_treasure_desc">Résultat de creusement: trésor</string>
     <string name="cheat_dig_gems_desc">Résultat de creusement: gemmes/diamant</string>
@@ -2197,6 +2198,25 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_kraken_description">Le Kraken est un immense monstre marin qui peut attaquer les barges et les couler, et peut plonger pour éviter les dégâts. C\'est un adversaire redoutable qui requiert une stratégie minutieuse.</string>
     <string name="villain_kraken_title">Le Kraken entre sur le champ de bataille</string>
     <string name="villain_kraken_backstory">Le Kraken a émergé des profondeurs de l\'océan, menaçant tous ceux qui naviguent sur les mers. Ses tentacules peuvent broyer des navires et sa présence inspire la peur même aux marins les plus courageux.</string>
+
+    <!-- Descriptions des Unités Ennemies -->
+    <string name="goblin_description">Rapides et agiles, les gobelins sont les ennemis les plus faibles mais se déplacent rapidement. Utilisez des attaques de zone pour gérer plusieurs gobelins à la fois.</string>
+    <string name="ork_description">Musclés et robustes, les Orcs sont l\'infanterie standard de la Horde. Ils se déplacent plus lentement que les gobelins mais ont plus de points de vie et de dégâts.</string>
+    <string name="ogre_description">Massifs et puissants, les Ogres sont des ennemis redoutables avec beaucoup de points de vie. Malgré leur taille, ils peuvent être extrêmement dangereux en groupes.</string>
+    <string name="troll_description">Une créature de pierre immunisée contre les attaques de lames — les tours de combat rapproché et à distance n\'infligent aucun dégât. Seul le feu et l\'acide peuvent le blesser. Le Troll se déplace tous les deux tours et piétine les ennemis plus petits. Il détruit les barricades avec une force redoutable.</string>
+    <string name="skeleton_description">Morts-vivants rapides, les squelettes sont des guerriers agiles qui ferment rapidement la distance. Leur nature de mort-vivant les rend résistants à certaines attaques.</string>
+    <string name="zombie_description">Des morts-vivants traînants réanimés par la magie noire. Plus lents que les squelettes mais toujours dangereux en nombre, surtout lorsqu\'ils sont guéris par les Sorcières Vertes.</string>
+    <string name="evil_wizard_description">Un utilisateur de magie qui canalise des sortilèges destructeurs depuis les airs. Vaincue-le rapidement avant qu\'il ne pleuve du feu sur tes défenses.</string>
+    <string name="blue_demon_description">Un démon rapide qui prospère dans les environnements acides — il est immunisé aux dégâts d\'acide. Éliminez-le avec du feu, des attaques physiques ou des sortilèges magiques.</string>
+    <string name="red_demon_description">Un démon puissant enveloppé de flammes qui résiste aux boules de feu et aux attaques de zone. Utilisez l\'acide, les attaques perçantes ou la force physique pour surmonter sa résistance.</string>
+    <string name="ghost_description">Un esprit éthéré mort-vivant qui flotte sur les obstacles du terrain. Il résiste aux attaques non-magiques — seules les attaques magiques des tours comme les boules de feu peuvent le blesser directement.</string>
+    <string name="red_witch_description">Une utilisatrice de magie sombre qui peut désactiver vos tours pendant plusieurs tours, les laissant sans défense. Priorité à la vaincre pour restaurer vos défenses.</string>
+    <string name="green_witch_description">Une guérisseuse qui soigne les alliés à proximité chaque tour, rendant les batailles beaucoup plus difficiles. Vainquez-la rapidement avant qu\'elle ne soutienne trop l\'armée ennemie.</string>
+    <string name="snotling_description">Un petit et faible serviteur invoqué par les chamans gobelins. Bien que les snotlings individuels soient inoffensifs, ils peuvent devenir dangereux en grand nombre.</string>
+    <string name="spiderling_description">Une minuscule araignée engendrée par les toiles d\'Araxxa. Comme les snotlings, les araignées individuelles sont faibles mais menaçantes lorsqu\'elles se rassemblent.</string>
+    <string name="robotic_goblin_description">Un gobelin mécanique construit à partir de ferraille avec armure renforcée. Ces constructions sont plus résistantes et plus difficiles à détruire que les gobelins ordinaires.</string>
+    <string name="dragon_description">Une créature ancienne et puissante d\'une force immense. Le Dragon vole après son premier tour, se déplaçant plus rapidement et devenant encore plus dangereux.</string>
+    <string name="undead_dragon_description">Un dragon réanimé maudit au service éternel. Il possède la même puissance redoutable que le dragon vivant mais porte la malédiction de la non-mort.</string>
 
     <string name="fief_type_fisher">Pêcheur</string>
     <string name="fief_type_woodcutter">Bûcheron</string>

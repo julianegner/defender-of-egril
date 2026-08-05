@@ -140,10 +140,38 @@ enum class AttackerType(
     // Both flags may be true (e.g. Cap'n Roderich, who sails rivers but can also march on land).
     val canSpawnOnLand: Boolean = true,
     val canSpawnOnWater: Boolean = false,
+    // Blade immunity: immune to melee and ranged (physical/blade) tower attacks.
+    // Only area (fireball) and lasting (acid) attacks can deal damage. Used by Troll.
+    val immuneToBladeAttacks: Boolean = false,
+    // Alternating movement: unit moves every second enemy turn (moves on odd turns, pauses on even).
+    // The turn parity is tracked via [Attacker.movementTurnsElapsed]. Used by Troll.
+    val movesEveryOtherTurn: Boolean = false,
+    // Trample: when moving onto a tile occupied by a smaller enemy unit (smaller than ORK),
+    // that unit is immediately slain. The troll never tramples villains or dragons. Used by Troll.
+    val canTrampleSmallerEnemies: Boolean = false,
+    // Barricade damage multiplier: multiplies damage dealt to barricades. 1 = normal. Used by Troll (10×).
+    val barricadeDamageMultiplier: Int = 1,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
     OGRE("Ogre", health = 80, speed = 1, reward = 20, xp = 12, canBuildBridge = true, faction = EnemyFaction.HORDE),
+    // Troll: a creature made of stone. Immune to blade (melee/ranged) attacks.
+    // Moves 1 tile per turn and then pauses one turn (alternating movement).
+    // Can trample smaller enemy units (smaller than an Ork) that stand in its way.
+    // Deals 10× damage to barricades.
+    TROLL(
+        "Troll",
+        health = 200,
+        speed = 1,
+        reward = 30,
+        xp = 18,
+        canBuildBridge = true,
+        faction = EnemyFaction.HORDE,
+        immuneToBladeAttacks = true,
+        movesEveryOtherTurn = true,
+        canTrampleSmallerEnemies = true,
+        barricadeDamageMultiplier = 10,
+    ),
     SKELETON("Skeleton", health = 15, speed = 5, reward = 7, xp = 4, faction = EnemyFaction.UNDEAD),
     ZOMBIE("Zombie", health = 25, speed = 1, reward = 6, xp = 4, faction = EnemyFaction.UNDEAD),
     EVIL_WIZARD("Evil Wizard", health = 30, speed = 2, reward = 15, xp = 9, canBuildBridge = true),
@@ -570,7 +598,7 @@ data class Attacker(
     val level: MutableState<Int> = mutableStateOf(1), // Made mutable for dragons to scale with health
     val currentHealth: MutableState<Int> = mutableStateOf(type.health * level.value),
     val isDefeated: MutableState<Boolean> = mutableStateOf(false),
-    val wasMerged: MutableState<Boolean> = mutableStateOf(false), // True when a snotling was absorbed by another snotling (no XP/coins awarded)
+    val wasMerged: MutableState<Boolean> = mutableStateOf(false), // True for non-reward removals (e.g. swarm merge or trample; no XP/coins awarded)
     val isDisabled: MutableState<Boolean> = mutableStateOf(false), // For towers disabled by Red Witch
     val disabledTurnsRemaining: MutableState<Int> = mutableStateOf(0),
     val summonCooldown: MutableState<Int> = mutableStateOf(0), // Cooldown for summoning abilities
@@ -758,6 +786,7 @@ fun AttackerType.getSoulCallResurrectionType(): AttackerType? =
 fun Attacker.isImmuneToAttackFrom(defenderType: DefenderType): Boolean =
     when {
         type.immuneToNonMagicTowerDamage && defenderType.attackType != AttackType.AREA -> true
+        type.immuneToBladeAttacks && (defenderType.attackType == AttackType.MELEE || defenderType.attackType == AttackType.RANGED) -> true
         else ->
             when (defenderType.attackType) {
                 AttackType.AREA -> type.immuneToFireball

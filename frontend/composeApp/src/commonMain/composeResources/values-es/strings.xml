@@ -251,6 +251,7 @@
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Goblin</string>
     <string name="ork_name">Orco</string>
+    <string name="troll_name">Trol</string>
     <string name="ogre_name">Ogro</string>
     <string name="skeleton_name">Esqueleto</string>
     <string name="zombie_name">Zombi</string>
@@ -1671,7 +1672,7 @@
     <string name="cheat_addmana_desc">Agregar maná (ej. addmana 50)</string>
     <string name="cheat_removemana_desc">Quitar maná (ej. removemana 20)</string>
     <string name="cheat_spawn_desc">Generar enemigo (ej. spawn goblin 5)</string>
-    <string name="cheat_spawn_types">Tipos de enemigos: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_spawn_types">Tipos de enemigos: goblin, ork, ogre, troll, skeleton, wizard, greenwitch, redwitch</string>
     <string name="cheat_dig_nothing_desc">Resultado de excavación: nada</string>
     <string name="cheat_dig_treasure_desc">Resultado de excavación: tesoro</string>
     <string name="cheat_dig_gems_desc">Resultado de excavación: gemas/diamante</string>
@@ -2196,6 +2197,25 @@
     <string name="villain_kraken_description">El Kraken es un enorme monstruo marino que puede atacar barcazas y hundirlas, y puede sumergirse para evitar el daño. Es un rival formidable que requiere una estrategia cuidadosa.</string>
     <string name="villain_kraken_title">El Kraken entra al campo de batalla</string>
     <string name="villain_kraken_backstory">El Kraken ha emergido de las profundidades del océano, amenazando a todos los que navegan por los mares. Sus tentáculos pueden aplastar barcos y su presencia infunde miedo incluso en los marineros más valientes.</string>
+
+    <!-- Descripciones de Unidades Enemigas -->
+    <string name="goblin_description">Rápidos y ágiles, los goblins son los enemigos más débiles pero se mueven rápidamente. Usa ataques de área para manejar múltiples goblins a la vez.</string>
+    <string name="ork_description">Musculosos y resistentes, los Orks son la infantería estándar de la Horda. Se mueven más lentamente que los goblins pero tienen más salud y daño.</string>
+    <string name="ogre_description">Masivos y poderosos, los Ogres son enemigos formidables con una salud muy alta. A pesar de su tamaño, pueden ser extremadamente peligrosos en grupos.</string>
+    <string name="troll_description">Una criatura de piedra inmune a los ataques de cuchilla — las torres de combate cuerpo a cuerpo y a distancia no le infligen daño. Solo el fuego y el ácido pueden dañarlo. El Troll se mueve cada otro turno y aplasta a los enemigos más pequeños. Destruye barricadas con una fuerza tremenda.</string>
+    <string name="skeleton_description">Muerto viviente y rápido, los esqueletos son guerreros ágiles que cierran rápidamente la distancia. Su naturaleza muerta viviente los hace resistentes a ciertos ataques.</string>
+    <string name="zombie_description">Muertos vivientes arrastrándose reanimados por magia oscura. Más lentos que los esqueletos pero aún peligrosos en números, especialmente cuando son curados por Brujas Verdes.</string>
+    <string name="evil_wizard_description">Un usuario de magia que canaliza hechizos destructivos desde el aire. Derrótalo rápidamente antes de que llueva fuego sobre tus defensas.</string>
+    <string name="blue_demon_description">Un demonio rápido que prospera en ambientes ácidos — es inmune al daño ácido. Deshazte de él con fuego, ataques físicos o hechizos mágicos.</string>
+    <string name="red_demon_description">Un demonio poderoso envuelto en llamas que se burla de bolas de fuego y ataques de área. Usa ácido, ataques penetrantes o fuerza física para superar su resistencia.</string>
+    <string name="ghost_description">Un espíritu etéreo no-muerto que flota sobre obstáculos del terreno. Resiste ataques no mágicos — solo los ataques mágicos de torres como bolas de fuego pueden dañarlo directamente.</string>
+    <string name="red_witch_description">Una usuaria de magia oscura que puede desactivar tus torres durante varios turnos, dejándolas indefensas. Prioriza derrotarla para restaurar tus defensas.</string>
+    <string name="green_witch_description">Una sanadora que cura a aliados cercanos cada turno, haciendo las batallas mucho más difíciles. Derrótala rápidamente antes de que sostenga demasiado al ejército enemigo.</string>
+    <string name="snotling_description">Un pequeño y débil esbirro convocado por chamanes goblins. Mientras que los snotlings individuales son inofensivos, pueden volverse peligrosos en grandes números.</string>
+    <string name="spiderling_description">Una pequeña araña engendrada por las telarañas de Araxxa. Como los snotlings, los spiderlings individuales son débiles pero amenazantes cuando se enjambran juntos.</string>
+    <string name="robotic_goblin_description">Un goblin mecánico construido con chatarra metálica y armadura reforzada. Estas construcciones son más resistentes y más difíciles de destruir que los goblins comunes.</string>
+    <string name="dragon_description">Una criatura antigua y poderosa con poder inmenso. El Dragón vuela después de su primer turno, moviéndose más rápido y volviéndose aún más peligroso.</string>
+    <string name="undead_dragon_description">Un dragón reanimado maldito al servicio eterno. Posee el mismo poder formidable que el dragón viviente pero carga con la maldición de la no-muerte.</string>
 
     <string name="fief_type_fisher">Pescador</string>
     <string name="fief_type_woodcutter">Leñador</string>

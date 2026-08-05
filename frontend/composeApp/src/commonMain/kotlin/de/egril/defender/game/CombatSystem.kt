@@ -432,6 +432,13 @@ class CombatSystem(
         if (target.type.immuneToNonMagical) {
             return
         }
+        // Blade immunity: immune to melee and ranged (physical/blade) tower attacks.
+        // Only area (fireball) and lasting (acid) attacks can damage a troll.
+        if (target.type.immuneToBladeAttacks &&
+            (defender.type.attackType == AttackType.MELEE || defender.type.attackType == AttackType.RANGED)
+        ) {
+            return
+        }
         target.currentHealth.value -= getEffectiveDamageAgainst(defender, target)
         if (target.currentHealth.value <= 0) {
             target.isDefeated.value = true
@@ -708,8 +715,8 @@ class CombatSystem(
     fun processDefeatedAttackers() {
         val defeated = state.attackers.filter { it.isDefeated.value && !state.level.isTargetPosition(it.position.value) }
 
-        // Swarm units defeated by merging are not real kills: exclude them from kill counts and rewards.
-        val mergedSwarmUnits = defeated.filter { it.wasMerged.value }
+        // Non-reward defeats (e.g. merged swarm units or enemy-on-enemy trampling) are not real kills.
+        val nonRewardDefeats = defeated.filter { it.wasMerged.value }
         val actualKills = defeated.filter { !it.wasMerged.value && !it.type.isMirrorImage }
 
         // Track kills for this attack
@@ -719,8 +726,8 @@ class CombatSystem(
         if (killsThisAttack > 0) {
             GameLogBuffer.log("COMBAT", "Defeated $killsThisAttack enemies: ${killedTypes.joinToString()}")
         }
-        if (mergedSwarmUnits.isNotEmpty()) {
-            GameLogBuffer.log("COMBAT", "Merged ${mergedSwarmUnits.size} swarm unit(s) — no reward")
+        if (nonRewardDefeats.isNotEmpty()) {
+            GameLogBuffer.log("COMBAT", "${nonRewardDefeats.size} enemy defeat(s) without reward")
         }
 
         // Update turn totals

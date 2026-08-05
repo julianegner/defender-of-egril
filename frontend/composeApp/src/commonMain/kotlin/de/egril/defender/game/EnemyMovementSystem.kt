@@ -683,8 +683,8 @@ class EnemyMovementSystem(
                 // Check for barricades (barricades block non-flying enemies)
                 val barricadeAtPosition = state.barricades.find { it.position == newPos && !it.isDestroyed() }
                 if (barricadeAtPosition != null) {
-                    // Goblin encounters barricade - attack it
-                    val damage = attacker.level.value // Goblins are not dragons, so regular damage
+                    // Enemy encounters barricade - attack it
+                    val damage = attacker.level.value * attacker.type.barricadeDamageMultiplier
                     barricadeAtPosition.takeDamage(damage)
 
                     // Add damage effect for visualization

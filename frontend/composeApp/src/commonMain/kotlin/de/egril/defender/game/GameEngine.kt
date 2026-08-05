@@ -278,7 +278,8 @@ class GameEngine(
             candidates.filter { attacker ->
                 !attacker.isDefeated.value &&
                     defender.canAttack(attacker, getEffectiveRange(defender)) &&
-                    !state.isShieldWallAttackBlocked(defender, attacker)
+                    !state.isShieldWallAttackBlocked(defender, attacker) &&
+                    canAutoAttackDamage(defender, attacker)
             }
         if (attackable.isEmpty()) return null
 
@@ -363,11 +364,7 @@ class GameEngine(
                         !attacker.isDefeated.value &&
                             affectedPositions.contains(attacker.position.value) &&
                             !state.isShieldWallAttackBlocked(defender, attacker) &&
-                            when (defender.type.attackType) {
-                                AttackType.AREA -> attacker.canBeDamagedByFireball()
-                                AttackType.LASTING -> attacker.canBeDamagedByAcid()
-                                else -> true // Should not happen for other attack types
-                            }
+                            canAutoAttackDamage(defender, attacker)
                     }
 
                 // Calculate score: number of enemies hit + sum of threat scores + proximity to goal
@@ -391,6 +388,23 @@ class GameEngine(
                 compareBy<Triple<Position, Int, Double>> { it.second }
                     .thenBy { -it.third }, // Negative because lower distance is better
             )?.first
+    }
+
+    private fun canAutoAttackDamage(
+        defender: Defender,
+        attacker: Attacker,
+    ): Boolean {
+        return when (defender.type.attackType) {
+            AttackType.MELEE, AttackType.RANGED -> {
+                !attacker.type.immuneToNonMagicTowerDamage &&
+                    !attacker.type.immuneToNonMagical &&
+                    !(attacker.type.immuneToBladeAttacks &&
+                        (defender.type.attackType == AttackType.MELEE || defender.type.attackType == AttackType.RANGED))
+            }
+            AttackType.AREA -> attacker.canBeDamagedByFireball()
+            AttackType.LASTING -> attacker.canBeDamagedByAcid() && !attacker.type.immuneToNonMagicTowerDamage
+            AttackType.NONE -> false
+        }
     }
 
     private fun threatScore(attacker: Attacker): Int {
@@ -878,6 +892,15 @@ class GameEngine(
                     attacker.id to (attacker.movementTurnsElapsed.value % 2 == 1)
                 }
 
+        // Units with movesEveryOtherTurn (e.g. Troll) alternate: move on odd turns, pause on even.
+        val alternatingCanMoveThisTurn =
+            regularAttackers
+                .filter { it.type.movesEveryOtherTurn }
+                .associate { attacker ->
+                    attacker.movementTurnsElapsed.value += 1
+                    attacker.id to (attacker.movementTurnsElapsed.value % 2 == 1)
+                }
+
         // Track current positions for collision detection during simulation
         val currentPositions = mutableMapOf<Int, Position>()
         regularAttackers.forEach { currentPositions[it.id] = it.position.value }
@@ -938,6 +961,16 @@ class GameEngine(
                 }
 
                 if (attacker.type == AttackerType.ARAXXA && araxxaCanMoveThisTurn[attacker.id] == false) {
+                    continue
+                }
+
+                if (attacker.type.movesEveryOtherTurn && alternatingCanMoveThisTurn[attacker.id] == false) {
+                    // Alternating units (e.g. Troll) pause movement on even turns, but can still
+                    // attack one adjacent barricade.
+                    val adjacentBarricadeTarget = findAdjacentBarricadeForStationaryAttack(attacker, currentPos)
+                    if (adjacentBarricadeTarget != null) {
+                        attackersStoppedByBarricade.add(Pair(attacker, adjacentBarricadeTarget))
+                    }
                     continue
                 }
 
@@ -1137,6 +1170,31 @@ class GameEngine(
                 // Check if this position is already occupied or will be occupied by another unit in this step
                 // Exception: Allow multiple units to move to an active target position (they get defeated immediately)
                 // Exception: swarm units can move to positions occupied by their own type (they merge on arrival)
+                // Exception: units with canTrampleSmallerEnemies may trample small enemies on newPos.
+                val trampledByAttacker =
+                    if (attacker.type.canTrampleSmallerEnemies && !state.isActiveTargetPosition(newPos)) {
+                        // Find a small enemy unit at the target position that can be trampled.
+                        // Small = smaller than ORK (goblin, skeleton, wizard, witch, any -lings).
+                        // Villains and dragons are never trampled.
+                        state.attackers.find { victim ->
+                            !victim.isDefeated.value &&
+                                victim.id != attacker.id &&
+                                currentPositions[victim.id] == newPos &&
+                                !victim.type.isVillain &&
+                                !victim.type.isDragon &&
+                                victim.type.health < AttackerType.ORK.health
+                        }
+                    } else {
+                        null
+                    }
+                if (trampledByAttacker != null) {
+                    // Trample defeats are not player kills and should not grant XP/coins.
+                    trampledByAttacker.wasMerged.value = true
+                    trampledByAttacker.isDefeated.value = true
+                    currentPositions.remove(trampledByAttacker.id)
+                    println("Troll ${attacker.id} trampled ${trampledByAttacker.type} (id=${trampledByAttacker.id}) at $newPos")
+                }
+
                 val isOccupied =
                     if (state.isActiveTargetPosition(newPos)) {
                         false // Active target position can accommodate multiple units
@@ -1217,6 +1275,42 @@ class GameEngine(
         }
 
         return EnemyTurnMovements(allMovementSteps, attackersStoppedByBarricade)
+    }
+
+    private fun findAdjacentBarricadeForStationaryAttack(
+        attacker: Attacker,
+        currentPos: Position,
+    ): Position? {
+        val target =
+            attacker.currentTarget?.value
+                ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
+                ?: state.level.targetPositions.firstOrNull()
+                ?: return null
+        val adjacentBarricades =
+            currentPos.getHexNeighbors().mapNotNull { neighbor ->
+                if (neighbor.x < 0 ||
+                    neighbor.x >= state.level.gridWidth ||
+                    neighbor.y < 0 ||
+                    neighbor.y >= state.level.gridHeight
+                ) {
+                    null
+                } else {
+                    val barricade = barricadeSystem.getBarricadeAt(neighbor)
+                    if (barricade != null && !barricade.isDestroyed()) {
+                        Pair(neighbor, barricade)
+                    } else {
+                        null
+                    }
+                }
+            }
+        if (adjacentBarricades.isEmpty()) return null
+
+        // Prefer barricades that progress toward the unit's target; if tied, prefer tower bases.
+        return adjacentBarricades
+            .minWithOrNull(
+                compareBy<Pair<Position, Barricade>> { it.first.distanceTo(target) }
+                    .thenBy { if (it.second.hasTower()) 0 else 1 },
+            )?.first
     }
 
     private fun handleBarricades(
@@ -1456,10 +1550,8 @@ class GameEngine(
         newPosition: Position,
     ) {
         val attacker = state.attackers.find { it.id == attackerId } ?: return
-        if (attacker.isDefeated.value) {
-            println("attackBarricade A")
-            if (attackBarricade(newPosition, attacker)) return
-        }
+        if (attacker.isDefeated.value) return
+        if (attackBarricade(newPosition, attacker)) return
 
         // Special handling for dragons - they can eat other units
         if (attacker.type.isDragon) {
@@ -1729,13 +1821,16 @@ class GameEngine(
         return false
     }
 
-    fun getBarricadeDamageForEnemyUnit(attacker: Attacker): Int =
-        when {
-            attacker.type == AttackerType.SNOTLING || attacker.type == AttackerType.SPIDERLING ->
-                maxOf(1, attacker.currentHealth.value / 5)
-            attacker.type.isDragon -> attacker.level.value * 5
-            else -> attacker.level.value
-        }
+    fun getBarricadeDamageForEnemyUnit(attacker: Attacker): Int {
+        val baseDamage =
+            when {
+                attacker.type == AttackerType.SNOTLING || attacker.type == AttackerType.SPIDERLING ->
+                    maxOf(1, attacker.currentHealth.value / 5)
+                attacker.type.isDragon -> attacker.level.value * 5
+                else -> attacker.level.value
+            }
+        return baseDamage * attacker.type.barricadeDamageMultiplier
+    }
 
     /**
      * Prepare for enemy turn: set phase but don't spawn yet.
