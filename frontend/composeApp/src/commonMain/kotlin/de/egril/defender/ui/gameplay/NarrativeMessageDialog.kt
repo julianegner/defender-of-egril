@@ -119,7 +119,7 @@ fun NarrativeMessageDialog(
     ) {
         val focusRequester = remember { FocusRequester() }
         val scrollState = rememberScrollState()
-        LaunchedEffect(Unit) {
+        LaunchedEffect(type, title, text) {
             try {
                 focusRequester.requestFocus()
             } catch (_: IllegalStateException) {

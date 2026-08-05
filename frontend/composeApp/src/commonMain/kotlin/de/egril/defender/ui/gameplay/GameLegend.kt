@@ -241,6 +241,46 @@ fun LegendItemHex(
 // Extension function to calculate color luminance
 private fun Color.luminance(): Float = (0.299f * red + 0.587f * green + 0.114f * blue)
 
+private fun Attacker.isSilasOrMirror(): Boolean =
+    type == AttackerType.SILAS_THE_MASKMASTER || type == AttackerType.SILAS_MIRROR_IMAGE
+
+private fun mixedSilasOrderKey(
+    attackerId: Int,
+    turn: Int,
+): UInt {
+    var x = attackerId xor (turn * 0x9E3779B9.toInt())
+    x = x xor (x ushr 16)
+    x *= 0x7FEB352D
+    x = x xor (x ushr 15)
+    x *= 0x846CA68B.toInt()
+    x = x xor (x ushr 16)
+    return x.toUInt()
+}
+
+private fun reorderActiveEnemiesForDisplay(
+    enemiesById: List<Attacker>,
+    turn: Int,
+): List<Attacker> {
+    val silasGroup = enemiesById.filter { it.isSilasOrMirror() }
+    if (silasGroup.size < 2) return enemiesById
+
+    val mixedSilasGroup = silasGroup.sortedBy { mixedSilasOrderKey(attackerId = it.id, turn = turn) }
+    var insertedSilasGroup = false
+
+    return buildList(enemiesById.size) {
+        enemiesById.forEach { attacker ->
+            if (attacker.isSilasOrMirror()) {
+                if (!insertedSilasGroup) {
+                    addAll(mixedSilasGroup)
+                    insertedSilasGroup = true
+                }
+            } else {
+                add(attacker)
+            }
+        }
+    }
+}
+
 @Composable
 fun EnemyListPanel(
     gameState: GameState,
@@ -264,7 +304,11 @@ fun EnemyListPanel(
     }
 
     // Compute values directly - parent GamePlayScreen's key() will trigger recomposition
-    val activeEnemies = gameState.attackers.filter { !it.isDefeated.value }.sortedBy { it.id }
+    val activeEnemies =
+        reorderActiveEnemiesForDisplay(
+            enemiesById = gameState.attackers.filter { !it.isDefeated.value }.sortedBy { it.id },
+            turn = currentTurn,
+        )
 
     // Calculate how many enemies have spawned from the spawn plan
     // nextAttackerId starts at 1, so (nextAttackerId - 1) gives us the count of spawned enemies
