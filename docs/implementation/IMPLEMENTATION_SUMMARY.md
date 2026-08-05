@@ -76,7 +76,7 @@ A complete turn-based tower defense game built with Kotlin Multiplatform and Com
 
 #### Architecture
 
-```
+```text
 ┌─────────────────┐
 │   Presentation  │  Compose UI (App.kt, Screens)
 ├─────────────────┤
@@ -128,7 +128,7 @@ A complete turn-based tower defense game built with Kotlin Multiplatform and Com
 
 ## File Structure
 
-```
+```text
 defender-of-egril/
 ├── composeApp/
 │   ├── src/
@@ -234,7 +234,7 @@ When testing on a system with normal internet access:
 
 1. **Build**: Run `./gradlew build` - should complete successfully
 2. **Run**: Execute `./gradlew :composeApp:run` - game window should appear
-3. **Gameplay**: 
+3. **Gameplay**:
    - Navigate through all screens
    - Place towers and start combat
    - Complete at least one level

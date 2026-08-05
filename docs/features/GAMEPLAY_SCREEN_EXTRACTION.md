@@ -5,15 +5,18 @@
 The following components have been successfully extracted from GamePlayScreen.kt into the `ui/gameplay` subfolder:
 
 ### GameMap.kt
+
 - `GameGrid` - Main game grid with pan/zoom functionality
 - `GridCell` - Individual hexagonal grid cell
 
 ### GameControls.kt
+
 - `GameControlsPanel` - Main control panel that switches between phases
 - `TurnButton` - Button to end turn or start battle
 - `EnemyTurnInfo` - Enemy turn indicator with animation
 
 ### GameLegend.kt
+
 - `GameLegend` - Collapsible legend showing game element meanings
 - `LegendItemHex` - Individual legend item with hexagonal icon
 - `EnemyListPanel` - Panel showing active and planned enemies
@@ -23,16 +26,19 @@ The following components have been successfully extracted from GamePlayScreen.kt
 - `EnemyItem` - Full detailed enemy card (unused but kept for compatibility)
 
 ### DefenderButtons.kt
+
 - `CompactDefenderButton` - Compact tower button for folded view
 - `DefenderButton` - Full tower button with stats
 - `TowerStats` - Tower stats display (damage, range, actions)
 
 ### ActionButtons.kt
+
 - `AttackButton` - Button to attack enemies
 - `UpgradeButton` - Button to upgrade towers
 - `UndoOrSellButton` - Button to undo or sell towers with confirmation dialog
 
 ### DefenderInfo.kt
+
 - `DefenderInfo` - Main defender/tower information card
 - `DefenderActionsInfo` - Display of remaining actions or build time
 - `MiningOutcomeGrid` - Grid showing mining probabilities for Dwarven Mine
@@ -40,6 +46,7 @@ The following components have been successfully extracted from GamePlayScreen.kt
 - `dwarvenMineActionButtonArea` - Dig and Trap buttons for Dwarven Mine
 
 ### GameHeader.kt ✨ NEW
+
 - `GameHeader` - Main header component that switches between expanded/compact views
 - `ExpandedGameHeader` - Full header with level name, stats, and phase indicator
 - `CompactGameHeader` - Collapsed header with minimal stats
@@ -48,6 +55,7 @@ The following components have been successfully extracted from GamePlayScreen.kt
 - `HeaderActions` - Back, Save, and Info toggle buttons
 
 ### GameDialogs.kt ✨ NEW
+
 - `DigOutcomeDialog` - Mining result dialog with icon and message
 - `SaveGameDialog` - Save game dialog with optional comment input
 - `SaveConfirmationDialog` - Save confirmation message
@@ -62,7 +70,7 @@ The following components have been successfully extracted from GamePlayScreen.kt
 
 ## Current Structure
 
-```
+```text
 ui/gameplay/
 ├── ActionButtons.kt      - Attack, Upgrade, Undo/Sell buttons
 ├── DefenderButtons.kt    - Tower selection buttons
@@ -77,11 +85,13 @@ ui/gameplay/
 ## Suggestions for Further Extraction
 
 ### ✅ 1. Header Components - COMPLETED
+
 ~~The header section in `GamePlayScreenContent` could be extracted to a separate file:~~
 
 **File**: `ui/gameplay/GameHeader.kt` ✅
 
 Components extracted:
+
 - ✅ `GameHeader` - Main header component that switches between views
 - ✅ `ExpandedGameHeader` - Full header with level name, stats, phase indicator  
 - ✅ `CompactGameHeader` - Collapsed header version
@@ -90,22 +100,26 @@ Components extracted:
 - ✅ `HeaderActions` - Back, Save, Info toggle buttons
 
 ### ✅ 2. Dialog Components - COMPLETED
+
 ~~The various dialogs could be grouped together:~~
 
 **File**: `ui/gameplay/GameDialogs.kt` ✅
 
 Components extracted:
+
 - ✅ `DigOutcomeDialog` - Mining result dialog with icon
 - ✅ `SaveGameDialog` - Save game with comment dialog
 - ✅ `SaveConfirmationDialog` - Save confirmation
 - ✅ `CheatCodeDialog` - Cheat code input dialog
 
 ### 3. Icon Components (Optional)
+
 Custom icon functions could be grouped:
 
 **File**: `ui/gameplay/GameIcons.kt` (or keep in `ui/IconUtils.kt`)
 
 Icons already in use throughout the codebase:
+
 - `DigOutcomeIcon` - Mining outcome icons (used in GameDialogs)
 - `SaveIcon` - Save button icon (used in GameHeader)
 - `TriangleDownIcon`, `TriangleUpIcon`, `TriangleLeftIcon`, `TriangleRightIcon` - Navigation icons (used in GameHeader)
@@ -114,23 +128,26 @@ Icons already in use throughout the codebase:
 **Note**: These icons are already well-organized in the IconUtils.kt file and are used across multiple screens. Extracting them to gameplay-specific files would reduce reusability. Current organization is recommended.
 
 ### 4. Utility Functions (Optional)
+
 Helper functions and extensions could be extracted if they grow:
 
 **File**: `ui/gameplay/GamePlayUtils.kt`
 
 Current utilities in GamePlayScreen:
+
 - `getGameplayUIScale()` - Platform-specific UI scale (already platform-specific, well-placed)
 - Color extension functions (none currently)
 - Common constants (none currently - values are inlined)
 
 **Note**: The current utilities are minimal and well-integrated. Extraction would add complexity without clear benefit at this time.
+
 - Turn management
 - Phase transitions
 - Event handling
 
 ## Structure Overview
 
-```
+```text
 ui/
 ├── gameplay/
 │   ├── ActionButtons.kt      - Attack, Upgrade, Undo/Sell buttons
@@ -158,6 +175,7 @@ ui/
 ## Testing Notes
 
 All components have been successfully extracted with:
+
 - ✅ No compilation errors
 - ✅ All imports properly updated
 - ✅ Desktop build successful (verified with compileKotlinDesktop)
@@ -182,6 +200,7 @@ All components have been successfully extracted with:
 ## Completion Status
 
 ### Phase 1: Core Components ✅ COMPLETE
+
 - [x] GameMap.kt
 - [x] GameControls.kt  
 - [x] GameLegend.kt
@@ -190,10 +209,12 @@ All components have been successfully extracted with:
 - [x] DefenderInfo.kt
 
 ### Phase 2: Additional Extractions ✅ COMPLETE
+
 - [x] GameHeader.kt (header components)
 - [x] GameDialogs.kt (dialog components)
 
 ### Phase 3: Optional Future Enhancements
+
 - [ ] Icon consolidation (not needed - already well-organized)
 - [ ] Utility functions (not needed - minimal utilities currently)
 - [ ] Unit tests for components

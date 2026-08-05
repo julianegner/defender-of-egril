@@ -12,6 +12,7 @@ import de.egril.defender.game.GameEngine
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
+import de.egril.defender.ui.animations.SKY_IS_FALLING_DURATION_MS
 import de.egril.defender.ui.infopage.NewVersionInfo
 import de.egril.defender.ui.infopage.checkForNewerVersion
 import de.egril.defender.ui.settings.AppSettings
@@ -50,6 +51,8 @@ sealed class Screen {
     data class InstallationInfoAtTab(
         val initialTab: de.egril.defender.ui.infopage.InfoTab,
     ) : Screen()
+
+    object VillainsAnnouncement : Screen()
 
     object LevelEditor : Screen()
 
@@ -197,6 +200,11 @@ class GameViewModel {
 
     private val _pendingSpellCast = MutableStateFlow<SpellType?>(null)
     val pendingSpellCast: StateFlow<SpellType?> = _pendingSpellCast.asStateFlow()
+
+    // When non-null, the spell currently being cast/targeted is being cast via a level support
+    // token, which skips mana cost and the unlocked-spell requirement, and consumes a token.
+    private val _pendingTokenSpell = MutableStateFlow<SpellType?>(null)
+    val pendingTokenSpell: StateFlow<SpellType?> = _pendingTokenSpell.asStateFlow()
 
     // Position to scroll to (e.g., bomb explosion)
     private val _pendingScrollToPosition = MutableStateFlow<Position?>(null)
@@ -890,6 +898,10 @@ class GameViewModel {
         _currentScreen.value = Screen.InstallationInfoAtTab(de.egril.defender.ui.infopage.InfoTab.DOWNLOAD)
     }
 
+    fun navigateToVillainsAnnouncement() {
+        _currentScreen.value = Screen.VillainsAnnouncement
+    }
+
     fun navigateToLevelEditor() {
         _currentScreen.value = Screen.LevelEditor
     }
@@ -1016,20 +1028,22 @@ class GameViewModel {
                     de.egril.defender.editor.EditorStorage
                         .getLevel(editorLevelId)
                         ?.isOfficial == true
-            if (level.connectedToPreviousLevel &&
-                isOfficialLevel &&
-                editorLevelId != null &&
-                de.egril.defender.save.SaveFileStorage
-                    .hasLevelHandoff(editorLevelId)
-            ) {
-                val handoff =
-                    de.egril.defender.save.SaveFileStorage
-                        .loadLevelHandoff(editorLevelId)
-                if (handoff != null && handoff.mapId == level.mapId) {
-                    // Show the handoff choice dialog
-                    _pendingLevelHandoff.value = handoff
-                    pendingLevelIdForHandoff = levelId
-                    return
+            if (level.connectedToPreviousLevel && isOfficialLevel) {
+                editorLevelId?.let { resolvedEditorLevelId ->
+                    if (
+                        de.egril.defender.save.SaveFileStorage
+                            .hasLevelHandoff(resolvedEditorLevelId)
+                    ) {
+                        val handoff =
+                            de.egril.defender.save.SaveFileStorage
+                                .loadLevelHandoff(resolvedEditorLevelId)
+                        if (handoff != null && handoff.mapId == level.mapId) {
+                            // Show the handoff choice dialog
+                            _pendingLevelHandoff.value = handoff
+                            pendingLevelIdForHandoff = levelId
+                            return
+                        }
+                    }
                 }
             }
 
@@ -1399,6 +1413,11 @@ class GameViewModel {
             } else {
                 achievementManager?.onBuildTower()
             }
+            // Track number of towers standing at the same time (non-raft defenders)
+            val standingTowers = _gameState.value?.defenders?.count { it.raftId.value == null } ?: 0
+            achievementManager?.onTowersStanding(standingTowers)
+            // Surface any messages queued by scripted events triggered by the coin spend.
+            surfaceNextPendingMessageIfIdle()
         }
         return result
     }
@@ -1416,6 +1435,8 @@ class GameViewModel {
             } else {
                 achievementManager?.onUpgradeTower()
             }
+            // Surface any messages queued by scripted events triggered by the coin spend.
+            surfaceNextPendingMessageIfIdle()
         }
         return result
     }
@@ -1742,6 +1763,8 @@ class GameViewModel {
 
             // Check win/loss conditions
             val updatedState = _gameState.value ?: return@launch
+            // Track turn count achievement (100 turns in a single level)
+            achievementManager?.onTurnReached(updatedState.turnNumber.value)
             if (updatedState.isLevelWon()) {
                 completeLevel(updatedState.level.id, won = true)
             } else if (updatedState.isLevelLost()) {
@@ -1758,6 +1781,10 @@ class GameViewModel {
 
         // Explicitly trigger auto-attacks for all ready defenders
         engine.autoDefenderAttacks()
+
+        // Surface any messages queued by scripted events fired by the auto-attacks (kills), so they
+        // are shown even when the turn does not end immediately (special actions remaining below).
+        surfaceNextPendingMessageIfIdle()
 
         // Check if there are special actions remaining (mines, alchemy, wizard traps)
         val specialActionTypes = currentState.getDefenderTypesWithSpecialActions()
@@ -1776,13 +1803,28 @@ class GameViewModel {
         _specialActionsRemaining.value = emptyList()
     }
 
+    /**
+     * Instantly wins the current level when it is guaranteed to be won (see [GameState.canWinLevelNow]).
+     * Triggered by the "Win Level now" action, available when the remaining enemies cannot deplete the
+     * player's health points.
+     */
+    fun winLevelNow() {
+        val state = _gameState.value ?: return
+        if (!state.canWinLevelNow()) return
+        // Mark all remaining enemies as defeated so the game state is consistent with a completed level.
+        state.attackers.forEach { it.isDefeated.value = true }
+        completeLevel(state.level.id, won = true)
+    }
+
     private fun completeLevel(
         levelId: Int,
         won: Boolean,
     ) {
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
         val rawXpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
-        val xpEarned = calculateAwardedXpForLevelCompletion(rawXpEarned, won)
+        val isSandbox = _gameState.value?.level?.isSandbox == true
+        // Sandbox levels never award XP.
+        val xpEarned = if (isSandbox) 0 else calculateAwardedXpForLevelCompletion(rawXpEarned, won)
         val levelName = _gameState.value?.level?.name ?: "unknown"
         val turnNumber = _gameState.value?.turnNumber?.value
         var newPlayerLevel = 0
@@ -2311,6 +2353,41 @@ class GameViewModel {
             }
     }
 
+    /**
+     * Sandbox: spawn an adjustable test enemy (type + level) onto the running level.
+     */
+    fun sandboxSpawnEnemy(
+        type: de.egril.defender.model.AttackerType,
+        level: Int,
+        spawnPoint: de.egril.defender.model.Position? = null,
+    ) {
+        if (_gameState.value?.level?.isSandbox != true) return
+        gameEngine?.spawnEnemy(type, level.coerceAtLeast(1), spawnPoint)
+        surfaceNextPendingMessageIfIdle()
+    }
+
+    /**
+     * Sandbox: add coins to the running level.
+     */
+    fun sandboxAddCoins(amount: Int = 1000) {
+        if (_gameState.value?.level?.isSandbox != true) return
+        gameEngine?.addCoins(amount)
+    }
+
+    /**
+     * Sandbox: repaint a map tile at runtime to the given tile type.
+     */
+    fun sandboxPaintTile(
+        position: de.egril.defender.model.Position,
+        tileType: de.egril.defender.editor.TileType,
+        riverFlow: de.egril.defender.model.RiverFlow = de.egril.defender.model.RiverFlow.EAST,
+        riverSpeed: Int = 1,
+    ) {
+        val state = _gameState.value ?: return
+        if (!state.level.isSandbox) return
+        state.sandboxPaintTile(position, tileType, riverFlow, riverSpeed)
+    }
+
     fun applyCheatCode(code: String): Boolean {
         // Check for reminder testing cheat codes first
         val lowerCode = code.lowercase().trim()
@@ -2787,6 +2864,20 @@ class GameViewModel {
             }
             append("|effects:${state.fieldEffects.size}")
             append("|traps:${state.traps.size}")
+            if (state.level.isSandbox) {
+                append("|sandboxTiles:${state.sandboxPaintedTiles.size}")
+                state.sandboxPaintedTiles.entries
+                    .sortedWith(compareBy({ it.key.x }, { it.key.y }))
+                    .forEach { (position, tileType) ->
+                        append("|st:${position.x},${position.y},$tileType")
+                    }
+                append("|sandboxRivers:${state.sandboxPaintedRiverTiles.size}")
+                state.sandboxPaintedRiverTiles.entries
+                    .sortedWith(compareBy({ it.key.x }, { it.key.y }))
+                    .forEach { (position, riverTile) ->
+                        append("|sr:${position.x},${position.y},${riverTile.flowDirection},${riverTile.flowSpeed}")
+                    }
+            }
         }
     }
 
@@ -3864,6 +3955,7 @@ class GameViewModel {
         }
         _pendingSpellCast.value = null
         _selectedSpell.value = null
+        _pendingTokenSpell.value = null
     }
 
     /**
@@ -3900,7 +3992,8 @@ class GameViewModel {
         val confirmation = _showSpellTargetConfirmation.value
         if (confirmation != null) {
             val (spell, target) = confirmation
-            castSpell(spell, target)
+            val viaToken = _pendingTokenSpell.value == spell
+            castSpell(spell, target, viaToken)
             _showSpellTargetConfirmation.value = null
             _selectedSpell.value = null
         }
@@ -3938,29 +4031,40 @@ class GameViewModel {
     fun castSpell(
         spell: SpellType,
         target: Any? = null,
+        viaToken: Boolean = false,
     ) {
         val gameState = _gameState.value ?: return
         val currentPlayer = _currentPlayer.value ?: return
 
         if (LogConfig.ENABLE_SPELL_LOGGING) {
-            println("=== SPELL: Cast spell called - ${spell.displayName}")
+            println("=== SPELL: Cast spell called - ${spell.displayName}${if (viaToken) " (token)" else ""}")
             println("=== SPELL: Current mana: ${gameState.currentMana.value}/${gameState.maxMana.value}")
         }
 
-        // Validate mana cost
-        if (gameState.currentMana.value < spell.manaCost) {
-            if (LogConfig.ENABLE_SPELL_LOGGING) {
-                println("=== SPELL: FAILED - Not enough mana to cast ${spell.displayName}")
+        if (viaToken) {
+            // Casting via a level support token: skip mana and unlocked-spell validation.
+            if ((gameState.supportSpellsRemaining[spell] ?: 0) <= 0) {
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: FAILED - No support token remaining for ${spell.displayName}")
+                }
+                return
             }
-            return
-        }
+        } else {
+            // Validate mana cost
+            if (gameState.currentMana.value < spell.manaCost) {
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: FAILED - Not enough mana to cast ${spell.displayName}")
+                }
+                return
+            }
 
-        // Validate spell is unlocked
-        if (!currentPlayer.abilities.unlockedSpells.contains(spell)) {
-            if (LogConfig.ENABLE_SPELL_LOGGING) {
-                println("=== SPELL: FAILED - Spell ${spell.displayName} is not unlocked")
+            // Validate spell is unlocked
+            if (!currentPlayer.abilities.unlockedSpells.contains(spell)) {
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: FAILED - Spell ${spell.displayName} is not unlocked")
+                }
+                return
             }
-            return
         }
 
         // If spell requires targeting and no target provided, enter targeting mode
@@ -3972,11 +4076,22 @@ class GameViewModel {
             return
         }
 
-        // Deduct mana cost
-        val previousMana = gameState.currentMana.value
-        gameState.currentMana.value -= spell.manaCost
-        if (LogConfig.ENABLE_SPELL_LOGGING) {
-            println("=== SPELL: Mana deducted - $previousMana -> ${gameState.currentMana.value}")
+        if (viaToken) {
+            // Consume one support token instead of mana.
+            val remaining = gameState.supportSpellsRemaining[spell] ?: 0
+            if (remaining > 0) {
+                gameState.supportSpellsRemaining[spell] = consumeSupportCount(remaining)
+            }
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Support token consumed - ${gameState.supportSpellsRemaining[spell]} remaining")
+            }
+        } else {
+            // Deduct mana cost
+            val previousMana = gameState.currentMana.value
+            gameState.currentMana.value -= spell.manaCost
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Mana deducted - $previousMana -> ${gameState.currentMana.value}")
+            }
         }
 
         // Execute spell effect
@@ -3985,9 +4100,18 @@ class GameViewModel {
         // Process any enemies defeated by the spell (award coins, remove from list)
         if (spell == SpellType.ATTACK_AIMED || spell == SpellType.ATTACK_AREA) {
             gameEngine?.processDefeatedAttackers()
-            // Surface any messages queued by the kill (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
-            surfaceNextPendingMessageIfIdle()
-            // Check if the spell killed the last enemy and the level is now won
+        }
+
+        // A spell can change the kill count (attack spells) and spend mana, which may satisfy
+        // threshold-based scripted events (enemies killed, mana at or below). Evaluate them now so
+        // they fire immediately during the player's turn rather than waiting for the next turn.
+        gameEngine?.evaluateImmediateEvents()
+        // Surface any messages queued by the kill (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) or by a
+        // scripted event the spell triggered.
+        surfaceNextPendingMessageIfIdle()
+
+        // Check if the spell killed the last enemy and the level is now won
+        if (spell == SpellType.ATTACK_AIMED || spell == SpellType.ATTACK_AREA) {
             val currentStateAfterSpell = _gameState.value
             if (currentStateAfterSpell != null && currentStateAfterSpell.isLevelWon()) {
                 completeLevel(currentStateAfterSpell.level.id, won = true)
@@ -3996,6 +4120,7 @@ class GameViewModel {
 
         // Clear pending spell and targeting state
         _pendingSpellCast.value = null
+        _pendingTokenSpell.value = null
         exitSpellTargetingMode()
 
         // Close magic panel after casting
@@ -4327,6 +4452,7 @@ class GameViewModel {
     fun exitSpellTargetingMode() {
         val gameState = _gameState.value ?: return
         gameState.spellTargeting.value = null
+        _pendingTokenSpell.value = null
     }
 
     /**
@@ -4344,6 +4470,149 @@ class GameViewModel {
 
         // Show confirmation dialog with target details (or warning for immune enemies)
         onSpellTargetSelected(target)
+    }
+
+    /**
+     * Handle a click on a level support spell token box.
+     * Casting a spell via a token does not consume mana and works even if the spell is not unlocked.
+     * Toggles the selection; enters targeting mode for targeting spells or shows a confirmation for others.
+     */
+    fun onSupportSpellTokenClicked(spell: SpellType) {
+        val gameState = _gameState.value ?: return
+        if ((gameState.supportSpellsRemaining[spell] ?: 0) <= 0) return
+
+        // Spell tokens can only be used once the level has started (not during initial build phase)
+        if (gameState.phase.value == GamePhase.INITIAL_BUILDING) return
+
+        // Toggle: if the same token is already active, cancel it
+        if (_pendingTokenSpell.value == spell) {
+            _pendingTokenSpell.value = null
+            _selectedSpell.value = null
+            _pendingSpellCast.value = null
+            _showSpellTargetConfirmation.value = null
+            exitSpellTargetingMode()
+            return
+        }
+
+        _pendingTokenSpell.value = spell
+        _selectedSpell.value = spell
+        // Close the magic panel if it is open so token targeting is visible
+        _showMagicPanel.value = false
+
+        if (spell.requiresTarget) {
+            enterSpellTargetingMode(spell)
+        } else {
+            _showSpellTargetConfirmation.value = Pair(spell, Unit)
+        }
+    }
+
+    /**
+     * Place a player-granted support object (trap, magical trap, or barricade) at a position.
+     * Does not require a tower or tech level and does not consume tower actions.
+     * Returns true if the object was placed and a token consumed.
+     */
+    fun placeSupportObject(
+        type: SupportObjectType,
+        position: Position,
+    ): Boolean {
+        val gameState = _gameState.value ?: return false
+        val remaining = gameState.supportObjectsRemaining[type] ?: 0
+        if (remaining <= 0) return false
+
+        val config =
+            gameState.level.supports.objects
+                .firstOrNull { it.type == type }
+        val success =
+            when (type) {
+                SupportObjectType.DWARVEN_TRAP ->
+                    gameEngine?.placeSupportTrap(position, config?.damage ?: 10, TrapType.DWARVEN) ?: false
+                SupportObjectType.MAGICAL_TRAP ->
+                    gameEngine?.placeSupportTrap(position, 0, TrapType.MAGICAL) ?: false
+                SupportObjectType.BARRICADE ->
+                    gameEngine?.placeSupportBarricade(position, config?.healthPoints ?: 50) ?: false
+            }
+
+        if (success) {
+            gameState.supportObjectsRemaining[type] = consumeSupportCount(remaining)
+        }
+        return success
+    }
+
+    /**
+     * Activate a cooldown-based support power for the whole level.
+     *
+     * Does nothing if the power is not part of the level, is still on cooldown, or the level has not
+     * started yet (initial building phase). On success the power's effect is applied immediately and
+     * its cooldown is (re)started.
+     */
+    fun activateCooldownPower(type: CooldownPowerType) {
+        val gameState = _gameState.value ?: return
+        val power =
+            gameState.level.supports.cooldownPowers
+                .firstOrNull { it.type == type } ?: return
+
+        // Powers can only be used once the level has started (not during the initial build phase)
+        if (gameState.phase.value == GamePhase.INITIAL_BUILDING) return
+
+        // Must be ready (readyIn == 0)
+        if ((gameState.cooldownPowerReadyIn[type] ?: 0) > 0) return
+
+        applyCooldownPowerEffect(gameState, type)
+
+        // Start the cooldown
+        gameState.cooldownPowerReadyIn[type] = power.cooldownTurns
+    }
+
+    /** Apply the immediate effect of a cooldown support power. */
+    private fun applyCooldownPowerEffect(
+        gameState: GameState,
+        type: CooldownPowerType,
+    ) {
+        when (type) {
+            CooldownPowerType.COIN_SURGE -> {
+                // Double all coins earned for the remainder of this turn/round.
+                gameState.coinSurgeActive.value = true
+            }
+            CooldownPowerType.SKY_IS_FALLING -> {
+                // Trigger the full-map falling-meteor animation overlay first, then remove the
+                // enemies' health once the meteors have visibly struck the map.
+                gameState.skyIsFallingTrigger.value += 1
+                viewModelScope.launch {
+                    if (AppSettings.enableAnimations.value) {
+                        delay(SKY_IS_FALLING_DURATION_MS.toLong())
+                    }
+                    applySkyIsFallingDamage(gameState)
+                }
+            }
+            CooldownPowerType.CONSTRUCTION_REPAIRS -> {
+                // All existing barricades gain 10 health points.
+                gameState.barricades
+                    .filterNot { it.isDestroyed() }
+                    .forEach { it.reinforce(CONSTRUCTION_REPAIRS_HP) }
+            }
+            CooldownPowerType.MANA_WELL -> gameEngine?.addMana(MANA_WELL_MANA)
+            CooldownPowerType.DEEP_MANA_WELL -> gameEngine?.addMana(DEEP_MANA_WELL_MANA)
+        }
+    }
+
+    /** Apply the "Sky is Falling" damage to all live enemies and resolve any defeats. */
+    private fun applySkyIsFallingDamage(gameState: GameState) {
+        // All enemy units lose 10 health points.
+        gameState.attackers
+            .filter { !it.isDefeated.value }
+            .forEach { attacker ->
+                attacker.currentHealth.value -= SKY_IS_FALLING_DAMAGE
+                if (attacker.currentHealth.value <= 0) {
+                    attacker.isDefeated.value = true
+                }
+            }
+        // Award coins/XP and remove defeated enemies immediately (mirrors damage spells).
+        gameEngine?.processDefeatedAttackers()
+        surfaceNextPendingMessageIfIdle()
+        val stateAfter = _gameState.value
+        if (stateAfter != null && stateAfter.isLevelWon()) {
+            completeLevel(stateAfter.level.id, won = true)
+        }
     }
 
     /**
@@ -4381,6 +4650,9 @@ class GameViewModel {
                 _currentScreen.value = Screen.MainMenu
                 _pendingSettingsDeepLink.value = true
             }
+            DeepLink.VillainsAnnouncement -> {
+                _currentScreen.value = Screen.VillainsAnnouncement
+            }
             DeepLink.None -> {
                 // No deep link, proceed normally
             }
@@ -4408,6 +4680,18 @@ class GameViewModel {
         private const val BACKGROUND_SAVE_ID = "background_save"
 
         private const val LOST_LEVEL_XP_DIVISOR = 5
+
+        /** Health points every enemy loses when the "Sky is falling" power is used. */
+        private const val SKY_IS_FALLING_DAMAGE = 10
+
+        /** Health points each barricade gains when the Construction Repairs power is used. */
+        private const val CONSTRUCTION_REPAIRS_HP = 10
+
+        /** Mana granted by the Mana Well power. */
+        private const val MANA_WELL_MANA = 10
+
+        /** Mana granted by the Deep Mana Well power. */
+        private const val DEEP_MANA_WELL_MANA = 50
 
         /** Level ID of the tutorial level ("Welcome to Defender of Egril"). */
         const val TUTORIAL_LEVEL_ID = 1

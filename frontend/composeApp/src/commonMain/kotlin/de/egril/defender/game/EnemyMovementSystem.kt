@@ -15,6 +15,38 @@ class EnemyMovementSystem(
     private val pathfinding: PathfindingSystem,
 ) {
     /**
+     * Returns whether an attacker will enter an active target during its next movement turn.
+     * This mirrors normal movement, including waypoint transitions, without changing game state.
+     */
+    fun canReachTargetNextTurn(attacker: Attacker): Boolean {
+        if (attacker.isDefeated.value) return false
+
+        var position = attacker.position.value
+        var target =
+            attacker.currentTarget?.value
+                ?: state.getActiveTargetPositions().minByOrNull { position.distanceTo(it) }
+                ?: return false
+        var remainingSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+
+        while (remainingSpeed > 0) {
+            val path = pathfinding.findPath(position, target, attacker)
+            if (path.size < 2) return false
+
+            val steps = minOf(remainingSpeed, path.size - 1)
+            position = path[steps]
+            remainingSpeed -= steps
+
+            if (state.isActiveTargetPosition(position)) return true
+
+            if (position == target) {
+                target = state.level.getWaypointAt(position)?.nextTarget ?: return false
+            }
+        }
+
+        return false
+    }
+
+    /**
      * Gets the initial target for a newly spawned attacker based on preferred spawn point.
      * Checks if the spawn point has a waypoint entry and uses the waypoint's nextTarget.
      * If no waypoints exist, uses the first target position.

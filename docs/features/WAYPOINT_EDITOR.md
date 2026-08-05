@@ -15,6 +15,7 @@ The waypoint editor is accessible as the 4th tab in the Level Editor interface, 
 #### Waypoints Tab
 
 The Waypoints tab displays:
+
 - **Description**: Explains waypoint functionality
 - **Available Tiles**: Shows count of WAYPOINT tiles available from the map
 - **Validation Status**: Green checkmark (✓) for valid configuration, red error (✗) for invalid
@@ -25,6 +26,7 @@ The Waypoints tab displays:
 #### Add Waypoint Dialog
 
 When adding a waypoint, users select:
+
 - **Source Position**: Must be a spawn point or waypoint tile
 - **Target Position**: Must be a waypoint tile or the final target
 - The system validates that no duplicate source positions exist
@@ -32,6 +34,7 @@ When adding a waypoint, users select:
 ### Data Model
 
 Waypoints are represented by the `EditorWaypoint` data class:
+
 ```kotlin
 data class EditorWaypoint(
     val position: Position,           // The waypoint's position on the map
@@ -42,11 +45,13 @@ data class EditorWaypoint(
 ### Validation
 
 The system validates waypoints to ensure:
+
 1. No circular dependencies (waypoints that loop back on themselves)
 2. All waypoint chains eventually lead to the final target
 3. Source positions are unique (one waypoint per source position)
 
 Validation is performed using `EditorLevel.validateWaypoints(targetPosition)` which:
+
 - Returns `true` if waypoints are valid or if there are no waypoints
 - Returns `false` if circular dependencies are detected
 - Detects loops by tracking visited positions while following waypoint chains
@@ -54,6 +59,7 @@ Validation is performed using `EditorLevel.validateWaypoints(targetPosition)` wh
 ### Persistence
 
 Waypoints are persisted in the level JSON file format:
+
 ```json
 {
   "id": "level_9",
@@ -71,12 +77,14 @@ Waypoints are persisted in the level JSON file format:
 ```
 
 The serialization is handled by `EditorJsonSerializer` with:
+
 - **serializeLevel()**: Converts waypoints to JSON format
 - **deserializeLevel()**: Parses waypoints from JSON (backward compatible)
 
 ### Localization
 
 The waypoint editor is fully localized with support for:
+
 - English (en)
 - German (de)
 - Spanish (es)
@@ -109,6 +117,7 @@ All UI strings are defined in `values/strings.xml` and translated files.
 ### Example: The Dance Level
 
 The "Dance" level (level_9) demonstrates waypoints with a three-ring circular path:
+
 - **Outer Ring**: 4 waypoints forming a circle at radius ~18
 - **Middle Ring**: 4 waypoints forming a circle at radius ~10
 - **Inner Ring**: 4 waypoints forming a circle at radius ~6
@@ -138,6 +147,7 @@ Enemies spawn at the outer ring, circle clockwise, transition inward through eac
 ### Tests
 
 `WaypointSerializationTest.kt` provides comprehensive test coverage:
+
 - `testSerializeLevelWithWaypoints`: Verifies waypoints are included in JSON
 - `testDeserializeLevelWithWaypoints`: Verifies waypoints are parsed correctly
 - `testDeserializeLevelWithoutWaypointsBackwardCompatibility`: Ensures old levels still load
@@ -146,6 +156,7 @@ Enemies spawn at the outer ring, circle clockwise, transition inward through eac
 ### Backward Compatibility
 
 Levels created before the waypoint editor feature:
+
 - Will load successfully (waypoints field is optional)
 - Will have an empty waypoints list by default
 - Can be edited to add waypoints through the UI
@@ -155,6 +166,7 @@ Levels created before the waypoint editor feature:
 ### Waypoint Tile Placement
 
 WAYPOINT tiles should be:
+
 - Part of the traversable path (enemies can walk on them)
 - Connected to spawn points and the final target via PATH tiles or other WAYPOINT tiles
 - Positioned strategically to create desired enemy movement patterns
@@ -162,6 +174,7 @@ WAYPOINT tiles should be:
 ### Performance
 
 The waypoint validation algorithm:
+
 - Uses a visited set to detect cycles
 - Has O(n) time complexity where n is the number of waypoints
 - Runs only when saving or displaying validation status
@@ -170,6 +183,7 @@ The waypoint validation algorithm:
 ### Limitations
 
 Current implementation does not support:
+
 - Multiple waypoint chains from the same source
 - Conditional waypoints (branching based on enemy type)
 - Dynamic waypoint activation/deactivation
@@ -179,6 +193,7 @@ These could be added in future enhancements if needed.
 ## Future Enhancements
 
 Potential improvements:
+
 1. **Visual Map Preview**: Show waypoint connections on a minimap
 2. **Drag-and-Drop Editing**: Click tiles to create connections directly on the map
 3. **Waypoint Templates**: Pre-defined patterns (circle, spiral, zigzag)

@@ -7,7 +7,8 @@ The minimap navigation feature allows users to click/tap and drag on the minimap
 ## How It Works
 
 ### Before This Feature
-```
+
+```text
 ┌─────────────────────────────────────┐
 │                                     │
 │  Game Map (can drag here to pan)   │
@@ -24,7 +25,8 @@ The minimap navigation feature allows users to click/tap and drag on the minimap
 Users could only drag on the main game map to pan the view.
 
 ### After This Feature
-```
+
+```text
 ┌─────────────────────────────────────┐
 │                                     │
 │  Game Map (can drag here to pan)   │
@@ -45,7 +47,8 @@ Users can now ALSO drag on the minimap to navigate the map.
 ## Visual Example: Minimap States
 
 ### State 1: Zoomed In (Viewport at Upper-Left)
-```
+
+```text
 Game View:                      Minimap:
 ┌─────────────────┐            ┌──────────┐
 │████████         │            │╔═══╗     │
@@ -61,7 +64,8 @@ Game View:                      Minimap:
 ```
 
 ### State 2: After Dragging Minimap to Right
-```
+
+```text
 Game View:                      Minimap:
 ┌─────────────────┐            ┌──────────┐
 │         ████████│            │     ╔═══╗│
@@ -77,7 +81,8 @@ Game View:                      Minimap:
 ```
 
 ### State 3: After Dragging Minimap Down
-```
+
+```text
 Game View:                      Minimap:
 ┌─────────────────┐            ┌──────────┐
 │                 │            │          │
@@ -99,7 +104,7 @@ Game View:                      Minimap:
 
 The minimap has a fixed size (120dp × 120dp), while the game map can be any size and zoomed to various levels. The conversion process:
 
-```
+```text
 1. User drags 30 pixels on minimap
    ↓
 2. Calculate as fraction of movable area
@@ -118,6 +123,7 @@ The minimap has a fixed size (120dp × 120dp), while the game map can be any siz
 ### Example Calculation
 
 **Setup:**
+
 - Container size: 800×600 (what user sees)
 - Content size: 1600×1200 (full map size)
 - Zoom scale: 1.0x
@@ -149,7 +155,7 @@ deltaOffset = -400px
 
 ## User Interaction Flow
 
-```
+```text
 ┌──────────────────────────────────────┐
 │ 1. User zooms in on game map        │
 │    (Mouse wheel or pinch gesture)    │
@@ -189,16 +195,19 @@ deltaOffset = -400px
 ## Platform Support
 
 ### Desktop
+
 - **Input**: Mouse click and drag
 - **Visual feedback**: Yellow viewport box moves in real-time
 - **Smooth**: 60fps smooth dragging
 
 ### Web/WASM
+
 - **Input**: Mouse click and drag (same as desktop)
 - **Visual feedback**: Yellow viewport box moves in real-time
 - **Smooth**: Performance identical to desktop
 
 ### Mobile (Android/iOS)
+
 - **Input**: Touch tap and drag
 - **Visual feedback**: Yellow viewport box moves in real-time
 - **Smooth**: Native touch gestures supported
@@ -206,7 +215,8 @@ deltaOffset = -400px
 ## Edge Cases Handled
 
 ### 1. Fully Zoomed Out
-```
+
+```text
 When viewport shows entire map:
 ┌──────────┐
 │╔════════╗│  ← Viewport fills entire minimap
@@ -214,9 +224,11 @@ When viewport shows entire map:
 │╚════════╝│     (viewportRatio = 1.0)
 └──────────┘
 ```
+
 **Solution**: Drag is disabled when `viewportRatio >= 1.0`
 
 ### 2. Division by Zero Prevention
+
 ```kotlin
 // Before fix (would crash):
 dragFraction = dragAmount / (minimapSize × (1.0 - viewportRatio))
@@ -230,7 +242,8 @@ if (viewportRatio < 1.0f) {
 ```
 
 ### 3. Dragging Beyond Map Boundaries
-```
+
+```text
 User tries to drag viewport outside map:
 ┌──────────┐
 │    ╔═══╗ │ 
@@ -238,7 +251,9 @@ User tries to drag viewport outside map:
 │    ╚═══╝ │
 └──────────┘
 ```
+
 **Solution**: Offsets are constrained:
+
 ```kotlin
 constrainedX = newOffsetX.coerceIn(-maxOffsetX, maxOffsetX)
 constrainedY = newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
@@ -247,6 +262,7 @@ constrainedY = newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
 ## Code Changes Summary
 
 ### Files Modified
+
 1. **HexagonMinimap.kt**
    - Added drag gesture detection
    - Added coordinate conversion logic
@@ -261,6 +277,7 @@ constrainedY = newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
    - Tests for various zoom levels
 
 ### Lines of Code
+
 - **Added**: ~220 lines (including tests and documentation)
 - **Modified**: ~10 lines
 - **Deleted**: 0 lines
@@ -277,12 +294,14 @@ constrainedY = newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
 ## Testing Checklist
 
 ### Automated Tests ✅
+
 - [x] Coordinate conversion math
 - [x] Constraint handling
 - [x] Zoom level variations
 - [x] Division by zero prevention
 
 ### Manual Tests (User should verify)
+
 - [ ] Desktop: Click and drag on minimap
 - [ ] Web: Click and drag on minimap in browser
 - [ ] Mobile: Tap and drag on minimap

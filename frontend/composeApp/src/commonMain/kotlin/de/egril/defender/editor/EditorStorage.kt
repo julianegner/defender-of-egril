@@ -1157,7 +1157,7 @@ object EditorStorage {
      * Checks if a level is ready to play.
      * A level is ready if:
      * - It has at least one available tower
-     * - It has at least one enemy spawn configured
+     * - It has at least one enemy spawn configured, unless it is a sandbox level
      * - Start coins are greater than zero
      * - Start health points are greater than zero
      * - Its associated map is ready to use (has valid path from spawn to target)
@@ -1546,7 +1546,11 @@ object EditorStorage {
                 riverTiles = map.getRiverTilesMap(), // Add river tiles with flow direction and speed
                 allowAutoAttack = editorLevel.allowAutoAttack, // Allow auto-attack option
                 connectedToPreviousLevel = editorLevel.connectedToPreviousLevel, // Connected level flag
+                splitBuildTowerButton = editorLevel.splitBuildTowerButton, // Split build-tower button option
+                isSandbox = editorLevel.isSandbox, // Sandbox mode flag (free building, no win, no XP, no events)
                 targetInfoMap = gameTargetInfoMap, // Named / SINGLE_HIT target metadata
+                supports = editorLevel.supports, // Player-usable supports (objects + spell tokens)
+                events = editorLevel.events, // Scripted level events (conditions + actions + messages)
                 initialData = editorLevel.getEffectiveInitialData(), // Pre-placed elements using new structure
             )
 

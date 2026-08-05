@@ -196,6 +196,30 @@ class ApplicationTest {
         }
 
     @Test
+    fun testPostFeedbackLevelRequestIsAccepted() =
+        testApplication {
+            application { module() }
+            client
+                .post("/api/feedback") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        {
+                          "feedbackId":"11111111-1111-4111-8111-111111111111",
+                          "feedbackType":"LEVEL_REQUEST",
+                          "message":"[Level: The Rush (the_rush)]\n\nPlease make it harder",
+                          "platform":"WEB"
+                        }
+                        """.trimIndent(),
+                    )
+                }.apply {
+                    // A valid feedbackType passes validation and reaches the DB stage,
+                    // which returns 503 because no database is configured in tests.
+                    assertEquals(HttpStatusCode.ServiceUnavailable, status)
+                }
+        }
+
+    @Test
     fun testPostFeedbackInvalidUuidReturns400() =
         testApplication {
             application { module() }

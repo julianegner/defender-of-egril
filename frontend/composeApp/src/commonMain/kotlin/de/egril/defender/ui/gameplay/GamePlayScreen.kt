@@ -1,7 +1,6 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +18,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.hyperether.resources.stringResource
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
@@ -26,6 +26,7 @@ import de.egril.defender.model.*
 import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.ReminderMessage
 import de.egril.defender.ui.a11y.accessibilityVisualFilter
+import de.egril.defender.ui.animations.CoinFlightOverlay
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.getGameplayUIScale
 import de.egril.defender.ui.getLocalizedName
@@ -100,6 +101,14 @@ fun GamePlayScreen(
     demoSelectedDefenderId: Int? = null,
     demoSelectedTargetPosition: Position? = null,
     onGetAutoAttackTarget: ((Int) -> Position?)? = null, // Get best auto-attack target for a tower
+    onWinLevelNow: (() -> Unit)? = null, // Instantly win the level when guaranteed (finish level fast)
+    onPlaceSupportObject: ((SupportObjectType, Position) -> Boolean)? = null, // Place a level support object at a position
+    onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
+    activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
+    onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
+    onSandboxSpawnEnemy: ((de.egril.defender.model.AttackerType, Int, de.egril.defender.model.Position?) -> Unit)? = null, // Sandbox: spawn an adjustable test enemy at an optional spawn point
+    onSandboxAddCoins: (() -> Unit)? = null, // Sandbox: add coins
+    onSandboxPaintTile: ((de.egril.defender.model.Position, de.egril.defender.editor.TileType, de.egril.defender.model.RiverFlow, Int) -> Unit)? = null, // Sandbox: repaint a map tile (with river flow when RIVER)
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -160,6 +169,14 @@ fun GamePlayScreen(
         demoSelectedDefenderId = demoSelectedDefenderId,
         demoSelectedTargetPosition = demoSelectedTargetPosition,
         onGetAutoAttackTarget = onGetAutoAttackTarget,
+        onWinLevelNow = onWinLevelNow,
+        onPlaceSupportObject = onPlaceSupportObject,
+        onCastSupportSpellToken = onCastSupportSpellToken,
+        activeSpellToken = activeSpellToken,
+        onActivateCooldownPower = onActivateCooldownPower,
+        onSandboxSpawnEnemy = onSandboxSpawnEnemy,
+        onSandboxAddCoins = onSandboxAddCoins,
+        onSandboxPaintTile = onSandboxPaintTile,
     )
 }
 
@@ -225,13 +242,28 @@ private fun GamePlayScreenContent(
     demoSelectedDefenderId: Int? = null,
     demoSelectedTargetPosition: Position? = null,
     onGetAutoAttackTarget: ((Int) -> Position?)? = null, // Get best auto-attack target for a tower
+    onWinLevelNow: (() -> Unit)? = null, // Instantly win the level when guaranteed (finish level fast)
+    onPlaceSupportObject: ((SupportObjectType, Position) -> Boolean)? = null, // Place a level support object at a position
+    onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
+    activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
+    onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
+    onSandboxSpawnEnemy: ((de.egril.defender.model.AttackerType, Int, de.egril.defender.model.Position?) -> Unit)? = null, // Sandbox: spawn an adjustable test enemy at an optional spawn point
+    onSandboxAddCoins: (() -> Unit)? = null, // Sandbox: add coins
+    onSandboxPaintTile: ((de.egril.defender.model.Position, de.egril.defender.editor.TileType, de.egril.defender.model.RiverFlow, Int) -> Unit)? = null, // Sandbox: repaint a map tile (with river flow when RIVER)
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
+    var selectedSupportObject by remember { mutableStateOf<SupportObjectType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
     var selectedAttackerId by remember { mutableStateOf<Int?>(null) } // Add enemy selection
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
     var selectedTargetPosition by remember { mutableStateOf<Position?>(null) }
     var showCheatDialog by remember { mutableStateOf(false) }
+    var showSandboxTools by remember { mutableStateOf(false) }
+    // Sandbox: active map tile-paint type; when non-null, tapping a tile repaints it to this type.
+    var sandboxPaintTileType by remember { mutableStateOf<de.egril.defender.editor.TileType?>(null) }
+    // Sandbox: water flow direction/speed applied when painting RIVER tiles.
+    var sandboxRiverFlow by remember { mutableStateOf(de.egril.defender.model.RiverFlow.EAST) }
+    var sandboxRiverSpeed by remember { mutableStateOf(1) }
     var cheatCodeInput by remember { mutableStateOf("") }
     var showMineActionDialog by remember { mutableStateOf(false) }
     var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
@@ -246,10 +278,20 @@ private fun GamePlayScreenContent(
     var trapToRemove by remember { mutableStateOf<Position?>(null) }
 
     var highlightEndTurnButton by remember { mutableStateOf(false) }
+    var splitSelectorToggle by remember { mutableStateOf(0) }
+    var splitSelectorExpanded by remember { mutableStateOf(false) }
     var tabScrollPosition by remember { mutableStateOf<Position?>(null) } // Tab-triggered scroll-to-tower
     var keyboardSelectedBuildTile by remember { mutableStateOf<Position?>(null) }
+    // Position of the keyboard cursor while placing a support object or targeting a spell on the map.
+    // The cursor cycles through the valid placement/target tiles (supportObjectPlacementTiles /
+    // spellTargetPositions); the place key confirms the highlighted tile and a cancel key exits.
+    var keyboardPlacementTile by remember { mutableStateOf<Position?>(null) }
     var nextSpawnPointIndex by remember { mutableStateOf(0) }
     var keyboardSpellFocusIndex by remember { mutableStateOf(0) }
+    // Index (into visibleSupportSlots) of the support box under the keyboard-navigation cursor, or
+    // null while the support bar is not being navigated. Left/right move the cursor, a select key
+    // activates the focused box.
+    var supportFocusIndex by remember { mutableStateOf<Int?>(null) }
     // Non-null means the keyboard undo/sell shortcut was pressed and the confirmation dialog is open.
     // The Boolean flag indicates whether this is an "undo" (true) or "sell" (false) operation.
     var keyboardUndoOrSellConfirmation by remember { mutableStateOf<Pair<Int, Boolean>?>(null) }
@@ -718,6 +760,14 @@ private fun GamePlayScreenContent(
         }
     }
 
+    // Reset the keyboard placement/targeting cursor when neither a support object is selected nor a
+    // spell is being targeted, so a stale cursor does not linger after placement finishes or is cancelled.
+    LaunchedEffect(selectedSupportObject, gameState.spellTargeting.value) {
+        if (selectedSupportObject == null && gameState.spellTargeting.value == null) {
+            keyboardPlacementTile = null
+        }
+    }
+
     // Mine action handler
     val handleMineAction: (Int, MineAction) -> Unit = { mineId, action ->
         when (action) {
@@ -878,7 +928,19 @@ private fun GamePlayScreenContent(
                             selectedAttackerId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            // Leaving the support bar for tower-place mode: drop the support focus cursor.
+                            supportFocusIndex = null
                         }
+                        true
+                    }
+                    // B: Toggle split tower selector dropdown (only when split build button is active)
+                    event.type == KeyEventType.KeyDown &&
+                        event.key == Key.B &&
+                        !event.isCtrlPressed &&
+                        !event.isAltPressed &&
+                        gameState.level.splitBuildTowerButton &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                        splitSelectorToggle++
                         true
                     }
                     // Spell menu keyboard mode: Tab/Shift+Tab navigates spells
@@ -1119,6 +1181,68 @@ private fun GamePlayScreenContent(
                             false
                         }
                     }
+                    // Move the keyboard placement/targeting cursor a whole grid row up/down while placing
+                    // a support object or targeting a spell. Reuses the pan up/down bindings (W/S by
+                    // default) — during placement the map already auto-follows the cursor, so these keys
+                    // move between rows instead of panning. Complements the next/prev (row-major) stepping
+                    // below. Placed before pan handling (onPreviewKeyEvent) so it takes precedence.
+                    event.type == KeyEventType.KeyDown &&
+                        (
+                            isShortcutBindingPressed(event, AppSettings.shortcutPanUp.value) ||
+                                isShortcutBindingPressed(event, AppSettings.shortcutPanDown.value)
+                        ) &&
+                        !showMagicPanel &&
+                        (selectedSupportObject != null || gameState.spellTargeting.value != null) &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                        val candidateTiles =
+                            selectedSupportObject?.let { supportObjectPlacementTiles(gameState, it) }
+                                ?: spellTargetPositions(gameState)
+                        if (candidateTiles.isEmpty()) {
+                            false
+                        } else {
+                            val up = isShortcutBindingPressed(event, AppSettings.shortcutPanUp.value)
+                            val target = rowStepPlacementTile(candidateTiles, keyboardPlacementTile, up)
+                            if (target != null) {
+                                keyboardPlacementTile = target
+                                tabScrollPosition = target
+                            }
+                            // Consume the key even at the top/bottom edge so it never falls through to
+                            // panning while a placement/targeting mode is active.
+                            true
+                        }
+                    }
+                    // Cycle the keyboard placement/targeting cursor over the valid tiles while placing a
+                    // support object or targeting a spell (reuses the next/prev enemy-target bindings, as
+                    // tower placement does for build tiles). Placed before the enemy-target handlers so it
+                    // takes precedence whenever a placement/targeting mode is active.
+                    event.type == KeyEventType.KeyDown &&
+                        (
+                            isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value) ||
+                                isShortcutBindingPressed(event, AppSettings.shortcutPrevEnemyTarget.value)
+                        ) &&
+                        !showMagicPanel &&
+                        (selectedSupportObject != null || gameState.spellTargeting.value != null) &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                        val candidateTiles =
+                            selectedSupportObject?.let { supportObjectPlacementTiles(gameState, it) }
+                                ?: spellTargetPositions(gameState)
+                        if (candidateTiles.isEmpty()) {
+                            false
+                        } else {
+                            val forward = isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value)
+                            val currentIdx =
+                                keyboardPlacementTile?.let { candidateTiles.indexOf(it).takeIf { i -> i != -1 } }
+                            val nextIdx =
+                                when {
+                                    currentIdx == null -> if (forward) 0 else candidateTiles.lastIndex
+                                    forward -> (currentIdx + 1) % candidateTiles.size
+                                    else -> (currentIdx - 1 + candidateTiles.size) % candidateTiles.size
+                                }
+                            keyboardPlacementTile = candidateTiles[nextIdx]
+                            tabScrollPosition = candidateTiles[nextIdx]
+                            true
+                        }
+                    }
                     // N (remappable): Cycle to next reachable enemy target
                     event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value) &&
@@ -1177,12 +1301,143 @@ private fun GamePlayScreenContent(
                             false
                         }
                     }
-                    // 1-8: Select defender type by index (only when NOT in tower-selected mode)
+                    // Left / Right: Move the keyboard-focus cursor between support elements
+                    // (placeable objects, spell tokens, cooldown powers) in the support bar.
+                    event.type == KeyEventType.KeyDown &&
+                        (event.key == Key.DirectionLeft || event.key == Key.DirectionRight) &&
+                        !event.isCtrlPressed &&
+                        !event.isAltPressed &&
+                        !event.isShiftPressed &&
+                        !showMagicPanel &&
+                        (gameState.phase.value == GamePhase.PLAYER_TURN || gameState.phase.value == GamePhase.INITIAL_BUILDING) -> {
+                        val slots = visibleSupportSlots(gameState)
+                        if (slots.isEmpty()) {
+                            false
+                        } else {
+                            supportFocusIndex =
+                                nextSupportFocusIndex(
+                                    current = supportFocusIndex,
+                                    slotCount = slots.size,
+                                    forward = event.key == Key.DirectionRight,
+                                )
+                            true
+                        }
+                    }
+                    // Enter / Space: Activate (select / cast / trigger) the support element currently
+                    // under the keyboard-focus cursor. Placed before the plain-Enter placement handler
+                    // so it only intercepts Enter while a support box is focused.
+                    event.type == KeyEventType.KeyDown &&
+                        (event.key == Key.Enter || event.key == Key.Spacebar) &&
+                        !event.isCtrlPressed &&
+                        !event.isAltPressed &&
+                        !event.isShiftPressed &&
+                        !showMagicPanel &&
+                        supportFocusIndex != null &&
+                        (gameState.phase.value == GamePhase.PLAYER_TURN || gameState.phase.value == GamePhase.INITIAL_BUILDING) -> {
+                        val slots = visibleSupportSlots(gameState)
+                        val slot = slots.getOrNull(supportFocusIndex ?: -1)
+                        if (slot != null && isSupportSlotEnabled(gameState, slot, barEnabled = true)) {
+                            when (slot) {
+                                is SupportSlot.ObjectSlot -> {
+                                    selectedSupportObject = if (selectedSupportObject == slot.type) null else slot.type
+                                    selectedDefenderType = null
+                                }
+                                is SupportSlot.SpellSlot -> {
+                                    selectedSupportObject = null
+                                    onCastSupportSpellToken?.invoke(slot.spell)
+                                }
+                                is SupportSlot.PowerSlot -> {
+                                    selectedSupportObject = null
+                                    onActivateCooldownPower?.invoke(slot.type)
+                                }
+                            }
+                            // Drop the focus cursor after activating so a plain Enter afterwards
+                            // confirms tower placement again instead of re-triggering this support.
+                            supportFocusIndex = null
+                            true
+                        } else {
+                            // Consume Enter/Space even when the focused box can't be used, so pressing
+                            // select on a focused-but-disabled support doesn't fall through to the
+                            // tower-placement / attack handlers bound to the same keys.
+                            true
+                        }
+                    }
+                    // Enter / Space: Confirm placing the selected support object, or casting the spell
+                    // being targeted, on the keyboard placement cursor tile (falling back to the first
+                    // valid tile). Placed before the tower-placement Enter handler so it wins whenever a
+                    // support object is selected or a spell is being targeted.
+                    event.type == KeyEventType.KeyDown &&
+                        (event.key == Key.Enter || event.key == Key.Spacebar) &&
+                        !event.isCtrlPressed &&
+                        !event.isAltPressed &&
+                        !event.isMetaPressed &&
+                        !showMagicPanel &&
+                        (selectedSupportObject != null || gameState.spellTargeting.value != null) &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                        val supportType = selectedSupportObject
+                        if (supportType != null) {
+                            val candidateTiles = supportObjectPlacementTiles(gameState, supportType)
+                            val tile =
+                                keyboardPlacementTile?.takeIf { candidateTiles.contains(it) }
+                                    ?: candidateTiles.firstOrNull()
+                            if (tile != null && onPlaceSupportObject?.invoke(supportType, tile) == true) {
+                                val remaining = gameState.supportObjectsRemaining[supportType] ?: 0
+                                if (remaining <= 0) {
+                                    selectedSupportObject = null
+                                    keyboardPlacementTile = null
+                                } else {
+                                    // Keep the placement cursor near the tile just used instead of
+                                    // resetting it to the first tile, so consecutive placements stay
+                                    // in the same area of the map. The placed tile is now occupied and
+                                    // dropped from the list, so the same (clamped) index lands on the
+                                    // next remaining tile.
+                                    val placedIndex = candidateTiles.indexOf(tile)
+                                    val remainingTiles = supportObjectPlacementTiles(gameState, supportType)
+                                    keyboardPlacementTile =
+                                        if (remainingTiles.isEmpty()) {
+                                            null
+                                        } else {
+                                            remainingTiles[placedIndex.coerceIn(0, remainingTiles.lastIndex)]
+                                        }
+                                }
+                            }
+                        } else {
+                            val targeting = gameState.spellTargeting.value
+                            val candidateTiles = spellTargetPositions(gameState)
+                            val tile =
+                                keyboardPlacementTile?.takeIf { candidateTiles.contains(it) }
+                                    ?: candidateTiles.firstOrNull()
+                            if (targeting != null && tile != null) {
+                                when (targeting.activeSpell.targetType) {
+                                    de.egril.defender.model.SpellTargetType.POSITION ->
+                                        onSelectSpellTarget?.invoke(tile)
+                                    de.egril.defender.model.SpellTargetType.ENEMY -> {
+                                        val enemy =
+                                            gameState.attackers.find { it.position.value == tile && !it.isDefeated.value }
+                                        if (enemy != null && targeting.validTargets.contains(enemy)) {
+                                            onSelectSpellTarget?.invoke(enemy)
+                                        }
+                                    }
+                                    de.egril.defender.model.SpellTargetType.TOWER -> {
+                                        val tower = gameState.defenders.find { it.position.value == tile }
+                                        if (tower != null && targeting.validTargets.contains(tower)) {
+                                            onSelectSpellTarget?.invoke(tower)
+                                        }
+                                    }
+                                    else -> {}
+                                }
+                                keyboardPlacementTile = null
+                            }
+                        }
+                        // Always consume the key so it never falls through to tower placement / attack.
+                        true
+                    }
+                    // 1-8: Select defender type by index.
+                    // Keys 1-2 are intentionally always enabled for tower-type selection as well.
                     event.type == KeyEventType.KeyDown &&
                         event.key in setOf(Key.One, Key.Two, Key.Three, Key.Four, Key.Five, Key.Six, Key.Seven, Key.Eight) &&
                         !event.isCtrlPressed &&
                         !event.isAltPressed &&
-                        selectedDefenderId == null &&
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) &&
                         !showMagicPanel -> {
                         val digit =
@@ -1209,6 +1464,9 @@ private fun GamePlayScreenContent(
                             selectedAttackerId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            // Leaving the support bar for a tower: drop the support focus cursor so
+                            // Enter confirms tower placement rather than a focused support element.
+                            supportFocusIndex = null
                             true
                         } else {
                             false
@@ -1220,6 +1478,7 @@ private fun GamePlayScreenContent(
                         !event.isCtrlPressed &&
                         !event.isAltPressed &&
                         selectedDefenderId != null &&
+                        !splitSelectorExpanded &&
                         gameState.phase.value == GamePhase.PLAYER_TURN -> {
                         val defender = gameState.defenders.find { it.id == selectedDefenderId }
                         if (defender != null && defender.isReady && defender.actionsRemaining.value > 0) {
@@ -1271,6 +1530,7 @@ private fun GamePlayScreenContent(
                         !event.isCtrlPressed &&
                         !event.isAltPressed &&
                         selectedDefenderId != null &&
+                        !splitSelectorExpanded &&
                         gameState.phase.value == GamePhase.PLAYER_TURN -> {
                         val defender = gameState.defenders.find { it.id == selectedDefenderId }
                         if (defender != null && defender.isReady && defender.actionsRemaining.value > 0) {
@@ -1293,14 +1553,33 @@ private fun GamePlayScreenContent(
                             false
                         }
                     }
+                    // Escape (remappable): Cancel an active support-object placement or spell targeting
+                    // first, so keyboard users can stop placing (e.g. the Bomb) without leaving the level.
+                    // A second press then falls through to the back-to-world-map handler below.
+                    event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutBackToWorldMap.value) &&
+                        !isDemoMode &&
+                        (selectedSupportObject != null || gameState.spellTargeting.value != null) -> {
+                        if (selectedSupportObject != null) {
+                            selectedSupportObject = null
+                        } else {
+                            onExitSpellTargeting?.invoke()
+                        }
+                        keyboardPlacementTile = null
+                        true
+                    }
                     // Escape (remappable): Back to world map with confirmation
                     event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutBackToWorldMap.value) &&
                         !isDemoMode -> {
                         // Skip unsaved changes check if in initial building phase with no defenders placed
+                        val hasSandboxMapEdits =
+                            gameState.level.isSandbox &&
+                                (gameState.sandboxPaintedTiles.isNotEmpty() || gameState.sandboxPaintedRiverTiles.isNotEmpty())
                         val isInitialWithNothingDone =
                             gameState.phase.value == GamePhase.INITIAL_BUILDING &&
-                                gameState.defenders.isEmpty()
+                                gameState.defenders.isEmpty() &&
+                                !hasSandboxMapEdits
                         if (!isInitialWithNothingDone && unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
                             showUnsavedChangesDialog = true
                         } else {
@@ -1405,11 +1684,11 @@ private fun GamePlayScreenContent(
                                         ) {
                                             when {
                                                 targetId != null -> {
-                                                    onDefenderAttack(defenderId!!, targetId)
+                                                    onDefenderAttack(defenderId, targetId)
                                                     true
                                                 }
                                                 targetPos != null -> {
-                                                    onDefenderAttackPosition(defenderId!!, targetPos)
+                                                    onDefenderAttackPosition(defenderId, targetPos)
                                                     true
                                                 }
                                                 else -> true
@@ -1503,6 +1782,13 @@ private fun GamePlayScreenContent(
                                 null
                             },
                         onEnemyCountClick = { showOverlay = !showOverlay },
+                        onWinLevelInfoClick = { showEndTurnConfirmation = true },
+                        onSandboxTools =
+                            if (onSandboxSpawnEnemy != null && !isDemoMode) {
+                                { showSandboxTools = true }
+                            } else {
+                                null
+                            },
                         onManaClick =
                             if (onOpenMagicPanel != null && gameState.maxMana.value > 0 && !isDemoMode) {
                                 {
@@ -1550,6 +1836,13 @@ private fun GamePlayScreenContent(
                             selectedBarricadeAction = selectedBarricadeAction,
                             extraFocusTrigger = mapRefocusTrigger,
                             onCellClick = { position ->
+                                // Sandbox: map tile painting takes precedence over all other interactions.
+                                val paintType = sandboxPaintTileType
+                                if (paintType != null) {
+                                    onSandboxPaintTile?.invoke(position, paintType, sandboxRiverFlow, sandboxRiverSpeed)
+                                    return@GameGrid
+                                }
+
                                 // Handle spell targeting mode first
                                 val targeting = gameState.spellTargeting.value
                                 if (targeting != null) {
@@ -1575,6 +1868,18 @@ private fun GamePlayScreenContent(
                                         }
                                         else -> {
                                             // Invalid targeting type, should not happen
+                                        }
+                                    }
+                                    return@GameGrid
+                                }
+
+                                // Handle support object placement mode
+                                selectedSupportObject?.let { supportType ->
+                                    if (onPlaceSupportObject?.invoke(supportType, position) == true) {
+                                        // Deselect if no more of this support object remain
+                                        val remaining = gameState.supportObjectsRemaining[supportType] ?: 0
+                                        if (remaining <= 0) {
+                                            selectedSupportObject = null
                                         }
                                     }
                                     return@GameGrid
@@ -1749,14 +2054,7 @@ private fun GamePlayScreenContent(
                                         }
 
                                         // For AREA/LASTING (fireball and acid) attacks, allow targeting path tiles OR river tiles
-                                        val effectiveRange =
-                                            run {
-                                                val hasDoubleReach =
-                                                    gameState.activeSpellEffects.any {
-                                                        it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == selectedDefender.id
-                                                    }
-                                                if (hasDoubleReach) selectedDefender.range * 2 else selectedDefender.range
-                                            }
+                                        val effectiveRange = gameState.effectiveRange(selectedDefender)
                                         if (selectedDefender.type.attackType == AttackType.AREA ||
                                             selectedDefender.type.attackType == AttackType.LASTING
                                         ) {
@@ -1806,7 +2104,29 @@ private fun GamePlayScreenContent(
                             isDemoMode = isDemoMode,
                             demoHoveredPosition = demoHoveredPosition,
                             keyboardHoveredPosition = keyboardSelectedBuildTile,
+                            keyboardPlacementCursor = keyboardPlacementTile,
+                            selectedSupportObject = selectedSupportObject,
                         )
+
+                        // Sandbox: persistent map-tile selector (from the map editor), always
+                        // available while playing a sandbox level. Selecting a tile type activates
+                        // painting; tapping a map tile then repaints it. Drawn as an overlay OVER the
+                        // map (left-center, high zIndex) so it is never hidden behind the map plane.
+                        if (gameState.level.isSandbox) {
+                            SandboxTilePalette(
+                                selectedTileType = sandboxPaintTileType,
+                                onSelectTileType = { sandboxPaintTileType = it },
+                                selectedRiverFlow = sandboxRiverFlow,
+                                onSelectRiverFlow = { sandboxRiverFlow = it },
+                                selectedRiverSpeed = sandboxRiverSpeed,
+                                onSelectRiverSpeed = { sandboxRiverSpeed = it },
+                                modifier =
+                                    Modifier
+                                        .align(Alignment.CenterStart)
+                                        .padding(start = 8.dp)
+                                        .zIndex(30f),
+                            )
+                        }
 
                         val captionText = soundCaptionText
                         if (captionsEnabled && captionText != null) {
@@ -2291,186 +2611,283 @@ private fun GamePlayScreenContent(
                                                 },
                                             style = MaterialTheme.typography.bodyMedium,
                                         )
+                                        PlacementKeyboardHints(modifier = Modifier.padding(top = 4.dp))
                                     }
                                     OutlinedButton(onClick = { onExitSpellTargeting?.invoke() }) {
                                         Text(stringResource(Res.string.spell_targeting_cancel))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        ShortcutKeyChip(
+                                            text = "Esc",
+                                            color = LocalContentColor.current.copy(alpha = 0.75f),
+                                        )
+                                    }
+                                }
+                            }
+                        } else if (selectedSupportObject != null) {
+                            // Support object placement mode: show a compact instruction + cancel card
+                            // (mirrors the spell targeting card) so keyboard users can see how to cancel.
+                            val placingType = selectedSupportObject!!
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors =
+                                    CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                ) {
+                                    SupportObjectIcon(placingType, 32.dp)
+
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = placingType.localizedSupportName(),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                        Text(
+                                            text = stringResource(Res.string.spell_targeting_position),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                        PlacementKeyboardHints(modifier = Modifier.padding(top = 4.dp))
+                                    }
+                                    OutlinedButton(onClick = { selectedSupportObject = null }) {
+                                        Text(stringResource(Res.string.spell_targeting_cancel))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        ShortcutKeyChip(
+                                            text = "Esc",
+                                            color = LocalContentColor.current.copy(alpha = 0.75f),
+                                        )
                                     }
                                 }
                             }
                         } else {
-                            // Control Panel based on phase
-                            when (gameState.phase.value) {
-                                GamePhase.INITIAL_BUILDING -> {
-                                    GameControlsPanel(
-                                        phase = GamePhase.INITIAL_BUILDING,
-                                        gameState = gameState,
-                                        coinsState = gameState.coins,
-                                        selectedDefenderType = selectedDefenderType,
-                                        selectedDefenderId = selectedDefenderId,
-                                        selectedAttackerId = selectedAttackerId,
-                                        selectedTargetId = null,
-                                        selectedTargetPosition = null,
-                                        selectedBarricadePosition = selectedBarricadePosition,
-                                        onSelectDefenderType = { selectedDefenderType = it },
-                                        onUpgradeDefender = { onUpgradeDefender(it) },
-                                        onUndoTower = { defenderId ->
-                                            if (onUndoTower(defenderId)) {
-                                                selectedDefenderType = null
-                                                selectedDefenderId = null
-                                            }
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                // Support bar: placable objects + spell tokens shown directly above the button row
+                                SupportBar(
+                                    gameState = gameState,
+                                    selectedSupportObject = selectedSupportObject,
+                                    activeSpellToken = activeSpellToken,
+                                    enabled =
+                                        gameState.phase.value == GamePhase.PLAYER_TURN ||
+                                            gameState.phase.value == GamePhase.INITIAL_BUILDING,
+                                    onObjectClick = { type ->
+                                        // Toggle object placement selection; clear other selections
+                                        selectedSupportObject = if (selectedSupportObject == type) null else type
+                                        selectedDefenderType = null
+                                    },
+                                    onSpellClick = { spell ->
+                                        selectedSupportObject = null
+                                        onCastSupportSpellToken?.invoke(spell)
+                                    },
+                                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                                    onCooldownPowerClick = { power ->
+                                        selectedSupportObject = null
+                                        onActivateCooldownPower?.invoke(power)
+                                    },
+                                    focusedSlotIndex =
+                                        supportFocusIndex?.let { idx ->
+                                            val count = visibleSupportSlots(gameState).size
+                                            if (count == 0) null else idx.coerceIn(0, count - 1)
                                         },
-                                        onSellTower = { defenderId ->
-                                            if (onSellTower(defenderId)) {
-                                                selectedDefenderType = null
-                                                selectedDefenderId = null
-                                            }
-                                        },
-                                        onDefenderAttack = { _, _ -> false },
-                                        onDefenderAttackPosition = { _, _ -> false },
-                                        onPrimaryAction = {
-                                            selectedDefenderType = null // Clear defender type selection when starting battle
-                                            selectedDefenderId = null // Clear defender selection when starting battle
-                                            selectedAttackerId = null // Clear attacker selection when starting battle
-                                            onStartFirstPlayerTurn()
-
-                                            // Show first-time auto-attack info at the start of the level if allowed and not seen
-                                            if (gameState.level.allowAutoAttack &&
-                                                !gameState.infoState.value.hasSeen(InfoType.AUTO_ATTACK_INFO)
-                                            ) {
-                                                gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.AUTO_ATTACK_INFO)
-                                            }
-
-                                            // Track tutorial progress and auto-advance START_COMBAT step
-                                            if (gameState.tutorialState.value.isActive) {
-                                                if (!gameState.tutorialState.value.hasStartedFirstTurn) {
-                                                    gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
-                                                }
-                                                // Auto-advance if currently showing START_COMBAT step
-                                                if (gameState.tutorialState.value.currentStep == TutorialStep.START_COMBAT) {
-                                                    gameState.tutorialState.value = gameState.tutorialState.value.advanceStep()
-                                                }
-                                            }
-                                        },
-                                        onMineAction = handleMineAction,
-                                        onWizardAction = handleWizardAction,
-                                        selectedMineAction = selectedMineAction,
-                                        selectedWizardAction = selectedWizardAction,
-                                        onBarricadeAction = handleBarricadeAction,
-                                        selectedBarricadeAction = selectedBarricadeAction,
-                                        onRemoveBarricade = { pos ->
-                                            onRemoveBarricade?.invoke(pos)
-                                            selectedBarricadePosition = null
-                                        },
-                                        uiScale = uiScale,
-                                        onShowDragonInfo = {
-                                            gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
-                                        },
+                                )
+                                // Keyboard-navigation hint for the support bar: shown only while there
+                                // are support elements to navigate and hints are enabled.
+                                if (visibleSupportSlots(gameState).isNotEmpty()) {
+                                    SupportBarKeyboardHints(
+                                        modifier =
+                                            Modifier
+                                                .align(Alignment.CenterHorizontally)
+                                                .padding(bottom = 4.dp),
                                     )
                                 }
-
-                                GamePhase.PLAYER_TURN -> {
-                                    GameControlsPanel(
-                                        phase = GamePhase.PLAYER_TURN,
-                                        gameState = gameState,
-                                        coinsState = gameState.coins,
-                                        selectedDefenderType = selectedDefenderType,
-                                        selectedDefenderId = selectedDefenderId,
-                                        selectedAttackerId = selectedAttackerId,
-                                        selectedTargetId = selectedTargetId,
-                                        selectedTargetPosition = selectedTargetPosition,
-                                        selectedBarricadePosition = selectedBarricadePosition,
-                                        onSelectDefenderType = { selectedDefenderType = it },
-                                        onUpgradeDefender = { onUpgradeDefender(it) },
-                                        onUndoTower = { defenderId ->
-                                            if (onUndoTower(defenderId)) {
-                                                selectedDefenderType = null
-                                                selectedDefenderId = null
-                                            }
-                                        },
-                                        onSellTower = { defenderId ->
-                                            if (onSellTower(defenderId)) {
-                                                selectedDefenderType = null
-                                                selectedDefenderId = null
-                                            }
-                                        },
-                                        onDefenderAttack = { defenderId, targetId ->
-                                            if (onDefenderAttack(defenderId, targetId)) {
-                                                // Check if we should keep the selection active:
-                                                // - Tower still has actions remaining
-                                                // - Enemy is still alive
-                                                if (!shouldKeepTargetSelection(gameState, defenderId, targetId)) {
-                                                    selectedTargetId = null
-                                                    selectedTargetPosition = null
+                                // Control Panel based on phase
+                                when (gameState.phase.value) {
+                                    GamePhase.INITIAL_BUILDING -> {
+                                        GameControlsPanel(
+                                            phase = GamePhase.INITIAL_BUILDING,
+                                            gameState = gameState,
+                                            coinsState = gameState.coins,
+                                            selectedDefenderType = selectedDefenderType,
+                                            selectedDefenderId = selectedDefenderId,
+                                            selectedAttackerId = selectedAttackerId,
+                                            selectedTargetId = null,
+                                            selectedTargetPosition = null,
+                                            selectedBarricadePosition = selectedBarricadePosition,
+                                            onSelectDefenderType = {
+                                                selectedDefenderType = it
+                                                selectedSupportObject = null
+                                            },
+                                            onUpgradeDefender = { onUpgradeDefender(it) },
+                                            onUndoTower = { defenderId ->
+                                                if (onUndoTower(defenderId)) {
+                                                    selectedDefenderType = null
+                                                    selectedDefenderId = null
                                                 }
+                                            },
+                                            onSellTower = { defenderId ->
+                                                if (onSellTower(defenderId)) {
+                                                    selectedDefenderType = null
+                                                    selectedDefenderId = null
+                                                }
+                                            },
+                                            onDefenderAttack = { _, _ -> false },
+                                            onDefenderAttackPosition = { _, _ -> false },
+                                            onPrimaryAction = {
+                                                selectedDefenderType = null // Clear defender type selection when starting battle
+                                                selectedDefenderId = null // Clear defender selection when starting battle
+                                                selectedAttackerId = null // Clear attacker selection when starting battle
+                                                onStartFirstPlayerTurn()
 
-                                                // Track tutorial progress
-                                                if (gameState.tutorialState.value.isActive &&
-                                                    !gameState.tutorialState.value.hasAttackedEnemy
+                                                // Show first-time auto-attack info at the start of the level if allowed and not seen
+                                                if (gameState.level.allowAutoAttack &&
+                                                    !gameState.infoState.value.hasSeen(InfoType.AUTO_ATTACK_INFO)
                                                 ) {
-                                                    gameState.tutorialState.value = gameState.tutorialState.value.markAttackedEnemy()
-                                                }
-                                                true
-                                            } else {
-                                                false
-                                            }
-                                        },
-                                        onDefenderAttackPosition = { defenderId, targetPos ->
-                                            if (onDefenderAttackPosition(defenderId, targetPos)) {
-                                                // Check if we should keep the selection active:
-                                                // - Tower still has actions remaining
-                                                // - There's still a living enemy at the target position
-                                                if (!shouldKeepTargetSelectionForPosition(gameState, defenderId, targetPos)) {
-                                                    selectedTargetId = null
-                                                    selectedTargetPosition = null
+                                                    gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.AUTO_ATTACK_INFO)
                                                 }
 
-                                                // Track tutorial progress
-                                                if (gameState.tutorialState.value.isActive &&
-                                                    !gameState.tutorialState.value.hasAttackedEnemy
-                                                ) {
-                                                    gameState.tutorialState.value = gameState.tutorialState.value.markAttackedEnemy()
+                                                // Track tutorial progress and auto-advance START_COMBAT step
+                                                if (gameState.tutorialState.value.isActive) {
+                                                    if (!gameState.tutorialState.value.hasStartedFirstTurn) {
+                                                        gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                                                    }
+                                                    // Auto-advance if currently showing START_COMBAT step
+                                                    if (gameState.tutorialState.value.currentStep == TutorialStep.START_COMBAT) {
+                                                        gameState.tutorialState.value = gameState.tutorialState.value.advanceStep()
+                                                    }
                                                 }
-                                                true
-                                            } else {
-                                                false
-                                            }
-                                        },
-                                        onPrimaryAction = {
-                                            // Check if there are unused action points before ending turn
-                                            if (gameState.hasDefendersWithUnusedActions()) {
-                                                // Show confirmation dialog
-                                                showEndTurnConfirmation = true
-                                            } else {
-                                                // End turn directly
-                                                endPlayerTurnAction()
-                                                // Track tutorial progress
-                                                if (gameState.tutorialState.value.isActive &&
-                                                    !gameState.tutorialState.value.hasStartedFirstTurn
-                                                ) {
-                                                    gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
-                                                }
-                                            }
-                                        },
-                                        onMineAction = handleMineAction,
-                                        onWizardAction = handleWizardAction,
-                                        selectedMineAction = selectedMineAction,
-                                        selectedWizardAction = selectedWizardAction,
-                                        onBarricadeAction = handleBarricadeAction,
-                                        selectedBarricadeAction = selectedBarricadeAction,
-                                        onRemoveBarricade = { pos ->
-                                            onRemoveBarricade?.invoke(pos)
-                                            selectedBarricadePosition = null
-                                        },
-                                        uiScale = uiScale,
-                                        onShowDragonInfo = {
-                                            gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
-                                        },
-                                        highlightEndTurnButton = highlightEndTurnButton,
-                                    )
-                                }
+                                            },
+                                            onMineAction = handleMineAction,
+                                            onWizardAction = handleWizardAction,
+                                            selectedMineAction = selectedMineAction,
+                                            selectedWizardAction = selectedWizardAction,
+                                            onBarricadeAction = handleBarricadeAction,
+                                            selectedBarricadeAction = selectedBarricadeAction,
+                                            onRemoveBarricade = { pos ->
+                                                onRemoveBarricade?.invoke(pos)
+                                                selectedBarricadePosition = null
+                                            },
+                                            uiScale = uiScale,
+                                            onShowDragonInfo = {
+                                                gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
+                                            },
+                                            splitSelectorToggle = splitSelectorToggle,
+                                            onSplitSelectorExpandedChanged = { splitSelectorExpanded = it },
+                                        )
+                                    }
 
-                                GamePhase.ENEMY_TURN -> {
-                                    EnemyTurnInfo()
+                                    GamePhase.PLAYER_TURN -> {
+                                        GameControlsPanel(
+                                            phase = GamePhase.PLAYER_TURN,
+                                            gameState = gameState,
+                                            coinsState = gameState.coins,
+                                            selectedDefenderType = selectedDefenderType,
+                                            selectedDefenderId = selectedDefenderId,
+                                            selectedAttackerId = selectedAttackerId,
+                                            selectedTargetId = selectedTargetId,
+                                            selectedTargetPosition = selectedTargetPosition,
+                                            selectedBarricadePosition = selectedBarricadePosition,
+                                            onSelectDefenderType = {
+                                                selectedDefenderType = it
+                                                selectedSupportObject = null
+                                            },
+                                            onUpgradeDefender = { onUpgradeDefender(it) },
+                                            onUndoTower = { defenderId ->
+                                                if (onUndoTower(defenderId)) {
+                                                    selectedDefenderType = null
+                                                    selectedDefenderId = null
+                                                }
+                                            },
+                                            onSellTower = { defenderId ->
+                                                if (onSellTower(defenderId)) {
+                                                    selectedDefenderType = null
+                                                    selectedDefenderId = null
+                                                }
+                                            },
+                                            onDefenderAttack = { defenderId, targetId ->
+                                                if (onDefenderAttack(defenderId, targetId)) {
+                                                    // Check if we should keep the selection active:
+                                                    // - Tower still has actions remaining
+                                                    // - Enemy is still alive
+                                                    if (!shouldKeepTargetSelection(gameState, defenderId, targetId)) {
+                                                        selectedTargetId = null
+                                                        selectedTargetPosition = null
+                                                    }
+
+                                                    // Track tutorial progress
+                                                    if (gameState.tutorialState.value.isActive &&
+                                                        !gameState.tutorialState.value.hasAttackedEnemy
+                                                    ) {
+                                                        gameState.tutorialState.value = gameState.tutorialState.value.markAttackedEnemy()
+                                                    }
+                                                    true
+                                                } else {
+                                                    false
+                                                }
+                                            },
+                                            onDefenderAttackPosition = { defenderId, targetPos ->
+                                                if (onDefenderAttackPosition(defenderId, targetPos)) {
+                                                    // Check if we should keep the selection active:
+                                                    // - Tower still has actions remaining
+                                                    // - There's still a living enemy at the target position
+                                                    if (!shouldKeepTargetSelectionForPosition(gameState, defenderId, targetPos)) {
+                                                        selectedTargetId = null
+                                                        selectedTargetPosition = null
+                                                    }
+
+                                                    // Track tutorial progress
+                                                    if (gameState.tutorialState.value.isActive &&
+                                                        !gameState.tutorialState.value.hasAttackedEnemy
+                                                    ) {
+                                                        gameState.tutorialState.value = gameState.tutorialState.value.markAttackedEnemy()
+                                                    }
+                                                    true
+                                                } else {
+                                                    false
+                                                }
+                                            },
+                                            onPrimaryAction = {
+                                                // Check if there are unused action points before ending turn
+                                                if (gameState.hasDefendersWithUnusedActions()) {
+                                                    // Show confirmation dialog
+                                                    showEndTurnConfirmation = true
+                                                } else {
+                                                    // End turn directly
+                                                    endPlayerTurnAction()
+                                                    // Track tutorial progress
+                                                    if (gameState.tutorialState.value.isActive &&
+                                                        !gameState.tutorialState.value.hasStartedFirstTurn
+                                                    ) {
+                                                        gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                                                    }
+                                                }
+                                            },
+                                            onMineAction = handleMineAction,
+                                            onWizardAction = handleWizardAction,
+                                            selectedMineAction = selectedMineAction,
+                                            selectedWizardAction = selectedWizardAction,
+                                            onBarricadeAction = handleBarricadeAction,
+                                            selectedBarricadeAction = selectedBarricadeAction,
+                                            onRemoveBarricade = { pos ->
+                                                onRemoveBarricade?.invoke(pos)
+                                                selectedBarricadePosition = null
+                                            },
+                                            uiScale = uiScale,
+                                            onShowDragonInfo = {
+                                                gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
+                                            },
+                                            highlightEndTurnButton = highlightEndTurnButton,
+                                            splitSelectorToggle = splitSelectorToggle,
+                                            onSplitSelectorExpandedChanged = { splitSelectorExpanded = it },
+                                        )
+                                    }
+
+                                    GamePhase.ENEMY_TURN -> {
+                                        EnemyTurnInfo()
+                                    }
                                 }
                             }
                         }
@@ -2537,6 +2954,15 @@ private fun GamePlayScreenContent(
                             showHints = true,
                             initialInput = cheatCodeInput,
                             onInputChange = { cheatCodeInput = it },
+                        )
+                    }
+
+                    if (showSandboxTools && onSandboxSpawnEnemy != null) {
+                        SandboxToolsDialog(
+                            spawnPoints = gameState.level.startPositions,
+                            onSpawnEnemy = { type, level, spawnPoint -> onSandboxSpawnEnemy(type, level, spawnPoint) },
+                            onAddCoins = { onSandboxAddCoins?.invoke() },
+                            onDismiss = { showSandboxTools = false },
                         )
                     }
 
@@ -2690,6 +3116,7 @@ private fun GamePlayScreenContent(
 
                     // End turn confirmation dialog
                     if (showEndTurnConfirmation) {
+                        val canWinLevelNow = gameState.canWinLevelNow()
                         EndTurnConfirmationDialog(
                             onConfirm = {
                                 showEndTurnConfirmation = false
@@ -2715,6 +3142,12 @@ private fun GamePlayScreenContent(
                                 showEndTurnConfirmation = false
                             },
                             showAutoAttackButton = gameState.level.allowAutoAttack && gameState.hasDefendersForAutoAttack(),
+                            showEndTurnWarning = gameState.hasDefendersWithUnusedActions(),
+                            showWinLevelNow = canWinLevelNow && onWinLevelNow != null,
+                            onWinLevelNow = {
+                                showEndTurnConfirmation = false
+                                onWinLevelNow?.invoke()
+                            },
                         )
                     }
 
@@ -2784,6 +3217,7 @@ private fun GamePlayScreenContent(
                             currentMana = gameState.currentMana.value,
                             onConfirm = { onConfirmTargetSpell.invoke() },
                             onDismiss = { onDismissTargetConfirmation.invoke() },
+                            isTokenCast = activeSpellToken == spell,
                         )
                     }
 
@@ -3000,15 +3434,41 @@ private fun GamePlayScreenContent(
                                                 )
                                             else -> null
                                         }
-                                    story?.let { (narrativeType, storyTitle, storyText) ->
+                                    if (story != null) {
+                                        val (narrativeType, storyTitle, storyText) = story
                                         NarrativeMessageDialog(
                                             type = narrativeType,
                                             title = storyTitle,
                                             text = storyText,
                                             onDismiss = { onDismissGameMessage?.invoke() },
+                                            supports = gameState.level.supports,
                                         )
+                                    } else {
+                                        // No predefined story text for this level (e.g. user-created
+                                        // levels): dismiss so it does not block later queued messages
+                                        // (scripted-event messages, target-taken, etc.).
+                                        LaunchedEffect(msg) { onDismissGameMessage?.invoke() }
                                     }
+                                } else {
+                                    LaunchedEffect(msg) { onDismissGameMessage?.invoke() }
                                 }
+                            }
+                            GameMessageType.EVENT_MESSAGE -> {
+                                val messageKey = msg.name
+                                val eventText =
+                                    if (messageKey != null) {
+                                        com.hyperether.resources.LocalizedStrings
+                                            .get(messageKey, com.hyperether.resources.currentLanguage.value)
+                                    } else {
+                                        ""
+                                    }
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.STORY,
+                                    title = stringResource(Res.string.event_message_title),
+                                    text = eventText,
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                    eventGains = msg.eventActions,
+                                )
                             }
                             else ->
                                 GameEventMessageDialog(
@@ -3041,6 +3501,10 @@ private fun GamePlayScreenContent(
                     }
                 }
             }
+
+            // Coin fly-to-counter animation overlay: sits above header + map so coins can travel
+            // between them. No-op when animations are disabled.
+            CoinFlightOverlay()
         }
     }
 }
@@ -3091,4 +3555,79 @@ private fun shouldKeepPlacementMode(
 ): Boolean {
     val defender = gameState.defenders.find { it.id == defenderId } ?: return false
     return defender.actionsRemaining.value > 0
+}
+
+/**
+ * Compact keyboard-hint row shown on the placement / spell-targeting instruction cards. It documents
+ * the keys used to move the on-map placement cursor and to confirm the placement, so keyboard users
+ * can discover them. Renders nothing when the shortcut-hint setting is disabled (each chip self-guards).
+ */
+@Composable
+private fun PlacementKeyboardHints(modifier: Modifier = Modifier) {
+    if (!AppSettings.showButtonShortcutHints.value) return
+    val hintColor = LocalContentColor.current.copy(alpha = 0.75f)
+    val nextBinding = formatShortcutBindingForDisplay(AppSettings.shortcutNextEnemyTarget.value)
+    val prevBinding = formatShortcutBindingForDisplay(AppSettings.shortcutPrevEnemyTarget.value)
+    val rowUpBinding = formatShortcutBindingForDisplay(AppSettings.shortcutPanUp.value)
+    val rowDownBinding = formatShortcutBindingForDisplay(AppSettings.shortcutPanDown.value)
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        ShortcutKeyChip(text = nextBinding, color = hintColor)
+        ShortcutKeyChip(text = prevBinding, color = hintColor)
+        Text(
+            text = stringResource(Res.string.keyboard_placement_move),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        ShortcutKeyChip(text = rowUpBinding, color = hintColor)
+        ShortcutKeyChip(text = rowDownBinding, color = hintColor)
+        Text(
+            text = stringResource(Res.string.keyboard_placement_row),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        ShortcutKeyChip(text = "Enter", color = hintColor)
+        Text(
+            text = stringResource(Res.string.keyboard_placement_place),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor,
+        )
+    }
+}
+
+/**
+ * Compact keyboard-hint row shown beneath the support bar. It documents how to navigate between the
+ * support elements (placeable objects, spell tokens, cooldown powers) with the keyboard: left/right
+ * to move the focus cursor and Enter to activate the focused element. Renders nothing when the
+ * shortcut-hint setting is disabled (each chip self-guards).
+ */
+@Composable
+private fun SupportBarKeyboardHints(modifier: Modifier = Modifier) {
+    if (!AppSettings.showButtonShortcutHints.value) return
+    val hintColor = LocalContentColor.current.copy(alpha = 0.75f)
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        // \u2190\u2192 = left/right arrows; ShortcutKeyChip renders them as Material Symbol icons.
+        ShortcutKeyChip(text = "\u2190\u2192", color = hintColor)
+        Text(
+            text = stringResource(Res.string.keyboard_placement_move),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        ShortcutKeyChip(text = "Enter", color = hintColor)
+        Text(
+            text = stringResource(Res.string.keyboard_nav_select),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor,
+        )
+    }
 }

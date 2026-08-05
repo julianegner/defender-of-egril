@@ -132,6 +132,14 @@ object GamePlayConstants {
 
         /** Title text */
         val Title = 18.sp
+
+        /**
+         * Font sizes for the primary turn button label (End Turn / Auto-Attack / Start Battle).
+         * Larger than other controls for readability, scaled by the header text size setting.
+         */
+        val TurnButtonSmall = 18.sp
+        val TurnButtonMedium = 22.sp
+        val TurnButtonLarge = 26.sp
     }
 
     /**
@@ -153,6 +161,18 @@ object GamePlayConstants {
 
         /** Icon size for static damage effect overlay (shown when animations are disabled) */
         val DamageEffect = 24.dp
+    }
+
+    /**
+     * Opacity (alpha) values used to convey element state through transparency.
+     */
+    object Opacity {
+        /**
+         * Opacity applied to the graphic of a tower/defender that is inactive this turn
+         * (out of actions, disabled, or still building). Active towers – which display
+         * action markers (lightning bolts) – are drawn fully opaque.
+         */
+        const val InactiveTower = 0.5f
     }
 
     /**
@@ -183,6 +203,13 @@ object GamePlayConstants {
 
         /** Pause between the death animation finishing and the coin-gain animation starting. */
         const val COIN_GAIN_DELAY_AFTER_DEATH_MS = 400L
+
+        /**
+         * Duration of the coin-gain (coins bubbling up) Lottie animation (60 frames @ 30 fps
+         * = 2 000 ms). The "fly-to-counter" coins launch after this so they appear to peel off
+         * the end of the bubble-up animation.
+         */
+        const val COIN_GAIN_ANIMATION_DURATION_MS = 2000L
 
         /** Conversion factor from radians to degrees (used for projectile direction angles). */
         const val RADIANS_TO_DEGREES = 180.0 / kotlin.math.PI

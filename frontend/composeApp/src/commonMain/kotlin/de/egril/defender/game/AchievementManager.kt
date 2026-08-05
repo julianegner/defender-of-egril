@@ -131,6 +131,26 @@ class AchievementManager(
         checkAndAward(AchievementId.LOSE_LEVEL)
     }
 
+    /**
+     * Called when a new turn is reached. Awards the achievement for
+     * reaching 100 turns in a single level.
+     */
+    fun onTurnReached(turnNumber: Int) {
+        if (turnNumber >= 100) {
+            checkAndAward(AchievementId.PLAY_HUNDRED_TURNS)
+        }
+    }
+
+    /**
+     * Called with the number of towers currently standing on the map.
+     * Awards the achievement for having 20 towers standing at the same time.
+     */
+    fun onTowersStanding(count: Int) {
+        if (count >= 20) {
+            checkAndAward(AchievementId.TWENTY_TOWERS_STANDING)
+        }
+    }
+
     // Combat-related achievements
     fun onEnemyKilled(
         enemyType: AttackerType,

@@ -3,7 +3,8 @@
 ## How the Brush Works
 
 ### Before: Click-Only Mode
-```
+
+```text
 User clicks on Tile A
    ↓
 Tile A changes color
@@ -16,7 +17,8 @@ Tile B changes color
 **Problem**: Tedious for painting large areas
 
 ### After: Click-and-Drag Brush Mode
-```
+
+```text
 User clicks on Tile A (pointer down)
    ↓
 isBrushActive = true
@@ -44,7 +46,7 @@ isBrushActive = false
 
 ### Map Editor Interface
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │ Editing: My Custom Map                              │
 │                                                      │
@@ -77,21 +79,24 @@ isBrushActive = false
 ## Gesture Behavior
 
 ### Scenario 1: Painting Tiles (Desired Behavior)
-```
+
+```text
 1. User clicks on PATH tile
 2. User drags over adjacent tiles
 3. Result: All tiles under cursor are painted PATH
 ```
 
 ### Scenario 2: Panning the Map (Still Works)
-```
+
+```text
 1. User clicks on EMPTY SPACE (between tiles or on edges)
 2. User drags
 3. Result: Map pans (tiles don't consume the gesture)
 ```
 
 ### Scenario 3: Zooming (Still Works)
-```
+
+```text
 1. User holds Ctrl and scrolls mouse wheel
    OR
 2. User pinches on touchscreen
@@ -100,7 +105,7 @@ isBrushActive = false
 
 ## State Flow Diagram
 
-```
+```text
 ┌──────────────────┐
 │  Initial State   │
 │ isBrushActive =  │
@@ -136,6 +141,7 @@ isBrushActive = false
 ## Technical Implementation Highlights
 
 ### Pointer Event Detection (Per Tile)
+
 ```kotlin
 .pointerInput(key, selectedTileType, isBrushActive) {
     awaitPointerEventScope {
@@ -164,6 +170,7 @@ isBrushActive = false
 ```
 
 ### Key Features
+
 - ✅ Works on mouse (desktop)
 - ✅ Works on touch (mobile/tablet)
 - ✅ Compatible with existing zoom/pan
@@ -172,7 +179,7 @@ isBrushActive = false
 
 ## User Instructions
 
-### To use the brush feature:
+### To use the brush feature
 
 1. **Open the Level Editor**
    - From the world map, click the Level Editor button (🛠️)
@@ -193,7 +200,8 @@ isBrushActive = false
    - Click "Save Map" to update the existing map
    - Click "Save As New" to create a copy with a new name
 
-### Tips:
+### Tips
+
 - Zoom in for precision work (Ctrl+Scroll or zoom buttons)
 - Pan the map by dragging empty space around the tiles
 - Different colors represent different tile types

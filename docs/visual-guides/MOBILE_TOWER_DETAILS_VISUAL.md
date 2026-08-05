@@ -4,7 +4,7 @@
 
 ### Complete Tower Details Card
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │ TOWER DETAILS CARD (Mobile - Landscape Mode)                   │
 │                                                                 │
@@ -27,7 +27,8 @@
 ## Detailed Breakdown
 
 ### Section 1: Tower Header (Top Row)
-```
+
+```text
 ┌──────────────────────────────────────────────────┐
 │ [Icon] Tower Name       Level  Type    Actions   │
 │  16dp   18sp (27sp*)     15sp  15sp      15sp    │
@@ -40,7 +41,7 @@ Height: ~24dp → 12dp with 0.5x layout scaling
 
 ### Section 2: Stats + Buttons (Main Row) - NEW COMPACT LAYOUT
 
-```
+```text
 ┌────────────────────────────────────────────────────────────┐
 │                                                            │
 │  Stats Column          Button 1         Button 2          │
@@ -61,7 +62,8 @@ Height: ~50dp → 25dp with 0.5x layout scaling
 ## Comparison: Before vs After
 
 ### Before (4 Equal Columns)
-```
+
+```text
 ┌────────────────────────────────────────────────────────┐
 │ Current:  │ Upgrade:  │ [Upgrade] │  [Sell]           │
 │ 💥 15     │ 💥 20     │  Button   │  Button           │
@@ -79,7 +81,8 @@ Issues:
 ```
 
 ### After (Compact Layout)
-```
+
+```text
 ┌────────────────────────────────────────────────────────┐
 │ Now  Up   │    [Upgrade]    │    [Sell]              │
 │ 💥15 💥20 │     Button      │    Button              │
@@ -99,6 +102,7 @@ Benefits:
 ## Size Calculations (Mobile with 0.5x Layout + 1.5x Text)
 
 ### Text Sizes (Effective)
+
 | Element | Declared | With Scaling | Result |
 |---------|----------|--------------|--------|
 | Tower name | 16sp | ×1.5 | **24sp** ✓ |
@@ -110,6 +114,7 @@ Benefits:
 All text remains highly readable!
 
 ### Layout Sizes (Physical)
+
 | Element | Declared | With Scaling | Result |
 |---------|----------|--------------|--------|
 | Card padding | 4dp | ×0.5 | **2dp** |
@@ -120,7 +125,7 @@ All text remains highly readable!
 
 ## Full Screen Layout (Landscape Mobile)
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────┐
 │ 💰250 ❤️10 🔄3   Forest Defense   💾 Map ▶ ▼  (16dp)        │
 ├──────────────────────────────────────────────────────────────┤

@@ -1,18 +1,22 @@
 # ZIP Implementation for Web/WASM
 
 ## Overview
+
 This document describes the ZIP file format implementation for the web/WASM platform in Defender of Egril.
 
 ## Background
+
 The game supports downloading all save games as a single file. On Desktop and Android platforms, this uses `java.util.zip` to create proper ZIP archives. However, the web/WASM platform does not have access to Java libraries, so a custom implementation was required.
 
 ## Implementation
 
 ### Files
+
 - `composeApp/src/wasmJsMain/kotlin/de/egril/defender/save/ZipWriter.kt` - Custom ZIP writer
 - `composeApp/src/wasmJsMain/kotlin/de/egril/defender/save/FileExportImport.wasmJs.kt` - Uses ZipWriter for exports
 
 ### ZIP Format
+
 The implementation follows the ZIP file format specification (PKZIP):
 
 1. **Local File Header** (per file)
@@ -35,6 +39,7 @@ The implementation follows the ZIP file format specification (PKZIP):
    - Central directory size and offset
 
 ### Features
+
 - ✅ Uncompressed storage (STORE method)
 - ✅ UTF-8 filename support
 - ✅ Proper CRC-32 checksums
@@ -44,6 +49,7 @@ The implementation follows the ZIP file format specification (PKZIP):
 - ✅ Works in WASM environment
 
 ### Limitations
+
 - Only STORE method (no compression)
 - No ZIP64 support (sufficient for save files)
 - No encryption support
@@ -61,12 +67,15 @@ val zipBytes = zipWriter.build()
 The ZIP bytes can then be converted to a Blob and downloaded via browser APIs.
 
 ## Testing
+
 The implementation has been validated to:
+
 - Produce correct ZIP file signatures
 - Calculate accurate CRC-32 checksums
 - Create archives that extract correctly with standard tools
 - Preserve file contents exactly
 
 ## References
+
 - [ZIP File Format Specification](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT)
 - [CRC-32 IEEE 802.3 Polynomial](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)

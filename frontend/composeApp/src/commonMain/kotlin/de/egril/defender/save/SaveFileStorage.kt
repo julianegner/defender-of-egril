@@ -384,6 +384,25 @@ object SaveFileStorage {
             currentMana = gameState.currentMana.value,
             maxMana = gameState.maxMana.value,
             spellEffects = spellEffects,
+            supportObjectsRemaining = gameState.supportObjectsRemaining.toMap(),
+            supportSpellsRemaining = gameState.supportSpellsRemaining.toMap(),
+            cooldownPowerReadyIn = gameState.cooldownPowerReadyIn.toMap(),
+            coinSurgeActive = gameState.coinSurgeActive.value,
+            triggeredEventIds = gameState.triggeredEventIds.toList(),
+            enemiesKilledTotal = gameState.enemiesKilledTotal.value,
+            enemiesKilledByType = gameState.enemiesKilledByType.toMap(),
+            sandboxMapTiles =
+                if (gameState.level.isSandbox && gameState.sandboxPaintedTiles.isNotEmpty()) {
+                    gameState.sandboxPaintedTiles.toMap()
+                } else {
+                    null
+                },
+            sandboxRiverTiles =
+                if (gameState.level.isSandbox && gameState.sandboxPaintedRiverTiles.isNotEmpty()) {
+                    gameState.sandboxPaintedRiverTiles.toMap()
+                } else {
+                    null
+                },
         )
     }
 
@@ -394,7 +413,23 @@ object SaveFileStorage {
         savedGame: SavedGame,
         level: Level,
     ): GameState {
+        // Construct the state with the original (un-edited) level so its captured snapshot of the
+        // original map is correct, then reapply the runtime-painted sandbox tile differences.
         val gameState = GameState(level = level)
+
+        // Sandbox: restore the runtime-painted tile differences. sandboxPaintTile rebuilds the level's
+        // tile collections, records the differences for overlay rendering, and drops any that match the
+        // original map. Applied before defenders/barricades are restored so no tiles are skipped.
+        if (level.isSandbox && savedGame.sandboxMapTiles != null) {
+            savedGame.sandboxMapTiles.forEach { (position, type) ->
+                val river = savedGame.sandboxRiverTiles?.get(position)
+                if (type == de.egril.defender.editor.TileType.RIVER && river != null) {
+                    gameState.sandboxPaintTile(position, type, river.flowDirection, river.flowSpeed)
+                } else {
+                    gameState.sandboxPaintTile(position, type)
+                }
+            }
+        }
 
         // Restore basic state
         gameState.phase.value = savedGame.phase
@@ -410,6 +445,25 @@ object SaveFileStorage {
         // Restore mana
         gameState.currentMana.value = savedGame.currentMana
         gameState.maxMana.value = savedGame.maxMana
+
+        // Restore player-usable support state (placeable objects, spell tokens, cooldown powers).
+        // These are normally initialized from the level definition, but the player consumes objects
+        // and spell tokens and recharges cooldown powers during play, so the current state must be
+        // restored from the save rather than reset to the level defaults.
+        gameState.supportObjectsRemaining.clear()
+        gameState.supportObjectsRemaining.putAll(savedGame.supportObjectsRemaining)
+        gameState.supportSpellsRemaining.clear()
+        gameState.supportSpellsRemaining.putAll(savedGame.supportSpellsRemaining)
+        gameState.cooldownPowerReadyIn.clear()
+        gameState.cooldownPowerReadyIn.putAll(savedGame.cooldownPowerReadyIn)
+        gameState.coinSurgeActive.value = savedGame.coinSurgeActive
+
+        // Restore scripted-event tracking so already-fired events don't re-trigger after load.
+        gameState.triggeredEventIds.clear()
+        gameState.triggeredEventIds.addAll(savedGame.triggeredEventIds)
+        gameState.enemiesKilledTotal.value = savedGame.enemiesKilledTotal
+        gameState.enemiesKilledByType.clear()
+        gameState.enemiesKilledByType.putAll(savedGame.enemiesKilledByType)
 
         // Restore rafts first
         gameState.rafts.clear()

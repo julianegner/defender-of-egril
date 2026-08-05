@@ -1,6 +1,7 @@
 # Removal of Map/Level Generation Fallback Code
 
 ## Overview
+
 This change removes old unused code that was used to generate maps and levels as a fallback when repository data files were missing. The application now always uses files from the repository and shows an error dialog if critical data is missing.
 
 ## Changes Made
@@ -8,6 +9,7 @@ This change removes old unused code that was used to generate maps and levels as
 ### 1. Removed Generation Code
 
 #### EditorStorage.kt
+
 - **Removed** `initializeDefaultMapsAndLevels()` function (517 lines)
   - This function generated default maps and levels if no repository files existed
   - Generated 5 default maps (30x8, 35x9, 40x10, 45x11, 50x12)
@@ -16,12 +18,14 @@ This change removes old unused code that was used to generate maps and levels as
   - All this functionality is now obsolete as we always use repository files
 
 #### Level.kt
+
 - **Removed** `PathAndIslands` data class
 - **Removed** `generateCurvedPathWithIslands()` function
   - Generated procedural paths with islands
   - Only used by the removed initialization code
 
 #### MapGenerator.kt
+
 - **Deleted** entire file (430 lines)
   - `createSpiralMap()` - generated spiral map
   - `createPlainsMap()` - generated plains map
@@ -32,11 +36,13 @@ This change removes old unused code that was used to generate maps and levels as
 ### 2. Added Repository Data Validation
 
 #### EditorModels.kt
+
 - **Added** `MissingRepositoryDataException` class
   - Exception thrown when critical repository data is missing
   - Contains list of missing data categories
 
 #### EditorStorage.kt
+
 - **Updated** `init` block:
   - Checks for existing user data first
   - If no user data, attempts to load from repository
@@ -54,6 +60,7 @@ This change removes old unused code that was used to generate maps and levels as
 ### 3. Added Error Dialog
 
 #### MissingRepositoryDataDialog.kt
+
 - **Created** new dialog component
   - Shows when critical repository data is missing
   - Displays list of missing categories (maps, levels, sequence, worldmap)
@@ -61,6 +68,7 @@ This change removes old unused code that was used to generate maps and levels as
   - Suggests reinstalling the game or restoring data from Settings
 
 #### App.kt
+
 - **Updated** to catch `MissingRepositoryDataException`
   - Wraps GameViewModel creation in try-catch
   - Shows `MissingRepositoryDataDialog` if exception is thrown
@@ -69,6 +77,7 @@ This change removes old unused code that was used to generate maps and levels as
 ### 4. Added Localized Error Strings
 
 Added error strings to all supported languages:
+
 - **English** (values/strings.xml)
 - **German** (values-de/strings.xml)
 - **Spanish** (values-es/strings.xml)
@@ -76,6 +85,7 @@ Added error strings to all supported languages:
 - **Italian** (values-it/strings.xml)
 
 New strings:
+
 - `error_missing_repository_data_title`: Dialog title
 - `error_missing_repository_data_message`: Error message
 - `error_missing_repository_data_categories`: Categories header
@@ -84,6 +94,7 @@ New strings:
 ## Impact
 
 ### Code Size Reduction
+
 - **Total lines removed**: ~900 lines
 - **EditorStorage.kt**: -517 lines
 - **Level.kt**: -84 lines
@@ -94,12 +105,14 @@ New strings:
 ### Behavior Changes
 
 #### Before
+
 1. App checked if gamedata directory was empty
 2. If empty, tried to load from repository
 3. If repository missing, generated default maps/levels procedurally
 4. App always started successfully
 
 #### After
+
 1. App checks if gamedata directory is empty
 2. If empty, tries to load from repository
 3. If repository missing, throws exception with error dialog
@@ -109,11 +122,13 @@ New strings:
 ### User Experience
 
 #### Normal Case (Repository Files Present)
+
 - No change - app loads normally
 - All levels and maps loaded from repository files
 - Faster startup (no generation overhead)
 
 #### Error Case (Repository Files Missing)
+
 - User sees clear error dialog
 - Dialog lists specific missing categories
 - Suggests reinstalling or restoring data
@@ -122,6 +137,7 @@ New strings:
 ## Files Changed
 
 ### Modified Files
+
 - `composeApp/src/commonMain/kotlin/de/egril/defender/App.kt`
 - `composeApp/src/commonMain/kotlin/de/egril/defender/editor/EditorModels.kt`
 - `composeApp/src/commonMain/kotlin/de/egril/defender/editor/EditorStorage.kt`
@@ -134,14 +150,17 @@ New strings:
 - `docs/features/MAP_GENERATION_REFACTORING.md`
 
 ### New Files
+
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/MissingRepositoryDataDialog.kt`
 
 ### Deleted Files
+
 - `composeApp/src/commonMain/kotlin/de/egril/defender/editor/MapGenerator.kt`
 
 ## Repository Files
 
 The following repository files are now **required** for the game to run:
+
 - `composeResources/files/repository/maps/*.json` - Map definitions
 - `composeResources/files/repository/levels/*.json` - Level definitions
 - `composeResources/files/repository/sequence.json` - Level sequence

@@ -1,5 +1,6 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -17,20 +18,34 @@ import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.EventAction
+import de.egril.defender.model.EventActionType
+import de.egril.defender.model.SpellType
+import de.egril.defender.model.SupportObjectType
 import de.egril.defender.ui.common.SelectableText
+import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.icon.ExplosionIcon
+import de.egril.defender.ui.icon.MoneyIcon
+import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
+import kotlin.math.roundToInt
 
 /**
  * The type of narrative message popup.
@@ -41,6 +56,19 @@ enum class NarrativeMessageType {
 }
 
 private const val KEYBOARD_SCROLL_STEP = 150
+
+// story_message_background.png has original source dimensions of 500×500 px, with wooden side rails starting at 165 px
+// and whose parchment content begins 135 px from the top and bottom.
+private const val STORY_BACKGROUND_SOURCE_SIZE = 500
+private const val STORY_BACKGROUND_SIDE_SLICE_PX = 165
+private const val STORY_BACKGROUND_VERTICAL_PADDING_PX = 135f
+
+// Keep the precomputed ratio alongside the source-asset constants so every sizing calculation uses
+// the same scaling factor instead of re-deriving it at each call site.
+private const val STORY_BACKGROUND_SIDE_RATIO = 165f / STORY_BACKGROUND_SOURCE_SIZE.toFloat()
+private val STORY_DIALOG_DESKTOP_WIDTH = 960.dp
+private val STORY_DIALOG_DESKTOP_HEIGHT = 700.dp
+private val EWHAD_DIALOG_DESKTOP_WIDTH = 700.dp
 
 /**
  * A popup dialog for narrative messages (story events and Ewhad events).
@@ -53,6 +81,10 @@ private const val KEYBOARD_SCROLL_STEP = 150
  * @param title    The title text to display.
  * @param text     The body text to display below the title.
  * @param onDismiss Called when the dialog should be closed.
+ * @param supports Optional level supports; when non-null and non-empty, a summary of the level's
+ *   available player supports (objects + spell tokens) is shown below the body text.
+ * @param eventGains Optional scripted-event actions; when non-null and non-empty, the granted
+ *   elements (coins, mana, supports, …) are shown with symbols, names and amounts below the body.
  */
 @Composable
 fun NarrativeMessageDialog(
@@ -60,8 +92,16 @@ fun NarrativeMessageDialog(
     title: String,
     text: String,
     onDismiss: () -> Unit,
+    supports: de.egril.defender.model.LevelSupports? = null,
+    eventGains: List<EventAction>? = null,
 ) {
-    Dialog(onDismissRequest = onDismiss) {
+    val isMobile = isPlatformMobile
+    val useWideStoryLayout = type == NarrativeMessageType.STORY && !isMobile
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = !useWideStoryLayout),
+    ) {
         val focusRequester = remember { FocusRequester() }
         LaunchedEffect(Unit) {
             try {
@@ -69,7 +109,6 @@ fun NarrativeMessageDialog(
             } catch (_: IllegalStateException) {
             }
         }
-        val isMobile = isPlatformMobile
         val titleFontSize =
             when {
                 isMobile && type == NarrativeMessageType.EWHAD -> 16.sp
@@ -100,8 +139,11 @@ fun NarrativeMessageDialog(
         // the actual device screen size rather than using a fixed narrow value.
         BoxWithConstraints(
             modifier =
-                (if (isMobile) Modifier.fillMaxWidth() else Modifier.width(700.dp))
-                    .focusRequester(focusRequester)
+                when {
+                    isMobile -> Modifier.fillMaxWidth()
+                    useWideStoryLayout -> Modifier.width(STORY_DIALOG_DESKTOP_WIDTH)
+                    else -> Modifier.width(EWHAD_DIALOG_DESKTOP_WIDTH)
+                }.focusRequester(focusRequester)
                     .focusTarget()
                     .onPreviewKeyEvent { event ->
                         if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
@@ -130,26 +172,34 @@ fun NarrativeMessageDialog(
             contentAlignment = Alignment.Center,
         ) {
             // dialogWidth equals the actual rendered width on all platforms.
-            // Keep the dialog square to match the square source images.
             val dialogWidth = maxWidth
-            val dialogHeight = dialogWidth
-            val horizontalPadding = dialogWidth * (165f / 500f)
-            val verticalPadding = dialogHeight * (135f / 500f)
+            val dialogHeight = if (useWideStoryLayout) STORY_DIALOG_DESKTOP_HEIGHT else dialogWidth
+            val horizontalPadding =
+                if (useWideStoryLayout) {
+                    dialogHeight * STORY_BACKGROUND_SIDE_RATIO
+                } else {
+                    dialogWidth * STORY_BACKGROUND_SIDE_RATIO
+                }
+            val verticalPadding = dialogHeight * (STORY_BACKGROUND_VERTICAL_PADDING_PX / STORY_BACKGROUND_SOURCE_SIZE)
 
             Box(
                 modifier =
                     Modifier
                         .width(dialogWidth)
-                        .height(dialogHeight),
+                        .height(dialogHeight)
+                        .testTag("narrativeMessageDialog"),
                 contentAlignment = Alignment.Center,
             ) {
-                // Background image
-                Image(
-                    painter = backgroundPainter,
-                    contentDescription = null,
-                    modifier = Modifier.matchParentSize(),
-                    contentScale = ContentScale.FillBounds,
-                )
+                if (useWideStoryLayout) {
+                    StoryMessageBackground(modifier = Modifier.matchParentSize())
+                } else {
+                    Image(
+                        painter = backgroundPainter,
+                        contentDescription = null,
+                        modifier = Modifier.matchParentSize(),
+                        contentScale = ContentScale.FillBounds,
+                    )
+                }
 
                 // Content overlaid on background – scrollable so long texts never overflow the frame
                 Column(
@@ -201,15 +251,32 @@ fun NarrativeMessageDialog(
                     )
 
                     // Body text
-                    SelectableText(
-                        text = text,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF333333),
-                        textAlign = TextAlign.Center,
-                        fontSize = bodyFontSize,
-                    )
+                    if (text.isNotEmpty()) {
+                        SelectableText(
+                            text = text,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFF333333),
+                            textAlign = TextAlign.Center,
+                            fontSize = bodyFontSize,
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(4.dp))
+
+                    // Optional summary of the granted elements of a scripted event
+                    if (!eventGains.isNullOrEmpty()) {
+                        EventGainsSummary(actions = eventGains)
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+
+                    // Optional summary of the level's available player supports
+                    if (supports != null && supports.isNotEmpty()) {
+                        LevelSupportsSummary(
+                            supports = supports,
+                            title = stringResource(Res.string.level_supports_title),
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
 
                     // Dismiss button
                     Button(
@@ -233,5 +300,126 @@ fun NarrativeMessageDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StoryMessageBackground(modifier: Modifier = Modifier) {
+    val source = imageResource(Res.drawable.story_message_background)
+
+    Canvas(modifier = modifier) {
+        val sideSlicePx = STORY_BACKGROUND_SIDE_SLICE_PX
+        val centerSlicePx = source.width - (sideSlicePx * 2)
+        // Defensive: avoid invalid rendering sizes if the canvas height rounds down to zero.
+        val destinationHeight = size.height.roundToInt().coerceAtLeast(1)
+        val destinationSideWidth =
+            minOf(
+                size.height * STORY_BACKGROUND_SIDE_RATIO,
+                size.width / 2f,
+            ).roundToInt().coerceAtLeast(1)
+        // Prevent negative center widths when the side slices overlap.
+        // A zero-width center is safe because the draw below only runs when destinationCenterWidth > 0.
+        val destinationCenterWidth = (size.width.roundToInt() - (destinationSideWidth * 2)).coerceAtLeast(0)
+
+        drawImage(
+            image = source,
+            srcOffset = IntOffset.Zero,
+            srcSize = IntSize(sideSlicePx, source.height),
+            dstOffset = IntOffset.Zero,
+            dstSize = IntSize(destinationSideWidth, destinationHeight),
+        )
+        if (destinationCenterWidth > 0) {
+            drawImage(
+                image = source,
+                srcOffset = IntOffset(sideSlicePx, 0),
+                srcSize = IntSize(centerSlicePx, source.height),
+                dstOffset = IntOffset(destinationSideWidth, 0),
+                dstSize = IntSize(destinationCenterWidth, destinationHeight),
+            )
+        }
+        drawImage(
+            image = source,
+            srcOffset = IntOffset(source.width - sideSlicePx, 0),
+            srcSize = IntSize(sideSlicePx, source.height),
+            dstOffset = IntOffset(destinationSideWidth + destinationCenterWidth, 0),
+            dstSize = IntSize(destinationSideWidth, destinationHeight),
+        )
+    }
+}
+
+/**
+ * Summary of the elements granted by a scripted event, shown inside [NarrativeMessageDialog].
+ *
+ * Each action is rendered as a row with a symbol, a name and (where relevant) an amount so the
+ * player knows exactly what they gained (coins, mana, support objects/spells) or what happened
+ * (a mine being destroyed).
+ */
+@Composable
+private fun EventGainsSummary(actions: List<EventAction>) {
+    if (actions.isEmpty()) return
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        actions.forEach { action ->
+            when (action.type) {
+                EventActionType.GIVE_COINS ->
+                    EventGainRow(label = stringResource(Res.string.event_summary_coins, action.amount)) {
+                        MoneyIcon(size = 24.dp)
+                    }
+                EventActionType.GIVE_MANA ->
+                    EventGainRow(label = stringResource(Res.string.event_summary_mana, action.amount)) {
+                        PentagramIcon(size = 24.dp)
+                    }
+                EventActionType.GIVE_SUPPORT_OBJECT -> {
+                    // Mirror EventScriptSystem.applyAction: fall back to the first entry / a count of
+                    // one so the displayed element matches what was actually granted.
+                    val type = action.supportObjectType ?: SupportObjectType.entries.first()
+                    EventGainRow(label = eventGainCountLabel(type.localizedSupportName(), action.grantCount())) {
+                        SupportObjectIcon(type, 24.dp)
+                    }
+                }
+                EventActionType.GIVE_SUPPORT_SPELL -> {
+                    // Mirror EventScriptSystem.applyAction: fall back to the first entry / a count of
+                    // one so the displayed element matches what was actually granted.
+                    val spell = action.spellType ?: SpellType.entries.first()
+                    EventGainRow(label = eventGainCountLabel(spell.getLocalizedName(), action.grantCount())) {
+                        SpellTargetIcon(spell = spell, size = 24.dp)
+                    }
+                }
+                EventActionType.DESTROY_MINE ->
+                    EventGainRow(label = stringResource(Res.string.event_act_destroy_mine)) {
+                        ExplosionIcon(size = 24.dp)
+                    }
+            }
+        }
+    }
+}
+
+/** Append "×count" to a label when more than one element is granted. */
+private fun eventGainCountLabel(
+    label: String,
+    count: Int,
+): String = if (count > 1) "$label ×$count" else label
+
+/** The number of support tokens granted by this action; falls back to one, matching the runtime. */
+private fun EventAction.grantCount(): Int = if (amount > 0) amount else 1
+
+@Composable
+private fun EventGainRow(
+    label: String,
+    icon: @Composable () -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        icon()
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF333333),
+        )
     }
 }

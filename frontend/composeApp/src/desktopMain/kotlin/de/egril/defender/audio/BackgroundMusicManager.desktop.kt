@@ -107,11 +107,11 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
                 BackgroundMusic.FINAL_CREDITS -> AppSettings.gameplayMusicVolume.value
             }
 
-        // Calculate effective volume (master * category * track * baseMultiplier)
-        val effectiveVolume = (AppSettings.soundVolume.value * categoryVolume * trackVolume * baseMultiplier).coerceIn(0f, 1f)
+        // Calculate effective volume (master * music * category * track * baseMultiplier)
+        val effectiveVolume = (AppSettings.soundVolume.value * AppSettings.musicVolume.value * categoryVolume * trackVolume * baseMultiplier).coerceIn(0f, 1f)
 
         println(
-            "Starting background music: ${music.name}, effectiveVolume=$effectiveVolume (master=${AppSettings.soundVolume.value}, category=$categoryVolume, track=$trackVolume, base=$baseMultiplier)",
+            "Starting background music: ${music.name}, effectiveVolume=$effectiveVolume (master=${AppSettings.soundVolume.value}, music=${AppSettings.musicVolume.value}, category=$categoryVolume, track=$trackVolume, base=$baseMultiplier)",
         )
 
         // Create and start music player
@@ -369,7 +369,7 @@ private class Mp3MusicPlayer(
                     null -> 1.0f
                 }
 
-            val effectiveVolume = (AppSettings.soundVolume.value * categoryVolume * trackVolume * baseMultiplier).coerceIn(0f, 1f)
+            val effectiveVolume = (AppSettings.soundVolume.value * AppSettings.musicVolume.value * categoryVolume * trackVolume * baseMultiplier).coerceIn(0f, 1f)
 
             if (audioClip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 val gainControl = audioClip.getControl(FloatControl.Type.MASTER_GAIN) as FloatControl

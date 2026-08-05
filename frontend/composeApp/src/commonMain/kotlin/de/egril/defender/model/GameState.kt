@@ -2,8 +2,10 @@ package de.egril.defender.model
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import de.egril.defender.ui.settings.DifficultyLevel
 
 enum class GamePhase {
@@ -158,20 +160,25 @@ enum class GameMessageType {
     EWHAD_RETREATS, // Ewhad has retreated (health reached 0, not final stand)
     EWHAD_DEFEATED, // Ewhad is defeated (health reached 0, final stand level)
     STORY_INTRO, // Story narrative shown at the start of a level (name = editorLevelId)
+    EVENT_MESSAGE, // Scripted-event story message (name = string-resource key of the predefined text)
 }
 
 /**
  * An in-game event message queued for display to the player.
- * @param type   The kind of event.
- * @param name   Optional name (target name or gate name).
+ * @param type          The kind of event.
+ * @param name          Optional name (target name or gate name); for [GameMessageType.EVENT_MESSAGE]
+ *                      it is the optional string-resource key of the predefined text (may be null).
+ * @param eventActions  For [GameMessageType.EVENT_MESSAGE]: the actions the event applied, so the
+ *                      granted elements (coins, mana, supports, …) can be shown to the player.
  */
 data class GameMessage(
     val type: GameMessageType,
     val name: String? = null,
+    val eventActions: List<EventAction>? = null,
 )
 
 data class GameState(
-    val level: Level,
+    var level: Level,
     val phase: MutableState<GamePhase> = mutableStateOf(GamePhase.INITIAL_BUILDING),
     val coins: MutableState<Int> = mutableStateOf(level.initialCoins),
     val healthPoints: MutableState<Int> = mutableStateOf(level.healthPoints),
@@ -237,8 +244,155 @@ data class GameState(
     // SINGLE_HIT target tracking
     val takenTargets: SnapshotStateList<Position> = mutableStateListOf(), // Positions of taken SINGLE_HIT targets
     val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf(), // Messages queued for display
+    // Player-usable supports remaining this level (placable objects + spell tokens)
+    val supportObjectsRemaining: SnapshotStateMap<SupportObjectType, Int> = mutableStateMapOf(),
+    val supportSpellsRemaining: SnapshotStateMap<SpellType, Int> = mutableStateMapOf(),
+    // Cooldown-based support powers: turns remaining until the power can be used again (0 = ready)
+    val cooldownPowerReadyIn: SnapshotStateMap<CooldownPowerType, Int> = mutableStateMapOf(),
+    // True when the Coin Surge power is active this turn (doubles coins earned)
+    val coinSurgeActive: MutableState<Boolean> = mutableStateOf(false),
+    // Monotonically-increasing counter, incremented each time the "Sky is Falling" power is used,
+    // to trigger the full-map falling-meteor animation overlay.
+    val skyIsFallingTrigger: MutableState<Int> = mutableStateOf(0),
+    // Scripted level event tracking
+    val enemiesKilledTotal: MutableState<Int> = mutableStateOf(0), // Total enemies killed (by combat/traps, not those reaching the target)
+    val enemiesKilledByType: SnapshotStateMap<AttackerType, Int> = mutableStateMapOf(), // Kills per enemy type
+    val triggeredEventIds: SnapshotStateList<String> = mutableStateListOf(), // IDs of scripted events that have already fired
+    // Sandbox: incremented whenever the map layout (tiles) is edited at runtime, so the map re-renders.
+    val mapEditVersion: MutableState<Int> = mutableStateOf(0),
+    // Sandbox: tiles repainted at runtime (position -> new type). Used to draw the new tile image as an
+    // overlay over the original (possibly pre-rendered) map so edits are visible, and persisted in saves.
+    val sandboxPaintedTiles: SnapshotStateMap<Position, de.egril.defender.editor.TileType> = mutableStateMapOf(),
+    // Sandbox: flow direction/speed chosen for river tiles painted at runtime, so the chosen
+    // water direction survives save/load. Only populated for positions painted as RIVER.
+    val sandboxPaintedRiverTiles: SnapshotStateMap<Position, RiverTile> = mutableStateMapOf(),
 ) {
+    // Sandbox: the original map tile type for every position, captured once from the level as it was
+    // first loaded (before any runtime edits). Used so runtime paints can be compared against the
+    // original map and only genuine differences are tracked, persisted, and overlaid.
+    private val originalSandboxTileTypes: Map<Position, de.egril.defender.editor.TileType> =
+        if (level.isSandbox) buildTileTypeMap(level) else emptyMap()
+    private val originalSandboxRiverTiles: Map<Position, RiverTile> =
+        if (level.isSandbox) level.riverTiles.toMap() else emptyMap()
+    private val originalSandboxTargetInfoMap: Map<Position, TargetInfo> =
+        if (level.isSandbox) level.targetInfoMap.toMap() else emptyMap()
+
+    /** Multiplier applied to earned coins while the Coin Surge power is active (2x), otherwise 1x. */
+    fun coinSurgeMultiplier(): Int = if (coinSurgeActive.value) 2 else 1
+
+    /**
+     * Sandbox: repaint a single map tile to the given [tileType] at runtime.
+     * Rebuilds the level's tile collections and bumps [mapEditVersion] to trigger a re-render.
+     * When painting a [de.egril.defender.editor.TileType.RIVER] tile, [riverFlow] and [riverSpeed]
+     * set the water flow direction and speed (1 or 2).
+     * Only tiles that differ from the original map are tracked in [sandboxPaintedTiles] (repainting a
+     * tile back to its original type removes it), so only genuine differences are overlaid and saved.
+     * Only allowed on sandbox levels; a no-op otherwise.
+     */
+    fun sandboxPaintTile(
+        position: Position,
+        tileType: de.egril.defender.editor.TileType,
+        riverFlow: RiverFlow = RiverFlow.EAST,
+        riverSpeed: Int = 1,
+    ) {
+        if (!level.isSandbox) return
+        // Never repaint an occupied tile (defender/barricade/trap) to avoid orphaning game objects.
+        if (defenders.any { it.position.value == position }) return
+        if (barricades.any { it.position == position }) return
+
+        val pathCells = level.pathCells.toMutableSet()
+        val buildAreas = level.buildAreas.toMutableSet()
+        val startPositions = level.startPositions.toMutableList()
+        val targetPositions = level.targetPositions.toMutableList()
+        val riverTiles = level.riverTiles.toMutableMap()
+        val targetInfoMap = level.targetInfoMap.toMutableMap()
+
+        // Clear the tile from every collection first so the new type fully replaces the old one.
+        pathCells.remove(position)
+        buildAreas.remove(position)
+        startPositions.remove(position)
+        targetPositions.remove(position)
+        riverTiles.remove(position)
+        targetInfoMap.remove(position)
+
+        when (tileType) {
+            de.egril.defender.editor.TileType.PATH -> pathCells.add(position)
+            de.egril.defender.editor.TileType.BUILD_AREA -> buildAreas.add(position)
+            de.egril.defender.editor.TileType.SPAWN_POINT -> if (!startPositions.contains(position)) startPositions.add(position)
+            de.egril.defender.editor.TileType.TARGET -> {
+                if (!targetPositions.contains(position)) {
+                    targetPositions.add(position)
+                }
+                originalSandboxTargetInfoMap[position]?.let { originalTargetInfo ->
+                    targetInfoMap[position] = originalTargetInfo
+                }
+            }
+            de.egril.defender.editor.TileType.RIVER ->
+                riverTiles[position] = RiverTile(position = position, flowDirection = riverFlow, flowSpeed = riverSpeed)
+            de.egril.defender.editor.TileType.NO_PLAY -> {} // Already cleared from all collections.
+        }
+
+        level =
+            level.copy(
+                pathCells = pathCells.toSet(),
+                buildAreas = buildAreas.toSet(),
+                startPositions = startPositions.toList(),
+                targetPositions = targetPositions.toList(),
+                riverTiles = riverTiles.toMap(),
+                targetInfoMap = targetInfoMap.toMap(),
+            )
+        // Record the repaint so the map can overlay the new tile image over the original map
+        // background — but only when it genuinely differs from the original map. Repainting a tile
+        // back to its original type removes it from the tracked differences.
+        val originalType = originalSandboxTileTypes[position] ?: de.egril.defender.editor.TileType.NO_PLAY
+        val originalRiverTile = originalSandboxRiverTiles[position]
+        val isSameAsOriginal =
+            if (tileType == de.egril.defender.editor.TileType.RIVER) {
+                originalType == de.egril.defender.editor.TileType.RIVER &&
+                    originalRiverTile != null &&
+                    originalRiverTile.flowDirection == riverFlow &&
+                    originalRiverTile.flowSpeed == riverSpeed
+            } else if (tileType == de.egril.defender.editor.TileType.TARGET) {
+                tileType == originalType && targetInfoMap[position] == originalSandboxTargetInfoMap[position]
+            } else {
+                tileType == originalType
+            }
+        if (isSameAsOriginal) {
+            sandboxPaintedTiles.remove(position)
+        } else {
+            sandboxPaintedTiles[position] = tileType
+        }
+        // Track the chosen river flow separately so it can be persisted and restored across saves.
+        if (tileType == de.egril.defender.editor.TileType.RIVER) {
+            val paintedRiverTile = RiverTile(position = position, flowDirection = riverFlow, flowSpeed = riverSpeed)
+            if (originalType == de.egril.defender.editor.TileType.RIVER && originalRiverTile == paintedRiverTile) {
+                sandboxPaintedRiverTiles.remove(position)
+            } else {
+                sandboxPaintedRiverTiles[position] = paintedRiverTile
+            }
+        } else {
+            sandboxPaintedRiverTiles.remove(position)
+        }
+        mapEditVersion.value++
+    }
+
+    /**
+     * Build a position -> [de.egril.defender.editor.TileType] map for every non-blocked tile in [lvl].
+     * Positions absent from the map are implicitly [de.egril.defender.editor.TileType.NO_PLAY].
+     */
+    private fun buildTileTypeMap(lvl: Level): Map<Position, de.egril.defender.editor.TileType> {
+        val map = mutableMapOf<Position, de.egril.defender.editor.TileType>()
+        lvl.pathCells.forEach { map[it] = de.egril.defender.editor.TileType.PATH }
+        lvl.buildAreas.forEach { map[it] = de.egril.defender.editor.TileType.BUILD_AREA }
+        lvl.startPositions.forEach { map[it] = de.egril.defender.editor.TileType.SPAWN_POINT }
+        lvl.targetPositions.forEach { map[it] = de.egril.defender.editor.TileType.TARGET }
+        lvl.riverTiles.keys.forEach { map[it] = de.egril.defender.editor.TileType.RIVER }
+        return map
+    }
+
     fun isLevelWon(): Boolean {
+        // Sandbox levels can never be won, even when all enemies are gone.
+        if (level.isSandbox) return false
         // Check if all planned spawns have occurred and all enemies are defeated
         val allSpawned = spawnPlan.all { it.spawnTurn <= turnNumber.value }
         return allSpawned && attackers.all { it.isDefeated.value }
@@ -250,6 +404,51 @@ data class GameState(
         val singleHitTargets = level.targetInfoMap.filter { it.value.type == TargetType.SINGLE_HIT }.keys
         if (singleHitTargets.isNotEmpty() && takenTargets.containsAll(singleHitTargets)) return true
         return false
+    }
+
+    /**
+     * Total worst-case health-point damage the player can still take, assuming every remaining
+     * enemy (both those alive on the field and those still to spawn) reaches the target unhindered.
+     * Uses [Long] so summoner/boss "all HP" markers ([Int.MAX_VALUE]) can be summed without overflow.
+     */
+    fun getRemainingEnemyThreat(): Long {
+        var total = 0L
+        for (attacker in attackers) {
+            if (attacker.isDefeated.value) continue
+            total += attackerTargetDamage(attacker.type, attacker.level.value).toLong()
+        }
+        for (spawn in spawnPlan) {
+            if (spawn.spawnTurn > turnNumber.value) {
+                total += attackerTargetDamage(spawn.attackerType, spawn.level).toLong()
+            }
+        }
+        return total
+    }
+
+    /**
+     * Returns true when the level is guaranteed to be won: even if every remaining enemy reached the
+     * target, the player would still have health points left. Used to offer an instant "Win Level now".
+     *
+     * Excluded cases where a win cannot be guaranteed:
+     *  - Not during the player's turn (e.g. building phase or enemy turn).
+     *  - Levels with SINGLE_HIT targets, which can be lost regardless of remaining health.
+     *  - When a summoner enemy remains, since it can create an unbounded number of additional units.
+     */
+    fun canWinLevelNow(): Boolean {
+        // Sandbox levels can never be won, so never offer the instant win.
+        if (level.isSandbox) return false
+        if (phase.value != GamePhase.PLAYER_TURN) return false
+        if (level.targetInfoMap.any { it.value.type == TargetType.SINGLE_HIT }) return false
+        if (isLevelLost() || isLevelWon()) return false
+
+        val aliveEnemies = attackers.filter { !it.isDefeated.value }
+        val enemiesToSpawn = spawnPlan.filter { it.spawnTurn > turnNumber.value }
+        // There must be at least one remaining enemy (otherwise the level is already won).
+        if (aliveEnemies.isEmpty() && enemiesToSpawn.isEmpty()) return false
+        // Summoners can create additional enemies, so the total threat cannot be bounded.
+        if (aliveEnemies.any { it.type.isSummoner() } || enemiesToSpawn.any { it.attackerType.isSummoner() }) return false
+
+        return getRemainingEnemyThreat() < healthPoints.value.toLong()
     }
 
     /**
@@ -294,9 +493,9 @@ data class GameState(
             waypointNextTarget
         }
 
-    fun canPlaceDefender(type: DefenderType): Boolean = coins.value >= type.baseCost && level.availableTowers.contains(type)
+    fun canPlaceDefender(type: DefenderType): Boolean = (level.isSandbox || coins.value >= type.baseCost) && level.availableTowers.contains(type)
 
-    fun canUpgradeDefender(defender: Defender): Boolean = coins.value >= defender.upgradeCost
+    fun canUpgradeDefender(defender: Defender): Boolean = level.isSandbox || coins.value >= defender.upgradeCost
 
     fun hasActionsRemaining(): Boolean = actionsRemainingThisTurn.value > 0
 
@@ -344,6 +543,19 @@ data class GameState(
         }
 
     /**
+     * Effective attack range for a defender, accounting for the DOUBLE_TOWER_REACH spell buff
+     * (whether granted by a mana spell or a spell-token support). This must be used everywhere
+     * range is evaluated for attacking so the buff behaves consistently in the UI and combat.
+     */
+    fun effectiveRange(defender: Defender): Int {
+        val hasDoubleReachBuff =
+            activeSpellEffects.any {
+                it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == defender.id
+            }
+        return if (hasDoubleReachBuff) defender.range * 2 else defender.range
+    }
+
+    /**
      * Check if there are defenders with unused action points and enemies in range
      * Used to show end turn confirmation dialog
      */
@@ -371,7 +583,7 @@ data class GameState(
                         false
                     } else {
                         // Check if there are any enemies in range
-                        activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                        activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
                     }
                 }
             }
@@ -399,7 +611,7 @@ data class GameState(
                         if (defender.type.attackType == AttackType.NONE) {
                             false
                         } else {
-                            activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                            activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
                         }
                     }
                 }
@@ -432,7 +644,7 @@ data class GameState(
                 defender.type.attackType == AttackType.NONE -> false
                 else -> {
                     // Check if there are any enemies in range
-                    activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                    activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
                 }
             }
         }
@@ -459,7 +671,7 @@ data class GameState(
                 // Alchemy towers with lasting attacks only when no enemies in range
                 // (if enemies are in range, they will auto-attack like normal towers)
                 defender.type == DefenderType.ALCHEMY_TOWER -> {
-                    val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                    val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
                     if (!hasEnemiesInRange) {
                         typesWithActions.add(DefenderType.ALCHEMY_TOWER)
                     }
@@ -483,6 +695,26 @@ data class GameState(
     fun initializePrePlacedElements() {
         // Get initial data using the helper method that handles both old and new formats
         val initialData = level.getEffectiveInitialData()
+
+        // Initialize player-usable supports (placable objects + spell tokens) for this level
+        supportObjectsRemaining.clear()
+        for (supportObject in level.supports.objects) {
+            supportObjectsRemaining[supportObject.type] =
+                combineSupportCounts(supportObjectsRemaining[supportObject.type] ?: 0, supportObject.count)
+        }
+        supportSpellsRemaining.clear()
+        for (supportSpell in level.supports.spells) {
+            supportSpellsRemaining[supportSpell.spell] =
+                combineSupportCounts(supportSpellsRemaining[supportSpell.spell] ?: 0, supportSpell.count)
+        }
+
+        // Initialize cooldown-based support powers. Powers that start active are immediately usable
+        // (readyIn = 0); powers that start inactive begin on cooldown.
+        cooldownPowerReadyIn.clear()
+        for (power in level.supports.cooldownPowers) {
+            cooldownPowerReadyIn[power.type] = if (power.startActive) 0 else power.cooldownTurns
+        }
+        coinSurgeActive.value = false
 
         // Place initial barricades FIRST (before defenders so we can link them)
         for (initialBarricade in initialData.barricades) {

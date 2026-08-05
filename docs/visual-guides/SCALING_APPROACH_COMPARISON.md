@@ -15,13 +15,15 @@ Box(
 ```
 
 **Effect:**
+
 - Content is rendered 50% smaller visually
 - **BUT** layout calculations still use original sizes
 - Elements still occupy full space in the layout tree
 - Map doesn't get more room - elements just look smaller
 
 **Visual:**
-```
+
+```text
 ┌─────────────────────────────┐
 │ Mobile Screen               │
 │                             │
@@ -57,13 +59,15 @@ CompositionLocalProvider(LocalDensity provides scaledDensity) {
 ```
 
 **Effect:**
+
 - All dp/sp values are multiplied by 0.7
 - Layout calculations use the scaled sizes
 - Elements actually occupy less space
 - Map gets the freed-up space
 
 **Visual:**
-```
+
+```text
 ┌─────────────────────────────┐
 │ Mobile Screen               │
 │                             │
@@ -91,12 +95,14 @@ CompositionLocalProvider(LocalDensity provides scaledDensity) {
 ## Technical Difference
 
 ### graphicsLayer (Previous)
+
 - **Rendering level transformation**
 - Layout: `Button(height = 48.dp)` → occupies 48dp in layout
 - Render: Drawn at 24dp (48 × 0.7) but space still reserved
 - Result: Smaller appearance, same space consumption
 
 ### LocalDensity (New)
+
 - **Layout level transformation**  
 - Layout: `Button(height = 48.dp)` → interpreted as 24dp during layout
 - Render: Drawn at 24dp and occupies 24dp

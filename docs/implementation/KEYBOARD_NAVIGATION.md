@@ -1,11 +1,13 @@
 # Keyboard Navigation Feature
 
 ## Overview
+
 The game now supports keyboard navigation for panning the hexagonal map view in both gameplay and map editor screens.
 
 ## Controls
 
 ### Gameplay Screen
+
 - **Arrow Keys** (↑ ↓ ← →): Pan the map in the corresponding direction
 - **WASD Keys**: Alternative pan controls (W=up, S=down, A=left, D=right)
 - **Mouse Wheel**: Zoom in/out (existing feature)
@@ -13,6 +15,7 @@ The game now supports keyboard navigation for panning the hexagonal map view in 
 - **Pinch Gesture**: Zoom on mobile devices (existing feature)
 
 ### Map Editor Screen
+
 - **Mouse Wheel**: Zoom in/out
 - **Zoom Buttons**: Use the +/- buttons in the header to zoom
 - **Mouse Drag**: Pan the map
@@ -21,7 +24,9 @@ The game now supports keyboard navigation for panning the hexagonal map view in 
 ## Implementation Details
 
 ### Universal HexagonalMapView Component
+
 A new universal component (`HexagonalMapView.kt`) has been created that:
+
 - Provides a reusable hexagonal map view with pan and zoom capabilities
 - Supports configurable keyboard navigation via `HexagonalMapConfig.enableKeyboardNavigation`
 - Maintains all existing mouse wheel zoom and touch gesture support
@@ -30,6 +35,7 @@ A new universal component (`HexagonalMapView.kt`) has been created that:
 ### Component Usage
 
 #### GameGrid (Gameplay)
+
 ```kotlin
 HexagonalMapView(
     gridWidth = gameState.level.gridWidth,
@@ -49,6 +55,7 @@ HexagonalMapView(
 ```
 
 #### MapEditorView (Editor)
+
 ```kotlin
 HexagonalMapView(
     gridWidth = map.width,
@@ -70,6 +77,7 @@ HexagonalMapView(
 ### Configuration Parameters
 
 **HexagonalMapConfig**:
+
 - `hexSize`: Radius of hexagon in pixels (default: 40f)
 - `enableKeyboardNavigation`: Enable/disable keyboard navigation (default: true)
 - `keyboardPanSpeed`: Pixels to pan per key press (default: 30f)
@@ -88,7 +96,8 @@ HexagonalMapView(
 ## Testing
 
 ### Manual Testing
-1. **Gameplay Navigation**: 
+
+1. **Gameplay Navigation**:
    - Start a game level
    - Press arrow keys or WASD to pan the map
    - Verify smooth panning in all directions
@@ -107,11 +116,13 @@ HexagonalMapView(
    - Verify all controls work together smoothly
 
 ### Automated Testing
+
 The existing unit tests continue to pass, ensuring no regression in core game logic.
 
 ## Future Enhancements
 
 Possible improvements for future versions:
+
 - Add keyboard shortcuts for zoom (e.g., +/- keys, Ctrl+scroll)
 - Add keyboard shortcuts for other game actions
 - Make pan speed configurable through game settings

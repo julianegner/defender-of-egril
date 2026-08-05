@@ -27,7 +27,7 @@ This guide provides detailed installation instructions for all supported platfor
    - Windows may show a warning: "Windows protected your PC"
    - Click **"More info"** (the small link in the warning dialog)
    - Then click **"Run anyway"** to proceed with the installation
-   
+
    This warning appears because the game is not signed with a commercial certificate. The game is safe to install.
 
 3. Follow the installation wizard prompts
@@ -52,6 +52,7 @@ gradlew.bat :composeApp:run
 Before you can install APK files, you need to allow your Android device to install apps from sources other than the Play Store:
 
 **For Android 8.0 (Oreo) and newer:**
+
 1. Go to **Settings**
 2. Navigate to **Apps & notifications** (or **Apps**)
 3. Tap **Advanced** (if available)
@@ -61,6 +62,7 @@ Before you can install APK files, you need to allow your Android device to insta
 7. Toggle **Allow from this source** to ON
 
 **For Android 7.1 (Nougat) and older:**
+
 1. Go to **Settings**
 2. Navigate to **Security** (or **Security & location**)
 3. Enable **Unknown sources**
@@ -160,8 +162,10 @@ sudo apt update && sudo apt upgrade defender-of-egril
 3. Install the package from the terminal:
 
    **Debian/Ubuntu:**
+
    ```bash
    sudo dpkg -i defender-of-egril.deb
+
    ```
 
 4. Launch the game from the application menu
@@ -237,6 +241,7 @@ The easiest way to play Defender of Egril!
 Simply visit the web version at: [https://julianegner.github.io/defender-of-egril/](https://julianegner.github.io/defender-of-egril/)
 
 No installation required - just open the link in a modern web browser:
+
 - Chrome
 - Firefox  
 - Safari
@@ -250,7 +255,7 @@ If you want to run the web version locally:
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
 ```
 
-Then open http://localhost:8080 in your browser.
+Then open <http://localhost:8080> in your browser.
 
 ---
 

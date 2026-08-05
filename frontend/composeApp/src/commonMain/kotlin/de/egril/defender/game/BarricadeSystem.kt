@@ -141,6 +141,47 @@ class BarricadeSystem(
     }
 
     /**
+     * Place a support barricade directly on the path without requiring a tower or consuming actions.
+     * Used by player-granted level supports. Reinforces an existing barricade if one is present.
+     * Returns true if the barricade was placed or reinforced.
+     */
+    fun placeSupportBarricade(
+        barricadePosition: Position,
+        hp: Int,
+    ): Boolean {
+        // Check if position is valid (empty path tile)
+        if (!state.level.isOnPath(barricadePosition)) return false
+
+        // Check if position is empty (no attacker, no trap, no defender not on a tower base)
+        val hasAttacker = state.attackers.any { !it.isDefeated.value && it.position.value == barricadePosition }
+        val hasTrap = state.traps.any { it.position == barricadePosition }
+        val hasDefenderNotOnTowerBase =
+            state.defenders.any { defender ->
+                defender.position.value == barricadePosition && defender.towerBaseBarricadeId.value == null
+            }
+        if (hasAttacker || hasTrap || hasDefenderNotOnTowerBase) return false
+
+        val existingBarricade = state.barricades.find { it.position == barricadePosition }
+        if (existingBarricade != null) {
+            existingBarricade.reinforce(hp)
+        } else {
+            val isGate = isGatePosition(barricadePosition)
+            val barricade =
+                Barricade(
+                    id = state.nextBarricadeId.value++,
+                    position = barricadePosition,
+                    healthPoints = mutableStateOf(hp),
+                    defenderId = -1, // Support-placed barricades don't belong to a defender
+                    isGate = isGate,
+                )
+            state.barricades.add(barricade)
+        }
+
+        GlobalSoundManager.playSound(SoundEvent.TOWER_UPGRADED)
+        return true
+    }
+
+    /**
      * Remove a barricade (player-initiated removal)
      * If the barricade has a tower on it, also removes the tower and returns the sell value
      * Returns the coin refund amount (0 if just barricade, tower sell value if tower present)

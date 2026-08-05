@@ -7,6 +7,7 @@ This document describes how to translate level names, map names, and world map l
 ## The Challenge
 
 Unlike static UI strings, game content (levels, maps, locations) can be:
+
 1. **Built-in** - Shipped with the game
 2. **User-created** - Added via the level editor
 3. **Downloaded** - Loaded from external sources at runtime
@@ -137,14 +138,17 @@ For existing JSON files, manually add the translation keys:
 ## How It Works for Different Content Types
 
 ### Built-in Game Content
+
 - Has `titleKey`/`nameKey` set → Uses string resources → Gets translated
 - Falls back to `title`/`name` if translation not found
 
 ### User-Created Content
+
 - `titleKey`/`nameKey` is null → Uses `title`/`name` directly → No translation
 - Users can name their levels in any language they want
 
 ### Downloaded Content
+
 - If creator provided translation keys → Gets translated if strings exist
 - Otherwise → Uses direct names
 
@@ -182,6 +186,7 @@ The system is fully backward compatible:
 ## JSON Format
 
 ### Map JSON
+
 ```json
 {
   "id": "map_tutorial",
@@ -194,6 +199,7 @@ The system is fully backward compatible:
 ```
 
 ### Level JSON
+
 ```json
 {
   "id": "level_tutorial",
@@ -206,6 +212,7 @@ The system is fully backward compatible:
 ```
 
 ### World Map Location JSON
+
 ```json
 {
   "id": "starting_village",
@@ -228,9 +235,11 @@ The system is fully backward compatible:
    - `location_starting_village` not `loc1`
 
 3. **Leave subtitle keys empty if subtitle is empty**:
+
    ```kotlin
    subtitle = "",
    subtitleKey = null,  // or omit entirely
+
    ```
 
 4. **Test with multiple languages** to ensure fallbacks work correctly

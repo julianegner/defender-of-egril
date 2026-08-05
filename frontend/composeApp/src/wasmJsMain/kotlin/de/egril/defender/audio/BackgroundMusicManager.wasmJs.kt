@@ -137,10 +137,10 @@ class WasmBackgroundMusicManager : BackgroundMusicManager {
                             BackgroundMusic.FINAL_CREDITS -> AppSettings.gameplayMusicVolume.value
                         }
 
-                    // Set volume (master * category * track * baseMultiplier) - convert to Double for JS
+                    // Set volume (master * music * category * track * baseMultiplier) - convert to Double for JS
                     val effectiveVolume =
                         (
-                            AppSettings.soundVolume.value.toDouble() * categoryVolume.toDouble() * trackVolume.toDouble() *
+                            AppSettings.soundVolume.value.toDouble() * AppSettings.musicVolume.value.toDouble() * categoryVolume.toDouble() * trackVolume.toDouble() *
                                 baseMultiplier.toDouble()
                         ).coerceIn(0.0, 1.0)
                     setMusicAudioVolume(audio, effectiveVolume)

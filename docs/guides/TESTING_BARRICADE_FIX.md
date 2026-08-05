@@ -1,6 +1,7 @@
 # Manual Testing Guide: Barricade Button Fix
 
 ## Issues Fixed
+
 1. **Barricade button now has yellow border when active** (like trap buttons)
 2. **Clicking barricade button again deselects it** (toggle behavior)
 3. **Spear towers can now attack enemies when barricade mode is active** (barricade mode can be canceled)
@@ -8,9 +9,11 @@
 ## Test Scenarios
 
 ### Scenario 1: Visual Verification - Button Highlighting
+
 **Goal:** Verify the barricade button shows a yellow border when active
 
 **Steps:**
+
 1. Start a new game (any level)
 2. Build a Spear Tower
 3. Upgrade the Spear Tower to level 10+ (use cheat code `cash` if needed)
@@ -21,9 +24,11 @@
 8. **Expected:** The yellow border should disappear (button is deselected)
 
 ### Scenario 2: Attack Functionality with Barricade Mode
+
 **Goal:** Verify spear towers can attack enemies even with barricade mode available
 
 **Steps:**
+
 1. Start a new game (any level with enemies)
 2. Build a Spear Tower and upgrade to level 10+
 3. Start the battle (enemies should appear)
@@ -37,9 +42,11 @@
 9. **Expected:** Attack button appears, allowing you to attack the enemy
 
 ### Scenario 3: Toggle Behavior
+
 **Goal:** Verify clicking the barricade button toggles the mode on/off
 
 **Steps:**
+
 1. Build and upgrade a Spear Tower to level 10+
 2. Select the tower
 3. Click "Build Barricade" button
@@ -50,9 +57,11 @@
 8. **Expected:** Yellow border appears again, map shows highlights again
 
 ### Scenario 4: Mode Clearing
+
 **Goal:** Verify barricade mode is cleared when selecting different towers/enemies
 
 **Steps:**
+
 1. Build two towers (both upgraded to level 10+)
 2. Select first tower, click "Build Barricade" button
 3. **Expected:** Yellow border appears on barricade button
@@ -62,9 +71,11 @@
 7. **Expected:** No yellow border (mode not preserved)
 
 ### Scenario 5: Comparison with Trap Buttons
+
 **Goal:** Verify barricade button behavior matches trap button behavior
 
 **Steps:**
+
 1. Build a Dwarven Mine
 2. Select the mine
 3. Click the "Trap" button
@@ -76,12 +87,14 @@
 
 ## Visual Indicators
 
-### Before Fix:
+### Before Fix
+
 - Barricade button: No yellow border when clicked
 - User confusion: Is barricade mode active or not?
 - Cannot attack enemies while barricade mode is "stuck" active
 
-### After Fix:
+### After Fix
+
 - Barricade button: Thick yellow border (3dp) when active
 - Clear visual feedback matching trap button style
 - Can toggle barricade mode off by clicking button again
@@ -89,7 +102,8 @@
 
 ## Code Changes Summary
 
-### Files Modified:
+### Files Modified
+
 1. **DefenderInfo.kt**
    - Added `selectedBarricadeAction: BarricadeAction?` parameter
    - Added border logic to BarricadeButton: shows yellow border when `selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE`
@@ -105,6 +119,7 @@
    - Clear barricade mode when selecting different defenders (like trap modes)
 
 ## Testing Checklist
+
 - [ ] Barricade button shows yellow border when clicked
 - [ ] Barricade button removes yellow border when clicked again (toggle)
 - [ ] Spear tower can attack enemies after deselecting barricade mode

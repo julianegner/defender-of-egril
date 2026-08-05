@@ -1,12 +1,14 @@
 # Waypoint Editor UI Changes - Visual Guide
 
 ## Overview
+
 This document describes the visual changes made to the waypoint editor UI.
 
 ## 1. Waypoints Tab - Before vs After
 
 ### Before Enhancement
-```
+
+```text
 ┌─────────────────────────────────────────┐
 │ Waypoints Tab                           │
 ├─────────────────────────────────────────┤
@@ -33,7 +35,8 @@ This document describes the visual changes made to the waypoint editor UI.
 ```
 
 ### After Enhancement
-```
+
+```text
 ┌─────────────────────────────────────────┐
 │ Waypoints Tab                           │
 ├─────────────────────────────────────────┤
@@ -67,7 +70,8 @@ This document describes the visual changes made to the waypoint editor UI.
 ## 2. Quick Add Dialog (New Feature)
 
 ### Dialog Layout
-```
+
+```text
 ┌─────────────────────────────────────────┐
 │ Select on Map                    [×]    │
 ├─────────────────────────────────────────┤
@@ -101,7 +105,8 @@ T(x,y) = Target at position x,y
 ## 3. Tree View Display (New Feature)
 
 ### Valid Chain
-```
+
+```text
 ┌───────────────────────────────────────┐
 │ Waypoint Chains                       │
 ├───────────────────────────────────────┤
@@ -119,7 +124,8 @@ T(x,y) = Target at position x,y
 ```
 
 ### Chain with Circular Dependency
-```
+
+```text
 ┌───────────────────────────────────────┐
 │ Waypoint Chains                       │
 ├───────────────────────────────────────┤
@@ -140,7 +146,8 @@ T(x,y) = Target at position x,y
 ```
 
 ### Unconnected Waypoint
-```
+
+```text
 ┌───────────────────────────────────────┐
 │ Waypoint Chains                       │
 ├───────────────────────────────────────┤
@@ -155,7 +162,8 @@ T(x,y) = Target at position x,y
 ## 4. Enhanced List View (Improved)
 
 ### Valid Connection
-```
+
+```text
 ┌─────────────────────────────────────┐
 │ Source         →        Target      │
 ├─────────────────────────────────────┤
@@ -169,7 +177,8 @@ T(x,y) = Target at position x,y
 ```
 
 ### Connection with Circular Dependency
-```
+
+```text
 ┌─────────────────────────────────────┐
 │ Source         →        Target      │
 ├─────────────────────────────────────┤
@@ -185,7 +194,8 @@ T(x,y) = Target at position x,y
 ```
 
 ### Connection with Unconnected Warning
-```
+
+```text
 ┌─────────────────────────────────────┐
 │ Source         →        Target      │
 ├─────────────────────────────────────┤
@@ -202,14 +212,16 @@ T(x,y) = Target at position x,y
 ## 5. Validation Status Display
 
 ### All Valid
-```
+
+```text
 ┌─────────────────────────────────────┐
 │ ✓ Waypoint configuration is valid   │
 └─────────────────────────────────────┘
 ```
 
 ### With Errors
-```
+
+```text
 ┌─────────────────────────────────────┐
 │ ✗ Waypoint configuration has errors │
 │ Circular dependency detected!        │
@@ -220,6 +232,7 @@ T(x,y) = Target at position x,y
 ## 6. Color Scheme
 
 ### Status Colors
+
 - ✅ **Green**: Valid configuration, target labels
 - ❌ **Red**: Errors, circular dependencies, error container background
 - ⚠️ **Warning Orange**: Unconnected waypoints, warnings
@@ -227,6 +240,7 @@ T(x,y) = Target at position x,y
 - 🟣 **Secondary Purple**: Waypoint labels
 
 ### Visual Elements
+
 - **→** Black arrow: Valid connection
 - **🔴→** Red arrow: Circular dependency connection
 - **⚠** Warning triangle: Problem indicator
@@ -236,7 +250,8 @@ T(x,y) = Target at position x,y
 ## 7. Button Layout
 
 ### Action Buttons (Vertical Stack)
-```
+
+```text
 ┌─────────────────────────────────────┐
 │ [➕ Add Waypoint] [Remove All]      │
 │                                     │
@@ -245,7 +260,8 @@ T(x,y) = Target at position x,y
 ```
 
 ### View Toggle
-```
+
+```text
 ┌─────────────────────────────────────┐
 │ [List View]  ← Shows when in tree   │
 │              ← view mode            │
@@ -254,7 +270,7 @@ T(x,y) = Target at position x,y
 
 ## 8. Indentation in Tree View
 
-```
+```text
 Level 0 (Root):    Spawn (0,0)
 Level 1:             → WAYPOINT (5,5)
 Level 2:               → WAYPOINT (10,10)

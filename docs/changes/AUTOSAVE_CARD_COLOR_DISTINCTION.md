@@ -47,6 +47,7 @@ The `tertiaryContainer` color provides distinct colors in both light and dark th
 - **Dark Mode**: `#633B48` (darker reddish/burgundy color) - Based on `Color(0xFF633B48)` from AppTheme.kt
 
 Regular save cards use `MaterialTheme.colorScheme.surface`:
+
 - **Light Mode**: Standard light surface color
 - **Dark Mode**: Standard dark surface color
 
@@ -55,6 +56,7 @@ This ensures the autosave card is visually distinguishable in all theme modes wh
 ## Testing
 
 A unit test was added in `SavedGameCardColorTest.kt` to verify:
+
 - Autosave ID detection (`autosave_game`)
 - Logic for distinguishing autosaves from regular saves
 - Edge cases with similar but different IDs
@@ -62,6 +64,7 @@ A unit test was added in `SavedGameCardColorTest.kt` to verify:
 ## Autosave Mechanism
 
 Autosaves are created:
+
 - At the beginning of each new turn during gameplay
 - Using a fixed ID: `"autosave_game"`
 - With comment: `"Autosave"`
@@ -79,11 +82,13 @@ This ensures only one autosave exists at a time, and it's always identifiable by
 ### What Users Will See
 
 **In Light Mode:**
+
 - Autosave card: Light pinkish/rose background (`#FFD8E4`)
 - Regular save cards: Standard light background (white/light gray)
 - The autosave card stands out with a subtle rose tint
 
 **In Dark Mode:**
+
 - Autosave card: Dark reddish/burgundy background (`#633B48`)
 - Regular save cards: Standard dark background (dark gray)
 - The autosave card stands out with a subtle burgundy tint
@@ -91,6 +96,7 @@ This ensures only one autosave exists at a time, and it's always identifiable by
 ### Where to See the Change
 
 The distinct coloring is visible in:
+
 1. **Load Game Screen**: Main menu → Load Game
 2. **Both Desktop and Mobile**: The color distinction works on all platforms
 3. **All Theme Modes**: Works in both light and dark theme

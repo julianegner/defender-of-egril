@@ -1,9 +1,10 @@
 # Tower Info Icon - Visual Guide
 
 ## Before (Automatic Info Display)
+
 When a tower was placed or upgraded, info messages would automatically appear as popups, interrupting gameplay:
 
-```
+```text
 ┌─────────────────────────────────────┐
 │   GAME MAP (Gameplay in progress)  │
 │                                     │
@@ -22,9 +23,10 @@ When a tower was placed or upgraded, info messages would automatically appear as
 ```
 
 ## After (Info Icon Implementation)
+
 Info messages are now accessible via a clickable info icon in the tower info panel:
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │   GAME MAP (Uninterrupted gameplay)                         │
 │                                                              │
@@ -46,7 +48,7 @@ Info messages are now accessible via a clickable info icon in the tower info pan
 
 ## Info Dialog (When Info Icon is Clicked)
 
-```
+```text
 ┌────────────────────────────────────────────────────────┐
 │ Tower Information                              [X]      │
 ├────────────────────────────────────────────────────────┤
@@ -76,28 +78,33 @@ Info messages are now accessible via a clickable info icon in the tower info pan
 All towers have the info icon in the same position:
 
 ### Spike Tower (No special abilities yet)
-```
+
+```text
 Actions: 2  [ℹ️ Tower]
 ```
 
 ### Wizard Tower (Level 10+, has magical trap ability)
-```
+
+```text
 Actions: 1  [🎯 Trap] [ℹ️ Tower]
 ```
 
 ### Dwarven Mine (Mining ability)
-```
+
+```text
 Actions: 1  [⛏️ Dig] [ℹ️ Mine] [ℹ️ Tower]
 ```
 
 ### Spear Tower (Level 10+, has barricade ability)
-```
+
+```text
 Actions: 1  [🪵 Barricade] [ℹ️ Tower]
 ```
 
 ## Information Shown by Tower Type
 
 ### Wizard Tower Info Dialog
+
 1. **Wizard Tower First Use** (always shown)
    - Icon: 💥 Explosion
    - Color: Purple
@@ -114,6 +121,7 @@ Actions: 1  [🪵 Barricade] [ℹ️ Tower]
    - Content: Extended area mechanics
 
 ### Alchemy Tower Info Dialog
+
 1. **Alchemy Tower First Use** (always shown)
    - Icon: 🧪 Test Tube
    - Color: Green
@@ -125,18 +133,21 @@ Actions: 1  [🪵 Barricade] [ℹ️ Tower]
    - Content: Extended area mechanics
 
 ### Ballista Tower Info Dialog
+
 1. **Ballista Tower First Use** (always shown)
    - Icon: 🎯 Target
    - Color: Brown
    - Content: Long-range siege mechanics
 
 ### Dwarven Mine Info Dialog
+
 1. **Dwarven Mine First Use** (always shown)
    - Icon: 💰 Money
    - Color: Gold
    - Content: Mining and coin generation
 
 ### Spike Tower Info Dialog
+
 1. **Spike Barbs Ability** (shown at level 10+)
    - Icon: ⚔️ Sword
    - Color: Saddle Brown
@@ -148,6 +159,7 @@ Actions: 1  [🪵 Barricade] [ℹ️ Tower]
    - Content: Barricade building
 
 ### Spear Tower Info Dialog
+
 1. **Barricade Ability** (shown at level 10+)
    - Icon: 🪵 Wood
    - Color: Brown

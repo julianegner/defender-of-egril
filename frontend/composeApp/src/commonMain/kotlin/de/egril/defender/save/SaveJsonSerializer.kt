@@ -185,6 +185,49 @@ object SaveJsonSerializer {
                 """{"levelStatuses": {$statusesJson}}"""
             } ?: "null"
 
+        // Support state (placeable objects, spell tokens, cooldown powers) as name->int maps
+        val supportObjectsJson =
+            savedGame.supportObjectsRemaining.entries.joinToString(", ") { (type, count) ->
+                "\"${type.name}\": $count"
+            }
+        val supportSpellsJson =
+            savedGame.supportSpellsRemaining.entries.joinToString(", ") { (spell, count) ->
+                "\"${spell.name}\": $count"
+            }
+        val cooldownPowersJson =
+            savedGame.cooldownPowerReadyIn.entries.joinToString(", ") { (type, readyIn) ->
+                "\"${type.name}\": $readyIn"
+            }
+
+        // Scripted-event tracking
+        val triggeredEventIdsJson =
+            savedGame.triggeredEventIds.joinToString(", ") { "\"$it\"" }
+        val enemiesKilledByTypeJson =
+            savedGame.enemiesKilledByType.entries.joinToString(", ") { (type, count) ->
+                "\"${type.name}\": $count"
+            }
+
+        // Sandbox map tiles: array of {x, y, type}. Serialized as null when not a sandbox save.
+        val sandboxMapTilesJson =
+            savedGame.sandboxMapTiles?.let { tiles ->
+                val entries =
+                    tiles.entries.joinToString(", ") { (position, type) ->
+                        "{\"x\": ${position.x}, \"y\": ${position.y}, \"type\": \"${type.name}\"}"
+                    }
+                "[$entries]"
+            } ?: "null"
+
+        // Sandbox river tiles: array of {x, y, flowDirection, flowSpeed}. Null when no painted rivers.
+        val sandboxRiverTilesJson =
+            savedGame.sandboxRiverTiles?.let { rivers ->
+                val entries =
+                    rivers.entries.joinToString(", ") { (position, river) ->
+                        "{\"x\": ${position.x}, \"y\": ${position.y}, " +
+                            "\"flowDirection\": \"${river.flowDirection.name}\", \"flowSpeed\": ${river.flowSpeed}}"
+                    }
+                "[$entries]"
+            } ?: "null"
+
         val data = """{
   "id": "${savedGame.id}",
   "timestamp": ${savedGame.timestamp},
@@ -225,7 +268,16 @@ object SaveJsonSerializer {
   "mapId": $mapIdJson,
   "worldMapSave": $worldMapSaveJson,
   "currentMana": ${savedGame.currentMana},
-  "maxMana": ${savedGame.maxMana}
+  "maxMana": ${savedGame.maxMana},
+  "supportObjectsRemaining": {$supportObjectsJson},
+  "supportSpellsRemaining": {$supportSpellsJson},
+  "cooldownPowerReadyIn": {$cooldownPowersJson},
+  "coinSurgeActive": ${savedGame.coinSurgeActive},
+  "triggeredEventIds": [$triggeredEventIdsJson],
+  "enemiesKilledTotal": ${savedGame.enemiesKilledTotal},
+  "enemiesKilledByType": {$enemiesKilledByTypeJson},
+  "sandboxMapTiles": $sandboxMapTilesJson,
+  "sandboxRiverTiles": $sandboxRiverTilesJson
 }"""
         return """{
   "metadata": {
@@ -241,6 +293,13 @@ object SaveJsonSerializer {
             de.egril.defender.utils.JsonUtils
                 .extractDataSection(json)
         try {
+            fun parseRequiredInt(field: String): Int? =
+                try {
+                    JsonUtils.extractValue(dataJson, field).toIntOrNull()
+                } catch (e: Exception) {
+                    null
+                }
+
             val id = JsonUtils.extractValue(dataJson, "id")
             val rawTimestamp = JsonUtils.extractValue(dataJson, "timestamp")
             val timestamp =
@@ -250,16 +309,16 @@ object SaveJsonSerializer {
                     }
                     currentTimeMillis()
                 }
-            val levelId = JsonUtils.extractValue(dataJson, "levelId").toInt()
+            val levelId = parseRequiredInt("levelId") ?: return null
             val levelName = JsonUtils.extractValue(dataJson, "levelName")
-            val turnNumber = JsonUtils.extractValue(dataJson, "turnNumber").toInt()
-            val coins = JsonUtils.extractValue(dataJson, "coins").toInt()
-            val healthPoints = JsonUtils.extractValue(dataJson, "healthPoints").toInt()
+            val turnNumber = parseRequiredInt("turnNumber") ?: return null
+            val coins = parseRequiredInt("coins") ?: return null
+            val healthPoints = parseRequiredInt("healthPoints") ?: return null
             val phase = GamePhase.valueOf(JsonUtils.extractValue(dataJson, "phase"))
-            val nextDefenderId = JsonUtils.extractValue(dataJson, "nextDefenderId").toInt()
-            val nextAttackerId = JsonUtils.extractValue(dataJson, "nextAttackerId").toInt()
-            val currentWaveIndex = JsonUtils.extractValue(dataJson, "currentWaveIndex").toInt()
-            val spawnCounter = JsonUtils.extractValue(dataJson, "spawnCounter").toInt()
+            val nextDefenderId = parseRequiredInt("nextDefenderId") ?: return null
+            val nextAttackerId = parseRequiredInt("nextAttackerId") ?: return null
+            val currentWaveIndex = parseRequiredInt("currentWaveIndex") ?: return null
+            val spawnCounter = parseRequiredInt("spawnCounter") ?: return null
 
             // Parse defenders
             val defenders = mutableListOf<SavedDefender>()
@@ -426,6 +485,109 @@ object SaveJsonSerializer {
                     null // If worldMapSave field doesn't exist or is malformed, default to null
                 }
 
+            // Parse support state (optional fields for backward compatibility with old saves)
+            val supportObjectsRemaining =
+                parseEnumIntMap(dataJson, "supportObjectsRemaining") { SupportObjectType.valueOf(it) }
+            val supportSpellsRemaining =
+                parseEnumIntMap(dataJson, "supportSpellsRemaining") { SpellType.valueOf(it) }
+            val cooldownPowerReadyIn =
+                parseEnumIntMap(dataJson, "cooldownPowerReadyIn") { CooldownPowerType.valueOf(it) }
+            val coinSurgeActive =
+                try {
+                    JsonUtils.extractBooleanValue(dataJson, "coinSurgeActive")
+                } catch (e: Exception) {
+                    false
+                }
+
+            // Parse scripted-event tracking (optional for backward compatibility)
+            val triggeredEventIds = mutableListOf<String>()
+            if (dataJson.contains("\"triggeredEventIds\":")) {
+                val section =
+                    try {
+                        dataJson.substringAfter("\"triggeredEventIds\": [").substringBefore("]")
+                    } catch (e: Exception) {
+                        ""
+                    }
+                if (section.isNotBlank()) {
+                    for (item in section.split(",")) {
+                        val trimmed = item.trim().removeSurrounding("\"")
+                        if (trimmed.isNotBlank()) triggeredEventIds.add(trimmed)
+                    }
+                }
+            }
+            val enemiesKilledTotal =
+                try {
+                    JsonUtils.extractValue(dataJson, "enemiesKilledTotal").toInt()
+                } catch (e: Exception) {
+                    0
+                }
+            val enemiesKilledByType =
+                parseEnumIntMap(dataJson, "enemiesKilledByType") { AttackerType.valueOf(it) }
+
+            // Parse sandbox map tiles (optional; only present for sandbox saves). Null when absent.
+            val sandboxMapTiles: Map<Position, de.egril.defender.editor.TileType>? =
+                if (dataJson.contains("\"sandboxMapTiles\": [")) {
+                    val tilesSection =
+                        try {
+                            dataJson.substringAfter("\"sandboxMapTiles\": [").substringBefore("]")
+                        } catch (e: Exception) {
+                            ""
+                        }
+                    val result = mutableMapOf<Position, de.egril.defender.editor.TileType>()
+                    if (tilesSection.isNotBlank()) {
+                        for (entry in JsonUtils.splitJsonArray(tilesSection)) {
+                            try {
+                                val x = JsonUtils.extractValue(entry, "x").toInt()
+                                val y = JsonUtils.extractValue(entry, "y").toInt()
+                                val type =
+                                    de.egril.defender.editor.TileType
+                                        .valueOf(JsonUtils.extractValue(entry, "type"))
+                                result[Position(x, y)] = type
+                            } catch (e: Exception) {
+                                // Skip malformed tile entries.
+                            }
+                        }
+                    }
+                    result
+                } else {
+                    null
+                }
+
+            // Parse sandbox river tiles (optional; only present for sandbox saves with painted rivers).
+            val sandboxRiverTiles: Map<Position, de.egril.defender.model.RiverTile>? =
+                if (dataJson.contains("\"sandboxRiverTiles\": [")) {
+                    val riverSection =
+                        try {
+                            dataJson.substringAfter("\"sandboxRiverTiles\": [").substringBefore("]")
+                        } catch (e: Exception) {
+                            ""
+                        }
+                    val result = mutableMapOf<Position, de.egril.defender.model.RiverTile>()
+                    if (riverSection.isNotBlank()) {
+                        for (entry in JsonUtils.splitJsonArray(riverSection)) {
+                            try {
+                                val x = JsonUtils.extractValue(entry, "x").toInt()
+                                val y = JsonUtils.extractValue(entry, "y").toInt()
+                                val flow =
+                                    de.egril.defender.model.RiverFlow
+                                        .valueOf(JsonUtils.extractValue(entry, "flowDirection"))
+                                val speed = JsonUtils.extractValue(entry, "flowSpeed").toInt()
+                                result[Position(x, y)] =
+                                    de.egril.defender.model.RiverTile(
+                                        position = Position(x, y),
+                                        flowDirection = flow,
+                                        flowSpeed = speed,
+                                    )
+                            } catch (e: Exception) {
+                                // Skip malformed river entries.
+                            }
+                        }
+                    }
+                    result
+                } else {
+                    null
+                }
+
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -463,14 +625,56 @@ object SaveJsonSerializer {
                         0
                     },
                 spellEffects = spellEffects,
+                supportObjectsRemaining = supportObjectsRemaining,
+                supportSpellsRemaining = supportSpellsRemaining,
+                cooldownPowerReadyIn = cooldownPowerReadyIn,
+                coinSurgeActive = coinSurgeActive,
+                triggeredEventIds = triggeredEventIds,
+                enemiesKilledTotal = enemiesKilledTotal,
+                enemiesKilledByType = enemiesKilledByType,
+                sandboxMapTiles = sandboxMapTiles,
+                sandboxRiverTiles = sandboxRiverTiles,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("Error deserializing saved game: ${e.message}")
+                e.printStackTrace()
             }
-            e.printStackTrace()
             return null
         }
+    }
+
+    /**
+     * Parse a `"key": {"ENUM_NAME": intValue, ...}` object from [dataJson] into a map keyed by an
+     * enum of type [K]. Missing keys, malformed sections, and unknown enum names are ignored so old
+     * or partially-corrupt saves still load. Returns an empty map when the key is absent.
+     */
+    private fun <E> parseEnumIntMap(
+        dataJson: String,
+        key: String,
+        toEnum: (String) -> E,
+    ): Map<E, Int> {
+        if (!dataJson.contains("\"$key\":")) return emptyMap()
+        val section =
+            try {
+                dataJson.substringAfter("\"$key\": {").substringBefore("}")
+            } catch (e: Exception) {
+                return emptyMap()
+            }
+        if (section.isBlank()) return emptyMap()
+        val result = mutableMapOf<E, Int>()
+        for (pair in section.split(",")) {
+            val trimmed = pair.trim()
+            if (trimmed.isBlank()) continue
+            val name = trimmed.substringBefore(":").trim().removeSurrounding("\"")
+            val value = trimmed.substringAfter(":").trim().toIntOrNull() ?: continue
+            try {
+                result[toEnum(name)] = value
+            } catch (e: Exception) {
+                // Unknown enum name (e.g. renamed/removed support) - skip it
+            }
+        }
+        return result
     }
 
     private fun parseSavedDefender(json: String): SavedDefender {

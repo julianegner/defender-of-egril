@@ -1,12 +1,15 @@
 # Tower Placement Range Preview Feature
 
 ## Overview
+
 This feature provides visual feedback when placing towers by showing the attack range preview when hovering the mouse over buildable tiles.
 
 ## Implementation Date
+
 January 1, 2026
 
 ## Feature Description
+
 When a player selects a tower type to build, hovering the mouse over an empty buildable tile (build area or build island) will display:
 
 1. **Build Tile Highlight**: The hovered tile is highlighted with a light yellow background (40% alpha) to indicate where the tower will be placed.
@@ -18,13 +21,16 @@ When a player selects a tower type to build, hovering the mouse over an empty bu
 ## Visual Design
 
 ### Colors
+
 - **Hovered Build Tile**: `GamePlayColors.Yellow.copy(alpha = 0.4f)` - Light yellow background
 - **Range Preview Tiles**: `GamePlayColors.Success.copy(alpha = 0.2f)` - Very light green background
 - **Build Tile Border**: Yellow dashed border (3dp width)
 - **Range Tile Border**: Green dashed border (3dp width)
 
 ### Distinction from Existing Towers
+
 The preview is visually distinct from placed towers in several ways:
+
 - **Transparency**: Preview uses much lighter, more transparent colors (20-40% alpha) vs. solid colors for placed towers
 - **Dashed Borders**: Preview uses dashed borders vs. solid borders for placed towers
 - **Different Tile Colors**: Build tile is yellow (vs. blue for placed towers), range is very light green (vs. solid green for tower range)
@@ -32,6 +38,7 @@ The preview is visually distinct from placed towers in several ways:
 ## Technical Implementation
 
 ### Modified Files
+
 1. **HexagonalMapView.kt**
    - Added `onHover` callback parameter to `BaseGridCell`
    - Implemented hover detection using `pointerInput` with `PointerEventType.Enter`/`Exit`
@@ -45,7 +52,9 @@ The preview is visually distinct from placed towers in several ways:
    - Respects tower-specific rules (min/max range, area attack capabilities)
 
 ### Game Logic Integration
+
 The preview respects all game rules:
+
 - **Only Buildable Tiles**: Preview only shows on build areas and build islands
 - **Empty Tiles Only**: No preview if a tower or enemy already exists at the position
 - **Tower-Specific Ranges**: Uses the tower type's `baseRange` and `minRange` properties
@@ -55,12 +64,14 @@ The preview respects all game rules:
 - **Special Structures**: Towers with no attack (NONE) don't show range preview
 
 ## User Experience Benefits
+
 1. **Better Planning**: Players can see the exact range before committing resources
 2. **Strategic Decisions**: Easier to compare different tower placements
 3. **Reduced Mistakes**: Visual feedback prevents accidental placements in suboptimal locations
 4. **Learning Aid**: New players can understand tower ranges without trial and error
 
 ## Platform Support
+
 - ✅ Desktop (JVM)
 - ✅ Web (WASM)
 - ✅ Android
@@ -69,6 +80,7 @@ The preview respects all game rules:
 The feature uses standard Compose Multiplatform APIs (`pointerInput`, `Canvas`, `PathEffect`) that work across all supported platforms.
 
 ## Testing Notes
+
 Due to network/Maven repository access limitations in the CI environment, this feature was tested through code inspection and compilation verification. Manual testing should verify:
 
 1. Hover detection works smoothly without lag
@@ -79,7 +91,9 @@ Due to network/Maven repository access limitations in the CI environment, this f
 6. No preview shows on non-buildable tiles
 
 ## Future Enhancements
+
 Potential improvements for future iterations:
+
 - Add range preview during initial building phase
 - Show different colors for minimum range restrictions (e.g., Ballista's 3-tile minimum)
 - Add keyboard navigation support for preview

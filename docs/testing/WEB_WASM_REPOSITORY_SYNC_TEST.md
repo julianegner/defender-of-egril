@@ -13,15 +13,19 @@ the 5–10 MB `localStorage` quota. On the very first launch (or when OPFS is un
 implementation falls back to / migrates from `localStorage`.
 
 ## Fix (original issue)
+
 `OPFSFileStorage.fileExists()` checks both:
+
 1. If path exists as a file (key present in the in-memory cache)
 2. If path exists as a virtual directory (any cached path starts with `path + "/"`)
 
 ## Manual Test Scenarios
 
 ### Test 1: Initial State - No Cached Data
+
 **Setup**: Clear OPFS data (DevTools → Application → Storage → Clear site data) and any
 `defender-of-egril:` localStorage keys.
+
 1. Navigate to World Map screen
 2. **Expected**: "Add New Content" dialog should show all repository levels as new
 3. Click "Add New Content" button
@@ -29,16 +33,21 @@ implementation falls back to / migrates from `localStorage`.
 5. Verify OPFS contains the gamedata directory (DevTools → Application → Storage → Origin Private File System)
 
 ### Test 2: After Sync - Gamedata Exists
+
 **Setup**: Complete Test 1 first
+
 1. Navigate away from World Map (e.g., go to Main Menu)
 2. Navigate back to World Map screen
 3. **Expected**: "Add New Content" dialog should NOT show
 4. **Verification**: `fileExists("gamedata")` returns true because the in-memory cache has paths starting with `"gamedata/"`
 
 ### Test 3: Partial Gamedata
+
 **Setup**:
+
 1. Clear OPFS / localStorage
 2. Pre-populate one map file in OPFS via console:
+
    ```javascript
    const root = await navigator.storage.getDirectory();
    const app = await root.getDirectoryHandle('defender-of-egril', {create:true});
@@ -48,34 +57,44 @@ implementation falls back to / migrates from `localStorage`.
    const w = await fh.createWritable();
    await w.write('{}');
    await w.close();
+
    ```
 
 **Steps**:
+
 1. Navigate to World Map screen
 2. **Expected**: "Add New Content" dialog should NOT show all files as new, only missing ones
 3. **Verification**: `fileExists("gamedata")` returns true due to the existing map file in cache
 
 ### Test 4: File vs Directory Name Collision
+
 **Setup**: Pre-populate in-memory cache by writing two files via the API:
+
 - write `"game"` → `"content"`
 - write `"gamedata/test.json"` → `"{}"`
 
 **Verification**:
+
 1. Call `fileExists("game")` → should return true (file exists)
 2. Call `fileExists("gamedata")` → should return true (directory exists)
 3. Call `fileExists("gamedataother")` → should return false (doesn't exist)
 
 ### Test 5: localStorage → OPFS Migration
+
 **Setup**:
+
 1. Manually set localStorage keys as if from the old implementation:
+
    ```javascript
    localStorage.setItem('defender-of-egril:gamedata/maps/test.json', '{}');
    localStorage.setItem('defender-of-egril:gamedata/sequence.json', '[]');
    ```
-2. Ensure OPFS `defender-of-egril` directory is empty (or doesn't exist)
-3. Reload the app
+
+1. Ensure OPFS `defender-of-egril` directory is empty (or doesn't exist)
+1. Reload the app
 
 **Verification**:
+
 1. App should start normally
 2. Console should log: `OPFSFileStorage: migrated 2 entries from localStorage to OPFS`
 3. OPFS should now contain the migrated files
@@ -83,7 +102,8 @@ implementation falls back to / migrates from `localStorage`.
 ## Expected OPFS Structure After Sync
 
 After syncing repository content, OPFS should contain a `defender-of-egril/` tree like:
-```
+
+```text
 defender-of-egril/
   gamedata/
     official/

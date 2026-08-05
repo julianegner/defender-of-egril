@@ -63,7 +63,7 @@ To override the database connection, set any of the following environment variab
 
 The database schema is managed by [Liquibase](https://www.liquibase.org/) and is applied automatically on backend startup. Migration scripts are located in:
 
-```
+```text
 server/src/main/resources/db/changelog/
 ```
 

@@ -17,7 +17,9 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +35,8 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.LogConfig
+import de.egril.defender.game.EnemyMovementSystem
+import de.egril.defender.game.PathfindingSystem
 import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
@@ -43,6 +47,7 @@ import de.egril.defender.ui.animations.BallistaAttackOverlay
 import de.egril.defender.ui.animations.BarricadeDamageAnimation
 import de.egril.defender.ui.animations.BombExplosionAnimation
 import de.egril.defender.ui.animations.BowAttackOverlay
+import de.egril.defender.ui.animations.CoinFlightController
 import de.egril.defender.ui.animations.CoinGainAnimation
 import de.egril.defender.ui.animations.CoolingAreaAnimation
 import de.egril.defender.ui.animations.DragonLevelChangeAnimation
@@ -56,6 +61,7 @@ import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.MineDigAnimation
 import de.egril.defender.ui.animations.PikeAttackOverlay
+import de.egril.defender.ui.animations.SkyIsFallingAnimation
 import de.egril.defender.ui.animations.SpearAttackOverlay
 import de.egril.defender.ui.animations.SpellDoubleReachColor
 import de.egril.defender.ui.animations.TowerAttackImpactAnimation
@@ -83,8 +89,11 @@ import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
+import de.egril.defender.ui.icon.enemy.EnemyAttackPreview
+import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
+import de.egril.defender.ui.icon.enemy.enemyAttackPreview
 import de.egril.defender.ui.rememberMapImageState
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
@@ -92,6 +101,27 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+
+/**
+ * Vertical position (as a fraction of the tile height, measured from the top) where the coin-gain
+ * "bubbling" animation ends. The rising coins in `files/animations/coin_gain.json` finish around
+ * 25% down from the top, so the fly-to-counter animation launches from there to appear to peel off
+ * the end of that animation rather than jumping back to the tile center.
+ */
+private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
+
+/**
+ * On-screen diameter of a coin in the coin-gain "bubbling" Lottie, as a fraction of the tile's
+ * smaller dimension. The animation (`files/animations/coin_gain.json`) is a 100x100 viewport with
+ * 14-unit coins, fitted (ContentScale.Fit) to the tile, so each coin renders at 14/100 of the
+ * fitted (smaller) side. The fly-to-counter coins use this so they match the bubbling coins' size.
+ */
+private const val COIN_BUBBLE_COIN_SIZE_FRACTION = 0.14f
+
+internal fun displayedRiverTile(
+    levelRiverTile: RiverTile?,
+    sandboxPaintedRiverTile: RiverTile?,
+): RiverTile? = sandboxPaintedRiverTile ?: levelRiverTile
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -111,8 +141,15 @@ fun GameGrid(
     isDemoMode: Boolean = false,
     demoHoveredPosition: Position? = null, // overrides the local hover in demo mode
     keyboardHoveredPosition: Position? = null, // overrides the local hover for keyboard build tile selection
+    keyboardPlacementCursor: Position? = null, // keyboard cursor tile while placing a support object / targeting a spell
+    selectedSupportObject: SupportObjectType? = null, // support object currently selected for placement (barricade/trap/magical trap)
     extraFocusTrigger: Int = 0,
 ) {
+    // Establish a snapshot dependency on runtime map edits (sandbox tile painting) so the entire
+    // grid recomposes and re-derives its tile sets from the updated level when a tile is repainted.
+    @Suppress("UNUSED_VARIABLE")
+    val mapEditVersion = gameState.mapEditVersion.value
+
     // State for pan and zoom
     var scale by remember { mutableStateOf(1f) }
     var offsetX by remember { mutableStateOf(0f) }
@@ -557,6 +594,14 @@ fun GameGrid(
                 .associateBy { it.position.value }
         }
     }
+    val dangerousAttackerPositions by remember {
+        derivedStateOf {
+            val movementSystem = EnemyMovementSystem(gameState, PathfindingSystem(gameState))
+            gameState.attackers
+                .filter { movementSystem.canReachTargetNextTurn(it) }
+                .mapTo(mutableSetOf()) { it.position.value }
+        }
+    }
 
     // Pre-compute the selected defender once (replaces 6+ O(n) searches per GridCell).
     // selectedDefenderId is a plain Int? parameter (not a State), so derivedStateOf cannot
@@ -609,6 +654,17 @@ fun GameGrid(
         selectedDefenderType != null &&
             hoveredPosition != null &&
             buildableEmptyPositions.contains(hoveredPosition)
+
+    // Valid tiles for placing the currently selected support object (barricade / trap / magical
+    // trap). Computed once per selection change so the per-cell hover preview below is an O(1)
+    // Set lookup. Empty when no support object is being placed.
+    val supportObjectPlacementPositions: Set<Position> by remember(gameState.level, selectedSupportObject) {
+        derivedStateOf {
+            selectedSupportObject
+                ?.let { supportObjectPlacementTiles(gameState, it).toHashSet() }
+                ?: emptySet()
+        }
+    }
 
     // Stable reference to onCellClick via rememberUpdatedState.
     //
@@ -733,6 +789,12 @@ fun GameGrid(
                             animate = AppSettings.enableAnimations.value,
                         )
                     }
+                    // Full-map falling-meteor shower for the "Sky is Falling" support power.
+                    SkyIsFallingAnimation(
+                        triggerKey = gameState.skyIsFallingTrigger.value,
+                        contentSize = measuredContentSize,
+                        animate = AppSettings.enableAnimations.value,
+                    )
                 },
             ) { position ->
                 // Pre-compute the two hover-position-dependent booleans per cell.
@@ -801,6 +863,31 @@ fun GameGrid(
                 // click → those cells are not marked for recomposition due to this parameter.
                 val previewDefenderType: DefenderType? = if (showPlacementPreview) selectedDefenderType else null
 
+                // isKeyboardPlacementCursor: only the single tile under the keyboard placement/targeting
+                // cursor is true, so at most one cell recomposes when the cursor moves.
+                val isKeyboardPlacementCursor = keyboardPlacementCursor != null && keyboardPlacementCursor == position
+
+                // supportObjectPreviewType: non-null only for the single hovered tile that is a valid
+                // placement target for the currently selected support object. Mirrors previewDefenderType
+                // so hovering a support object over a valid tile shows the same ghost preview as the
+                // matching tower-placed barricade/trap.
+                val supportObjectPreviewType: SupportObjectType? =
+                    if (isHovering && selectedSupportObject != null && supportObjectPlacementPositions.contains(position)) {
+                        selectedSupportObject
+                    } else {
+                        null
+                    }
+
+                // supportObjectPlacementHighlightType: non-null for every valid placement target of the
+                // currently selected support object, so all reachable tiles are highlighted the same way
+                // a tower highlights its trap/barricade placement range (but without the range limit).
+                val supportObjectPlacementHighlightType: SupportObjectType? =
+                    if (selectedSupportObject != null && supportObjectPlacementPositions.contains(position)) {
+                        selectedSupportObject
+                    } else {
+                        null
+                    }
+
                 // Memoize the event-handler lambdas so Compose's strong-skipping can work correctly.
                 //
                 // Without memoization, `{ onCellClick(position) }` and `{ localHoveredPosition = ... }`
@@ -823,11 +910,20 @@ fun GameGrid(
                         }
                     }
 
+                // Sandbox: a tile repainted at runtime must show its new tile image even when the
+                // original map is rendered from a single pre-rendered image. For such tiles we force a
+                // non-transparent (opaque tile-image) background so the new type overlays the old map.
+                val sandboxPaintedType =
+                    if (gameState.level.isSandbox) gameState.sandboxPaintedTiles[position] else null
+                val sandboxPaintedRiverTile =
+                    if (gameState.level.isSandbox) gameState.sandboxPaintedRiverTiles[position] else null
+
                 GridCell(
                     position = position,
                     gameState = gameState,
                     defender = defendersByPosition[position],
                     attacker = activeAttackersByPosition[position],
+                    isDangerous = dangerousAttackerPositions.contains(position),
                     selectedDefender = selectedDefenderForGrid,
                     isHovering = isHovering,
                     isInPreviewRange = isInPreviewRange,
@@ -835,6 +931,9 @@ fun GameGrid(
                     isBuildableAndEmpty = isBuildableAndEmpty,
                     canBeUsedAsTowerBase = canBeUsedAsTowerBase,
                     previewDefenderType = previewDefenderType,
+                    isKeyboardPlacementCursor = isKeyboardPlacementCursor,
+                    supportObjectPreviewType = supportObjectPreviewType,
+                    supportObjectPlacementHighlightType = supportObjectPlacementHighlightType,
                     // NOTE: the null guard on selectedDefenderId/selectedTargetId is critical for
                     // correctness AND performance.  Without it, `null?.id == null` evaluates to
                     // `null == null = true`, so every cell without a defender/attacker becomes
@@ -851,10 +950,13 @@ fun GameGrid(
                     selectedWizardAction = selectedWizardAction,
                     selectedBarricadeAction = selectedBarricadeAction,
                     targetCircleInfo = spellAreaCircleMap[position] ?: targetCircleMap[position] ?: placedBombCircleMap[position],
+                    isSelectedAttackTarget = targetCircleMap[position] != null,
                     onClick = cellOnClick,
                     hexSize = hexSize,
                     onHoverChange = cellOnHoverChange,
-                    useTransparentBackground = hasMapImage,
+                    useTransparentBackground = hasMapImage && sandboxPaintedType == null,
+                    sandboxPaintedType = sandboxPaintedType,
+                    sandboxPaintedRiverTile = sandboxPaintedRiverTile,
                 )
             }
 
@@ -970,6 +1072,7 @@ fun GridCell(
     gameState: GameState,
     defender: Defender?,
     attacker: Attacker?,
+    isDangerous: Boolean = false,
     selectedDefender: Defender?,
     // isHovering and isInPreviewRange replace the old hoveredPosition: Position? and
     // hoveredPositionIsBuildable: Boolean parameters.  Passing per-cell Booleans means only
@@ -987,6 +1090,19 @@ fun GridCell(
     // previewDefenderType is non-null only for the 1 cell showing the placement preview icon.
     // All other cells receive null and are not marked for recomposition when the selection changes.
     previewDefenderType: DefenderType?,
+    // True only for the single tile under the keyboard placement/targeting cursor (support object
+    // placement or spell targeting). Renders a distinct bright cursor border/tint so keyboard users
+    // can see which tile the place key will act on.
+    isKeyboardPlacementCursor: Boolean = false,
+    // Non-null only for the single hovered tile that is a valid placement target for the currently
+    // selected support object. Drives the ghost preview so support-placed barricades/traps show the
+    // same preview as their tower-placed counterparts.
+    supportObjectPreviewType: SupportObjectType? = null,
+    // Non-null for every tile that is a valid placement target for the currently selected support
+    // object (barricade / dwarven trap / magical trap). Drives the same range-style tile highlight
+    // (border + diagonal stripes) that a tower shows when placing the equivalent item, but without
+    // the tower's range restriction.
+    supportObjectPlacementHighlightType: SupportObjectType? = null,
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
@@ -994,10 +1110,22 @@ fun GridCell(
     selectedWizardAction: WizardAction? = null,
     selectedBarricadeAction: BarricadeAction? = null,
     targetCircleInfo: TargetCircleInfo?,
+    // True when this tile is affected by the currently selected tower attack (the selected target
+    // for single-target attacks, or a tile within the blast area for AREA/LASTING attacks). Used to
+    // gate the enemy attack damage/lethality/immunity preview (issue #591).
+    isSelectedAttackTarget: Boolean = false,
     onClick: () -> Unit,
     hexSize: androidx.compose.ui.unit.Dp = 48.dp,
     onHoverChange: ((Boolean) -> Unit)? = null,
     useTransparentBackground: Boolean = false,
+    // Sandbox runtime map edits mutate the non-observable `level` field in place, so Compose cannot
+    // detect them by reading gameState.level. These two parameters carry the repainted tile type and
+    // river flow for this exact cell; when either changes (e.g. river -> different river flow, or
+    // river -> NO_PLAY) the parameter comparison differs and Compose recomposes this cell immediately,
+    // re-reading the updated level. Without them a repaint that leaves other parameters unchanged
+    // (notably repainting one river tile over another) would be skipped and never re-render.
+    sandboxPaintedType: de.egril.defender.editor.TileType? = null,
+    sandboxPaintedRiverTile: RiverTile? = null,
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
 
@@ -1081,19 +1209,21 @@ fun GridCell(
     // Check for mine dig animation at this position
     val mineDigEffect = gameState.mineDigEffects.find { it.position == position }
 
-    // Determine the tile type for background image loading
-    val riverTile = gameState.level.getRiverTile(position)
+    // Determine the tile type for background image loading. Prefer the sandbox-painted river tile so
+    // a runtime repaint (which mutates the non-observable level in place) is reflected immediately.
+    val riverTile = displayedRiverTile(gameState.level.getRiverTile(position), sandboxPaintedRiverTile)
     val isMaelstrom = riverTile?.flowDirection == RiverFlow.MAELSTROM
 
     val tileType =
-        when {
-            isSpawnPoint -> de.egril.defender.editor.TileType.SPAWN_POINT
-            isTarget -> de.egril.defender.editor.TileType.TARGET
-            isRiverTile -> de.egril.defender.editor.TileType.RIVER
-            isOnPath -> de.egril.defender.editor.TileType.PATH
-            isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
-            else -> de.egril.defender.editor.TileType.NO_PLAY
-        }
+        sandboxPaintedType
+            ?: when {
+                isSpawnPoint -> de.egril.defender.editor.TileType.SPAWN_POINT
+                isTarget -> de.egril.defender.editor.TileType.TARGET
+                isRiverTile -> de.egril.defender.editor.TileType.RIVER
+                isOnPath -> de.egril.defender.editor.TileType.PATH
+                isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
+                else -> de.egril.defender.editor.TileType.NO_PLAY
+            }
 
     // Get tile background painter (will be null if images are disabled or not available)
     // Suppress tile image when unit backgrounds are ON so the colored background is visible:
@@ -1232,7 +1362,7 @@ fun GridCell(
                 false // Don't highlight the defender's own cell
             } else {
                 val distance = sel.position.value.distanceTo(position)
-                val effectiveRange = if (hasDoubleReachBuff) sel.range * 2 else sel.range
+                val effectiveRange = gameState.effectiveRange(sel)
                 distance >= sel.type.minRange && distance <= effectiveRange
             }
         } ?: false
@@ -1248,6 +1378,34 @@ fun GridCell(
             }
         } else {
             false
+        }
+
+    // Attack damage / lethality / immunity preview shown at the left border of an enemy that is
+    // affected by the currently selected tower attack: the selected target for single-target
+    // attacks, or any enemy within the blast area for AREA/LASTING attacks. Only shown when no
+    // build/trap/barricade placement mode is active (issue #591). Computed here (where
+    // selectedDefender is known) and passed into GridCellContent for rendering.
+    val attackPreview: EnemyAttackPreview? =
+        run {
+            val sel = selectedDefender
+            if (attacker == null ||
+                sel == null ||
+                sel.type.attackType == AttackType.NONE ||
+                !sel.isReady ||
+                sel.actionsRemaining.value <= 0 ||
+                !isSelectedAttackTarget ||
+                selectedMineAction != null ||
+                selectedWizardAction != null ||
+                selectedBarricadeAction != null
+            ) {
+                null
+            } else {
+                val hasDoubleLevelBuff =
+                    gameState.activeSpellEffects.any {
+                        it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == sel.id
+                    }
+                enemyAttackPreview(attacker, sel, hasDoubleLevelBuff)
+            }
         }
 
     // Calculate hover preview for trap placement
@@ -1319,6 +1477,13 @@ fun GridCell(
         } else {
             false
         }
+
+    // Support-object placement highlight (barricade / dwarven trap / magical trap placed from the
+    // support bar). Mirrors the tower-placement range highlight above, but the set of valid tiles
+    // is supplied by the caller (supportObjectPlacementHighlightType) and has no range restriction.
+    val cellIsSupportBarricadePlacement = supportObjectPlacementHighlightType == SupportObjectType.BARRICADE
+    val cellIsSupportDwarvenTrapPlacement = supportObjectPlacementHighlightType == SupportObjectType.DWARVEN_TRAP
+    val cellIsSupportMagicalTrapPlacement = supportObjectPlacementHighlightType == SupportObjectType.MAGICAL_TRAP
 
     // Base background color based on area type - ALWAYS visible
     // Build areas adjacent to path allow tower placement
@@ -1421,6 +1586,8 @@ fun GridCell(
     // Special case: Keep river background visible for defenders on rafts
     val backgroundColor =
         when {
+            // Keyboard placement/targeting cursor — bright cyan tint so the active tile stands out.
+            isKeyboardPlacementCursor -> Color(0xFF00E5FF).copy(alpha = 0.45f)
             attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f) // Turquoise background for frozen/cooled-to-zero enemies
             attacker != null && enemyBgSuppressed -> if (useTransparentBackground) Color.Transparent else baseBackgroundColor
             attacker != null ->
@@ -1468,7 +1635,7 @@ fun GridCell(
             bombEffect != null -> Color(0xFFFF6F00).copy(alpha = 0.4f) // Amber tint for bomb
 
             // Barricade placement range - yellow tint for tiles in range
-            cellIsInBarricadeRange -> GamePlayColors.Yellow.copy(alpha = 0.3f) // Light yellow for barricade placement range
+            cellIsInBarricadeRange || cellIsSupportBarricadePlacement -> GamePlayColors.Yellow.copy(alpha = 0.3f) // Light yellow for barricade placement range
 
             // Tower placement preview - highlight the hovered build tile differently than range tiles
             showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f) // Light yellow for the build tile being hovered
@@ -1532,15 +1699,18 @@ fun GridCell(
 
     val borderColor =
         when {
+            // Keyboard placement/targeting cursor — bright cyan border for the active tile.
+            isKeyboardPlacementCursor -> Color(0xFF00B8D4)
             // Tower placement preview - dashed borders for preview (we'll handle this with Canvas later)
             showPlacementPreview -> GamePlayColors.Yellow // Yellow border for hovered build tile
             isInPreviewRange -> GamePlayColors.Success // Green border for range preview tiles
 
             // Barricade and trap placement range - brown borders (light brown diagonal stripes)
-            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
+            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement ||
+                cellIsSupportBarricadePlacement || cellIsSupportDwarvenTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
 
             // Magical trap placement range - lilac borders
-            cellIsValidForMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight // Lilac border for magical trap placement range
+            cellIsValidForMagicalTrapPlacement || cellIsSupportMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight // Lilac border for magical trap placement range
 
             // Buildable tile highlighting - lighter green borders with dashed line when tower type is selected
             isBuildableAndEmpty || canBeUsedAsTowerBase -> GamePlayColors.BuildableHighlight // Lighter green border for buildable tiles and tower bases
@@ -1556,6 +1726,7 @@ fun GridCell(
             isValidSpellTarget &&
                 spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
                 spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> Color(0xFF9C27B0) // Purple border for valid spell targets
+            isDangerous -> GamePlayColors.Error
 
             isSpawnPoint -> GamePlayColors.WarningDark // Darker orange border for spawn in dark mode
             isTarget -> GamePlayColors.Success // Green border for target (adapts to dark mode automatically)
@@ -1581,9 +1752,11 @@ fun GridCell(
     // Thicker borders for important elements
     val borderWidth =
         when {
+            isKeyboardPlacementCursor -> 6.dp // Prominent border for the keyboard placement/targeting cursor
             showPlacementPreview -> 6.dp // Double thickness for hovered build tile
             isInPreviewRange -> 3.dp // Medium border for range preview
-            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
+            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement ||
+                cellIsSupportBarricadePlacement || cellIsSupportDwarvenTrapPlacement || cellIsSupportMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
             isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp // Medium border for buildable tiles and tower bases
             isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp // Extra thick border for selected defender (not during initial building)
             cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> 2.dp // Thin purple border for double-reach-only tiles
@@ -1591,6 +1764,7 @@ fun GridCell(
             isValidSpellTarget &&
                 spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
                 spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> 4.dp // Thick purple border for valid spell targets
+            isDangerous -> 4.dp
             isSpawnPoint || isTarget -> 3.dp
             (attacker != null || defender != null) && AppSettings.showUnitTowerBackground.value -> 3.dp
             effectiveFieldEffect != null -> 3.dp // Thick border for field effects
@@ -1607,14 +1781,20 @@ fun GridCell(
             canBeUsedAsTowerBase ||
             cellIsInBarricadeRange ||
             cellIsValidForMineTrapPlacement ||
-            cellIsValidForMagicalTrapPlacement
+            cellIsValidForMagicalTrapPlacement ||
+            cellIsSupportBarricadePlacement ||
+            cellIsSupportDwarvenTrapPlacement ||
+            cellIsSupportMagicalTrapPlacement
 
     val showDiagonalStripes =
         isBuildableAndEmpty ||
             canBeUsedAsTowerBase ||
             cellIsInBarricadeRange ||
             cellIsValidForMineTrapPlacement ||
-            cellIsValidForMagicalTrapPlacement
+            cellIsValidForMagicalTrapPlacement ||
+            cellIsSupportBarricadePlacement ||
+            cellIsSupportDwarvenTrapPlacement ||
+            cellIsSupportMagicalTrapPlacement
 
     // Determine if we should use gradient blending
     val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
@@ -1699,6 +1879,7 @@ fun GridCell(
                 healingEffect = healingEffect,
                 damageEffect = damageEffect,
                 defender = defender,
+                riverTile = riverTile,
                 fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
@@ -1707,6 +1888,7 @@ fun GridCell(
                 isRiverTile = isRiverTile,
                 showPlacementPreview = showPlacementPreview,
                 showBarricadePreview = showBarricadePreview,
+                supportObjectPreviewType = supportObjectPreviewType,
                 previewDefenderType = previewDefenderType,
                 targetCircleInfo = targetCircleInfo,
                 useDashedBorder = useDashedBorder,
@@ -1745,6 +1927,8 @@ fun GridCell(
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine,
                 suppressEnemyBackground = suppressEnemyBackground,
+                attackPreview = attackPreview,
+                isDangerous = isDangerous,
             )
         }
     } else {
@@ -1764,6 +1948,7 @@ fun GridCell(
                 healingEffect = healingEffect,
                 damageEffect = damageEffect,
                 defender = defender,
+                riverTile = riverTile,
                 fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
@@ -1772,6 +1957,7 @@ fun GridCell(
                 isRiverTile = isRiverTile,
                 showPlacementPreview = showPlacementPreview,
                 showBarricadePreview = showBarricadePreview,
+                supportObjectPreviewType = supportObjectPreviewType,
                 previewDefenderType = previewDefenderType,
                 targetCircleInfo = targetCircleInfo,
                 useDashedBorder = useDashedBorder,
@@ -1810,6 +1996,8 @@ fun GridCell(
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine,
                 suppressEnemyBackground = suppressEnemyBackground,
+                attackPreview = attackPreview,
+                isDangerous = isDangerous,
             )
         }
     }
@@ -1823,9 +2011,11 @@ private fun BoxScope.GridCellContent(
     position: Position,
     gameState: GameState,
     attacker: Attacker?,
+    isDangerous: Boolean = false,
     healingEffect: HealingEffect?,
     damageEffect: DamageEffect?,
     defender: Defender?,
+    riverTile: RiverTile?,
     fieldEffect: FieldEffect?,
     trap: Trap?,
     barricade: Barricade?,
@@ -1834,6 +2024,9 @@ private fun BoxScope.GridCellContent(
     isRiverTile: Boolean,
     showPlacementPreview: Boolean,
     showBarricadePreview: Boolean,
+    // Non-null only for the single hovered tile that is a valid placement target for the selected
+    // support object; renders the same ghost preview used for tower-placed barricades/traps.
+    supportObjectPreviewType: SupportObjectType? = null,
     // previewDefenderType replaces selectedDefenderType: non-null only for the 1 cell showing
     // the placement preview icon, so buy-button clicks don't cascade to all GridCellContent instances.
     previewDefenderType: DefenderType?,
@@ -1874,6 +2067,9 @@ private fun BoxScope.GridCellContent(
     isInAlchemyAttackArea: Boolean = false,
     dragonIsTargetingMine: Boolean = false,
     suppressEnemyBackground: Boolean = false,
+    // Precomputed attack damage/lethality/immunity preview for the enemy on this tile (issue #591).
+    // Non-null only when a defender is selected that could attack this enemy.
+    attackPreview: EnemyAttackPreview? = null,
 ) {
     // When animations are enabled, delay updating the enemy's displayed health value until
     // the attack animation (projectile flight + impact flash) has completed.
@@ -1983,6 +2179,15 @@ private fun BoxScope.GridCellContent(
                         healthTextColor = healthTextColor,
                         healthOverride = displayedHealth,
                     )
+                    if (isDangerous) {
+                        Text(
+                            text = "!",
+                            color = GamePlayColors.Error,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 14.dp),
+                        )
+                    }
                     // Show healing effect overlay if present
                     if (healingEffect != null) {
                         GreenWitchHealingAnimation(
@@ -2040,6 +2245,18 @@ private fun BoxScope.GridCellContent(
                                 }
                             }
                         }
+                    }
+                    // Attack damage / lethality / immunity preview at the left border
+                    if (attackPreview != null) {
+                        EnemyAttackPreviewIcon(
+                            damage = attackPreview.damage,
+                            isLethal = attackPreview.isLethal,
+                            isImmune = attackPreview.isImmune,
+                            modifier =
+                                Modifier
+                                    .align(Alignment.CenterStart)
+                                    .offset(x = 10.dp),
+                        )
                     }
                 }
             }
@@ -2193,14 +2410,21 @@ private fun BoxScope.GridCellContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    // Show wood/barricade symbol or gate icon with brown color
-                    if (barricade.isGate) {
-                        GateIcon(
-                            modifier = Modifier.offset(y = 10.dp),
-                            size = GamePlayConstants.TileIconSizes.Barricade,
-                        )
-                    } else {
-                        WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                    // Show wood/barricade symbol or gate icon with brown color.
+                    // When the barricade also serves as a tower base (HP >= 100), overlay the
+                    // wooden tower-base platform so it is distinguishable from a plain barricade.
+                    Box(contentAlignment = Alignment.Center) {
+                        if (barricade.isGate) {
+                            GateIcon(
+                                modifier = Modifier.offset(y = 10.dp),
+                                size = GamePlayConstants.TileIconSizes.Barricade,
+                            )
+                        } else {
+                            WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                        }
+                        if (barricade.canSupportTower()) {
+                            TowerBasePlatformIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                        }
                     }
 
                     // Show gate/barricade name (2 lines) then HP (1 line, bold)
@@ -2249,7 +2473,7 @@ private fun BoxScope.GridCellContent(
             }
         }
 
-        showBarricadePreview -> {
+        showBarricadePreview || supportObjectPreviewType == SupportObjectType.BARRICADE -> {
             // Show see-through barricade preview when hovering
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -2351,7 +2575,6 @@ private fun BoxScope.GridCellContent(
                 BridgeVisualization(bridge = bridge)
             } else {
                 // Show river flow direction arrows
-                val riverTile = gameState.level.getRiverTile(position)
                 if (riverTile != null) {
                     // Don't show trap icon on maelstrom when tile images are enabled
                     // (the tile_river_maelstrom.png image already shows the maelstrom visually)
@@ -2432,7 +2655,10 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show half-transparent trap icon on hovered path tile (when in trap placement mode)
-    if (showTrapPreview) {
+    if (showTrapPreview ||
+        supportObjectPreviewType == SupportObjectType.DWARVEN_TRAP ||
+        supportObjectPreviewType == SupportObjectType.MAGICAL_TRAP
+    ) {
         Box(
             modifier =
                 Modifier
@@ -2443,11 +2669,13 @@ private fun BoxScope.GridCellContent(
         ) {
             // Show different icon based on trap type
             when {
-                selectedMineAction == MineAction.BUILD_TRAP -> {
+                selectedMineAction == MineAction.BUILD_TRAP ||
+                    supportObjectPreviewType == SupportObjectType.DWARVEN_TRAP -> {
                     // Dwarven trap - show trap icon
                     TrapIcon(size = GamePlayConstants.TileIconSizes.TrapPreview)
                 }
-                selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP -> {
+                selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP ||
+                    supportObjectPreviewType == SupportObjectType.MAGICAL_TRAP -> {
                     // Magical trap - show pentagram icon
                     PentagramIcon(size = GamePlayConstants.TileIconSizes.TrapPreview)
                 }
@@ -2584,6 +2812,39 @@ private fun BoxScope.GridCellContent(
     var showCoinAnimation by remember(coinGainEffect?.turnNumber, coinGainEffect?.position) {
         mutableStateOf(false)
     }
+    // Track where this tile's coin-gain "bubbling" animation ends, in root coordinates, so a
+    // coin-flight animation can start from there. The rising coins finish near the top of the tile
+    // (see COIN_BUBBLE_END_HEIGHT_FRACTION), horizontally centered.
+    // Keyed on the (stable) tile grid position so it is captured once and not reset to null when
+    // a new coin-gain effect appears on the same tile.
+    var coinFlightStartPosition by remember(position) {
+        mutableStateOf<Offset?>(null)
+    }
+    // Diameter (px) of the coin-gain "bubbling" coins on this tile, so the fly-to-counter coins can
+    // be launched at the same visible size. The Lottie (coin_gain.json) is a 100x100 viewport with
+    // 14-unit coins, fitted (ContentScale.Fit) to the tile box, so the coin diameter on screen is
+    // COIN_BUBBLE_COIN_SIZE_FRACTION of the tile's smaller dimension.
+    var flyingCoinSizePx by remember(position) {
+        mutableStateOf(CoinFlightController.DEFAULT_COIN_SIZE_PX)
+    }
+    if (coinGainEffect != null) {
+        Box(
+            modifier =
+                Modifier.matchParentSize().onGloballyPositioned { coords ->
+                    // Captured fresh whenever a coin-gain effect is present on this tile (this Box
+                    // only exists then) and re-fired while the map pans/zooms, so the value used at
+                    // launch time reflects the tile's current on-screen position.
+                    val topLeft = coords.positionInRoot()
+                    coinFlightStartPosition =
+                        Offset(
+                            x = topLeft.x + coords.size.width / 2f,
+                            y = topLeft.y + coords.size.height * COIN_BUBBLE_END_HEIGHT_FRACTION,
+                        )
+                    flyingCoinSizePx =
+                        minOf(coords.size.width, coords.size.height) * COIN_BUBBLE_COIN_SIZE_FRACTION
+                },
+        )
+    }
     LaunchedEffect(coinGainEffect?.turnNumber, coinGainEffect?.position, towerAttackEffect?.turnNumber) {
         if (coinGainEffect != null) {
             val arrowDelay =
@@ -2616,14 +2877,41 @@ private fun BoxScope.GridCellContent(
             )
             // Add coins to the player's total in sync with the animation so the counter
             // visually increases when the coin animation plays, not before the attack runs.
-            // Only transfer coins that are still pending (guard against the safety flush in
-            // completeEnemyTurn() having already credited them).
+            showCoinAnimation = true
+            // Launch the "coin fly-to-counter" animation only after the coin-gain (coins bubbling
+            // up) animation has played, so the flying coins appear to peel off the end of that
+            // animation. The counter is then updated as those coins reach it (via the launch
+            // callback), so the number and the arriving coins stay in step.
+            if (AppSettings.enableAnimations.value) {
+                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.COIN_GAIN_ANIMATION_DURATION_MS)
+            }
+            // Credit the coins that are still pending for this reward (guard against the safety
+            // flush in completeEnemyTurn() having already credited them). Reserve them out of
+            // pending immediately before launching so the flush can't also credit them; the flying
+            // coins then add them to the visible total as they land.
             val toAdd = minOf(coinGainEffect.amount, gameState.pendingCoinGains.value)
             if (toAdd > 0) {
                 gameState.pendingCoinGains.value -= toAdd
-                gameState.coins.value += toAdd
+                val source = coinFlightStartPosition
+                val launched =
+                    if (AppSettings.enableAnimations.value && source != null) {
+                        CoinFlightController.launch(
+                            source = source,
+                            amount = coinGainEffect.amount,
+                            coinSizePx = flyingCoinSizePx,
+                            creditAmount = toAdd,
+                        ) { arrived ->
+                            gameState.coins.value += arrived
+                        }
+                    } else {
+                        0
+                    }
+                // No flying coins launched (animations off, no source position, or the queue is
+                // full): credit the reserved coins immediately so the reward is never lost.
+                if (launched == 0) {
+                    gameState.coins.value += toAdd
+                }
             }
-            showCoinAnimation = true
         } else {
             showCoinAnimation = false
         }

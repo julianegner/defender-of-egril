@@ -30,6 +30,7 @@ fun AchievementId.getLocalizedName(): String =
         AchievementId.LOSE_LEVEL -> stringResource(Res.string.achievement_lose_level_name)
         AchievementId.WIN_LEVEL_FULL_HP -> stringResource(Res.string.achievement_win_level_full_hp_name)
         AchievementId.WIN_LEVEL_ONE_HP -> stringResource(Res.string.achievement_win_level_one_hp_name)
+        AchievementId.PLAY_HUNDRED_TURNS -> stringResource(Res.string.achievement_play_hundred_turns_name)
 
         // Combat achievements
         AchievementId.KILL_TWO_ENEMIES_SAME_TURN -> stringResource(Res.string.achievement_kill_two_enemies_same_turn_name)
@@ -54,6 +55,7 @@ fun AchievementId.getLocalizedName(): String =
         // Building achievements
         AchievementId.BUILD_TEN_TOWERS -> stringResource(Res.string.achievement_build_ten_towers_name)
         AchievementId.BUILD_TEN_RAFTS -> stringResource(Res.string.achievement_build_ten_rafts_name)
+        AchievementId.TWENTY_TOWERS_STANDING -> stringResource(Res.string.achievement_twenty_towers_standing_name)
 
         // Bridge and barricade achievements
         AchievementId.DESTROY_BRIDGE -> stringResource(Res.string.achievement_destroy_bridge_name)
@@ -93,6 +95,7 @@ fun AchievementId.getLocalizedDescription(): String =
         AchievementId.LOSE_LEVEL -> stringResource(Res.string.achievement_lose_level_desc)
         AchievementId.WIN_LEVEL_FULL_HP -> stringResource(Res.string.achievement_win_level_full_hp_desc)
         AchievementId.WIN_LEVEL_ONE_HP -> stringResource(Res.string.achievement_win_level_one_hp_desc)
+        AchievementId.PLAY_HUNDRED_TURNS -> stringResource(Res.string.achievement_play_hundred_turns_desc)
 
         // Combat achievements
         AchievementId.KILL_TWO_ENEMIES_SAME_TURN -> stringResource(Res.string.achievement_kill_two_enemies_same_turn_desc)
@@ -117,6 +120,7 @@ fun AchievementId.getLocalizedDescription(): String =
         // Building achievements
         AchievementId.BUILD_TEN_TOWERS -> stringResource(Res.string.achievement_build_ten_towers_desc)
         AchievementId.BUILD_TEN_RAFTS -> stringResource(Res.string.achievement_build_ten_rafts_desc)
+        AchievementId.TWENTY_TOWERS_STANDING -> stringResource(Res.string.achievement_twenty_towers_standing_desc)
 
         // Bridge and barricade achievements
         AchievementId.DESTROY_BRIDGE -> stringResource(Res.string.achievement_destroy_bridge_desc)

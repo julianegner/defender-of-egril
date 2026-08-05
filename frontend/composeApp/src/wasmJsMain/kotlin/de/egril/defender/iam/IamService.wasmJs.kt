@@ -70,11 +70,14 @@ private external fun jsSetDarkModeCookie(isDark: Boolean)
  * Initiates a Keycloak login, forwarding the app's selected [locale] so the
  * login page is shown in the same language as the game.
  *
+ * No `prompt` override is passed so that Keycloak reuses an existing SSO session
+ * silently without asking the user to re-enter credentials.
+ *
  * Returns `true` if the Keycloak JS adapter was available and the login
  * redirect was initiated, `false` if the adapter was not yet initialised
  * (e.g. because the Keycloak server was unreachable at page load time).
  */
-@JsFun("(locale) => { if (window._keycloak) { window._keycloak.login({ prompt: 'login', locale: locale }); return true; } return false; }")
+@JsFun("(locale) => { if (window._keycloak) { window._keycloak.login({ locale: locale }); return true; } return false; }")
 private external fun jsKcLoginWithLocale(locale: String): Boolean
 
 @JsFun("() => { if (window._keycloak) { window._keycloak.logout({ redirectUri: window.location.origin }); } }")

@@ -5,17 +5,21 @@ This guide explains how to manually test the new graphical icons for towers and 
 ## Running the Game
 
 ### Desktop (Recommended for Testing)
+
 ```bash
 ./gradlew :composeApp:run
 ```
 
 ### Android
+
 ```bash
 ./gradlew :composeApp:installDebug
 ```
+
 Then launch the app from your device.
 
 ### iOS (macOS with Xcode required)
+
 Open `iosApp/iosApp.xcodeproj` in Xcode and click Run.
 
 ## What to Test
@@ -25,6 +29,7 @@ Open `iosApp/iosApp.xcodeproj` in Xcode and click Run.
 Start a game and place different tower types on the build areas (green zones).
 
 **For each tower type, verify:**
+
 - [ ] Spike Tower shows yellow spikes pointing upward
 - [ ] Spear Tower shows a brown spear with silver tip
 - [ ] Bow Tower shows a curved bow with arrow
@@ -33,6 +38,7 @@ Start a game and place different tower types on the build areas (green zones).
 - [ ] Ballista Tower shows a crossbow with bolt
 
 **All towers should:**
+
 - [ ] Have a white trapezoid base
 - [ ] Have small battlement squares on top
 - [ ] Display level number (L1, L2, etc.) at bottom in white
@@ -42,6 +48,7 @@ Start a game and place different tower types on the build areas (green zones).
 ### 2. Tower States
 
 **Test different tower states:**
+
 - [ ] **Initial Building Phase**: Place a tower → should show immediately with level L1 and ⚡1
 - [ ] **During Game**: Place a tower → should show gray background with ⏱1 or ⏱2
 - [ ] **Ready Tower**: Wait for build to complete → background changes to blue, shows ⚡1
@@ -53,6 +60,7 @@ Start a game and place different tower types on the build areas (green zones).
 Start a game and observe enemies as they spawn and move.
 
 **For each enemy type, verify:**
+
 - [ ] Goblin: Small green creature with pointy ears and red eyes
 - [ ] Ork: Larger with dark green color, white tusks, yellow eyes
 - [ ] Ogre: Very large, brown color, big eyes
@@ -61,6 +69,7 @@ Start a game and observe enemies as they spawn and move.
 - [ ] Witch: Black pointed hat, green face, broom
 
 **All enemies should:**
+
 - [ ] Have red background
 - [ ] Display health (e.g., "20/20") at bottom in white
 - [ ] Show current health decreasing when damaged (e.g., "15/20", "10/20")
@@ -68,6 +77,7 @@ Start a game and observe enemies as they spawn and move.
 ### 4. Game Grid Integration
 
 **Verify the icons work well in the game context:**
+
 - [ ] Icons are clearly visible in 48dp grid cells
 - [ ] Different tower types are easily distinguishable
 - [ ] Different enemy types are easily distinguishable
@@ -103,6 +113,7 @@ Start a game and observe enemies as they spawn and move.
 ## Known Limitations
 
 The icons are drawn programmatically, not from image files, which means:
+
 - Icons scale perfectly but are simplified designs
 - No bitmap-level detail (intentional - keeps them clear at small size)
 - Consistent across all platforms (JVM, Android, iOS)
@@ -110,11 +121,13 @@ The icons are drawn programmatically, not from image files, which means:
 ## Screenshot Locations
 
 If you want to capture screenshots for documentation:
+
 1. Desktop: Use your OS screenshot tool
 2. Android: Power + Volume Down
 3. iOS: Side Button + Volume Up
 
 Save screenshots showing:
+
 - All 6 tower types side by side
 - All 6 enemy types side by side
 - A tower in each state (building, ready, no actions)
@@ -123,15 +136,18 @@ Save screenshots showing:
 ## Troubleshooting
 
 **If icons don't appear:**
+
 1. Verify the build was successful
 2. Check console for errors
 3. Try a clean build: `./gradlew clean build`
 
 **If icons are too small/large:**
+
 - This is expected - icons are designed for 48dp cells
 - Zoom may vary by platform/display
 
 **If colors look wrong:**
+
 - Check that towers have blue/gray backgrounds
 - Check that enemies have red backgrounds
 - Verify build area colors (green shades) are still visible
@@ -139,6 +155,7 @@ Save screenshots showing:
 ## Feedback
 
 When providing feedback, please include:
+
 1. Platform tested (Desktop/Android/iOS)
 2. Which icons were tested
 3. Screenshots if possible
@@ -147,6 +164,7 @@ When providing feedback, please include:
 ## Success Criteria
 
 The implementation is successful if:
+
 - ✅ All tower types have distinct, recognizable icons
 - ✅ All enemy types have distinct, recognizable icons
 - ✅ Level, actions, and health are always visible

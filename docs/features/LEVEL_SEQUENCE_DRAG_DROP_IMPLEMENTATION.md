@@ -1,32 +1,38 @@
 # Level Sequence Editor Drag-and-Drop Implementation
 
 ## Overview
+
 This document describes the implementation of drag-and-drop functionality for the level sequence editor, addressing all requirements from the issue.
 
 ## Requirements Addressed
 
 ### ✅ 1. Drag and Drop Inside Sequence List
+
 - **Implementation:** Drag on any level in the sequence list to start dragging (no long-press required)
 - **Visual Feedback:** Card becomes highlighted with primary color (transparent)
 - **Drop Indicators:** Blue line appears showing where the item will be inserted
 - **Drop Detection:** Calculates proper insertion point based on Y coordinate - can insert before first item, between any items, or after last item
 
 ### ✅ 2. Remove from Sequence by Dragging Down
+
 - **Implementation:** Drag a level from the sequence list down to the "Available Levels" area
 - **Visual Feedback:** Available area background highlights when a sequence item is dragged over it
 - **Action:** Level is removed from the sequence but remains available for re-addition
 
 ### ✅ 3. Add to Sequence by Dragging Up
+
 - **Implementation:** Drag a level from the "Available Levels" grid up to the sequence list
 - **Visual Feedback:** Drop indicators show where the item will be inserted in the sequence
 - **Action:** Level is added to the sequence at the drop position
 
 ### ✅ 4. Better Color Distinction
+
 - **Before:** Available levels used `secondaryContainer` which was hard to distinguish
 - **After:** Available levels now use `tertiaryContainer` for clear visual separation
 - **Sequence Levels:** Continue to use `surfaceVariant` for consistency
 
 ### ✅ 5. Grid Layout for Available Levels
+
 - **Before:** Vertical list (LazyColumn) with one item per row
 - **After:** Grid layout (LazyVerticalGrid) with 4 columns
 - **Benefits:** More compact display, better use of screen space, easier to scan
@@ -34,6 +40,7 @@ This document describes the implementation of drag-and-drop functionality for th
 ## User Experience Improvements
 
 ### Drag Interaction
+
 1. **Click and drag** on any level card (sequence or available) to start dragging - no delay!
 2. **Move** the finger/mouse to drag the item
 3. **Visual feedback:**
@@ -43,27 +50,33 @@ This document describes the implementation of drag-and-drop functionality for th
 4. **Release** to drop the item at the highlighted position
 
 ### Insertion Points
+
 The drag-and-drop now supports inserting at any position:
+
 - **Before first item:** Drag above the first level in sequence
 - **Between items:** Drag between any two levels - indicator shows insertion point
 - **After last item:** Drag below the last level in sequence
 - **From available to sequence:** Drag from grid to any position in sequence
 
 ### Fallback Controls
+
 All existing controls remain functional:
+
 - **Up Arrow (↑):** Move level up one position
 - **Down Arrow (↓):** Move level down one position
 - **Remove from Sequence:** Remove level with confirmation dialog
 - **Add to Sequence:** Add available level to end of sequence
 
 ### Hints
+
 - Sequence items: "Drag to reorder"
 - Available items: "Drag to add"
 
 ## Technical Implementation
 
 ### Architecture
-```
+
+```text
 EditorStorage.kt
 └── moveLevelToPosition(levelId, toIndex)
     └── Handles moving levels to specific positions in sequence
@@ -77,6 +90,7 @@ LevelSequence.kt
 ```
 
 ### Drag State Management
+
 ```kotlin
 data class DragState(
     val levelId: String,
@@ -84,11 +98,13 @@ data class DragState(
     val currentPosition: Offset
 )
 ```
+
 - Tracks which level is being dragged
 - Knows if it came from sequence or available area
 - Updates position in real-time during drag
 
 ### Drop Detection Algorithm (Improved)
+
 ```kotlin
 // Calculate insertion point based on Y coordinate
 val sortedBounds = itemBounds.values.sortedBy { it.index }
@@ -106,11 +122,13 @@ else if (dragY >= lastItem.bottom) {
     insertAt = lastItem.index + 1
 }
 ```
+
 - Determines exact insertion point based on drag position
 - Supports inserting before first, between any items, and after last
 - Works for both reordering within sequence and adding from available
 
 ### Position Tracking
+
 ```kotlin
 data class ItemBounds(
     val index: Int,
@@ -118,6 +136,7 @@ data class ItemBounds(
     val size: IntSize
 )
 ```
+
 - Tracks exact position and size of each item
 - Updated via `onGloballyPositioned` callback
 - Used for accurate drop detection
@@ -125,6 +144,7 @@ data class ItemBounds(
 ## Code Changes Summary
 
 ### Files Modified
+
 1. **EditorStorage.kt** (+24 lines)
    - Added `moveLevelToPosition()` method
    - Handles index adjustment for moves
@@ -142,11 +162,13 @@ data class ItemBounds(
    - Validates adding at specific positions
 
 ### Dependencies Added
+
 - `androidx.compose.foundation.gestures.detectDragGestures` (changed from detectDragGesturesAfterLongPress)
 - `androidx.compose.foundation.lazy.grid.LazyVerticalGrid`
 - `kotlin.math.abs`
 
 ### No Breaking Changes
+
 - All existing functionality preserved
 - Backward compatible with existing data
 - No changes to data models or serialization
@@ -154,11 +176,13 @@ data class ItemBounds(
 ## Testing
 
 ### Unit Tests
+
 - ✅ `testMoveLevelToPosition()` - Tests move logic
 - ✅ All existing tests continue to pass
 - ✅ No compilation errors or warnings
 
 ### Manual Testing Checklist
+
 Desktop and Web/WASM platforms:
 
 1. **Basic Drag in Sequence:**
@@ -218,12 +242,14 @@ Desktop and Web/WASM platforms:
 ## Recent Improvements
 
 ### Version 2 (Current)
+
 - **Changed to regular drag gestures** - No more long-press delay, drag starts immediately
 - **Fixed insertion point detection** - Can now insert between any items, not just at approximate positions
 - **Improved drop indicators** - Show at all valid insertion points
 - **Better user feedback** - Updated hint text to match interaction model
 
 ### Version 1 (Initial)
+
 - Long-press drag gestures
 - Basic drop target detection
 - Grid layout for available levels
@@ -232,6 +258,7 @@ Desktop and Web/WASM platforms:
 ## Conclusion
 
 All requirements from the issue have been successfully implemented:
+
 - ✅ Drag and drop for reordering levels in sequence (with proper insertion points)
 - ✅ Drag from sequence to available area (remove)
 - ✅ Drag from available area to sequence (add at any position)

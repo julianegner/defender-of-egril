@@ -9,7 +9,8 @@ Previously, towers and enemies were displayed as text labels. Now they are displ
 ### Example Visual Comparison
 
 **Before (Text-based):**
-```
+
+```text
 ┌──────┐
 │ Bow  │  ← Just text on colored background
 │Tower │
@@ -19,7 +20,8 @@ Previously, towers and enemies were displayed as text labels. Now they are displ
 ```
 
 **After (Icon-based):**
-```
+
+```text
 ┌──────┐
 │  ╱╲  │  ← Tower battlements
 │ ╱  ╲ │  ← Tower structure
@@ -34,7 +36,7 @@ All towers are displayed with a **trapezoid base with battlements** (like castle
 
 ### Tower Visual Structure
 
-```
+```text
     ╔═╗ ╔═╗ ╔═╗   ← Battlements (3 small squares on top)
     ║   ║   ║
     ╲   Tower  ╱   ← Trapezoid base (wider at bottom)
@@ -132,6 +134,7 @@ Each enemy type has a distinct visual appearance:
 ## Visual Implementation
 
 All icons are drawn using Jetpack Compose Canvas with:
+
 - Paths for complex shapes
 - Circles for round elements
 - Lines for straight elements

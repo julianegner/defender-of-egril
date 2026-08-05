@@ -1,12 +1,15 @@
 # Map Editor Zoom Fix Verification
 
 ## Problem Statement
+
 The map editor had zoom disabled because it broke the brush painting feature. When users tried to paint tiles while zoomed in/out, the brush would paint the wrong tiles.
 
 ## Root Cause
+
 The coordinate conversion from screen space to hex grid coordinates didn't properly account for the zoom level when adjusting for content centering.
 
 ### Before Fix
+
 ```kotlin
 val adjustedX = pointerPos.x - (containerSize.width - actualContentSize.width) / 2f
 val adjustedY = pointerPos.y - (containerSize.height - actualContentSize.height) / 2f
@@ -15,6 +18,7 @@ val adjustedY = pointerPos.y - (containerSize.height - actualContentSize.height)
 This used `actualContentSize` (the unscaled content size), which is incorrect when content is zoomed.
 
 ### After Fix
+
 ```kotlin
 val scaledWidth = actualContentSize.width * zoomLevel
 val scaledHeight = actualContentSize.height * zoomLevel
@@ -48,7 +52,7 @@ When content is smaller than the container, Compose centers it automatically. Th
 
 ### Complete Transformation
 
-```
+```text
 rawPointerPos -> adjust for centering -> screenPos -> convert to content -> hexGridPos
 ```
 

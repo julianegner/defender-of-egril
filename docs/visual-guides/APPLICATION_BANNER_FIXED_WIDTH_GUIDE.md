@@ -6,7 +6,7 @@
 
 The Application Banner was stretching incorrectly on some Android devices:
 
-```
+```text
 ┌─────────────────────────────────────┐
 │ Android Device (Portrait Mode)     │
 │                                     │
@@ -28,6 +28,7 @@ causing vertical/horizontal distortion
 ### Root Cause
 
 **Original Layout:**
+
 ```kotlin
 Row(modifier = modifier) {  // No width constraint!
     Canvas(80dp)
@@ -44,7 +45,7 @@ The Row had no width constraint, so it expanded/contracted based on available sc
 
 ### After Fix: Consistent Banner Size
 
-```
+```text
 ┌─────────────────────────────────────┐
 │ Android Device (Portrait Mode)     │
 │                                     │
@@ -63,7 +64,7 @@ centered horizontally, with proper sizing
 
 ### New Layout Structure
 
-```
+```text
 Box(fillMaxWidth(), center alignment)
   └── Row(widthIn(max=504dp), padding=8dp)
       ├── Canvas (80dp)
@@ -75,7 +76,7 @@ Box(fillMaxWidth(), center alignment)
 
 ## Width Calculation
 
-```
+```text
 Component Widths:
 ┌──────────┬──────────┬──────────┬──────────┬──────────┐
 │ Canvas   │ Spacer   │   Text   │ Spacer   │  Shield  │
@@ -88,7 +89,8 @@ Total Max Width = 80 + 80 + 200 + 24 + 120 = 504dp
 ## Responsive Behavior
 
 ### Large Screen (Desktop/Tablet)
-```
+
+```text
 ┌─────────────────────────────────────────────────────┐
 │                                                     │
 │           ┌────────────────────┐                    │
@@ -101,7 +103,8 @@ Banner uses full 504dp width, centered
 ```
 
 ### Medium Screen (Phone Landscape)
-```
+
+```text
 ┌──────────────────────────────────┐
 │                                  │
 │    ┌────────────────────┐        │
@@ -114,7 +117,8 @@ Banner uses full 504dp width, centered
 ```
 
 ### Small Screen (Phone Portrait)
-```
+
+```text
 ┌───────────────────┐
 │   8dp             │
 │   ┌─────────────┐ │  8dp padding
@@ -131,6 +135,7 @@ minus padding, maintains proportions
 ## Code Comparison
 
 ### Before (Broken)
+
 ```kotlin
 @Composable
 fun ApplicationBanner(modifier: Modifier = Modifier) {
@@ -149,6 +154,7 @@ fun ApplicationBanner(modifier: Modifier = Modifier) {
 **Problem:** Row expands/contracts with available space
 
 ### After (Fixed)
+
 ```kotlin
 @Composable
 fun ApplicationBanner(modifier: Modifier = Modifier) {
@@ -178,6 +184,7 @@ fun ApplicationBanner(modifier: Modifier = Modifier) {
 ```
 
 **Benefits:**
+
 - ✅ Fixed maximum width prevents stretching
 - ✅ Box centers the content horizontally
 - ✅ Responsive: adapts to smaller screens
@@ -212,10 +219,13 @@ fun ApplicationBanner(modifier: Modifier = Modifier) {
    - Ensures visibility on very narrow screens
 
 4. **Dynamic Width Calculation**:
+
    ```kotlin
    val totalBannerWidth = canvasWidth + spacerWidth + 
                          textApproximateWidth + 24.dp + 120.dp
+
    ```
+
    - Calculated from component sizes
    - Maintainable: if component sizes change, width updates automatically
    - No magic numbers

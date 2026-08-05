@@ -7,8 +7,23 @@ default: true
 # MD013 - Line length: disabled (documentation files use longer lines)
 MD013: false
 
+# MD028 - No blank lines in blockquote: disabled (project uses adjacent blockquotes
+# as separate note/callout blocks, intentionally separated by blank lines)
+MD028: false
+
 # MD033 - Inline HTML: disabled (used in README and docs for formatting)
 MD033: false
 
 # MD041 - First line should be a heading: disabled (some docs start with badges)
 MD041: false
+
+# MD060 - Table column style: use "consistent" (all tables in a file must match
+# each other, but no forced alignment of long-cell tables which would be unreadable)
+MD060:
+  style: consistent
+
+# MD024 - Duplicate headings: only flag siblings (headings with the same parent),
+# not headings that repeat in different sections (e.g., "Implementation Steps" under
+# multiple phase headings is intentional documentation structure)
+MD024:
+  siblings_only: true

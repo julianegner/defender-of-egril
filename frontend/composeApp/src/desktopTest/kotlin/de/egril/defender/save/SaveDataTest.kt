@@ -4,6 +4,7 @@ import de.egril.defender.model.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -211,6 +212,157 @@ class SaveDataTest {
         assertEquals(AttackerType.GOBLIN, attacker.type)
         assertEquals(Position(2, 1), attacker.position)
         assertEquals(20, attacker.currentHealth)
+    }
+
+    @Test
+    fun testDeserializeSavedGameReturnsNullForEmptyRequiredInteger() {
+        val json =
+            """{
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "savegame"
+  },
+  "data": {
+    "id": "broken_save",
+    "timestamp": 123,
+    "levelId": "",
+    "levelName": "Broken",
+    "turnNumber": 1,
+    "coins": 100,
+    "healthPoints": 10,
+    "phase": "PLAYER_TURN",
+    "defenders": [],
+    "attackers": [],
+    "nextDefenderId": 1,
+    "nextAttackerId": 1,
+    "currentWaveIndex": 0,
+    "spawnCounter": 0,
+    "attackersToSpawn": [],
+    "fieldEffects": [],
+    "traps": []
+  }
+}"""
+
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNull(deserialized)
+    }
+
+    @Test
+    fun testSandboxMapTilesRoundTrip() {
+        val tiles =
+            mapOf(
+                Position(1, 1) to de.egril.defender.editor.TileType.PATH,
+                Position(2, 1) to de.egril.defender.editor.TileType.BUILD_AREA,
+                Position(0, 0) to de.egril.defender.editor.TileType.SPAWN_POINT,
+                Position(9, 4) to de.egril.defender.editor.TileType.TARGET,
+            )
+        val savedGame =
+            SavedGame(
+                id = "sandbox_save",
+                timestamp = System.currentTimeMillis(),
+                levelId = 7,
+                levelName = "Sandbox",
+                turnNumber = 2,
+                coins = 500,
+                healthPoints = 10,
+                phase = GamePhase.PLAYER_TURN,
+                defenders = emptyList(),
+                attackers = emptyList(),
+                nextDefenderId = 1,
+                nextAttackerId = 1,
+                currentWaveIndex = 0,
+                spawnCounter = 0,
+                attackersToSpawn = emptyList(),
+                fieldEffects = emptyList(),
+                traps = emptyList(),
+                sandboxMapTiles = tiles,
+            )
+
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        assertNotNull(json)
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals(tiles, deserialized.sandboxMapTiles)
+    }
+
+    @Test
+    fun testSandboxRiverTilesRoundTrip() {
+        val tiles =
+            mapOf(
+                Position(3, 3) to de.egril.defender.editor.TileType.RIVER,
+                Position(4, 3) to de.egril.defender.editor.TileType.RIVER,
+            )
+        val rivers =
+            mapOf(
+                Position(3, 3) to
+                    de.egril.defender.model.RiverTile(
+                        position = Position(3, 3),
+                        flowDirection = de.egril.defender.model.RiverFlow.NORTH_WEST,
+                        flowSpeed = 2,
+                    ),
+                Position(4, 3) to
+                    de.egril.defender.model.RiverTile(
+                        position = Position(4, 3),
+                        flowDirection = de.egril.defender.model.RiverFlow.SOUTH_EAST,
+                        flowSpeed = 1,
+                    ),
+            )
+        val savedGame =
+            SavedGame(
+                id = "sandbox_river_save",
+                timestamp = System.currentTimeMillis(),
+                levelId = 7,
+                levelName = "Sandbox",
+                turnNumber = 2,
+                coins = 500,
+                healthPoints = 10,
+                phase = GamePhase.PLAYER_TURN,
+                defenders = emptyList(),
+                attackers = emptyList(),
+                nextDefenderId = 1,
+                nextAttackerId = 1,
+                currentWaveIndex = 0,
+                spawnCounter = 0,
+                attackersToSpawn = emptyList(),
+                fieldEffects = emptyList(),
+                traps = emptyList(),
+                sandboxMapTiles = tiles,
+                sandboxRiverTiles = rivers,
+            )
+
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        assertNotNull(json)
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals(rivers, deserialized.sandboxRiverTiles)
+    }
+
+    @Test
+    fun testNonSandboxSaveHasNullMapTiles() {
+        val savedGame =
+            SavedGame(
+                id = "normal_save",
+                timestamp = System.currentTimeMillis(),
+                levelId = 1,
+                levelName = "The First Wave",
+                turnNumber = 1,
+                coins = 100,
+                healthPoints = 10,
+                phase = GamePhase.PLAYER_TURN,
+                defenders = emptyList(),
+                attackers = emptyList(),
+                nextDefenderId = 1,
+                nextAttackerId = 1,
+                currentWaveIndex = 0,
+                spawnCounter = 0,
+                attackersToSpawn = emptyList(),
+                fieldEffects = emptyList(),
+                traps = emptyList(),
+            )
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals(null, deserialized.sandboxMapTiles)
     }
 
     @Test
@@ -678,5 +830,84 @@ class SaveDataTest {
         assertEquals("old_player", deserialized.profiles[0].id)
         assertEquals("Old Player", deserialized.profiles[0].name)
         assertEquals("old_player", deserialized.lastUsedPlayerId)
+    }
+
+    @Test
+    fun testSavedGameSupportStateRoundTrip() {
+        // Support state (placeable objects, spell tokens, cooldown powers, coin surge) must survive
+        // a serialization round-trip so it is preserved across save/load.
+        val savedGame =
+            SavedGame(
+                id = "support_save",
+                timestamp = 1000L,
+                levelId = 1,
+                levelName = "Support Level",
+                turnNumber = 4,
+                coins = 50,
+                healthPoints = 8,
+                phase = GamePhase.PLAYER_TURN,
+                defenders = emptyList(),
+                attackers = emptyList(),
+                nextDefenderId = 1,
+                nextAttackerId = 1,
+                currentWaveIndex = 0,
+                spawnCounter = 0,
+                attackersToSpawn = emptyList(),
+                fieldEffects = emptyList(),
+                traps = emptyList(),
+                supportObjectsRemaining =
+                    mapOf(
+                        SupportObjectType.DWARVEN_TRAP to 2,
+                        SupportObjectType.BARRICADE to 0,
+                    ),
+                supportSpellsRemaining = mapOf(SpellType.HEAL to 1),
+                cooldownPowerReadyIn =
+                    mapOf(
+                        CooldownPowerType.COIN_SURGE to 3,
+                        CooldownPowerType.MANA_WELL to 0,
+                    ),
+                coinSurgeActive = true,
+            )
+
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals(2, deserialized.supportObjectsRemaining[SupportObjectType.DWARVEN_TRAP])
+        assertEquals(0, deserialized.supportObjectsRemaining[SupportObjectType.BARRICADE])
+        assertEquals(1, deserialized.supportSpellsRemaining[SpellType.HEAL])
+        assertEquals(3, deserialized.cooldownPowerReadyIn[CooldownPowerType.COIN_SURGE])
+        assertEquals(0, deserialized.cooldownPowerReadyIn[CooldownPowerType.MANA_WELL])
+        assertTrue(deserialized.coinSurgeActive)
+    }
+
+    @Test
+    fun testSavedGameSupportStateBackwardCompatibility() {
+        // Old saves without support fields must still load, defaulting to empty maps / inactive.
+        val oldSaveJson = """{
+  "id": "old_support_save",
+  "timestamp": 1234567890,
+  "levelId": 1,
+  "levelName": "Test Level",
+  "turnNumber": 5,
+  "coins": 100,
+  "healthPoints": 10,
+  "phase": "PLAYER_TURN",
+  "defenders": [],
+  "attackers": [],
+  "nextDefenderId": 2,
+  "nextAttackerId": 1,
+  "currentWaveIndex": 0,
+  "spawnCounter": 0,
+  "attackersToSpawn": [],
+  "fieldEffects": [],
+  "traps": [],
+  "comment": null
+}"""
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(oldSaveJson)
+        assertNotNull(deserialized)
+        assertTrue(deserialized.supportObjectsRemaining.isEmpty())
+        assertTrue(deserialized.supportSpellsRemaining.isEmpty())
+        assertTrue(deserialized.cooldownPowerReadyIn.isEmpty())
+        assertEquals(false, deserialized.coinSurgeActive)
     }
 }

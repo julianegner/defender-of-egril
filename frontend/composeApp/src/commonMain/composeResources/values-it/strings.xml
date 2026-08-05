@@ -11,13 +11,13 @@
     <string name="exit_game_confirm_title">Uscire dal gioco?</string>
     <string name="exit_game_confirm_message">Sei sicuro di voler uscire dal gioco?</string>
     <string name="exit">Esci</string>
-    
+
     <!-- Commit Info Dialog -->
     <string name="commit_info_title">Informazioni di build</string>
     <string name="commit_hash_label">Hash del commit:</string>
     <string name="commit_date_label">Data del commit:</string>
     <string name="commit_message_label">Messaggio del commit:</string>
-    
+
     <!-- Level Complete Screen -->
     <string name="victory">Vittoria!</string>
     <string name="battle_won">Battaglia vinta!</string>
@@ -29,7 +29,7 @@
     <string name="world_map">Mappa del mondo</string>
     <string name="next_level">Livello successivo</string>
     <string name="continue_with_level">Continua con il livello: %1$s</string>
-    
+
     <!-- Settings -->
     <string name="settings">Impostazioni</string>
     <string name="language">Lingua</string>
@@ -78,7 +78,7 @@
     <string name="accessibility_banner_title">Impostazioni di accessibilità</string>
     <string name="accessibility_banner_message">Opzioni per esigenze visive, uditive e motorie.</string>
     <string name="accessibility_banner_open_settings">Apri impostazioni di accessibilità</string>
-    
+
     <!-- Common Actions -->
     <string name="back">Indietro</string>
     <string name="ok">OK</string>
@@ -86,7 +86,7 @@
     <string name="save">Salva</string>
     <string name="delete">Elimina</string>
     <string name="edit">Modifica</string>
-    
+
     <!-- Game Play -->
     <string name="coins">Monete</string>
     <string name="health">Salute</string>
@@ -121,35 +121,35 @@
     <string name="import_error">Errore di importazione</string>
     <string name="import_error_message">Impossibile importare alcuni file. Verificare il formato del file.</string>
     <string name="in_x_turns">tra %s turni</string>
-    
+
     <!-- Towers -->
     <string name="tower">Torre</string>
     <string name="raft">Zattera</string>
     <string name="damage">Danno</string>
     <string name="range">Portata</string>
     <string name="actions">Azioni</string>
-    
+
     <!-- Enemies -->
     <string name="enemy">Nemico</string>
     <string name="enemies">Nemici</string>
-    
+
     <!-- Status Messages -->
     <string name="locked">Bloccato</string>
     <string name="unlocked">Sbloccato</string>
     <string name="completed">Completato</string>
-    
+
     <!-- World Map -->
     <string name="world_map_title">Mappa del mondo</string>
     <string name="world_map_subtitle">Prati di Egril</string>
     <string name="back_to_world_map">Torna alla mappa del mondo</string>
     <string name="play_level">Gioca livello</string>
     <string name="requires_completing">Richiede il completamento di:</string>
-    
+
     <!-- Load Game Screen -->
     <string name="no_saved_games">Nessuna partita salvata trovata</string>
     <string name="loading_remote_savefiles">caricamento dei salvataggi remoti</string>
     <string name="savegame_folder">cartella di salvataggio:</string>
-    
+
     <!-- Rules Screen -->
     <string name="how_to_play">Come giocare</string>
     <string name="game_overview">Panoramica del gioco</string>
@@ -201,7 +201,7 @@
     <string name="focus_fire">Concentra il fuoco su nemici resistenti (Ogre, Orchi)</string>
     <string name="wizard_for_aoe">Torri del mago per danno ad area massiccio</string>
     <string name="upgrade_vs_build">Potenzia torri ad alto livello piuttosto che costruirne di nuove</string>
-    
+
     <!-- Additional RulesScreen strings -->
     <string name="attack_enemies_desc">Attacca nemici - clicca sulla torre con azioni, poi sul nemico a portata</string>
     <string name="build_timers_advance">I timer di costruzione avanzano (conto alla rovescia)</string>
@@ -227,10 +227,10 @@
     <string name="hp_label">PS</string>
     <string name="speed_label">Velocità</string>
     <string name="slowed_by_barbs">Rallentato da spine</string>
-    
+
     <!-- Status text -->
     <string name="available">Disponibile</string>
-    
+
     <!-- Defender/Tower names -->
     <string name="spike_tower_name">Torre a spuntoni</string>
     <string name="spear_tower_name">Torre con lancia</string>
@@ -240,14 +240,14 @@
     <string name="ballista_tower_name">Torre con balista</string>
     <string name="dwarven_mine_name">Miniera</string>
     <string name="dragons_lair_name">Tana del drago</string>
-    
+
     <!-- Attack type names -->
     <string name="attack_type_melee">Corpo a corpo</string>
     <string name="attack_type_ranged">A distanza</string>
     <string name="attack_type_fireball">Palla di fuoco</string>
     <string name="attack_type_acid">Acido</string>
     <string name="attack_type_special">Speciale</string>
-    
+
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Goblin</string>
     <string name="ork_name">Orco</string>
@@ -261,12 +261,12 @@
     <string name="green_witch_name">Strega verde</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Drago</string>
-    
+
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Nemici sulla mappa:</string>
     <string name="enemies_to_come">Nemici in arrivo:</string>
     <string name="delete_savegame">Elimina salvataggio</string>
-    
+
     <!-- Gameplay UI strings -->
     <string name="attack_button">ATTACCO</string>
     <string name="attack_area_button">ATTACCO AD AREA</string>
@@ -306,7 +306,7 @@
     <string name="building_label">Costruzione</string>
     <string name="active_label">Attivi</string>
     <string name="planned_label">Pianificati</string>
-    
+
     <!-- GameLegend strings -->
     <string name="legend">Legenda</string>
     <string name="areas_label">Aree</string>
@@ -330,23 +330,23 @@
     <string name="legend_info_tower_icons">Icone mostrano tipo torre/nemico</string>
     <string name="legend_info_tower_actions">Livello e azioni mostrati sulle torri</string>
     <string name="legend_info_enemy_health">Salute mostrata sui nemici</string>
-    
+
     <!-- EditorButtonCard strings -->
     <string name="level_editor">Editor di livelli</string>
     <string name="create_edit_maps_levels">Crea &amp; modifica mappe e livelli</string>
-    
+
     <!-- SavedGameCard additional strings -->
     <string name="built_towers">Torri costruite:</string>
-    
+
     <!-- Gameplay page strings -->
     <string name="spawn">Spawn</string>
     <string name="target">Bersaglio</string>
     <string name="start_battle">Inizia battaglia</string>
     <string name="your_turn_message">Il tuo turno - Posiziona torri e attacca i nemici</string>
     <string name="building">in costruzione</string>
-    
+
     <!-- DefenderInfo mining strings -->
-    
+
     <!-- Tower short names -->
     <string name="spike_tower_short">Spuntoni</string>
     <string name="spear_tower_short">Lancia</string>
@@ -356,7 +356,7 @@
     <string name="ballista_tower_short">Balista</string>
     <string name="dwarven_mine_short">Miniera</string>
     <string name="dragons_lair_short">Tana</string>
-    
+
     <!-- Editor strings -->
     <string name="map_editor">Editor di mappe</string>
     <string name="level_sequence">Sequenza di livelli</string>
@@ -544,13 +544,17 @@
     <string name="gameplay_music_volume">Volume musica di gioco</string>
     <string name="show_detailed_sound_settings">Mostra impostazioni sonore dettagliate</string>
     <string name="hide_detailed_sound_settings">Nascondi impostazioni sonore dettagliate</string>
+    <string name="sound_preview_play_effect">Riproduci effetto</string>
+    <string name="sound_preview_play_music">Riproduci musica</string>
+    <string name="sound_preview_stop_music">Ferma musica</string>
+    <string name="start_gameplay_background_music">Avvia musica di sottofondo del gioco</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controlli</string>
     <string name="show_control_pad">Mostra pad direzionale</string>
     <string name="control_pad_enabled">Pad Direzionale</string>
     <string name="control_pad_disabled">Senza Pad Direzionale</string>
-    
+
     <!-- Difficulty Settings -->
     <string name="difficulty">Difficoltà</string>
     <string name="difficulty_baby">Bambino</string>
@@ -564,7 +568,7 @@
     <string name="difficulty_hard_desc">I nemici hanno il doppio dei livelli</string>
     <string name="difficulty_nightmare_desc">I nemici appaiono 3 volte con livelli crescenti</string>
     <string name="difficulty_info_current_level">Nota: La modifica della difficoltà non influisce sul livello corrente. Avvia o riavvia un livello per applicarlo.</string>
-    
+
     <!-- Dragon Names -->
     <string name="the_dragon">Il drago</string>
     <string name="awakens">si sveglia</string>
@@ -587,7 +591,7 @@
     <string name="mine_targeted_by_dragon">Questa miniera è presa di mira dal drago</string>
     <string name="one_hp_warning_title">Avviso Critico!</string>
     <string name="one_hp_warning_message">Hai solo 1 punto vita! Nemmeno un nemico può raggiungere l'obiettivo, o perderai. Difendi con estrema cautela!</string>
-    
+
     <!-- Enemy Info Display -->
     <string name="greedy_label">avido</string>
     <string name="very_greedy_label">molto avido</string>
@@ -711,7 +715,7 @@
         <item quantity="one">%d punto vita</item>
         <item quantity="other">%d punti vita</item>
     </plurals>
-    
+
     <!-- New Repository Data Dialog -->
     <string name="new_repository_data_title">Nuovo contenuto disponibile</string>
     <string name="new_repository_data_message">Sono state trovate nuove mappe e livelli nel repository che non sono nei tuoi dati di gioco. Vuoi aggiungerli?</string>
@@ -721,18 +725,22 @@
     <string name="sequence_will_be_replaced">La sequenza dei livelli verrà aggiornata.</string>
     <string name="sequence_backup_warning">Nota: Se hai modificato il file di sequenza, dovrai rifare quelle modifiche. La tua sequenza attuale verrà salvata in sequence-N.json.</string>
     <string name="add_data">Aggiungi nuovo contenuto</string>
-    
+
     <!-- Unsaved Changes Dialog -->
     <string name="unsaved_changes_title">Modifiche non salvate</string>
     <string name="unsaved_changes_message">Hai progressi non salvati in questo livello. Cosa vorresti fare?</string>
     <string name="save_and_exit">Salva ed Esci</string>
     <string name="discard_changes">Scarta Modifiche</string>
-    
+
     <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">Terminare il turno?</string>
     <string name="end_turn_confirmation_message">Hai torri con punti azione inutilizzati e nemici a portata, o miniere con azioni inutilizzate. Sei sicuro di voler terminare il turno?</string>
     <string name="end_turn_confirm">Termina turno</string>
+    <string name="win_level_now">Vinci il livello ora</string>
+    <string name="win_level_now_description">I nemici rimasti non sono abbastanza potenti da minacciare la tua fortezza: puoi concludere il livello con la vittoria proprio ora.</string>
     <string name="auto_attack_and_end_turn">Attacco Auto e Termina Turno</string>
+    <string name="auto_attack_button">Attacco Auto</string>
+    <string name="auto_attack_slash_end_turn">Attacco Auto / Termina Turno</string>
     <string name="auto_attack_warning">Nota: Dopo il completamento dell'attacco automatico, se le miniere o le torri con abilità di trappola o attacchi durevoli hanno ancora punti azione, è possibile utilizzarli prima della fine del turno.</string>
     <string name="special_actions_remaining_title">Azioni Speciali Disponibili</string>
     <string name="special_actions_remaining_message">Attacco automatico completato, ma le seguenti torri hanno ancora azioni che non possono essere automatizzate efficacemente:</string>
@@ -741,7 +749,7 @@
     <string name="wizard_tower_actions">Torri del Mago: Possono piazzare trappole magiche (livello 10+)</string>
     <string name="spike_spear_tower_actions">Torri di Picche/Lance: Possono costruire barricate (livello 10+)</string>
     <string name="continue_turn">Continua Turno</string>
-    
+
     <!-- Barricade Feature -->
     <string name="barricade">Barricata</string>
     <string name="gate">Porta</string>
@@ -753,26 +761,97 @@
     <string name="remove_barricade_title">Rimuovere Barricata?</string>
     <string name="remove_barricade_message">Sei sicuro di voler rimuovere questa barricata?</string>
     <string name="remove_barricade_with_tower_message">Questa barricata è una base della torre. Rimuoverla distruggerà anche la torre e riceverai il valore di vendita della torre (%d monete). Sei sicuro?</string>
-    
+
     <!-- Spike Barbs Feature -->
     <string name="spike_barbs_info_title">Aculei con Spine Sbloccati!</string>
     <string name="spike_barbs_info_message">La tua torre di Picche ha raggiunto il livello 10 e ora ha spine!\nQuando una torre di Picche di livello 10+ attacca un nemico, riduce il movimento del nemico di 1 casella per attacco.\nQuesto effetto si accumula - attacchi multipli da torri di Picche di livello 10+ ridurranno ulteriormente il movimento nemico.\nI nemici si muoveranno sempre di almeno 1 casella per turno, anche con effetti multipli di spine.</string>
-    
+
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trappola Magica</string>
+    <string name="level_supports_title">Supporto Disponibile</string>
+    <string name="supports_tab">Supporti</string>
+    <string name="supports_intro">Oggetti e gettoni incantesimo che il giocatore può usare in questo livello, indipendentemente da torri, livello tecnologico o mana.</string>
+    <string name="supports_objects_section">Oggetti Posizionabili</string>
+    <string name="supports_spells_section">Gettoni Incantesimo</string>
+    <string name="supports_cooldown_powers_section">Poteri a Ricarica</string>
+    <string name="support_type_object">Oggetto Posizionabile</string>
+    <string name="support_type_spell">Gettone Incantesimo</string>
+    <string name="support_type_power">Potere a Ricarica</string>
+    <string name="supports_count_indefinitely">Indefinitamente</string>
+    <string name="cooldown_turns_label">Ricarica</string>
+    <string name="start_active_label">Inizia attivo</string>
+    <string name="cooldown_power_coin_surge">Ondata di Monete</string>
+    <string name="cooldown_power_sky_is_falling">Il Cielo ci Cade in Testa</string>
+    <string name="cooldown_power_construction_repairs">Riparazioni Edili</string>
+    <string name="cooldown_power_mana_well">Pozzo di Mana</string>
+    <string name="cooldown_power_deep_mana_well">Pozzo di Mana Profondo</string>
+    <!-- Level editor: scripted events -->
+    <string name="events_tab">Eventi</string>
+    <string name="events_intro">Programma eventi per questo livello: scegli una condizione, una o più azioni e, facoltativamente, un messaggio narrativo da mostrare quando la condizione è soddisfatta.</string>
+    <string name="add_event">Aggiungi evento</string>
+    <string name="delete_event">Elimina evento</string>
+    <string name="event_condition_label">Condizione</string>
+    <string name="event_from_turn_label">Dal turno</string>
+    <string name="event_threshold_label">Quantità</string>
+    <string name="event_enemy_type_label">Tipo di nemico</string>
+    <string name="event_any_enemy">Qualsiasi nemico</string>
+    <string name="event_position_label">Casella</string>
+    <string name="event_destroy_mine_no_mine_warning">Attenzione: nessuna miniera su questa casella.</string>
+    <string name="event_actions_label">Azioni</string>
+    <string name="add_action">Aggiungi azione</string>
+    <string name="delete_action">Elimina azione</string>
+    <string name="event_action_type_label">Azione</string>
+    <string name="event_amount_label">Quantità</string>
+    <string name="event_support_object_label">Oggetto</string>
+    <string name="event_support_spell_label">Incantesimo</string>
+    <string name="event_message_label">Messaggio narrativo</string>
+    <string name="event_message_none">Nessun messaggio</string>
+    <string name="event_repeatable_label">Ripetibile</string>
+    <string name="event_repeatable_help">Se attivato, l'evento si attiva ogni volta che la sua condizione è soddisfatta. Se disattivato, si attiva una sola volta.</string>
+    <string name="event_summary_label">Evento</string>
+    <string name="event_no_actions">Nessuna azione</string>
+    <string name="event_actions_count">%d azioni</string>
+    <string name="event_summary_coins">%d monete</string>
+    <string name="event_summary_mana">%d mana</string>
+    <string name="event_summary_support_object">Oggetto di supporto</string>
+    <string name="event_summary_support_spell">Incantesimo di supporto</string>
+    <string name="event_summary_killed">uccisi</string>
+    <string name="event_summary_turn">Turno %d</string>
+    <string name="event_summary_enemy_turn">Turno nemico %d</string>
+    <string name="event_cond_turn_start">Inizio di un turno del giocatore</string>
+    <string name="event_cond_enemy_turn_start">Inizio di un turno nemico</string>
+    <string name="event_cond_enemies_killed">Nemici uccisi (totale)</string>
+    <string name="event_cond_enemy_type_killed">Nemici di un tipo uccisi</string>
+    <string name="event_cond_unit_reached">Un'unità raggiunge una casella</string>
+    <string name="event_cond_health_at_or_below">Salute pari o inferiore a</string>
+    <string name="event_cond_mana_at_or_below">Mana pari o inferiore a</string>
+    <string name="event_cond_coins_at_or_below">Monete pari o inferiori a</string>
+    <string name="event_act_give_coins">Dai monete</string>
+    <string name="event_act_give_mana">Dai mana</string>
+    <string name="event_act_give_support_object">Dai oggetto di supporto</string>
+    <string name="event_act_give_support_spell">Dai incantesimo di supporto</string>
+    <string name="event_act_destroy_mine">Distruggi miniera</string>
+    <string name="event_message_title">Messaggio</string>
+    <string name="event_msg_reinforcements">Sono arrivati i rinforzi! Usali con saggezza.</string>
+    <string name="event_msg_coins_received">Un carico d'oro ha raggiunto le tue casse.</string>
+    <string name="event_msg_mana_received">Senti un'ondata di energia magica.</string>
+    <string name="event_msg_low_health_warning">Le nostre difese stanno cedendo! Tenete la linea!</string>
+    <string name="event_msg_enemies_approaching">Una nuova ondata di nemici si avvicina!</string>
+    <string name="event_msg_hold_the_line">Tenete duro, difensori! La vittoria è vicina.</string>
+    <string name="event_msg_mine_destroyed">Un drago ha distrutto una delle tue miniere!</string>
     <string name="magical_trap_cooldown">Ricarica: %d turni</string>
     <string name="magical_trap_available">Trappola Magica Disponibile</string>
     <string name="magical_trap_tutorial_title">Trappola Magica Sbloccata!</string>
     <string name="magical_trap_tutorial_message">La tua torre del mago ha raggiunto il livello 10 e ora può piazzare trappole magiche! Queste trappole teletrasportano i nemici al loro punto di partenza quando vengono attivate. Dopo aver piazzato una trappola, c\'è un tempo di ricarica di 10 turni prima di poterne piazzare un\'altra.</string>
     <string name="remove_magical_trap_title">Rimuovere Trappola Magica?</string>
     <string name="remove_magical_trap_message">Sei sicuro di voler rimuovere questa trappola magica?</string>
-    
+
     <!-- Trap Feature -->
     <string name="defensive_items">Oggetti Difensivi</string>
     <string name="remove_trap_title">Rimuovere Trappola?</string>
     <string name="remove_trap_message">Sei sicuro di voler rimuovere questa trappola?</string>
     <string name="no">No</string>
-    
+
     <!-- Level Prerequisites -->
     <string name="level_dependencies">Dipendenze dei Livelli</string>
     <string name="validation_passed">Validazione Superata</string>
@@ -788,12 +867,12 @@
     <string name="all">tutti</string>
     <string name="requires">Richiede</string>
     <string name="entry_point">Punto di Ingresso</string>
-    
+
     <!-- World Map Locations -->
     <string name="levels_at_location">%s livello/i in questa posizione</string>
     <string name="requires_any_of">Richiede di completare %s di:</string>
     <string name="requires_all">Richiede di completare tutti:</string>
-    
+
     <!-- World Map Position Editor -->
     <string name="world_map_positions">Mappa del Mondo</string>
     <string name="world_map_position_instructions">Seleziona una mappa dalla lista, poi clicca sulla mappa del mondo per impostare la sua posizione. La posizione viene salvata come permille (0-1000) delle dimensioni della mappa.</string>
@@ -864,6 +943,7 @@
     <string name="edit_connection">Modifica connessione</string>
     <string name="default_connection_type">Tipo di connessione predefinito:</string>
     <string name="add_control_point">Aggiungi punto di controllo:</string>
+    <string name="x_coordinate">X</string>
     <string name="y_coordinate">Y</string>
     <string name="locations">Posizioni</string>
     <string name="auto_connect_by_dependencies">Connetti automaticamente per dipendenze</string>
@@ -883,7 +963,7 @@
     <string name="no_icon_selected">Nessuna icona selezionata (userà marcatore numerato)</string>
     <string name="available_icons">Icone disponibili:</string>
     <string name="invalid_icon">Icona non valida</string>
-    
+
     <!-- Editor Info Page -->
     <string name="info">Info</string>
     <string name="editor_info_title">Guida dell'Editor di Livelli</string>
@@ -914,7 +994,7 @@
     <string name="editor_info_tips_text">Salva frequentemente per evitare di perdere il lavoro - Testa i tuoi livelli nel gioco per assicurarti che siano bilanciati - Usa i livelli esistenti come modelli - Le mappe possono essere riutilizzate su più livelli - La sequenza determina quali livelli sono giocabili</string>
 
     <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
-    
+
     <!-- Level Names -->
     <string name="level_welcome_to_defender_of_egril_title">Benvenuto a Defender of Egril</string>
     <string name="level_welcome_to_defender_of_egril_subtitle">Tutorial</string>
@@ -987,7 +1067,7 @@
     <string name="map_back_and_forth_path_name">Sentiero Avanti e Indietro</string>
     <string name="map_curved_path_name">Sentiero Curvo</string>
     <string name="map_obstacle_path_name">Sentiero degli Ostacoli</string>
-    
+
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
     <string name="location_the_beginning_name">L\'Inizio</string>
@@ -1055,8 +1135,21 @@
     <string name="level_status_unknown">Sconosciuto</string>
     <string name="show_testing_levels">Mostra livelli di test</string>
     <string name="test_level">Livello di test</string>
+    <string name="sandbox_level">Livello sandbox</string>
+    <string name="sandbox">Sandbox</string>
+    <string name="sandbox_tools">Strumenti sandbox</string>
+    <string name="sandbox_spawn_enemy">Genera nemico</string>
+    <string name="sandbox_add_coins">Aggiungi 1000 monete</string>
+    <string name="sandbox_edit_map">Modifica caselle mappa</string>
+    <string name="sandbox_tile_build_area">Area di costruzione</string>
+    <string name="sandbox_tile_no_play">Bloccato</string>
+    <string name="sandbox_paint_hint">Tocca le caselle per dipingerle. Tocca Fatto al termine.</string>
+    <string name="sandbox_done_editing">Termina modifica mappa</string>
+    <string name="sandbox_tools_hint">Apri gli Strumenti sandbox per generare nemici di prova, aggiungere monete e modificare la mappa.</string>
+    <string name="sandbox_spawn_point_auto">Automatico (primo punto di generazione libero)</string>
     <string name="allow_auto_attack">Consenti Attacco Automatico</string>
     <string name="connected_to_previous_level">Collegato al livello precedente</string>
+    <string name="split_build_tower_button">Pulsante diviso Costruisci torre</string>
     <string name="auto_attack_info_title">Funzione Attacco Automatico</string>
     <string name="auto_attack_info_message">Ora puoi usare la funzione Attacco Auto. Quando selezioni "Termina Turno" e ci sono punti azione utilizzabili rimasti, il dialogo offre l'opzione "Attacco Auto e Termina Turno". Quindi, le torri con punti azione rimasti attaccano automaticamente i nemici. Colpisce i nemici per priorità (prima i boss, poi i nemici speciali). Se rimangono azioni (miniere, trappole, attacchi acidi senza nemici a portata), ricevi un messaggio che indica quale tipo di azione è ancora utilizzabile, altrimenti il turno termina.</string>
 
@@ -1188,7 +1281,9 @@
     <string name="achievement_win_level_full_hp_name">Vittoria Perfetta</string>
     <string name="achievement_win_level_full_hp_desc">Vinci un livello senza perdere punti vita</string>
     <string name="achievement_win_level_one_hp_name">Per un Soffio</string>
+    <string name="achievement_play_hundred_turns_name">Resistenza</string>
     <string name="achievement_win_level_one_hp_desc">Vinci un livello con solo un punto vita rimanente</string>
+    <string name="achievement_play_hundred_turns_desc">Gioca 100 turni in un singolo livello</string>
 
     <!-- Achievements: Combat -->
     <string name="achievement_kill_two_enemies_same_turn_name">Doppia Uccisione</string>
@@ -1231,6 +1326,8 @@
     <string name="achievement_build_ten_towers_desc">Costruisci almeno 10 torri in un singolo livello</string>
     <string name="achievement_build_ten_rafts_name">Maestro delle Zattere</string>
     <string name="achievement_build_ten_rafts_desc">Costruisci almeno 10 zattere in un singolo livello</string>
+    <string name="achievement_twenty_towers_standing_name">Fortezza</string>
+    <string name="achievement_twenty_towers_standing_desc">Abbi 20 torri in piedi contemporaneamente in un singolo livello</string>
 
     <!-- Achievements: Bridge and Barricade -->
     <string name="achievement_destroy_bridge_name">Distruttore di Ponti</string>
@@ -1239,7 +1336,7 @@
     <string name="achievement_build_barricade_desc">Costruisci la tua prima barricata</string>
     <string name="achievement_add_health_barricade_name">Fortificato</string>
     <string name="achievement_add_health_barricade_desc">Aggiungi punti vita a una barricata esistente</string>
-    
+
     <string name="achievement_first_stat_upgrade_name">Primo Potenziamento</string>
     <string name="achievement_first_stat_upgrade_desc">Spendi il tuo primo punto abilità per potenziare un'abilità</string>
     <string name="achievement_first_spell_unlock_name">Incantatore</string>
@@ -1260,7 +1357,7 @@
     <string name="user_level">Livello Utente</string>
     <string name="official_map_info">Questa è una mappa ufficiale. Puoi copiarla per creare una versione utente.</string>
     <string name="official_level_info">Questo è un livello ufficiale. Puoi copiarlo per creare una versione utente.</string>
-    
+
     <!-- Official Data Change Warning -->
     <string name="official_data_changed_title">Dati Ufficiali del Gioco Modificati</string>
     <string name="official_data_changed_message">Hai apportato modifiche ai dati ufficiali del gioco (mappe o livelli).\n\nQueste modifiche verranno sovrascritte al riavvio del gioco, poiché il contenuto ufficiale viene ripristinato dal repository ad ogni avvio.\n\nPer preservare le tue modifiche, considera di copiare il contenuto ufficiale per creare versioni utente invece.</string>
@@ -1352,7 +1449,7 @@
     <string name="license_agpl_network_clause_description">L\'AGPL estende la GPL con una clausola speciale: se esegui una versione modificata di questo programma su un server e permetti agli utenti di interagire con esso tramite una rete, devi fornire loro l\'accesso al codice sorgente della tua versione modificata.</string>
     <string name="license_agpl_full_text_label">Testo Completo della Licenza:</string>
     <string name="license_agpl_attribution_note">Questo software è fornito secondo i termini della licenza AGPL-3.0. Per i termini e le condizioni complete, si prega di consultare il testo completo della licenza.</string>
-    
+
     <!-- Audio Licenses -->
     <string name="audio_licenses_title">File Audio e Licenze</string>
     <string name="audio_background_music_title">Musica di Sottofondo</string>
@@ -1361,7 +1458,7 @@
     <string name="audio_enemy_events_subtitle">Eventi Nemici</string>
     <string name="audio_mine_events_subtitle">Eventi della Miniera</string>
     <string name="audio_other_events_subtitle">Altri Eventi di Gioco</string>
-    
+
     <!-- Background Music - Music piece names are not translated, the original names are used -->
     <string name="audio_fantasy_ambience_name">Fantasy Ambience</string>
     <string name="audio_fantasy_ambience_license">100% libero da copyright, nessuna attribuzione richiesta. Non può essere rivenduto come audio, deve essere utilizzato nel contesto di un progetto.</string>
@@ -1370,23 +1467,23 @@
     <string name="audio_fesliyan_license">Musica esente da royalty da Fesliyan Studios. Utilizzo nei videogiochi consentito.</string>
     <string name="audio_fantasy_orchestral_name">Mystic Fantasy Orchestral Music</string>
     <string name="audio_pixabay_license">Licenza Contenuti Pixabay - Utilizzo gratuito, nessuna attribuzione richiesta</string>
-    
+
     <!-- Tower Attacks -->
     <string name="audio_melee_attack_name">Attacco Ravvicinato</string>
     <string name="audio_ranged_attack_name">Attacco a Distanza</string>
     <string name="audio_fireball_attack_name">Attacco Palla di Fuoco</string>
     <string name="audio_acid_attack_name">Attacco Acido</string>
-    
+
     <!-- Enemy Events -->
     <string name="audio_enemy_spawn_name">Comparsa Nemico</string>
     <string name="audio_enemy_destroyed_name">Nemico Distrutto</string>
-    
+
     <!-- Mine Events -->
     <string name="audio_mine_dig_name">Scavo Miniera</string>
     <string name="audio_mine_coin_name">Monete Trovate</string>
     <string name="audio_mine_trap_name">Trappola Costruita</string>
     <string name="audio_mine_dragon_name">Risveglio del Drago</string>
-    
+
     <!-- Other Events -->
     <string name="audio_trap_trigger_name">Attivazione Trappola</string>
     <string name="audio_life_lost_name">Vita Persa</string>
@@ -1405,11 +1502,11 @@
     <string name="towers">Torri</string>
     <string name="traps">Trappole</string>
     <string name="barricades">Barricate</string>
-    
+
     <!-- Tower Base -->
     <string name="tower_base_hp_label">Base: %d PV</string>
     <string name="tower_base_info">Torre su base (distruttibile a &lt;100 PV)</string>
-    
+
     <!-- Tower Info Dialog -->
     <string name="tower_info_title">Informazioni sulla Torre</string>
     <string name="special_towers_info_title">Torri Speciali</string>
@@ -1480,6 +1577,9 @@
     <string name="spell_targeting_enemy">Seleziona un nemico da bersagliare</string>
     <string name="spell_targeting_tower">Seleziona una torre da potenziare</string>
     <string name="spell_targeting_cancel">Clicca qui per annullare</string>
+    <string name="keyboard_placement_move">Sposta</string>
+    <string name="keyboard_placement_place">Posiziona</string>
+    <string name="keyboard_placement_row">Riga</string>
 
     <!-- Spell Names -->
     <string name="spell_attack_area_name">Attacco ad Area</string>
@@ -1635,6 +1735,10 @@
     <string name="gate_info_description">Un cancello sorveglia l\'ingresso. I nemici lo attaccheranno e cercheranno di sfondarlo. Difendilo per mantenere il percorso bloccato.</string>
     <string name="barricade_info_panel_title">Barricata</string>
     <string name="gate_info_panel_title">Cancello</string>
+    <string name="barricade_tower_base_info_panel_title">Barricata - Base per torre</string>
+    <string name="gate_tower_base_info_panel_title">Cancello - Base per torre</string>
+    <string name="barricade_tower_base_info_description">Le barricate bloccano il movimento nemico. I nemici le attaccano quando sono adiacenti. Costruiscile o rinforzale con torri di picca o lancia. Questa barricata è abbastanza robusta da fare da base per una torre: puoi posizionarci una torre.</string>
+    <string name="gate_tower_base_info_description">Un cancello sorveglia l\'ingresso. I nemici lo attaccheranno e cercheranno di sfondarlo. Difendilo per mantenere il percorso bloccato. Questo cancello è abbastanza robusto da fare da base per una torre: puoi posizionarci una torre.</string>
     <!-- Ewhad narrative messages -->
     <string name="ewhad_enters_title">Ewhad entra nel campo di battaglia</string>
     <string name="ewhad_enters_text">Ewhad è entrato nel campo di battaglia! Attenzione, evoca Demoni ogni Turno, che diventeranno sempre più potenti.</string>
@@ -1883,6 +1987,9 @@
     <string name="feedback_form_language_no_results">Nessuna lingua trovata</string>
     <string name="feedback_form_language_clear">Cancella</string>
     <string name="feedback_form_language_not_listed_hint">Lingua non elencata? Scrivi il nome nel campo messaggio qui sotto.</string>
+    <string name="feedback_form_level_label">Livello (facoltativo)</string>
+    <string name="feedback_form_level_none">Non specificato</string>
+    <string name="feedback_form_level_hint">Seleziona il livello a cui si riferisce la tua richiesta, oppure lascialo non specificato per un nuovo livello.</string>
     <string name="feedback_form_submit">Invia feedback</string>
     <string name="feedback_form_submit_success">Feedback inviato con successo (ID: %1$s)</string>
     <string name="feedback_form_submit_error">Impossibile inviare il feedback. Riprova.</string>
@@ -1895,6 +2002,8 @@
     <string name="feedback_type_typo_translation_text_desc">Un errore di battitura, una traduzione errata o un testo poco chiaro nel gioco.</string>
     <string name="feedback_type_feature_request">Richiesta funzionalità</string>
     <string name="feedback_type_feature_request_desc">Suggerisci una nuova funzionalità o un miglioramento per il gioco.</string>
+    <string name="feedback_type_level_request">Richiesta di livello</string>
+    <string name="feedback_type_level_request_desc">Richiedi una modifica a un livello esistente o suggerisci un nuovo livello.</string>
     <string name="feedback_type_additional_language_request">Richiesta lingua aggiuntiva</string>
     <string name="feedback_type_additional_language_request_desc">Richiedere il supporto per una lingua non ancora disponibile.</string>
     <string name="feedback_type_info_request">Richiesta informazioni</string>
@@ -1965,4 +2074,8 @@
     <string name="daily_hint_min_range_message">La Balista ha una portata minima di 3 — non può colpire i nemici proprio accanto a sé. Abbinala a torri da mischia (Picca, Lancia) per coprire la corta distanza.</string>
     <string name="daily_hint_immunities_message">Alcuni nemici sono immuni a certi attacchi: i Demoni Rossi resistono alle palle di fuoco, i Demoni Blu resistono all\'acido. Osserva l\'ondata in arrivo e porta torri di tipi diversi.</string>
 
+    <string name="villains_announcement_content_description">Annuncio della prossima funzionalità dei cattivi</string>
+    <string name="villains_announcement_coming_soon">Prossimamente: Versione 1.1: Cattivi</string>
+    <string name="villains_announcement_page_title">Anteprima: I primi Villain scendono sul campo di battaglia!</string>
+    <string name="villains_announcement_page_text">Preparati a una nuova sfida! Con il prossimo aggiornamento, i **Villain** arrivano in Defender of Egril.\n\n### Cosa sono i Villain?\n\nI Villain sono potenti nemici boss che appaiono in testa alle ondate nemiche. Sono notevolmente più resistenti dei nemici normali e possiedono abilità uniche che metteranno a dura prova le tue difese: stordiscono le torri, chiamano rinforzi o proteggono le truppe che li seguono. Sconfiggerli richiede più della semplice potenza di fuoco – dovrai adattare la tua strategia!\n\n---\n\n### Primi sguardi: Questi scagnozzi ti aspettano fin dall\'inizio\n\n* **Barone Stridenzio (Inventore Goblin):** Un inventore pazzo su una potente macchina-ragno. Lancia rottami da cui nascono goblin robotici e mette fuori combattimento le tue torri con razzi mirati.\n* **La Scudiera Caduta Freya (Cavaliera della Morte):** Un tempo una guerriera invincibile. Con il suo muro di scudi magico, assorbe i danni frontali delle torri per sé e per le unità che la seguono.\n* **Principe Valerius il Mietitore di Anime (Signore degli Scheletri):** Un antico lich e signore dei non-morti. Finché è sul campo, trasforma ogni nemico sconfitto nelle vicinanze in un non-morto.\n* **Capitano Roderich (Il Bucaniere):** Appare nelle mappe con corsi d\'acqua e prende di mira le tue zattere. Sconfiggilo e conquista il suo tesoro pirata!\n\n*Prepara le tue torri – presto dovrai dimostrare se le tue difese sono all\'altezza dei primi potenti villain!*</string>
 </resources>

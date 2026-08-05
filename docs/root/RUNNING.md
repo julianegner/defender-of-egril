@@ -96,6 +96,7 @@ The package will be created in `composeApp/build/compose/binaries/main/deb/`
 
    ```bash
    ./gradlew :composeApp:assembleDebug
+
    ```
 
 2. The APK will be located at:
@@ -128,9 +129,9 @@ The package will be created in `composeApp/build/compose/binaries/main/deb/`
    open iosApp/iosApp.xcodeproj
    ```
 
-2. Select your target device (Simulator or physical device)
+1. Select your target device (Simulator or physical device)
 
-3. Click the Run button or press Cmd+R
+1. Click the Run button or press Cmd+R
 
 ### Building iOS Framework
 

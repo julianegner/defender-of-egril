@@ -40,6 +40,8 @@ import defender_of_egril.composeapp.generated.resources.connected_to_previous_le
 import defender_of_egril.composeapp.generated.resources.level_title
 import defender_of_egril.composeapp.generated.resources.map_label
 import defender_of_egril.composeapp.generated.resources.ok
+import defender_of_egril.composeapp.generated.resources.sandbox_level
+import defender_of_egril.composeapp.generated.resources.split_build_tower_button
 import defender_of_egril.composeapp.generated.resources.start_coins
 import defender_of_egril.composeapp.generated.resources.start_hp
 import defender_of_egril.composeapp.generated.resources.subtitle_optional
@@ -76,6 +78,10 @@ fun LevelInfoTab(
     onAllowAutoAttackChange: (Boolean) -> Unit,
     connectedToPreviousLevel: Boolean,
     onConnectedToPreviousLevelChange: (Boolean) -> Unit,
+    splitBuildTowerButton: Boolean,
+    onSplitBuildTowerButtonChange: (Boolean) -> Unit,
+    isSandbox: Boolean = false,
+    onIsSandboxChange: (Boolean) -> Unit = {},
     isOfficial: Boolean = false,
     canEnableConnectedToPreviousLevel: Boolean = true,
 ) {
@@ -201,6 +207,36 @@ fun LevelInfoTab(
                             checked = connectedToPreviousLevel,
                             onCheckedChange = onConnectedToPreviousLevelChange,
                             enabled = canEnableConnectedToPreviousLevel,
+                        )
+                    }
+
+                    // Split build tower button toggle
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.split_build_tower_button),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Switch(
+                            checked = splitBuildTowerButton,
+                            onCheckedChange = onSplitBuildTowerButtonChange,
+                        )
+                    }
+
+                    // Sandbox level toggle
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.sandbox_level),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Switch(
+                            checked = isSandbox,
+                            onCheckedChange = onIsSandboxChange,
                         )
                     }
                 }

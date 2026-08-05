@@ -61,6 +61,21 @@ data class SavedGame(
     val currentMana: Int = 0, // Current mana at the time of saving
     val maxMana: Int = 0, // Maximum mana at the time of saving
     val spellEffects: List<SavedSpellEffect> = emptyList(), // Active spell effects (e.g. placed bombs)
+    // Player-usable supports remaining/recharging this level. Persisted so they survive save/load.
+    val supportObjectsRemaining: Map<SupportObjectType, Int> = emptyMap(), // Placeable objects left to deploy
+    val supportSpellsRemaining: Map<SpellType, Int> = emptyMap(), // Spell tokens left to cast
+    val cooldownPowerReadyIn: Map<CooldownPowerType, Int> = emptyMap(), // Turns until each power is ready (0 = ready)
+    val coinSurgeActive: Boolean = false, // True when Coin Surge is active for the current turn
+    // Scripted-event tracking, persisted so events don't re-fire after save/load.
+    val triggeredEventIds: List<String> = emptyList(), // IDs of scripted events that have already fired
+    val enemiesKilledTotal: Int = 0, // Total enemies killed (for event conditions)
+    val enemiesKilledByType: Map<AttackerType, Int> = emptyMap(), // Kills per enemy type (for event conditions)
+    // Sandbox: only the tiles whose type differs from the original map (position -> new type),
+    // persisted so the runtime edits are restored on load without storing the whole map.
+    val sandboxMapTiles: Map<Position, de.egril.defender.editor.TileType>? = null,
+    // Sandbox: flow direction/speed chosen for runtime-painted river tiles, persisted so the
+    // chosen water direction is restored on load (position -> river flow).
+    val sandboxRiverTiles: Map<Position, de.egril.defender.model.RiverTile>? = null,
 )
 
 /**

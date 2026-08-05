@@ -2,7 +2,7 @@
 
 ## Screenshot Simulation: Android/iOS Gameplay at 50% Scale
 
-```
+```text
 ╔═════════════════════════════════════════════════════════════════╗
 ║  📱 MOBILE DEVICE (Portrait, ~400dp width x 700dp height)       ║
 ║                                                                 ║
@@ -61,7 +61,8 @@ Key Features at 0.5x Scale:
 ## Size Comparison
 
 ### Before (Original - Not Scaled)
-```
+
+```text
 Header:    ▓▓▓▓▓▓▓▓▓▓▓▓ (120dp)
 Map:       ████████     (300dp - CUT OFF, can't see bottom)
 Towers:    ▓▓▓▓▓▓▓▓▓▓▓▓ (70dp)
@@ -71,7 +72,8 @@ Problem: Map cut off, not playable ❌
 ```
 
 ### After 0.7x Scale (Previous)
-```
+
+```text
 Header:    ▓▓▓▓▓▓▓▓ (84dp)
 Map:       ██████████   (420dp - partially visible)
 Towers:    ▓▓▓▓▓▓▓  (49dp)
@@ -81,7 +83,8 @@ Better but still cramped ⚠️
 ```
 
 ### After 0.5x Scale (Current) ✅
-```
+
+```text
 Header:    ▓▓▓▓   (60dp)
 Map:       ███████████████  (525dp - FULLY VISIBLE!)
 Towers:    ▓▓▓    (35dp)
@@ -105,6 +108,7 @@ Perfect! Map fully visible ✅
 ## User Experience Impact
 
 ### ✅ Major Improvements
+
 1. **Complete battlefield view** - See all 60 cells at once
 2. **Strategic planning** - Can see enemy paths clearly
 3. **Tower placement** - See buildable areas easily
@@ -112,11 +116,13 @@ Perfect! Map fully visible ✅
 5. **No scrolling needed** - Everything visible immediately
 
 ### 📊 Information Density
+
 - Matches typical mobile strategy games
 - Efficient use of limited screen space
 - No wasted space on oversized elements
 
 ### 🎮 Gameplay Benefits
+
 - **Better positioning** - See where enemies spawn and where they're going
 - **Easier tower selection** - Compact but clear buttons
 - **Quick decisions** - All info at a glance
@@ -125,6 +131,7 @@ Perfect! Map fully visible ✅
 ## Notes for Testing
 
 When testing on an actual device:
+
 1. Check text readability on various screen sizes
 2. Verify touch targets are comfortable
 3. Test map zoom in/out functionality
@@ -132,6 +139,7 @@ When testing on an actual device:
 5. Validate that all buttons are accessible
 
 If 0.5x proves too small, can adjust to:
+
 - 0.55x for slightly larger elements
 - 0.6x for more readable text
 - Scale factor is easily adjustable in PlatformUtils files

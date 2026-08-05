@@ -44,6 +44,37 @@ import defender_of_egril.composeapp.generated.resources.official_level_saved_war
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
+internal data class LevelEditorTabIndices(
+    val levelInfo: Int,
+    val enemySpawns: Int?,
+    val towers: Int,
+    val waypoints: Int,
+    val initialSetup: Int,
+    val supports: Int,
+    val events: Int?,
+)
+
+internal fun levelEditorTabIndices(isSandbox: Boolean): LevelEditorTabIndices {
+    var nextIndex = 0
+    val levelInfo = nextIndex++
+    val enemySpawns = if (isSandbox) null else nextIndex++
+    val towers = nextIndex++
+    val waypoints = nextIndex++
+    val initialSetup = nextIndex++
+    val supports = nextIndex++
+    val events = if (isSandbox) null else nextIndex++
+
+    return LevelEditorTabIndices(
+        levelInfo = levelInfo,
+        enemySpawns = enemySpawns,
+        towers = towers,
+        waypoints = waypoints,
+        initialSetup = initialSetup,
+        supports = supports,
+        events = events,
+    )
+}
+
 /**
  * Main content for the Level Editor tab
  */
@@ -410,6 +441,10 @@ fun LevelEditorView(
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
     var connectedToPreviousLevel by remember { mutableStateOf(level.connectedToPreviousLevel) }
+    var splitBuildTowerButton by remember { mutableStateOf(level.splitBuildTowerButton) }
+    var isSandbox by remember { mutableStateOf(level.isSandbox) }
+    var supportsState by remember { mutableStateOf(level.supports) }
+    var eventsState by remember { mutableStateOf(level.events) }
 
     // Update state when level changes (e.g., after reload from disk)
     LaunchedEffect(level.id, level.initialData, level.hashCode()) {
@@ -435,6 +470,22 @@ fun LevelEditorView(
     var showOfficialLevelSavedWarning by remember { mutableStateOf(false) }
     var pendingLevelToSave by remember { mutableStateOf<EditorLevel?>(null) }
     var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabIndices = remember(isSandbox) { levelEditorTabIndices(isSandbox) }
+    LaunchedEffect(isSandbox) {
+        val visibleTabIndices =
+            listOfNotNull(
+                tabIndices.levelInfo,
+                tabIndices.enemySpawns,
+                tabIndices.towers,
+                tabIndices.waypoints,
+                tabIndices.initialSetup,
+                tabIndices.supports,
+                tabIndices.events,
+            )
+        if (selectedTabIndex !in visibleTabIndices) {
+            selectedTabIndex = tabIndices.levelInfo
+        }
+    }
     var communityUploadStatus by remember { mutableStateOf<String?>(null) }
     var isUploadingToCommunity by remember { mutableStateOf(false) }
     var showCommunityUploadConfirm by remember { mutableStateOf(false) }
@@ -482,7 +533,7 @@ fun LevelEditorView(
     val coinsInt = startCoins.toIntOrNull() ?: 0
     val hpInt = startHP.toIntOrNull() ?: 0
     val isLevelInfoReady = coinsInt > 0 && hpInt > 0
-    val isEnemySpawnsReady = enemySpawns.isNotEmpty()
+    val isEnemySpawnsReady = isSandbox || enemySpawns.isNotEmpty()
     val isTowersReady = availableTowersState.isNotEmpty()
     // Waypoints are optional, but if present they should be valid
     val isWaypointsValid = areWaypointsValid(waypointsState, currentMap, level)
@@ -547,8 +598,8 @@ fun LevelEditorView(
         // Tab Row with badges
         PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
             Tab(
-                selected = selectedTabIndex == 0,
-                onClick = { selectedTabIndex = 0 },
+                selected = selectedTabIndex == tabIndices.levelInfo,
+                onClick = { selectedTabIndex = tabIndices.levelInfo },
                 text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -561,26 +612,28 @@ fun LevelEditorView(
                     }
                 },
             )
-            Tab(
-                selected = selectedTabIndex == 1,
-                onClick = { selectedTabIndex = 1 },
-                text = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Text(stringResource(Res.string.enemy_spawns_tab))
-                        if (!isEnemySpawnsReady) {
-                            RedDotBadge()
-                        } else if (hasEnemiesOutsideSpawnPoints) {
-                            WarningBadge()
+            if (!isSandbox) {
+                Tab(
+                    selected = selectedTabIndex == tabIndices.enemySpawns,
+                    onClick = { selectedTabIndex = requireNotNull(tabIndices.enemySpawns) },
+                    text = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Text(stringResource(Res.string.enemy_spawns_tab))
+                            if (!isEnemySpawnsReady) {
+                                RedDotBadge()
+                            } else if (hasEnemiesOutsideSpawnPoints) {
+                                WarningBadge()
+                            }
                         }
-                    }
-                },
-            )
+                    },
+                )
+            }
             Tab(
-                selected = selectedTabIndex == 2,
-                onClick = { selectedTabIndex = 2 },
+                selected = selectedTabIndex == tabIndices.towers,
+                onClick = { selectedTabIndex = tabIndices.towers },
                 text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -594,8 +647,8 @@ fun LevelEditorView(
                 },
             )
             Tab(
-                selected = selectedTabIndex == 3,
-                onClick = { selectedTabIndex = 3 },
+                selected = selectedTabIndex == tabIndices.waypoints,
+                onClick = { selectedTabIndex = tabIndices.waypoints },
                 text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -609,8 +662,8 @@ fun LevelEditorView(
                 },
             )
             Tab(
-                selected = selectedTabIndex == 4,
-                onClick = { selectedTabIndex = 4 },
+                selected = selectedTabIndex == tabIndices.initialSetup,
+                onClick = { selectedTabIndex = tabIndices.initialSetup },
                 text = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -620,12 +673,38 @@ fun LevelEditorView(
                     }
                 },
             )
+            Tab(
+                selected = selectedTabIndex == tabIndices.supports,
+                onClick = { selectedTabIndex = tabIndices.supports },
+                text = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(stringResource(Res.string.supports_tab))
+                    }
+                },
+            )
+            if (!isSandbox) {
+                Tab(
+                    selected = selectedTabIndex == tabIndices.events,
+                    onClick = { selectedTabIndex = requireNotNull(tabIndices.events) },
+                    text = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Text(stringResource(Res.string.events_tab))
+                        }
+                    },
+                )
+            }
         }
 
         // Tab Content
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             when (selectedTabIndex) {
-                0 ->
+                tabIndices.levelInfo ->
                     LevelInfoTab(
                         title = title,
                         onTitleChange = { title = it },
@@ -648,10 +727,14 @@ fun LevelEditorView(
                         onAllowAutoAttackChange = { allowAutoAttack = it },
                         connectedToPreviousLevel = connectedToPreviousLevel,
                         onConnectedToPreviousLevelChange = { connectedToPreviousLevel = it },
+                        splitBuildTowerButton = splitBuildTowerButton,
+                        onSplitBuildTowerButtonChange = { splitBuildTowerButton = it },
+                        isSandbox = isSandbox,
+                        onIsSandboxChange = { isSandbox = it },
                         isOfficial = level.isOfficial,
                         canEnableConnectedToPreviousLevel = hasOtherLevelsOnSameMap,
                     )
-                1 ->
+                tabIndices.enemySpawns ->
                     EnemySpawnsTab(
                         enemySpawns = enemySpawns,
                         maxTurnNumber = maxTurnNumber,
@@ -665,24 +748,39 @@ fun LevelEditorView(
                         onShowRemoveAllTurnsDialog = { showRemoveAllTurnsDialog = true },
                         map = currentMap,
                     )
-                2 ->
+                tabIndices.towers ->
                     TowersTab(
                         availableTowers = availableTowersState,
                         onAvailableTowersChange = { availableTowersState = it },
                     )
-                3 ->
+                tabIndices.waypoints ->
                     WaypointsTab(
                         waypoints = waypointsState.toList(),
                         onWaypointsChange = { waypointsState = it.toMutableList() },
                         map = currentMap,
                         isValid = isWaypointsValid,
                     )
-                4 ->
+                tabIndices.initialSetup ->
                     de.egril.defender.ui.editor.level.initialsetup.InitialSetupTab(
                         initialData = initialDataState,
                         onInitialDataChange = { initialDataState = it },
                         map = currentMap,
                         availableTowers = availableTowersState,
+                    )
+                tabIndices.supports ->
+                    de.egril.defender.ui.editor.level.supports.SupportsTab(
+                        supports = supportsState,
+                        onSupportsChange = { supportsState = it },
+                    )
+                tabIndices.events ->
+                    de.egril.defender.ui.editor.level.events.EventsTab(
+                        events = eventsState,
+                        onEventsChange = { eventsState = it },
+                        minePositions =
+                            initialDataState.defenders
+                                .filter { it.type == DefenderType.DWARVEN_MINE }
+                                .map { it.position }
+                                .toSet(),
                     )
             }
         }
@@ -707,12 +805,17 @@ fun LevelEditorView(
                                 mapId = selectedMapId,
                                 startCoins = startCoins.toIntOrNull() ?: 100,
                                 startHealthPoints = startHP.toIntOrNull() ?: 10,
-                                enemySpawns = enemySpawns.toList(),
+                                // Sandbox levels have no scripted enemy waves; the player spawns test enemies while playing.
+                                enemySpawns = if (isSandbox) emptyList() else enemySpawns.toList(),
                                 availableTowers = availableTowersState,
                                 waypoints = waypointsState.toList(),
                                 testingOnly = testingOnly,
                                 allowAutoAttack = allowAutoAttack,
                                 connectedToPreviousLevel = connectedToPreviousLevel,
+                                splitBuildTowerButton = splitBuildTowerButton,
+                                isSandbox = isSandbox,
+                                supports = supportsState,
+                                events = eventsState,
                                 initialData = initialDataState,
                             )
 
@@ -960,12 +1063,16 @@ fun LevelEditorView(
                         mapId = selectedMapId,
                         startCoins = startCoins.toIntOrNull() ?: 100,
                         startHealthPoints = startHP.toIntOrNull() ?: 10,
-                        enemySpawns = enemySpawns.toList(),
+                        enemySpawns = if (isSandbox) emptyList() else enemySpawns.toList(),
                         availableTowers = availableTowersState,
                         waypoints = waypointsState.toList(),
                         testingOnly = testingOnly,
                         allowAutoAttack = allowAutoAttack,
                         connectedToPreviousLevel = connectedToPreviousLevel,
+                        splitBuildTowerButton = splitBuildTowerButton,
+                        isSandbox = isSandbox,
+                        supports = supportsState,
+                        events = eventsState,
                         initialData = initialDataState,
                     )
                 onSave(newLevel)

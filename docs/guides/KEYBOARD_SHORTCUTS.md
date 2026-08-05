@@ -50,6 +50,7 @@ This document lists all keyboard shortcuts and usable keys in Defender of Egril.
 Cheat codes are entered via the Cheat Dialog. Available codes:
 
 ### Gameplay
+
 | Code | Effect |
 |------|--------|
 | `cash` | Add 1,000 coins |
@@ -61,6 +62,7 @@ Cheat codes are entered via the Cheat Dialog. Available codes:
 Valid enemy types: `goblin`, `ork`, `ogre`, `skeleton`, `wizard`, `witch`, `bluedemon`, `reddemon`, `evilmage`, `redwitch`, `greenwitch`, `ewhad`, `dragon`
 
 ### World Map
+
 | Code | Effect |
 |------|--------|
 | `unlock` / `unlockall` | Unlock all levels |

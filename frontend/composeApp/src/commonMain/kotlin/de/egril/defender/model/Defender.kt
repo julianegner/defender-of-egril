@@ -226,11 +226,14 @@ data class Defender(
     // Check if the tower is on a tower base
     val isOnTowerBase: Boolean get() = towerBaseBarricadeId.value != null
 
-    fun canAttack(attacker: Attacker): Boolean {
+    fun canAttack(
+        attacker: Attacker,
+        effectiveRange: Int = range,
+    ): Boolean {
         if (!isReady || actionsRemaining.value <= 0 || isDisabled.value) return false
         val distance = position.value.distanceTo(attacker.position.value)
         // Check both minimum and maximum range
-        return distance >= type.minRange && distance <= range
+        return distance >= type.minRange && distance <= effectiveRange
     }
 
     fun resetActions() {
@@ -239,5 +242,21 @@ data class Defender(
             actionsRemaining.value = if (isDisabled.value) 0 else actionsPerTurnCalculated
             hasBeenUsed.value = false // Reset usage tracking at start of new turn
         }
+    }
+}
+
+/**
+ * Damage a single attack from this defender would deal, mirroring the combat calculation.
+ * LASTING (acid) attacks deal half their base damage per hit. Non-attacking towers deal 0.
+ *
+ * @param hasDoubleLevelBuff whether the DOUBLE_TOWER_LEVEL spell is active on this defender.
+ */
+fun Defender.previewAttackDamage(hasDoubleLevelBuff: Boolean = false): Int {
+    val effectiveLevel = if (hasDoubleLevelBuff) level.value * 2 else level.value
+    val baseDamage = type.baseDamage + (effectiveLevel - 1) * 5
+    return when (type.attackType) {
+        AttackType.LASTING -> baseDamage / 2
+        AttackType.NONE -> 0
+        else -> baseDamage
     }
 }

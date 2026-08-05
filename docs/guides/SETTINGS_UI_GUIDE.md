@@ -3,7 +3,8 @@
 ## Settings Button Location
 
 ### Main Menu Screen
-```
+
+```text
 ┌─────────────────────────────────────────────┐
 │                              [⚙️ Settings]   │
 │                                             │
@@ -25,7 +26,8 @@
 ```
 
 ### World Map Screen
-```
+
+```text
 ┌─────────────────────────────────────────────┐
 │                              [⚙️ Settings]   │
 │                                             │
@@ -45,7 +47,8 @@
 ```
 
 ### Game Play Screen (Header)
-```
+
+```text
 ┌─────────────────────────────────────────────────────┐
 │ 💰 100  ❤️ 10  🎯 Turn 1   Level Name   [⚙️][💾][Map][◀]│
 └─────────────────────────────────────────────────────┘
@@ -53,7 +56,8 @@
 ```
 
 ### Level Complete Screen
-```
+
+```text
 ┌─────────────────────────────────────────────┐
 │                              [⚙️ Settings]   │
 │                                             │
@@ -71,7 +75,7 @@
 
 When settings button is clicked:
 
-```
+```text
 ┌─────────────────────────────────────────────┐
 │                                             │
 │  ┌─────────────────────────────┐           │
@@ -95,7 +99,7 @@ When settings button is clicked:
 
 When language dropdown is clicked:
 
-```
+```text
 ┌─────────────────────────────────┐
 │ 🇬🇧 English               ▲   │
 ├─────────────────────────────────┤
@@ -117,16 +121,19 @@ When language dropdown is clicked:
 ## Responsive Behavior
 
 ### Desktop
+
 - Settings button: 32dp icon button
 - Dialog: Min width 300dp, max width 500dp
 - Language chooser: 56dp height
 
 ### Mobile (Android/iOS)
+
 - Settings button: Scaled with UI scale factor
 - Dialog: Adapts to screen width with padding
 - Touch-friendly 48dp minimum touch targets
 
 ### GamePlay Screen
+
 - Settings button integrated into compact header
 - Icon-only to save space
 - Same size as other header buttons for consistency

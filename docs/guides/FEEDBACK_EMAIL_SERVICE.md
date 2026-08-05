@@ -58,7 +58,7 @@ services:
 Create a file called `.env` next to `docker-compose.yml` (**not** committed
 to the repository):
 
-```
+```text
 FEEDBACK_SMTP_HOST=smtp.example.com
 FEEDBACK_SMTP_PORT=587
 FEEDBACK_SMTP_USERNAME=feedback@egril.de
@@ -116,7 +116,7 @@ envFrom:
 
 The email service is implemented in:
 
-```
+```text
 servers/backend/src/main/kotlin/de/egril/defender/FeedbackEmailService.kt
 ```
 

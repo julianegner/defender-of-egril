@@ -5,7 +5,8 @@ This package generates background map images for Defender of Egril game maps.
 ## Origin
 
 The approach for biome-based terrain generation is inspired by the mapgen4 project:
-- **Source**: https://github.com/redblobgames/mapgen4
+
+- **Source**: <https://github.com/redblobgames/mapgen4>
 - **Author**: Red Blob Games (redblobgames.com)
 - **License**: Apache 2.0
 
@@ -34,6 +35,7 @@ tile-based maps used in Defender of Egril.
 ## Image Dimensions
 
 The generated image dimensions match the exact hexagonal grid layout:
+
 - Based on `hexSize=40dp` (same as the game's rendering)
 - Uses the same coordinate formulas as `HexUtils.kt`
 - Pixel coordinates match the tile center positions from the game engine
@@ -41,7 +43,7 @@ The generated image dimensions match the exact hexagonal grid layout:
 ## Gradle Tasks
 
 | Task | Description |
-|---|---|
+| --- | --- |
 | `./gradlew :composeApp:generateMapImages` | Regenerate all map background PNGs from JSON. Also triggers `generateHexGridDebugImages` automatically. |
 | `./gradlew :composeApp:generateHexGridDebugImages` | Generate hex-grid debug overlay images (see below). |
 

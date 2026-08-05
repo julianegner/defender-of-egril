@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.Density
 import de.egril.defender.iam.initPlatformIam
 import de.egril.defender.ui.*
 import de.egril.defender.ui.animations.AnimationTestScreen
+import de.egril.defender.ui.announcements.villains.VillainsAnnouncementScreen
 import de.egril.defender.ui.editor.level.LevelEditorScreen
 import de.egril.defender.ui.gameplay.GamePlayScreen
 import de.egril.defender.ui.gameplay.LevelLoadingScreen
@@ -25,7 +26,7 @@ import kotlinx.coroutines.delay
 /**
  * Maps app screens to the mobile browser orientation overlay behavior:
  * - Gameplay requires landscape orientation.
- * - Main menu and info pages prefer portrait orientation.
+ * - Main menu, info pages, and announcement pages prefer portrait orientation.
  * - All other screens do not force an orientation hint.
  */
 internal fun mobileOrientationOverlayModeForScreen(screen: Screen): MobileOrientationOverlayMode =
@@ -34,6 +35,7 @@ internal fun mobileOrientationOverlayModeForScreen(screen: Screen): MobileOrient
         is Screen.MainMenu,
         is Screen.InstallationInfo,
         is Screen.InstallationInfoAtTab,
+        is Screen.VillainsAnnouncement,
         -> MobileOrientationOverlayMode.PORTRAIT_REQUIRED
         else -> MobileOrientationOverlayMode.NONE
     }
@@ -126,6 +128,7 @@ fun App() {
                 val showMagicPanel by viewModel.showMagicPanel.collectAsState()
                 val selectedSpell by viewModel.selectedSpell.collectAsState()
                 val pendingSpellCast by viewModel.pendingSpellCast.collectAsState()
+                val pendingTokenSpell by viewModel.pendingTokenSpell.collectAsState()
                 val showSpellTargetConfirmation by viewModel.showSpellTargetConfirmation.collectAsState()
                 val showFreezeImmuneWarning by viewModel.showFreezeImmuneWarning.collectAsState()
                 val pendingScrollToPosition by viewModel.pendingScrollToPosition.collectAsState()
@@ -409,6 +412,7 @@ fun App() {
                             onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
                             onShowDownloadInfo = { viewModel.navigateToDownloadInfo() },
                             onShowBackendInfo = { viewModel.navigateToBackendInfo() },
+                            onOpenVillainsAnnouncement = { viewModel.navigateToVillainsAnnouncement() },
                             onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                             currentPlayerName = currentPlayer?.name,
                             iamState = iamState,
@@ -475,6 +479,12 @@ fun App() {
                         InfoPageScreen(
                             onBack = { viewModel.navigateToMainMenu() },
                             initialTab = screen.initialTab,
+                        )
+                    }
+
+                    is Screen.VillainsAnnouncement -> {
+                        VillainsAnnouncementScreen(
+                            onBack = { viewModel.navigateToMainMenu() },
                         )
                     }
 
@@ -584,6 +594,7 @@ fun App() {
                                 },
                                 onEndPlayerTurn = { viewModel.endPlayerTurn() },
                                 onAutoAttackAndEndTurn = { viewModel.autoAttackAndEndTurn() },
+                                onWinLevelNow = { viewModel.winLevelNow() },
                                 onGetAutoAttackTarget = { id -> viewModel.getAutoAttackTargetPosition(id) },
                                 onBackToMap = { viewModel.navigateToWorldMap() },
                                 onSaveGame = { comment -> viewModel.saveCurrentGame(comment) },
@@ -645,6 +656,15 @@ fun App() {
                                 demoHoveredPosition = demoHoveredPosition,
                                 demoSelectedDefenderId = demoSelectedDefenderId,
                                 demoSelectedTargetPosition = demoSelectedTargetPosition,
+                                onPlaceSupportObject = { type, pos -> viewModel.placeSupportObject(type, pos) },
+                                onCastSupportSpellToken = { spell -> viewModel.onSupportSpellTokenClicked(spell) },
+                                activeSpellToken = pendingTokenSpell,
+                                onActivateCooldownPower = { power -> viewModel.activateCooldownPower(power) },
+                                onSandboxSpawnEnemy = { type, level, spawnPoint -> viewModel.sandboxSpawnEnemy(type, level, spawnPoint) },
+                                onSandboxAddCoins = { viewModel.sandboxAddCoins() },
+                                onSandboxPaintTile = { position, tileType, riverFlow, riverSpeed ->
+                                    viewModel.sandboxPaintTile(position, tileType, riverFlow, riverSpeed)
+                                },
                             )
                         }
                     }

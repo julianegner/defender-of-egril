@@ -7,12 +7,14 @@ All 19 game sound files have been upgraded from simple placeholder tones to high
 ## What Changed
 
 ### Previous State
+
 - Simple sine wave beeps
 - Basic tones with minimal variation
 - Very short durations (mostly 50-200ms)
 - File sizes: 2-18 KB
 
 ### Current State
+
 - Rich, multi-layered sounds with harmonics
 - Appropriate audio effects (filtering, pitch bends, envelopes)
 - Optimized durations (50-500ms based on event type)
@@ -25,21 +27,25 @@ Since freesound.org was not accessible, all sounds were created using **SoX (Sou
 ### 1. Tower Attack Sounds
 
 **Melee Attack** (`attack_melee.wav`, 13 KB)
+
 - Triple-harmonic metallic strike (800 Hz, 1600 Hz, 2400 Hz)
 - Sharp attack with quick decay
 - Duration: 150ms
 
 **Ranged Attack** (`attack_ranged.wav`, 18 KB)
+
 - Filtered noise simulating arrow whoosh
 - High-pass filter at 2000 Hz
 - Duration: 200ms
 
 **Area Attack** (`attack_area.wav`, 35 KB)
+
 - Dual-frequency explosion with descending pitch sweep (1200→200 Hz, 600→100 Hz)
 - Magical/fireball effect
 - Duration: 400ms
 
 **Lasting Attack** (`attack_lasting.wav`, 26 KB)
+
 - Low-pass filtered noise for acid sizzle effect
 - Sustained with gradual fade
 - Duration: 300ms
@@ -47,15 +53,18 @@ Since freesound.org was not accessible, all sounds were created using **SoX (Sou
 ### 2. Enemy Sounds
 
 **Enemy Spawn** (`enemy_spawn.wav`, 22 KB)
+
 - Dual square waves (150 Hz, 200 Hz) for menacing growl
 - Duration: 250ms
 
 **Enemy Move** (`enemy_move.wav`, 7 KB)
+
 - Low-frequency filtered noise (footsteps/shuffling)
 - Very brief for repeated playback
 - Duration: 80ms
 
 **Enemy Destroyed** (`enemy_destroyed.wav`, 31 KB)
+
 - Descending square wave (300→50 Hz) with noise overlay
 - Death grunt/explosion effect
 - Duration: 350ms
@@ -63,20 +72,24 @@ Since freesound.org was not accessible, all sounds were created using **SoX (Sou
 ### 3. Mine Operation Sounds
 
 **Mine Dig** (`mine_dig.wav`, 18 KB)
+
 - Noise combined with 600 Hz tone (pickaxe on stone)
 - Low-pass filtered at 2000 Hz
 - Duration: 200ms
 
 **Coin Found** (`mine_coin.wav`, 13 KB)
+
 - Triple-frequency chime (1000 Hz, 1500 Hz, 2000 Hz)
 - Bright, rewarding sound
 - Duration: 150ms
 
 **Trap Built** (`mine_trap.wav`, 13 KB)
+
 - Noise with 400 Hz square wave (construction/hammering)
 - Duration: 150ms
 
 **Dragon Spawn** (`mine_dragon.wav`, 44 KB)
+
 - Deep dual square waves with pitch sweep (80→120 Hz, 160→240 Hz)
 - Powerful dragon roar effect
 - Duration: 500ms
@@ -84,16 +97,19 @@ Since freesound.org was not accessible, all sounds were created using **SoX (Sou
 ### 4. Special Event Sounds
 
 **Trap Triggered** (`trap_trigger.wav`, 11 KB)
+
 - Noise with descending pitch (800→200 Hz)
 - Snap/spring release effect
 - Duration: 120ms
 
 **Life Lost** (`life_lost.wav`, 44 KB)
+
 - Descending sine wave (400→100 Hz)
 - Dramatic negative feedback
 - Duration: 500ms
 
 **Dragon Eat** (`dragon_eat.wav`, 26 KB)
+
 - Low-pass filtered noise with 200 Hz square wave
 - Chomping/gulping effect
 - Duration: 300ms
@@ -101,25 +117,30 @@ Since freesound.org was not accessible, all sounds were created using **SoX (Sou
 ### 5. UI Sounds
 
 **Button Click** (`button_click.wav`, 4 KB)
+
 - Clean 1200 Hz sine tone
 - Instant feedback
 - Duration: 50ms
 
 **Tower Placed** (`tower_placed.wav`, 18 KB)
+
 - Noise with 500 Hz tone (building/construction)
 - Duration: 200ms
 
 **Tower Upgraded** (`tower_upgraded.wav`, 22 KB)
+
 - Triple-frequency success chime (800 Hz, 1200 Hz, 1600 Hz)
 - Duration: 250ms
 
 **Tower Sold** (`tower_sold.wav`, 18 KB)
+
 - Dual-frequency cash register sound (1500 Hz, 1800 Hz)
 - Duration: 200ms
 
 ### 6. Game Phase Sounds
 
 **Battle Start** (`battle_start.wav`, 35 KB)
+
 - Dual square waves (400 Hz, 600 Hz)
 - Fanfare/horn effect
 - Duration: 400ms
@@ -127,6 +148,7 @@ Since freesound.org was not accessible, all sounds were created using **SoX (Sou
 ## Technical Specifications
 
 All sounds maintain compatibility with the existing system:
+
 - **Format**: WAV (RIFF)
 - **Sample Rate**: 22050 Hz
 - **Bit Depth**: 16-bit (implied from SoX defaults)
@@ -175,8 +197,10 @@ Despite the size increase, all files remain very small and efficient for a moder
 To test the new sounds:
 
 1. Build and run the game:
+
    ```bash
    ./gradlew :composeApp:run
+
    ```
 
 2. Enable sound in Settings:
@@ -208,13 +232,15 @@ While these synthesized sounds are significantly better than the original placeh
 ## Credits
 
 Sounds synthesized using **SoX v14.4.2** (Sound eXchange)
-- Homepage: http://sox.sourceforge.net/
+
+- Homepage: <http://sox.sourceforge.net/>
 - License: GPL/LGPL (tool, not output)
 - The generated WAV files have no restrictions and are part of this project
 
 ## Note on freesound.org
 
-The original issue requested downloading sounds from https://freesound.org. However, this domain was not accessible from the development environment. As an alternative, high-quality synthesized sounds were created that:
+The original issue requested downloading sounds from <https://freesound.org>. However, this domain was not accessible from the development environment. As an alternative, high-quality synthesized sounds were created that:
+
 - Match the medieval fantasy theme
 - Provide appropriate audio feedback for each game event
 - Maintain compatibility with the existing audio system

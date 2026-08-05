@@ -7,6 +7,7 @@ This document summarizes the implementation of the `official` compile flag for e
 ## Problem Statement
 
 The game needed a compile flag called "official" that:
+
 1. When set, allows editing of official game data (maps and levels) directly in the editor
 2. Shows a warning dialog on game close if official data has been modified
 3. Warns that changes will be overwritten on next game start
@@ -33,6 +34,7 @@ val generateOfficialEditModeConstant by tasks.registering {
 ```
 
 Generated file:
+
 ```kotlin
 object OfficialEditMode {
     const val enabled: Boolean = false  // or true based on property
@@ -61,16 +63,19 @@ Integrated into `EditorStorage.saveMap()` and `EditorStorage.saveLevel()` to aut
 Updated all editor UI components to check the flag:
 
 **Before:**
+
 ```kotlin
 enabled = !map.isOfficial  // Always disabled for official content
 ```
 
 **After:**
+
 ```kotlin
 enabled = !map.isOfficial || OfficialEditMode.enabled  // Can edit if flag is set
 ```
 
 Files modified:
+
 - `MapEditorHeader.kt` - Map name input
 - `MapEditorView.kt` - Save map button
 - `MapListCard.kt` - Delete map button
@@ -130,6 +135,7 @@ Window(
 #### OfficialDataChangedDialog.kt
 
 New composable dialog that:
+
 - Shows warning message
 - Lists modified maps
 - Lists modified levels
@@ -164,6 +170,7 @@ All tests pass successfully.
 ### 8. Documentation
 
 Created detailed documentation (`docs/features/OFFICIAL_EDIT_MODE.md`) covering:
+
 - Usage instructions
 - Default behavior vs. enabled behavior
 - Warning dialog details
@@ -201,12 +208,14 @@ official=true
 ## Behavior Comparison
 
 ### Default (official=false)
+
 - ✅ Official content is read-only
 - ✅ Edit/save/delete buttons disabled for official content
 - ✅ Users must copy to create user versions
 - ❌ No warning on app close
 
 ### Enabled (official=true)
+
 - ✅ Official content is editable
 - ✅ All editor controls work for official content
 - ✅ Changes are tracked
@@ -227,6 +236,7 @@ official=true
 ## Files Changed
 
 ### Core Implementation (17 files)
+
 1. `composeApp/build.gradle.kts` - Added flag and generation task
 2. `composeApp/src/commonMain/kotlin/de/egril/defender/editor/OfficialDataChangeTracker.kt` - New tracker
 3. `composeApp/src/commonMain/kotlin/de/egril/defender/editor/EditorStorage.kt` - Integrated tracking
@@ -241,20 +251,23 @@ official=true
 12. `composeApp/src/desktopMain/kotlin/de/egril/defender/main.kt` - Show dialog
 
 ### Localization (5 files)
-13. `composeApp/src/commonMain/composeResources/values/strings.xml` - English
-14. `composeApp/src/commonMain/composeResources/values-de/strings.xml` - German
-15. `composeApp/src/commonMain/composeResources/values-es/strings.xml` - Spanish
-16. `composeApp/src/commonMain/composeResources/values-fr/strings.xml` - French
-17. `composeApp/src/commonMain/composeResources/values-it/strings.xml` - Italian
+
+1. `composeApp/src/commonMain/composeResources/values/strings.xml` - English
+2. `composeApp/src/commonMain/composeResources/values-de/strings.xml` - German
+3. `composeApp/src/commonMain/composeResources/values-es/strings.xml` - Spanish
+4. `composeApp/src/commonMain/composeResources/values-fr/strings.xml` - French
+5. `composeApp/src/commonMain/composeResources/values-it/strings.xml` - Italian
 
 ### Testing & Documentation (2 files)
-18. `composeApp/src/commonTest/kotlin/de/egril/defender/editor/OfficialDataChangeTrackerTest.kt` - Tests
-19. `docs/features/OFFICIAL_EDIT_MODE.md` - Documentation
+
+1. `composeApp/src/commonTest/kotlin/de/egril/defender/editor/OfficialDataChangeTrackerTest.kt` - Tests
+2. `docs/features/OFFICIAL_EDIT_MODE.md` - Documentation
 
 ### Generated (1 file)
-20. `composeApp/build/generated/source/buildConfig/commonMain/kotlin/de/egril/defender/OfficialEditMode.kt` - Auto-generated
 
-**Total: 20 files**
+1. `composeApp/build/generated/source/buildConfig/commonMain/kotlin/de/egril/defender/OfficialEditMode.kt` - Auto-generated
+
+#### Total: 20 files
 
 ## Quality Assurance
 
@@ -277,6 +290,7 @@ official=true
 ## Conclusion
 
 The implementation successfully meets all requirements from the issue:
+
 - ✅ Compile flag "official" added
 - ✅ Allows editing of official game data when enabled
 - ✅ Warning dialog on close when official data modified

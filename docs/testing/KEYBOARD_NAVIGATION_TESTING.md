@@ -5,6 +5,7 @@
 ### 1. Gameplay Screen - Keyboard Navigation
 
 #### Basic Arrow Key Navigation
+
 - [ ] Start a game level
 - [ ] Press **Up Arrow** - Map should pan upward
 - [ ] Press **Down Arrow** - Map should pan downward
@@ -14,6 +15,7 @@
 - [ ] Verify pan stops at map boundaries (can't pan off the map)
 
 #### WASD Key Navigation
+
 - [ ] Press **W** key - Map should pan upward
 - [ ] Press **S** key - Map should pan downward
 - [ ] Press **A** key - Map should pan leftward
@@ -21,12 +23,14 @@
 - [ ] Verify WASD behaves identically to arrow keys
 
 #### Combined Controls
+
 - [ ] Pan with arrow keys, then use mouse wheel to zoom
 - [ ] Zoom in with mouse wheel, then pan with arrow keys
 - [ ] Pan with arrow keys, then drag with mouse
 - [ ] Verify all control methods work together smoothly
 
 #### Constraints
+
 - [ ] Zoom in to 2x or more
 - [ ] Try to pan beyond the map edges with arrow keys
 - [ ] Verify panning is constrained (can't go too far off-screen)
@@ -37,6 +41,7 @@
 ### 2. Map Editor Screen
 
 #### Verify Keyboard Navigation is Disabled
+
 - [ ] Open the map editor
 - [ ] Create or edit a map
 - [ ] Press arrow keys (↑ ↓ ← →)
@@ -45,6 +50,7 @@
 - [ ] **Verify**: WASD keys do NOT pan the map
 
 #### Zoom Buttons
+
 - [ ] Click the **zoom in (+)** button in the header
 - [ ] Verify the map zooms in and zoom percentage increases
 - [ ] Click multiple times
@@ -55,6 +61,7 @@
 - [ ] Verify zoom reaches minimum (50%)
 
 #### Mouse Wheel Zoom
+
 - [ ] Hover over the map
 - [ ] Scroll mouse wheel up
 - [ ] Verify map zooms in
@@ -63,12 +70,14 @@
 - [ ] Verify zoom percentage updates in header
 
 #### Mouse Drag Pan
+
 - [ ] Click and drag on the map (not on a tile)
 - [ ] Verify map pans with the drag
 - [ ] Release mouse
 - [ ] Verify panning stops
 
 #### Brush Painting Feature
+
 - [ ] Select a tile type from the header (e.g., PATH)
 - [ ] Click on a tile
 - [ ] **Verify**: Tile changes to selected type
@@ -82,6 +91,7 @@
 - [ ] **Verify**: Brush painting still works at different zoom levels
 
 #### Combined Editor Controls
+
 - [ ] Use zoom buttons to zoom in
 - [ ] Drag to pan the map
 - [ ] Use brush to paint tiles
@@ -94,6 +104,7 @@
 ### 3. Focus and State Management
 
 #### Gameplay Focus
+
 - [ ] Start a game
 - [ ] Click on the map area
 - [ ] Press arrow keys
@@ -103,6 +114,7 @@
 - [ ] **Verify**: Map still pans (focus management works)
 
 #### Map Editor Focus
+
 - [ ] Open map editor
 - [ ] Click in the map name text field
 - [ ] Press arrow keys
@@ -114,6 +126,7 @@
 ### 4. Mobile/Touch Devices (if applicable)
 
 #### Gameplay
+
 - [ ] On a mobile device, start a game
 - [ ] Use pinch gesture to zoom
 - [ ] **Verify**: Zoom works
@@ -122,6 +135,7 @@
 - [ ] **Note**: Keyboard navigation not applicable on mobile
 
 #### Map Editor
+
 - [ ] On a mobile device, open map editor
 - [ ] Tap zoom buttons
 - [ ] **Verify**: Zoom works
@@ -135,12 +149,14 @@
 ### 5. Cross-Browser Testing (for Web/WASM builds)
 
 Test on:
+
 - [ ] Chrome/Chromium
 - [ ] Firefox
 - [ ] Safari
 - [ ] Edge
 
 For each browser:
+
 - [ ] Verify keyboard navigation works in gameplay
 - [ ] Verify mouse wheel zoom works
 - [ ] Verify zoom buttons work in editor
@@ -149,6 +165,7 @@ For each browser:
 ### 6. Performance Testing
 
 #### Large Maps
+
 - [ ] Create or open a large map (e.g., 50x50)
 - [ ] Pan with arrow keys rapidly
 - [ ] **Verify**: No lag or stuttering
@@ -158,6 +175,7 @@ For each browser:
 - [ ] **Verify**: Responsive painting
 
 #### Small Maps
+
 - [ ] Open a small map (e.g., 10x10)
 - [ ] Test all controls
 - [ ] **Verify**: Everything works smoothly
@@ -165,7 +183,9 @@ For each browser:
 ## Automated Testing
 
 ### Unit Tests
+
 Run existing unit tests to ensure no regression:
+
 ```bash
 ./gradlew :composeApp:cleanTestDebugUnitTest :composeApp:testDebugUnitTest
 ```
@@ -173,7 +193,9 @@ Run existing unit tests to ensure no regression:
 **Expected Result**: All tests pass
 
 ### Compilation Tests
+
 Compile for all platforms:
+
 ```bash
 ./gradlew :composeApp:compileKotlinDesktop
 ./gradlew :composeApp:compileDebugKotlinAndroid
@@ -185,6 +207,7 @@ Compile for all platforms:
 ## Regression Testing
 
 Test that existing features still work:
+
 - [ ] Tower placement in gameplay
 - [ ] Enemy spawning and movement
 - [ ] Tower attacks
@@ -202,6 +225,7 @@ Test that existing features still work:
 ## Bug Reporting
 
 If you find issues during testing, please report:
+
 - Platform (Desktop/Android/iOS/Web)
 - Operating System and version
 - Browser (if web)

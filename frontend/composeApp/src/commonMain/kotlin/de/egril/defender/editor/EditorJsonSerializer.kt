@@ -2,8 +2,23 @@ package de.egril.defender.editor
 
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.CooldownPower
+import de.egril.defender.model.CooldownPowerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.EventAction
+import de.egril.defender.model.EventActionType
+import de.egril.defender.model.EventCondition
+import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
+import de.egril.defender.model.LevelEvent
+import de.egril.defender.model.LevelEvents
+import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpellType
+import de.egril.defender.model.SupportObject
+import de.egril.defender.model.SupportObjectType
+import de.egril.defender.model.SupportSpell
+import de.egril.defender.model.isIndefiniteSupportCount
 import de.egril.defender.utils.JsonUtils
 
 /**
@@ -363,9 +378,23 @@ object EditorJsonSerializer {
                 ""
             }
 
+        val splitBuildTowerButtonJson =
+            if (!level.splitBuildTowerButton) {
+                ",\n  \"splitBuildTowerButton\": false"
+            } else {
+                ""
+            }
+
         val connectedToPreviousLevelJson =
             if (level.connectedToPreviousLevel) {
                 ",\n  \"connectedToPreviousLevel\": true"
+            } else {
+                ""
+            }
+
+        val isSandboxJson =
+            if (level.isSandbox) {
+                ",\n  \"isSandbox\": true"
             } else {
                 ""
             }
@@ -394,6 +423,61 @@ object EditorJsonSerializer {
                         .replace("\r", "\\r")
                         .replace("\t", "\\t")
                 ",\n  \"communityDescription\": \"$escaped\""
+            } else {
+                ""
+            }
+
+        // Serialize player-usable supports (objects + spell tokens), compact one-per-line
+        val supportsJson =
+            if (level.supports.isNotEmpty()) {
+                val parts = mutableListOf<String>()
+                if (level.supports.objects.isNotEmpty()) {
+                    val objectsData =
+                        level.supports.objects.joinToString(",\n      ") { obj ->
+                            """{"type": "${obj.type.name}", "count": ${serializeSupportCount(obj.count)}, "damage": ${obj.damage}, "healthPoints": ${obj.healthPoints}}"""
+                        }
+                    parts.add(
+                        """"objects": [
+      $objectsData
+    ]""",
+                    )
+                }
+                if (level.supports.spells.isNotEmpty()) {
+                    val spellsData =
+                        level.supports.spells.joinToString(",\n      ") { supportSpell ->
+                            """{"spell": "${supportSpell.spell.name}", "count": ${serializeSupportCount(supportSpell.count)}}"""
+                        }
+                    parts.add(
+                        """"spells": [
+      $spellsData
+    ]""",
+                    )
+                }
+                if (level.supports.cooldownPowers.isNotEmpty()) {
+                    val cooldownData =
+                        level.supports.cooldownPowers.joinToString(",\n      ") { power ->
+                            """{"type": "${power.type.name}", "cooldownTurns": ${power.cooldownTurns}, "startActive": ${power.startActive}}"""
+                        }
+                    parts.add(
+                        """"cooldownPowers": [
+      $cooldownData
+    ]""",
+                    )
+                }
+                val allParts = parts.joinToString(",\n    ")
+                ",\n  \"supports\": {\n    $allParts\n  }"
+            } else {
+                ""
+            }
+
+        // Serialize scripted events (conditions + actions + predefined story messages), one per line
+        val eventsJson =
+            if (level.events.isNotEmpty()) {
+                val eventsData =
+                    level.events.events.joinToString(",\n    ") { event ->
+                        serializeEvent(event)
+                    }
+                ",\n  \"events\": [\n    $eventsData\n  ]"
             } else {
                 ""
             }
@@ -516,7 +600,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isOfficialJson$authorJson$communityDescriptionJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$splitBuildTowerButtonJson$connectedToPreviousLevelJson$isSandboxJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
 }"""
         return """{
   "metadata": {
@@ -738,11 +822,35 @@ object EditorJsonSerializer {
                     false
                 }
 
+            // Parse splitBuildTowerButton (optional, defaults to true)
+            val splitBuildTowerButton =
+                if (dataJson.contains("\"splitBuildTowerButton\"")) {
+                    try {
+                        JsonUtils.extractValue(dataJson, "splitBuildTowerButton").toBoolean()
+                    } catch (e: Exception) {
+                        true
+                    }
+                } else {
+                    true
+                }
+
             // Parse connectedToPreviousLevel (optional, defaults to false)
             val connectedToPreviousLevel =
                 if (dataJson.contains("\"connectedToPreviousLevel\"")) {
                     try {
                         JsonUtils.extractValue(dataJson, "connectedToPreviousLevel").toBoolean()
+                    } catch (e: Exception) {
+                        false
+                    }
+                } else {
+                    false
+                }
+
+            // Parse isSandbox (optional, defaults to false)
+            val isSandbox =
+                if (dataJson.contains("\"isSandbox\"")) {
+                    try {
+                        JsonUtils.extractValue(dataJson, "isSandbox").toBoolean()
                     } catch (e: Exception) {
                         false
                     }
@@ -1267,26 +1375,36 @@ object EditorJsonSerializer {
                     null
                 }
 
+            // Parse optional player-usable supports (objects + spell tokens)
+            val supports = parseSupports(dataJson)
+
+            // Parse optional scripted level events
+            val events = parseEvents(dataJson)
+
             return EditorLevel(
-                id,
-                mapId,
-                title,
-                titleKey,
-                subtitle,
-                subtitleKey,
-                startCoins,
-                startHealthPoints,
-                spawns,
-                towers,
-                waypoints,
-                prerequisites,
-                requiredPrerequisiteCount,
-                testingOnly,
-                allowAutoAttack,
-                connectedToPreviousLevel,
-                isOfficial,
+                id = id,
+                mapId = mapId,
+                title = title,
+                titleKey = titleKey,
+                subtitle = subtitle,
+                subtitleKey = subtitleKey,
+                startCoins = startCoins,
+                startHealthPoints = startHealthPoints,
+                enemySpawns = spawns,
+                availableTowers = towers,
+                waypoints = waypoints,
+                prerequisites = prerequisites,
+                requiredPrerequisiteCount = requiredPrerequisiteCount,
+                testingOnly = testingOnly,
+                allowAutoAttack = allowAutoAttack,
+                connectedToPreviousLevel = connectedToPreviousLevel,
+                splitBuildTowerButton = splitBuildTowerButton,
+                isSandbox = isSandbox,
+                isOfficial = isOfficial,
                 author = author,
                 communityDescription = communityDescription,
+                supports = supports,
+                events = events,
                 initialData = initialData,
             )
         } catch (e: Exception) {
@@ -1578,5 +1696,273 @@ object EditorJsonSerializer {
         }
 
         return objects
+    }
+
+    /**
+     * Extract the JSON object body that follows a given object key (e.g. "supports").
+     * Returns the text between the matching braces, or "" if the key is not present.
+     */
+    private fun extractObjectSection(
+        json: String,
+        key: String,
+    ): String {
+        if (!json.contains("\"$key\"")) return ""
+        val afterKey = json.substringAfter("\"$key\"")
+        val openBraceIndex = afterKey.indexOf('{')
+        if (openBraceIndex == -1) return ""
+        val afterBrace = afterKey.substring(openBraceIndex + 1)
+        var braceCount = 1
+        var endIndex = -1
+        for (i in afterBrace.indices) {
+            when (afterBrace[i]) {
+                '{' -> braceCount++
+                '}' -> {
+                    braceCount--
+                    if (braceCount == 0) {
+                        endIndex = i
+                        break
+                    }
+                }
+            }
+        }
+        return if (endIndex >= 0) afterBrace.substring(0, endIndex) else ""
+    }
+
+    /**
+     * Extract the contents of a JSON array that follows a given array key.
+     * Returns the text between the outermost brackets, or "" if the key is not present.
+     */
+    private fun extractArraySection(
+        json: String,
+        key: String,
+    ): String {
+        if (!json.contains("\"$key\"")) return ""
+        val afterKey = json.substringAfter("\"$key\"")
+        val openBracketIndex = afterKey.indexOf('[')
+        if (openBracketIndex == -1) return ""
+        val afterBracket = afterKey.substring(openBracketIndex + 1)
+        var depth = 1
+        var endIndex = -1
+        for (i in afterBracket.indices) {
+            when (afterBracket[i]) {
+                '[' -> depth++
+                ']' -> {
+                    depth--
+                    if (depth == 0) {
+                        endIndex = i
+                        break
+                    }
+                }
+            }
+        }
+        return if (endIndex >= 0) afterBracket.substring(0, endIndex) else ""
+    }
+
+    /**
+     * Parse the optional "supports" section (player-usable objects + spell tokens) from a level's data JSON.
+     */
+    private fun parseSupports(dataJson: String): LevelSupports {
+        val supportsSection = extractObjectSection(dataJson, "supports")
+        if (supportsSection.isBlank()) return LevelSupports()
+
+        val objects = mutableListOf<SupportObject>()
+        val objectsSection = extractArraySection(supportsSection, "objects")
+        if (objectsSection.isNotBlank()) {
+            for (entry in splitJsonArrayObjects(objectsSection)) {
+                val typeName = runCatching { JsonUtils.extractValue(entry, "type") }.getOrNull() ?: continue
+                val type = runCatching { SupportObjectType.valueOf(typeName) }.getOrNull() ?: continue
+                val count = parseSupportCount(runCatching { JsonUtils.extractValue(entry, "count") }.getOrDefault(""))
+                val damage = runCatching { JsonUtils.extractValue(entry, "damage").toInt() }.getOrDefault(10)
+                val healthPoints = runCatching { JsonUtils.extractValue(entry, "healthPoints").toInt() }.getOrDefault(50)
+                objects.add(SupportObject(type = type, count = count, damage = damage, healthPoints = healthPoints))
+            }
+        }
+
+        val spells = mutableListOf<SupportSpell>()
+        val spellsSection = extractArraySection(supportsSection, "spells")
+        if (spellsSection.isNotBlank()) {
+            for (entry in splitJsonArrayObjects(spellsSection)) {
+                val spellName = runCatching { JsonUtils.extractValue(entry, "spell") }.getOrNull() ?: continue
+                val spell = runCatching { SpellType.valueOf(spellName) }.getOrNull() ?: continue
+                val count = parseSupportCount(runCatching { JsonUtils.extractValue(entry, "count") }.getOrDefault(""))
+                spells.add(SupportSpell(spell = spell, count = count))
+            }
+        }
+
+        val cooldownPowers = mutableListOf<CooldownPower>()
+        val cooldownSection = extractArraySection(supportsSection, "cooldownPowers")
+        if (cooldownSection.isNotBlank()) {
+            for (entry in splitJsonArrayObjects(cooldownSection)) {
+                val typeName = runCatching { JsonUtils.extractValue(entry, "type") }.getOrNull() ?: continue
+                val type = runCatching { CooldownPowerType.valueOf(typeName) }.getOrNull() ?: continue
+                val cooldownTurns =
+                    runCatching { JsonUtils.extractValue(entry, "cooldownTurns").toInt() }
+                        .getOrDefault(type.defaultCooldown)
+                val startActive =
+                    runCatching { JsonUtils.extractValue(entry, "startActive").toBoolean() }
+                        .getOrDefault(true)
+                cooldownPowers.add(
+                    CooldownPower(type = type, cooldownTurns = cooldownTurns, startActive = startActive),
+                )
+            }
+        }
+
+        return LevelSupports(objects = objects, spells = spells, cooldownPowers = cooldownPowers)
+    }
+
+    private fun serializeSupportCount(count: Int): String =
+        if (isIndefiniteSupportCount(count)) {
+            "\"INDEFINITELY\""
+        } else {
+            "$count"
+        }
+
+    private fun parseSupportCount(rawCount: String): Int =
+        if (rawCount == "INDEFINITELY") {
+            INDEFINITE_SUPPORT_COUNT
+        } else {
+            rawCount.toIntOrNull() ?: 1
+        }
+
+    /**
+     * Serialize a single [LevelEvent] to a compact single-line JSON object.
+     */
+    private fun serializeEvent(event: LevelEvent): String {
+        val c = event.condition
+        val conditionParts = mutableListOf<String>()
+        conditionParts.add("\"type\": \"${c.type.name}\"")
+        conditionParts.add("\"fromTurn\": ${c.fromTurn}")
+        conditionParts.add("\"threshold\": ${c.threshold}")
+        if (c.attackerType != null) conditionParts.add("\"attackerType\": \"${c.attackerType.name}\"")
+        if (c.position != null) conditionParts.add("\"position\": {\"x\": ${c.position.x}, \"y\": ${c.position.y}}")
+        val conditionJson = "{${conditionParts.joinToString(", ")}}"
+
+        val actionsJson =
+            event.actions.joinToString(", ") { action ->
+                val parts = mutableListOf<String>()
+                parts.add("\"type\": \"${action.type.name}\"")
+                parts.add("\"amount\": ${action.amount}")
+                if (action.supportObjectType != null) parts.add("\"supportObjectType\": \"${action.supportObjectType.name}\"")
+                if (action.spellType != null) parts.add("\"spellType\": \"${action.spellType.name}\"")
+                if (action.position != null) parts.add("\"position\": {\"x\": ${action.position.x}, \"y\": ${action.position.y}}")
+                "{${parts.joinToString(", ")}}"
+            }
+
+        val messageJson =
+            if (event.messageKey != null) ", \"messageKey\": \"${event.messageKey}\"" else ""
+        return "{\"id\": \"${event.id}\", \"condition\": $conditionJson, " +
+            "\"actions\": [$actionsJson]$messageJson, \"repeatable\": ${event.repeatable}}"
+    }
+
+    /**
+     * Parse a position object embedded in [entry] under [key] (e.g. {"x": 1, "y": 2}).
+     */
+    private fun parsePositionField(
+        entry: String,
+        key: String,
+    ): Position? {
+        if (!entry.contains("\"$key\"")) return null
+        return runCatching {
+            val section = entry.substringAfter("\"$key\"").substringAfter('{').substringBefore('}')
+            val x = JsonUtils.extractValue("{$section}", "x").toInt()
+            val y = JsonUtils.extractValue("{$section}", "y").toInt()
+            Position(x, y)
+        }.getOrNull()
+    }
+
+    /**
+     * Parse the optional "events" section (scripted level events) from a level's data JSON.
+     */
+    private fun parseEvents(dataJson: String): LevelEvents {
+        val eventsSection = extractArraySection(dataJson, "events")
+        if (eventsSection.isBlank()) {
+            return LevelEvents()
+        }
+
+        val events = mutableListOf<LevelEvent>()
+        for (entry in splitJsonArrayObjects(eventsSection)) {
+            val id = runCatching { JsonUtils.extractValue(entry, "id") }.getOrNull() ?: continue
+
+            val conditionSection = extractObjectSection(entry, "condition")
+            val condTypeName = runCatching { JsonUtils.extractValue(conditionSection, "type") }.getOrNull() ?: continue
+            val condType =
+                runCatching {
+                    EventConditionType
+                        .valueOf(condTypeName)
+                }.getOrNull() ?: continue
+            val fromTurn = runCatching { JsonUtils.extractValue(conditionSection, "fromTurn").toInt() }.getOrDefault(0)
+            val threshold = runCatching { JsonUtils.extractValue(conditionSection, "threshold").toInt() }.getOrDefault(0)
+            val condAttacker =
+                if (conditionSection.contains("\"attackerType\"")) {
+                    runCatching { AttackerType.valueOf(JsonUtils.extractValue(conditionSection, "attackerType")) }.getOrNull()
+                } else {
+                    null
+                }
+            val condPosition = parsePositionField(conditionSection, "position")
+            val condition =
+                EventCondition(
+                    type = condType,
+                    fromTurn = fromTurn,
+                    threshold = threshold,
+                    attackerType = condAttacker,
+                    position = condPosition,
+                )
+
+            val actions = mutableListOf<EventAction>()
+            val actionsSection = extractArraySection(entry, "actions")
+            if (actionsSection.isNotBlank()) {
+                for (actionEntry in splitJsonArrayObjects(actionsSection)) {
+                    val actionTypeName = runCatching { JsonUtils.extractValue(actionEntry, "type") }.getOrNull() ?: continue
+                    val actionType =
+                        runCatching {
+                            EventActionType
+                                .valueOf(actionTypeName)
+                        }.getOrNull() ?: continue
+                    val amount = runCatching { JsonUtils.extractValue(actionEntry, "amount").toInt() }.getOrDefault(0)
+                    val supportObjectType =
+                        if (actionEntry.contains("\"supportObjectType\"")) {
+                            runCatching { SupportObjectType.valueOf(JsonUtils.extractValue(actionEntry, "supportObjectType")) }
+                                .getOrNull()
+                        } else {
+                            null
+                        }
+                    val spellType =
+                        if (actionEntry.contains("\"spellType\"")) {
+                            runCatching { SpellType.valueOf(JsonUtils.extractValue(actionEntry, "spellType")) }.getOrNull()
+                        } else {
+                            null
+                        }
+                    val actionPosition = parsePositionField(actionEntry, "position")
+                    actions.add(
+                        EventAction(
+                            type = actionType,
+                            amount = amount,
+                            supportObjectType = supportObjectType,
+                            spellType = spellType,
+                            position = actionPosition,
+                        ),
+                    )
+                }
+            }
+
+            val messageKey =
+                if (entry.contains("\"messageKey\"")) {
+                    runCatching { JsonUtils.extractValue(entry, "messageKey") }.getOrNull()?.takeIf { it.isNotBlank() }
+                } else {
+                    null
+                }
+            val repeatable = runCatching { JsonUtils.extractValue(entry, "repeatable").toBoolean() }.getOrDefault(false)
+
+            events.add(
+                LevelEvent(
+                    id = id,
+                    condition = condition,
+                    actions = actions,
+                    messageKey = messageKey,
+                    repeatable = repeatable,
+                ),
+            )
+        }
+        return LevelEvents(events = events)
     }
 }

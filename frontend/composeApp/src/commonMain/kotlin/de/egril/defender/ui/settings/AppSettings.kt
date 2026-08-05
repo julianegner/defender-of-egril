@@ -188,9 +188,9 @@ object AppSettings {
 
     /**
      * Background music volume level (0.0 to 1.0) - automatically saved when changed
-     * Default is 0.5 (quieter than effects)
+     * Default is 1.0 (full background music volume, scaled further by per-category volume settings)
      */
-    val musicVolume: MutableState<Float> = mutableStateOf(settings.getFloat(KEY_MUSIC_VOLUME, 0.5f))
+    val musicVolume: MutableState<Float> = mutableStateOf(settings.getFloat(KEY_MUSIC_VOLUME, 1.0f))
 
     /**
      * World map music enabled state - automatically saved when changed

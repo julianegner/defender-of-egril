@@ -57,7 +57,7 @@ class TowerManager(
         // Can place in build areas OR on river tiles (for rafts, except mines) OR on tower bases
         if (!state.level.isBuildArea(position) && !isRiverPlacement && !isOnTowerBase) return false
 
-        val buildTime = if (state.phase.value == GamePhase.INITIAL_BUILDING || instantDeploy) 0 else type.buildTime
+        val buildTime = if (state.phase.value == GamePhase.INITIAL_BUILDING || instantDeploy || state.level.isSandbox) 0 else type.buildTime
 
         // Get initial tower level based on difficulty
         val initialLevel = DifficultyModifiers.getInitialTowerLevel(state.difficulty)
@@ -79,7 +79,10 @@ class TowerManager(
         }
 
         state.defenders.add(defender)
-        state.coins.value -= type.baseCost
+        // Sandbox levels have free building.
+        if (!state.level.isSandbox) {
+            state.coins.value -= type.baseCost
+        }
         GameLogBuffer.log("TOWER", "Placed ${type.name} at $position (cost: ${type.baseCost}, coins left: ${state.coins.value})")
 
         // Create a raft if placed on river tile (and not on tower base)
@@ -104,7 +107,7 @@ class TowerManager(
         val oldActionsPerTurn = defender.actionsPerTurnCalculated
         val oldLevel = defender.level.value
 
-        state.coins.value -= defender.upgradeCost
+        state.coins.value -= if (state.level.isSandbox) 0 else defender.upgradeCost
         defender.level.value++
         GameLogBuffer.log("TOWER", "Upgraded ${defender.type.name} to Lv${defender.level.value} (cost: ${defender.upgradeCost})")
 

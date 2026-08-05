@@ -16,7 +16,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 ### Tower Attack Sounds
 
 #### 1. attack_melee.wav
-- **Download Page**: https://freesound.org/people/xkeril/sounds/790611/
+
+- **Download Page**: <https://freesound.org/people/xkeril/sounds/790611/>
 - **Direct Link**: Login required, use download page
 - **Author**: xkeril
 - **Original Filename**: Will be shown on download page
@@ -25,7 +26,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 - **Use**: Melee attacks (Spike/Pike towers)
 
 #### 2. attack_ranged.wav
-- **Download Page**: https://freesound.org/people/Erdie/sounds/65733/
+
+- **Download Page**: <https://freesound.org/people/Erdie/sounds/65733/>
 - **Direct Link**: Login required, use download page
 - **Author**: Erdie
 - **Original Filename**: Will be shown on download page
@@ -34,7 +36,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 - **Use**: Ranged attacks (Bow/Spear/Ballista towers)
 
 #### 3. attack_area.wav
-- **Download Page**: https://freesound.org/people/IENBA/sounds/739487/
+
+- **Download Page**: <https://freesound.org/people/IENBA/sounds/739487/>
 - **Direct Link**: Login required, use download page
 - **Author**: IENBA
 - **Original Filename**: Will be shown on download page
@@ -43,7 +46,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 - **Use**: Area attacks (Wizard fireball)
 
 #### 4. attack_lasting.wav
-- **Download Page**: https://freesound.org/people/Nox_Sound/sounds/584209/
+
+- **Download Page**: <https://freesound.org/people/Nox_Sound/sounds/584209/>
 - **Direct Link**: Login required, use download page
 - **Author**: Nox_Sound
 - **Original Filename**: Will be shown on download page
@@ -54,7 +58,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 ### Enemy Event Sounds
 
 #### 5. enemy_spawn.wav
-- **Download Page**: https://freesound.org/people/Reitanna/sounds/270385/
+
+- **Download Page**: <https://freesound.org/people/Reitanna/sounds/270385/>
 - **Direct Link**: Login required, use download page
 - **Author**: Reitanna
 - **Original Filename**: Will be shown on download page
@@ -63,7 +68,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 - **Use**: Enemy spawning
 
 #### 6. enemy_move.wav
-- **Download Page**: https://freesound.org/people/FunWithSound/sounds/744710/
+
+- **Download Page**: <https://freesound.org/people/FunWithSound/sounds/744710/>
 - **Direct Link**: Login required, use download page
 - **Author**: FunWithSound
 - **Original Filename**: Will be shown on download page
@@ -72,7 +78,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 - **Use**: Enemy movement
 
 #### 7. enemy_destroyed.wav
-- **Download Page**: https://freesound.org/people/NenadSimic/sounds/249816/
+
+- **Download Page**: <https://freesound.org/people/NenadSimic/sounds/249816/>
 - **Direct Link**: Login required, use download page
 - **Author**: NenadSimic
 - **Original Filename**: Will be shown on download page
@@ -83,7 +90,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 ### Mine Operation Sounds
 
 #### 8. mine_dig.wav
-- **Download Page**: https://freesound.org/people/LegendOfZelda/sounds/635702/
+
+- **Download Page**: <https://freesound.org/people/LegendOfZelda/sounds/635702/>
 - **Direct Link**: Login required, use download page
 - **Author**: LegendOfZelda
 - **Original Filename**: Will be shown on download page
@@ -92,7 +100,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 - **Use**: Dwarven mine digging action
 
 #### 9. mine_coin.wav
-- **Download Page**: https://freesound.org/people/stomachache/sounds/920/
+
+- **Download Page**: <https://freesound.org/people/stomachache/sounds/920/>
 - **Direct Link**: Login required, use download page
 - **Author**: stomachache
 - **Original Filename**: Will be shown on download page
@@ -101,7 +110,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 - **Use**: Coins found in mine
 
 #### 10. mine_trap.wav
-- **Download Page**: https://freesound.org/people/Benboncan/sounds/12275/
+
+- **Download Page**: <https://freesound.org/people/Benboncan/sounds/12275/>
 - **Direct Link**: Login required, use download page
 - **Author**: Benboncan
 - **Original Filename**: Will be shown on download page
@@ -110,7 +120,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 - **Use**: Trap built in mine
 
 #### 11. mine_dragon.wav
-- **Download Page**: https://freesound.org/people/scorpion67890/sounds/315793/
+
+- **Download Page**: <https://freesound.org/people/scorpion67890/sounds/315793/>
 - **Direct Link**: Login required, use download page
 - **Author**: scorpion67890
 - **Original Filename**: Will be shown on download page
@@ -121,7 +132,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 ### Special Event Sounds
 
 #### 12. trap_trigger.wav
-- **Download Page**: https://freesound.org/people/klankbeeld/sounds/242029/
+
+- **Download Page**: <https://freesound.org/people/klankbeeld/sounds/242029/>
 - **Direct Link**: Login required, use download page
 - **Author**: klankbeeld
 - **Original Filename**: Will be shown on download page
@@ -130,7 +142,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 - **Use**: Trap activation
 
 #### 13. life_lost.wav
-- **Download Page**: https://freesound.org/people/Reitanna/sounds/270385/
+
+- **Download Page**: <https://freesound.org/people/Reitanna/sounds/270385/>
 - **Direct Link**: Login required, use download page
 - **Author**: Reitanna
 - **Original Filename**: Will be shown on download page
@@ -139,7 +152,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 - **Use**: Life lost when enemy reaches target
 
 #### 14. dragon_eat.wav
-- **Download Page**: https://freesound.org/people/MattRuthSound/sounds/712067/
+
+- **Download Page**: <https://freesound.org/people/MattRuthSound/sounds/712067/>
 - **Direct Link**: Login required, use download page
 - **Author**: MattRuthSound
 - **Original Filename**: Will be shown on download page
@@ -150,7 +164,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 ### UI Sounds
 
 #### 15. button_click.wav
-- **Download Page**: https://freesound.org/people/NenadSimic/sounds/343000/
+
+- **Download Page**: <https://freesound.org/people/NenadSimic/sounds/343000/>
 - **Direct Link**: Login required, use download page
 - **Author**: NenadSimic
 - **Original Filename**: Will be shown on download page
@@ -159,7 +174,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 - **Use**: Button clicks
 
 #### 16. tower_placed.wav
-- **Download Page**: https://freesound.org/people/fins/sounds/271134/
+
+- **Download Page**: <https://freesound.org/people/fins/sounds/271134/>
 - **Direct Link**: Login required, use download page
 - **Author**: fins
 - **Original Filename**: Will be shown on download page
@@ -168,7 +184,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 - **Use**: Tower placement
 
 #### 17. tower_upgraded.wav
-- **Download Page**: https://freesound.org/people/Cabeeno_Rossley/sounds/528958/
+
+- **Download Page**: <https://freesound.org/people/Cabeeno_Rossley/sounds/528958/>
 - **Direct Link**: Login required, use download page
 - **Author**: Cabeeno_Rossley
 - **Original Filename**: Will be shown on download page
@@ -177,7 +194,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 - **Use**: Tower upgrade
 
 #### 18. tower_sold.wav
-- **Download Page**: https://freesound.org/people/ProjectsU013/sounds/451775/
+
+- **Download Page**: <https://freesound.org/people/ProjectsU013/sounds/451775/>
 - **Direct Link**: Login required, use download page
 - **Author**: ProjectsU013
 - **Original Filename**: Will be shown on download page
@@ -188,7 +206,8 @@ This document provides direct download URLs for all 19 game sound files from Fre
 ### Game Phase Sounds
 
 #### 19. battle_start.wav
-- **Download Page**: https://freesound.org/people/Robinhood76/sounds/413203/
+
+- **Download Page**: <https://freesound.org/people/Robinhood76/sounds/413203/>
 - **Direct Link**: Login required, use download page
 - **Author**: Robinhood76
 - **Original Filename**: Will be shown on download page
@@ -203,6 +222,7 @@ This document provides direct download URLs for all 19 game sound files from Fre
 ### 1. Check License Information
 
 For each sound you download, note the license on the download page:
+
 - **CC0**: Public domain, no attribution required (but appreciated)
 - **CC-BY 3.0** or **CC-BY 4.0**: Attribution required
 - **CC-BY-NC**: Non-commercial use only
@@ -230,12 +250,14 @@ This game uses sounds from Freesound.org under Creative Commons licenses.
 ### 3. Convert Audio Format (if needed)
 
 All sounds must be:
+
 - **Format**: WAV
 - **Sample Rate**: 22050 Hz (preferred) or 44100 Hz  
 - **Channels**: Mono (preferred, smaller size)
 - **Bit Depth**: 16-bit
 
 **Using FFmpeg:**
+
 ```bash
 # Convert any audio file to required format
 ffmpeg -i input.mp3 -ar 22050 -ac 1 -sample_fmt s16 output.wav
@@ -247,6 +269,7 @@ done
 ```
 
 **Using Sox:**
+
 ```bash
 # Convert to required format
 sox input.wav -r 22050 -c 1 -b 16 output.wav
@@ -258,6 +281,7 @@ done
 ```
 
 **Using Audacity (GUI):**
+
 1. Open the sound file
 2. Tracks → Resample → Set to 22050 Hz
 3. Tracks → Mix → Mix Stereo Down to Mono (if stereo)
@@ -269,6 +293,7 @@ done
 Sounds should be short (0.1 - 1.0 seconds):
 
 **Using FFmpeg:**
+
 ```bash
 # Trim to first 0.5 seconds
 ffmpeg -i input.wav -t 0.5 -c copy output.wav
@@ -278,6 +303,7 @@ ffmpeg -i input.wav -af "afade=t=out:st=0.4:d=0.1" output.wav
 ```
 
 **Using Audacity:**
+
 1. Select the portion you want to keep
 2. Edit → Remove Audio or Trim Audio
 3. Add fade out: Effect → Fade Out
@@ -287,6 +313,7 @@ ffmpeg -i input.wav -af "afade=t=out:st=0.4:d=0.1" output.wav
 If sounds are too loud or too quiet:
 
 **Using FFmpeg:**
+
 ```bash
 # Decrease volume by 3dB
 ffmpeg -i input.wav -af "volume=-3dB" output.wav
@@ -299,6 +326,7 @@ ffmpeg -i input.wav -af "loudnorm" output.wav
 ```
 
 **Using Sox:**
+
 ```bash
 # Normalize to -3dB peak
 sox input.wav output.wav norm -3
@@ -308,30 +336,31 @@ sox input.wav output.wav norm -3
 
 ### All Download URLs in Order
 
-1. https://freesound.org/people/xkeril/sounds/790611/ (attack_melee.wav)
-2. https://freesound.org/people/Erdie/sounds/65733/ (attack_ranged.wav)
-3. https://freesound.org/people/IENBA/sounds/739487/ (attack_area.wav)
-4. https://freesound.org/people/Nox_Sound/sounds/584209/ (attack_lasting.wav)
-5. https://freesound.org/people/Reitanna/sounds/270385/ (enemy_spawn.wav)
-6. https://freesound.org/people/FunWithSound/sounds/744710/ (enemy_move.wav)
-7. https://freesound.org/people/NenadSimic/sounds/249816/ (enemy_destroyed.wav)
-8. https://freesound.org/people/LegendOfZelda/sounds/635702/ (mine_dig.wav)
-9. https://freesound.org/people/stomachache/sounds/920/ (mine_coin.wav)
-10. https://freesound.org/people/Benboncan/sounds/12275/ (mine_trap.wav)
-11. https://freesound.org/people/scorpion67890/sounds/315793/ (mine_dragon.wav)
-12. https://freesound.org/people/klankbeeld/sounds/242029/ (trap_trigger.wav)
-13. https://freesound.org/people/Reitanna/sounds/270385/ (life_lost.wav - same as enemy_spawn, or choose alternative)
-14. https://freesound.org/people/MattRuthSound/sounds/712067/ (dragon_eat.wav)
-15. https://freesound.org/people/NenadSimic/sounds/343000/ (button_click.wav)
-16. https://freesound.org/people/fins/sounds/271134/ (tower_placed.wav)
-17. https://freesound.org/people/Cabeeno_Rossley/sounds/528958/ (tower_upgraded.wav)
-18. https://freesound.org/people/ProjectsU013/sounds/451775/ (tower_sold.wav)
-19. https://freesound.org/people/Robinhood76/sounds/413203/ (battle_start.wav)
+1. <https://freesound.org/people/xkeril/sounds/790611/> (attack_melee.wav)
+2. <https://freesound.org/people/Erdie/sounds/65733/> (attack_ranged.wav)
+3. <https://freesound.org/people/IENBA/sounds/739487/> (attack_area.wav)
+4. <https://freesound.org/people/Nox_Sound/sounds/584209/> (attack_lasting.wav)
+5. <https://freesound.org/people/Reitanna/sounds/270385/> (enemy_spawn.wav)
+6. <https://freesound.org/people/FunWithSound/sounds/744710/> (enemy_move.wav)
+7. <https://freesound.org/people/NenadSimic/sounds/249816/> (enemy_destroyed.wav)
+8. <https://freesound.org/people/LegendOfZelda/sounds/635702/> (mine_dig.wav)
+9. <https://freesound.org/people/stomachache/sounds/920/> (mine_coin.wav)
+10. <https://freesound.org/people/Benboncan/sounds/12275/> (mine_trap.wav)
+11. <https://freesound.org/people/scorpion67890/sounds/315793/> (mine_dragon.wav)
+12. <https://freesound.org/people/klankbeeld/sounds/242029/> (trap_trigger.wav)
+13. <https://freesound.org/people/Reitanna/sounds/270385/> (life_lost.wav - same as enemy_spawn, or choose alternative)
+14. <https://freesound.org/people/MattRuthSound/sounds/712067/> (dragon_eat.wav)
+15. <https://freesound.org/people/NenadSimic/sounds/343000/> (button_click.wav)
+16. <https://freesound.org/people/fins/sounds/271134/> (tower_placed.wav)
+17. <https://freesound.org/people/Cabeeno_Rossley/sounds/528958/> (tower_upgraded.wav)
+18. <https://freesound.org/people/ProjectsU013/sounds/451775/> (tower_sold.wav)
+19. <https://freesound.org/people/Robinhood76/sounds/413203/> (battle_start.wav)
 
 ### Copy-Paste List for Browser Tabs
 
 Open all URLs at once by pasting into your browser:
-```
+
+```text
 https://freesound.org/people/xkeril/sounds/790611/
 https://freesound.org/people/Erdie/sounds/65733/
 https://freesound.org/people/IENBA/sounds/739487/
@@ -356,41 +385,50 @@ https://freesound.org/people/Robinhood76/sounds/413203/
 
 If any of the primary sounds don't fit well, here are alternatives:
 
-### attack_melee.wav alternatives:
-- https://freesound.org/people/xkeril/sounds/762792/
-- https://freesound.org/people/Vortex123/sounds/794249/
+### attack_melee.wav alternatives
 
-### attack_ranged.wav alternatives:
-- https://freesound.org/people/JarredGibb/sounds/805088/
-- https://freesound.org/people/Yin_Yang_Jake007/sounds/534951/
+- <https://freesound.org/people/xkeril/sounds/762792/>
+- <https://freesound.org/people/Vortex123/sounds/794249/>
 
-### attack_area.wav alternatives:
-- https://freesound.org/people/EvanBoyerman/sounds/828759/
-- https://freesound.org/people/tommccann/sounds/633234/
+### attack_ranged.wav alternatives
 
-### enemy_spawn.wav alternatives:
-- https://freesound.org/people/BEAST_M0DE/sounds/340160/
-- https://freesound.org/people/Zabuhailo/sounds/171638/
+- <https://freesound.org/people/JarredGibb/sounds/805088/>
+- <https://freesound.org/people/Yin_Yang_Jake007/sounds/534951/>
 
-### enemy_move.wav alternatives:
-- https://freesound.org/people/GameAudio/sounds/386520/
-- https://freesound.org/people/Reitanna/sounds/270416/
+### attack_area.wav alternatives
 
-### mine_coin.wav alternatives:
-- https://freesound.org/people/ProjectsU013/sounds/371062/
-- https://freesound.org/people/MATRIXXX_/sounds/350871/
+- <https://freesound.org/people/EvanBoyerman/sounds/828759/>
+- <https://freesound.org/people/tommccann/sounds/633234/>
 
-### mine_trap.wav alternatives:
-- https://freesound.org/people/AntonBejenaru/sounds/518731/
-- https://freesound.org/people/klankbeeld/sounds/242029/
+### enemy_spawn.wav alternatives
 
-### mine_dragon.wav alternatives:
-- https://freesound.org/people/Alex_Jauk/sounds/3424813/
-- https://freesound.org/people/Nox_Sound/sounds/232108/
+- <https://freesound.org/people/BEAST_M0DE/sounds/340160/>
+- <https://freesound.org/people/Zabuhailo/sounds/171638/>
 
-### dragon_eat.wav alternatives:
-- https://freesound.org/people/fins/sounds/131051/
-- https://freesound.org/people/MATRIXXX_/sounds/337731/
+### enemy_move.wav alternatives
+
+- <https://freesound.org/people/GameAudio/sounds/386520/>
+- <https://freesound.org/people/Reitanna/sounds/270416/>
+
+### mine_coin.wav alternatives
+
+- <https://freesound.org/people/ProjectsU013/sounds/371062/>
+- <https://freesound.org/people/MATRIXXX_/sounds/350871/>
+
+### mine_trap.wav alternatives
+
+- <https://freesound.org/people/AntonBejenaru/sounds/518731/>
+- <https://freesound.org/people/klankbeeld/sounds/242029/>
+
+### mine_dragon.wav alternatives
+
+- <https://freesound.org/people/Alex_Jauk/sounds/3424813/>
+- <https://freesound.org/people/Nox_Sound/sounds/232108/>
+
+### dragon_eat.wav alternatives
+
+- <https://freesound.org/people/fins/sounds/131051/>
+- <https://freesound.org/people/MATRIXXX_/sounds/337731/>
 
 ## Notes
 

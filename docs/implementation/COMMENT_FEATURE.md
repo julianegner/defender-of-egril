@@ -1,11 +1,13 @@
 # Save Game Comment Feature
 
 ## Overview
+
 This feature adds the ability for players to add an optional comment when saving a game. The comment is displayed in the load game screen, helping players identify and distinguish between different save files.
 
 ## User Experience
 
 ### Saving a Game with a Comment
+
 When the player clicks the "Save Game" button during gameplay:
 
 1. A dialog appears titled "Save Game"
@@ -24,6 +26,7 @@ When the player clicks the "Save Game" button during gameplay:
    - A confirmation dialog appears: "Game Saved"
 
 ### Viewing Comments in Load Game Screen
+
 When viewing the list of saved games:
 
 1. Each save game card displays (if a comment exists):
@@ -39,6 +42,7 @@ When viewing the list of saved games:
 ### Data Model Changes
 
 #### SavedGame
+
 ```kotlin
 data class SavedGame(
     // ... existing fields ...
@@ -47,6 +51,7 @@ data class SavedGame(
 ```
 
 #### SaveGameMetadata
+
 ```kotlin
 data class SaveGameMetadata(
     // ... existing fields ...
@@ -55,6 +60,7 @@ data class SaveGameMetadata(
 ```
 
 ### JSON Serialization
+
 The comment is stored in the save file JSON with proper escaping:
 
 ```json
@@ -67,6 +73,7 @@ The comment is stored in the save file JSON with proper escaping:
 ```
 
 Special characters are properly escaped:
+
 - Newlines: `\n`
 - Quotes: `\"`
 - Backslashes: `\\`
@@ -76,6 +83,7 @@ Special characters are properly escaped:
 ### UI Components
 
 #### Save Dialog (GamePlayScreen.kt)
+
 ```kotlin
 // Save game dialog (with optional comment input)
 if (showSaveDialog && onSaveGame != null) {
@@ -114,6 +122,7 @@ if (showSaveDialog && onSaveGame != null) {
 ```
 
 #### Comment Display (LoadGameScreen.kt)
+
 ```kotlin
 // Display comment if present
 if (!saveGame.comment.isNullOrBlank()) {
@@ -156,6 +165,7 @@ The implementation is fully backward compatible:
 ## Testing
 
 ### Unit Tests
+
 Three new tests were added to `SaveDataTest.kt`:
 
 1. **testSavedGameWithComment**: Verifies serialization/deserialization of a comment

@@ -4,10 +4,10 @@
 
 The easiest way to run the Playwright UI tests is through GitHub Actions:
 
-### Steps:
+### Steps
 
 1. **Navigate to Actions Tab**
-   - Go to the GitHub repository: https://github.com/julianegner/defender-of-egril
+   - Go to the GitHub repository: <https://github.com/julianegner/defender-of-egril>
    - Click on the "Actions" tab at the top
 
 2. **Select Workflow**
@@ -31,7 +31,7 @@ The easiest way to run the Playwright UI tests is through GitHub Actions:
      - **test-videos**: Video recordings of any failed tests
    - Artifacts are retained for 30 days
 
-### What the Workflow Does:
+### What the Workflow Does
 
 1. ✅ Checks out the code
 2. ⚙️ Sets up JDK 24 and Gradle
@@ -43,37 +43,30 @@ The easiest way to run the Playwright UI tests is through GitHub Actions:
 8. 📸 Captures screenshots at each step
 9. 📤 Uploads all results as artifacts
 
-## Running Locally
-
-If you want to run the tests on your own machine:
-
-### Prerequisites:
-```bash
-# Check you have Node.js installed
-node --version  # Should be v20 or later
-
-# Check you have JDK installed  
-java --version  # Should be JDK 11 or later
-```
-
-### Steps:
+### Local Run Steps
 
 1. **Install Dependencies**
+
    ```bash
    npm install
+
    ```
 
 2. **Install Playwright Browsers**
+
    ```bash
    npx playwright install chromium
    ```
 
 3. **Run Tests**
+
    ```bash
    npx playwright test
+
    ```
-   
+
    Or run in headed mode (see the browser):
+
    ```bash
    npm run test:headed
    ```
@@ -82,9 +75,10 @@ java --version  # Should be JDK 11 or later
    - Screenshots: `test-screenshots/playwright/`
    - HTML Report: Run `npx playwright show-report`
 
-### Troubleshooting:
+### Troubleshooting
 
 **Port 8080 already in use:**
+
 ```bash
 # Find and kill the process using port 8080
 lsof -ti:8080 | xargs kill -9  # macOS/Linux
@@ -92,6 +86,7 @@ netstat -ano | findstr :8080   # Windows (then kill the PID)
 ```
 
 **Tests fail immediately:**
+
 - Check the Gradle build completes successfully: `./gradlew :composeApp:wasmJsBrowserDistribution`
 - Ensure port 8080 is available
 - Try increasing timeouts in `playwright.config.ts`
@@ -99,7 +94,9 @@ netstat -ano | findstr :8080   # Windows (then kill the PID)
 ## Understanding Test Results
 
 ### Screenshots
+
 Sequential screenshots show the test progression:
+
 - `001_initial_load.png` - Game starting to load
 - `002_game_loaded.png` - Main menu visible
 - `003_clicked_start_game.png` - After "Start Game" clicked
@@ -108,7 +105,9 @@ Sequential screenshots show the test progression:
 - `0XX_turn_N_after_attacks.png` - After attacks executed
 
 ### Playwright Report
+
 The HTML report includes:
+
 - Test execution timeline
 - Pass/fail status for each test
 - Screenshots embedded at each step
@@ -116,7 +115,9 @@ The HTML report includes:
 - Performance metrics
 
 ### Videos
+
 Only created when tests fail, showing:
+
 - Full browser recording from test start to failure
 - Helps debug what went wrong visually
 

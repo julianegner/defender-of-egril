@@ -32,6 +32,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.AppBuildInfo
 import de.egril.defender.WithImpressum
 import de.egril.defender.iam.IamState
+import de.egril.defender.ui.announcements.villains.VillainsAnnouncementTriangle
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.icon.HelpIcon
@@ -205,6 +206,7 @@ fun MainMenuScreen(
     onShowInstallationInfo: () -> Unit,
     onShowDownloadInfo: () -> Unit = {},
     onShowBackendInfo: () -> Unit = {},
+    onOpenVillainsAnnouncement: () -> Unit = {},
     onEditPlayerName: () -> Unit,
     currentPlayerName: String?,
     iamState: IamState = IamState(),
@@ -1142,6 +1144,10 @@ fun MainMenuScreen(
                             .heightIn(max = (maxHeight - 56.dp).coerceAtLeast(140.dp)),
                 )
             }
+            VillainsAnnouncementTriangle(
+                modifier = Modifier.fillMaxSize(),
+                onClick = onOpenVillainsAnnouncement,
+            )
         }
 
         // Exit confirmation dialog

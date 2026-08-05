@@ -9,7 +9,8 @@ This guide shows the visual differences between normal mode and official edit mo
 ### Normal Mode (official=false)
 
 **Map List View:**
-```
+
+```text
 ┌─────────────────────────────────────────┐
 │ Official Maps                            │
 ├─────────────────────────────────────────┤
@@ -26,7 +27,8 @@ This guide shows the visual differences between normal mode and official edit mo
 ```
 
 **Map Editor View (when editing official map):**
-```
+
+```text
 ┌─────────────────────────────────────────┐
 │ Map Editor - map_tutorial               │
 ├─────────────────────────────────────────┤
@@ -47,7 +49,8 @@ This guide shows the visual differences between normal mode and official edit mo
 ### Official Edit Mode (official=true)
 
 **Map List View:**
-```
+
+```text
 ┌─────────────────────────────────────────┐
 │ Official Maps                            │
 ├─────────────────────────────────────────┤
@@ -64,7 +67,8 @@ This guide shows the visual differences between normal mode and official edit mo
 ```
 
 **Map Editor View (when editing official map):**
-```
+
+```text
 ┌─────────────────────────────────────────┐
 │ Map Editor - map_tutorial               │
 ├─────────────────────────────────────────┤
@@ -87,7 +91,8 @@ This guide shows the visual differences between normal mode and official edit mo
 ### Normal Mode (official=false)
 
 **Level Editor View:**
-```
+
+```text
 ┌─────────────────────────────────────────┐
 │ Level Editor - welcome_to_defender      │
 ├─────────────────────────────────────────┤
@@ -114,7 +119,8 @@ This guide shows the visual differences between normal mode and official edit mo
 ### Official Edit Mode (official=true)
 
 **Level Editor View:**
-```
+
+```text
 ┌─────────────────────────────────────────┐
 │ Level Editor - welcome_to_defender      │
 ├─────────────────────────────────────────┤
@@ -143,7 +149,8 @@ This guide shows the visual differences between normal mode and official edit mo
 ### Normal Mode (official=false)
 
 When closing with unsaved changes in gameplay:
-```
+
+```text
 ┌────────────────────────────────────────┐
 │ ⚠️ Unsaved Changes                     │
 ├────────────────────────────────────────┤
@@ -159,7 +166,8 @@ No dialog when closing after editing official content (can't edit it).
 ### Official Edit Mode (official=true)
 
 When closing after editing official content:
-```
+
+```text
 ┌────────────────────────────────────────┐
 │ ⚠️ Official Game Data Modified         │
 ├────────────────────────────────────────┤
@@ -183,7 +191,8 @@ When closing after editing official content:
 ```
 
 After clicking "Understood", if there are also unsaved game changes:
-```
+
+```text
 ┌────────────────────────────────────────┐
 │ ⚠️ Unsaved Changes                     │
 ├────────────────────────────────────────┤
@@ -199,28 +208,33 @@ After clicking "Understood", if there are also unsaved game changes:
 ### Button States
 
 **Disabled (Normal Mode):**
+
 - Background: Light gray (#E0E0E0 in light mode, #3A3A3A in dark mode)
 - Text: Medium gray (#9E9E9E)
 - Cursor: Not allowed (🚫)
 
 **Enabled (Official Edit Mode):**
+
 - Background: Theme primary color (blue)
 - Text: White
 - Cursor: Pointer (👆)
 
 **Delete Button Specifically:**
+
 - When disabled: Gray background
 - When enabled: Red background (#D32F2F)
 
 ### Input Fields
 
 **Disabled (Normal Mode):**
+
 - Background: Light gray (#F5F5F5)
 - Border: Gray (#BDBDBD)
 - Text: Medium gray (#757575)
 - Cursor: Not allowed (🚫)
 
 **Enabled (Official Edit Mode):**
+
 - Background: White (light mode) / Dark gray (dark mode)
 - Border: Primary color when focused
 - Text: Normal color
@@ -231,7 +245,8 @@ After clicking "Understood", if there are also unsaved game changes:
 Throughout the UI, official content shows a badge:
 
 **Normal Mode & Official Edit Mode (same):**
-```
+
+```text
 ┌────────────────────┐
 │ map_tutorial       │
 │ [Official] badge   │
@@ -256,6 +271,7 @@ The badge remains visible in both modes to remind users they're working with off
 ## User Experience Flow
 
 ### Normal Mode Flow
+
 1. User opens editor
 2. User selects official map/level
 3. User sees "Official" badge
@@ -264,6 +280,7 @@ The badge remains visible in both modes to remind users they're working with off
 6. No warning on close
 
 ### Official Edit Mode Flow
+
 1. User builds with `-Pofficial=true`
 2. User opens editor
 3. User selects official map/level
@@ -279,17 +296,20 @@ The badge remains visible in both modes to remind users they're working with off
 ## Best Practices
 
 ### Visual Feedback
+
 - The "Official" badge is always shown regardless of mode
 - In official edit mode, there's no special visual indicator that the mode is active
 - The only difference is button/input enabled states
 - This is intentional to avoid cluttering the UI
 
 ### User Protection
+
 - Even though controls are enabled, the warning dialog provides a safety net
 - The warning clearly explains the consequences
 - Users must explicitly acknowledge the warning to continue
 
 ### Developer Experience
+
 - Developers don't need to remember which mode they're in
 - The UI behaves naturally based on the compile flag
 - No runtime switches or configuration needed

@@ -4,7 +4,7 @@ This document provides a visual representation of the collapsible header feature
 
 ## Expanded State (Default)
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────────┐
 │  Map Editor Header (Full Controls)                    [▲ Collapse]│
 ├──────────────────────────────────────────────────────────────────┤
@@ -41,7 +41,7 @@ This document provides a visual representation of the collapsible header feature
 
 ## Collapsed State
 
-```
+```text
 ┌─────────────────────────────────────┐
 │ [  Current: PATH   ▼ ]  [▼]         │  ← Small card on left side
 └─────────────────────────────────────┘
@@ -65,7 +65,7 @@ When dropdown is clicked:
 
 When RIVER is selected from the dropdown in collapsed mode:
 
-```
+```text
           ┌────────────────────────────────────┐
           │  River Properties                 │
           ├────────────────────────────────────┤
@@ -84,7 +84,8 @@ When RIVER is selected from the dropdown in collapsed mode:
 ## Map Area Comparison
 
 ### With Expanded Header
-```
+
+```text
 ┌──────────────────────────────────────┐
 │ ████████████████████████████████████ │ ← Header (280dp)
 ├──────────────────────────────────────┤
@@ -100,7 +101,8 @@ When RIVER is selected from the dropdown in collapsed mode:
 ```
 
 ### With Collapsed Header
-```
+
+```text
 ┌──────────────────┐
 │ ██ [PATH ▼] [▼] │ ← Header (56dp)
 └──────────────────┘
@@ -125,7 +127,8 @@ When RIVER is selected from the dropdown in collapsed mode:
 ## User Interaction Flow
 
 ### Collapsing the Header
-```
+
+```text
 1. User sees expanded header with all controls
    ↓
 2. User clicks [▲ Collapse] button
@@ -138,7 +141,8 @@ When RIVER is selected from the dropdown in collapsed mode:
 ```
 
 ### Selecting RIVER Tile in Collapsed Mode
-```
+
+```text
 1. User clicks [PATH ▼] dropdown button
    ↓
 2. Dropdown menu appears with all 7 tile types
@@ -157,7 +161,8 @@ When RIVER is selected from the dropdown in collapsed mode:
 ```
 
 ### Expanding the Header
-```
+
+```text
 1. User working with collapsed header
    ↓
 2. User wants access to more controls
@@ -172,15 +177,18 @@ When RIVER is selected from the dropdown in collapsed mode:
 ## Benefits Visualization
 
 ### Space Savings
+
 - **Expanded**: 280dp header + remaining space for map
 - **Collapsed**: 56dp header + remaining space for map
 - **Gain**: ~224dp additional vertical space (80% reduction in header size)
 
 ### Control Accessibility
+
 - **Expanded**: All controls immediately visible
 - **Collapsed**: Essential controls (tile selection) remain accessible via dropdown
 
 ### Workflow Flexibility
+
 - **Initial Setup**: Use expanded header for configuration
 - **Active Editing**: Use collapsed header for maximum map visibility
 - **Quick Changes**: Use dropdown for rapid tile type switching
