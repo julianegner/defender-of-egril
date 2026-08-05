@@ -213,7 +213,7 @@
   "waypoints": [
     
   ],
-  "prerequisites": ["the_fortress_5_mighty_forces"],
+  "prerequisites": ["the_fortress_2_orks_marching"],
   "allowAutoAttack": true,
   "connectedToPreviousLevel": true,
   "isOfficial": true
