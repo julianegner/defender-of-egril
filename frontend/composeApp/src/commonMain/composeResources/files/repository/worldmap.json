@@ -18,7 +18,7 @@
       "name": "The Beginning",
       "nameKey": "location_the_beginning_name",
       "position": {"x": 167, "y": 589},
-      "levelIds": ["the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises"],
+      "levelIds": ["the_first_wave"],
       "iconResourceName": "start"
     },
     {
