@@ -774,6 +774,7 @@ class CombatSystem(
         val killsThisAttack = actualKills.size
         val killedTypes = actualKills.map { it.type }
         val killInfos = pendingKillInfos.toList()
+        pendingKillInfos.clear()
 
         if (killsThisAttack > 0) {
             GameLogBuffer.log("COMBAT", "Defeated $killsThisAttack enemies: ${killedTypes.joinToString()}")
@@ -806,8 +807,6 @@ class CombatSystem(
         }
 
         // Calculate XP and coins for defeated enemies (merged swarm units are excluded)
-        pendingKillInfos.clear()
-
         for (attacker in actualKills) {
             queueSoulCallResurrection(attacker)
 
