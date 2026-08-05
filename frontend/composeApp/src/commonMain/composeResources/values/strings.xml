@@ -1305,6 +1305,9 @@
     <string name="achievement_kill_evil_wizard_name">Wizard Hunter</string>
     <string name="achievement_kill_demon_name">Demon Slayer</string>
     <string name="achievement_kill_ewhad_name">Ewhad Defeated</string>
+    <string name="achievement_headshot_name">Headshot</string>
+    <string name="achievement_with_help_from_a_friend_name">With Help from a Friend</string>
+    <string name="achievement_kill_villain_name">Villain Slayer</string>
     <string name="achievement_kill_witch_name">Witch Hunter</string>
 
     <string name="achievement_dig_first_time_name">First Dig</string>
@@ -1355,6 +1358,9 @@
     <string name="achievement_kill_evil_wizard_desc">Kill an Evil Wizard</string>
     <string name="achievement_kill_demon_desc">Kill a Demon</string>
     <string name="achievement_kill_ewhad_desc">Kill the boss Ewhad</string>
+    <string name="achievement_headshot_desc">Kill an uninjured enemy with a single hit</string>
+    <string name="achievement_with_help_from_a_friend_desc">Defeat an enemy using a support element</string>
+    <string name="achievement_kill_villain_desc">Defeat a villain</string>
     <string name="achievement_kill_witch_desc">Kill a Witch</string>
 
     <string name="achievement_dig_first_time_desc">Dig in a dwarven mine for the first time</string>

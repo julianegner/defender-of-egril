@@ -1174,8 +1174,13 @@ class GameViewModel {
                 // Set up combat result callback for kill tracking
                 gameEngine?.setCombatResultCallback { result ->
                     // Track kills from this attack
-                    result.killedEnemyTypes.forEach { enemyType ->
-                        achievementManager?.onEnemyKilled(enemyType, result.killsThisAttack)
+                    result.killInfos.forEach { killInfo ->
+                        achievementManager?.onEnemyKilled(
+                            enemyType = killInfo.enemyType,
+                            killsInThisAttack = result.killsThisAttack,
+                            wasUninjured = killInfo.wasUninjured,
+                            usedSupportElement = killInfo.usedSupportElement,
+                        )
                     }
                 }
 
@@ -1364,8 +1369,13 @@ class GameViewModel {
                         startLevel(newGameState.healthPoints.value)
                     }
                 gameEngine?.setCombatResultCallback { result ->
-                    result.killedEnemyTypes.forEach { enemyType ->
-                        achievementManager?.onEnemyKilled(enemyType, result.killsThisAttack)
+                    result.killInfos.forEach { killInfo ->
+                        achievementManager?.onEnemyKilled(
+                            enemyType = killInfo.enemyType,
+                            killsInThisAttack = result.killsThisAttack,
+                            wasUninjured = killInfo.wasUninjured,
+                            usedSupportElement = killInfo.usedSupportElement,
+                        )
                     }
                 }
                 gameEngine?.setRaftLossCallback { reason ->
