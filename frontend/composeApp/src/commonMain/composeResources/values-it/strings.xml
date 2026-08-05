@@ -1328,7 +1328,13 @@
     <string name="achievement_kill_demon_desc">Uccidi un Demone</string>
     <string name="achievement_kill_ewhad_name">Ewhad Sconfitto</string>
     <string name="achievement_kill_ewhad_desc">Uccidi il boss Ewhad</string>
+    <string name="achievement_headshot_name">Colpo Perfetto</string>
+    <string name="achievement_with_help_from_a_friend_name">Con l'Aiuto di un Amico</string>
+    <string name="achievement_kill_villain_name">Cacciatore di Villani</string>
     <string name="achievement_kill_witch_name">Cacciatore di Streghe</string>
+    <string name="achievement_headshot_desc">Sconfiggi un nemico illeso con un solo colpo</string>
+    <string name="achievement_with_help_from_a_friend_desc">Sconfiggi un nemico usando un elemento di supporto</string>
+    <string name="achievement_kill_villain_desc">Sconfiggi un villain</string>
     <string name="achievement_kill_witch_desc">Uccidi una Strega</string>
 
     <!-- Achievements: Mining -->

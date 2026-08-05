@@ -10,6 +10,7 @@ import de.egril.defender.model.*
  */
 class MineOperations(
     private val state: GameState,
+    private val onSupportTrapKill: ((AttackerType, Boolean) -> Unit)? = null,
 ) {
     fun performMineDig(mineId: Int): DigOutcome? {
         val mine = state.defenders.find { it.id == mineId && it.type == DefenderType.DWARVEN_MINE } ?: return null
@@ -472,6 +473,7 @@ class MineOperations(
 
             when (trapAtPosition.type) {
                 TrapType.DWARVEN -> {
+                    val attackerWasUninjured = attacker.currentHealth.value == attacker.maxHealth
                     // Deal damage to enemy
                     if (!attacker.type.isMirrorImage) {
                         attacker.currentHealth.value -= trapAtPosition.damage
@@ -480,6 +482,9 @@ class MineOperations(
                     // Check if defeated
                     if (attacker.currentHealth.value <= 0) {
                         attacker.isDefeated.value = true
+                        if (trapAtPosition.defenderId < 0 && !attacker.type.isMirrorImage) {
+                            onSupportTrapKill?.invoke(attacker.type, attackerWasUninjured)
+                        }
                     }
                 }
                 TrapType.MAGICAL -> {

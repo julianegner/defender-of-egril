@@ -8,9 +8,16 @@ import de.egril.defender.model.*
 /**
  * Result of a combat action
  */
+data class CombatKillInfo(
+    val enemyType: AttackerType,
+    val wasUninjured: Boolean = false,
+    val usedSupportElement: Boolean = false,
+)
+
 data class CombatResult(
     val killsThisAttack: Int = 0,
     val killedEnemyTypes: List<AttackerType> = emptyList(),
+    val killInfos: List<CombatKillInfo> = emptyList(),
 )
 
 /**
@@ -29,12 +36,50 @@ class CombatSystem(
     // Callback for combat results (for achievements)
     var onCombatResult: ((CombatResult) -> Unit)? = null
 
+    private val pendingKillInfos = mutableListOf<CombatKillInfo>()
+
     /**
      * Reset turn counters at start of turn
      */
     fun startTurn() {
         killsThisTurn = 0
         killedTypesThisTurn.clear()
+        pendingKillInfos.clear()
+    }
+
+
+    private fun usesSupportElement(defender: Defender): Boolean {
+        if (defender.raftId.value != null) return true
+        val towerBaseId = defender.towerBaseBarricadeId.value ?: return false
+        val barricade = state.barricades.find { it.id == towerBaseId } ?: return false
+        return barricade.defenderId < 0
+    }
+
+    private fun recordDirectKill(
+        defender: Defender,
+        target: Attacker,
+        targetWasUninjured: Boolean,
+    ) {
+        pendingKillInfos.add(
+            CombatKillInfo(
+                enemyType = target.type,
+                wasUninjured = targetWasUninjured,
+                usedSupportElement = usesSupportElement(defender),
+            ),
+        )
+    }
+
+    fun recordSupportTrapKill(
+        attackerType: AttackerType,
+        wasUninjured: Boolean,
+    ) {
+        pendingKillInfos.add(
+            CombatKillInfo(
+                enemyType = attackerType,
+                wasUninjured = wasUninjured,
+                usedSupportElement = true,
+            ),
+        )
     }
 
     companion object {
@@ -439,9 +484,11 @@ class CombatSystem(
         ) {
             return
         }
+        val targetWasUninjured = target.currentHealth.value == target.maxHealth
         target.currentHealth.value -= getEffectiveDamageAgainst(defender, target)
         if (target.currentHealth.value <= 0) {
             target.isDefeated.value = true
+            recordDirectKill(defender, target, targetWasUninjured)
         }
 
         // Apply spike barbs effect (level 10+ with Construction level 1+)
@@ -504,9 +551,11 @@ class CombatSystem(
             if (target.type.isMirrorImage) continue
             // Check immunity to fireball (Red Demons)
             if (target.canBeDamagedByFireball()) {
+                val targetWasUninjured = target.currentHealth.value == target.maxHealth
                 target.currentHealth.value -= getEffectiveDamageAgainst(defender, target)
                 if (target.currentHealth.value <= 0) {
                     target.isDefeated.value = true
+                    recordDirectKill(defender, target, targetWasUninjured)
                 }
             }
         }
@@ -608,6 +657,7 @@ class CombatSystem(
             if (target.type.isMirrorImage) continue
             // Check immunity to acid (Blue Demons)
             if (target.canBeDamagedByAcid() && !target.type.immuneToNonMagicTowerDamage) {
+                val targetWasUninjured = target.currentHealth.value == target.maxHealth
                 // Initial damage is same as DOT tick damage (not full damage)
                 target.currentHealth.value -= getEffectiveDamageAgainst(defender, target) / LASTING_DAMAGE_DIVISOR
                 // Mark for additional rounds of DOT based on tower level
@@ -615,6 +665,7 @@ class CombatSystem(
 
                 if (target.currentHealth.value <= 0) {
                     target.isDefeated.value = true
+                    recordDirectKill(defender, target, targetWasUninjured)
                 }
             }
         }
@@ -722,6 +773,7 @@ class CombatSystem(
         // Track kills for this attack
         val killsThisAttack = actualKills.size
         val killedTypes = actualKills.map { it.type }
+        val killInfos = pendingKillInfos.toList()
 
         if (killsThisAttack > 0) {
             GameLogBuffer.log("COMBAT", "Defeated $killsThisAttack enemies: ${killedTypes.joinToString()}")
@@ -748,11 +800,14 @@ class CombatSystem(
                 CombatResult(
                     killsThisAttack = killsThisAttack,
                     killedEnemyTypes = killedTypes,
+                    killInfos = killInfos,
                 ),
             )
         }
 
         // Calculate XP and coins for defeated enemies (merged swarm units are excluded)
+        pendingKillInfos.clear()
+
         for (attacker in actualKills) {
             queueSoulCallResurrection(attacker)
 

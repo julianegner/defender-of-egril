@@ -27,7 +27,10 @@ class GameEngine(
         )
     private val enemyMovement = EnemyMovementSystem(state, pathfinding)
     private val enemyAbilities = EnemyAbilitySystem(state, pathfinding)
-    private val mineOperations = MineOperations(state)
+    private val mineOperations =
+        MineOperations(state) { attackerType, wasUninjured ->
+            combatSystem.recordSupportTrapKill(attackerType, wasUninjured)
+        }
     private val raftSystem = RaftSystem(state)
     private val barricadeSystem = BarricadeSystem(state) // Add barricade system
     private val eventScriptSystem = EventScriptSystem(state) // Scripted level events

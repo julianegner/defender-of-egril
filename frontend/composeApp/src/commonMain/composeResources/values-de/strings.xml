@@ -1325,7 +1325,13 @@
     <string name="achievement_kill_demon_desc">Töte einen Dämon</string>
     <string name="achievement_kill_ewhad_name">Ewhad besiegt</string>
     <string name="achievement_kill_ewhad_desc">Töte den Boss Ewhad</string>
+    <string name="achievement_headshot_name">Kopfschuss</string>
+    <string name="achievement_with_help_from_a_friend_name">Mit Hilfe eines Freundes</string>
+    <string name="achievement_kill_villain_name">Schurkenjäger</string>
     <string name="achievement_kill_witch_name">Hexenjäger</string>
+    <string name="achievement_headshot_desc">Besiege einen unverletzten Gegner mit einem einzigen Treffer</string>
+    <string name="achievement_with_help_from_a_friend_desc">Besiege einen Gegner mit einem Unterstützungselement</string>
+    <string name="achievement_kill_villain_desc">Besiege einen Schurken</string>
     <string name="achievement_kill_witch_desc">Töte eine Hexe</string>
 
     <!-- Achievements: Mining -->

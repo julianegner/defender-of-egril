@@ -1328,7 +1328,13 @@
     <string name="achievement_kill_demon_desc">Mata un Demonio</string>
     <string name="achievement_kill_ewhad_name">Ewhad Derrotado</string>
     <string name="achievement_kill_ewhad_desc">Mata al jefe Ewhad</string>
+    <string name="achievement_headshot_name">Disparo Certero</string>
+    <string name="achievement_with_help_from_a_friend_name">Con la Ayuda de un Amigo</string>
+    <string name="achievement_kill_villain_name">Cazavillanos</string>
     <string name="achievement_kill_witch_name">Cazador de Brujas</string>
+    <string name="achievement_headshot_desc">Derrota a un enemigo sin heridas de un solo golpe</string>
+    <string name="achievement_with_help_from_a_friend_desc">Derrota a un enemigo usando un elemento de apoyo</string>
+    <string name="achievement_kill_villain_desc">Derrota a un villano</string>
     <string name="achievement_kill_witch_desc">Mata una Bruja</string>
 
     <!-- Achievements: Mining -->

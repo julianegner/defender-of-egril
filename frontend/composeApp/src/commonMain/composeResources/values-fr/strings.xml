@@ -1328,7 +1328,13 @@
     <string name="achievement_kill_demon_desc">Tuez un Démon</string>
     <string name="achievement_kill_ewhad_name">Ewhad Vaincu</string>
     <string name="achievement_kill_ewhad_desc">Tuez le boss Ewhad</string>
+    <string name="achievement_headshot_name">Tir Parfait</string>
+    <string name="achievement_with_help_from_a_friend_name">Avec l'Aide d'un Ami</string>
+    <string name="achievement_kill_villain_name">Chasseur de Vilains</string>
     <string name="achievement_kill_witch_name">Chasseur de Sorcières</string>
+    <string name="achievement_headshot_desc">Tuez un ennemi indemne d'un seul coup</string>
+    <string name="achievement_with_help_from_a_friend_desc">Vainquez un ennemi à l'aide d'un élément de soutien</string>
+    <string name="achievement_kill_villain_desc">Vainquez un vilain</string>
     <string name="achievement_kill_witch_desc">Tuez une Sorcière</string>
 
     <!-- Achievements: Mining -->
