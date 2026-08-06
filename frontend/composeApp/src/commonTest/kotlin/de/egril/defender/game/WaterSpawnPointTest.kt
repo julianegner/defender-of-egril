@@ -37,6 +37,17 @@ class WaterSpawnPointTest {
     }
 
     @Test
+    fun pirateCanSpawnOnBothLandAndWater() {
+        assertTrue(AttackerType.PIRATE.canSpawnOnLand, "Pirate must be able to spawn on land")
+        assertTrue(AttackerType.PIRATE.canSpawnOnWater, "Pirate must be able to spawn on water")
+    }
+
+    @Test
+    fun pirateCanTraverseRiverTiles() {
+        assertTrue(AttackerType.PIRATE.canTraverseRiver, "Pirate must be able to move on water tiles")
+    }
+
+    @Test
     fun regularEnemiesAreSpawnOnLandOnly() {
         val landOnlyEnemies = listOf(
             AttackerType.GOBLIN,
@@ -99,6 +110,15 @@ class WaterSpawnPointTest {
         val level = levelWithBothSpawnTypes()
         val compatible = level.getCompatibleSpawnPoints(AttackerType.CAPTAIN_RODERICH)
         assertEquals(2, compatible.size, "Roderich must be compatible with both spawn point types")
+        assertTrue(compatible.contains(landSpawn))
+        assertTrue(compatible.contains(waterSpawn))
+    }
+
+    @Test
+    fun pirateGetsBothSpawnPoints() {
+        val level = levelWithBothSpawnTypes()
+        val compatible = level.getCompatibleSpawnPoints(AttackerType.PIRATE)
+        assertEquals(2, compatible.size, "Pirate must be compatible with both spawn point types")
         assertTrue(compatible.contains(landSpawn))
         assertTrue(compatible.contains(waterSpawn))
     }

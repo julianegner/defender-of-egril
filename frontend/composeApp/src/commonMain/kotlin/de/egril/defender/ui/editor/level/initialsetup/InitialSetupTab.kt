@@ -101,13 +101,15 @@ fun InitialSetupTab(
                     InitialSetupMinimap(
                         map = map,
                         placementMode = placementMode,
+                        selectedDefenderType = selectedDefenderType,
+                        selectedAttackerType = selectedAttackerType,
                         selectedFiefType = selectedFiefType,
                         initialData = initialData,
                         selectedElement = selectedElement,
                         onTileClick = { position ->
                             when (placementMode) {
                                 PlacementMode.DEFENDER -> {
-                                    if (canPlaceDefender(position, initialData, map)) {
+                                    if (canPlaceDefender(position, selectedDefenderType, initialData, map)) {
                                         val barricadeAtPosition = initialData.barricades.find { it.position == position }
                                         val isOnTowerBase = barricadeAtPosition?.canSupportTower() == true
                                         val newDefender =
@@ -129,7 +131,7 @@ fun InitialSetupTab(
                                     }
                                 }
                                 PlacementMode.ATTACKER -> {
-                                    if (canPlaceAttacker(position, initialData, map)) {
+                                    if (canPlaceAttacker(position, selectedAttackerType, initialData, map)) {
                                         val newAttacker =
                                             InitialAttacker(
                                                 type = selectedAttackerType,
@@ -378,6 +380,7 @@ private fun isPositionOccupied(
 
 private fun canPlaceDefender(
     position: Position,
+    selectedDefenderType: DefenderType,
     initialData: InitialData,
     map: EditorMap,
 ): Boolean {
@@ -386,7 +389,14 @@ private fun canPlaceDefender(
     val isOnTowerBase = barricadeAtPosition?.canSupportTower() == true
 
     // Must be valid tile type for defenders, OR be on a tower base
-    if (!isOnTowerBase && !isValidPlacement(position, PlacementMode.DEFENDER, map)) {
+    if (!isOnTowerBase &&
+        !isValidPlacement(
+            position,
+            PlacementMode.DEFENDER,
+            map,
+            selectedDefenderType = selectedDefenderType,
+        )
+    ) {
         return false
     }
 
@@ -401,11 +411,12 @@ private fun canPlaceDefender(
 
 private fun canPlaceAttacker(
     position: Position,
+    selectedAttackerType: AttackerType,
     initialData: InitialData,
     map: EditorMap,
 ): Boolean {
     // Must be valid tile type for attackers
-    if (!isValidPlacement(position, PlacementMode.ATTACKER, map)) {
+    if (!isValidPlacement(position, PlacementMode.ATTACKER, map, selectedAttackerType = selectedAttackerType)) {
         return false
     }
     // Must not be occupied by any element

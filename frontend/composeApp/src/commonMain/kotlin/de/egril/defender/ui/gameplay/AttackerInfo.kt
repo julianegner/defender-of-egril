@@ -58,6 +58,7 @@ private fun getAttackerDescription(attackerType: AttackerType): String {
         AttackerType.BLUE_DEMON -> Res.string.blue_demon_description
         AttackerType.RED_DEMON -> Res.string.red_demon_description
         AttackerType.GHOST -> Res.string.ghost_description
+        AttackerType.PIRATE -> Res.string.pirate_description
         AttackerType.RED_WITCH -> Res.string.red_witch_description
         AttackerType.GREEN_WITCH -> Res.string.green_witch_description
         AttackerType.SNOTLING -> Res.string.snotling_description

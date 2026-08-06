@@ -19,8 +19,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.InitialData
 import de.egril.defender.editor.TileType
+import de.egril.defender.model.AttackerType
+import de.egril.defender.model.DefenderType
 import de.egril.defender.model.FiefType
 import de.egril.defender.model.Position
+import de.egril.defender.model.RiverFlow
 import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.settings.AppSettings
@@ -49,15 +52,54 @@ fun isValidPlacement(
     position: Position,
     mode: PlacementMode,
     map: EditorMap,
+    selectedDefenderType: DefenderType? = null,
+    selectedAttackerType: AttackerType? = null,
 ): Boolean {
     val tileType = map.getTileType(position.x, position.y)
     return when (mode) {
-        PlacementMode.DEFENDER -> tileType == TileType.BUILD_AREA
-        PlacementMode.ATTACKER -> tileType == TileType.PATH || tileType == TileType.SPAWN_POINT
+        PlacementMode.DEFENDER -> {
+            val isBuildArea = tileType == TileType.BUILD_AREA
+            val isFlowingWaterTile = isFlowingWaterTile(position, map)
+            if (selectedDefenderType == DefenderType.DWARVEN_MINE) {
+                isBuildArea
+            } else {
+                isBuildArea || isFlowingWaterTile
+            }
+        }
+        PlacementMode.ATTACKER -> {
+            val isRegularEnemyTile = tileType == TileType.PATH || tileType == TileType.SPAWN_POINT
+            val attackerType = selectedAttackerType ?: return isRegularEnemyTile
+            val canUseWater =
+                attackerType.canTraverseRiver ||
+                    attackerType.canOnlyMoveOnWater ||
+                    attackerType.canSpawnOnWater
+            if (canUseWater) {
+                isRegularEnemyTile || isWaterTile(position, map)
+            } else {
+                isRegularEnemyTile
+            }
+        }
         PlacementMode.TRAP -> tileType == TileType.PATH
         PlacementMode.BARRICADE -> tileType == TileType.PATH
         PlacementMode.FIEF -> tileType == TileType.PATH
     }
+}
+
+private fun isWaterTile(
+    position: Position,
+    map: EditorMap,
+): Boolean {
+    val tileType = map.getTileType(position.x, position.y)
+    val isWaterSpawn = tileType == TileType.SPAWN_POINT && map.getSpawnPointType(position) == SpawnPointType.WATER
+    return tileType == TileType.RIVER || map.getRiverTile(position.x, position.y) != null || isWaterSpawn
+}
+
+private fun isFlowingWaterTile(
+    position: Position,
+    map: EditorMap,
+): Boolean {
+    val riverTile = map.getRiverTile(position.x, position.y) ?: return false
+    return riverTile.flowDirection != RiverFlow.NONE && riverTile.flowDirection != RiverFlow.MAELSTROM
 }
 
 private fun hasAdjacentWaterTile(
@@ -126,6 +168,8 @@ private fun calculateHexGeometry(
 fun InitialSetupMinimap(
     map: EditorMap,
     placementMode: PlacementMode?,
+    selectedDefenderType: DefenderType? = null,
+    selectedAttackerType: AttackerType? = null,
     selectedFiefType: FiefType? = null,
     initialData: InitialData = InitialData.EMPTY,
     selectedElement: de.egril.defender.ui.editor.level.initialsetup.SelectedElement? = null,
@@ -231,7 +275,12 @@ fun InitialSetupMinimap(
                 val isValidForPlacement =
                     when (placementMode) {
                         PlacementMode.DEFENDER ->
-                            isValidPlacement(pos, placementMode, map) || (isTowerBase && !hasDefender)
+                            isValidPlacement(
+                                pos,
+                                placementMode,
+                                map,
+                                selectedDefenderType = selectedDefenderType,
+                            ) || (isTowerBase && !hasDefender)
                         PlacementMode.FIEF -> {
                             val isPath = isValidPlacement(pos, placementMode, map)
                             val isFisher = selectedFiefType == FiefType.FISHER
@@ -241,7 +290,16 @@ fun InitialSetupMinimap(
                                 isPath
                             }
                         }
-                        else -> placementMode?.let { isValidPlacement(pos, it, map) } ?: false
+                        else ->
+                            placementMode?.let {
+                                isValidPlacement(
+                                    pos,
+                                    it,
+                                    map,
+                                    selectedDefenderType = selectedDefenderType,
+                                    selectedAttackerType = selectedAttackerType,
+                                )
+                            } ?: false
                     }
                 val isHovered = pos == hoveredPosition
                 val isSelected =
@@ -281,6 +339,7 @@ fun InitialSetupMinimap(
                         hasConflict && isHovered && placementMode != null -> Color(0xFFFF4444) // Red for invalid placement
                         isHovered && isValidForPlacement -> Color(0xFF00FFFF) // Cyan for valid hover
                         tileType == TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90) // Always show BUILD_AREA in green (same as tower placement)
+                        isWaterTile(pos, map) -> if (isDarkMode) Color(0xFF0D47A1) else Color(0xFF42A5F5)
                         tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
                         tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
                         tileType == TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)

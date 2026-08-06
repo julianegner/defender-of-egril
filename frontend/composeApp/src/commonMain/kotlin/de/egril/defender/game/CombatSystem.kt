@@ -141,9 +141,9 @@ class CombatSystem(
 
     /**
      * Returns true if the given position is a valid area-attack target tile:
-     * on the enemy path, a bridge, or a spawn point.
+     * on any enemy-occupiable tile (path, spawn point, river) or a bridge.
      */
-    private fun isValidAreaTargetPosition(position: Position): Boolean = state.level.isEnemyTraversable(position) || state.isBridgeAt(position)
+    private fun isValidAreaTargetPosition(position: Position): Boolean = state.level.isEnemyOccupiable(position) || state.isBridgeAt(position)
 
     fun defenderAttack(
         defenderId: Int,
@@ -623,7 +623,7 @@ class CombatSystem(
                         neighbor.x < state.level.gridWidth &&
                         neighbor.y >= 0 &&
                         neighbor.y < state.level.gridHeight &&
-                        state.level.isEnemyTraversable(neighbor)
+                        state.level.isEnemyOccupiable(neighbor)
                 },
             )
         } else {
@@ -631,7 +631,7 @@ class CombatSystem(
             affectedPositions.addAll(
                 targetPosition
                     .getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
-                    .filter { state.level.isEnemyTraversable(it) },
+                    .filter { state.level.isEnemyOccupiable(it) },
             )
         }
 
