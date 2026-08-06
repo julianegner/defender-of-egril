@@ -2194,6 +2194,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_ignis_va_burning_short">Death Pyre: burning ground disables nearby towers on defeat</string>
     <string name="xarithon_name">Xarithon the Shadow Dragon</string>
     <string name="captain_roderich_name">Cap\'n Roderich, Scourge of the Seas</string>
+    <string name="pirate_name">Pirate</string>
     <string name="villain_xarithon_title">Xarithon the Shadow Dragon enters the battlefield</string>
     <string name="villain_xarithon_backstory">Xarithon is the personal champion of the evil mage Ewhad — a shadow dragon filled with dark energy that blots out the light wherever he passes. He acts independently, hunting towers with cold, ancient fury.</string>
     <string name="villain_xarithon_description">Shadow Spew: every few rounds, shadowy flames erupt across a wide area, shutting down all towers caught in the blast.\nShadow Resistance: only magical attacks can harm him — ordinary weapons pass harmlessly through his dark form.</string>
@@ -2224,6 +2225,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="blue_demon_description">A fast demon that thrives in acidic environments — it is immune to acid damage. Dispose of it with fire, physical attacks, or magical spells.</string>
     <string name="red_demon_description">A powerful demon wreathed in flames that shrugs off fireballs and area attacks. Use acid, piercing attacks, or physical force to overcome its resistance.</string>
     <string name="ghost_description">An ethereal undead spirit that floats over terrain obstacles. It resists non-magical attacks — only magical tower attacks like fireballs can harm it directly.</string>
+    <string name="pirate_description">A seaworthy raider who can fight on both land and water. Pirates have no special powers, but their flexibility lets them attack from rivers or roads.</string>
     <string name="red_witch_description">A dark magic user who can disable your towers for several turns, rendering them helpless. Prioritize defeating her to restore your defenses.</string>
     <string name="green_witch_description">A healer who mends nearby allies each turn, making battles much harder. Defeat her quickly before she sustains the enemy army too much.</string>
     <string name="snotling_description">A small, weak minion summoned by goblin shamans. While individually harmless, they can become dangerous in large numbers.</string>

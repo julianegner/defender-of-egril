@@ -2184,6 +2184,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_ignis_va_burning_short">Todespyre: brennender Boden legt beim Tod nahe Türme lahm</string>
     <string name="xarithon_name">Xarithon der Schattendrache</string>
     <string name="captain_roderich_name">Käpt\'n Roderich, Schrecken der Meere</string>
+    <string name="pirate_name">Pirat</string>
     <string name="villain_xarithon_title">Xarithon der Schattendrache betritt das Schlachtfeld</string>
     <string name="villain_xarithon_backstory">Xarithon ist der persönliche Champion des bösen Magiers Ewhad — ein Schattendrache, erfüllt von dunkler Energie, die das Licht auslöscht, wo immer er vorbeizieht. Er handelt eigenständig und jagt Türme mit kalter, uralter Wildheit.</string>
     <string name="villain_xarithon_description">Schattenspeier: Alle paar Runden brechen Schattenflammen über eine weite Fläche herein und legen alle Türme im Bereich lahm.\nSchattenresistenz: Nur magische Angriffe können ihm schaden — gewöhnliche Waffen gehen harmlos durch seine dunkle Gestalt hindurch.</string>
@@ -2214,6 +2215,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="blue_demon_description">Ein schneller Dämon, der in saurer Umgebung gedeiht — er ist gegen Säureschaden immun. Beseitige ihn mit Feuer, physischen Angriffen oder magischen Zaubersprüchen.</string>
     <string name="red_demon_description">Ein mächtiger Dämon, der von Flammen umhüllt ist und Feuerball- und Flächenattacken abwehrt. Verwende Säure, durchbohrende Angriffe oder körperliche Kraft, um seine Resistenz zu überwinden.</string>
     <string name="ghost_description">Ein ätherischer Geist der Untoten, der über Geländeobstanden schwebt. Er widersetzt sich nichtmagischen Angriffen — nur magische Turmangriffe wie Feuerbälle können ihn direkt verletzen.</string>
+    <string name="pirate_description">Ein seetüchtiger Plünderer, der sowohl an Land als auch auf dem Wasser kämpfen kann. Piraten besitzen keine Spezialfähigkeiten, aber ihre Flexibilität macht sie auf Flüssen und Wegen gefährlich.</string>
     <string name="red_witch_description">Eine dunkle Magierin, die deine Türme mehrere Runden lang deaktivieren kann, wodurch sie wehrlos werden. Konzentriere dich darauf, sie schnell zu besiegen, um deine Verteidigungen wiederherzustellen.</string>
     <string name="green_witch_description">Eine Heilerin, die jede Runde nahegelegene Verbündete heilt und die Schlacht viel schwieriger macht. Besiege sie schnell, bevor sie die Feindearmee zu sehr unterstützt.</string>
     <string name="snotling_description">Ein kleiner, schwacher Scherge, der von Goblin-Schamanen beschworen wird. Während einzelne Snotlinge harmlos sind, können sie in großer Anzahl gefährlich werden.</string>

@@ -2185,6 +2185,7 @@
     <string name="villain_ignis_va_burning_short">Pira de Muerte: el suelo ardiente deshabilita torres cercanas al morir</string>
     <string name="xarithon_name">Xarithon el Dragón Sombra</string>
     <string name="captain_roderich_name">Capitán Roderich, el Azote de los Mares</string>
+    <string name="pirate_name">Pirata</string>
     <string name="villain_xarithon_title">Xarithon el Dragón Sombra entra al campo de batalla</string>
     <string name="villain_xarithon_backstory">Xarithon es el campeón personal del mago malvado Ewhad — un dragón de las sombras lleno de energía oscura que borra la luz a su paso. Actúa de forma independiente, cazando torres con fría y ancestral ferocidad.</string>
     <string name="villain_xarithon_description">Escupefuego Sombrío: cada pocos turnos, llamas de sombra estallan en un área amplia, deshabilitando todas las torres alcanzadas.\nResistencia a las Sombras: solo los ataques mágicos pueden herirle — las armas ordinarias atraviesan su forma oscura sin efecto.</string>
@@ -2215,6 +2216,7 @@
     <string name="blue_demon_description">Un demonio rápido que prospera en ambientes ácidos — es inmune al daño ácido. Deshazte de él con fuego, ataques físicos o hechizos mágicos.</string>
     <string name="red_demon_description">Un demonio poderoso envuelto en llamas que se burla de bolas de fuego y ataques de área. Usa ácido, ataques penetrantes o fuerza física para superar su resistencia.</string>
     <string name="ghost_description">Un espíritu etéreo no-muerto que flota sobre obstáculos del terreno. Resiste ataques no mágicos — solo los ataques mágicos de torres como bolas de fuego pueden dañarlo directamente.</string>
+    <string name="pirate_description">Un saqueador marinero que puede combatir tanto en tierra como en agua. Los piratas no tienen habilidades especiales, pero su flexibilidad los hace peligrosos en ríos y caminos.</string>
     <string name="red_witch_description">Una usuaria de magia oscura que puede desactivar tus torres durante varios turnos, dejándolas indefensas. Prioriza derrotarla para restaurar tus defensas.</string>
     <string name="green_witch_description">Una sanadora que cura a aliados cercanos cada turno, haciendo las batallas mucho más difíciles. Derrótala rápidamente antes de que sostenga demasiado al ejército enemigo.</string>
     <string name="snotling_description">Un pequeño y débil esbirro convocado por chamanes goblins. Mientras que los snotlings individuales son inofensivos, pueden volverse peligrosos en grandes números.</string>

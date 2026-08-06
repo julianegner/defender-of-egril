@@ -188,6 +188,16 @@ enum class AttackerType(
         immuneToNonMagicTowerDamage = true,
         faction = EnemyFaction.UNDEAD,
     ),
+    PIRATE(
+        "Pirate",
+        health = 35,
+        speed = 2,
+        reward = 12,
+        xp = 7,
+        canTraverseRiver = true,
+        canSpawnOnLand = true,
+        canSpawnOnWater = true,
+    ),
     RED_WITCH("Red Witch", health = 30, speed = 5, reward = 18, xp = 11, canDisableTowers = true),
     GREEN_WITCH("Green Witch", health = 25, speed = 5, reward = 15, xp = 9, canHeal = true),
 

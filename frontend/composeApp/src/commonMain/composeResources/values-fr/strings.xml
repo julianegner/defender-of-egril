@@ -2186,6 +2186,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_ignis_va_burning_short">Bûcher Mortel : le sol en feu désactive les tours proches à la mort</string>
     <string name="xarithon_name">Xarithon le Dragon des Ombres</string>
     <string name="captain_roderich_name">Capitaine Roderich, Fléau des Mers</string>
+    <string name="pirate_name">Pirate</string>
     <string name="villain_xarithon_title">Xarithon le Dragon des Ombres entre sur le champ de bataille</string>
     <string name="villain_xarithon_backstory">Xarithon est le champion personnel du mage maléfique Ewhad — un dragon des ombres rempli d\'énergie obscure qui efface la lumière sur son passage. Il agit de manière indépendante, chassant les tours avec une fureur froide et ancestrale.</string>
     <string name="villain_xarithon_description">Crachat d\'Ombre : tous les quelques tours, des flammes sombres jaillissent sur une large zone, désactivant toutes les tours touchées.\nRésistance des Ombres : seules les attaques magiques peuvent lui nuire — les armes ordinaires traversent sa forme sombre sans effet.</string>
@@ -2216,6 +2217,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="blue_demon_description">Un démon rapide qui prospère dans les environnements acides — il est immunisé aux dégâts d\'acide. Éliminez-le avec du feu, des attaques physiques ou des sortilèges magiques.</string>
     <string name="red_demon_description">Un démon puissant enveloppé de flammes qui résiste aux boules de feu et aux attaques de zone. Utilisez l\'acide, les attaques perçantes ou la force physique pour surmonter sa résistance.</string>
     <string name="ghost_description">Un esprit éthéré mort-vivant qui flotte sur les obstacles du terrain. Il résiste aux attaques non-magiques — seules les attaques magiques des tours comme les boules de feu peuvent le blesser directement.</string>
+    <string name="pirate_description">Un pillard marin capable de combattre aussi bien sur terre que sur l\'eau. Les pirates n\'ont pas de pouvoir spécial, mais leur mobilité les rend dangereux sur les rivières comme sur les routes.</string>
     <string name="red_witch_description">Une utilisatrice de magie sombre qui peut désactiver vos tours pendant plusieurs tours, les laissant sans défense. Priorité à la vaincre pour restaurer vos défenses.</string>
     <string name="green_witch_description">Une guérisseuse qui soigne les alliés à proximité chaque tour, rendant les batailles beaucoup plus difficiles. Vainquez-la rapidement avant qu\'elle ne soutienne trop l\'armée ennemie.</string>
     <string name="snotling_description">Un petit et faible serviteur invoqué par les chamans gobelins. Bien que les snotlings individuels soient inoffensifs, ils peuvent devenir dangereux en grand nombre.</string>

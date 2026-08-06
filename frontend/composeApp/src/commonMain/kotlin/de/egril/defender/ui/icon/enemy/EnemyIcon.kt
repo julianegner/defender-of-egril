@@ -107,6 +107,7 @@ fun EnemyIcon(
                 AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
                 AttackerType.GHOST -> drawGhostSymbol(centerX, centerY, iconSize * 0.72f, contrastOutlineColor)
+                AttackerType.PIRATE -> drawPirateSymbol(centerX, centerY, iconSize * 0.80f, contrastOutlineColor, headScale)
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING,
@@ -253,6 +254,7 @@ fun EnemyTypeIcon(
                 AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
                 AttackerType.GHOST -> drawGhostSymbol(centerX, centerY, iconSize * 0.72f, contrastOutlineColor)
+                AttackerType.PIRATE -> drawPirateSymbol(centerX, centerY, iconSize * 0.80f, contrastOutlineColor, headScale)
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 // Snotlings: show a single small icon (20% of goblin icon size) in type previews

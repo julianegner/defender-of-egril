@@ -2187,6 +2187,7 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_ignis_va_burning_short">Pira Mortale: il suolo ardente disabilita le torri vicine alla morte</string>
     <string name="xarithon_name">Xarithon il Drago delle Ombre</string>
     <string name="captain_roderich_name">Capitan Roderich, il Terrore dei Mari</string>
+    <string name="pirate_name">Pirata</string>
     <string name="villain_xarithon_title">Xarithon il Drago delle Ombre entra nel campo di battaglia</string>
     <string name="villain_xarithon_backstory">Xarithon è il campione personale del mago malvagio Ewhad — un drago delle ombre pieno di energia oscura che cancella la luce ovunque passi. Agisce in modo indipendente, cacciando le torri con una furia fredda e ancestrale.</string>
     <string name="villain_xarithon_description">Soffio d\'Ombra: ogni pochi turni, fiamme oscure eruttano su un\'ampia zona, disabilitando tutte le torri colpite.\nResistenza delle Ombre: solo gli attacchi magici possono ferirlo — le armi ordinarie attraversano la sua forma oscura senza effetto.</string>
@@ -2217,6 +2218,7 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="blue_demon_description">Un demone veloce che prospera negli ambienti acidi — è immune ai danni acidi. Eliminalo con fuoco, attacchi fisici o incantesimi magici.</string>
     <string name="red_demon_description">Un demone potente avvolto dalle fiamme che resiste alle palle di fuoco e agli attacchi di area. Usa acido, attacchi perforanti o forza fisica per superare la sua resistenza.</string>
     <string name="ghost_description">Uno spirito etereo non-morto che vola sopra gli ostacoli del terreno. Resiste agli attacchi non-magici — solo gli attacchi magici dalle torri come le palle di fuoco possono ferirlo direttamente.</string>
+    <string name="pirate_description">Un razziatore marinaio che può combattere sia sulla terraferma sia sull\'acqua. I pirati non hanno abilità speciali, ma la loro flessibilità li rende pericolosi su fiumi e sentieri.</string>
     <string name="red_witch_description">Un\'utilizzatrice di magia oscura che può disabilitare le tue torri per diversi turni, lasciandole indifese. Dai priorità a sconfiggerla per ripristinare le tue difese.</string>
     <string name="green_witch_description">Una guaritrice che guarisce gli alleati vicini ogni turno, rendendo le battaglie molto più difficili. Sconfiggila rapidamente prima che sostenga troppo l\'esercito nemico.</string>
     <string name="snotling_description">Un piccolo e debole servitore convocato dagli sciamani goblin. Mentre gli snotling singoli sono innocui, possono diventare pericolosi in grandi numeri.</string>
