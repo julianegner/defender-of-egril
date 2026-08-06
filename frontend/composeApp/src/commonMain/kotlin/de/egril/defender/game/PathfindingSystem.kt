@@ -247,6 +247,9 @@ class PathfindingSystem(
         attacker: Attacker? = null,
         ignoreBarricades: Boolean = false,
     ): Boolean {
+        // Pirates may traverse rivers, but never the exact tile occupied by an active raft.
+        if (attacker?.type == AttackerType.PIRATE && state.isRaftAt(pos)) return true
+
         // Check if position has a build area (these block enemies)
         if (state.level.isBuildArea(pos)) return true
 

@@ -191,7 +191,7 @@ enum class AttackerType(
     PIRATE(
         "Pirate",
         health = 35,
-        speed = 2,
+        speed = 3,
         reward = 12,
         xp = 7,
         canTraverseRiver = true,

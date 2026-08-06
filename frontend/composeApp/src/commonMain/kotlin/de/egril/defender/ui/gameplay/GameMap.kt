@@ -508,9 +508,10 @@ fun GameGrid(
     val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
     val selectedDefenderActions = selectedDefender?.actionsRemaining?.value
     val freyaShieldWallArcs = gameState.freyaShieldWallArcs()
+    val hasActiveWaterEnemy = gameState.attackers.any { !it.isDefeated.value && gameState.level.isRiverTile(it.position.value) }
 
     val targetCircleMap =
-        remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size) {
+        remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size, hasActiveWaterEnemy) {
             if (selectedTargetPosition == null || selectedDefenderId == null || selectedDefender == null) {
                 emptyMap()
             } else {
@@ -573,6 +574,7 @@ fun GameGrid(
                                                     (
                                                         gameState.level.isOnPath(neighbor) ||
                                                             gameState.isBridgeAt(neighbor) ||
+                                                            (hasActiveWaterEnemy && gameState.level.isRiverTile(neighbor)) ||
                                                             gameState.attackers.any {
                                                                 it.position.value == neighbor && !it.isDefeated.value
                                                             }
@@ -601,6 +603,7 @@ fun GameGrid(
                                             ).filter { neighbor ->
                                                 gameState.level.isOnPath(neighbor) ||
                                                     gameState.isBridgeAt(neighbor) ||
+                                                    (hasActiveWaterEnemy && gameState.level.isRiverTile(neighbor)) ||
                                                     gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
                                             }
 
@@ -1132,7 +1135,7 @@ fun GameGrid(
                         val spawnHere = gameState.level.isSpawnPoint(position)
                         val riverHere = gameState.level.isRiverTile(position)
                         val traversable = onPathHere || spawnHere
-                        val occupiable = onPathHere || spawnHere || riverHere
+                        val occupiable = onPathHere || spawnHere || (hasActiveWaterEnemy && riverHere)
                         val areaAttack =
                             selectedDefenderType.attackType == AttackType.AREA ||
                                 selectedDefenderType.attackType == AttackType.LASTING
@@ -2008,12 +2011,15 @@ fun GridCell(
             false
         }
 
-    // Enemy-occupiable tiles are valid targets for area attacks; enemy-traversable for single-target
+    // Enemy-occupiable tiles are valid targets for area attacks.
+    // For single-target attacks, also treat enemies on water tiles as valid target tiles so the
+    // in-range border appears on those reachable enemy positions.
+    val hasEnemyOnWaterTile = attacker != null && isRiverTile
     val isValidTargetTile =
         if (hasAreaAttack) {
             isEnemyOccupiable
         } else {
-            isEnemyTraversable
+            isEnemyTraversable || hasEnemyOnWaterTile
         }
 
     val borderColor =
@@ -2517,9 +2523,13 @@ private fun BoxScope.GridCellContent(
                 // - Freeze/cooling (turquoise) or unit backgrounds ON (red) → dark enough for white text
                 // - Unit backgrounds OFF in dark mode → dark terrain bg → white text
                 // - Unit backgrounds OFF in light mode → light terrain bg → dark text
+                val isPirateOnRiverTile =
+                    (attacker.type == AttackerType.PIRATE || attacker.type == AttackerType.CAPTAIN_RODERICH) &&
+                        gameState.level.isRiverTile(attacker.position.value)
                 val healthTextColor =
                     when {
                         freezeEffect != null || coolingReducesToZero -> Color.White
+                        isPirateOnRiverTile -> Color(0xFFEFF7FF)
                         AppSettings.showUnitTowerBackground.value -> Color.White
                         AppSettings.isDarkMode.value -> Color.White
                         else -> Color.Black
