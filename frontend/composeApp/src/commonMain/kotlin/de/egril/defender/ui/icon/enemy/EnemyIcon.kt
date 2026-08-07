@@ -102,6 +102,8 @@ fun EnemyIcon(
             val centerX = size.width / 2
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
+            val pirateIconSize = iconSize * 0.72f
+            val pirateCenterY = centerY
 
             // Villains get a shared aura ring behind their symbol so they stand out on the map.
             if (attacker.type.isVillain) {
@@ -119,7 +121,7 @@ fun EnemyIcon(
                 AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
                 AttackerType.GHOST -> drawGhostSymbol(centerX, centerY, iconSize * 0.72f, contrastOutlineColor)
-                AttackerType.PIRATE -> drawPirateSymbol(centerX, centerY, iconSize * 0.80f, pirateClassOutlineColor, headScale, showSeafaringPirateBarge)
+                AttackerType.PIRATE -> drawPirateSymbol(centerX, pirateCenterY, pirateIconSize, pirateClassOutlineColor, headScale, showSeafaringPirateBarge)
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING,
@@ -174,7 +176,7 @@ fun EnemyIcon(
                 AttackerType.IGNIS_VA_THE_DRAGONVOICE -> drawIgnisVaSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
                 AttackerType.DRAGON_TERROR -> drawDragonTerrorSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
                 AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(centerX, centerY, iconSize * 0.90f, headScale = headScale)
-                AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, centerY, iconSize * 0.80f, outlineColor = pirateClassOutlineColor, headScale = headScale, showBarge = showSeafaringPirateBarge)
+                AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, pirateCenterY, pirateIconSize, outlineColor = pirateClassOutlineColor, headScale = headScale, showBarge = showSeafaringPirateBarge)
                 AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
             }
         }
@@ -250,6 +252,8 @@ fun EnemyTypeIcon(
             val centerX = size.width / 2
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
+            val pirateIconSize = iconSize * 0.72f
+            val pirateCenterY = centerY
 
             // Villains get a shared aura ring behind their symbol so they stand out on the map.
             if (attackerType.isVillain) {
@@ -267,7 +271,7 @@ fun EnemyTypeIcon(
                 AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
                 AttackerType.GHOST -> drawGhostSymbol(centerX, centerY, iconSize * 0.72f, contrastOutlineColor)
-                AttackerType.PIRATE -> drawPirateSymbol(centerX, centerY, iconSize * 0.80f, pirateClassOutlineColor, headScale)
+                AttackerType.PIRATE -> drawPirateSymbol(centerX, pirateCenterY, pirateIconSize, pirateClassOutlineColor, headScale)
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 // Snotlings: show a single small icon (20% of goblin icon size) in type previews
@@ -295,7 +299,7 @@ fun EnemyTypeIcon(
                 AttackerType.IGNIS_VA_THE_DRAGONVOICE -> drawIgnisVaSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
                 AttackerType.DRAGON_TERROR -> drawDragonTerrorSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
                 AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(centerX, centerY, iconSize * 0.90f, headScale = headScale)
-                AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, centerY, iconSize * 0.80f, outlineColor = pirateClassOutlineColor, headScale = headScale)
+                AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, pirateCenterY, pirateIconSize, outlineColor = pirateClassOutlineColor, headScale = headScale)
                 AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
             }
         }

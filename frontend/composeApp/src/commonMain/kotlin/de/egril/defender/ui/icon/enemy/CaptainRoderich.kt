@@ -27,7 +27,7 @@ fun DrawScope.drawCaptainRoderichSymbol(
 ) {
     val pathOutlineWidth = 2.5f
     val outlineWidth = 2f
-    val renderCenterY = if (showBarge) centerY - size * 0.10f else centerY
+    val renderCenterY = if (showBarge) centerY - size * 0.05f else centerY
 
     // ---- Colour palette ----
     val coatColor = Color(0xFF1A3A5C) // Deep navy coat
@@ -45,8 +45,8 @@ fun DrawScope.drawCaptainRoderichSymbol(
     if (showBarge) {
         drawRaftBase(
             centerX = centerX,
-            centerY = centerY + size * 0.11f,
-            size = size * 0.92f,
+            centerY = centerY + size * 0.34f,
+            size = size * 1.20f,
         )
     }
 
@@ -116,9 +116,14 @@ fun DrawScope.drawCaptainRoderichSymbol(
         val brimLeft = centerX - size * 0.38f
         val brimRight = centerX + size * 0.38f
         val brimY = headCenterY - size * 0.22f
-        val hatTop = headCenterY - size * 0.55f
+        val hatTop = headCenterY - size * 0.42f
 
         // Hat brim (wide flat base)
+        drawRect(
+            color = hatColor,
+            topLeft = Offset(brimLeft, brimY),
+            size = Size(brimRight - brimLeft, size * 0.08f),
+        )
         if (outlineColor != null) {
             drawRect(
                 color = outlineColor,
@@ -127,11 +132,6 @@ fun DrawScope.drawCaptainRoderichSymbol(
                 style = Stroke(width = outlineWidth),
             )
         }
-        drawRect(
-            color = hatColor,
-            topLeft = Offset(brimLeft, brimY),
-            size = Size(brimRight - brimLeft, size * 0.08f),
-        )
 
         // Hat crown (trapezoid body rising to a narrower top)
         val crownPath =
@@ -142,10 +142,10 @@ fun DrawScope.drawCaptainRoderichSymbol(
                 lineTo(brimRight - size * 0.08f, brimY)
                 close()
             }
+        drawPath(crownPath, hatColor)
         if (outlineColor != null) {
             drawPath(crownPath, outlineColor, style = Stroke(width = outlineWidth))
         }
-        drawPath(crownPath, hatColor)
 
         // Tricorn peak (left corner folded up)
         val leftPeak =
@@ -162,12 +162,12 @@ fun DrawScope.drawCaptainRoderichSymbol(
                 lineTo(brimRight - size * 0.14f, brimY)
                 close()
             }
+        drawPath(leftPeak, hatColor)
+        drawPath(rightPeak, hatColor)
         if (outlineColor != null) {
             drawPath(leftPeak, outlineColor, style = Stroke(width = outlineWidth))
             drawPath(rightPeak, outlineColor, style = Stroke(width = outlineWidth))
         }
-        drawPath(leftPeak, hatColor)
-        drawPath(rightPeak, hatColor)
 
         // Gold hat-band
         drawRect(

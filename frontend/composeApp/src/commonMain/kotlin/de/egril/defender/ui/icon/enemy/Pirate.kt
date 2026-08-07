@@ -29,29 +29,34 @@ fun DrawScope.drawPirateSymbol(
         showBarge = showBarge,
     )
 
+    // Mirror the same upward shift that CaptainRoderich applies to the head when on a barge,
+    // so the bandana stays on the forehead rather than drifting down to eye level.
+    val renderCenterY = if (showBarge) centerY - size * 0.05f else centerY
+
     // Distinctive red bandana across the forehead.
+    drawRect(
+        color = Color(0xFF9E1A1A),
+        topLeft = Offset(centerX - size * 0.20f, renderCenterY - size * 0.34f),
+        size = Size(size * 0.40f, size * 0.08f),
+    )
     if (outlineColor != null) {
         drawRect(
             color = outlineColor,
-            topLeft = Offset(centerX - size * 0.20f, centerY - size * 0.30f),
+            topLeft = Offset(centerX - size * 0.20f, renderCenterY - size * 0.34f),
             size = Size(size * 0.40f, size * 0.08f),
             style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f),
         )
     }
-    drawRect(
-        color = Color(0xFF9E1A1A),
-        topLeft = Offset(centerX - size * 0.20f, centerY - size * 0.30f),
-        size = Size(size * 0.40f, size * 0.08f),
-    )
 
     // Bandana knot/tail.
     val knotPath =
         Path().apply {
-            moveTo(centerX + size * 0.20f, centerY - size * 0.26f)
-            lineTo(centerX + size * 0.30f, centerY - size * 0.22f)
-            lineTo(centerX + size * 0.20f, centerY - size * 0.18f)
+            moveTo(centerX + size * 0.20f, renderCenterY - size * 0.30f)
+            lineTo(centerX + size * 0.30f, renderCenterY - size * 0.26f)
+            lineTo(centerX + size * 0.20f, renderCenterY - size * 0.22f)
             close()
         }
+    drawPath(knotPath, Color(0xFF9E1A1A))
     if (outlineColor != null) {
         drawPath(
             knotPath,
@@ -59,12 +64,12 @@ fun DrawScope.drawPirateSymbol(
             style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f),
         )
     }
-    drawPath(knotPath, Color(0xFF9E1A1A))
 
-    // Gold earring.
+    // Gold earring — positioned relative to face center.
+    val headCenterY = renderCenterY - size * 0.12f
     drawCircle(
         color = Color(0xFFD4A017),
         radius = size * 0.028f,
-        center = Offset(centerX + size * 0.17f, centerY - size * 0.01f),
+        center = Offset(centerX + size * 0.17f, headCenterY + size * 0.10f),
     )
 }
