@@ -27,6 +27,7 @@ fun DrawScope.drawCaptainRoderichSymbol(
 ) {
     val pathOutlineWidth = 2.5f
     val outlineWidth = 2f
+    val renderCenterY = if (showBarge) centerY - size * 0.10f else centerY
 
     // ---- Colour palette ----
     val coatColor = Color(0xFF1A3A5C) // Deep navy coat
@@ -39,7 +40,7 @@ fun DrawScope.drawCaptainRoderichSymbol(
     val beardColor = Color(0xFF4A3520) // Dark brown beard
     val eyePatchColor = Color(0xFFD4A017) // Gold eye-patch
 
-    val headCenterY = centerY - size * 0.12f
+    val headCenterY = renderCenterY - size * 0.12f
 
     if (showBarge) {
         drawRaftBase(
@@ -55,33 +56,33 @@ fun DrawScope.drawCaptainRoderichSymbol(
         if (outlineColor != null) {
             drawRect(
                 color = outlineColor,
-                topLeft = Offset(centerX - size * 0.28f, centerY + size * 0.07f),
+                topLeft = Offset(centerX - size * 0.28f, renderCenterY + size * 0.07f),
                 size = Size(size * 0.56f, size * 0.38f),
                 style = Stroke(width = pathOutlineWidth),
             )
         }
         drawRect(
             color = coatColor,
-            topLeft = Offset(centerX - size * 0.28f, centerY + size * 0.07f),
+            topLeft = Offset(centerX - size * 0.28f, renderCenterY + size * 0.07f),
             size = Size(size * 0.56f, size * 0.38f),
         )
         // Coat front opening (V-shape, slightly lighter)
         drawRect(
             color = coatHighlight,
-            topLeft = Offset(centerX - size * 0.06f, centerY + size * 0.07f),
+            topLeft = Offset(centerX - size * 0.06f, renderCenterY + size * 0.07f),
             size = Size(size * 0.12f, size * 0.24f),
         )
 
         // Gold epaulette (left shoulder)
         drawRect(
             color = goldColor,
-            topLeft = Offset(centerX - size * 0.36f, centerY + size * 0.07f),
+            topLeft = Offset(centerX - size * 0.36f, renderCenterY + size * 0.07f),
             size = Size(size * 0.12f, size * 0.08f),
         )
         // Gold epaulette (right shoulder)
         drawRect(
             color = goldColor,
-            topLeft = Offset(centerX + size * 0.24f, centerY + size * 0.07f),
+            topLeft = Offset(centerX + size * 0.24f, renderCenterY + size * 0.07f),
             size = Size(size * 0.12f, size * 0.08f),
         )
 
@@ -90,21 +91,21 @@ fun DrawScope.drawCaptainRoderichSymbol(
             drawCircle(
                 color = goldColor,
                 radius = size * 0.03f,
-                center = Offset(centerX, centerY + size * (0.13f + i * 0.1f)),
+                center = Offset(centerX, renderCenterY + size * (0.13f + i * 0.1f)),
             )
         }
 
         // Cutlass handle peeking from left hip
         val cutlassPath =
             Path().apply {
-                moveTo(centerX - size * 0.28f, centerY + size * 0.28f)
-                lineTo(centerX - size * 0.44f, centerY + size * 0.44f)
+                moveTo(centerX - size * 0.28f, renderCenterY + size * 0.28f)
+                lineTo(centerX - size * 0.44f, renderCenterY + size * 0.44f)
             }
         drawPath(cutlassPath, Color(0xFF8B7355), style = Stroke(width = size * 0.055f))
         // Cutlass guard
         drawRect(
             color = goldColor,
-            topLeft = Offset(centerX - size * 0.36f, centerY + size * 0.32f),
+            topLeft = Offset(centerX - size * 0.36f, renderCenterY + size * 0.32f),
             size = Size(size * 0.14f, size * 0.04f),
         )
     }
