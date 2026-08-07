@@ -466,12 +466,12 @@ private fun ExpandedMapEditorHeader(
                 }
             }
 
-            // Change All NO_PLAY to PATH button
+            // Replace tile types button
             Button(
                 onClick = onChangeAllNoPlayToPath,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
             ) {
-                Text(stringResource(Res.string.change_all_no_play_to_path))
+                Text(stringResource(Res.string.replace_tiles))
             }
 
             ZoomControls(

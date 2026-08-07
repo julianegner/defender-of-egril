@@ -20,6 +20,8 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.EditorTargetInfo
 import de.egril.defender.editor.TileType
+import de.egril.defender.editor.TileReplacementArea
+import de.egril.defender.editor.replaceTilesByType
 import de.egril.defender.model.Position
 import de.egril.defender.model.RiverTile
 import de.egril.defender.model.SpawnPointType
@@ -76,7 +78,16 @@ fun MapEditorView(
     var mapAuthor by remember { mutableStateOf(map.author) }
     var mapToolingInfo by remember { mutableStateOf(map.mapToolingInfo) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
-    var showChangeAllDialog by remember { mutableStateOf(false) }
+    var showTileReplacementDialog by remember { mutableStateOf(false) }
+    var replacementSourceTileType by remember { mutableStateOf(TileType.NO_PLAY) }
+    var replacementTargetTileType by remember { mutableStateOf(TileType.PATH) }
+    var replacementLimitToArea by remember { mutableStateOf(false) }
+    var replacementFromX by remember { mutableStateOf("0") }
+    var replacementFromY by remember { mutableStateOf("0") }
+    var replacementToX by remember { mutableStateOf((map.width - 1).coerceAtLeast(0).toString()) }
+    var replacementToY by remember { mutableStateOf((map.height - 1).coerceAtLeast(0).toString()) }
+    var sourceTileDropdownExpanded by remember { mutableStateOf(false) }
+    var targetTileDropdownExpanded by remember { mutableStateOf(false) }
     var showRiverPropertiesDialog by remember { mutableStateOf(false) }
     var communityUploadStatus by remember { mutableStateOf<String?>(null) }
     var isUploadingToCommunity by remember { mutableStateOf(false) }
@@ -653,7 +664,16 @@ fun MapEditorView(
             zoomLevel = zoomLevel,
             onZoomIn = { zoomLevel = minOf(3.0f, zoomLevel + 0.1f) },
             onZoomOut = { zoomLevel = maxOf(0.5f, zoomLevel - 0.1f) },
-            onChangeAllNoPlayToPath = { showChangeAllDialog = true },
+            onChangeAllNoPlayToPath = {
+                replacementSourceTileType = TileType.NO_PLAY
+                replacementTargetTileType = TileType.PATH
+                replacementLimitToArea = false
+                replacementFromX = "0"
+                replacementFromY = "0"
+                replacementToX = (map.width - 1).coerceAtLeast(0).toString()
+                replacementToY = (map.height - 1).coerceAtLeast(0).toString()
+                showTileReplacementDialog = true
+            },
             isExpanded = isHeaderExpanded,
             onToggleExpanded = { isHeaderExpanded = !isHeaderExpanded },
             selectedTargetName = selectedTargetName,
@@ -697,26 +717,199 @@ fun MapEditorView(
         )
     }
 
-    if (showChangeAllDialog) {
-        ConfirmationDialog(
-            title = stringResource(Res.string.change_all_no_play_confirm_title),
-            message = stringResource(Res.string.change_all_no_play_confirm_message),
-            onDismiss = { showChangeAllDialog = false },
-            onConfirm = {
-                // Replace all NO_PLAY tiles with PATH tiles
-                tiles =
-                    tiles.toMutableMap().apply {
-                        // Iterate through all positions in the map
-                        for (x in 0 until map.width) {
-                            for (y in 0 until map.height) {
-                                val key = "$x,$y"
-                                if (this[key] == TileType.NO_PLAY || this[key] == null) {
-                                    this[key] = TileType.PATH
-                                }
+    if (showTileReplacementDialog) {
+        val parsedFromX = replacementFromX.toIntOrNull()
+        val parsedFromY = replacementFromY.toIntOrNull()
+        val parsedToX = replacementToX.toIntOrNull()
+        val parsedToY = replacementToY.toIntOrNull()
+        val isAreaInputValid =
+            !replacementLimitToArea ||
+                (parsedFromX != null && parsedFromY != null && parsedToX != null && parsedToY != null)
+
+        AlertDialog(
+            onDismissRequest = { showTileReplacementDialog = false },
+            title = { Text(stringResource(Res.string.replace_tiles)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(stringResource(Res.string.replace_tiles_source))
+                    Box {
+                        OutlinedButton(
+                            onClick = { sourceTileDropdownExpanded = true },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(replacementSourceTileType.name)
+                        }
+                        DropdownMenu(
+                            expanded = sourceTileDropdownExpanded,
+                            onDismissRequest = { sourceTileDropdownExpanded = false },
+                        ) {
+                            TileType.entries.forEach { tileType ->
+                                DropdownMenuItem(
+                                    text = { Text(tileType.name) },
+                                    onClick = {
+                                        replacementSourceTileType = tileType
+                                        sourceTileDropdownExpanded = false
+                                    },
+                                )
                             }
                         }
                     }
-                showChangeAllDialog = false
+
+                    Text(stringResource(Res.string.replace_tiles_target))
+                    Box {
+                        OutlinedButton(
+                            onClick = { targetTileDropdownExpanded = true },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(replacementTargetTileType.name)
+                        }
+                        DropdownMenu(
+                            expanded = targetTileDropdownExpanded,
+                            onDismissRequest = { targetTileDropdownExpanded = false },
+                        ) {
+                            TileType.entries.forEach { tileType ->
+                                DropdownMenuItem(
+                                    text = { Text(tileType.name) },
+                                    onClick = {
+                                        replacementTargetTileType = tileType
+                                        targetTileDropdownExpanded = false
+                                    },
+                                )
+                            }
+                        }
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Checkbox(
+                            checked = replacementLimitToArea,
+                            onCheckedChange = { replacementLimitToArea = it },
+                        )
+                        Text(stringResource(Res.string.replace_tiles_limit_to_area))
+                    }
+
+                    if (replacementLimitToArea) {
+                        Text(stringResource(Res.string.replace_tiles_area_from))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedTextField(
+                                value = replacementFromX,
+                                onValueChange = { replacementFromX = it },
+                                label = { Text(stringResource(Res.string.x_coordinate)) },
+                                modifier = Modifier.weight(1f),
+                                singleLine = true,
+                            )
+                            OutlinedTextField(
+                                value = replacementFromY,
+                                onValueChange = { replacementFromY = it },
+                                label = { Text(stringResource(Res.string.y_coordinate)) },
+                                modifier = Modifier.weight(1f),
+                                singleLine = true,
+                            )
+                        }
+
+                        Text(stringResource(Res.string.replace_tiles_area_to))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedTextField(
+                                value = replacementToX,
+                                onValueChange = { replacementToX = it },
+                                label = { Text(stringResource(Res.string.x_coordinate)) },
+                                modifier = Modifier.weight(1f),
+                                singleLine = true,
+                            )
+                            OutlinedTextField(
+                                value = replacementToY,
+                                onValueChange = { replacementToY = it },
+                                label = { Text(stringResource(Res.string.y_coordinate)) },
+                                modifier = Modifier.weight(1f),
+                                singleLine = true,
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val area =
+                            if (replacementLimitToArea) {
+                                if (parsedFromX == null || parsedFromY == null || parsedToX == null || parsedToY == null) {
+                                    return@Button
+                                }
+                                TileReplacementArea(
+                                    from = Position(parsedFromX, parsedFromY),
+                                    to = Position(parsedToX, parsedToY),
+                                )
+                            } else {
+                                null
+                            }
+
+                        val (updatedTiles, changedKeys) =
+                            replaceTilesByType(
+                                tiles = tiles,
+                                mapWidth = map.width,
+                                mapHeight = map.height,
+                                sourceTileType = replacementSourceTileType,
+                                targetTileType = replacementTargetTileType,
+                                area = area,
+                            )
+                        tiles = updatedTiles.toMutableMap()
+
+                        riverTiles = riverTiles.filterKeys { key -> tiles[key] == TileType.RIVER }.toMutableMap()
+                        targetInfoMap = targetInfoMap.filterKeys { key -> tiles[key] == TileType.TARGET }.toMutableMap()
+                        spawnPointInfoMap = spawnPointInfoMap.filterKeys { key -> tiles[key] == TileType.SPAWN_POINT }.toMutableMap()
+
+                        if (replacementTargetTileType == TileType.RIVER) {
+                            riverTiles =
+                                riverTiles.toMutableMap().apply {
+                                    changedKeys.forEach { key ->
+                                        if (this[key] == null) {
+                                            val parts = key.split(",")
+                                            val x = parts.getOrNull(0)?.toIntOrNull()
+                                            val y = parts.getOrNull(1)?.toIntOrNull()
+                                            if (x != null && y != null) {
+                                                this[key] =
+                                                    RiverTile(
+                                                        position = Position(x, y),
+                                                        flowDirection = selectedRiverFlow,
+                                                        flowSpeed = selectedRiverSpeed,
+                                                    )
+                                            }
+                                        }
+                                    }
+                                }
+                        } else if (replacementTargetTileType == TileType.TARGET) {
+                            targetInfoMap =
+                                    targetInfoMap.toMutableMap().apply {
+                                        changedKeys.forEach { key ->
+                                            if (this[key] == null) {
+                                                this[key] = EditorTargetInfo()
+                                            }
+                                        }
+                                    }
+                        } else if (replacementTargetTileType == TileType.SPAWN_POINT) {
+                            spawnPointInfoMap =
+                                    spawnPointInfoMap.toMutableMap().apply {
+                                        changedKeys.forEach { key ->
+                                            if (this[key] == null) {
+                                                this[key] = SpawnPointType.LAND
+                                            }
+                                        }
+                                    }
+                        }
+
+                        showTileReplacementDialog = false
+                    },
+                    enabled = isAreaInputValid,
+                ) {
+                    Text(stringResource(Res.string.apply))
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showTileReplacementDialog = false }) {
+                    Text(stringResource(Res.string.cancel))
+                }
             },
         )
     }
