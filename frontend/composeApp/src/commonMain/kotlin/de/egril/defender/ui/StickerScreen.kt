@@ -330,7 +330,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, s * 1.05f, outlineColor)
                             AttackerType.GHOST -> drawGhostSymbol(centerX, centerY, s, outlineColor)
-                            AttackerType.PIRATE -> drawPirateSymbol(centerX, centerY, s * 1.05f, outlineColor)
+                            AttackerType.PIRATE -> drawPirateSymbol(centerX, centerY, s * 1.05f, attackerOutlineColor(tab.type, outlineColor))
                             AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.SNOTLING -> drawGoblinSymbol(centerX, centerY, s * 0.5f, outlineColor)
@@ -357,7 +357,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.IGNIS_VA_THE_DRAGONVOICE -> drawIgnisVaSymbol(centerX, centerY, s * 1.0f, outlineColor)
                             AttackerType.DRAGON_TERROR -> drawDragonTerrorSymbol(centerX, centerY, s * 1.1f, outlineColor)
                             AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(centerX, centerY, s * 1.2f, outlineColor)
-                            AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, centerY, s * 1.05f, outlineColor)
+                            AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, centerY, s * 1.05f, attackerOutlineColor(tab.type, outlineColor))
                             AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, s * 0.85f, outlineColor)
                         }
                     }
@@ -464,6 +464,7 @@ private fun DrawScope.drawVillainSymbol(
     s: Float,
     outlineColor: Color,
 ) {
+    val adjustedOutlineColor = attackerOutlineColor(type, outlineColor)
     when (type) {
         AttackerType.EWHAD -> drawEwhadSymbol(cx, cy, s * 1.1f, outlineColor)
         AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(cx, cy, s, outlineColor)
@@ -483,7 +484,7 @@ private fun DrawScope.drawVillainSymbol(
         AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> drawArchmageMalakorSymbol(cx, cy, s, outlineColor)
         AttackerType.IGNIS_VA_THE_DRAGONVOICE -> drawIgnisVaSymbol(cx, cy, s, outlineColor)
         AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(cx, cy, s * 1.2f, outlineColor)
-        AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(cx, cy, s * 1.05f, outlineColor)
+        AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(cx, cy, s * 1.05f, adjustedOutlineColor)
         AttackerType.THE_KRAKEN -> drawKrakenSymbol(cx, cy, s * 0.85f, outlineColor)
         else -> {}
     }

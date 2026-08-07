@@ -68,6 +68,16 @@ private val SNOTLING_DIAMOND_OFFSETS =
         Pair(0f, 2f),
     )
 
+internal fun shouldShowSeafaringPirateBarge(
+    attackerType: AttackerType,
+    isRiverTile: Boolean,
+): Boolean = isRiverTile && (attackerType == AttackerType.PIRATE || attackerType == AttackerType.CAPTAIN_RODERICH)
+
+internal fun attackerOutlineColor(
+    attackerType: AttackerType,
+    defaultOutlineColor: Color,
+): Color = if (attackerType == AttackerType.PIRATE || attackerType == AttackerType.CAPTAIN_RODERICH) Color.White else defaultOutlineColor
+
 @Composable
 fun EnemyIcon(
     attacker: Attacker,
@@ -76,9 +86,11 @@ fun EnemyIcon(
     backgroundColor: Color? = null,
     healthOverride: Int? = null,
     moveVillainNameUp: Boolean = false,
+    showSeafaringPirateBarge: Boolean = false,
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
+    val pirateClassOutlineColor = attackerOutlineColor(attacker.type, contrastOutlineColor)
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -90,6 +102,8 @@ fun EnemyIcon(
             val centerX = size.width / 2
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
+            val pirateIconSize = iconSize * 0.72f
+            val pirateCenterY = centerY
 
             // Villains get a shared aura ring behind their symbol so they stand out on the map.
             if (attacker.type.isVillain) {
@@ -107,7 +121,7 @@ fun EnemyIcon(
                 AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
                 AttackerType.GHOST -> drawGhostSymbol(centerX, centerY, iconSize * 0.72f, contrastOutlineColor)
-                AttackerType.PIRATE -> drawPirateSymbol(centerX, centerY, iconSize * 0.80f, contrastOutlineColor, headScale)
+                AttackerType.PIRATE -> drawPirateSymbol(centerX, pirateCenterY, pirateIconSize, pirateClassOutlineColor, headScale, showSeafaringPirateBarge)
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING,
@@ -162,7 +176,7 @@ fun EnemyIcon(
                 AttackerType.IGNIS_VA_THE_DRAGONVOICE -> drawIgnisVaSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
                 AttackerType.DRAGON_TERROR -> drawDragonTerrorSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
                 AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(centerX, centerY, iconSize * 0.90f, headScale = headScale)
-                AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, centerY, iconSize * 0.80f, headScale = headScale)
+                AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, pirateCenterY, pirateIconSize, outlineColor = pirateClassOutlineColor, headScale = headScale, showBarge = showSeafaringPirateBarge)
                 AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
             }
         }
@@ -226,6 +240,7 @@ fun EnemyTypeIcon(
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
+    val pirateClassOutlineColor = attackerOutlineColor(attackerType, contrastOutlineColor)
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -237,6 +252,8 @@ fun EnemyTypeIcon(
             val centerX = size.width / 2
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
+            val pirateIconSize = iconSize * 0.72f
+            val pirateCenterY = centerY
 
             // Villains get a shared aura ring behind their symbol so they stand out on the map.
             if (attackerType.isVillain) {
@@ -254,7 +271,7 @@ fun EnemyTypeIcon(
                 AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
                 AttackerType.GHOST -> drawGhostSymbol(centerX, centerY, iconSize * 0.72f, contrastOutlineColor)
-                AttackerType.PIRATE -> drawPirateSymbol(centerX, centerY, iconSize * 0.80f, contrastOutlineColor, headScale)
+                AttackerType.PIRATE -> drawPirateSymbol(centerX, pirateCenterY, pirateIconSize, pirateClassOutlineColor, headScale)
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 // Snotlings: show a single small icon (20% of goblin icon size) in type previews
@@ -282,7 +299,7 @@ fun EnemyTypeIcon(
                 AttackerType.IGNIS_VA_THE_DRAGONVOICE -> drawIgnisVaSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
                 AttackerType.DRAGON_TERROR -> drawDragonTerrorSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
                 AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(centerX, centerY, iconSize * 0.90f, headScale = headScale)
-                AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, centerY, iconSize * 0.80f, headScale = headScale)
+                AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, pirateCenterY, pirateIconSize, outlineColor = pirateClassOutlineColor, headScale = headScale)
                 AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
             }
         }

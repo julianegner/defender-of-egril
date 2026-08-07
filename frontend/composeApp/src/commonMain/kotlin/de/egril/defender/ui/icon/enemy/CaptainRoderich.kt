@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
+import de.egril.defender.ui.drawRaftBase
 
 /**
  * Draw Cap'n Roderich, Scourge of the Seas — a notorious seafaring pirate villain.
@@ -22,9 +23,11 @@ fun DrawScope.drawCaptainRoderichSymbol(
     size: Float,
     outlineColor: Color? = null,
     headScale: Float = 1.0f,
+    showBarge: Boolean = false,
 ) {
     val pathOutlineWidth = 2.5f
     val outlineWidth = 2f
+    val renderCenterY = if (showBarge) centerY - size * 0.05f else centerY
 
     // ---- Colour palette ----
     val coatColor = Color(0xFF1A3A5C) // Deep navy coat
@@ -37,7 +40,15 @@ fun DrawScope.drawCaptainRoderichSymbol(
     val beardColor = Color(0xFF4A3520) // Dark brown beard
     val eyePatchColor = Color(0xFFD4A017) // Gold eye-patch
 
-    val headCenterY = centerY - size * 0.12f
+    val headCenterY = renderCenterY - size * 0.12f
+
+    if (showBarge) {
+        drawRaftBase(
+            centerX = centerX,
+            centerY = centerY + size * 0.34f,
+            size = size * 1.20f,
+        )
+    }
 
     // ---- Coat / body (not scaled) ----
     if (headScale == 1.0f) {
@@ -45,33 +56,33 @@ fun DrawScope.drawCaptainRoderichSymbol(
         if (outlineColor != null) {
             drawRect(
                 color = outlineColor,
-                topLeft = Offset(centerX - size * 0.28f, centerY + size * 0.07f),
+                topLeft = Offset(centerX - size * 0.28f, renderCenterY + size * 0.07f),
                 size = Size(size * 0.56f, size * 0.38f),
                 style = Stroke(width = pathOutlineWidth),
             )
         }
         drawRect(
             color = coatColor,
-            topLeft = Offset(centerX - size * 0.28f, centerY + size * 0.07f),
+            topLeft = Offset(centerX - size * 0.28f, renderCenterY + size * 0.07f),
             size = Size(size * 0.56f, size * 0.38f),
         )
         // Coat front opening (V-shape, slightly lighter)
         drawRect(
             color = coatHighlight,
-            topLeft = Offset(centerX - size * 0.06f, centerY + size * 0.07f),
+            topLeft = Offset(centerX - size * 0.06f, renderCenterY + size * 0.07f),
             size = Size(size * 0.12f, size * 0.24f),
         )
 
         // Gold epaulette (left shoulder)
         drawRect(
             color = goldColor,
-            topLeft = Offset(centerX - size * 0.36f, centerY + size * 0.07f),
+            topLeft = Offset(centerX - size * 0.36f, renderCenterY + size * 0.07f),
             size = Size(size * 0.12f, size * 0.08f),
         )
         // Gold epaulette (right shoulder)
         drawRect(
             color = goldColor,
-            topLeft = Offset(centerX + size * 0.24f, centerY + size * 0.07f),
+            topLeft = Offset(centerX + size * 0.24f, renderCenterY + size * 0.07f),
             size = Size(size * 0.12f, size * 0.08f),
         )
 
@@ -80,21 +91,21 @@ fun DrawScope.drawCaptainRoderichSymbol(
             drawCircle(
                 color = goldColor,
                 radius = size * 0.03f,
-                center = Offset(centerX, centerY + size * (0.13f + i * 0.1f)),
+                center = Offset(centerX, renderCenterY + size * (0.13f + i * 0.1f)),
             )
         }
 
         // Cutlass handle peeking from left hip
         val cutlassPath =
             Path().apply {
-                moveTo(centerX - size * 0.28f, centerY + size * 0.28f)
-                lineTo(centerX - size * 0.44f, centerY + size * 0.44f)
+                moveTo(centerX - size * 0.28f, renderCenterY + size * 0.28f)
+                lineTo(centerX - size * 0.44f, renderCenterY + size * 0.44f)
             }
         drawPath(cutlassPath, Color(0xFF8B7355), style = Stroke(width = size * 0.055f))
         // Cutlass guard
         drawRect(
             color = goldColor,
-            topLeft = Offset(centerX - size * 0.36f, centerY + size * 0.32f),
+            topLeft = Offset(centerX - size * 0.36f, renderCenterY + size * 0.32f),
             size = Size(size * 0.14f, size * 0.04f),
         )
     }
@@ -105,9 +116,14 @@ fun DrawScope.drawCaptainRoderichSymbol(
         val brimLeft = centerX - size * 0.38f
         val brimRight = centerX + size * 0.38f
         val brimY = headCenterY - size * 0.22f
-        val hatTop = headCenterY - size * 0.55f
+        val hatTop = headCenterY - size * 0.42f
 
         // Hat brim (wide flat base)
+        drawRect(
+            color = hatColor,
+            topLeft = Offset(brimLeft, brimY),
+            size = Size(brimRight - brimLeft, size * 0.08f),
+        )
         if (outlineColor != null) {
             drawRect(
                 color = outlineColor,
@@ -116,11 +132,6 @@ fun DrawScope.drawCaptainRoderichSymbol(
                 style = Stroke(width = outlineWidth),
             )
         }
-        drawRect(
-            color = hatColor,
-            topLeft = Offset(brimLeft, brimY),
-            size = Size(brimRight - brimLeft, size * 0.08f),
-        )
 
         // Hat crown (trapezoid body rising to a narrower top)
         val crownPath =
@@ -131,10 +142,10 @@ fun DrawScope.drawCaptainRoderichSymbol(
                 lineTo(brimRight - size * 0.08f, brimY)
                 close()
             }
+        drawPath(crownPath, hatColor)
         if (outlineColor != null) {
             drawPath(crownPath, outlineColor, style = Stroke(width = outlineWidth))
         }
-        drawPath(crownPath, hatColor)
 
         // Tricorn peak (left corner folded up)
         val leftPeak =
@@ -153,6 +164,10 @@ fun DrawScope.drawCaptainRoderichSymbol(
             }
         drawPath(leftPeak, hatColor)
         drawPath(rightPeak, hatColor)
+        if (outlineColor != null) {
+            drawPath(leftPeak, outlineColor, style = Stroke(width = outlineWidth))
+            drawPath(rightPeak, outlineColor, style = Stroke(width = outlineWidth))
+        }
 
         // Gold hat-band
         drawRect(
