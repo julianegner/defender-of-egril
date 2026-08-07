@@ -97,6 +97,7 @@ object AppSettings {
     private const val KEY_CHECK_FOR_UPDATES = "check_for_updates"
     private const val KEY_AUTO_JUMP_TO_NEXT_TOWER = "auto_jump_to_next_tower"
     private const val KEY_SHOW_UNIT_TOWER_BACKGROUND = "show_unit_tower_background"
+    private const val KEY_SPLIT_BUILD_TOWER_BUTTON = "split_build_tower_button"
     private const val KEY_HIGH_CONTRAST = "high_contrast"
     private const val KEY_COLOR_BLIND_PALETTE = "color_blind_palette"
     private const val KEY_CAPTIONS_ENABLED = "captions_enabled"
@@ -375,6 +376,14 @@ object AppSettings {
     val showUnitTowerBackground: MutableState<Boolean> =
         mutableStateOf(
             settings.getBoolean(KEY_SHOW_UNIT_TOWER_BACKGROUND, false),
+        )
+
+    /**
+     * If true, use split build-tower button in compact controls to free info area space.
+     */
+    val splitBuildTowerButton: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_SPLIT_BUILD_TOWER_BUTTON, true),
         )
 
     /**
@@ -979,6 +988,15 @@ object AppSettings {
         onPersist?.invoke()
     }
 
+    /**
+     * Save split build-tower button preference
+     */
+    fun saveSplitBuildTowerButton(enabled: Boolean) {
+        splitBuildTowerButton.value = enabled
+        settings.putBoolean(KEY_SPLIT_BUILD_TOWER_BUTTON, enabled)
+        onPersist?.invoke()
+    }
+
     fun saveHighContrastEnabled(enabled: Boolean) {
         highContrastEnabled.value = enabled
         settings.putBoolean(KEY_HIGH_CONTRAST, enabled)
@@ -1257,6 +1275,7 @@ object AppSettings {
             put(KEY_CHECK_FOR_UPDATES, checkForUpdates.value.toString())
             put(KEY_AUTO_JUMP_TO_NEXT_TOWER, autoJumpToNextTower.value.toString())
             put(KEY_SHOW_UNIT_TOWER_BACKGROUND, showUnitTowerBackground.value.toString())
+            put(KEY_SPLIT_BUILD_TOWER_BUTTON, splitBuildTowerButton.value.toString())
             put(KEY_HIGH_CONTRAST, highContrastEnabled.value.toString())
             put(KEY_COLOR_BLIND_PALETTE, colorBlindPalette.value.name)
             put(KEY_CAPTIONS_ENABLED, captionsEnabled.value.toString())
@@ -1333,6 +1352,7 @@ object AppSettings {
             map[KEY_CHECK_FOR_UPDATES]?.toBooleanStrictOrNull()?.let { saveCheckForUpdates(it) }
             map[KEY_AUTO_JUMP_TO_NEXT_TOWER]?.toBooleanStrictOrNull()?.let { saveAutoJumpToNextTower(it) }
             map[KEY_SHOW_UNIT_TOWER_BACKGROUND]?.toBooleanStrictOrNull()?.let { saveShowUnitTowerBackground(it) }
+            map[KEY_SPLIT_BUILD_TOWER_BUTTON]?.toBooleanStrictOrNull()?.let { saveSplitBuildTowerButton(it) }
             map[KEY_HIGH_CONTRAST]?.toBooleanStrictOrNull()?.let { saveHighContrastEnabled(it) }
             map[KEY_COLOR_BLIND_PALETTE]?.let { name ->
                 try {

@@ -66,9 +66,8 @@ data class Level(
     val mapId: String? = null, // ID of the map this level uses
     val isCommunity: Boolean = false, // True if this level was loaded from the community directory
     val riverTiles: Map<Position, RiverTile> = emptyMap(), // River tiles with flow direction and speed (not walkable in gameplay, but treated as walkable during map validation for levels with ORK, EVIL_WIZARD, or EWHAD enemies)
-    val allowAutoAttack: Boolean = false, // If true, shows auto-attack button in end turn confirmation dialog
+    val allowAutoAttack: Boolean = true, // If true, shows auto-attack button in end turn confirmation dialog
     val connectedToPreviousLevel: Boolean = false, // If true, player can carry over towers/coins from the previous level
-    val splitBuildTowerButton: Boolean = true, // If true, use split build-tower button in compact controls to free info area space
     val isSandbox: Boolean = false, // If true, level is a Sandbox: free building/spawning, no scripted events, cannot be won, no XP
     val targetInfoMap: Map<Position, TargetInfo> = emptyMap(), // Optional metadata (name, type) per target position
     val spawnPointTypeMap: Map<Position, SpawnPointType> = emptyMap(), // Spawn point type per position (LAND or WATER); defaults to LAND if absent

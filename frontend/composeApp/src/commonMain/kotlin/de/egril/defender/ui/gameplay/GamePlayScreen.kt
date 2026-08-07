@@ -939,7 +939,7 @@ private fun GamePlayScreenContent(
                         event.key == Key.B &&
                         !event.isCtrlPressed &&
                         !event.isAltPressed &&
-                        gameState.level.splitBuildTowerButton &&
+                        AppSettings.splitBuildTowerButton.value &&
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
                         splitSelectorToggle++
                         true

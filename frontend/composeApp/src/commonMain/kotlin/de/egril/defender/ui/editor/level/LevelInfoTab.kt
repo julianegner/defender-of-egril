@@ -78,8 +78,6 @@ fun LevelInfoTab(
     onAllowAutoAttackChange: (Boolean) -> Unit,
     connectedToPreviousLevel: Boolean,
     onConnectedToPreviousLevelChange: (Boolean) -> Unit,
-    splitBuildTowerButton: Boolean,
-    onSplitBuildTowerButtonChange: (Boolean) -> Unit,
     isSandbox: Boolean = false,
     onIsSandboxChange: (Boolean) -> Unit = {},
     isOfficial: Boolean = false,
@@ -207,21 +205,6 @@ fun LevelInfoTab(
                             checked = connectedToPreviousLevel,
                             onCheckedChange = onConnectedToPreviousLevelChange,
                             enabled = canEnableConnectedToPreviousLevel,
-                        )
-                    }
-
-                    // Split build tower button toggle
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.split_build_tower_button),
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                        Switch(
-                            checked = splitBuildTowerButton,
-                            onCheckedChange = onSplitBuildTowerButtonChange,
                         )
                     }
 
