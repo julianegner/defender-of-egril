@@ -424,15 +424,8 @@ object EditorJsonSerializer {
             }
 
         val allowAutoAttackJson =
-            if (level.allowAutoAttack) {
-                ",\n  \"allowAutoAttack\": true"
-            } else {
-                ""
-            }
-
-        val splitBuildTowerButtonJson =
-            if (!level.splitBuildTowerButton) {
-                ",\n  \"splitBuildTowerButton\": false"
+            if (!level.allowAutoAttack) {
+                ",\n  \"allowAutoAttack\": false"
             } else {
                 ""
             }
@@ -669,7 +662,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$splitBuildTowerButtonJson$connectedToPreviousLevelJson$isSandboxJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isSandboxJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
 }"""
         return """{
   "metadata": {
@@ -879,23 +872,11 @@ object EditorJsonSerializer {
                     false
                 }
 
-            // Parse allowAutoAttack (optional, defaults to false)
+            // Parse allowAutoAttack (optional, defaults to true)
             val allowAutoAttack =
                 if (dataJson.contains("\"allowAutoAttack\"")) {
                     try {
                         JsonUtils.extractValue(dataJson, "allowAutoAttack").toBoolean()
-                    } catch (e: Exception) {
-                        false
-                    }
-                } else {
-                    false
-                }
-
-            // Parse splitBuildTowerButton (optional, defaults to true)
-            val splitBuildTowerButton =
-                if (dataJson.contains("\"splitBuildTowerButton\"")) {
-                    try {
-                        JsonUtils.extractValue(dataJson, "splitBuildTowerButton").toBoolean()
                     } catch (e: Exception) {
                         true
                     }
@@ -1510,7 +1491,6 @@ object EditorJsonSerializer {
                 testingOnly = testingOnly,
                 allowAutoAttack = allowAutoAttack,
                 connectedToPreviousLevel = connectedToPreviousLevel,
-                splitBuildTowerButton = splitBuildTowerButton,
                 isSandbox = isSandbox,
                 isOfficial = isOfficial,
                 author = author,

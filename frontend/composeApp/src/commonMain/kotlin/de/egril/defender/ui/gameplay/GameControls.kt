@@ -283,7 +283,7 @@ fun GameControlsPanel(
                             // When using the split button, use exactly the split control width so the
                             // info area on the left gets all remaining horizontal space.
                             val rightColumnModifier =
-                                if (gameState.level.splitBuildTowerButton) {
+                                if (AppSettings.splitBuildTowerButton.value) {
                                     Modifier.width(SplitControlMaxWidth)
                                 } else {
                                     Modifier.widthIn(max = 600.dp).fillMaxWidth()
@@ -299,7 +299,7 @@ fun GameControlsPanel(
                                         .fillMaxWidth()
                                         .height(if (isMobile) 45.dp else 45.dp)
 
-                                if (gameState.level.splitBuildTowerButton) {
+                                if (AppSettings.splitBuildTowerButton.value) {
                                     val types =
                                         gameState.level.availableTowers
                                             .filter { it != DefenderType.DRAGONS_LAIR }

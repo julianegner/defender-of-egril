@@ -1559,7 +1559,6 @@ object EditorStorage {
                 riverTiles = map.getRiverTilesMap(), // Add river tiles with flow direction and speed
                 allowAutoAttack = editorLevel.allowAutoAttack, // Allow auto-attack option
                 connectedToPreviousLevel = editorLevel.connectedToPreviousLevel, // Connected level flag
-                splitBuildTowerButton = editorLevel.splitBuildTowerButton, // Split build-tower button option
                 isSandbox = editorLevel.isSandbox, // Sandbox mode flag (free building, no win, no XP, no events)
                 targetInfoMap = gameTargetInfoMap, // Named / SINGLE_HIT target metadata
                 spawnPointTypeMap = gameSpawnPointTypeMap, // LAND/WATER classification per spawn point
