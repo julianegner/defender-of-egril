@@ -68,6 +68,11 @@ private val SNOTLING_DIAMOND_OFFSETS =
         Pair(0f, 2f),
     )
 
+internal fun shouldShowSeafaringPirateBarge(
+    attackerType: AttackerType,
+    isRiverTile: Boolean,
+): Boolean = isRiverTile && (attackerType == AttackerType.PIRATE || attackerType == AttackerType.CAPTAIN_RODERICH)
+
 @Composable
 fun EnemyIcon(
     attacker: Attacker,
@@ -76,6 +81,7 @@ fun EnemyIcon(
     backgroundColor: Color? = null,
     healthOverride: Int? = null,
     moveVillainNameUp: Boolean = false,
+    showSeafaringPirateBarge: Boolean = false,
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
@@ -107,7 +113,7 @@ fun EnemyIcon(
                 AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
                 AttackerType.GHOST -> drawGhostSymbol(centerX, centerY, iconSize * 0.72f, contrastOutlineColor)
-                AttackerType.PIRATE -> drawPirateSymbol(centerX, centerY, iconSize * 0.80f, contrastOutlineColor, headScale)
+                AttackerType.PIRATE -> drawPirateSymbol(centerX, centerY, iconSize * 0.80f, contrastOutlineColor, headScale, showSeafaringPirateBarge)
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING,
@@ -162,7 +168,7 @@ fun EnemyIcon(
                 AttackerType.IGNIS_VA_THE_DRAGONVOICE -> drawIgnisVaSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
                 AttackerType.DRAGON_TERROR -> drawDragonTerrorSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
                 AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(centerX, centerY, iconSize * 0.90f, headScale = headScale)
-                AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, centerY, iconSize * 0.80f, headScale = headScale)
+                AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, centerY, iconSize * 0.80f, outlineColor = contrastOutlineColor, headScale = headScale, showBarge = showSeafaringPirateBarge)
                 AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
             }
         }

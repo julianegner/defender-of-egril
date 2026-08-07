@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
+import de.egril.defender.ui.drawRaftBase
 
 /**
  * Draw Cap'n Roderich, Scourge of the Seas — a notorious seafaring pirate villain.
@@ -22,6 +23,7 @@ fun DrawScope.drawCaptainRoderichSymbol(
     size: Float,
     outlineColor: Color? = null,
     headScale: Float = 1.0f,
+    showBarge: Boolean = false,
 ) {
     val pathOutlineWidth = 2.5f
     val outlineWidth = 2f
@@ -38,6 +40,14 @@ fun DrawScope.drawCaptainRoderichSymbol(
     val eyePatchColor = Color(0xFFD4A017) // Gold eye-patch
 
     val headCenterY = centerY - size * 0.12f
+
+    if (showBarge) {
+        drawRaftBase(
+            centerX = centerX,
+            centerY = centerY + size * 0.11f,
+            size = size * 0.92f,
+        )
+    }
 
     // ---- Coat / body (not scaled) ----
     if (headScale == 1.0f) {
@@ -151,6 +161,10 @@ fun DrawScope.drawCaptainRoderichSymbol(
                 lineTo(brimRight - size * 0.14f, brimY)
                 close()
             }
+        if (outlineColor != null) {
+            drawPath(leftPeak, outlineColor, style = Stroke(width = outlineWidth))
+            drawPath(rightPeak, outlineColor, style = Stroke(width = outlineWidth))
+        }
         drawPath(leftPeak, hatColor)
         drawPath(rightPeak, hatColor)
 

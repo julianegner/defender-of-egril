@@ -104,6 +104,7 @@ import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreview
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
+import de.egril.defender.ui.icon.enemy.shouldShowSeafaringPirateBarge
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.icon.enemy.enemyAttackPreview
 import de.egril.defender.ui.rememberMapImageState
@@ -2524,8 +2525,10 @@ private fun BoxScope.GridCellContent(
                 // - Unit backgrounds OFF in dark mode → dark terrain bg → white text
                 // - Unit backgrounds OFF in light mode → light terrain bg → dark text
                 val isPirateOnRiverTile =
-                    (attacker.type == AttackerType.PIRATE || attacker.type == AttackerType.CAPTAIN_RODERICH) &&
-                        gameState.level.isRiverTile(attacker.position.value)
+                    shouldShowSeafaringPirateBarge(
+                        attacker.type,
+                        gameState.level.isRiverTile(attacker.position.value),
+                    )
                 val healthTextColor =
                     when {
                         freezeEffect != null || coolingReducesToZero -> Color.White
@@ -2555,6 +2558,7 @@ private fun BoxScope.GridCellContent(
                         healthTextColor = healthTextColor,
                         healthOverride = displayedHealth,
                         moveVillainNameUp = true,
+                        showSeafaringPirateBarge = isPirateOnRiverTile,
                     )
                     if (isDangerous) {
                         Text(

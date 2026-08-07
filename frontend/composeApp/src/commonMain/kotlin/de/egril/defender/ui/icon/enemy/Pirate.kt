@@ -18,6 +18,7 @@ fun DrawScope.drawPirateSymbol(
     size: Float,
     outlineColor: Color? = null,
     headScale: Float = 1.0f,
+    showBarge: Boolean = false,
 ) {
     drawCaptainRoderichSymbol(
         centerX = centerX,
@@ -25,9 +26,18 @@ fun DrawScope.drawPirateSymbol(
         size = size,
         outlineColor = outlineColor,
         headScale = headScale,
+        showBarge = showBarge,
     )
 
     // Distinctive red bandana across the forehead.
+    if (outlineColor != null) {
+        drawRect(
+            color = outlineColor,
+            topLeft = Offset(centerX - size * 0.20f, centerY - size * 0.30f),
+            size = Size(size * 0.40f, size * 0.08f),
+            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f),
+        )
+    }
     drawRect(
         color = Color(0xFF9E1A1A),
         topLeft = Offset(centerX - size * 0.20f, centerY - size * 0.30f),
@@ -42,6 +52,13 @@ fun DrawScope.drawPirateSymbol(
             lineTo(centerX + size * 0.20f, centerY - size * 0.18f)
             close()
         }
+    if (outlineColor != null) {
+        drawPath(
+            knotPath,
+            outlineColor,
+            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f),
+        )
+    }
     drawPath(knotPath, Color(0xFF9E1A1A))
 
     // Gold earring.
