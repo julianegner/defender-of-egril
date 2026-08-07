@@ -7,7 +7,7 @@ import org.junit.Rule
 import org.junit.Test
 
 /**
- * UI test for the new "Change All NO_PLAY to PATH" button in the map editor.
+ * UI test for the tile replacement button in the map editor.
  *
  * This test verifies that the button appears and captures a screenshot
  * showing the new functionality.
@@ -53,9 +53,9 @@ class MapEditorChangeAllButtonTest {
         // Try to verify the new button exists
         try {
             composeTestRule
-                .onNodeWithText("Change All NO_PLAY to PATH", substring = true, ignoreCase = true)
+                .onNodeWithText("Replace Tiles", substring = true, ignoreCase = true)
                 .assertExists()
-            println("SUCCESS: New 'Change All NO_PLAY to PATH' button found in map editor")
+            println("SUCCESS: New 'Replace Tiles' button found in map editor")
         } catch (e: Exception) {
             println("Note: Could not find button (might not be visible in current view): ${e.message}")
         }

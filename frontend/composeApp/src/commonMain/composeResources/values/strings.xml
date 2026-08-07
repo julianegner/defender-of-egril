@@ -417,6 +417,8 @@
     <string name="change_all_no_play_to_path">Change All NO_PLAY to PATH</string>
     <string name="change_all_no_play_confirm_title">Change All NO_PLAY to PATH?</string>
     <string name="change_all_no_play_confirm_message">This will replace all NO_PLAY tiles with PATH tiles. Are you sure?</string>
+    <string name="replace_tiles">Replace Tiles</string>
+    <string name="replace_tiles_limit_to_area">Limit replacement to area</string>
     <string name="map_size_label">%dx%d</string>
     <string name="map_short">Map</string>
     <string name="coins_short">Coins</string>

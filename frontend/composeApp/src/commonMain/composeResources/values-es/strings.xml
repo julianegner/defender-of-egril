@@ -411,6 +411,8 @@
     <string name="change_all_no_play_to_path">Cambiar todos NO_PLAY a PATH</string>
     <string name="change_all_no_play_confirm_title">¿Cambiar todos NO_PLAY a PATH?</string>
     <string name="change_all_no_play_confirm_message">Esto reemplazará todas las baldosas NO_PLAY con baldosas PATH. ¿Está seguro?</string>
+    <string name="replace_tiles">Reemplazar baldosas</string>
+    <string name="replace_tiles_limit_to_area">Limitar reemplazo a un área</string>
     <string name="map_size_label">%dx%d</string>
     <string name="map_short">Mapa</string>
     <string name="coins_short">Monedas</string>
