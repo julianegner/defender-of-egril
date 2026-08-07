@@ -731,7 +731,7 @@ fun MapEditorView(
             title = { Text(stringResource(Res.string.replace_tiles)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(stringResource(Res.string.from))
+                    Text(stringResource(Res.string.replace_tiles_source))
                     Box {
                         OutlinedButton(
                             onClick = { sourceTileDropdownExpanded = true },
@@ -755,7 +755,7 @@ fun MapEditorView(
                         }
                     }
 
-                    Text(stringResource(Res.string.to))
+                    Text(stringResource(Res.string.replace_tiles_target))
                     Box {
                         OutlinedButton(
                             onClick = { targetTileDropdownExpanded = true },
@@ -791,7 +791,7 @@ fun MapEditorView(
                     }
 
                     if (replacementLimitToArea) {
-                        Text(stringResource(Res.string.from))
+                        Text(stringResource(Res.string.replace_tiles_area_from))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedTextField(
                                 value = replacementFromX,
@@ -809,7 +809,7 @@ fun MapEditorView(
                             )
                         }
 
-                        Text(stringResource(Res.string.to))
+                        Text(stringResource(Res.string.replace_tiles_area_to))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedTextField(
                                 value = replacementToX,
@@ -834,9 +834,12 @@ fun MapEditorView(
                     onClick = {
                         val area =
                             if (replacementLimitToArea) {
+                                if (parsedFromX == null || parsedFromY == null || parsedToX == null || parsedToY == null) {
+                                    return@Button
+                                }
                                 TileReplacementArea(
-                                    from = Position(parsedFromX ?: 0, parsedFromY ?: 0),
-                                    to = Position(parsedToX ?: 0, parsedToY ?: 0),
+                                    from = Position(parsedFromX, parsedFromY),
+                                    to = Position(parsedToX, parsedToY),
                                 )
                             } else {
                                 null
@@ -863,15 +866,37 @@ fun MapEditorView(
                                     changedKeys.forEach { key ->
                                         if (this[key] == null) {
                                             val parts = key.split(",")
-                                            this[key] =
-                                                de.egril.defender.model.RiverTile(
-                                                    position = Position(parts[0].toInt(), parts[1].toInt()),
-                                                    flowDirection = selectedRiverFlow,
-                                                    flowSpeed = selectedRiverSpeed,
-                                                )
+                                            val x = parts.getOrNull(0)?.toIntOrNull()
+                                            val y = parts.getOrNull(1)?.toIntOrNull()
+                                            if (x != null && y != null) {
+                                                this[key] =
+                                                    RiverTile(
+                                                        position = Position(x, y),
+                                                        flowDirection = selectedRiverFlow,
+                                                        flowSpeed = selectedRiverSpeed,
+                                                    )
+                                            }
                                         }
                                     }
                                 }
+                        } else if (replacementTargetTileType == TileType.TARGET) {
+                            targetInfoMap =
+                                    targetInfoMap.toMutableMap().apply {
+                                        changedKeys.forEach { key ->
+                                            if (this[key] == null) {
+                                                this[key] = EditorTargetInfo()
+                                            }
+                                        }
+                                    }
+                        } else if (replacementTargetTileType == TileType.SPAWN_POINT) {
+                            spawnPointInfoMap =
+                                    spawnPointInfoMap.toMutableMap().apply {
+                                        changedKeys.forEach { key ->
+                                            if (this[key] == null) {
+                                                this[key] = SpawnPointType.LAND
+                                            }
+                                        }
+                                    }
                         }
 
                         showTileReplacementDialog = false

@@ -7,6 +7,12 @@ data class TileReplacementArea(
     val to: Position,
 )
 
+/**
+ * Replaces [sourceTileType] with [targetTileType] on a whole map or an optional rectangular area.
+ *
+ * NO_PLAY replacement also treats missing tile entries as implicit NO_PLAY and will materialize
+ * those cells in the returned tile map (including area-limited operations).
+ */
 fun replaceTilesByType(
     tiles: Map<String, TileType>,
     mapWidth: Int,

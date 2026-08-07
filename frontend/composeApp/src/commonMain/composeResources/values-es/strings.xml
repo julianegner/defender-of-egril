@@ -408,11 +408,12 @@
     <string name="click_hexagons_to_paint">Haz clic o arrastra para pintar hexágonos. Usa Ctrl+Rueda para zoom:</string>
     <string name="collapse">Contraer</string>
     <string name="expand">Expandir</string>
-    <string name="change_all_no_play_to_path">Cambiar todos NO_PLAY a PATH</string>
-    <string name="change_all_no_play_confirm_title">¿Cambiar todos NO_PLAY a PATH?</string>
-    <string name="change_all_no_play_confirm_message">Esto reemplazará todas las baldosas NO_PLAY con baldosas PATH. ¿Está seguro?</string>
     <string name="replace_tiles">Reemplazar baldosas</string>
     <string name="replace_tiles_limit_to_area">Limitar reemplazo a un área</string>
+    <string name="replace_tiles_source">Tipo de baldosa origen</string>
+    <string name="replace_tiles_target">Tipo de baldosa destino</string>
+    <string name="replace_tiles_area_from">Inicio del área</string>
+    <string name="replace_tiles_area_to">Fin del área</string>
     <string name="map_size_label">%dx%d</string>
     <string name="map_short">Mapa</string>
     <string name="coins_short">Monedas</string>
