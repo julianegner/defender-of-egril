@@ -8,12 +8,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class NarrativeMessageDialogLogicTest {
-    private val allowedMissingVillainBackgrounds =
-        setOf(
-            // Planned: dedicated Morvath frame image will be provided separately.
-            "message_background_morvath",
-        )
-
     @Test
     fun gribnakAndMorgukUseTighterEwhadFramePadding() {
         val defaultPadding = narrativeTextFramePaddingFractions(NarrativeMessageType.EWHAD, AttackerType.GAROKK)
@@ -48,7 +42,6 @@ class NarrativeMessageDialogLogicTest {
                 .mapNotNull { it.villainName }
                 .toSet()
                 .map { "message_background_${it.lowercase().replace(Regex("[^a-z0-9]+"), "_").trim('_')}" }
-                .filterNot { it in allowedMissingVillainBackgrounds }
                 .filterNot { Res.allDrawableResources.containsKey(it) }
 
         assertTrue(
