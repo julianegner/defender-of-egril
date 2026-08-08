@@ -2,6 +2,7 @@ package de.egril.defender.ui.gameplay
 
 import androidx.compose.ui.graphics.Color
 import de.egril.defender.model.AttackerType
+import defender_of_egril.composeapp.generated.resources.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -31,5 +32,21 @@ class NarrativeMessageDialogLogicTest {
         assertEquals(Color(0xFFE9DFD2), silasColors.body)
         assertTrue(silasColors.title != defaultColors.title)
         assertTrue(silasColors.body != defaultColors.body)
+    }
+
+    @Test
+    fun everyVillainHasOwnStoryMessageBackground() {
+        val missingBackgrounds =
+            AttackerType.entries
+                .filter { it.isVillain }
+                .mapNotNull { it.villainName }
+                .toSet()
+                .map { "message_background_${it.lowercase().replace(Regex("[^a-z0-9]+"), "_").trim('_')}" }
+                .filterNot { Res.allDrawableResources.containsKey(it) }
+
+        assertTrue(
+            missingBackgrounds.isEmpty(),
+            "Missing villain story message backgrounds: ${missingBackgrounds.joinToString()}",
+        )
     }
 }
