@@ -1164,9 +1164,9 @@ class EnemyAbilitySystem(
         val extraTarget =
             rangedCandidates.maxWithOrNull(
                 compareBy<Position> { shadowFogPriorityScore(it) }
-                    .thenBy { origin.hexDistanceTo(it) }
-                    .thenBy { -it.y }
-                    .thenBy { -it.x },
+                    .thenByDescending { origin.hexDistanceTo(it) }
+                    .thenByDescending { it.y }
+                    .thenByDescending { it.x },
             )
         if (extraTarget != null) {
             refreshShadowFogAt(extraTarget, morvath.id)

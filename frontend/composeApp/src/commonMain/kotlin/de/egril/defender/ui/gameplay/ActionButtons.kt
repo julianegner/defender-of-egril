@@ -51,10 +51,6 @@ fun AttackButton(
             if (selectedTargetId != null) {
                 val target = gameState.attackers.find { it.id == selectedTargetId }
                 if (target != null && defender.canAttack(target, gameState.effectiveRange(defender))) {
-                    val isTargetInShadowFog =
-                        gameState.fieldEffects.any {
-                            it.type == FieldEffectType.SHADOW_FOG && it.position == target.position.value
-                        }
                     Button(
                         onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
                         modifier = modifier,
@@ -88,7 +84,7 @@ fun AttackButton(
                                     overflow = TextOverflow.Clip,
                                 )
                                 Text(
-                                    if (isTargetInShadowFog || isSelectedTileInShadowFog) {
+                                    if (isSelectedTileInShadowFog) {
                                         stringResource(Res.string.fog_label)
                                     } else {
                                         "${target.type.getLocalizedName(
