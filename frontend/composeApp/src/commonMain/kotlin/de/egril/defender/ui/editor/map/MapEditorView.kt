@@ -6,9 +6,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
@@ -21,11 +24,13 @@ import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.EditorTargetInfo
 import de.egril.defender.editor.TileType
 import de.egril.defender.editor.TileReplacementArea
+import de.egril.defender.editor.pickBackgroundImageBytes
 import de.egril.defender.editor.replaceTilesByType
 import de.egril.defender.model.Position
 import de.egril.defender.model.RiverTile
 import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.TargetType
+import de.egril.defender.ui.MapImageProvider
 import de.egril.defender.ui.constrainMapOffsets
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.editor.RiverFlowIndicator
@@ -98,6 +103,15 @@ fun MapEditorView(
     var offsetY by remember { mutableStateOf(0f) }
     var lastPaintedPos by remember { mutableStateOf<Position?>(null) }
     var isHeaderExpanded by remember { mutableStateOf(true) }
+    var backgroundImageBytes by remember { mutableStateOf<ByteArray?>(null) }
+    var mapOverlayAlpha by remember { mutableStateOf(0.7f) }
+    val backgroundImagePainter =
+        remember(backgroundImageBytes) {
+            backgroundImageBytes?.let { bytes ->
+                val bitmap = MapImageProvider.decodeImageBitmap(bytes)
+                if (bitmap != null) BitmapPainter(bitmap) else null
+            }
+        }
 
     // Track container and content sizes for constraint calculation
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
@@ -199,6 +213,16 @@ fun MapEditorView(
                         .fillMaxWidth()
                         .padding(8.dp),
             ) {
+                // Background reference image (displayed behind the map grid)
+                if (backgroundImagePainter != null) {
+                    androidx.compose.foundation.Image(
+                        painter = backgroundImagePainter,
+                        contentDescription = null,
+                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+
                 HexagonalMapView(
                     gridWidth = map.width,
                     gridHeight = map.height,
@@ -224,6 +248,7 @@ fun MapEditorView(
                     modifier =
                         Modifier
                             .fillMaxSize()
+                            .alpha(if (backgroundImagePainter != null) mapOverlayAlpha else 1f)
                             .onSizeChanged { containerSize = it }
                             .pointerInput(containerSize, actualContentSize, zoomLevel) {
                                 detectDragGestures { change, _ ->
@@ -682,6 +707,18 @@ fun MapEditorView(
             onTargetTypeChange = { selectedTargetType = it },
             selectedSpawnPointType = selectedSpawnPointType,
             onSpawnPointTypeChange = { selectedSpawnPointType = it },
+            backgroundImageLoaded = backgroundImagePainter != null,
+            onLoadBackgroundImage = {
+                coroutineScope.launch {
+                    val bytes = pickBackgroundImageBytes()
+                    if (bytes != null) {
+                        backgroundImageBytes = bytes
+                    }
+                }
+            },
+            onClearBackgroundImage = { backgroundImageBytes = null },
+            mapOverlayAlpha = mapOverlayAlpha,
+            onMapOverlayAlphaChange = { mapOverlayAlpha = it },
         )
     }
 

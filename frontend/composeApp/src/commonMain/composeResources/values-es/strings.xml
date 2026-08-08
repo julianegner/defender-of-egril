@@ -414,6 +414,10 @@
     <string name="replace_tiles_target">Tipo de baldosa destino</string>
     <string name="replace_tiles_area_from">Inicio del área</string>
     <string name="replace_tiles_area_to">Fin del área</string>
+    <string name="map_background_image">Imagen de fondo</string>
+    <string name="map_background_image_load">Cargar imagen</string>
+    <string name="map_background_image_clear">Eliminar imagen</string>
+    <string name="map_background_image_opacity">Opacidad del mapa</string>
     <string name="map_size_label">%dx%d</string>
     <string name="map_short">Mapa</string>
     <string name="coins_short">Monedas</string>
