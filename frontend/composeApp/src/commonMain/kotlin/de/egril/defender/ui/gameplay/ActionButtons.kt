@@ -36,6 +36,9 @@ fun AttackButton(
     onDefenderAttackPosition: (Int, Position) -> Unit,
     modifier: Modifier = Modifier.fillMaxWidth().height(56.dp),
 ) {
+    val isSelectedTileInShadowFog =
+        selectedTargetPosition != null &&
+            gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == selectedTargetPosition }
     if (defender.isReady && defender.actionsRemaining.value > 0) {
         // Determine if attack mode is active (target or position selected)
         val isAttackModeActive = selectedTargetId != null || selectedTargetPosition != null
@@ -48,6 +51,10 @@ fun AttackButton(
             if (selectedTargetId != null) {
                 val target = gameState.attackers.find { it.id == selectedTargetId }
                 if (target != null && defender.canAttack(target, gameState.effectiveRange(defender))) {
+                    val isTargetInShadowFog =
+                        gameState.fieldEffects.any {
+                            it.type == FieldEffectType.SHADOW_FOG && it.position == target.position.value
+                        }
                     Button(
                         onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
                         modifier = modifier,
@@ -81,9 +88,13 @@ fun AttackButton(
                                     overflow = TextOverflow.Clip,
                                 )
                                 Text(
-                                    "${target.type.getLocalizedName(
-                                        locale,
-                                    )} (${target.currentHealth.value}/${target.maxHealth} ${stringResource(Res.string.hp_label)}) + Area",
+                                    if (isTargetInShadowFog || isSelectedTileInShadowFog) {
+                                        stringResource(Res.string.fog_label)
+                                    } else {
+                                        "${target.type.getLocalizedName(
+                                            locale,
+                                        )} (${target.currentHealth.value}/${target.maxHealth} ${stringResource(Res.string.hp_label)}) + Area"
+                                    },
                                     fontSize = 11.sp,
                                 )
                             }
@@ -126,7 +137,11 @@ fun AttackButton(
                                 fontWeight = FontWeight.Bold,
                             )
                             Text(
-                                "at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})",
+                                if (isSelectedTileInShadowFog) {
+                                    stringResource(Res.string.fog_label)
+                                } else {
+                                    "at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})"
+                                },
                                 fontSize = 11.sp,
                             )
                         }
@@ -141,6 +156,10 @@ fun AttackButton(
             // For all towers, allow attacking enemies
             val target = gameState.attackers.find { it.id == selectedTargetId }
             if (target != null && defender.canAttack(target, gameState.effectiveRange(defender))) {
+                val isTargetInShadowFog =
+                    gameState.fieldEffects.any {
+                        it.type == FieldEffectType.SHADOW_FOG && it.position == target.position.value
+                    }
                 Button(
                     onClick = { onDefenderAttack(defender.id, selectedTargetId) },
                     modifier = modifier,
@@ -172,9 +191,13 @@ fun AttackButton(
                                 fontWeight = FontWeight.Bold,
                             )
                             Text(
-                                "${target.type.getLocalizedName(
-                                    locale,
-                                )} (${target.currentHealth.value}/${target.maxHealth} ${stringResource(Res.string.hp_label)})",
+                                if (isTargetInShadowFog || isSelectedTileInShadowFog) {
+                                    stringResource(Res.string.fog_label)
+                                } else {
+                                    "${target.type.getLocalizedName(
+                                        locale,
+                                    )} (${target.currentHealth.value}/${target.maxHealth} ${stringResource(Res.string.hp_label)})"
+                                },
                                 fontSize = 11.sp,
                             )
                         }

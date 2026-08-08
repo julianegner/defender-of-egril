@@ -2234,4 +2234,11 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="fief_type_woodcutter">Taglialegna</string>
     <string name="fief_type_quarry">Cava</string>
     <string name="fief_type_marketplace">Mercato</string>
+    <string name="morvath_name">Morvath, il Maestro delle Ombre</string>
+    <string name="villain_morvath_title">Morvath, il Maestro delle Ombre, entra nel campo di battaglia</string>
+    <string name="villain_morvath_backstory">Morvath, un potente signore delle ombre, è entrato nel campo di battaglia. La sua sola presenza immerge intere zone nell'oscurità.</string>
+    <string name="villain_morvath_description">A ogni turno nemico avvolge nella nebbia d'ombra la sua casella, le caselle vicine e una casella lontana. I nemici nascosti nella nebbia non mostrano indizi di attacco, ma possono ancora essere bersagliati, feriti e sconfitti.</string>
+    <string name="villain_morvath_shadow_fog_short">Nebbia d'ombra: caselle vicine e lontane restano nascoste per 3 turni</string>
+    <string name="fog_label">Nebbia</string>
+    <string name="enemy_in_fog">nella nebbia</string>
 </resources>

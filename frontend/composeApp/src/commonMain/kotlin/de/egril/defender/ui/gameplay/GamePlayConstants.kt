@@ -170,6 +170,9 @@ object GamePlayConstants {
 
         /** Icon size for Baron Ratterzahn scrap piles waiting to hatch */
         val ScrapPile = 40.dp
+
+        /** Overlay size for Morvath's shadow fog tiles */
+        val ShadowFogOverlay = 40.dp
     }
 
     /**

@@ -480,6 +480,20 @@ enum class AttackerType(
         canFlyOverTerrain = true,
     ),
 
+    // Morvath, the Shadowmaster: a dark overlord who covers the battlefield in shadow fog.
+    // Every enemy turn he re-applies fog to his own tile and adjacent tiles, plus one additional
+    // tile up to range 10.
+    MORVATH_THE_SHADOWMASTER(
+        "Morvath, the Shadowmaster",
+        health = 220,
+        speed = 2,
+        reward = 250,
+        xp = 100,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Morvath",
+    ),
+
     // Xarithon the Shadow Dragon: the personal champion of Ewhad, a shadow dragon filled with dark
     // energy. Uses the standard dragon alternating walk/fly movement mechanic.
     // Shadow Spew (every 3 rounds): dark flames erupt in a 2×2 area, shutting down all towers there
@@ -722,6 +736,7 @@ fun attackerTargetDamage(
         AttackerType.SYLVANAS_THE_MOLDING -> level // Wild-nature villain: 1 HP per level
         AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> level // Archmage villain: 1 HP per level
         AttackerType.IGNIS_VA_THE_DRAGONVOICE -> level // Dragon-cultist villain: 1 HP per level
+        AttackerType.MORVATH_THE_SHADOWMASTER -> level // Shadowmaster villain: 1 HP per level
         AttackerType.DRAGON_TERROR -> level // Summoned flying dragon-terror: level damage on reach
         AttackerType.XARITHON_THE_SHADOW_DRAGON -> level // Shadow dragon finale boss: level damage on reach
         else -> 1 // Goblin, Ork, Ogre, Skeleton

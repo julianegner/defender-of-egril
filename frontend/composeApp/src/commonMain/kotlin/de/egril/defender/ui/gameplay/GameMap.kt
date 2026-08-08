@@ -1714,6 +1714,7 @@ fun GridCell(
                 !sel.isReady ||
                 sel.actionsRemaining.value <= 0 ||
                 !isSelectedAttackTarget ||
+                effectiveFieldEffect?.type == FieldEffectType.SHADOW_FOG ||
                 selectedMineAction != null ||
                 selectedWizardAction != null ||
                 selectedBarricadeAction != null
@@ -1944,6 +1945,7 @@ fun GridCell(
                     FieldEffectType.ACID -> GamePlayColors.Success.copy(alpha = 0.6f) // Green tint for acid
                     FieldEffectType.WEB -> Color(0xFF8E7CC3).copy(alpha = 0.5f) // Violet tint for spider web
                     FieldEffectType.BURNING_TILE -> Color(0xFFFF4500).copy(alpha = 0.55f) // Red-orange for burning tile
+                    FieldEffectType.SHADOW_FOG -> Color(0xFF2A003A).copy(alpha = 0.65f) // Black-violet fog
                 }
             }
 
@@ -2071,6 +2073,7 @@ fun GridCell(
                     FieldEffectType.ACID -> GamePlayColors.Success // Green border for acid
                     FieldEffectType.WEB -> Color(0xFF5E35B1) // Deep violet border for spider web
                     FieldEffectType.BURNING_TILE -> Color(0xFFCC2200) // Deep red border for burning tile
+                    FieldEffectType.SHADOW_FOG -> Color(0xFF4A148C) // Deep purple border for shadow fog
                 }
             }
 
@@ -2552,6 +2555,14 @@ private fun BoxScope.GridCellContent(
                             color = Color(0xFFE6E0F8).copy(alpha = 0.7f),
                         )
                     }
+                    if (fieldEffect?.type == FieldEffectType.SHADOW_FOG) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .size(GamePlayConstants.TileIconSizes.ShadowFogOverlay)
+                                    .background(Color(0xB020002A), RoundedCornerShape(50)),
+                        )
+                    }
                     EnemyIcon(
                         attacker = attacker,
                         backgroundColor = attackerTileBackground,
@@ -2639,6 +2650,15 @@ private fun BoxScope.GridCellContent(
                                     .offset(x = 10.dp),
                         )
                     }
+                    if (fieldEffect?.type == FieldEffectType.SHADOW_FOG) {
+                        Text(
+                            "${fieldEffect.turnsRemaining}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFFE1BEE7),
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp),
+                        )
+                    }
                 }
             }
         }
@@ -2662,6 +2682,14 @@ private fun BoxScope.GridCellContent(
                 doubleLevelActive,
             ) {
                 Box(contentAlignment = Alignment.Center) {
+                    if (fieldEffect?.type == FieldEffectType.SHADOW_FOG) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .size(GamePlayConstants.TileIconSizes.ShadowFogOverlay)
+                                    .background(Color(0xB020002A), RoundedCornerShape(50)),
+                        )
+                    }
                     TowerIcon(defender = defender, gameState = gameState)
                     // Show pulsing blue glow when tower is ready to act
                     if (defender.isReady && defender.actionsRemaining.value > 0) {
@@ -2739,6 +2767,15 @@ private fun BoxScope.GridCellContent(
                             fontWeight = FontWeight.Bold,
                         )
                     }
+                    if (fieldEffect?.type == FieldEffectType.SHADOW_FOG) {
+                        Text(
+                            "${fieldEffect.turnsRemaining}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFFE1BEE7),
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp),
+                        )
+                    }
                 }
             }
         }
@@ -2800,6 +2837,24 @@ private fun BoxScope.GridCellContent(
                             "${fieldEffect.turnsRemaining}T",
                             style = MaterialTheme.typography.labelSmall,
                             color = GamePlayColors.Yellow,
+                        )
+                    }
+                }
+                FieldEffectType.SHADOW_FOG -> {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .size(GamePlayConstants.TileIconSizes.ShadowFogOverlay)
+                                    .background(Color(0xB020002A), RoundedCornerShape(50)),
+                        )
+                        Text(
+                            "${fieldEffect.turnsRemaining}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFFE1BEE7),
                         )
                     }
                 }

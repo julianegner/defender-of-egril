@@ -356,6 +356,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> drawArchmageMalakorSymbol(centerX, centerY, s * 1.0f, outlineColor)
                             AttackerType.IGNIS_VA_THE_DRAGONVOICE -> drawIgnisVaSymbol(centerX, centerY, s * 1.0f, outlineColor)
                             AttackerType.DRAGON_TERROR -> drawDragonTerrorSymbol(centerX, centerY, s * 1.1f, outlineColor)
+                            AttackerType.MORVATH_THE_SHADOWMASTER -> drawXarithonTheShadowDragonSymbol(centerX, centerY, s * 1.1f, outlineColor)
                             AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(centerX, centerY, s * 1.2f, outlineColor)
                             AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, centerY, s * 1.05f, attackerOutlineColor(tab.type, outlineColor))
                             AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, s * 0.85f, outlineColor)

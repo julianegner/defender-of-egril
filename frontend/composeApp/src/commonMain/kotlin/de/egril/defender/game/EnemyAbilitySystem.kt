@@ -17,6 +17,8 @@ class EnemyAbilitySystem(
     companion object {
         private const val WEB_DURATION_TURNS = 10
         private const val SPIDER_WEB_SPEED_BONUS = 1
+        private const val SHADOW_FOG_DURATION_TURNS = 3
+        private const val SHADOW_FOG_MAX_RANGE = 10
         private const val MAX_SWARM_SPAWN_SEARCH_RINGS = 5
         private const val BARON_SCRAP_BOT_COUNT = 2
 
@@ -158,6 +160,9 @@ class EnemyAbilitySystem(
                 AttackerType.IGNIS_VA_THE_DRAGONVOICE -> {
                     // Call of the Brood: every 3 rounds, summon two Dragon-Terrors
                     handleIgnisVaCallOfTheBrood(attacker)
+                }
+                AttackerType.MORVATH_THE_SHADOWMASTER -> {
+                    handleMorvathShadowFog(attacker)
                 }
                 AttackerType.XARITHON_THE_SHADOW_DRAGON -> {
                     // Shadow Spew: every 3 rounds, dark flames erupt in a 2×2 area disabling towers
@@ -1134,6 +1139,77 @@ class EnemyAbilitySystem(
                 attacker.speedBonus.value = maxOf(attacker.speedBonus.value, SPIDER_WEB_SPEED_BONUS)
             }
         }
+    }
+
+    private fun handleMorvathShadowFog(morvath: Attacker) {
+        val origin = morvath.position.value
+        val guaranteedShadowTiles = listOf(origin) + origin.getHexNeighbors()
+        val guaranteedShadowSet = guaranteedShadowTiles.toSet()
+
+        guaranteedShadowTiles
+            .filter(::isWithinBounds)
+            .forEach { pos ->
+                refreshShadowFogAt(pos, morvath.id)
+            }
+
+        val rangedCandidates =
+            origin
+                .getHexNeighborsWithinRadius(
+                    SHADOW_FOG_MAX_RANGE,
+                    state.level.gridWidth,
+                    state.level.gridHeight,
+                ).filter { it !in guaranteedShadowSet }
+                .filter(::isWithinBounds)
+
+        val extraTarget =
+            rangedCandidates.maxWithOrNull(
+                compareBy<Position> { shadowFogPriorityScore(it) }
+                    .thenBy { origin.hexDistanceTo(it) }
+                    .thenBy { -it.y }
+                    .thenBy { -it.x },
+            )
+        if (extraTarget != null) {
+            refreshShadowFogAt(extraTarget, morvath.id)
+        }
+    }
+
+    private fun shadowFogPriorityScore(position: Position): Int {
+        val hasEnemy =
+            state.attackers.any { attacker ->
+                !attacker.isDefeated.value && attacker.position.value == position
+            }
+        if (hasEnemy) return 2
+
+        return if (state.level.isOnPath(position) || state.level.isSpawnPoint(position) || state.level.isRiverTile(position)) {
+            1
+        } else {
+            0
+        }
+    }
+
+    private fun refreshShadowFogAt(
+        position: Position,
+        sourceAttackerId: Int,
+    ) {
+        val existingEffect =
+            state.fieldEffects.find {
+                it.type == FieldEffectType.SHADOW_FOG && it.position == position
+            }
+        if (existingEffect != null) {
+            existingEffect.turnsRemaining = SHADOW_FOG_DURATION_TURNS
+            return
+        }
+
+        state.fieldEffects.add(
+            FieldEffect(
+                position = position,
+                type = FieldEffectType.SHADOW_FOG,
+                damage = 0,
+                turnsRemaining = SHADOW_FOG_DURATION_TURNS,
+                defenderId = 0,
+                attackerId = sourceAttackerId,
+            ),
+        )
     }
 
     /**

@@ -19,6 +19,7 @@ enum class FieldEffectType {
     ACID, // Visual effect for alchemy acid with duration
     WEB, // Araxxa's spreading spider web area
     BURNING_TILE, // Ignis-Va death: burning ground that disables nearby towers
+    SHADOW_FOG, // Morvath's shadow veil that hides tile information
 }
 
 enum class HealingEffectType {
