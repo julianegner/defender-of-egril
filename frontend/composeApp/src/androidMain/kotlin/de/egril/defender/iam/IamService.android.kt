@@ -1,5 +1,6 @@
 package de.egril.defender.iam
 
+import androidx.core.net.toUri
 import de.egril.defender.BuildConfig
 import de.egril.defender.utils.getPlatform
 import kotlinx.coroutines.CoroutineScope
