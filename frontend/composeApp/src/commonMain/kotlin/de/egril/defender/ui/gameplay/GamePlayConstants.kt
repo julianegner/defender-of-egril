@@ -185,6 +185,18 @@ object GamePlayConstants {
     }
 
     /**
+     * Z-index layers used to control the stacking order of UI elements on the gameplay screen.
+     * Higher values render on top of lower values.
+     */
+    object LayerZ {
+        /** Z-index for river flow direction arrows (13f). */
+        const val RiverArrows = 13f
+
+        /** Z-index for gamepad/control panel overlay (30f). */
+        const val Gamepad = 30f
+    }
+
+    /**
      * Timing constants (milliseconds) used to sequence overlapping animations.
      * These values match the durations encoded in the corresponding Lottie JSON files.
      */
