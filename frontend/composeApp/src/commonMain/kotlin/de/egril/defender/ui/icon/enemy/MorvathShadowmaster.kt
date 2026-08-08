@@ -33,6 +33,7 @@ fun DrawScope.drawMorvathShadowmasterSymbol(
     val auraColor = Color(0xFF6A00AA).copy(alpha = 0.28f)
     val staffColor = Color(0xFF4A2E1F)
     val orbColor = Color(0xFF7A1BFF)
+    val mouthColor = Color(0xFF8C7599)
 
     drawCircle(
         color = auraColor,
@@ -149,7 +150,7 @@ fun DrawScope.drawMorvathShadowmasterSymbol(
         )
 
         drawLine(
-            color = Color(0xFF8C7599),
+            color = mouthColor,
             start = Offset(centerX - size * 0.05f, headCenterY + size * 0.08f),
             end = Offset(centerX + size * 0.05f, headCenterY + size * 0.08f),
             strokeWidth = size * 0.02f,
