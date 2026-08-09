@@ -748,7 +748,9 @@ class GameEngine(
     private fun isOccupiedByStaticObject(position: Position): Boolean =
         state.defenders.any { it.position.value == position } ||
             state.barricades.any { it.position == position && !it.isDestroyed() } ||
-            state.traps.any { it.position == position }
+            state.traps.any { it.position == position } ||
+            state.fiefs.any { it.position == position }
+
 
     // Turn Management
     fun startFirstPlayerTurn() {
