@@ -1104,7 +1104,8 @@ class EnemyAbilitySystem(
     private fun isTileOccupiedByStaticObject(position: Position): Boolean =
         state.defenders.any { it.position.value == position } ||
             state.barricades.any { it.position == position && !it.isDestroyed() } ||
-            state.traps.any { it.position == position }
+            state.traps.any { it.position == position } ||
+            state.fiefs.any { it.position == position }
 
     private fun refreshSpiderWebAt(position: Position) {
         val existingEffect =

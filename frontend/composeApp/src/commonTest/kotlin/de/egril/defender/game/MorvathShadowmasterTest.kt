@@ -43,7 +43,9 @@ class MorvathShadowmasterTest {
             )
         state.attackers.add(morvath)
 
-        EnemyAbilitySystem(state, PathfindingSystem(state)).processEnemyAbilities()
+        val abilitySystem = EnemyAbilitySystem(state, PathfindingSystem(state))
+        abilitySystem.processEnemyAbilities()
+        abilitySystem.applyPendingMorvathFog()
 
         val fogTiles = state.fieldEffects.filter { it.type == FieldEffectType.SHADOW_FOG }
         val guaranteedTiles = (listOf(morvathPos) + morvathPos.getHexNeighbors()).toSet()
