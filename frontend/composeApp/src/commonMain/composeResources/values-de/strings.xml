@@ -2235,4 +2235,11 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="fief_type_woodcutter">Holzfäller</string>
     <string name="fief_type_quarry">Steinbruch</string>
     <string name="fief_type_marketplace">Marktplatz</string>
+    <string name="morvath_name">Morvath, der Schattenmeister</string>
+    <string name="villain_morvath_title">Morvath, der Schattenmeister, betritt das Schlachtfeld</string>
+    <string name="villain_morvath_backstory">Morvath, ein mächtiger Schattenfürst, hat das Schlachtfeld betreten. Seine bloße Präsenz taucht ganze Zonen in Dunkelheit.</string>
+    <string name="villain_morvath_description">In jeder Feindrunde verhüllt er sein eigenes Feld, angrenzende Felder und ein entferntes Feld in den Schatten. Feinde in den Schatten sind unsichtbar — aber die Felder können weiterhin gezielt, beschädigt und besiegt werden.</string>
+    <string name="villain_morvath_shadow_fog_short">Die Schatten: nahe und ferne Felder sind 3 Runden verborgen</string>
+    <string name="fog_label">Die Schatten</string>
+    <string name="enemy_in_fog">im Schatten</string>
 </resources>
