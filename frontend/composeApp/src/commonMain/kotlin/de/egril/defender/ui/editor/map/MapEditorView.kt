@@ -93,6 +93,8 @@ fun MapEditorView(
     var replacementToY by remember { mutableStateOf((map.height - 1).coerceAtLeast(0).toString()) }
     var sourceTileDropdownExpanded by remember { mutableStateOf(false) }
     var targetTileDropdownExpanded by remember { mutableStateOf(false) }
+    var replacementRiverFlow by remember { mutableStateOf(de.egril.defender.model.RiverFlow.EAST) }
+    var replacementRiverSpeed by remember { mutableStateOf(1) }
     var showRiverPropertiesDialog by remember { mutableStateOf(false) }
     var communityUploadStatus by remember { mutableStateOf<String?>(null) }
     var isUploadingToCommunity by remember { mutableStateOf(false) }
@@ -816,6 +818,68 @@ fun MapEditorView(
                         }
                     }
 
+                    if (replacementTargetTileType == TileType.RIVER) {
+                        Text(stringResource(Res.string.flow_direction), style = MaterialTheme.typography.bodyMedium)
+                        val flows = de.egril.defender.model.RiverFlow.entries
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            flows.chunked(4).forEach { rowFlows ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                ) {
+                                    rowFlows.forEach { flow ->
+                                        Button(
+                                            onClick = { replacementRiverFlow = flow },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = if (replacementRiverFlow == flow) {
+                                                    MaterialTheme.colorScheme.primary
+                                                } else {
+                                                    MaterialTheme.colorScheme.secondary
+                                                },
+                                            ),
+                                            modifier = Modifier.height(32.dp).weight(1f),
+                                        ) {
+                                            Text(flow.name.replace("_", " "), fontSize = 10.sp)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Text(stringResource(Res.string.flow_speed), style = MaterialTheme.typography.bodyMedium)
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Button(
+                                onClick = { replacementRiverSpeed = 1 },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (replacementRiverSpeed == 1) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.secondary
+                                    },
+                                ),
+                                modifier = Modifier.height(32.dp),
+                            ) {
+                                Text(stringResource(Res.string.speed_slow), fontSize = 10.sp)
+                            }
+                            Button(
+                                onClick = { replacementRiverSpeed = 2 },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (replacementRiverSpeed == 2) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.secondary
+                                    },
+                                ),
+                                modifier = Modifier.height(32.dp),
+                            ) {
+                                Text(stringResource(Res.string.speed_fast), fontSize = 10.sp)
+                            }
+                        }
+                    }
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -909,8 +973,8 @@ fun MapEditorView(
                                                 this[key] =
                                                     RiverTile(
                                                         position = Position(x, y),
-                                                        flowDirection = selectedRiverFlow,
-                                                        flowSpeed = selectedRiverSpeed,
+                                                       flowDirection = replacementRiverFlow,
+                                                       flowSpeed = replacementRiverSpeed,
                                                     )
                                             }
                                         }
