@@ -6,9 +6,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
@@ -21,11 +24,13 @@ import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.EditorTargetInfo
 import de.egril.defender.editor.TileType
 import de.egril.defender.editor.TileReplacementArea
+import de.egril.defender.editor.pickBackgroundImageBytes
 import de.egril.defender.editor.replaceTilesByType
 import de.egril.defender.model.Position
 import de.egril.defender.model.RiverTile
 import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.TargetType
+import de.egril.defender.ui.MapImageProvider
 import de.egril.defender.ui.constrainMapOffsets
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.editor.RiverFlowIndicator
@@ -60,7 +65,7 @@ private fun nameToMapId(name: String): String {
 @Composable
 fun MapEditorView(
     map: EditorMap,
-    onSave: (EditorMap, String?) -> Unit,
+    onSave: (EditorMap, String?, ByteArray?) -> Unit,
     onCancel: () -> Unit,
 ) {
     var tiles by remember { mutableStateOf(map.tiles.toMutableMap()) }
@@ -88,6 +93,8 @@ fun MapEditorView(
     var replacementToY by remember { mutableStateOf((map.height - 1).coerceAtLeast(0).toString()) }
     var sourceTileDropdownExpanded by remember { mutableStateOf(false) }
     var targetTileDropdownExpanded by remember { mutableStateOf(false) }
+    var replacementRiverFlow by remember { mutableStateOf(de.egril.defender.model.RiverFlow.EAST) }
+    var replacementRiverSpeed by remember { mutableStateOf(1) }
     var showRiverPropertiesDialog by remember { mutableStateOf(false) }
     var communityUploadStatus by remember { mutableStateOf<String?>(null) }
     var isUploadingToCommunity by remember { mutableStateOf(false) }
@@ -98,6 +105,15 @@ fun MapEditorView(
     var offsetY by remember { mutableStateOf(0f) }
     var lastPaintedPos by remember { mutableStateOf<Position?>(null) }
     var isHeaderExpanded by remember { mutableStateOf(true) }
+    var backgroundImageBytes by remember { mutableStateOf<ByteArray?>(null) }
+    var mapOverlayAlpha by remember { mutableStateOf(0.7f) }
+    val backgroundImagePainter =
+        remember(backgroundImageBytes) {
+            backgroundImageBytes?.let { bytes ->
+                val bitmap = MapImageProvider.decodeImageBitmap(bytes)
+                if (bitmap != null) BitmapPainter(bitmap) else null
+            }
+        }
 
     // Track container and content sizes for constraint calculation
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
@@ -199,6 +215,16 @@ fun MapEditorView(
                         .fillMaxWidth()
                         .padding(8.dp),
             ) {
+                // Background reference image (displayed behind the map grid)
+                if (backgroundImagePainter != null) {
+                    androidx.compose.foundation.Image(
+                        painter = backgroundImagePainter,
+                        contentDescription = null,
+                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+
                 HexagonalMapView(
                     gridWidth = map.width,
                     gridHeight = map.height,
@@ -224,6 +250,7 @@ fun MapEditorView(
                     modifier =
                         Modifier
                             .fillMaxSize()
+                            .alpha(if (backgroundImagePainter != null) mapOverlayAlpha else 1f)
                             .onSizeChanged { containerSize = it }
                             .pointerInput(containerSize, actualContentSize, zoomLevel) {
                                 detectDragGestures { change, _ ->
@@ -490,7 +517,7 @@ fun MapEditorView(
                             )
                         // Validate and set readyToUse flag
                         val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
-                        onSave(validatedMap, oldId)
+                        onSave(validatedMap, oldId, backgroundImageBytes)
                     },
                     enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                     modifier = Modifier.weight(1f),
@@ -682,6 +709,18 @@ fun MapEditorView(
             onTargetTypeChange = { selectedTargetType = it },
             selectedSpawnPointType = selectedSpawnPointType,
             onSpawnPointTypeChange = { selectedSpawnPointType = it },
+            backgroundImageLoaded = backgroundImagePainter != null,
+            onLoadBackgroundImage = {
+                coroutineScope.launch {
+                    val bytes = pickBackgroundImageBytes()
+                    if (bytes != null) {
+                        backgroundImageBytes = bytes
+                    }
+                }
+            },
+            onClearBackgroundImage = { backgroundImageBytes = null },
+            mapOverlayAlpha = mapOverlayAlpha,
+            onMapOverlayAlphaChange = { mapOverlayAlpha = it },
         )
     }
 
@@ -711,7 +750,7 @@ fun MapEditorView(
                     )
                 // Validate and set readyToUse flag
                 val validatedMap = newMap.copy(readyToUse = newMap.validateReadyToUse())
-                onSave(validatedMap, null) // null oldId: this is a brand-new map, not a rename
+                onSave(validatedMap, null, backgroundImageBytes) // null oldId: this is a brand-new map, not a rename
                 showSaveAsDialog = false
             },
         )
@@ -775,6 +814,68 @@ fun MapEditorView(
                                         targetTileDropdownExpanded = false
                                     },
                                 )
+                            }
+                        }
+                    }
+
+                    if (replacementTargetTileType == TileType.RIVER) {
+                        Text(stringResource(Res.string.flow_direction), style = MaterialTheme.typography.bodyMedium)
+                        val flows = de.egril.defender.model.RiverFlow.entries
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            flows.chunked(4).forEach { rowFlows ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                ) {
+                                    rowFlows.forEach { flow ->
+                                        Button(
+                                            onClick = { replacementRiverFlow = flow },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = if (replacementRiverFlow == flow) {
+                                                    MaterialTheme.colorScheme.primary
+                                                } else {
+                                                    MaterialTheme.colorScheme.secondary
+                                                },
+                                            ),
+                                            modifier = Modifier.height(32.dp).weight(1f),
+                                        ) {
+                                            Text(flow.name.replace("_", " "), fontSize = 10.sp)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Text(stringResource(Res.string.flow_speed), style = MaterialTheme.typography.bodyMedium)
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Button(
+                                onClick = { replacementRiverSpeed = 1 },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (replacementRiverSpeed == 1) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.secondary
+                                    },
+                                ),
+                                modifier = Modifier.height(32.dp),
+                            ) {
+                                Text(stringResource(Res.string.speed_slow), fontSize = 10.sp)
+                            }
+                            Button(
+                                onClick = { replacementRiverSpeed = 2 },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (replacementRiverSpeed == 2) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.secondary
+                                    },
+                                ),
+                                modifier = Modifier.height(32.dp),
+                            ) {
+                                Text(stringResource(Res.string.speed_fast), fontSize = 10.sp)
                             }
                         }
                     }
@@ -872,8 +973,8 @@ fun MapEditorView(
                                                 this[key] =
                                                     RiverTile(
                                                         position = Position(x, y),
-                                                        flowDirection = selectedRiverFlow,
-                                                        flowSpeed = selectedRiverSpeed,
+                                                       flowDirection = replacementRiverFlow,
+                                                       flowSpeed = replacementRiverSpeed,
                                                     )
                                             }
                                         }

@@ -420,6 +420,10 @@
     <string name="replace_tiles_target">Target tile type</string>
     <string name="replace_tiles_area_from">Area start</string>
     <string name="replace_tiles_area_to">Area end</string>
+    <string name="map_background_image">Background Image</string>
+    <string name="map_background_image_load">Load Image</string>
+    <string name="map_background_image_clear">Clear Image</string>
+    <string name="map_background_image_opacity">Map Opacity</string>
     <string name="map_size_label">%dx%d</string>
     <string name="map_short">Map</string>
     <string name="coins_short">Coins</string>

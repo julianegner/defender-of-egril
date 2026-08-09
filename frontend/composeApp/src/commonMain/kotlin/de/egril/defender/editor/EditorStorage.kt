@@ -311,6 +311,20 @@ object EditorStorage {
     }
 
     /**
+     * Save a provided map image (PNG bytes) directly without generation or encoding.
+     * Used when a user provides a background image to use as the map image.
+     */
+    fun saveProvidedMapImage(
+        map: EditorMap,
+        imageBytes: ByteArray,
+    ): Long {
+        val targetDir = if (map.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
+        fileStorage.writeBinaryFile("$targetDir/${map.id}.png", imageBytes)
+        println("Saved provided map image: ${map.id}.png (${imageBytes.size / 1024} KB)")
+        return imageBytes.size.toLong()
+    }
+
+    /**
      * Save a map, including JSON data and (if needed) regenerating + compressing the map image.
      * Convenience method that calls [saveMapData], [generateMapPixels], and [compressAndSaveMapImage].
      */

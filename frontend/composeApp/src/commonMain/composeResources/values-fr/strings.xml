@@ -414,6 +414,10 @@
     <string name="replace_tiles_target">Type de tuile cible</string>
     <string name="replace_tiles_area_from">Début de zone</string>
     <string name="replace_tiles_area_to">Fin de zone</string>
+    <string name="map_background_image">Image de fond</string>
+    <string name="map_background_image_load">Charger une image</string>
+    <string name="map_background_image_clear">Supprimer l'image</string>
+    <string name="map_background_image_opacity">Opacité de la carte</string>
     <string name="map_size_label">%dx%d</string>
     <string name="map_short">Carte</string>
     <string name="coins_short">Pièces</string>

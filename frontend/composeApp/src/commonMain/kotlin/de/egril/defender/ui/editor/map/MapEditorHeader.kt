@@ -56,6 +56,11 @@ fun MapEditorHeader(
     onTargetTypeChange: (de.egril.defender.model.TargetType) -> Unit = {},
     selectedSpawnPointType: de.egril.defender.model.SpawnPointType = de.egril.defender.model.SpawnPointType.LAND,
     onSpawnPointTypeChange: (de.egril.defender.model.SpawnPointType) -> Unit = {},
+    backgroundImageLoaded: Boolean = false,
+    onLoadBackgroundImage: () -> Unit = {},
+    onClearBackgroundImage: () -> Unit = {},
+    mapOverlayAlpha: Float = 0.7f,
+    onMapOverlayAlphaChange: (Float) -> Unit = {},
 ) {
     if (isExpanded) {
         ExpandedMapEditorHeader(
@@ -83,6 +88,11 @@ fun MapEditorHeader(
             onTargetTypeChange = onTargetTypeChange,
             selectedSpawnPointType = selectedSpawnPointType,
             onSpawnPointTypeChange = onSpawnPointTypeChange,
+            backgroundImageLoaded = backgroundImageLoaded,
+            onLoadBackgroundImage = onLoadBackgroundImage,
+            onClearBackgroundImage = onClearBackgroundImage,
+            mapOverlayAlpha = mapOverlayAlpha,
+            onMapOverlayAlphaChange = onMapOverlayAlphaChange,
         )
     } else {
         CollapsedMapEditorHeader(
@@ -93,12 +103,16 @@ fun MapEditorHeader(
             selectedRiverSpeed = selectedRiverSpeed,
             onRiverSpeedChange = onRiverSpeedChange,
             onExpand = onToggleExpanded,
+            onChangeAllNoPlayToPath = onChangeAllNoPlayToPath,
             selectedTargetName = selectedTargetName,
             onTargetNameChange = onTargetNameChange,
             selectedTargetType = selectedTargetType,
             onTargetTypeChange = onTargetTypeChange,
             selectedSpawnPointType = selectedSpawnPointType,
             onSpawnPointTypeChange = onSpawnPointTypeChange,
+            backgroundImageLoaded = backgroundImageLoaded,
+            onLoadBackgroundImage = onLoadBackgroundImage,
+            onClearBackgroundImage = onClearBackgroundImage,
         )
     }
 }
@@ -132,6 +146,11 @@ private fun ExpandedMapEditorHeader(
     onTargetTypeChange: (de.egril.defender.model.TargetType) -> Unit = {},
     selectedSpawnPointType: de.egril.defender.model.SpawnPointType = de.egril.defender.model.SpawnPointType.LAND,
     onSpawnPointTypeChange: (de.egril.defender.model.SpawnPointType) -> Unit = {},
+    backgroundImageLoaded: Boolean = false,
+    onLoadBackgroundImage: () -> Unit = {},
+    onClearBackgroundImage: () -> Unit = {},
+    mapOverlayAlpha: Float = 0.7f,
+    onMapOverlayAlphaChange: (Float) -> Unit = {},
 ) {
     Card(
         modifier =
@@ -474,6 +493,50 @@ private fun ExpandedMapEditorHeader(
                 Text(stringResource(Res.string.replace_tiles))
             }
 
+            // Background image controls
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
+            ) {
+                Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = stringResource(Res.string.map_background_image),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = onLoadBackgroundImage,
+                            modifier = Modifier.weight(1f).height(32.dp),
+                        ) {
+                            Text(stringResource(Res.string.map_background_image_load), fontSize = 11.sp)
+                        }
+                        if (backgroundImageLoaded) {
+                            OutlinedButton(
+                                onClick = onClearBackgroundImage,
+                                modifier = Modifier.weight(1f).height(32.dp),
+                            ) {
+                                Text(stringResource(Res.string.map_background_image_clear), fontSize = 11.sp)
+                            }
+                        }
+                    }
+                    if (backgroundImageLoaded) {
+                        Text(
+                            text = stringResource(Res.string.map_background_image_opacity),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Slider(
+                            value = mapOverlayAlpha,
+                            onValueChange = onMapOverlayAlphaChange,
+                            valueRange = 0.1f..1.0f,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+            }
+
             ZoomControls(
                 map = map,
                 zoomLevel = zoomLevel,
@@ -496,12 +559,16 @@ private fun CollapsedMapEditorHeader(
     selectedRiverSpeed: Int,
     onRiverSpeedChange: (Int) -> Unit,
     onExpand: () -> Unit,
+    onChangeAllNoPlayToPath: () -> Unit = {},
     selectedTargetName: String = "",
     onTargetNameChange: (String) -> Unit = {},
     selectedTargetType: de.egril.defender.model.TargetType = de.egril.defender.model.TargetType.STANDARD,
     onTargetTypeChange: (de.egril.defender.model.TargetType) -> Unit = {},
     selectedSpawnPointType: de.egril.defender.model.SpawnPointType = de.egril.defender.model.SpawnPointType.LAND,
     onSpawnPointTypeChange: (de.egril.defender.model.SpawnPointType) -> Unit = {},
+    backgroundImageLoaded: Boolean = false,
+    onLoadBackgroundImage: () -> Unit = {},
+    onClearBackgroundImage: () -> Unit = {},
 ) {
     var showRiverPropertiesDialog by remember { mutableStateOf(false) }
     var showTargetPropertiesDialog by remember { mutableStateOf(false) }
@@ -639,6 +706,36 @@ private fun CollapsedMapEditorHeader(
                 ) {
                     de.egril.defender.ui.icon
                         .PencilIcon(size = 16.dp)
+                }
+            }
+
+            // Replace tiles button - icon-only
+            val replaceTilesLabel = stringResource(Res.string.replace_tiles)
+            IconButton(
+                onClick = onChangeAllNoPlayToPath,
+                modifier = Modifier.size(32.dp).semantics { contentDescription = replaceTilesLabel },
+            ) {
+                de.egril.defender.ui.icon
+                    .ToolsIcon(size = 16.dp)
+            }
+
+            // Background image load/clear button - icon-only
+            val bgImageLabel =
+                if (backgroundImageLoaded) {
+                    stringResource(Res.string.map_background_image_clear)
+                } else {
+                    stringResource(Res.string.map_background_image_load)
+                }
+            IconButton(
+                onClick = if (backgroundImageLoaded) onClearBackgroundImage else onLoadBackgroundImage,
+                modifier = Modifier.size(32.dp).semantics { contentDescription = bgImageLabel },
+            ) {
+                if (backgroundImageLoaded) {
+                    de.egril.defender.ui.icon
+                        .CrossIcon(size = 16.dp, tint = MaterialTheme.colorScheme.primary)
+                } else {
+                    de.egril.defender.ui.icon
+                        .DownloadIcon(size = 16.dp)
                 }
             }
 

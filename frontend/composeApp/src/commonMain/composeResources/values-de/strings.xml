@@ -414,6 +414,10 @@
     <string name="replace_tiles_target">Ziel-Kacheltyp</string>
     <string name="replace_tiles_area_from">Bereich-Start</string>
     <string name="replace_tiles_area_to">Bereich-Ende</string>
+    <string name="map_background_image">Hintergrundbild</string>
+    <string name="map_background_image_load">Bild laden</string>
+    <string name="map_background_image_clear">Bild entfernen</string>
+    <string name="map_background_image_opacity">Karten-Transparenz</string>
     <string name="map_size_label">%dx%d</string>
     <string name="map_short">Karte</string>
     <string name="coins_short">Münzen</string>
