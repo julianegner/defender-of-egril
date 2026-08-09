@@ -808,6 +808,7 @@
     <string name="supports_intro">Oggetti e gettoni incantesimo che il giocatore può usare in questo livello, indipendentemente da torri, livello tecnologico o mana.</string>
     <string name="supports_objects_section">Oggetti Posizionabili</string>
     <string name="supports_spells_section">Gettoni Incantesimo</string>
+    <string name="supports_fiefs_section">Feudi</string>
     <string name="supports_cooldown_powers_section">Poteri a Ricarica</string>
     <string name="support_type_object">Oggetto Posizionabile</string>
     <string name="support_type_spell">Gettone Incantesimo</string>

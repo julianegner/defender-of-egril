@@ -808,6 +808,7 @@
     <string name="supports_intro">Objekte und Zauber-Marken, die der Spieler in diesem Level nutzen kann, unabhängig von Türmen, Techstufe oder Mana.</string>
     <string name="supports_objects_section">Platzierbare Objekte</string>
     <string name="supports_spells_section">Zauber-Marken</string>
+    <string name="supports_fiefs_section">Lehen</string>
     <string name="supports_cooldown_powers_section">Abkling-Kräfte</string>
     <string name="support_type_object">Platzierbares Objekt</string>
     <string name="support_type_spell">Zauber-Marke</string>

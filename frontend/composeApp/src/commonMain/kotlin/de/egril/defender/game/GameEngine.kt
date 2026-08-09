@@ -123,6 +123,25 @@ class GameEngine(
     ): Boolean = barricadeSystem.placeSupportBarricade(barricadePosition, hp)
 
     /**
+     * Place a fief from a player-granted support token.
+     * The position must be a path tile with no attacker, trap, barricade, or existing fief.
+     * Returns true if the fief was placed successfully.
+     */
+    fun placeSupportFief(
+        position: Position,
+        type: de.egril.defender.model.FiefType,
+    ): Boolean {
+        if (!state.level.isOnPath(position)) return false
+        val hasEnemy = state.attackers.any { !it.isDefeated.value && it.position.value == position }
+        val hasTrap = state.traps.any { it.position == position }
+        val hasBarricade = state.barricades.any { it.position == position }
+        val hasFief = state.fiefs.any { it.position == position }
+        if (hasEnemy || hasTrap || hasBarricade || hasFief) return false
+        state.fiefs.add(de.egril.defender.model.Fief(position = position, type = type))
+        return true
+    }
+
+    /**
      * Perform wizard mana generation action
      * Generates base 5 mana + (wizard level / 5) bonus mana
      * Consumes one wizard action

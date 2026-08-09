@@ -808,6 +808,7 @@
     <string name="supports_intro">Objets et jetons de sort que le joueur peut utiliser dans ce niveau, quels que soient ses tours, son niveau technologique ou son mana.</string>
     <string name="supports_objects_section">Objets Plaçables</string>
     <string name="supports_spells_section">Jetons de Sort</string>
+    <string name="supports_fiefs_section">Fiefs</string>
     <string name="supports_cooldown_powers_section">Pouvoirs à Recharge</string>
     <string name="support_type_object">Objet Plaçable</string>
     <string name="support_type_spell">Jeton de Sort</string>

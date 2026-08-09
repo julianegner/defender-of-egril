@@ -199,6 +199,10 @@ object SaveJsonSerializer {
             savedGame.supportSpellsRemaining.entries.joinToString(", ") { (spell, count) ->
                 "\"${spell.name}\": $count"
             }
+        val supportFiefsJson =
+            savedGame.supportFiefRemaining.entries.joinToString(", ") { (type, count) ->
+                "\"${type.name}\": $count"
+            }
         val cooldownPowersJson =
             savedGame.cooldownPowerReadyIn.entries.joinToString(", ") { (type, readyIn) ->
                 "\"${type.name}\": $readyIn"
@@ -279,6 +283,7 @@ object SaveJsonSerializer {
   "maxMana": ${savedGame.maxMana},
   "supportObjectsRemaining": {$supportObjectsJson},
   "supportSpellsRemaining": {$supportSpellsJson},
+  "supportFiefRemaining": {$supportFiefsJson},
   "cooldownPowerReadyIn": {$cooldownPowersJson},
   "coinSurgeActive": ${savedGame.coinSurgeActive},
   "triggeredEventIds": [$triggeredEventIdsJson],
@@ -519,6 +524,8 @@ object SaveJsonSerializer {
                 parseEnumIntMap(dataJson, "supportObjectsRemaining") { SupportObjectType.valueOf(it) }
             val supportSpellsRemaining =
                 parseEnumIntMap(dataJson, "supportSpellsRemaining") { SpellType.valueOf(it) }
+            val supportFiefRemaining =
+                parseEnumIntMap(dataJson, "supportFiefRemaining") { de.egril.defender.model.FiefType.valueOf(it) }
             val cooldownPowerReadyIn =
                 parseEnumIntMap(dataJson, "cooldownPowerReadyIn") { CooldownPowerType.valueOf(it) }
             val coinSurgeActive =
@@ -657,6 +664,7 @@ object SaveJsonSerializer {
                 spellEffects = spellEffects,
                 supportObjectsRemaining = supportObjectsRemaining,
                 supportSpellsRemaining = supportSpellsRemaining,
+                supportFiefRemaining = supportFiefRemaining,
                 cooldownPowerReadyIn = cooldownPowerReadyIn,
                 coinSurgeActive = coinSurgeActive,
                 triggeredEventIds = triggeredEventIds,

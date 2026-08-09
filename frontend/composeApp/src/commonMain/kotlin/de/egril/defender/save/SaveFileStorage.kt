@@ -396,6 +396,7 @@ object SaveFileStorage {
             spellEffects = spellEffects,
             supportObjectsRemaining = gameState.supportObjectsRemaining.toMap(),
             supportSpellsRemaining = gameState.supportSpellsRemaining.toMap(),
+            supportFiefRemaining = gameState.supportFiefRemaining.toMap(),
             cooldownPowerReadyIn = gameState.cooldownPowerReadyIn.toMap(),
             coinSurgeActive = gameState.coinSurgeActive.value,
             triggeredEventIds = gameState.triggeredEventIds.toList(),
@@ -464,6 +465,8 @@ object SaveFileStorage {
         gameState.supportObjectsRemaining.putAll(savedGame.supportObjectsRemaining)
         gameState.supportSpellsRemaining.clear()
         gameState.supportSpellsRemaining.putAll(savedGame.supportSpellsRemaining)
+        gameState.supportFiefRemaining.clear()
+        gameState.supportFiefRemaining.putAll(savedGame.supportFiefRemaining)
         gameState.cooldownPowerReadyIn.clear()
         gameState.cooldownPowerReadyIn.putAll(savedGame.cooldownPowerReadyIn)
         gameState.coinSurgeActive.value = savedGame.coinSurgeActive

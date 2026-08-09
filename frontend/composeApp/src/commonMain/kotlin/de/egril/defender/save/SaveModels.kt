@@ -65,6 +65,7 @@ data class SavedGame(
     // Player-usable supports remaining/recharging this level. Persisted so they survive save/load.
     val supportObjectsRemaining: Map<SupportObjectType, Int> = emptyMap(), // Placeable objects left to deploy
     val supportSpellsRemaining: Map<SpellType, Int> = emptyMap(), // Spell tokens left to cast
+    val supportFiefRemaining: Map<de.egril.defender.model.FiefType, Int> = emptyMap(), // Fief tokens left to place
     val cooldownPowerReadyIn: Map<CooldownPowerType, Int> = emptyMap(), // Turns until each power is ready (0 = ready)
     val coinSurgeActive: Boolean = false, // True when Coin Surge is active for the current turn
     // Scripted-event tracking, persisted so events don't re-fire after save/load.

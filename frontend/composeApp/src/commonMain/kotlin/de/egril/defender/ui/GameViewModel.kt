@@ -4576,6 +4576,27 @@ class GameViewModel {
     }
 
     /**
+     * Place a player-granted fief support token at a position.
+     * Does not require a tower or tech level and does not consume tower actions.
+     * Returns true if the fief was placed and a token consumed.
+     */
+    fun placeSupportFief(
+        type: de.egril.defender.model.FiefType,
+        position: de.egril.defender.model.Position,
+    ): Boolean {
+        val gameState = _gameState.value ?: return false
+        val remaining = gameState.supportFiefRemaining[type] ?: 0
+        if (remaining <= 0) return false
+
+        val success = gameEngine?.placeSupportFief(position, type) ?: false
+
+        if (success) {
+            gameState.supportFiefRemaining[type] = consumeSupportCount(remaining)
+        }
+        return success
+    }
+
+    /**
      * Activate a cooldown-based support power for the whole level.
      *
      * Does nothing if the power is not part of the level, is still on cooldown, or the level has not

@@ -104,6 +104,7 @@ fun GamePlayScreen(
     onGetAutoAttackTarget: ((Int) -> Position?)? = null, // Get best auto-attack target for a tower
     onWinLevelNow: (() -> Unit)? = null, // Instantly win the level when guaranteed (finish level fast)
     onPlaceSupportObject: ((SupportObjectType, Position) -> Boolean)? = null, // Place a level support object at a position
+    onPlaceSupportFief: ((de.egril.defender.model.FiefType, Position) -> Boolean)? = null, // Place a level support fief token at a position
     onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
     activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
     onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
@@ -172,6 +173,7 @@ fun GamePlayScreen(
         onGetAutoAttackTarget = onGetAutoAttackTarget,
         onWinLevelNow = onWinLevelNow,
         onPlaceSupportObject = onPlaceSupportObject,
+        onPlaceSupportFief = onPlaceSupportFief,
         onCastSupportSpellToken = onCastSupportSpellToken,
         activeSpellToken = activeSpellToken,
         onActivateCooldownPower = onActivateCooldownPower,
@@ -245,6 +247,7 @@ private fun GamePlayScreenContent(
     onGetAutoAttackTarget: ((Int) -> Position?)? = null, // Get best auto-attack target for a tower
     onWinLevelNow: (() -> Unit)? = null, // Instantly win the level when guaranteed (finish level fast)
     onPlaceSupportObject: ((SupportObjectType, Position) -> Boolean)? = null, // Place a level support object at a position
+    onPlaceSupportFief: ((de.egril.defender.model.FiefType, Position) -> Boolean)? = null, // Place a level support fief token at a position
     onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
     activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
     onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
@@ -254,6 +257,7 @@ private fun GamePlayScreenContent(
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedSupportObject by remember { mutableStateOf<SupportObjectType?>(null) }
+    var selectedSupportFief by remember { mutableStateOf<de.egril.defender.model.FiefType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
     var selectedAttackerId by remember { mutableStateOf<Int?>(null) } // Add enemy selection
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
@@ -763,8 +767,8 @@ private fun GamePlayScreenContent(
 
     // Reset the keyboard placement/targeting cursor when neither a support object is selected nor a
     // spell is being targeted, so a stale cursor does not linger after placement finishes or is cancelled.
-    LaunchedEffect(selectedSupportObject, gameState.spellTargeting.value) {
-        if (selectedSupportObject == null && gameState.spellTargeting.value == null) {
+    LaunchedEffect(selectedSupportObject, selectedSupportFief, gameState.spellTargeting.value) {
+        if (selectedSupportObject == null && selectedSupportFief == null && gameState.spellTargeting.value == null) {
             keyboardPlacementTile = null
         }
     }
@@ -1194,10 +1198,11 @@ private fun GamePlayScreenContent(
                                 isShortcutBindingPressed(event, AppSettings.shortcutPanDown.value)
                         ) &&
                         !showMagicPanel &&
-                        (selectedSupportObject != null || gameState.spellTargeting.value != null) &&
+                        (selectedSupportObject != null || selectedSupportFief != null || gameState.spellTargeting.value != null) &&
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
                         val candidateTiles =
                             selectedSupportObject?.let { supportObjectPlacementTiles(gameState, it) }
+                                ?: selectedSupportFief?.let { supportFiefPlacementTiles(gameState) }
                                 ?: spellTargetPositions(gameState)
                         if (candidateTiles.isEmpty()) {
                             false
@@ -1223,10 +1228,11 @@ private fun GamePlayScreenContent(
                                 isShortcutBindingPressed(event, AppSettings.shortcutPrevEnemyTarget.value)
                         ) &&
                         !showMagicPanel &&
-                        (selectedSupportObject != null || gameState.spellTargeting.value != null) &&
+                        (selectedSupportObject != null || selectedSupportFief != null || gameState.spellTargeting.value != null) &&
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
                         val candidateTiles =
                             selectedSupportObject?.let { supportObjectPlacementTiles(gameState, it) }
+                                ?: selectedSupportFief?.let { supportFiefPlacementTiles(gameState) }
                                 ?: spellTargetPositions(gameState)
                         if (candidateTiles.isEmpty()) {
                             false
@@ -1342,14 +1348,22 @@ private fun GamePlayScreenContent(
                             when (slot) {
                                 is SupportSlot.ObjectSlot -> {
                                     selectedSupportObject = if (selectedSupportObject == slot.type) null else slot.type
+                                    selectedSupportFief = null
+                                    selectedDefenderType = null
+                                }
+                                is SupportSlot.FiefSlot -> {
+                                    selectedSupportFief = if (selectedSupportFief == slot.type) null else slot.type
+                                    selectedSupportObject = null
                                     selectedDefenderType = null
                                 }
                                 is SupportSlot.SpellSlot -> {
                                     selectedSupportObject = null
+                                    selectedSupportFief = null
                                     onCastSupportSpellToken?.invoke(slot.spell)
                                 }
                                 is SupportSlot.PowerSlot -> {
                                     selectedSupportObject = null
+                                    selectedSupportFief = null
                                     onActivateCooldownPower?.invoke(slot.type)
                                 }
                             }
@@ -1374,9 +1388,10 @@ private fun GamePlayScreenContent(
                         !event.isAltPressed &&
                         !event.isMetaPressed &&
                         !showMagicPanel &&
-                        (selectedSupportObject != null || gameState.spellTargeting.value != null) &&
+                        (selectedSupportObject != null || selectedSupportFief != null || gameState.spellTargeting.value != null) &&
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
                         val supportType = selectedSupportObject
+                        val fiefType = selectedSupportFief
                         if (supportType != null) {
                             val candidateTiles = supportObjectPlacementTiles(gameState, supportType)
                             val tile =
@@ -1395,6 +1410,27 @@ private fun GamePlayScreenContent(
                                     // next remaining tile.
                                     val placedIndex = candidateTiles.indexOf(tile)
                                     val remainingTiles = supportObjectPlacementTiles(gameState, supportType)
+                                    keyboardPlacementTile =
+                                        if (remainingTiles.isEmpty()) {
+                                            null
+                                        } else {
+                                            remainingTiles[placedIndex.coerceIn(0, remainingTiles.lastIndex)]
+                                        }
+                                }
+                            }
+                        } else if (fiefType != null) {
+                            val candidateTiles = supportFiefPlacementTiles(gameState)
+                            val tile =
+                                keyboardPlacementTile?.takeIf { candidateTiles.contains(it) }
+                                    ?: candidateTiles.firstOrNull()
+                            if (tile != null && onPlaceSupportFief?.invoke(fiefType, tile) == true) {
+                                val remaining = gameState.supportFiefRemaining[fiefType] ?: 0
+                                if (remaining <= 0) {
+                                    selectedSupportFief = null
+                                    keyboardPlacementTile = null
+                                } else {
+                                    val placedIndex = candidateTiles.indexOf(tile)
+                                    val remainingTiles = supportFiefPlacementTiles(gameState)
                                     keyboardPlacementTile =
                                         if (remainingTiles.isEmpty()) {
                                             null
@@ -1561,11 +1597,11 @@ private fun GamePlayScreenContent(
                     event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutBackToWorldMap.value) &&
                         !isDemoMode &&
-                        (selectedSupportObject != null || gameState.spellTargeting.value != null) -> {
-                        if (selectedSupportObject != null) {
-                            selectedSupportObject = null
-                        } else {
-                            onExitSpellTargeting?.invoke()
+                        (selectedSupportObject != null || selectedSupportFief != null || gameState.spellTargeting.value != null) -> {
+                        when {
+                            selectedSupportObject != null -> selectedSupportObject = null
+                            selectedSupportFief != null -> selectedSupportFief = null
+                            else -> onExitSpellTargeting?.invoke()
                         }
                         keyboardPlacementTile = null
                         true
@@ -1887,6 +1923,18 @@ private fun GamePlayScreenContent(
                                     return@GameGrid
                                 }
 
+                                // Handle fief support placement mode
+                                selectedSupportFief?.let { fiefType ->
+                                    if (onPlaceSupportFief?.invoke(fiefType, position) == true) {
+                                        // Deselect if no more of this fief type remain
+                                        val remaining = gameState.supportFiefRemaining[fiefType] ?: 0
+                                        if (remaining <= 0) {
+                                            selectedSupportFief = null
+                                        }
+                                    }
+                                    return@GameGrid
+                                }
+
                                 // Try to place defender if one is selected
                                 selectedDefenderType?.let { type ->
                                     if (onPlaceDefender(type, position)) {
@@ -2116,6 +2164,7 @@ private fun GamePlayScreenContent(
                             keyboardHoveredPosition = keyboardSelectedBuildTile,
                             keyboardPlacementCursor = keyboardPlacementTile,
                             selectedSupportObject = selectedSupportObject,
+                            selectedSupportFief = selectedSupportFief,
                         )
 
                         // Sandbox: persistent map-tile selector (from the map editor), always
@@ -2674,6 +2723,44 @@ private fun GamePlayScreenContent(
                                     }
                                 }
                             }
+                        } else if (selectedSupportFief != null) {
+                            // Fief placement mode: show a compact instruction + cancel card
+                            val placingFief = selectedSupportFief!!
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors =
+                                    CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = placingFief.localizedFiefName(),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                        Text(
+                                            text = stringResource(Res.string.spell_targeting_position),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                        PlacementKeyboardHints(modifier = Modifier.padding(top = 4.dp))
+                                    }
+                                    OutlinedButton(onClick = { selectedSupportFief = null }) {
+                                        Text(stringResource(Res.string.spell_targeting_cancel))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        ShortcutKeyChip(
+                                            text = "Esc",
+                                            color = LocalContentColor.current.copy(alpha = 0.75f),
+                                        )
+                                    }
+                                }
+                            }
                         } else {
                             Column(modifier = Modifier.fillMaxWidth()) {
                                 // Support bar: placable objects + spell tokens shown directly above the button row
@@ -2687,16 +2774,25 @@ private fun GamePlayScreenContent(
                                     onObjectClick = { type ->
                                         // Toggle object placement selection; clear other selections
                                         selectedSupportObject = if (selectedSupportObject == type) null else type
+                                        selectedSupportFief = null
                                         selectedDefenderType = null
                                     },
                                     onSpellClick = { spell ->
                                         selectedSupportObject = null
+                                        selectedSupportFief = null
                                         onCastSupportSpellToken?.invoke(spell)
                                     },
                                     modifier = Modifier.align(Alignment.CenterHorizontally),
                                     onCooldownPowerClick = { power ->
                                         selectedSupportObject = null
+                                        selectedSupportFief = null
                                         onActivateCooldownPower?.invoke(power)
+                                    },
+                                    selectedSupportFief = selectedSupportFief,
+                                    onFiefClick = { type ->
+                                        selectedSupportFief = if (selectedSupportFief == type) null else type
+                                        selectedSupportObject = null
+                                        selectedDefenderType = null
                                     },
                                     focusedSlotIndex =
                                         supportFocusIndex?.let { idx ->

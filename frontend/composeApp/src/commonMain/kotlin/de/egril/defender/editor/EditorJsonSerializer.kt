@@ -509,6 +509,17 @@ object EditorJsonSerializer {
     ]""",
                     )
                 }
+                if (level.supports.fiefs.isNotEmpty()) {
+                    val fiefsData =
+                        level.supports.fiefs.joinToString(",\n      ") { supportFief ->
+                            """{"type": "${supportFief.type.name}", "count": ${serializeSupportCount(supportFief.count)}}"""
+                        }
+                    parts.add(
+                        """"fiefs": [
+      $fiefsData
+    ]""",
+                    )
+                }
                 val allParts = parts.joinToString(",\n    ")
                 ",\n  \"supports\": {\n    $allParts\n  }"
             } else {
@@ -1899,7 +1910,18 @@ object EditorJsonSerializer {
             }
         }
 
-        return LevelSupports(objects = objects, spells = spells, cooldownPowers = cooldownPowers)
+        val fiefs = mutableListOf<de.egril.defender.model.SupportFief>()
+        val fiefsSection = extractArraySection(supportsSection, "fiefs")
+        if (fiefsSection.isNotBlank()) {
+            for (entry in splitJsonArrayObjects(fiefsSection)) {
+                val typeName = runCatching { JsonUtils.extractValue(entry, "type") }.getOrNull() ?: continue
+                val type = runCatching { de.egril.defender.model.FiefType.valueOf(typeName) }.getOrNull() ?: continue
+                val count = parseSupportCount(runCatching { JsonUtils.extractValue(entry, "count") }.getOrDefault(""))
+                fiefs.add(de.egril.defender.model.SupportFief(type = type, count = count))
+            }
+        }
+
+        return LevelSupports(objects = objects, spells = spells, cooldownPowers = cooldownPowers, fiefs = fiefs)
     }
 
     private fun serializeSupportCount(count: Int): String =
