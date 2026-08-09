@@ -2254,6 +2254,7 @@ class GameEngine(
         state.alchemyAttackEffects.clear()
         state.rocketAttackEffects.clear()
         state.shadowSpewEffects.clear()
+        state.morvathShadowOrbEffects.clear()
 
         // Check and activate traps after all movements
         checkAndActivateTraps()
@@ -2613,6 +2614,12 @@ class GameEngine(
      * Called after the cannonball animation duration has passed.
      */
     fun processPendingBargeDeletions() = enemyAbilities.processPendingBargeDeletions()
+
+    /**
+     * Apply the distant shadow fog tiles that Morvath targeted this turn.
+     * Called after the orb animation completes so the fog appears at the end of the animation.
+     */
+    fun applyPendingMorvathFog() = enemyAbilities.applyPendingMorvathFog()
 
     /**
      * Set callback for raft loss events (for achievements)

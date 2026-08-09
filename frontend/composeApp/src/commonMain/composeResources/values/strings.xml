@@ -2241,4 +2241,11 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="fief_type_woodcutter">Woodcutter</string>
     <string name="fief_type_quarry">Quarry</string>
     <string name="fief_type_marketplace">Marketplace</string>
+    <string name="morvath_name">Morvath, the Shadowmaster</string>
+    <string name="villain_morvath_title">Morvath, the Shadowmaster enters the battlefield</string>
+    <string name="villain_morvath_backstory">Morvath, a mighty lord of shadows, has entered the battlefield. His mere presence plunges entire zones into darkness.</string>
+    <string name="villain_morvath_description">Each enemy turn he cloaks his own tile, nearby tiles, and one distant tile in the shadows. Enemies hidden in the shadows are invisible — but the tiles can still be targeted, damaged, and defeated.</string>
+    <string name="villain_morvath_shadow_fog_short">The Shadows: nearby and distant tiles are hidden for 3 turns</string>
+    <string name="fog_label">The Shadows</string>
+    <string name="enemy_in_fog">in the shadows</string>
 </resources>

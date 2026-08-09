@@ -82,6 +82,7 @@ private fun getAttackerDescription(attackerType: AttackerType): String {
         AttackerType.SYLVANAS_THE_MOLDING -> Res.string.villain_sylvanas_description
         AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> Res.string.villain_malakor_description
         AttackerType.IGNIS_VA_THE_DRAGONVOICE -> Res.string.villain_ignis_va_description
+        AttackerType.MORVATH_THE_SHADOWMASTER -> Res.string.villain_morvath_description
         AttackerType.XARITHON_THE_SHADOW_DRAGON -> Res.string.villain_xarithon_description
         AttackerType.CAPTAIN_RODERICH -> Res.string.villain_roderich_description
         AttackerType.THE_KRAKEN -> Res.string.villain_kraken_description
@@ -558,6 +559,16 @@ fun AttackerInfo(
                             AttackerInfoEntry(
                                 icon = AttackerInfoEntryIcon.LIGHTNING,
                                 text = stringResource(Res.string.villain_malakor_flies_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
+
+                    if (attacker.type == AttackerType.MORVATH_THE_SHADOWMASTER) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LOCK,
+                                text = stringResource(Res.string.villain_morvath_shadow_fog_short),
                                 color = GamePlayColors.InfoDark,
                             ),
                         )

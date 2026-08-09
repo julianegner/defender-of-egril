@@ -79,6 +79,7 @@ import de.egril.defender.ui.animations.TrapTriggerAnimation
 import de.egril.defender.ui.animations.WaterFlowAnimation
 import de.egril.defender.ui.animations.WizardAttackOverlay
 import de.egril.defender.ui.animations.WizardIdleAnimation
+import de.egril.defender.ui.animations.MorvathShadowOrbOverlay
 import de.egril.defender.ui.animations.XarithonShadowCloudAnimation
 import de.egril.defender.ui.animations.XarithonShadowSpewOverlay
 import de.egril.defender.ui.editor.RiverFlowIndicator
@@ -1071,6 +1072,15 @@ fun GameGrid(
                             animate = AppSettings.enableAnimations.value,
                         )
                     }
+                    val morvathOrbEffects = gameState.morvathShadowOrbEffects.toList()
+                    if (morvathOrbEffects.isNotEmpty()) {
+                        MorvathShadowOrbOverlay(
+                            effects = morvathOrbEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
                     val alchemyEffects = gameState.alchemyAttackEffects.toList()
                     if (alchemyEffects.isNotEmpty()) {
                         AlchemyAttackOverlay(
@@ -1714,6 +1724,7 @@ fun GridCell(
                 !sel.isReady ||
                 sel.actionsRemaining.value <= 0 ||
                 !isSelectedAttackTarget ||
+                effectiveFieldEffect?.type == FieldEffectType.SHADOW_FOG ||
                 selectedMineAction != null ||
                 selectedWizardAction != null ||
                 selectedBarricadeAction != null
@@ -1910,6 +1921,8 @@ fun GridCell(
             // Keyboard placement/targeting cursor — bright cyan tint so the active tile stands out.
             isKeyboardPlacementCursor -> Color(0xFF00E5FF).copy(alpha = 0.45f)
             attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f) // Turquoise background for frozen/cooled-to-zero enemies
+            // Shadow fog overrides all entity backgrounds so the tile looks fully hidden
+            effectiveFieldEffect?.type == FieldEffectType.SHADOW_FOG -> Color(0xFF2A003A).copy(alpha = 0.65f)
             attacker != null && enemyBgSuppressed -> if (useTransparentBackground) Color.Transparent else baseBackgroundColor
             attacker != null ->
                 if (AppSettings.showUnitTowerBackground.value) {
@@ -1944,6 +1957,7 @@ fun GridCell(
                     FieldEffectType.ACID -> GamePlayColors.Success.copy(alpha = 0.6f) // Green tint for acid
                     FieldEffectType.WEB -> Color(0xFF8E7CC3).copy(alpha = 0.5f) // Violet tint for spider web
                     FieldEffectType.BURNING_TILE -> Color(0xFFFF4500).copy(alpha = 0.55f) // Red-orange for burning tile
+                    FieldEffectType.SHADOW_FOG -> Color(0xFF2A003A).copy(alpha = 0.65f) // Black-violet fog
                 }
             }
 
@@ -2058,7 +2072,7 @@ fun GridCell(
 
             isSpawnPoint -> GamePlayColors.WarningDark // Darker orange border for spawn in dark mode
             isTarget -> GamePlayColors.Success // Green border for target (adapts to dark mode automatically)
-            attacker != null && !enemyBgSuppressed -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.ErrorDark else Color.Transparent // Darker red border for enemies (only when background enabled)
+            attacker != null && !enemyBgSuppressed && effectiveFieldEffect?.type != FieldEffectType.SHADOW_FOG -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.ErrorDark else Color.Transparent // Darker red border for enemies (only when background enabled)
             defender != null ->
                 if (AppSettings.showUnitTowerBackground.value) {
                     if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building
@@ -2071,6 +2085,7 @@ fun GridCell(
                     FieldEffectType.ACID -> GamePlayColors.Success // Green border for acid
                     FieldEffectType.WEB -> Color(0xFF5E35B1) // Deep violet border for spider web
                     FieldEffectType.BURNING_TILE -> Color(0xFFCC2200) // Deep red border for burning tile
+                    FieldEffectType.SHADOW_FOG -> Color(0xFF4A148C) // Deep purple border for shadow fog
                 }
             }
 
@@ -2546,6 +2561,26 @@ private fun BoxScope.GridCellContent(
                             Modifier
                         },
                 ) {
+                    if (fieldEffect?.type == FieldEffectType.SHADOW_FOG) {
+                        // Enemy is hidden in the shadows — show only the shadow overlay with timer
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .size(GamePlayConstants.TileIconSizes.ShadowFogOverlay)
+                                        .background(Color(0xB020002A), RoundedCornerShape(50)),
+                            )
+                            Text(
+                                "${fieldEffect.turnsRemaining}T",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFFE1BEE7),
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    } else {
                     if (fieldEffect?.type == FieldEffectType.WEB) {
                         WebIcon(
                             size = GamePlayConstants.TileIconSizes.SpiderWebBackground,
@@ -2639,6 +2674,7 @@ private fun BoxScope.GridCellContent(
                                     .offset(x = 10.dp),
                         )
                     }
+                    } // end else (not shadow fog)
                 }
             }
         }
@@ -2662,6 +2698,14 @@ private fun BoxScope.GridCellContent(
                 doubleLevelActive,
             ) {
                 Box(contentAlignment = Alignment.Center) {
+                    if (fieldEffect?.type == FieldEffectType.SHADOW_FOG) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .size(GamePlayConstants.TileIconSizes.ShadowFogOverlay)
+                                    .background(Color(0xB020002A), RoundedCornerShape(50)),
+                        )
+                    }
                     TowerIcon(defender = defender, gameState = gameState)
                     // Show pulsing blue glow when tower is ready to act
                     if (defender.isReady && defender.actionsRemaining.value > 0) {
@@ -2739,6 +2783,15 @@ private fun BoxScope.GridCellContent(
                             fontWeight = FontWeight.Bold,
                         )
                     }
+                    if (fieldEffect?.type == FieldEffectType.SHADOW_FOG) {
+                        Text(
+                            "${fieldEffect.turnsRemaining}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFFE1BEE7),
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp),
+                        )
+                    }
                 }
             }
         }
@@ -2800,6 +2853,24 @@ private fun BoxScope.GridCellContent(
                             "${fieldEffect.turnsRemaining}T",
                             style = MaterialTheme.typography.labelSmall,
                             color = GamePlayColors.Yellow,
+                        )
+                    }
+                }
+                FieldEffectType.SHADOW_FOG -> {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .size(GamePlayConstants.TileIconSizes.ShadowFogOverlay)
+                                    .background(Color(0xB020002A), RoundedCornerShape(50)),
+                        )
+                        Text(
+                            "${fieldEffect.turnsRemaining}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFFE1BEE7),
                         )
                     }
                 }

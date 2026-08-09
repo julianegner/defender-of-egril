@@ -309,6 +309,10 @@ fun EnemyListPanel(
             enemiesById = gameState.attackers.filter { !it.isDefeated.value }.sortedBy { it.id },
             turn = currentTurn,
         )
+    val shadowFogPositions =
+        gameState.fieldEffects
+            .filter { it.type == FieldEffectType.SHADOW_FOG }
+            .mapTo(mutableSetOf()) { it.position }
 
     // Calculate how many enemies have spawned from the spawn plan
     // nextAttackerId starts at 1, so (nextAttackerId - 1) gives us the count of spawned enemies
@@ -356,7 +360,11 @@ fun EnemyListPanel(
                     attacker.position.value.y,
                     attacker.currentHealth.value,
                 ) {
-                    EnemyItemDetailed(attacker, showPosition = true)
+                    EnemyItemDetailed(
+                        attacker = attacker,
+                        showPosition = true,
+                        isInShadowFog = attacker.position.value in shadowFogPositions,
+                    )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
             }
@@ -391,6 +399,7 @@ fun EnemyListPanel(
 fun EnemyItemDetailed(
     attacker: Attacker,
     showPosition: Boolean,
+    isInShadowFog: Boolean = false,
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     Card(
@@ -449,10 +458,23 @@ fun EnemyItemDetailed(
                     }
                     if (showPosition) {
                         Text(
-                            "Pos: (${attacker.position.value.x},${attacker.position.value.y})",
+                            if (isInShadowFog) {
+                                stringResource(Res.string.enemy_in_fog)
+                            } else {
+                                "Pos: (${attacker.position.value.x},${attacker.position.value.y})"
+                            },
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
-                            color = if (isDarkMode) GamePlayColors.InfoLight else GamePlayColors.InfoDark,
+                            color =
+                                if (isInShadowFog) {
+                                    if (isDarkMode) {
+                                        Color(0xFFD1A3FF)
+                                    } else {
+                                        Color(0xFF6A1B9A)
+                                    }
+                                } else {
+                                    if (isDarkMode) GamePlayColors.InfoLight else GamePlayColors.InfoDark
+                                },
                         )
                     }
                 }

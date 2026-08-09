@@ -1934,7 +1934,8 @@ private fun GamePlayScreenContent(
 
                                 // Check if there's an attacker at this position (only if no defender is being placed)
                                 val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
-                                if (attacker != null && selectedDefenderId == null) {
+                                val positionInShadowFog = gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == position }
+                                if (attacker != null && selectedDefenderId == null && !positionInShadowFog) {
                                     if (previousSelectedAttackerId == attacker.id) {
                                         // Deselect if clicking the same attacker
                                         selectedAttackerId = null
@@ -2068,25 +2069,32 @@ private fun GamePlayScreenContent(
                                                 distance <= effectiveRange
                                             ) {
                                                 selectedTargetPosition = position
-                                                // Also set targetId if there's an enemy at this position
+                                                // Set targetId only if there's a visible enemy (not hidden in shadow fog)
+                                                val hasFog = gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == position }
                                                 val enemyAtPosition =
-                                                    gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                                                    if (hasFog) null else gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                                 selectedTargetId = enemyAtPosition?.id
                                             }
                                         } else {
-                                            // For single-target attacks, allow targeting enemies or bridges
+                                            // For single-target attacks, allow targeting enemies, bridges, or shadow fog tiles
                                             val distance = selectedDefender.position.value.distanceTo(position)
                                             val attackerForTargeting =
                                                 gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                             val bridgeAtPosition = gameState.getBridgeAt(position)
+                                            val hasShadowFog =
+                                                gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == position }
 
                                             if (distance >= selectedDefender.type.minRange && distance <= effectiveRange) {
-                                                if (attackerForTargeting != null) {
+                                                if (attackerForTargeting != null && !hasShadowFog) {
                                                     selectedTargetId = attackerForTargeting.id
                                                     selectedTargetPosition = position // to be able to show the 3 circles to highlight the target
                                                 } else if (bridgeAtPosition != null && bridgeAtPosition.isActive) {
                                                     // Allow targeting bridge tiles
                                                     selectedTargetId = null // Bridges don't have attacker IDs
+                                                    selectedTargetPosition = position
+                                                } else if (hasShadowFog) {
+                                                    // Allow targeting shadow fog tiles blind (enemy may be hidden there)
+                                                    selectedTargetId = null
                                                     selectedTargetPosition = position
                                                 }
                                             }
@@ -3295,6 +3303,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.IGNIS_VA_THE_DRAGONVOICE.name ->
                                             stringResource(Res.string.villain_ignis_va_title) to
                                                 (stringResource(Res.string.villain_ignis_va_backstory) + "\n" + stringResource(Res.string.villain_ignis_va_description))
+                                        AttackerType.MORVATH_THE_SHADOWMASTER.name ->
+                                            stringResource(Res.string.villain_morvath_title) to
+                                                (stringResource(Res.string.villain_morvath_backstory) + "\n" + stringResource(Res.string.villain_morvath_description))
                                         AttackerType.XARITHON_THE_SHADOW_DRAGON.name ->
                                             stringResource(Res.string.villain_xarithon_title) to
                                                 (stringResource(Res.string.villain_xarithon_backstory) + "\n" + stringResource(Res.string.villain_xarithon_description))
@@ -3791,6 +3802,8 @@ private fun villainMessageButtonColor(name: String?): Color? {
         AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> Color(0xFF0D1B3E)
         // Dragon cultist – deep dragon-fire crimson
         AttackerType.IGNIS_VA_THE_DRAGONVOICE -> Color(0xFF8B1A00)
+        // Shadowmaster – black-violet shadow mist
+        AttackerType.MORVATH_THE_SHADOWMASTER -> Color(0xFF2A003A)
         // Shadow dragon – void purple-black
         AttackerType.XARITHON_THE_SHADOW_DRAGON -> Color(0xFF1E0040)
         // Pirate captain – deep ocean blue

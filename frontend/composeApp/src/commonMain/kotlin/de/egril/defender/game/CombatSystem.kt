@@ -303,10 +303,12 @@ class CombatSystem(
         if (defender.type.attackType == AttackType.AREA || defender.type.attackType == AttackType.LASTING) {
             if (!state.level.isEnemyOccupiable(targetPosition)) return false
         } else {
-            // For single-target attacks, prioritize enemy over bridge at the same position
+            // For single-target attacks, prioritize enemy over bridge at the same position;
+            // shadow fog tiles are always valid targets even if the enemy is not visible.
             val target = state.attackers.find { it.position.value == targetPosition && !it.isDefeated.value }
             val bridge = state.getBridgeAt(targetPosition)
-            if (target == null && (bridge == null || !bridge.isActive)) return false
+            val hasShadowFog = state.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == targetPosition }
+            if (target == null && (bridge == null || !bridge.isActive) && !hasShadowFog) return false
         }
 
         // Play attack sound based on attack type
@@ -341,9 +343,9 @@ class CombatSystem(
                     val bridge = state.getBridgeAt(targetPosition)
                     if (bridge != null && bridge.isActive) {
                         bridgeSystem.damageBridge(targetPosition, getEffectiveDamage(defender))
-                    } else {
-                        return false
                     }
+                    // If targeting a shadow fog tile with no enemy/bridge, the action is
+                    // consumed but the attack misses (the tile was targeted blind).
                 }
             }
             AttackType.AREA -> {
@@ -588,6 +590,17 @@ class CombatSystem(
         affectedPositions.forEach { pos ->
             if (pos !in blockedPositions) {
                 state.fiefs.removeAll { it.position == pos }
+            }
+        }
+
+        // Fireball reduces shadow fog duration by 1 on affected tiles
+        affectedPositions.filter { it !in blockedPositions }.forEach { pos ->
+            val shadowFog = state.fieldEffects.find { it.type == FieldEffectType.SHADOW_FOG && it.position == pos }
+            if (shadowFog != null) {
+                shadowFog.turnsRemaining -= 1
+                if (shadowFog.turnsRemaining <= 0) {
+                    state.fieldEffects.remove(shadowFog)
+                }
             }
         }
 

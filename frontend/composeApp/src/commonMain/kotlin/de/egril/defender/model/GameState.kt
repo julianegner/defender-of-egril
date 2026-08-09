@@ -19,6 +19,7 @@ enum class FieldEffectType {
     ACID, // Visual effect for alchemy acid with duration
     WEB, // Araxxa's spreading spider web area
     BURNING_TILE, // Ignis-Va death: burning ground that disables nearby towers
+    SHADOW_FOG, // Morvath's shadow veil that hides tile information
 }
 
 enum class HealingEffectType {
@@ -172,6 +173,13 @@ data class ShadowSpewEffect(
     val turnNumber: Int, // Turn when Shadow Spew was activated
 )
 
+data class MorvathShadowOrbEffect(
+    val sourcePosition: Position, // Morvath's tile
+    val targetPosition: Position, // Distant fog tile being added
+    val turnNumber: Int, // Turn when the orb was launched
+    val attackerId: Int, // Morvath's attacker id
+)
+
 /**
  * Types of in-game event messages that are shown to the player.
  */
@@ -273,6 +281,7 @@ data class GameState(
     val alchemyAttackEffects: SnapshotStateList<AlchemyAttackEffect> = mutableStateListOf(), // Track alchemy acid vial overlay effects
     val rocketAttackEffects: SnapshotStateList<RocketAttackEffect> = mutableStateListOf(), // Track Baron rocket projectile overlay effects
     val shadowSpewEffects: SnapshotStateList<ShadowSpewEffect> = mutableStateListOf(), // Track Xarithon shadow spew flying fireball effects
+    val morvathShadowOrbEffects: SnapshotStateList<MorvathShadowOrbEffect> = mutableStateListOf(), // Track Morvath's shadow orb flying to distant fog tile
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM, // Track difficulty for this game session
     val tutorialState: MutableState<TutorialState> =
         mutableStateOf(

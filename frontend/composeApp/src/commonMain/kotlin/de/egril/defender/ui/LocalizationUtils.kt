@@ -126,6 +126,7 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
             AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> "archmage_malakor_the_renegade_name"
             AttackerType.IGNIS_VA_THE_DRAGONVOICE -> "ignis_va_name"
             AttackerType.DRAGON_TERROR -> "dragon_terror_name"
+            AttackerType.MORVATH_THE_SHADOWMASTER -> "morvath_name"
             AttackerType.XARITHON_THE_SHADOW_DRAGON -> "xarithon_name"
             AttackerType.CAPTAIN_RODERICH -> "captain_roderich_name"
             AttackerType.THE_KRAKEN -> "kraken_name"
