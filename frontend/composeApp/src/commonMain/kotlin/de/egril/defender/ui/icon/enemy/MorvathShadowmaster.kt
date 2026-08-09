@@ -156,11 +156,5 @@ fun DrawScope.drawMorvathShadowmasterSymbol(
             strokeWidth = size * 0.02f,
             cap = StrokeCap.Round,
         )
-
-        drawRect(
-            color = hoodColor,
-            topLeft = Offset(centerX - size * 0.24f, centerY + size * 0.10f),
-            size = Size(size * 0.48f, size * 0.06f),
-        )
     }
 }

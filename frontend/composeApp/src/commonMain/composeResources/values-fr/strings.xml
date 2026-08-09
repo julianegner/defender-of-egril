@@ -2236,8 +2236,8 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="morvath_name">Morvath, le Maître des Ombres</string>
     <string name="villain_morvath_title">Morvath, le Maître des Ombres, entre sur le champ de bataille</string>
     <string name="villain_morvath_backstory">Morvath, un puissant seigneur des ombres, est entré sur le champ de bataille. Sa seule présence plonge des zones entières dans l'obscurité.</string>
-    <string name="villain_morvath_description">À chaque tour ennemi, il recouvre de brume d'ombre sa case, les cases voisines et une case lointaine. Les ennemis cachés dans la brume n'affichent aucun indice d'attaque, mais peuvent toujours être ciblés, blessés et vaincus.</string>
-    <string name="villain_morvath_shadow_fog_short">Brume d'ombre : cases proches et lointaines cachées pendant 3 tours</string>
-    <string name="fog_label">Brume</string>
-    <string name="enemy_in_fog">dans la brume</string>
+    <string name="villain_morvath_description">À chaque tour ennemi, il recouvre dans les ombres sa case, les cases voisines et une case lointaine. Les ennemis cachés dans les ombres sont invisibles — mais les cases peuvent toujours être ciblées, blessées et vaincues.</string>
+    <string name="villain_morvath_shadow_fog_short">Les ombres : cases proches et lointaines cachées pendant 3 tours</string>
+    <string name="fog_label">Les ombres</string>
+    <string name="enemy_in_fog">dans les ombres</string>
 </resources>

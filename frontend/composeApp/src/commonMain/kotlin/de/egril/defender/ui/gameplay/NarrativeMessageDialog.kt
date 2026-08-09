@@ -373,7 +373,7 @@ internal fun narrativeTextFramePaddingFractions(
     }
 
 internal fun narrativeTextColors(attackerType: AttackerType?): NarrativeTextColors =
-    if (attackerType == AttackerType.SILAS_THE_MASKMASTER) {
+    if (attackerType == AttackerType.SILAS_THE_MASKMASTER || attackerType == AttackerType.MORVATH_THE_SHADOWMASTER) {
         NarrativeTextColors(
             title = Color(0xFFF7F1E8),
             body = Color(0xFFE9DFD2),

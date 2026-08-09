@@ -2235,8 +2235,8 @@
     <string name="morvath_name">Morvath, el Maestro de las Sombras</string>
     <string name="villain_morvath_title">Morvath, el Maestro de las Sombras, entra al campo de batalla</string>
     <string name="villain_morvath_backstory">Morvath, un poderoso señor de las sombras, ha entrado en el campo de batalla. Su sola presencia sumerge zonas enteras en oscuridad.</string>
-    <string name="villain_morvath_description">En cada turno enemigo cubre con niebla sombría su casilla, las casillas cercanas y una casilla lejana. Los enemigos ocultos en la niebla no muestran pistas de ataque, pero aún pueden ser objetivo, dañados y derrotados.</string>
-    <string name="villain_morvath_shadow_fog_short">Niebla sombría: casillas cercanas y lejanas quedan ocultas durante 3 turnos</string>
-    <string name="fog_label">Niebla</string>
-    <string name="enemy_in_fog">en la niebla</string>
+    <string name="villain_morvath_description">En cada turno enemigo cubre en las sombras su casilla, las casillas cercanas y una casilla lejana. Los enemigos ocultos en las sombras son invisibles — pero las casillas aún pueden ser objetivo, dañadas y derrotadas.</string>
+    <string name="villain_morvath_shadow_fog_short">Las sombras: casillas cercanas y lejanas quedan ocultas durante 3 turnos</string>
+    <string name="fog_label">Las sombras</string>
+    <string name="enemy_in_fog">en las sombras</string>
 </resources>

@@ -1146,12 +1146,17 @@ class EnemyAbilitySystem(
         val guaranteedShadowTiles = listOf(origin) + origin.getHexNeighbors()
         val guaranteedShadowSet = guaranteedShadowTiles.toSet()
 
+        // Remove existing shadow fog from any tiles that now have towers, barricades or traps
+        state.fieldEffects.removeAll { it.type == FieldEffectType.SHADOW_FOG && isTileOccupiedByStaticObject(it.position) }
+
         guaranteedShadowTiles
             .filter(::isWithinBounds)
+            .filter { !isTileOccupiedByStaticObject(it) }
             .forEach { pos ->
                 refreshShadowFogAt(pos, morvath.id)
             }
 
+        // Ranged candidates: exclude already-shadowed tiles, static objects, and guaranteed set
         val rangedCandidates =
             origin
                 .getHexNeighborsWithinRadius(
@@ -1160,31 +1165,54 @@ class EnemyAbilitySystem(
                     state.level.gridHeight,
                 ).filter { it !in guaranteedShadowSet }
                 .filter(::isWithinBounds)
+                .filter { !isTileOccupiedByStaticObject(it) }
+                .filter { pos -> state.fieldEffects.none { it.type == FieldEffectType.SHADOW_FOG && it.position == pos } }
 
         val extraTarget =
             rangedCandidates.maxWithOrNull(
-                compareBy<Position> { shadowFogPriorityScore(it) }
-                    .thenByDescending { origin.hexDistanceTo(it) }
+                compareBy<Position> { shadowFogPriorityScore(it, origin) }
                     .thenByDescending { it.y }
                     .thenByDescending { it.x },
             )
         if (extraTarget != null) {
-            refreshShadowFogAt(extraTarget, morvath.id)
+            // Fog is NOT applied here — it will be applied after the orb animation completes.
+            if (state.morvathShadowOrbEffects.none { it.sourcePosition == origin }) {
+                state.morvathShadowOrbEffects.add(
+                    MorvathShadowOrbEffect(
+                        sourcePosition = origin,
+                        targetPosition = extraTarget,
+                        turnNumber = state.turnNumber.value,
+                        attackerId = morvath.id,
+                    ),
+                )
+            }
         }
     }
 
-    private fun shadowFogPriorityScore(position: Position): Int {
-        val hasEnemy =
-            state.attackers.any { attacker ->
-                !attacker.isDefeated.value && attacker.position.value == position
-            }
-        if (hasEnemy) return 2
-
-        return if (state.level.isOnPath(position) || state.level.isSpawnPoint(position) || state.level.isRiverTile(position)) {
-            1
-        } else {
-            0
+    /** Apply fog to all pending Morvath orb targets (called after the orb animation completes). */
+    fun applyPendingMorvathFog() {
+        state.morvathShadowOrbEffects.forEach { effect ->
+            refreshShadowFogAt(effect.targetPosition, effect.attackerId)
         }
+    }
+
+    private fun shadowFogPriorityScore(position: Position, origin: Position): Int {
+        val isOnPath = state.level.isOnPath(position) || state.level.isSpawnPoint(position) || state.level.isRiverTile(position)
+        if (!isOnPath) return -10
+
+        // Prefer tiles closer to the player's target than Morvath — i.e. ahead of him on the path
+        val nearestTarget = state.level.targetPositions.minByOrNull { origin.hexDistanceTo(it) }
+        val progressScore =
+            if (nearestTarget != null) {
+                val morvathDistToTarget = origin.hexDistanceTo(nearestTarget)
+                val tileDistToTarget = position.hexDistanceTo(nearestTarget)
+                morvathDistToTarget - tileDistToTarget // positive = tile is ahead toward target
+            } else {
+                0
+            }
+
+        val hasEnemy = state.attackers.any { !it.isDefeated.value && it.position.value == position }
+        return if (hasEnemy) progressScore + 20 else progressScore
     }
 
     private fun refreshShadowFogAt(

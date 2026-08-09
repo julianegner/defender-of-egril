@@ -207,10 +207,12 @@ fun AttackButton(
         } else if (selectedTargetPosition != null &&
             (defender.type.attackType == AttackType.MELEE || defender.type.attackType == AttackType.RANGED)
         ) {
-            // For single-target towers, allow attacking bridges when no enemy is present
+            // For single-target towers, allow attacking bridges or shadow fog tiles when no enemy is visible
             val bridge = gameState.getBridgeAt(selectedTargetPosition)
+            val isShadowFogTarget =
+                gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == selectedTargetPosition }
+            val distance = defender.position.value.distanceTo(selectedTargetPosition)
             if (bridge != null && bridge.isActive) {
-                val distance = defender.position.value.distanceTo(selectedTargetPosition)
                 if (distance >= defender.type.minRange && distance <= defender.range) {
                     Button(
                         onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
@@ -250,6 +252,48 @@ fun AttackButton(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value))
                             }
+                        }
+                    }
+                }
+            } else if (isShadowFogTarget && distance >= defender.type.minRange && distance <= defender.range) {
+                // Allow attacking into shadow fog tiles (enemy may be hidden there)
+                Button(
+                    onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
+                    modifier = modifier,
+                    border =
+                        if (isAttackModeActive) {
+                            androidx.compose.foundation.BorderStroke(
+                                width = 3.dp,
+                                color = GamePlayColors.Yellow,
+                            )
+                        } else {
+                            null
+                        },
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = GamePlayColors.ErrorDark,
+                        ),
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        SwordIcon(size = 24.dp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text(
+                                stringResource(Res.string.attack_button),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Text(
+                                stringResource(Res.string.fog_label),
+                                fontSize = 11.sp,
+                            )
+                        }
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value))
                         }
                     }
                 }

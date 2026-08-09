@@ -222,6 +222,9 @@ object GamePlayConstants {
         /** Delay for Xarithon's shadow spew fireball flight animation. */
         const val SHADOW_SPEW_FLIGHT_DELAY_MS = 1100L
 
+        /** Delay for Morvath's shadow orb flight animation to a distant fog tile. */
+        const val MORVATH_ORB_FLIGHT_DELAY_MS = 1000L
+
         /** Delay before the alchemy acid vial hit animation so the vial visibly arrives first. */
         const val ALCHEMY_FLIGHT_DELAY_MS = 1000L
 

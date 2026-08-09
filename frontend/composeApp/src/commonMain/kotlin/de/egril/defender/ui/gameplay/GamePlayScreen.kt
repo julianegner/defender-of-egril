@@ -1934,7 +1934,8 @@ private fun GamePlayScreenContent(
 
                                 // Check if there's an attacker at this position (only if no defender is being placed)
                                 val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
-                                if (attacker != null && selectedDefenderId == null) {
+                                val positionInShadowFog = gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == position }
+                                if (attacker != null && selectedDefenderId == null && !positionInShadowFog) {
                                     if (previousSelectedAttackerId == attacker.id) {
                                         // Deselect if clicking the same attacker
                                         selectedAttackerId = null
@@ -2068,25 +2069,32 @@ private fun GamePlayScreenContent(
                                                 distance <= effectiveRange
                                             ) {
                                                 selectedTargetPosition = position
-                                                // Also set targetId if there's an enemy at this position
+                                                // Set targetId only if there's a visible enemy (not hidden in shadow fog)
+                                                val hasFog = gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == position }
                                                 val enemyAtPosition =
-                                                    gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                                                    if (hasFog) null else gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                                 selectedTargetId = enemyAtPosition?.id
                                             }
                                         } else {
-                                            // For single-target attacks, allow targeting enemies or bridges
+                                            // For single-target attacks, allow targeting enemies, bridges, or shadow fog tiles
                                             val distance = selectedDefender.position.value.distanceTo(position)
                                             val attackerForTargeting =
                                                 gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                             val bridgeAtPosition = gameState.getBridgeAt(position)
+                                            val hasShadowFog =
+                                                gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == position }
 
                                             if (distance >= selectedDefender.type.minRange && distance <= effectiveRange) {
-                                                if (attackerForTargeting != null) {
+                                                if (attackerForTargeting != null && !hasShadowFog) {
                                                     selectedTargetId = attackerForTargeting.id
                                                     selectedTargetPosition = position // to be able to show the 3 circles to highlight the target
                                                 } else if (bridgeAtPosition != null && bridgeAtPosition.isActive) {
                                                     // Allow targeting bridge tiles
                                                     selectedTargetId = null // Bridges don't have attacker IDs
+                                                    selectedTargetPosition = position
+                                                } else if (hasShadowFog) {
+                                                    // Allow targeting shadow fog tiles blind (enemy may be hidden there)
+                                                    selectedTargetId = null
                                                     selectedTargetPosition = position
                                                 }
                                             }

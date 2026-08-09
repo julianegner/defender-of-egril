@@ -1763,6 +1763,13 @@ class GameViewModel {
             // Complete enemy turn: apply effects and return to player turn
             engine.completeEnemyTurn()
 
+            // Wait for Morvath's shadow orb animation to reach the distant fog tile before
+            // applying the fog, so the fog appears only when the orb arrives.
+            if (_gameState.value?.morvathShadowOrbEffects?.isNotEmpty() == true) {
+                delay(GamePlayConstants.AnimationTimings.MORVATH_ORB_FLIGHT_DELAY_MS)
+                engine.applyPendingMorvathFog()
+            }
+
             // Process pending barge deletions from Roderich's Broadside after the cannonball animation completes.
             // The animation duration is BALLISTA_FLIGHT_DELAY_MS (1000ms), so we delay before processing.
             if (_gameState.value?.pendingBargeDeletions?.isNotEmpty() == true) {
