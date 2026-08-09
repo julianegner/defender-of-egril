@@ -108,6 +108,7 @@ fun MapEditorContent(
     fun handleSave(
         mapToSave: EditorMap,
         oldId: String? = null,
+        backgroundImageBytes: ByteArray? = null,
     ) {
         generatorMapName = mapToSave.name
         generatorTargetPath = targetPath(mapToSave)
@@ -117,7 +118,7 @@ fun MapEditorContent(
         generationSuccess = null
         generationError = null
         generatedPainter = null
-        imageWasRegenerated = true
+        imageWasRegenerated = backgroundImageBytes == null
         generationStep = ""
         compressedSizeKb = 0L
 
@@ -129,7 +130,16 @@ fun MapEditorContent(
                         EditorStorage.saveMapData(mapToSave, oldId)
                     }
 
-                if (saveResult.imageNeedsRegeneration) {
+                if (backgroundImageBytes != null) {
+                    // Use provided background image directly
+                    generationStep = "compressing"
+                    val sizeBytes =
+                        withContext(Dispatchers.Default) {
+                            EditorStorage.saveProvidedMapImage(saveResult.validatedMap, backgroundImageBytes)
+                        }
+                    compressedSizeKb = if (sizeBytes > 0) sizeBytes / 1024 else 0L
+                    imageWasRegenerated = false
+                } else if (saveResult.imageNeedsRegeneration) {
                     // Step 2: Generate map image pixels
                     generationStep = "generating"
                     val (pixels, width, height) =
@@ -169,7 +179,7 @@ fun MapEditorContent(
         // Map editing view
         MapEditorView(
             map = editingMap!!,
-            onSave = { updatedMap, oldId -> handleSave(updatedMap, oldId) },
+            onSave = { updatedMap, oldId, backgroundImageBytes -> handleSave(updatedMap, oldId, backgroundImageBytes) },
             onCancel = { editingMap = null },
         )
     } else {

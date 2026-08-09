@@ -65,7 +65,7 @@ private fun nameToMapId(name: String): String {
 @Composable
 fun MapEditorView(
     map: EditorMap,
-    onSave: (EditorMap, String?) -> Unit,
+    onSave: (EditorMap, String?, ByteArray?) -> Unit,
     onCancel: () -> Unit,
 ) {
     var tiles by remember { mutableStateOf(map.tiles.toMutableMap()) }
@@ -515,7 +515,7 @@ fun MapEditorView(
                             )
                         // Validate and set readyToUse flag
                         val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
-                        onSave(validatedMap, oldId)
+                        onSave(validatedMap, oldId, backgroundImageBytes)
                     },
                     enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                     modifier = Modifier.weight(1f),
@@ -748,7 +748,7 @@ fun MapEditorView(
                     )
                 // Validate and set readyToUse flag
                 val validatedMap = newMap.copy(readyToUse = newMap.validateReadyToUse())
-                onSave(validatedMap, null) // null oldId: this is a brand-new map, not a rename
+                onSave(validatedMap, null, backgroundImageBytes) // null oldId: this is a brand-new map, not a rename
                 showSaveAsDialog = false
             },
         )
