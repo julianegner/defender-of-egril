@@ -1992,7 +1992,7 @@ fun GridCell(
             cellIsInBarricadeRange || cellIsSupportBarricadePlacement -> GamePlayColors.Yellow.copy(alpha = 0.3f) // Light yellow for barricade placement range
 
             // Fief placement highlight - brown tint matching path color
-            cellIsSupportFiefPlacement -> Color(0xFF8B4513).copy(alpha = 0.35f) // Brown tint for fief placement tiles
+            cellIsSupportFiefPlacement -> GamePlayColors.Trap.copy(alpha = 0.35f) // Brown tint for fief placement tiles
 
             // Tower placement preview - highlight the hovered build tile differently than range tiles
             showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f) // Light yellow for the build tile being hovered
@@ -2072,7 +2072,7 @@ fun GridCell(
                 cellIsSupportDwarvenTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
 
             // Fief placement highlight - brown border matching path color
-            cellIsSupportFiefPlacement -> Color(0xFF8B4513) // Brown border for fief placement tiles
+            cellIsSupportFiefPlacement -> GamePlayColors.Trap // Brown border for fief placement tiles
 
             // Magical trap placement range - lilac borders
             cellIsValidForMagicalTrapPlacement || cellIsSupportMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight // Lilac border for magical trap placement range

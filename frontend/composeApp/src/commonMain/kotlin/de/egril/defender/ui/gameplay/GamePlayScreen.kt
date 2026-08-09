@@ -2725,6 +2725,8 @@ private fun GamePlayScreenContent(
                             }
                         } else if (selectedSupportFief != null) {
                             // Fief placement mode: show a compact instruction + cancel card
+                            // selectedSupportFief is a mutable var, so smart-cast is not possible;
+                            // capture a local non-null copy for use within this branch.
                             val placingFief = selectedSupportFief!!
                             Card(
                                 modifier = Modifier.fillMaxWidth(),

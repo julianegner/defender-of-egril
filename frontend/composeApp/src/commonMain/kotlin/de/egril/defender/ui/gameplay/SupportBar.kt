@@ -53,7 +53,7 @@ import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
-import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.gameplay.GamePlayColors
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.fief_fisher_hut
 import defender_of_egril.composeapp.generated.resources.fief_marketplace
@@ -98,7 +98,7 @@ sealed interface SupportSlot {
     ) : SupportSlot
 
     data class FiefSlot(
-        val type: de.egril.defender.model.FiefType,
+        val type: FiefType,
     ) : SupportSlot
 }
 
@@ -871,10 +871,6 @@ fun FiefType.localizedFiefName(
     com.hyperether.resources.LocalizedStrings
         .get(this.nameKey, locale)
 
-/** Path tile color used as the background for fief support buttons. */
-private fun fiefButtonBackgroundColor(isDarkMode: Boolean): Color =
-    if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
-
 /**
  * A hexagon-shaped support button for a fief token. Uses the path tile background color to signal
  * that fiefs are placed on path tiles. Clicking enters fief placement mode.
@@ -889,8 +885,7 @@ private fun FiefSupportBox(
     tooltip: String,
     onClick: () -> Unit,
 ) {
-    val isDarkMode = AppSettings.isDarkMode.value
-    val backgroundColor = fiefButtonBackgroundColor(isDarkMode)
+    val backgroundColor = GamePlayColors.Trap
     val borderColor = if (isSelected) SupportBarColors.Selected else backgroundColor
     val alpha = if (enabled) 1f else 0.4f
     val hexShape = HexagonShape()
