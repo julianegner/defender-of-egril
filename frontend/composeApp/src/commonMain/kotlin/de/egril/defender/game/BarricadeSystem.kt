@@ -160,7 +160,8 @@ class BarricadeSystem(
             state.defenders.any { defender ->
                 defender.position.value == barricadePosition && defender.towerBaseBarricadeId.value == null
             }
-        if (hasAttacker || hasTrap || hasDefenderNotOnTowerBase) return false
+        val hasFief = state.fiefs.any { it.position == barricadePosition }
+        if (hasAttacker || hasTrap || hasDefenderNotOnTowerBase || hasFief) return false
 
         val existingBarricade = state.barricades.find { it.position == barricadePosition }
         if (existingBarricade != null) {

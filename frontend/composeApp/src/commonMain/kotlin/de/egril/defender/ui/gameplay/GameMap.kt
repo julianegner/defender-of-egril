@@ -422,6 +422,7 @@ fun GameGrid(
     keyboardHoveredPosition: Position? = null, // overrides the local hover for keyboard build tile selection
     keyboardPlacementCursor: Position? = null, // keyboard cursor tile while placing a support object / targeting a spell
     selectedSupportObject: SupportObjectType? = null, // support object currently selected for placement (barricade/trap/magical trap)
+    selectedSupportFief: de.egril.defender.model.FiefType? = null, // fief type currently selected for placement
     extraFocusTrigger: Int = 0,
 ) {
     // Establish a snapshot dependency on runtime map edits (sandbox tile painting) so the entire
@@ -949,6 +950,15 @@ fun GameGrid(
         }
     }
 
+    // Valid tiles for placing a fief support token. Empty when no fief is being placed.
+    val supportFiefPlacementPositions: Set<Position> by remember(gameState.level, selectedSupportFief) {
+        derivedStateOf {
+            selectedSupportFief
+                ?.let { supportFiefPlacementTiles(gameState, it).toHashSet() }
+                ?: emptySet()
+        }
+    }
+
     // Stable reference to onCellClick via rememberUpdatedState.
     //
     // Why this matters for performance:
@@ -1207,6 +1217,11 @@ fun GameGrid(
                         null
                     }
 
+                // supportFiefPlacementHighlight: true for every valid placement tile when a fief support
+                // token is selected, so the player knows where the fief can be dropped.
+                val supportFiefPlacementHighlight: Boolean =
+                    selectedSupportFief != null && supportFiefPlacementPositions.contains(position)
+
                 // Memoize the event-handler lambdas so Compose's strong-skipping can work correctly.
                 //
                 // Without memoization, `{ onCellClick(position) }` and `{ localHoveredPosition = ... }`
@@ -1253,6 +1268,7 @@ fun GameGrid(
                     isKeyboardPlacementCursor = isKeyboardPlacementCursor,
                     supportObjectPreviewType = supportObjectPreviewType,
                     supportObjectPlacementHighlightType = supportObjectPlacementHighlightType,
+                    supportFiefPlacementHighlight = supportFiefPlacementHighlight,
                     // NOTE: the null guard on selectedDefenderId/selectedTargetId is critical for
                     // correctness AND performance.  Without it, `null?.id == null` evaluates to
                     // `null == null = true`, so every cell without a defender/attacker becomes
@@ -1422,6 +1438,8 @@ fun GridCell(
     // (border + diagonal stripes) that a tower shows when placing the equivalent item, but without
     // the tower's range restriction.
     supportObjectPlacementHighlightType: SupportObjectType? = null,
+    // True when a fief support token is selected and this tile is a valid placement target.
+    supportFiefPlacementHighlight: Boolean = false,
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
@@ -1816,6 +1834,7 @@ fun GridCell(
     val cellIsSupportBarricadePlacement = supportObjectPlacementHighlightType == SupportObjectType.BARRICADE
     val cellIsSupportDwarvenTrapPlacement = supportObjectPlacementHighlightType == SupportObjectType.DWARVEN_TRAP
     val cellIsSupportMagicalTrapPlacement = supportObjectPlacementHighlightType == SupportObjectType.MAGICAL_TRAP
+    val cellIsSupportFiefPlacement = supportFiefPlacementHighlight
 
     // Base background color based on area type - ALWAYS visible
     // Build areas adjacent to path allow tower placement
@@ -1974,6 +1993,9 @@ fun GridCell(
             // Barricade placement range - yellow tint for tiles in range
             cellIsInBarricadeRange || cellIsSupportBarricadePlacement -> GamePlayColors.Yellow.copy(alpha = 0.3f) // Light yellow for barricade placement range
 
+            // Fief placement highlight - brown tint matching path color
+            cellIsSupportFiefPlacement -> GamePlayColors.Trap.copy(alpha = 0.35f) // Brown tint for fief placement tiles
+
             // Tower placement preview - highlight the hovered build tile differently than range tiles
             showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f) // Light yellow for the build tile being hovered
             isInPreviewRange -> GamePlayColors.Success.copy(alpha = 0.2f) // Very light green for range preview tiles
@@ -2051,6 +2073,9 @@ fun GridCell(
                 cellIsSupportBarricadePlacement ||
                 cellIsSupportDwarvenTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
 
+            // Fief placement highlight - brown border matching path color
+            cellIsSupportFiefPlacement -> GamePlayColors.Trap // Brown border for fief placement tiles
+
             // Magical trap placement range - lilac borders
             cellIsValidForMagicalTrapPlacement || cellIsSupportMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight // Lilac border for magical trap placement range
 
@@ -2105,7 +2130,8 @@ fun GridCell(
                 cellIsValidForMagicalTrapPlacement ||
                 cellIsSupportBarricadePlacement ||
                 cellIsSupportDwarvenTrapPlacement ||
-                cellIsSupportMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
+                cellIsSupportMagicalTrapPlacement ||
+                cellIsSupportFiefPlacement -> 3.dp // Medium border for trap/barricade/fief placement range
             isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp // Medium border for buildable tiles and tower bases
             isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp // Extra thick border for selected defender (not during initial building)
             cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> 2.dp // Thin purple border for double-reach-only tiles
@@ -2133,7 +2159,8 @@ fun GridCell(
             cellIsValidForMagicalTrapPlacement ||
             cellIsSupportBarricadePlacement ||
             cellIsSupportDwarvenTrapPlacement ||
-            cellIsSupportMagicalTrapPlacement
+            cellIsSupportMagicalTrapPlacement ||
+            cellIsSupportFiefPlacement
 
     val showDiagonalStripes =
         isBuildableAndEmpty ||
@@ -2143,7 +2170,8 @@ fun GridCell(
             cellIsValidForMagicalTrapPlacement ||
             cellIsSupportBarricadePlacement ||
             cellIsSupportDwarvenTrapPlacement ||
-            cellIsSupportMagicalTrapPlacement
+            cellIsSupportMagicalTrapPlacement ||
+            cellIsSupportFiefPlacement
 
     // Determine if we should use gradient blending
     val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value

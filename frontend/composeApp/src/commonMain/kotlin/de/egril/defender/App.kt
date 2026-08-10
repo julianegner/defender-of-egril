@@ -657,6 +657,7 @@ fun App() {
                                 demoSelectedDefenderId = demoSelectedDefenderId,
                                 demoSelectedTargetPosition = demoSelectedTargetPosition,
                                 onPlaceSupportObject = { type, pos -> viewModel.placeSupportObject(type, pos) },
+                                onPlaceSupportFief = { type, pos -> viewModel.placeSupportFief(type, pos) },
                                 onCastSupportSpellToken = { spell -> viewModel.onSupportSpellTokenClicked(spell) },
                                 activeSpellToken = pendingTokenSpell,
                                 onActivateCooldownPower = { power -> viewModel.activateCooldownPower(power) },

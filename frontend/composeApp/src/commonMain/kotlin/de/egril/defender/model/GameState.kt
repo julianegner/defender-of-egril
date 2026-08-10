@@ -311,9 +311,10 @@ data class GameState(
     val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf(), // Messages queued for display
     val pendingSoulCalls: SnapshotStateList<PendingSoulCall> = mutableStateListOf(), // Valerius resurrection queue for the next round
     val pendingBargeDeletions: SnapshotStateList<PendingBargeDeletion> = mutableStateListOf(), // Barges (rafts + defenders) to be deleted after animation completes
-    // Player-usable supports remaining this level (placable objects + spell tokens)
+    // Player-usable supports remaining this level (placable objects + spell tokens + fief tokens)
     val supportObjectsRemaining: SnapshotStateMap<SupportObjectType, Int> = mutableStateMapOf(),
     val supportSpellsRemaining: SnapshotStateMap<SpellType, Int> = mutableStateMapOf(),
+    val supportFiefRemaining: SnapshotStateMap<FiefType, Int> = mutableStateMapOf(),
     // Cooldown-based support powers: turns remaining until the power can be used again (0 = ready)
     val cooldownPowerReadyIn: SnapshotStateMap<CooldownPowerType, Int> = mutableStateMapOf(),
     // True when the Coin Surge power is active this turn (doubles coins earned)
@@ -781,7 +782,7 @@ data class GameState(
         // Get initial data using the helper method that handles both old and new formats
         val initialData = level.getEffectiveInitialData()
 
-        // Initialize player-usable supports (placable objects + spell tokens) for this level
+        // Initialize player-usable supports (placable objects + spell tokens + fief tokens) for this level
         supportObjectsRemaining.clear()
         for (supportObject in level.supports.objects) {
             supportObjectsRemaining[supportObject.type] =
@@ -791,6 +792,11 @@ data class GameState(
         for (supportSpell in level.supports.spells) {
             supportSpellsRemaining[supportSpell.spell] =
                 combineSupportCounts(supportSpellsRemaining[supportSpell.spell] ?: 0, supportSpell.count)
+        }
+        supportFiefRemaining.clear()
+        for (supportFief in level.supports.fiefs) {
+            supportFiefRemaining[supportFief.type] =
+                combineSupportCounts(supportFiefRemaining[supportFief.type] ?: 0, supportFief.count)
         }
 
         // Initialize cooldown-based support powers. Powers that start active are immediately usable

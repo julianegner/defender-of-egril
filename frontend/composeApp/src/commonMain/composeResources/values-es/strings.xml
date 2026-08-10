@@ -808,6 +808,7 @@
     <string name="supports_intro">Objetos y fichas de hechizo que el jugador puede usar en este nivel, sin importar sus torres, nivel tecnológico o maná.</string>
     <string name="supports_objects_section">Objetos Colocables</string>
     <string name="supports_spells_section">Fichas de Hechizo</string>
+    <string name="supports_fiefs_section">Feudos</string>
     <string name="supports_cooldown_powers_section">Poderes con Enfriamiento</string>
     <string name="support_type_object">Objeto Colocable</string>
     <string name="support_type_spell">Ficha de Hechizo</string>
