@@ -1202,7 +1202,7 @@ private fun GamePlayScreenContent(
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
                         val candidateTiles =
                             selectedSupportObject?.let { supportObjectPlacementTiles(gameState, it) }
-                                ?: selectedSupportFief?.let { supportFiefPlacementTiles(gameState) }
+                                ?: selectedSupportFief?.let { supportFiefPlacementTiles(gameState, it) }
                                 ?: spellTargetPositions(gameState)
                         if (candidateTiles.isEmpty()) {
                             false
@@ -1232,7 +1232,7 @@ private fun GamePlayScreenContent(
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
                         val candidateTiles =
                             selectedSupportObject?.let { supportObjectPlacementTiles(gameState, it) }
-                                ?: selectedSupportFief?.let { supportFiefPlacementTiles(gameState) }
+                                ?: selectedSupportFief?.let { supportFiefPlacementTiles(gameState, it) }
                                 ?: spellTargetPositions(gameState)
                         if (candidateTiles.isEmpty()) {
                             false
@@ -1419,7 +1419,7 @@ private fun GamePlayScreenContent(
                                 }
                             }
                         } else if (fiefType != null) {
-                            val candidateTiles = supportFiefPlacementTiles(gameState)
+                            val candidateTiles = supportFiefPlacementTiles(gameState, fiefType)
                             val tile =
                                 keyboardPlacementTile?.takeIf { candidateTiles.contains(it) }
                                     ?: candidateTiles.firstOrNull()
@@ -1430,7 +1430,7 @@ private fun GamePlayScreenContent(
                                     keyboardPlacementTile = null
                                 } else {
                                     val placedIndex = candidateTiles.indexOf(tile)
-                                    val remainingTiles = supportFiefPlacementTiles(gameState)
+                                    val remainingTiles = supportFiefPlacementTiles(gameState, fiefType)
                                     keyboardPlacementTile =
                                         if (remainingTiles.isEmpty()) {
                                             null

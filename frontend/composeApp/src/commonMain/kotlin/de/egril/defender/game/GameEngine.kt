@@ -125,6 +125,7 @@ class GameEngine(
     /**
      * Place a fief from a player-granted support token.
      * The position must be a path tile with no attacker, trap, barricade, or existing fief.
+     * Fisher fiefs additionally require at least one adjacent water tile.
      * Returns true if the fief was placed successfully.
      */
     fun placeSupportFief(
@@ -132,6 +133,7 @@ class GameEngine(
         type: de.egril.defender.model.FiefType,
     ): Boolean {
         if (!state.level.isOnPath(position)) return false
+        if (type == de.egril.defender.model.FiefType.FISHER && !state.level.hasAdjacentWaterTile(position)) return false
         val hasEnemy = state.attackers.any { !it.isDefeated.value && it.position.value == position }
         val hasTrap = state.traps.any { it.position == position }
         val hasBarricade = state.barricades.any { it.position == position }

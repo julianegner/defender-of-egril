@@ -259,10 +259,14 @@ fun supportObjectPlacementTiles(
 
 /**
  * The ordered list of tiles on which a fief support token may currently be placed. Fiefs require
- * an empty path tile (no attacker, trap, barricade, or existing fief). Ordered top-to-bottom,
- * left-to-right so keyboard placement moves predictably.
+ * an empty path tile (no attacker, trap, barricade, or existing fief). Fisher fiefs additionally
+ * require at least one adjacent water tile. Ordered top-to-bottom, left-to-right so keyboard
+ * placement moves predictably.
  */
-fun supportFiefPlacementTiles(gameState: GameState): List<Position> {
+fun supportFiefPlacementTiles(
+    gameState: GameState,
+    type: FiefType,
+): List<Position> {
     val attackerPositions =
         gameState.attackers
             .filter { !it.isDefeated.value }
@@ -278,6 +282,7 @@ fun supportFiefPlacementTiles(gameState: GameState): List<Position> {
             val pos = Position(x, y)
             if (!gameState.level.isOnPath(pos)) continue
             if (pos in attackerPositions || pos in trapPositions || pos in barricadePositions || pos in fiefPositions) continue
+            if (type == FiefType.FISHER && !gameState.level.hasAdjacentWaterTile(pos)) continue
             tiles.add(pos)
         }
     }

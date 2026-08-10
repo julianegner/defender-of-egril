@@ -953,7 +953,9 @@ fun GameGrid(
     // Valid tiles for placing a fief support token. Empty when no fief is being placed.
     val supportFiefPlacementPositions: Set<Position> by remember(gameState.level, selectedSupportFief) {
         derivedStateOf {
-            if (selectedSupportFief != null) supportFiefPlacementTiles(gameState).toHashSet() else emptySet()
+            selectedSupportFief
+                ?.let { supportFiefPlacementTiles(gameState, it).toHashSet() }
+                ?: emptySet()
         }
     }
 

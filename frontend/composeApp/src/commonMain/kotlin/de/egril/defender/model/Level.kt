@@ -164,6 +164,20 @@ data class Level(
 
     fun isRiverTile(position: Position): Boolean = riverTiles.containsKey(position) || isWaterSpawnPoint(position)
 
+    /**
+     * Returns true if at least one in-bounds neighboring tile is water.
+     *
+     * Water includes river tiles and water spawn points (via [isRiverTile]).
+     */
+    fun hasAdjacentWaterTile(position: Position): Boolean =
+        position
+            .getHexNeighbors()
+            .any { neighbor ->
+                neighbor.x in 0 until gridWidth &&
+                    neighbor.y in 0 until gridHeight &&
+                    isRiverTile(neighbor)
+            }
+
     fun getRiverTile(position: Position): RiverTile? = riverTiles[position]
 
     fun toLevelInfoEnemiesLevelData(): LevelInfoEnemiesLevelData {
