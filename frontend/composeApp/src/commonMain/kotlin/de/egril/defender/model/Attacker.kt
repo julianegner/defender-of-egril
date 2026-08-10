@@ -73,6 +73,9 @@ enum class AttackerType(
     // enum rather than in the translated string resources (see issue discussion). Null for regular
     // enemies, whose (translated) names come from the string resources instead.
     val villainName: String? = null,
+    // Story message text color preference. False keeps the standard dark text; true switches to
+    // the light variant for dark villain message backgrounds.
+    val useLightNarrativeText: Boolean = false,
     // Mirror images reuse villain presentation (hidden HP, same icon/name) but must not count as
     // the unique "real" villain for spawn limits, defeat messages, or instant-loss target breaches.
     val isMirrorImage: Boolean = false,
@@ -316,6 +319,7 @@ enum class AttackerType(
         isBoss = true,
         isVillain = true,
         villainName = "Silas",
+        useLightNarrativeText = true,
         mirrorImageCount = 2,
         mirrorImageRange = 2,
         mirrorImageCooldown = 3,
@@ -332,6 +336,7 @@ enum class AttackerType(
         isBoss = true,
         isVillain = true,
         villainName = "Silas",
+        useLightNarrativeText = true,
         isMirrorImage = true,
     ),
     FALLEN_SHIELDMAIDEN_FREYA(
@@ -443,6 +448,7 @@ enum class AttackerType(
         isBoss = true,
         isVillain = true,
         villainName = "Malakor",
+        useLightNarrativeText = true,
         towerDisableRangeBase = 5,
         towerDisableCooldown = 2,
         towerDisableDurationTurns = 1,
@@ -492,6 +498,7 @@ enum class AttackerType(
         isBoss = true,
         isVillain = true,
         villainName = "Morvath",
+        useLightNarrativeText = true,
     ),
 
     // Xarithon the Shadow Dragon: the personal champion of Ewhad, a shadow dragon filled with dark
