@@ -10,6 +10,13 @@ import de.egril.defender.editor.SpawnTurnTemplateVariant
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.EventAction
+import de.egril.defender.model.EventActionType
+import de.egril.defender.model.EventCondition
+import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.LevelEvent
+import de.egril.defender.model.LevelEvents
+import de.egril.defender.model.Position
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -36,9 +43,43 @@ class LevelDesignAnalysisTest {
         assertEquals(4, summary.firstVillainTurn)
         assertEquals(TimingBand.EARLY, summary.villainTimingBand)
         assertEquals(3, summary.turnPreviews.first { it.turn == 1 }.earliestArrivalTurn)
+        assertEquals(listOf(9), summary.arrivalOverlapTurns)
         assertTrue(DefenderType.WIZARD_TOWER in summary.missingCounters)
         assertTrue(DefenderType.ALCHEMY_TOWER in summary.missingCounters)
         assertTrue(DefenderType.BOW_TOWER in summary.missingCounters)
+    }
+
+    @Test
+    fun analyzeLevelMapConsistencyFlagsBrokenAssignments() {
+        val map = straightTestMap()
+        val level =
+            testLevel(
+                spawns =
+                    listOf(
+                        EditorEnemySpawn(AttackerType.PIRATE, spawnTurn = 1),
+                        EditorEnemySpawn(AttackerType.GOBLIN, spawnTurn = 2, spawnPoint = Position(6, 4)),
+                    ),
+            ).copy(
+                waypoints = listOf(de.egril.defender.editor.EditorWaypoint(Position(6, 4), Position(7, 2))),
+                events =
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "broken",
+                                condition = EventCondition(EventConditionType.UNIT_REACHED, position = Position(10, 10)),
+                                actions = listOf(EventAction(EventActionType.DESTROY_MINE, position = Position(11, 11))),
+                            ),
+                        ),
+                    ),
+            )
+
+        val summary = analyzeLevelMapConsistency(level, map)
+
+        assertEquals(1, summary.invalidSpawnAssignments.size)
+        assertEquals(listOf(AttackerType.PIRATE), summary.missingCompatibleSpawnTypes)
+        assertEquals(1, summary.invalidWaypoints.size)
+        assertEquals(1, summary.invalidEventPositionCount)
+        assertTrue(summary.hasIssues)
     }
 
     @Test

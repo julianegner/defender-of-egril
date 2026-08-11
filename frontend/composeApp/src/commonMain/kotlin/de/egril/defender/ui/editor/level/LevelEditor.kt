@@ -78,6 +78,11 @@ internal fun levelEditorTabIndices(isSandbox: Boolean): LevelEditorTabIndices {
     )
 }
 
+private data class EnemySpawnEditorSnapshot(
+    val enemySpawns: MutableList<EditorEnemySpawn>,
+    val maxTurnNumber: Int,
+)
+
 /**
  * Main content for the Level Editor tab
  */
@@ -539,6 +544,8 @@ internal fun LevelEditorView(
     var maxTurnNumber by remember {
         mutableStateOf(level.enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0)
     }
+    var enemySpawnUndoHistory by remember { mutableStateOf(listOf<EnemySpawnEditorSnapshot>()) }
+    var enemySpawnRedoHistory by remember { mutableStateOf(listOf<EnemySpawnEditorSnapshot>()) }
 
     // Get only ready-to-use maps for selection
     val maps = remember { EditorStorage.getAllMaps().filter { it.readyToUse } }
@@ -560,6 +567,28 @@ internal fun LevelEditorView(
 
     // Get current map to access waypoint tiles and target
     val currentMap = remember(selectedMapId) { EditorStorage.getMap(selectedMapId) }
+
+    fun currentEnemySpawnSnapshot(): EnemySpawnEditorSnapshot =
+        EnemySpawnEditorSnapshot(
+            enemySpawns = enemySpawns.toMutableList(),
+            maxTurnNumber = maxTurnNumber,
+        )
+
+    fun applyEnemySpawnSnapshot(snapshot: EnemySpawnEditorSnapshot) {
+        enemySpawns = snapshot.enemySpawns.toMutableList()
+        maxTurnNumber = snapshot.maxTurnNumber
+    }
+
+    fun updateEnemySpawnState(
+        newEnemySpawns: MutableList<EditorEnemySpawn> = enemySpawns.toMutableList(),
+        newMaxTurnNumber: Int = maxTurnNumber,
+    ) {
+        if (newEnemySpawns == enemySpawns && newMaxTurnNumber == maxTurnNumber) return
+        enemySpawnUndoHistory = (enemySpawnUndoHistory + currentEnemySpawnSnapshot()).takeLast(40)
+        enemySpawnRedoHistory = emptyList()
+        enemySpawns = newEnemySpawns
+        maxTurnNumber = newMaxTurnNumber
+    }
 
     // Villains are unique enemy heroes: only one of each type may be placed in a level.
     val presentVillainTypes = enemySpawns.filter { it.attackerType.isRealVillain }.map { it.attackerType }.toSet()
@@ -622,6 +651,8 @@ internal fun LevelEditorView(
             )
         }
     val levelDesignSummary = remember(draftLevel, currentMap) { analyzeLevelDesign(draftLevel, currentMap) }
+    val waveArrivals = remember(draftLevel, currentMap) { buildWaveArrivalBuckets(draftLevel, currentMap) }
+    val levelConsistencySummary = remember(draftLevel, currentMap) { analyzeLevelMapConsistency(draftLevel, currentMap) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -832,13 +863,17 @@ internal fun LevelEditorView(
                 tabIndices.designPreview ->
                     LevelDesignOverview(
                         summary = levelDesignSummary,
+                        arrivals = waveArrivals,
+                        consistency = levelConsistencySummary,
                         onApplyTemplate = { template ->
                             val templated = applyLevelTemplate(draftLevel, currentMap, template)
                             startCoins = templated.startCoins.toString()
                             startHP = templated.startHealthPoints.toString()
-                            enemySpawns = templated.enemySpawns.toMutableList()
+                            updateEnemySpawnState(
+                                newEnemySpawns = templated.enemySpawns.toMutableList(),
+                                newMaxTurnNumber = templated.enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0,
+                            )
                             availableTowersState = templated.availableTowers
-                            maxTurnNumber = templated.enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0
                         },
                         onStartPlaytest = { type ->
                             onSave(draftLevel)
@@ -855,8 +890,8 @@ internal fun LevelEditorView(
                     EnemySpawnsTab(
                         enemySpawns = enemySpawns,
                         maxTurnNumber = maxTurnNumber,
-                        onMaxTurnNumberChange = { maxTurnNumber = it },
-                        onEnemySpawnsChange = { enemySpawns = it },
+                        onMaxTurnNumberChange = { updateEnemySpawnState(newMaxTurnNumber = it) },
+                        onEnemySpawnsChange = { updateEnemySpawnState(newEnemySpawns = it) },
                         onShowEnemyDialog = { turn ->
                             showEnemyDialog = true
                             showEnemyDialogForTurn = turn
@@ -866,9 +901,22 @@ internal fun LevelEditorView(
                         onApplyTemplate = { template, enemyKind, baseLevel ->
                             val (newSpawns, newMaxTurn) =
                                 applySpawnTurnTemplate(enemySpawns, maxTurnNumber, currentMap, template, enemyKind, baseLevel)
-                            enemySpawns = newSpawns
-                            maxTurnNumber = newMaxTurn
+                            updateEnemySpawnState(newEnemySpawns = newSpawns, newMaxTurnNumber = newMaxTurn)
                         },
+                        onUndo = {
+                            val snapshot = enemySpawnUndoHistory.lastOrNull() ?: return@EnemySpawnsTab
+                            enemySpawnUndoHistory = enemySpawnUndoHistory.dropLast(1)
+                            enemySpawnRedoHistory = (enemySpawnRedoHistory + currentEnemySpawnSnapshot()).takeLast(40)
+                            applyEnemySpawnSnapshot(snapshot)
+                        },
+                        onRedo = {
+                            val snapshot = enemySpawnRedoHistory.lastOrNull() ?: return@EnemySpawnsTab
+                            enemySpawnRedoHistory = enemySpawnRedoHistory.dropLast(1)
+                            enemySpawnUndoHistory = (enemySpawnUndoHistory + currentEnemySpawnSnapshot()).takeLast(40)
+                            applyEnemySpawnSnapshot(snapshot)
+                        },
+                        canUndo = enemySpawnUndoHistory.isNotEmpty(),
+                        canRedo = enemySpawnRedoHistory.isNotEmpty(),
                         requestedTurnToOpen = requestedEnemySpawnTurn,
                         turnOpenRequestNonce = enemySpawnTurnRequestNonce,
                     )
@@ -1137,13 +1185,14 @@ internal fun LevelEditorView(
             map = currentMap,
             onDismiss = { showEnemyDialog = false },
             onAdd = { enemyType, level, amount, spawnPoint ->
-                enemySpawns =
-                    enemySpawns.toMutableList().apply {
-                        // Add multiple enemies based on amount
-                        repeat(amount) {
-                            add(EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn, spawnPoint))
-                        }
-                    }
+                updateEnemySpawnState(
+                    newEnemySpawns =
+                        enemySpawns.toMutableList().apply {
+                            repeat(amount) {
+                                add(EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn, spawnPoint))
+                            }
+                        },
+                )
                 showEnemyDialog = false
             },
         )
@@ -1155,8 +1204,7 @@ internal fun LevelEditorView(
             message = stringResource(Res.string.confirm_remove_all_turns),
             onDismiss = { showRemoveAllTurnsDialog = false },
             onConfirm = {
-                enemySpawns = mutableListOf()
-                maxTurnNumber = 0
+                updateEnemySpawnState(mutableListOf(), 0)
                 showRemoveAllTurnsDialog = false
             },
         )

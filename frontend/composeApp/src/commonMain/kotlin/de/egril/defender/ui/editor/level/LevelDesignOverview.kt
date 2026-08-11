@@ -25,23 +25,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import com.hyperether.resources.stringResource
+import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.EditorHorizontalScrollbar
 import de.egril.defender.ui.getLocalizedName
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.apply_level_template
 import defender_of_egril.composeapp.generated.resources.arrival_window
+import defender_of_egril.composeapp.generated.resources.arrival_overlap_turns
+import defender_of_egril.composeapp.generated.resources.consistency_checks
 import defender_of_egril.composeapp.generated.resources.design_preview
 import defender_of_egril.composeapp.generated.resources.economy_rating
 import defender_of_egril.composeapp.generated.resources.focused_playtests
+import defender_of_egril.composeapp.generated.resources.invalid_event_positions
+import defender_of_egril.composeapp.generated.resources.invalid_initial_positions
+import defender_of_egril.composeapp.generated.resources.invalid_spawn_assignments
+import defender_of_egril.composeapp.generated.resources.invalid_waypoints_count
+import defender_of_egril.composeapp.generated.resources.missing_spawn_types
 import defender_of_egril.composeapp.generated.resources.needed_counters
+import defender_of_egril.composeapp.generated.resources.no_consistency_issues
 import defender_of_egril.composeapp.generated.resources.pacing_rating
+import defender_of_egril.composeapp.generated.resources.peak_arrival
 import defender_of_egril.composeapp.generated.resources.playtest_climax
 import defender_of_egril.composeapp.generated.resources.playtest_first_villain
 import defender_of_egril.composeapp.generated.resources.playtest_full
 import defender_of_egril.composeapp.generated.resources.playtest_peak_pressure
+import defender_of_egril.composeapp.generated.resources.quiet_turns
 import defender_of_egril.composeapp.generated.resources.rating_calm
 import defender_of_egril.composeapp.generated.resources.rating_covered
 import defender_of_egril.composeapp.generated.resources.rating_early
@@ -61,11 +73,14 @@ import defender_of_egril.composeapp.generated.resources.template_villain_duel
 import defender_of_egril.composeapp.generated.resources.total_target_damage
 import defender_of_egril.composeapp.generated.resources.turn_label
 import defender_of_egril.composeapp.generated.resources.villain_timing
+import defender_of_egril.composeapp.generated.resources.wave_simulator
 import defender_of_egril.composeapp.generated.resources.wave_pacing_timeline
 
 @Composable
 internal fun LevelDesignOverview(
     summary: LevelDesignSummary,
+    arrivals: List<WaveArrivalBucket>,
+    consistency: LevelConsistencySummary,
     onApplyTemplate: (EditorLevelTemplate) -> Unit,
     onStartPlaytest: (FocusedPlaytestType) -> Unit,
     playtestEnabled: Boolean,
@@ -132,6 +147,106 @@ internal fun LevelDesignOverview(
                         label = stringResource(Res.string.villain_timing),
                         value = summary.villainTimingBand.localizedLabel(),
                     )
+                }
+            }
+        }
+
+        Card(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = stringResource(Res.string.wave_simulator),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+                MetricColumn(
+                    label = stringResource(Res.string.peak_arrival),
+                    value =
+                        summary.peakArrivalTurn?.let { turn ->
+                            "${stringResource(Res.string.turn_label)} $turn (${summary.peakArrivalCount})"
+                        } ?: "-",
+                )
+                MetricColumn(
+                    label = stringResource(Res.string.arrival_overlap_turns),
+                    value = summary.arrivalOverlapTurns.joinToStringPreview(),
+                )
+                MetricColumn(
+                    label = stringResource(Res.string.quiet_turns),
+                    value = summary.quietTurns.joinToStringPreview(),
+                )
+                arrivals.take(5).forEach { bucket ->
+                    Text(
+                        text =
+                            "${stringResource(Res.string.turn_label)} ${bucket.turn}: ${bucket.enemyCount} (${bucket.spawnTurns.joinToStringPreview()})" +
+                                if (bucket.villainNames.isNotEmpty()) " - ${bucket.villainNames.joinToString(", ")}" else "",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (bucket.enemyCount >= 3) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+
+        Card(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = stringResource(Res.string.consistency_checks),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+                if (!consistency.hasIssues) {
+                    Text(
+                        text = stringResource(Res.string.no_consistency_issues),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                } else {
+                    if (consistency.invalidSpawnAssignments.isNotEmpty()) {
+                        Text(
+                            text = stringResource(Res.string.invalid_spawn_assignments, consistency.invalidSpawnAssignments.size),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                    if (consistency.missingCompatibleSpawnTypes.isNotEmpty()) {
+                        Text(
+                            text =
+                                stringResource(
+                                    Res.string.missing_spawn_types,
+                                    consistency.missingCompatibleSpawnTypes.joinToString(", ") { it.localizedEnemyName(locale) },
+                                ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                    if (consistency.invalidWaypoints.isNotEmpty()) {
+                        Text(
+                            text = stringResource(Res.string.invalid_waypoints_count, consistency.invalidWaypoints.size),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                    if (consistency.invalidInitialPlacementCount > 0) {
+                        Text(
+                            text = stringResource(Res.string.invalid_initial_positions, consistency.invalidInitialPlacementCount),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                    if (consistency.invalidEventPositionCount > 0) {
+                        Text(
+                            text = stringResource(Res.string.invalid_event_positions, consistency.invalidEventPositionCount),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
                 }
             }
         }
@@ -316,6 +431,17 @@ private fun EditorLevelTemplate.localizedLabel(): String =
 
 @Composable
 private fun EconomyBand.localizedLabel(): String = bandLabel(this)
+
+private fun List<Int>.joinToStringPreview(): String =
+    if (isEmpty()) {
+        "-"
+    } else {
+        take(6).joinToString(", ").let { prefix ->
+            if (size > 6) "$prefix..." else prefix
+        }
+    }
+
+private fun AttackerType.localizedEnemyName(locale: AppLocale): String = getLocalizedName(locale)
 
 @Composable
 private fun PacingBand.localizedLabel(): String = bandLabel(this)

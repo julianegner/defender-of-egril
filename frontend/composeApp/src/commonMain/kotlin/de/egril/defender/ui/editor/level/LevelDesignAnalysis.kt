@@ -89,6 +89,10 @@ internal data class LevelDesignSummary(
     val pacingBand: PacingBand,
     val villainTimingBand: TimingBand,
     val missingCounters: List<DefenderType>,
+    val arrivalOverlapTurns: List<Int>,
+    val quietTurns: List<Int>,
+    val peakArrivalTurn: Int?,
+    val peakArrivalCount: Int,
 )
 
 internal data class MapFlowSummary(
@@ -100,6 +104,32 @@ internal data class MapFlowSummary(
     val spawnCount: Int,
     val targetCount: Int,
 )
+
+internal data class WaveArrivalBucket(
+    val turn: Int,
+    val enemyCount: Int,
+    val spawnTurns: List<Int>,
+    val villainNames: List<String>,
+)
+
+internal data class LevelConsistencySummary(
+    val invalidSpawnAssignments: List<EditorEnemySpawn>,
+    val missingCompatibleSpawnTypes: List<AttackerType>,
+    val invalidWaypoints: List<EditorWaypoint>,
+    val invalidInitialPlacementCount: Int,
+    val invalidEventPositionCount: Int,
+) {
+    val issueCount: Int
+        get() =
+            invalidSpawnAssignments.size +
+                missingCompatibleSpawnTypes.size +
+                invalidWaypoints.size +
+                invalidInitialPlacementCount +
+                invalidEventPositionCount
+
+    val hasIssues: Boolean
+        get() = issueCount > 0
+}
 
 private data class RouteContext(
     val distances: Map<Position, Int>,
@@ -125,10 +155,21 @@ internal fun analyzeLevelDesign(
             pacingBand = PacingBand.CALM,
             villainTimingBand = TimingBand.NONE,
             missingCounters = emptyList(),
+            arrivalOverlapTurns = emptyList(),
+            quietTurns = emptyList(),
+            peakArrivalTurn = null,
+            peakArrivalCount = 0,
         )
     }
 
     val routeContext = map?.buildRouteContext(level.waypoints)
+    val arrivalBuckets =
+        level.enemySpawns
+            .mapNotNull { spawn ->
+                estimateArrivalTurn(spawn, map, level.waypoints, routeContext)?.let { arrivalTurn ->
+                    arrivalTurn to spawn
+                }
+            }.groupBy({ it.first }, { it.second })
     val previews =
         (1..maxTurn).map { turn ->
             val spawns = level.enemySpawns.filter { it.spawnTurn == turn }
@@ -149,6 +190,14 @@ internal fun analyzeLevelDesign(
     val nonEmptyTurns = previews.filter { it.enemyCount > 0 }
     val longestCalmGap = calmGapBetweenActiveTurns(nonEmptyTurns.map { it.turn })
     val firstVillainTurn = nonEmptyTurns.firstOrNull { it.villainNames.isNotEmpty() }?.turn
+    val latestArrivalTurn = arrivalBuckets.keys.maxOrNull() ?: 0
+    val arrivalOverlapTurns = arrivalBuckets.filterValues { it.size > 1 }.keys.sorted()
+    val peakArrivalEntry = arrivalBuckets.maxByOrNull { it.value.size }
+    val quietTurns =
+        (1..maxOf(maxTurn, latestArrivalTurn))
+            .filter { turn ->
+                previews.none { it.turn == turn && it.enemyCount > 0 } && arrivalBuckets[turn].isNullOrEmpty()
+            }
     val economyBand =
         when {
             level.startCoins < 60 -> EconomyBand.HARSH
@@ -183,6 +232,10 @@ internal fun analyzeLevelDesign(
         pacingBand = pacingBand,
         villainTimingBand = villainTimingBand,
         missingCounters = missingCounterTowers(level),
+        arrivalOverlapTurns = arrivalOverlapTurns,
+        quietTurns = quietTurns,
+        peakArrivalTurn = peakArrivalEntry?.key,
+        peakArrivalCount = peakArrivalEntry?.value?.size ?: 0,
     )
 }
 
@@ -223,6 +276,78 @@ internal fun analyzeMapFlow(map: EditorMap): MapFlowSummary {
     )
 }
 
+internal fun buildWaveArrivalBuckets(
+    level: EditorLevel,
+    map: EditorMap?,
+): List<WaveArrivalBucket> {
+    val routeContext = map?.buildRouteContext(level.waypoints)
+    return level.enemySpawns
+        .mapNotNull { spawn ->
+            estimateArrivalTurn(spawn, map, level.waypoints, routeContext)?.let { arrivalTurn ->
+                arrivalTurn to spawn
+            }
+        }.groupBy({ it.first }, { it.second })
+        .entries
+        .sortedBy { it.key }
+        .map { (turn, spawns) ->
+            WaveArrivalBucket(
+                turn = turn,
+                enemyCount = spawns.size,
+                spawnTurns = spawns.map { it.spawnTurn }.distinct().sorted(),
+                villainNames = spawns.mapNotNull { it.attackerType.villainName }.distinct(),
+            )
+        }
+}
+
+internal fun analyzeLevelMapConsistency(
+    level: EditorLevel,
+    map: EditorMap?,
+): LevelConsistencySummary {
+    if (map == null) {
+        return LevelConsistencySummary(
+            invalidSpawnAssignments = level.enemySpawns.filter { it.spawnPoint != null },
+            missingCompatibleSpawnTypes = level.enemySpawns.map { it.attackerType }.distinct(),
+            invalidWaypoints = level.waypoints,
+            invalidInitialPlacementCount = countInitialPlacementIssues(level, null),
+            invalidEventPositionCount = countInvalidEventPositions(level, null),
+        )
+    }
+
+    val mapSpawnPoints = map.getSpawnPoints().toSet()
+    val waterSpawnPoints = map.getSpawnPoints().filter { map.getSpawnPointType(it) == de.egril.defender.model.SpawnPointType.WATER }
+    val traversableCells = map.getPathCells() + map.getSpawnPoints() + map.getTargets() + map.getRiverCells()
+    val waypointAnchors = map.getTargets().toSet() + level.waypoints.map { it.position }.toSet()
+    val invalidSpawnAssignments =
+        level.enemySpawns.filter { spawn ->
+            val spawnPoint = spawn.spawnPoint ?: return@filter false
+            val compatiblePoints = map.getCompatibleSpawnPoints(spawn.attackerType)
+            spawnPoint !in mapSpawnPoints || compatiblePoints.isNotEmpty() && spawnPoint !in compatiblePoints
+        }
+    val missingCompatibleSpawnTypes =
+        level.enemySpawns
+            .filter {
+                it.spawnPoint == null &&
+                    (
+                        map.getCompatibleSpawnPoints(it.attackerType).isEmpty() ||
+                            (it.attackerType.canTraverseRiver && waterSpawnPoints.isEmpty())
+                    )
+            }
+            .map { it.attackerType }
+            .distinct()
+    val invalidWaypoints =
+        level.waypoints.filter { waypoint ->
+            waypoint.position !in traversableCells || waypoint.nextTargetPosition !in waypointAnchors
+        }
+
+    return LevelConsistencySummary(
+        invalidSpawnAssignments = invalidSpawnAssignments,
+        missingCompatibleSpawnTypes = missingCompatibleSpawnTypes,
+        invalidWaypoints = invalidWaypoints,
+        invalidInitialPlacementCount = countInitialPlacementIssues(level, map),
+        invalidEventPositionCount = countInvalidEventPositions(level, map),
+    )
+}
+
 internal fun applyLevelTemplate(
     level: EditorLevel,
     map: EditorMap?,
@@ -236,6 +361,7 @@ internal fun applyLevelTemplate(
             EditorLevelTemplate.RIVER_PRESSURE -> generateRiverPressureSpawns(map)
             EditorLevelTemplate.ENDURANCE -> generateEnduranceSpawns(map)
         }
+
     val towers =
         when (template) {
             EditorLevelTemplate.TUTORIAL -> setOf(DefenderType.SPIKE_TOWER, DefenderType.SPEAR_TOWER, DefenderType.BOW_TOWER)
@@ -575,6 +701,44 @@ private fun longestDeadCorridor(
     }
     return longest
 }
+
+private fun countInitialPlacementIssues(
+    level: EditorLevel,
+    map: EditorMap?,
+): Int {
+    val initialData = level.getEffectiveInitialData()
+    if (map == null) {
+        return initialData.defenders.size +
+            initialData.attackers.size +
+            initialData.traps.size +
+            initialData.barricades.size +
+            initialData.fiefs.size
+    }
+    val buildAreas = map.getBuildAreas()
+    val traversable = map.getPathCells() + map.getSpawnPoints() + map.getTargets() + map.getRiverCells()
+    return initialData.defenders.count { defender ->
+        defender.position !in buildAreas && initialData.barricades.none { it.supportsTower && it.position == defender.position }
+    } +
+        initialData.attackers.count { it.position !in traversable } +
+        initialData.traps.count { it.position !in traversable } +
+        initialData.barricades.count { !it.position.isInside(map.width, map.height) } +
+        initialData.fiefs.count { it.position !in traversable }
+}
+
+private fun countInvalidEventPositions(
+    level: EditorLevel,
+    map: EditorMap?,
+): Int =
+    level.events.events.count { event ->
+        val conditionInvalid = event.condition.position?.let { position -> map == null || !position.isInside(map.width, map.height) } == true
+        val actionInvalid = event.actions.any { action -> action.position?.let { position -> map == null || !position.isInside(map.width, map.height) } == true }
+        conditionInvalid || actionInvalid
+    }
+
+private fun Position.isInside(
+    width: Int,
+    height: Int,
+): Boolean = x in 0 until width && y in 0 until height
 
 private fun Position.distanceTo(other: Position): Int {
     val dx = x - other.x

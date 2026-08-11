@@ -564,6 +564,20 @@ object EditorStorage {
         return templatesById.values.sortedBy { it.name.lowercase() }
     }
 
+    fun saveMapTemplate(template: MapTemplateDefinition) {
+        ensureInitialized()
+        fileStorage.createDirectory(USER_MAP_TEMPLATES_DIR)
+        val json = EditorTemplateJsonSerializer.serializeMapTemplate(template)
+        fileStorage.writeFile("$USER_MAP_TEMPLATES_DIR/${template.id}.json", json)
+    }
+
+    fun saveSpawnTurnTemplate(template: SpawnTurnTemplateDefinition) {
+        ensureInitialized()
+        fileStorage.createDirectory(USER_SPAWN_TEMPLATES_DIR)
+        val json = EditorTemplateJsonSerializer.serializeSpawnTurnTemplate(template)
+        fileStorage.writeFile("$USER_SPAWN_TEMPLATES_DIR/${template.id}.json", json)
+    }
+
     private fun loadMapTemplatesFromDirectory(directory: String): List<MapTemplateDefinition> =
         fileStorage
             .listFiles(directory)

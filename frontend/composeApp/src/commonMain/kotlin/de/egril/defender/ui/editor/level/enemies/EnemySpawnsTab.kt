@@ -28,7 +28,10 @@ import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.SpawnTurnTemplateDefinition
+import de.egril.defender.editor.SpawnTurnTemplateEntry
+import de.egril.defender.editor.SpawnTurnTemplateVariant
 import de.egril.defender.editor.SpawnPointUtils
+import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.editor.level.ChangeAllSpawnPointsDialog
 import de.egril.defender.ui.editor.level.ChangeLevelDialog
 import de.egril.defender.ui.editor.level.ChangeSpawnPointDialog
@@ -51,6 +54,10 @@ internal fun EnemySpawnsTab(
     onShowRemoveAllTurnsDialog: () -> Unit,
     map: EditorMap?,
     onApplyTemplate: (SpawnTurnTemplateDefinition, EditorEnemyTemplateKind, Int) -> Unit,
+    onUndo: () -> Unit,
+    onRedo: () -> Unit,
+    canUndo: Boolean,
+    canRedo: Boolean,
     requestedTurnToOpen: Int?,
     turnOpenRequestNonce: Int,
 ) {
@@ -77,6 +84,10 @@ internal fun EnemySpawnsTab(
 
     // Track bulk spawn point change dialog
     var showChangeAllSpawnPointsDialog by remember { mutableStateOf(false) }
+    var tableMode by remember { mutableStateOf(false) }
+    var turnToSaveTemplate by remember { mutableStateOf<Int?>(null) }
+    var templateName by remember { mutableStateOf("") }
+    var templateDescription by remember { mutableStateOf("") }
 
     // Check if any enemies are spawned outside valid spawn points
     val mapSpawnPoints = remember(map) { map?.getSpawnPoints()?.toSet() ?: emptySet() }
@@ -197,6 +208,29 @@ internal fun EnemySpawnsTab(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    Button(onClick = onUndo, enabled = canUndo, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(Res.string.undo))
+                    }
+                    Button(onClick = onRedo, enabled = canRedo, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(Res.string.redo))
+                    }
+                    Button(
+                        onClick = { tableMode = !tableMode },
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(
+                            if (tableMode) {
+                                stringResource(Res.string.turn_mode)
+                            } else {
+                                stringResource(Res.string.table_mode)
+                            },
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
                     if (visibleTemplates.isEmpty()) {
                         Text(
                             text = stringResource(Res.string.no_spawn_templates_available),
@@ -266,90 +300,92 @@ internal fun EnemySpawnsTab(
             }
 
         allTurns.forEachIndexed { index, (turn, spawnsInTurn) ->
-            item {
-                SpawnTurnSection(
-                    turn = turn,
-                    spawns = spawnsInTurn,
-                    initiallyExpanded = turn == lastAddedTurn,
-                    expandRequestKey = if (requestedTurnToOpen == turn) turnOpenRequestNonce else null,
-                    onRemoveEnemy = { spawn ->
-                        val newSpawns = enemySpawns.toMutableList().apply { remove(spawn) }
-                        onEnemySpawnsChange(newSpawns)
-                    },
-                    onDeleteTurn = {
-                        // Check if this is the last turn
-                        val isLastTurn = turn == maxTurnNumber
-                        if (isLastTurn) {
-                            // Remove all enemies from this turn and decrement maxTurnNumber
-                            val newSpawns = enemySpawns.filter { it.spawnTurn != turn }.toMutableList()
+            if (tableMode && index == 0) {
+                item {
+                    EnemySpawnTableEditor(
+                        enemySpawns = enemySpawns,
+                        map = map,
+                        onEnemySpawnsChange = onEnemySpawnsChange,
+                    )
+                }
+            } else if (!tableMode) {
+                item {
+                    SpawnTurnSection(
+                        turn = turn,
+                        spawns = spawnsInTurn,
+                        initiallyExpanded = turn == lastAddedTurn,
+                        expandRequestKey = if (requestedTurnToOpen == turn) turnOpenRequestNonce else null,
+                        onRemoveEnemy = { spawn ->
+                            val newSpawns = enemySpawns.toMutableList().apply { remove(spawn) }
                             onEnemySpawnsChange(newSpawns)
-                            onMaxTurnNumberChange(maxTurnNumber - 1)
-                        }
-                    },
-                    onClearTurn = {
-                        // Clear all enemies from this turn but keep the turn
-                        val newSpawns = enemySpawns.filter { it.spawnTurn != turn }.toMutableList()
-                        onEnemySpawnsChange(newSpawns)
-                    },
-                    canDeleteTurn = turn == maxTurnNumber,
-                    onCopyTurn = {
-                        // Copy all enemies from this turn to a new turn (next available)
-                        val newSpawns =
-                            enemySpawns.toMutableList().apply {
-                                spawnsInTurn.forEach { spawn ->
-                                    add(spawn.copy(spawnTurn = maxTurnNumber + 1))
-                                }
+                        },
+                        onDeleteTurn = {
+                            if (turn == maxTurnNumber) {
+                                onEnemySpawnsChange(enemySpawns.filter { it.spawnTurn != turn }.toMutableList())
+                                onMaxTurnNumberChange(maxTurnNumber - 1)
                             }
-
-                        onEnemySpawnsChange(newSpawns)
-                        onMaxTurnNumberChange(maxTurnNumber + 1)
-                    },
-                    onAddEnemy = {
-                        // Show dialog to add enemy to this specific turn
-                        onShowEnemyDialog(turn)
-                    },
-                    onMoveTurnUp = {
-                        if (index > 0) {
-                            val prevTurn = allTurns[index - 1].first
-                            val newSpawns =
-                                enemySpawns
-                                    .map { spawn ->
+                        },
+                        onClearTurn = {
+                            onEnemySpawnsChange(enemySpawns.filter { it.spawnTurn != turn }.toMutableList())
+                        },
+                        canDeleteTurn = turn == maxTurnNumber,
+                        onCopyTurn = {
+                            onEnemySpawnsChange(
+                                enemySpawns.toMutableList().apply {
+                                    spawnsInTurn.forEach { spawn ->
+                                        add(spawn.copy(spawnTurn = maxTurnNumber + 1))
+                                    }
+                                },
+                            )
+                            onMaxTurnNumberChange(maxTurnNumber + 1)
+                        },
+                        onAddEnemy = { onShowEnemyDialog(turn) },
+                        onMoveTurnUp = {
+                            if (index > 0) {
+                                val prevTurn = allTurns[index - 1].first
+                                onEnemySpawnsChange(
+                                    enemySpawns.map { spawn ->
                                         when (spawn.spawnTurn) {
                                             turn -> spawn.copy(spawnTurn = prevTurn)
                                             prevTurn -> spawn.copy(spawnTurn = turn)
                                             else -> spawn
                                         }
-                                    }.toMutableList()
-                            onEnemySpawnsChange(newSpawns)
-                        }
-                    },
-                    onMoveTurnDown = {
-                        if (index < allTurns.size - 1) {
-                            val nextTurn = allTurns[index + 1].first
-                            val newSpawns =
-                                enemySpawns
-                                    .map { spawn ->
+                                    }.toMutableList(),
+                                )
+                            }
+                        },
+                        onMoveTurnDown = {
+                            if (index < allTurns.size - 1) {
+                                val nextTurn = allTurns[index + 1].first
+                                onEnemySpawnsChange(
+                                    enemySpawns.map { spawn ->
                                         when (spawn.spawnTurn) {
                                             turn -> spawn.copy(spawnTurn = nextTurn)
                                             nextTurn -> spawn.copy(spawnTurn = turn)
                                             else -> spawn
                                         }
-                                    }.toMutableList()
-                            onEnemySpawnsChange(newSpawns)
-                        }
-                    },
-                    canMoveUp = index > 0,
-                    canMoveDown = index < allTurns.size - 1,
-                    onChangeSpawnPoint = { spawn ->
-                        spawnToChange = spawn
-                    },
-                    onChangeLevel = { spawn ->
-                        spawnToChangeLevel = spawn
-                    },
-                    onChangeTurnLevel = {
-                        turnToChangeLevel = turn
-                    },
-                )
+                                    }.toMutableList(),
+                                )
+                            }
+                        },
+                        canMoveUp = index > 0,
+                        canMoveDown = index < allTurns.size - 1,
+                        onChangeSpawnPoint = { spawn ->
+                            spawnToChange = spawn
+                        },
+                        onChangeLevel = { spawn ->
+                            spawnToChangeLevel = spawn
+                        },
+                        onChangeTurnLevel = {
+                            turnToChangeLevel = turn
+                        },
+                        onSaveAsTemplate = {
+                            turnToSaveTemplate = turn
+                            templateName = "Turn $turn"
+                            templateDescription = ""
+                        },
+                    )
+                }
             }
         }
     }
@@ -449,6 +485,190 @@ internal fun EnemySpawnsTab(
                 showChangeAllSpawnPointsDialog = false
             },
         )
+    }
+
+    turnToSaveTemplate?.let { turn ->
+        val spawnsInTurn = enemySpawns.filter { it.spawnTurn == turn }
+        AlertDialog(
+            onDismissRequest = { turnToSaveTemplate = null },
+            title = { Text(stringResource(Res.string.save_spawn_template)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = templateName,
+                        onValueChange = { templateName = it },
+                        label = { Text(stringResource(Res.string.template_name)) },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    OutlinedTextField(
+                        value = templateDescription,
+                        onValueChange = { templateDescription = it },
+                        label = { Text(stringResource(Res.string.template_description)) },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val templateId =
+                            templateName
+                                .trim()
+                                .lowercase()
+                                .replace(" ", "_")
+                                .replace(Regex("[^a-z0-9_]"), "")
+                                .ifBlank { "spawn_template_${turn}" }
+                        val baseLevel = spawnsInTurn.minOfOrNull { it.level } ?: 1
+                        EditorStorage.saveSpawnTurnTemplate(
+                            SpawnTurnTemplateDefinition(
+                                id = templateId,
+                                name = templateName.ifBlank { "Turn $turn" },
+                                description = templateDescription,
+                                variants =
+                                    listOf(
+                                        SpawnTurnTemplateVariant(
+                                            kind = selectedEnemyKind,
+                                            entries =
+                                                spawnsInTurn.map { spawn ->
+                                                    SpawnTurnTemplateEntry(
+                                                        attackerType = spawn.attackerType,
+                                                        turnOffset = 0,
+                                                        amount = 1,
+                                                        levelOffset = spawn.level - baseLevel,
+                                                    )
+                                                },
+                                        ),
+                                    ),
+                            ),
+                        )
+                        turnToSaveTemplate = null
+                    },
+                    enabled = spawnsInTurn.isNotEmpty(),
+                ) {
+                    Text(stringResource(Res.string.save))
+                }
+            },
+            dismissButton = {
+                Button(onClick = { turnToSaveTemplate = null }) {
+                    Text(stringResource(Res.string.cancel))
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun EnemySpawnTableEditor(
+    enemySpawns: MutableList<EditorEnemySpawn>,
+    map: EditorMap?,
+    onEnemySpawnsChange: (MutableList<EditorEnemySpawn>) -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        enemySpawns.sortedWith(compareBy(EditorEnemySpawn::spawnTurn, { it.attackerType.displayName })).forEach { spawn ->
+            EnemySpawnTableRow(
+                spawn = spawn,
+                map = map,
+                onChange = { updatedSpawn ->
+                    onEnemySpawnsChange(
+                        enemySpawns.map {
+                            if (it === spawn) updatedSpawn else it
+                        }.toMutableList(),
+                    )
+                },
+                onDelete = {
+                    onEnemySpawnsChange(enemySpawns.toMutableList().apply { remove(spawn) })
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun EnemySpawnTableRow(
+    spawn: EditorEnemySpawn,
+    map: EditorMap?,
+    onChange: (EditorEnemySpawn) -> Unit,
+    onDelete: () -> Unit,
+) {
+    var typeExpanded by remember { mutableStateOf(false) }
+    var spawnExpanded by remember { mutableStateOf(false) }
+    val compatibleSpawnPoints = remember(map, spawn.attackerType) { map?.getCompatibleSpawnPoints(spawn.attackerType).orEmpty() }
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ExposedDropdownMenuBox(expanded = typeExpanded, onExpandedChange = { typeExpanded = it }) {
+                OutlinedTextField(
+                    value = spawn.attackerType.displayName,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(stringResource(Res.string.enemy)) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeExpanded) },
+                    modifier = Modifier.weight(1f).menuAnchor(),
+                )
+                ExposedDropdownMenu(expanded = typeExpanded, onDismissRequest = { typeExpanded = false }) {
+                    AttackerType.entries.forEach { attackerType ->
+                        DropdownMenuItem(
+                            text = { Text(attackerType.displayName) },
+                            onClick = {
+                                onChange(spawn.copy(attackerType = attackerType))
+                                typeExpanded = false
+                            },
+                        )
+                    }
+                }
+            }
+            OutlinedTextField(
+                value = spawn.spawnTurn.toString(),
+                onValueChange = { value -> value.toIntOrNull()?.let { onChange(spawn.copy(spawnTurn = it.coerceAtLeast(1))) } },
+                label = { Text(stringResource(Res.string.turn_label)) },
+                modifier = Modifier.weight(0.6f),
+                singleLine = true,
+            )
+            OutlinedTextField(
+                value = spawn.level.toString(),
+                onValueChange = { value -> value.toIntOrNull()?.let { onChange(spawn.copy(level = it.coerceAtLeast(1))) } },
+                label = { Text(stringResource(Res.string.level)) },
+                modifier = Modifier.weight(0.6f),
+                singleLine = true,
+            )
+            ExposedDropdownMenuBox(expanded = spawnExpanded, onExpandedChange = { spawnExpanded = it }) {
+                OutlinedTextField(
+                    value = spawn.spawnPoint?.let { "${it.x},${it.y}" } ?: stringResource(Res.string.auto_spawn_point),
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(stringResource(Res.string.spawn_point)) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = spawnExpanded) },
+                    modifier = Modifier.weight(1f).menuAnchor(),
+                )
+                ExposedDropdownMenu(expanded = spawnExpanded, onDismissRequest = { spawnExpanded = false }) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(Res.string.auto_spawn_point)) },
+                        onClick = {
+                            onChange(spawn.copy(spawnPoint = null))
+                            spawnExpanded = false
+                        },
+                    )
+                    compatibleSpawnPoints.forEach { spawnPoint ->
+                        DropdownMenuItem(
+                            text = { Text("${spawnPoint.x},${spawnPoint.y}") },
+                            onClick = {
+                                onChange(spawn.copy(spawnPoint = spawnPoint))
+                                spawnExpanded = false
+                            },
+                        )
+                    }
+                }
+            }
+            Button(onClick = onDelete, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) {
+                Text(stringResource(Res.string.remove))
+            }
+        }
     }
 }
 

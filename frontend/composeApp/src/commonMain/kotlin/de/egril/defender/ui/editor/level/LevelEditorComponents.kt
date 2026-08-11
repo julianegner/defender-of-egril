@@ -714,6 +714,7 @@ fun SpawnTurnSection(
     onChangeSpawnPoint: (EditorEnemySpawn) -> Unit,
     onChangeLevel: (EditorEnemySpawn) -> Unit,
     onChangeTurnLevel: () -> Unit,
+    onSaveAsTemplate: () -> Unit,
 ) {
     var expanded by remember(turn) { mutableStateOf(initiallyExpanded) }
     val villainSummary = remember(spawns) { spawns.presentVillainSummary { it.villainName ?: it.displayName } }
@@ -815,6 +816,17 @@ fun SpawnTurnSection(
                             text = "Copy Turn",
                             fontSize = 12.sp,
                             modifier = Modifier.align(Alignment.CenterVertically),
+                        )
+                    }
+                    Button(
+                        onClick = onSaveAsTemplate,
+                        enabled = spawns.isNotEmpty(),
+                        modifier = Modifier.height(32.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.save_as_template),
+                            fontSize = 12.sp,
                         )
                     }
                     // Show either Clear or Delete button depending on whether it's the last turn

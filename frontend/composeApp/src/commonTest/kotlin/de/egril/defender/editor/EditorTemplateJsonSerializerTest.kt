@@ -1,6 +1,9 @@
 package de.egril.defender.editor
 
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.Position
+import de.egril.defender.model.RiverFlow
+import de.egril.defender.model.RiverTile
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -70,5 +73,54 @@ class EditorTemplateJsonSerializerTest {
 
         assertNotNull(template)
         assertEquals(MapTemplateLayoutKind.STRAIGHT_APPROACH, template.layoutKind)
+    }
+
+    @Test
+    fun spawnTemplateRoundTripKeepsVariantData() {
+        val template =
+            SpawnTurnTemplateDefinition(
+                id = "custom_wave",
+                name = "Custom wave",
+                description = "Saved from editor",
+                variants =
+                    listOf(
+                        SpawnTurnTemplateVariant(
+                            kind = EditorEnemyTemplateKind.DARK_MAGIC,
+                            entries =
+                                listOf(
+                                    SpawnTurnTemplateEntry(AttackerType.EVIL_WIZARD, turnOffset = 0, amount = 2),
+                                    SpawnTurnTemplateEntry(AttackerType.RED_WITCH, turnOffset = 1, amount = 1, levelOffset = 2),
+                                ),
+                        ),
+                    ),
+            )
+
+        val json = EditorTemplateJsonSerializer.serializeSpawnTurnTemplate(template)
+        val restored = EditorTemplateJsonSerializer.deserializeSpawnTurnTemplate(json)
+
+        assertNotNull(restored)
+        assertEquals(template, restored)
+    }
+
+    @Test
+    fun fixedMapTemplateRoundTripKeepsMapData() {
+        val map =
+            EditorMap(
+                id = "template_map",
+                name = "Template Map",
+                width = 3,
+                height = 3,
+                tiles = mapOf("0,1" to TileType.SPAWN_POINT, "1,1" to TileType.PATH, "2,1" to TileType.TARGET),
+                riverTiles = mapOf("1,0" to RiverTile(Position(1, 0), RiverFlow.EAST, 1)),
+            )
+        val template = MapTemplateDefinition(id = "template_map", name = "Template Map", templateMap = map)
+
+        val json = EditorTemplateJsonSerializer.serializeMapTemplate(template)
+        val restored = EditorTemplateJsonSerializer.deserializeMapTemplate(json)
+
+        assertNotNull(restored)
+        assertNotNull(restored.templateMap)
+        assertEquals(map.tiles, restored.templateMap.tiles)
+        assertEquals(map.riverTiles.keys, restored.templateMap.riverTiles.keys)
     }
 }

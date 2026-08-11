@@ -4,6 +4,8 @@ import de.egril.defender.model.AttackerType
 import de.egril.defender.utils.JsonUtils
 
 object EditorTemplateJsonSerializer {
+    private const val PROGRAM_NAME = "Defender of Egril"
+
     fun deserializeTemplateIndex(json: String): List<String> {
         val templatesSection = JsonUtils.extractJsonArrayForKey(json, "templates")
         if (templatesSection.isBlank()) return emptyList()
@@ -57,6 +59,51 @@ object EditorTemplateJsonSerializer {
             name = name,
             templateMap = templateMap.copy(isOfficial = false),
         )
+    }
+
+    fun serializeSpawnTurnTemplate(template: SpawnTurnTemplateDefinition): String {
+        val variantsJson =
+            template.variants.joinToString(",\n      ") { variant ->
+                val entriesJson =
+                    variant.entries.joinToString(",\n          ") { entry ->
+                        val levelOffsetJson = if (entry.levelOffset != 0) ", \"levelOffset\": ${entry.levelOffset}" else ""
+                        """{"attackerType": "${entry.attackerType.name}", "turnOffset": ${entry.turnOffset}, "amount": ${entry.amount}$levelOffsetJson}"""
+                    }
+                """{
+        "kind": "${variant.kind.name}",
+        "entries": [
+          $entriesJson
+        ]
+      }"""
+            }
+        return """{
+  "metadata": {"program": "$PROGRAM_NAME", "type": "spawn-turn-template"},
+  "data": {
+    "id": "${template.id}",
+    "name": "${template.name}",
+    "description": "${template.description}",
+    "variants": [
+      $variantsJson
+    ]
+  }
+}"""
+    }
+
+    fun serializeMapTemplate(template: MapTemplateDefinition): String {
+        template.layoutKind?.let { layoutKind ->
+            return """{
+  "metadata": {"program": "$PROGRAM_NAME", "type": "map-template"},
+  "data": {
+    "id": "${template.id}",
+    "name": "${template.name}",
+    "layoutKind": "${layoutKind.name}"
+  }
+}"""
+        }
+        val map = requireNotNull(template.templateMap) { "templateMap is required when layoutKind is null" }
+        return EditorJsonSerializer
+            .serializeMap(map.copy(id = template.id, name = template.name, isOfficial = false))
+            .replaceFirst(""""type": "map"""", """"type": "map-template"""")
     }
 
     private fun deserializeVariant(json: String): SpawnTurnTemplateVariant? {
