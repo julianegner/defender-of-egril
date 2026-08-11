@@ -243,6 +243,8 @@ private fun LevelCard(
 ) {
     // Check if any enemies are spawned outside valid spawn points
     val map = remember(level.mapId) { EditorStorage.getMap(level.mapId) }
+    val villainTypes = remember(level.enemySpawns) { level.enemySpawns.presentVillainTypes() }
+    val villainSummary = remember(level.enemySpawns) { level.enemySpawns.presentVillainSummary { it.villainName ?: it.displayName } }
     val hasEnemiesOutsideSpawnPoints =
         remember(level.enemySpawns, map) {
             val mapSpawnPoints = map?.getSpawnPoints()?.toSet() ?: emptySet()
@@ -313,6 +315,13 @@ private fun LevelCard(
                         text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
                         style = MaterialTheme.typography.bodySmall,
                     )
+                    if (villainSummary.isNotEmpty()) {
+                        Text(
+                            text = "${stringResource(if (villainTypes.size > 1) Res.string.villains else Res.string.villain)}: $villainSummary",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Red,
+                        )
+                    }
                     Text(
                         text =
                             if (EditorStorage.isLevelReadyToPlay(

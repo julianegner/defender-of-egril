@@ -715,6 +715,7 @@ fun SpawnTurnSection(
     onChangeTurnLevel: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(initiallyExpanded) }
+    val villainSummary = remember(spawns) { spawns.presentVillainSummary { it.villainName ?: it.displayName } }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -732,6 +733,7 @@ fun SpawnTurnSection(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Row(
+                    modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
@@ -741,16 +743,30 @@ fun SpawnTurnSection(
                         TriangleRightIcon(size = 16.dp)
                     }
                     ReloadIcon(size = 14.dp)
-                    Text(
-                        text = "Turn $turn",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = "(${spawns.size} enemies)",
-                        fontSize = 12.sp,
-                        color = Color.Gray,
-                    )
+                    Column {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text(
+                                text = "Turn $turn",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Text(
+                                text = "(${spawns.size} enemies)",
+                                fontSize = 12.sp,
+                                color = Color.Gray,
+                            )
+                        }
+                        if (villainSummary.isNotEmpty()) {
+                            Text(
+                                text = villainSummary,
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                            )
+                        }
+                    }
                 }
 
                 Row(
