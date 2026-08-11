@@ -64,7 +64,8 @@ object RepositoryLoader {
         val templateIds = loadRepositoryTemplateIds(indexPath)
         storage.createDirectory(storageDirectory)
         val expectedFiles = templateIds.map { "$it.json" }.toSet()
-        storage.listFiles(storageDirectory)
+        storage
+            .listFiles(storageDirectory)
             .filter { it.endsWith(".json") && it !in expectedFiles }
             .forEach { staleFile ->
                 storage.deleteFile("$storageDirectory/$staleFile")

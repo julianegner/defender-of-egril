@@ -192,9 +192,12 @@ fun DrawScope.drawKrakenSymbol(
             Path().apply {
                 moveTo(centerX - size * 0.12f, headCenterY + size * 0.12f)
                 cubicTo(
-                    centerX - size * 0.04f, headCenterY + size * 0.18f,
-                    centerX + size * 0.04f, headCenterY + size * 0.18f,
-                    centerX + size * 0.12f, headCenterY + size * 0.12f,
+                    centerX - size * 0.04f,
+                    headCenterY + size * 0.18f,
+                    centerX + size * 0.04f,
+                    headCenterY + size * 0.18f,
+                    centerX + size * 0.12f,
+                    headCenterY + size * 0.12f,
                 )
             }
         drawPath(beakPath, eyeGlowColor, style = Stroke(width = size * 0.03f))

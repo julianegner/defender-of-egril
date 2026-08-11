@@ -1197,7 +1197,10 @@ class EnemyAbilitySystem(
         }
     }
 
-    private fun shadowFogPriorityScore(position: Position, origin: Position): Int {
+    private fun shadowFogPriorityScore(
+        position: Position,
+        origin: Position,
+    ): Int {
         val isOnPath = state.level.isOnPath(position) || state.level.isSpawnPoint(position) || state.level.isRiverTile(position)
         if (!isOnPath) return -10
 

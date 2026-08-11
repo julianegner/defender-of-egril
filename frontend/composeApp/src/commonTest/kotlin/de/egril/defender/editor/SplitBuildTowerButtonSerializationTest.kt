@@ -3,8 +3,8 @@ package de.egril.defender.editor
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import kotlin.test.Test
-import kotlin.test.assertFalse
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 
 class SplitBuildTowerButtonSerializationTest {
@@ -31,7 +31,8 @@ class SplitBuildTowerButtonSerializationTest {
     fun levelWithLegacySplitBuildTowerButtonFieldDeserializesCorrectly() {
         // Verify that a JSON with legacy splitBuildTowerButton field can still be parsed (backward compat)
         val json =
-            EditorJsonSerializer.serializeLevel(sampleLevel())
+            EditorJsonSerializer
+                .serializeLevel(sampleLevel())
                 .replace(
                     "\"prerequisites\": []",
                     "\"prerequisites\": [],\n  \"splitBuildTowerButton\": false",

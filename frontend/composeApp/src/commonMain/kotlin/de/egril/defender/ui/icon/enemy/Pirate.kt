@@ -44,7 +44,9 @@ fun DrawScope.drawPirateSymbol(
             color = outlineColor,
             topLeft = Offset(centerX - size * 0.20f, renderCenterY - size * 0.34f),
             size = Size(size * 0.40f, size * 0.08f),
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f),
+            style =
+                androidx.compose.ui.graphics.drawscope
+                    .Stroke(width = 2f),
         )
     }
 
@@ -61,7 +63,9 @@ fun DrawScope.drawPirateSymbol(
         drawPath(
             knotPath,
             outlineColor,
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f),
+            style =
+                androidx.compose.ui.graphics.drawscope
+                    .Stroke(width = 2f),
         )
     }
 

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,8 +34,8 @@ import de.egril.defender.ui.EditorHorizontalScrollbar
 import de.egril.defender.ui.getLocalizedName
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.apply_level_template
-import defender_of_egril.composeapp.generated.resources.arrival_window
 import defender_of_egril.composeapp.generated.resources.arrival_overlap_turns
+import defender_of_egril.composeapp.generated.resources.arrival_window
 import defender_of_egril.composeapp.generated.resources.consistency_checks
 import defender_of_egril.composeapp.generated.resources.design_preview
 import defender_of_egril.composeapp.generated.resources.economy_rating
@@ -73,8 +73,8 @@ import defender_of_egril.composeapp.generated.resources.template_villain_duel
 import defender_of_egril.composeapp.generated.resources.total_target_damage
 import defender_of_egril.composeapp.generated.resources.turn_label
 import defender_of_egril.composeapp.generated.resources.villain_timing
-import defender_of_egril.composeapp.generated.resources.wave_simulator
 import defender_of_egril.composeapp.generated.resources.wave_pacing_timeline
+import defender_of_egril.composeapp.generated.resources.wave_simulator
 
 @Composable
 internal fun LevelDesignOverview(

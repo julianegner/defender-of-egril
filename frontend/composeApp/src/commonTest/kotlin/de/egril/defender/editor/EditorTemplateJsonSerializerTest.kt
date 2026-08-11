@@ -51,8 +51,22 @@ class EditorTemplateJsonSerializerTest {
         assertNotNull(template)
         assertEquals("scouting", template.id)
         assertEquals(EditorEnemyTemplateKind.HORDE, template.variants.single().kind)
-        assertEquals(AttackerType.ORK, template.variants.single().entries.last().attackerType)
-        assertEquals(1, template.variants.single().entries.last().levelOffset)
+        assertEquals(
+            AttackerType.ORK,
+            template.variants
+                .single()
+                .entries
+                .last()
+                .attackerType,
+        )
+        assertEquals(
+            1,
+            template.variants
+                .single()
+                .entries
+                .last()
+                .levelOffset,
+        )
     }
 
     @Test

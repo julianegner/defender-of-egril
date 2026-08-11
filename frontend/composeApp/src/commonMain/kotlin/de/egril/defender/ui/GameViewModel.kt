@@ -6,8 +6,8 @@ import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
-import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorJsonSerializer
+import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.OfficialContent
 import de.egril.defender.game.GameEngine
 import de.egril.defender.game.LevelData
@@ -933,7 +933,11 @@ class GameViewModel {
     }
 
     fun startEditorPlaytest(editorLevel: EditorLevel) {
-        val numericId = -editorLevel.id.hashCode().absoluteValue.coerceAtLeast(1)
+        val numericId =
+            -editorLevel.id
+                .hashCode()
+                .absoluteValue
+                .coerceAtLeast(1)
         val gameLevel =
             de.egril.defender.editor.EditorStorage
                 .convertToGameLevel(editorLevel, numericId) ?: return

@@ -45,6 +45,7 @@ import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.isIndefiniteSupportCount
 import de.egril.defender.model.supportCountDisplayText
 import de.egril.defender.ui.TooltipWrapper
+import de.egril.defender.ui.gameplay.GamePlayColors
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.hexagon.HexagonShape
 import de.egril.defender.ui.icon.ExplosionIcon
@@ -53,7 +54,6 @@ import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
-import de.egril.defender.ui.gameplay.GamePlayColors
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.fief_fisher_hut
 import defender_of_egril.composeapp.generated.resources.fief_marketplace

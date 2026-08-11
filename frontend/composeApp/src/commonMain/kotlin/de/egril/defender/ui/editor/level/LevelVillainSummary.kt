@@ -17,11 +17,9 @@ internal fun List<EditorEnemySpawn>.presentVillainTypes(): List<AttackerType> =
         .distinct()
         .toList()
 
-internal fun List<EditorEnemySpawn>.presentVillainSummary(nameProvider: (AttackerType) -> String): String =
-    presentVillainTypes().joinToString(", ") { nameProvider(it) }
+internal fun List<EditorEnemySpawn>.presentVillainSummary(nameProvider: (AttackerType) -> String): String = presentVillainTypes().joinToString(", ") { nameProvider(it) }
 
-internal fun List<EditorLevel>.levelsUsingVillain(villainType: AttackerType): List<EditorLevel> =
-    filter { level -> villainType in level.enemySpawns.presentVillainTypes() }
+internal fun List<EditorLevel>.levelsUsingVillain(villainType: AttackerType): List<EditorLevel> = filter { level -> villainType in level.enemySpawns.presentVillainTypes() }
 
 internal fun villainUsageEntries(levels: List<EditorLevel>): List<VillainUsageEntry> =
     AttackerType.entries

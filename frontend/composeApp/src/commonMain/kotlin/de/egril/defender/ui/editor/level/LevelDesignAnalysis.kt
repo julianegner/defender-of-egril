@@ -4,9 +4,9 @@ import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorEnemyTemplateKind
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.EditorWaypoint
 import de.egril.defender.editor.SpawnTurnTemplateDefinition
 import de.egril.defender.editor.SpawnTurnTemplateEntry
-import de.egril.defender.editor.EditorWaypoint
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.Position
@@ -331,8 +331,7 @@ internal fun analyzeLevelMapConsistency(
                         map.getCompatibleSpawnPoints(it.attackerType).isEmpty() ||
                             (it.attackerType.canTraverseRiver && waterSpawnPoints.isEmpty())
                     )
-            }
-            .map { it.attackerType }
+            }.map { it.attackerType }
             .distinct()
     val invalidWaypoints =
         level.waypoints.filter { waypoint ->
@@ -366,14 +365,15 @@ internal fun applyLevelTemplate(
         when (template) {
             EditorLevelTemplate.TUTORIAL -> setOf(DefenderType.SPIKE_TOWER, DefenderType.SPEAR_TOWER, DefenderType.BOW_TOWER)
             EditorLevelTemplate.STEADY_PRESSURE -> setOf(DefenderType.SPIKE_TOWER, DefenderType.SPEAR_TOWER, DefenderType.BOW_TOWER, DefenderType.ALCHEMY_TOWER)
-            EditorLevelTemplate.VILLAIN_DUEL -> setOf(
-                DefenderType.SPIKE_TOWER,
-                DefenderType.SPEAR_TOWER,
-                DefenderType.BOW_TOWER,
-                DefenderType.WIZARD_TOWER,
-                DefenderType.ALCHEMY_TOWER,
-                DefenderType.BALLISTA_TOWER,
-            )
+            EditorLevelTemplate.VILLAIN_DUEL ->
+                setOf(
+                    DefenderType.SPIKE_TOWER,
+                    DefenderType.SPEAR_TOWER,
+                    DefenderType.BOW_TOWER,
+                    DefenderType.WIZARD_TOWER,
+                    DefenderType.ALCHEMY_TOWER,
+                    DefenderType.BALLISTA_TOWER,
+                )
             EditorLevelTemplate.RIVER_PRESSURE,
             EditorLevelTemplate.ENDURANCE,
             -> DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }.toSet()
@@ -490,13 +490,14 @@ private fun generateTutorialSpawns(map: EditorMap?): List<EditorEnemySpawn> =
         map = map,
         startTurn = 0,
         baseLevel = 1,
-        entries = listOf(
-            SpawnTurnTemplateEntry(AttackerType.GOBLIN, turnOffset = 2, amount = 2),
-            SpawnTurnTemplateEntry(AttackerType.GOBLIN, turnOffset = 4, amount = 3),
-            SpawnTurnTemplateEntry(AttackerType.ORK, turnOffset = 6, amount = 1),
-            SpawnTurnTemplateEntry(AttackerType.SKELETON, turnOffset = 8, amount = 2),
-            SpawnTurnTemplateEntry(AttackerType.ORK, turnOffset = 10, amount = 2),
-        ),
+        entries =
+            listOf(
+                SpawnTurnTemplateEntry(AttackerType.GOBLIN, turnOffset = 2, amount = 2),
+                SpawnTurnTemplateEntry(AttackerType.GOBLIN, turnOffset = 4, amount = 3),
+                SpawnTurnTemplateEntry(AttackerType.ORK, turnOffset = 6, amount = 1),
+                SpawnTurnTemplateEntry(AttackerType.SKELETON, turnOffset = 8, amount = 2),
+                SpawnTurnTemplateEntry(AttackerType.ORK, turnOffset = 10, amount = 2),
+            ),
     )
 
 private fun generateSteadyPressureSpawns(map: EditorMap?): List<EditorEnemySpawn> =
@@ -504,16 +505,17 @@ private fun generateSteadyPressureSpawns(map: EditorMap?): List<EditorEnemySpawn
         map = map,
         startTurn = 0,
         baseLevel = 1,
-        entries = listOf(
-            SpawnTurnTemplateEntry(AttackerType.GOBLIN, turnOffset = 2, amount = 2),
-            SpawnTurnTemplateEntry(AttackerType.ORK, turnOffset = 3, amount = 1),
-            SpawnTurnTemplateEntry(AttackerType.GOBLIN, turnOffset = 5, amount = 3),
-            SpawnTurnTemplateEntry(AttackerType.SKELETON, turnOffset = 6, amount = 2),
-            SpawnTurnTemplateEntry(AttackerType.RED_WITCH, turnOffset = 8, amount = 1),
-            SpawnTurnTemplateEntry(AttackerType.OGRE, turnOffset = 9, amount = 1),
-            SpawnTurnTemplateEntry(AttackerType.GREEN_WITCH, turnOffset = 11, amount = 1),
-            SpawnTurnTemplateEntry(AttackerType.ORK, turnOffset = 12, amount = 2),
-        ),
+        entries =
+            listOf(
+                SpawnTurnTemplateEntry(AttackerType.GOBLIN, turnOffset = 2, amount = 2),
+                SpawnTurnTemplateEntry(AttackerType.ORK, turnOffset = 3, amount = 1),
+                SpawnTurnTemplateEntry(AttackerType.GOBLIN, turnOffset = 5, amount = 3),
+                SpawnTurnTemplateEntry(AttackerType.SKELETON, turnOffset = 6, amount = 2),
+                SpawnTurnTemplateEntry(AttackerType.RED_WITCH, turnOffset = 8, amount = 1),
+                SpawnTurnTemplateEntry(AttackerType.OGRE, turnOffset = 9, amount = 1),
+                SpawnTurnTemplateEntry(AttackerType.GREEN_WITCH, turnOffset = 11, amount = 1),
+                SpawnTurnTemplateEntry(AttackerType.ORK, turnOffset = 12, amount = 2),
+            ),
     )
 
 private fun generateVillainDuelSpawns(map: EditorMap?): List<EditorEnemySpawn> =
@@ -521,15 +523,16 @@ private fun generateVillainDuelSpawns(map: EditorMap?): List<EditorEnemySpawn> =
         map = map,
         startTurn = 0,
         baseLevel = 1,
-        entries = listOf(
-            SpawnTurnTemplateEntry(AttackerType.GOBLIN, turnOffset = 2, amount = 3),
-            SpawnTurnTemplateEntry(AttackerType.ORK, turnOffset = 4, amount = 2),
-            SpawnTurnTemplateEntry(AttackerType.GREEN_WITCH, turnOffset = 6, amount = 1),
-            SpawnTurnTemplateEntry(AttackerType.RED_WITCH, turnOffset = 7, amount = 1),
-            SpawnTurnTemplateEntry(AttackerType.GAROKK, turnOffset = 9, amount = 1, levelOffset = 1),
-            SpawnTurnTemplateEntry(AttackerType.OGRE, turnOffset = 9, amount = 1, levelOffset = 1),
-            SpawnTurnTemplateEntry(AttackerType.SKELETON, turnOffset = 11, amount = 3),
-        ),
+        entries =
+            listOf(
+                SpawnTurnTemplateEntry(AttackerType.GOBLIN, turnOffset = 2, amount = 3),
+                SpawnTurnTemplateEntry(AttackerType.ORK, turnOffset = 4, amount = 2),
+                SpawnTurnTemplateEntry(AttackerType.GREEN_WITCH, turnOffset = 6, amount = 1),
+                SpawnTurnTemplateEntry(AttackerType.RED_WITCH, turnOffset = 7, amount = 1),
+                SpawnTurnTemplateEntry(AttackerType.GAROKK, turnOffset = 9, amount = 1, levelOffset = 1),
+                SpawnTurnTemplateEntry(AttackerType.OGRE, turnOffset = 9, amount = 1, levelOffset = 1),
+                SpawnTurnTemplateEntry(AttackerType.SKELETON, turnOffset = 11, amount = 3),
+            ),
     )
 
 private fun generateRiverPressureSpawns(map: EditorMap?): List<EditorEnemySpawn> {
@@ -539,13 +542,14 @@ private fun generateRiverPressureSpawns(map: EditorMap?): List<EditorEnemySpawn>
             map = map,
             startTurn = 0,
             baseLevel = 1,
-            entries = listOf(
-                SpawnTurnTemplateEntry(AttackerType.PIRATE, turnOffset = 2, amount = 2),
-                SpawnTurnTemplateEntry(AttackerType.BLUE_DEMON, turnOffset = 4, amount = 1),
-                SpawnTurnTemplateEntry(AttackerType.PIRATE, turnOffset = 5, amount = 3),
-                SpawnTurnTemplateEntry(AttackerType.RED_WITCH, turnOffset = 7, amount = 1),
-                SpawnTurnTemplateEntry(AttackerType.CAPTAIN_RODERICH, turnOffset = 10, amount = 1, levelOffset = 1),
-            ),
+            entries =
+                listOf(
+                    SpawnTurnTemplateEntry(AttackerType.PIRATE, turnOffset = 2, amount = 2),
+                    SpawnTurnTemplateEntry(AttackerType.BLUE_DEMON, turnOffset = 4, amount = 1),
+                    SpawnTurnTemplateEntry(AttackerType.PIRATE, turnOffset = 5, amount = 3),
+                    SpawnTurnTemplateEntry(AttackerType.RED_WITCH, turnOffset = 7, amount = 1),
+                    SpawnTurnTemplateEntry(AttackerType.CAPTAIN_RODERICH, turnOffset = 10, amount = 1, levelOffset = 1),
+                ),
         )
     } else {
         generateSteadyPressureSpawns(map)
@@ -557,16 +561,17 @@ private fun generateEnduranceSpawns(map: EditorMap?): List<EditorEnemySpawn> =
         map = map,
         startTurn = 0,
         baseLevel = 1,
-        entries = listOf(
-            SpawnTurnTemplateEntry(AttackerType.GOBLIN, turnOffset = 2, amount = 3),
-            SpawnTurnTemplateEntry(AttackerType.SKELETON, turnOffset = 4, amount = 2),
-            SpawnTurnTemplateEntry(AttackerType.ORK, turnOffset = 6, amount = 2),
-            SpawnTurnTemplateEntry(AttackerType.GREEN_WITCH, turnOffset = 8, amount = 1),
-            SpawnTurnTemplateEntry(AttackerType.OGRE, turnOffset = 10, amount = 1, levelOffset = 1),
-            SpawnTurnTemplateEntry(AttackerType.RED_DEMON, turnOffset = 12, amount = 1, levelOffset = 1),
-            SpawnTurnTemplateEntry(AttackerType.EVIL_WIZARD, turnOffset = 14, amount = 1, levelOffset = 1),
-            SpawnTurnTemplateEntry(AttackerType.MORGUK_BONEWHISPER, turnOffset = 17, amount = 1, levelOffset = 1),
-        ),
+        entries =
+            listOf(
+                SpawnTurnTemplateEntry(AttackerType.GOBLIN, turnOffset = 2, amount = 3),
+                SpawnTurnTemplateEntry(AttackerType.SKELETON, turnOffset = 4, amount = 2),
+                SpawnTurnTemplateEntry(AttackerType.ORK, turnOffset = 6, amount = 2),
+                SpawnTurnTemplateEntry(AttackerType.GREEN_WITCH, turnOffset = 8, amount = 1),
+                SpawnTurnTemplateEntry(AttackerType.OGRE, turnOffset = 10, amount = 1, levelOffset = 1),
+                SpawnTurnTemplateEntry(AttackerType.RED_DEMON, turnOffset = 12, amount = 1, levelOffset = 1),
+                SpawnTurnTemplateEntry(AttackerType.EVIL_WIZARD, turnOffset = 14, amount = 1, levelOffset = 1),
+                SpawnTurnTemplateEntry(AttackerType.MORGUK_BONEWHISPER, turnOffset = 17, amount = 1, levelOffset = 1),
+            ),
     )
 
 private fun calmGapBetweenActiveTurns(turns: List<Int>): Int {
@@ -661,7 +666,8 @@ private fun computeDistancesToTargets(
     while (queue.isNotEmpty()) {
         val current = queue.removeFirst()
         val currentDistance = distances.getValue(current)
-        current.getHexNeighbors()
+        current
+            .getHexNeighbors()
             .filter { it.x in 0 until width && it.y in 0 until height && it in traversableCells }
             .forEach { neighbor ->
                 if (neighbor !in distances) {

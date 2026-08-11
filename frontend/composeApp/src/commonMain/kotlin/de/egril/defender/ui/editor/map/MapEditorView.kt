@@ -23,8 +23,8 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.EditorTargetInfo
 import de.egril.defender.editor.MapTemplateDefinition
-import de.egril.defender.editor.TileType
 import de.egril.defender.editor.TileReplacementArea
+import de.egril.defender.editor.TileType
 import de.egril.defender.editor.pickBackgroundImageBytes
 import de.egril.defender.editor.replaceTilesByType
 import de.egril.defender.model.Position
@@ -37,13 +37,13 @@ import de.egril.defender.ui.constrainMapOffsets
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.ui.editor.SaveAsDialog
+import de.egril.defender.ui.editor.getTileColor
 import de.egril.defender.ui.editor.level.DensityBand
-import de.egril.defender.ui.editor.level.analyzeLevelMapConsistency
 import de.egril.defender.ui.editor.level.MapFlowSummary
 import de.egril.defender.ui.editor.level.MapLaneShape
 import de.egril.defender.ui.editor.level.TravelBand
+import de.egril.defender.ui.editor.level.analyzeLevelMapConsistency
 import de.egril.defender.ui.editor.level.analyzeMapFlow
-import de.egril.defender.ui.editor.getTileColor
 import de.egril.defender.ui.hexagon.BaseGridCell
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 import de.egril.defender.ui.hexagon.HexagonalMapConfig
@@ -213,7 +213,8 @@ private fun findShortestPath(
     previous[start] = null
     while (queue.isNotEmpty()) {
         val current = queue.removeFirst()
-        current.getHexNeighbors()
+        current
+            .getHexNeighbors()
             .filter { it.isInside(width, height) && it in traversableCells }
             .forEach { neighbor ->
                 if (!visited.add(neighbor)) return@forEach
@@ -245,34 +246,42 @@ private fun copyMapRegion(
     val maxX = maxOf(from.x, to.x)
     val minY = minOf(from.y, to.y)
     val maxY = maxOf(from.y, to.y)
-    fun relativeKey(x: Int, y: Int): String = "${x - minX},${y - minY}"
+
+    fun relativeKey(
+        x: Int,
+        y: Int,
+    ): String = "${x - minX},${y - minY}"
 
     val copiedTiles =
-        tiles.mapNotNull { (key, tileType) ->
-            val (x, y) = key.split(",").let { it[0].toInt() to it[1].toInt() }
-            if (x in minX..maxX && y in minY..maxY) relativeKey(x, y) to tileType else null
-        }.toMap()
+        tiles
+            .mapNotNull { (key, tileType) ->
+                val (x, y) = key.split(",").let { it[0].toInt() to it[1].toInt() }
+                if (x in minX..maxX && y in minY..maxY) relativeKey(x, y) to tileType else null
+            }.toMap()
     val copiedRiverTiles =
-        riverTiles.mapNotNull { (_, riverTile) ->
-            val x = riverTile.position.x
-            val y = riverTile.position.y
-            if (x in minX..maxX && y in minY..maxY) {
-                val relative = Position(x - minX, y - minY)
-                relativeKey(x, y) to riverTile.copy(position = relative)
-            } else {
-                null
-            }
-        }.toMap()
+        riverTiles
+            .mapNotNull { (_, riverTile) ->
+                val x = riverTile.position.x
+                val y = riverTile.position.y
+                if (x in minX..maxX && y in minY..maxY) {
+                    val relative = Position(x - minX, y - minY)
+                    relativeKey(x, y) to riverTile.copy(position = relative)
+                } else {
+                    null
+                }
+            }.toMap()
     val copiedTargetInfo =
-        targetInfoMap.mapNotNull { (key, info) ->
-            val (x, y) = key.split(",").let { it[0].toInt() to it[1].toInt() }
-            if (x in minX..maxX && y in minY..maxY) relativeKey(x, y) to info else null
-        }.toMap()
+        targetInfoMap
+            .mapNotNull { (key, info) ->
+                val (x, y) = key.split(",").let { it[0].toInt() to it[1].toInt() }
+                if (x in minX..maxX && y in minY..maxY) relativeKey(x, y) to info else null
+            }.toMap()
     val copiedSpawnInfo =
-        spawnPointInfoMap.mapNotNull { (key, type) ->
-            val (x, y) = key.split(",").let { it[0].toInt() to it[1].toInt() }
-            if (x in minX..maxX && y in minY..maxY) relativeKey(x, y) to type else null
-        }.toMap()
+        spawnPointInfoMap
+            .mapNotNull { (key, type) ->
+                val (x, y) = key.split(",").let { it[0].toInt() to it[1].toInt() }
+                if (x in minX..maxX && y in minY..maxY) relativeKey(x, y) to type else null
+            }.toMap()
     return MapRegionClipboard(
         width = maxX - minX + 1,
         height = maxY - minY + 1,
@@ -817,51 +826,51 @@ fun MapEditorView(
                 }
 
                 if (isHeaderExpanded) {
-                   Column(
-                       modifier =
-                           Modifier
-                               .align(Alignment.TopStart)
-                               .padding(8.dp),
-                       verticalArrangement = Arrangement.spacedBy(8.dp),
-                   ) {
-                       OverlayToggleButton(
-                           label = stringResource(Res.string.map_flow_validator),
-                           isActive = showMapFlowOverlay,
-                           onClick = { showMapFlowOverlay = !showMapFlowOverlay },
-                       )
-                       OverlayToggleButton(
-                           label = stringResource(Res.string.map_path_preview),
-                           isActive = showMapPathPreviewOverlay,
-                           onClick = { showMapPathPreviewOverlay = !showMapPathPreviewOverlay },
-                       )
-                       Button(
-                           onClick = {
-                               val snapshot = undoHistory.lastOrNull() ?: return@Button
-                               undoHistory = undoHistory.dropLast(1)
-                               redoHistory = (redoHistory + currentSnapshot()).takeLast(40)
-                               restoreSnapshot(snapshot)
-                           },
-                           enabled = undoHistory.isNotEmpty(),
-                       ) {
-                           Text(stringResource(Res.string.undo))
-                       }
-                       Button(
-                           onClick = {
-                               val snapshot = redoHistory.lastOrNull() ?: return@Button
-                               redoHistory = redoHistory.dropLast(1)
-                               undoHistory = (undoHistory + currentSnapshot()).takeLast(40)
-                               restoreSnapshot(snapshot)
-                           },
-                           enabled = redoHistory.isNotEmpty(),
-                       ) {
-                           Text(stringResource(Res.string.redo))
-                       }
-                       Button(
-                           onClick = { showAreaClipboardDialog = true },
-                       ) {
-                           Text(stringResource(Res.string.area_clipboard))
-                       }
-                   }
+                    Column(
+                        modifier =
+                            Modifier
+                                .align(Alignment.TopStart)
+                                .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        OverlayToggleButton(
+                            label = stringResource(Res.string.map_flow_validator),
+                            isActive = showMapFlowOverlay,
+                            onClick = { showMapFlowOverlay = !showMapFlowOverlay },
+                        )
+                        OverlayToggleButton(
+                            label = stringResource(Res.string.map_path_preview),
+                            isActive = showMapPathPreviewOverlay,
+                            onClick = { showMapPathPreviewOverlay = !showMapPathPreviewOverlay },
+                        )
+                        Button(
+                            onClick = {
+                                val snapshot = undoHistory.lastOrNull() ?: return@Button
+                                undoHistory = undoHistory.dropLast(1)
+                                redoHistory = (redoHistory + currentSnapshot()).takeLast(40)
+                                restoreSnapshot(snapshot)
+                            },
+                            enabled = undoHistory.isNotEmpty(),
+                        ) {
+                            Text(stringResource(Res.string.undo))
+                        }
+                        Button(
+                            onClick = {
+                                val snapshot = redoHistory.lastOrNull() ?: return@Button
+                                redoHistory = redoHistory.dropLast(1)
+                                undoHistory = (undoHistory + currentSnapshot()).takeLast(40)
+                                restoreSnapshot(snapshot)
+                            },
+                            enabled = redoHistory.isNotEmpty(),
+                        ) {
+                            Text(stringResource(Res.string.redo))
+                        }
+                        Button(
+                            onClick = { showAreaClipboardDialog = true },
+                        ) {
+                            Text(stringResource(Res.string.area_clipboard))
+                        }
+                    }
                 }
 
                 if (showMapFlowOverlay || showMapPathPreviewOverlay) {
@@ -873,8 +882,7 @@ fun MapEditorView(
                                     start = if (isHeaderExpanded) 180.dp else 8.dp,
                                     top = if (isHeaderExpanded) 8.dp else 80.dp,
                                     end = 8.dp,
-                                )
-                                .widthIn(max = 420.dp),
+                                ).widthIn(max = 420.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         if (showMapFlowOverlay) {
@@ -1159,53 +1167,53 @@ fun MapEditorView(
             onMapAuthorChange = { mapAuthor = it },
             mapToolingInfo = mapToolingInfo,
             onMapToolingInfoChange = { mapToolingInfo = it },
-                mapWidth = mapWidth,
-                mapHeight = mapHeight,
-                resizeLeft = resizeLeft,
-                onResizeLeftChange = { resizeLeft = it },
-                resizeRight = resizeRight,
-                onResizeRightChange = { resizeRight = it },
-                resizeTop = resizeTop,
-                onResizeTopChange = { resizeTop = it },
-                resizeBottom = resizeBottom,
-                onResizeBottomChange = { resizeBottom = it },
-                onApplyResize = {
-                    if (canApplyResize) {
-                        rememberForUndo()
-                        val resized =
-                            applyResizeToMapData(
-                                width = mapWidth,
-                                height = mapHeight,
-                                leftDelta = parsedResizeLeft,
-                                rightDelta = parsedResizeRight,
-                                topDelta = parsedResizeTop,
-                                bottomDelta = parsedResizeBottom,
-                                tiles = tiles,
-                                riverTiles = riverTiles,
-                                targetInfoMap = targetInfoMap,
-                                spawnPointInfoMap = spawnPointInfoMap,
-                            )
-                        mapWidth = resized.width
-                        mapHeight = resized.height
-                        tiles = resized.tiles
-                        riverTiles = resized.riverTiles
-                        targetInfoMap = resized.targetInfoMap
-                        spawnPointInfoMap = resized.spawnPointInfoMap
-                        replacementToX = (resized.width - 1).coerceAtLeast(0).toString()
-                        replacementToY = (resized.height - 1).coerceAtLeast(0).toString()
-                        resizeLeft = "0"
-                        resizeRight = "0"
-                        resizeTop = "0"
-                        resizeBottom = "0"
-                    }
-                },
-                canApplyResize = canApplyResize,
-                resultingMapWidth = resizedWidthPreview,
-                resultingMapHeight = resizedHeightPreview,
-                showUnsafeResizeWarning = showUnsafeResizeWarning,
-                mapUsageLevelNames = levelsUsingMap.map { it.title.ifBlank { it.id } },
-                selectedTileType = selectedTileType,
-                onTileTypeChange = { selectedTileType = it },
+            mapWidth = mapWidth,
+            mapHeight = mapHeight,
+            resizeLeft = resizeLeft,
+            onResizeLeftChange = { resizeLeft = it },
+            resizeRight = resizeRight,
+            onResizeRightChange = { resizeRight = it },
+            resizeTop = resizeTop,
+            onResizeTopChange = { resizeTop = it },
+            resizeBottom = resizeBottom,
+            onResizeBottomChange = { resizeBottom = it },
+            onApplyResize = {
+                if (canApplyResize) {
+                    rememberForUndo()
+                    val resized =
+                        applyResizeToMapData(
+                            width = mapWidth,
+                            height = mapHeight,
+                            leftDelta = parsedResizeLeft,
+                            rightDelta = parsedResizeRight,
+                            topDelta = parsedResizeTop,
+                            bottomDelta = parsedResizeBottom,
+                            tiles = tiles,
+                            riverTiles = riverTiles,
+                            targetInfoMap = targetInfoMap,
+                            spawnPointInfoMap = spawnPointInfoMap,
+                        )
+                    mapWidth = resized.width
+                    mapHeight = resized.height
+                    tiles = resized.tiles
+                    riverTiles = resized.riverTiles
+                    targetInfoMap = resized.targetInfoMap
+                    spawnPointInfoMap = resized.spawnPointInfoMap
+                    replacementToX = (resized.width - 1).coerceAtLeast(0).toString()
+                    replacementToY = (resized.height - 1).coerceAtLeast(0).toString()
+                    resizeLeft = "0"
+                    resizeRight = "0"
+                    resizeTop = "0"
+                    resizeBottom = "0"
+                }
+            },
+            canApplyResize = canApplyResize,
+            resultingMapWidth = resizedWidthPreview,
+            resultingMapHeight = resizedHeightPreview,
+            showUnsafeResizeWarning = showUnsafeResizeWarning,
+            mapUsageLevelNames = levelsUsingMap.map { it.title.ifBlank { it.id } },
+            selectedTileType = selectedTileType,
+            onTileTypeChange = { selectedTileType = it },
             selectedRiverFlow = selectedRiverFlow,
             onRiverFlowChange = { selectedRiverFlow = it },
             selectedRiverSpeed = selectedRiverSpeed,
@@ -1403,13 +1411,15 @@ fun MapEditorView(
                                     rowFlows.forEach { flow ->
                                         Button(
                                             onClick = { replacementRiverFlow = flow },
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = if (replacementRiverFlow == flow) {
-                                                    MaterialTheme.colorScheme.primary
-                                                } else {
-                                                    MaterialTheme.colorScheme.secondary
-                                                },
-                                            ),
+                                            colors =
+                                                ButtonDefaults.buttonColors(
+                                                    containerColor =
+                                                        if (replacementRiverFlow == flow) {
+                                                            MaterialTheme.colorScheme.primary
+                                                        } else {
+                                                            MaterialTheme.colorScheme.secondary
+                                                        },
+                                                ),
                                             modifier = Modifier.height(32.dp).weight(1f),
                                         ) {
                                             Text(flow.name.replace("_", " "), fontSize = 10.sp)
@@ -1423,26 +1433,30 @@ fun MapEditorView(
                         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Button(
                                 onClick = { replacementRiverSpeed = 1 },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (replacementRiverSpeed == 1) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.secondary
-                                    },
-                                ),
+                                colors =
+                                    ButtonDefaults.buttonColors(
+                                        containerColor =
+                                            if (replacementRiverSpeed == 1) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                MaterialTheme.colorScheme.secondary
+                                            },
+                                    ),
                                 modifier = Modifier.height(32.dp),
                             ) {
                                 Text(stringResource(Res.string.speed_slow), fontSize = 10.sp)
                             }
                             Button(
                                 onClick = { replacementRiverSpeed = 2 },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (replacementRiverSpeed == 2) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.secondary
-                                    },
-                                ),
+                                colors =
+                                    ButtonDefaults.buttonColors(
+                                        containerColor =
+                                            if (replacementRiverSpeed == 2) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                MaterialTheme.colorScheme.secondary
+                                            },
+                                    ),
                                 modifier = Modifier.height(32.dp),
                             ) {
                                 Text(stringResource(Res.string.speed_fast), fontSize = 10.sp)
@@ -1544,8 +1558,8 @@ fun MapEditorView(
                                                 this[key] =
                                                     RiverTile(
                                                         position = Position(x, y),
-                                                       flowDirection = replacementRiverFlow,
-                                                       flowSpeed = replacementRiverSpeed,
+                                                        flowDirection = replacementRiverFlow,
+                                                        flowSpeed = replacementRiverSpeed,
                                                     )
                                             }
                                         }
@@ -1553,22 +1567,22 @@ fun MapEditorView(
                                 }
                         } else if (replacementTargetTileType == TileType.TARGET) {
                             targetInfoMap =
-                                    targetInfoMap.toMutableMap().apply {
-                                        changedKeys.forEach { key ->
-                                            if (this[key] == null) {
-                                                this[key] = EditorTargetInfo()
-                                            }
+                                targetInfoMap.toMutableMap().apply {
+                                    changedKeys.forEach { key ->
+                                        if (this[key] == null) {
+                                            this[key] = EditorTargetInfo()
                                         }
                                     }
+                                }
                         } else if (replacementTargetTileType == TileType.SPAWN_POINT) {
                             spawnPointInfoMap =
-                                    spawnPointInfoMap.toMutableMap().apply {
-                                        changedKeys.forEach { key ->
-                                            if (this[key] == null) {
-                                                this[key] = SpawnPointType.LAND
-                                            }
+                                spawnPointInfoMap.toMutableMap().apply {
+                                    changedKeys.forEach { key ->
+                                        if (this[key] == null) {
+                                            this[key] = SpawnPointType.LAND
                                         }
                                     }
+                                }
                         }
 
                         showTileReplacementDialog = false
@@ -1786,73 +1800,73 @@ private fun MapFlowValidatorCard(summary: MapFlowSummary) {
 
 @Composable
 private fun MapPathPreviewCard(previews: List<MapPathPreview>) {
-        Card(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                Text(
-                    text = stringResource(Res.string.map_path_preview),
-                    style = MaterialTheme.typography.titleSmall,
-                )
+            Text(
+                text = stringResource(Res.string.map_path_preview),
+                style = MaterialTheme.typography.titleSmall,
+            )
+            Text(
+                text =
+                    stringResource(
+                        Res.string.path_preview_summary,
+                        previews.count { it.isReachable },
+                        previews.count { !it.isReachable },
+                        previews.count { it.isAmbiguous },
+                    ),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            previews.forEach { preview ->
                 Text(
                     text =
-                        stringResource(
-                            Res.string.path_preview_summary,
-                            previews.count { it.isReachable },
-                            previews.count { !it.isReachable },
-                            previews.count { it.isAmbiguous },
-                        ),
+                        buildString {
+                            append("(${preview.spawn.x}, ${preview.spawn.y})")
+                            append(" -> ")
+                            append(
+                                preview.target?.let { "(${it.x}, ${it.y})" }
+                                    ?: stringResource(Res.string.unreachable),
+                            )
+                            append(" (${preview.path.size.coerceAtLeast(0)})")
+                        },
                     style = MaterialTheme.typography.bodySmall,
+                    color =
+                        when {
+                            !preview.isReachable -> Color.Red
+                            preview.isAmbiguous -> Color(0xFFFFC107)
+                            else -> Color(0xFF00838F)
+                        },
                 )
-                previews.forEach { preview ->
-                    Text(
-                        text =
-                            buildString {
-                                append("(${preview.spawn.x}, ${preview.spawn.y})")
-                                append(" -> ")
-                                append(
-                                    preview.target?.let { "(${it.x}, ${it.y})" }
-                                        ?: stringResource(Res.string.unreachable),
-                                )
-                                append(" (${preview.path.size.coerceAtLeast(0)})")
-                            },
-                        style = MaterialTheme.typography.bodySmall,
-                        color =
-                            when {
-                                !preview.isReachable -> Color.Red
-                                preview.isAmbiguous -> Color(0xFFFFC107)
-                                else -> Color(0xFF00838F)
-                            },
-                    )
-                }
             }
         }
     }
+}
 
 @Composable
 private fun MapUsageConsistencyCard(issues: List<Pair<de.egril.defender.editor.EditorLevel, de.egril.defender.ui.editor.level.LevelConsistencySummary>>) {
-        Card(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
+            Text(
+                text = stringResource(Res.string.used_level_checks),
+                style = MaterialTheme.typography.titleSmall,
+            )
+            issues.forEach { (level, summary) ->
                 Text(
-                    text = stringResource(Res.string.used_level_checks),
-                    style = MaterialTheme.typography.titleSmall,
+                    text = "${level.title.ifBlank { level.id }}: ${summary.issueCount}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
                 )
-                issues.forEach { (level, summary) ->
-                    Text(
-                        text = "${level.title.ifBlank { level.id }}: ${summary.issueCount}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
             }
         }
     }

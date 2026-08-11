@@ -119,11 +119,12 @@ class EnemyMovementSystem(
 
             // Find a free position near the preferred spawn point.
             // Water-only enemies spawn on river tiles; all others spawn on path tiles.
-            val spawnPos = findFreePositionNear(
-                preferredSpawnPoint,
-                waterOnly = plannedSpawn.attackerType.canOnlyMoveOnWater,
-                canUseRiver = plannedSpawn.attackerType.canTraverseRiver,
-            )
+            val spawnPos =
+                findFreePositionNear(
+                    preferredSpawnPoint,
+                    waterOnly = plannedSpawn.attackerType.canOnlyMoveOnWater,
+                    canUseRiver = plannedSpawn.attackerType.canTraverseRiver,
+                )
 
             if (spawnPos == null) {
                 // No free position found - skip this enemy for now
@@ -566,9 +567,11 @@ class EnemyMovementSystem(
 
             if (pos != startPos) {
                 val isValidLandingSpot =
-                    (state.level.isOnPath(pos) ||
-                        state.level.isTargetPosition(pos) ||
-                        state.level.isSpawnPoint(pos)) &&
+                    (
+                        state.level.isOnPath(pos) ||
+                            state.level.isTargetPosition(pos) ||
+                            state.level.isSpawnPoint(pos)
+                    ) &&
                         state.barricades.none { it.position == pos && !it.isDestroyed() } &&
                         state.attackers.none { it.id != floater.id && !it.isDefeated.value && it.position.value == pos }
                 if (isValidLandingSpot) {

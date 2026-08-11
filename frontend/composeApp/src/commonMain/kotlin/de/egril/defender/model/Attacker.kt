@@ -158,6 +158,7 @@ enum class AttackerType(
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
     OGRE("Ogre", health = 80, speed = 1, reward = 20, xp = 12, canBuildBridge = true, faction = EnemyFaction.HORDE),
+
     // Troll: a creature made of stone. Immune to blade (melee/ranged) attacks.
     // Moves 1 tile per turn and then pauses one turn (alternating movement).
     // Can trample smaller enemy units (smaller than an Ork) that stand in its way.

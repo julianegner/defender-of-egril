@@ -60,7 +60,11 @@ class LevelDesignAnalysisTest {
                         EditorEnemySpawn(AttackerType.GOBLIN, spawnTurn = 2, spawnPoint = Position(6, 4)),
                     ),
             ).copy(
-                waypoints = listOf(de.egril.defender.editor.EditorWaypoint(Position(6, 4), Position(7, 2))),
+                waypoints =
+                    listOf(
+                        de.egril.defender.editor
+                            .EditorWaypoint(Position(6, 4), Position(7, 2)),
+                    ),
                 events =
                     LevelEvents(
                         listOf(

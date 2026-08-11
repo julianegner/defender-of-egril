@@ -525,7 +525,10 @@ object SaveJsonSerializer {
             val supportSpellsRemaining =
                 parseEnumIntMap(dataJson, "supportSpellsRemaining") { SpellType.valueOf(it) }
             val supportFiefRemaining =
-                parseEnumIntMap(dataJson, "supportFiefRemaining") { de.egril.defender.model.FiefType.valueOf(it) }
+                parseEnumIntMap(dataJson, "supportFiefRemaining") {
+                    de.egril.defender.model.FiefType
+                        .valueOf(it)
+                }
             val cooldownPowerReadyIn =
                 parseEnumIntMap(dataJson, "cooldownPowerReadyIn") { CooldownPowerType.valueOf(it) }
             val coinSurgeActive =

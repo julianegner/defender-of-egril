@@ -23,14 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
-import de.egril.defender.editor.EditorEnemyTemplateKind
 import de.egril.defender.editor.EditorEnemySpawn
+import de.egril.defender.editor.EditorEnemyTemplateKind
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
+import de.egril.defender.editor.SpawnPointUtils
 import de.egril.defender.editor.SpawnTurnTemplateDefinition
 import de.egril.defender.editor.SpawnTurnTemplateEntry
 import de.egril.defender.editor.SpawnTurnTemplateVariant
-import de.egril.defender.editor.SpawnPointUtils
 import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.editor.level.ChangeAllSpawnPointsDialog
 import de.egril.defender.ui.editor.level.ChangeLevelDialog
@@ -285,7 +285,6 @@ internal fun EnemySpawnsTab(
                             Text(stringResource(Res.string.change_all_spawn_points))
                         }
                     }
-
                 }
             }
         }
@@ -344,13 +343,14 @@ internal fun EnemySpawnsTab(
                             if (index > 0) {
                                 val prevTurn = allTurns[index - 1].first
                                 onEnemySpawnsChange(
-                                    enemySpawns.map { spawn ->
-                                        when (spawn.spawnTurn) {
-                                            turn -> spawn.copy(spawnTurn = prevTurn)
-                                            prevTurn -> spawn.copy(spawnTurn = turn)
-                                            else -> spawn
-                                        }
-                                    }.toMutableList(),
+                                    enemySpawns
+                                        .map { spawn ->
+                                            when (spawn.spawnTurn) {
+                                                turn -> spawn.copy(spawnTurn = prevTurn)
+                                                prevTurn -> spawn.copy(spawnTurn = turn)
+                                                else -> spawn
+                                            }
+                                        }.toMutableList(),
                                 )
                             }
                         },
@@ -358,13 +358,14 @@ internal fun EnemySpawnsTab(
                             if (index < allTurns.size - 1) {
                                 val nextTurn = allTurns[index + 1].first
                                 onEnemySpawnsChange(
-                                    enemySpawns.map { spawn ->
-                                        when (spawn.spawnTurn) {
-                                            turn -> spawn.copy(spawnTurn = nextTurn)
-                                            nextTurn -> spawn.copy(spawnTurn = turn)
-                                            else -> spawn
-                                        }
-                                    }.toMutableList(),
+                                    enemySpawns
+                                        .map { spawn ->
+                                            when (spawn.spawnTurn) {
+                                                turn -> spawn.copy(spawnTurn = nextTurn)
+                                                nextTurn -> spawn.copy(spawnTurn = turn)
+                                                else -> spawn
+                                            }
+                                        }.toMutableList(),
                                 )
                             }
                         },
@@ -517,7 +518,7 @@ internal fun EnemySpawnsTab(
                                 .lowercase()
                                 .replace(" ", "_")
                                 .replace(Regex("[^a-z0-9_]"), "")
-                                .ifBlank { "spawn_template_${turn}" }
+                                .ifBlank { "spawn_template_$turn" }
                         val baseLevel = spawnsInTurn.minOfOrNull { it.level } ?: 1
                         EditorStorage.saveSpawnTurnTemplate(
                             SpawnTurnTemplateDefinition(
@@ -573,9 +574,10 @@ private fun EnemySpawnTableEditor(
                 map = map,
                 onChange = { updatedSpawn ->
                     onEnemySpawnsChange(
-                        enemySpawns.map {
-                            if (it === spawn) updatedSpawn else it
-                        }.toMutableList(),
+                        enemySpawns
+                            .map {
+                                if (it === spawn) updatedSpawn else it
+                            }.toMutableList(),
                     )
                 },
                 onDelete = {

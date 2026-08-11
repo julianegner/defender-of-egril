@@ -47,7 +47,6 @@ class CombatSystem(
         pendingKillInfos.clear()
     }
 
-
     private fun usesSupportElement(defender: Defender): Boolean {
         if (defender.raftId.value != null) return true
         val towerBaseId = defender.towerBaseBarricadeId.value ?: return false

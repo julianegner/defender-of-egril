@@ -139,7 +139,10 @@ class GameEngine(
         val hasBarricade = state.barricades.any { it.position == position }
         val hasFief = state.fiefs.any { it.position == position }
         if (hasEnemy || hasTrap || hasBarricade || hasFief) return false
-        state.fiefs.add(de.egril.defender.model.Fief(position = position, type = type))
+        state.fiefs.add(
+            de.egril.defender.model
+                .Fief(position = position, type = type),
+        )
         return true
     }
 
@@ -417,19 +420,20 @@ class GameEngine(
     private fun canAutoAttackDamage(
         defender: Defender,
         attacker: Attacker,
-    ): Boolean {
-        return when (defender.type.attackType) {
+    ): Boolean =
+        when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> {
                 !attacker.type.immuneToNonMagicTowerDamage &&
                     !attacker.type.immuneToNonMagical &&
-                    !(attacker.type.immuneToBladeAttacks &&
-                        (defender.type.attackType == AttackType.MELEE || defender.type.attackType == AttackType.RANGED))
+                    !(
+                        attacker.type.immuneToBladeAttacks &&
+                            (defender.type.attackType == AttackType.MELEE || defender.type.attackType == AttackType.RANGED)
+                    )
             }
             AttackType.AREA -> attacker.canBeDamagedByFireball()
             AttackType.LASTING -> attacker.canBeDamagedByAcid() && !attacker.type.immuneToNonMagicTowerDamage
             AttackType.NONE -> false
         }
-    }
 
     private fun threatScore(attacker: Attacker): Int {
         // Higher score = higher priority
@@ -752,7 +756,6 @@ class GameEngine(
             state.barricades.any { it.position == position && !it.isDestroyed() } ||
             state.traps.any { it.position == position } ||
             state.fiefs.any { it.position == position }
-
 
     // Turn Management
     fun startFirstPlayerTurn() {

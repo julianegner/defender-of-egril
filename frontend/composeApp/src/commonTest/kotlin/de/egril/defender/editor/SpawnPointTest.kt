@@ -123,10 +123,11 @@ class SpawnPointTest {
                 width = 6,
                 height = 5,
                 tiles = tiles,
-                spawnPointInfoMap = mapOf(
-                    landPos to SpawnPointType.LAND,
-                    waterPos to SpawnPointType.WATER,
-                ),
+                spawnPointInfoMap =
+                    mapOf(
+                        landPos to SpawnPointType.LAND,
+                        waterPos to SpawnPointType.WATER,
+                    ),
             )
 
         val json = EditorJsonSerializer.serializeMap(map)

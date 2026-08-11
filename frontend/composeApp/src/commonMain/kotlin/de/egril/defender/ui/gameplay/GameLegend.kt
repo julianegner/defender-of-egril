@@ -241,8 +241,7 @@ fun LegendItemHex(
 // Extension function to calculate color luminance
 private fun Color.luminance(): Float = (0.299f * red + 0.587f * green + 0.114f * blue)
 
-private fun Attacker.isSilasOrMirror(): Boolean =
-    type == AttackerType.SILAS_THE_MASKMASTER || type == AttackerType.SILAS_MIRROR_IMAGE
+private fun Attacker.isSilasOrMirror(): Boolean = type == AttackerType.SILAS_THE_MASKMASTER || type == AttackerType.SILAS_MIRROR_IMAGE
 
 private fun mixedSilasOrderKey(
     attackerId: Int,

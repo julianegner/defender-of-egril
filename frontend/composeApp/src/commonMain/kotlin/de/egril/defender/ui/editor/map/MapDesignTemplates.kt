@@ -95,22 +95,34 @@ private data class MutableMapDraft(
     val targetInfoMap: MutableMap<String, EditorTargetInfo> = mutableMapOf(),
     val spawnPointInfoMap: MutableMap<String, SpawnPointType> = mutableMapOf(),
 ) {
-    fun setTile(position: Position, type: TileType) {
+    fun setTile(
+        position: Position,
+        type: TileType,
+    ) {
         if (position.x !in 0 until width || position.y !in 0 until height) return
         tiles["${position.x},${position.y}"] = type
     }
 
-    fun setSpawn(position: Position, spawnPointType: SpawnPointType = SpawnPointType.LAND) {
+    fun setSpawn(
+        position: Position,
+        spawnPointType: SpawnPointType = SpawnPointType.LAND,
+    ) {
         setTile(position, TileType.SPAWN_POINT)
         spawnPointInfoMap["${position.x},${position.y}"] = spawnPointType
     }
 
-    fun setTarget(position: Position, name: String = "") {
+    fun setTarget(
+        position: Position,
+        name: String = "",
+    ) {
         setTile(position, TileType.TARGET)
         targetInfoMap["${position.x},${position.y}"] = EditorTargetInfo(name = name, type = TargetType.STANDARD)
     }
 
-    fun setRiver(position: Position, flow: RiverFlow) {
+    fun setRiver(
+        position: Position,
+        flow: RiverFlow,
+    ) {
         setTile(position, TileType.RIVER)
         riverTiles["${position.x},${position.y}"] = RiverTile(position = position, flowDirection = flow, flowSpeed = 1)
     }
@@ -194,7 +206,8 @@ private fun addAdjacentBuildAreas(
     draft: MutableMapDraft,
     position: Position,
 ) {
-    position.getHexNeighbors()
+    position
+        .getHexNeighbors()
         .filter { it.x in 0 until draft.width && it.y in 0 until draft.height }
         .forEach { neighbor ->
             val key = "${neighbor.x},${neighbor.y}"

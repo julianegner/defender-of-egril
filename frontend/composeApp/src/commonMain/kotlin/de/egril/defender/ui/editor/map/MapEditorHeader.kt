@@ -2,10 +2,10 @@ package de.egril.defender.ui.editor.map
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -748,179 +748,179 @@ private fun CollapsedMapEditorHeader(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-                // Tile type dropdown - styled to look like a dropdown
-                Box(
-                    modifier =
-                        Modifier
-                            .widthIn(min = 180.dp, max = 240.dp),
+            // Tile type dropdown - styled to look like a dropdown
+            Box(
+                modifier =
+                    Modifier
+                        .widthIn(min = 180.dp, max = 240.dp),
+            ) {
+                OutlinedButton(
+                    onClick = { expanded = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors =
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor = getTileColor(selectedTileType).copy(alpha = 0.3f),
+                        ),
                 ) {
-                    OutlinedButton(
-                        onClick = { expanded = true },
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        colors =
-                            ButtonDefaults.outlinedButtonColors(
-                                containerColor = getTileColor(selectedTileType).copy(alpha = 0.3f),
-                            ),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.weight(1f),
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                modifier = Modifier.weight(1f),
-                            ) {
-                                Box(
-                                    modifier =
-                                        Modifier
-                                            .size(16.dp)
-                                            .background(getTileColor(selectedTileType), shape = MaterialTheme.shapes.small),
-                                )
-                                Text(
-                                    text = selectedTileType.name,
-                                    fontSize = 11.sp,
-                                    modifier = Modifier.weight(1f, fill = false),
-                                )
-                                if (selectedTileType == TileType.RIVER) {
-                                    RiverFlowIndicator(
-                                        flowDirection = selectedRiverFlow,
-                                        flowSpeed = selectedRiverSpeed,
-                                        size = 14.dp,
-                                    )
-                                }
-                                if (selectedTileType == TileType.TARGET) {
-                                    val typeLabel =
-                                        when (selectedTargetType) {
-                                            de.egril.defender.model.TargetType.STANDARD -> stringResource(Res.string.target_type_standard)
-                                            de.egril.defender.model.TargetType.SINGLE_HIT -> stringResource(Res.string.target_type_single_hit)
-                                        }
-                                    Text(
-                                        text = typeLabel,
-                                        fontSize = 9.sp,
-                                        color = MaterialTheme.colorScheme.primary,
-                                    )
-                                }
-                            }
-                            de.egril.defender.ui.icon
-                                .TriangleDownIcon(size = 10.dp)
-                        }
-                    }
-
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                    ) {
-                        TileType.entries.forEach { tileType ->
-                            DropdownMenuItem(
-                                text = {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        Box(
-                                            modifier =
-                                                Modifier
-                                                    .size(16.dp)
-                                                    .background(getTileColor(tileType), shape = MaterialTheme.shapes.small),
-                                        )
-                                        Text(tileType.name)
-                                    }
-                                },
-                                onClick = {
-                                    onTileTypeChange(tileType)
-                                    expanded = false
-                                    if (tileType == TileType.RIVER) {
-                                        showRiverPropertiesDialog = true
-                                    } else if (tileType == TileType.TARGET) {
-                                        showTargetPropertiesDialog = true
-                                    } else if (tileType == TileType.SPAWN_POINT) {
-                                        showSpawnPointPropertiesDialog = true
-                                    }
-                                },
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .size(16.dp)
+                                        .background(getTileColor(selectedTileType), shape = MaterialTheme.shapes.small),
                             )
-                        }
-                    }
-                }
-
-                if (selectedTileType == TileType.TARGET || selectedTileType == TileType.SPAWN_POINT) {
-                    val editLabel = stringResource(Res.string.edit)
-                    IconButton(
-                        onClick = {
-                            if (selectedTileType == TileType.TARGET) {
-                                showTargetPropertiesDialog = true
-                            } else {
-                                showSpawnPointPropertiesDialog = true
+                            Text(
+                                text = selectedTileType.name,
+                                fontSize = 11.sp,
+                                modifier = Modifier.weight(1f, fill = false),
+                            )
+                            if (selectedTileType == TileType.RIVER) {
+                                RiverFlowIndicator(
+                                    flowDirection = selectedRiverFlow,
+                                    flowSpeed = selectedRiverSpeed,
+                                    size = 14.dp,
+                                )
                             }
-                        },
-                        modifier = Modifier.size(32.dp).semantics { contentDescription = editLabel },
-                    ) {
+                            if (selectedTileType == TileType.TARGET) {
+                                val typeLabel =
+                                    when (selectedTargetType) {
+                                        de.egril.defender.model.TargetType.STANDARD -> stringResource(Res.string.target_type_standard)
+                                        de.egril.defender.model.TargetType.SINGLE_HIT -> stringResource(Res.string.target_type_single_hit)
+                                    }
+                                Text(
+                                    text = typeLabel,
+                                    fontSize = 9.sp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
                         de.egril.defender.ui.icon
-                            .PencilIcon(size = 16.dp)
+                            .TriangleDownIcon(size = 10.dp)
                     }
                 }
 
-                val replaceTilesLabel = stringResource(Res.string.replace_tiles)
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    TileType.entries.forEach { tileType ->
+                        DropdownMenuItem(
+                            text = {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .size(16.dp)
+                                                .background(getTileColor(tileType), shape = MaterialTheme.shapes.small),
+                                    )
+                                    Text(tileType.name)
+                                }
+                            },
+                            onClick = {
+                                onTileTypeChange(tileType)
+                                expanded = false
+                                if (tileType == TileType.RIVER) {
+                                    showRiverPropertiesDialog = true
+                                } else if (tileType == TileType.TARGET) {
+                                    showTargetPropertiesDialog = true
+                                } else if (tileType == TileType.SPAWN_POINT) {
+                                    showSpawnPointPropertiesDialog = true
+                                }
+                            },
+                        )
+                    }
+                }
+            }
+
+            if (selectedTileType == TileType.TARGET || selectedTileType == TileType.SPAWN_POINT) {
+                val editLabel = stringResource(Res.string.edit)
                 IconButton(
-                    onClick = onChangeAllNoPlayToPath,
-                    modifier = Modifier.size(32.dp).semantics { contentDescription = replaceTilesLabel },
+                    onClick = {
+                        if (selectedTileType == TileType.TARGET) {
+                            showTargetPropertiesDialog = true
+                        } else {
+                            showSpawnPointPropertiesDialog = true
+                        }
+                    },
+                    modifier = Modifier.size(32.dp).semantics { contentDescription = editLabel },
                 ) {
                     de.egril.defender.ui.icon
-                        .ToolsIcon(size = 16.dp)
+                        .PencilIcon(size = 16.dp)
                 }
+            }
 
-                val bgImageLabel =
-                    if (backgroundImageLoaded) {
-                        stringResource(Res.string.map_background_image_clear)
-                    } else {
-                        stringResource(Res.string.map_background_image_load)
-                    }
-                IconButton(
-                    onClick = if (backgroundImageLoaded) onClearBackgroundImage else onLoadBackgroundImage,
-                    modifier = Modifier.size(32.dp).semantics { contentDescription = bgImageLabel },
-                ) {
-                    if (backgroundImageLoaded) {
-                        de.egril.defender.ui.icon
-                            .CrossIcon(size = 16.dp, tint = MaterialTheme.colorScheme.primary)
-                    } else {
-                        de.egril.defender.ui.icon
-                            .DownloadIcon(size = 16.dp)
-                    }
+            val replaceTilesLabel = stringResource(Res.string.replace_tiles)
+            IconButton(
+                onClick = onChangeAllNoPlayToPath,
+                modifier = Modifier.size(32.dp).semantics { contentDescription = replaceTilesLabel },
+            ) {
+                de.egril.defender.ui.icon
+                    .ToolsIcon(size = 16.dp)
+            }
+
+            val bgImageLabel =
+                if (backgroundImageLoaded) {
+                    stringResource(Res.string.map_background_image_clear)
+                } else {
+                    stringResource(Res.string.map_background_image_load)
                 }
-
-                val expandLabel = stringResource(Res.string.expand)
-                IconButton(
-                    onClick = onExpand,
-                    modifier = Modifier.size(32.dp).semantics { contentDescription = expandLabel },
-                ) {
+            IconButton(
+                onClick = if (backgroundImageLoaded) onClearBackgroundImage else onLoadBackgroundImage,
+                modifier = Modifier.size(32.dp).semantics { contentDescription = bgImageLabel },
+            ) {
+                if (backgroundImageLoaded) {
                     de.egril.defender.ui.icon
-                        .LeftArrowIcon(size = 16.dp)
+                        .CrossIcon(size = 16.dp, tint = MaterialTheme.colorScheme.primary)
+                } else {
+                    de.egril.defender.ui.icon
+                        .DownloadIcon(size = 16.dp)
                 }
-                CompactToggleChip(
-                    label = stringResource(Res.string.map_flow_validator),
-                    active = showMapFlowOverlay,
-                    onClick = onToggleMapFlowOverlay,
-                )
-                CompactToggleChip(
-                    label = stringResource(Res.string.map_path_preview),
-                    active = showMapPathPreviewOverlay,
-                    onClick = onToggleMapPathPreviewOverlay,
-                )
-                AssistChip(
-                    onClick = onUndo,
-                    enabled = canUndo,
-                    label = { Text(stringResource(Res.string.undo), fontSize = 11.sp) },
-                )
-                AssistChip(
-                    onClick = onRedo,
-                    enabled = canRedo,
-                    label = { Text(stringResource(Res.string.redo), fontSize = 11.sp) },
-                )
-                AssistChip(
-                    onClick = onOpenAreaClipboard,
-                    label = { Text(stringResource(Res.string.area_clipboard), fontSize = 11.sp) },
-                )
+            }
+
+            val expandLabel = stringResource(Res.string.expand)
+            IconButton(
+                onClick = onExpand,
+                modifier = Modifier.size(32.dp).semantics { contentDescription = expandLabel },
+            ) {
+                de.egril.defender.ui.icon
+                    .LeftArrowIcon(size = 16.dp)
+            }
+            CompactToggleChip(
+                label = stringResource(Res.string.map_flow_validator),
+                active = showMapFlowOverlay,
+                onClick = onToggleMapFlowOverlay,
+            )
+            CompactToggleChip(
+                label = stringResource(Res.string.map_path_preview),
+                active = showMapPathPreviewOverlay,
+                onClick = onToggleMapPathPreviewOverlay,
+            )
+            AssistChip(
+                onClick = onUndo,
+                enabled = canUndo,
+                label = { Text(stringResource(Res.string.undo), fontSize = 11.sp) },
+            )
+            AssistChip(
+                onClick = onRedo,
+                enabled = canRedo,
+                label = { Text(stringResource(Res.string.redo), fontSize = 11.sp) },
+            )
+            AssistChip(
+                onClick = onOpenAreaClipboard,
+                label = { Text(stringResource(Res.string.area_clipboard), fontSize = 11.sp) },
+            )
         }
     }
 
@@ -964,7 +964,6 @@ private fun CollapsedMapEditorHeader(
                                     Text(flow.name.replace("_", " "), fontSize = 10.sp)
                                 }
                             }
-
                         }
 
                         // Second row

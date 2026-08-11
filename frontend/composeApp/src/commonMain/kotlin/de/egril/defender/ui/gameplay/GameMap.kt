@@ -40,8 +40,8 @@ import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.LogConfig
 import de.egril.defender.game.EnemyMovementSystem
-import de.egril.defender.game.PathfindingSystem
 import de.egril.defender.game.FreyaShieldWallArc
+import de.egril.defender.game.PathfindingSystem
 import de.egril.defender.game.freyaShieldWallArcs
 import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
@@ -66,6 +66,7 @@ import de.egril.defender.ui.animations.FreezeSpellAnimation
 import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.MineDigAnimation
+import de.egril.defender.ui.animations.MorvathShadowOrbOverlay
 import de.egril.defender.ui.animations.PikeAttackOverlay
 import de.egril.defender.ui.animations.RocketAttackOverlay
 import de.egril.defender.ui.animations.SkyIsFallingAnimation
@@ -79,7 +80,6 @@ import de.egril.defender.ui.animations.TrapTriggerAnimation
 import de.egril.defender.ui.animations.WaterFlowAnimation
 import de.egril.defender.ui.animations.WizardAttackOverlay
 import de.egril.defender.ui.animations.WizardIdleAnimation
-import de.egril.defender.ui.animations.MorvathShadowOrbOverlay
 import de.egril.defender.ui.animations.XarithonShadowCloudAnimation
 import de.egril.defender.ui.animations.XarithonShadowSpewOverlay
 import de.egril.defender.ui.editor.RiverFlowIndicator
@@ -105,16 +105,16 @@ import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreview
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
-import de.egril.defender.ui.icon.enemy.shouldShowSeafaringPirateBarge
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.icon.enemy.enemyAttackPreview
+import de.egril.defender.ui.icon.enemy.shouldShowSeafaringPirateBarge
 import de.egril.defender.ui.rememberMapImageState
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
-import kotlin.math.PI
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
@@ -2609,99 +2609,99 @@ private fun BoxScope.GridCellContent(
                             )
                         }
                     } else {
-                    if (fieldEffect?.type == FieldEffectType.WEB) {
-                        WebIcon(
-                            size = GamePlayConstants.TileIconSizes.SpiderWebBackground,
-                            color = Color(0xFFE6E0F8).copy(alpha = 0.7f),
-                        )
-                    }
-                    EnemyIcon(
-                        attacker = attacker,
-                        backgroundColor = attackerTileBackground,
-                        healthTextColor = healthTextColor,
-                        healthOverride = displayedHealth,
-                        moveVillainNameUp = true,
-                        showSeafaringPirateBarge = isPirateOnRiverTile,
-                    )
-                    if (isDangerous) {
-                        Text(
-                            text = "!",
-                            color = GamePlayColors.Error,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 14.dp),
-                        )
-                    }
-                    // Show healing effect overlay if present
-                    if (healingEffect != null) {
-                        GreenWitchHealingAnimation(
-                            animate = AppSettings.enableAnimations.value,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
-                    // Show freeze effect overlay
-                    if (freezeEffect != null) {
-                        FreezeSpellAnimation(
-                            animate = AppSettings.enableAnimations.value,
-                            modifier = Modifier.fillMaxSize(),
-                            animationKey = freezeEffect.attackerId,
-                        )
-                    }
-                    // Show fear effect overlay (black scribble cloud at top of icon)
-                    val fearEffect =
-                        gameState.activeSpellEffects.find { effect ->
-                            (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
-                                (
-                                    effect.spell == SpellType.FEAR_SPELL_AREA &&
-                                        effect.position != null &&
-                                        attacker.position.value.hexDistanceTo(effect.position) <= 2
-                                )
+                        if (fieldEffect?.type == FieldEffectType.WEB) {
+                            WebIcon(
+                                size = GamePlayConstants.TileIconSizes.SpiderWebBackground,
+                                color = Color(0xFFE6E0F8).copy(alpha = 0.7f),
+                            )
                         }
-                    if (fearEffect != null) {
-                        FearSpellAnimation(
-                            animate = AppSettings.enableAnimations.value,
-                            modifier = Modifier.fillMaxSize(),
+                        EnemyIcon(
+                            attacker = attacker,
+                            backgroundColor = attackerTileBackground,
+                            healthTextColor = healthTextColor,
+                            healthOverride = displayedHealth,
+                            moveVillainNameUp = true,
+                            showSeafaringPirateBarge = isPirateOnRiverTile,
                         )
-                    }
-                    // Show barb effect indicators if affected (show up to 5 arrows in center)
-                    if (attacker.movementPenalty.value > 0) {
-                        val barbCount = minOf(attacker.movementPenalty.value, 5)
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(2.dp),
-                                verticalAlignment = Alignment.CenterVertically,
+                        if (isDangerous) {
+                            Text(
+                                text = "!",
+                                color = GamePlayColors.Error,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 14.dp),
+                            )
+                        }
+                        // Show healing effect overlay if present
+                        if (healingEffect != null) {
+                            GreenWitchHealingAnimation(
+                                animate = AppSettings.enableAnimations.value,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        }
+                        // Show freeze effect overlay
+                        if (freezeEffect != null) {
+                            FreezeSpellAnimation(
+                                animate = AppSettings.enableAnimations.value,
+                                modifier = Modifier.fillMaxSize(),
+                                animationKey = freezeEffect.attackerId,
+                            )
+                        }
+                        // Show fear effect overlay (black scribble cloud at top of icon)
+                        val fearEffect =
+                            gameState.activeSpellEffects.find { effect ->
+                                (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
+                                    (
+                                        effect.spell == SpellType.FEAR_SPELL_AREA &&
+                                            effect.position != null &&
+                                            attacker.position.value.hexDistanceTo(effect.position) <= 2
+                                    )
+                            }
+                        if (fearEffect != null) {
+                            FearSpellAnimation(
+                                animate = AppSettings.enableAnimations.value,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        }
+                        // Show barb effect indicators if affected (show up to 5 arrows in center)
+                        if (attacker.movementPenalty.value > 0) {
+                            val barbCount = minOf(attacker.movementPenalty.value, 5)
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center,
                             ) {
-                                repeat(barbCount) {
-                                    Box(
-                                        modifier =
-                                            Modifier.graphicsLayer {
-                                                rotationZ = 10f // Tilt +10 degrees
-                                            },
-                                    ) {
-                                        de.egril.defender.ui.icon.DownArrowIcon(
-                                            size = 12.dp,
-                                            tint = Color.Red,
-                                        )
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    repeat(barbCount) {
+                                        Box(
+                                            modifier =
+                                                Modifier.graphicsLayer {
+                                                    rotationZ = 10f // Tilt +10 degrees
+                                                },
+                                        ) {
+                                            de.egril.defender.ui.icon.DownArrowIcon(
+                                                size = 12.dp,
+                                                tint = Color.Red,
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    // Attack damage / lethality / immunity preview at the left border
-                    if (attackPreview != null) {
-                        EnemyAttackPreviewIcon(
-                            damage = attackPreview.damage,
-                            isLethal = attackPreview.isLethal,
-                            isImmune = attackPreview.isImmune,
-                            modifier =
-                                Modifier
-                                    .align(Alignment.CenterStart)
-                                    .offset(x = 10.dp),
-                        )
-                    }
+                        // Attack damage / lethality / immunity preview at the left border
+                        if (attackPreview != null) {
+                            EnemyAttackPreviewIcon(
+                                damage = attackPreview.damage,
+                                isLethal = attackPreview.isLethal,
+                                isImmune = attackPreview.isImmune,
+                                modifier =
+                                    Modifier
+                                        .align(Alignment.CenterStart)
+                                        .offset(x = 10.dp),
+                            )
+                        }
                     } // end else (not shadow fog)
                 }
             }

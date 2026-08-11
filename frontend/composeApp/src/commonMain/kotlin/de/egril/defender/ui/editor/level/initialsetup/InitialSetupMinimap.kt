@@ -329,7 +329,8 @@ fun InitialSetupMinimap(
                             // Allow tower on tower base as long as no tower is already there
                             if (isTowerBase && !hasDefender) false else hasAnyElement
                         PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE,
-                        PlacementMode.FIEF -> hasAnyElement
+                        PlacementMode.FIEF,
+                        -> hasAnyElement
                         else -> false
                     }
 
@@ -418,10 +419,12 @@ fun InitialSetupMinimap(
         // Draw fiefs
         initialData.fiefs.forEach { fief ->
             val offsetXHex = if (fief.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX = geometry.offsetXCanvas + fief.position.x * geometry.hexWidth +
-                offsetXHex + geometry.hexWidth / 2
-            val centerY = geometry.offsetYCanvas + fief.position.y * geometry.verticalSpacing +
-                geometry.hexHeight / 2
+            val centerX =
+                geometry.offsetXCanvas + fief.position.x * geometry.hexWidth +
+                    offsetXHex + geometry.hexWidth / 2
+            val centerY =
+                geometry.offsetYCanvas + fief.position.y * geometry.verticalSpacing +
+                    geometry.hexHeight / 2
 
             drawCircle(
                 color = Color(0xFF4CAF50),

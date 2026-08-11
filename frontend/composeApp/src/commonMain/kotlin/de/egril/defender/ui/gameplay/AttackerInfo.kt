@@ -45,9 +45,7 @@ private data class AttackerInfoEntry(
  * Returns the localized description for an attacker type, or an empty string if none exists.
  */
 @Composable
-private fun getAttackerDescription(attackerType: AttackerType): String {
-    return attackerType.getLocalizedDescription()
-}
+private fun getAttackerDescription(attackerType: AttackerType): String = attackerType.getLocalizedDescription()
 
 /**
  * Display details about a selected enemy attacker

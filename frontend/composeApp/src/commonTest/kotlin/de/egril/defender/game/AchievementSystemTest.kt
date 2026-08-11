@@ -321,7 +321,6 @@ class AchievementSystemTest {
         )
     }
 
-
     @Test
     fun testHeadshotAchievement() {
         achievementManager.startTurn()

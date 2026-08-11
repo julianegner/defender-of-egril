@@ -49,17 +49,18 @@ class WaterSpawnPointTest {
 
     @Test
     fun regularEnemiesAreSpawnOnLandOnly() {
-        val landOnlyEnemies = listOf(
-            AttackerType.GOBLIN,
-            AttackerType.ORK,
-            AttackerType.OGRE,
-            AttackerType.SKELETON,
-            AttackerType.EVIL_WIZARD,
-            AttackerType.RED_WITCH,
-            AttackerType.GREEN_WITCH,
-            AttackerType.BLUE_DEMON,
-            AttackerType.RED_DEMON,
-        )
+        val landOnlyEnemies =
+            listOf(
+                AttackerType.GOBLIN,
+                AttackerType.ORK,
+                AttackerType.OGRE,
+                AttackerType.SKELETON,
+                AttackerType.EVIL_WIZARD,
+                AttackerType.RED_WITCH,
+                AttackerType.GREEN_WITCH,
+                AttackerType.BLUE_DEMON,
+                AttackerType.RED_DEMON,
+            )
         for (type in landOnlyEnemies) {
             assertTrue(type.canSpawnOnLand, "$type must be able to spawn on land")
             assertFalse(type.canSpawnOnWater, "$type must NOT be able to spawn on water")
@@ -84,10 +85,11 @@ class WaterSpawnPointTest {
             targetPositions = listOf(Position(5, 0), Position(5, 2)),
             pathCells = pathCells,
             attackerWaves = emptyList(),
-            spawnPointTypeMap = mapOf(
-                landSpawn to SpawnPointType.LAND,
-                waterSpawn to SpawnPointType.WATER,
-            ),
+            spawnPointTypeMap =
+                mapOf(
+                    landSpawn to SpawnPointType.LAND,
+                    waterSpawn to SpawnPointType.WATER,
+                ),
         )
     }
 
@@ -127,17 +129,18 @@ class WaterSpawnPointTest {
     fun fallsBackToAllSpawnPointsWhenNoneCompatible() {
         // Level with only water spawn points, but a land-only enemy
         val pathCells = (0..5).map { x -> Position(x, 0) }.toSet()
-        val level = Level(
-            id = 2,
-            name = "Water Only Map",
-            gridWidth = 6,
-            gridHeight = 1,
-            startPositions = listOf(Position(0, 0)),
-            targetPositions = listOf(Position(5, 0)),
-            pathCells = pathCells,
-            attackerWaves = emptyList(),
-            spawnPointTypeMap = mapOf(Position(0, 0) to SpawnPointType.WATER),
-        )
+        val level =
+            Level(
+                id = 2,
+                name = "Water Only Map",
+                gridWidth = 6,
+                gridHeight = 1,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(5, 0)),
+                pathCells = pathCells,
+                attackerWaves = emptyList(),
+                spawnPointTypeMap = mapOf(Position(0, 0) to SpawnPointType.WATER),
+            )
         // GOBLIN cannot spawn on water, but there is no land spawn point → fallback to all
         val compatible = level.getCompatibleSpawnPoints(AttackerType.GOBLIN)
         assertEquals(level.startPositions, compatible, "Should fall back to all spawn points when none are compatible")
@@ -155,36 +158,40 @@ class WaterSpawnPointTest {
     @Test
     fun krakenSpawnsOnWaterSpawnPointNotLand() {
         val level = levelWithBothSpawnTypes()
-        val spawnPlan = listOf(
-            PlannedEnemySpawn(AttackerType.THE_KRAKEN, spawnTurn = 1, level = 1),
-        )
+        val spawnPlan =
+            listOf(
+                PlannedEnemySpawn(AttackerType.THE_KRAKEN, spawnTurn = 1, level = 1),
+            )
         val state = GameState(level = level.copy(directSpawnPlan = spawnPlan))
         val engine = GameEngine(state)
         engine.startFirstPlayerTurn()
 
         assertEquals(1, state.attackers.size)
-        val krakenPos = state.attackers
-            .first()
-            .position
-            .value
+        val krakenPos =
+            state.attackers
+                .first()
+                .position
+                .value
         assertEquals(waterSpawn, krakenPos, "Kraken must have spawned at the water spawn point")
     }
 
     @Test
     fun orkSpawnsOnLandSpawnPointNotWater() {
         val level = levelWithBothSpawnTypes()
-        val spawnPlan = listOf(
-            PlannedEnemySpawn(AttackerType.ORK, spawnTurn = 1, level = 1),
-        )
+        val spawnPlan =
+            listOf(
+                PlannedEnemySpawn(AttackerType.ORK, spawnTurn = 1, level = 1),
+            )
         val state = GameState(level = level.copy(directSpawnPlan = spawnPlan))
         val engine = GameEngine(state)
         engine.startFirstPlayerTurn()
 
         assertEquals(1, state.attackers.size)
-        val orkPos = state.attackers
-            .first()
-            .position
-            .value
+        val orkPos =
+            state.attackers
+                .first()
+                .position
+                .value
         assertEquals(landSpawn, orkPos, "Ork must have spawned at the land spawn point")
     }
 
@@ -203,7 +210,12 @@ class WaterSpawnPointTest {
                 targetPositions = listOf(Position(5, 0)),
                 pathCells = emptySet(),
                 attackerWaves = emptyList(),
-                riverTiles = mapOf(nextRiver to de.egril.defender.model.RiverTile(nextRiver)),
+                riverTiles =
+                    mapOf(
+                        nextRiver to
+                            de.egril.defender.model
+                                .RiverTile(nextRiver),
+                    ),
                 spawnPointTypeMap = mapOf(spawn to SpawnPointType.WATER),
             )
         val state = GameState(level = level)
@@ -250,7 +262,7 @@ class WaterSpawnPointTest {
                 .first()
                 .position
                 .value,
-            "Roderich should spawn at the fixed water spawn point"
+            "Roderich should spawn at the fixed water spawn point",
         )
     }
 
@@ -268,7 +280,12 @@ class WaterSpawnPointTest {
                 targetPositions = listOf(Position(3, 0)),
                 pathCells = emptySet(),
                 attackerWaves = emptyList(),
-                riverTiles = mapOf(riverNeighbor to de.egril.defender.model.RiverTile(riverNeighbor)),
+                riverTiles =
+                    mapOf(
+                        riverNeighbor to
+                            de.egril.defender.model
+                                .RiverTile(riverNeighbor),
+                    ),
                 spawnPointTypeMap = mapOf(waterSpawn to SpawnPointType.WATER),
             )
         val state = GameState(level = level)

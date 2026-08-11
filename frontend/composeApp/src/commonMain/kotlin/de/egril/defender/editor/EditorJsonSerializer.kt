@@ -1277,7 +1277,8 @@ object EditorJsonSerializer {
                                     val type =
                                         try {
                                             val typeStr = JsonUtils.extractValue(entry, "type")
-                                            de.egril.defender.model.FiefType.valueOf(typeStr)
+                                            de.egril.defender.model.FiefType
+                                                .valueOf(typeStr)
                                         } catch (e: Exception) {
                                             de.egril.defender.model.FiefType.FISHER
                                         }
@@ -1915,9 +1916,16 @@ object EditorJsonSerializer {
         if (fiefsSection.isNotBlank()) {
             for (entry in splitJsonArrayObjects(fiefsSection)) {
                 val typeName = runCatching { JsonUtils.extractValue(entry, "type") }.getOrNull() ?: continue
-                val type = runCatching { de.egril.defender.model.FiefType.valueOf(typeName) }.getOrNull() ?: continue
+                val type =
+                    runCatching {
+                        de.egril.defender.model.FiefType
+                            .valueOf(typeName)
+                    }.getOrNull() ?: continue
                 val count = parseSupportCount(runCatching { JsonUtils.extractValue(entry, "count") }.getOrDefault(""))
-                fiefs.add(de.egril.defender.model.SupportFief(type = type, count = count))
+                fiefs.add(
+                    de.egril.defender.model
+                        .SupportFief(type = type, count = count),
+                )
             }
         }
 

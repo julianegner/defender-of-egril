@@ -131,9 +131,7 @@ data class Level(
     /**
      * Returns true when this spawn point is explicitly marked as WATER.
      */
-    fun isWaterSpawnPoint(position: Position): Boolean {
-        return isSpawnPoint(position) && getSpawnPointType(position) == SpawnPointType.WATER
-    }
+    fun isWaterSpawnPoint(position: Position): Boolean = isSpawnPoint(position) && getSpawnPointType(position) == SpawnPointType.WATER
 
     /**
      * Returns the type of the given spawn point (LAND or WATER).
@@ -147,14 +145,15 @@ data class Level(
      * Falls back to all start positions if no compatible point exists.
      */
     fun getCompatibleSpawnPoints(
-        attackerType: de.egril.defender.model.AttackerType
+        attackerType: de.egril.defender.model.AttackerType,
     ): List<Position> {
-        val compatible = startPositions.filter { pos ->
-            when (getSpawnPointType(pos)) {
-                SpawnPointType.WATER -> attackerType.canSpawnOnWater
-                SpawnPointType.LAND -> attackerType.canSpawnOnLand
+        val compatible =
+            startPositions.filter { pos ->
+                when (getSpawnPointType(pos)) {
+                    SpawnPointType.WATER -> attackerType.canSpawnOnWater
+                    SpawnPointType.LAND -> attackerType.canSpawnOnLand
+                }
             }
-        }
         return compatible.ifEmpty { startPositions }
     }
 
