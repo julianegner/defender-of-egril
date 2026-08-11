@@ -903,6 +903,11 @@
     <string name="all">tutti</string>
     <string name="requires">Richiede</string>
     <string name="entry_point">Punto di Ingresso</string>
+    <string name="villain_usage">Uso dei cattivi</string>
+    <string name="short_description">Descrizione breve</string>
+    <string name="used_in_levels">Usato nei livelli</string>
+    <string name="back_to_levels">Torna ai livelli</string>
+    <string name="not_used_in_any_level">Non usato in alcun livello</string>
 
     <!-- World Map Locations -->
     <string name="levels_at_location">%s livello/i in questa posizione</string>

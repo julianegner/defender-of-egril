@@ -46,49 +46,7 @@ private data class AttackerInfoEntry(
  */
 @Composable
 private fun getAttackerDescription(attackerType: AttackerType): String {
-    val stringRes = when (attackerType) {
-        // Standard enemies
-        AttackerType.GOBLIN -> Res.string.goblin_description
-        AttackerType.ORK -> Res.string.ork_description
-        AttackerType.OGRE -> Res.string.ogre_description
-        AttackerType.TROLL -> Res.string.troll_description
-        AttackerType.SKELETON -> Res.string.skeleton_description
-        AttackerType.ZOMBIE -> Res.string.zombie_description
-        AttackerType.EVIL_WIZARD -> Res.string.evil_wizard_description
-        AttackerType.BLUE_DEMON -> Res.string.blue_demon_description
-        AttackerType.RED_DEMON -> Res.string.red_demon_description
-        AttackerType.GHOST -> Res.string.ghost_description
-        AttackerType.PIRATE -> Res.string.pirate_description
-        AttackerType.RED_WITCH -> Res.string.red_witch_description
-        AttackerType.GREEN_WITCH -> Res.string.green_witch_description
-        AttackerType.SNOTLING -> Res.string.snotling_description
-        AttackerType.SPIDERLING -> Res.string.spiderling_description
-        AttackerType.ROBOTIC_GOBLIN -> Res.string.robotic_goblin_description
-        AttackerType.DRAGON -> Res.string.dragon_description
-        AttackerType.UNDEAD_DRAGON -> Res.string.undead_dragon_description
-        // Villains
-        AttackerType.EWHAD -> Res.string.villain_ewhad_description
-        AttackerType.GAROKK -> Res.string.villain_garokk_description
-        AttackerType.SNOTLING_BOSS -> Res.string.villain_gribnak_description
-        AttackerType.MORGUK_BONEWHISPER -> Res.string.villain_morguk_description
-        AttackerType.ARAXXA -> Res.string.villain_araxxa_description
-        AttackerType.BARON_RATTERZAHN -> Res.string.villain_ratterzahn_description
-        AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> Res.string.villain_freya_description
-        AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> Res.string.villain_valerius_description
-        AttackerType.SILAS_THE_MASKMASTER, AttackerType.SILAS_MIRROR_IMAGE -> Res.string.villain_silas_description
-        AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> Res.string.villain_sybilla_description
-        AttackerType.HAGA -> Res.string.villain_haga_description
-        AttackerType.ZUSSA -> Res.string.villain_zussa_description
-        AttackerType.SYLVANAS_THE_MOLDING -> Res.string.villain_sylvanas_description
-        AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> Res.string.villain_malakor_description
-        AttackerType.IGNIS_VA_THE_DRAGONVOICE -> Res.string.villain_ignis_va_description
-        AttackerType.MORVATH_THE_SHADOWMASTER -> Res.string.villain_morvath_description
-        AttackerType.XARITHON_THE_SHADOW_DRAGON -> Res.string.villain_xarithon_description
-        AttackerType.CAPTAIN_RODERICH -> Res.string.villain_roderich_description
-        AttackerType.THE_KRAKEN -> Res.string.villain_kraken_description
-        else -> null
-    }
-    return if (stringRes != null) stringResource(stringRes) else ""
+    return attackerType.getLocalizedDescription()
 }
 
 /**

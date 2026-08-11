@@ -84,6 +84,7 @@ fun LevelEditorContent() {
     var selectedLevelId by remember { mutableStateOf<String?>(null) }
     var editingLevel by remember { mutableStateOf<EditorLevel?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
+    var showVillainUsage by remember { mutableStateOf(false) }
     var levelToDelete by remember { mutableStateOf<EditorLevel?>(null) }
     val iamState by de.egril.defender.iam.IamService.state
 
@@ -98,6 +99,11 @@ fun LevelEditorContent() {
                 editingLevel = EditorStorage.getLevel(updatedLevel.id)
             },
             onCancel = { editingLevel = null },
+        )
+    } else if (showVillainUsage) {
+        VillainUsagePage(
+            levels = levels.value,
+            onBack = { showVillainUsage = false },
         )
     } else {
         // Level list view
@@ -115,8 +121,16 @@ fun LevelEditorContent() {
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
 
-                Button(onClick = { showCreateDialog = true }) {
-                    Text(stringResource(Res.string.create_new_level))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Button(onClick = { showVillainUsage = true }) {
+                        Text(stringResource(Res.string.villain_usage))
+                    }
+                    Button(onClick = { showCreateDialog = true }) {
+                        Text(stringResource(Res.string.create_new_level))
+                    }
                 }
             }
 

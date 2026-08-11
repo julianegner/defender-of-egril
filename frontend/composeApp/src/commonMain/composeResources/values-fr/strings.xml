@@ -903,6 +903,11 @@
     <string name="all">tous</string>
     <string name="requires">Nécessite</string>
     <string name="entry_point">Point d'Entrée</string>
+    <string name="villain_usage">Utilisation des méchants</string>
+    <string name="short_description">Description courte</string>
+    <string name="used_in_levels">Utilisé dans les niveaux</string>
+    <string name="back_to_levels">Retour aux niveaux</string>
+    <string name="not_used_in_any_level">Utilisé dans aucun niveau</string>
 
     <!-- World Map Locations -->
     <string name="levels_at_location">%s niveau(x) à cet emplacement</string>
