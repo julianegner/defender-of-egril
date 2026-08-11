@@ -399,7 +399,7 @@ fun MapEditorView(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var lastPaintedPos by remember { mutableStateOf<Position?>(null) }
-    var isHeaderExpanded by remember { mutableStateOf(true) }
+    var isHeaderExpanded by remember { mutableStateOf(false) }
     var backgroundImageBytes by remember { mutableStateOf<ByteArray?>(null) }
     var mapOverlayAlpha by remember { mutableStateOf(0.7f) }
     var resizeLeft by remember { mutableStateOf("0") }
@@ -410,6 +410,8 @@ fun MapEditorView(
     var redoHistory by remember { mutableStateOf(listOf<MapEditorSnapshot>()) }
     var areaClipboard by remember { mutableStateOf<MapRegionClipboard?>(null) }
     var showAreaClipboardDialog by remember { mutableStateOf(false) }
+    var showMapFlowOverlay by remember { mutableStateOf(false) }
+    var showMapPathPreviewOverlay by remember { mutableStateOf(false) }
     var copyFromX by remember { mutableStateOf("0") }
     var copyFromY by remember { mutableStateOf("0") }
     var copyToX by remember { mutableStateOf((map.width - 1).coerceAtLeast(0).toString()) }
@@ -510,7 +512,7 @@ fun MapEditorView(
     }
 
     // Calculate header height based on expanded/collapsed state
-    val headerHeight = if (isHeaderExpanded) 430.dp else 56.dp
+    val headerHeight = if (isHeaderExpanded) 430.dp else 72.dp
 
     // Brush paint callback - called when user drags in brush mode
     val onBrushPaint: (position: Position) -> Unit = { position ->
@@ -814,6 +816,79 @@ fun MapEditorView(
                     )
                 }
 
+                if (isHeaderExpanded) {
+                   Column(
+                       modifier =
+                           Modifier
+                               .align(Alignment.TopStart)
+                               .padding(8.dp),
+                       verticalArrangement = Arrangement.spacedBy(8.dp),
+                   ) {
+                       OverlayToggleButton(
+                           label = stringResource(Res.string.map_flow_validator),
+                           isActive = showMapFlowOverlay,
+                           onClick = { showMapFlowOverlay = !showMapFlowOverlay },
+                       )
+                       OverlayToggleButton(
+                           label = stringResource(Res.string.map_path_preview),
+                           isActive = showMapPathPreviewOverlay,
+                           onClick = { showMapPathPreviewOverlay = !showMapPathPreviewOverlay },
+                       )
+                       Button(
+                           onClick = {
+                               val snapshot = undoHistory.lastOrNull() ?: return@Button
+                               undoHistory = undoHistory.dropLast(1)
+                               redoHistory = (redoHistory + currentSnapshot()).takeLast(40)
+                               restoreSnapshot(snapshot)
+                           },
+                           enabled = undoHistory.isNotEmpty(),
+                       ) {
+                           Text(stringResource(Res.string.undo))
+                       }
+                       Button(
+                           onClick = {
+                               val snapshot = redoHistory.lastOrNull() ?: return@Button
+                               redoHistory = redoHistory.dropLast(1)
+                               undoHistory = (undoHistory + currentSnapshot()).takeLast(40)
+                               restoreSnapshot(snapshot)
+                           },
+                           enabled = redoHistory.isNotEmpty(),
+                       ) {
+                           Text(stringResource(Res.string.redo))
+                       }
+                       Button(
+                           onClick = { showAreaClipboardDialog = true },
+                       ) {
+                           Text(stringResource(Res.string.area_clipboard))
+                       }
+                   }
+                }
+
+                if (showMapFlowOverlay || showMapPathPreviewOverlay) {
+                    Column(
+                        modifier =
+                            Modifier
+                                .align(Alignment.TopStart)
+                                .padding(
+                                    start = if (isHeaderExpanded) 180.dp else 8.dp,
+                                    top = if (isHeaderExpanded) 8.dp else 80.dp,
+                                    end = 8.dp,
+                                )
+                                .widthIn(max = 420.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        if (showMapFlowOverlay) {
+                            MapFlowValidatorCard(summary = mapFlowSummary)
+                            if (mapUsageIssues.isNotEmpty()) {
+                                MapUsageConsistencyCard(issues = mapUsageIssues)
+                            }
+                        }
+                        if (showMapPathPreviewOverlay) {
+                            MapPathPreviewCard(previews = pathPreviews)
+                        }
+                    }
+                }
+
                 /*
                 Box(
                     modifier = Modifier
@@ -872,64 +947,6 @@ fun MapEditorView(
                     }
                 }
                  */
-            }
-
-            MapFlowValidatorCard(summary = mapFlowSummary)
-
-            MapPathPreviewCard(previews = pathPreviews)
-
-            if (mapUsageIssues.isNotEmpty()) {
-                MapUsageConsistencyCard(issues = mapUsageIssues)
-            }
-
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Text(
-                        text = stringResource(Res.string.editor_history),
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Button(
-                            onClick = {
-                                val snapshot = undoHistory.lastOrNull() ?: return@Button
-                                undoHistory = undoHistory.dropLast(1)
-                                redoHistory = (redoHistory + currentSnapshot()).takeLast(40)
-                                restoreSnapshot(snapshot)
-                            },
-                            enabled = undoHistory.isNotEmpty(),
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            Text(stringResource(Res.string.undo))
-                        }
-                        Button(
-                            onClick = {
-                                val snapshot = redoHistory.lastOrNull() ?: return@Button
-                                redoHistory = redoHistory.dropLast(1)
-                                undoHistory = (undoHistory + currentSnapshot()).takeLast(40)
-                                restoreSnapshot(snapshot)
-                            },
-                            enabled = redoHistory.isNotEmpty(),
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            Text(stringResource(Res.string.redo))
-                        }
-                        Button(
-                            onClick = { showAreaClipboardDialog = true },
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            Text(stringResource(Res.string.area_clipboard))
-                        }
-                    }
-                }
             }
 
             // Action buttons
@@ -1226,6 +1243,27 @@ fun MapEditorView(
             onClearBackgroundImage = { backgroundImageBytes = null },
             mapOverlayAlpha = mapOverlayAlpha,
             onMapOverlayAlphaChange = { mapOverlayAlpha = it },
+            showMapFlowOverlay = showMapFlowOverlay,
+            onToggleMapFlowOverlay = { showMapFlowOverlay = !showMapFlowOverlay },
+            showMapPathPreviewOverlay = showMapPathPreviewOverlay,
+            onToggleMapPathPreviewOverlay = { showMapPathPreviewOverlay = !showMapPathPreviewOverlay },
+            onUndo = {
+                undoHistory.lastOrNull()?.let { snapshot ->
+                    undoHistory = undoHistory.dropLast(1)
+                    redoHistory = (redoHistory + currentSnapshot()).takeLast(40)
+                    restoreSnapshot(snapshot)
+                }
+            },
+            canUndo = undoHistory.isNotEmpty(),
+            onRedo = {
+                redoHistory.lastOrNull()?.let { snapshot ->
+                    redoHistory = redoHistory.dropLast(1)
+                    undoHistory = (undoHistory + currentSnapshot()).takeLast(40)
+                    restoreSnapshot(snapshot)
+                }
+            },
+            canRedo = redoHistory.isNotEmpty(),
+            onOpenAreaClipboard = { showAreaClipboardDialog = true },
         )
     }
 
@@ -1832,6 +1870,34 @@ private fun MapFlowMetric(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(text = value, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+private fun OverlayToggleButton(
+    label: String,
+    isActive: Boolean,
+    onClick: () -> Unit,
+) {
+    Button(
+        onClick = onClick,
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor =
+                    if (isActive) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    },
+                contentColor =
+                    if (isActive) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+            ),
+    ) {
+        Text(label)
     }
 }
 
