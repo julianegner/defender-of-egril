@@ -51,4 +51,24 @@ class EditorTemplateJsonSerializerTest {
         assertEquals(AttackerType.ORK, template.variants.single().entries.last().attackerType)
         assertEquals(1, template.variants.single().entries.last().levelOffset)
     }
+
+    @Test
+    fun deserializeMapTemplateParsesLayoutKind() {
+        val template =
+            EditorTemplateJsonSerializer.deserializeMapTemplate(
+                """
+                {
+                  "metadata": {"program": "Defender of Egril", "type": "map-template"},
+                  "data": {
+                    "id": "straight_approach",
+                    "name": "Straight approach",
+                    "layoutKind": "STRAIGHT_APPROACH"
+                  }
+                }
+                """.trimIndent(),
+            )
+
+        assertNotNull(template)
+        assertEquals(MapTemplateLayoutKind.STRAIGHT_APPROACH, template.layoutKind)
+    }
 }

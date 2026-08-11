@@ -38,6 +38,22 @@ fun MapEditorHeader(
     onMapAuthorChange: (String) -> Unit,
     mapToolingInfo: String,
     onMapToolingInfoChange: (String) -> Unit,
+    mapWidth: Int,
+    mapHeight: Int,
+    resizeLeft: String,
+    onResizeLeftChange: (String) -> Unit,
+    resizeRight: String,
+    onResizeRightChange: (String) -> Unit,
+    resizeTop: String,
+    onResizeTopChange: (String) -> Unit,
+    resizeBottom: String,
+    onResizeBottomChange: (String) -> Unit,
+    onApplyResize: () -> Unit,
+    canApplyResize: Boolean,
+    resultingMapWidth: Int,
+    resultingMapHeight: Int,
+    showUnsafeResizeWarning: Boolean,
+    mapUsageLevelNames: List<String>,
     selectedTileType: TileType,
     onTileTypeChange: (TileType) -> Unit,
     selectedRiverFlow: de.egril.defender.model.RiverFlow,
@@ -71,6 +87,22 @@ fun MapEditorHeader(
             onMapAuthorChange = onMapAuthorChange,
             mapToolingInfo = mapToolingInfo,
             onMapToolingInfoChange = onMapToolingInfoChange,
+            mapWidth = mapWidth,
+            mapHeight = mapHeight,
+            resizeLeft = resizeLeft,
+            onResizeLeftChange = onResizeLeftChange,
+            resizeRight = resizeRight,
+            onResizeRightChange = onResizeRightChange,
+            resizeTop = resizeTop,
+            onResizeTopChange = onResizeTopChange,
+            resizeBottom = resizeBottom,
+            onResizeBottomChange = onResizeBottomChange,
+            onApplyResize = onApplyResize,
+            canApplyResize = canApplyResize,
+            resultingMapWidth = resultingMapWidth,
+            resultingMapHeight = resultingMapHeight,
+            showUnsafeResizeWarning = showUnsafeResizeWarning,
+            mapUsageLevelNames = mapUsageLevelNames,
             selectedTileType = selectedTileType,
             onTileTypeChange = onTileTypeChange,
             selectedRiverFlow = selectedRiverFlow,
@@ -129,6 +161,22 @@ private fun ExpandedMapEditorHeader(
     onMapAuthorChange: (String) -> Unit,
     mapToolingInfo: String,
     onMapToolingInfoChange: (String) -> Unit,
+    mapWidth: Int,
+    mapHeight: Int,
+    resizeLeft: String,
+    onResizeLeftChange: (String) -> Unit,
+    resizeRight: String,
+    onResizeRightChange: (String) -> Unit,
+    resizeTop: String,
+    onResizeTopChange: (String) -> Unit,
+    resizeBottom: String,
+    onResizeBottomChange: (String) -> Unit,
+    onApplyResize: () -> Unit,
+    canApplyResize: Boolean,
+    resultingMapWidth: Int,
+    resultingMapHeight: Int,
+    showUnsafeResizeWarning: Boolean,
+    mapUsageLevelNames: List<String>,
     selectedTileType: TileType,
     onTileTypeChange: (TileType) -> Unit,
     selectedRiverFlow: de.egril.defender.model.RiverFlow,
@@ -266,6 +314,85 @@ private fun ExpandedMapEditorHeader(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 singleLine = true,
             )
+
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
+            ) {
+                Column(
+                    modifier = Modifier.padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(
+                        text = "${stringResource(Res.string.map_size)}: $mapWidth x $mapHeight",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Text(
+                        text = stringResource(Res.string.resize_map_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = resizeLeft,
+                            onValueChange = { if (it.isEmpty() || it == "-" || it.matches(Regex("-?[0-9]+"))) onResizeLeftChange(it) },
+                            label = { Text(stringResource(Res.string.columns_left)) },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                        )
+                        OutlinedTextField(
+                            value = resizeRight,
+                            onValueChange = { if (it.isEmpty() || it == "-" || it.matches(Regex("-?[0-9]+"))) onResizeRightChange(it) },
+                            label = { Text(stringResource(Res.string.columns_right)) },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                        )
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = resizeTop,
+                            onValueChange = { if (it.isEmpty() || it == "-" || it.matches(Regex("-?[0-9]+"))) onResizeTopChange(it) },
+                            label = { Text(stringResource(Res.string.rows_top)) },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                        )
+                        OutlinedTextField(
+                            value = resizeBottom,
+                            onValueChange = { if (it.isEmpty() || it == "-" || it.matches(Regex("-?[0-9]+"))) onResizeBottomChange(it) },
+                            label = { Text(stringResource(Res.string.rows_bottom)) },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                        )
+                    }
+                    Text(
+                        text = stringResource(Res.string.resulting_map_size, resultingMapWidth, resultingMapHeight),
+                        style = MaterialTheme.typography.bodySmall,
+                        color =
+                            if (canApplyResize) {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.error
+                            },
+                    )
+                    if (showUnsafeResizeWarning) {
+                        Text(
+                            text =
+                                "${stringResource(Res.string.map_resize_in_use_warning)} ${stringResource(Res.string.used_in_levels)}: ${mapUsageLevelNames.joinToString(", ")}",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    Button(
+                        onClick = onApplyResize,
+                        enabled = canApplyResize && (!map.isOfficial || de.egril.defender.OfficialEditMode.enabled),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(Res.string.apply))
+                    }
+                }
+            }
 
             // Tile type selector
             Text(

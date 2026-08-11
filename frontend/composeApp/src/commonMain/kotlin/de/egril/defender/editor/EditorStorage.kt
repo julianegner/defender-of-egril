@@ -570,12 +570,7 @@ object EditorStorage {
             .filter { it.endsWith(".json") }
             .mapNotNull { filename ->
                 val json = fileStorage.readFile("$directory/$filename") ?: return@mapNotNull null
-                val templateMap = EditorJsonSerializer.deserializeMap(json) ?: return@mapNotNull null
-                MapTemplateDefinition(
-                    id = templateMap.id,
-                    name = templateMap.name,
-                    templateMap = templateMap.copy(isOfficial = false),
-                )
+                EditorTemplateJsonSerializer.deserializeMapTemplate(json)
             }
 
     private fun loadSpawnTurnTemplatesFromDirectory(directory: String): List<SpawnTurnTemplateDefinition> =

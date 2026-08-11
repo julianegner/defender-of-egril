@@ -87,9 +87,9 @@ internal fun CreateMapDialog(
     var templateExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(selectedTemplate?.id) {
-        selectedTemplate?.let { template ->
-            width = template.templateMap.width.toString()
-            height = template.templateMap.height.toString()
+        selectedTemplate?.templateMap?.let { templateMap ->
+            width = templateMap.width.toString()
+            height = templateMap.height.toString()
         }
     }
 
@@ -107,14 +107,14 @@ internal fun CreateMapDialog(
                 OutlinedTextField(
                     value = width,
                     onValueChange = { if (it.all { c -> c.isDigit() }) width = it },
-                    enabled = selectedTemplate == null,
+                    enabled = selectedTemplate?.templateMap == null,
                     label = { Text(stringResource(Res.string.width)) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 )
                 OutlinedTextField(
                     value = height,
                     onValueChange = { if (it.all { c -> c.isDigit() }) height = it },
-                    enabled = selectedTemplate == null,
+                    enabled = selectedTemplate?.templateMap == null,
                     label = { Text(stringResource(Res.string.height)) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 )

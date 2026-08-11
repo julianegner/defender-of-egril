@@ -35,6 +35,30 @@ object EditorTemplateJsonSerializer {
         )
     }
 
+    fun deserializeMapTemplate(json: String): MapTemplateDefinition? {
+        val dataJson = JsonUtils.extractDataSection(json)
+        val id = JsonUtils.extractStringValue(dataJson, "id")
+        val name = JsonUtils.extractStringValue(dataJson, "name")
+        if (id.isBlank() || name.isBlank()) return null
+
+        val layoutKindName = JsonUtils.extractStringValue(dataJson, "layoutKind")
+        val layoutKind = runCatching { MapTemplateLayoutKind.valueOf(layoutKindName) }.getOrNull()
+        if (layoutKind != null) {
+            return MapTemplateDefinition(
+                id = id,
+                name = name,
+                layoutKind = layoutKind,
+            )
+        }
+
+        val templateMap = EditorJsonSerializer.deserializeMap(json) ?: return null
+        return MapTemplateDefinition(
+            id = id,
+            name = name,
+            templateMap = templateMap.copy(isOfficial = false),
+        )
+    }
+
     private fun deserializeVariant(json: String): SpawnTurnTemplateVariant? {
         val kindName = JsonUtils.extractStringValue(json, "kind")
         val kind = runCatching { EditorEnemyTemplateKind.valueOf(kindName) }.getOrNull() ?: return null

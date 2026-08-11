@@ -64,6 +64,79 @@ private fun nameToMapId(name: String): String {
     return if (sanitized.isNotEmpty()) "map_$sanitized" else ""
 }
 
+internal data class ResizedMapData(
+    val width: Int,
+    val height: Int,
+    val tiles: MutableMap<String, TileType>,
+    val riverTiles: MutableMap<String, RiverTile>,
+    val targetInfoMap: MutableMap<String, EditorTargetInfo>,
+    val spawnPointInfoMap: MutableMap<String, SpawnPointType>,
+)
+
+internal fun applyResizeToMapData(
+    width: Int,
+    height: Int,
+    leftDelta: Int,
+    rightDelta: Int,
+    topDelta: Int,
+    bottomDelta: Int,
+    tiles: Map<String, TileType>,
+    riverTiles: Map<String, RiverTile>,
+    targetInfoMap: Map<String, EditorTargetInfo>,
+    spawnPointInfoMap: Map<String, SpawnPointType>,
+): ResizedMapData {
+    val newWidth = width + leftDelta + rightDelta
+    val newHeight = height + topDelta + bottomDelta
+    require(newWidth > 0 && newHeight > 0)
+
+    fun shiftedPosition(position: Position): Position? {
+        val shifted = Position(position.x + leftDelta, position.y + topDelta)
+        return shifted.takeIf { it.x in 0 until newWidth && it.y in 0 until newHeight }
+    }
+
+    val resizedTiles = mutableMapOf<String, TileType>()
+    tiles.forEach { (key, value) ->
+        val (x, y) = key.split(",").let { it[0].toInt() to it[1].toInt() }
+        shiftedPosition(Position(x, y))?.let { resizedTiles["${it.x},${it.y}"] = value }
+    }
+
+    val resizedRiverTiles = mutableMapOf<String, RiverTile>()
+    riverTiles.forEach { (_, riverTile) ->
+        shiftedPosition(riverTile.position)?.let { shifted ->
+            resizedRiverTiles["${shifted.x},${shifted.y}"] =
+                riverTile.copy(position = shifted)
+        }
+    }
+
+    val resizedTargetInfo = mutableMapOf<String, EditorTargetInfo>()
+    targetInfoMap.forEach { (key, info) ->
+        val (x, y) = key.split(",").let { it[0].toInt() to it[1].toInt() }
+        shiftedPosition(Position(x, y))?.let { resizedTargetInfo["${it.x},${it.y}"] = info }
+    }
+
+    val resizedSpawnPointInfo = mutableMapOf<String, SpawnPointType>()
+    spawnPointInfoMap.forEach { (key, type) ->
+        val (x, y) = key.split(",").let { it[0].toInt() to it[1].toInt() }
+        shiftedPosition(Position(x, y))?.let { resizedSpawnPointInfo["${it.x},${it.y}"] = type }
+    }
+
+    return ResizedMapData(
+        width = newWidth,
+        height = newHeight,
+        tiles = resizedTiles,
+        riverTiles = resizedRiverTiles,
+        targetInfoMap = resizedTargetInfo,
+        spawnPointInfoMap = resizedSpawnPointInfo,
+    )
+}
+
+internal fun isSafeEndExpansion(
+    leftDelta: Int,
+    rightDelta: Int,
+    topDelta: Int,
+    bottomDelta: Int,
+): Boolean = leftDelta == 0 && topDelta == 0 && rightDelta >= 0 && bottomDelta >= 0
+
 /**
  * View for editing a map
  */
@@ -73,6 +146,8 @@ fun MapEditorView(
     onSave: (EditorMap, String?, ByteArray?) -> Unit,
     onCancel: () -> Unit,
 ) {
+    var mapWidth by remember { mutableStateOf(map.width) }
+    var mapHeight by remember { mutableStateOf(map.height) }
     var tiles by remember { mutableStateOf(map.tiles.toMutableMap()) }
     var riverTiles by remember { mutableStateOf(map.riverTiles.toMutableMap()) }
     var targetInfoMap by remember { mutableStateOf(map.targetInfoMap.toMutableMap()) }
@@ -112,6 +187,10 @@ fun MapEditorView(
     var isHeaderExpanded by remember { mutableStateOf(true) }
     var backgroundImageBytes by remember { mutableStateOf<ByteArray?>(null) }
     var mapOverlayAlpha by remember { mutableStateOf(0.7f) }
+    var resizeLeft by remember { mutableStateOf("0") }
+    var resizeRight by remember { mutableStateOf("0") }
+    var resizeTop by remember { mutableStateOf("0") }
+    var resizeBottom by remember { mutableStateOf("0") }
     val backgroundImagePainter =
         remember(backgroundImageBytes) {
             backgroundImageBytes?.let { bytes ->
@@ -126,8 +205,10 @@ fun MapEditorView(
 
     // Create updated map for minimap that reflects current tiles state
     val currentMap =
-        remember(tiles, riverTiles, targetInfoMap, spawnPointInfoMap, mapToolingInfo) {
+        remember(mapWidth, mapHeight, tiles, riverTiles, targetInfoMap, spawnPointInfoMap, mapToolingInfo) {
             map.copy(
+                width = mapWidth,
+                height = mapHeight,
                 tiles = tiles.toMap(),
                 riverTiles = riverTiles.toMap(),
                 targetInfoMap = targetInfoMap.toMap(),
@@ -136,12 +217,31 @@ fun MapEditorView(
             )
         }
     val mapFlowSummary = remember(currentMap) { analyzeMapFlow(currentMap) }
+    val levelsUsingMap =
+        remember(map.id) {
+            EditorStorage.getAllLevels().filter { it.mapId == map.id }
+        }
+    val parsedResizeLeft = resizeLeft.toIntOrNull() ?: 0
+    val parsedResizeRight = resizeRight.toIntOrNull() ?: 0
+    val parsedResizeTop = resizeTop.toIntOrNull() ?: 0
+    val parsedResizeBottom = resizeBottom.toIntOrNull() ?: 0
+    val resizedWidthPreview = mapWidth + parsedResizeLeft + parsedResizeRight
+    val resizedHeightPreview = mapHeight + parsedResizeTop + parsedResizeBottom
+    val canApplyResize = resizedWidthPreview > 0 && resizedHeightPreview > 0
+    val showUnsafeResizeWarning =
+        levelsUsingMap.isNotEmpty() &&
+            !isSafeEndExpansion(
+                leftDelta = parsedResizeLeft,
+                rightDelta = parsedResizeRight,
+                topDelta = parsedResizeTop,
+                bottomDelta = parsedResizeBottom,
+            )
 
     // Hexagon dimensions - using same constants as game (40.dp)
     val hexSize = 40.dp
 
     // Calculate header height based on expanded/collapsed state
-    val headerHeight = if (isHeaderExpanded) 280.dp else 56.dp
+    val headerHeight = if (isHeaderExpanded) 430.dp else 56.dp
 
     // Brush paint callback - called when user drags in brush mode
     val onBrushPaint: (position: Position) -> Unit = { position ->
@@ -232,8 +332,8 @@ fun MapEditorView(
                 }
 
                 HexagonalMapView(
-                    gridWidth = map.width,
-                    gridHeight = map.height,
+                    gridWidth = mapWidth,
+                    gridHeight = mapHeight,
                     config =
                         HexagonalMapConfig(
                             hexSize = hexSize.value,
@@ -518,6 +618,8 @@ fun MapEditorView(
                                 name = mapName,
                                 author = mapAuthor,
                                 mapToolingInfo = mapToolingInfo,
+                                width = mapWidth,
+                                height = mapHeight,
                                 tiles = tiles.toMap(),
                                 riverTiles = riverTiles.toMap(),
                                 targetInfoMap = targetInfoMap.toMap(),
@@ -552,9 +654,11 @@ fun MapEditorView(
             val iamState by de.egril.defender.iam.IamService.state
             if (!map.isOfficial && iamState.isAuthenticated) {
                 val currentMapJson =
-                    remember(map.id, map.hashCode(), tiles.hashCode(), riverTiles.hashCode(), spawnPointInfoMap.hashCode(), mapToolingInfo) {
+                    remember(map.id, mapWidth, mapHeight, tiles.hashCode(), riverTiles.hashCode(), targetInfoMap.hashCode(), spawnPointInfoMap.hashCode(), mapToolingInfo) {
                         val updatedMap =
                             map.copy(
+                                width = mapWidth,
+                                height = mapHeight,
                                 tiles = tiles.toMap(),
                                 riverTiles = riverTiles.toMap(),
                                 targetInfoMap = targetInfoMap.toMap(),
@@ -587,6 +691,8 @@ fun MapEditorView(
                         if (success) {
                             val updatedMap =
                                 map.copy(
+                                    width = mapWidth,
+                                    height = mapHeight,
                                     tiles = tiles.toMap(),
                                     riverTiles = riverTiles.toMap(),
                                     targetInfoMap = targetInfoMap.toMap(),
@@ -690,8 +796,52 @@ fun MapEditorView(
             onMapAuthorChange = { mapAuthor = it },
             mapToolingInfo = mapToolingInfo,
             onMapToolingInfoChange = { mapToolingInfo = it },
-            selectedTileType = selectedTileType,
-            onTileTypeChange = { selectedTileType = it },
+                mapWidth = mapWidth,
+                mapHeight = mapHeight,
+                resizeLeft = resizeLeft,
+                onResizeLeftChange = { resizeLeft = it },
+                resizeRight = resizeRight,
+                onResizeRightChange = { resizeRight = it },
+                resizeTop = resizeTop,
+                onResizeTopChange = { resizeTop = it },
+                resizeBottom = resizeBottom,
+                onResizeBottomChange = { resizeBottom = it },
+                onApplyResize = {
+                    if (canApplyResize) {
+                        val resized =
+                            applyResizeToMapData(
+                                width = mapWidth,
+                                height = mapHeight,
+                                leftDelta = parsedResizeLeft,
+                                rightDelta = parsedResizeRight,
+                                topDelta = parsedResizeTop,
+                                bottomDelta = parsedResizeBottom,
+                                tiles = tiles,
+                                riverTiles = riverTiles,
+                                targetInfoMap = targetInfoMap,
+                                spawnPointInfoMap = spawnPointInfoMap,
+                            )
+                        mapWidth = resized.width
+                        mapHeight = resized.height
+                        tiles = resized.tiles
+                        riverTiles = resized.riverTiles
+                        targetInfoMap = resized.targetInfoMap
+                        spawnPointInfoMap = resized.spawnPointInfoMap
+                        replacementToX = (resized.width - 1).coerceAtLeast(0).toString()
+                        replacementToY = (resized.height - 1).coerceAtLeast(0).toString()
+                        resizeLeft = "0"
+                        resizeRight = "0"
+                        resizeTop = "0"
+                        resizeBottom = "0"
+                    }
+                },
+                canApplyResize = canApplyResize,
+                resultingMapWidth = resizedWidthPreview,
+                resultingMapHeight = resizedHeightPreview,
+                showUnsafeResizeWarning = showUnsafeResizeWarning,
+                mapUsageLevelNames = levelsUsingMap.map { it.title.ifBlank { it.id } },
+                selectedTileType = selectedTileType,
+                onTileTypeChange = { selectedTileType = it },
             selectedRiverFlow = selectedRiverFlow,
             onRiverFlowChange = { selectedRiverFlow = it },
             selectedRiverSpeed = selectedRiverSpeed,
@@ -705,8 +855,8 @@ fun MapEditorView(
                 replacementLimitToArea = false
                 replacementFromX = "0"
                 replacementFromY = "0"
-                replacementToX = (map.width - 1).coerceAtLeast(0).toString()
-                replacementToY = (map.height - 1).coerceAtLeast(0).toString()
+                replacementToX = (mapWidth - 1).coerceAtLeast(0).toString()
+                replacementToY = (mapHeight - 1).coerceAtLeast(0).toString()
                 showTileReplacementDialog = true
             },
             isExpanded = isHeaderExpanded,
@@ -750,6 +900,8 @@ fun MapEditorView(
                         name = newName,
                         author = mapAuthor,
                         mapToolingInfo = mapToolingInfo,
+                        width = mapWidth,
+                        height = mapHeight,
                         tiles = tiles.toMap(),
                         riverTiles = riverTiles.toMap(),
                         targetInfoMap = targetInfoMap.toMap(),
@@ -957,8 +1109,8 @@ fun MapEditorView(
                         val (updatedTiles, changedKeys) =
                             replaceTilesByType(
                                 tiles = tiles,
-                                mapWidth = map.width,
-                                mapHeight = map.height,
+                                mapWidth = mapWidth,
+                                mapHeight = mapHeight,
                                 sourceTileType = replacementSourceTileType,
                                 targetTileType = replacementTargetTileType,
                                 area = area,

@@ -41,5 +41,13 @@ data class SpawnTurnTemplateDefinition(
 data class MapTemplateDefinition(
     val id: String,
     val name: String,
-    val templateMap: EditorMap,
+    val layoutKind: MapTemplateLayoutKind? = null,
+    val templateMap: EditorMap? = null,
 )
+
+enum class MapTemplateLayoutKind {
+    STRAIGHT_APPROACH,
+    SPLIT_LANES,
+    RIVER_CROSSING,
+    SPIRAL_SIEGE,
+}
