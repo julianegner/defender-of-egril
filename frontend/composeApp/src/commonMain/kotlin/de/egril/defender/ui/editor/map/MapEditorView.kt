@@ -35,6 +35,11 @@ import de.egril.defender.ui.constrainMapOffsets
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.ui.editor.SaveAsDialog
+import de.egril.defender.ui.editor.level.DensityBand
+import de.egril.defender.ui.editor.level.MapFlowSummary
+import de.egril.defender.ui.editor.level.MapLaneShape
+import de.egril.defender.ui.editor.level.TravelBand
+import de.egril.defender.ui.editor.level.analyzeMapFlow
 import de.egril.defender.ui.editor.getTileColor
 import de.egril.defender.ui.hexagon.BaseGridCell
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
@@ -130,6 +135,7 @@ fun MapEditorView(
                 mapToolingInfo = mapToolingInfo,
             )
         }
+    val mapFlowSummary = remember(currentMap) { analyzeMapFlow(currentMap) }
 
     // Hexagon dimensions - using same constants as game (40.dp)
     val hexSize = 40.dp
@@ -487,6 +493,8 @@ fun MapEditorView(
                 }
                  */
             }
+
+            MapFlowValidatorCard(summary = mapFlowSummary)
 
             // Action buttons
             Row(
@@ -1086,3 +1094,81 @@ fun MapEditorView(
         )
     }
 }
+
+@Composable
+private fun MapFlowValidatorCard(summary: MapFlowSummary) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(
+                text = stringResource(Res.string.map_flow_validator),
+                style = MaterialTheme.typography.titleSmall,
+            )
+            Text(
+                text = if (summary.isReady) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
+                color = if (summary.isReady) Color(0xFF2E7D32) else Color.Red,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                MapFlowMetric(stringResource(Res.string.lane_shape), summary.laneShape.localizedLabel())
+                MapFlowMetric(stringResource(Res.string.build_coverage), summary.buildCoverage.localizedLabel())
+                MapFlowMetric(stringResource(Res.string.travel_length), summary.travelLength.localizedLabel())
+            }
+            Text(
+                text = "${stringResource(Res.string.dead_corridor)}: ${summary.longestDeadCorridor}",
+                style = MaterialTheme.typography.bodySmall,
+                color = if (summary.longestDeadCorridor >= 8) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = "${stringResource(Res.string.connectivity)}: ${summary.spawnCount}/${summary.targetCount}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+    }
+}
+
+@Composable
+private fun MapFlowMetric(
+    label: String,
+    value: String,
+) {
+    Column {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(text = value, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+private fun MapLaneShape.localizedLabel(): String =
+    when (this) {
+        MapLaneShape.STRAIGHT -> stringResource(Res.string.lane_shape_straight)
+        MapLaneShape.BRANCHING -> stringResource(Res.string.lane_shape_branching)
+    }
+
+@Composable
+private fun DensityBand.localizedLabel(): String =
+    when (this) {
+        DensityBand.SPARSE -> stringResource(Res.string.density_sparse)
+        DensityBand.GOOD -> stringResource(Res.string.rating_good)
+        DensityBand.DENSE -> stringResource(Res.string.density_dense)
+    }
+
+@Composable
+private fun TravelBand.localizedLabel(): String =
+    when (this) {
+        TravelBand.SHORT -> stringResource(Res.string.travel_short)
+        TravelBand.GOOD -> stringResource(Res.string.rating_good)
+        TravelBand.LONG -> stringResource(Res.string.travel_long)
+    }

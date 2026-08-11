@@ -6,6 +6,7 @@ import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
+import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorJsonSerializer
 import de.egril.defender.editor.OfficialContent
 import de.egril.defender.game.GameEngine
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 
 /**
  * Represents the progress of loading repository data files (levels, maps, worldmap).
@@ -55,7 +57,9 @@ sealed class Screen {
 
     object VillainsAnnouncement : Screen()
 
-    object LevelEditor : Screen()
+    data class LevelEditor(
+        val openLevelId: String? = null,
+    ) : Screen()
 
     object LoadGame : Screen()
 
@@ -114,6 +118,10 @@ data class ReminderMessage(
     val type: de.egril.defender.ui.gameplay.ReminderType,
     val elapsedMs: Long? = null,
     val timeDescription: String? = null,
+)
+
+private data class EditorPlaytestSession(
+    val editorLevel: EditorLevel,
 )
 
 class GameViewModel {
@@ -242,6 +250,7 @@ class GameViewModel {
 
     private var gameEngine: GameEngine? = null
     private val viewModelScope = CoroutineScope(Dispatchers.Default)
+    private var editorPlaytestSession: EditorPlaytestSession? = null
 
     // Demo mode state
     private val _isDemoMode = MutableStateFlow(false)
@@ -878,6 +887,7 @@ class GameViewModel {
         // Player explicitly left gameplay – remove any background save so it is not
         // restored on the next cold start.
         deleteBackgroundSave()
+        editorPlaytestSession = null
         // Reload levels from disk to ensure latest changes are visible
         reloadWorldMap()
         _currentScreen.value = Screen.WorldMap
@@ -903,8 +913,68 @@ class GameViewModel {
         _currentScreen.value = Screen.VillainsAnnouncement
     }
 
-    fun navigateToLevelEditor() {
-        _currentScreen.value = Screen.LevelEditor
+    fun navigateToLevelEditor(openLevelId: String? = null) {
+        stopTimeTracking()
+        deleteBackgroundSave()
+        editorPlaytestSession = null
+        _currentScreen.value = Screen.LevelEditor(openLevelId)
+    }
+
+    fun navigateBackFromGameplay() {
+        val playtestSession = editorPlaytestSession
+        if (playtestSession != null) {
+            stopTimeTracking()
+            deleteBackgroundSave()
+            editorPlaytestSession = null
+            _currentScreen.value = Screen.LevelEditor(playtestSession.editorLevel.id)
+            return
+        }
+        navigateToWorldMap()
+    }
+
+    fun startEditorPlaytest(editorLevel: EditorLevel) {
+        val numericId = -editorLevel.id.hashCode().absoluteValue.coerceAtLeast(1)
+        val gameLevel =
+            de.egril.defender.editor.EditorStorage
+                .convertToGameLevel(editorLevel, numericId) ?: return
+        editorPlaytestSession = EditorPlaytestSession(editorLevel)
+        startEditorPlaytestInternal(gameLevel)
+    }
+
+    private fun startEditorPlaytestInternal(level: Level) {
+        _pendingGameMessage.value = null
+        val difficulty = AppSettings.difficulty.value
+        val playerStats = PlayerAbilities()
+        val modifiedSpawnPlan =
+            if (level.directSpawnPlan != null) {
+                DifficultyModifiers.applySpawnPlanModifier(level.directSpawnPlan, difficulty)
+            } else {
+                val basePlan = generateSpawnPlan(level.attackerWaves)
+                DifficultyModifiers.applySpawnPlanModifier(basePlan, difficulty)
+            }
+        val totalCoins = DifficultyModifiers.applyCoinsModifier(level.initialCoins, difficulty) + playerStats.getBonusStartCoins()
+        val totalHealth = DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty) + playerStats.getBonusHealth()
+        val maxMana = playerStats.getMaxMana()
+        val newGameState =
+            GameState(
+                level = level,
+                difficulty = difficulty,
+                coins = mutableStateOf(totalCoins),
+                healthPoints = mutableStateOf(totalHealth),
+                spawnPlan = modifiedSpawnPlan,
+                maxMana = mutableStateOf(maxMana),
+                currentMana = mutableStateOf(maxMana),
+                incomeMultiplier = playerStats.getIncomeMultiplier(),
+                constructionLevel = playerStats.constructionAbility,
+            )
+        newGameState.initializePrePlacedElements()
+        _gameState.value = newGameState
+        gameEngine = GameEngine(newGameState)
+        _currentScreen.value = Screen.GamePlay(level.id)
+        initialGameStateSnapshot = createGameStateSnapshot(newGameState)
+        lastSaveSnapshot = initialGameStateSnapshot
+        achievementManager = null
+        startTimeTracking()
     }
 
     fun navigateToSticker() {
@@ -1014,6 +1084,7 @@ class GameViewModel {
     }
 
     fun startLevel(levelId: Int) {
+        editorPlaytestSession = null
         // Clear any pending message from a previous level
         _pendingGameMessage.value = null
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
@@ -1087,6 +1158,7 @@ class GameViewModel {
     }
 
     private fun startLevelInternal(levelId: Int) {
+        editorPlaytestSession = null
         // Clear any pending message from a previous level
         _pendingGameMessage.value = null
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
@@ -1218,6 +1290,7 @@ class GameViewModel {
         levelId: Int,
         handoff: de.egril.defender.save.LevelHandoffSave,
     ) {
+        editorPlaytestSession = null
         _pendingGameMessage.value = null
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
@@ -1852,6 +1925,7 @@ class GameViewModel {
         levelId: Int,
         won: Boolean,
     ) {
+        val activeEditorPlaytest = editorPlaytestSession
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
         val rawXpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
         val isSandbox = _gameState.value?.level?.isSandbox == true
@@ -1872,6 +1946,21 @@ class GameViewModel {
             turnNumber,
             _gameState.value?.difficulty?.name ?: AppSettings.difficulty.value.name,
         )
+
+        if (activeEditorPlaytest != null) {
+            deleteBackgroundSave()
+            _currentScreen.value =
+                Screen.LevelComplete(
+                    levelId = levelId,
+                    won = won,
+                    isLastLevel = false,
+                    xpEarned = 0,
+                    newPlayerLevel = 0,
+                    playerLevelGained = 0,
+                    abilityPointsGained = 0,
+                )
+            return
+        }
 
         // Track achievement for level completion
         if (won) {
@@ -1995,6 +2084,10 @@ class GameViewModel {
     }
 
     fun restartLevel() {
+        editorPlaytestSession?.let { playtest ->
+            startEditorPlaytest(playtest.editorLevel)
+            return
+        }
         val levelId =
             (_currentScreen.value as? Screen.LevelComplete)?.levelId
                 ?: (_currentScreen.value as? Screen.GamePlay)?.levelId
@@ -2151,6 +2244,7 @@ class GameViewModel {
     fun startDemoMode() {
         _pendingDemoDeepLink.value = false
         _isDemoMode.value = true
+        editorPlaytestSession = null
         demoLevelIndex = 0
         loadDemoLevel(0)
     }

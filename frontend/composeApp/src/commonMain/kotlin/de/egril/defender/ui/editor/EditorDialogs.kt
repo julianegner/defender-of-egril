@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package de.egril.defender.ui.editor
 
 import androidx.compose.foundation.layout.*
@@ -6,7 +8,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.editor.MapTemplateDefinition
 import de.egril.defender.iam.IamState
+import de.egril.defender.ui.editor.level.EditorLevelTemplate
 import de.egril.defender.utils.getCurrentUsername
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -69,15 +73,25 @@ fun SaveAsDialog(
  * Dialog for creating a new map
  */
 @Composable
-fun CreateMapDialog(
+internal fun CreateMapDialog(
     onDismiss: () -> Unit,
-    onCreate: (String, Int, Int, String) -> Unit,
+    onCreate: (String, Int, Int, String, MapTemplateDefinition?) -> Unit,
+    mapTemplates: List<MapTemplateDefinition>,
     defaultAuthor: String = "",
 ) {
     var name by remember { mutableStateOf("") }
     var width by remember { mutableStateOf("30") }
     var height by remember { mutableStateOf("8") }
     var author by remember { mutableStateOf(defaultAuthor) }
+    var selectedTemplate by remember { mutableStateOf<MapTemplateDefinition?>(null) }
+    var templateExpanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(selectedTemplate?.id) {
+        selectedTemplate?.let { template ->
+            width = template.templateMap.width.toString()
+            height = template.templateMap.height.toString()
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -93,12 +107,14 @@ fun CreateMapDialog(
                 OutlinedTextField(
                     value = width,
                     onValueChange = { if (it.all { c -> c.isDigit() }) width = it },
+                    enabled = selectedTemplate == null,
                     label = { Text(stringResource(Res.string.width)) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 )
                 OutlinedTextField(
                     value = height,
                     onValueChange = { if (it.all { c -> c.isDigit() }) height = it },
+                    enabled = selectedTemplate == null,
                     label = { Text(stringResource(Res.string.height)) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 )
@@ -108,6 +124,41 @@ fun CreateMapDialog(
                     label = { Text(stringResource(Res.string.author_optional)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                ExposedDropdownMenuBox(
+                    expanded = templateExpanded,
+                    onExpandedChange = { templateExpanded = it },
+                ) {
+                    OutlinedTextField(
+                        value = selectedTemplate?.name ?: stringResource(Res.string.template_blank),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(Res.string.map_templates)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = templateExpanded) },
+                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                    )
+                    ExposedDropdownMenu(
+                        expanded = templateExpanded,
+                        onDismissRequest = { templateExpanded = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(Res.string.template_blank)) },
+                            onClick = {
+                                selectedTemplate = null
+                                templateExpanded = false
+                            },
+                        )
+                        mapTemplates.forEach { template ->
+                            DropdownMenuItem(
+                                text = { Text(template.name) },
+                                onClick = {
+                                    selectedTemplate = template
+                                    templateExpanded = false
+                                },
+                            )
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
@@ -115,7 +166,7 @@ fun CreateMapDialog(
                 onClick = {
                     val w = width.toIntOrNull() ?: 30
                     val h = height.toIntOrNull() ?: 8
-                    onCreate(name, w, h, author)
+                    onCreate(name, w, h, author, selectedTemplate)
                 },
             ) {
                 Text(stringResource(Res.string.create))
@@ -133,13 +184,15 @@ fun CreateMapDialog(
  * Dialog for creating a new level
  */
 @Composable
-fun CreateLevelDialog(
+internal fun CreateLevelDialog(
     onDismiss: () -> Unit,
-    onCreate: (String, String) -> Unit,
+    onCreate: (String, String, EditorLevelTemplate) -> Unit,
     defaultAuthor: String = "",
 ) {
     var title by remember { mutableStateOf("") }
     var author by remember { mutableStateOf(defaultAuthor) }
+    var selectedTemplate by remember { mutableStateOf(EditorLevelTemplate.TUTORIAL) }
+    var templateExpanded by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -158,10 +211,38 @@ fun CreateLevelDialog(
                     label = { Text(stringResource(Res.string.author_optional)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                ExposedDropdownMenuBox(
+                    expanded = templateExpanded,
+                    onExpandedChange = { templateExpanded = it },
+                ) {
+                    OutlinedTextField(
+                        value = selectedTemplate.localizedLabel(),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(Res.string.apply_level_template)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = templateExpanded) },
+                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                    )
+                    ExposedDropdownMenu(
+                        expanded = templateExpanded,
+                        onDismissRequest = { templateExpanded = false },
+                    ) {
+                        EditorLevelTemplate.entries.forEach { template ->
+                            DropdownMenuItem(
+                                text = { Text(template.localizedLabel()) },
+                                onClick = {
+                                    selectedTemplate = template
+                                    templateExpanded = false
+                                },
+                            )
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
-            Button(onClick = { onCreate(title, author) }) {
+            Button(onClick = { onCreate(title, author, selectedTemplate) }) {
                 Text(stringResource(Res.string.create))
             }
         },
@@ -172,6 +253,16 @@ fun CreateLevelDialog(
         },
     )
 }
+
+@Composable
+private fun EditorLevelTemplate.localizedLabel(): String =
+    when (this) {
+        EditorLevelTemplate.TUTORIAL -> stringResource(Res.string.template_tutorial)
+        EditorLevelTemplate.STEADY_PRESSURE -> stringResource(Res.string.template_steady_pressure)
+        EditorLevelTemplate.VILLAIN_DUEL -> stringResource(Res.string.template_villain_duel)
+        EditorLevelTemplate.RIVER_PRESSURE -> stringResource(Res.string.template_river_pressure)
+        EditorLevelTemplate.ENDURANCE -> stringResource(Res.string.template_endurance)
+    }
 
 /**
  * Generic confirmation dialog

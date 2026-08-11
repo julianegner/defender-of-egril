@@ -276,7 +276,8 @@ fun MapEditorContent(
         CreateMapDialog(
             onDismiss = { showCreateDialog = false },
             defaultAuthor = defaultAuthor,
-            onCreate = { name, width, height, author ->
+            mapTemplates = EditorStorage.getMapTemplates(),
+            onCreate = { name, width, height, author, template ->
                 // Generate ID from name with underscores (lowercase)
                 val sanitizedName =
                     name
@@ -291,15 +292,7 @@ fun MapEditorContent(
                     } else {
                         "map_custom_${Random.nextInt(10000, 99999)}"
                     }
-                val newMap =
-                    EditorMap(
-                        id = newId,
-                        name = name,
-                        width = width,
-                        height = height,
-                        tiles = emptyMap(),
-                        author = author,
-                    )
+                val newMap = createMapFromTemplate(newId, name, width, height, author, template)
                 showCreateDialog = false
                 showCreatingMapDialog = true
                 creatingMapError = null

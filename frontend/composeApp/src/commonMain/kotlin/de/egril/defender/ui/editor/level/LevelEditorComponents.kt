@@ -700,6 +700,7 @@ fun SpawnTurnSection(
     turn: Int,
     spawns: List<EditorEnemySpawn>,
     initiallyExpanded: Boolean = false,
+    expandRequestKey: Int? = null,
     onRemoveEnemy: (EditorEnemySpawn) -> Unit,
     onDeleteTurn: () -> Unit,
     onClearTurn: () -> Unit,
@@ -714,8 +715,14 @@ fun SpawnTurnSection(
     onChangeLevel: (EditorEnemySpawn) -> Unit,
     onChangeTurnLevel: () -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(initiallyExpanded) }
+    var expanded by remember(turn) { mutableStateOf(initiallyExpanded) }
     val villainSummary = remember(spawns) { spawns.presentVillainSummary { it.villainName ?: it.displayName } }
+
+    LaunchedEffect(initiallyExpanded, expandRequestKey) {
+        if (initiallyExpanded || expandRequestKey != null) {
+            expanded = true
+        }
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),

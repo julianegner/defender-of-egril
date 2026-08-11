@@ -46,6 +46,7 @@ import kotlin.random.Random
 
 internal data class LevelEditorTabIndices(
     val levelInfo: Int,
+    val designPreview: Int,
     val enemySpawns: Int?,
     val towers: Int,
     val waypoints: Int,
@@ -57,6 +58,7 @@ internal data class LevelEditorTabIndices(
 internal fun levelEditorTabIndices(isSandbox: Boolean): LevelEditorTabIndices {
     var nextIndex = 0
     val levelInfo = nextIndex++
+    val designPreview = nextIndex++
     val enemySpawns = if (isSandbox) null else nextIndex++
     val towers = nextIndex++
     val waypoints = nextIndex++
@@ -66,6 +68,7 @@ internal fun levelEditorTabIndices(isSandbox: Boolean): LevelEditorTabIndices {
 
     return LevelEditorTabIndices(
         levelInfo = levelInfo,
+        designPreview = designPreview,
         enemySpawns = enemySpawns,
         towers = towers,
         waypoints = waypoints,
@@ -79,7 +82,10 @@ internal fun levelEditorTabIndices(isSandbox: Boolean): LevelEditorTabIndices {
  * Main content for the Level Editor tab
  */
 @Composable
-fun LevelEditorContent() {
+internal fun LevelEditorContent(
+    initialEditingLevelId: String? = null,
+    onStartPlaytest: ((EditorLevel, FocusedPlaytestType) -> Unit)? = null,
+) {
     val levels = remember { mutableStateOf(EditorStorage.getAllLevels()) }
     var selectedLevelId by remember { mutableStateOf<String?>(null) }
     var editingLevel by remember { mutableStateOf<EditorLevel?>(null) }
@@ -87,6 +93,16 @@ fun LevelEditorContent() {
     var showVillainUsage by remember { mutableStateOf(false) }
     var levelToDelete by remember { mutableStateOf<EditorLevel?>(null) }
     val iamState by de.egril.defender.iam.IamService.state
+
+    LaunchedEffect(initialEditingLevelId, levels.value) {
+        if (initialEditingLevelId != null) {
+            val levelToOpen = levels.value.find { it.id == initialEditingLevelId }
+            if (levelToOpen != null) {
+                selectedLevelId = levelToOpen.id
+                editingLevel = levelToOpen
+            }
+        }
+    }
 
     if (editingLevel != null) {
         // Level editing view
@@ -99,6 +115,7 @@ fun LevelEditorContent() {
                 editingLevel = EditorStorage.getLevel(updatedLevel.id)
             },
             onCancel = { editingLevel = null },
+            onStartPlaytest = { playtestLevel, type -> onStartPlaytest?.invoke(playtestLevel, type) },
         )
     } else if (showVillainUsage) {
         VillainUsagePage(
@@ -205,7 +222,7 @@ fun LevelEditorContent() {
         CreateLevelDialog(
             onDismiss = { showCreateDialog = false },
             defaultAuthor = defaultAuthor,
-            onCreate = { title, author ->
+            onCreate = { title, author, template ->
                 // Generate ID from title with underscores (lowercase, no "level_" prefix)
                 val sanitizedTitle =
                     title
@@ -222,7 +239,7 @@ fun LevelEditorContent() {
                     }
                 // Get first ready-to-use map
                 val firstReadyMap = EditorStorage.getAllMaps().filter { it.readyToUse }.firstOrNull()
-                val newLevel =
+                val baseLevel =
                     EditorLevel(
                         id = newId,
                         mapId = firstReadyMap?.id ?: "map_30x8",
@@ -238,6 +255,7 @@ fun LevelEditorContent() {
                                 }.toSet(),
                         author = author,
                     )
+                val newLevel = applyLevelTemplate(baseLevel, firstReadyMap, template)
                 EditorStorage.saveLevel(newLevel)
                 levels.value = EditorStorage.getAllLevels()
                 showCreateDialog = false
@@ -445,10 +463,11 @@ private fun LevelCard(
  * View for editing a level
  */
 @Composable
-fun LevelEditorView(
+internal fun LevelEditorView(
     level: EditorLevel,
     onSave: (EditorLevel) -> Unit,
     onCancel: () -> Unit,
+    onStartPlaytest: (EditorLevel, FocusedPlaytestType) -> Unit,
 ) {
     var title by remember { mutableStateOf(level.title) }
     var subtitle by remember { mutableStateOf(level.subtitle) }
@@ -492,11 +511,14 @@ fun LevelEditorView(
     var showOfficialLevelSavedWarning by remember { mutableStateOf(false) }
     var pendingLevelToSave by remember { mutableStateOf<EditorLevel?>(null) }
     var selectedTabIndex by remember { mutableStateOf(0) }
+    var requestedEnemySpawnTurn by remember { mutableStateOf<Int?>(null) }
+    var enemySpawnTurnRequestNonce by remember { mutableStateOf(0) }
     val tabIndices = remember(isSandbox) { levelEditorTabIndices(isSandbox) }
     LaunchedEffect(isSandbox) {
         val visibleTabIndices =
             listOfNotNull(
                 tabIndices.levelInfo,
+                tabIndices.designPreview,
                 tabIndices.enemySpawns,
                 tabIndices.towers,
                 tabIndices.waypoints,
@@ -559,6 +581,47 @@ fun LevelEditorView(
     val isTowersReady = availableTowersState.isNotEmpty()
     // Waypoints are optional, but if present they should be valid
     val isWaypointsValid = areWaypointsValid(waypointsState, currentMap, level)
+    val draftLevel =
+        remember(
+            title,
+            subtitle,
+            author,
+            communityDescription,
+            selectedMapId,
+            startCoins,
+            startHP,
+            enemySpawns,
+            availableTowersState,
+            waypointsState,
+            testingOnly,
+            allowAutoAttack,
+            connectedToPreviousLevel,
+            isSandbox,
+            supportsState,
+            eventsState,
+            initialDataState,
+        ) {
+            level.copy(
+                title = title,
+                subtitle = subtitle,
+                author = author,
+                communityDescription = communityDescription,
+                mapId = selectedMapId,
+                startCoins = startCoins.toIntOrNull() ?: 100,
+                startHealthPoints = startHP.toIntOrNull() ?: 10,
+                enemySpawns = if (isSandbox) emptyList() else enemySpawns.toList(),
+                availableTowers = availableTowersState,
+                waypoints = waypointsState.toList(),
+                testingOnly = testingOnly,
+                allowAutoAttack = allowAutoAttack,
+                connectedToPreviousLevel = connectedToPreviousLevel,
+                isSandbox = isSandbox,
+                supports = supportsState,
+                events = eventsState,
+                initialData = initialDataState,
+            )
+        }
+    val levelDesignSummary = remember(draftLevel, currentMap) { analyzeLevelDesign(draftLevel, currentMap) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -631,6 +694,18 @@ fun LevelEditorView(
                         if (!isLevelInfoReady) {
                             RedDotBadge()
                         }
+                    }
+                },
+            )
+            Tab(
+                selected = selectedTabIndex == tabIndices.designPreview,
+                onClick = { selectedTabIndex = tabIndices.designPreview },
+                text = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(stringResource(Res.string.design_preview))
                     }
                 },
             )
@@ -754,6 +829,28 @@ fun LevelEditorView(
                         isOfficial = level.isOfficial,
                         canEnableConnectedToPreviousLevel = hasOtherLevelsOnSameMap,
                     )
+                tabIndices.designPreview ->
+                    LevelDesignOverview(
+                        summary = levelDesignSummary,
+                        onApplyTemplate = { template ->
+                            val templated = applyLevelTemplate(draftLevel, currentMap, template)
+                            startCoins = templated.startCoins.toString()
+                            startHP = templated.startHealthPoints.toString()
+                            enemySpawns = templated.enemySpawns.toMutableList()
+                            availableTowersState = templated.availableTowers
+                            maxTurnNumber = templated.enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0
+                        },
+                        onStartPlaytest = { type ->
+                            onSave(draftLevel)
+                            onStartPlaytest(createFocusedPlaytestLevel(draftLevel, levelDesignSummary, type), type)
+                        },
+                        playtestEnabled = currentMap != null && (isSandbox || enemySpawns.isNotEmpty()),
+                        onOpenEnemySpawnTurn = { turn ->
+                            requestedEnemySpawnTurn = turn
+                            enemySpawnTurnRequestNonce++
+                            tabIndices.enemySpawns?.let { selectedTabIndex = it }
+                        },
+                    )
                 tabIndices.enemySpawns ->
                     EnemySpawnsTab(
                         enemySpawns = enemySpawns,
@@ -766,6 +863,14 @@ fun LevelEditorView(
                         },
                         onShowRemoveAllTurnsDialog = { showRemoveAllTurnsDialog = true },
                         map = currentMap,
+                        onApplyTemplate = { template, enemyKind, baseLevel ->
+                            val (newSpawns, newMaxTurn) =
+                                applySpawnTurnTemplate(enemySpawns, maxTurnNumber, currentMap, template, enemyKind, baseLevel)
+                            enemySpawns = newSpawns
+                            maxTurnNumber = newMaxTurn
+                        },
+                        requestedTurnToOpen = requestedEnemySpawnTurn,
+                        turnOpenRequestNonce = enemySpawnTurnRequestNonce,
                     )
                 tabIndices.towers ->
                     TowersTab(
