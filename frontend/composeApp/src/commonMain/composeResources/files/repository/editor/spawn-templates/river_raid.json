@@ -1,0 +1,34 @@
+{
+  "metadata": {"program": "Defender of Egril", "type": "spawn-turn-template"},
+  "data": {
+    "id": "river_raid",
+    "name": "River raid",
+    "description": "A staggered raid that works well on maps with water access.",
+    "variants": [
+      {
+        "kind": "MIXED",
+        "entries": [
+          {"attackerType": "PIRATE", "turnOffset": 0, "amount": 2},
+          {"attackerType": "PIRATE", "turnOffset": 1, "amount": 2},
+          {"attackerType": "BLUE_DEMON", "turnOffset": 2, "amount": 1}
+        ]
+      },
+      {
+        "kind": "PIRATES",
+        "entries": [
+          {"attackerType": "PIRATE", "turnOffset": 0, "amount": 2},
+          {"attackerType": "PIRATE", "turnOffset": 1, "amount": 2},
+          {"attackerType": "CAPTAIN_RODERICH", "turnOffset": 2, "amount": 1, "levelOffset": 1}
+        ]
+      },
+      {
+        "kind": "DEMONIC",
+        "entries": [
+          {"attackerType": "BLUE_DEMON", "turnOffset": 0, "amount": 2},
+          {"attackerType": "RED_DEMON", "turnOffset": 1, "amount": 1},
+          {"attackerType": "BLUE_DEMON", "turnOffset": 2, "amount": 1}
+        ]
+      }
+    ]
+  }
+}

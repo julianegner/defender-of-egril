@@ -26,11 +26,15 @@ object EditorStorage {
     private val OFFICIAL_LEVELS_DIR = "gamedata/official/levels"
     private val OFFICIAL_SEQUENCE_FILE = "gamedata/official/sequence.json"
     private val OFFICIAL_WORLDMAP_FILE = "gamedata/official/worldmap.json"
+    private val OFFICIAL_MAP_TEMPLATES_DIR = "gamedata/official/editor/map-templates"
+    private val OFFICIAL_SPAWN_TEMPLATES_DIR = "gamedata/official/editor/spawn-templates"
 
     // User content directories (created by users in editor)
     private val USER_MAPS_DIR = "gamedata/user/maps"
     private val USER_LEVELS_DIR = "gamedata/user/levels"
     private val USER_SEQUENCE_FILE = "gamedata/user/sequence.json"
+    private val USER_MAP_TEMPLATES_DIR = "gamedata/user/editor/map-templates"
+    private val USER_SPAWN_TEMPLATES_DIR = "gamedata/user/editor/spawn-templates"
 
     // Community content directories (downloaded from backend)
     private val COMMUNITY_MAPS_DIR = "gamedata/community/maps"
@@ -529,6 +533,68 @@ object EditorStorage {
 
         return mapsCache.values.toList()
     }
+
+    fun getMapTemplates(): List<MapTemplateDefinition> {
+        ensureInitialized()
+        fileStorage.createDirectory(OFFICIAL_MAP_TEMPLATES_DIR)
+        fileStorage.createDirectory(USER_MAP_TEMPLATES_DIR)
+
+        val templatesById = linkedMapOf<String, MapTemplateDefinition>()
+        loadMapTemplatesFromDirectory(OFFICIAL_MAP_TEMPLATES_DIR).forEach { template ->
+            templatesById[template.id] = template
+        }
+        loadMapTemplatesFromDirectory(USER_MAP_TEMPLATES_DIR).forEach { template ->
+            templatesById[template.id] = template
+        }
+        return templatesById.values.sortedBy { it.name.lowercase() }
+    }
+
+    fun getSpawnTurnTemplates(): List<SpawnTurnTemplateDefinition> {
+        ensureInitialized()
+        fileStorage.createDirectory(OFFICIAL_SPAWN_TEMPLATES_DIR)
+        fileStorage.createDirectory(USER_SPAWN_TEMPLATES_DIR)
+
+        val templatesById = linkedMapOf<String, SpawnTurnTemplateDefinition>()
+        loadSpawnTurnTemplatesFromDirectory(OFFICIAL_SPAWN_TEMPLATES_DIR).forEach { template ->
+            templatesById[template.id] = template
+        }
+        loadSpawnTurnTemplatesFromDirectory(USER_SPAWN_TEMPLATES_DIR).forEach { template ->
+            templatesById[template.id] = template
+        }
+        return templatesById.values.sortedBy { it.name.lowercase() }
+    }
+
+    fun saveMapTemplate(template: MapTemplateDefinition) {
+        ensureInitialized()
+        fileStorage.createDirectory(USER_MAP_TEMPLATES_DIR)
+        val json = EditorTemplateJsonSerializer.serializeMapTemplate(template)
+        fileStorage.writeFile("$USER_MAP_TEMPLATES_DIR/${template.id}.json", json)
+    }
+
+    fun saveSpawnTurnTemplate(template: SpawnTurnTemplateDefinition) {
+        ensureInitialized()
+        fileStorage.createDirectory(USER_SPAWN_TEMPLATES_DIR)
+        val json = EditorTemplateJsonSerializer.serializeSpawnTurnTemplate(template)
+        fileStorage.writeFile("$USER_SPAWN_TEMPLATES_DIR/${template.id}.json", json)
+    }
+
+    private fun loadMapTemplatesFromDirectory(directory: String): List<MapTemplateDefinition> =
+        fileStorage
+            .listFiles(directory)
+            .filter { it.endsWith(".json") }
+            .mapNotNull { filename ->
+                val json = fileStorage.readFile("$directory/$filename") ?: return@mapNotNull null
+                EditorTemplateJsonSerializer.deserializeMapTemplate(json)
+            }
+
+    private fun loadSpawnTurnTemplatesFromDirectory(directory: String): List<SpawnTurnTemplateDefinition> =
+        fileStorage
+            .listFiles(directory)
+            .filter { it.endsWith(".json") }
+            .mapNotNull { filename ->
+                val json = fileStorage.readFile("$directory/$filename") ?: return@mapNotNull null
+                EditorTemplateJsonSerializer.deserializeSpawnTurnTemplate(json)
+            }
 
     /**
      * Helper function to ensure all enemy spawns have spawn points assigned.

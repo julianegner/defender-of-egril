@@ -700,6 +700,7 @@ fun SpawnTurnSection(
     turn: Int,
     spawns: List<EditorEnemySpawn>,
     initiallyExpanded: Boolean = false,
+    expandRequestKey: Int? = null,
     onRemoveEnemy: (EditorEnemySpawn) -> Unit,
     onDeleteTurn: () -> Unit,
     onClearTurn: () -> Unit,
@@ -713,9 +714,16 @@ fun SpawnTurnSection(
     onChangeSpawnPoint: (EditorEnemySpawn) -> Unit,
     onChangeLevel: (EditorEnemySpawn) -> Unit,
     onChangeTurnLevel: () -> Unit,
+    onSaveAsTemplate: () -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(initiallyExpanded) }
+    var expanded by remember(turn) { mutableStateOf(initiallyExpanded) }
     val villainSummary = remember(spawns) { spawns.presentVillainSummary { it.villainName ?: it.displayName } }
+
+    LaunchedEffect(initiallyExpanded, expandRequestKey) {
+        if (initiallyExpanded || expandRequestKey != null) {
+            expanded = true
+        }
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -808,6 +816,17 @@ fun SpawnTurnSection(
                             text = "Copy Turn",
                             fontSize = 12.sp,
                             modifier = Modifier.align(Alignment.CenterVertically),
+                        )
+                    }
+                    Button(
+                        onClick = onSaveAsTemplate,
+                        enabled = spawns.isNotEmpty(),
+                        modifier = Modifier.height(32.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.save_as_template),
+                            fontSize = 12.sp,
                         )
                     }
                     // Show either Clear or Delete button depending on whether it's the last turn
