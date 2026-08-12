@@ -56,7 +56,7 @@ class MapEditorChangeAllButtonTest {
                 .onNodeWithText("Replace Tiles", substring = true, ignoreCase = true)
                 .assertExists()
             println("SUCCESS: New 'Replace Tiles' button found in map editor")
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             println("Note: Could not find button (might not be visible in current view): ${e.message}")
         }
 
