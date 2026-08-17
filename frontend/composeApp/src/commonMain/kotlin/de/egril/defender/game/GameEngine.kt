@@ -1881,6 +1881,7 @@ class GameEngine(
     }
 
     private fun updateWaaghFrenzyAtEnemyTurnStart() {
+        if (!state.level.waaghEnabled) return
         if (!state.waaghFrenzyActive.value && state.waaghPoints.value >= 100) {
             state.waaghFrenzyActive.value = true
             state.waaghFrenzyRoundsLeft.value = 2
@@ -1892,6 +1893,7 @@ class GameEngine(
     }
 
     private fun updateWaaghFrenzyAtEnemyTurnEnd() {
+        if (!state.level.waaghEnabled) return
         if (!state.waaghFrenzyActive.value) return
         state.waaghFrenzyRoundsLeft.value--
         if (state.waaghFrenzyRoundsLeft.value <= 0) {

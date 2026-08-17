@@ -28,6 +28,7 @@ class HordeMechanicsTest {
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 10,
+            waaghEnabled = true,
         )
 
     @Test
@@ -141,6 +142,7 @@ class HordeMechanicsTest {
                 pathCells = setOf(Position(1, 0), Position(2, 0), Position(3, 0)),
                 buildAreas = setOf(Position(0, 0)),
                 attackerWaves = emptyList(),
+                waaghEnabled = true,
             )
         val state = GameState(level)
         val engine = GameEngine(state)
@@ -182,6 +184,7 @@ class HordeMechanicsTest {
                 pathCells = setOf(Position(1, 0), Position(2, 0), Position(3, 0)),
                 buildAreas = setOf(Position(0, 0)),
                 attackerWaves = emptyList(),
+                waaghEnabled = true,
             )
         val state = GameState(level)
         val engine = GameEngine(state)

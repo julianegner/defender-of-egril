@@ -1176,6 +1176,7 @@
     <string name="show_testing_levels">Test-Level anzeigen</string>
     <string name="test_level">Test-Level</string>
     <string name="sandbox_level">Sandbox-Level</string>
+    <string name="waagh_enabled">Waaagh! Aktiviert</string>
     <string name="sandbox">Sandbox</string>
     <string name="sandbox_tools">Sandbox-Werkzeuge</string>
     <string name="sandbox_spawn_enemy">Gegner beschwören</string>

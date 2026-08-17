@@ -12,14 +12,14 @@ internal fun calculateEffectiveEnemySpeed(
     attacker: Attacker,
     currentPos: Position,
 ): Int {
-    val ignoresSlowing = state.waaghFrenzyActive.value && attacker.type == AttackerType.GOBLIN
+    val ignoresSlowing = state.level.waaghEnabled && state.waaghFrenzyActive.value && attacker.type == AttackerType.GOBLIN
     val baseSpeed =
         if (ignoresSlowing) {
             attacker.type.speed * 2
         } else {
             var speed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
             if (attacker.type == AttackerType.ORK &&
-                (state.waaghFrenzyActive.value || attacker.bloodlustRoundsLeft.value > 0)
+                (state.level.waaghEnabled && state.waaghFrenzyActive.value || attacker.bloodlustRoundsLeft.value > 0)
             ) {
                 speed *= 2
             }

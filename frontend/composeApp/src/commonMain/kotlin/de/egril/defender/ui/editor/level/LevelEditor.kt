@@ -489,6 +489,7 @@ internal fun LevelEditorView(
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
     var connectedToPreviousLevel by remember { mutableStateOf(level.connectedToPreviousLevel) }
     var isSandbox by remember { mutableStateOf(level.isSandbox) }
+    var waaghEnabled by remember { mutableStateOf(level.waaghEnabled) }
     var supportsState by remember { mutableStateOf(level.supports) }
     var eventsState by remember { mutableStateOf(level.events) }
 
@@ -645,6 +646,7 @@ internal fun LevelEditorView(
                 allowAutoAttack = allowAutoAttack,
                 connectedToPreviousLevel = connectedToPreviousLevel,
                 isSandbox = isSandbox,
+                waaghEnabled = waaghEnabled,
                 supports = supportsState,
                 events = eventsState,
                 initialData = initialDataState,
@@ -857,6 +859,8 @@ internal fun LevelEditorView(
                         onConnectedToPreviousLevelChange = { connectedToPreviousLevel = it },
                         isSandbox = isSandbox,
                         onIsSandboxChange = { isSandbox = it },
+                        waaghEnabled = waaghEnabled,
+                        onWaaghEnabledChange = { waaghEnabled = it },
                         isOfficial = level.isOfficial,
                         canEnableConnectedToPreviousLevel = hasOtherLevelsOnSameMap,
                     )
@@ -985,6 +989,7 @@ internal fun LevelEditorView(
                                 allowAutoAttack = allowAutoAttack,
                                 connectedToPreviousLevel = connectedToPreviousLevel,
                                 isSandbox = isSandbox,
+                                waaghEnabled = waaghEnabled,
                                 supports = supportsState,
                                 events = eventsState,
                                 initialData = initialDataState,
@@ -1241,6 +1246,7 @@ internal fun LevelEditorView(
                         allowAutoAttack = allowAutoAttack,
                         connectedToPreviousLevel = connectedToPreviousLevel,
                         isSandbox = isSandbox,
+                        waaghEnabled = waaghEnabled,
                         supports = supportsState,
                         events = eventsState,
                         initialData = initialDataState,

@@ -463,7 +463,7 @@ data class GameState(
         return map
     }
 
-    private fun AttackerType.countsAsHordeForWaagh(): Boolean = faction == EnemyFaction.HORDE || hordeSize > 0
+    private fun AttackerType.countsAsHordeForWaagh(): Boolean = faction == EnemyFaction.HORDE || unitSize > 0
 
     val hasHordeUnitsInLevel: Boolean
         get() =
@@ -472,7 +472,7 @@ data class GameState(
                 attackers.any { !it.isDefeated.value && it.type.countsAsHordeForWaagh() }
 
     fun addWaaghPoints(amount: Int) {
-        if (amount <= 0) return
+        if (amount <= 0 || !level.waaghEnabled) return
         waaghPoints.value = (waaghPoints.value + amount).coerceAtMost(100)
     }
 

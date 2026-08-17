@@ -1083,7 +1083,7 @@ internal fun LevelSpecialTowersInfoDialog(
 
 @Composable
 private fun WaaghBar(gameState: GameState) {
-    if (!gameState.hasHordeUnitsInLevel) return
+    if (!gameState.level.waaghEnabled || !gameState.hasHordeUnitsInLevel) return
 
     val resource =
         if (gameState.waaghFrenzyActive.value) {

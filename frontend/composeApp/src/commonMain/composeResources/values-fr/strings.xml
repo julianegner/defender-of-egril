@@ -1177,6 +1177,7 @@
     <string name="show_testing_levels">Afficher les niveaux de test</string>
     <string name="test_level">Niveau de test</string>
     <string name="sandbox_level">Niveau bac à sable</string>
+    <string name="waagh_enabled">Waaagh! Activé</string>
     <string name="sandbox">Bac à sable</string>
     <string name="sandbox_tools">Outils bac à sable</string>
     <string name="sandbox_spawn_enemy">Générer un ennemi</string>

@@ -346,6 +346,7 @@ data class EditorLevel(
     val allowAutoAttack: Boolean = true, // If true, shows auto-attack button in end turn confirmation dialog
     val connectedToPreviousLevel: Boolean = false, // If true, player can carry over towers/coins from the previous level (must be on the same map)
     val isSandbox: Boolean = false, // If true, level is a Sandbox: free building/spawning, no scripted events, cannot be won, no XP
+    val waaghEnabled: Boolean = false, // If true, Waaagh! horde mechanics are active for this level
     val isOfficial: Boolean = false, // True if level is from official repository (read-only in editor)
     val author: String = "", // Optional author name
     val isCommunity: Boolean = false, // True if level is a community-shared level from the backend
