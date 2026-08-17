@@ -926,7 +926,7 @@ object EditorJsonSerializer {
                     false
                 }
 
-            // Parse isOfficial (optional, defaults to false)
+            // Parse waaghEnabled (optional, defaults to false)
             val waaghEnabled =
                 if (dataJson.contains("\"waaghEnabled\"")) {
                     try {

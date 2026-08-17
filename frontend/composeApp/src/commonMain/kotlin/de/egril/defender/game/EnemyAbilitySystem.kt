@@ -67,6 +67,7 @@ class EnemyAbilitySystem(
     }
 
     fun processHordeEating() {
+        if (!state.level.waaghEnabled) return
         val attackersSnapshot = state.attackers.filter { !it.isDefeated.value }.toList()
 
         attackersSnapshot.forEach { attacker ->
