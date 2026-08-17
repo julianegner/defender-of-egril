@@ -1,5 +1,6 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -59,6 +60,7 @@ import de.egril.defender.utils.isLimitedInputDevice
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun GameHeader(
@@ -211,6 +213,8 @@ fun GameHeader(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    WaaghBar(gameState = gameState)
+
                     // Level header icons (water and/or tower) before difficulty
                     LevelHeaderIcons(
                         gameState = gameState,
@@ -292,6 +296,7 @@ fun GameHeader(
                                 )
                             }
                         }
+
                     }
 
                     // Shortcuts button (not shown on mobile platforms or mobile web browsers)
@@ -1074,4 +1079,23 @@ internal fun LevelSpecialTowersInfoDialog(
             }
         }
     }
+}
+
+@Composable
+private fun WaaghBar(gameState: GameState) {
+    if (!gameState.hasHordeUnitsInLevel) return
+
+    val resource =
+        if (gameState.waaghFrenzyActive.value) {
+            Res.drawable.waaagh_title
+        } else {
+            val roundedDown = (gameState.waaghPoints.value.coerceIn(0, 100) / 5) * 5
+            Res.allDrawableResources["waaagh${roundedDown.toString().padStart(2, '0')}"] ?: Res.drawable.waaagh00
+        }
+
+    Image(
+        painter = painterResource(resource),
+        contentDescription = null,
+        modifier = Modifier.height(40.dp).widthIn(min = 120.dp),
+    )
 }

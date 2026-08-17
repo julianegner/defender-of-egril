@@ -94,6 +94,7 @@ private val EWHAD_DIALOG_DESKTOP_WIDTH = 700.dp
  * @param iconAttackerTypeOverride Optional attacker type used for the top icon in Ewhad-style
  *   narrative dialogs (including villain messages that reuse this frame). When null, Ewhad is
  *   shown as before.
+ * @param topImageOverride Optional drawable shown in the top image slot of Ewhad-style dialogs.
  */
 @Composable
 fun NarrativeMessageDialog(
@@ -109,6 +110,7 @@ fun NarrativeMessageDialog(
     backgroundOverride: org.jetbrains.compose.resources.DrawableResource? = null,
     accentColorOverride: Color? = null,
     iconAttackerTypeOverride: AttackerType? = null,
+    topImageOverride: org.jetbrains.compose.resources.DrawableResource? = null,
 ) {
     val isMobile = isPlatformMobile
     val useWideStoryLayout = type == NarrativeMessageType.STORY && !isMobile
@@ -267,10 +269,18 @@ fun NarrativeMessageDialog(
                             modifier = Modifier.size(iconSize),
                             contentAlignment = Alignment.Center,
                         ) {
-                            EnemyTypeIcon(
-                                attackerType = iconAttackerTypeOverride ?: AttackerType.EWHAD,
-                                modifier = Modifier.fillMaxSize(),
-                            )
+                            if (topImageOverride != null) {
+                                Image(
+                                    painter = painterResource(topImageOverride),
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                            } else {
+                                EnemyTypeIcon(
+                                    attackerType = iconAttackerTypeOverride ?: AttackerType.EWHAD,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                            }
                         }
                     }
                     // Title

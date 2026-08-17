@@ -67,6 +67,7 @@ enum class AttackerType(
     // given villain subtype can exist on the battlefield at once and their health is never displayed.
     val isVillain: Boolean = false,
     val faction: EnemyFaction = EnemyFaction.NONE,
+    val hordeSize: Int = 0,
     val villainAbility: VillainAbility? = null,
     // Language-independent short name for villains, shown on the battlefield icon in place of the
     // health points. Villain proper names are identical in every language, so they live here in the
@@ -155,9 +156,9 @@ enum class AttackerType(
     // Barricade damage multiplier: multiplies damage dealt to barricades. 1 = normal. Used by Troll (10×).
     val barricadeDamageMultiplier: Int = 1,
 ) {
-    GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
-    ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
-    OGRE("Ogre", health = 80, speed = 1, reward = 20, xp = 12, canBuildBridge = true, faction = EnemyFaction.HORDE),
+    GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE, hordeSize = 2),
+    ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE, hordeSize = 3),
+    OGRE("Ogre", health = 80, speed = 1, reward = 20, xp = 12, canBuildBridge = true, faction = EnemyFaction.HORDE, hordeSize = 4),
 
     // Troll: a creature made of stone. Immune to blade (melee/ranged) attacks.
     // Moves 1 tile per turn and then pauses one turn (alternating movement).
@@ -206,7 +207,7 @@ enum class AttackerType(
     GREEN_WITCH("Green Witch", health = 25, speed = 5, reward = 15, xp = 9, canHeal = true),
 
     // Weak early-game minion summoned by Gribnak the Squealer: 5 HP but very nimble (5 tiles/turn)
-    SNOTLING("Snotling", health = 5, speed = 5, reward = 1, xp = 1),
+    SNOTLING("Snotling", health = 5, speed = 5, reward = 1, xp = 1, hordeSize = 1),
 
     // Weak spider swarm unit summoned by Araxxa. Behaves like a snotling stack.
     SPIDERLING("Spiderling", health = 10, speed = 5, reward = 1, xp = 1),
@@ -646,6 +647,7 @@ data class Attacker(
     val speedBonus: MutableState<Int> = mutableStateOf(0), // Extra movement granted by a villain aura (e.g. Garokk's War Cry)
     val villainCooldown: MutableState<Int> = mutableStateOf(0), // Rounds until this villain's ability next activates
     val movementTurnsElapsed: MutableState<Int> = mutableStateOf(0), // Enemy turns elapsed on battlefield (for alternating movement patterns)
+    val bloodlustRoundsLeft: MutableState<Int> = mutableStateOf(0), // Enemy turns of +100% movement remaining
     // Cap'n Roderich's accumulated treasure: grows by coinsPerTurn each enemy turn and by the cost
     // of each barge he sinks via Broadside. The entire treasure is awarded to the player on defeat.
     val treasureCoins: MutableState<Int> = mutableStateOf(0),

@@ -301,6 +301,7 @@ object SaveFileStorage {
                     isDefeated = attacker.isDefeated.value,
                     dragonName = attacker.dragonName,
                     movementPenalty = attacker.movementPenalty.value,
+                    bloodlustRoundsLeft = attacker.bloodlustRoundsLeft.value,
                 )
             }
 
@@ -402,6 +403,10 @@ object SaveFileStorage {
             triggeredEventIds = gameState.triggeredEventIds.toList(),
             enemiesKilledTotal = gameState.enemiesKilledTotal.value,
             enemiesKilledByType = gameState.enemiesKilledByType.toMap(),
+            waaghPoints = gameState.waaghPoints.value,
+            waaghFrenzyActive = gameState.waaghFrenzyActive.value,
+            waaghFrenzyRoundsLeft = gameState.waaghFrenzyRoundsLeft.value,
+            hasShownWaaghFrenzyMessage = gameState.hasShownWaaghFrenzyMessage.value,
             sandboxMapTiles =
                 if (gameState.level.isSandbox && gameState.sandboxPaintedTiles.isNotEmpty()) {
                     gameState.sandboxPaintedTiles.toMap()
@@ -470,6 +475,10 @@ object SaveFileStorage {
         gameState.cooldownPowerReadyIn.clear()
         gameState.cooldownPowerReadyIn.putAll(savedGame.cooldownPowerReadyIn)
         gameState.coinSurgeActive.value = savedGame.coinSurgeActive
+        gameState.waaghPoints.value = savedGame.waaghPoints
+        gameState.waaghFrenzyActive.value = savedGame.waaghFrenzyActive
+        gameState.waaghFrenzyRoundsLeft.value = savedGame.waaghFrenzyRoundsLeft
+        gameState.hasShownWaaghFrenzyMessage.value = savedGame.hasShownWaaghFrenzyMessage
 
         // Restore scripted-event tracking so already-fired events don't re-trigger after load.
         gameState.triggeredEventIds.clear()
@@ -524,6 +533,7 @@ object SaveFileStorage {
             attacker.currentHealth.value = savedAttacker.currentHealth
             attacker.isDefeated.value = savedAttacker.isDefeated
             attacker.movementPenalty.value = savedAttacker.movementPenalty
+            attacker.bloodlustRoundsLeft.value = savedAttacker.bloodlustRoundsLeft
             gameState.attackers.add(attacker)
         }
 

@@ -14,6 +14,11 @@ class EnemyMovementSystem(
     private val state: GameState,
     private val pathfinding: PathfindingSystem,
 ) {
+    private fun effectiveSpeed(
+        attacker: Attacker,
+        position: Position,
+    ): Int = calculateEffectiveEnemySpeed(state, attacker, position)
+
     /**
      * Returns whether an attacker will enter an active target during its next movement turn.
      * This mirrors normal movement, including waypoint transitions, without changing game state.
@@ -26,7 +31,7 @@ class EnemyMovementSystem(
             attacker.currentTarget?.value
                 ?: state.getActiveTargetPositions().minByOrNull { position.distanceTo(it) }
                 ?: return false
-        var remainingSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+        var remainingSpeed = effectiveSpeed(attacker, position)
 
         while (remainingSpeed > 0) {
             val path = pathfinding.findPath(position, target, attacker)
@@ -550,7 +555,7 @@ class EnemyMovementSystem(
      */
     fun calculateFloatingMovementPath(floater: Attacker): List<Position> {
         val startPos = floater.position.value
-        val speed = maxOf(1, floater.type.speed - floater.movementPenalty.value)
+        val speed = effectiveSpeed(floater, startPos)
 
         val target =
             floater.currentTarget?.value
@@ -650,7 +655,7 @@ class EnemyMovementSystem(
             if (!state.level.isSpawnPoint(attacker.position.value)) continue
 
             // Calculate effective speed by subtracting movement penalty from spike barbs
-            var remainingSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+            var remainingSpeed = effectiveSpeed(attacker, attacker.position.value)
 
             while (remainingSpeed > 0) {
                 // Re-calculate path with current target for each step

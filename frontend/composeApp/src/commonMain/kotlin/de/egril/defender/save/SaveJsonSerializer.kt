@@ -94,7 +94,8 @@ object SaveJsonSerializer {
       "currentHealth": ${attacker.currentHealth},
       "isDefeated": ${attacker.isDefeated},
       "dragonName": $dragonNameStr,
-      "movementPenalty": ${attacker.movementPenalty}
+      "movementPenalty": ${attacker.movementPenalty},
+      "bloodlustRoundsLeft": ${attacker.bloodlustRoundsLeft}
     }"""
             }
 
@@ -289,6 +290,10 @@ object SaveJsonSerializer {
   "triggeredEventIds": [$triggeredEventIdsJson],
   "enemiesKilledTotal": ${savedGame.enemiesKilledTotal},
   "enemiesKilledByType": {$enemiesKilledByTypeJson},
+  "waaghPoints": ${savedGame.waaghPoints},
+  "waaghFrenzyActive": ${savedGame.waaghFrenzyActive},
+  "waaghFrenzyRoundsLeft": ${savedGame.waaghFrenzyRoundsLeft},
+  "hasShownWaaghFrenzyMessage": ${savedGame.hasShownWaaghFrenzyMessage},
   "sandboxMapTiles": $sandboxMapTilesJson,
   "sandboxRiverTiles": $sandboxRiverTilesJson
 }"""
@@ -562,6 +567,30 @@ object SaveJsonSerializer {
                 }
             val enemiesKilledByType =
                 parseEnumIntMap(dataJson, "enemiesKilledByType") { AttackerType.valueOf(it) }
+            val waaghPoints =
+                try {
+                    JsonUtils.extractValue(dataJson, "waaghPoints").toInt()
+                } catch (e: Exception) {
+                    0
+                }
+            val waaghFrenzyActive =
+                try {
+                    JsonUtils.extractBooleanValue(dataJson, "waaghFrenzyActive")
+                } catch (e: Exception) {
+                    false
+                }
+            val waaghFrenzyRoundsLeft =
+                try {
+                    JsonUtils.extractValue(dataJson, "waaghFrenzyRoundsLeft").toInt()
+                } catch (e: Exception) {
+                    0
+                }
+            val hasShownWaaghFrenzyMessage =
+                try {
+                    JsonUtils.extractBooleanValue(dataJson, "hasShownWaaghFrenzyMessage")
+                } catch (e: Exception) {
+                    false
+                }
 
             // Parse sandbox map tiles (optional; only present for sandbox saves). Null when absent.
             val sandboxMapTiles: Map<Position, de.egril.defender.editor.TileType>? =
@@ -673,6 +702,10 @@ object SaveJsonSerializer {
                 triggeredEventIds = triggeredEventIds,
                 enemiesKilledTotal = enemiesKilledTotal,
                 enemiesKilledByType = enemiesKilledByType,
+                waaghPoints = waaghPoints,
+                waaghFrenzyActive = waaghFrenzyActive,
+                waaghFrenzyRoundsLeft = waaghFrenzyRoundsLeft,
+                hasShownWaaghFrenzyMessage = hasShownWaaghFrenzyMessage,
                 sandboxMapTiles = sandboxMapTiles,
                 sandboxRiverTiles = sandboxRiverTiles,
             )
@@ -827,8 +860,14 @@ object SaveJsonSerializer {
             } catch (e: Exception) {
                 0
             }
+        val bloodlustRoundsLeft =
+            try {
+                JsonUtils.extractValue(json, "bloodlustRoundsLeft").toInt()
+            } catch (e: Exception) {
+                0
+            }
 
-        return SavedAttacker(id, type, position, level, currentHealth, isDefeated, dragonName, movementPenalty)
+        return SavedAttacker(id, type, position, level, currentHealth, isDefeated, dragonName, movementPenalty, bloodlustRoundsLeft)
     }
 
     private fun parseSavedFieldEffect(json: String): SavedFieldEffect {

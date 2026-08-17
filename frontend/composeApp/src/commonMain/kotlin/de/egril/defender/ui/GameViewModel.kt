@@ -1764,6 +1764,7 @@ class GameViewModel {
             // Start enemy turn: change phase to ENEMY_TURN
             // The UI immediately shows "ENEMY TURN" indicator when phase changes
             engine.startEnemyTurn()
+            surfaceNextPendingMessageIfIdle()
 
             // Calculate all movement steps for existing units
             val enemyTurnMovements = engine.calculateEnemyTurnMovements()

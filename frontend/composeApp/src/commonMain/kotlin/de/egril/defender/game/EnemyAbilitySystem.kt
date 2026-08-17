@@ -21,6 +21,7 @@ class EnemyAbilitySystem(
         private const val SHADOW_FOG_MAX_RANGE = 10
         private const val MAX_SWARM_SPAWN_SEARCH_RINGS = 5
         private const val BARON_SCRAP_BOT_COUNT = 2
+        private const val MAX_SNOTLINGS_PER_TILE = 250
 
         /** Heal multiplier applied to green witches empowered by the Coven Synergy aura (50 % extra). */
         private const val COVEN_HEAL_BOOST_MULTIPLIER = 1.5f
@@ -46,6 +47,46 @@ class EnemyAbilitySystem(
      * Recomputed at the start of every [processEnemyAbilities] call.
      */
     private val covenEnhancedDisableWitchIds = mutableSetOf<Int>()
+
+    fun processSnotlingGrowth() {
+        val snotlings =
+            state.attackers.filter {
+                !it.isDefeated.value && it.type == AttackerType.SNOTLING
+            }
+        val growthNumerator = if (state.waaghFrenzyActive.value) 3 else 5
+        val growthDenominator = if (state.waaghFrenzyActive.value) 2 else 4
+
+        snotlings.forEach { snotling ->
+            val grownCount = (snotling.currentHealth.value * growthNumerator) / growthDenominator
+            if (grownCount > MAX_SNOTLINGS_PER_TILE) {
+                val overflow = grownCount - MAX_SNOTLINGS_PER_TILE
+                distributeSnotlingOverflow(snotling.position.value, overflow)
+            }
+            snotling.currentHealth.value = minOf(grownCount, MAX_SNOTLINGS_PER_TILE)
+        }
+    }
+
+    fun processHordeEating() {
+        val attackersSnapshot = state.attackers.filter { !it.isDefeated.value }.toList()
+
+        attackersSnapshot.forEach { attacker ->
+            when (attacker.type) {
+                AttackerType.ORK -> {
+                    if (consumeNearbySnotlings(attacker, 10)) {
+                        healAttacker(attacker, 10)
+                        attacker.bloodlustRoundsLeft.value = maxOf(attacker.bloodlustRoundsLeft.value, 1)
+                    }
+                }
+                AttackerType.OGRE -> {
+                    if (consumeNearbySnotlings(attacker, 15)) {
+                        healAttacker(attacker, 15)
+                    }
+                    eatGoblinOnSameTile(attacker)
+                }
+                else -> Unit
+            }
+        }
+    }
 
     fun processEnemyAbilities() {
         // Create a snapshot of attackers to avoid ConcurrentModificationException
@@ -199,6 +240,124 @@ class EnemyAbilitySystem(
         }
 
         applySpiderWebBonuses()
+    }
+
+    private fun consumeNearbySnotlings(
+        eater: Attacker,
+        requiredAmount: Int,
+    ): Boolean {
+        val candidatePositions = listOf(eater.position.value) + eater.position.value.getHexNeighbors().filter { isWithinBounds(it) }
+        val snotlingStacks =
+            candidatePositions.mapNotNull { position ->
+                state.attackers.find {
+                    !it.isDefeated.value &&
+                        it.type == AttackerType.SNOTLING &&
+                        it.position.value == position
+                }
+            }
+        val totalAvailable = snotlingStacks.sumOf { it.currentHealth.value }
+        if (totalAvailable < requiredAmount) return false
+
+        var remainingToEat = requiredAmount
+        snotlingStacks.forEach { stack ->
+            if (remainingToEat <= 0) return@forEach
+            val eatenFromStack = min(stack.currentHealth.value, remainingToEat)
+            stack.currentHealth.value -= eatenFromStack
+            remainingToEat -= eatenFromStack
+            if (stack.currentHealth.value <= 0) {
+                stack.wasMerged.value = true
+                stack.isDefeated.value = true
+            }
+        }
+        state.addWaaghPoints(requiredAmount / 5)
+        return true
+    }
+
+    private fun eatGoblinOnSameTile(ogre: Attacker) {
+        val goblin =
+            state.attackers.find {
+                !it.isDefeated.value &&
+                    it.id != ogre.id &&
+                    it.type == AttackerType.GOBLIN &&
+                    it.position.value == ogre.position.value
+            } ?: return
+
+        healAttacker(ogre, maxOf(10, goblin.currentHealth.value))
+        goblin.wasMerged.value = true
+        goblin.isDefeated.value = true
+    }
+
+    private fun healAttacker(
+        attacker: Attacker,
+        amount: Int,
+    ) {
+        attacker.currentHealth.value = minOf(attacker.maxHealth, attacker.currentHealth.value + amount)
+    }
+
+    private fun distributeSnotlingOverflow(
+        origin: Position,
+        overflowAmount: Int,
+    ) {
+        val pending = ArrayDeque<Pair<Position, Int>>()
+        pending.add(origin to overflowAmount)
+
+        while (pending.isNotEmpty()) {
+            val (source, amount) = pending.removeFirst()
+            if (amount <= 0) continue
+
+            val validNeighbors =
+                source.getHexNeighbors().filter { neighbor ->
+                    isWithinBounds(neighbor) &&
+                        state.level.isEnemyTraversable(neighbor) &&
+                        state.attackers.none {
+                            !it.isDefeated.value &&
+                                it.position.value == neighbor &&
+                                it.type != AttackerType.SNOTLING
+                        }
+                }
+            if (validNeighbors.isEmpty()) continue
+
+            val distributed = mutableMapOf<Position, Int>()
+            repeat(amount) { index ->
+                val neighbor = validNeighbors[index % validNeighbors.size]
+                distributed[neighbor] = (distributed[neighbor] ?: 0) + 1
+            }
+
+            distributed.forEach { (targetPosition, extraCount) ->
+                val stack = getOrCreateSnotlingStack(targetPosition)
+                stack.currentHealth.value += extraCount
+                if (stack.currentHealth.value > MAX_SNOTLINGS_PER_TILE) {
+                    val overflow = stack.currentHealth.value - MAX_SNOTLINGS_PER_TILE
+                    stack.currentHealth.value = MAX_SNOTLINGS_PER_TILE
+                    pending.add(targetPosition to overflow)
+                }
+            }
+        }
+    }
+
+    private fun getOrCreateSnotlingStack(position: Position): Attacker {
+        val existing =
+            state.attackers.find {
+                !it.isDefeated.value &&
+                    it.type == AttackerType.SNOTLING &&
+                    it.position.value == position
+            }
+        if (existing != null) return existing
+
+        val initialTarget =
+            state.level.getWaypointAt(position)?.let { waypoint ->
+                state.resolveWaypointNextTarget(waypoint.nextTarget, position)
+            } ?: state.getActiveTargetPositions().minByOrNull { position.distanceTo(it) }
+            ?: state.level.targetPositions.first()
+
+        return Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.SNOTLING,
+            position = mutableStateOf(position),
+            level = mutableStateOf(1),
+            currentHealth = mutableStateOf(0),
+            currentTarget = mutableStateOf(initialTarget),
+        ).also { state.attackers.add(it) }
     }
 
     private fun handleBaronRatterzahn(baron: Attacker) {

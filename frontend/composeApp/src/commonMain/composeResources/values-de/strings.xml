@@ -1790,6 +1790,8 @@
     <string name="ewhad_retreats_text">Du hast Ewhad zum Rückzug gezwungen!</string>
     <string name="ewhad_defeated_title">Ewhad ist besiegt</string>
     <string name="ewhad_defeated_text">Du hast Ewhad besiegt! Beende jetzt die anderen Feinde und gewinne das Spiel!</string>
+    <string name="waaagh_frenzy_title">Waaagh!</string>
+    <string name="waaagh_frenzy_message">Die Horde ist in Raserei verfallen! Sie werden mit jedem Schritt stärker und wilder!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk der Schädelspalter</string>
     <string name="morguk_name">Morguk Knochenwisper</string>
