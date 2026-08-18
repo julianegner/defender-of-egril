@@ -1176,6 +1176,7 @@
     <string name="show_testing_levels">Test-Level anzeigen</string>
     <string name="test_level">Test-Level</string>
     <string name="sandbox_level">Sandbox-Level</string>
+    <string name="waagh_enabled">Waaagh! Aktiviert</string>
     <string name="sandbox">Sandbox</string>
     <string name="sandbox_tools">Sandbox-Werkzeuge</string>
     <string name="sandbox_spawn_enemy">Gegner beschwören</string>
@@ -1790,6 +1791,8 @@
     <string name="ewhad_retreats_text">Du hast Ewhad zum Rückzug gezwungen!</string>
     <string name="ewhad_defeated_title">Ewhad ist besiegt</string>
     <string name="ewhad_defeated_text">Du hast Ewhad besiegt! Beende jetzt die anderen Feinde und gewinne das Spiel!</string>
+    <string name="waaagh_frenzy_title">Waaagh!</string>
+    <string name="waaagh_frenzy_message">Die Horde ist in Raserei verfallen! Sie werden mit jedem Schritt stärker und wilder!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk der Schädelspalter</string>
     <string name="morguk_name">Morguk Knochenwisper</string>

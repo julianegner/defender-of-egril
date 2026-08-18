@@ -1177,6 +1177,7 @@
     <string name="show_testing_levels">Mostra livelli di test</string>
     <string name="test_level">Livello di test</string>
     <string name="sandbox_level">Livello sandbox</string>
+    <string name="waagh_enabled">Waaagh! Abilitato</string>
     <string name="sandbox">Sandbox</string>
     <string name="sandbox_tools">Strumenti sandbox</string>
     <string name="sandbox_spawn_enemy">Genera nemico</string>
@@ -1793,6 +1794,8 @@
     <string name="ewhad_retreats_text">Hai costretto Ewhad a ritirarsi!</string>
     <string name="ewhad_defeated_title">Ewhad è sconfitto</string>
     <string name="ewhad_defeated_text">Hai sconfitto Ewhad! Ora elimina gli altri Nemici e vinci il gioco!</string>
+    <string name="waaagh_frenzy_title">Waaagh!</string>
+    <string name="waaagh_frenzy_message">L'orda è caduta in una frenesia! Diventano più forti e più feroci ad ogni passo!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk lo Spaccateschi</string>
     <string name="morguk_name">Morguk Sussurraossa</string>

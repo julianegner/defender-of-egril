@@ -72,6 +72,10 @@ data class SavedGame(
     val triggeredEventIds: List<String> = emptyList(), // IDs of scripted events that have already fired
     val enemiesKilledTotal: Int = 0, // Total enemies killed (for event conditions)
     val enemiesKilledByType: Map<AttackerType, Int> = emptyMap(), // Kills per enemy type (for event conditions)
+    val waaghPoints: Int = 0, // Current Waaagh! meter
+    val waaghFrenzyActive: Boolean = false, // True while the Waaagh! frenzy is active
+    val waaghFrenzyRoundsLeft: Int = 0, // Enemy turns left in the current frenzy
+    val hasShownWaaghFrenzyMessage: Boolean = false, // True once the frenzy intro dialog has been shown
     // Sandbox: only the tiles whose type differs from the original map (position -> new type),
     // persisted so the runtime edits are restored on load without storing the whole map.
     val sandboxMapTiles: Map<Position, de.egril.defender.editor.TileType>? = null,
@@ -112,6 +116,7 @@ data class SavedAttacker(
     val isDefeated: Boolean,
     val dragonName: String? = null, // Dragon's name (for dragons only)
     val movementPenalty: Int = 0, // Movement points lost due to spike tower barbs (default 0 for backward compatibility)
+    val bloodlustRoundsLeft: Int = 0, // Enemy turns of bloodlust remaining
 )
 
 data class SavedFieldEffect(

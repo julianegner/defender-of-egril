@@ -957,7 +957,7 @@ class GameEngine(
         }
 
         // Find the maximum speed to know how many steps to simulate
-        val maxSpeed = regularAttackers.maxOfOrNull { it.type.speed + it.speedBonus.value } ?: 0
+        val maxSpeed = regularAttackers.maxOfOrNull { calculateEffectiveEnemySpeed(it, it.position.value) } ?: 0
 
         // Pre-compute imminent bombs (turnsRemaining <= 1) for flee behavior
         val imminentBombs = state.activeSpellEffects.filter { it.spell == SpellType.BOMB && it.position != null && it.turnsRemaining <= 1 }
@@ -1005,21 +1005,7 @@ class GameEngine(
 
                 // Calculate effective speed by subtracting movement penalty from spike barbs
                 // and adding any villain-aura movement bonus (e.g. Garokk's War Cry).
-                var effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value) + attacker.speedBonus.value
-
-                // Check if attacker is in a cooling area (reduces speed by 1)
-                val isInCoolingArea =
-                    state.activeSpellEffects.any { effect ->
-                        effect.spell == SpellType.COOLING_SPELL &&
-                            effect.position != null &&
-                            currentPos.hexDistanceTo(effect.position) <= 2
-                    }
-                if (isInCoolingArea) {
-                    effectiveSpeed = maxOf(0, effectiveSpeed - 1)
-                    if (stepIndex == 0) {
-                        println("Attacker ${attacker.id} (${attacker.type}) is in cooling area, speed reduced to $effectiveSpeed")
-                    }
-                }
+                val effectiveSpeed = calculateEffectiveEnemySpeed(attacker, currentPos)
 
                 // Check if this attacker has more moves left
                 if (stepIndex >= effectiveSpeed) continue
@@ -1776,6 +1762,7 @@ class GameEngine(
 
             // Only continue if enemy was not defeated by trap
             if (!attacker.isDefeated.value) {
+                applyOrkFrenzyTowerAttack(attacker)
                 // Check if reached a waypoint and update target
                 // Only update if the waypoint position is the current target
                 if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
@@ -1797,6 +1784,19 @@ class GameEngine(
                 }
             }
         }
+    }
+
+    private fun applyOrkFrenzyTowerAttack(attacker: Attacker) {
+        if (!(state.waaghFrenzyActive.value && attacker.type == AttackerType.ORK)) return
+
+        state.defenders
+            .filter { defender ->
+                defender.isReady &&
+                    attacker.position.value.hexDistanceTo(defender.position.value) == 1
+            }.forEach { defender ->
+                defender.isDisabled.value = true
+                defender.disabledTurnsRemaining.value = maxOf(defender.disabledTurnsRemaining.value, 2)
+            }
     }
 
     fun attackBarricade(
@@ -1858,7 +1858,49 @@ class GameEngine(
                 attacker.type.isDragon -> attacker.level.value * 5
                 else -> attacker.level.value
             }
-        return baseDamage * attacker.type.barricadeDamageMultiplier
+        val frenzyMultiplier =
+            if (state.waaghFrenzyActive.value && attacker.type in setOf(AttackerType.ORK, AttackerType.OGRE)) 2 else 1
+        return baseDamage * attacker.type.barricadeDamageMultiplier * frenzyMultiplier
+    }
+
+    private fun hasBloodlust(attacker: Attacker): Boolean =
+        attacker.type == AttackerType.ORK &&
+            (state.waaghFrenzyActive.value || attacker.bloodlustRoundsLeft.value > 0)
+
+    private fun calculateEffectiveEnemySpeed(
+        attacker: Attacker,
+        currentPos: Position,
+    ): Int = de.egril.defender.game.calculateEffectiveEnemySpeed(state, attacker, currentPos)
+
+    private fun tickBloodlustAfterMovement() {
+        state.attackers.forEach { attacker ->
+            if (attacker.bloodlustRoundsLeft.value > 0) {
+                attacker.bloodlustRoundsLeft.value--
+            }
+        }
+    }
+
+    private fun updateWaaghFrenzyAtEnemyTurnStart() {
+        if (!state.level.waaghEnabled) return
+        if (!state.waaghFrenzyActive.value && state.waaghPoints.value >= 100) {
+            state.waaghFrenzyActive.value = true
+            state.waaghFrenzyRoundsLeft.value = 2
+            if (!state.hasShownWaaghFrenzyMessage.value) {
+                state.pendingMessages.add(GameMessage(type = GameMessageType.WAAAGH_FRENZY))
+                state.hasShownWaaghFrenzyMessage.value = true
+            }
+        }
+    }
+
+    private fun updateWaaghFrenzyAtEnemyTurnEnd() {
+        if (!state.level.waaghEnabled) return
+        if (!state.waaghFrenzyActive.value) return
+        state.waaghFrenzyRoundsLeft.value--
+        if (state.waaghFrenzyRoundsLeft.value <= 0) {
+            state.waaghFrenzyActive.value = false
+            state.waaghFrenzyRoundsLeft.value = 0
+            state.waaghPoints.value = 0
+        }
     }
 
     /**
@@ -1877,6 +1919,8 @@ class GameEngine(
         state.turnNumber.value++
         processSoulCallResurrections()
         state.phase.value = GamePhase.ENEMY_TURN
+        updateWaaghFrenzyAtEnemyTurnStart()
+        enemyAbilities.processSnotlingGrowth()
         state.enemyTurnStartPositions.clear()
         state.attackers
             .filter { !it.isDefeated.value }
@@ -1952,7 +1996,7 @@ class GameEngine(
         val attackersStoppedByBarricade = mutableSetOf<Int>()
 
         // Find the maximum speed to know how many steps to simulate
-        val maxSpeed = newlySpawned.maxOfOrNull { it.type.speed + it.speedBonus.value } ?: 0
+        val maxSpeed = newlySpawned.maxOfOrNull { calculateEffectiveEnemySpeed(it, it.position.value) } ?: 0
 
         // Simulate movement step by step
         for (stepIndex in 0 until maxSpeed) {
@@ -1967,7 +2011,7 @@ class GameEngine(
 
                 // Calculate effective speed by subtracting movement penalty from spike barbs
                 // and adding any villain-aura movement bonus (e.g. Garokk's War Cry).
-                val effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value) + attacker.speedBonus.value
+                val effectiveSpeed = calculateEffectiveEnemySpeed(attacker, currentPos)
 
                 // Check if this attacker has more moves left
                 if (stepIndex >= effectiveSpeed) continue
@@ -2282,6 +2326,9 @@ class GameEngine(
         state.shadowSpewEffects.clear()
         state.morvathShadowOrbEffects.clear()
 
+        tickBloodlustAfterMovement()
+        enemyAbilities.processHordeEating()
+
         // Check and activate traps after all movements
         checkAndActivateTraps()
 
@@ -2338,6 +2385,7 @@ class GameEngine(
 
         // Evaluate scripted events at the start of the player turn
         eventScriptSystem.evaluate(EventTrigger.PLAYER_TURN_START)
+        updateWaaghFrenzyAtEnemyTurnEnd()
     }
 
     private fun resetDefenderActions() {

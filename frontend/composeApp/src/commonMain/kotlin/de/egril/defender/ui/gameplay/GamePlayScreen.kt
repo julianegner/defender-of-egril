@@ -3462,6 +3462,14 @@ private fun GamePlayScreenContent(
                                     iconAttackerTypeOverride = AttackerType.GRAND_COVEN_MOTHER_SYBILLA,
                                 )
                             }
+                            GameMessageType.WAAAGH_FRENZY ->
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.EWHAD,
+                                    title = stringResource(Res.string.waaagh_frenzy_title),
+                                    text = stringResource(Res.string.waaagh_frenzy_message),
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                    topImageOverride = Res.drawable.waaagh_image,
+                                )
                             GameMessageType.STORY_INTRO -> {
                                 val levelEditorId = msg.name
                                 if (levelEditorId != null) {

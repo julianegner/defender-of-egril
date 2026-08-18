@@ -1177,6 +1177,7 @@
     <string name="show_testing_levels">Mostrar niveles de prueba</string>
     <string name="test_level">Nivel de prueba</string>
     <string name="sandbox_level">Nivel de pruebas libre</string>
+    <string name="waagh_enabled">¡Waaagh! Activado</string>
     <string name="sandbox">Modo libre</string>
     <string name="sandbox_tools">Herramientas de modo libre</string>
     <string name="sandbox_spawn_enemy">Generar enemigo</string>
@@ -1791,6 +1792,8 @@
     <string name="ewhad_retreats_text">¡Has forzado a Ewhad a retirarse!</string>
     <string name="ewhad_defeated_title">Ewhad es derrotado</string>
     <string name="ewhad_defeated_text">¡Derrotaste a Ewhad! ¡Ahora acaba con los demás Enemigos y gana el juego!</string>
+    <string name="waaagh_frenzy_title">Waaagh!</string>
+    <string name="waaagh_frenzy_message">¡La horda ha caído en frenesí! ¡Se vuelven más fuertes y feroces con cada paso!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk el Rompecráneos</string>
     <string name="morguk_name">Morguk Susurrahuesos</string>

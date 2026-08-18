@@ -69,6 +69,7 @@ data class Level(
     val allowAutoAttack: Boolean = true, // If true, shows auto-attack button in end turn confirmation dialog
     val connectedToPreviousLevel: Boolean = false, // If true, player can carry over towers/coins from the previous level
     val isSandbox: Boolean = false, // If true, level is a Sandbox: free building/spawning, no scripted events, cannot be won, no XP
+    val waaghEnabled: Boolean = false, // If true, Waaagh! horde mechanics are active for this level
     val targetInfoMap: Map<Position, TargetInfo> = emptyMap(), // Optional metadata (name, type) per target position
     val spawnPointTypeMap: Map<Position, SpawnPointType> = emptyMap(), // Spawn point type per position (LAND or WATER); defaults to LAND if absent
     val supports: LevelSupports = LevelSupports(), // Player-usable supports (placable objects + spell tokens) for this level

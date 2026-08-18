@@ -1177,6 +1177,7 @@
     <string name="show_testing_levels">Afficher les niveaux de test</string>
     <string name="test_level">Niveau de test</string>
     <string name="sandbox_level">Niveau bac à sable</string>
+    <string name="waagh_enabled">Waaagh! Activé</string>
     <string name="sandbox">Bac à sable</string>
     <string name="sandbox_tools">Outils bac à sable</string>
     <string name="sandbox_spawn_enemy">Générer un ennemi</string>
@@ -1792,6 +1793,8 @@
     <string name="ewhad_retreats_text">Vous avez forcé Ewhad à se retirer !</string>
     <string name="ewhad_defeated_title">Ewhad est vaincu</string>
     <string name="ewhad_defeated_text">Vous avez vaincu Ewhad ! Terminez maintenant les autres Ennemis et gagnez le jeu !</string>
+    <string name="waaagh_frenzy_title">Waaagh!</string>
+    <string name="waaagh_frenzy_message">La horde est tombée dans une frénésie! Ils deviennent plus forts et plus féroces à chaque pas!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk le Fendeur de Crânes</string>
     <string name="morguk_name">Morguk Chuchotosselets</string>

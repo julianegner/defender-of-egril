@@ -193,6 +193,7 @@ enum class GameMessageType {
     VILLAIN_DEFEATED, // A non-Ewhad villain was defeated (name = AttackerType.name)
     SILAS_MIRROR_HIT, // A tower struck Silas's illusion and was blinded
     COVEN_SWAP, // Sybilla swapped places with a witch
+    WAAAGH_FRENZY, // The horde has entered a Waaagh! frenzy
     STORY_INTRO, // Story narrative shown at the start of a level (name = editorLevelId)
     EVENT_MESSAGE, // Scripted-event story message (name = string-resource key of the predefined text)
 }
@@ -309,6 +310,10 @@ data class GameState(
     // SINGLE_HIT target tracking
     val takenTargets: SnapshotStateList<Position> = mutableStateListOf(), // Positions of taken SINGLE_HIT targets
     val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf(), // Messages queued for display
+    val waaghPoints: MutableState<Int> = mutableStateOf(0), // Current Waaagh! meter (0-100)
+    val waaghFrenzyActive: MutableState<Boolean> = mutableStateOf(false), // True while Waaagh! frenzy is active
+    val waaghFrenzyRoundsLeft: MutableState<Int> = mutableStateOf(0), // Enemy turns remaining in the current frenzy
+    val hasShownWaaghFrenzyMessage: MutableState<Boolean> = mutableStateOf(false), // True once the frenzy intro narrative was shown
     val pendingSoulCalls: SnapshotStateList<PendingSoulCall> = mutableStateListOf(), // Valerius resurrection queue for the next round
     val pendingBargeDeletions: SnapshotStateList<PendingBargeDeletion> = mutableStateListOf(), // Barges (rafts + defenders) to be deleted after animation completes
     // Player-usable supports remaining this level (placable objects + spell tokens + fief tokens)
@@ -456,6 +461,19 @@ data class GameState(
         lvl.targetPositions.forEach { map[it] = de.egril.defender.editor.TileType.TARGET }
         lvl.riverTiles.keys.forEach { map[it] = de.egril.defender.editor.TileType.RIVER }
         return map
+    }
+
+    private fun AttackerType.countsAsHordeForWaagh(): Boolean = faction == EnemyFaction.HORDE || unitSize > 0
+
+    val hasHordeUnitsInLevel: Boolean
+        get() =
+            spawnPlan.any { it.attackerType.countsAsHordeForWaagh() } ||
+                level.getEffectiveInitialData().attackers.any { it.type.countsAsHordeForWaagh() } ||
+                attackers.any { !it.isDefeated.value && it.type.countsAsHordeForWaagh() }
+
+    fun addWaaghPoints(amount: Int) {
+        if (amount <= 0 || !level.waaghEnabled) return
+        waaghPoints.value = (waaghPoints.value + amount).coerceAtMost(100)
     }
 
     fun isLevelWon(): Boolean {
