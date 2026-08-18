@@ -1086,8 +1086,9 @@ private fun WaaghBar(gameState: GameState) {
     if (!gameState.level.waaghEnabled || !gameState.hasHordeUnitsInLevel) return
 
     val waaghPoints = gameState.waaghPoints.value.coerceIn(0, 100)
+    val isFrenzyActive = gameState.waaghFrenzyActive.value
     val resource =
-        if (gameState.waaghFrenzyActive.value) {
+        if (isFrenzyActive) {
             Res.drawable.waaagh_title
         } else {
             val roundedDown = (waaghPoints / 5) * 5
@@ -1104,10 +1105,12 @@ private fun WaaghBar(gameState: GameState) {
             contentDescription = null,
             modifier = Modifier.height(40.dp).widthIn(min = 120.dp),
         )
-        Text(
-            text = formatWaaghMeterPercent(waaghPoints),
-            color = getWaaghMeterColor(waaghProgress),
-            fontWeight = FontWeight.Bold,
-        )
+        if (!isFrenzyActive) {
+            Text(
+                text = formatWaaghMeterPercent(waaghPoints),
+                color = getWaaghMeterColor(waaghProgress),
+                fontWeight = FontWeight.Bold,
+            )
+        }
     }
 }

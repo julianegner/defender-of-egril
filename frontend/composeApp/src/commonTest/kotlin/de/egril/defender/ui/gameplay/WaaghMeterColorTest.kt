@@ -27,5 +27,9 @@ class WaaghMeterColorTest {
 
         assertTrue(middle.red >= start.red)
         assertTrue(end.red >= middle.red)
+        assertTrue(middle.blue <= start.blue)
+        assertTrue(end.blue <= middle.blue)
+        assertTrue(middle.green >= start.green)
+        assertTrue(end.green >= middle.green)
     }
 }
