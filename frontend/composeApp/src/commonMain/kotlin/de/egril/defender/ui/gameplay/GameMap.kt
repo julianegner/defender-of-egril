@@ -70,6 +70,7 @@ import de.egril.defender.ui.animations.MorvathShadowOrbOverlay
 import de.egril.defender.ui.animations.PikeAttackOverlay
 import de.egril.defender.ui.animations.RocketAttackOverlay
 import de.egril.defender.ui.animations.SkyIsFallingAnimation
+import de.egril.defender.ui.animations.SnotlingCannonThrowOverlay
 import de.egril.defender.ui.animations.SpearAttackOverlay
 import de.egril.defender.ui.animations.SpellDoubleReachColor
 import de.egril.defender.ui.animations.SylvanasRootGripAnimation
@@ -1104,6 +1105,15 @@ fun GameGrid(
                     if (rocketEffects.isNotEmpty()) {
                         RocketAttackOverlay(
                             effects = rocketEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
+                    val snotlingCannonEffects = gameState.snotlingCannonThrowEffects.toList()
+                    if (snotlingCannonEffects.isNotEmpty()) {
+                        SnotlingCannonThrowOverlay(
+                            effects = snotlingCannonEffects,
                             hexSizeDp = hexSize.value,
                             contentSize = measuredContentSize,
                             animate = AppSettings.enableAnimations.value,

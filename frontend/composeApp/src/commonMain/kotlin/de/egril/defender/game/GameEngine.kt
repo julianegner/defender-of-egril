@@ -2323,6 +2323,7 @@ class GameEngine(
         state.wizardAttackEffects.clear()
         state.alchemyAttackEffects.clear()
         state.rocketAttackEffects.clear()
+        state.snotlingCannonThrowEffects.clear()
         state.shadowSpewEffects.clear()
         state.morvathShadowOrbEffects.clear()
 
