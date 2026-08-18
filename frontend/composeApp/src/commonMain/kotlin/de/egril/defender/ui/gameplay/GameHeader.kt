@@ -1085,17 +1085,29 @@ internal fun LevelSpecialTowersInfoDialog(
 private fun WaaghBar(gameState: GameState) {
     if (!gameState.level.waaghEnabled || !gameState.hasHordeUnitsInLevel) return
 
+    val waaghPoints = gameState.waaghPoints.value.coerceIn(0, 100)
     val resource =
         if (gameState.waaghFrenzyActive.value) {
             Res.drawable.waaagh_title
         } else {
-            val roundedDown = (gameState.waaghPoints.value.coerceIn(0, 100) / 5) * 5
+            val roundedDown = (waaghPoints / 5) * 5
             Res.allDrawableResources["waaagh${roundedDown.toString().padStart(2, '0')}"] ?: Res.drawable.waaagh00
         }
+    val waaghProgress = waaghPoints / 100f
 
-    Image(
-        painter = painterResource(resource),
-        contentDescription = null,
-        modifier = Modifier.height(40.dp).widthIn(min = 120.dp),
-    )
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            painter = painterResource(resource),
+            contentDescription = null,
+            modifier = Modifier.height(40.dp).widthIn(min = 120.dp),
+        )
+        Text(
+            text = formatWaaghMeterPercent(waaghPoints),
+            color = getWaaghMeterColor(waaghProgress),
+            fontWeight = FontWeight.Bold,
+        )
+    }
 }
