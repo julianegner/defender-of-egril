@@ -266,15 +266,6 @@ class EnemyAbilitySystem(
         if (thrownCount <= 0) return
 
         val landingTile = findSnotlingCannonLandingTile(snotling) ?: return
-        if (
-            state.attackers.any {
-                !it.isDefeated.value &&
-                    it.type != AttackerType.SNOTLING &&
-                    it.position.value == landingTile
-            }
-        ) {
-            return
-        }
 
         val casualtyPercent =
             Random.nextInt(
