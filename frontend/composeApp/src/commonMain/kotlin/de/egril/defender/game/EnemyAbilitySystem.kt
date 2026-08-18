@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
 import kotlin.math.min
+import kotlin.random.Random
 
 /**
  * Handles special enemy abilities like summoning demons, healing, disabling towers, and building bridges.
@@ -22,6 +23,12 @@ class EnemyAbilitySystem(
         private const val MAX_SWARM_SPAWN_SEARCH_RINGS = 5
         private const val BARON_SCRAP_BOT_COUNT = 2
         private const val MAX_SNOTLINGS_PER_TILE = 250
+        private const val SNOTLING_CANNON_MIN_STACK_HEALTH = 120
+        private const val SNOTLING_CANNON_BASE_HEALTH = 100
+        private const val SNOTLING_CANNON_MAX_THROW = 50
+        private const val SNOTLING_CANNON_THROW_DISTANCE = 3
+        private const val SNOTLING_CANNON_MIN_CASUALTY_PERCENT = 10
+        private const val SNOTLING_CANNON_MAX_CASUALTY_PERCENT = 20
 
         /** Heal multiplier applied to green witches empowered by the Coven Synergy aura (50 % extra). */
         private const val COVEN_HEAL_BOOST_MULTIPLIER = 1.5f
@@ -144,6 +151,9 @@ class EnemyAbilitySystem(
                     // Snotling Rally: summon a rabble of weak snotlings around Gribnak
                     handleSnotlingRally(attacker)
                 }
+                AttackerType.SNOTLING -> {
+                    handleSnotlingCannon(attacker)
+                }
                 AttackerType.MORGUK_BONEWHISPER -> {
                     // Spirit Summon: spawn goblins on all adjacent path tiles every 3 turns
                     handleMorgukSpiritSummon(attacker)
@@ -241,6 +251,72 @@ class EnemyAbilitySystem(
         }
 
         applySpiderWebBonuses()
+    }
+
+    private fun handleSnotlingCannon(snotling: Attacker) {
+        val startPosition = state.enemyTurnStartPositions[snotling.id] ?: return
+        if (startPosition == snotling.position.value) return
+        if (snotling.currentHealth.value < SNOTLING_CANNON_MIN_STACK_HEALTH) return
+
+        val thrownCount =
+            minOf(
+                snotling.currentHealth.value - SNOTLING_CANNON_BASE_HEALTH,
+                SNOTLING_CANNON_MAX_THROW,
+            )
+        if (thrownCount <= 0) return
+
+        val landingTile = findSnotlingCannonLandingTile(snotling) ?: return
+        if (
+            state.attackers.any {
+                !it.isDefeated.value &&
+                    it.type != AttackerType.SNOTLING &&
+                    it.position.value == landingTile
+            }
+        ) {
+            return
+        }
+
+        val casualtyPercent =
+            Random.nextInt(
+                from = SNOTLING_CANNON_MIN_CASUALTY_PERCENT,
+                until = SNOTLING_CANNON_MAX_CASUALTY_PERCENT + 1,
+            )
+        val casualties = (thrownCount * casualtyPercent) / 100
+        val survivors = thrownCount - casualties
+
+        snotling.currentHealth.value -= thrownCount
+        if (survivors <= 0) return
+
+        val landingStack = getOrCreateSnotlingStack(landingTile)
+        landingStack.currentHealth.value = minOf(MAX_SNOTLINGS_PER_TILE, landingStack.currentHealth.value + survivors)
+        state.snotlingCannonThrowEffects.add(
+            SnotlingCannonThrowEffect(
+                sourcePosition = snotling.position.value,
+                targetPosition = landingTile,
+                thrownCount = survivors,
+                turnNumber = state.turnNumber.value,
+            ),
+        )
+    }
+
+    private fun findSnotlingCannonLandingTile(snotling: Attacker): Position? {
+        val currentPosition = snotling.position.value
+        val currentTarget =
+            snotling.currentTarget?.value ?: state.getActiveTargetPositions().minByOrNull { currentPosition.distanceTo(it) }
+            ?: return null
+        val path = pathfinding.findPath(currentPosition, currentTarget, snotling, ignoreBarricades = true)
+        val landingTile = path.getOrNull(SNOTLING_CANNON_THROW_DISTANCE) ?: return null
+        if (!state.level.isOnPath(landingTile)) return null
+        if (
+            state.attackers.any {
+                !it.isDefeated.value &&
+                    it.type != AttackerType.SNOTLING &&
+                    it.position.value == landingTile
+            }
+        ) {
+            return null
+        }
+        return landingTile
     }
 
     private fun consumeNearbySnotlings(
