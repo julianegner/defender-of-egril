@@ -188,6 +188,12 @@ fun InitialSetupTab(
                                         onInitialDataChange(initialData.copy(fiefs = initialData.fiefs + newFief))
                                     }
                                 }
+                                PlacementMode.MUSHROOM -> {
+                                    if (canPlaceMushroom(position, initialData, map)) {
+                                        val newMushroom = InitialMushroom(position = position)
+                                        onInitialDataChange(initialData.copy(mushrooms = initialData.mushrooms + newMushroom))
+                                    }
+                                }
                                 null -> {
                                     // Selection mode - find clicked element
                                     val clickedElement =
@@ -269,6 +275,12 @@ fun InitialSetupTab(
                 val newList = initialData.fiefs.toMutableList()
                 newList.removeAt(index)
                 onInitialDataChange(initialData.copy(fiefs = newList))
+                selectedElement = null
+            },
+            onRemoveMushroom = { index ->
+                val newList = initialData.mushrooms.toMutableList()
+                newList.removeAt(index)
+                onInitialDataChange(initialData.copy(mushrooms = newList))
                 selectedElement = null
             },
             selectedElement = selectedElement,
@@ -376,7 +388,8 @@ private fun isPositionOccupied(
         initialData.attackers.any { it.position == position } ||
         initialData.traps.any { it.position == position } ||
         initialData.barricades.any { it.position == position } ||
-        initialData.fiefs.any { it.position == position }
+        initialData.fiefs.any { it.position == position } ||
+        initialData.mushrooms.any { it.position == position }
 
 private fun canPlaceDefender(
     position: Position,
@@ -466,6 +479,19 @@ private fun canPlaceFief(
     return !isPositionOccupied(position, initialData)
 }
 
+private fun canPlaceMushroom(
+    position: Position,
+    initialData: InitialData,
+    map: EditorMap,
+): Boolean {
+    // Must be valid tile type for mushrooms (PATH only)
+    if (!isValidPlacement(position, PlacementMode.MUSHROOM, map)) {
+        return false
+    }
+    // Must not be occupied by any element
+    return !isPositionOccupied(position, initialData)
+}
+
 private fun hasAdjacentWaterTile(
     position: Position,
     map: EditorMap,
@@ -509,6 +535,11 @@ sealed class SelectedElement {
         val index: Int,
         val fief: InitialFief,
     ) : SelectedElement()
+
+    data class Mushroom(
+        val index: Int,
+        val mushroom: InitialMushroom,
+    ) : SelectedElement()
 }
 
 private fun findElementAtPosition(
@@ -538,6 +569,11 @@ private fun findElementAtPosition(
     initialData.fiefs.forEachIndexed { index, fief ->
         if (fief.position == position) {
             return SelectedElement.Fief(index, fief)
+        }
+    }
+    initialData.mushrooms.forEachIndexed { index, mushroom ->
+        if (mushroom.position == position) {
+            return SelectedElement.Mushroom(index, mushroom)
         }
     }
     return null

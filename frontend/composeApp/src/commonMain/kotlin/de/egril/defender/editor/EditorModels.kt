@@ -281,8 +281,19 @@ data class InitialFief(
 )
 
 /**
+ * Initial mushroom placement for level start.
+ * Mushrooms boost horde units (goblins, orks, ogres, snotlings) and witches:
+ * - 2x walking range for 2 turns
+ * - 2x level for 2 turns (witches can use their ability twice for 2 turns)
+ * Only horde units and witches eat the mushroom; other units leave it in place.
+ */
+data class InitialMushroom(
+    val position: Position,
+)
+
+/**
  * Wrapper for all initial placement data
- * This groups defenders, attackers, traps, barricades, and fiefs in a single object
+ * This groups defenders, attackers, traps, barricades, fiefs, and mushrooms in a single object
  */
 data class InitialData(
     val defenders: List<InitialDefender> = emptyList(),
@@ -290,6 +301,7 @@ data class InitialData(
     val traps: List<InitialTrap> = emptyList(),
     val barricades: List<InitialBarricade> = emptyList(),
     val fiefs: List<InitialFief> = emptyList(),
+    val mushrooms: List<InitialMushroom> = emptyList(),
 ) {
     companion object {
         val EMPTY = InitialData()

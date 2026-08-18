@@ -63,6 +63,7 @@ fun InitialSetupSidebar(
     onRemoveTrap: (Int) -> Unit,
     onRemoveBarricade: (Int) -> Unit,
     onRemoveFief: (Int) -> Unit,
+    onRemoveMushroom: (Int) -> Unit,
     selectedElement: SelectedElement?,
     onSelectedElementChange: (SelectedElement?) -> Unit,
 ) {
@@ -212,7 +213,21 @@ fun InitialSetupSidebar(
                     ) {
                         Text(stringResource(Res.string.initial_setup_fiefs))
                     }
-                    Spacer(modifier = Modifier.weight(1f))
+                    Button(
+                        onClick = { onPlacementModeChange(PlacementMode.MUSHROOM) },
+                        modifier = Modifier.weight(1f),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor =
+                                    if (placementMode == PlacementMode.MUSHROOM) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.secondary
+                                    },
+                            ),
+                    ) {
+                        Text(stringResource(Res.string.initial_setup_mushrooms))
+                    }
                 }
             }
 
@@ -300,6 +315,9 @@ fun InitialSetupSidebar(
                         )
                     }
                 }
+                PlacementMode.MUSHROOM -> {
+                    // No configuration needed for mushrooms - they are simply placed on path tiles
+                }
                 null -> {
                     // Selection mode - show selected element details
                     if (selectedElement != null) {
@@ -313,6 +331,7 @@ fun InitialSetupSidebar(
                                         is SelectedElement.Trap -> onRemoveTrap(selectedElement.index)
                                         is SelectedElement.Barricade -> onRemoveBarricade(selectedElement.index)
                                         is SelectedElement.Fief -> onRemoveFief(selectedElement.index)
+                                        is SelectedElement.Mushroom -> onRemoveMushroom(selectedElement.index)
                                     }
                                 },
                                 onDeselect = { onSelectedElementChange(null) },
@@ -917,6 +936,20 @@ fun SelectedElementPanel(
                             text = "${stringResource(
                                 Res.string.position_label,
                             )}: (${selectedElement.fief.position.x}, ${selectedElement.fief.position.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
+                is SelectedElement.Mushroom -> {
+                    Column {
+                        Text(
+                            text = stringResource(Res.string.mushroom),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            text = "${stringResource(
+                                Res.string.position_label,
+                            )}: (${selectedElement.mushroom.position.x}, ${selectedElement.mushroom.position.y})",
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }

@@ -1571,3 +1571,56 @@ fun UpgradeTowerIcon(
         drawPath(head, Color.Red)
     }
 }
+
+/**
+ * Displays a mushroom icon drawn on a canvas.
+ * Mushrooms boost horde units and witches: 2x speed and 2x level for 2 turns.
+ */
+@Composable
+fun MushroomIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp,
+    capColor: Color = Color(0xFFFF6D00),    // Orange-red cap
+    spotColor: Color = Color(0xFFFFFFFF),   // White spots
+    stemColor: Color = Color(0xFFFFF9C4),   // Pale yellow stem
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+
+        // Draw stem (rounded rectangle in lower 40%)
+        val stemWidth = w * 0.45f
+        val stemLeft = (w - stemWidth) / 2f
+        val stemTop = h * 0.58f
+        val stemBottom = h * 0.95f
+        drawRoundRect(
+            color = stemColor,
+            topLeft = Offset(stemLeft, stemTop),
+            size = Size(stemWidth, stemBottom - stemTop),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(stemWidth * 0.3f),
+        )
+
+        // Draw cap (arc/semi-ellipse in upper 65%)
+        val capRadius = w * 0.47f
+        val capCenterX = w / 2f
+        val capCenterY = h * 0.52f
+        drawOval(
+            color = capColor,
+            topLeft = Offset(capCenterX - capRadius, capCenterY - capRadius * 0.85f),
+            size = Size(capRadius * 2f, capRadius * 1.7f),
+        )
+
+        // Draw two white spots on the cap
+        val spotRadius = w * 0.07f
+        drawCircle(
+            color = spotColor,
+            radius = spotRadius,
+            center = Offset(capCenterX - capRadius * 0.3f, capCenterY - capRadius * 0.15f),
+        )
+        drawCircle(
+            color = spotColor,
+            radius = spotRadius * 0.8f,
+            center = Offset(capCenterX + capRadius * 0.3f, capCenterY - capRadius * 0.35f),
+        )
+    }
+}

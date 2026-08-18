@@ -43,6 +43,7 @@ enum class PlacementMode {
     TRAP, // Traps: PATH
     BARRICADE, // Barricades: PATH
     FIEF, // Fiefs: PATH
+    MUSHROOM, // Mushrooms: PATH
 }
 
 /**
@@ -82,6 +83,7 @@ fun isValidPlacement(
         PlacementMode.TRAP -> tileType == TileType.PATH
         PlacementMode.BARRICADE -> tileType == TileType.PATH
         PlacementMode.FIEF -> tileType == TileType.PATH
+        PlacementMode.MUSHROOM -> tileType == TileType.PATH
     }
 }
 
@@ -269,6 +271,7 @@ fun InitialSetupMinimap(
                 val hasTrap = initialData.traps.any { it.position == pos }
                 val hasBarricade = initialData.barricades.any { it.position == pos }
                 val hasFief = initialData.fiefs.any { it.position == pos }
+                val hasMushroom = initialData.mushrooms.any { it.position == pos }
                 val barricadeAtPos = initialData.barricades.find { it.position == pos }
                 val isTowerBase = barricadeAtPos?.canSupportTower() == true
 
@@ -316,20 +319,22 @@ fun InitialSetupMinimap(
                                 pos
                         is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Fief ->
                             selectedElement.fief.position == pos
+                        is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Mushroom ->
+                            selectedElement.mushroom.position == pos
                         null -> false
                     }
 
                 // Validation checks for placement conflicts
                 // Rule: Only one element (tower, trap, barricade, OR unit) is possible on a tile,
                 //       except towers can be placed on top of barricades that support towers (HP >= 100)
-                val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade || hasFief
+                val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade || hasFief || hasMushroom
                 val hasConflict =
                     when (placementMode) {
                         PlacementMode.DEFENDER ->
                             // Allow tower on tower base as long as no tower is already there
                             if (isTowerBase && !hasDefender) false else hasAnyElement
                         PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE,
-                        PlacementMode.FIEF,
+                        PlacementMode.FIEF, PlacementMode.MUSHROOM,
                         -> hasAnyElement
                         else -> false
                     }
@@ -428,6 +433,23 @@ fun InitialSetupMinimap(
 
             drawCircle(
                 color = Color(0xFF4CAF50),
+                radius = iconSize / 2,
+                center = Offset(centerX, centerY),
+            )
+        }
+
+        // Draw mushrooms
+        initialData.mushrooms.forEach { mushroom ->
+            val offsetXHex = if (mushroom.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+            val centerX =
+                geometry.offsetXCanvas + mushroom.position.x * geometry.hexWidth +
+                    offsetXHex + geometry.hexWidth / 2
+            val centerY =
+                geometry.offsetYCanvas + mushroom.position.y * geometry.verticalSpacing +
+                    geometry.hexHeight / 2
+
+            drawCircle(
+                color = Color(0xFFFF8C00), // Orange for mushrooms
                 radius = iconSize / 2,
                 center = Offset(centerX, centerY),
             )

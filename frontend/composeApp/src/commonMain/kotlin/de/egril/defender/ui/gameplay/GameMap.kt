@@ -66,6 +66,7 @@ import de.egril.defender.ui.animations.FreezeSpellAnimation
 import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.MineDigAnimation
+import de.egril.defender.ui.animations.MushroomBuffAnimation
 import de.egril.defender.ui.animations.MorvathShadowOrbOverlay
 import de.egril.defender.ui.animations.PikeAttackOverlay
 import de.egril.defender.ui.animations.RocketAttackOverlay
@@ -97,6 +98,7 @@ import de.egril.defender.ui.icon.BombIcon
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.GateIcon
+import de.egril.defender.ui.icon.MushroomIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.ScrapPileIcon
 import de.egril.defender.ui.icon.TestTubeIcon
@@ -1649,6 +1651,9 @@ fun GridCell(
     // Check for fiefs at this position
     val fief = gameState.fiefs.find { it.position == position }
 
+    // Check for mushrooms at this position
+    val mushroomOnTile = gameState.mushrooms.find { it.position == position }
+
     // Check if this tile is in a cooling spell area (show snowflake on affected path tiles)
     val isInCoolingArea =
         isEnemyTraversable &&
@@ -1780,7 +1785,8 @@ fun GridCell(
                 val hasTrap = trap != null
                 val hasFieldEffect = fieldEffect != null
                 val hasFief = fief != null
-                isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect && !hasFief
+                val hasMushroom = mushroomOnTile != null
+                isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect && !hasFief && !hasMushroom
             } ?: false
         } else {
             false
@@ -1800,7 +1806,7 @@ fun GridCell(
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= 3
                 // Check if empty path tile (no defender, no attacker, can have existing barricade for reinforcement)
-                val isEmptyPath = isOnPath && defender == null && attacker == null && fief == null
+                val isEmptyPath = isOnPath && defender == null && attacker == null && fief == null && mushroomOnTile == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -1817,7 +1823,7 @@ fun GridCell(
             selectedDefender?.let { sel ->
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null
+                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null && mushroomOnTile == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -1831,7 +1837,7 @@ fun GridCell(
             selectedDefender?.let { sel ->
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null
+                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null && mushroomOnTile == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -2271,6 +2277,7 @@ fun GridCell(
                 trap = trap,
                 barricade = barricade,
                 fief = fief,
+                mushroom = mushroomOnTile,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -2344,6 +2351,7 @@ fun GridCell(
                 trap = trap,
                 barricade = barricade,
                 fief = fief,
+                mushroom = mushroomOnTile,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -2415,6 +2423,7 @@ private fun BoxScope.GridCellContent(
     trap: Trap?,
     barricade: Barricade?,
     fief: de.egril.defender.model.Fief? = null,
+    mushroom: de.egril.defender.model.Mushroom? = null,
     isSpawnPoint: Boolean,
     isTarget: Boolean,
     isRiverTile: Boolean,
@@ -2699,6 +2708,13 @@ private fun BoxScope.GridCellContent(
                                     }
                                 }
                             }
+                        }
+                        // Show mushroom buff overlay when the enemy is under mushroom buff
+                        if (attacker.mushroomTurnsRemaining.value > 0) {
+                            MushroomBuffAnimation(
+                                animate = AppSettings.enableAnimations.value,
+                                modifier = Modifier.fillMaxSize(),
+                            )
                         }
                         // Attack damage / lethality / immunity preview at the left border
                         if (attackPreview != null) {
@@ -2995,6 +3011,16 @@ private fun BoxScope.GridCellContent(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.offset(y = (-3).dp),
                 )
+            }
+        }
+
+        mushroom != null ->  {
+            // Show mushroom icon
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                MushroomIcon(size = GamePlayConstants.TileIconSizes.Mushroom)
             }
         }
 

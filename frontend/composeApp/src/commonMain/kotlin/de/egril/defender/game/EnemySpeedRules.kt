@@ -27,6 +27,10 @@ internal fun calculateEffectiveEnemySpeed(
         }
 
     var effectiveSpeed = baseSpeed + attacker.speedBonus.value
+    // Mushroom buff: doubles movement speed for 2 turns
+    if (attacker.mushroomTurnsRemaining.value > 0) {
+        effectiveSpeed += maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+    }
     if (!ignoresSlowing) {
         val isInCoolingArea =
             state.activeSpellEffects.any { effect ->

@@ -696,6 +696,9 @@
     <string name="initial_setup_traps">Pièges</string>
     <string name="initial_setup_barricades">Barricades</string>
     <string name="initial_setup_fiefs">Fiefs</string>
+    <string name="initial_setup_mushrooms">Champignons</string>
+    <string name="mushroom">Champignon</string>
+    <string name="mushroom_buff_description">2x vitesse et niveau pendant 2 tours (unités de horde et sorcières uniquement)</string>
     <string name="fief_configuration">Configuration de Fief</string>
     <string name="initial_setup_configuration">Configuration</string>
     <string name="element_type">Type d'Élément</string>

@@ -138,7 +138,8 @@ class GameEngine(
         val hasTrap = state.traps.any { it.position == position }
         val hasBarricade = state.barricades.any { it.position == position }
         val hasFief = state.fiefs.any { it.position == position }
-        if (hasEnemy || hasTrap || hasBarricade || hasFief) return false
+        val hasMushroom = state.mushrooms.any { it.position == position }
+        if (hasEnemy || hasTrap || hasBarricade || hasFief || hasMushroom) return false
         state.fiefs.add(
             de.egril.defender.model
                 .Fief(position = position, type = type),
@@ -755,7 +756,8 @@ class GameEngine(
         state.defenders.any { it.position.value == position } ||
             state.barricades.any { it.position == position && !it.isDestroyed() } ||
             state.traps.any { it.position == position } ||
-            state.fiefs.any { it.position == position }
+            state.fiefs.any { it.position == position } ||
+            state.mushrooms.any { it.position == position }
 
     // Turn Management
     fun startFirstPlayerTurn() {
@@ -1599,6 +1601,8 @@ class GameEngine(
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
                 // Destroy any fief at the new position
                 destroyFiefAt(newPosition, attacker)
+                // Consume any mushroom at the new position (horde units and witches only)
+                consumeMushroomAt(newPosition, attacker)
 
                 // Only continue if dragon was not defeated by trap
                 if (!attacker.isDefeated.value) {
@@ -1678,6 +1682,8 @@ class GameEngine(
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
                 // Destroy any fief at the new position
                 destroyFiefAt(newPosition, attacker)
+                // Consume any mushroom at the new position (horde units and witches only)
+                consumeMushroomAt(newPosition, attacker)
             }
 
             // Check if reached a waypoint and update target
@@ -1758,6 +1764,8 @@ class GameEngine(
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
                 // Destroy any fief at the new position (enemies destroy fiefs by passing through)
                 destroyFiefAt(newPosition, attacker)
+                // Consume any mushroom at the new position (horde units and witches only)
+                consumeMushroomAt(newPosition, attacker)
             }
 
             // Only continue if enemy was not defeated by trap
@@ -1827,6 +1835,8 @@ class GameEngine(
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
                 // Destroy any fief at the new position
                 destroyFiefAt(newPosition, attacker)
+                // Consume any mushroom at the new position (horde units and witches only)
+                consumeMushroomAt(newPosition, attacker)
 
                 // Only continue if enemy was not defeated by trap
                 if (!attacker.isDefeated.value) {
@@ -1876,6 +1886,13 @@ class GameEngine(
         state.attackers.forEach { attacker ->
             if (attacker.bloodlustRoundsLeft.value > 0) {
                 attacker.bloodlustRoundsLeft.value--
+            }
+            if (attacker.mushroomTurnsRemaining.value > 0) {
+                attacker.mushroomTurnsRemaining.value--
+                if (attacker.mushroomTurnsRemaining.value == 0) {
+                    // Expire mushroom level bonus
+                    attacker.mushroomLevelBonus.value = 0
+                }
             }
         }
     }
@@ -2593,6 +2610,25 @@ class GameEngine(
             if (attacker?.type == AttackerType.CAPTAIN_RODERICH) {
                 attacker.treasureCoins.value += fief.type.incomePerTurn * 10
             }
+        }
+    }
+
+    /**
+     * Consume the mushroom at [position] if any, applying the mushroom buff to [attacker].
+     * Only horde units and witches eat mushrooms; other units leave them in place.
+     * The buff doubles the attacker's movement speed and effective level for 2 turns.
+     */
+    private fun consumeMushroomAt(
+        position: Position,
+        attacker: Attacker,
+    ) {
+        if (!attacker.type.canEatMushroom) return
+        val mushroom = state.mushrooms.find { it.position == position }
+        if (mushroom != null) {
+            state.mushrooms.remove(mushroom)
+            // Store original level as bonus (net effect: level.value + mushroomLevelBonus = 2× level)
+            attacker.mushroomLevelBonus.value = attacker.level.value
+            attacker.mushroomTurnsRemaining.value = 2
         }
     }
 

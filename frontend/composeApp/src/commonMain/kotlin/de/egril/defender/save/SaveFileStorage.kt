@@ -302,6 +302,8 @@ object SaveFileStorage {
                     dragonName = attacker.dragonName,
                     movementPenalty = attacker.movementPenalty.value,
                     bloodlustRoundsLeft = attacker.bloodlustRoundsLeft.value,
+                    mushroomTurnsRemaining = attacker.mushroomTurnsRemaining.value,
+                    mushroomLevelBonus = attacker.mushroomLevelBonus.value,
                 )
             }
 
@@ -355,6 +357,13 @@ object SaveFileStorage {
                 )
             }
 
+        val mushrooms =
+            gameState.mushrooms.map { mushroom ->
+                SavedMushroom(
+                    position = mushroom.position,
+                )
+            }
+
         val spellEffects =
             gameState.activeSpellEffects.map { effect ->
                 SavedSpellEffect(
@@ -391,6 +400,7 @@ object SaveFileStorage {
             nextRaftId = gameState.nextRaftId.value,
             barricades = barricades,
             fiefs = fiefs,
+            mushrooms = mushrooms,
             worldMapSave = null, // Don't automatically include world map - only on explicit export
             currentMana = gameState.currentMana.value,
             maxMana = gameState.maxMana.value,
@@ -534,6 +544,8 @@ object SaveFileStorage {
             attacker.isDefeated.value = savedAttacker.isDefeated
             attacker.movementPenalty.value = savedAttacker.movementPenalty
             attacker.bloodlustRoundsLeft.value = savedAttacker.bloodlustRoundsLeft
+            attacker.mushroomTurnsRemaining.value = savedAttacker.mushroomTurnsRemaining
+            attacker.mushroomLevelBonus.value = savedAttacker.mushroomLevelBonus
             gameState.attackers.add(attacker)
         }
 
@@ -609,6 +621,14 @@ object SaveFileStorage {
                         null
                     }
                 fiefType?.let { Fief(position = savedFief.position, type = it) }
+            },
+        )
+
+        // Restore mushrooms
+        gameState.mushrooms.clear()
+        gameState.mushrooms.addAll(
+            savedGame.mushrooms.map { savedMushroom ->
+                Mushroom(position = savedMushroom.position)
             },
         )
 

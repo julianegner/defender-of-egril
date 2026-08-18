@@ -696,6 +696,9 @@
     <string name="initial_setup_traps">Trappole</string>
     <string name="initial_setup_barricades">Barricate</string>
     <string name="initial_setup_fiefs">Feudi</string>
+    <string name="initial_setup_mushrooms">Funghi</string>
+    <string name="mushroom">Fungo</string>
+    <string name="mushroom_buff_description">2x velocità e livello per 2 turni (solo unità orda e streghe)</string>
     <string name="fief_configuration">Configurazione Feudo</string>
     <string name="initial_setup_configuration">Configurazione</string>
     <string name="element_type">Tipo di Elemento</string>
