@@ -2623,6 +2623,8 @@ class GameEngine(
         attacker: Attacker,
     ) {
         if (!attacker.type.canEatMushroom) return
+        // Don't consume a second mushroom while already buffed
+        if (attacker.mushroomTurnsRemaining.value > 0) return
         val mushroom = state.mushrooms.find { it.position == position }
         if (mushroom != null) {
             state.mushrooms.remove(mushroom)

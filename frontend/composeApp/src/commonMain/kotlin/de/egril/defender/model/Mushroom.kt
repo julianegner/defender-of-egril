@@ -1,7 +1,5 @@
 package de.egril.defender.model
 
-import de.egril.defender.model.Position
-
 /**
  * Represents a mushroom placed on the map during level preparation.
  * Mushrooms boost horde units (goblins, orks, ogres, snotlings) and witches:
