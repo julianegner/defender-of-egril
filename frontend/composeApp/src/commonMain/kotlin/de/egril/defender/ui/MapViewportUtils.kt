@@ -1,6 +1,7 @@
 package de.egril.defender.ui
 
 import androidx.compose.ui.unit.IntSize
+import kotlin.math.roundToInt
 
 /**
  * Constrains pan offsets to keep content visible within the viewport.
@@ -46,4 +47,63 @@ fun constrainMapOffsets(
         newOffsetX.coerceIn(-maxOffsetX, maxOffsetX),
         newOffsetY.coerceIn(-maxOffsetY, maxOffsetY),
     )
+}
+
+/**
+ * Computes the range of tile grid indices (x and y) that intersect the visible viewport.
+ * Tiles outside this range can be replaced with lightweight empty composables to avoid
+ * rendering full GridCell trees for off-screen tiles.
+ *
+ * A [buffer] tile margin is added on each side to prevent pop-in during panning.
+ *
+ * @param containerWidth  Viewport width in pixels (from onSizeChanged).
+ * @param containerHeight Viewport height in pixels.
+ * @param contentWidth    Full (unscaled) content width in pixels (from the layout pass).
+ * @param contentHeight   Full (unscaled) content height in pixels.
+ * @param scale           Current zoom scale factor.
+ * @param offsetX         Horizontal pan offset in pixels (applied via graphicsLayer).
+ * @param offsetY         Vertical pan offset in pixels.
+ * @param hexWidth        Width of one hex tile in content pixels (hexSize * sqrt(3)).
+ * @param verticalSpacing Vertical distance between tile row centres in content pixels.
+ * @param gridWidth       Total number of tile columns.
+ * @param gridHeight      Total number of tile rows.
+ * @param buffer          Extra tile margin added around the visible range (default 2).
+ * @return IntArray of [minX, maxX, minY, maxY] (inclusive, clamped to grid bounds).
+ *         Returns [0, gridWidth-1, 0, gridHeight-1] when sizes are zero (not yet measured).
+ */
+fun computeVisibleTileRange(
+    containerWidth: Int,
+    containerHeight: Int,
+    contentWidth: Int,
+    contentHeight: Int,
+    scale: Float,
+    offsetX: Float,
+    offsetY: Float,
+    hexWidth: Float,
+    verticalSpacing: Float,
+    gridWidth: Int,
+    gridHeight: Int,
+    buffer: Int = 2,
+): IntArray {
+    if (containerWidth == 0 || containerHeight == 0 || contentWidth == 0 || contentHeight == 0) {
+        return intArrayOf(0, gridWidth - 1, 0, gridHeight - 1)
+    }
+    // The graphicsLayer in HexagonalMapView centres the content column and applies
+    // translationX/Y = offsetX/Y.  The left edge of content in viewport px is:
+    //   contentLeft = containerWidth / 2 - contentWidth * scale / 2 + offsetX
+    // The visible content-coordinate range (before scale) is therefore:
+    //   visLeft  = -contentLeft / scale
+    //   visRight = visLeft + containerWidth / scale
+    val contentLeft = containerWidth / 2f - contentWidth * scale / 2f + offsetX
+    val contentTop = containerHeight / 2f - contentHeight * scale / 2f + offsetY
+    val visLeft = -contentLeft / scale
+    val visTop = -contentTop / scale
+    val visRight = visLeft + containerWidth / scale
+    val visBottom = visTop + containerHeight / scale
+
+    val minX = ((visLeft / hexWidth).toInt() - buffer).coerceAtLeast(0)
+    val maxX = ((visRight / hexWidth).toInt() + buffer).coerceAtMost(gridWidth - 1)
+    val minY = ((visTop / verticalSpacing).toInt() - buffer).coerceAtLeast(0)
+    val maxY = ((visBottom / verticalSpacing).toInt() + buffer).coerceAtMost(gridHeight - 1)
+    return intArrayOf(minX, maxX, minY, maxY)
 }

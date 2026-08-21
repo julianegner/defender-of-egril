@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.Position
+import de.egril.defender.ui.computeVisibleTileRange
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.mouseWheelZoom
 import de.egril.defender.ui.settings.ShortcutBinding
@@ -360,6 +361,28 @@ fun HexagonalMapView(
                     (-hexHeight + verticalSpacing + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT).dp,
                 ),
         ) {
+            // Viewport culling: compute the range of tiles that intersect the visible viewport.
+            // Off-screen tiles are replaced with lightweight Spacers to preserve Row layout
+            // without composing full GridCell subtrees. A 2-tile buffer prevents pop-in.
+            val visibleRange =
+                computeVisibleTileRange(
+                    containerWidth = containerSize.width,
+                    containerHeight = containerSize.height,
+                    contentWidth = actualContentSize.width,
+                    contentHeight = actualContentSize.height,
+                    scale = scale,
+                    offsetX = offsetX,
+                    offsetY = offsetY,
+                    hexWidth = hexWidth,
+                    verticalSpacing = verticalSpacing,
+                    gridWidth = gridWidth,
+                    gridHeight = gridHeight,
+                )
+            val visibleMinX = visibleRange[0]
+            val visibleMaxX = visibleRange[1]
+            val visibleMinY = visibleRange[2]
+            val visibleMaxY = visibleRange[3]
+
             for (y in 0 until gridHeight) {
                 Row(
                     modifier =
@@ -371,7 +394,12 @@ fun HexagonalMapView(
                 ) {
                     for (x in 0 until gridWidth) {
                         val position = Position(x, y)
-                        content(position)
+                        if (x in visibleMinX..visibleMaxX && y in visibleMinY..visibleMaxY) {
+                            content(position)
+                        } else {
+                            // Off-screen: size-matched Spacer to preserve Row layout spacing.
+                            Spacer(modifier = Modifier.width(hexWidth.dp).height(hexHeight.dp))
+                        }
                     }
                 }
             }
