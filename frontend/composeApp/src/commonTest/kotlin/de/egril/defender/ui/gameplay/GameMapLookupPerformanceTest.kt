@@ -3,10 +3,10 @@ package de.egril.defender.ui.gameplay
 import de.egril.defender.model.Position
 import de.egril.defender.utils.isPlatformDesktop
 import kotlin.random.Random
-import kotlin.system.measureNanoTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.TimeSource
 
 class GameMapLookupPerformanceTest {
     private companion object {
@@ -72,21 +72,25 @@ class GameMapLookupPerformanceTest {
         val speedup = legacyMedianMs / optimizedDivisor
         println(
             "GameMap lookup benchmark (40x40): " +
-                "before=${"%.2f".format(legacyMedianMs)}ms, " +
-                "after=${"%.2f".format(optimizedMedianMs)}ms, " +
-                "speedup=${"%.2f".format(speedup)}x",
+                "before=$legacyMedianMs ms, " +
+                "after=$optimizedMedianMs ms, " +
+                "speedup=${speedup}x",
         )
 
         assertTrue(
             speedup >= 1.3,
             "Lookup performance regression on 40x40 grid: " +
-                "before=${"%.2f".format(legacyMedianMs)}ms, " +
-                "after=${"%.2f".format(optimizedMedianMs)}ms, " +
-                "speedup=${"%.2f".format(speedup)}x (required >= 1.30x)",
+                "before=$legacyMedianMs ms, " +
+                "after=$optimizedMedianMs ms, " +
+                "speedup=${speedup}x (required >= 1.30x)",
         )
     }
 
-    private fun measureMillis(block: () -> Unit): Double = measureNanoTime(block).toDouble() / 1_000_000.0
+    private fun measureMillis(block: () -> Unit): Double {
+        val mark = TimeSource.Monotonic.markNow()
+        block()
+        return mark.elapsedNow().inWholeNanoseconds.toDouble() / 1_000_000.0
+    }
 
     private fun median(values: List<Double>): Double {
         val sorted = values.sorted()
