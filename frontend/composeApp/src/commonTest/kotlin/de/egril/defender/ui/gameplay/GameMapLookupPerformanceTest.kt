@@ -2,6 +2,8 @@ package de.egril.defender.ui.gameplay
 
 import de.egril.defender.model.Position
 import de.egril.defender.utils.isPlatformDesktop
+import kotlin.math.abs
+import kotlin.math.round
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -72,17 +74,17 @@ class GameMapLookupPerformanceTest {
         val speedup = legacyMedianMs / optimizedDivisor
         println(
             "GameMap lookup benchmark (40x40): " +
-                "before=$legacyMedianMs ms, " +
-                "after=$optimizedMedianMs ms, " +
-                "speedup=${speedup}x",
+                "before=${formatTwoDecimals(legacyMedianMs)} ms, " +
+                "after=${formatTwoDecimals(optimizedMedianMs)} ms, " +
+                "speedup=${formatTwoDecimals(speedup)}x",
         )
 
         assertTrue(
             speedup >= 1.3,
             "Lookup performance regression on 40x40 grid: " +
-                "before=$legacyMedianMs ms, " +
-                "after=$optimizedMedianMs ms, " +
-                "speedup=${speedup}x (required >= 1.30x)",
+                "before=${formatTwoDecimals(legacyMedianMs)} ms, " +
+                "after=${formatTwoDecimals(optimizedMedianMs)} ms, " +
+                "speedup=${formatTwoDecimals(speedup)}x (required >= 1.30x)",
         )
     }
 
@@ -90,6 +92,15 @@ class GameMapLookupPerformanceTest {
         val mark = TimeSource.Monotonic.markNow()
         block()
         return mark.elapsedNow().inWholeNanoseconds.toDouble() / 1_000_000.0
+    }
+
+    private fun formatTwoDecimals(value: Double): String {
+        val rounded = round(value * 100.0).toLong()
+        val absoluteRounded = abs(rounded)
+        val integralPart = absoluteRounded / 100
+        val fractionalPart = (absoluteRounded % 100).toString().padStart(2, '0')
+        val sign = if (rounded < 0) "-" else ""
+        return "$sign$integralPart.$fractionalPart"
     }
 
     private fun median(values: List<Double>): Double {
