@@ -1,5 +1,6 @@
 package de.egril.defender.ui
 
+import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -166,5 +167,167 @@ class ViewportTileCullingTest {
         assertTrue(rangeWithBuffer[1] >= rangeNoBuffer[1], "Buffer should extend maxX rightward")
         assertTrue(rangeWithBuffer[2] <= rangeNoBuffer[2], "Buffer should extend minY upward")
         assertTrue(rangeWithBuffer[3] >= rangeNoBuffer[3], "Buffer should extend maxY downward")
+    }
+
+    @Test
+    fun includesBottomRowWhenScrolledDownAndVisible() {
+        val gridWidth = 40
+        val gridHeight = 40
+        val containerWidth = 800
+        val containerHeight = 600
+        val scale = 1.5f
+        val offsetY = -1200f
+        val contentWidth = (gridWidth * hexWidth).toInt()
+        val contentHeight = (gridHeight * verticalSpacing).toInt()
+
+        val range =
+            computeVisibleTileRange(
+                containerWidth = containerWidth,
+                containerHeight = containerHeight,
+                contentWidth = contentWidth,
+                contentHeight = contentHeight,
+                scale = scale,
+                offsetX = 0f,
+                offsetY = offsetY,
+                hexWidth = hexWidth,
+                verticalSpacing = verticalSpacing,
+                gridWidth = gridWidth,
+                gridHeight = gridHeight,
+            )
+
+        val contentTop = containerHeight / 2f - contentHeight * scale / 2f + offsetY
+        val visTop = -contentTop / scale
+        val visBottom = visTop + containerHeight / scale
+        val effectiveRowStep = verticalSpacing + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT - 1f
+        val lastRow = gridHeight - 1
+        val lastRowTop = lastRow * effectiveRowStep + 1f
+        val lastRowBottom = lastRowTop + hexHeight
+        val lastRowIntersectsViewport = lastRowBottom >= visTop && lastRowTop <= visBottom
+
+        assertTrue(lastRowIntersectsViewport, "Test setup requires the bottom row to be visible")
+        assertTrue(
+            lastRow in range[2]..range[3],
+            "Bottom row should be included in visible Y-range when it intersects the viewport",
+        )
+    }
+
+    @Test
+    fun includesRightColumnsWhenPannedToBottomRight() {
+        val gridWidth = 40
+        val gridHeight = 40
+        val containerWidth = 800
+        val containerHeight = 600
+        val scale = 1.0f
+        val offsetX = -805f
+        val offsetY = -773f
+
+        val horizontalStep = hexWidth + HexagonalGridConstants.HORIZONTAL_SPACING
+        val oddRowOffset = hexWidth * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
+        val contentWidth = ((gridWidth - 1) * horizontalStep + hexWidth + oddRowOffset).toInt()
+        val contentHeight = (hexHeight + (gridHeight - 1) * (verticalSpacing + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT)).toInt()
+
+        val range =
+            computeVisibleTileRange(
+                containerWidth = containerWidth,
+                containerHeight = containerHeight,
+                contentWidth = contentWidth,
+                contentHeight = contentHeight,
+                scale = scale,
+                offsetX = offsetX,
+                offsetY = offsetY,
+                hexWidth = hexWidth,
+                verticalSpacing = verticalSpacing,
+                gridWidth = gridWidth,
+                gridHeight = gridHeight,
+            )
+
+        val contentLeft = containerWidth / 2f - contentWidth * scale / 2f + offsetX
+        val visLeft = -contentLeft / scale
+        val visRight = visLeft + containerWidth / scale
+        val targetColumn = 37
+        val evenRow = 30
+        val targetLeft = targetColumn * horizontalStep
+        val targetRight = targetLeft + hexWidth
+        val targetIntersectsViewport = targetRight >= visLeft && targetLeft <= visRight
+
+        assertTrue(targetIntersectsViewport, "Test setup requires column 37 to intersect the viewport")
+        assertTrue(
+            targetColumn in range[0]..range[1],
+            "Column 37 should be included in visible X-range when it intersects the viewport",
+        )
+        assertTrue(evenRow in range[2]..range[3], "Bottom-area rows should remain visible in this pan position")
+    }
+
+    @Test
+    fun alwaysIncludesEveryVisibleTileAcrossPanAndZoomSamples() {
+        val gridWidth = 40
+        val gridHeight = 40
+        val containerWidth = 800
+        val containerHeight = 600
+        val horizontalStep = hexWidth + HexagonalGridConstants.HORIZONTAL_SPACING
+        val oddRowOffset = hexWidth * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
+        val rowStep = verticalSpacing + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT - 1f
+
+        val evenRowWidth = gridWidth * hexWidth + (gridWidth - 1) * HexagonalGridConstants.HORIZONTAL_SPACING
+        val oddRowWidth = oddRowOffset + evenRowWidth
+        val contentWidth = maxOf(evenRowWidth, oddRowWidth).toInt()
+        val contentHeight = (hexHeight + (gridHeight - 1) * (verticalSpacing + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT)).toInt()
+
+        val testScales = listOf(0.8f, 1.0f, 1.3f, 1.8f, 2.5f)
+        for (scale in testScales) {
+            val maxOffsetX = maxOf(0f, (contentWidth * scale - containerWidth) / 2f)
+            val maxOffsetY = maxOf(0f, (contentHeight * scale - containerHeight) / 2f)
+            val sampledOffsetX = listOf(-maxOffsetX, -maxOffsetX * 0.5f, 0f, maxOffsetX * 0.5f, maxOffsetX)
+            val sampledOffsetY = listOf(-maxOffsetY, -maxOffsetY * 0.5f, 0f, maxOffsetY * 0.5f, maxOffsetY)
+
+            for (offsetX in sampledOffsetX) {
+                for (offsetY in sampledOffsetY) {
+                    val range =
+                        computeVisibleTileRange(
+                            containerWidth = containerWidth,
+                            containerHeight = containerHeight,
+                            contentWidth = contentWidth,
+                            contentHeight = contentHeight,
+                            scale = scale,
+                            offsetX = offsetX,
+                            offsetY = offsetY,
+                            hexWidth = hexWidth,
+                            verticalSpacing = verticalSpacing,
+                            gridWidth = gridWidth,
+                            gridHeight = gridHeight,
+                        )
+
+                    val contentLeft = containerWidth / 2f - contentWidth * scale / 2f + offsetX
+                    val contentTop = containerHeight / 2f - contentHeight * scale / 2f + offsetY
+                    val visLeft = -contentLeft / scale
+                    val visTop = -contentTop / scale
+                    val visRight = visLeft + containerWidth / scale
+                    val visBottom = visTop + containerHeight / scale
+
+                    for (y in 0 until gridHeight) {
+                        val rowTop = 1f + y * rowStep
+                        val rowBottom = rowTop + hexHeight
+                        val rowIntersects = rowBottom >= visTop && rowTop <= visBottom
+                        if (!rowIntersects) {
+                            continue
+                        }
+
+                        val rowOffset = if (y % 2 == 1) oddRowOffset else 0f
+                        for (x in 0 until gridWidth) {
+                            val tileLeft = rowOffset + x * horizontalStep
+                            val tileRight = tileLeft + hexWidth
+                            val intersects = tileRight >= visLeft && tileLeft <= visRight
+                            if (!intersects) {
+                                continue
+                            }
+                            assertTrue(
+                                x in range[0]..range[1] && y in range[2]..range[3],
+                                "Visible tile ($x,$y) must be included in culling range ${range.toList()} for scale=$scale offset=($offsetX,$offsetY)",
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }

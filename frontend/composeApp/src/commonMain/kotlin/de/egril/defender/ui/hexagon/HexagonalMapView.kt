@@ -25,6 +25,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -129,12 +130,16 @@ fun HexagonalMapView(
     // Use rememberUpdatedState to avoid capturing stale offset values in gesture handlers
     val currentOffsetX by rememberUpdatedState(offsetX)
     val currentOffsetY by rememberUpdatedState(offsetY)
+    val currentScale by rememberUpdatedState(scale)
 
     // Calculate hex dimensions for pointy-top hexagons
     val sqrt3 = sqrt(3.0).toFloat()
     val hexWidth = config.hexSize * sqrt3 // Width of hexagon (flat-to-flat)
     val hexHeight = config.hexSize * 2f // Height of hexagon (point-to-point)
     val verticalSpacing = hexHeight * 0.75f // For pointy-top hexagons
+    val density = LocalDensity.current
+    val hexWidthPx = with(density) { hexWidth.dp.toPx() }
+    val verticalSpacingPx = with(density) { verticalSpacing.dp.toPx() }
 
     // Helper function to constrain pan offsets
     fun constrainOffsets(
@@ -182,35 +187,32 @@ fun HexagonalMapView(
     }
 
     val keyboardHandler: (KeyEvent) -> Boolean = { event ->
-        if (config.enableKeyboardNavigation && event.type == KeyEventType.KeyDown) {
-            var handled = false
-            var newOffsetX = offsetX
-            var newOffsetY = offsetY
+        if (config.enableKeyboardNavigation) {
             val noModifiers = !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed && !event.isMetaPressed
-            when {
-                matchesBinding(event, parsedPanBindings.up) || (noModifiers && event.key == Key.DirectionUp) -> {
-                    newOffsetY += config.keyboardPanSpeed
-                    handled = true
-                }
-                matchesBinding(event, parsedPanBindings.down) || (noModifiers && event.key == Key.DirectionDown) -> {
-                    newOffsetY -= config.keyboardPanSpeed
-                    handled = true
-                }
-                matchesBinding(event, parsedPanBindings.left) || (noModifiers && event.key == Key.DirectionLeft) -> {
-                    newOffsetX += config.keyboardPanSpeed
-                    handled = true
-                }
-                matchesBinding(event, parsedPanBindings.right) || (noModifiers && event.key == Key.DirectionRight) -> {
-                    newOffsetX -= config.keyboardPanSpeed
-                    handled = true
-                }
-            }
+            val panUp = matchesBinding(event, parsedPanBindings.up) || (noModifiers && event.key == Key.DirectionUp)
+            val panDown = matchesBinding(event, parsedPanBindings.down) || (noModifiers && event.key == Key.DirectionDown)
+            val panLeft = matchesBinding(event, parsedPanBindings.left) || (noModifiers && event.key == Key.DirectionLeft)
+            val panRight = matchesBinding(event, parsedPanBindings.right) || (noModifiers && event.key == Key.DirectionRight)
+            val isPanKey = panUp || panDown || panLeft || panRight
 
-            if (handled) {
-                val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
-                onOffsetChange(constrainedX, constrainedY)
+            if (!isPanKey) {
+                false
+            } else {
+                if (event.type == KeyEventType.KeyDown) {
+                    var newOffsetX = currentOffsetX
+                    var newOffsetY = currentOffsetY
+                    when {
+                        panUp -> newOffsetY += config.keyboardPanSpeed
+                        panDown -> newOffsetY -= config.keyboardPanSpeed
+                        panLeft -> newOffsetX += config.keyboardPanSpeed
+                        panRight -> newOffsetX -= config.keyboardPanSpeed
+                    }
+                    val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, currentScale)
+                    onOffsetChange(constrainedX, constrainedY)
+                    focusRequester.requestFocus()
+                }
+                true
             }
-            handled
         } else {
             false
         }
@@ -248,7 +250,7 @@ fun HexagonalMapView(
                                         }
                                     }
                                 }
-                            }.onKeyEvent(keyboardHandler)
+                            }.onPreviewKeyEvent(keyboardHandler)
                     } else {
                         Modifier
                     },
@@ -313,6 +315,7 @@ fun HexagonalMapView(
                         Modifier
                     },
                 ),
+        contentAlignment = Alignment.Center,
     ) {
         // Background content (e.g., map image) at same position as hex grid
         backgroundContent?.let { bgContent ->
@@ -373,8 +376,8 @@ fun HexagonalMapView(
                     scale = scale,
                     offsetX = offsetX,
                     offsetY = offsetY,
-                    hexWidth = hexWidth,
-                    verticalSpacing = verticalSpacing,
+                    hexWidth = hexWidthPx,
+                    verticalSpacing = verticalSpacingPx,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
                 )
