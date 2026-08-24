@@ -210,8 +210,10 @@ fun HexagonalMapView(
                     val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, currentScale)
                     onOffsetChange(constrainedX, constrainedY)
                     focusRequester.requestFocus()
+                    true
+                } else {
+                    false
                 }
-                true
             }
         } else {
             false
