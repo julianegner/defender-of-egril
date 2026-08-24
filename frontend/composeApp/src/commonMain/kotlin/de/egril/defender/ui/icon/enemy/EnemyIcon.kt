@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.displayLevel
 import de.egril.defender.model.hidesHealthBar
 import de.egril.defender.model.isSwarmUnit
 import de.egril.defender.ui.getLocalizedShortName
@@ -183,9 +184,9 @@ fun EnemyIcon(
         }
 
         // Level number at top center - only if level > 1 (not shown for snotlings)
-        if (attacker.level.value > 1 && !attacker.type.isSwarmUnit()) {
+        if (attacker.displayLevel > 1 && !attacker.type.isSwarmUnit()) {
             Text(
-                text = "${attacker.level.value}",
+                text = "${attacker.displayLevel}",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 12.sp,
                 color = healthTextColor,

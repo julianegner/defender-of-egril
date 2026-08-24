@@ -435,9 +435,9 @@ fun EnemyItemDetailed(
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Bold,
                     )
-                    if (attacker.level.value > 1) {
+                    if (attacker.displayLevel > 1) {
                         Text(
-                            "Lvl ${attacker.level.value}",
+                            if (attacker.hasMushroomBuff) "Lvl ${attacker.displayLevel} (x2)" else "Lvl ${attacker.displayLevel}",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,

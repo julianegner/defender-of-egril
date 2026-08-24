@@ -696,6 +696,11 @@
     <string name="initial_setup_traps">Trampas</string>
     <string name="initial_setup_barricades">Barricadas</string>
     <string name="initial_setup_fiefs">Feudos</string>
+    <string name="initial_setup_mushrooms">Hongos</string>
+    <string name="mushroom">Hongo</string>
+    <string name="mushroom_buff_description">2x velocidad y nivel durante 2 turnos (solo unidades de horda y brujas)</string>
+    <string name="mushroom_enhanced_horde">Impulso de hongo: 2x velocidad y nivel</string>
+    <string name="mushroom_enhanced_witch">Impulso de hongo: 2x velocidad, nivel y usos de habilidad</string>
     <string name="fief_configuration">Configuración de Feudo</string>
     <string name="initial_setup_configuration">Configuración</string>
     <string name="element_type">Tipo de Elemento</string>

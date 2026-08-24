@@ -137,15 +137,21 @@ class EnemyAbilitySystem(
                     )
                 }
                 AttackerType.GREEN_WITCH -> {
-                    applyGreenWitchHealing(attacker, enhanced = attacker.id in covenEnhancedHealWitchIds)
+                    val abilityUses = if (attacker.mushroomTurnsRemaining.value > 0) 2 else 1
+                    repeat(abilityUses) {
+                        applyGreenWitchHealing(attacker, enhanced = attacker.id in covenEnhancedHealWitchIds)
+                    }
                 }
                 AttackerType.RED_WITCH -> {
-                    // Disable nearby tower within range 1, with optional coven disable boost
-                    disableNearestTowerInRange(
-                        witch = attacker,
-                        range = 1,
-                        extraDisableTurns = if (attacker.id in covenEnhancedDisableWitchIds) COVEN_DISABLE_EXTRA_TURNS else 0,
-                    )
+                    val abilityUses = if (attacker.mushroomTurnsRemaining.value > 0) 2 else 1
+                    repeat(abilityUses) {
+                        // Disable nearby tower within range 1, with optional coven disable boost
+                        disableNearestTowerInRange(
+                            witch = attacker,
+                            range = 1,
+                            extraDisableTurns = if (attacker.id in covenEnhancedDisableWitchIds) COVEN_DISABLE_EXTRA_TURNS else 0,
+                        )
+                    }
                 }
                 AttackerType.SNOTLING_BOSS -> {
                     // Snotling Rally: summon a rabble of weak snotlings around Gribnak
@@ -863,7 +869,7 @@ class EnemyAbilitySystem(
                 }
             if (adjacentEnemy != null) {
                 // Heal 5x witch level (×1.5 with coven boost), capped at missing HP
-                val baseHeal = witch.level.value * 5
+                val baseHeal = witch.effectiveLevel * 5
                 val scaledHeal = if (enhanced) (baseHeal * COVEN_HEAL_BOOST_MULTIPLIER).toInt() else baseHeal
                 val healAmount = min(scaledHeal, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
                 if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
@@ -1590,7 +1596,7 @@ class EnemyAbilitySystem(
                     } else {
                         witch.position.value.hexDistanceTo(tower.position.value) <= range
                     }
-                val canDisable = tower.level.value <= witch.level.value
+                val canDisable = tower.level.value <= witch.effectiveLevel
 
                 if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                     println(
@@ -1623,7 +1629,7 @@ class EnemyAbilitySystem(
             // Level 5-9: 3 turns (disabled for 2 player turns)
             // Level 10-14: 4 turns (disabled for 3 player turns)
             // Level 20-24: 5 turns (disabled for 4 player turns), etc.
-            val disableDuration = 1 + (witch.level.value / 5) + 1 + extraDisableTurns
+            val disableDuration = 1 + (witch.effectiveLevel / 5) + 1 + extraDisableTurns
 
             targetTower.isDisabled.value = true
             targetTower.disabledTurnsRemaining.value = disableDuration
@@ -1658,7 +1664,7 @@ class EnemyAbilitySystem(
     fun findNearestActiveTower(witch: Attacker): Defender? {
         val eligibleTowers =
             state.defenders.filter { tower ->
-                tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.level.value
+                tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.effectiveLevel
             }
 
         if (eligibleTowers.isEmpty()) return null
@@ -1727,7 +1733,7 @@ class EnemyAbilitySystem(
         // Find ready towers that are not disabled and can be disabled by this witch
         val availableTowers =
             state.defenders.filter { tower ->
-                tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.level.value
+                tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.effectiveLevel
             }
 
         if (availableTowers.isEmpty()) return null

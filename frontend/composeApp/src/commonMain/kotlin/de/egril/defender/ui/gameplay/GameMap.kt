@@ -2,6 +2,7 @@ package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
@@ -64,6 +66,8 @@ import de.egril.defender.ui.animations.FreezeSpellAnimation
 import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.MineDigAnimation
+import de.egril.defender.ui.animations.MushroomBuffAnimation
+import de.egril.defender.ui.animations.MorvathShadowOrbOverlay
 import de.egril.defender.ui.animations.PikeAttackOverlay
 import de.egril.defender.ui.animations.RocketAttackOverlay
 import de.egril.defender.ui.animations.SkyIsFallingAnimation
@@ -91,6 +95,7 @@ import de.egril.defender.ui.icon.BombIcon
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.GateIcon
+import de.egril.defender.ui.icon.MushroomIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.TrapIcon
@@ -106,8 +111,10 @@ import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
 import kotlin.math.abs
 import kotlin.math.atan2
+import kotlin.math.PI
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+import org.jetbrains.compose.resources.painterResource
 
 /**
  * Vertical position (as a fraction of the tile height, measured from the top) where the coin-gain
@@ -124,6 +131,8 @@ private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
  * fitted (smaller) side. The fly-to-counter coins use this so they match the bubbling coins' size.
  */
 private const val COIN_BUBBLE_COIN_SIZE_FRACTION = 0.14f
+
+private const val HEX_ROW_VERTICAL_SPACING_FACTOR = 0.75f
 
 // The CW traversal start/end corner index for each edge direction.
 // CW order of edges: NE(1), E(0), SE(5), SW(4), W(3), NW(2).
@@ -149,9 +158,32 @@ private data class ShieldWallBoundaryEdge(
     val endKey: String,
 )
 
+private fun getFisherRodRotationDegrees(
+    position: Position,
+    level: Level,
+): Float {
+    val waterNeighbor =
+        position
+            .getHexNeighbors()
+            .filter { neighbor ->
+                neighbor.x in 0 until level.gridWidth &&
+                    neighbor.y in 0 until level.gridHeight
+            }.firstOrNull { neighbor ->
+                level.isRiverTile(neighbor)
+            } ?: return 0f
+
+    val sourceX = position.x + if (position.y % 2 == 1) 0.5f else 0f
+    val sourceY = position.y * HEX_ROW_VERTICAL_SPACING_FACTOR
+    val targetX = waterNeighbor.x + if (waterNeighbor.y % 2 == 1) 0.5f else 0f
+    val targetY = waterNeighbor.y * HEX_ROW_VERTICAL_SPACING_FACTOR
+    val dx = targetX - sourceX
+    val dy = targetY - sourceY
+
+    return (atan2(dy, dx) * 180f / PI.toFloat())
+}
+
 /** Returns a canonical key for a hex corner shared by three tiles (tile P and two neighbors). */
-private fun shieldWallCornerKey(
-    pos: Position,
+private fun shieldWallCornerKey(    pos: Position,
     cornerIndex: Int,
 ): String {
     val dirPair = SHIELD_WALL_CORNER_DIR_PAIRS[cornerIndex]
@@ -966,6 +998,12 @@ fun GameGrid(
     val mineDigEffectsByPosition by remember {
         derivedStateOf { gameState.mineDigEffects.associateBy { it.position } }
     }
+    val fiefsByPositionMap by remember {
+        derivedStateOf { gameState.fiefs.associateBy { it.position } }
+    }
+    val mushroomsByPositionMap by remember {
+        derivedStateOf { gameState.mushrooms.associateBy { it.position } }
+    }
     // Attack target position sets for O(1) membership checks
     val arrowAttackTargetPositions by remember {
         derivedStateOf { gameState.arrowAttackEffects.mapTo(mutableSetOf()) { it.targetPosition } }
@@ -1366,6 +1404,8 @@ fun GameGrid(
                     fieldEffect = fieldEffectsByPosition[position],
                     trap = trapsByPositionMap[position],
                     barricade = barricadesByPositionMap[position],
+                    fief = fiefsByPositionMap[position],
+                    mushroom = mushroomsByPositionMap[position],
                     constructionCompleteEffect = constructionCompleteEffectsByPosition[position],
                     enemySpawnEffect = enemySpawnEffectsByPosition[position],
                     trapTriggerEffect = trapTriggerEffectsByPosition[position],
@@ -1565,6 +1605,8 @@ fun GridCell(
     fieldEffect: FieldEffect? = null,
     trap: Trap? = null,
     barricade: Barricade? = null,
+    fief: de.egril.defender.model.Fief? = null,
+    mushroom: de.egril.defender.model.Mushroom? = null,
     constructionCompleteEffect: TowerConstructionEffect? = null,
     enemySpawnEffect: EnemySpawnEffect? = null,
     trapTriggerEffect: TrapTriggerEffect? = null,
@@ -1676,6 +1718,7 @@ fun GridCell(
     // Use effectiveFieldEffect for all visual rendering; raw fieldEffect is still used for
     // gameplay logic (trap placement detection etc.) so the game state stays accurate.
     val effectiveFieldEffect: FieldEffect? = if (showFieldEffect) fieldEffect else null
+
 
     // Check if this tile is in a cooling spell area (show snowflake on affected path tiles)
     val isInCoolingArea =
@@ -1806,7 +1849,9 @@ fun GridCell(
                 val hasEnemy = attacker != null
                 val hasTrap = trap != null
                 val hasFieldEffect = fieldEffect != null
-                isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect
+                val hasFief = fief != null
+                val hasMushroom = mushroom != null
+                isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect && !hasFief && !hasMushroom
             } ?: false
         } else {
             false
@@ -1826,7 +1871,7 @@ fun GridCell(
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= 3
                 // Check if empty path tile (no defender, no attacker, can have existing barricade for reinforcement)
-                val isEmptyPath = isOnPath && defender == null && attacker == null
+                val isEmptyPath = isOnPath && defender == null && attacker == null && fief == null && mushroom == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -1843,7 +1888,7 @@ fun GridCell(
             selectedDefender?.let { sel ->
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
+                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null && mushroom == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -1857,7 +1902,7 @@ fun GridCell(
             selectedDefender?.let { sel ->
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
+                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null && mushroom == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -2281,6 +2326,8 @@ fun GridCell(
                 fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
+                fief = fief,
+                mushroom = mushroom,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -2350,6 +2397,8 @@ fun GridCell(
                 fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
+                fief = fief,
+                mushroom = mushroom,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -2417,6 +2466,8 @@ private fun BoxScope.GridCellContent(
     fieldEffect: FieldEffect?,
     trap: Trap?,
     barricade: Barricade?,
+    fief: de.egril.defender.model.Fief? = null,
+    mushroom: de.egril.defender.model.Mushroom? = null,
     isSpawnPoint: Boolean,
     isTarget: Boolean,
     isRiverTile: Boolean,
@@ -2643,6 +2694,13 @@ private fun BoxScope.GridCellContent(
                                 }
                             }
                         }
+                        // Show mushroom buff overlay when the enemy is under mushroom buff
+                        if (attacker.mushroomTurnsRemaining.value > 0) {
+                            MushroomBuffAnimation(
+                                animate = AppSettings.enableAnimations.value,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        }
                     }
                     // Attack damage / lethality / immunity preview at the left border
                     if (attackPreview != null) {
@@ -2816,6 +2874,99 @@ private fun BoxScope.GridCellContent(
                         )
                     }
                 }
+            }
+        }
+
+        fief != null -> {
+            // Show fief image, type name, and coin income
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                val fiefName =
+                    when (fief.type) {
+                        de.egril.defender.model.FiefType.FISHER ->
+                            stringResource(Res.string.fief_type_fisher)
+                        de.egril.defender.model.FiefType.WOODCUTTER ->
+                            stringResource(Res.string.fief_type_woodcutter)
+                        de.egril.defender.model.FiefType.QUARRY ->
+                            stringResource(Res.string.fief_type_quarry)
+                        de.egril.defender.model.FiefType.MARKETPLACE ->
+                            stringResource(Res.string.fief_type_marketplace)
+                    }
+
+                when (fief.type) {
+                    de.egril.defender.model.FiefType.FISHER -> {
+                        val rodRotation = getFisherRodRotationDegrees(position, gameState.level)
+                        Box(
+                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Image(
+                                painter = painterResource(Res.drawable.fief_fisher_hut),
+                                contentDescription = fiefName,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                            Image(
+                                painter = painterResource(Res.drawable.fief_fishing_rod),
+                                contentDescription = null,
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .graphicsLayer(
+                                            rotationZ = rodRotation,
+                                            transformOrigin = TransformOrigin(0.38f, 0.56f),
+                                        ),
+                            )
+                        }
+                    }
+                    de.egril.defender.model.FiefType.WOODCUTTER -> {
+                        Image(
+                            painter = painterResource(Res.drawable.fief_woodcutter),
+                            contentDescription = fiefName,
+                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
+                        )
+                    }
+                    de.egril.defender.model.FiefType.QUARRY -> {
+                        Image(
+                            painter = painterResource(Res.drawable.fief_quarry),
+                            contentDescription = fiefName,
+                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
+                        )
+                    }
+                    de.egril.defender.model.FiefType.MARKETPLACE -> {
+                        Image(
+                            painter = painterResource(Res.drawable.fief_marketplace),
+                            contentDescription = fiefName,
+                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
+                        )
+                    }
+                }
+                Text(
+                    fiefName,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.offset(y = (-3).dp),
+                )
+                Text(
+                    "+${fief.type.incomePerTurn}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = GamePlayColors.Yellow,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.offset(y = (-3).dp),
+                )
+            }
+        }
+
+        mushroom != null ->  {
+            // Show mushroom icon
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                MushroomIcon(size = GamePlayConstants.TileIconSizes.Mushroom)
             }
         }
 

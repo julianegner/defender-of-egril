@@ -95,7 +95,9 @@ object SaveJsonSerializer {
       "isDefeated": ${attacker.isDefeated},
       "dragonName": $dragonNameStr,
       "movementPenalty": ${attacker.movementPenalty},
-      "bloodlustRoundsLeft": ${attacker.bloodlustRoundsLeft}
+      "bloodlustRoundsLeft": ${attacker.bloodlustRoundsLeft},
+      "mushroomTurnsRemaining": ${attacker.mushroomTurnsRemaining},
+      "mushroomLevelBonus": ${attacker.mushroomLevelBonus}
     }"""
             }
 
@@ -148,6 +150,11 @@ object SaveJsonSerializer {
         val fiefsJson =
             savedGame.fiefs.joinToString(",\n    ") { fief ->
                 """{"position": {"x": ${fief.position.x}, "y": ${fief.position.y}}, "type": "${fief.type}"}"""
+            }
+
+        val mushroomsJson =
+            savedGame.mushrooms.joinToString(",\n    ") { mushroom ->
+                """{"position": {"x": ${mushroom.position.x}, "y": ${mushroom.position.y}}}"""
             }
 
         val spellEffectsJson =
@@ -273,6 +280,9 @@ object SaveJsonSerializer {
   ],
   "fiefs": [
     $fiefsJson
+  ],
+  "mushrooms": [
+    $mushroomsJson
   ],
   "spellEffects": [
     $spellEffectsJson
@@ -454,6 +464,26 @@ object SaveJsonSerializer {
                         val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
                         val type = JsonUtils.extractValue(entry, "type")
                         fiefs.add(SavedFief(Position(x, y), type))
+                    }
+                }
+            }
+
+            // Parse mushrooms (optional field for backward compatibility with old saves)
+            val mushrooms = mutableListOf<SavedMushroom>()
+            if (dataJson.contains("\"mushrooms\":")) {
+                val mushroomsSection =
+                    try {
+                        dataJson.substringAfter("\"mushrooms\": [").substringBefore("],")
+                    } catch (e: Exception) {
+                        ""
+                    }
+                if (mushroomsSection.isNotBlank()) {
+                    val mushroomEntries = JsonUtils.splitJsonArray(mushroomsSection)
+                    for (entry in mushroomEntries) {
+                        val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                        val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                        val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                        mushrooms.add(SavedMushroom(Position(x, y)))
                     }
                 }
             }
@@ -680,6 +710,7 @@ object SaveJsonSerializer {
                 nextRaftId = nextRaftId,
                 barricades = barricades,
                 fiefs = fiefs,
+                mushrooms = mushrooms,
                 worldMapSave = worldMapSave,
                 currentMana =
                     try {
@@ -866,8 +897,20 @@ object SaveJsonSerializer {
             } catch (e: Exception) {
                 0
             }
+        val mushroomTurnsRemaining =
+            try {
+                JsonUtils.extractValue(json, "mushroomTurnsRemaining").toInt()
+            } catch (e: Exception) {
+                0
+            }
+        val mushroomLevelBonus =
+            try {
+                JsonUtils.extractValue(json, "mushroomLevelBonus").toInt()
+            } catch (e: Exception) {
+                0
+            }
 
-        return SavedAttacker(id, type, position, level, currentHealth, isDefeated, dragonName, movementPenalty, bloodlustRoundsLeft)
+        return SavedAttacker(id, type, position, level, currentHealth, isDefeated, dragonName, movementPenalty, bloodlustRoundsLeft, mushroomTurnsRemaining, mushroomLevelBonus)
     }
 
     private fun parseSavedFieldEffect(json: String): SavedFieldEffect {

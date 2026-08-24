@@ -552,7 +552,8 @@ object EditorJsonSerializer {
                 initialData.attackers.isNotEmpty() ||
                 initialData.traps.isNotEmpty() ||
                 initialData.barricades.isNotEmpty() ||
-                initialData.fiefs.isNotEmpty()
+                initialData.fiefs.isNotEmpty() ||
+                initialData.mushrooms.isNotEmpty()
             ) {
                 val parts = mutableListOf<String>()
 
@@ -656,6 +657,21 @@ object EditorJsonSerializer {
                     parts.add(
                         """"fiefs": [
       $fiefsData
+    ]""",
+                    )
+                }
+
+                // Mushrooms
+                if (initialData.mushrooms.isNotEmpty()) {
+                    val mushroomsData =
+                        initialData.mushrooms.joinToString(",\n      ") { mushroom ->
+                            val x = mushroom.position.x
+                            val y = mushroom.position.y
+                            """{"position": {"x": $x, "y": $y}}"""
+                        }
+                    parts.add(
+                        """"mushrooms": [
+      $mushroomsData
     ]""",
                     )
                 }
@@ -968,6 +984,7 @@ object EditorJsonSerializer {
             var initialTraps = mutableListOf<InitialTrap>()
             var initialBarricades = mutableListOf<InitialBarricade>()
             var initialFiefs = mutableListOf<InitialFief>()
+            var initialMushrooms = mutableListOf<InitialMushroom>()
 
             if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING && id == "t3") {
                 println("")
@@ -1306,6 +1323,30 @@ object EditorJsonSerializer {
                             }
                         }
                     }
+                    // Parse mushrooms from new format
+                    if (initialDataSection.contains("\"mushrooms\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"mushrooms\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val afterBracket = afterKey.substring(openBracketIndex + 1)
+                            val mushroomsSection =
+                                if (afterBracket.contains("],")) {
+                                    afterBracket.substringBefore("],")
+                                } else {
+                                    afterBracket.substringBefore("]")
+                                }
+                            if (mushroomsSection.isNotBlank()) {
+                                val mushroomEntries = splitJsonArrayObjects(mushroomsSection)
+                                for (entry in mushroomEntries) {
+                                    if (!entry.contains("position")) continue
+                                    val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                    val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                    val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                    initialMushrooms.add(InitialMushroom(Position(x, y)))
+                                }
+                            }
+                        }
+                    }
                 } catch (e: Exception) {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Error parsing initial data (new format): ${e.message}")
@@ -1492,9 +1533,10 @@ object EditorJsonSerializer {
                     initialAttackers.isNotEmpty() ||
                     initialTraps.isNotEmpty() ||
                     initialBarricades.isNotEmpty() ||
-                    initialFiefs.isNotEmpty()
+                    initialFiefs.isNotEmpty() ||
+                    initialMushrooms.isNotEmpty()
                 ) {
-                    InitialData(initialDefenders, initialAttackers, initialTraps, initialBarricades, initialFiefs)
+                    InitialData(initialDefenders, initialAttackers, initialTraps, initialBarricades, initialFiefs, initialMushrooms)
                 } else {
                     null
                 }

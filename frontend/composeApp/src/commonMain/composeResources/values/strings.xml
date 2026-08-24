@@ -702,6 +702,11 @@
     <string name="initial_setup_traps">Traps</string>
     <string name="initial_setup_barricades">Barricades</string>
     <string name="initial_setup_fiefs">Fiefs</string>
+    <string name="initial_setup_mushrooms">Mushrooms</string>
+    <string name="mushroom">Mushroom</string>
+    <string name="mushroom_buff_description">2x speed and level for 2 turns (horde units and witches only)</string>
+    <string name="mushroom_enhanced_horde">Mushroom boost: 2x speed and level</string>
+    <string name="mushroom_enhanced_witch">Mushroom boost: 2x speed, level, and ability uses</string>
     <string name="fief_configuration">Fief Configuration</string>
     <string name="initial_defenders">Initial Towers</string>
     <string name="initial_attackers">Initial Enemies</string>

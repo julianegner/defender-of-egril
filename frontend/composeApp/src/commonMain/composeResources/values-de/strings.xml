@@ -696,6 +696,11 @@
     <string name="initial_setup_traps">Fallen</string>
     <string name="initial_setup_barricades">Barrikaden</string>
     <string name="initial_setup_fiefs">Lehen</string>
+    <string name="initial_setup_mushrooms">Pilze</string>
+    <string name="mushroom">Pilz</string>
+    <string name="mushroom_buff_description">2x Geschwindigkeit und Level für 2 Runden (nur Horden-Einheiten und Hexen)</string>
+    <string name="mushroom_enhanced_horde">Pilzschub: 2x Tempo und Stufe</string>
+    <string name="mushroom_enhanced_witch">Pilzschub: 2x Tempo, Stufe und Fähigkeiten</string>
     <string name="fief_configuration">Lehen-Konfiguration</string>
     <string name="initial_setup_configuration">Konfiguration</string>
     <string name="element_type">Elementtyp</string>

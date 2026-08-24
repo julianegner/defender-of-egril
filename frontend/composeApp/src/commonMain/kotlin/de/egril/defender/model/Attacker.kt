@@ -624,6 +624,22 @@ val AttackerType.arrivalCompanions: List<AttackerType>
             else -> emptyList()
         }
 
+/**
+ * Returns true for attacker types that eat mushrooms: horde units (goblins, orks, ogres,
+ * snotlings) and witches.
+ */
+val AttackerType.canEatMushroom: Boolean
+    get() =
+        this == AttackerType.GOBLIN ||
+            this == AttackerType.ORK ||
+            this == AttackerType.OGRE ||
+            this == AttackerType.SNOTLING ||
+            this == AttackerType.RED_WITCH ||
+            this == AttackerType.GREEN_WITCH ||
+            this == AttackerType.GRAND_COVEN_MOTHER_SYBILLA ||
+            this == AttackerType.HAGA ||
+            this == AttackerType.ZUSSA
+
 data class Attacker(
     val id: Int,
     val type: AttackerType,
@@ -648,6 +664,10 @@ data class Attacker(
     val villainCooldown: MutableState<Int> = mutableStateOf(0), // Rounds until this villain's ability next activates
     val movementTurnsElapsed: MutableState<Int> = mutableStateOf(0), // Enemy turns elapsed on battlefield (for alternating movement patterns)
     val bloodlustRoundsLeft: MutableState<Int> = mutableStateOf(0), // Enemy turns of +100% movement remaining
+    /** Remaining turns of mushroom buff (doubles speed and effective level). 0 = not active. */
+    val mushroomTurnsRemaining: MutableState<Int> = mutableStateOf(0),
+    /** Extra level added by mushroom buff (equals base level when mushroom is active, to double it). */
+    val mushroomLevelBonus: MutableState<Int> = mutableStateOf(0),
     // Cap'n Roderich's accumulated treasure: grows by coinsPerTurn each enemy turn and by the cost
     // of each barge he sinks via Broadside. The entire treasure is awarded to the player on defeat.
     val treasureCoins: MutableState<Int> = mutableStateOf(0),
@@ -663,8 +683,8 @@ data class Attacker(
 ) {
     // Callback for dragon level changes (for achievements)
     var onDragonLevelChanged: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
-
-    val maxHealth: Int get() = type.health * level.value
+    val mushroomBonusHealth: Int get() = type.health * mushroomLevelBonus.value
+    val maxHealth: Int get() = type.health * effectiveLevel
 
     /**
      * Calculate dragon's greed level based on its level.
@@ -843,3 +863,16 @@ fun isUniqueEnemyAlreadyPresent(
     val mustBeUnique = type.isRealVillain
     return mustBeUnique && attackers.any { it.type == type && !it.isDefeated.value }
 }
+
+/**
+ * Returns the effective level of this attacker, including any mushroom level bonus.
+ * During the mushroom buff, the effective level is doubled (level + mushroomLevelBonus).
+ */
+val Attacker.effectiveLevel: Int
+    get() = level.value + mushroomLevelBonus.value
+
+val Attacker.hasMushroomBuff: Boolean
+    get() = mushroomTurnsRemaining.value > 0
+
+val Attacker.displayLevel: Int
+    get() = effectiveLevel

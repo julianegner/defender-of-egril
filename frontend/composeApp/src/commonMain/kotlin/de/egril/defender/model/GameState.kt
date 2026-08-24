@@ -265,6 +265,7 @@ data class GameState(
     val traps: SnapshotStateList<Trap> = mutableStateListOf(), // Track active traps
     val barricades: SnapshotStateList<Barricade> = mutableStateListOf(), // Track active barricades
     val fiefs: SnapshotStateList<Fief> = mutableStateListOf(), // Track active fiefs (income-generating path objects)
+    val mushrooms: SnapshotStateList<Mushroom> = mutableStateListOf(), // Track active mushrooms
     val bridges: SnapshotStateList<Bridge> = mutableStateListOf(), // Track active bridges
     val rafts: SnapshotStateList<Raft> = mutableStateListOf(), // Track active rafts (towers on rivers)
     val bombExplosionEffects: SnapshotStateList<BombExplosionEffect> = mutableStateListOf(), // Track bomb explosion visual effects
@@ -514,7 +515,7 @@ data class GameState(
         var total = 0L
         for (attacker in attackers) {
             if (attacker.isDefeated.value) continue
-            total += attackerTargetDamage(attacker.type, attacker.level.value).toLong()
+            total += attacker.calculateTargetDamage().toLong()
         }
         for (spawn in spawnPlan) {
             if (spawn.spawnTurn > turnNumber.value) {
@@ -915,6 +916,11 @@ data class GameState(
         // Place initial fiefs
         for (initialFief in initialData.fiefs) {
             fiefs.add(Fief(position = initialFief.position, type = initialFief.type))
+        }
+
+        // Place initial mushrooms
+        for (initialMushroom in initialData.mushrooms) {
+            mushrooms.add(Mushroom(position = initialMushroom.position))
         }
     }
 }
