@@ -52,7 +52,11 @@ class FreyaShieldWallVisibilityTest {
                 selectedTargetId = null,
                 selectedTargetPosition = null,
                 selectedMineAction = null,
+                selectedWizardAction = null,
+                selectedBarricadeAction = null,
                 onCellClick = { },
+                selectedSupportObject = null,
+                selectedSupportFief = null,
             )
         }
 
