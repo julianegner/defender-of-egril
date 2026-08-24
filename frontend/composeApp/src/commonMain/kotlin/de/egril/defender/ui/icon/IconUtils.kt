@@ -1585,42 +1585,65 @@ fun MushroomIcon(
     stemColor: Color = Color(0xFFFFF9C4),   // Pale yellow stem
 ) {
     Canvas(modifier = modifier.size(size)) {
-        val w = this.size.width
-        val h = this.size.height
+        val minDimension = minOf(this.size.width, this.size.height)
+        val capColors =
+            listOf(
+                capColor,
+                Color(0xFFE53935),
+                Color(0xFF8E24AA),
+            )
 
-        // Draw stem (rounded rectangle in lower 40%)
-        val stemWidth = w * 0.45f
-        val stemLeft = (w - stemWidth) / 2f
-        val stemTop = h * 0.58f
-        val stemBottom = h * 0.95f
-        drawRoundRect(
-            color = stemColor,
-            topLeft = Offset(stemLeft, stemTop),
-            size = Size(stemWidth, stemBottom - stemTop),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(stemWidth * 0.3f),
-        )
+        fun drawTinyMushroom(
+            centerX: Float,
+            baseY: Float,
+            mushroomHeight: Float,
+            mushroomCapColor: Color,
+        ) {
+            val stemHeight = mushroomHeight * 0.58f
+            val stemWidth = mushroomHeight * 0.18f
+            val stemLeft = centerX - stemWidth / 2f
+            val stemTop = baseY - stemHeight
+            drawRoundRect(
+                color = stemColor,
+                topLeft = Offset(stemLeft, stemTop),
+                size = Size(stemWidth, stemHeight),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(stemWidth * 0.45f),
+            )
 
-        // Draw cap (arc/semi-ellipse in upper 65%)
-        val capRadius = w * 0.47f
-        val capCenterX = w / 2f
-        val capCenterY = h * 0.52f
-        drawOval(
-            color = capColor,
-            topLeft = Offset(capCenterX - capRadius, capCenterY - capRadius * 0.85f),
-            size = Size(capRadius * 2f, capRadius * 1.7f),
-        )
+            val capWidth = mushroomHeight * 0.58f
+            val capHeight = mushroomHeight * 0.26f
+            val capTop = stemTop - capHeight * 0.7f
+            drawOval(
+                color = mushroomCapColor,
+                topLeft = Offset(centerX - capWidth / 2f, capTop),
+                size = Size(capWidth, capHeight),
+            )
 
-        // Draw two white spots on the cap
-        val spotRadius = w * 0.07f
-        drawCircle(
-            color = spotColor,
-            radius = spotRadius,
-            center = Offset(capCenterX - capRadius * 0.3f, capCenterY - capRadius * 0.15f),
+            drawCircle(
+                color = spotColor,
+                radius = capWidth * 0.08f,
+                center = Offset(centerX - capWidth * 0.12f, capTop + capHeight * 0.42f),
+            )
+        }
+
+        val mushroomHeight = minDimension * 0.22f
+        drawTinyMushroom(
+            centerX = minDimension * 0.28f,
+            baseY = minDimension * 0.78f,
+            mushroomHeight = mushroomHeight,
+            mushroomCapColor = capColors[0],
         )
-        drawCircle(
-            color = spotColor,
-            radius = spotRadius * 0.8f,
-            center = Offset(capCenterX + capRadius * 0.3f, capCenterY - capRadius * 0.35f),
+        drawTinyMushroom(
+            centerX = minDimension * 0.50f,
+            baseY = minDimension * 0.60f,
+            mushroomHeight = mushroomHeight,
+            mushroomCapColor = capColors[1],
+        )
+        drawTinyMushroom(
+            centerX = minDimension * 0.72f,
+            baseY = minDimension * 0.78f,
+            mushroomHeight = mushroomHeight,
+            mushroomCapColor = capColors[2],
         )
     }
 }

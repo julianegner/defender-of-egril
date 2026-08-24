@@ -699,6 +699,8 @@
     <string name="initial_setup_mushrooms">Champignons</string>
     <string name="mushroom">Champignon</string>
     <string name="mushroom_buff_description">2x vitesse et niveau pendant 2 tours (unités de horde et sorcières uniquement)</string>
+    <string name="mushroom_enhanced_horde">Boost champignon : vitesse et niveau x2</string>
+    <string name="mushroom_enhanced_witch">Boost champignon : vitesse, niveau et usages de capacité x2</string>
     <string name="fief_configuration">Configuration de Fief</string>
     <string name="initial_setup_configuration">Configuration</string>
     <string name="element_type">Type d'Élément</string>

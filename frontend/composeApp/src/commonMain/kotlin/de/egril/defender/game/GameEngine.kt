@@ -1522,7 +1522,7 @@ class GameEngine(
             if (!state.takenTargets.contains(position)) {
                 state.takenTargets.add(position)
                 val name = targetInfo.name.takeIf { it.isNotBlank() }
-                GameLogBuffer.log("DAMAGE", "Target '${name ?: position}' taken by ${attacker.type} Lv${attacker.level.value}")
+                GameLogBuffer.log("DAMAGE", "Target '${name ?: position}' taken by ${attacker.type} Lv${attacker.displayLevel}")
                 state.pendingMessages.add(
                     de.egril.defender.model.GameMessage(
                         type = de.egril.defender.model.GameMessageType.TARGET_TAKEN,
@@ -1547,7 +1547,7 @@ class GameEngine(
             }
             GameLogBuffer.log(
                 "DAMAGE",
-                "${attacker.type} Lv${attacker.level.value} reached target — dealt $damage damage (HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage})",
+                "${attacker.type} Lv${attacker.displayLevel} reached target — dealt $damage damage (HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage})",
             )
             state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
         }
@@ -1865,8 +1865,8 @@ class GameEngine(
             when {
                 attacker.type == AttackerType.SNOTLING || attacker.type == AttackerType.SPIDERLING ->
                     maxOf(1, attacker.currentHealth.value / 5)
-                attacker.type.isDragon -> attacker.level.value * 5
-                else -> attacker.level.value
+                attacker.type.isDragon -> attacker.effectiveLevel * 5
+                else -> attacker.effectiveLevel
             }
         val frenzyMultiplier =
             if (state.waaghFrenzyActive.value && attacker.type in setOf(AttackerType.ORK, AttackerType.OGRE)) 2 else 1
@@ -1890,7 +1890,13 @@ class GameEngine(
             if (attacker.mushroomTurnsRemaining.value > 0) {
                 attacker.mushroomTurnsRemaining.value--
                 if (attacker.mushroomTurnsRemaining.value == 0) {
-                    // Expire mushroom level bonus
+                    // Expire the temporary mushroom health together with the doubled level.
+                    attacker.currentHealth.value =
+                        if (attacker.isDefeated.value) {
+                            maxOf(0, attacker.currentHealth.value - attacker.mushroomBonusHealth)
+                        } else {
+                            maxOf(1, attacker.currentHealth.value - attacker.mushroomBonusHealth)
+                        }
                     attacker.mushroomLevelBonus.value = 0
                 }
             }
@@ -2631,6 +2637,7 @@ class GameEngine(
             // Store original level as bonus (net effect: level.value + mushroomLevelBonus = 2× level)
             attacker.mushroomLevelBonus.value = attacker.level.value
             attacker.mushroomTurnsRemaining.value = 2
+            attacker.currentHealth.value += attacker.mushroomBonusHealth
         }
     }
 

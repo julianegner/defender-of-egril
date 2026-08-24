@@ -340,9 +340,9 @@ class PathfindingSystem(
                         // Calculate turns needed to destroy this barricade
                         val attackerDamage =
                             if (attacker?.type?.isDragon == true) {
-                                attacker.level.value * 5
+                                attacker.effectiveLevel * 5
                             } else {
-                                attacker?.level?.value ?: 1
+                                attacker?.effectiveLevel ?: 1
                             }
                         val turnsToDestroy = (barricade.healthPoints.value + attackerDamage - 1) / attackerDamage // Ceiling division
 

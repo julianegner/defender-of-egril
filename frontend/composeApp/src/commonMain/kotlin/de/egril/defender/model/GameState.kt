@@ -515,7 +515,7 @@ data class GameState(
         var total = 0L
         for (attacker in attackers) {
             if (attacker.isDefeated.value) continue
-            total += attackerTargetDamage(attacker.type, attacker.level.value).toLong()
+            total += attacker.calculateTargetDamage().toLong()
         }
         for (spawn in spawnPlan) {
             if (spawn.spawnTurn > turnNumber.value) {

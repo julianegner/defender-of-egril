@@ -683,8 +683,8 @@ data class Attacker(
 ) {
     // Callback for dragon level changes (for achievements)
     var onDragonLevelChanged: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
-
-    val maxHealth: Int get() = type.health * level.value
+    val mushroomBonusHealth: Int get() = type.health * mushroomLevelBonus.value
+    val maxHealth: Int get() = type.health * effectiveLevel
 
     /**
      * Calculate dragon's greed level based on its level.
@@ -870,3 +870,9 @@ fun isUniqueEnemyAlreadyPresent(
  */
 val Attacker.effectiveLevel: Int
     get() = level.value + mushroomLevelBonus.value
+
+val Attacker.hasMushroomBuff: Boolean
+    get() = mushroomTurnsRemaining.value > 0
+
+val Attacker.displayLevel: Int
+    get() = effectiveLevel
