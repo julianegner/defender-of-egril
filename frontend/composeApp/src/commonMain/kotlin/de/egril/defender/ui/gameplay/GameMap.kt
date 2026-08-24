@@ -2,7 +2,6 @@ package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -16,14 +15,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -40,9 +36,7 @@ import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.LogConfig
 import de.egril.defender.game.EnemyMovementSystem
-import de.egril.defender.game.FreyaShieldWallArc
 import de.egril.defender.game.PathfindingSystem
-import de.egril.defender.game.freyaShieldWallArcs
 import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
@@ -66,13 +60,10 @@ import de.egril.defender.ui.animations.FreezeSpellAnimation
 import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.MineDigAnimation
-import de.egril.defender.ui.animations.MorvathShadowOrbOverlay
 import de.egril.defender.ui.animations.PikeAttackOverlay
-import de.egril.defender.ui.animations.RocketAttackOverlay
 import de.egril.defender.ui.animations.SkyIsFallingAnimation
 import de.egril.defender.ui.animations.SpearAttackOverlay
 import de.egril.defender.ui.animations.SpellDoubleReachColor
-import de.egril.defender.ui.animations.SylvanasRootGripAnimation
 import de.egril.defender.ui.animations.TowerAttackImpactAnimation
 import de.egril.defender.ui.animations.TowerConstructionCompleteAnimation
 import de.egril.defender.ui.animations.TowerReadyPulseAnimation
@@ -80,8 +71,6 @@ import de.egril.defender.ui.animations.TrapTriggerAnimation
 import de.egril.defender.ui.animations.WaterFlowAnimation
 import de.egril.defender.ui.animations.WizardAttackOverlay
 import de.egril.defender.ui.animations.WizardIdleAnimation
-import de.egril.defender.ui.animations.XarithonShadowCloudAnimation
-import de.egril.defender.ui.animations.XarithonShadowSpewOverlay
 import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.ui.editor.map.MapControlState
 import de.egril.defender.ui.editor.map.MapControls
@@ -97,22 +86,17 @@ import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.PentagramIcon
-import de.egril.defender.ui.icon.ScrapPileIcon
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.TrapIcon
-import de.egril.defender.ui.icon.WebIcon
 import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreview
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.icon.enemy.enemyAttackPreview
-import de.egril.defender.ui.icon.enemy.shouldShowSeafaringPirateBarge
 import de.egril.defender.ui.rememberMapImageState
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
-import org.jetbrains.compose.resources.painterResource
-import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.roundToInt
@@ -133,269 +117,6 @@ private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
  * fitted (smaller) side. The fly-to-counter coins use this so they match the bubbling coins' size.
  */
 private const val COIN_BUBBLE_COIN_SIZE_FRACTION = 0.14f
-
-private const val HEX_ROW_VERTICAL_SPACING_FACTOR = 0.75f
-
-private fun getFisherRodRotationDegrees(
-    position: Position,
-    level: Level,
-): Float {
-    val waterNeighbor =
-        position
-            .getHexNeighbors()
-            .filter { neighbor ->
-                neighbor.x in 0 until level.gridWidth &&
-                    neighbor.y in 0 until level.gridHeight
-            }.firstOrNull { neighbor ->
-                level.isRiverTile(neighbor)
-            } ?: return 0f
-
-    val sourceX = position.x + if (position.y % 2 == 1) 0.5f else 0f
-    val sourceY = position.y * HEX_ROW_VERTICAL_SPACING_FACTOR
-    val targetX = waterNeighbor.x + if (waterNeighbor.y % 2 == 1) 0.5f else 0f
-    val targetY = waterNeighbor.y * HEX_ROW_VERTICAL_SPACING_FACTOR
-    val dx = targetX - sourceX
-    val dy = targetY - sourceY
-
-    return (atan2(dy, dx) * 180f / PI.toFloat())
-}
-
-// The CW traversal start/end corner index for each edge direction.
-// CW order of edges: NE(1), E(0), SE(5), SW(4), W(3), NW(2).
-// CW order of corners: top(0), top-right(1), bottom-right(2), bottom(3), bottom-left(4), top-left(5).
-private val SHIELD_WALL_EDGE_START_CORNER = intArrayOf(1, 0, 5, 4, 3, 2)
-private val SHIELD_WALL_EDGE_END_CORNER = intArrayOf(2, 1, 0, 5, 4, 3)
-
-// For corner K of tile P, the two neighbor-directions whose tiles also share that corner.
-private val SHIELD_WALL_CORNER_DIR_PAIRS =
-    arrayOf(
-        intArrayOf(1, 2), // Corner 0 (top): NE and NW neighbors
-        intArrayOf(0, 1), // Corner 1 (top-right): E and NE neighbors
-        intArrayOf(5, 0), // Corner 2 (bottom-right): SE and E neighbors
-        intArrayOf(4, 5), // Corner 3 (bottom): SW and SE neighbors
-        intArrayOf(3, 4), // Corner 4 (bottom-left): W and SW neighbors
-        intArrayOf(2, 3), // Corner 5 (top-left): NW and W neighbors
-    )
-
-/** Edge between a shield-wall tile and a non-shield-wall neighbor, identified by its midpoint and its two endpoint corner keys. */
-private data class ShieldWallBoundaryEdge(
-    val midpoint: Offset,
-    val startKey: String,
-    val endKey: String,
-)
-
-/** Returns a canonical key for a hex corner shared by three tiles (tile P and two neighbors). */
-private fun shieldWallCornerKey(
-    pos: Position,
-    cornerIndex: Int,
-): String {
-    val dirPair = SHIELD_WALL_CORNER_DIR_PAIRS[cornerIndex]
-    val neighbors = pos.getHexNeighbors()
-    val sorted =
-        listOf(pos, neighbors[dirPair[0]], neighbors[dirPair[1]])
-            .sortedWith(compareBy({ it.y }, { it.x }))
-    return "${sorted[0].x},${sorted[0].y}|${sorted[1].x},${sorted[1].y}|${sorted[2].x},${sorted[2].y}"
-}
-
-/**
- * Trim [trimFraction] (0..1) of the total arc length from each end of an ordered list of path
- * points. Returns a new list whose first/last points are interpolated so that the rendered arc
- * does not extend all the way to the sharp tip corners.
- */
-private fun trimArcPathEnds(
-    points: List<Offset>,
-    trimFraction: Float,
-): List<Offset> {
-    if (points.size < 2) return points
-    val segLens =
-        FloatArray(points.size - 1) { i ->
-            val dx = points[i + 1].x - points[i].x
-            val dy = points[i + 1].y - points[i].y
-            sqrt(dx * dx + dy * dy)
-        }
-    val totalLen = segLens.sum()
-    if (totalLen == 0f) return points
-    val startDist = totalLen * trimFraction
-    val endDist = totalLen * (1f - trimFraction)
-
-    fun pointAt(dist: Float): Offset {
-        var cum = 0f
-        for (i in segLens.indices) {
-            val segEnd = cum + segLens[i]
-            if (dist <= segEnd || i == segLens.lastIndex) {
-                val t = if (segLens[i] > 0f) ((dist - cum) / segLens[i]).coerceIn(0f, 1f) else 0f
-                return Offset(
-                    points[i].x + t * (points[i + 1].x - points[i].x),
-                    points[i].y + t * (points[i + 1].y - points[i].y),
-                )
-            }
-            cum = segEnd
-        }
-        return points.last()
-    }
-
-    val result = mutableListOf(pointAt(startDist))
-    var cum = 0f
-    for (i in segLens.indices) {
-        val segEnd = cum + segLens[i]
-        if (segEnd > startDist && segEnd < endDist) result.add(points[i + 1])
-        cum = segEnd
-    }
-    result.add(pointAt(endDist))
-    return result
-}
-
-/**
- * Map-level overlay that draws the Freya shield wall as a smooth open arc along the front-facing
- * edges of the shield wall formation.
- *
- * Only edges whose direction falls within the front arc (forward ± 1 direction) are included,
- * producing a visual barrier on the side facing the enemy. The arc is rendered as a
- * grey–blue–grey stripe, rounded via [PathEffect.cornerPathEffect] for a smooth appearance.
- */
-@Composable
-private fun FreyaShieldWallMapOverlay(
-    shieldWallArcs: List<FreyaShieldWallArc>,
-    hexSizeDp: Float,
-    contentSize: IntSize,
-    modifier: Modifier = Modifier,
-) {
-    if (shieldWallArcs.isEmpty()) return
-
-    val density = androidx.compose.ui.platform.LocalDensity.current.density
-    val hexSizePx = hexSizeDp * density
-    val hexWidthPx = hexSizePx * sqrt(3f)
-    val hexHeightPx = hexSizePx * 2f
-    val rowSpacingPx =
-        hexHeightPx * 0.75f - hexHeightPx + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT * density
-    val colSpacingPx = HexagonalGridConstants.HORIZONTAL_SPACING * density
-    val oddOffsetPx = hexWidthPx * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
-
-    fun tileCenterPx(pos: Position): Offset {
-        val oddRowOffset = if (pos.y % 2 == 1) oddOffsetPx else 0f
-        return Offset(
-            pos.x * (hexWidthPx + colSpacingPx) + hexWidthPx / 2f + oddRowOffset,
-            pos.y * (hexHeightPx + rowSpacingPx) + hexHeightPx / 2f,
-        )
-    }
-
-    // Build an open-chain arc path for each Freya.
-    val arcPaths = mutableListOf<Path>()
-
-    for (arc in shieldWallArcs) {
-        val shieldWallPositions = arc.positions
-        val frontDirection = arc.frontDirection
-        // Only edges facing the front arc (forward, forward-left, forward-right).
-        val frontArcDirs =
-            setOf(
-                frontDirection.mod(6),
-                (frontDirection + 1).mod(6),
-                (frontDirection + 5).mod(6),
-            )
-
-        // Collect front-arc boundary edges (edges between a shield tile and a non-shield tile).
-        val boundaryEdges = mutableListOf<ShieldWallBoundaryEdge>()
-        for (pos in shieldWallPositions) {
-            val center = tileCenterPx(pos)
-            val neighbors = pos.getHexNeighbors()
-            for (dir in 0..5) {
-                if (dir in frontArcDirs && neighbors[dir] !in shieldWallPositions) {
-                    val nbrCenter = tileCenterPx(neighbors[dir])
-                    val mid = Offset((center.x + nbrCenter.x) / 2f, (center.y + nbrCenter.y) / 2f)
-                    boundaryEdges.add(
-                        ShieldWallBoundaryEdge(
-                            midpoint = mid,
-                            startKey = shieldWallCornerKey(pos, SHIELD_WALL_EDGE_START_CORNER[dir]),
-                            endKey = shieldWallCornerKey(pos, SHIELD_WALL_EDGE_END_CORNER[dir]),
-                        ),
-                    )
-                }
-            }
-        }
-        if (boundaryEdges.isEmpty()) continue
-
-        // Build adjacency: corner key → edges touching that corner.
-        val cornerToEdges = mutableMapOf<String, MutableList<ShieldWallBoundaryEdge>>()
-        for (edge in boundaryEdges) {
-            cornerToEdges.getOrPut(edge.startKey) { mutableListOf() }.add(edge)
-            cornerToEdges.getOrPut(edge.endKey) { mutableListOf() }.add(edge)
-        }
-
-        // Find terminal corners (degree 1) — the two endpoints of the open chain.
-        val startKey =
-            cornerToEdges.entries.firstOrNull { it.value.size == 1 }?.key ?: continue
-
-        // Walk the chain from one terminal to the other, collecting midpoints in order.
-        val midpoints = mutableListOf<Offset>()
-        val visited = mutableSetOf<ShieldWallBoundaryEdge>()
-        var prevKey = startKey
-        var cur = cornerToEdges[startKey]!!.first()
-        while (true) {
-            if (cur in visited) break
-            visited.add(cur)
-            midpoints.add(cur.midpoint)
-            val nextKey = if (prevKey == cur.startKey) cur.endKey else cur.startKey
-            val next = cornerToEdges[nextKey]?.firstOrNull { it !in visited } ?: break
-            prevKey = nextKey
-            cur = next
-        }
-        if (midpoints.size < 2) continue
-
-        // Trim 12% from each end so the arc does not extend too far at its tips.
-        val trimmed = trimArcPathEnds(midpoints, 0.12f)
-        if (trimmed.size < 2) continue
-
-        // Build as straight segments; smoothing is applied via PathEffect.cornerPathEffect.
-        arcPaths.add(
-            Path().apply {
-                moveTo(trimmed[0].x, trimmed[0].y)
-                for (i in 1 until trimmed.size) lineTo(trimmed[i].x, trimmed[i].y)
-            },
-        )
-    }
-
-    if (arcPaths.isEmpty()) return
-
-    val outerStrokeWidth = hexSizePx * 0.26f
-    val innerStrokeWidth = hexSizePx * 0.10f
-    val cornerRadius = hexSizePx * 0.45f
-    // Match the shield trim color from Freya's icon (FallenShieldmaidenFreya.kt shieldTrim).
-    val blueColor = Color(0xFF7DD7FF).copy(alpha = 0.95f)
-    val greyColor = Color(0xFFAAAAAA).copy(alpha = 0.95f)
-
-    val contentWidthDp = (contentSize.width / density).dp
-    val contentHeightDp = (contentSize.height / density).dp
-
-    Canvas(
-        modifier =
-            modifier
-                .requiredSize(contentWidthDp, contentHeightDp)
-                .semantics { contentDescription = "Shield Wall" },
-    ) {
-        for (path in arcPaths) {
-            // Grey outer stroke (wider) drawn first, leaving grey visible on both sides of the arc.
-            drawPath(
-                path = path,
-                color = greyColor,
-                style =
-                    Stroke(
-                        width = outerStrokeWidth,
-                        pathEffect = PathEffect.cornerPathEffect(cornerRadius),
-                    ),
-            )
-            // Blue inner stroke drawn on top, creating the grey–blue–grey stripe effect.
-            drawPath(
-                path = path,
-                color = blueColor,
-                style =
-                    Stroke(
-                        width = innerStrokeWidth,
-                        pathEffect = PathEffect.cornerPathEffect(cornerRadius),
-                    ),
-            )
-        }
-    }
-}
 
 internal fun displayedRiverTile(
     levelRiverTile: RiverTile?,
@@ -422,7 +143,6 @@ fun GameGrid(
     keyboardHoveredPosition: Position? = null, // overrides the local hover for keyboard build tile selection
     keyboardPlacementCursor: Position? = null, // keyboard cursor tile while placing a support object / targeting a spell
     selectedSupportObject: SupportObjectType? = null, // support object currently selected for placement (barricade/trap/magical trap)
-    selectedSupportFief: de.egril.defender.model.FiefType? = null, // fief type currently selected for placement
     extraFocusTrigger: Int = 0,
 ) {
     // Establish a snapshot dependency on runtime map edits (sandbox tile painting) so the entire
@@ -510,11 +230,9 @@ fun GameGrid(
     // Find the selected defender and track its actions for dependency tracking
     val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
     val selectedDefenderActions = selectedDefender?.actionsRemaining?.value
-    val freyaShieldWallArcs = gameState.freyaShieldWallArcs()
-    val hasActiveWaterEnemy = gameState.attackers.any { !it.isDefeated.value && gameState.level.isRiverTile(it.position.value) }
 
     val targetCircleMap =
-        remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size, hasActiveWaterEnemy) {
+        remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size) {
             if (selectedTargetPosition == null || selectedDefenderId == null || selectedDefender == null) {
                 emptyMap()
             } else {
@@ -577,7 +295,6 @@ fun GameGrid(
                                                     (
                                                         gameState.level.isOnPath(neighbor) ||
                                                             gameState.isBridgeAt(neighbor) ||
-                                                            (hasActiveWaterEnemy && gameState.level.isRiverTile(neighbor)) ||
                                                             gameState.attackers.any {
                                                                 it.position.value == neighbor && !it.isDefeated.value
                                                             }
@@ -606,7 +323,6 @@ fun GameGrid(
                                             ).filter { neighbor ->
                                                 gameState.level.isOnPath(neighbor) ||
                                                     gameState.isBridgeAt(neighbor) ||
-                                                    (hasActiveWaterEnemy && gameState.level.isRiverTile(neighbor)) ||
                                                     gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
                                             }
 
@@ -874,7 +590,7 @@ fun GameGrid(
     val activeAttackersByPosition by remember {
         derivedStateOf {
             gameState.attackers
-                .filter { !it.isDefeated.value && !it.isDiving.value }
+                .filter { !it.isDefeated.value }
                 .associateBy { it.position.value }
         }
     }
@@ -956,6 +672,123 @@ fun GameGrid(
             selectedSupportFief
                 ?.let { supportFiefPlacementTiles(gameState, it).toHashSet() }
                 ?: emptySet()
+        }
+    }
+
+    // Pre-compute O(1) position-keyed lookup maps to replace O(N) .find{} / .any{} scans per tile.
+    // derivedStateOf ensures each map is only rebuilt when its source list actually changes.
+    // Compose's strong-skipping then skips cells whose resolved value remains null.
+    val healingEffectsByPosition by remember {
+        derivedStateOf { gameState.healingEffects.associateBy { it.position } }
+    }
+    val damageEffectsByPosition by remember {
+        derivedStateOf { gameState.damageEffects.associateBy { it.position } }
+    }
+    val defeatedEnemyEffectsByPosition by remember {
+        derivedStateOf { gameState.defeatedEnemyEffects.associateBy { it.position } }
+    }
+    val coinGainEffectsByPosition by remember {
+        derivedStateOf { gameState.coinGainEffects.associateBy { it.position } }
+    }
+    val towerAttackEffectsByTargetPosition by remember {
+        derivedStateOf { gameState.towerAttackEffects.associateBy { it.targetPosition } }
+    }
+    val fieldEffectsByPosition by remember {
+        derivedStateOf { gameState.fieldEffects.associateBy { it.position } }
+    }
+    val trapsByPositionMap by remember {
+        derivedStateOf { gameState.traps.associateBy { it.position } }
+    }
+    val barricadesByPositionMap by remember {
+        derivedStateOf { gameState.barricades.associateBy { it.position } }
+    }
+    val constructionCompleteEffectsByPosition by remember {
+        derivedStateOf { gameState.constructionCompleteEffects.associateBy { it.position } }
+    }
+    val enemySpawnEffectsByPosition by remember {
+        derivedStateOf { gameState.enemySpawnEffects.associateBy { it.position } }
+    }
+    val trapTriggerEffectsByPosition by remember {
+        derivedStateOf { gameState.trapTriggerEffects.associateBy { it.position } }
+    }
+    val enemyMoveEffectsByPosition by remember {
+        derivedStateOf { gameState.enemyMoveEffects.associateBy { it.position } }
+    }
+    val dragonLevelChangeEffectsByPosition by remember {
+        derivedStateOf { gameState.dragonLevelChangeEffects.associateBy { it.position } }
+    }
+    val mineDigEffectsByPosition by remember {
+        derivedStateOf { gameState.mineDigEffects.associateBy { it.position } }
+    }
+    // Attack target position sets for O(1) membership checks
+    val arrowAttackTargetPositions by remember {
+        derivedStateOf { gameState.arrowAttackEffects.mapTo(mutableSetOf()) { it.targetPosition } }
+    }
+    val ballistaAttackTargetPositions by remember {
+        derivedStateOf { gameState.ballistaAttackEffects.mapTo(mutableSetOf()) { it.targetPosition } }
+    }
+    val bowAttackTargetPositions by remember {
+        derivedStateOf { gameState.bowAttackEffects.mapTo(mutableSetOf()) { it.targetPosition } }
+    }
+    val spearAttackTargetPositions by remember {
+        derivedStateOf { gameState.spearAttackEffects.mapTo(mutableSetOf()) { it.targetPosition } }
+    }
+    val pikeAttackTargetPositions by remember {
+        derivedStateOf { gameState.pikeAttackEffects.mapTo(mutableSetOf()) { it.targetPosition } }
+    }
+    val wizardAttackTargetPositions by remember {
+        derivedStateOf { gameState.wizardAttackEffects.mapTo(mutableSetOf()) { it.targetPosition } }
+    }
+    val alchemyAttackTargetPositions by remember {
+        derivedStateOf { gameState.alchemyAttackEffects.mapTo(mutableSetOf()) { it.targetPosition } }
+    }
+    // Expanded area sets (wizard radius 1, alchemy radius 2) for AoE attack suppression
+    val wizardAttackAreaPositions by remember {
+        derivedStateOf {
+            val result = mutableSetOf<Position>()
+            gameState.wizardAttackEffects.forEach { effect ->
+                result.add(effect.targetPosition)
+                effect.targetPosition.getHexNeighbors().forEach { result.add(it) }
+            }
+            result
+        }
+    }
+    val alchemyAttackAreaPositions by remember {
+        derivedStateOf {
+            val result = mutableSetOf<Position>()
+            gameState.alchemyAttackEffects.forEach { effect ->
+                for (dx in -2..2) {
+                    for (dy in -2..2) {
+                        val candidate = Position(effect.targetPosition.x + dx, effect.targetPosition.y + dy)
+                        if (effect.targetPosition.hexDistanceTo(candidate) <= 2) {
+                            result.add(candidate)
+                        }
+                    }
+                }
+            }
+            result
+        }
+    }
+    // Pre-compute map of position -> ArrowAttackEffect covering source, target, and path tiles.
+    // Uses the same linear-interpolation algorithm as the private isOnArrowLinePath() function so
+    // the set of covered tiles is identical to the original per-tile computation.
+    val arrowAttackEffectsByAffectedPosition by remember {
+        derivedStateOf {
+            val result = mutableMapOf<Position, ArrowAttackEffect>()
+            gameState.arrowAttackEffects.forEach { effect ->
+                result[effect.sourcePosition] = effect
+                result[effect.targetPosition] = effect
+                val dx = effect.targetPosition.x - effect.sourcePosition.x
+                val dy = effect.targetPosition.y - effect.sourcePosition.y
+                val steps = maxOf(abs(dx), abs(dy))
+                for (step in 1 until steps) {
+                    val t = step.toFloat() / steps
+                    val ix = (effect.sourcePosition.x + dx * t).roundToInt()
+                    val iy = (effect.sourcePosition.y + dy * t).roundToInt()
+                    result.getOrPut(Position(ix, iy)) { effect }
+                }
+            }
+            result
         }
     }
 
@@ -1073,37 +906,10 @@ fun GameGrid(
                             animate = AppSettings.enableAnimations.value,
                         )
                     }
-                    val shadowSpewEffects = gameState.shadowSpewEffects.toList()
-                    if (shadowSpewEffects.isNotEmpty()) {
-                        XarithonShadowSpewOverlay(
-                            effects = shadowSpewEffects,
-                            hexSizeDp = hexSize.value,
-                            contentSize = measuredContentSize,
-                            animate = AppSettings.enableAnimations.value,
-                        )
-                    }
-                    val morvathOrbEffects = gameState.morvathShadowOrbEffects.toList()
-                    if (morvathOrbEffects.isNotEmpty()) {
-                        MorvathShadowOrbOverlay(
-                            effects = morvathOrbEffects,
-                            hexSizeDp = hexSize.value,
-                            contentSize = measuredContentSize,
-                            animate = AppSettings.enableAnimations.value,
-                        )
-                    }
                     val alchemyEffects = gameState.alchemyAttackEffects.toList()
                     if (alchemyEffects.isNotEmpty()) {
                         AlchemyAttackOverlay(
                             effects = alchemyEffects,
-                            hexSizeDp = hexSize.value,
-                            contentSize = measuredContentSize,
-                            animate = AppSettings.enableAnimations.value,
-                        )
-                    }
-                    val rocketEffects = gameState.rocketAttackEffects.toList()
-                    if (rocketEffects.isNotEmpty()) {
-                        RocketAttackOverlay(
-                            effects = rocketEffects,
                             hexSizeDp = hexSize.value,
                             contentSize = measuredContentSize,
                             animate = AppSettings.enableAnimations.value,
@@ -1115,15 +921,6 @@ fun GameGrid(
                         contentSize = measuredContentSize,
                         animate = AppSettings.enableAnimations.value,
                     )
-                    // Freya shield wall boundary: three curvy parallel lines (grey, blue, grey)
-                    // drawn above the map following the outer edge of the shield wall formation.
-                    if (freyaShieldWallArcs.isNotEmpty()) {
-                        FreyaShieldWallMapOverlay(
-                            shieldWallArcs = freyaShieldWallArcs,
-                            hexSizeDp = hexSize.value,
-                            contentSize = measuredContentSize,
-                        )
-                    }
                 },
             ) { position ->
                 // Pre-compute the two hover-position-dependent booleans per cell.
@@ -1156,7 +953,7 @@ fun GameGrid(
                         val spawnHere = gameState.level.isSpawnPoint(position)
                         val riverHere = gameState.level.isRiverTile(position)
                         val traversable = onPathHere || spawnHere
-                        val occupiable = onPathHere || spawnHere || (hasActiveWaterEnemy && riverHere)
+                        val occupiable = onPathHere || spawnHere || riverHere
                         val areaAttack =
                             selectedDefenderType.attackType == AttackType.AREA ||
                                 selectedDefenderType.attackType == AttackType.LASTING
@@ -1217,8 +1014,7 @@ fun GameGrid(
                         null
                     }
 
-                // supportFiefPlacementHighlight: true for every valid placement tile when a fief support
-                // token is selected, so the player knows where the fief can be dropped.
+                // True when a fief support token is selected and this tile is a valid placement target.
                 val supportFiefPlacementHighlight: Boolean =
                     selectedSupportFief != null && supportFiefPlacementPositions.contains(position)
 
@@ -1289,6 +1085,30 @@ fun GameGrid(
                     onClick = cellOnClick,
                     hexSize = hexSize,
                     onHoverChange = cellOnHoverChange,
+                    healingEffect = healingEffectsByPosition[position],
+                    damageEffect = damageEffectsByPosition[position],
+                    deathEffect = defeatedEnemyEffectsByPosition[position],
+                    coinGainEffect = coinGainEffectsByPosition[position],
+                    towerAttackEffect = towerAttackEffectsByTargetPosition[position],
+                    fieldEffect = fieldEffectsByPosition[position],
+                    trap = trapsByPositionMap[position],
+                    barricade = barricadesByPositionMap[position],
+                    constructionCompleteEffect = constructionCompleteEffectsByPosition[position],
+                    enemySpawnEffect = enemySpawnEffectsByPosition[position],
+                    trapTriggerEffect = trapTriggerEffectsByPosition[position],
+                    enemyMoveEffect = enemyMoveEffectsByPosition[position],
+                    dragonLevelChangeEffect = dragonLevelChangeEffectsByPosition[position],
+                    mineDigEffect = mineDigEffectsByPosition[position],
+                    arrowAttackEffect = arrowAttackEffectsByAffectedPosition[position],
+                    isArrowTargetTile = arrowAttackTargetPositions.contains(position),
+                    isBallistaTargetTile = ballistaAttackTargetPositions.contains(position),
+                    isBowTargetTile = bowAttackTargetPositions.contains(position),
+                    isSpearTargetTile = spearAttackTargetPositions.contains(position),
+                    isPikeTargetTile = pikeAttackTargetPositions.contains(position),
+                    isWizardTargetTile = wizardAttackTargetPositions.contains(position),
+                    isAlchemyTargetTile = alchemyAttackTargetPositions.contains(position),
+                    isInWizardAttackArea = wizardAttackAreaPositions.contains(position),
+                    isInAlchemyAttackArea = alchemyAttackAreaPositions.contains(position),
                     useTransparentBackground = hasMapImage && sandboxPaintedType == null,
                     sandboxPaintedType = sandboxPaintedType,
                     sandboxPaintedRiverTile = sandboxPaintedRiverTile,
@@ -1463,6 +1283,31 @@ fun GridCell(
     // (notably repainting one river tile over another) would be skipped and never re-render.
     sandboxPaintedType: de.egril.defender.editor.TileType? = null,
     sandboxPaintedRiverTile: RiverTile? = null,
+    // Pre-resolved effect values passed from GameGrid (O(1) map lookups instead of O(N) searches)
+    healingEffect: HealingEffect? = null,
+    damageEffect: DamageEffect? = null,
+    deathEffect: EnemyDeathEffect? = null,
+    coinGainEffect: CoinGainEffect? = null,
+    towerAttackEffect: TowerAttackEffect? = null,
+    fieldEffect: FieldEffect? = null,
+    trap: Trap? = null,
+    barricade: Barricade? = null,
+    constructionCompleteEffect: TowerConstructionEffect? = null,
+    enemySpawnEffect: EnemySpawnEffect? = null,
+    trapTriggerEffect: TrapTriggerEffect? = null,
+    enemyMoveEffect: EnemyMoveEffect? = null,
+    dragonLevelChangeEffect: DragonLevelChangeEffect? = null,
+    mineDigEffect: MineDigEffect? = null,
+    arrowAttackEffect: ArrowAttackEffect? = null,
+    isArrowTargetTile: Boolean = false,
+    isBallistaTargetTile: Boolean = false,
+    isBowTargetTile: Boolean = false,
+    isSpearTargetTile: Boolean = false,
+    isPikeTargetTile: Boolean = false,
+    isWizardTargetTile: Boolean = false,
+    isAlchemyTargetTile: Boolean = false,
+    isInWizardAttackArea: Boolean = false,
+    isInAlchemyAttackArea: Boolean = false,
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
 
@@ -1476,83 +1321,11 @@ fun GridCell(
     val isEnemyOccupiable = isOnPath || isSpawnPoint || isRiverTile
     // defender and attacker are now passed as parameters (pre-computed in GameGrid)
 
-    // Check for healing effects at this position
-    val healingEffect = gameState.healingEffects.find { it.position == position }
-
-    // Check for damage effects at this position
-    val damageEffect = gameState.damageEffects.find { it.position == position }
-
-    // Check for enemy death animation effect at this position
-    val deathEffect = gameState.defeatedEnemyEffects.find { it.position == position }
-
-    // Check for coin gain animation effect at this position
-    val coinGainEffect = gameState.coinGainEffects.find { it.position == position }
-
-    // Check for tower attack impact animation effect at this position
-    val towerAttackEffect = gameState.towerAttackEffects.find { it.targetPosition == position }
-
-    // Check for arrow attack effect on this tile: source tile, any intermediate tile on the straight
-    // path, or the target tile itself (arrow is visible the whole way to the target).
-    val arrowAttackEffect =
-        gameState.arrowAttackEffects.let { effects ->
-            effects.find { it.sourcePosition == position }
-                ?: effects.find { it.targetPosition == position }
-                ?: effects.find { isOnArrowLinePath(it.sourcePosition, it.targetPosition, position) }
-        }
-    val rocketAttackEffect =
-        gameState.rocketAttackEffects.let { effects ->
-            effects.find { it.sourcePosition == position }
-        }
-    // True when this tile is the endpoint of an arrow attack (hit animation should be delayed)
-    val isArrowTargetTile = gameState.arrowAttackEffects.any { it.targetPosition == position }
-    // True when this tile is the endpoint of a ballista attack (hit animation should be delayed)
-    val isBallistaTargetTile = gameState.ballistaAttackEffects.any { it.targetPosition == position }
-    // True when this tile is the endpoint of a bow attack (hit animation should be delayed)
-    val isBowTargetTile = gameState.bowAttackEffects.any { it.targetPosition == position }
-    // True when this tile is the endpoint of a spear attack (hit animation should be delayed)
-    val isSpearTargetTile = gameState.spearAttackEffects.any { it.targetPosition == position }
-    // True when this tile is the endpoint of a pike attack (hit animation should be delayed)
-    val isPikeTargetTile = gameState.pikeAttackEffects.any { it.targetPosition == position }
-    // True when this tile is the endpoint of a Baron rocket attack.
-    val isRocketTargetTile = gameState.rocketAttackEffects.any { it.targetPosition == position }
-    // True when this tile is the endpoint of a wizard fireball attack (hit animation should be delayed)
-    val isWizardTargetTile = gameState.wizardAttackEffects.any { it.targetPosition == position }
-    // True when this tile is the endpoint of an alchemy acid vial attack (hit animation should be delayed)
-    val isAlchemyTargetTile = gameState.alchemyAttackEffects.any { it.targetPosition == position }
-    // True when this tile is within the area of effect of a wizard fireball attack.
-    // The fireball's area covers the target tile + all of its hex neighbors (radius 1), so any
-    // tile with hexDistanceTo(targetPosition) <= 1 is affected.
-    val isInWizardAttackArea = gameState.wizardAttackEffects.any { it.targetPosition.hexDistanceTo(position) <= 1 }
-    // True when this tile is within the area of effect of an alchemy acid vial attack.
-    // Acid has a base radius of 1 but can extend up to 2 at high tower levels; use radius 2 here
-    // to conservatively cover the maximum possible area so no affected tile shows prematurely.
-    val isInAlchemyAttackArea = gameState.alchemyAttackEffects.any { it.targetPosition.hexDistanceTo(position) <= 2 }
-
     // Check if a dragon is targeting the mine at this position
     val dragonIsTargetingMine =
         defender != null &&
             defender.type == DefenderType.DWARVEN_MINE &&
             gameState.attackers.any { it.targetMineId.value == defender.id && !it.isDefeated.value }
-
-    // Check for tower construction complete animation effect at this position
-    val constructionCompleteEffect = gameState.constructionCompleteEffects.find { it.position == position }
-
-    // Check for enemy spawn animation effect at this position
-    val enemySpawnEffect = gameState.enemySpawnEffects.find { it.position == position }
-    // Scrap-Bot wreckage marker (Baron Ratterzahn)
-    val scrapPile = gameState.scrapPiles.find { it.position == position }
-
-    // Check for trap trigger animation effect at this position
-    val trapTriggerEffect = gameState.trapTriggerEffects.find { it.position == position }
-
-    // Check for enemy movement trail animation at this position
-    val enemyMoveEffect = gameState.enemyMoveEffects.find { it.position == position }
-
-    // Check for dragon level change animation at this position
-    val dragonLevelChangeEffect = gameState.dragonLevelChangeEffects.find { it.position == position }
-
-    // Check for mine dig animation at this position
-    val mineDigEffect = gameState.mineDigEffects.find { it.position == position }
 
     // Determine the tile type for background image loading. Prefer the sandbox-painted river tile so
     // a runtime repaint (which mutates the non-observable level in place) is reflected immediately.
@@ -1587,57 +1360,49 @@ fun GridCell(
             null
         }
 
-    // Check for field effects at this position
-    val fieldEffect = gameState.fieldEffects.find { it.position == position }
-
     // When animations are enabled, delay showing fireball / acid field-effect markers on the tile
     // until the attack animation has finished (projectile flight + impact flash).
     // When animations are off, or when the effect is from a prior turn (no matching attack overlay
     // is active), show it immediately.
     val animate = AppSettings.enableAnimations.value
     var showFieldEffect by remember { mutableStateOf(false) }
-    LaunchedEffect(
-        fieldEffect?.position?.x,
-        fieldEffect?.position?.y,
-        fieldEffect?.type,
-        fieldEffect?.defenderId,
-        isInWizardAttackArea,
-        isInAlchemyAttackArea,
-        animate,
-    ) {
-        when {
-            fieldEffect == null -> showFieldEffect = false
-            animate && isInWizardAttackArea -> {
-                showFieldEffect = false
-                kotlinx.coroutines.delay(
-                    GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS +
-                        GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS,
-                )
-                showFieldEffect = true
+    if (fieldEffect != null || isInWizardAttackArea || isInAlchemyAttackArea) {
+        LaunchedEffect(
+            fieldEffect?.position?.x,
+            fieldEffect?.position?.y,
+            fieldEffect?.type,
+            fieldEffect?.defenderId,
+            isInWizardAttackArea,
+            isInAlchemyAttackArea,
+            animate,
+        ) {
+            when {
+                fieldEffect == null -> showFieldEffect = false
+                animate && isInWizardAttackArea -> {
+                    showFieldEffect = false
+                    kotlinx.coroutines.delay(
+                        GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS +
+                            GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS,
+                    )
+                    showFieldEffect = true
+                }
+                animate && isInAlchemyAttackArea -> {
+                    showFieldEffect = false
+                    kotlinx.coroutines.delay(
+                        GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS +
+                            GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS,
+                    )
+                    showFieldEffect = true
+                }
+                else -> showFieldEffect = true
             }
-            animate && isInAlchemyAttackArea -> {
-                showFieldEffect = false
-                kotlinx.coroutines.delay(
-                    GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS +
-                        GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS,
-                )
-                showFieldEffect = true
-            }
-            else -> showFieldEffect = true
         }
+    } else {
+        SideEffect { showFieldEffect = false }
     }
     // Use effectiveFieldEffect for all visual rendering; raw fieldEffect is still used for
     // gameplay logic (trap placement detection etc.) so the game state stays accurate.
     val effectiveFieldEffect: FieldEffect? = if (showFieldEffect) fieldEffect else null
-
-    // Check for traps at this position
-    val trap = gameState.traps.find { it.position == position }
-
-    // Check for barricades at this position
-    val barricade = gameState.barricades.find { it.position == position }
-
-    // Check for fiefs at this position
-    val fief = gameState.fiefs.find { it.position == position }
 
     // Check if this tile is in a cooling spell area (show snowflake on affected path tiles)
     val isInCoolingArea =
@@ -1742,7 +1507,6 @@ fun GridCell(
                 !sel.isReady ||
                 sel.actionsRemaining.value <= 0 ||
                 !isSelectedAttackTarget ||
-                effectiveFieldEffect?.type == FieldEffectType.SHADOW_FOG ||
                 selectedMineAction != null ||
                 selectedWizardAction != null ||
                 selectedBarricadeAction != null
@@ -1753,7 +1517,7 @@ fun GridCell(
                     gameState.activeSpellEffects.any {
                         it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == sel.id
                     }
-                enemyAttackPreview(attacker, sel, hasDoubleLevelBuff, gameState)
+                enemyAttackPreview(attacker, sel, hasDoubleLevelBuff)
             }
         }
 
@@ -1769,8 +1533,7 @@ fun GridCell(
                 val hasEnemy = attacker != null
                 val hasTrap = trap != null
                 val hasFieldEffect = fieldEffect != null
-                val hasFief = fief != null
-                isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect && !hasFief
+                isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect
             } ?: false
         } else {
             false
@@ -1790,7 +1553,7 @@ fun GridCell(
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= 3
                 // Check if empty path tile (no defender, no attacker, can have existing barricade for reinforcement)
-                val isEmptyPath = isOnPath && defender == null && attacker == null && fief == null
+                val isEmptyPath = isOnPath && defender == null && attacker == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -1807,7 +1570,7 @@ fun GridCell(
             selectedDefender?.let { sel ->
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null
+                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -1821,7 +1584,7 @@ fun GridCell(
             selectedDefender?.let { sel ->
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null
+                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -1834,7 +1597,6 @@ fun GridCell(
     val cellIsSupportBarricadePlacement = supportObjectPlacementHighlightType == SupportObjectType.BARRICADE
     val cellIsSupportDwarvenTrapPlacement = supportObjectPlacementHighlightType == SupportObjectType.DWARVEN_TRAP
     val cellIsSupportMagicalTrapPlacement = supportObjectPlacementHighlightType == SupportObjectType.MAGICAL_TRAP
-    val cellIsSupportFiefPlacement = supportFiefPlacementHighlight
 
     // Base background color based on area type - ALWAYS visible
     // Build areas adjacent to path allow tower placement
@@ -1881,48 +1643,54 @@ fun GridCell(
     //   which only changes from false → true once per turn).
     val anyTowerAttackActive = towerAttackCount > 0
     var suppressEnemyBackground by remember { mutableStateOf(false) }
-    LaunchedEffect(
-        towerAttackEffect?.turnNumber,
-        towerAttackEffect?.targetPosition,
-        isInWizardAttackArea,
-        isInAlchemyAttackArea,
-        towerAttackCount,
-        animate,
-    ) {
-        if (!animate || attacker == null) {
-            suppressEnemyBackground = false
-            return@LaunchedEffect
+    if (attacker != null) {
+        LaunchedEffect(
+            towerAttackEffect?.turnNumber,
+            towerAttackEffect?.targetPosition,
+            isInWizardAttackArea,
+            isInAlchemyAttackArea,
+            towerAttackCount,
+            animate,
+        ) {
+            if (!animate) {
+                suppressEnemyBackground = false
+                return@LaunchedEffect
+            }
+            val hasDirectAttack = towerAttackEffect != null
+            val hasAoEAttack = isInWizardAttackArea || isInAlchemyAttackArea
+            if (hasDirectAttack || hasAoEAttack) {
+                // Directly targeted or AoE tile: use precise per-tower-type timing.
+                suppressEnemyBackground = true
+                val flightDelay: Long =
+                    when {
+                        towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                        towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                        isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                        isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                        else -> 0L
+                    }
+                kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
+                suppressEnemyBackground = false
+            } else if (anyTowerAttackActive) {
+                // Non-targeted live enemy tile: suppress for the maximum possible animation duration
+                // so it de-highlights with all other enemies, then restores automatically.
+                suppressEnemyBackground = true
+                kotlinx.coroutines.delay(
+                    GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS +
+                        GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS,
+                )
+                suppressEnemyBackground = false
+            } else {
+                suppressEnemyBackground = false
+            }
         }
-        val hasDirectAttack = towerAttackEffect != null
-        val hasAoEAttack = isInWizardAttackArea || isInAlchemyAttackArea
-        if (hasDirectAttack || hasAoEAttack) {
-            // Directly targeted or AoE tile: use precise per-tower-type timing.
-            suppressEnemyBackground = true
-            val flightDelay: Long =
-                when {
-                    towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
-                    towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                    isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                    isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                    else -> 0L
-                }
-            kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
-            suppressEnemyBackground = false
-        } else if (anyTowerAttackActive) {
-            // Non-targeted live enemy tile: suppress for the maximum possible animation duration
-            // so it de-highlights with all other enemies, then restores automatically.
-            suppressEnemyBackground = true
-            kotlinx.coroutines.delay(
-                GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS +
-                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS,
-            )
-            suppressEnemyBackground = false
-        } else {
+    } else {
+        SideEffect {
             suppressEnemyBackground = false
         }
     }
@@ -1940,8 +1708,6 @@ fun GridCell(
             // Keyboard placement/targeting cursor — bright cyan tint so the active tile stands out.
             isKeyboardPlacementCursor -> Color(0xFF00E5FF).copy(alpha = 0.45f)
             attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f) // Turquoise background for frozen/cooled-to-zero enemies
-            // Shadow fog overrides all entity backgrounds so the tile looks fully hidden
-            effectiveFieldEffect?.type == FieldEffectType.SHADOW_FOG -> Color(0xFF2A003A).copy(alpha = 0.65f)
             attacker != null && enemyBgSuppressed -> if (useTransparentBackground) Color.Transparent else baseBackgroundColor
             attacker != null ->
                 if (AppSettings.showUnitTowerBackground.value) {
@@ -1974,9 +1740,6 @@ fun GridCell(
                 when (effectiveFieldEffect.type) {
                     FieldEffectType.FIREBALL -> GamePlayColors.Warning.copy(alpha = 0.5f) // Orange tint for fireball
                     FieldEffectType.ACID -> GamePlayColors.Success.copy(alpha = 0.6f) // Green tint for acid
-                    FieldEffectType.WEB -> Color(0xFF8E7CC3).copy(alpha = 0.5f) // Violet tint for spider web
-                    FieldEffectType.BURNING_TILE -> Color(0xFFFF4500).copy(alpha = 0.55f) // Red-orange for burning tile
-                    FieldEffectType.SHADOW_FOG -> Color(0xFF2A003A).copy(alpha = 0.65f) // Black-violet fog
                 }
             }
 
@@ -1992,9 +1755,6 @@ fun GridCell(
 
             // Barricade placement range - yellow tint for tiles in range
             cellIsInBarricadeRange || cellIsSupportBarricadePlacement -> GamePlayColors.Yellow.copy(alpha = 0.3f) // Light yellow for barricade placement range
-
-            // Fief placement highlight - brown tint matching path color
-            cellIsSupportFiefPlacement -> GamePlayColors.Trap.copy(alpha = 0.35f) // Brown tint for fief placement tiles
 
             // Tower placement preview - highlight the hovered build tile differently than range tiles
             showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f) // Light yellow for the build tile being hovered
@@ -2048,15 +1808,12 @@ fun GridCell(
             false
         }
 
-    // Enemy-occupiable tiles are valid targets for area attacks.
-    // For single-target attacks, also treat enemies on water tiles as valid target tiles so the
-    // in-range border appears on those reachable enemy positions.
-    val hasEnemyOnWaterTile = attacker != null && isRiverTile
+    // Enemy-occupiable tiles are valid targets for area attacks; enemy-traversable for single-target
     val isValidTargetTile =
         if (hasAreaAttack) {
             isEnemyOccupiable
         } else {
-            isEnemyTraversable || hasEnemyOnWaterTile
+            isEnemyTraversable
         }
 
     val borderColor =
@@ -2068,13 +1825,8 @@ fun GridCell(
             isInPreviewRange -> GamePlayColors.Success // Green border for range preview tiles
 
             // Barricade and trap placement range - brown borders (light brown diagonal stripes)
-            cellIsInBarricadeRange ||
-                cellIsValidForMineTrapPlacement ||
-                cellIsSupportBarricadePlacement ||
-                cellIsSupportDwarvenTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
-
-            // Fief placement highlight - brown border matching path color
-            cellIsSupportFiefPlacement -> GamePlayColors.Trap // Brown border for fief placement tiles
+            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement ||
+                cellIsSupportBarricadePlacement || cellIsSupportDwarvenTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
 
             // Magical trap placement range - lilac borders
             cellIsValidForMagicalTrapPlacement || cellIsSupportMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight // Lilac border for magical trap placement range
@@ -2097,7 +1849,7 @@ fun GridCell(
 
             isSpawnPoint -> GamePlayColors.WarningDark // Darker orange border for spawn in dark mode
             isTarget -> GamePlayColors.Success // Green border for target (adapts to dark mode automatically)
-            attacker != null && !enemyBgSuppressed && effectiveFieldEffect?.type != FieldEffectType.SHADOW_FOG -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.ErrorDark else Color.Transparent // Darker red border for enemies (only when background enabled)
+            attacker != null && !enemyBgSuppressed -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.ErrorDark else Color.Transparent // Darker red border for enemies (only when background enabled)
             defender != null ->
                 if (AppSettings.showUnitTowerBackground.value) {
                     if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building
@@ -2108,9 +1860,6 @@ fun GridCell(
                 when (effectiveFieldEffect.type) {
                     FieldEffectType.FIREBALL -> GamePlayColors.WarningDeep // Deep orange border for fireball
                     FieldEffectType.ACID -> GamePlayColors.Success // Green border for acid
-                    FieldEffectType.WEB -> Color(0xFF5E35B1) // Deep violet border for spider web
-                    FieldEffectType.BURNING_TILE -> Color(0xFFCC2200) // Deep red border for burning tile
-                    FieldEffectType.SHADOW_FOG -> Color(0xFF4A148C) // Deep purple border for shadow fog
                 }
             }
 
@@ -2125,13 +1874,8 @@ fun GridCell(
             isKeyboardPlacementCursor -> 6.dp // Prominent border for the keyboard placement/targeting cursor
             showPlacementPreview -> 6.dp // Double thickness for hovered build tile
             isInPreviewRange -> 3.dp // Medium border for range preview
-            cellIsInBarricadeRange ||
-                cellIsValidForMineTrapPlacement ||
-                cellIsValidForMagicalTrapPlacement ||
-                cellIsSupportBarricadePlacement ||
-                cellIsSupportDwarvenTrapPlacement ||
-                cellIsSupportMagicalTrapPlacement ||
-                cellIsSupportFiefPlacement -> 3.dp // Medium border for trap/barricade/fief placement range
+            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement ||
+                cellIsSupportBarricadePlacement || cellIsSupportDwarvenTrapPlacement || cellIsSupportMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
             isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp // Medium border for buildable tiles and tower bases
             isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp // Extra thick border for selected defender (not during initial building)
             cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> 2.dp // Thin purple border for double-reach-only tiles
@@ -2159,8 +1903,7 @@ fun GridCell(
             cellIsValidForMagicalTrapPlacement ||
             cellIsSupportBarricadePlacement ||
             cellIsSupportDwarvenTrapPlacement ||
-            cellIsSupportMagicalTrapPlacement ||
-            cellIsSupportFiefPlacement
+            cellIsSupportMagicalTrapPlacement
 
     val showDiagonalStripes =
         isBuildableAndEmpty ||
@@ -2170,8 +1913,7 @@ fun GridCell(
             cellIsValidForMagicalTrapPlacement ||
             cellIsSupportBarricadePlacement ||
             cellIsSupportDwarvenTrapPlacement ||
-            cellIsSupportMagicalTrapPlacement ||
-            cellIsSupportFiefPlacement
+            cellIsSupportMagicalTrapPlacement
 
     // Determine if we should use gradient blending
     val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
@@ -2260,7 +2002,6 @@ fun GridCell(
                 fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
-                fief = fief,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -2289,19 +2030,16 @@ fun GridCell(
                 towerAttackEffect = towerAttackEffect,
                 constructionCompleteEffect = constructionCompleteEffect,
                 enemySpawnEffect = enemySpawnEffect,
-                scrapPile = scrapPile,
                 trapTriggerEffect = trapTriggerEffect,
                 enemyMoveEffect = enemyMoveEffect,
                 dragonLevelChangeEffect = dragonLevelChangeEffect,
                 mineDigEffect = mineDigEffect,
                 arrowAttackEffect = arrowAttackEffect,
-                rocketAttackEffect = rocketAttackEffect,
                 isArrowTargetTile = isArrowTargetTile,
                 isBallistaTargetTile = isBallistaTargetTile,
                 isBowTargetTile = isBowTargetTile,
                 isSpearTargetTile = isSpearTargetTile,
                 isPikeTargetTile = isPikeTargetTile,
-                isRocketTargetTile = isRocketTargetTile,
                 isWizardTargetTile = isWizardTargetTile,
                 isAlchemyTargetTile = isAlchemyTargetTile,
                 isInWizardAttackArea = isInWizardAttackArea,
@@ -2333,7 +2071,6 @@ fun GridCell(
                 fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
-                fief = fief,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -2362,19 +2099,16 @@ fun GridCell(
                 towerAttackEffect = towerAttackEffect,
                 constructionCompleteEffect = constructionCompleteEffect,
                 enemySpawnEffect = enemySpawnEffect,
-                scrapPile = scrapPile,
                 trapTriggerEffect = trapTriggerEffect,
                 enemyMoveEffect = enemyMoveEffect,
                 dragonLevelChangeEffect = dragonLevelChangeEffect,
                 mineDigEffect = mineDigEffect,
                 arrowAttackEffect = arrowAttackEffect,
-                rocketAttackEffect = rocketAttackEffect,
                 isArrowTargetTile = isArrowTargetTile,
                 isBallistaTargetTile = isBallistaTargetTile,
                 isBowTargetTile = isBowTargetTile,
                 isSpearTargetTile = isSpearTargetTile,
                 isPikeTargetTile = isPikeTargetTile,
-                isRocketTargetTile = isRocketTargetTile,
                 isWizardTargetTile = isWizardTargetTile,
                 isAlchemyTargetTile = isAlchemyTargetTile,
                 isInWizardAttackArea = isInWizardAttackArea,
@@ -2404,7 +2138,6 @@ private fun BoxScope.GridCellContent(
     fieldEffect: FieldEffect?,
     trap: Trap?,
     barricade: Barricade?,
-    fief: de.egril.defender.model.Fief? = null,
     isSpawnPoint: Boolean,
     isTarget: Boolean,
     isRiverTile: Boolean,
@@ -2437,19 +2170,16 @@ private fun BoxScope.GridCellContent(
     towerAttackEffect: TowerAttackEffect? = null,
     constructionCompleteEffect: TowerConstructionEffect? = null,
     enemySpawnEffect: EnemySpawnEffect? = null,
-    scrapPile: ScrapPile? = null,
     trapTriggerEffect: TrapTriggerEffect? = null,
     enemyMoveEffect: EnemyMoveEffect? = null,
     dragonLevelChangeEffect: DragonLevelChangeEffect? = null,
     mineDigEffect: MineDigEffect? = null,
     arrowAttackEffect: ArrowAttackEffect? = null,
-    rocketAttackEffect: RocketAttackEffect? = null,
     isArrowTargetTile: Boolean = false,
     isBallistaTargetTile: Boolean = false,
     isBowTargetTile: Boolean = false,
     isSpearTargetTile: Boolean = false,
     isPikeTargetTile: Boolean = false,
-    isRocketTargetTile: Boolean = false,
     isWizardTargetTile: Boolean = false,
     isAlchemyTargetTile: Boolean = false,
     isInWizardAttackArea: Boolean = false,
@@ -2474,16 +2204,16 @@ private fun BoxScope.GridCellContent(
     val enemyBgSuppressed = suppressEnemyBackground
     val animationsEnabled = AppSettings.enableAnimations.value
     var displayedHealth by remember { mutableStateOf(attacker?.currentHealth?.value ?: 0) }
-    LaunchedEffect(
-        attacker?.id,
-        attacker?.currentHealth?.value,
-        towerAttackEffect?.turnNumber,
-        isInWizardAttackArea,
-        isInAlchemyAttackArea,
-        animationsEnabled,
-    ) {
-        val currentHealth = attacker?.currentHealth?.value
-        if (attacker != null && currentHealth != null) {
+    if (attacker != null) {
+        LaunchedEffect(
+            attacker.id,
+            attacker.currentHealth.value,
+            towerAttackEffect?.turnNumber,
+            isInWizardAttackArea,
+            isInAlchemyAttackArea,
+            animationsEnabled,
+        ) {
+            val currentHealth = attacker.currentHealth.value
             val flightDelay: Long =
                 when {
                     !animationsEnabled -> 0L
@@ -2504,27 +2234,6 @@ private fun BoxScope.GridCellContent(
                 kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
             }
             displayedHealth = currentHealth
-        }
-    }
-
-    // When a shadow spew fireball is actively flying (shadowSpewEffects non-empty) and this tower
-    // was just disabled by shadow spew, delay revealing the shadow cloud overlay and the disabled
-    // turn counter until the fireball animation has landed — mirroring the field-effect delay used
-    // for wizard/alchemy attacks.  When animations are off, or when the tower was already disabled
-    // from a previous turn (no active fireball), show immediately.
-    val hasShadowSpewAnim = defender?.hasShadowSpewAnimation?.value == true
-    val shadowSpewFlyingNow = animationsEnabled && gameState.shadowSpewEffects.isNotEmpty()
-    var showShadowSpewOnTower by remember { mutableStateOf(hasShadowSpewAnim && !shadowSpewFlyingNow) }
-    LaunchedEffect(hasShadowSpewAnim, shadowSpewFlyingNow) {
-        when {
-            !hasShadowSpewAnim -> showShadowSpewOnTower = false
-            shadowSpewFlyingNow -> {
-                // Fireball is in flight — hide until it lands
-                showShadowSpewOnTower = false
-                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.SHADOW_SPEW_FLIGHT_DELAY_MS)
-                showShadowSpewOnTower = true
-            }
-            else -> showShadowSpewOnTower = true // Tower already disabled from a prior turn
         }
     }
 
@@ -2567,15 +2276,9 @@ private fun BoxScope.GridCellContent(
                 // - Freeze/cooling (turquoise) or unit backgrounds ON (red) → dark enough for white text
                 // - Unit backgrounds OFF in dark mode → dark terrain bg → white text
                 // - Unit backgrounds OFF in light mode → light terrain bg → dark text
-                val isPirateOnRiverTile =
-                    shouldShowSeafaringPirateBarge(
-                        attacker.type,
-                        gameState.level.isRiverTile(attacker.position.value),
-                    )
                 val healthTextColor =
                     when {
                         freezeEffect != null || coolingReducesToZero -> Color.White
-                        isPirateOnRiverTile -> Color(0xFFEFF7FF)
                         AppSettings.showUnitTowerBackground.value -> Color.White
                         AppSettings.isDarkMode.value -> Color.White
                         else -> Color.Black
@@ -2589,120 +2292,91 @@ private fun BoxScope.GridCellContent(
                             Modifier
                         },
                 ) {
-                    if (fieldEffect?.type == FieldEffectType.SHADOW_FOG) {
-                        // Enemy is hidden in the shadows — show only the shadow overlay with timer
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .size(GamePlayConstants.TileIconSizes.ShadowFogOverlay)
-                                        .background(Color(0xB020002A), RoundedCornerShape(50)),
-                            )
-                            Text(
-                                "${fieldEffect.turnsRemaining}T",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFFE1BEE7),
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
-                    } else {
-                        if (fieldEffect?.type == FieldEffectType.WEB) {
-                            WebIcon(
-                                size = GamePlayConstants.TileIconSizes.SpiderWebBackground,
-                                color = Color(0xFFE6E0F8).copy(alpha = 0.7f),
-                            )
-                        }
-                        EnemyIcon(
-                            attacker = attacker,
-                            backgroundColor = attackerTileBackground,
-                            healthTextColor = healthTextColor,
-                            healthOverride = displayedHealth,
-                            moveVillainNameUp = true,
-                            showSeafaringPirateBarge = isPirateOnRiverTile,
+                    EnemyIcon(
+                        attacker = attacker,
+                        backgroundColor = attackerTileBackground,
+                        healthTextColor = healthTextColor,
+                        healthOverride = displayedHealth,
+                    )
+                    if (isDangerous) {
+                        Text(
+                            text = "!",
+                            color = GamePlayColors.Error,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 14.dp),
                         )
-                        if (isDangerous) {
-                            Text(
-                                text = "!",
-                                color = GamePlayColors.Error,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 14.dp),
-                            )
+                    }
+                    // Show healing effect overlay if present
+                    if (healingEffect != null) {
+                        GreenWitchHealingAnimation(
+                            animate = AppSettings.enableAnimations.value,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                    // Show freeze effect overlay
+                    if (freezeEffect != null) {
+                        FreezeSpellAnimation(
+                            animate = AppSettings.enableAnimations.value,
+                            modifier = Modifier.fillMaxSize(),
+                            animationKey = freezeEffect.attackerId,
+                        )
+                    }
+                    // Show fear effect overlay (black scribble cloud at top of icon)
+                    val fearEffect =
+                        gameState.activeSpellEffects.find { effect ->
+                            (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
+                                (
+                                    effect.spell == SpellType.FEAR_SPELL_AREA &&
+                                        effect.position != null &&
+                                        attacker.position.value.hexDistanceTo(effect.position) <= 2
+                                )
                         }
-                        // Show healing effect overlay if present
-                        if (healingEffect != null) {
-                            GreenWitchHealingAnimation(
-                                animate = AppSettings.enableAnimations.value,
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                        }
-                        // Show freeze effect overlay
-                        if (freezeEffect != null) {
-                            FreezeSpellAnimation(
-                                animate = AppSettings.enableAnimations.value,
-                                modifier = Modifier.fillMaxSize(),
-                                animationKey = freezeEffect.attackerId,
-                            )
-                        }
-                        // Show fear effect overlay (black scribble cloud at top of icon)
-                        val fearEffect =
-                            gameState.activeSpellEffects.find { effect ->
-                                (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
-                                    (
-                                        effect.spell == SpellType.FEAR_SPELL_AREA &&
-                                            effect.position != null &&
-                                            attacker.position.value.hexDistanceTo(effect.position) <= 2
-                                    )
-                            }
-                        if (fearEffect != null) {
-                            FearSpellAnimation(
-                                animate = AppSettings.enableAnimations.value,
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                        }
-                        // Show barb effect indicators if affected (show up to 5 arrows in center)
-                        if (attacker.movementPenalty.value > 0) {
-                            val barbCount = minOf(attacker.movementPenalty.value, 5)
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center,
+                    if (fearEffect != null) {
+                        FearSpellAnimation(
+                            animate = AppSettings.enableAnimations.value,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+                    // Show barb effect indicators if affected (show up to 5 arrows in center)
+                    if (attacker.movementPenalty.value > 0) {
+                        val barbCount = minOf(attacker.movementPenalty.value, 5)
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    repeat(barbCount) {
-                                        Box(
-                                            modifier =
-                                                Modifier.graphicsLayer {
-                                                    rotationZ = 10f // Tilt +10 degrees
-                                                },
-                                        ) {
-                                            de.egril.defender.ui.icon.DownArrowIcon(
-                                                size = 12.dp,
-                                                tint = Color.Red,
-                                            )
-                                        }
+                                repeat(barbCount) {
+                                    Box(
+                                        modifier =
+                                            Modifier.graphicsLayer {
+                                                rotationZ = 10f // Tilt +10 degrees
+                                            },
+                                    ) {
+                                        de.egril.defender.ui.icon.DownArrowIcon(
+                                            size = 12.dp,
+                                            tint = Color.Red,
+                                        )
                                     }
                                 }
                             }
                         }
-                        // Attack damage / lethality / immunity preview at the left border
-                        if (attackPreview != null) {
-                            EnemyAttackPreviewIcon(
-                                damage = attackPreview.damage,
-                                isLethal = attackPreview.isLethal,
-                                isImmune = attackPreview.isImmune,
-                                modifier =
-                                    Modifier
-                                        .align(Alignment.CenterStart)
-                                        .offset(x = 10.dp),
-                            )
-                        }
-                    } // end else (not shadow fog)
+                    }
+                    // Attack damage / lethality / immunity preview at the left border
+                    if (attackPreview != null) {
+                        EnemyAttackPreviewIcon(
+                            damage = attackPreview.damage,
+                            isLethal = attackPreview.isLethal,
+                            isImmune = attackPreview.isImmune,
+                            modifier =
+                                Modifier
+                                    .align(Alignment.CenterStart)
+                                    .offset(x = 10.dp),
+                        )
+                    }
                 }
             }
         }
@@ -2726,14 +2400,6 @@ private fun BoxScope.GridCellContent(
                 doubleLevelActive,
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    if (fieldEffect?.type == FieldEffectType.SHADOW_FOG) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .size(GamePlayConstants.TileIconSizes.ShadowFogOverlay)
-                                    .background(Color(0xB020002A), RoundedCornerShape(50)),
-                        )
-                    }
                     TowerIcon(defender = defender, gameState = gameState)
                     // Show pulsing blue glow when tower is ready to act
                     if (defender.isReady && defender.actionsRemaining.value > 0) {
@@ -2784,26 +2450,8 @@ private fun BoxScope.GridCellContent(
                             modifier = Modifier.fillMaxSize(),
                         )
                     }
-                    // Show Sylvanas vine animation overlay if tower is disabled by Root Grip
-                    if (defender.hasRootGripAnimation.value) {
-                        SylvanasRootGripAnimation(
-                            animate = AppSettings.enableAnimations.value,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
-                    // Show Xarithon shadow cloud overlay if tower is disabled by Shadow Spew
-                    if (showShadowSpewOnTower) {
-                        XarithonShadowCloudAnimation(
-                            animate = AppSettings.enableAnimations.value,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
-                    // Show red "XT" overlay if tower is disabled by Red Witch, Root Grip, or Shadow Spew.
-                    // For Shadow Spew, wait until the fireball animation has landed before revealing.
-                    if (defender.isDisabled.value &&
-                        defender.disabledTurnsRemaining.value > 0 &&
-                        (!defender.hasShadowSpewAnimation.value || showShadowSpewOnTower)
-                    ) {
+                    // Show red "XT" overlay if tower is disabled by Red Witch
+                    if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0) {
                         Text(
                             "${defender.disabledTurnsRemaining.value}T",
                             style = MaterialTheme.typography.headlineMedium,
@@ -2811,21 +2459,8 @@ private fun BoxScope.GridCellContent(
                             fontWeight = FontWeight.Bold,
                         )
                     }
-                    if (fieldEffect?.type == FieldEffectType.SHADOW_FOG) {
-                        Text(
-                            "${fieldEffect.turnsRemaining}T",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFFE1BEE7),
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp),
-                        )
-                    }
                 }
             }
-        }
-
-        scrapPile != null -> {
-            ScrapPileIcon(size = GamePlayConstants.TileIconSizes.ScrapPile)
         }
 
         fieldEffect != null -> {
@@ -2856,135 +2491,6 @@ private fun BoxScope.GridCellContent(
                         )
                     }
                 }
-
-                FieldEffectType.WEB -> {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        WebIcon(size = 20.dp)
-                        Text(
-                            "${fieldEffect.turnsRemaining}T",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = GamePlayColors.Yellow,
-                        )
-                    }
-                }
-
-                FieldEffectType.BURNING_TILE -> {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        ExplosionIcon(size = 22.dp)
-                        Text(
-                            "${fieldEffect.turnsRemaining}T",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = GamePlayColors.Yellow,
-                        )
-                    }
-                }
-                FieldEffectType.SHADOW_FOG -> {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .size(GamePlayConstants.TileIconSizes.ShadowFogOverlay)
-                                    .background(Color(0xB020002A), RoundedCornerShape(50)),
-                        )
-                        Text(
-                            "${fieldEffect.turnsRemaining}T",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFFE1BEE7),
-                        )
-                    }
-                }
-            }
-        }
-
-        fief != null -> {
-            // Show fief image, type name, and coin income
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                val fiefName =
-                    when (fief.type) {
-                        de.egril.defender.model.FiefType.FISHER ->
-                            stringResource(Res.string.fief_type_fisher)
-                        de.egril.defender.model.FiefType.WOODCUTTER ->
-                            stringResource(Res.string.fief_type_woodcutter)
-                        de.egril.defender.model.FiefType.QUARRY ->
-                            stringResource(Res.string.fief_type_quarry)
-                        de.egril.defender.model.FiefType.MARKETPLACE ->
-                            stringResource(Res.string.fief_type_marketplace)
-                    }
-
-                when (fief.type) {
-                    de.egril.defender.model.FiefType.FISHER -> {
-                        val rodRotation = getFisherRodRotationDegrees(position, gameState.level)
-                        Box(
-                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Image(
-                                painter = painterResource(Res.drawable.fief_fisher_hut),
-                                contentDescription = fiefName,
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                            Image(
-                                painter = painterResource(Res.drawable.fief_fishing_rod),
-                                contentDescription = null,
-                                modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .graphicsLayer(
-                                            rotationZ = rodRotation,
-                                            transformOrigin = TransformOrigin(0.38f, 0.56f),
-                                        ),
-                            )
-                        }
-                    }
-                    de.egril.defender.model.FiefType.WOODCUTTER -> {
-                        Image(
-                            painter = painterResource(Res.drawable.fief_woodcutter),
-                            contentDescription = fiefName,
-                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
-                        )
-                    }
-                    de.egril.defender.model.FiefType.QUARRY -> {
-                        Image(
-                            painter = painterResource(Res.drawable.fief_quarry),
-                            contentDescription = fiefName,
-                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
-                        )
-                    }
-                    de.egril.defender.model.FiefType.MARKETPLACE -> {
-                        Image(
-                            painter = painterResource(Res.drawable.fief_marketplace),
-                            contentDescription = fiefName,
-                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
-                        )
-                    }
-                }
-                Text(
-                    fiefName,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.offset(y = (-3).dp),
-                )
-                Text(
-                    "+${fief.type.incomePerTurn}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = GamePlayColors.Yellow,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.offset(y = (-3).dp),
-                )
             }
         }
 
@@ -3319,37 +2825,41 @@ private fun BoxScope.GridCellContent(
     var showGhost by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
         mutableStateOf(isDeathEffectActive)
     }
-    LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
-        if (isDeathEffectActive) {
-            showGhost = true
-            val arrowDelay =
-                when {
-                    towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
-                    towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                    // AoE secondary targets: delay matches the fireball/acid flight time
-                    isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                    isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                    else -> 0L
-                }
-            val impactDelay =
-                if (towerAttackEffect != null ||
-                    isInWizardAttackArea ||
-                    isInAlchemyAttackArea
-                ) {
-                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
-                } else {
-                    0L
-                }
-            kotlinx.coroutines.delay(arrowDelay + impactDelay + GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS)
-            showGhost = false
-        } else {
-            showGhost = false
+    if (deathEffect != null) {
+        LaunchedEffect(deathEffect.turnNumber, deathEffect.position, towerAttackEffect?.turnNumber) {
+            if (isDeathEffectActive) {
+                showGhost = true
+                val arrowDelay =
+                    when {
+                        towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                        towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                        // AoE secondary targets: delay matches the fireball/acid flight time
+                        isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                        isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                        else -> 0L
+                    }
+                val impactDelay =
+                    if (towerAttackEffect != null ||
+                        isInWizardAttackArea ||
+                        isInAlchemyAttackArea
+                    ) {
+                        GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
+                    } else {
+                        0L
+                    }
+                kotlinx.coroutines.delay(arrowDelay + impactDelay + GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS)
+                showGhost = false
+            } else {
+                showGhost = false
+            }
         }
+    } else {
+        SideEffect { showGhost = false }
     }
     if (showGhost && isDeathEffectActive) {
         EnemyTypeIcon(
@@ -3377,41 +2887,45 @@ private fun BoxScope.GridCellContent(
     var showDeathAnimation by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
         mutableStateOf(false)
     }
-    LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
-        if (isDeathEffectActive) {
-            // Wait for both the projectile flight and the impact flash to finish before
-            // starting the death animation.  Also handles AoE secondary targets where
-            // towerAttackEffect is null but the tile is in the fireball/acid blast area.
-            val flightDelay =
-                when {
-                    towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
-                    towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                    isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                    isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                    else -> 0L
+    if (deathEffect != null) {
+        LaunchedEffect(deathEffect.turnNumber, deathEffect.position, towerAttackEffect?.turnNumber) {
+            if (isDeathEffectActive) {
+                // Wait for both the projectile flight and the impact flash to finish before
+                // starting the death animation.  Also handles AoE secondary targets where
+                // towerAttackEffect is null but the tile is in the fireball/acid blast area.
+                val flightDelay =
+                    when {
+                        towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                        towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                        towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                        isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                        isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                        else -> 0L
+                    }
+                val impactDelay =
+                    if (towerAttackEffect != null ||
+                        isInWizardAttackArea ||
+                        isInAlchemyAttackArea
+                    ) {
+                        GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
+                    } else {
+                        0L
+                    }
+                if (flightDelay > 0L || impactDelay > 0L) {
+                    kotlinx.coroutines.delay(flightDelay + impactDelay)
                 }
-            val impactDelay =
-                if (towerAttackEffect != null ||
-                    isInWizardAttackArea ||
-                    isInAlchemyAttackArea
-                ) {
-                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
-                } else {
-                    0L
-                }
-            if (flightDelay > 0L || impactDelay > 0L) {
-                kotlinx.coroutines.delay(flightDelay + impactDelay)
+                showDeathAnimation = true
+                GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)
+            } else {
+                showDeathAnimation = false
             }
-            showDeathAnimation = true
-            GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)
-        } else {
-            showDeathAnimation = false
         }
+    } else {
+        SideEffect { showDeathAnimation = false }
     }
     if (showDeathAnimation && isDeathEffectActive) {
         EnemyDeathAnimation(
@@ -3458,8 +2972,8 @@ private fun BoxScope.GridCellContent(
                 },
         )
     }
-    LaunchedEffect(coinGainEffect?.turnNumber, coinGainEffect?.position, towerAttackEffect?.turnNumber) {
-        if (coinGainEffect != null) {
+    if (coinGainEffect != null) {
+        LaunchedEffect(coinGainEffect.turnNumber, coinGainEffect.position, towerAttackEffect?.turnNumber) {
             val arrowDelay =
                 when {
                     towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
@@ -3525,9 +3039,9 @@ private fun BoxScope.GridCellContent(
                     gameState.coins.value += toAdd
                 }
             }
-        } else {
-            showCoinAnimation = false
         }
+    } else {
+        SideEffect { showCoinAnimation = false }
     }
     if (showCoinAnimation && coinGainEffect != null) {
         CoinGainAnimation(
@@ -3552,53 +3066,54 @@ private fun BoxScope.GridCellContent(
                 !isAlchemyTargetTile,
         )
     }
-    LaunchedEffect(
-        towerAttackEffect?.turnNumber,
-        towerAttackEffect?.targetPosition,
-        isArrowTargetTile,
-        isBallistaTargetTile,
-        isBowTargetTile,
-        isSpearTargetTile,
-        isPikeTargetTile,
-        isWizardTargetTile,
-        isAlchemyTargetTile,
-    ) {
-        when {
-            towerAttackEffect != null && isArrowTargetTile -> {
-                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
-                showHitAnimation = true
-            }
-            towerAttackEffect != null && isBallistaTargetTile -> {
-                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS)
-                showHitAnimation = true
-            }
-            towerAttackEffect != null && isBowTargetTile -> {
-                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
-                showHitAnimation = true
-            }
-            towerAttackEffect != null && isSpearTargetTile -> {
-                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
-                showHitAnimation = true
-            }
-            towerAttackEffect != null && isPikeTargetTile -> {
-                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS)
-                showHitAnimation = true
-            }
-            towerAttackEffect != null && isWizardTargetTile -> {
-                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS)
-                showHitAnimation = true
-            }
-            towerAttackEffect != null && isAlchemyTargetTile -> {
-                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS)
-                showHitAnimation = true
-            }
-            towerAttackEffect != null -> {
-                showHitAnimation = true
-            }
-            else -> {
-                showHitAnimation = false
+    if (towerAttackEffect != null) {
+        LaunchedEffect(
+            towerAttackEffect.turnNumber,
+            towerAttackEffect.targetPosition,
+            isArrowTargetTile,
+            isBallistaTargetTile,
+            isBowTargetTile,
+            isSpearTargetTile,
+            isPikeTargetTile,
+            isWizardTargetTile,
+            isAlchemyTargetTile,
+        ) {
+            when {
+                isArrowTargetTile -> {
+                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
+                    showHitAnimation = true
+                }
+                isBallistaTargetTile -> {
+                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS)
+                    showHitAnimation = true
+                }
+                isBowTargetTile -> {
+                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
+                    showHitAnimation = true
+                }
+                isSpearTargetTile -> {
+                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
+                    showHitAnimation = true
+                }
+                isPikeTargetTile -> {
+                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS)
+                    showHitAnimation = true
+                }
+                isWizardTargetTile -> {
+                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS)
+                    showHitAnimation = true
+                }
+                isAlchemyTargetTile -> {
+                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS)
+                    showHitAnimation = true
+                }
+                else -> {
+                    showHitAnimation = true
+                }
             }
         }
+    } else {
+        SideEffect { showHitAnimation = false }
     }
     if (showHitAnimation && towerAttackEffect != null) {
         TowerAttackImpactAnimation(
@@ -3608,11 +3123,7 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show enemy spawn portal overlay when an enemy just appeared at this position
-    if (
-        enemySpawnEffect != null &&
-        !enemySpawnEffect.suppressPortalAnimation &&
-        enemySpawnEffect.attackerType?.isSpecialEnemy() != true
-    ) {
+    if (enemySpawnEffect != null) {
         EnemySpawnAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(16f),
