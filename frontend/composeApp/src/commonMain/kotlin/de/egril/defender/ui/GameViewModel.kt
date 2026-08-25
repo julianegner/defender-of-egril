@@ -1105,7 +1105,7 @@ class GameViewModel {
                         .getLevel(editorLevelId)
                         ?.isOfficial == true
             if (level.connectedToPreviousLevel && isOfficialLevel) {
-                editorLevelId?.let { resolvedEditorLevelId ->
+                editorLevelId.let { resolvedEditorLevelId ->
                     if (
                         de.egril.defender.save.SaveFileStorage
                             .hasLevelHandoff(resolvedEditorLevelId)

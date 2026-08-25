@@ -181,7 +181,7 @@ internal fun EnemySpawnsTab(
                             readOnly = true,
                             label = { Text(stringResource(Res.string.enemy_kind)) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = kindExpanded) },
-                            modifier = Modifier.menuAnchor(),
+                            modifier = Modifier.menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
                         )
                         ExposedDropdownMenu(
                             expanded = kindExpanded,
@@ -611,7 +611,7 @@ private fun EnemySpawnTableRow(
                     readOnly = true,
                     label = { Text(stringResource(Res.string.enemy)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeExpanded) },
-                    modifier = Modifier.weight(1f).menuAnchor(),
+                    modifier = Modifier.weight(1f).menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
                 )
                 ExposedDropdownMenu(expanded = typeExpanded, onDismissRequest = { typeExpanded = false }) {
                     AttackerType.entries.forEach { attackerType ->
@@ -646,7 +646,7 @@ private fun EnemySpawnTableRow(
                     readOnly = true,
                     label = { Text(stringResource(Res.string.spawn_point)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = spawnExpanded) },
-                    modifier = Modifier.weight(1f).menuAnchor(),
+                    modifier = Modifier.weight(1f).menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
                 )
                 ExposedDropdownMenu(expanded = spawnExpanded, onDismissRequest = { spawnExpanded = false }) {
                     DropdownMenuItem(

@@ -135,7 +135,7 @@ internal fun CreateMapDialog(
                         readOnly = true,
                         label = { Text(stringResource(Res.string.map_templates)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = templateExpanded) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        modifier = Modifier.fillMaxWidth().menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
                     )
                     ExposedDropdownMenu(
                         expanded = templateExpanded,
@@ -222,7 +222,7 @@ internal fun CreateLevelDialog(
                         readOnly = true,
                         label = { Text(stringResource(Res.string.apply_level_template)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = templateExpanded) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        modifier = Modifier.fillMaxWidth().menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
                     )
                     ExposedDropdownMenu(
                         expanded = templateExpanded,

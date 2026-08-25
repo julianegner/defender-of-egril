@@ -746,12 +746,6 @@ private fun Position.isInside(
     height: Int,
 ): Boolean = x in 0 until width && y in 0 until height
 
-private fun Position.distanceTo(other: Position): Int {
-    val dx = x - other.x
-    val dy = y - other.y
-    return kotlin.math.abs(dx) + kotlin.math.abs(dy)
-}
-
 private fun AttackerType.calculateTargetDamage(level: Int): Int =
     when {
         this == AttackerType.EWHAD -> 99

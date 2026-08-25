@@ -20,6 +20,7 @@ import de.egril.defender.model.GarokkWarCryEffect
 import de.egril.defender.model.Position
 import de.egril.defender.ui.gameplay.GamePlayConstants
 import de.egril.defender.ui.hexagon.HexagonalGridConstants
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -119,7 +120,7 @@ private fun SingleGarokkWarCryOverlay(
         val flareLength = hexSizePx * 0.9f
         val glowAlpha = alpha * 0.8f
         for (dir in 0..5) {
-            val angle = dir * (Math.PI / 3.0) + (t * 2.0 * Math.PI / 5.0)
+            val angle = dir * (PI / 3.0) + (t * 2.0 * PI / 5.0)
             val startX = center.x + cos(angle).toFloat() * radius * 0.55f
             val startY = center.y + sin(angle).toFloat() * radius * 0.55f
             val endX = center.x + cos(angle).toFloat() * (radius + flareLength)

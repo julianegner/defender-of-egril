@@ -1722,11 +1722,11 @@ private fun GamePlayScreenContent(
                                         ) {
                                             when {
                                                 targetId != null -> {
-                                                    onDefenderAttack(defenderId!!, targetId)
+                                                    onDefenderAttack(defenderId, targetId)
                                                     true
                                                 }
                                                 targetPos != null -> {
-                                                    onDefenderAttackPosition(defenderId!!, targetPos)
+                                                    onDefenderAttackPosition(defenderId, targetPos)
                                                     true
                                                 }
                                                 else -> true
