@@ -1183,6 +1183,8 @@
     <string name="test_level">Nivel de prueba</string>
     <string name="sandbox_level">Nivel de pruebas libre</string>
     <string name="waagh_enabled">¡Waaagh! Activado</string>
+    <string name="waagh_meter_tooltip">Medidor de Waaagh: %1$s — %2$s</string>
+    <string name="waagh_meter_tooltip_warning">la horda está cerca de su punto de ruptura</string>
     <string name="sandbox">Modo libre</string>
     <string name="sandbox_tools">Herramientas de modo libre</string>
     <string name="sandbox_spawn_enemy">Generar enemigo</string>

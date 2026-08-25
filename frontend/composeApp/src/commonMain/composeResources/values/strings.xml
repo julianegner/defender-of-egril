@@ -1186,6 +1186,8 @@
     <string name="test_level">Test Level</string>
     <string name="sandbox_level">Sandbox Level</string>
     <string name="waagh_enabled">Waaagh! Enabled</string>
+    <string name="waagh_meter_tooltip">Waagh meter: %1$s — %2$s</string>
+    <string name="waagh_meter_tooltip_warning">the horde is nearing its breaking point</string>
     <string name="sandbox">Sandbox</string>
     <string name="sandbox_tools">Sandbox Tools</string>
     <string name="sandbox_spawn_enemy">Spawn Enemy</string>

@@ -1095,22 +1095,27 @@ private fun WaaghBar(gameState: GameState) {
             Res.allDrawableResources["waaagh${roundedDown.toString().padStart(2, '0')}"] ?: Res.drawable.waaagh00
         }
     val waaghProgress = waaghPoints / 100f
+    val waaghTooltipText =
+        stringResource(Res.string.waagh_meter_tooltip, formatWaaghMeterPercent(waaghPoints), stringResource(Res.string.waagh_meter_tooltip_warning))
 
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Image(
-            painter = painterResource(resource),
-            contentDescription = null,
-            modifier = Modifier.height(40.dp).widthIn(min = 120.dp),
-        )
-        if (!isFrenzyActive) {
-            Text(
-                text = formatWaaghMeterPercent(waaghPoints),
-                color = getWaaghMeterColor(waaghProgress),
-                fontWeight = FontWeight.Bold,
+    TooltipWrapper(text = waaghTooltipText) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                painter = painterResource(resource),
+                contentDescription = null,
+                modifier = Modifier.height(80.dp).width(160.dp),
             )
+            if (!isFrenzyActive) {
+                Text(
+                    text = formatWaaghMeterPercent(waaghPoints),
+                    color = getWaaghMeterColor(waaghProgress),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.offset(x = (-8).dp).padding(end = 8.dp),
+                )
+            }
         }
     }
 }

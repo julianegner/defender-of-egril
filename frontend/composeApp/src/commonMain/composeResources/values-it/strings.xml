@@ -1183,6 +1183,8 @@
     <string name="test_level">Livello di test</string>
     <string name="sandbox_level">Livello sandbox</string>
     <string name="waagh_enabled">Waaagh! Abilitato</string>
+    <string name="waagh_meter_tooltip">Misuratore Waaagh: %1$s — %2$s</string>
+    <string name="waagh_meter_tooltip_warning">l'orda sta per raggiungere il punto di rottura</string>
     <string name="sandbox">Sandbox</string>
     <string name="sandbox_tools">Strumenti sandbox</string>
     <string name="sandbox_spawn_enemy">Genera nemico</string>
