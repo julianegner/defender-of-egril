@@ -1,7 +1,6 @@
 package de.egril.defender.game
 
 import androidx.compose.runtime.mutableStateOf
-import de.egril.defender.game.PathfindingSystem
 import de.egril.defender.model.*
 import de.egril.defender.model.isSummoner
 import de.egril.defender.model.isUniqueEnemyAlreadyPresent

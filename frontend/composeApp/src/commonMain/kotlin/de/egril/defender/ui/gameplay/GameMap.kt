@@ -16,9 +16,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
@@ -68,7 +68,6 @@ import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.MineDigAnimation
 import de.egril.defender.ui.animations.MushroomBuffAnimation
-import de.egril.defender.ui.animations.MorvathShadowOrbOverlay
 import de.egril.defender.ui.animations.PikeAttackOverlay
 import de.egril.defender.ui.animations.RocketAttackOverlay
 import de.egril.defender.ui.animations.SkyIsFallingAnimation
@@ -110,12 +109,12 @@ import de.egril.defender.ui.icon.enemy.enemyAttackPreview
 import de.egril.defender.ui.rememberMapImageState
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
-import kotlin.math.PI
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
-import org.jetbrains.compose.resources.painterResource
 
 /**
  * Vertical position (as a fraction of the tile height, measured from the top) where the coin-gain
@@ -184,7 +183,8 @@ private fun getFisherRodRotationDegrees(
 }
 
 /** Returns a canonical key for a hex corner shared by three tiles (tile P and two neighbors). */
-private fun shieldWallCornerKey(    pos: Position,
+private fun shieldWallCornerKey(
+    pos: Position,
     cornerIndex: Int,
 ): String {
     val dirPair = SHIELD_WALL_CORNER_DIR_PAIRS[cornerIndex]
@@ -1729,7 +1729,6 @@ fun GridCell(
     // gameplay logic (trap placement detection etc.) so the game state stays accurate.
     val effectiveFieldEffect: FieldEffect? = if (showFieldEffect) fieldEffect else null
 
-
     // Check if this tile is in a cooling spell area (show snowflake on affected path tiles)
     val isInCoolingArea =
         isEnemyTraversable &&
@@ -2156,8 +2155,10 @@ fun GridCell(
             isInPreviewRange -> GamePlayColors.Success // Green border for range preview tiles
 
             // Barricade and trap placement range - brown borders (light brown diagonal stripes)
-            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement ||
-                cellIsSupportBarricadePlacement || cellIsSupportDwarvenTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
+            cellIsInBarricadeRange ||
+                cellIsValidForMineTrapPlacement ||
+                cellIsSupportBarricadePlacement ||
+                cellIsSupportDwarvenTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
 
             // Magical trap placement range - lilac borders
             cellIsValidForMagicalTrapPlacement || cellIsSupportMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight // Lilac border for magical trap placement range
@@ -2208,8 +2209,12 @@ fun GridCell(
             isKeyboardPlacementCursor -> 6.dp // Prominent border for the keyboard placement/targeting cursor
             showPlacementPreview -> 6.dp // Double thickness for hovered build tile
             isInPreviewRange -> 3.dp // Medium border for range preview
-            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement ||
-                cellIsSupportBarricadePlacement || cellIsSupportDwarvenTrapPlacement || cellIsSupportMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
+            cellIsInBarricadeRange ||
+                cellIsValidForMineTrapPlacement ||
+                cellIsValidForMagicalTrapPlacement ||
+                cellIsSupportBarricadePlacement ||
+                cellIsSupportDwarvenTrapPlacement ||
+                cellIsSupportMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
             isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp // Medium border for buildable tiles and tower bases
             isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp // Extra thick border for selected defender (not during initial building)
             cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> 2.dp // Thin purple border for double-reach-only tiles
@@ -2971,7 +2976,7 @@ private fun BoxScope.GridCellContent(
             }
         }
 
-        mushroom != null ->  {
+        mushroom != null -> {
             // Show mushroom icon
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,

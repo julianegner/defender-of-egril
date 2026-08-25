@@ -45,7 +45,6 @@ import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.isIndefiniteSupportCount
 import de.egril.defender.model.supportCountDisplayText
 import de.egril.defender.ui.TooltipWrapper
-import de.egril.defender.ui.gameplay.GamePlayColors
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.hexagon.HexagonShape
 import de.egril.defender.ui.icon.ExplosionIcon

@@ -21,9 +21,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -286,23 +286,23 @@ fun NarrativeMessageDialog(
 
                     // For Ewhad type: show Ewhad icon at top center
                     if (type == NarrativeMessageType.EWHAD && !topImageFillWidth) {
-                            Box(
-                                modifier = Modifier.size(iconSize),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                if (topImageOverride != null) {
-                                    Image(
-                                        painter = painterResource(topImageOverride),
-                                        contentDescription = null,
-                                        modifier = Modifier.fillMaxSize(),
-                                    )
-                                } else {
-                                    EnemyTypeIcon(
-                                        attackerType = iconAttackerTypeOverride ?: AttackerType.EWHAD,
-                                        modifier = Modifier.fillMaxSize(),
-                                    )
-                                }
+                        Box(
+                            modifier = Modifier.size(iconSize),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (topImageOverride != null) {
+                                Image(
+                                    painter = painterResource(topImageOverride),
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                            } else {
+                                EnemyTypeIcon(
+                                    attackerType = iconAttackerTypeOverride ?: AttackerType.EWHAD,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
                             }
+                        }
                     }
                     // Title
                     SelectableText(

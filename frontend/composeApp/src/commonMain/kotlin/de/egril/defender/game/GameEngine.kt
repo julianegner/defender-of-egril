@@ -1880,7 +1880,9 @@ class GameEngine(
     private fun calculateEffectiveEnemySpeed(
         attacker: Attacker,
         currentPos: Position,
-    ): Int = de.egril.defender.game.calculateEffectiveEnemySpeed(state, attacker, currentPos)
+    ): Int =
+        de.egril.defender.game
+            .calculateEffectiveEnemySpeed(state, attacker, currentPos)
 
     private fun tickBloodlustAfterMovement() {
         state.attackers.forEach { attacker ->

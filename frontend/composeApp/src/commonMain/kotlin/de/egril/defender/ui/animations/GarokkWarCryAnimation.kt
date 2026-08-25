@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.GarokkWarCryEffect
 import de.egril.defender.model.Position
-import de.egril.defender.ui.gameplay.GamePlayConstants
 import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import kotlin.math.PI
 import kotlin.math.cos

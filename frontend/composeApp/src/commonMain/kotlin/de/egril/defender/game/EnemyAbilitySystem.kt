@@ -96,8 +96,7 @@ class EnemyAbilitySystem(
         }
     }
 
-    private fun hordeUnitCountsForWaagh(attackerType: AttackerType): Boolean =
-        attackerType.faction == EnemyFaction.HORDE || attackerType.unitSize > 0
+    private fun hordeUnitCountsForWaagh(attackerType: AttackerType): Boolean = attackerType.faction == EnemyFaction.HORDE || attackerType.unitSize > 0
 
     private fun handleGarokkWarCry() {
         if (!state.level.waaghEnabled) return
@@ -130,7 +129,10 @@ class EnemyAbilitySystem(
             while (queue.isNotEmpty()) {
                 val current = queue.removeFirst()
                 cluster.add(current)
-                val adjacentPositions = current.position.value.getHexNeighbors().toSet() + current.position.value
+                val adjacentPositions =
+                    current.position.value
+                        .getHexNeighbors()
+                        .toSet() + current.position.value
                 for (candidate in hordeUnits) {
                     if (candidate.id in visitedIds) continue
                     if (candidate.position.value in adjacentPositions) {
@@ -368,7 +370,7 @@ class EnemyAbilitySystem(
         val currentPosition = snotling.position.value
         val currentTarget =
             snotling.currentTarget?.value ?: state.getActiveTargetPositions().minByOrNull { currentPosition.distanceTo(it) }
-            ?: return null
+                ?: return null
         val path = pathfinding.findPath(currentPosition, currentTarget, snotling, ignoreBarricades = true)
         val landingTile = path.getOrNull(SNOTLING_CANNON_THROW_DISTANCE) ?: return null
         if (!state.level.isOnPath(landingTile)) return null
@@ -388,7 +390,11 @@ class EnemyAbilitySystem(
         eater: Attacker,
         requiredAmount: Int,
     ): Boolean {
-        val candidatePositions = listOf(eater.position.value) + eater.position.value.getHexNeighbors().filter { isWithinBounds(it) }
+        val candidatePositions =
+            listOf(eater.position.value) +
+                eater.position.value
+                    .getHexNeighbors()
+                    .filter { isWithinBounds(it) }
         val snotlingStacks =
             candidatePositions.mapNotNull { position ->
                 state.attackers.find {
@@ -490,7 +496,7 @@ class EnemyAbilitySystem(
             state.level.getWaypointAt(position)?.let { waypoint ->
                 state.resolveWaypointNextTarget(waypoint.nextTarget, position)
             } ?: state.getActiveTargetPositions().minByOrNull { position.distanceTo(it) }
-            ?: state.level.targetPositions.first()
+                ?: state.level.targetPositions.first()
 
         return Attacker(
             id = state.nextAttackerId.value++,

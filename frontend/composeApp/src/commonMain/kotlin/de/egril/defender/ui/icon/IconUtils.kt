@@ -1580,9 +1580,9 @@ fun UpgradeTowerIcon(
 fun MushroomIcon(
     modifier: Modifier = Modifier,
     size: Dp = 24.dp,
-    capColor: Color = Color(0xFFFF6D00),    // Orange-red cap
-    spotColor: Color = Color(0xFFFFFFFF),   // White spots
-    stemColor: Color = Color(0xFFFFF9C4),   // Pale yellow stem
+    capColor: Color = Color(0xFFFF6D00), // Orange-red cap
+    spotColor: Color = Color(0xFFFFFFFF), // White spots
+    stemColor: Color = Color(0xFFFFF9C4), // Pale yellow stem
 ) {
     Canvas(modifier = modifier.size(size)) {
         val minDimension = minOf(this.size.width, this.size.height)
@@ -1607,7 +1607,9 @@ fun MushroomIcon(
                 color = stemColor,
                 topLeft = Offset(stemLeft, stemTop),
                 size = Size(stemWidth, stemHeight),
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(stemWidth * 0.45f),
+                cornerRadius =
+                    androidx.compose.ui.geometry
+                        .CornerRadius(stemWidth * 0.45f),
             )
 
             val capWidth = mushroomHeight * 0.58f

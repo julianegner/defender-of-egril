@@ -283,7 +283,8 @@ fun InitialSetupMinimap(
                                 placementMode,
                                 map,
                                 selectedDefenderType = selectedDefenderType,
-                            ) || (isTowerBase && !hasDefender)
+                            ) ||
+                                (isTowerBase && !hasDefender)
                         PlacementMode.FIEF -> {
                             val isPath = isValidPlacement(pos, placementMode, map)
                             val isFisher = selectedFiefType == FiefType.FISHER

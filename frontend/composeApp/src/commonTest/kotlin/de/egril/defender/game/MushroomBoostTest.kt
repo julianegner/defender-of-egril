@@ -167,5 +167,4 @@ class MushroomBoostTest {
         assertTrue(firstTower.isDisabled.value)
         assertTrue(secondTower.isDisabled.value)
     }
-
 }

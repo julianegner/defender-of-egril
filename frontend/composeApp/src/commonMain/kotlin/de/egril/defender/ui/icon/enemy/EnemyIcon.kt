@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
@@ -27,8 +26,6 @@ import de.egril.defender.utils.BigHeadMode
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.flames
 import org.jetbrains.compose.resources.painterResource
-import kotlin.math.cos
-import kotlin.math.sin
 
 /**
  * Composable that draws an enemy unit icon
@@ -87,8 +84,7 @@ internal fun attackerOutlineColor(
     defaultOutlineColor: Color,
 ): Color = if (attackerType == AttackerType.PIRATE || attackerType == AttackerType.CAPTAIN_RODERICH) Color.White else defaultOutlineColor
 
-private fun AttackerType.isWaaghAffectedUnit(): Boolean =
-    this in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
+private fun AttackerType.isWaaghAffectedUnit(): Boolean = this in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
 
 @Composable
 fun EnemyIcon(

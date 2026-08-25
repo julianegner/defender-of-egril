@@ -20,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -29,7 +28,6 @@ import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
-import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.EditorHorizontalScrollbar
 import de.egril.defender.ui.getLocalizedName
 import defender_of_egril.composeapp.generated.resources.Res

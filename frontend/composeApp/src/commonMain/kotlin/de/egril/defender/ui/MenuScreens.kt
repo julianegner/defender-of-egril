@@ -40,7 +40,6 @@ import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.icon.UnlockIcon
 import de.egril.defender.ui.infopage.ImpressumWrapper
-import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.AccessibilityBanner
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.AppSettings.isDarkMode

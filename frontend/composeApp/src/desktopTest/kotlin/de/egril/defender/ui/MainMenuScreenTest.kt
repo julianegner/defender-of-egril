@@ -5,7 +5,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.AppBuildInfo
-import de.egril.defender.ui.ScreenshotTestUtils
 import de.egril.defender.ui.settings.AppSettings
 import org.junit.After
 import org.junit.Before

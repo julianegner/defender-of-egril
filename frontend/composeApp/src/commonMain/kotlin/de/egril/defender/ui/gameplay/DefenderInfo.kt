@@ -20,7 +20,6 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.a11y.a11ySemantics
 import de.egril.defender.ui.animations.SpellDoubleLevelColor
 import de.egril.defender.ui.animations.SpellDoubleReachColor
-import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.gameplay.defenderButtons.TowerStats
 import de.egril.defender.ui.icon.HammerIcon
 import de.egril.defender.ui.icon.InfoIcon

@@ -296,7 +296,6 @@ fun GameHeader(
                                 )
                             }
                         }
-
                     }
 
                     // Shortcuts button (not shown on mobile platforms or mobile web browsers)
