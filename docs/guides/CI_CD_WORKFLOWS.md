@@ -58,6 +58,8 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `deploy_play_store`: Trigger the Google Play Store deployment workflow on `main` branch after the release succeeds (runs in parallel with `deploy_github_pages`, uploads to `production` track)
 - `publish_linux_snap`: Call the dedicated `publish_linux_snap.yml` workflow to publish the built `.snap` to the Snap Store (optional, runs after `release`). Skipped automatically when `SNAPCRAFT_STORE_CREDENTIALS` is not configured, when the snap build did not succeed, or when the `snap_channel` input is set to `skip`.
 - `publish_linux_apt`: Call the dedicated `publish_linux_apt.yml` workflow to update the self-hosted APT repository on GitHub Pages (optional, runs after `release`). Skipped automatically when `build_linux_deb` did not succeed. `deploy_github_pages` waits for this job so the APT content is included in the Pages deployment.
+- `build_windows_msix`: Build a Windows MSIX package for Microsoft Store submission (optional, runs in parallel with other build jobs). Skipped automatically when `WINDOWS_STORE_PUBLISHER_ID` is not configured.
+- `deploy_windows_store`: Call the dedicated `publish_windows_store.yml` workflow to submit the MSIX to the Microsoft Store via the Partner Center API (optional, runs after `release`). Skipped automatically when `build_windows_msix` did not succeed or when Store API secrets are not configured. See [Microsoft Store Publishing Setup](#microsoft-store-publishing-setup) below.
 
 **Build Artifacts (attached to the GitHub Release):**
 
@@ -76,7 +78,7 @@ WASM browser tests are not currently run in CI because the common test suite use
   Run with `java -jar DefenderOfEgril-<os>-<arch>-<version>.jar`.
 - macOS: DMG file from `composeApp/build/compose/binaries/main/dmg/`
 - iOS: `*.ipa` (when Apple signing secrets are configured)
-- Windows: `DefenderOfEgril-<version>.exe` and `DefenderOfEgril-<version>.msi`
+- Windows: `DefenderOfEgril-<version>.exe`, `DefenderOfEgril-<version>.msi`, and `DefenderOfEgril-<version>.msix` (optional, when `WINDOWS_STORE_PUBLISHER_ID` is set)
 - WASM: `defender-of-egril_<version>_wasm.zip`
 
 **Configuration:**
@@ -98,6 +100,14 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `SNAPCRAFT_STORE_CREDENTIALS`: Exportable Snap Store login token used by `publish_linux_snap` (see [Snap Store Publishing Setup](#snap-store-publishing-setup) below)
 - `APT_GPG_PRIVATE_KEY`: ASCII-armoured GPG private key used by `publish_linux_apt` to sign APT repository metadata (see [APT Repository Publishing Setup](#apt-repository-publishing-setup) below)
 - `APT_GPG_KEY_ID`: GPG key fingerprint or short ID corresponding to `APT_GPG_PRIVATE_KEY`
+- `WINDOWS_STORE_PUBLISHER_ID`: Publisher identity string from Partner Center (enables the MSIX build, e.g. `CN=ABC12345`)
+- `WINDOWS_STORE_PUBLISHER_DISPLAY_NAME`: Human-readable publisher name used in the MSIX manifest
+- `WINDOWS_STORE_CODE_SIGNING_CERT`: Base64-encoded PFX code signing certificate for signing the MSIX
+- `WINDOWS_STORE_CODE_SIGNING_CERT_PASSWORD`: Password for the PFX signing certificate
+- `WINDOWS_STORE_TENANT_ID`: Azure AD directory (tenant) ID (enables Store submission)
+- `WINDOWS_STORE_CLIENT_ID`: Azure AD application (client) ID
+- `WINDOWS_STORE_CLIENT_SECRET`: Azure AD client secret value
+- `WINDOWS_STORE_APP_ID`: Partner Center product/application ID
 - `APT_GPG_PASSPHRASE`: GPG key passphrase (optional – only required when the key was generated with a passphrase)
 
 #### Snap Store Publishing Setup
@@ -376,7 +386,63 @@ When this is configured the `deploy` job will pause and wait for approval after 
 
 Without the environment the upload proceeds automatically after the version check.
 
-### 8. Renew TLS Certificates (`renew-tls-certificates.yml`)
+### 8. Publish to Microsoft Store (`publish_windows_store.yml`)
+
+**Trigger:** Manual dispatch, plus automatic dispatch from the `Release` workflow after a successful release when `build_windows_msix` succeeded (runs in parallel with other post-release jobs)
+
+**Purpose:** Download the MSIX package from the latest GitHub Release and submit it to the Microsoft Store via the Partner Center Submission API
+
+**Inputs:**
+
+- `release_tag` (optional): Release tag to download the MSIX from (e.g. `v1.0.3`). Defaults to the latest release when not provided.
+
+**Jobs:**
+
+- `publish_windows_store`: Downloads the MSIX, authenticates to Azure AD, creates a new submission in Partner Center, uploads the MSIX, and commits the submission for certification.
+
+**Required Secrets:**
+
+All secrets are optional – the workflow logs a warning and exits successfully when any are absent.
+
+- `WINDOWS_STORE_TENANT_ID` – Azure AD directory (tenant) ID
+- `WINDOWS_STORE_CLIENT_ID` – Azure AD application (client) ID
+- `WINDOWS_STORE_CLIENT_SECRET` – Azure AD client secret value
+- `WINDOWS_STORE_APP_ID` – Partner Center product / application ID
+
+#### Microsoft Store Publishing Setup
+
+Full step-by-step instructions are in `frontend/windowsstore/README.md`. Summary:
+
+1. **Create a Microsoft Partner Center account** at <https://partner.microsoft.com/dashboard> (requires a one-time registration fee).
+2. **Reserve the app name** "Defender of Egril" in Partner Center and note the Product ID from the URL (`WINDOWS_STORE_APP_ID`).
+3. **Obtain your Publisher identity** from Partner Center → Account settings → Organisation profile (e.g. `CN=ABC12345`). This is `WINDOWS_STORE_PUBLISHER_ID`.
+4. **Register an Azure AD application** at <https://portal.azure.com> → Microsoft Entra ID → App registrations and note the tenant ID, client ID, and a client secret value.
+5. **Link the Azure AD app** to Partner Center under Account settings → User management with the Manager role.
+6. **Obtain a code signing certificate** from Partner Center → MSIX packaging (or create a self-signed cert for testing), export as PFX, encode as Base64.
+7. **Add the following secrets** to GitHub Settings → Secrets and variables → Actions:
+   - `WINDOWS_STORE_PUBLISHER_ID` – enables the MSIX build in the Release workflow
+   - `WINDOWS_STORE_PUBLISHER_DISPLAY_NAME` – display name in the MSIX manifest
+   - `WINDOWS_STORE_CODE_SIGNING_CERT` – Base64-encoded PFX signing certificate
+   - `WINDOWS_STORE_CODE_SIGNING_CERT_PASSWORD` – PFX password
+   - `WINDOWS_STORE_TENANT_ID` – enables automatic Store submission
+   - `WINDOWS_STORE_CLIENT_ID` – Azure AD client ID
+   - `WINDOWS_STORE_CLIENT_SECRET` – Azure AD client secret
+   - `WINDOWS_STORE_APP_ID` – Partner Center product ID
+8. **Complete the first submission manually** in Partner Center (screenshots, description, age rating, etc.) – automated submissions require at least one approved manual submission.
+
+Per-release usage:
+
+- When all secrets are configured, the Release workflow automatically builds the MSIX and submits it to the Store after a successful release.
+- To rerun Store publishing independently, trigger the `Publish to Microsoft Store` workflow manually and optionally provide the `release_tag`. Leave it empty to republish from the latest release.
+- If any secret is missing, the job logs a warning and exits successfully without uploading.
+
+Rotation / revocation:
+
+- Azure AD client secrets can be revoked at <https://portal.azure.com> under the app registration → Certificates & secrets.
+- To rotate, create a new secret and replace the `WINDOWS_STORE_CLIENT_SECRET` repository secret value.
+- Code signing certificates from Partner Center are valid for a fixed period; renew them from Partner Center → MSIX packaging.
+
+### 9. Renew TLS Certificates (`renew-tls-certificates.yml`)
 
 **Trigger:** Scheduled (1st of every month at 03:00 UTC) or manual dispatch
 
@@ -517,6 +583,27 @@ Add `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` as a repository secret (Settings → Secr
 
 - Value: the full JSON content of a Google Play service account key with **Release manager** permission for `de.egril.defender`.
 - See `frontend/googleplay/README.md` for detailed setup steps.
+
+### Deploying to Microsoft Store
+
+Use the **Publish to Microsoft Store** workflow (`publish_windows_store.yml`) to submit the latest MSIX to the Microsoft Store:
+
+1. Ensure all required secrets are configured (see [Microsoft Store Publishing Setup](#microsoft-store-publishing-setup) and `frontend/windowsstore/README.md`).
+2. Go to the **Actions** tab in the GitHub repository.
+3. Select the **"Publish to Microsoft Store"** workflow in the left sidebar.
+4. Click **"Run workflow"**.
+5. Optionally specify a `release_tag` (e.g. `v1.2.3`); leave empty to use the latest release.
+6. Click **"Run workflow"** to start.
+
+The workflow will:
+
+- Verify that all Store API credentials are present.
+- Download the MSIX from the GitHub Release.
+- Authenticate to Azure AD and create a new submission in Partner Center.
+- Upload the MSIX and commit the submission for certification review.
+- Display the submission ID and a link to Partner Center in the job summary.
+
+> **Note:** Certification typically takes 1–3 business days. Monitor progress at <https://partner.microsoft.com/en-us/dashboard>.
 
 ### Debug Android Build
 

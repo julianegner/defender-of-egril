@@ -17,11 +17,13 @@
 #        - macOS JVM uber JAR (optional – runnable on any macOS with a JVM)
 #        - Windows EXE installer
 #        - Windows MSI installer
+#        - Windows MSIX package (optional – requires WINDOWS_STORE_PUBLISHER_ID secret)
 #        - Windows JVM uber JAR (runnable on any Windows x64 with a JVM)
 #   3. Creates a GitHub Release tagged with the version and attaches all artifacts.
 #   4. Creates and pushes the git tag (v<version>) after the release is published.
 #   5. Optionally publishes the snap to the Snap Store (when SNAPCRAFT_STORE_CREDENTIALS is set).
-#   6. Outputs a summary with download URLs for every uploaded artifact.
+#   6. Optionally publishes the MSIX to the Microsoft Store (when Store API secrets are set).
+#   7. Outputs a summary with download URLs for every uploaded artifact.
 #
 # Notes:
 #   - iOS builds require Apple Developer signing certificates which must be
@@ -39,6 +41,9 @@
 #     secret (exportable login from `snapcraft export-login`). The publish job is
 #     skipped automatically when the secret is missing or when the snap_channel
 #     input is set to "skip". See docs/guides/CI_CD_WORKFLOWS.md for setup steps.
+#   - Windows MSIX build is optional: requires WINDOWS_STORE_PUBLISHER_ID secret.
+#     Microsoft Store publishing is optional: requires additional Store API secrets.
+#     See frontend/windowsstore/README.md and docs/guides/CI_CD_WORKFLOWS.md for setup.
 
 ---
 name: Release
@@ -819,6 +824,207 @@ jobs:
 
 
   # ---------------------------------------------------------------------------
+  # Windows MSIX package for Microsoft Store
+  #
+  # Optional: skipped automatically when WINDOWS_STORE_PUBLISHER_ID is not set.
+  # Required secrets (all optional – job is skipped when absent):
+  #   WINDOWS_STORE_PUBLISHER_ID           – Publisher identity from Partner Center
+  #                                          (e.g. "CN=ABC12345")
+  #   WINDOWS_STORE_PUBLISHER_DISPLAY_NAME – Human-readable publisher name
+  #   WINDOWS_STORE_CODE_SIGNING_CERT      – Base64-encoded PFX code signing cert
+  #   WINDOWS_STORE_CODE_SIGNING_CERT_PASSWORD – Password for the PFX cert
+  #
+  # See frontend/windowsstore/README.md for full setup instructions.
+  # ---------------------------------------------------------------------------
+  build_windows_msix:
+    name: Build Windows MSIX
+    needs: prepare
+    runs-on: windows-latest
+    env:
+      APP_VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - name: Check MSIX secrets
+        id: check_secrets
+        shell: pwsh
+        run: |
+          if ("${{ secrets.WINDOWS_STORE_PUBLISHER_ID }}" -eq "") {
+            Write-Host "WINDOWS_STORE_PUBLISHER_ID is not configured - skipping MSIX build."
+            "skip=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          } else {
+            "skip=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
+
+      - uses: actions/checkout@v6
+        if: steps.check_secrets.outputs.skip != 'true'
+        with:
+          persist-credentials: false
+
+      - name: Set up JDK 24
+        if: steps.check_secrets.outputs.skip != 'true'
+        uses: actions/setup-java@v5
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        if: steps.check_secrets.outputs.skip != 'true'
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build Windows app image
+        if: steps.check_secrets.outputs.skip != 'true'
+        run: ./gradlew :composeApp:createDistributable -PappVersion="$env:APP_VERSION"
+        shell: pwsh
+
+      - name: Create MSIX package
+        if: steps.check_secrets.outputs.skip != 'true'
+        id: create_msix
+        env:
+          PUBLISHER_ID: ${{ secrets.WINDOWS_STORE_PUBLISHER_ID }}
+          PUBLISHER_DISPLAY_NAME: ${{ secrets.WINDOWS_STORE_PUBLISHER_DISPLAY_NAME }}
+        shell: pwsh
+        run: |
+          $version = $env:APP_VERSION
+          # APP_VERSION is always in major.minor.patch format (validated by the prepare job).
+          # MSIX versions require 4 parts, so append .0 to get major.minor.patch.0
+          $msixVersion = "$version.0"
+          $publisherId = $env:PUBLISHER_ID
+          $publisherDisplayName = if ($env:PUBLISHER_DISPLAY_NAME) { $env:PUBLISHER_DISPLAY_NAME } else { "Defender of Egril" }
+
+          # Create MSIX staging directory
+          $staging = "msix-staging"
+          New-Item -ItemType Directory -Path $staging | Out-Null
+
+          # Copy app from createDistributable output
+          $appDir = "frontend\composeApp\build\compose\binaries\main\app\DefenderOfEgril"
+          if (-not (Test-Path $appDir)) {
+            $absPath = (Join-Path (Get-Location) $appDir)
+            Write-Error "App directory not found at $absPath. Check that createDistributable ran successfully."
+            exit 1
+          }
+          Copy-Item -Recurse "$appDir" "$staging\DefenderOfEgril"
+
+          # Create Assets directory and resize icon for required MSIX asset sizes
+          New-Item -ItemType Directory -Path "$staging\Assets" | Out-Null
+          $sourceIcon = "frontend\composeApp\src\commonMain\composeResources\drawable\black-shield.png"
+          Add-Type -AssemblyName System.Drawing
+          $img = [System.Drawing.Image]::FromFile((Resolve-Path $sourceIcon))
+          $assetSizes = @(
+            @{ W = 44;  H = 44;  Name = "Square44x44Logo.png" },
+            @{ W = 50;  H = 50;  Name = "StoreLogo.png" },
+            @{ W = 150; H = 150; Name = "Square150x150Logo.png" },
+            @{ W = 310; H = 310; Name = "Square310x310Logo.png" },
+            @{ W = 620; H = 300; Name = "SplashScreen.png" }
+          )
+          foreach ($asset in $assetSizes) {
+            $bmp = New-Object System.Drawing.Bitmap($asset.W, $asset.H)
+            $gfx = [System.Drawing.Graphics]::FromImage($bmp)
+            $gfx.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+            $gfx.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+            $iconSize = [Math]::Min($asset.W, $asset.H)
+            $offsetX  = ($asset.W - $iconSize) / 2
+            $offsetY  = ($asset.H - $iconSize) / 2
+            $gfx.DrawImage($img, $offsetX, $offsetY, $iconSize, $iconSize)
+            $bmp.Save("$staging\Assets\$($asset.Name)")
+            $gfx.Dispose()
+            $bmp.Dispose()
+          }
+          # Wide310x150 logo
+          $bmpWide = New-Object System.Drawing.Bitmap(310, 150)
+          $gfxWide = [System.Drawing.Graphics]::FromImage($bmpWide)
+          $gfxWide.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+          $gfxWide.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+          $gfxWide.DrawImage($img, 80, 0, 150, 150)
+          $bmpWide.Save("$staging\Assets\Wide310x150Logo.png")
+          $gfxWide.Dispose()
+          $bmpWide.Dispose()
+          $img.Dispose()
+
+          # Generate AppxManifest.xml from template
+          $manifest = Get-Content "frontend\windowsstore\AppxManifest.xml" -Raw
+          $manifest = $manifest -replace '\{\{VERSION\}\}', $msixVersion
+          $manifest = $manifest -replace '\{\{PUBLISHER\}\}', $publisherId
+          $manifest = $manifest -replace '\{\{PUBLISHER_DISPLAY_NAME\}\}', $publisherDisplayName
+          Set-Content "$staging\AppxManifest.xml" $manifest -Encoding UTF8
+
+          # Find makeappx.exe from Windows SDK
+          $makeappx = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" `
+            -Filter "makeappx.exe" -Recurse |
+            Where-Object { $_.FullName -match "x64" } |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1
+          if (-not $makeappx) {
+            Write-Error "makeappx.exe not found in Windows SDK."
+            exit 1
+          }
+          Write-Host "Using makeappx: $($makeappx.FullName)"
+
+          # Pack MSIX
+          $msixPath = "DefenderOfEgril-$version.msix"
+          & $makeappx.FullName pack /d $staging /p $msixPath /nv
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "makeappx pack failed with exit code $LASTEXITCODE."
+            exit 1
+          }
+          Write-Host "MSIX created: $msixPath"
+          "msix_path=$msixPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Sign MSIX package
+        if: steps.check_secrets.outputs.skip != 'true'
+        env:
+          SIGNING_CERT_B64: ${{ secrets.WINDOWS_STORE_CODE_SIGNING_CERT }}
+          SIGNING_CERT_PASSWORD: ${{ secrets.WINDOWS_STORE_CODE_SIGNING_CERT_PASSWORD }}
+          PUBLISHER_ID: ${{ secrets.WINDOWS_STORE_PUBLISHER_ID }}
+          MSIX_PATH: ${{ steps.create_msix.outputs.msix_path }}
+        shell: pwsh
+        run: |
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" `
+            -Filter "signtool.exe" -Recurse |
+            Where-Object { $_.FullName -match "x64" } |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1
+          if (-not $signtool) {
+            Write-Error "signtool.exe not found in Windows SDK."
+            exit 1
+          }
+
+          if ($env:SIGNING_CERT_B64) {
+            Write-Host "Signing MSIX with provided code signing certificate ..."
+            $certBytes = [Convert]::FromBase64String($env:SIGNING_CERT_B64)
+            $certPath  = Join-Path $env:TEMP "signing.pfx"
+            [System.IO.File]::WriteAllBytes($certPath, $certBytes)
+            & $signtool.FullName sign /fd SHA256 /p "$env:SIGNING_CERT_PASSWORD" /f "$certPath" "$env:MSIX_PATH"
+            Remove-Item $certPath -Force
+          } else {
+            # Sign with a temporary self-signed certificate for testing purposes.
+            # NOTE: Self-signed packages are NOT accepted by the Microsoft Store.
+            # Configure WINDOWS_STORE_CODE_SIGNING_CERT for Store-ready builds.
+            Write-Warning "WINDOWS_STORE_CODE_SIGNING_CERT not configured; signing with a temporary self-signed certificate (for testing only)."
+            $cert = New-SelfSignedCertificate `
+              -Type Custom `
+              -Subject "$env:PUBLISHER_ID" `
+              -KeyUsage DigitalSignature `
+              -FriendlyName "Defender of Egril Temp Cert" `
+              -CertStoreLocation "Cert:\CurrentUser\My" `
+              -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
+            & $signtool.FullName sign /fd SHA256 /sha1 $cert.Thumbprint /sm "$env:MSIX_PATH"
+          }
+
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "signtool sign failed with exit code $LASTEXITCODE."
+            exit 1
+          }
+          Write-Host "MSIX signed successfully."
+
+      - name: Upload Windows MSIX artifact
+        if: steps.check_secrets.outputs.skip != 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-msix-build
+          path: DefenderOfEgril-*.msix
+          if-no-files-found: error
+
+
+  # ---------------------------------------------------------------------------
   # Create GitHub Release with all artifacts
   # ---------------------------------------------------------------------------
   release:
@@ -835,6 +1041,7 @@ jobs:
       - build_ios
       - build_windows_exe
       - build_windows_msi
+      - build_windows_msix
     runs-on: ubuntu-latest
     # Always evaluate this job so the condition below can gate it properly.
     # Mandatory builds (Android, Linux DEB, Windows EXE, Windows MSI) must succeed.
@@ -851,6 +1058,7 @@ jobs:
       !contains(fromJSON('["failure", "cancelled"]'), needs.build_linux_appimage.result) &&
       !contains(fromJSON('["failure", "cancelled"]'), needs.build_macos.result) &&
       !contains(fromJSON('["failure", "cancelled"]'), needs.build_ios.result) &&
+      !contains(fromJSON('["failure", "cancelled"]'), needs.build_windows_msix.result) &&
       needs.build_windows_exe.result == 'success' &&
       needs.build_windows_msi.result == 'success'
 
@@ -960,6 +1168,13 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: windows-msi-build
+          path: release-assets/windows
+
+      - name: Download Windows MSIX artifact
+        if: needs.build_windows_msix.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: windows-msix-build
           path: release-assets/windows
 
 
@@ -1179,6 +1394,29 @@ jobs:
     with:
       release_tag: v${{ inputs.version }}
       snap_channel: ${{ inputs.snap_channel }}
+    secrets: inherit
+
+  # ---------------------------------------------------------------------------
+  # Publish the MSIX to the Microsoft Store after a successful release.
+  # Skipped automatically when:
+  #   - build_windows_msix was not successful (e.g. WINDOWS_STORE_PUBLISHER_ID
+  #     secret not configured), OR
+  #   - the required Store API secrets are not configured.
+  # See frontend/windowsstore/README.md for full setup instructions.
+  # ---------------------------------------------------------------------------
+  deploy_windows_store:
+    needs:
+      - build_windows_msix
+      - release
+    if: |
+      always() &&
+      needs.release.result == 'success' &&
+      needs.build_windows_msix.result == 'success'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/publish_windows_store.yml
+    with:
+      release_tag: v${{ inputs.version }}
     secrets: inherit
 
   # ---------------------------------------------------------------------------
