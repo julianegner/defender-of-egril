@@ -174,6 +174,11 @@ data class SnotlingCannonThrowEffect(
     val turnNumber: Int,
 )
 
+data class GarokkWarCryEffect(
+    val position: Position,
+    val turnNumber: Int,
+)
+
 data class ShadowSpewEffect(
     val sourcePosition: Position, // Xarithon's tile
     val targetPosition: Position, // Center of the 2×2 target area
@@ -296,6 +301,7 @@ data class GameState(
     val alchemyAttackEffects: SnapshotStateList<AlchemyAttackEffect> = mutableStateListOf(), // Track alchemy acid vial overlay effects
     val rocketAttackEffects: SnapshotStateList<RocketAttackEffect> = mutableStateListOf(), // Track Baron rocket projectile overlay effects
     val snotlingCannonThrowEffects: SnapshotStateList<SnotlingCannonThrowEffect> = mutableStateListOf(), // Track Snotling cannon throw projectile effects
+    val garokkWarCryEffects: SnapshotStateList<GarokkWarCryEffect> = mutableStateListOf(), // Track Garokk's war cry pulse effect
     val shadowSpewEffects: SnapshotStateList<ShadowSpewEffect> = mutableStateListOf(), // Track Xarithon shadow spew flying fireball effects
     val morvathShadowOrbEffects: SnapshotStateList<MorvathShadowOrbEffect> = mutableStateListOf(), // Track Morvath's shadow orb flying to distant fog tile
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM, // Track difficulty for this game session

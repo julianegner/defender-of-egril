@@ -230,6 +230,10 @@
     <string name="hp_label">HP</string>
     <string name="speed_label">Speed</string>
     <string name="slowed_by_barbs">Slowed by barbs</string>
+    <string name="waagh_goblin_boost">Waaagh! boost: ignores slowing</string>
+    <string name="waagh_ork_boost">Waaagh! boost: stronger combat pressure and double speed</string>
+    <string name="waagh_ogre_boost">Waaagh! boost: stronger combat pressure</string>
+    <string name="waagh_snotling_boost">Waaagh! boost: grows faster</string>
 
     <!-- Status text -->
     <string name="available">Available</string>

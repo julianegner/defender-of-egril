@@ -227,6 +227,10 @@
     <string name="hp_label">PV</string>
     <string name="speed_label">Vitesse</string>
     <string name="slowed_by_barbs">Ralenti par les barbes</string>
+    <string name="waagh_goblin_boost">Bonus Waaagh ! : ignore le ralentissement</string>
+    <string name="waagh_ork_boost">Bonus Waaagh ! : pression de combat plus forte et vitesse doublée</string>
+    <string name="waagh_ogre_boost">Bonus Waaagh ! : pression de combat plus forte</string>
+    <string name="waagh_snotling_boost">Bonus Waaagh ! : grandit plus vite</string>
 
     <!-- Status text -->
     <string name="available">Disponible</string>

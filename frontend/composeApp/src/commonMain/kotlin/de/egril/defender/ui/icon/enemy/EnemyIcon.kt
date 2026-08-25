@@ -9,6 +9,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
@@ -21,6 +23,8 @@ import de.egril.defender.model.hidesHealthBar
 import de.egril.defender.model.isSwarmUnit
 import de.egril.defender.ui.getLocalizedShortName
 import de.egril.defender.utils.BigHeadMode
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * Composable that draws an enemy unit icon
@@ -79,6 +83,9 @@ internal fun attackerOutlineColor(
     defaultOutlineColor: Color,
 ): Color = if (attackerType == AttackerType.PIRATE || attackerType == AttackerType.CAPTAIN_RODERICH) Color.White else defaultOutlineColor
 
+private fun AttackerType.isWaaghAffectedUnit(): Boolean =
+    this in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
+
 @Composable
 fun EnemyIcon(
     attacker: Attacker,
@@ -88,13 +95,47 @@ fun EnemyIcon(
     healthOverride: Int? = null,
     moveVillainNameUp: Boolean = false,
     showSeafaringPirateBarge: Boolean = false,
+    showWaaghGlow: Boolean = false,
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
     val pirateClassOutlineColor = attackerOutlineColor(attacker.type, contrastOutlineColor)
+    val boxModifier =
+        if (showWaaghGlow && attacker.type.isWaaghAffectedUnit()) {
+            modifier
+                .fillMaxSize()
+                .drawBehind {
+                    val centerX = size.width / 2f
+                    val centerY = size.height / 2f
+                    val auraRadius = minOf(size.width, size.height) * 0.62f
+                    drawCircle(
+                        color = Color(0xFFFFD65C).copy(alpha = 0.28f),
+                        radius = auraRadius,
+                        center = Offset(centerX, centerY),
+                    )
+                    drawCircle(
+                        color = Color(0xFFEA5A1E).copy(alpha = 0.46f),
+                        radius = auraRadius * 0.78f,
+                        center = Offset(centerX, centerY),
+                    )
+                    for (flameIndex in 0..5) {
+                        val angle = (-90f + flameIndex * 36f) * (kotlin.math.PI.toFloat() / 180f)
+                        val flameRadius = auraRadius * (0.58f + (flameIndex % 2) * 0.18f)
+                        val flameX = centerX + cos(angle) * flameRadius
+                        val flameY = centerY + sin(angle) * flameRadius
+                        drawCircle(
+                            color = Color(0xFFFFF0B3).copy(alpha = 0.75f),
+                            radius = auraRadius * 0.16f,
+                            center = Offset(flameX, flameY),
+                        )
+                    }
+                }
+        } else {
+            modifier.fillMaxSize()
+        }
 
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = boxModifier,
         contentAlignment = Alignment.Center,
     ) {
         // Draw enemy graphics first (will be behind text)

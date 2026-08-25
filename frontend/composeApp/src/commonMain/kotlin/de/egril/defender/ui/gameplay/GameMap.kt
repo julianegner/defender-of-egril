@@ -63,6 +63,7 @@ import de.egril.defender.ui.animations.EnemyMoveAnimation
 import de.egril.defender.ui.animations.EnemySpawnAnimation
 import de.egril.defender.ui.animations.FearSpellAnimation
 import de.egril.defender.ui.animations.FreezeSpellAnimation
+import de.egril.defender.ui.animations.GarokkWarCryOverlay
 import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.MineDigAnimation
@@ -1212,6 +1213,15 @@ fun GameGrid(
                     if (snotlingCannonEffects.isNotEmpty()) {
                         SnotlingCannonThrowOverlay(
                             effects = snotlingCannonEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
+                    val garokkWarCryEffects = gameState.garokkWarCryEffects.toList()
+                    if (garokkWarCryEffects.isNotEmpty()) {
+                        GarokkWarCryOverlay(
+                            effects = garokkWarCryEffects,
                             hexSizeDp = hexSize.value,
                             contentSize = measuredContentSize,
                             animate = AppSettings.enableAnimations.value,
@@ -2627,6 +2637,7 @@ private fun BoxScope.GridCellContent(
                         backgroundColor = attackerTileBackground,
                         healthTextColor = healthTextColor,
                         healthOverride = displayedHealth,
+                        showWaaghGlow = gameState.waaghFrenzyActive.value && attacker.type in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING),
                     )
                     if (isDangerous) {
                         Text(

@@ -227,6 +227,10 @@
     <string name="hp_label">PS</string>
     <string name="speed_label">Velocidad</string>
     <string name="slowed_by_barbs">Ralentizado por púas</string>
+    <string name="waagh_goblin_boost">¡Waaagh! mejora: ignora la ralentización</string>
+    <string name="waagh_ork_boost">¡Waaagh! mejora: presión de combate mayor y velocidad doble</string>
+    <string name="waagh_ogre_boost">¡Waaagh! mejora: presión de combate mayor</string>
+    <string name="waagh_snotling_boost">¡Waaagh! mejora: crece más rápido</string>
 
     <!-- Status text -->
     <string name="available">Disponible</string>

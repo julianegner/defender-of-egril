@@ -14,7 +14,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class AttackerInfoTest {
+class AttackerInfoUiTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -63,6 +63,26 @@ class AttackerInfoTest {
             .assertIsDisplayed()
         composeTestRule
             .onNodeWithText("Ethereal: moves through barricades, but must end on an empty tile")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun waaghBoostLineShowsForActiveFrenzyUnits() {
+        val attacker =
+            Attacker(
+                id = 1,
+                type = AttackerType.ORK,
+                position = mutableStateOf(Position(0, 0)),
+            )
+
+        composeTestRule.setContent {
+            MaterialTheme {
+                AttackerInfo(attacker = attacker, waaghActive = true)
+            }
+        }
+
+        composeTestRule
+            .onNodeWithText("Waaagh! boost: stronger combat pressure and double speed")
             .assertIsDisplayed()
     }
 }

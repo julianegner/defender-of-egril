@@ -227,6 +227,10 @@
     <string name="hp_label">PS</string>
     <string name="speed_label">Velocità</string>
     <string name="slowed_by_barbs">Rallentato da spine</string>
+    <string name="waagh_goblin_boost">Bonus Waaagh! : ignora il rallentamento</string>
+    <string name="waagh_ork_boost">Bonus Waaagh! : pressione di combattimento maggiore e velocità raddoppiata</string>
+    <string name="waagh_ogre_boost">Bonus Waaagh! : pressione di combattimento maggiore</string>
+    <string name="waagh_snotling_boost">Bonus Waaagh! : cresce più velocemente</string>
 
     <!-- Status text -->
     <string name="available">Disponibile</string>

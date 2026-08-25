@@ -2347,6 +2347,7 @@ class GameEngine(
         state.alchemyAttackEffects.clear()
         state.rocketAttackEffects.clear()
         state.snotlingCannonThrowEffects.clear()
+        state.garokkWarCryEffects.clear()
         state.shadowSpewEffects.clear()
         state.morvathShadowOrbEffects.clear()
 

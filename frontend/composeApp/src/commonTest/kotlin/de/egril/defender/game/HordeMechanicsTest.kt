@@ -3,6 +3,7 @@ package de.egril.defender.game
 import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.Barricade
 import de.egril.defender.model.Defender
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.GamePhase
@@ -211,6 +212,55 @@ class HordeMechanicsTest {
 
         assertTrue(engine.defenderAttack(defender.id, snotling.id))
         assertEquals(1, state.waaghPoints.value)
+    }
+
+    @Test
+    fun garokkWarCryAddsFivePercentAndShowsEffect() {
+        val level = createLevel(setOf(Position(1, 1), Position(2, 1), Position(3, 1), Position(4, 1)))
+        val state = GameState(level)
+        val abilities = EnemyAbilitySystem(state, PathfindingSystem(state))
+
+        val garokk =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.GAROKK,
+                position = mutableStateOf(Position(1, 1)),
+                level = mutableStateOf(1),
+            )
+        state.attackers.add(garokk)
+
+        abilities.processEnemyAbilities()
+
+        assertEquals(5, state.waaghPoints.value)
+        assertEquals(1, state.garokkWarCryEffects.size)
+    }
+
+    @Test
+    fun hordeBreaksBarricadeAndGainsFivePercent() {
+        val level = createLevel(setOf(Position(1, 1), Position(2, 1), Position(3, 1), Position(4, 1)))
+        val state = GameState(level)
+        val barricadeSystem = BarricadeSystem(state)
+        val ork =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.ORK,
+                position = mutableStateOf(Position(1, 1)),
+                level = mutableStateOf(1),
+            )
+        val barricade =
+            Barricade(
+                id = state.nextBarricadeId.value++,
+                position = Position(2, 1),
+                healthPoints = mutableStateOf(10),
+                defenderId = -1,
+            )
+        state.attackers.add(ork)
+        state.barricades.add(barricade)
+
+        val destroyed = barricadeSystem.handleEnemyAttackBarricade(ork, barricade, 10)
+
+        assertTrue(destroyed)
+        assertEquals(5, state.waaghPoints.value)
     }
 
     @Test

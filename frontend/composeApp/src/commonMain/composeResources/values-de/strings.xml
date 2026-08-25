@@ -227,6 +227,10 @@
     <string name="hp_label">HP</string>
     <string name="speed_label">Geschwindigkeit</string>
     <string name="slowed_by_barbs">Verlangsamt durch Widerhaken</string>
+    <string name="waagh_goblin_boost">Waaagh! Bonus: ignoriert Verlangsamung</string>
+    <string name="waagh_ork_boost">Waaagh! Bonus: stärkere Kampfkraft und doppelte Geschwindigkeit</string>
+    <string name="waagh_ogre_boost">Waaagh! Bonus: stärkere Kampfkraft</string>
+    <string name="waagh_snotling_boost">Waaagh! Bonus: wächst schneller</string>
 
     <!-- Status text -->
     <string name="available">Verfügbar</string>

@@ -80,6 +80,7 @@ fun AttackerInfo(
     activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = androidx.compose.runtime.mutableStateListOf(),
     isMobile: Boolean = false,
     onShowDragonInfo: () -> Unit = {},
+    waaghActive: Boolean = false,
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
     val attackerDisplayName =
@@ -93,6 +94,19 @@ fun AttackerInfo(
             "$dragonLabel ${attacker.dragonName}"
         } else {
             attacker.getLocalizedName(locale)
+        }
+    val showWaaghGlow = waaghActive && attacker.type in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
+    val waaghBoostText =
+        if (waaghActive) {
+            when (attacker.type) {
+                AttackerType.GOBLIN -> stringResource(Res.string.waagh_goblin_boost)
+                AttackerType.ORK -> stringResource(Res.string.waagh_ork_boost)
+                AttackerType.OGRE -> stringResource(Res.string.waagh_ogre_boost)
+                AttackerType.SNOTLING -> stringResource(Res.string.waagh_snotling_boost)
+                else -> null
+            }
+        } else {
+            null
         }
     val healthLabel = stringResource(Res.string.health)
     val healthPointsLabel = stringResource(Res.string.health_points)
@@ -152,7 +166,11 @@ fun AttackerInfo(
                     modifier = Modifier.size(iconSize),
                     contentAlignment = Alignment.Center,
                 ) {
-                    EnemyIcon(attacker = attacker, modifier = Modifier.size(iconInnerSize))
+                    EnemyIcon(
+                        attacker = attacker,
+                        modifier = Modifier.size(iconInnerSize),
+                        showWaaghGlow = showWaaghGlow,
+                    )
                 }
 
                 val horizontalSpacing = if (isMobile) 4.dp else 8.dp
@@ -291,6 +309,22 @@ fun AttackerInfo(
                                 },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color(0xFFFF8C00),
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+
+                    if (waaghBoostText != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(top = 4.dp),
+                        ) {
+                            WarningIcon(size = 14.dp)
+                            Text(
+                                waaghBoostText,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFFFFB000),
                                 fontWeight = FontWeight.Bold,
                             )
                         }
