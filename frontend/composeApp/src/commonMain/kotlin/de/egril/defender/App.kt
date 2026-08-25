@@ -589,8 +589,8 @@ fun App() {
                                 onStartFirstPlayerTurn = { viewModel.startFirstPlayerTurn() },
                                 onDefenderAttack = { defenderId, targetId -> viewModel.defenderAttack(defenderId, targetId) },
                                 onDefenderAttackPosition = {
-                                        defenderId,
-                                        targetPos,
+                                    defenderId,
+                                    targetPos,
                                     ->
                                     viewModel.defenderAttackPosition(defenderId, targetPos)
                                 },
@@ -604,8 +604,8 @@ fun App() {
                                 onMineDig = { mineId -> viewModel.performMineDig(mineId) },
                                 onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) },
                                 onWizardPlaceMagicalTrap = {
-                                        wizardId,
-                                        trapPos,
+                                    wizardId,
+                                    trapPos,
                                     ->
                                     viewModel.performWizardPlaceMagicalTrap(wizardId, trapPos)
                                 },
