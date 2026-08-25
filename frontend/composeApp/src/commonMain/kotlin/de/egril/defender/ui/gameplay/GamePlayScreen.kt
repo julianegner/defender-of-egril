@@ -3468,7 +3468,11 @@ private fun GamePlayScreenContent(
                                     title = stringResource(Res.string.waaagh_frenzy_title),
                                     text = stringResource(Res.string.waaagh_frenzy_message),
                                     onDismiss = { onDismissGameMessage?.invoke() },
+                                    backgroundOverride = Res.drawable.message_background_waaagh,
+                                    accentColorOverride = Color(0xFFD32F2F),
                                     topImageOverride = Res.drawable.waaagh_image,
+                                    topImageFillWidth = true,
+                                    contentTopOffset = 48.dp,
                                 )
                             GameMessageType.STORY_INTRO -> {
                                 val levelEditorId = msg.name
