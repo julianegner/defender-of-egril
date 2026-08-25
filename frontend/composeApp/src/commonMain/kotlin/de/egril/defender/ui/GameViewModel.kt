@@ -1764,6 +1764,8 @@ class GameViewModel {
             // Start enemy turn: change phase to ENEMY_TURN
             // The UI immediately shows "ENEMY TURN" indicator when phase changes
             engine.startEnemyTurn()
+            surfaceNextPendingMessageIfIdle()
+            waitForBlockingNarrativeMessageDismissal()
 
             // Calculate all movement steps for existing units
             val enemyTurnMovements = engine.calculateEnemyTurnMovements()
@@ -1812,6 +1814,7 @@ class GameViewModel {
             // Surface any pending spawn messages (e.g. Ewhad enters) while units are still at
             // their spawn points, so the message is displayed before they move away.
             surfaceNextPendingMessageIfIdle()
+            waitForBlockingNarrativeMessageDismissal()
 
             // Move newly spawned units away from spawn points
             val newSpawnMovements = engine.calculateNewlySpawnedMovements()
@@ -1845,6 +1848,12 @@ class GameViewModel {
             if (_gameState.value?.morvathShadowOrbEffects?.isNotEmpty() == true) {
                 delay(GamePlayConstants.AnimationTimings.MORVATH_ORB_FLIGHT_DELAY_MS)
                 engine.applyPendingMorvathFog()
+            }
+
+            // Snotling cannon survivors arrive only after the projectile animation hits home.
+            if (_gameState.value?.pendingSnotlingCannonArrivals?.isNotEmpty() == true) {
+                delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
+                engine.processPendingSnotlingCannonArrivals()
             }
 
             // Process pending barge deletions from Roderich's Broadside after the cannonball animation completes.
@@ -3940,6 +3949,31 @@ class GameViewModel {
             _pendingGameMessage.value = nextMessage
         }
     }
+
+    /**
+     * Blocks enemy-turn progression while a narrative/villain story message is open, so units do
+     * not keep moving behind the dialog.
+     */
+    private suspend fun waitForBlockingNarrativeMessageDismissal() {
+        while (true) {
+            val currentMessage = _pendingGameMessage.value ?: return
+            if (!currentMessage.type.blocksEnemyTurnMovement()) return
+            delay(50L)
+        }
+    }
+
+    private fun de.egril.defender.model.GameMessageType.blocksEnemyTurnMovement(): Boolean =
+        when (this) {
+            de.egril.defender.model.GameMessageType.STORY_INTRO,
+            de.egril.defender.model.GameMessageType.EWHAD_ENTERS,
+            de.egril.defender.model.GameMessageType.EWHAD_RETREATS,
+            de.egril.defender.model.GameMessageType.EWHAD_DEFEATED,
+            de.egril.defender.model.GameMessageType.VILLAIN_ENTERS,
+            de.egril.defender.model.GameMessageType.VILLAIN_DEFEATED,
+            de.egril.defender.model.GameMessageType.WAAAGH_FRENZY,
+            -> true
+            else -> false
+        }
 
     /**
      * Get the local hour (0-23) from timestamp

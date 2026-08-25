@@ -227,6 +227,10 @@
     <string name="hp_label">PV</string>
     <string name="speed_label">Vitesse</string>
     <string name="slowed_by_barbs">Ralenti par les barbes</string>
+    <string name="waagh_goblin_boost">Bonus Waaagh ! : ignore le ralentissement</string>
+    <string name="waagh_ork_boost">Bonus Waaagh ! : pression de combat plus forte et vitesse doublée</string>
+    <string name="waagh_ogre_boost">Bonus Waaagh ! : pression de combat plus forte</string>
+    <string name="waagh_snotling_boost">Bonus Waaagh ! : grandit plus vite</string>
 
     <!-- Status text -->
     <string name="available">Disponible</string>
@@ -696,6 +700,11 @@
     <string name="initial_setup_traps">Pièges</string>
     <string name="initial_setup_barricades">Barricades</string>
     <string name="initial_setup_fiefs">Fiefs</string>
+    <string name="initial_setup_mushrooms">Champignons</string>
+    <string name="mushroom">Champignon</string>
+    <string name="mushroom_buff_description">2x vitesse et niveau pendant 2 tours (unités de horde et sorcières uniquement)</string>
+    <string name="mushroom_enhanced_horde">Boost champignon : vitesse et niveau x2</string>
+    <string name="mushroom_enhanced_witch">Boost champignon : vitesse, niveau et usages de capacité x2</string>
     <string name="fief_configuration">Configuration de Fief</string>
     <string name="initial_setup_configuration">Configuration</string>
     <string name="element_type">Type d'Élément</string>
@@ -1177,6 +1186,15 @@
     <string name="show_testing_levels">Afficher les niveaux de test</string>
     <string name="test_level">Niveau de test</string>
     <string name="sandbox_level">Niveau bac à sable</string>
+    <string name="waagh_enabled">Waaagh! Activé</string>
+    <string name="waagh_meter_tooltip">Jauge Waaagh : %1$s — %2$s</string>
+    <string name="waagh_meter_tooltip_warning">la horde approche son point de rupture</string>
+    <string name="waagh_meter_urgency_gathering">la horde rassemble ses forces</string>
+    <string name="waagh_meter_urgency_stirring">la horde commence à s'agiter</string>
+    <string name="waagh_meter_urgency_rising">la horde prend de l'élan</string>
+    <string name="waagh_meter_urgency_high">la horde déferle avec rage</string>
+    <string name="waagh_meter_urgency_critical">la horde est sur le point d'exploser</string>
+    <string name="waagh_meter_frenzy_storming">Frénésie Waaagh - les hordes déferlent</string>
     <string name="sandbox">Bac à sable</string>
     <string name="sandbox_tools">Outils bac à sable</string>
     <string name="sandbox_spawn_enemy">Générer un ennemi</string>
@@ -1792,6 +1810,8 @@
     <string name="ewhad_retreats_text">Vous avez forcé Ewhad à se retirer !</string>
     <string name="ewhad_defeated_title">Ewhad est vaincu</string>
     <string name="ewhad_defeated_text">Vous avez vaincu Ewhad ! Terminez maintenant les autres Ennemis et gagnez le jeu !</string>
+    <string name="waaagh_frenzy_title">Waaagh!</string>
+    <string name="waaagh_frenzy_message">La horde est tombée dans une frénésie! Ils deviennent plus forts et plus féroces à chaque pas!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk le Fendeur de Crânes</string>
     <string name="morguk_name">Morguk Chuchotosselets</string>

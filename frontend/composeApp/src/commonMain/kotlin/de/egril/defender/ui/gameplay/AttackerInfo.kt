@@ -17,6 +17,7 @@ import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.InfoIcon
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.LockIcon
+import de.egril.defender.ui.icon.MushroomIcon
 import de.egril.defender.ui.icon.RightArrowIcon
 import de.egril.defender.ui.icon.ShieldIcon
 import de.egril.defender.ui.icon.SnowflakeIcon
@@ -25,6 +26,28 @@ import de.egril.defender.ui.icon.enemy.EnemyIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 private const val VILLAIN_INFO_FIRST_COLUMN_MAX_ENTRIES = 4
+
+internal enum class MushroomEnhancementKind {
+    SPEED_AND_LEVEL,
+    SPEED_LEVEL_AND_ABILITIES,
+}
+
+internal fun Attacker.mushroomEnhancementKind(): MushroomEnhancementKind? =
+    if (mushroomTurnsRemaining.value <= 0) {
+        null
+    } else if (type.hasMushroomAbilityBoost) {
+        MushroomEnhancementKind.SPEED_LEVEL_AND_ABILITIES
+    } else {
+        MushroomEnhancementKind.SPEED_AND_LEVEL
+    }
+
+private val AttackerType.hasMushroomAbilityBoost: Boolean
+    get() =
+        canHeal ||
+            canDisableTowers ||
+            this == AttackerType.GRAND_COVEN_MOTHER_SYBILLA ||
+            this == AttackerType.HAGA ||
+            this == AttackerType.ZUSSA
 
 private enum class AttackerInfoEntryIcon {
     WARNING,
@@ -57,6 +80,7 @@ fun AttackerInfo(
     activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = androidx.compose.runtime.mutableStateListOf(),
     isMobile: Boolean = false,
     onShowDragonInfo: () -> Unit = {},
+    waaghActive: Boolean = false,
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
     val attackerDisplayName =
@@ -70,6 +94,19 @@ fun AttackerInfo(
             "$dragonLabel ${attacker.dragonName}"
         } else {
             attacker.getLocalizedName(locale)
+        }
+    val showWaaghGlow = waaghActive && attacker.type in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
+    val waaghBoostText =
+        if (waaghActive) {
+            when (attacker.type) {
+                AttackerType.GOBLIN -> stringResource(Res.string.waagh_goblin_boost)
+                AttackerType.ORK -> stringResource(Res.string.waagh_ork_boost)
+                AttackerType.OGRE -> stringResource(Res.string.waagh_ogre_boost)
+                AttackerType.SNOTLING -> stringResource(Res.string.waagh_snotling_boost)
+                else -> null
+            }
+        } else {
+            null
         }
     val healthLabel = stringResource(Res.string.health)
     val healthPointsLabel = stringResource(Res.string.health_points)
@@ -90,7 +127,13 @@ fun AttackerInfo(
             append(", ")
             append(speedLabel)
             append(": ")
-            append(attacker.type.speed)
+            append(
+                if (attacker.hasMushroomBuff) {
+                    attacker.type.speed * 2
+                } else {
+                    attacker.type.speed
+                },
+            )
         }
 
     // Use key to force recomposition when attacker stats change
@@ -102,6 +145,7 @@ fun AttackerInfo(
         attacker.position.value.y,
         attacker.greed,
         attacker.movementPenalty.value,
+        attacker.mushroomTurnsRemaining.value,
     ) {
         Card(
             modifier =
@@ -122,7 +166,11 @@ fun AttackerInfo(
                     modifier = Modifier.size(iconSize),
                     contentAlignment = Alignment.Center,
                 ) {
-                    EnemyIcon(attacker = attacker, modifier = Modifier.size(iconInnerSize))
+                    EnemyIcon(
+                        attacker = attacker,
+                        modifier = Modifier.size(iconInnerSize),
+                        showWaaghGlow = showWaaghGlow,
+                    )
                 }
 
                 val horizontalSpacing = if (isMobile) 4.dp else 8.dp
@@ -138,13 +186,17 @@ fun AttackerInfo(
                                 attacker.position.value.hexDistanceTo(effect.position) <= 2
                         }
                     val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
-                    val cooledSpeed = if (coolingEffect != null) maxOf(0, barbsSpeed - 1) else null
+                    val mushroomSpeed = if (attacker.hasMushroomBuff) barbsSpeed * 2 else barbsSpeed
+                    val cooledSpeed = if (coolingEffect != null) maxOf(0, mushroomSpeed - 1) else null
+                    val waaghSpeed = if (waaghActive && attacker.type == AttackerType.ORK) attacker.type.speed * 2 else null
 
                     // Pre-compute freeze effect for reuse throughout the Column
                     val freezeEffect =
                         activeSpellEffects.find {
                             it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
                         }
+                    val mushroomEnhancementKind = attacker.mushroomEnhancementKind()
+                    val displayedLevel = attacker.displayLevel
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -156,9 +208,13 @@ fun AttackerInfo(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
-                        if (attacker.level.value > 1) {
+                        if (displayedLevel > 1) {
                             Text(
-                                "Lvl ${attacker.level.value}",
+                                if (attacker.hasMushroomBuff) {
+                                    "Lvl $displayedLevel (x2)"
+                                } else {
+                                    "Lvl $displayedLevel"
+                                },
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = GamePlayColors.ErrorDark,
@@ -198,6 +254,26 @@ fun AttackerInfo(
                                 )
                             }
 
+                            if (attacker.hasMushroomBuff) {
+                                RightArrowIcon(size = 12.dp, tint = Color(0xFFFF8C00))
+                                Text(
+                                    "$mushroomSpeed",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFFFF8C00),
+                                )
+                            }
+
+                            if (waaghSpeed != null) {
+                                RightArrowIcon(size = 12.dp, tint = Color(0xFFFFB000))
+                                Text(
+                                    "$waaghSpeed",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFFFFB000),
+                                )
+                            }
+
                             // If in cooling area, show cooled speed in turquoise
                             if (cooledSpeed != null) {
                                 RightArrowIcon(size = 12.dp, tint = Color.Cyan)
@@ -226,6 +302,43 @@ fun AttackerInfo(
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray,
                         )
+                    }
+
+                    if (mushroomEnhancementKind != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(top = 4.dp),
+                        ) {
+                            MushroomIcon(size = 14.dp)
+                            Text(
+                                when (mushroomEnhancementKind) {
+                                    MushroomEnhancementKind.SPEED_AND_LEVEL ->
+                                        stringResource(Res.string.mushroom_enhanced_horde)
+                                    MushroomEnhancementKind.SPEED_LEVEL_AND_ABILITIES ->
+                                        stringResource(Res.string.mushroom_enhanced_witch)
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFFFF8C00),
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+
+                    if (waaghBoostText != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(top = 4.dp),
+                        ) {
+                            WarningIcon(size = 14.dp)
+                            Text(
+                                waaghBoostText,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFFFFB000),
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
                     }
 
                     // Show barbs effect explanation if affected

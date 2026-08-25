@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
 import kotlin.math.min
+import kotlin.random.Random
 
 /**
  * Handles special enemy abilities like summoning demons, healing, disabling towers, and building bridges.
@@ -21,6 +22,13 @@ class EnemyAbilitySystem(
         private const val SHADOW_FOG_MAX_RANGE = 10
         private const val MAX_SWARM_SPAWN_SEARCH_RINGS = 5
         private const val BARON_SCRAP_BOT_COUNT = 2
+        private const val MAX_SNOTLINGS_PER_TILE = 250
+        private const val SNOTLING_CANNON_MIN_STACK_HEALTH = 120
+        private const val SNOTLING_CANNON_BASE_HEALTH = 100
+        private const val SNOTLING_CANNON_MAX_THROW = 50
+        private const val SNOTLING_CANNON_THROW_DISTANCE = 3
+        private const val SNOTLING_CANNON_MIN_CASUALTY_PERCENT = 10
+        private const val SNOTLING_CANNON_MAX_CASUALTY_PERCENT = 20
 
         /** Heal multiplier applied to green witches empowered by the Coven Synergy aura (50 % extra). */
         private const val COVEN_HEAL_BOOST_MULTIPLIER = 1.5f
@@ -47,7 +55,103 @@ class EnemyAbilitySystem(
      */
     private val covenEnhancedDisableWitchIds = mutableSetOf<Int>()
 
+    fun processSnotlingGrowth() {
+        val snotlings =
+            state.attackers.filter {
+                !it.isDefeated.value && it.type == AttackerType.SNOTLING
+            }
+        val growthNumerator = if (state.waaghFrenzyActive.value) 3 else 5
+        val growthDenominator = if (state.waaghFrenzyActive.value) 2 else 4
+
+        snotlings.forEach { snotling ->
+            val grownCount = (snotling.currentHealth.value * growthNumerator) / growthDenominator
+            if (grownCount > MAX_SNOTLINGS_PER_TILE) {
+                val overflow = grownCount - MAX_SNOTLINGS_PER_TILE
+                distributeSnotlingOverflow(snotling.position.value, overflow)
+            }
+            snotling.currentHealth.value = minOf(grownCount, MAX_SNOTLINGS_PER_TILE)
+        }
+    }
+
+    fun processHordeEating() {
+        if (!state.level.waaghEnabled) return
+        val attackersSnapshot = state.attackers.filter { !it.isDefeated.value }.toList()
+
+        attackersSnapshot.forEach { attacker ->
+            when (attacker.type) {
+                AttackerType.ORK -> {
+                    if (consumeNearbySnotlings(attacker, 10)) {
+                        healAttacker(attacker, 10)
+                        attacker.bloodlustRoundsLeft.value = maxOf(attacker.bloodlustRoundsLeft.value, 1)
+                    }
+                }
+                AttackerType.OGRE -> {
+                    if (consumeNearbySnotlings(attacker, 15)) {
+                        healAttacker(attacker, 15)
+                    }
+                    eatGoblinOnSameTile(attacker)
+                }
+                else -> Unit
+            }
+        }
+    }
+
+    private fun hordeUnitCountsForWaagh(attackerType: AttackerType): Boolean =
+        attackerType.faction == EnemyFaction.HORDE || attackerType.unitSize > 0
+
+    private fun handleGarokkWarCry() {
+        if (!state.level.waaghEnabled) return
+        val garokk =
+            state.attackers.firstOrNull { attacker -> !attacker.isDefeated.value && attacker.type == AttackerType.GAROKK }
+                ?: return
+        state.addWaaghPoints(5)
+        state.garokkWarCryEffects.add(
+            GarokkWarCryEffect(
+                position = garokk.position.value,
+                turnNumber = state.turnNumber.value,
+            ),
+        )
+    }
+
+    private fun applyHordeMomentumWaagh() {
+        if (!state.level.waaghEnabled) return
+        val hordeUnits = state.attackers.filter { attacker -> !attacker.isDefeated.value && hordeUnitCountsForWaagh(attacker.type) }
+        if (hordeUnits.isEmpty()) return
+
+        val visitedIds = mutableSetOf<Int>()
+        var totalGain = 0
+        for (unit in hordeUnits) {
+            if (unit.id in visitedIds) continue
+            val queue = ArrayDeque<Attacker>()
+            queue.add(unit)
+            visitedIds.add(unit.id)
+            val cluster = mutableListOf<Attacker>()
+
+            while (queue.isNotEmpty()) {
+                val current = queue.removeFirst()
+                cluster.add(current)
+                val adjacentPositions = current.position.value.getHexNeighbors().toSet() + current.position.value
+                for (candidate in hordeUnits) {
+                    if (candidate.id in visitedIds) continue
+                    if (candidate.position.value in adjacentPositions) {
+                        queue.add(candidate)
+                        visitedIds.add(candidate.id)
+                    }
+                }
+            }
+
+            if (cluster.size >= 9) {
+                totalGain += cluster.size / 2
+            }
+        }
+
+        state.addWaaghPoints(totalGain)
+    }
+
     fun processEnemyAbilities() {
+        handleGarokkWarCry()
+        applyHordeMomentumWaagh()
+
         // Create a snapshot of attackers to avoid ConcurrentModificationException
         // when spawning new demons during iteration
         val attackersSnapshot = state.attackers.toList()
@@ -88,19 +192,28 @@ class EnemyAbilitySystem(
                     )
                 }
                 AttackerType.GREEN_WITCH -> {
-                    applyGreenWitchHealing(attacker, enhanced = attacker.id in covenEnhancedHealWitchIds)
+                    val abilityUses = if (attacker.mushroomTurnsRemaining.value > 0) 2 else 1
+                    repeat(abilityUses) {
+                        applyGreenWitchHealing(attacker, enhanced = attacker.id in covenEnhancedHealWitchIds)
+                    }
                 }
                 AttackerType.RED_WITCH -> {
-                    // Disable nearby tower within range 1, with optional coven disable boost
-                    disableNearestTowerInRange(
-                        witch = attacker,
-                        range = 1,
-                        extraDisableTurns = if (attacker.id in covenEnhancedDisableWitchIds) COVEN_DISABLE_EXTRA_TURNS else 0,
-                    )
+                    val abilityUses = if (attacker.mushroomTurnsRemaining.value > 0) 2 else 1
+                    repeat(abilityUses) {
+                        // Disable nearby tower within range 1, with optional coven disable boost
+                        disableNearestTowerInRange(
+                            witch = attacker,
+                            range = 1,
+                            extraDisableTurns = if (attacker.id in covenEnhancedDisableWitchIds) COVEN_DISABLE_EXTRA_TURNS else 0,
+                        )
+                    }
                 }
                 AttackerType.SNOTLING_BOSS -> {
                     // Snotling Rally: summon a rabble of weak snotlings around Gribnak
                     handleSnotlingRally(attacker)
+                }
+                AttackerType.SNOTLING -> {
+                    handleSnotlingCannon(attacker)
                 }
                 AttackerType.MORGUK_BONEWHISPER -> {
                     // Spirit Summon: spawn goblins on all adjacent path tiles every 3 turns
@@ -199,6 +312,194 @@ class EnemyAbilitySystem(
         }
 
         applySpiderWebBonuses()
+    }
+
+    private fun handleSnotlingCannon(snotling: Attacker) {
+        val startPosition = state.enemyTurnStartPositions[snotling.id] ?: return
+        if (startPosition == snotling.position.value) return
+        if (snotling.currentHealth.value < SNOTLING_CANNON_MIN_STACK_HEALTH) return
+
+        val thrownCount =
+            minOf(
+                snotling.currentHealth.value - SNOTLING_CANNON_BASE_HEALTH,
+                SNOTLING_CANNON_MAX_THROW,
+            )
+        if (thrownCount <= 0) return
+
+        val landingTile = findSnotlingCannonLandingTile(snotling) ?: return
+
+        val casualtyPercent =
+            Random.nextInt(
+                from = SNOTLING_CANNON_MIN_CASUALTY_PERCENT,
+                until = SNOTLING_CANNON_MAX_CASUALTY_PERCENT + 1,
+            )
+        val casualties = (thrownCount * casualtyPercent) / 100
+        val survivors = thrownCount - casualties
+
+        snotling.currentHealth.value -= thrownCount
+        if (survivors <= 0) return
+
+        state.pendingSnotlingCannonArrivals.add(
+            PendingSnotlingCannonArrival(
+                targetPosition = landingTile,
+                thrownCount = survivors,
+                turnNumber = state.turnNumber.value,
+            ),
+        )
+        state.snotlingCannonThrowEffects.add(
+            SnotlingCannonThrowEffect(
+                sourcePosition = snotling.position.value,
+                targetPosition = landingTile,
+                thrownCount = survivors,
+                turnNumber = state.turnNumber.value,
+            ),
+        )
+    }
+
+    fun processPendingSnotlingCannonArrivals() {
+        for (arrival in state.pendingSnotlingCannonArrivals.toList()) {
+            val landingStack = getOrCreateSnotlingStack(arrival.targetPosition)
+            landingStack.currentHealth.value = minOf(MAX_SNOTLINGS_PER_TILE, landingStack.currentHealth.value + arrival.thrownCount)
+        }
+        state.pendingSnotlingCannonArrivals.clear()
+    }
+
+    private fun findSnotlingCannonLandingTile(snotling: Attacker): Position? {
+        val currentPosition = snotling.position.value
+        val currentTarget =
+            snotling.currentTarget?.value ?: state.getActiveTargetPositions().minByOrNull { currentPosition.distanceTo(it) }
+            ?: return null
+        val path = pathfinding.findPath(currentPosition, currentTarget, snotling, ignoreBarricades = true)
+        val landingTile = path.getOrNull(SNOTLING_CANNON_THROW_DISTANCE) ?: return null
+        if (!state.level.isOnPath(landingTile)) return null
+        if (
+            state.attackers.any {
+                !it.isDefeated.value &&
+                    it.type != AttackerType.SNOTLING &&
+                    it.position.value == landingTile
+            }
+        ) {
+            return null
+        }
+        return landingTile
+    }
+
+    private fun consumeNearbySnotlings(
+        eater: Attacker,
+        requiredAmount: Int,
+    ): Boolean {
+        val candidatePositions = listOf(eater.position.value) + eater.position.value.getHexNeighbors().filter { isWithinBounds(it) }
+        val snotlingStacks =
+            candidatePositions.mapNotNull { position ->
+                state.attackers.find {
+                    !it.isDefeated.value &&
+                        it.type == AttackerType.SNOTLING &&
+                        it.position.value == position
+                }
+            }
+        val totalAvailable = snotlingStacks.sumOf { it.currentHealth.value }
+        if (totalAvailable < requiredAmount) return false
+
+        var remainingToEat = requiredAmount
+        snotlingStacks.forEach { stack ->
+            if (remainingToEat <= 0) return@forEach
+            val eatenFromStack = min(stack.currentHealth.value, remainingToEat)
+            stack.currentHealth.value -= eatenFromStack
+            remainingToEat -= eatenFromStack
+            if (stack.currentHealth.value <= 0) {
+                stack.wasMerged.value = true
+                stack.isDefeated.value = true
+            }
+        }
+        state.addWaaghPoints(requiredAmount / 5)
+        return true
+    }
+
+    private fun eatGoblinOnSameTile(ogre: Attacker) {
+        val goblin =
+            state.attackers.find {
+                !it.isDefeated.value &&
+                    it.id != ogre.id &&
+                    it.type == AttackerType.GOBLIN &&
+                    it.position.value == ogre.position.value
+            } ?: return
+
+        healAttacker(ogre, maxOf(10, goblin.currentHealth.value))
+        goblin.wasMerged.value = true
+        goblin.isDefeated.value = true
+    }
+
+    private fun healAttacker(
+        attacker: Attacker,
+        amount: Int,
+    ) {
+        attacker.currentHealth.value = minOf(attacker.maxHealth, attacker.currentHealth.value + amount)
+    }
+
+    private fun distributeSnotlingOverflow(
+        origin: Position,
+        overflowAmount: Int,
+    ) {
+        val pending = ArrayDeque<Pair<Position, Int>>()
+        pending.add(origin to overflowAmount)
+
+        while (pending.isNotEmpty()) {
+            val (source, amount) = pending.removeFirst()
+            if (amount <= 0) continue
+
+            val validNeighbors =
+                source.getHexNeighbors().filter { neighbor ->
+                    isWithinBounds(neighbor) &&
+                        state.level.isEnemyTraversable(neighbor) &&
+                        state.attackers.none {
+                            !it.isDefeated.value &&
+                                it.position.value == neighbor &&
+                                it.type != AttackerType.SNOTLING
+                        }
+                }
+            if (validNeighbors.isEmpty()) continue
+
+            val distributed = mutableMapOf<Position, Int>()
+            repeat(amount) { index ->
+                val neighbor = validNeighbors[index % validNeighbors.size]
+                distributed[neighbor] = (distributed[neighbor] ?: 0) + 1
+            }
+
+            distributed.forEach { (targetPosition, extraCount) ->
+                val stack = getOrCreateSnotlingStack(targetPosition)
+                stack.currentHealth.value += extraCount
+                if (stack.currentHealth.value > MAX_SNOTLINGS_PER_TILE) {
+                    val overflow = stack.currentHealth.value - MAX_SNOTLINGS_PER_TILE
+                    stack.currentHealth.value = MAX_SNOTLINGS_PER_TILE
+                    pending.add(targetPosition to overflow)
+                }
+            }
+        }
+    }
+
+    private fun getOrCreateSnotlingStack(position: Position): Attacker {
+        val existing =
+            state.attackers.find {
+                !it.isDefeated.value &&
+                    it.type == AttackerType.SNOTLING &&
+                    it.position.value == position
+            }
+        if (existing != null) return existing
+
+        val initialTarget =
+            state.level.getWaypointAt(position)?.let { waypoint ->
+                state.resolveWaypointNextTarget(waypoint.nextTarget, position)
+            } ?: state.getActiveTargetPositions().minByOrNull { position.distanceTo(it) }
+            ?: state.level.targetPositions.first()
+
+        return Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.SNOTLING,
+            position = mutableStateOf(position),
+            level = mutableStateOf(1),
+            currentHealth = mutableStateOf(0),
+            currentTarget = mutableStateOf(initialTarget),
+        ).also { state.attackers.add(it) }
     }
 
     private fun handleBaronRatterzahn(baron: Attacker) {
@@ -636,7 +937,7 @@ class EnemyAbilitySystem(
                 }
             if (adjacentEnemy != null) {
                 // Heal 5x witch level (×1.5 with coven boost), capped at missing HP
-                val baseHeal = witch.level.value * 5
+                val baseHeal = witch.effectiveLevel * 5
                 val scaledHeal = if (enhanced) (baseHeal * COVEN_HEAL_BOOST_MULTIPLIER).toInt() else baseHeal
                 val healAmount = min(scaledHeal, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
                 if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
@@ -1363,7 +1664,7 @@ class EnemyAbilitySystem(
                     } else {
                         witch.position.value.hexDistanceTo(tower.position.value) <= range
                     }
-                val canDisable = tower.level.value <= witch.level.value
+                val canDisable = tower.level.value <= witch.effectiveLevel
 
                 if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                     println(
@@ -1396,7 +1697,7 @@ class EnemyAbilitySystem(
             // Level 5-9: 3 turns (disabled for 2 player turns)
             // Level 10-14: 4 turns (disabled for 3 player turns)
             // Level 20-24: 5 turns (disabled for 4 player turns), etc.
-            val disableDuration = 1 + (witch.level.value / 5) + 1 + extraDisableTurns
+            val disableDuration = 1 + (witch.effectiveLevel / 5) + 1 + extraDisableTurns
 
             targetTower.isDisabled.value = true
             targetTower.disabledTurnsRemaining.value = disableDuration
@@ -1431,7 +1732,7 @@ class EnemyAbilitySystem(
     fun findNearestActiveTower(witch: Attacker): Defender? {
         val eligibleTowers =
             state.defenders.filter { tower ->
-                tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.level.value
+                tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.effectiveLevel
             }
 
         if (eligibleTowers.isEmpty()) return null
@@ -1500,7 +1801,7 @@ class EnemyAbilitySystem(
         // Find ready towers that are not disabled and can be disabled by this witch
         val availableTowers =
             state.defenders.filter { tower ->
-                tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.level.value
+                tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.effectiveLevel
             }
 
         if (availableTowers.isEmpty()) return null

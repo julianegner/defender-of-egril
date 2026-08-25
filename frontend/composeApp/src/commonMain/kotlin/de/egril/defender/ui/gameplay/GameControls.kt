@@ -257,6 +257,7 @@ fun GameControlsPanel(
                                             activeSpellEffects = gameState.activeSpellEffects,
                                             isMobile = uiScale < 1f,
                                             onShowDragonInfo = onShowDragonInfo,
+                                            waaghActive = gameState.waaghFrenzyActive.value,
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))

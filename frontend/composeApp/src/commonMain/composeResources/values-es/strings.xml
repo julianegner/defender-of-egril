@@ -227,6 +227,10 @@
     <string name="hp_label">PS</string>
     <string name="speed_label">Velocidad</string>
     <string name="slowed_by_barbs">Ralentizado por púas</string>
+    <string name="waagh_goblin_boost">¡Waaagh! mejora: ignora la ralentización</string>
+    <string name="waagh_ork_boost">¡Waaagh! mejora: presión de combate mayor y velocidad doble</string>
+    <string name="waagh_ogre_boost">¡Waaagh! mejora: presión de combate mayor</string>
+    <string name="waagh_snotling_boost">¡Waaagh! mejora: crece más rápido</string>
 
     <!-- Status text -->
     <string name="available">Disponible</string>
@@ -696,6 +700,11 @@
     <string name="initial_setup_traps">Trampas</string>
     <string name="initial_setup_barricades">Barricadas</string>
     <string name="initial_setup_fiefs">Feudos</string>
+    <string name="initial_setup_mushrooms">Hongos</string>
+    <string name="mushroom">Hongo</string>
+    <string name="mushroom_buff_description">2x velocidad y nivel durante 2 turnos (solo unidades de horda y brujas)</string>
+    <string name="mushroom_enhanced_horde">Impulso de hongo: 2x velocidad y nivel</string>
+    <string name="mushroom_enhanced_witch">Impulso de hongo: 2x velocidad, nivel y usos de habilidad</string>
     <string name="fief_configuration">Configuración de Feudo</string>
     <string name="initial_setup_configuration">Configuración</string>
     <string name="element_type">Tipo de Elemento</string>
@@ -1177,6 +1186,15 @@
     <string name="show_testing_levels">Mostrar niveles de prueba</string>
     <string name="test_level">Nivel de prueba</string>
     <string name="sandbox_level">Nivel de pruebas libre</string>
+    <string name="waagh_enabled">¡Waaagh! Activado</string>
+    <string name="waagh_meter_tooltip">Medidor de Waaagh: %1$s — %2$s</string>
+    <string name="waagh_meter_tooltip_warning">la horda está cerca de su punto de ruptura</string>
+    <string name="waagh_meter_urgency_gathering">la horda está reuniendo fuerza</string>
+    <string name="waagh_meter_urgency_stirring">la horda empieza a agitarse</string>
+    <string name="waagh_meter_urgency_rising">la horda está ganando impulso</string>
+    <string name="waagh_meter_urgency_high">la horda avanza con furia</string>
+    <string name="waagh_meter_urgency_critical">la horda está a punto de estallar</string>
+    <string name="waagh_meter_frenzy_storming">Frenesí Waaagh - las hordas están arrasando</string>
     <string name="sandbox">Modo libre</string>
     <string name="sandbox_tools">Herramientas de modo libre</string>
     <string name="sandbox_spawn_enemy">Generar enemigo</string>
@@ -1791,6 +1809,8 @@
     <string name="ewhad_retreats_text">¡Has forzado a Ewhad a retirarse!</string>
     <string name="ewhad_defeated_title">Ewhad es derrotado</string>
     <string name="ewhad_defeated_text">¡Derrotaste a Ewhad! ¡Ahora acaba con los demás Enemigos y gana el juego!</string>
+    <string name="waaagh_frenzy_title">Waaagh!</string>
+    <string name="waaagh_frenzy_message">¡La horda ha caído en frenesí! ¡Se vuelven más fuertes y feroces con cada paso!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk el Rompecráneos</string>
     <string name="morguk_name">Morguk Susurrahuesos</string>

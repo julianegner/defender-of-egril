@@ -256,6 +256,9 @@ class BarricadeSystem(
         }
 
         if (wasDestroyed) {
+            if (enemy.type.faction == de.egril.defender.model.EnemyFaction.HORDE || enemy.type.unitSize > 0) {
+                state.addWaaghPoints(5)
+            }
             // Emit gate-destroyed message if the barricade has a name
             if (!barricade.name.isNullOrBlank()) {
                 state.pendingMessages.add(

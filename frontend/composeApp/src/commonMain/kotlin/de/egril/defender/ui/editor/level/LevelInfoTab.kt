@@ -41,6 +41,7 @@ import defender_of_egril.composeapp.generated.resources.level_title
 import defender_of_egril.composeapp.generated.resources.map_label
 import defender_of_egril.composeapp.generated.resources.ok
 import defender_of_egril.composeapp.generated.resources.sandbox_level
+import defender_of_egril.composeapp.generated.resources.waagh_enabled
 import defender_of_egril.composeapp.generated.resources.split_build_tower_button
 import defender_of_egril.composeapp.generated.resources.start_coins
 import defender_of_egril.composeapp.generated.resources.start_hp
@@ -80,6 +81,8 @@ fun LevelInfoTab(
     onConnectedToPreviousLevelChange: (Boolean) -> Unit,
     isSandbox: Boolean = false,
     onIsSandboxChange: (Boolean) -> Unit = {},
+    waaghEnabled: Boolean = false,
+    onWaaghEnabledChange: (Boolean) -> Unit = {},
     isOfficial: Boolean = false,
     canEnableConnectedToPreviousLevel: Boolean = true,
 ) {
@@ -220,6 +223,21 @@ fun LevelInfoTab(
                         Switch(
                             checked = isSandbox,
                             onCheckedChange = onIsSandboxChange,
+                        )
+                    }
+
+                    // Waaagh! enabled toggle
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.waagh_enabled),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Switch(
+                            checked = waaghEnabled,
+                            onCheckedChange = onWaaghEnabledChange,
                         )
                     }
                 }

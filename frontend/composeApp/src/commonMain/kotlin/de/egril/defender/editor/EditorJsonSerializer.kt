@@ -444,6 +444,13 @@ object EditorJsonSerializer {
                 ""
             }
 
+        val waaghEnabledJson =
+            if (level.waaghEnabled) {
+                ",\n  \"waaghEnabled\": true"
+            } else {
+                ""
+            }
+
         val isOfficialJson =
             if (level.isOfficial) {
                 ",\n  \"isOfficial\": true"
@@ -545,7 +552,8 @@ object EditorJsonSerializer {
                 initialData.attackers.isNotEmpty() ||
                 initialData.traps.isNotEmpty() ||
                 initialData.barricades.isNotEmpty() ||
-                initialData.fiefs.isNotEmpty()
+                initialData.fiefs.isNotEmpty() ||
+                initialData.mushrooms.isNotEmpty()
             ) {
                 val parts = mutableListOf<String>()
 
@@ -653,6 +661,21 @@ object EditorJsonSerializer {
                     )
                 }
 
+                // Mushrooms
+                if (initialData.mushrooms.isNotEmpty()) {
+                    val mushroomsData =
+                        initialData.mushrooms.joinToString(",\n      ") { mushroom ->
+                            val x = mushroom.position.x
+                            val y = mushroom.position.y
+                            """{"position": {"x": $x, "y": $y}}"""
+                        }
+                    parts.add(
+                        """"mushrooms": [
+      $mushroomsData
+    ]""",
+                    )
+                }
+
                 val allParts = parts.joinToString(",\n    ")
                 ",\n  \"initialData\": {\n    $allParts\n  }"
             } else {
@@ -673,7 +696,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isSandboxJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isSandboxJson$waaghEnabledJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
 }"""
         return """{
   "metadata": {
@@ -919,6 +942,18 @@ object EditorJsonSerializer {
                     false
                 }
 
+            // Parse waaghEnabled (optional, defaults to false)
+            val waaghEnabled =
+                if (dataJson.contains("\"waaghEnabled\"")) {
+                    try {
+                        JsonUtils.extractValue(dataJson, "waaghEnabled").toBoolean()
+                    } catch (e: Exception) {
+                        false
+                    }
+                } else {
+                    false
+                }
+
             // Parse isOfficial (optional, defaults to false)
             val isOfficial =
                 try {
@@ -949,6 +984,7 @@ object EditorJsonSerializer {
             var initialTraps = mutableListOf<InitialTrap>()
             var initialBarricades = mutableListOf<InitialBarricade>()
             var initialFiefs = mutableListOf<InitialFief>()
+            var initialMushrooms = mutableListOf<InitialMushroom>()
 
             if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING && id == "t3") {
                 println("")
@@ -1287,6 +1323,30 @@ object EditorJsonSerializer {
                             }
                         }
                     }
+                    // Parse mushrooms from new format
+                    if (initialDataSection.contains("\"mushrooms\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"mushrooms\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val afterBracket = afterKey.substring(openBracketIndex + 1)
+                            val mushroomsSection =
+                                if (afterBracket.contains("],")) {
+                                    afterBracket.substringBefore("],")
+                                } else {
+                                    afterBracket.substringBefore("]")
+                                }
+                            if (mushroomsSection.isNotBlank()) {
+                                val mushroomEntries = splitJsonArrayObjects(mushroomsSection)
+                                for (entry in mushroomEntries) {
+                                    if (!entry.contains("position")) continue
+                                    val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                    val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                    val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                    initialMushrooms.add(InitialMushroom(Position(x, y)))
+                                }
+                            }
+                        }
+                    }
                 } catch (e: Exception) {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Error parsing initial data (new format): ${e.message}")
@@ -1473,9 +1533,10 @@ object EditorJsonSerializer {
                     initialAttackers.isNotEmpty() ||
                     initialTraps.isNotEmpty() ||
                     initialBarricades.isNotEmpty() ||
-                    initialFiefs.isNotEmpty()
+                    initialFiefs.isNotEmpty() ||
+                    initialMushrooms.isNotEmpty()
                 ) {
-                    InitialData(initialDefenders, initialAttackers, initialTraps, initialBarricades, initialFiefs)
+                    InitialData(initialDefenders, initialAttackers, initialTraps, initialBarricades, initialFiefs, initialMushrooms)
                 } else {
                     null
                 }
@@ -1504,6 +1565,7 @@ object EditorJsonSerializer {
                 allowAutoAttack = allowAutoAttack,
                 connectedToPreviousLevel = connectedToPreviousLevel,
                 isSandbox = isSandbox,
+                waaghEnabled = waaghEnabled,
                 isOfficial = isOfficial,
                 author = author,
                 communityDescription = communityDescription,

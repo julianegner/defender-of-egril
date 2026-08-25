@@ -138,7 +138,8 @@ class GameEngine(
         val hasTrap = state.traps.any { it.position == position }
         val hasBarricade = state.barricades.any { it.position == position }
         val hasFief = state.fiefs.any { it.position == position }
-        if (hasEnemy || hasTrap || hasBarricade || hasFief) return false
+        val hasMushroom = state.mushrooms.any { it.position == position }
+        if (hasEnemy || hasTrap || hasBarricade || hasFief || hasMushroom) return false
         state.fiefs.add(
             de.egril.defender.model
                 .Fief(position = position, type = type),
@@ -755,7 +756,8 @@ class GameEngine(
         state.defenders.any { it.position.value == position } ||
             state.barricades.any { it.position == position && !it.isDestroyed() } ||
             state.traps.any { it.position == position } ||
-            state.fiefs.any { it.position == position }
+            state.fiefs.any { it.position == position } ||
+            state.mushrooms.any { it.position == position }
 
     // Turn Management
     fun startFirstPlayerTurn() {
@@ -957,7 +959,7 @@ class GameEngine(
         }
 
         // Find the maximum speed to know how many steps to simulate
-        val maxSpeed = regularAttackers.maxOfOrNull { it.type.speed + it.speedBonus.value } ?: 0
+        val maxSpeed = regularAttackers.maxOfOrNull { calculateEffectiveEnemySpeed(it, it.position.value) } ?: 0
 
         // Pre-compute imminent bombs (turnsRemaining <= 1) for flee behavior
         val imminentBombs = state.activeSpellEffects.filter { it.spell == SpellType.BOMB && it.position != null && it.turnsRemaining <= 1 }
@@ -1005,21 +1007,7 @@ class GameEngine(
 
                 // Calculate effective speed by subtracting movement penalty from spike barbs
                 // and adding any villain-aura movement bonus (e.g. Garokk's War Cry).
-                var effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value) + attacker.speedBonus.value
-
-                // Check if attacker is in a cooling area (reduces speed by 1)
-                val isInCoolingArea =
-                    state.activeSpellEffects.any { effect ->
-                        effect.spell == SpellType.COOLING_SPELL &&
-                            effect.position != null &&
-                            currentPos.hexDistanceTo(effect.position) <= 2
-                    }
-                if (isInCoolingArea) {
-                    effectiveSpeed = maxOf(0, effectiveSpeed - 1)
-                    if (stepIndex == 0) {
-                        println("Attacker ${attacker.id} (${attacker.type}) is in cooling area, speed reduced to $effectiveSpeed")
-                    }
-                }
+                val effectiveSpeed = calculateEffectiveEnemySpeed(attacker, currentPos)
 
                 // Check if this attacker has more moves left
                 if (stepIndex >= effectiveSpeed) continue
@@ -1534,7 +1522,7 @@ class GameEngine(
             if (!state.takenTargets.contains(position)) {
                 state.takenTargets.add(position)
                 val name = targetInfo.name.takeIf { it.isNotBlank() }
-                GameLogBuffer.log("DAMAGE", "Target '${name ?: position}' taken by ${attacker.type} Lv${attacker.level.value}")
+                GameLogBuffer.log("DAMAGE", "Target '${name ?: position}' taken by ${attacker.type} Lv${attacker.displayLevel}")
                 state.pendingMessages.add(
                     de.egril.defender.model.GameMessage(
                         type = de.egril.defender.model.GameMessageType.TARGET_TAKEN,
@@ -1559,7 +1547,7 @@ class GameEngine(
             }
             GameLogBuffer.log(
                 "DAMAGE",
-                "${attacker.type} Lv${attacker.level.value} reached target — dealt $damage damage (HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage})",
+                "${attacker.type} Lv${attacker.displayLevel} reached target — dealt $damage damage (HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage})",
             )
             state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
         }
@@ -1613,6 +1601,8 @@ class GameEngine(
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
                 // Destroy any fief at the new position
                 destroyFiefAt(newPosition, attacker)
+                // Consume any mushroom at the new position (horde units and witches only)
+                consumeMushroomAt(newPosition, attacker)
 
                 // Only continue if dragon was not defeated by trap
                 if (!attacker.isDefeated.value) {
@@ -1692,6 +1682,8 @@ class GameEngine(
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
                 // Destroy any fief at the new position
                 destroyFiefAt(newPosition, attacker)
+                // Consume any mushroom at the new position (horde units and witches only)
+                consumeMushroomAt(newPosition, attacker)
             }
 
             // Check if reached a waypoint and update target
@@ -1772,10 +1764,13 @@ class GameEngine(
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
                 // Destroy any fief at the new position (enemies destroy fiefs by passing through)
                 destroyFiefAt(newPosition, attacker)
+                // Consume any mushroom at the new position (horde units and witches only)
+                consumeMushroomAt(newPosition, attacker)
             }
 
             // Only continue if enemy was not defeated by trap
             if (!attacker.isDefeated.value) {
+                applyOrkFrenzyTowerAttack(attacker)
                 // Check if reached a waypoint and update target
                 // Only update if the waypoint position is the current target
                 if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
@@ -1797,6 +1792,19 @@ class GameEngine(
                 }
             }
         }
+    }
+
+    private fun applyOrkFrenzyTowerAttack(attacker: Attacker) {
+        if (!(state.waaghFrenzyActive.value && attacker.type == AttackerType.ORK)) return
+
+        state.defenders
+            .filter { defender ->
+                defender.isReady &&
+                    attacker.position.value.hexDistanceTo(defender.position.value) == 1
+            }.forEach { defender ->
+                defender.isDisabled.value = true
+                defender.disabledTurnsRemaining.value = maxOf(defender.disabledTurnsRemaining.value, 2)
+            }
     }
 
     fun attackBarricade(
@@ -1827,6 +1835,8 @@ class GameEngine(
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
                 // Destroy any fief at the new position
                 destroyFiefAt(newPosition, attacker)
+                // Consume any mushroom at the new position (horde units and witches only)
+                consumeMushroomAt(newPosition, attacker)
 
                 // Only continue if enemy was not defeated by trap
                 if (!attacker.isDefeated.value) {
@@ -1855,10 +1865,65 @@ class GameEngine(
             when {
                 attacker.type == AttackerType.SNOTLING || attacker.type == AttackerType.SPIDERLING ->
                     maxOf(1, attacker.currentHealth.value / 5)
-                attacker.type.isDragon -> attacker.level.value * 5
-                else -> attacker.level.value
+                attacker.type.isDragon -> attacker.effectiveLevel * 5
+                else -> attacker.effectiveLevel
             }
-        return baseDamage * attacker.type.barricadeDamageMultiplier
+        val frenzyMultiplier =
+            if (state.waaghFrenzyActive.value && attacker.type in setOf(AttackerType.ORK, AttackerType.OGRE)) 2 else 1
+        return baseDamage * attacker.type.barricadeDamageMultiplier * frenzyMultiplier
+    }
+
+    private fun hasBloodlust(attacker: Attacker): Boolean =
+        attacker.type == AttackerType.ORK &&
+            (state.waaghFrenzyActive.value || attacker.bloodlustRoundsLeft.value > 0)
+
+    private fun calculateEffectiveEnemySpeed(
+        attacker: Attacker,
+        currentPos: Position,
+    ): Int = de.egril.defender.game.calculateEffectiveEnemySpeed(state, attacker, currentPos)
+
+    private fun tickBloodlustAfterMovement() {
+        state.attackers.forEach { attacker ->
+            if (attacker.bloodlustRoundsLeft.value > 0) {
+                attacker.bloodlustRoundsLeft.value--
+            }
+            if (attacker.mushroomTurnsRemaining.value > 0) {
+                attacker.mushroomTurnsRemaining.value--
+                if (attacker.mushroomTurnsRemaining.value == 0) {
+                    // Expire the temporary mushroom health together with the doubled level.
+                    attacker.currentHealth.value =
+                        if (attacker.isDefeated.value) {
+                            maxOf(0, attacker.currentHealth.value - attacker.mushroomBonusHealth)
+                        } else {
+                            maxOf(1, attacker.currentHealth.value - attacker.mushroomBonusHealth)
+                        }
+                    attacker.mushroomLevelBonus.value = 0
+                }
+            }
+        }
+    }
+
+    private fun updateWaaghFrenzyAtEnemyTurnStart() {
+        if (!state.level.waaghEnabled) return
+        if (!state.waaghFrenzyActive.value && state.waaghPoints.value >= 100) {
+            state.waaghFrenzyActive.value = true
+            state.waaghFrenzyRoundsLeft.value = 2
+            if (!state.hasShownWaaghFrenzyMessage.value) {
+                state.pendingMessages.add(GameMessage(type = GameMessageType.WAAAGH_FRENZY))
+                state.hasShownWaaghFrenzyMessage.value = true
+            }
+        }
+    }
+
+    private fun updateWaaghFrenzyAtEnemyTurnEnd() {
+        if (!state.level.waaghEnabled) return
+        if (!state.waaghFrenzyActive.value) return
+        state.waaghFrenzyRoundsLeft.value--
+        if (state.waaghFrenzyRoundsLeft.value <= 0) {
+            state.waaghFrenzyActive.value = false
+            state.waaghFrenzyRoundsLeft.value = 0
+            state.waaghPoints.value = 0
+        }
     }
 
     /**
@@ -1877,6 +1942,8 @@ class GameEngine(
         state.turnNumber.value++
         processSoulCallResurrections()
         state.phase.value = GamePhase.ENEMY_TURN
+        updateWaaghFrenzyAtEnemyTurnStart()
+        enemyAbilities.processSnotlingGrowth()
         state.enemyTurnStartPositions.clear()
         state.attackers
             .filter { !it.isDefeated.value }
@@ -1952,7 +2019,7 @@ class GameEngine(
         val attackersStoppedByBarricade = mutableSetOf<Int>()
 
         // Find the maximum speed to know how many steps to simulate
-        val maxSpeed = newlySpawned.maxOfOrNull { it.type.speed + it.speedBonus.value } ?: 0
+        val maxSpeed = newlySpawned.maxOfOrNull { calculateEffectiveEnemySpeed(it, it.position.value) } ?: 0
 
         // Simulate movement step by step
         for (stepIndex in 0 until maxSpeed) {
@@ -1967,7 +2034,7 @@ class GameEngine(
 
                 // Calculate effective speed by subtracting movement penalty from spike barbs
                 // and adding any villain-aura movement bonus (e.g. Garokk's War Cry).
-                val effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value) + attacker.speedBonus.value
+                val effectiveSpeed = calculateEffectiveEnemySpeed(attacker, currentPos)
 
                 // Check if this attacker has more moves left
                 if (stepIndex >= effectiveSpeed) continue
@@ -2279,8 +2346,13 @@ class GameEngine(
         state.wizardAttackEffects.clear()
         state.alchemyAttackEffects.clear()
         state.rocketAttackEffects.clear()
+        state.snotlingCannonThrowEffects.clear()
+        state.garokkWarCryEffects.clear()
         state.shadowSpewEffects.clear()
         state.morvathShadowOrbEffects.clear()
+
+        tickBloodlustAfterMovement()
+        enemyAbilities.processHordeEating()
 
         // Check and activate traps after all movements
         checkAndActivateTraps()
@@ -2338,6 +2410,7 @@ class GameEngine(
 
         // Evaluate scripted events at the start of the player turn
         eventScriptSystem.evaluate(EventTrigger.PLAYER_TURN_START)
+        updateWaaghFrenzyAtEnemyTurnEnd()
     }
 
     private fun resetDefenderActions() {
@@ -2547,6 +2620,28 @@ class GameEngine(
         }
     }
 
+    /**
+     * Consume the mushroom at [position] if any, applying the mushroom buff to [attacker].
+     * Only horde units and witches eat mushrooms; other units leave them in place.
+     * The buff doubles the attacker's movement speed and effective level for 2 turns.
+     */
+    private fun consumeMushroomAt(
+        position: Position,
+        attacker: Attacker,
+    ) {
+        if (!attacker.type.canEatMushroom) return
+        // Don't consume a second mushroom while already buffed
+        if (attacker.mushroomTurnsRemaining.value > 0) return
+        val mushroom = state.mushrooms.find { it.position == position }
+        if (mushroom != null) {
+            state.mushrooms.remove(mushroom)
+            // Store original level as bonus (net effect: level.value + mushroomLevelBonus = 2× level)
+            attacker.mushroomLevelBonus.value = attacker.level.value
+            attacker.mushroomTurnsRemaining.value = 2
+            attacker.currentHealth.value += attacker.mushroomBonusHealth
+        }
+    }
+
     fun setCoins(amount: Int) {
         state.coins.value = amount
     }
@@ -2640,6 +2735,8 @@ class GameEngine(
      * Called after the cannonball animation duration has passed.
      */
     fun processPendingBargeDeletions() = enemyAbilities.processPendingBargeDeletions()
+
+    fun processPendingSnotlingCannonArrivals() = enemyAbilities.processPendingSnotlingCannonArrivals()
 
     /**
      * Apply the distant shadow fog tiles that Morvath targeted this turn.

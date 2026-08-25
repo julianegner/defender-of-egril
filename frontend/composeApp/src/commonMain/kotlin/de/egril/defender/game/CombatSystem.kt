@@ -103,6 +103,19 @@ class CombatSystem(
         state.pendingMessages.add(GameMessage(type = GameMessageType.SILAS_MIRROR_HIT))
     }
 
+    private fun trackWaaghChargeFromHit(
+        target: Attacker,
+        damageDealt: Int,
+    ) {
+        if (damageDealt <= 0) return
+        if (target.type == AttackerType.ORK) {
+            state.addWaaghPoints(3)
+        }
+        if (target.type == AttackerType.SNOTLING) {
+            state.addWaaghPoints(damageDealt / 5)
+        }
+    }
+
     private fun removeHitMirrorImages(
         defender: Defender,
         targets: List<Attacker>,
@@ -486,7 +499,10 @@ class CombatSystem(
             return
         }
         val targetWasUninjured = target.currentHealth.value == target.maxHealth
-        target.currentHealth.value -= getEffectiveDamageAgainst(defender, target)
+        val damage = getEffectiveDamageAgainst(defender, target)
+        val actualDamage = minOf(target.currentHealth.value, damage)
+        target.currentHealth.value -= damage
+        trackWaaghChargeFromHit(target, actualDamage)
         if (target.currentHealth.value <= 0) {
             target.isDefeated.value = true
             recordDirectKill(defender, target, targetWasUninjured)
@@ -553,7 +569,10 @@ class CombatSystem(
             // Check immunity to fireball (Red Demons)
             if (target.canBeDamagedByFireball()) {
                 val targetWasUninjured = target.currentHealth.value == target.maxHealth
-                target.currentHealth.value -= getEffectiveDamageAgainst(defender, target)
+                val damage = getEffectiveDamageAgainst(defender, target)
+                val actualDamage = minOf(target.currentHealth.value, damage)
+                target.currentHealth.value -= damage
+                trackWaaghChargeFromHit(target, actualDamage)
                 if (target.currentHealth.value <= 0) {
                     target.isDefeated.value = true
                     recordDirectKill(defender, target, targetWasUninjured)
@@ -671,7 +690,10 @@ class CombatSystem(
             if (target.canBeDamagedByAcid() && !target.type.immuneToNonMagicTowerDamage) {
                 val targetWasUninjured = target.currentHealth.value == target.maxHealth
                 // Initial damage is same as DOT tick damage (not full damage)
-                target.currentHealth.value -= getEffectiveDamageAgainst(defender, target) / LASTING_DAMAGE_DIVISOR
+                val damage = getEffectiveDamageAgainst(defender, target) / LASTING_DAMAGE_DIVISOR
+                val actualDamage = minOf(target.currentHealth.value, damage)
+                target.currentHealth.value -= damage
+                trackWaaghChargeFromHit(target, actualDamage)
                 // Mark for additional rounds of DOT based on tower level
                 defender.dotRoundsRemaining[target.id] = defender.dotDuration
 
@@ -766,7 +788,9 @@ class CombatSystem(
                 if (attacker.type.isMirrorImage) continue
                 // Check immunity to acid (Blue Demons)
                 if (attacker.canBeDamagedByAcid()) {
+                    val actualDamage = minOf(attacker.currentHealth.value, effect.damage)
                     attacker.currentHealth.value -= effect.damage
+                    trackWaaghChargeFromHit(attacker, actualDamage)
                     if (attacker.currentHealth.value <= 0) {
                         attacker.isDefeated.value = true
                     }

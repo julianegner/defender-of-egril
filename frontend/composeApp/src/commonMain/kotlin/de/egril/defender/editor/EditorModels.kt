@@ -281,8 +281,19 @@ data class InitialFief(
 )
 
 /**
+ * Initial mushroom placement for level start.
+ * Mushrooms boost horde units (goblins, orks, ogres, snotlings) and witches:
+ * - 2x walking range for 2 turns
+ * - 2x level for 2 turns (witches can use their ability twice for 2 turns)
+ * Only horde units and witches eat the mushroom; other units leave it in place.
+ */
+data class InitialMushroom(
+    val position: Position,
+)
+
+/**
  * Wrapper for all initial placement data
- * This groups defenders, attackers, traps, barricades, and fiefs in a single object
+ * This groups defenders, attackers, traps, barricades, fiefs, and mushrooms in a single object
  */
 data class InitialData(
     val defenders: List<InitialDefender> = emptyList(),
@@ -290,6 +301,7 @@ data class InitialData(
     val traps: List<InitialTrap> = emptyList(),
     val barricades: List<InitialBarricade> = emptyList(),
     val fiefs: List<InitialFief> = emptyList(),
+    val mushrooms: List<InitialMushroom> = emptyList(),
 ) {
     companion object {
         val EMPTY = InitialData()
@@ -346,6 +358,7 @@ data class EditorLevel(
     val allowAutoAttack: Boolean = true, // If true, shows auto-attack button in end turn confirmation dialog
     val connectedToPreviousLevel: Boolean = false, // If true, player can carry over towers/coins from the previous level (must be on the same map)
     val isSandbox: Boolean = false, // If true, level is a Sandbox: free building/spawning, no scripted events, cannot be won, no XP
+    val waaghEnabled: Boolean = false, // If true, Waaagh! horde mechanics are active for this level
     val isOfficial: Boolean = false, // True if level is from official repository (read-only in editor)
     val author: String = "", // Optional author name
     val isCommunity: Boolean = false, // True if level is a community-shared level from the backend

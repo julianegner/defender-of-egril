@@ -1,5 +1,6 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -59,6 +60,7 @@ import de.egril.defender.utils.isLimitedInputDevice
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun GameHeader(
@@ -211,6 +213,8 @@ fun GameHeader(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    WaaghBar(gameState = gameState)
+
                     // Level header icons (water and/or tower) before difficulty
                     LevelHeaderIcons(
                         gameState = gameState,
@@ -292,6 +296,7 @@ fun GameHeader(
                                 )
                             }
                         }
+
                     }
 
                     // Shortcuts button (not shown on mobile platforms or mobile web browsers)
@@ -1070,6 +1075,54 @@ internal fun LevelSpecialTowersInfoDialog(
                 HorizontalDivider(
                     modifier = Modifier.padding(vertical = 4.dp),
                     color = MaterialTheme.colorScheme.outline,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun WaaghBar(gameState: GameState) {
+    if (!gameState.level.waaghEnabled || !gameState.hasHordeUnitsInLevel) return
+
+    val waaghPoints = gameState.waaghPoints.value.coerceIn(0, 100)
+    val isFrenzyActive = gameState.waaghFrenzyActive.value
+    val resource =
+        if (isFrenzyActive) {
+            Res.drawable.waaagh_title
+        } else {
+            val roundedDown = (waaghPoints / 5) * 5
+            Res.allDrawableResources["waaagh${roundedDown.toString().padStart(2, '0')}"] ?: Res.drawable.waaagh00
+        }
+    val waaghProgress = waaghPoints / 100f
+    val waaghStatusText =
+        when {
+            isFrenzyActive -> stringResource(Res.string.waagh_meter_frenzy_storming)
+            waaghPoints >= 90 -> stringResource(Res.string.waagh_meter_urgency_critical)
+            waaghPoints >= 70 -> stringResource(Res.string.waagh_meter_urgency_high)
+            waaghPoints >= 45 -> stringResource(Res.string.waagh_meter_urgency_rising)
+            waaghPoints >= 20 -> stringResource(Res.string.waagh_meter_urgency_stirring)
+            else -> stringResource(Res.string.waagh_meter_urgency_gathering)
+        }
+    val waaghTooltipText =
+        stringResource(Res.string.waagh_meter_tooltip, formatWaaghMeterPercent(waaghPoints), waaghStatusText)
+
+    TooltipWrapper(text = waaghTooltipText) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                painter = painterResource(resource),
+                contentDescription = null,
+                modifier = Modifier.height(80.dp).width(160.dp),
+            )
+            if (!isFrenzyActive) {
+                Text(
+                    text = formatWaaghMeterPercent(waaghPoints),
+                    color = getWaaghMeterColor(waaghProgress),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.offset(x = (-8).dp).padding(end = 8.dp),
                 )
             }
         }

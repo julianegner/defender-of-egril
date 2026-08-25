@@ -230,6 +230,10 @@
     <string name="hp_label">HP</string>
     <string name="speed_label">Speed</string>
     <string name="slowed_by_barbs">Slowed by barbs</string>
+    <string name="waagh_goblin_boost">Waaagh! boost: ignores slowing</string>
+    <string name="waagh_ork_boost">Waaagh! boost: stronger combat pressure and double speed</string>
+    <string name="waagh_ogre_boost">Waaagh! boost: stronger combat pressure</string>
+    <string name="waagh_snotling_boost">Waaagh! boost: grows faster</string>
 
     <!-- Status text -->
     <string name="available">Available</string>
@@ -702,6 +706,11 @@
     <string name="initial_setup_traps">Traps</string>
     <string name="initial_setup_barricades">Barricades</string>
     <string name="initial_setup_fiefs">Fiefs</string>
+    <string name="initial_setup_mushrooms">Mushrooms</string>
+    <string name="mushroom">Mushroom</string>
+    <string name="mushroom_buff_description">2x speed and level for 2 turns (horde units and witches only)</string>
+    <string name="mushroom_enhanced_horde">Mushroom boost: 2x speed and level</string>
+    <string name="mushroom_enhanced_witch">Mushroom boost: 2x speed, level, and ability uses</string>
     <string name="fief_configuration">Fief Configuration</string>
     <string name="initial_defenders">Initial Towers</string>
     <string name="initial_attackers">Initial Enemies</string>
@@ -1180,6 +1189,15 @@
     <string name="show_testing_levels">Show Testing Levels</string>
     <string name="test_level">Test Level</string>
     <string name="sandbox_level">Sandbox Level</string>
+    <string name="waagh_enabled">Waaagh! Enabled</string>
+    <string name="waagh_meter_tooltip">Waagh meter: %1$s — %2$s</string>
+    <string name="waagh_meter_tooltip_warning">the horde is nearing its breaking point</string>
+    <string name="waagh_meter_urgency_gathering">the horde is gathering strength</string>
+    <string name="waagh_meter_urgency_stirring">the horde is stirring</string>
+    <string name="waagh_meter_urgency_rising">the horde is building momentum</string>
+    <string name="waagh_meter_urgency_high">the horde is surging hard</string>
+    <string name="waagh_meter_urgency_critical">the horde is about to erupt</string>
+    <string name="waagh_meter_frenzy_storming">Waaagh frenzy - the hordes are storming</string>
     <string name="sandbox">Sandbox</string>
     <string name="sandbox_tools">Sandbox Tools</string>
     <string name="sandbox_spawn_enemy">Spawn Enemy</string>
@@ -1798,6 +1816,8 @@
     <string name="ewhad_retreats_text">You have forced Ewhad to retreat!</string>
     <string name="ewhad_defeated_title">Ewhad is defeated</string>
     <string name="ewhad_defeated_text">You defeated Ewhad! Now finish off the other Enemies and Win the Game!</string>
+    <string name="waaagh_frenzy_title">Waaagh!</string>
+    <string name="waaagh_frenzy_message">The horde has fallen into a frenzy! They grow stronger and more ferocious with every step!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk the Skullsplitter</string>
     <string name="morguk_name">Morguk Bonewhisper</string>

@@ -167,6 +167,18 @@ data class RocketAttackEffect(
     val turnNumber: Int,
 )
 
+data class SnotlingCannonThrowEffect(
+    val sourcePosition: Position,
+    val targetPosition: Position,
+    val thrownCount: Int,
+    val turnNumber: Int,
+)
+
+data class GarokkWarCryEffect(
+    val position: Position,
+    val turnNumber: Int,
+)
+
 data class ShadowSpewEffect(
     val sourcePosition: Position, // Xarithon's tile
     val targetPosition: Position, // Center of the 2×2 target area
@@ -193,6 +205,7 @@ enum class GameMessageType {
     VILLAIN_DEFEATED, // A non-Ewhad villain was defeated (name = AttackerType.name)
     SILAS_MIRROR_HIT, // A tower struck Silas's illusion and was blinded
     COVEN_SWAP, // Sybilla swapped places with a witch
+    WAAAGH_FRENZY, // The horde has entered a Waaagh! frenzy
     STORY_INTRO, // Story narrative shown at the start of a level (name = editorLevelId)
     EVENT_MESSAGE, // Scripted-event story message (name = string-resource key of the predefined text)
 }
@@ -233,6 +246,12 @@ data class PendingBargeDeletion(
     val bargePosition: Position, // For logging
 )
 
+data class PendingSnotlingCannonArrival(
+    val targetPosition: Position,
+    val thrownCount: Int,
+    val turnNumber: Int,
+)
+
 data class GameState(
     var level: Level,
     val phase: MutableState<GamePhase> = mutableStateOf(GamePhase.INITIAL_BUILDING),
@@ -257,6 +276,7 @@ data class GameState(
     val traps: SnapshotStateList<Trap> = mutableStateListOf(), // Track active traps
     val barricades: SnapshotStateList<Barricade> = mutableStateListOf(), // Track active barricades
     val fiefs: SnapshotStateList<Fief> = mutableStateListOf(), // Track active fiefs (income-generating path objects)
+    val mushrooms: SnapshotStateList<Mushroom> = mutableStateListOf(), // Track active mushrooms
     val bridges: SnapshotStateList<Bridge> = mutableStateListOf(), // Track active bridges
     val rafts: SnapshotStateList<Raft> = mutableStateListOf(), // Track active rafts (towers on rivers)
     val bombExplosionEffects: SnapshotStateList<BombExplosionEffect> = mutableStateListOf(), // Track bomb explosion visual effects
@@ -280,6 +300,8 @@ data class GameState(
     val wizardAttackEffects: SnapshotStateList<WizardAttackEffect> = mutableStateListOf(), // Track wizard fireball overlay effects
     val alchemyAttackEffects: SnapshotStateList<AlchemyAttackEffect> = mutableStateListOf(), // Track alchemy acid vial overlay effects
     val rocketAttackEffects: SnapshotStateList<RocketAttackEffect> = mutableStateListOf(), // Track Baron rocket projectile overlay effects
+    val snotlingCannonThrowEffects: SnapshotStateList<SnotlingCannonThrowEffect> = mutableStateListOf(), // Track Snotling cannon throw projectile effects
+    val garokkWarCryEffects: SnapshotStateList<GarokkWarCryEffect> = mutableStateListOf(), // Track Garokk's war cry pulse effect
     val shadowSpewEffects: SnapshotStateList<ShadowSpewEffect> = mutableStateListOf(), // Track Xarithon shadow spew flying fireball effects
     val morvathShadowOrbEffects: SnapshotStateList<MorvathShadowOrbEffect> = mutableStateListOf(), // Track Morvath's shadow orb flying to distant fog tile
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM, // Track difficulty for this game session
@@ -309,8 +331,13 @@ data class GameState(
     // SINGLE_HIT target tracking
     val takenTargets: SnapshotStateList<Position> = mutableStateListOf(), // Positions of taken SINGLE_HIT targets
     val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf(), // Messages queued for display
+    val waaghPoints: MutableState<Int> = mutableStateOf(0), // Current Waaagh! meter (0-100)
+    val waaghFrenzyActive: MutableState<Boolean> = mutableStateOf(false), // True while Waaagh! frenzy is active
+    val waaghFrenzyRoundsLeft: MutableState<Int> = mutableStateOf(0), // Enemy turns remaining in the current frenzy
+    val hasShownWaaghFrenzyMessage: MutableState<Boolean> = mutableStateOf(false), // True once the frenzy intro narrative was shown
     val pendingSoulCalls: SnapshotStateList<PendingSoulCall> = mutableStateListOf(), // Valerius resurrection queue for the next round
     val pendingBargeDeletions: SnapshotStateList<PendingBargeDeletion> = mutableStateListOf(), // Barges (rafts + defenders) to be deleted after animation completes
+    val pendingSnotlingCannonArrivals: SnapshotStateList<PendingSnotlingCannonArrival> = mutableStateListOf(), // Snotlings arriving at their landing tile after the cannonball animation completes
     // Player-usable supports remaining this level (placable objects + spell tokens + fief tokens)
     val supportObjectsRemaining: SnapshotStateMap<SupportObjectType, Int> = mutableStateMapOf(),
     val supportSpellsRemaining: SnapshotStateMap<SpellType, Int> = mutableStateMapOf(),
@@ -458,6 +485,19 @@ data class GameState(
         return map
     }
 
+    private fun AttackerType.countsAsHordeForWaagh(): Boolean = faction == EnemyFaction.HORDE || unitSize > 0
+
+    val hasHordeUnitsInLevel: Boolean
+        get() =
+            spawnPlan.any { it.attackerType.countsAsHordeForWaagh() } ||
+                level.getEffectiveInitialData().attackers.any { it.type.countsAsHordeForWaagh() } ||
+                attackers.any { !it.isDefeated.value && it.type.countsAsHordeForWaagh() }
+
+    fun addWaaghPoints(amount: Int) {
+        if (amount <= 0 || !level.waaghEnabled) return
+        waaghPoints.value = (waaghPoints.value + amount).coerceAtMost(100)
+    }
+
     fun isLevelWon(): Boolean {
         // Sandbox levels can never be won, even when all enemies are gone.
         if (level.isSandbox) return false
@@ -488,7 +528,7 @@ data class GameState(
         var total = 0L
         for (attacker in attackers) {
             if (attacker.isDefeated.value) continue
-            total += attackerTargetDamage(attacker.type, attacker.level.value).toLong()
+            total += attacker.calculateTargetDamage().toLong()
         }
         for (spawn in spawnPlan) {
             if (spawn.spawnTurn > turnNumber.value) {
@@ -889,6 +929,11 @@ data class GameState(
         // Place initial fiefs
         for (initialFief in initialData.fiefs) {
             fiefs.add(Fief(position = initialFief.position, type = initialFief.type))
+        }
+
+        // Place initial mushrooms
+        for (initialMushroom in initialData.mushrooms) {
+            mushrooms.add(Mushroom(position = initialMushroom.position))
         }
     }
 }

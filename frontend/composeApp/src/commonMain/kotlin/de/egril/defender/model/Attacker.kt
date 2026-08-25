@@ -67,6 +67,7 @@ enum class AttackerType(
     // given villain subtype can exist on the battlefield at once and their health is never displayed.
     val isVillain: Boolean = false,
     val faction: EnemyFaction = EnemyFaction.NONE,
+    val unitSize: Int = 0,
     val villainAbility: VillainAbility? = null,
     // Language-independent short name for villains, shown on the battlefield icon in place of the
     // health points. Villain proper names are identical in every language, so they live here in the
@@ -155,9 +156,9 @@ enum class AttackerType(
     // Barricade damage multiplier: multiplies damage dealt to barricades. 1 = normal. Used by Troll (10×).
     val barricadeDamageMultiplier: Int = 1,
 ) {
-    GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE),
-    ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE),
-    OGRE("Ogre", health = 80, speed = 1, reward = 20, xp = 12, canBuildBridge = true, faction = EnemyFaction.HORDE),
+    GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE, unitSize = 2),
+    ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE, unitSize = 3),
+    OGRE("Ogre", health = 80, speed = 1, reward = 20, xp = 12, canBuildBridge = true, faction = EnemyFaction.HORDE, unitSize = 4),
 
     // Troll: a creature made of stone. Immune to blade (melee/ranged) attacks.
     // Moves 1 tile per turn and then pauses one turn (alternating movement).
@@ -206,7 +207,7 @@ enum class AttackerType(
     GREEN_WITCH("Green Witch", health = 25, speed = 5, reward = 15, xp = 9, canHeal = true),
 
     // Weak early-game minion summoned by Gribnak the Squealer: 5 HP but very nimble (5 tiles/turn)
-    SNOTLING("Snotling", health = 5, speed = 5, reward = 1, xp = 1),
+    SNOTLING("Snotling", health = 5, speed = 5, reward = 1, xp = 1, unitSize = 1),
 
     // Weak spider swarm unit summoned by Araxxa. Behaves like a snotling stack.
     SPIDERLING("Spiderling", health = 10, speed = 5, reward = 1, xp = 1),
@@ -623,6 +624,22 @@ val AttackerType.arrivalCompanions: List<AttackerType>
             else -> emptyList()
         }
 
+/**
+ * Returns true for attacker types that eat mushrooms: horde units (goblins, orks, ogres,
+ * snotlings) and witches.
+ */
+val AttackerType.canEatMushroom: Boolean
+    get() =
+        this == AttackerType.GOBLIN ||
+            this == AttackerType.ORK ||
+            this == AttackerType.OGRE ||
+            this == AttackerType.SNOTLING ||
+            this == AttackerType.RED_WITCH ||
+            this == AttackerType.GREEN_WITCH ||
+            this == AttackerType.GRAND_COVEN_MOTHER_SYBILLA ||
+            this == AttackerType.HAGA ||
+            this == AttackerType.ZUSSA
+
 data class Attacker(
     val id: Int,
     val type: AttackerType,
@@ -646,6 +663,11 @@ data class Attacker(
     val speedBonus: MutableState<Int> = mutableStateOf(0), // Extra movement granted by a villain aura (e.g. Garokk's War Cry)
     val villainCooldown: MutableState<Int> = mutableStateOf(0), // Rounds until this villain's ability next activates
     val movementTurnsElapsed: MutableState<Int> = mutableStateOf(0), // Enemy turns elapsed on battlefield (for alternating movement patterns)
+    val bloodlustRoundsLeft: MutableState<Int> = mutableStateOf(0), // Enemy turns of +100% movement remaining
+    /** Remaining turns of mushroom buff (doubles speed and effective level). 0 = not active. */
+    val mushroomTurnsRemaining: MutableState<Int> = mutableStateOf(0),
+    /** Extra level added by mushroom buff (equals base level when mushroom is active, to double it). */
+    val mushroomLevelBonus: MutableState<Int> = mutableStateOf(0),
     // Cap'n Roderich's accumulated treasure: grows by coinsPerTurn each enemy turn and by the cost
     // of each barge he sinks via Broadside. The entire treasure is awarded to the player on defeat.
     val treasureCoins: MutableState<Int> = mutableStateOf(0),
@@ -661,8 +683,8 @@ data class Attacker(
 ) {
     // Callback for dragon level changes (for achievements)
     var onDragonLevelChanged: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
-
-    val maxHealth: Int get() = type.health * level.value
+    val mushroomBonusHealth: Int get() = type.health * mushroomLevelBonus.value
+    val maxHealth: Int get() = type.health * effectiveLevel
 
     /**
      * Calculate dragon's greed level based on its level.
@@ -841,3 +863,16 @@ fun isUniqueEnemyAlreadyPresent(
     val mustBeUnique = type.isRealVillain
     return mustBeUnique && attackers.any { it.type == type && !it.isDefeated.value }
 }
+
+/**
+ * Returns the effective level of this attacker, including any mushroom level bonus.
+ * During the mushroom buff, the effective level is doubled (level + mushroomLevelBonus).
+ */
+val Attacker.effectiveLevel: Int
+    get() = level.value + mushroomLevelBonus.value
+
+val Attacker.hasMushroomBuff: Boolean
+    get() = mushroomTurnsRemaining.value > 0
+
+val Attacker.displayLevel: Int
+    get() = effectiveLevel

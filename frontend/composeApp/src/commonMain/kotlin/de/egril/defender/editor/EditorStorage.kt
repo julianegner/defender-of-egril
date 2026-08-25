@@ -1640,6 +1640,7 @@ object EditorStorage {
                 allowAutoAttack = editorLevel.allowAutoAttack, // Allow auto-attack option
                 connectedToPreviousLevel = editorLevel.connectedToPreviousLevel, // Connected level flag
                 isSandbox = editorLevel.isSandbox, // Sandbox mode flag (free building, no win, no XP, no events)
+                waaghEnabled = editorLevel.waaghEnabled, // Waaagh! horde mechanics flag
                 targetInfoMap = gameTargetInfoMap, // Named / SINGLE_HIT target metadata
                 spawnPointTypeMap = gameSpawnPointTypeMap, // LAND/WATER classification per spawn point
                 supports = editorLevel.supports, // Player-usable supports (objects + spell tokens)

@@ -57,6 +57,7 @@ data class SavedGame(
     val nextRaftId: Int = 1, // Next raft ID to use
     val barricades: List<SavedBarricade> = emptyList(), // Barricades placed by spike/spear towers
     val fiefs: List<SavedFief> = emptyList(), // Active fiefs (income-generating path objects)
+    val mushrooms: List<SavedMushroom> = emptyList(), // Active mushrooms placed during level preparation
     val worldMapSave: WorldMapSave? = null, // World map progress at the time of saving (for conflict detection on load)
     val playerProfileData: PlayerProfileData? = null, // Player profile data (achievements, XP, stats) when game data transfer is ON
     val currentMana: Int = 0, // Current mana at the time of saving
@@ -72,6 +73,10 @@ data class SavedGame(
     val triggeredEventIds: List<String> = emptyList(), // IDs of scripted events that have already fired
     val enemiesKilledTotal: Int = 0, // Total enemies killed (for event conditions)
     val enemiesKilledByType: Map<AttackerType, Int> = emptyMap(), // Kills per enemy type (for event conditions)
+    val waaghPoints: Int = 0, // Current Waaagh! meter
+    val waaghFrenzyActive: Boolean = false, // True while the Waaagh! frenzy is active
+    val waaghFrenzyRoundsLeft: Int = 0, // Enemy turns left in the current frenzy
+    val hasShownWaaghFrenzyMessage: Boolean = false, // True once the frenzy intro dialog has been shown
     // Sandbox: only the tiles whose type differs from the original map (position -> new type),
     // persisted so the runtime edits are restored on load without storing the whole map.
     val sandboxMapTiles: Map<Position, de.egril.defender.editor.TileType>? = null,
@@ -112,6 +117,9 @@ data class SavedAttacker(
     val isDefeated: Boolean,
     val dragonName: String? = null, // Dragon's name (for dragons only)
     val movementPenalty: Int = 0, // Movement points lost due to spike tower barbs (default 0 for backward compatibility)
+    val bloodlustRoundsLeft: Int = 0, // Enemy turns of bloodlust remaining
+    val mushroomTurnsRemaining: Int = 0, // Enemy turns of mushroom buff remaining (0 = not active)
+    val mushroomLevelBonus: Int = 0, // Extra level from mushroom buff (0 = not active)
 )
 
 data class SavedFieldEffect(
@@ -133,6 +141,10 @@ data class SavedTrap(
 data class SavedFief(
     val position: Position,
     val type: String, // FiefType name as string for serialization
+)
+
+data class SavedMushroom(
+    val position: Position,
 )
 
 data class SavedRaft(

@@ -301,6 +301,9 @@ object SaveFileStorage {
                     isDefeated = attacker.isDefeated.value,
                     dragonName = attacker.dragonName,
                     movementPenalty = attacker.movementPenalty.value,
+                    bloodlustRoundsLeft = attacker.bloodlustRoundsLeft.value,
+                    mushroomTurnsRemaining = attacker.mushroomTurnsRemaining.value,
+                    mushroomLevelBonus = attacker.mushroomLevelBonus.value,
                 )
             }
 
@@ -354,6 +357,13 @@ object SaveFileStorage {
                 )
             }
 
+        val mushrooms =
+            gameState.mushrooms.map { mushroom ->
+                SavedMushroom(
+                    position = mushroom.position,
+                )
+            }
+
         val spellEffects =
             gameState.activeSpellEffects.map { effect ->
                 SavedSpellEffect(
@@ -390,6 +400,7 @@ object SaveFileStorage {
             nextRaftId = gameState.nextRaftId.value,
             barricades = barricades,
             fiefs = fiefs,
+            mushrooms = mushrooms,
             worldMapSave = null, // Don't automatically include world map - only on explicit export
             currentMana = gameState.currentMana.value,
             maxMana = gameState.maxMana.value,
@@ -402,6 +413,10 @@ object SaveFileStorage {
             triggeredEventIds = gameState.triggeredEventIds.toList(),
             enemiesKilledTotal = gameState.enemiesKilledTotal.value,
             enemiesKilledByType = gameState.enemiesKilledByType.toMap(),
+            waaghPoints = gameState.waaghPoints.value,
+            waaghFrenzyActive = gameState.waaghFrenzyActive.value,
+            waaghFrenzyRoundsLeft = gameState.waaghFrenzyRoundsLeft.value,
+            hasShownWaaghFrenzyMessage = gameState.hasShownWaaghFrenzyMessage.value,
             sandboxMapTiles =
                 if (gameState.level.isSandbox && gameState.sandboxPaintedTiles.isNotEmpty()) {
                     gameState.sandboxPaintedTiles.toMap()
@@ -470,6 +485,10 @@ object SaveFileStorage {
         gameState.cooldownPowerReadyIn.clear()
         gameState.cooldownPowerReadyIn.putAll(savedGame.cooldownPowerReadyIn)
         gameState.coinSurgeActive.value = savedGame.coinSurgeActive
+        gameState.waaghPoints.value = savedGame.waaghPoints
+        gameState.waaghFrenzyActive.value = savedGame.waaghFrenzyActive
+        gameState.waaghFrenzyRoundsLeft.value = savedGame.waaghFrenzyRoundsLeft
+        gameState.hasShownWaaghFrenzyMessage.value = savedGame.hasShownWaaghFrenzyMessage
 
         // Restore scripted-event tracking so already-fired events don't re-trigger after load.
         gameState.triggeredEventIds.clear()
@@ -524,6 +543,9 @@ object SaveFileStorage {
             attacker.currentHealth.value = savedAttacker.currentHealth
             attacker.isDefeated.value = savedAttacker.isDefeated
             attacker.movementPenalty.value = savedAttacker.movementPenalty
+            attacker.bloodlustRoundsLeft.value = savedAttacker.bloodlustRoundsLeft
+            attacker.mushroomTurnsRemaining.value = savedAttacker.mushroomTurnsRemaining
+            attacker.mushroomLevelBonus.value = savedAttacker.mushroomLevelBonus
             gameState.attackers.add(attacker)
         }
 
@@ -599,6 +621,14 @@ object SaveFileStorage {
                         null
                     }
                 fiefType?.let { Fief(position = savedFief.position, type = it) }
+            },
+        )
+
+        // Restore mushrooms
+        gameState.mushrooms.clear()
+        gameState.mushrooms.addAll(
+            savedGame.mushrooms.map { savedMushroom ->
+                Mushroom(position = savedMushroom.position)
             },
         )
 

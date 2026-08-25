@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -72,6 +73,7 @@ private const val STORY_BACKGROUND_VERTICAL_PADDING_PX = 135f
 // the same scaling factor instead of re-deriving it at each call site.
 private const val STORY_BACKGROUND_SIDE_RATIO = 165f / STORY_BACKGROUND_SOURCE_SIZE.toFloat()
 private const val NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO = STORY_BACKGROUND_VERTICAL_PADDING_PX / STORY_BACKGROUND_SOURCE_SIZE
+private const val NARRATIVE_TOP_IMAGE_FULL_BLEED_HEIGHT_RATIO = 0.34f
 private val STORY_DIALOG_DESKTOP_WIDTH = 960.dp
 private val STORY_DIALOG_DESKTOP_HEIGHT = 700.dp
 private val EWHAD_DIALOG_DESKTOP_WIDTH = 700.dp
@@ -94,6 +96,7 @@ private val EWHAD_DIALOG_DESKTOP_WIDTH = 700.dp
  * @param iconAttackerTypeOverride Optional attacker type used for the top icon in Ewhad-style
  *   narrative dialogs (including villain messages that reuse this frame). When null, Ewhad is
  *   shown as before.
+ * @param topImageOverride Optional drawable shown in the top image slot of Ewhad-style dialogs.
  */
 @Composable
 fun NarrativeMessageDialog(
@@ -109,6 +112,9 @@ fun NarrativeMessageDialog(
     backgroundOverride: org.jetbrains.compose.resources.DrawableResource? = null,
     accentColorOverride: Color? = null,
     iconAttackerTypeOverride: AttackerType? = null,
+    topImageOverride: org.jetbrains.compose.resources.DrawableResource? = null,
+    topImageFillWidth: Boolean = false,
+    contentTopOffset: Dp = 0.dp,
 ) {
     val isMobile = isPlatformMobile
     val useWideStoryLayout = type == NarrativeMessageType.STORY && !isMobile
@@ -221,6 +227,19 @@ fun NarrativeMessageDialog(
                     )
                 }
 
+                if (type == NarrativeMessageType.EWHAD && topImageOverride != null && topImageFillWidth) {
+                    Image(
+                        painter = painterResource(topImageOverride),
+                        contentDescription = null,
+                        modifier =
+                            Modifier
+                                .align(Alignment.TopCenter)
+                                .fillMaxWidth()
+                                .height(dialogHeight * NARRATIVE_TOP_IMAGE_FULL_BLEED_HEIGHT_RATIO),
+                        contentScale = ContentScale.FillBounds,
+                    )
+                }
+
                 // Content overlaid on background – scrollable so long texts never overflow the frame
                 Column(
                     modifier =
@@ -246,6 +265,10 @@ fun NarrativeMessageDialog(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
+                    if (contentTopOffset != 0.dp) {
+                        Spacer(modifier = Modifier.height(contentTopOffset))
+                    }
+
                     // Scroll hint at the top so it is visible before any scrolling
                     if (AppSettings.showButtonShortcutHints.value) {
                         Row(
@@ -262,16 +285,24 @@ fun NarrativeMessageDialog(
                     }
 
                     // For Ewhad type: show Ewhad icon at top center
-                    if (type == NarrativeMessageType.EWHAD) {
-                        Box(
-                            modifier = Modifier.size(iconSize),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            EnemyTypeIcon(
-                                attackerType = iconAttackerTypeOverride ?: AttackerType.EWHAD,
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                        }
+                    if (type == NarrativeMessageType.EWHAD && !topImageFillWidth) {
+                            Box(
+                                modifier = Modifier.size(iconSize),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                if (topImageOverride != null) {
+                                    Image(
+                                        painter = painterResource(topImageOverride),
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize(),
+                                    )
+                                } else {
+                                    EnemyTypeIcon(
+                                        attackerType = iconAttackerTypeOverride ?: AttackerType.EWHAD,
+                                        modifier = Modifier.fillMaxSize(),
+                                    )
+                                }
+                            }
                     }
                     // Title
                     SelectableText(

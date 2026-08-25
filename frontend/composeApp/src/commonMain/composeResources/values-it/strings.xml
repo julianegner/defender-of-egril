@@ -227,6 +227,10 @@
     <string name="hp_label">PS</string>
     <string name="speed_label">Velocità</string>
     <string name="slowed_by_barbs">Rallentato da spine</string>
+    <string name="waagh_goblin_boost">Bonus Waaagh! : ignora il rallentamento</string>
+    <string name="waagh_ork_boost">Bonus Waaagh! : pressione di combattimento maggiore e velocità raddoppiata</string>
+    <string name="waagh_ogre_boost">Bonus Waaagh! : pressione di combattimento maggiore</string>
+    <string name="waagh_snotling_boost">Bonus Waaagh! : cresce più velocemente</string>
 
     <!-- Status text -->
     <string name="available">Disponibile</string>
@@ -696,6 +700,11 @@
     <string name="initial_setup_traps">Trappole</string>
     <string name="initial_setup_barricades">Barricate</string>
     <string name="initial_setup_fiefs">Feudi</string>
+    <string name="initial_setup_mushrooms">Funghi</string>
+    <string name="mushroom">Fungo</string>
+    <string name="mushroom_buff_description">2x velocità e livello per 2 turni (solo unità orda e streghe)</string>
+    <string name="mushroom_enhanced_horde">Bonus fungo: 2x velocità e livello</string>
+    <string name="mushroom_enhanced_witch">Bonus fungo: 2x velocità, livello e usi abilità</string>
     <string name="fief_configuration">Configurazione Feudo</string>
     <string name="initial_setup_configuration">Configurazione</string>
     <string name="element_type">Tipo di Elemento</string>
@@ -1177,6 +1186,15 @@
     <string name="show_testing_levels">Mostra livelli di test</string>
     <string name="test_level">Livello di test</string>
     <string name="sandbox_level">Livello sandbox</string>
+    <string name="waagh_enabled">Waaagh! Abilitato</string>
+    <string name="waagh_meter_tooltip">Misuratore Waaagh: %1$s — %2$s</string>
+    <string name="waagh_meter_tooltip_warning">l'orda sta per raggiungere il punto di rottura</string>
+    <string name="waagh_meter_urgency_gathering">l'orda sta raccogliendo forza</string>
+    <string name="waagh_meter_urgency_stirring">l'orda sta iniziando ad agitarsi</string>
+    <string name="waagh_meter_urgency_rising">l'orda sta aumentando il suo slancio</string>
+    <string name="waagh_meter_urgency_high">l'orda sta travolgendo con furia</string>
+    <string name="waagh_meter_urgency_critical">l'orda sta per esplodere</string>
+    <string name="waagh_meter_frenzy_storming">Frenesia Waaagh - le orde stanno travolgendo</string>
     <string name="sandbox">Sandbox</string>
     <string name="sandbox_tools">Strumenti sandbox</string>
     <string name="sandbox_spawn_enemy">Genera nemico</string>
@@ -1793,6 +1811,8 @@
     <string name="ewhad_retreats_text">Hai costretto Ewhad a ritirarsi!</string>
     <string name="ewhad_defeated_title">Ewhad è sconfitto</string>
     <string name="ewhad_defeated_text">Hai sconfitto Ewhad! Ora elimina gli altri Nemici e vinci il gioco!</string>
+    <string name="waaagh_frenzy_title">Waaagh!</string>
+    <string name="waaagh_frenzy_message">L'orda è caduta in una frenesia! Diventano più forti e più feroci ad ogni passo!</string>
     <!-- Villain system (issue #538) -->
     <string name="garokk_name">Garokk lo Spaccateschi</string>
     <string name="morguk_name">Morguk Sussurraossa</string>
