@@ -1189,6 +1189,12 @@
     <string name="waagh_enabled">Waaagh! Activé</string>
     <string name="waagh_meter_tooltip">Jauge Waaagh : %1$s — %2$s</string>
     <string name="waagh_meter_tooltip_warning">la horde approche son point de rupture</string>
+    <string name="waagh_meter_urgency_gathering">la horde rassemble ses forces</string>
+    <string name="waagh_meter_urgency_stirring">la horde commence à s'agiter</string>
+    <string name="waagh_meter_urgency_rising">la horde prend de l'élan</string>
+    <string name="waagh_meter_urgency_high">la horde déferle avec rage</string>
+    <string name="waagh_meter_urgency_critical">la horde est sur le point d'exploser</string>
+    <string name="waagh_meter_frenzy_storming">Frénésie Waaagh - les hordes déferlent</string>
     <string name="sandbox">Bac à sable</string>
     <string name="sandbox_tools">Outils bac à sable</string>
     <string name="sandbox_spawn_enemy">Générer un ennemi</string>

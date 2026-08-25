@@ -1189,6 +1189,12 @@
     <string name="waagh_enabled">Waaagh! Abilitato</string>
     <string name="waagh_meter_tooltip">Misuratore Waaagh: %1$s — %2$s</string>
     <string name="waagh_meter_tooltip_warning">l'orda sta per raggiungere il punto di rottura</string>
+    <string name="waagh_meter_urgency_gathering">l'orda sta raccogliendo forza</string>
+    <string name="waagh_meter_urgency_stirring">l'orda sta iniziando ad agitarsi</string>
+    <string name="waagh_meter_urgency_rising">l'orda sta aumentando il suo slancio</string>
+    <string name="waagh_meter_urgency_high">l'orda sta travolgendo con furia</string>
+    <string name="waagh_meter_urgency_critical">l'orda sta per esplodere</string>
+    <string name="waagh_meter_frenzy_storming">Frenesia Waaagh - le orde stanno travolgendo</string>
     <string name="sandbox">Sandbox</string>
     <string name="sandbox_tools">Strumenti sandbox</string>
     <string name="sandbox_spawn_enemy">Genera nemico</string>

@@ -1188,6 +1188,12 @@
     <string name="waagh_enabled">Waaagh! Aktiviert</string>
     <string name="waagh_meter_tooltip">Waaagh-Meter: %1$s — %2$s</string>
     <string name="waagh_meter_tooltip_warning">die Horde nähert sich ihrem Wendepunkt</string>
+    <string name="waagh_meter_urgency_gathering">die Horde sammelt Kraft</string>
+    <string name="waagh_meter_urgency_stirring">die Horde kommt in Bewegung</string>
+    <string name="waagh_meter_urgency_rising">die Horde gewinnt an Schwung</string>
+    <string name="waagh_meter_urgency_high">die Horde stürmt immer heftiger</string>
+    <string name="waagh_meter_urgency_critical">die Horde steht kurz vor dem Ausbruch</string>
+    <string name="waagh_meter_frenzy_storming">Waaagh-Raserei - die Horden stürmen</string>
     <string name="sandbox">Sandbox</string>
     <string name="sandbox_tools">Sandbox-Werkzeuge</string>
     <string name="sandbox_spawn_enemy">Gegner beschwören</string>

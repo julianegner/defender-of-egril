@@ -1,6 +1,7 @@
 package de.egril.defender.ui.icon.enemy
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -9,10 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,6 +24,9 @@ import de.egril.defender.model.hidesHealthBar
 import de.egril.defender.model.isSwarmUnit
 import de.egril.defender.ui.getLocalizedShortName
 import de.egril.defender.utils.BigHeadMode
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.flames
+import org.jetbrains.compose.resources.painterResource
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -102,34 +106,7 @@ fun EnemyIcon(
     val pirateClassOutlineColor = attackerOutlineColor(attacker.type, contrastOutlineColor)
     val boxModifier =
         if (showWaaghGlow && attacker.type.isWaaghAffectedUnit()) {
-            modifier
-                .fillMaxSize()
-                .drawBehind {
-                    val centerX = size.width / 2f
-                    val centerY = size.height / 2f
-                    val auraRadius = minOf(size.width, size.height) * 0.62f
-                    drawCircle(
-                        color = Color(0xFFFFD65C).copy(alpha = 0.28f),
-                        radius = auraRadius,
-                        center = Offset(centerX, centerY),
-                    )
-                    drawCircle(
-                        color = Color(0xFFEA5A1E).copy(alpha = 0.46f),
-                        radius = auraRadius * 0.78f,
-                        center = Offset(centerX, centerY),
-                    )
-                    for (flameIndex in 0..5) {
-                        val angle = (-90f + flameIndex * 36f) * (kotlin.math.PI.toFloat() / 180f)
-                        val flameRadius = auraRadius * (0.58f + (flameIndex % 2) * 0.18f)
-                        val flameX = centerX + cos(angle) * flameRadius
-                        val flameY = centerY + sin(angle) * flameRadius
-                        drawCircle(
-                            color = Color(0xFFFFF0B3).copy(alpha = 0.75f),
-                            radius = auraRadius * 0.16f,
-                            center = Offset(flameX, flameY),
-                        )
-                    }
-                }
+            modifier.fillMaxSize()
         } else {
             modifier.fillMaxSize()
         }
@@ -138,6 +115,16 @@ fun EnemyIcon(
         modifier = boxModifier,
         contentAlignment = Alignment.Center,
     ) {
+        if (showWaaghGlow && attacker.type.isWaaghAffectedUnit()) {
+            Image(
+                painter = painterResource(Res.drawable.flames),
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.fillMaxSize().padding(2.dp),
+                alpha = 0.8f,
+            )
+        }
+
         // Draw enemy graphics first (will be behind text)
         val headScale = if (BigHeadMode.isEnabled.value) 2f else 1f
         Canvas(modifier = Modifier.fillMaxSize()) {

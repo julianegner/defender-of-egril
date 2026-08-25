@@ -188,6 +188,7 @@ fun AttackerInfo(
                     val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
                     val mushroomSpeed = if (attacker.hasMushroomBuff) barbsSpeed * 2 else barbsSpeed
                     val cooledSpeed = if (coolingEffect != null) maxOf(0, mushroomSpeed - 1) else null
+                    val waaghSpeed = if (waaghActive && attacker.type == AttackerType.ORK) attacker.type.speed * 2 else null
 
                     // Pre-compute freeze effect for reuse throughout the Column
                     val freezeEffect =
@@ -260,6 +261,16 @@ fun AttackerInfo(
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFFFF8C00),
+                                )
+                            }
+
+                            if (waaghSpeed != null) {
+                                RightArrowIcon(size = 12.dp, tint = Color(0xFFFFB000))
+                                Text(
+                                    "$waaghSpeed",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFFFFB000),
                                 )
                             }
 

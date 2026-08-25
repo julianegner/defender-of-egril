@@ -1192,6 +1192,12 @@
     <string name="waagh_enabled">Waaagh! Enabled</string>
     <string name="waagh_meter_tooltip">Waagh meter: %1$s — %2$s</string>
     <string name="waagh_meter_tooltip_warning">the horde is nearing its breaking point</string>
+    <string name="waagh_meter_urgency_gathering">the horde is gathering strength</string>
+    <string name="waagh_meter_urgency_stirring">the horde is stirring</string>
+    <string name="waagh_meter_urgency_rising">the horde is building momentum</string>
+    <string name="waagh_meter_urgency_high">the horde is surging hard</string>
+    <string name="waagh_meter_urgency_critical">the horde is about to erupt</string>
+    <string name="waagh_meter_frenzy_storming">Waaagh frenzy - the hordes are storming</string>
     <string name="sandbox">Sandbox</string>
     <string name="sandbox_tools">Sandbox Tools</string>
     <string name="sandbox_spawn_enemy">Spawn Enemy</string>

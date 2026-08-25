@@ -1095,8 +1095,17 @@ private fun WaaghBar(gameState: GameState) {
             Res.allDrawableResources["waaagh${roundedDown.toString().padStart(2, '0')}"] ?: Res.drawable.waaagh00
         }
     val waaghProgress = waaghPoints / 100f
+    val waaghStatusText =
+        when {
+            isFrenzyActive -> stringResource(Res.string.waagh_meter_frenzy_storming)
+            waaghPoints >= 90 -> stringResource(Res.string.waagh_meter_urgency_critical)
+            waaghPoints >= 70 -> stringResource(Res.string.waagh_meter_urgency_high)
+            waaghPoints >= 45 -> stringResource(Res.string.waagh_meter_urgency_rising)
+            waaghPoints >= 20 -> stringResource(Res.string.waagh_meter_urgency_stirring)
+            else -> stringResource(Res.string.waagh_meter_urgency_gathering)
+        }
     val waaghTooltipText =
-        stringResource(Res.string.waagh_meter_tooltip, formatWaaghMeterPercent(waaghPoints), stringResource(Res.string.waagh_meter_tooltip_warning))
+        stringResource(Res.string.waagh_meter_tooltip, formatWaaghMeterPercent(waaghPoints), waaghStatusText)
 
     TooltipWrapper(text = waaghTooltipText) {
         Row(
