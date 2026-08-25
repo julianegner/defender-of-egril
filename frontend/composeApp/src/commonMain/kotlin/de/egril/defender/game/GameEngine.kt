@@ -2735,6 +2735,8 @@ class GameEngine(
      */
     fun processPendingBargeDeletions() = enemyAbilities.processPendingBargeDeletions()
 
+    fun processPendingSnotlingCannonArrivals() = enemyAbilities.processPendingSnotlingCannonArrivals()
+
     /**
      * Apply the distant shadow fog tiles that Morvath targeted this turn.
      * Called after the orb animation completes so the fog appears at the end of the animation.

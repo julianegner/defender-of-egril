@@ -47,14 +47,32 @@ class SnotlingCannonTest {
         abilities.processEnemyAbilities()
 
         assertEquals(100, snotling.currentHealth.value, "The source stack should keep exactly 100 snotlings after a max throw")
+        assertTrue(state.pendingSnotlingCannonArrivals.isNotEmpty(), "The landing stack should be queued until the projectile animation completes")
+        val queuedArrival = state.pendingSnotlingCannonArrivals.firstOrNull()
+        assertNotNull(queuedArrival, "A landing-arrival should be queued")
+        assertEquals(Position(5, 0), queuedArrival.targetPosition)
+        assertTrue(
+            queuedArrival.thrownCount in 40..45,
+            "Thrown stack should lose between 10% and 20% of 50 snotlings before arriving",
+        )
+        assertTrue(
+            state.attackers.none {
+                !it.isDefeated.value && it.type == AttackerType.SNOTLING && it.position.value == Position(5, 0)
+            },
+            "The landing stack should not be created until the animation has finished",
+        )
+
+        abilities.processPendingSnotlingCannonArrivals()
+
+        assertTrue(state.pendingSnotlingCannonArrivals.isEmpty(), "The queued arrival should be consumed after the animation")
         val landingStack =
             state.attackers.firstOrNull {
                 !it.isDefeated.value && it.type == AttackerType.SNOTLING && it.position.value == Position(5, 0)
             }
-        assertNotNull(landingStack, "A new snotling stack should be created 3 tiles forward on path")
+        assertNotNull(landingStack, "A new snotling stack should be created 3 tiles forward on path once the animation finishes")
         assertTrue(
             landingStack.currentHealth.value in 40..45,
-            "Thrown stack should lose between 10% and 20% of 50 snotlings",
+            "The landed stack should gain the survivors only after the animation completes",
         )
         val throwEffect = state.snotlingCannonThrowEffects.firstOrNull()
         assertNotNull(throwEffect, "A throw animation effect should be registered")

@@ -1848,6 +1848,12 @@ class GameViewModel {
                 engine.applyPendingMorvathFog()
             }
 
+            // Snotling cannon survivors arrive only after the projectile animation hits home.
+            if (_gameState.value?.pendingSnotlingCannonArrivals?.isNotEmpty() == true) {
+                delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
+                engine.processPendingSnotlingCannonArrivals()
+            }
+
             // Process pending barge deletions from Roderich's Broadside after the cannonball animation completes.
             // The animation duration is BALLISTA_FLIGHT_DELAY_MS (1000ms), so we delay before processing.
             if (_gameState.value?.pendingBargeDeletions?.isNotEmpty() == true) {

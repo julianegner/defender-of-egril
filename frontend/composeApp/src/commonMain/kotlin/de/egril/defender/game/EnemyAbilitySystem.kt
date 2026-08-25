@@ -284,8 +284,13 @@ class EnemyAbilitySystem(
         snotling.currentHealth.value -= thrownCount
         if (survivors <= 0) return
 
-        val landingStack = getOrCreateSnotlingStack(landingTile)
-        landingStack.currentHealth.value = minOf(MAX_SNOTLINGS_PER_TILE, landingStack.currentHealth.value + survivors)
+        state.pendingSnotlingCannonArrivals.add(
+            PendingSnotlingCannonArrival(
+                targetPosition = landingTile,
+                thrownCount = survivors,
+                turnNumber = state.turnNumber.value,
+            ),
+        )
         state.snotlingCannonThrowEffects.add(
             SnotlingCannonThrowEffect(
                 sourcePosition = snotling.position.value,
@@ -294,6 +299,14 @@ class EnemyAbilitySystem(
                 turnNumber = state.turnNumber.value,
             ),
         )
+    }
+
+    fun processPendingSnotlingCannonArrivals() {
+        for (arrival in state.pendingSnotlingCannonArrivals.toList()) {
+            val landingStack = getOrCreateSnotlingStack(arrival.targetPosition)
+            landingStack.currentHealth.value = minOf(MAX_SNOTLINGS_PER_TILE, landingStack.currentHealth.value + arrival.thrownCount)
+        }
+        state.pendingSnotlingCannonArrivals.clear()
     }
 
     private fun findSnotlingCannonLandingTile(snotling: Attacker): Position? {
