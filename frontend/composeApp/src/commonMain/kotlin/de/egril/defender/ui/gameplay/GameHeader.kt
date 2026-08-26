@@ -117,24 +117,26 @@ fun GameHeader(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Statistics at far left
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(GamePlayConstants.Spacing.Items),
-                    verticalAlignment = Alignment.CenterVertically,
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.CenterStart,
                 ) {
-                    GameStats(
-                        gameState = gameState,
-                        onCheatCode = onCheatCode,
-                        headerTextSize = headerTextSize,
-                        onEnemyCountClick = onEnemyCountClick,
-                        onManaClick = onManaClick,
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(GamePlayConstants.Spacing.Items),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        GameStats(
+                            gameState = gameState,
+                            onCheatCode = onCheatCode,
+                            headerTextSize = headerTextSize,
+                            onEnemyCountClick = onEnemyCountClick,
+                            onManaClick = onManaClick,
+                        )
+                    }
                 }
 
-                // Level name in center
                 val locale = com.hyperether.resources.currentLanguage.value
                 val titleFontSize =
                     when (headerTextSize) {
@@ -143,353 +145,352 @@ fun GameHeader(
                         de.egril.defender.ui.settings.HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
                     }
 
-                if (isDemoMode) {
-                    // Demo title: "*** DEMO MODE ***  [original title]  *** DEMO MODE ***"
-                    // The "*** DEMO MODE ***" parts are in red and clickable to stop the demo
-                    Row(
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .then(if (onDemoTitleClick != null) Modifier.clickable { onDemoTitleClick() } else Modifier),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = "*** DEMO MODE ***",
-                            fontSize = titleFontSize,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                        Text(
-                            text = "  ${gameState.level.getLocalizedTitle(locale)}  ",
-                            fontSize = titleFontSize,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Text(
-                            text = "*** DEMO MODE ***",
-                            fontSize = titleFontSize,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                    }
-                } else {
-                    SelectableText(
-                        text =
-                            if (gameState.level.isSandbox) {
-                                "${stringResource(Res.string.sandbox)} — ${gameState.level.getLocalizedTitle(locale)}"
-                            } else {
-                                gameState.level.getLocalizedTitle(locale)
-                            },
-                        fontSize = titleFontSize,
-                        fontWeight = FontWeight.Bold,
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .clickable { showLevelCardDialog = true },
-                        textAlign = TextAlign.Center,
-                    )
-                }
-
-                // Buttons and difficulty at far right
-                val buttonHeight =
-                    when (headerTextSize) {
-                        de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.ButtonSizes.CompactHeight
-                        de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> 40.dp
-                        de.egril.defender.ui.settings.HeaderTextSize.LARGE -> 48.dp
-                    }
-                val buttonIconSize =
-                    when (headerTextSize) {
-                        de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.IconSizes.Medium
-                        de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> GamePlayConstants.IconSizes.Large
-                        de.egril.defender.ui.settings.HeaderTextSize.LARGE -> GamePlayConstants.IconSizes.ExtraLarge
-                    }
-                val buttonTextSize =
-                    when (headerTextSize) {
-                        de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.Body
-                        de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> GamePlayConstants.TextSizes.Medium
-                        de.egril.defender.ui.settings.HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
-                    }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    WaaghBar(gameState = gameState)
-
-                    // Level header icons (water and/or tower) before difficulty
-                    LevelHeaderIcons(
-                        gameState = gameState,
-                        iconSize = buttonHeight, // Use button height for larger icons (double size)
-                        onWinLevelInfoClick = onWinLevelInfoClick,
-                    )
-
-                    // Difficulty display (non-clickable on gameplay screen)
-                    TooltipWrapper(text = stringResource(Res.string.difficulty)) {
-                        DifficultyDisplay(
-                            isClickable = false,
-                        )
-                    }
-
-                    // Debug options button (only visible when debug options enabled)
-                    if (showDebugOptions) {
-                        Box {
-                            val debugOptionsLabel = stringResource(Res.string.debug_options)
-                            IconButton(
-                                onClick = { showDebugMenu = !showDebugMenu },
-                                modifier = Modifier.size(buttonHeight).semantics { contentDescription = debugOptionsLabel },
-                            ) {
-                                ToolsIcon(size = buttonIconSize)
-                            }
-
-                            DropdownMenu(
-                                expanded = showDebugMenu,
-                                onDismissRequest = { showDebugMenu = false },
-                            ) {
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                        ) {
-                                            Text(stringResource(Res.string.debug_display_tile_borders))
-                                            Spacer(modifier = Modifier.weight(1f))
-                                            Switch(
-                                                checked = AppSettings.showTileBorders.value,
-                                                onCheckedChange = { AppSettings.showTileBorders.value = it },
-                                            )
-                                        }
-                                    },
-                                    onClick = { AppSettings.showTileBorders.value = !AppSettings.showTileBorders.value },
-                                )
-
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                        ) {
-                                            Text(stringResource(Res.string.debug_display_tile_positions))
-                                            Spacer(modifier = Modifier.weight(1f))
-                                            Switch(
-                                                checked = AppSettings.showTilePositions.value,
-                                                onCheckedChange = { AppSettings.showTilePositions.value = it },
-                                            )
-                                        }
-                                    },
-                                    onClick = { AppSettings.showTilePositions.value = !AppSettings.showTilePositions.value },
-                                )
-
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                        ) {
-                                            Text(stringResource(Res.string.debug_display_map_size))
-                                            Spacer(modifier = Modifier.weight(1f))
-                                            Switch(
-                                                checked = AppSettings.showMapSizeOverlay.value,
-                                                onCheckedChange = { AppSettings.showMapSizeOverlay.value = it },
-                                            )
-                                        }
-                                    },
-                                    onClick = { AppSettings.showMapSizeOverlay.value = !AppSettings.showMapSizeOverlay.value },
-                                )
-                            }
-                        }
-                    }
-
-                    // Shortcuts button (not shown on mobile platforms or mobile web browsers)
-                    if (!isPlatformMobile && !isLimitedInputDevice && !isMobileWebBrowser()) {
-                        val shortcutsLabel = stringResource(Res.string.tooltip_shortcuts)
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            TooltipWrapper(text = shortcutsLabel) {
-                                IconButton(
-                                    onClick = { showShortcutsDialog = true },
-                                    modifier = Modifier.size(buttonHeight).semantics { contentDescription = shortcutsLabel },
-                                ) {
-                                    KeyboardKeyIcon(size = buttonIconSize)
-                                }
-                            }
-                            ShortcutKeyChip(
-                                text = "/",
+                    if (isDemoMode) {
+                        Row(
+                            modifier =
+                                Modifier.then(if (onDemoTitleClick != null) Modifier.clickable { onDemoTitleClick() } else Modifier),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = "*** DEMO MODE ***",
+                                fontSize = titleFontSize,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                            Text(
+                                text = "  ${gameState.level.getLocalizedTitle(locale)}  ",
+                                fontSize = titleFontSize,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Text(
+                                text = "*** DEMO MODE ***",
+                                fontSize = titleFontSize,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.error,
                             )
                         }
+                    } else {
+                        SelectableText(
+                            text =
+                                if (gameState.level.isSandbox) {
+                                    "${stringResource(Res.string.sandbox)} — ${gameState.level.getLocalizedTitle(locale)}"
+                                } else {
+                                    gameState.level.getLocalizedTitle(locale)
+                                },
+                            fontSize = titleFontSize,
+                            fontWeight = FontWeight.Bold,
+                            modifier =
+                                Modifier
+                                    .wrapContentWidth()
+                                    .clickable { showLevelCardDialog = true },
+                            textAlign = TextAlign.Center,
+                        )
                     }
+                }
 
-                    // Feedback button (icon only to save space)
-                    val levelTitle = gameState.level.getLocalizedTitle(locale)
-                    FeedbackButton(
-                        modifier = Modifier.size(buttonHeight),
-                        gameContext =
-                            de.egril.defender.ui.feedback.GameFeedbackContext(
-                                levelName = levelTitle,
-                                turnNumber = gameState.turnNumber.value,
-                                gameStateJson =
-                                    buildString {
-                                        val escapedTitle =
-                                            de.egril.defender.ui.feedback
-                                                .escapeForJson(levelTitle)
-                                        append("{")
-                                        append("\"levelId\":${gameState.level.id},")
-                                        append("\"levelName\":\"$escapedTitle\",")
-                                        append("\"turn\":${gameState.turnNumber.value},")
-                                        append("\"hp\":${gameState.healthPoints.value},")
-                                        append("\"coins\":${gameState.coins.value},")
-                                        append("\"defenders\":${gameState.defenders.size},")
-                                        append("\"attackers\":${gameState.attackers.size},")
-                                        append("\"phase\":\"${gameState.phase.value.name}\"")
-                                        append("}")
-                                    },
-                            ),
-                        shortcutKey = ".",
-                        triggerOpen = externalShowFeedback,
-                        onTriggerHandled = onExternalShowFeedbackHandled,
-                    )
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.CenterEnd,
+                ) {
+                    val buttonHeight =
+                        when (headerTextSize) {
+                            de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.ButtonSizes.CompactHeight
+                            de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> 40.dp
+                            de.egril.defender.ui.settings.HeaderTextSize.LARGE -> 48.dp
+                        }
+                    val buttonIconSize =
+                        when (headerTextSize) {
+                            de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.IconSizes.Medium
+                            de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> GamePlayConstants.IconSizes.Large
+                            de.egril.defender.ui.settings.HeaderTextSize.LARGE -> GamePlayConstants.IconSizes.ExtraLarge
+                        }
+                    val buttonTextSize =
+                        when (headerTextSize) {
+                            de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.Body
+                            de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> GamePlayConstants.TextSizes.Medium
+                            de.egril.defender.ui.settings.HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
+                        }
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        WaaghBar(gameState = gameState)
 
-                    // Settings button (icon only to save space)
-                    SettingsButton(
-                        modifier = Modifier.size(buttonHeight),
-                        shortcutKey = ",",
-                        triggerOpen = externalShowSettings,
-                        onTriggerHandled = onExternalShowSettingsHandled,
-                        pageBackgroundMusic =
-                            if (gameState.healthPoints.value < 5) {
-                                de.egril.defender.audio.BackgroundMusic.GAMEPLAY_LOW_HEALTH
-                            } else {
-                                de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL
-                            },
-                    )
+                        LevelHeaderIcons(
+                            gameState = gameState,
+                            iconSize = buttonHeight,
+                            onWinLevelInfoClick = onWinLevelInfoClick,
+                        )
 
-                    if (onSandboxTools != null && gameState.level.isSandbox) {
-                        var sandboxHintDismissed by rememberSaveable { mutableStateOf(false) }
-                        var sandboxButtonWidthPx by remember { mutableStateOf(0) }
-                        Box {
-                            TooltipWrapper(text = stringResource(Res.string.sandbox_tools)) {
-                                Button(
-                                    onClick = onSandboxTools,
-                                    modifier =
-                                        Modifier
-                                            .height(buttonHeight)
-                                            .semantics { contentDescription = "sandbox_tools" }
-                                            .onGloballyPositioned { sandboxButtonWidthPx = it.size.width },
-                                    contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
+                        TooltipWrapper(text = stringResource(Res.string.difficulty)) {
+                            DifficultyDisplay(
+                                isClickable = false,
+                            )
+                        }
+
+                        if (showDebugOptions) {
+                            Box {
+                                val debugOptionsLabel = stringResource(Res.string.debug_options)
+                                IconButton(
+                                    onClick = { showDebugMenu = !showDebugMenu },
+                                    modifier = Modifier.size(buttonHeight).semantics { contentDescription = debugOptionsLabel },
                                 ) {
-                                    SwordIcon(size = buttonIconSize)
+                                    ToolsIcon(size = buttonIconSize)
+                                }
+
+                                DropdownMenu(
+                                    expanded = showDebugMenu,
+                                    onDismissRequest = { showDebugMenu = false },
+                                ) {
+                                    DropdownMenuItem(
+                                        text = {
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                Text(stringResource(Res.string.debug_display_tile_borders))
+                                                Spacer(modifier = Modifier.weight(1f))
+                                                Switch(
+                                                    checked = AppSettings.showTileBorders.value,
+                                                    onCheckedChange = { AppSettings.showTileBorders.value = it },
+                                                )
+                                            }
+                                        },
+                                        onClick = { AppSettings.showTileBorders.value = !AppSettings.showTileBorders.value },
+                                    )
+
+                                    DropdownMenuItem(
+                                        text = {
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                Text(stringResource(Res.string.debug_display_tile_positions))
+                                                Spacer(modifier = Modifier.weight(1f))
+                                                Switch(
+                                                    checked = AppSettings.showTilePositions.value,
+                                                    onCheckedChange = { AppSettings.showTilePositions.value = it },
+                                                )
+                                            }
+                                        },
+                                        onClick = { AppSettings.showTilePositions.value = !AppSettings.showTilePositions.value },
+                                    )
+
+                                    DropdownMenuItem(
+                                        text = {
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                Text(stringResource(Res.string.debug_display_map_size))
+                                                Spacer(modifier = Modifier.weight(1f))
+                                                Switch(
+                                                    checked = AppSettings.showMapSizeOverlay.value,
+                                                    onCheckedChange = { AppSettings.showMapSizeOverlay.value = it },
+                                                )
+                                            }
+                                        },
+                                        onClick = { AppSettings.showMapSizeOverlay.value = !AppSettings.showMapSizeOverlay.value },
+                                    )
                                 }
                             }
-                            if (!sandboxHintDismissed) {
-                                HeaderButtonSpeechBubble(
-                                    text = stringResource(Res.string.sandbox_tools_hint),
-                                    anchorWidthPx = sandboxButtonWidthPx,
-                                    anchorHeight = buttonHeight,
-                                    onClose = { sandboxHintDismissed = true },
+                        }
+
+                        if (!isPlatformMobile && !isLimitedInputDevice && !isMobileWebBrowser()) {
+                            val shortcutsLabel = stringResource(Res.string.tooltip_shortcuts)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                TooltipWrapper(text = shortcutsLabel) {
+                                    IconButton(
+                                        onClick = { showShortcutsDialog = true },
+                                        modifier = Modifier.size(buttonHeight).semantics { contentDescription = shortcutsLabel },
+                                    ) {
+                                        KeyboardKeyIcon(size = buttonIconSize)
+                                    }
+                                }
+                                ShortcutKeyChip(
+                                    text = "/",
                                 )
                             }
                         }
-                    }
 
-                    if (onSaveGame != null) {
-                        TooltipWrapper(text = stringResource(Res.string.tooltip_save_the_game)) {
+                        val levelTitle = gameState.level.getLocalizedTitle(locale)
+                        FeedbackButton(
+                            modifier = Modifier.size(buttonHeight),
+                            gameContext =
+                                de.egril.defender.ui.feedback.GameFeedbackContext(
+                                    levelName = levelTitle,
+                                    turnNumber = gameState.turnNumber.value,
+                                    gameStateJson =
+                                        buildString {
+                                            val escapedTitle =
+                                                de.egril.defender.ui.feedback
+                                                    .escapeForJson(levelTitle)
+                                            append("{")
+                                            append("\"levelId\":${gameState.level.id},")
+                                            append("\"levelName\":\"$escapedTitle\",")
+                                            append("\"turn\":${gameState.turnNumber.value},")
+                                            append("\"hp\":${gameState.healthPoints.value},")
+                                            append("\"coins\":${gameState.coins.value},")
+                                            append("\"defenders\":${gameState.defenders.size},")
+                                            append("\"attackers\":${gameState.attackers.size},")
+                                            append("\"phase\":\"${gameState.phase.value.name}\"")
+                                            append("}")
+                                        },
+                                ),
+                            shortcutKey = ".",
+                            triggerOpen = externalShowFeedback,
+                            onTriggerHandled = onExternalShowFeedbackHandled,
+                        )
+
+                        SettingsButton(
+                            modifier = Modifier.size(buttonHeight),
+                            shortcutKey = ",",
+                            triggerOpen = externalShowSettings,
+                            onTriggerHandled = onExternalShowSettingsHandled,
+                            pageBackgroundMusic =
+                                if (gameState.healthPoints.value < 5) {
+                                    de.egril.defender.audio.BackgroundMusic.GAMEPLAY_LOW_HEALTH
+                                } else {
+                                    de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL
+                                },
+                        )
+
+                        if (onSandboxTools != null && gameState.level.isSandbox) {
+                            var sandboxHintDismissed by rememberSaveable { mutableStateOf(false) }
+                            var sandboxButtonWidthPx by remember { mutableStateOf(0) }
+                            Box {
+                                TooltipWrapper(text = stringResource(Res.string.sandbox_tools)) {
+                                    Button(
+                                        onClick = onSandboxTools,
+                                        modifier =
+                                            Modifier
+                                                .height(buttonHeight)
+                                                .semantics { contentDescription = "sandbox_tools" }
+                                                .onGloballyPositioned { sandboxButtonWidthPx = it.size.width },
+                                        contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
+                                    ) {
+                                        SwordIcon(size = buttonIconSize)
+                                    }
+                                }
+                                if (!sandboxHintDismissed) {
+                                    HeaderButtonSpeechBubble(
+                                        text = stringResource(Res.string.sandbox_tools_hint),
+                                        anchorWidthPx = sandboxButtonWidthPx,
+                                        anchorHeight = buttonHeight,
+                                        onClose = { sandboxHintDismissed = true },
+                                    )
+                                }
+                            }
+                        }
+
+                        if (onSaveGame != null) {
+                            TooltipWrapper(text = stringResource(Res.string.tooltip_save_the_game)) {
+                                Button(
+                                    onClick = onSaveGame,
+                                    modifier = Modifier.height(buttonHeight),
+                                    contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    ) {
+                                        SaveIcon(
+                                            size = buttonIconSize,
+                                            modifier = Modifier.align(Alignment.CenterVertically),
+                                        )
+                                        ShortcutKeyChip(
+                                            text = formatShortcutBindingForDisplay(AppSettings.shortcutSaveGame.value),
+                                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f),
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        TooltipWrapper(text = stringResource(Res.string.tooltip_return_to_worldmap)) {
                             Button(
-                                onClick = onSaveGame,
+                                onClick = onBackToMap,
                                 modifier = Modifier.height(buttonHeight),
                                 contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
+                            ) {
+                                Text(
+                                    stringResource(Res.string.map_label),
+                                    fontSize = buttonTextSize,
+                                    modifier = Modifier.align(Alignment.CenterVertically),
+                                )
+                                ShortcutKeyChip(
+                                    text = formatShortcutBindingForDisplay(AppSettings.shortcutBackToWorldMap.value),
+                                    color = LocalContentColor.current.copy(alpha = 0.75f),
+                                )
+                            }
+                        }
+
+                        TooltipWrapper(text = stringResource(Res.string.tooltip_enemy_list_and_legend)) {
+                            val overlayButtonBackgroundColor = if (showOverlay) GamePlayColors.Success else GamePlayColors.Info
+                            val overlayButtonContentColor = GamePlayColors.readableContentColor(overlayButtonBackgroundColor)
+                            Button(
+                                onClick = { onShowOverlayChange(!showOverlay) },
+                                modifier = Modifier.height(buttonHeight),
+                                contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
+                                colors =
+                                    ButtonDefaults.buttonColors(
+                                        containerColor = overlayButtonBackgroundColor,
+                                        contentColor = overlayButtonContentColor,
+                                    ),
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                                 ) {
-                                    SaveIcon(
-                                        size = buttonIconSize,
-                                        modifier = Modifier.align(Alignment.CenterVertically),
-                                    )
+                                    val overlayIconSize = buttonIconSize * 1.35f
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .size(overlayIconSize),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        if (showOverlay) {
+                                            TriangleRightIcon(size = overlayIconSize)
+                                        } else {
+                                            TriangleLeftIcon(size = overlayIconSize)
+                                        }
+                                    }
                                     ShortcutKeyChip(
-                                        text = formatShortcutBindingForDisplay(AppSettings.shortcutSaveGame.value),
-                                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f),
+                                        text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleEnemyList.value),
+                                        color = overlayButtonContentColor.copy(alpha = 0.75f),
                                     )
                                 }
                             }
                         }
-                    }
 
-                    TooltipWrapper(text = stringResource(Res.string.tooltip_return_to_worldmap)) {
-                        Button(
-                            onClick = onBackToMap,
-                            modifier = Modifier.height(buttonHeight),
-                            contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
-                        ) {
-                            Text(
-                                stringResource(Res.string.map_label),
-                                fontSize = buttonTextSize,
-                                modifier = Modifier.align(Alignment.CenterVertically),
-                            )
-                            ShortcutKeyChip(
-                                text = formatShortcutBindingForDisplay(AppSettings.shortcutBackToWorldMap.value),
-                                color = LocalContentColor.current.copy(alpha = 0.75f),
-                            )
-                        }
-                    }
-
-                    TooltipWrapper(text = stringResource(Res.string.tooltip_enemy_list_and_legend)) {
-                        val overlayButtonBackgroundColor = if (showOverlay) GamePlayColors.Success else GamePlayColors.Info
-                        val overlayButtonContentColor = GamePlayColors.readableContentColor(overlayButtonBackgroundColor)
-                        Button(
-                            onClick = { onShowOverlayChange(!showOverlay) },
-                            modifier = Modifier.height(buttonHeight),
-                            contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
-                            colors =
-                                ButtonDefaults.buttonColors(
-                                    containerColor = overlayButtonBackgroundColor,
-                                    contentColor = overlayButtonContentColor,
-                                ),
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            ) {
-                                val overlayIconSize = buttonIconSize * 1.35f
-                                Box(
+                        val tutorialsAndHelpLabel = stringResource(Res.string.tutorials_and_help)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            TooltipWrapper(text = tutorialsAndHelpLabel) {
+                                IconButton(
+                                    onClick = { showTutorialsHelpDialog = true },
                                     modifier =
                                         Modifier
-                                            .size(overlayIconSize),
-                                    contentAlignment = Alignment.Center,
+                                            .size(buttonHeight)
+                                            .semantics { contentDescription = tutorialsAndHelpLabel },
                                 ) {
-                                    if (showOverlay) {
-                                        TriangleRightIcon(size = overlayIconSize)
-                                    } else {
-                                        TriangleLeftIcon(size = overlayIconSize)
-                                    }
+                                    HelpIcon(
+                                        size = 32.dp,
+                                    )
                                 }
-                                ShortcutKeyChip(
-                                    text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleEnemyList.value),
-                                    color = overlayButtonContentColor.copy(alpha = 0.75f),
-                                )
                             }
+                            ShortcutKeyChip(
+                                text = "H",
+                            )
                         }
-                    }
-
-                    val tutorialsAndHelpLabel = stringResource(Res.string.tutorials_and_help)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        TooltipWrapper(text = tutorialsAndHelpLabel) {
-                            IconButton(
-                                onClick = { showTutorialsHelpDialog = true },
-                                modifier =
-                                    Modifier
-                                        .size(buttonHeight)
-                                        .semantics { contentDescription = tutorialsAndHelpLabel },
-                            ) {
-                                HelpIcon(
-                                    size = 32.dp,
-                                )
-                            }
-                        }
-                        ShortcutKeyChip(
-                            text = "H",
-                        )
                     }
                 }
             }
-        }
+            }
 
         if (showShortcutsDialog) {
             Dialog(
