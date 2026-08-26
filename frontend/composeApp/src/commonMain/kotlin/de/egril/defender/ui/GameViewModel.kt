@@ -1897,23 +1897,60 @@ class GameViewModel {
         val engine = gameEngine ?: return
         val currentState = gameState.value ?: return
 
-        // Explicitly trigger auto-attacks for all ready defenders
-        engine.autoDefenderAttacks()
+        viewModelScope.launch {
+            // Track whether any attacks fired / enemies killed so we can wait for animations
+            val triggerCountBefore = currentState.attackTriggerCount.value
+            val deathCountBefore = currentState.defeatedEnemyEffects.size
 
-        // Surface any messages queued by scripted events fired by the auto-attacks (kills), so they
-        // are shown even when the turn does not end immediately (special actions remaining below).
-        surfaceNextPendingMessageIfIdle()
+            // Explicitly trigger auto-attacks for all ready defenders
+            engine.autoDefenderAttacks()
 
-        // Check if there are special actions remaining (mines, alchemy, wizard traps)
-        val specialActionTypes = currentState.getDefenderTypesWithSpecialActions()
+            val anyAttacksFired = currentState.attackTriggerCount.value > triggerCountBefore
+            val enemiesKilled = currentState.defeatedEnemyEffects.size > deathCountBefore
 
-        if (specialActionTypes.isNotEmpty()) {
-            // There are special actions remaining - show warning dialog instead of ending turn
-            // Store the types so the UI can display them
-            _specialActionsRemaining.value = specialActionTypes
-        } else {
-            // No special actions remaining - proceed with ending turn
-            endPlayerTurn()
+            if (anyAttacksFired) {
+                // Determine the projectile flight duration (ballista/wizard/alchemy = 1000 ms,
+                // arrows/spears/pikes = 900 ms).
+                val flightDelayMs =
+                    if (
+                        currentState.ballistaAttackEffects.any { it.turnNumber == currentState.turnNumber.value } ||
+                        currentState.wizardAttackEffects.any { it.turnNumber == currentState.turnNumber.value } ||
+                        currentState.alchemyAttackEffects.any { it.turnNumber == currentState.turnNumber.value }
+                    ) {
+                        GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                    } else {
+                        GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    }
+
+                // Wait for the projectile to arrive visually
+                delay(flightDelayMs)
+
+                if (enemiesKilled) {
+                    // Death animation, then the full coin-gain sequence (bubble-up + fly-to-counter)
+                    delay(GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS)
+                    delay(GamePlayConstants.AnimationTimings.COIN_GAIN_DELAY_AFTER_DEATH_MS)
+                    delay(GamePlayConstants.AnimationTimings.COIN_GAIN_ANIMATION_DURATION_MS)
+                } else {
+                    // No kills — just let the impact flash finish
+                    delay(GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
+                }
+            }
+
+            // Surface any messages queued by scripted events fired by the auto-attacks (kills), so they
+            // are shown even when the turn does not end immediately (special actions remaining below).
+            surfaceNextPendingMessageIfIdle()
+
+            // Check if there are special actions remaining (mines, alchemy, wizard traps)
+            val specialActionTypes = currentState.getDefenderTypesWithSpecialActions()
+
+            if (specialActionTypes.isNotEmpty()) {
+                // There are special actions remaining - show warning dialog instead of ending turn
+                // Store the types so the UI can display them
+                _specialActionsRemaining.value = specialActionTypes
+            } else {
+                // No special actions remaining - proceed with ending turn
+                endPlayerTurn()
+            }
         }
     }
 
