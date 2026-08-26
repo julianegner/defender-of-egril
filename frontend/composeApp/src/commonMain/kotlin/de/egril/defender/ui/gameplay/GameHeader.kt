@@ -115,88 +115,84 @@ fun GameHeader(
                     .padding(8.dp)
                     .zIndex(2f),
         ) {
-            Row(
+            val locale = com.hyperether.resources.currentLanguage.value
+            val titleFontSize =
+                when (headerTextSize) {
+                    de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.Body
+                    de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> GamePlayConstants.TextSizes.Medium
+                    de.egril.defender.ui.settings.HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
+                }
+
+            Box(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+                contentAlignment = Alignment.Center,
             ) {
-                Box(
-                    modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.CenterStart,
-                ) {
+                if (isDemoMode) {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(GamePlayConstants.Spacing.Items),
+                        modifier =
+                            Modifier.then(if (onDemoTitleClick != null) Modifier.clickable { onDemoTitleClick() } else Modifier),
+                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        GameStats(
-                            gameState = gameState,
-                            onCheatCode = onCheatCode,
-                            headerTextSize = headerTextSize,
-                            onEnemyCountClick = onEnemyCountClick,
-                            onManaClick = onManaClick,
-                        )
-                    }
-                }
-
-                val locale = com.hyperether.resources.currentLanguage.value
-                val titleFontSize =
-                    when (headerTextSize) {
-                        de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.Body
-                        de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> GamePlayConstants.TextSizes.Medium
-                        de.egril.defender.ui.settings.HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
-                    }
-
-                Box(
-                    modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (isDemoMode) {
-                        Row(
-                            modifier =
-                                Modifier.then(if (onDemoTitleClick != null) Modifier.clickable { onDemoTitleClick() } else Modifier),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = "*** DEMO MODE ***",
-                                fontSize = titleFontSize,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                            Text(
-                                text = "  ${gameState.level.getLocalizedTitle(locale)}  ",
-                                fontSize = titleFontSize,
-                                fontWeight = FontWeight.Bold,
-                            )
-                            Text(
-                                text = "*** DEMO MODE ***",
-                                fontSize = titleFontSize,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
-                    } else {
-                        SelectableText(
-                            text =
-                                if (gameState.level.isSandbox) {
-                                    "${stringResource(Res.string.sandbox)} — ${gameState.level.getLocalizedTitle(locale)}"
-                                } else {
-                                    gameState.level.getLocalizedTitle(locale)
-                                },
+                        Text(
+                            text = "*** DEMO MODE ***",
                             fontSize = titleFontSize,
                             fontWeight = FontWeight.Bold,
-                            modifier =
-                                Modifier
-                                    .wrapContentWidth()
-                                    .clickable { showLevelCardDialog = true },
-                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                        Text(
+                            text = "  ${gameState.level.getLocalizedTitle(locale)}  ",
+                            fontSize = titleFontSize,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            text = "*** DEMO MODE ***",
+                            fontSize = titleFontSize,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error,
                         )
                     }
+                } else {
+                    SelectableText(
+                        text =
+                            if (gameState.level.isSandbox) {
+                                "${stringResource(Res.string.sandbox)} — ${gameState.level.getLocalizedTitle(locale)}"
+                            } else {
+                                gameState.level.getLocalizedTitle(locale)
+                            },
+                        fontSize = titleFontSize,
+                        fontWeight = FontWeight.Bold,
+                        modifier =
+                            Modifier
+                                .wrapContentWidth()
+                                .clickable { showLevelCardDialog = true },
+                        textAlign = TextAlign.Center,
+                    )
                 }
+            }
 
-                Box(
-                    modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.CenterEnd,
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(GamePlayConstants.Spacing.Items),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    GameStats(
+                        gameState = gameState,
+                        onCheatCode = onCheatCode,
+                        headerTextSize = headerTextSize,
+                        onEnemyCountClick = onEnemyCountClick,
+                        onManaClick = onManaClick,
+                    )
+                }
+            }
+
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
                     val buttonHeight =
                         when (headerTextSize) {
                             de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.ButtonSizes.CompactHeight
@@ -216,10 +212,14 @@ fun GameHeader(
                             de.egril.defender.ui.settings.HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
                         }
                     Row(
+                        modifier = Modifier.wrapContentWidth(unbounded = true),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        WaaghBar(gameState = gameState)
+                        WaaghBar(
+                            gameState = gameState,
+                            slotHeight = buttonHeight,
+                        )
 
                         LevelHeaderIcons(
                             gameState = gameState,
@@ -488,7 +488,6 @@ fun GameHeader(
                             )
                         }
                     }
-                }
             }
             }
 
@@ -1082,9 +1081,16 @@ internal fun LevelSpecialTowersInfoDialog(
 }
 
 @Composable
-private fun WaaghBar(gameState: GameState) {
+private fun WaaghBar(
+    gameState: GameState,
+    slotHeight: Dp,
+) {
     if (!gameState.level.waaghEnabled || !gameState.hasHordeUnitsInLevel) return
 
+    val slotHeightPx = with(LocalDensity.current) { slotHeight.roundToPx() }
+    val waaghMeterHeight = slotHeight * 2f
+    val waaghMeterWidth = waaghMeterHeight * 2f
+    val waaghMeterVerticalOffset = -(waaghMeterHeight / 4f)
     val waaghPoints = gameState.waaghPoints.value.coerceIn(0, 100)
     val isFrenzyActive = gameState.waaghFrenzyActive.value
     val resource =
@@ -1109,20 +1115,31 @@ private fun WaaghBar(gameState: GameState) {
 
     TooltipWrapper(text = waaghTooltipText) {
         Row(
+            modifier =
+                Modifier.layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints.copy(minHeight = 0))
+                    layout(placeable.width, slotHeightPx) {
+                        placeable.placeRelative(0, 0)
+                    }
+                },
             horizontalArrangement = Arrangement.spacedBy(0.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(
                 painter = painterResource(resource),
                 contentDescription = null,
-                modifier = Modifier.height(80.dp).width(160.dp),
+                modifier =
+                    Modifier
+                        .height(waaghMeterHeight)
+                        .width(waaghMeterWidth)
+                        .offset(y = waaghMeterVerticalOffset),
             )
             if (!isFrenzyActive) {
                 Text(
                     text = formatWaaghMeterPercent(waaghPoints),
                     color = getWaaghMeterColor(waaghProgress),
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.offset(x = (-8).dp).padding(end = 8.dp),
+                    modifier = Modifier.offset(x = (-8).dp, y = waaghMeterVerticalOffset).padding(end = 8.dp),
                 )
             }
         }
