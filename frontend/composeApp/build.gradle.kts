@@ -244,7 +244,12 @@ kotlin {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
     
-    jvm("desktop")
+    jvm("desktop") {
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
     
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
@@ -289,6 +294,9 @@ kotlin {
                     layout.buildDirectory.get().asFile.path,
                     "generated/compose/resourceGenerator/kotlin/commonCustomResClass"
                 )
+            )
+            resources.srcDir(
+                layout.buildDirectory.dir("generated/legacyEnemySprites/commonMain/composeResources")
             )
         }
         
@@ -539,6 +547,31 @@ tasks.register<JavaExec>("generateHexGridDebugImages") {
 // as untracked forces them to always run (still fast) and avoids the spurious failure.
 tasks.matching { it.name.startsWith("copyNonXmlValueResourcesFor") }.configureEach {
     doNotTrackState("Gradle 9.x output-property validation workaround for Compose resource tasks")
+}
+
+// Compatibility workaround for legacy enemy spritesheets that may still exist under
+// src/commonMain/composeResources/drawable/sprites on developer machines. Compose resources under
+// drawable/ cannot be consumed as raw nested files at runtime, so we copy them into a generated
+// files/sprites resource tree before Compose resource preparation runs.
+val preparedLegacyEnemySpritesDir =
+    layout.buildDirectory.dir(
+        "generated/compose/resourceGenerator/preparedResources/commonMain/composeResources/drawable/sprites"
+    )
+
+val syncLegacyEnemySprites =
+    tasks.register<org.gradle.api.tasks.Sync>("syncLegacyEnemySprites") {
+        from(layout.projectDirectory.dir("src/commonMain/composeResources/drawable/sprites"))
+        into(layout.buildDirectory.dir("generated/legacyEnemySprites/commonMain/composeResources/files/sprites"))
+        include("*.png")
+    }
+
+tasks.matching { it.name == "prepareComposeResourcesTaskForCommonMain" }.configureEach {
+    dependsOn(syncLegacyEnemySprites)
+    doLast {
+        // Delete the prepared legacy drawable/sprites directory so Compose resource accessor
+        // generation only sees the copied files/sprites tree and not the nested drawable folder.
+        delete(preparedLegacyEnemySpritesDir)
+    }
 }
 
 // ---------------------------------------------------------------------------
