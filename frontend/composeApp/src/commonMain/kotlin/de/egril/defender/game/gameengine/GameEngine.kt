@@ -53,12 +53,32 @@ class GameEngine(
             getEffectiveRange = ::getEffectiveRange,
             findClosestTargetPosition = ::findClosestTargetPosition,
         )
-    private val dragonLogic = GameEngineDragonLogic(state)
+    private val autoAttackLogic =
+        GameEngineAutoAttackLogic(
+            state = state,
+            selector = autoAttackSelector,
+            combatSystem = combatSystem,
+            evaluateImmediateEvents = ::evaluateImmediateEvents,
+        )
+    private val dragonLogic =
+        GameEngineDragonLogic(
+            state = state,
+            mineOperations = mineOperations,
+        )
     private val mineLogic =
         GameEngineMineLogic(
             state = state,
             findClosestTargetPosition = ::findClosestTargetPosition,
             recordDragonLevelChange = dragonLogic::recordDragonLevelChange,
+        )
+    private val barricadeLogic =
+        GameEngineBarricadeLogic(
+            state = state,
+            barricadeSystem = barricadeSystem,
+            mineOperations = mineOperations,
+            applyTargetDamage = ::applyTargetDamage,
+            destroyFiefAt = ::destroyFiefAt,
+            consumeMushroomAt = ::consumeMushroomAt,
         )
     private val gameEngineMovement =
         GameEngineMovement(
@@ -81,9 +101,6 @@ class GameEngine(
             consumeMushroomAt = ::consumeMushroomAt,
             recordDragonLevelChange = dragonLogic::recordDragonLevelChange,
         )
-
-    // Callback for dragon level changes (stored to set on new dragons)
-    private var dragonLevelChangeCallback: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
 
     // Tower Management - delegated to TowerManager
     fun placeDefender(
@@ -242,57 +259,7 @@ class GameEngine(
 
     fun removeBarricade(position: Position): Int = barricadeSystem.removeBarricade(position)
 
-    fun autoDefenderAttacks() {
-        if (state.phase.value != GamePhase.PLAYER_TURN) return
-
-        // Check if there are any attackers to target
-        if (state.attackers.none { !it.isDefeated.value && !it.isBuildingBridge.value }) return
-
-        for (defender in state.defenders) {
-            if (!defender.isReady) continue
-            if (defender.actionsRemaining.value <= 0) continue
-            if (defender.isDisabled.value) continue
-            if (defender.type.attackType == AttackType.NONE) continue
-
-            while (defender.actionsRemaining.value > 0) {
-                // Get fresh list of active attackers for each attack
-                val activeAttackers =
-                    state.attackers.filter { attacker ->
-                        !attacker.isDefeated.value && !attacker.isBuildingBridge.value
-                    }
-
-                // If no attackers left, we're done
-                if (activeAttackers.isEmpty()) return
-
-                val attackSucceeded =
-                    when (defender.type.attackType) {
-                        AttackType.MELEE, AttackType.RANGED -> {
-                            val target = autoAttackSelector.selectAutoTargetForDefender(defender, activeAttackers) ?: break
-                            val success =
-                                combatSystem.defenderAttack(defender.id, target.id) {
-                                    combatSystem.processDefeatedAttackers()
-                                }
-                            // If attack failed, break to avoid infinite loop
-                            if (!success) break
-                            success
-                        }
-                        AttackType.AREA, AttackType.LASTING -> {
-                            // For area/lasting attacks, find the best position that hits the most enemies
-                            val targetPosition = autoAttackSelector.selectBestAreaAttackPosition(defender, activeAttackers) ?: break
-                            val success =
-                                combatSystem.defenderAttackPosition(defender.id, targetPosition) {
-                                    combatSystem.processDefeatedAttackers()
-                                }
-                            // If attack failed (invalid position), break to avoid infinite loop
-                            if (!success) break
-                            success
-                        }
-                        AttackType.NONE -> break
-                    }
-            }
-        }
-        evaluateImmediateEvents()
-    }
+    fun autoDefenderAttacks() = autoAttackLogic.autoDefenderAttacks()
 
     fun checkAndActivateTraps() {
         mineOperations.checkAndActivateTraps { combatSystem.processDefeatedAttackers() }
@@ -304,46 +271,14 @@ class GameEngine(
      * the attack. Used by demo mode to show aiming circles before committing the attack.
      * Returns null if this defender has no valid target right now.
      */
-    fun getNextAutoAttackTargetPosition(defender: Defender): Position? {
-        if (defender.actionsRemaining.value <= 0 || defender.isDisabled.value) return null
-        val activeAttackers = state.attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
-        if (activeAttackers.isEmpty()) return null
-        return when (defender.type.attackType) {
-            AttackType.MELEE, AttackType.RANGED ->
-                autoAttackSelector.selectAutoTargetForDefender(defender, activeAttackers)?.position?.value
-            AttackType.AREA, AttackType.LASTING ->
-                autoAttackSelector.selectBestAreaAttackPosition(defender, activeAttackers)
-            AttackType.NONE -> null
-        }
-    }
+    fun getNextAutoAttackTargetPosition(defender: Defender): Position? = autoAttackLogic.getNextAutoAttackTargetPosition(defender)
 
     /**
      * Performs exactly one auto-attack action for the defender identified by [defenderId].
      * Returns true if an attack was successfully executed, false if nothing could be done.
      * Used by demo mode so that aiming circles can be displayed between individual attacks.
      */
-    fun performOneAutoAttack(defenderId: Int): Boolean {
-        val defender = state.defenders.find { it.id == defenderId } ?: return false
-        if (!defender.isReady || defender.actionsRemaining.value <= 0 || defender.isDisabled.value) return false
-        if (defender.type.attackType == AttackType.NONE) return false
-        val activeAttackers = state.attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
-        if (activeAttackers.isEmpty()) return false
-        return when (defender.type.attackType) {
-            AttackType.MELEE, AttackType.RANGED -> {
-                val target = autoAttackSelector.selectAutoTargetForDefender(defender, activeAttackers) ?: return false
-                combatSystem
-                    .defenderAttack(defender.id, target.id) { combatSystem.processDefeatedAttackers() }
-                    .also { if (it) evaluateImmediateEvents() }
-            }
-            AttackType.AREA, AttackType.LASTING -> {
-                val targetPosition = autoAttackSelector.selectBestAreaAttackPosition(defender, activeAttackers) ?: return false
-                combatSystem
-                    .defenderAttackPosition(defender.id, targetPosition) { combatSystem.processDefeatedAttackers() }
-                    .also { if (it) evaluateImmediateEvents() }
-            }
-            AttackType.NONE -> false
-        }
-    }
+    fun performOneAutoAttack(defenderId: Int): Boolean = autoAttackLogic.performOneAutoAttack(defenderId)
 
     private fun processDragonGreed(dragon: Attacker) = dragonLogic.processDragonGreed(dragon)
 
@@ -397,9 +332,7 @@ class GameEngine(
                     dragonName = pending.dragonName,
                     currentTarget = mutableStateOf(currentTarget),
                 )
-            if (pending.attackerType.isDragon) {
-                attacker.onDragonLevelChanged = dragonLevelChangeCallback
-            }
+            dragonLogic.applyDragonLevelChangeCallback(attacker)
             state.attackers.add(attacker)
             state.enemySpawnEffects.add(
                 EnemySpawnEffect(
@@ -614,68 +547,9 @@ class GameEngine(
     fun attackBarricade(
         newPosition: Position,
         attacker: Attacker,
-    ): Boolean {
-        // Check if there's a barricade AT the new position
-        // Flying dragons can fly over barricades (like they fly over non-playable tiles)
+    ): Boolean = barricadeLogic.attackBarricade(newPosition, attacker)
 
-        // Flying dragons can move over barricades without attacking them
-        // (They pass over barricades just like they pass over non-playable tiles)
-        val barricadeAtPosition = barricadeSystem.getBarricadeAt(newPosition)
-        val isFlying = attacker.isFlying.value
-
-        if (barricadeAtPosition != null && !barricadeAtPosition.isDestroyed() && !isFlying) {
-            println(
-                "Attack barricade: Attacker ${attacker.id} (${attacker.type}) at ${attacker.position.value} attacks barricade at $newPosition (HP: ${barricadeAtPosition.healthPoints.value})",
-            )
-            // Non-flying enemy encounters barricade - attack it instead of moving
-            val damage = getBarricadeDamageForEnemyUnit(attacker)
-
-            val wasDestroyed = barricadeSystem.handleEnemyAttackBarricade(attacker, barricadeAtPosition, damage)
-            if (wasDestroyed) {
-                // Barricade was destroyed, enemy moves to barricade position
-                attacker.position.value = newPosition
-
-                // Check for traps at the new position
-                mineOperations.checkAndActivateTrapForAttacker(attacker)
-                // Destroy any fief at the new position
-                destroyFiefAt(newPosition, attacker)
-                // Consume any mushroom at the new position (horde units and witches only)
-                consumeMushroomAt(newPosition, attacker)
-
-                // Only continue if enemy was not defeated by trap
-                if (!attacker.isDefeated.value) {
-                    // Check waypoint and target after moving to barricade position
-                    if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
-                        val waypoint = state.level.getWaypointAt(newPosition)
-                        if (waypoint != null) {
-                            attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, newPosition)
-                        }
-                    }
-
-                    // Check if reached target
-                    if (state.isActiveTargetPosition(newPosition)) {
-                        applyTargetDamage(attacker)
-                    }
-                }
-            }
-            // If barricade not destroyed, enemy doesn't move (stays at current position)
-            return true
-        }
-        return false
-    }
-
-    fun getBarricadeDamageForEnemyUnit(attacker: Attacker): Int {
-        val baseDamage =
-            when {
-                attacker.type == AttackerType.SNOTLING || attacker.type == AttackerType.SPIDERLING ->
-                    maxOf(1, attacker.currentHealth.value / 5)
-                attacker.type.isDragon -> attacker.effectiveLevel * 5
-                else -> attacker.effectiveLevel
-            }
-        val frenzyMultiplier =
-            if (state.waaghFrenzyActive.value && attacker.type in setOf(AttackerType.ORK, AttackerType.OGRE)) 2 else 1
-        return baseDamage * attacker.type.barricadeDamageMultiplier * frenzyMultiplier
-    }
+    fun getBarricadeDamageForEnemyUnit(attacker: Attacker): Int = barricadeLogic.getBarricadeDamageForEnemyUnit(attacker)
 
     private fun tickBloodlustAfterMovement() {
         state.attackers.forEach { attacker ->
@@ -1166,10 +1040,7 @@ class GameEngine(
                 currentTarget = mutableStateOf(enemyMovement.getInitialTarget(spawnPos)),
             )
 
-        // Set dragon level change callback if this is a dragon
-        if (type.isDragon) {
-            attacker.onDragonLevelChanged = dragonLevelChangeCallback
-        }
+        dragonLogic.applyDragonLevelChangeCallback(attacker)
 
         // Add to attackers list
         state.attackers.add(attacker)
@@ -1184,16 +1055,7 @@ class GameEngine(
      * Cheat code to spawn a dragon from a random dwarven mine
      */
     fun spawnDragonCheat(): Boolean {
-        // Find any dwarven mine on the map
-        val mine = state.defenders.find { it.type == DefenderType.DWARVEN_MINE }
-
-        if (mine != null) {
-            // Use the mine operations to spawn the dragon
-            mineOperations.performMineDigWithOutcome(DigOutcome.DRAGON)
-            return true
-        }
-
-        return false
+        return dragonLogic.spawnDragonCheat()
     }
 
     /**
@@ -1238,23 +1100,7 @@ class GameEngine(
      * Set callback for dragon level changes (for achievements and XP)
      */
     fun setDragonLevelChangeCallback(callback: (oldLevel: Int, newLevel: Int) -> Unit) {
-        val wrappedCallback: (oldLevel: Int, newLevel: Int) -> Unit = { oldLevel, newLevel ->
-            // Track XP for dragon level loss (not multiplied by level)
-            if (oldLevel > newLevel) {
-                // Dragon lost levels - award XP for each level lost
-                val levelsLost = oldLevel - newLevel
-                val xpPerLevel = AttackerType.DRAGON.xp // 50 XP per level lost
-                val xpEarned = xpPerLevel * levelsLost
-                state.xpEarnedThisLevel.value += xpEarned
-            }
-            // Call the original callback for achievements
-            callback(oldLevel, newLevel)
-        }
-        dragonLevelChangeCallback = wrappedCallback
-        // Set callback for all existing dragons
-        state.attackers.filter { it.type.isDragon }.forEach { dragon ->
-            dragon.onDragonLevelChanged = wrappedCallback
-        }
+        dragonLogic.setDragonLevelChangeCallback(callback)
     }
 
     /**

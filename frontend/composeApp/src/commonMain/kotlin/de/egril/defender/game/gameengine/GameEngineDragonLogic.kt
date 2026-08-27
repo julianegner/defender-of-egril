@@ -1,15 +1,52 @@
 package de.egril.defender.game.gameengine
 
 import de.egril.defender.config.LogConfig
+import de.egril.defender.game.MineOperations
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.DefenderType
+import de.egril.defender.model.DigOutcome
 import de.egril.defender.model.DragonLevelChangeEffect
 import de.egril.defender.model.GameState
 import de.egril.defender.model.getHexNeighbors
 
 class GameEngineDragonLogic(
     private val state: GameState,
+    private val mineOperations: MineOperations,
 ) {
+    private var dragonLevelChangeCallback: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
+
+    fun applyDragonLevelChangeCallback(attacker: Attacker) {
+        if (attacker.type.isDragon) {
+            attacker.onDragonLevelChanged = dragonLevelChangeCallback
+        }
+    }
+
+    fun setDragonLevelChangeCallback(callback: (oldLevel: Int, newLevel: Int) -> Unit) {
+        val wrappedCallback: (oldLevel: Int, newLevel: Int) -> Unit = { oldLevel, newLevel ->
+            if (oldLevel > newLevel) {
+                val levelsLost = oldLevel - newLevel
+                val xpPerLevel = AttackerType.DRAGON.xp
+                val xpEarned = xpPerLevel * levelsLost
+                state.xpEarnedThisLevel.value += xpEarned
+            }
+            callback(oldLevel, newLevel)
+        }
+        dragonLevelChangeCallback = wrappedCallback
+        state.attackers.filter { it.type.isDragon }.forEach { dragon ->
+            dragon.onDragonLevelChanged = wrappedCallback
+        }
+    }
+
+    fun spawnDragonCheat(): Boolean {
+        val mine = state.defenders.find { it.type == DefenderType.DWARVEN_MINE }
+        if (mine != null) {
+            mineOperations.performMineDigWithOutcome(DigOutcome.DRAGON)
+            return true
+        }
+        return false
+    }
+
     fun processDragonGreed(dragon: Attacker) {
         if (dragon.type != AttackerType.DRAGON || dragon.greed <= 0) return
 
