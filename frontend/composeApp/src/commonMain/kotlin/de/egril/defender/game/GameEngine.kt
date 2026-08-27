@@ -32,7 +32,7 @@ class GameEngine(
             combatSystem.recordSupportTrapKill(attackerType, wasUninjured)
         }
     private val raftSystem = RaftSystem(state)
-    private val barricadeSystem = BarricadeSystem(state) // Add barricade system
+    private val barricadeSystem = BarricadeSystem(state)
     private val eventScriptSystem = EventScriptSystem(state) // Scripted level events
     private val autoAttackSelector =
         AutoAttackSelector(
