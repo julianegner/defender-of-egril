@@ -1,6 +1,5 @@
-package de.egril.defender.game.gameengine
+package de.egril.defender.game
 
-import de.egril.defender.game.CombatSystem
 import de.egril.defender.model.AttackType
 import de.egril.defender.model.Defender
 import de.egril.defender.model.GamePhase

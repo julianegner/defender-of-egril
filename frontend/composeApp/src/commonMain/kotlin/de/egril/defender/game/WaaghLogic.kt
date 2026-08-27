@@ -1,4 +1,4 @@
-package de.egril.defender.game.gameengine
+package de.egril.defender.game
 
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType

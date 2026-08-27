@@ -1,4 +1,4 @@
-package de.egril.defender.game.gameengine
+package de.egril.defender.game
 
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.Attacker

@@ -1,12 +1,6 @@
-package de.egril.defender.game.gameengine
+package de.egril.defender.game
 
 import de.egril.defender.config.LogConfig
-import de.egril.defender.game.BarricadeSystem
-import de.egril.defender.game.BridgeSystem
-import de.egril.defender.game.EnemyAbilitySystem
-import de.egril.defender.game.EnemyMovementSystem
-import de.egril.defender.game.MineOperations
-import de.egril.defender.game.PathfindingSystem
 import de.egril.defender.model.*
 
 /**

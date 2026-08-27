@@ -1,8 +1,6 @@
-package de.egril.defender.game.gameengine
+package de.egril.defender.game
 
 import de.egril.defender.config.LogConfig
-import de.egril.defender.game.BarricadeSystem
-import de.egril.defender.game.MineOperations
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.GameState

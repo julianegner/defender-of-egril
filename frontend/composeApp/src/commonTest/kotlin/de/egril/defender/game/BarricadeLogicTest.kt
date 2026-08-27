@@ -1,4 +1,4 @@
-package de.egril.defender.game.gameengine
+package de.egril.defender.game
 
 import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.game.BarricadeSystem
