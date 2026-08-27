@@ -17,7 +17,7 @@ data class EnemyTurnMovements(
     val attackersStoppedByBarricade: Set<Pair<Attacker, Position>>,
 )
 
-class GameEngineMovement(
+class Movement(
     private val state: GameState,
     private val pathfinding: PathfindingSystem,
     private val barricadeSystem: BarricadeSystem,

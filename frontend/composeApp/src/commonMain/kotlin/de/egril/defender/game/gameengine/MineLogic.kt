@@ -8,7 +8,7 @@ import de.egril.defender.model.DefenderType
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Position
 
-class GameEngineMineLogic(
+class MineLogic(
     private val state: GameState,
     private val findClosestTargetPosition: (Position) -> Position,
     private val recordDragonLevelChange: (Attacker, Int) -> Unit,

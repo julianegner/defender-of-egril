@@ -13,7 +13,7 @@ import de.egril.defender.model.getHexNeighborsWithinRadius
 /**
  * Encapsulates GameEngine auto-attack target selection logic.
  */
-class GameEngineAutoAttackSelector(
+class AutoAttackSelector(
     private val state: GameState,
     private val getEffectiveRange: (Defender) -> Int,
     private val findClosestTargetPosition: (Position) -> Position,

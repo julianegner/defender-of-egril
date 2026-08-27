@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class GameEngineAutoAttackSelectorTest {
+class AutoAttackSelectorTest {
     private fun createOpenLevel(): Level {
         val allCells = (0 until 10).flatMap { x -> (0 until 8).map { y -> Position(x, y) } }.toSet()
         return Level(
@@ -52,7 +52,7 @@ class GameEngineAutoAttackSelectorTest {
     fun selectAutoTargetForDefenderPrioritizesHigherThreat() {
         val state = GameState(createOpenLevel())
         val selector =
-            GameEngineAutoAttackSelector(
+            AutoAttackSelector(
                 state = state,
                 getEffectiveRange = { it.range },
                 findClosestTargetPosition = { Position(9, 3) },
@@ -70,7 +70,7 @@ class GameEngineAutoAttackSelectorTest {
     fun selectBestAreaAttackPositionReturnsNullForOnlyImmuneTargets() {
         val state = GameState(createOpenLevel())
         val selector =
-            GameEngineAutoAttackSelector(
+            AutoAttackSelector(
                 state = state,
                 getEffectiveRange = { it.range },
                 findClosestTargetPosition = { Position(9, 3) },
@@ -87,7 +87,7 @@ class GameEngineAutoAttackSelectorTest {
     fun selectAutoTargetForDefenderUsesDistanceTieBreakerWhenThreatIsEqual() {
         val state = GameState(createOpenLevel())
         val selector =
-            GameEngineAutoAttackSelector(
+            AutoAttackSelector(
                 state = state,
                 getEffectiveRange = { it.range },
                 findClosestTargetPosition = { Position(9, 3) },
@@ -105,7 +105,7 @@ class GameEngineAutoAttackSelectorTest {
     fun selectAutoTargetForDefenderUsesHealthTieBreakerWhenThreatAndDistanceAreEqual() {
         val state = GameState(createOpenLevel())
         val selector =
-            GameEngineAutoAttackSelector(
+            AutoAttackSelector(
                 state = state,
                 getEffectiveRange = { it.range },
                 findClosestTargetPosition = { Position(9, 3) },
@@ -124,7 +124,7 @@ class GameEngineAutoAttackSelectorTest {
     fun selectBestAreaAttackPositionReturnsPositionWhenDamageableTargetExists() {
         val state = GameState(createOpenLevel())
         val selector =
-            GameEngineAutoAttackSelector(
+            AutoAttackSelector(
                 state = state,
                 getEffectiveRange = { it.range },
                 findClosestTargetPosition = { Position(9, 3) },

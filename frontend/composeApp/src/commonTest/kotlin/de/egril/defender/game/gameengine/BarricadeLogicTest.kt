@@ -12,7 +12,7 @@ import de.egril.defender.model.effectiveLevel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class GameEngineBarricadeLogicTest {
+class BarricadeLogicTest {
     private fun createOpenLevel(): Level {
         val allCells = (0 until 8).flatMap { x -> (0 until 8).map { y -> Position(x, y) } }.toSet()
         return Level(
@@ -29,9 +29,9 @@ class GameEngineBarricadeLogicTest {
         )
     }
 
-    private fun createLogic(state: GameState): GameEngineBarricadeLogic {
+    private fun createLogic(state: GameState): BarricadeLogic {
         val mineOperations = MineOperations(state) { _, _ -> }
-        return GameEngineBarricadeLogic(
+        return BarricadeLogic(
             state = state,
             barricadeSystem = BarricadeSystem(state),
             mineOperations = mineOperations,

@@ -1,5 +1,6 @@
 package de.egril.defender.game.gameengine
 
+import de.egril.defender.config.LogConfig
 import de.egril.defender.game.BarricadeSystem
 import de.egril.defender.game.MineOperations
 import de.egril.defender.model.Attacker
@@ -8,7 +9,7 @@ import de.egril.defender.model.GameState
 import de.egril.defender.model.Position
 import de.egril.defender.model.effectiveLevel
 
-class GameEngineBarricadeLogic(
+class BarricadeLogic(
     private val state: GameState,
     private val barricadeSystem: BarricadeSystem,
     private val mineOperations: MineOperations,
@@ -25,9 +26,11 @@ class GameEngineBarricadeLogic(
         val isFlying = attacker.isFlying.value
 
         if (barricadeAtPosition != null && !barricadeAtPosition.isDestroyed() && !isFlying) {
-            println(
-                "Attack barricade: Attacker ${attacker.id} (${attacker.type}) at ${attacker.position.value} attacks barricade at $newPosition (HP: ${barricadeAtPosition.healthPoints.value})",
-            )
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
+                println(
+                    "Attack barricade: Attacker ${attacker.id} (${attacker.type}) at ${attacker.position.value} attacks barricade at $newPosition (HP: ${barricadeAtPosition.healthPoints.value})",
+                )
+            }
             val damage = getBarricadeDamageForEnemyUnit(attacker)
             val wasDestroyed = barricadeSystem.handleEnemyAttackBarricade(attacker, barricadeAtPosition, damage)
             if (wasDestroyed) {

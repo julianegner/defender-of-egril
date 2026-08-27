@@ -7,9 +7,9 @@ import de.egril.defender.model.GamePhase
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Position
 
-class GameEngineAutoAttackLogic(
+class AutoAttackLogic(
     private val state: GameState,
-    private val selector: GameEngineAutoAttackSelector,
+    private val selector: AutoAttackSelector,
     private val combatSystem: CombatSystem,
     private val evaluateImmediateEvents: () -> Unit,
 ) {

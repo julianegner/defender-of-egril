@@ -48,32 +48,32 @@ class GameEngine(
     private val barricadeSystem = BarricadeSystem(state) // Add barricade system
     private val eventScriptSystem = EventScriptSystem(state) // Scripted level events
     private val autoAttackSelector =
-        GameEngineAutoAttackSelector(
+        AutoAttackSelector(
             state = state,
             getEffectiveRange = ::getEffectiveRange,
             findClosestTargetPosition = ::findClosestTargetPosition,
         )
     private val autoAttackLogic =
-        GameEngineAutoAttackLogic(
+        AutoAttackLogic(
             state = state,
             selector = autoAttackSelector,
             combatSystem = combatSystem,
             evaluateImmediateEvents = ::evaluateImmediateEvents,
         )
     private val dragonLogic =
-        GameEngineDragonLogic(
+        DragonLogic(
             state = state,
             mineOperations = mineOperations,
         )
     private val mineLogic =
-        GameEngineMineLogic(
+        MineLogic(
             state = state,
             findClosestTargetPosition = ::findClosestTargetPosition,
             recordDragonLevelChange = dragonLogic::recordDragonLevelChange,
         )
     private val waaghLogic = WaaghLogic(state)
     private val barricadeLogic =
-        GameEngineBarricadeLogic(
+        BarricadeLogic(
             state = state,
             barricadeSystem = barricadeSystem,
             mineOperations = mineOperations,
@@ -83,7 +83,7 @@ class GameEngine(
             consumeMushroomAt = ::consumeMushroomAt,
         )
     private val gameEngineMovement =
-        GameEngineMovement(
+        Movement(
             state = state,
             pathfinding = pathfinding,
             barricadeSystem = barricadeSystem,

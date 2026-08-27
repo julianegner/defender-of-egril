@@ -10,7 +10,7 @@ import de.egril.defender.model.DragonLevelChangeEffect
 import de.egril.defender.model.GameState
 import de.egril.defender.model.getHexNeighbors
 
-class GameEngineDragonLogic(
+class DragonLogic(
     private val state: GameState,
     private val mineOperations: MineOperations,
 ) {
