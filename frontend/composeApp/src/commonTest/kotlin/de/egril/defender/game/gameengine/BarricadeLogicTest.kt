@@ -35,6 +35,9 @@ class GameEngineBarricadeLogicTest {
             state = state,
             barricadeSystem = BarricadeSystem(state),
             mineOperations = mineOperations,
+            getFrenzyMultiplier = { attacker ->
+                if (state.waaghFrenzyActive.value && attacker.type in setOf(AttackerType.ORK, AttackerType.OGRE)) 2 else 1
+            },
             applyTargetDamage = {},
             destroyFiefAt = { _, _ -> },
             consumeMushroomAt = { _, _ -> },

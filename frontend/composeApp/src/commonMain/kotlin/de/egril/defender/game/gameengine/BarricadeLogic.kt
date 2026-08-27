@@ -12,6 +12,7 @@ class GameEngineBarricadeLogic(
     private val state: GameState,
     private val barricadeSystem: BarricadeSystem,
     private val mineOperations: MineOperations,
+    private val getFrenzyMultiplier: (Attacker) -> Int,
     private val applyTargetDamage: (Attacker) -> Unit,
     private val destroyFiefAt: (Position, Attacker) -> Unit,
     private val consumeMushroomAt: (Position, Attacker) -> Unit,
@@ -60,8 +61,7 @@ class GameEngineBarricadeLogic(
                 attacker.type.isDragon -> attacker.effectiveLevel * 5
                 else -> attacker.effectiveLevel
             }
-        val frenzyMultiplier =
-            if (state.waaghFrenzyActive.value && attacker.type in setOf(AttackerType.ORK, AttackerType.OGRE)) 2 else 1
+        val frenzyMultiplier = getFrenzyMultiplier(attacker)
         return baseDamage * attacker.type.barricadeDamageMultiplier * frenzyMultiplier
     }
 }

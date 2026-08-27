@@ -71,11 +71,13 @@ class GameEngine(
             findClosestTargetPosition = ::findClosestTargetPosition,
             recordDragonLevelChange = dragonLogic::recordDragonLevelChange,
         )
+    private val waaghLogic = WaaghLogic(state)
     private val barricadeLogic =
         GameEngineBarricadeLogic(
             state = state,
             barricadeSystem = barricadeSystem,
             mineOperations = mineOperations,
+            getFrenzyMultiplier = waaghLogic::getBarricadeFrenzyMultiplier,
             applyTargetDamage = ::applyTargetDamage,
             destroyFiefAt = ::destroyFiefAt,
             consumeMushroomAt = ::consumeMushroomAt,
@@ -96,7 +98,7 @@ class GameEngine(
             checkMineWarning = ::checkMineWarning,
             checkAndDestroyMine = ::checkAndDestroyMine,
             processDragonGreed = ::processDragonGreed,
-            applyOrkFrenzyTowerAttack = ::applyOrkFrenzyTowerAttack,
+            applyOrkFrenzyTowerAttack = waaghLogic::applyOrkFrenzyTowerAttack,
             destroyFiefAt = ::destroyFiefAt,
             consumeMushroomAt = ::consumeMushroomAt,
             recordDragonLevelChange = dragonLogic::recordDragonLevelChange,
@@ -531,19 +533,6 @@ class GameEngine(
         gameEngineMovement.applyMovement(attackerId, newPosition)
     }
 
-    private fun applyOrkFrenzyTowerAttack(attacker: Attacker) {
-        if (!(state.waaghFrenzyActive.value && attacker.type == AttackerType.ORK)) return
-
-        state.defenders
-            .filter { defender ->
-                defender.isReady &&
-                    attacker.position.value.hexDistanceTo(defender.position.value) == 1
-            }.forEach { defender ->
-                defender.isDisabled.value = true
-                defender.disabledTurnsRemaining.value = maxOf(defender.disabledTurnsRemaining.value, 2)
-            }
-    }
-
     fun attackBarricade(
         newPosition: Position,
         attacker: Attacker,
@@ -572,29 +561,6 @@ class GameEngine(
         }
     }
 
-    private fun updateWaaghFrenzyAtEnemyTurnStart() {
-        if (!state.level.waaghEnabled) return
-        if (!state.waaghFrenzyActive.value && state.waaghPoints.value >= 100) {
-            state.waaghFrenzyActive.value = true
-            state.waaghFrenzyRoundsLeft.value = 2
-            if (!state.hasShownWaaghFrenzyMessage.value) {
-                state.pendingMessages.add(GameMessage(type = GameMessageType.WAAAGH_FRENZY))
-                state.hasShownWaaghFrenzyMessage.value = true
-            }
-        }
-    }
-
-    private fun updateWaaghFrenzyAtEnemyTurnEnd() {
-        if (!state.level.waaghEnabled) return
-        if (!state.waaghFrenzyActive.value) return
-        state.waaghFrenzyRoundsLeft.value--
-        if (state.waaghFrenzyRoundsLeft.value <= 0) {
-            state.waaghFrenzyActive.value = false
-            state.waaghFrenzyRoundsLeft.value = 0
-            state.waaghPoints.value = 0
-        }
-    }
-
     /**
      * Prepare for enemy turn: set phase but don't spawn yet.
      * Spawning happens after movements to ensure spawn points are clear.
@@ -611,7 +577,7 @@ class GameEngine(
         state.turnNumber.value++
         processSoulCallResurrections()
         state.phase.value = GamePhase.ENEMY_TURN
-        updateWaaghFrenzyAtEnemyTurnStart()
+        waaghLogic.updateWaaghFrenzyAtEnemyTurnStart()
         enemyAbilities.processSnotlingGrowth()
         state.enemyTurnStartPositions.clear()
         state.attackers
@@ -767,7 +733,7 @@ class GameEngine(
 
         // Evaluate scripted events at the start of the player turn
         eventScriptSystem.evaluate(EventTrigger.PLAYER_TURN_START)
-        updateWaaghFrenzyAtEnemyTurnEnd()
+        waaghLogic.updateWaaghFrenzyAtEnemyTurnEnd()
     }
 
     private fun resetDefenderActions() {
