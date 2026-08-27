@@ -10,6 +10,7 @@ import de.egril.defender.model.Level
 import de.egril.defender.model.Position
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class GameEngineAutoAttackSelectorTest {
@@ -80,5 +81,59 @@ class GameEngineAutoAttackSelectorTest {
         val selected = selector.selectBestAreaAttackPosition(wizard, listOf(redDemon))
 
         assertNull(selected)
+    }
+
+    @Test
+    fun selectAutoTargetForDefenderUsesDistanceTieBreakerWhenThreatIsEqual() {
+        val state = GameState(createOpenLevel())
+        val selector =
+            GameEngineAutoAttackSelector(
+                state = state,
+                getEffectiveRange = { it.range },
+                findClosestTargetPosition = { Position(9, 3) },
+            )
+        val tower = defender(1, DefenderType.BOW_TOWER, Position(3, 3))
+        val fartherFromGoal = attacker(1, AttackerType.GOBLIN, Position(4, 3))
+        val closerToGoal = attacker(2, AttackerType.GOBLIN, Position(5, 3))
+
+        val selected = selector.selectAutoTargetForDefender(tower, listOf(fartherFromGoal, closerToGoal))
+
+        assertEquals(closerToGoal.id, selected?.id)
+    }
+
+    @Test
+    fun selectAutoTargetForDefenderUsesHealthTieBreakerWhenThreatAndDistanceAreEqual() {
+        val state = GameState(createOpenLevel())
+        val selector =
+            GameEngineAutoAttackSelector(
+                state = state,
+                getEffectiveRange = { it.range },
+                findClosestTargetPosition = { Position(9, 3) },
+            )
+        val tower = defender(1, DefenderType.BOW_TOWER, Position(3, 3))
+        val healthyGoblin = attacker(1, AttackerType.GOBLIN, Position(4, 3))
+        val woundedGoblin = attacker(2, AttackerType.GOBLIN, Position(4, 3))
+        woundedGoblin.currentHealth.value = healthyGoblin.currentHealth.value - 1
+
+        val selected = selector.selectAutoTargetForDefender(tower, listOf(healthyGoblin, woundedGoblin))
+
+        assertEquals(woundedGoblin.id, selected?.id)
+    }
+
+    @Test
+    fun selectBestAreaAttackPositionReturnsPositionWhenDamageableTargetExists() {
+        val state = GameState(createOpenLevel())
+        val selector =
+            GameEngineAutoAttackSelector(
+                state = state,
+                getEffectiveRange = { it.range },
+                findClosestTargetPosition = { Position(9, 3) },
+            )
+        val wizard = defender(1, DefenderType.WIZARD_TOWER, Position(3, 3))
+        val goblin = attacker(1, AttackerType.GOBLIN, Position(5, 3))
+
+        val selected = selector.selectBestAreaAttackPosition(wizard, listOf(goblin))
+
+        assertNotNull(selected)
     }
 }

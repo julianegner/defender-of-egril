@@ -38,8 +38,8 @@ class GameEngine(
     private val autoAttackSelector =
         GameEngineAutoAttackSelector(
             state = state,
-            getEffectiveRange = { defender -> getEffectiveRange(defender) },
-            findClosestTargetPosition = { from -> findClosestTargetPosition(from) },
+            getEffectiveRange = ::getEffectiveRange,
+            findClosestTargetPosition = ::findClosestTargetPosition,
         )
 
     // Callback for dragon level changes (stored to set on new dragons)
