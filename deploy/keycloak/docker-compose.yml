@@ -40,7 +40,7 @@ services:
     restart: unless-stopped
 
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0
+    image: quay.io/keycloak/keycloak:26.7.2
     container_name: defender-of-egril-keycloak
     environment:
       KEYCLOAK_ADMIN: admin
@@ -75,7 +75,7 @@ services:
     # The realm is imported on first start only (Keycloak skips re-import when
     # the realm already exists in the database).
     command: start --import-realm --health-enabled=true
-    # curl/wget are not available in the Keycloak 24 image; use bash /dev/tcp.
+    # curl/wget are not available in the Keycloak 26.7.2 image; use bash /dev/tcp.
     healthcheck:
       test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && printf 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && timeout 5 cat <&3 | grep -q 'UP'"]
       interval: 15s

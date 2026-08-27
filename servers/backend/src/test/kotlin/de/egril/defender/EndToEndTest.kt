@@ -59,7 +59,7 @@ class EndToEndTest {
         private const val PLAYER_A_USERNAME = "e2e-player-a"
         private const val PLAYER_B_USERNAME = "e2e-player-b"
         private const val PLAYER_PASSWORD = "e2e-test-password"
-        private const val KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak:24.0"
+        private const val KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak:26.7.2"
 
         /** Single PostgreSQL container shared across all tests in this class. */
         private val postgres: PostgreSQLContainer<*> =
@@ -78,7 +78,7 @@ class EndToEndTest {
                 ).withCommand("start-dev --import-realm --health-enabled=true")
                 .waitingFor(
                     // Wait for the realm-specific OIDC discovery endpoint rather than the generic
-                    // /health/ready endpoint. In Keycloak 24 dev mode, /health/ready can return 200
+                    // /health/ready endpoint. In Keycloak 26.7.2 dev mode, /health/ready can return 200
                     // before the realm import completes. The OIDC discovery endpoint only becomes
                     // available once the realm is fully imported and ready to issue tokens.
                     Wait
