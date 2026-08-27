@@ -60,8 +60,8 @@ services:
       test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && printf 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && timeout 5 cat <&3 | grep -q 'UP'"]
       interval: 15s
       timeout: 10s
-      retries: 12
-      start_period: 60s
+      retries: 20
+      start_period: 120s
 
 volumes:
   keycloak_postgres_data:

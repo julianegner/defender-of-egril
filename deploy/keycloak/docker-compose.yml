@@ -57,7 +57,7 @@ services:
       # Allow plain HTTP on the internal port; TLS is terminated by nginx.
       KC_HTTP_ENABLED: "true"
       KC_HOSTNAME_STRICT: "false"
-      KC_HOSTNAME_STRICT_HTTPS: "false"
+      # KC_HOSTNAME_STRICT_HTTPS was removed in Keycloak 25+; omitting it here.
       # Trust X-Forwarded-* headers from nginx so Keycloak generates https:// URLs.
       KC_PROXY_HEADERS: xforwarded
     # Bind port 8080 to the loopback interface only so the deploy workflow can
@@ -80,8 +80,8 @@ services:
       test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && printf 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && timeout 5 cat <&3 | grep -q 'UP'"]
       interval: 15s
       timeout: 10s
-      retries: 12
-      start_period: 60s
+      retries: 20
+      start_period: 120s
     restart: unless-stopped
 
   node-exporter:
