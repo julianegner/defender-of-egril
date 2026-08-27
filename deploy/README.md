@@ -8,7 +8,7 @@ production Hetzner vServers.
 | Directory | Server | Service | Public IP | Private IP |
 |-----------|--------|---------|-----------|-----------|
 | `db/`      | ubuntu-8gb-nbg1-1 | PostgreSQL 16 | 178.104.64.170 | 10.0.0.2 |
-| `keycloak/` | ubuntu-8gb-nbg1-2 | Keycloak 24 | 178.104.79.60 | 10.0.0.3 |
+| `keycloak/` | ubuntu-8gb-nbg1-2 | Keycloak 26.7.2 | 178.104.79.60 | 10.0.0.3 |
 | `backend/`  | ubuntu-8gb-nbg1-3 | Backend (Ktor) | 178.104.84.83 | 10.0.0.4 |
 
 Keycloak and the backend both connect to the database over the shared Hetzner
