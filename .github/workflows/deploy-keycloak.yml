@@ -30,9 +30,48 @@ on:
   workflow_dispatch:
 
 jobs:
+  e2e-tests:
+    name: Run end-to-end tests (Keycloak gate)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: "✅ Checkout code"
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: "⚙️ Set up JDK 24"
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "24"
+
+      - name: "🐳 Verify Docker is available"
+        run: docker info
+
+      - name: "⬇️ Pre-pull Keycloak image"
+        run: docker pull quay.io/keycloak/keycloak:26.7.2
+
+      - name: "⚙️ Setup Gradle"
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: "🧪 Run end-to-end tests"
+        run: ./gradlew :server:e2eTest
+
+      - name: "📤 Upload e2e test results"
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-test-results
+          path: servers/backend/build/reports/tests/e2eTest/
+          retention-days: 30
+
   build-theme:
     name: Build Keycloak theme JAR
     runs-on: ubuntu-latest
+    needs: e2e-tests
     permissions:
       contents: read
 
@@ -97,6 +136,17 @@ jobs:
           target: /opt/keycloak
           strip_components: 2
 
+      - name: "🧹 Clear old theme JARs from server"
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: 178.104.79.60
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          script: |
+            rm -f /opt/keycloak/providers/*.jar
+            echo "✅ Providers directory cleared."
+
       - name: "📂 Upload theme JAR"
         uses: appleboy/scp-action@v1.0.0
         with:
@@ -144,16 +194,17 @@ jobs:
             # minute curl loop would expire before Keycloak finishes booting in
             # production 'start' mode (which routinely takes > 3 minutes).
             echo "Waiting for Keycloak container to become healthy..."
-            for i in $(seq 1 72); do
+            for i in $(seq 1 100); do
               KC_HEALTH=$(docker inspect --format='{{.State.Health.Status}}' defender-of-egril-keycloak 2>/dev/null || echo "not_found")
               if [ "${KC_HEALTH}" = "healthy" ]; then
                 echo "✅ Keycloak container is healthy."
                 break
               fi
-              echo "  attempt ${i}/72 – container health: ${KC_HEALTH}, retrying in 5 s..."
+              echo "  attempt ${i}/100 – container health: ${KC_HEALTH}, retrying in 5 s..."
               sleep 5
-              if [ "${i}" -eq 72 ]; then
-                echo "❌ Keycloak did not become healthy within 6 minutes."
+              if [ "${i}" -eq 100 ]; then
+                echo "❌ Keycloak did not become healthy within ~8 minutes."
+                docker logs defender-of-egril-keycloak --tail 50 || true
                 exit 1
               fi
             done
@@ -169,6 +220,8 @@ jobs:
           script: |
             set -euo pipefail
             KC_URL="http://localhost:8080"
+            # In KC 25+, health/metrics are served on the management port 9000.
+            KC_MGMT_URL="http://localhost:9000"
             ADMIN_PASSWORD="${{ secrets.PROD_KEYCLOAK_ADMIN_PASSWORD }}"
 
             # Keycloak only imports the realm on first start (when the realm does not
@@ -181,7 +234,7 @@ jobs:
             # Wait for Keycloak to be ready (up to 3 minutes).
             echo "Waiting for Keycloak to be ready..."
             for i in $(seq 1 36); do
-              if curl -sf "${KC_URL}/health/ready" | grep -q '"status": "UP"'; then
+              if curl -sf "${KC_MGMT_URL}/health/ready" | grep -q '"status": "UP"'; then
                 echo "Keycloak is ready."
                 break
               fi

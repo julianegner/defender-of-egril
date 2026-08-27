@@ -58,7 +58,7 @@ tasks.named<Test>("test") {
 //
 // Requirements:
 //   - Docker must be available on the host (Testcontainers pulls the images automatically)
-//   - Internet access to pull quay.io/keycloak/keycloak:24.0 (first run only)
+//   - Internet access to pull quay.io/keycloak/keycloak:26.7.2 (first run only)
 //
 // Keycloak startup takes ~60-90 s, so the task timeout is set generously.
 tasks.register<Test>("e2eTest") {
