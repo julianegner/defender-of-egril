@@ -52,6 +52,7 @@ class GameEngineBarricadeLogicTest {
                 position = mutableStateOf(Position(2, 2)),
                 level = mutableStateOf(3),
             )
+        state.waaghFrenzyActive.value = true
 
         val damage = logic.getBarricadeDamageForEnemyUnit(dragon)
 
@@ -69,10 +70,11 @@ class GameEngineBarricadeLogicTest {
                 position = mutableStateOf(Position(2, 2)),
                 level = mutableStateOf(2),
             )
+        val baseDamage = logic.getBarricadeDamageForEnemyUnit(ork)
         state.waaghFrenzyActive.value = true
 
-        val damage = logic.getBarricadeDamageForEnemyUnit(ork)
+        val frenzyDamage = logic.getBarricadeDamageForEnemyUnit(ork)
 
-        assertEquals(ork.effectiveLevel * ork.type.barricadeDamageMultiplier * 2, damage)
+        assertEquals(baseDamage * 2, frenzyDamage)
     }
 }
