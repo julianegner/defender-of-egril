@@ -285,7 +285,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 8,
+        "w": 4,
         "x": 16,
         "y": 5
       },
@@ -314,6 +314,65 @@
           },
           "format": "table",
           "rawSql": "SELECT COUNT(*) AS value FROM user_entity ue JOIN realm r ON ue.realm_id = r.id WHERE (r.name = 'egril')",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 5
+      },
+      "id": 305,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "Distinct Install IDs",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
+          "format": "table",
+          "rawSql": "SELECT COUNT(DISTINCT install_uuid) AS value FROM events WHERE install_uuid IS NOT NULL AND ('${filter_install_ids}' = 'false' OR install_uuid::text NOT IN (${excluded_install_ids:singlequote}))",
           "refId": "A"
         }
       ]
