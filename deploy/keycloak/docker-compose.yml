@@ -9,9 +9,10 @@
 # with certbot before the first deploy (see keycloak/production/nginx.conf).
 #
 # Required environment variables (written to .env by the GitHub Actions workflow):
-#   DB_PASSWORD              – password for the 'defender' PostgreSQL user
-#   KEYCLOAK_ADMIN_PASSWORD  – password for the Keycloak 'admin' account
-#   KEYCLOAK_HOSTNAME        – public hostname (sso.julianegner.de)
+#   DB_PASSWORD                  – password for the 'defender' PostgreSQL user
+#   KEYCLOAK_ADMIN_PASSWORD      – password for the Keycloak 'admin' bootstrap account
+#                                  (passed as KC_BOOTSTRAP_ADMIN_PASSWORD inside the container)
+#   KEYCLOAK_HOSTNAME            – public hostname (sso.julianegner.de)
 #
 # The egril-realm.json, nginx.conf, and the theme JAR are copied to the server
 # by the GitHub Actions deploy-keycloak workflow before this compose file is started.
@@ -43,8 +44,9 @@ services:
     image: quay.io/keycloak/keycloak:26.7.2
     container_name: defender-of-egril-keycloak
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      # KC_BOOTSTRAP_ADMIN_USERNAME/PASSWORD replaced KEYCLOAK_ADMIN/PASSWORD in KC 26.
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       # Connect to the shared PostgreSQL on the DB server via the private network.
       KC_DB: postgres
       KC_DB_URL_HOST: 10.0.0.2
@@ -64,8 +66,11 @@ services:
     # reach the Admin REST API from the host (localhost:8080) without exposing
     # Keycloak publicly.  External traffic is still served exclusively through
     # nginx (ports 80/443).
+    # Port 9000 is the KC 25+ management interface (health, metrics); bind it to
+    # loopback only so the deploy workflow can reach /health/ready from the host.
     ports:
       - "127.0.0.1:8080:8080"
+      - "127.0.0.1:9000:9000"
     volumes:
       # Production realm (no test users).
       - ./egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
@@ -76,8 +81,9 @@ services:
     # the realm already exists in the database).
     command: start --import-realm --health-enabled=true
     # curl/wget are not available in the Keycloak 26.7.2 image; use bash /dev/tcp.
+    # In KC 25+, /health/ready is served on the management port 9000, not 8080.
     healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && printf 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && timeout 5 cat <&3 | grep -q 'UP'"]
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && printf 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && timeout 5 cat <&3 | grep -q 'UP'"]
       interval: 15s
       timeout: 10s
       retries: 20
