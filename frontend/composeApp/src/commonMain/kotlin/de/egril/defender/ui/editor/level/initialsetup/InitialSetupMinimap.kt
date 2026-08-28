@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -176,6 +177,7 @@ fun InitialSetupMinimap(
     initialData: InitialData = InitialData.EMPTY,
     selectedElement: de.egril.defender.ui.editor.level.initialsetup.SelectedElement? = null,
     onTileClick: (Position) -> Unit = {},
+    onTileHover: (Position?) -> Unit = {},
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
     var hoveredPosition by remember { mutableStateOf<Position?>(null) }
@@ -455,6 +457,10 @@ fun InitialSetupMinimap(
                 center = Offset(centerX, centerY),
             )
         }
+    }
+
+    LaunchedEffect(hoveredPosition) {
+        onTileHover(hoveredPosition)
     }
 }
 

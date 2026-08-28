@@ -191,7 +191,7 @@ internal fun CreateLevelDialog(
 ) {
     var title by remember { mutableStateOf("") }
     var author by remember { mutableStateOf(defaultAuthor) }
-    var selectedTemplate by remember { mutableStateOf(EditorLevelTemplate.TUTORIAL) }
+    var selectedTemplate by remember { mutableStateOf(EditorLevelTemplate.NO_TEMPLATE) }
     var templateExpanded by remember { mutableStateOf(false) }
 
     AlertDialog(
@@ -257,6 +257,7 @@ internal fun CreateLevelDialog(
 @Composable
 private fun EditorLevelTemplate.localizedLabel(): String =
     when (this) {
+        EditorLevelTemplate.NO_TEMPLATE -> stringResource(Res.string.template_no_template)
         EditorLevelTemplate.TUTORIAL -> stringResource(Res.string.template_tutorial)
         EditorLevelTemplate.STEADY_PRESSURE -> stringResource(Res.string.template_steady_pressure)
         EditorLevelTemplate.VILLAIN_DUEL -> stringResource(Res.string.template_villain_duel)

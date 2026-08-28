@@ -695,6 +695,7 @@
     <string name="select_position_on_map">Position auf Karte wählen</string>
     <string name="initial_setup_map">Karte</string>
     <string name="initial_setup_click_to_place">Klicke auf die Karte um das ausgewählte Element zu platzieren</string>
+    <string name="initial_setup_tile">Kachel:</string>
     <string name="initial_setup">Anfangsaufbau</string>
     <string name="initial_setup_info">Platziere Türme, Gegner, Fallen, Barrikaden und Lehen auf der Karte bevor das Level startet (optional)</string>
     <string name="initial_setup_towers">Türme</string>
@@ -2294,6 +2295,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="playtest_first_villain">Erster Schurke</string>
     <string name="playtest_peak_pressure">Druckspitze</string>
     <string name="playtest_climax">Finale</string>
+    <string name="template_no_template">Keine Vorlage</string>
     <string name="template_tutorial">Tutorial-Auftakt</string>
     <string name="template_steady_pressure">Stetiger Druck</string>
     <string name="template_villain_duel">Schurken-Duell</string>

@@ -695,6 +695,7 @@
     <string name="select_position_on_map">Seleziona posizione sulla mappa</string>
     <string name="initial_setup_map">Mappa</string>
     <string name="initial_setup_click_to_place">Clicca sulla mappa per posizionare l'elemento selezionato</string>
+    <string name="initial_setup_tile">Casella:</string>
     <string name="initial_setup">Configurazione Iniziale</string>
     <string name="initial_setup_info">Posiziona torri, nemici, trappole, barricate e feudi sulla mappa prima che inizi il livello (opzionale)</string>
     <string name="initial_setup_towers">Torri</string>
@@ -2297,6 +2298,7 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="playtest_first_villain">Primo cattivo</string>
     <string name="playtest_peak_pressure">Picco di pressione</string>
     <string name="playtest_climax">Climax</string>
+    <string name="template_no_template">Nessun modello</string>
     <string name="template_tutorial">Avvio tutorial</string>
     <string name="template_steady_pressure">Pressione costante</string>
     <string name="template_villain_duel">Duello tra cattivi</string>

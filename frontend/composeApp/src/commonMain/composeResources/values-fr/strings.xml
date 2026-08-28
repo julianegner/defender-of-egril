@@ -695,6 +695,7 @@
     <string name="select_position_on_map">Sélectionner une position sur la carte</string>
     <string name="initial_setup_map">Carte</string>
     <string name="initial_setup_click_to_place">Cliquez sur la carte pour placer l'élément sélectionné</string>
+    <string name="initial_setup_tile">Case:</string>
     <string name="initial_setup">Configuration Initiale</string>
     <string name="initial_setup_info">Placez des tours, des ennemis, des pièges, des barricades et des fiefs sur la carte avant que le niveau ne commence (optionnel)</string>
     <string name="initial_setup_towers">Tours</string>
@@ -2296,6 +2297,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="playtest_first_villain">Premier vilain</string>
     <string name="playtest_peak_pressure">Pic de pression</string>
     <string name="playtest_climax">Final</string>
+    <string name="template_no_template">Sans modèle</string>
     <string name="template_tutorial">Debut tutoriel</string>
     <string name="template_steady_pressure">Pression reguliere</string>
     <string name="template_villain_duel">Duel de vilains</string>

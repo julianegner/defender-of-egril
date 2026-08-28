@@ -22,6 +22,7 @@ internal enum class FocusedPlaytestType {
 }
 
 internal enum class EditorLevelTemplate {
+    NO_TEMPLATE,
     TUTORIAL,
     STEADY_PRESSURE,
     VILLAIN_DUEL,
@@ -352,8 +353,11 @@ internal fun applyLevelTemplate(
     map: EditorMap?,
     template: EditorLevelTemplate,
 ): EditorLevel {
+    if (template == EditorLevelTemplate.NO_TEMPLATE) return level
+
     val generatedSpawns =
         when (template) {
+            EditorLevelTemplate.NO_TEMPLATE -> emptyList()
             EditorLevelTemplate.TUTORIAL -> generateTutorialSpawns(map)
             EditorLevelTemplate.STEADY_PRESSURE -> generateSteadyPressureSpawns(map)
             EditorLevelTemplate.VILLAIN_DUEL -> generateVillainDuelSpawns(map)
@@ -363,6 +367,7 @@ internal fun applyLevelTemplate(
 
     val towers =
         when (template) {
+            EditorLevelTemplate.NO_TEMPLATE -> level.availableTowers
             EditorLevelTemplate.TUTORIAL -> setOf(DefenderType.SPIKE_TOWER, DefenderType.SPEAR_TOWER, DefenderType.BOW_TOWER)
             EditorLevelTemplate.STEADY_PRESSURE -> setOf(DefenderType.SPIKE_TOWER, DefenderType.SPEAR_TOWER, DefenderType.BOW_TOWER, DefenderType.ALCHEMY_TOWER)
             EditorLevelTemplate.VILLAIN_DUEL ->
@@ -380,6 +385,7 @@ internal fun applyLevelTemplate(
         }
     val (coins, hp) =
         when (template) {
+            EditorLevelTemplate.NO_TEMPLATE -> level.startCoins to level.startHealthPoints
             EditorLevelTemplate.TUTORIAL -> 120 to 12
             EditorLevelTemplate.STEADY_PRESSURE -> 135 to 12
             EditorLevelTemplate.VILLAIN_DUEL -> 180 to 14

@@ -735,6 +735,7 @@
     <string name="select_position_on_map">Select position on map</string>
     <string name="initial_setup_map">Map</string>
     <string name="initial_setup_click_to_place">Click on the map to place the selected element</string>
+    <string name="initial_setup_tile">Tile:</string>
     <string name="initial_setup_configuration">Configuration</string>
     <string name="element_type">Element Type</string>
     <string name="selection_mode">Selection Mode</string>
@@ -2304,6 +2305,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="playtest_first_villain">First villain</string>
     <string name="playtest_peak_pressure">Peak pressure</string>
     <string name="playtest_climax">Climax</string>
+    <string name="template_no_template">No template</string>
     <string name="template_tutorial">Tutorial opener</string>
     <string name="template_steady_pressure">Steady pressure</string>
     <string name="template_villain_duel">Villain duel</string>

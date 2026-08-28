@@ -64,6 +64,7 @@ import defender_of_egril.composeapp.generated.resources.rating_spiky
 import defender_of_egril.composeapp.generated.resources.rating_steady
 import defender_of_egril.composeapp.generated.resources.rating_tight
 import defender_of_egril.composeapp.generated.resources.template_endurance
+import defender_of_egril.composeapp.generated.resources.template_no_template
 import defender_of_egril.composeapp.generated.resources.template_river_pressure
 import defender_of_egril.composeapp.generated.resources.template_steady_pressure
 import defender_of_egril.composeapp.generated.resources.template_tutorial
@@ -296,7 +297,7 @@ internal fun LevelDesignOverview(
                     fontWeight = FontWeight.Bold,
                 )
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(EditorLevelTemplate.entries.toList()) { template ->
+                    items(EditorLevelTemplate.entries.filter { it != EditorLevelTemplate.NO_TEMPLATE }) { template ->
                         Button(onClick = { onApplyTemplate(template) }) {
                             Text(template.localizedLabel())
                         }
@@ -420,6 +421,7 @@ private fun FocusedPlaytestType.localizedLabel(): String =
 @Composable
 private fun EditorLevelTemplate.localizedLabel(): String =
     when (this) {
+        EditorLevelTemplate.NO_TEMPLATE -> stringResource(Res.string.template_no_template)
         EditorLevelTemplate.TUTORIAL -> stringResource(Res.string.template_tutorial)
         EditorLevelTemplate.STEADY_PRESSURE -> stringResource(Res.string.template_steady_pressure)
         EditorLevelTemplate.VILLAIN_DUEL -> stringResource(Res.string.template_villain_duel)
