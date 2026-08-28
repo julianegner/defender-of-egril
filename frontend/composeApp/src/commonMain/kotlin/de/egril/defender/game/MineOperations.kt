@@ -349,33 +349,7 @@ class MineOperations(
     ): Boolean {
         val wizard = state.defenders.find { it.id == wizardId && it.type == DefenderType.WIZARD_TOWER } ?: return false
 
-        // Must be level 10 or higher
-        if (wizard.level.value < 10) return false
-
-        // Must be ready and have actions remaining
-        if (!wizard.isReady || wizard.actionsRemaining.value <= 0) return false
-
-        // Must not be on cooldown
-        if (wizard.trapCooldownRemaining.value > 0) return false
-
-        // Check if position is within range
-        val distance = wizard.position.value.distanceTo(trapPosition)
-        if (distance > wizard.range) return false
-
-        // Check if position is on the path
-        if (!state.level.isOnPath(trapPosition)) return false
-
-        // Check if there's already a trap at this position
-        if (state.traps.any { it.position == trapPosition }) return false
-
-        // Check if there's an enemy unit at this position
-        if (state.attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
-
-        // Check if there's a field effect at this position
-        if (state.fieldEffects.any { it.position == trapPosition }) return false
-
-        // Check if there's a fief at this position
-        if (state.fiefs.any { it.position == trapPosition }) return false
+        if (!state.canWizardPlaceMagicalTrapAt(wizard, trapPosition)) return false
 
         // Create magical trap (no damage, just teleports)
         val trap =

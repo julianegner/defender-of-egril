@@ -130,4 +130,60 @@ class AutoAttackDamageabilityTest {
         assertTrue(tower.isDisabled.value, "Hitting a mirror should apply Silas mirror blind effect")
         assertTrue(mirror.isDefeated.value, "Mirror image should vanish when hit")
     }
+
+    @Test
+    fun wizardAutoAttackGeneratesManaWhenNoTargetAndNoMagicalTrapAreAvailable() {
+        val pathCells = setOf(Position(0, 0), Position(29, 29))
+        val level =
+            Level(
+                id = 1,
+                name = "Wizard Auto Mana Test",
+                gridWidth = 30,
+                gridHeight = 30,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(29, 29)),
+                pathCells = pathCells,
+                attackerWaves = emptyList(),
+                initialCoins = 1000,
+                healthPoints = 10,
+            )
+        val state = GameState(level, phase = mutableStateOf(de.egril.defender.model.GamePhase.PLAYER_TURN))
+        state.maxMana.value = 20
+        state.currentMana.value = 0
+
+        val engine = GameEngine(state)
+        val wizard = defender(1, DefenderType.WIZARD_TOWER, Position(15, 15)).apply { this.level.value = 10 }
+        val distantEnemy = attacker(1, AttackerType.GOBLIN, Position(0, 0))
+
+        state.defenders.add(wizard)
+        state.attackers.add(distantEnemy)
+
+        assertTrue(state.hasDefendersForAutoAttack(), "Wizard should make auto-attack available when it can auto-generate mana")
+        assertFalse(state.canWizardPlaceAnyMagicalTrap(wizard), "Wizard should have no valid magical trap tile in range")
+        assertTrue(engine.performOneAutoAttack(wizard.id), "Wizard should spend its action on mana generation")
+        assertEquals(7, state.currentMana.value, "Wizard mana generation should use the normal generate-mana action")
+        assertEquals(0, wizard.actionsRemaining.value, "Mana generation should consume the wizard action")
+        assertTrue(state.getDefenderTypesWithSpecialActions().isEmpty(), "Unavailable magical traps should not be reported as remaining special actions")
+        assertEquals(distantEnemy.maxHealth, distantEnemy.currentHealth.value, "No enemy should be damaged when mana generation is used")
+    }
+
+    @Test
+    fun wizardAutoAttackDoesNotGenerateManaWhenMagicalTrapIsAvailable() {
+        val state = GameState(createOpenLevel(), phase = mutableStateOf(de.egril.defender.model.GamePhase.PLAYER_TURN))
+        state.maxMana.value = 20
+        state.currentMana.value = 0
+
+        val engine = GameEngine(state)
+        val wizard = defender(1, DefenderType.WIZARD_TOWER, Position(3, 3)).apply { this.level.value = 10 }
+        val distantEnemy = attacker(1, AttackerType.GOBLIN, Position(9, 3))
+
+        state.defenders.add(wizard)
+        state.attackers.add(distantEnemy)
+
+        assertTrue(state.canWizardPlaceAnyMagicalTrap(wizard), "Wizard should still have a manual magical trap option")
+        assertFalse(engine.performOneAutoAttack(wizard.id), "Auto-attack should not consume the action when a manual trap is available")
+        assertEquals(0, state.currentMana.value)
+        assertEquals(1, wizard.actionsRemaining.value)
+        assertEquals(listOf(DefenderType.WIZARD_TOWER), state.getDefenderTypesWithSpecialActions())
+    }
 }

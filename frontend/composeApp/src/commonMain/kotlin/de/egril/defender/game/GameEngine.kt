@@ -57,6 +57,7 @@ class GameEngine(
             state = state,
             selector = autoAttackSelector,
             combatSystem = combatSystem,
+            performWizardGenerateMana = supportLogic::performWizardGenerateMana,
             evaluateImmediateEvents = ::evaluateImmediateEvents,
         )
     private val mineLogic =

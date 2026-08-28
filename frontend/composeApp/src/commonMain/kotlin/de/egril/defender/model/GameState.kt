@@ -763,15 +763,19 @@ data class GameState(
             }
 
             // Only count towers that can do regular auto-attacks
-            // Exclude mines (no attack) and wizard towers level 10+ (have trap ability that needs manual placement)
-            // Alchemy towers CAN auto-attack (they check acid immunity like wizard towers check fireball immunity)
+            // Exclude mines (no attack). Wizards can also qualify when auto-attack would spend
+            // their action on mana generation because they have no valid target and cannot place
+            // a magical trap right now.
             when {
                 defender.type == DefenderType.DWARVEN_MINE -> false
-                defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 -> false
                 defender.type.attackType == AttackType.NONE -> false
                 else -> {
-                    // Check if there are any enemies in range
-                    activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
+                    val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
+                    if (defender.type == DefenderType.WIZARD_TOWER) {
+                        hasEnemiesInRange || (currentMana.value < maxMana.value && !canWizardPlaceAnyMagicalTrap(defender))
+                    } else {
+                        hasEnemiesInRange
+                    }
                 }
             }
         }
@@ -805,7 +809,7 @@ data class GameState(
                 }
                 // Wizard towers (level 10+) with magical trap available
                 defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 -> {
-                    if (defender.trapCooldownRemaining.value == 0) {
+                    if (canWizardPlaceAnyMagicalTrap(defender)) {
                         typesWithActions.add(DefenderType.WIZARD_TOWER)
                     }
                 }
@@ -814,6 +818,31 @@ data class GameState(
 
         return typesWithActions.toList()
     }
+
+    fun canWizardPlaceMagicalTrapAt(
+        wizard: Defender,
+        trapPosition: Position,
+    ): Boolean {
+        if (wizard.type != DefenderType.WIZARD_TOWER) return false
+        if (wizard.level.value < 10) return false
+        if (!wizard.isReady || wizard.actionsRemaining.value <= 0) return false
+        if (wizard.trapCooldownRemaining.value > 0) return false
+
+        val distance = wizard.position.value.distanceTo(trapPosition)
+        if (distance > effectiveRange(wizard)) return false
+        if (!level.isOnPath(trapPosition)) return false
+        if (traps.any { it.position == trapPosition }) return false
+        if (attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
+        if (fieldEffects.any { it.position == trapPosition }) return false
+        if (fiefs.any { it.position == trapPosition }) return false
+
+        return true
+    }
+
+    fun canWizardPlaceAnyMagicalTrap(wizard: Defender): Boolean =
+        level.pathCells.any { position ->
+            canWizardPlaceMagicalTrapAt(wizard, position)
+        }
 
     /**
      * Initialize pre-placed defenders, attackers, traps, and barricades from level configuration.

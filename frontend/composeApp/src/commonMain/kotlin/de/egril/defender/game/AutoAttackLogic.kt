@@ -2,6 +2,7 @@ package de.egril.defender.game
 
 import de.egril.defender.model.AttackType
 import de.egril.defender.model.Defender
+import de.egril.defender.model.DefenderType
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Position
@@ -10,6 +11,7 @@ class AutoAttackLogic(
     private val state: GameState,
     private val selector: AutoAttackSelector,
     private val combatSystem: CombatSystem,
+    private val performWizardGenerateMana: (Int) -> Boolean,
     private val evaluateImmediateEvents: () -> Unit,
 ) {
     fun autoDefenderAttacks() {
@@ -39,7 +41,18 @@ class AutoAttackLogic(
                         if (!success) break
                     }
                     AttackType.AREA, AttackType.LASTING -> {
-                        val targetPosition = selector.selectBestAreaAttackPosition(defender, activeAttackers) ?: break
+                        val targetPosition = selector.selectBestAreaAttackPosition(defender, activeAttackers)
+                        if (targetPosition == null) {
+                            if (defender.type == DefenderType.WIZARD_TOWER &&
+                                !state.canWizardPlaceAnyMagicalTrap(defender)
+                            ) {
+                                if (!performWizardGenerateMana(defender.id)) {
+                                    break
+                                }
+                                continue
+                            }
+                            break
+                        }
                         val success =
                             combatSystem.defenderAttackPosition(defender.id, targetPosition) {
                                 combatSystem.processDefeatedAttackers()
@@ -48,6 +61,8 @@ class AutoAttackLogic(
                     }
                     AttackType.NONE -> break
                 }
+
+                break
             }
         }
         evaluateImmediateEvents()
@@ -80,7 +95,15 @@ class AutoAttackLogic(
                     .also { if (it) evaluateImmediateEvents() }
             }
             AttackType.AREA, AttackType.LASTING -> {
-                val targetPosition = selector.selectBestAreaAttackPosition(defender, activeAttackers) ?: return false
+                val targetPosition = selector.selectBestAreaAttackPosition(defender, activeAttackers)
+                if (targetPosition == null) {
+                    if (defender.type == DefenderType.WIZARD_TOWER &&
+                        !state.canWizardPlaceAnyMagicalTrap(defender)
+                    ) {
+                        return performWizardGenerateMana(defender.id).also { if (it) evaluateImmediateEvents() }
+                    }
+                    return false
+                }
                 combatSystem
                     .defenderAttackPosition(defender.id, targetPosition) { combatSystem.processDefeatedAttackers() }
                     .also { if (it) evaluateImmediateEvents() }
