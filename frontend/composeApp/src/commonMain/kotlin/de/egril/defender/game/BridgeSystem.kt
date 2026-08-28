@@ -239,6 +239,7 @@ class BridgeSystem(
 
                 // Destroy the ork
                 attacker.isBuildingBridge.value = true
+                attacker.wasMerged.value = true
                 attacker.isDefeated.value = true
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("Ork ${attacker.id} built wooden bridge at ${positions[0]} with ${bridge.currentHealth.value} HP")
@@ -263,6 +264,7 @@ class BridgeSystem(
 
                 // Destroy the ogre
                 attacker.isBuildingBridge.value = true
+                attacker.wasMerged.value = true
                 attacker.isDefeated.value = true
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("Ogre ${attacker.id} built stone bridge at $positions with ${bridge.currentHealth.value} HP")

@@ -83,6 +83,61 @@ class BridgeBuildingTest {
         assertTrue(ork.isBuildingBridge.value, "Ork should be marked as building bridge")
     }
 
+    @Test
+    fun testBridgeSacrificeDoesNotGrantCoinsOrCoinEffects() {
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["1,0"] = TileType.PATH
+        tiles["2,0"] = TileType.RIVER
+        tiles["3,0"] = TileType.PATH
+        tiles["4,0"] = TileType.TARGET
+
+        val map =
+            EditorMap(
+                id = "test-bridge-reward",
+                name = "Test Bridge Reward",
+                width = 5,
+                height = 1,
+                tiles = tiles,
+            )
+
+        val level =
+            Level(
+                id = 1,
+                name = "Test Level",
+                gridWidth = 5,
+                gridHeight = 1,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(4, 0)),
+                pathCells = map.getPathCells(),
+                attackerWaves = emptyList(),
+                riverTiles = map.getRiverCells().associateWith { RiverTile(it) },
+            )
+
+        val state = GameState(level = level)
+        val bridgeSystem = BridgeSystem(state)
+        val combatSystem = CombatSystem(state, bridgeSystem)
+
+        val ork =
+            Attacker(
+                id = 1,
+                type = AttackerType.ORK,
+                position = mutableStateOf(Position(1, 0)),
+                level = mutableStateOf(3),
+                currentHealth = mutableStateOf(120),
+            )
+        state.attackers.add(ork)
+
+        val bridgeablePositions = bridgeSystem.canBuildBridge(ork)
+        assertTrue(bridgeablePositions.isNotEmpty(), "Ork should be able to build a bridge")
+        assertTrue(bridgeSystem.buildBridge(ork, bridgeablePositions), "Bridge building should succeed")
+
+        combatSystem.processDefeatedAttackers()
+
+        assertEquals(0, state.pendingCoinGains.value, "Bridge sacrifice must not stage coin rewards")
+        assertTrue(state.coinGainEffects.isEmpty(), "Bridge sacrifice must not create coin gain effects")
+    }
+
     /**
      * Test that an Ogre can build a stone bridge over 1-2 river tiles
      */
