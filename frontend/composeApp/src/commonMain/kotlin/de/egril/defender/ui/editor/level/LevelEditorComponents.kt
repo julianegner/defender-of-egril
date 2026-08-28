@@ -722,6 +722,7 @@ fun SpawnTurnSection(
 ) {
     var expanded by remember(turn) { mutableStateOf(initiallyExpanded) }
     val villainSummary = remember(spawns) { spawns.presentVillainSummary { it.villainName ?: it.displayName } }
+    val distinctTypes = remember(spawns) { spawns.map { it.attackerType }.distinct() }
 
     LaunchedEffect(initiallyExpanded, expandRequestKey) {
         if (initiallyExpanded || expandRequestKey != null) {
@@ -758,7 +759,7 @@ fun SpawnTurnSection(
                     Column {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             Text(
                                 text = "Turn $turn",
@@ -770,6 +771,11 @@ fun SpawnTurnSection(
                                 fontSize = 12.sp,
                                 color = Color.Gray,
                             )
+                            distinctTypes.forEach { type ->
+                                TooltipWrapper(text = type.getLocalizedName()) {
+                                    EnemyIconOnHexagon(attackerType = type, size = 18.dp)
+                                }
+                            }
                         }
                         if (villainSummary.isNotEmpty()) {
                             Text(
