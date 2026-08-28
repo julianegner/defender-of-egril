@@ -263,6 +263,7 @@ data class GameState(
     val nextAttackerId: MutableState<Int> = mutableStateOf(1),
     val nextRaftId: MutableState<Int> = mutableStateOf(1),
     val nextBarricadeId: MutableState<Int> = mutableStateOf(1),
+    val nextBridgeId: MutableState<Int> = mutableStateOf(1),
     val currentWaveIndex: MutableState<Int> = mutableStateOf(0),
     val spawnCounter: MutableState<Int> = mutableStateOf(0),
     val attackersToSpawn: SnapshotStateList<AttackerType> = mutableStateListOf(),

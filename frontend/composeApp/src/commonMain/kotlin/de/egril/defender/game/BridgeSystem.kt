@@ -19,8 +19,6 @@ import de.egril.defender.model.*
 class BridgeSystem(
     private val state: GameState,
 ) {
-    private var nextBridgeId = 1
-
     /**
      * Check if an attacker should build a bridge based on strategic considerations.
      * - For Wizards (Evil Wizard/Ewhad): Always build if possible
@@ -228,7 +226,7 @@ class BridgeSystem(
 
                 val bridge =
                     Bridge(
-                        id = nextBridgeId++,
+                        id = state.nextBridgeId.value++,
                         type = BridgeType.WOODEN,
                         positions = positions,
                         currentHealth = mutableStateOf(attacker.currentHealth.value),
@@ -253,7 +251,7 @@ class BridgeSystem(
 
                 val bridge =
                     Bridge(
-                        id = nextBridgeId++,
+                        id = state.nextBridgeId.value++,
                         type = BridgeType.STONE,
                         positions = positions,
                         currentHealth = mutableStateOf(attacker.currentHealth.value),
@@ -279,7 +277,7 @@ class BridgeSystem(
 
                 val bridge =
                     Bridge(
-                        id = nextBridgeId++,
+                        id = state.nextBridgeId.value++,
                         type = BridgeType.MAGICAL,
                         positions = positions,
                         currentHealth = mutableStateOf(0), // No HP

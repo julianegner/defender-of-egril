@@ -83,6 +83,8 @@ data class SavedGame(
     // Sandbox: flow direction/speed chosen for runtime-painted river tiles, persisted so the
     // chosen water direction is restored on load (position -> river flow).
     val sandboxRiverTiles: Map<Position, de.egril.defender.model.RiverTile>? = null,
+    val bridges: List<SavedBridge> = emptyList(), // Active bridges built by enemies
+    val nextBridgeId: Int = 1, // Next bridge ID to use
 )
 
 /**
@@ -159,6 +161,16 @@ data class SavedBarricade(
     val defenderId: Int, // The tower that built this barricade
     val id: Int = 0, // Barricade ID (0 for old saves)
     val supportedTowerId: Int? = null, // ID of tower on this barricade (null if none)
+)
+
+data class SavedBridge(
+    val id: Int,
+    val type: BridgeType,
+    val positions: List<Position>,
+    val currentHealth: Int,
+    val turnsRemaining: Int, // For magical bridges (3 turns), 0 for others
+    val createdByAttackerId: Int,
+    val createdOnTurn: Int,
 )
 
 data class SavedSpellEffect(

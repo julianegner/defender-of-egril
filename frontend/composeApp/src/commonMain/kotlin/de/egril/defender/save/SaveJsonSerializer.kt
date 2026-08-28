@@ -245,6 +245,23 @@ object SaveJsonSerializer {
                 "[$entries]"
             } ?: "null"
 
+        val bridgesJson =
+            savedGame.bridges.joinToString(",\n    ") { bridge ->
+                val positionsJson =
+                    bridge.positions.joinToString(", ") { position ->
+                        """{"x": ${position.x}, "y": ${position.y}}"""
+                    }
+                """{
+      "id": ${bridge.id},
+      "type": "${bridge.type.name}",
+      "positions": [$positionsJson],
+      "currentHealth": ${bridge.currentHealth},
+      "turnsRemaining": ${bridge.turnsRemaining},
+      "createdByAttackerId": ${bridge.createdByAttackerId},
+      "createdOnTurn": ${bridge.createdOnTurn}
+    }"""
+            }
+
         val data = """{
   "id": "${savedGame.id}",
   "timestamp": ${savedGame.timestamp},
@@ -305,7 +322,15 @@ object SaveJsonSerializer {
   "waaghFrenzyRoundsLeft": ${savedGame.waaghFrenzyRoundsLeft},
   "hasShownWaaghFrenzyMessage": ${savedGame.hasShownWaaghFrenzyMessage},
   "sandboxMapTiles": $sandboxMapTilesJson,
-  "sandboxRiverTiles": $sandboxRiverTilesJson
+  "sandboxRiverTiles": $sandboxRiverTilesJson,
+  "bridges": [
+   $bridgesJson
+  ],
+  "nextBridgeId": ${savedGame.nextBridgeId},
+  "bridges": [
+   $bridgesJson
+  ],
+  "nextBridgeId": ${savedGame.nextBridgeId}
 }"""
         return """{
   "metadata": {
@@ -686,6 +711,29 @@ object SaveJsonSerializer {
                     null
                 }
 
+            // Parse bridges (optional field for backward compatibility with old saves)
+            val bridges = mutableListOf<SavedBridge>()
+            if (dataJson.contains("\"bridges\":")) {
+                val bridgesSection = JsonUtils.extractJsonArrayForKey(dataJson, "bridges")
+                if (bridgesSection.isNotBlank()) {
+                    val bridgeEntries = JsonUtils.splitJsonArray(bridgesSection)
+                    for (entry in bridgeEntries) {
+                        try {
+                            bridges.add(parseSavedBridge(entry))
+                        } catch (e: Exception) {
+                            // Skip malformed bridge entries.
+                        }
+                    }
+                }
+            }
+
+            val nextBridgeId =
+                try {
+                    JsonUtils.extractValue(dataJson, "nextBridgeId").toInt()
+                } catch (e: Exception) {
+                    1
+                }
+
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -739,6 +787,8 @@ object SaveJsonSerializer {
                 hasShownWaaghFrenzyMessage = hasShownWaaghFrenzyMessage,
                 sandboxMapTiles = sandboxMapTiles,
                 sandboxRiverTiles = sandboxRiverTiles,
+                bridges = bridges,
+                nextBridgeId = nextBridgeId,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
@@ -867,6 +917,37 @@ object SaveJsonSerializer {
             }
 
         return SavedBarricade(position, healthPoints, defenderId, id, supportedTowerId)
+    }
+
+    private fun parseSavedBridge(json: String): SavedBridge {
+        val id = JsonUtils.extractValue(json, "id").toInt()
+        val type = BridgeType.valueOf(JsonUtils.extractValue(json, "type"))
+        val currentHealth = JsonUtils.extractValue(json, "currentHealth").toInt()
+        val turnsRemaining = JsonUtils.extractValue(json, "turnsRemaining").toInt()
+        val createdByAttackerId = JsonUtils.extractValue(json, "createdByAttackerId").toInt()
+        val createdOnTurn = JsonUtils.extractValue(json, "createdOnTurn").toInt()
+
+        val positions = mutableListOf<Position>()
+        val positionsSection = JsonUtils.extractJsonArrayForKey(json, "positions")
+        if (positionsSection.isNotBlank()) {
+            val positionEntries = JsonUtils.splitJsonArray(positionsSection)
+            for (entry in positionEntries) {
+                val x = JsonUtils.extractValue(entry, "x").toInt()
+                val y = JsonUtils.extractValue(entry, "y").toInt()
+                val position = Position(x, y)
+                positions.add(position)
+            }
+        }
+
+        return SavedBridge(
+            id = id,
+            type = type,
+            positions = positions,
+            currentHealth = currentHealth,
+            turnsRemaining = turnsRemaining,
+            createdByAttackerId = createdByAttackerId,
+            createdOnTurn = createdOnTurn,
+        )
     }
 
     private fun parseSavedAttacker(json: String): SavedAttacker {

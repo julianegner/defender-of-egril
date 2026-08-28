@@ -376,6 +376,19 @@ object SaveFileStorage {
                 )
             }
 
+        val bridges =
+            gameState.bridges.map { bridge ->
+                SavedBridge(
+                    id = bridge.id,
+                    type = bridge.type,
+                    positions = bridge.positions,
+                    currentHealth = bridge.currentHealth.value,
+                    turnsRemaining = bridge.turnsRemaining.value,
+                    createdByAttackerId = bridge.createdByAttackerId,
+                    createdOnTurn = bridge.createdOnTurn,
+                )
+            }
+
         return SavedGame(
             id = saveId,
             timestamp = currentTimeMillis(),
@@ -429,6 +442,8 @@ object SaveFileStorage {
                 } else {
                     null
                 },
+            bridges = bridges,
+            nextBridgeId = gameState.nextBridgeId.value,
         )
     }
 
@@ -467,6 +482,23 @@ object SaveFileStorage {
         gameState.spawnCounter.value = savedGame.spawnCounter
         gameState.turnNumber.value = savedGame.turnNumber
         gameState.nextRaftId.value = savedGame.nextRaftId
+        gameState.nextBridgeId.value = savedGame.nextBridgeId
+
+        // Restore bridges
+        gameState.bridges.clear()
+        gameState.bridges.addAll(
+            savedGame.bridges.map { bridge ->
+                Bridge(
+                    id = bridge.id,
+                    type = bridge.type,
+                    positions = bridge.positions,
+                    currentHealth = mutableStateOf(bridge.currentHealth),
+                    turnsRemaining = mutableStateOf(bridge.turnsRemaining),
+                    createdByAttackerId = bridge.createdByAttackerId,
+                    createdOnTurn = bridge.createdOnTurn,
+                )
+            },
+        )
 
         // Restore mana
         gameState.currentMana.value = savedGame.currentMana
