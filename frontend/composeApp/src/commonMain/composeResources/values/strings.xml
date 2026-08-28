@@ -403,6 +403,8 @@
     <string name="subtitle_optional">Subtitle (optional)</string>
     <string name="author_optional">Author (optional)</string>
     <string name="map_tooling_info">Map Tooling Info</string>
+    <string name="allow_no_buildable_tiles">Allow maps without buildable tiles</string>
+    <string name="allow_no_buildable_tiles_hint">Use this for maps that rely on supports or tower bases instead of build areas.</string>
     <string name="width">Width</string>
     <string name="height">Height</string>
     <string name="select_map_to_edit">Select a map to edit:</string>
@@ -1989,7 +1991,8 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="editor_howto_enemy_spawns_title">Sub-Tab: Enemy Spawns</string>
     <string name="editor_howto_enemy_spawns_text">Define which enemies appear during the level and when. Click "Add Enemy" to add a new entry. For each spawn, select the enemy type, set its level (higher level scales health), choose the turn number when it appears, and optionally pick the spawn point on the map. A red badge on the tab means required information is missing.</string>
     <string name="editor_howto_towers_title">Sub-Tab: Towers</string>
-    <string name="editor_howto_towers_text">Choose which tower types are available to the player in this level. Toggle each tower type on or off using the checkboxes. At least one tower must be enabled – a red badge appears on the tab if no towers are selected.</string>
+    <string name="editor_howto_towers_text">Choose which tower types are available to the player in this level. Toggle each tower type on or off using the checkboxes. If no towers are selected, the tab shows a warning and the level must rely on supports or towers from the initial setup.</string>
+    <string name="no_towers_selected_warning">No towers are selected.</string>
     <string name="editor_howto_waypoints_title">Sub-Tab: Waypoints</string>
     <string name="editor_howto_waypoints_text">Waypoints define intermediate or branching points on enemy paths between spawn points and the target. Click "Add Waypoint" to add a new waypoint, set its grid position, and link it to a spawn point or another waypoint to form a path chain. The minimap shows all waypoint positions relative to the map. A red badge means the waypoint configuration is incomplete or invalid.</string>
     <string name="editor_howto_initial_setup_title">Sub-Tab: Initial Setup</string>

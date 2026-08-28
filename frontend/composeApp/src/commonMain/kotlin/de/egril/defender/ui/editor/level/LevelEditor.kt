@@ -608,7 +608,13 @@ internal fun LevelEditorView(
     val hpInt = startHP.toIntOrNull() ?: 0
     val isLevelInfoReady = coinsInt > 0 && hpInt > 0
     val isEnemySpawnsReady = isSandbox || enemySpawns.isNotEmpty()
-    val isTowersReady = availableTowersState.isNotEmpty()
+    val hasInitialSetupTowerSupport = supportsState.isNotEmpty() || initialDataState.defenders.isNotEmpty()
+    val hasInitialTowerBases = initialDataState.barricades.any { it.supportsTower }
+    val mapNeedsNoBuildFallback = currentMap?.allowNoBuildableTiles == true && currentMap.getBuildAreas().isEmpty()
+    val hasNoBuildFallback = supportsState.isNotEmpty() || hasInitialTowerBases
+    val hasNoBuildFallbackIssue = mapNeedsNoBuildFallback && !hasNoBuildFallback
+    val isTowersReady = availableTowersState.isNotEmpty() || hasInitialSetupTowerSupport
+    val showNoTowersWarning = availableTowersState.isEmpty() && hasInitialSetupTowerSupport
     // Waypoints are optional, but if present they should be valid
     val isWaypointsValid = areWaypointsValid(waypointsState, currentMap, level)
     val draftLevel =
@@ -726,6 +732,8 @@ internal fun LevelEditorView(
                         Text(stringResource(Res.string.level_info_tab))
                         if (!isLevelInfoReady) {
                             RedDotBadge()
+                        } else if (hasNoBuildFallbackIssue) {
+                            WarningBadge()
                         }
                     }
                 },
@@ -772,6 +780,8 @@ internal fun LevelEditorView(
                         Text(stringResource(Res.string.towers_tab))
                         if (!isTowersReady) {
                             RedDotBadge()
+                        } else if (showNoTowersWarning) {
+                            WarningBadge()
                         }
                     }
                 },

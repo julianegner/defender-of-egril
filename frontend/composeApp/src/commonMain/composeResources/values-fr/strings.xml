@@ -397,6 +397,8 @@
     <string name="subtitle_optional">Sous-titre (optionnel)</string>
     <string name="author_optional">Auteur (optionnel)</string>
     <string name="map_tooling_info">Infos de création de carte</string>
+    <string name="allow_no_buildable_tiles">Autoriser les cartes sans cases constructibles</string>
+    <string name="allow_no_buildable_tiles_hint">À utiliser pour les cartes qui reposent sur des soutiens ou des bases de tour plutôt que sur des zones de construction.</string>
     <string name="width">Largeur</string>
     <string name="height">Hauteur</string>
     <string name="select_map_to_edit">Sélectionner une carte à modifier:</string>
@@ -1983,7 +1985,8 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="editor_howto_enemy_spawns_title">Sous-Onglet : Apparitions des Ennemis</string>
     <string name="editor_howto_enemy_spawns_text">Définissez quels ennemis apparaissent et quand. Cliquez sur « Ajouter un Ennemi » pour ajouter une entrée. Pour chaque apparition : sélectionnez le type d\'ennemi, définissez son niveau (augmente les points de vie), choisissez le tour où il apparaît et sélectionnez éventuellement le point d\'apparition sur la carte. Un badge rouge indique des informations obligatoires manquantes.</string>
     <string name="editor_howto_towers_title">Sous-Onglet : Tours</string>
-    <string name="editor_howto_towers_text">Choisissez quels types de tours sont disponibles pour le joueur dans ce niveau. Activez ou désactivez chaque type à l\'aide des cases à cocher. Au moins une tour doit être activée – un badge rouge apparaît si aucune n\'est sélectionnée.</string>
+    <string name="editor_howto_towers_text">Choisissez quels types de tours sont disponibles pour le joueur dans ce niveau. Activez ou désactivez chaque type à l'aide des cases à cocher. Si aucune tour n'est sélectionnée, l'onglet affiche un avertissement et le niveau doit s'appuyer sur des soutiens ou des tours de la configuration initiale.</string>
+    <string name="no_towers_selected_warning">Aucune tour n'est sélectionnée.</string>
     <string name="editor_howto_waypoints_title">Sous-Onglet : Points de Passage</string>
     <string name="editor_howto_waypoints_text">Les points de passage définissent des points intermédiaires ou des bifurcations sur les chemins ennemis entre les points d\'apparition et la cible. Cliquez sur « Ajouter un Point de Passage », définissez sa position sur la grille et reliez-le à un point d\'apparition ou à un autre point de passage pour former une chaîne de chemin. La mini-carte affiche toutes les positions. Un badge rouge indique une configuration incomplète ou invalide.</string>
     <string name="editor_howto_initial_setup_title">Sous-Onglet : Configuration Initiale</string>

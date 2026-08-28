@@ -159,6 +159,47 @@ class MapValidationTest {
     }
 
     @Test
+    fun testMapWithoutBuildAreasCanBeAllowed() {
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["1,0"] = TileType.PATH
+        tiles["2,0"] = TileType.TARGET
+
+        val map =
+            EditorMap(
+                id = "test_no_build_areas_allowed",
+                name = "Test No Build Areas Allowed",
+                width = 3,
+                height = 1,
+                tiles = tiles,
+                allowNoBuildableTiles = true,
+                readyToUse = false,
+            )
+
+        assertTrue(map.validateReadyToUse(), "Map without build areas should be valid when the flag is enabled")
+    }
+
+    @Test
+    fun testMapWithoutBuildAreasIsInvalidWithoutFlag() {
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["1,0"] = TileType.PATH
+        tiles["2,0"] = TileType.TARGET
+
+        val map =
+            EditorMap(
+                id = "test_no_build_areas_blocked",
+                name = "Test No Build Areas Blocked",
+                width = 3,
+                height = 1,
+                tiles = tiles,
+                readyToUse = false,
+            )
+
+        assertFalse(map.validateReadyToUse(), "Map without build areas should be invalid by default")
+    }
+
+    @Test
     fun testSpiralMapAllSpawnPointsConnected() {
         // Test the actual spiral map to ensure all spawn points can reach the target
         val spiralMap = EditorStorage.getMap("map_spiral")

@@ -1,6 +1,7 @@
 package de.egril.defender.ui.editor.level.tower
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,11 +21,13 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.hexagon.TowerIconOnHexagon
+import de.egril.defender.ui.icon.WarningIcon
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.add_all_towers
 import defender_of_egril.composeapp.generated.resources.available_towers
 import defender_of_egril.composeapp.generated.resources.cost_label
 import defender_of_egril.composeapp.generated.resources.damage_label
+import defender_of_egril.composeapp.generated.resources.no_towers_selected_warning
 import defender_of_egril.composeapp.generated.resources.remove_all_towers
 
 /**
@@ -77,6 +80,20 @@ fun TowersTab(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
             )
+            if (availableTowers.isEmpty()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    WarningIcon(size = 16.dp)
+                    Text(
+                        text = stringResource(Res.string.no_towers_selected_warning),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
         }
 
         items(allTowers) { tower ->

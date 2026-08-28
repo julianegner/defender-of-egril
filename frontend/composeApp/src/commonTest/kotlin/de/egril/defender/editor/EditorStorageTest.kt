@@ -2,6 +2,11 @@ package de.egril.defender.editor
 
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.InitialBarricade
+import de.egril.defender.model.LevelSupports
+import de.egril.defender.model.Position
+import de.egril.defender.model.SupportObject
+import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.SpawnPointType
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -105,7 +110,7 @@ class EditorStorageTest {
             )
         assertTrue(readyLevel.isReadyToPlay())
 
-        // Level without towers - should not be ready
+            // Level without towers - should not be ready unless fallback setup exists
         val noTowersLevel =
             EditorLevel(
                 id = "no_towers",
@@ -116,6 +121,29 @@ class EditorStorageTest {
                 availableTowers = emptySet(),
             )
         assertTrue(!noTowersLevel.isReadyToPlay())
+
+        val fallbackLevel =
+            EditorLevel(
+                id = "fallback_level",
+                mapId = "test_map",
+                title = "Fallback Level",
+                startCoins = 100,
+                enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+                availableTowers = emptySet(),
+                supports = LevelSupports(objects = listOf(SupportObject(SupportObjectType.BARRICADE))),
+                initialData =
+                    InitialData(
+                        barricades =
+                            listOf(
+                                InitialBarricade(
+                                    position = Position(1, 1),
+                                    healthPoints = 100,
+                                    supportsTower = true,
+                                ),
+                            ),
+                    ),
+            )
+        assertTrue(fallbackLevel.isReadyToPlay())
 
         // Level without enemy spawns - should not be ready
         val noSpawnsLevel =
@@ -153,6 +181,10 @@ class EditorStorageTest {
                 availableTowers = emptySet(),
             )
         assertTrue(!emptyLevel.isReadyToPlay())
+
+        assertTrue(readyLevel.hasTowerSelectionOptions())
+        assertTrue(fallbackLevel.hasTowerSelectionOptions())
+        assertTrue(fallbackLevel.hasNoBuildableTileFallback())
     }
 
     @Test

@@ -397,6 +397,8 @@
     <string name="subtitle_optional">Untertitel (optional)</string>
     <string name="author_optional">Autor (optional)</string>
     <string name="map_tooling_info">Infos zur Kartenerstellung</string>
+    <string name="allow_no_buildable_tiles">Karten ohne baubare Felder erlauben</string>
+    <string name="allow_no_buildable_tiles_hint">Verwende dies für Karten, die auf Unterstützungen oder Turmbasen statt auf Bauflächen setzen.</string>
     <string name="width">Breite</string>
     <string name="height">Höhe</string>
     <string name="select_map_to_edit">Wähle eine Karte zum Bearbeiten:</string>
@@ -1981,7 +1983,8 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="editor_howto_enemy_spawns_title">Unterreiter: Feind-Spawns</string>
     <string name="editor_howto_enemy_spawns_text">Lege fest, welche Feinde wann erscheinen. Klicke auf „Feind hinzufügen", um einen neuen Eintrag zu erstellen. Für jeden Spawn: Feindtyp auswählen, Level festlegen (skaliert Gesundheit), Runde bestimmen und optional den Spawnpunkt auf der Karte wählen. Ein rotes Abzeichen auf dem Reiter zeigt fehlende Pflichtangaben an.</string>
     <string name="editor_howto_towers_title">Unterreiter: Türme</string>
-    <string name="editor_howto_towers_text">Wähle, welche Turmtypen dem Spieler in diesem Level zur Verfügung stehen. Aktiviere oder deaktiviere jeden Turmtyp mit den Kontrollkästchen. Mindestens ein Turm muss aktiviert sein – ein rotes Abzeichen erscheint, wenn kein Turm ausgewählt ist.</string>
+    <string name="editor_howto_towers_text">Wähle, welche Turmtypen dem Spieler in diesem Level zur Verfügung stehen. Aktiviere oder deaktiviere jeden Turmtyp mit den Kontrollkästchen. Wenn keine Türme ausgewählt sind, zeigt der Reiter eine Warnung und das Level muss auf Unterstützungen oder Türme aus der Anfangsaufstellung setzen.</string>
+    <string name="no_towers_selected_warning">Keine Türme ausgewählt.</string>
     <string name="editor_howto_waypoints_title">Unterreiter: Wegpunkte</string>
     <string name="editor_howto_waypoints_text">Wegpunkte definieren Zwischenpunkte oder Verzweigungen auf Feindpfaden zwischen Spawnpunkten und dem Ziel. Klicke auf „Wegpunkt hinzufügen", lege seine Gitterposition fest und verknüpfe ihn mit einem Spawnpunkt oder einem anderen Wegpunkt, um eine Pfadkette zu bilden. Die Minimap zeigt alle Wegpunktpositionen auf der Karte. Ein rotes Abzeichen bedeutet, dass die Konfiguration unvollständig oder ungültig ist.</string>
     <string name="editor_howto_initial_setup_title">Unterreiter: Startaufstellung</string>

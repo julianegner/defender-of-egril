@@ -40,6 +40,8 @@ fun MapEditorHeader(
     onMapAuthorChange: (String) -> Unit,
     mapToolingInfo: String,
     onMapToolingInfoChange: (String) -> Unit,
+    allowNoBuildableTiles: Boolean,
+    onAllowNoBuildableTilesChange: (Boolean) -> Unit,
     mapWidth: Int,
     mapHeight: Int,
     resizeLeft: String,
@@ -98,6 +100,8 @@ fun MapEditorHeader(
             onMapAuthorChange = onMapAuthorChange,
             mapToolingInfo = mapToolingInfo,
             onMapToolingInfoChange = onMapToolingInfoChange,
+            allowNoBuildableTiles = allowNoBuildableTiles,
+            onAllowNoBuildableTilesChange = onAllowNoBuildableTilesChange,
             mapWidth = mapWidth,
             mapHeight = mapHeight,
             resizeLeft = resizeLeft,
@@ -181,6 +185,8 @@ private fun ExpandedMapEditorHeader(
     onMapAuthorChange: (String) -> Unit,
     mapToolingInfo: String,
     onMapToolingInfoChange: (String) -> Unit,
+    allowNoBuildableTiles: Boolean,
+    onAllowNoBuildableTilesChange: (Boolean) -> Unit,
     mapWidth: Int,
     mapHeight: Int,
     resizeLeft: String,
@@ -334,6 +340,31 @@ private fun ExpandedMapEditorHeader(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 singleLine = true,
             )
+
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = stringResource(Res.string.allow_no_buildable_tiles),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                Switch(
+                    checked = allowNoBuildableTiles,
+                    onCheckedChange = onAllowNoBuildableTilesChange,
+                    enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
+                )
+            }
+            if (allowNoBuildableTiles && map.getBuildAreas().isEmpty()) {
+                Text(
+                    text = stringResource(Res.string.allow_no_buildable_tiles_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+            }
 
             Card(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),

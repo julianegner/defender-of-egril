@@ -78,6 +78,13 @@ object EditorJsonSerializer {
 
         val mapToolingInfoJson = ",\n  \"mapToolingInfo\": \"${map.mapToolingInfo}\""
 
+        val allowNoBuildableTilesJson =
+            if (map.allowNoBuildableTiles) {
+                ",\n  \"allowNoBuildableTiles\": true"
+            } else {
+                ""
+            }
+
         val targetInfoJson =
             if (map.targetInfoMap.isNotEmpty()) {
                 val targetData =
@@ -106,7 +113,7 @@ object EditorJsonSerializer {
   "width": ${map.width},
   "height": ${map.height},
   "readyToUse": ${map.readyToUse},
-  "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson$mapToolingInfoJson,
+  "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson$mapToolingInfoJson$allowNoBuildableTilesJson,
   "tiles": {
     $tilesJson
   }$riverTilesJson$targetInfoJson$spawnPointInfoJson
@@ -156,6 +163,12 @@ object EditorJsonSerializer {
                     JsonUtils.extractStringValue(dataJson, "mapToolingInfo").ifBlank { DEFAULT_MAP_TOOLING_INFO }
                 } catch (e: Exception) {
                     DEFAULT_MAP_TOOLING_INFO // Optional field with default for backward compatibility
+                }
+            val allowNoBuildableTiles =
+                try {
+                    JsonUtils.extractBooleanValue(dataJson, "allowNoBuildableTiles")
+                } catch (e: Exception) {
+                    false
                 }
 
             // Parse optional world map position
@@ -365,6 +378,7 @@ object EditorJsonSerializer {
                 targetInfoMap = targetInfoMap,
                 spawnPointInfoMap = spawnPointInfoMap,
                 mapToolingInfo = mapToolingInfo,
+                allowNoBuildableTiles = allowNoBuildableTiles,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {

@@ -397,6 +397,8 @@
     <string name="subtitle_optional">Subtítulo (opcional)</string>
     <string name="author_optional">Autor (opcional)</string>
     <string name="map_tooling_info">Información de creación del mapa</string>
+    <string name="allow_no_buildable_tiles">Permitir mapas sin casillas construibles</string>
+    <string name="allow_no_buildable_tiles_hint">Úsalo para mapas que dependen de apoyos o bases de torre en lugar de áreas de construcción.</string>
     <string name="width">Ancho</string>
     <string name="height">Alto</string>
     <string name="select_map_to_edit">Seleccionar un mapa para editar:</string>
@@ -1982,7 +1984,8 @@
     <string name="editor_howto_enemy_spawns_title">Sub-Pestaña: Aparición de Enemigos</string>
     <string name="editor_howto_enemy_spawns_text">Define qué enemigos aparecen y cuándo. Haz clic en "Añadir Enemigo" para agregar una entrada. Para cada aparición: selecciona el tipo de enemigo, ajusta su nivel (escala la vida), elige el turno en que aparece, y opcionalmente selecciona el punto de aparición en el mapa. Un badge rojo indica información obligatoria faltante.</string>
     <string name="editor_howto_towers_title">Sub-Pestaña: Torres</string>
-    <string name="editor_howto_towers_text">Elige qué tipos de torre están disponibles para el jugador en este nivel. Activa o desactiva cada tipo con las casillas de verificación. Al menos una torre debe estar habilitada: aparece un badge rojo si no hay ninguna seleccionada.</string>
+    <string name="editor_howto_towers_text">Elige qué tipos de torre están disponibles para el jugador en este nivel. Activa o desactiva cada tipo con las casillas de verificación. Si no hay torres seleccionadas, la pestaña muestra una advertencia y el nivel debe depender de apoyos o torres de la configuración inicial.</string>
+    <string name="no_towers_selected_warning">No hay torres seleccionadas.</string>
     <string name="editor_howto_waypoints_title">Sub-Pestaña: Puntos de Paso</string>
     <string name="editor_howto_waypoints_text">Los puntos de paso definen puntos intermedios o bifurcaciones en las rutas enemigas entre los puntos de aparición y el objetivo. Haz clic en "Añadir Punto de Paso", define su posición en la cuadrícula y conéctalo a un punto de aparición u otro punto de paso para formar una cadena de ruta. El minimapa muestra las posiciones de los puntos de paso. Un badge rojo indica una configuración incompleta o inválida.</string>
     <string name="editor_howto_initial_setup_title">Sub-Pestaña: Configuración Inicial</string>

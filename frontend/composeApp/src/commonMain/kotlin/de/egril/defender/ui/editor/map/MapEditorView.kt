@@ -86,6 +86,7 @@ private data class MapEditorSnapshot(
     val mapName: String,
     val mapAuthor: String,
     val mapToolingInfo: String,
+    val allowNoBuildableTiles: Boolean,
 )
 
 private data class MapRegionClipboard(
@@ -384,6 +385,7 @@ fun MapEditorView(
     var mapName by remember { mutableStateOf(map.name) }
     var mapAuthor by remember { mutableStateOf(map.author) }
     var mapToolingInfo by remember { mutableStateOf(map.mapToolingInfo) }
+    var allowNoBuildableTiles by remember { mutableStateOf(map.allowNoBuildableTiles) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var showSaveTemplateDialog by remember { mutableStateOf(false) }
     var showTileReplacementDialog by remember { mutableStateOf(false) }
@@ -441,7 +443,7 @@ fun MapEditorView(
 
     // Create updated map for minimap that reflects current tiles state
     val currentMap =
-        remember(mapWidth, mapHeight, tiles, riverTiles, targetInfoMap, spawnPointInfoMap, mapToolingInfo) {
+        remember(mapWidth, mapHeight, tiles, riverTiles, targetInfoMap, spawnPointInfoMap, mapToolingInfo, allowNoBuildableTiles) {
             map.copy(
                 width = mapWidth,
                 height = mapHeight,
@@ -450,6 +452,7 @@ fun MapEditorView(
                 targetInfoMap = targetInfoMap.toMap(),
                 spawnPointInfoMap = spawnPointInfoMap.toMap(),
                 mapToolingInfo = mapToolingInfo,
+                allowNoBuildableTiles = allowNoBuildableTiles,
             )
         }
     val mapFlowSummary = remember(currentMap) { analyzeMapFlow(currentMap) }
@@ -497,6 +500,7 @@ fun MapEditorView(
             mapName = mapName,
             mapAuthor = mapAuthor,
             mapToolingInfo = mapToolingInfo,
+            allowNoBuildableTiles = allowNoBuildableTiles,
         )
 
     fun restoreSnapshot(snapshot: MapEditorSnapshot) {
@@ -509,6 +513,7 @@ fun MapEditorView(
         mapName = snapshot.mapName
         mapAuthor = snapshot.mapAuthor
         mapToolingInfo = snapshot.mapToolingInfo
+        allowNoBuildableTiles = snapshot.allowNoBuildableTiles
         replacementToX = (snapshot.width - 1).coerceAtLeast(0).toString()
         replacementToY = (snapshot.height - 1).coerceAtLeast(0).toString()
         copyToX = replacementToX
@@ -979,6 +984,7 @@ fun MapEditorView(
                                 name = mapName,
                                 author = mapAuthor,
                                 mapToolingInfo = mapToolingInfo,
+                                allowNoBuildableTiles = allowNoBuildableTiles,
                                 width = mapWidth,
                                 height = mapHeight,
                                 tiles = tiles.toMap(),
@@ -1025,7 +1031,7 @@ fun MapEditorView(
             val iamState by de.egril.defender.iam.IamService.state
             if (!map.isOfficial && iamState.isAuthenticated) {
                 val currentMapJson =
-                    remember(map.id, mapWidth, mapHeight, tiles.hashCode(), riverTiles.hashCode(), targetInfoMap.hashCode(), spawnPointInfoMap.hashCode(), mapToolingInfo) {
+                    remember(map.id, mapWidth, mapHeight, tiles.hashCode(), riverTiles.hashCode(), targetInfoMap.hashCode(), spawnPointInfoMap.hashCode(), mapToolingInfo, allowNoBuildableTiles) {
                         val updatedMap =
                             map.copy(
                                 width = mapWidth,
@@ -1035,6 +1041,7 @@ fun MapEditorView(
                                 targetInfoMap = targetInfoMap.toMap(),
                                 spawnPointInfoMap = spawnPointInfoMap.toMap(),
                                 mapToolingInfo = mapToolingInfo,
+                                allowNoBuildableTiles = allowNoBuildableTiles,
                             )
                         de.egril.defender.editor.EditorJsonSerializer
                             .serializeMap(updatedMap)
@@ -1069,6 +1076,7 @@ fun MapEditorView(
                                     targetInfoMap = targetInfoMap.toMap(),
                                     spawnPointInfoMap = spawnPointInfoMap.toMap(),
                                     mapToolingInfo = mapToolingInfo,
+                                    allowNoBuildableTiles = allowNoBuildableTiles,
                                 )
                             de.egril.defender.editor.EditorStorage.saveCommunityMap(
                                 updatedMap,
@@ -1160,13 +1168,15 @@ fun MapEditorView(
 
         // Header overlay (on top with elevated z-index)
         MapEditorHeader(
-            map = map,
+            map = currentMap,
             mapName = mapName,
             onMapNameChange = { mapName = it },
             mapAuthor = mapAuthor,
             onMapAuthorChange = { mapAuthor = it },
             mapToolingInfo = mapToolingInfo,
             onMapToolingInfoChange = { mapToolingInfo = it },
+            allowNoBuildableTiles = allowNoBuildableTiles,
+            onAllowNoBuildableTilesChange = { allowNoBuildableTiles = it },
             mapWidth = mapWidth,
             mapHeight = mapHeight,
             resizeLeft = resizeLeft,
@@ -1293,6 +1303,7 @@ fun MapEditorView(
                         name = newName,
                         author = mapAuthor,
                         mapToolingInfo = mapToolingInfo,
+                        allowNoBuildableTiles = allowNoBuildableTiles,
                         width = mapWidth,
                         height = mapHeight,
                         tiles = tiles.toMap(),

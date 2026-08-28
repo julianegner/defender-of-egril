@@ -1273,6 +1273,10 @@ object EditorStorage {
             return false
         }
 
+        if (map.allowNoBuildableTiles && map.getBuildAreas().isEmpty() && !level.hasNoBuildableTileFallback()) {
+            return false
+        }
+
         // check if the waypoints of the level are valid
         val targets = map.getTargets()
         if (targets.isEmpty()) {

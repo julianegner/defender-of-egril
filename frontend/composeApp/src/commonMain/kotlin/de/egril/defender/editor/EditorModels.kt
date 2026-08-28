@@ -52,6 +52,7 @@ data class EditorMap(
     val targetInfoMap: Map<String, EditorTargetInfo> = emptyMap(), // "x,y" -> EditorTargetInfo for TARGET tiles
     val spawnPointInfoMap: Map<String, SpawnPointType> = emptyMap(), // "x,y" -> SpawnPointType for SPAWN_POINT tiles (LAND or WATER)
     val mapToolingInfo: String = DEFAULT_MAP_TOOLING_INFO, // Free-form map tooling text; known standard values are localized at runtime
+    val allowNoBuildableTiles: Boolean = false, // True if a map may be ready without any BUILD_AREA tiles
 ) {
     fun getTileType(
         x: Int,
@@ -114,6 +115,8 @@ data class EditorMap(
                 Position(parts[0].toInt(), parts[1].toInt())
             }.toSet()
 
+    fun hasBuildAreas(): Boolean = getBuildAreas().isNotEmpty()
+
     fun getRiverCells(): Set<Position> =
         tiles
             .filter { it.value == TileType.RIVER }
@@ -149,9 +152,11 @@ data class EditorMap(
         val targets = getTargets()
         val pathCells = getPathCells()
         val riverCells = getRiverCells()
+        val buildAreas = getBuildAreas()
 
         if (spawnPoints.isEmpty()) return false
         if (targets.isEmpty()) return false
+        if (buildAreas.isEmpty() && !allowNoBuildableTiles) return false
 
         // Build set of traversable cells (spawn points + path cells + all targets)
         val traversableCells = pathCells.toMutableSet()
@@ -420,10 +425,30 @@ data class EditorLevel(
      * - All waypoints eventually lead to the final target (checked separately with map context)
      */
     fun isReadyToPlay(): Boolean =
-        availableTowers.isNotEmpty() &&
+        hasTowerSelectionOptions() &&
             (isSandbox || enemySpawns.isNotEmpty()) &&
             startCoins > 0 &&
             startHealthPoints > 0
+
+    /**
+     * Returns true when the level has at least one tower choice or enough initial setup to
+     * compensate for an empty tower selection.
+     */
+    fun hasTowerSelectionOptions(): Boolean =
+        availableTowers.isNotEmpty() ||
+            getEffectiveInitialData().defenders.isNotEmpty() ||
+            supports.isNotEmpty()
+
+    /**
+     * Returns true when the initial setup already includes a tower base (a barricade that can
+     * support a tower).
+     */
+    fun hasInitialTowerBases(): Boolean = getEffectiveInitialData().barricades.any { it.supportsTower }
+
+    /**
+     * Returns true when a level can satisfy a no-buildable-tile map by using supports or tower bases.
+     */
+    fun hasNoBuildableTileFallback(): Boolean = supports.isNotEmpty() || hasInitialTowerBases()
 
     /**
      * Validates that all waypoints form valid chains that eventually lead to a target.
