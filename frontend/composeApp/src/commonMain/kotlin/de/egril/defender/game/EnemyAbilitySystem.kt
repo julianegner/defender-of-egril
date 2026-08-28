@@ -1141,7 +1141,7 @@ class EnemyAbilitySystem(
             summonSwarmUnit(
                 type = AttackerType.SNOTLING,
                 spawnPos = spawnPos,
-                level = 1,
+                level = boss.level.value,
                 currentTarget = inheritedTarget,
             )
         }
