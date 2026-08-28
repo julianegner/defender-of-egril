@@ -49,10 +49,14 @@ fun AddEnemyDialog(
     map: EditorMap?,
     onDismiss: () -> Unit,
     onAdd: (AttackerType, Int, Int, Position?) -> Unit, // Added spawnPoint parameter
+    initialType: AttackerType = AttackerType.GOBLIN,
+    initialLevel: String = "1",
+    initialAmount: String = "1",
+    initialSpawnPoint: Position? = null,
 ) {
-    var selectedType by remember { mutableStateOf(AttackerType.GOBLIN) }
-    var level by remember { mutableStateOf("1") }
-    var amount by remember { mutableStateOf("1") }
+    var selectedType by remember { mutableStateOf(initialType) }
+    var level by remember { mutableStateOf(initialLevel) }
+    var amount by remember { mutableStateOf(initialAmount) }
 
     // Villains are unique enemy "heroes": they are listed separately, may only be added once per
     // level, and never use the amount field (see issue #538).
@@ -75,7 +79,7 @@ fun AddEnemyDialog(
 
     // Get spawn points from the map that are compatible with the selected enemy type.
     val compatibleSpawnPoints = remember(map, selectedType) { map?.getCompatibleSpawnPoints(selectedType) ?: emptyList() }
-    var selectedSpawnPoint by remember { mutableStateOf<Position?>(null) }
+    var selectedSpawnPoint by remember { mutableStateOf<Position?>(initialSpawnPoint) }
 
     LaunchedEffect(compatibleSpawnPoints) {
         selectedSpawnPoint =

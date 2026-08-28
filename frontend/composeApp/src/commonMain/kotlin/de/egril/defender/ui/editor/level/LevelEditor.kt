@@ -25,7 +25,9 @@ import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.EditorWaypoint
+import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.Position
 import de.egril.defender.model.isRealVillain
 import de.egril.defender.ui.*
 import de.egril.defender.ui.editor.ConfirmationDialog
@@ -513,6 +515,10 @@ internal fun LevelEditorView(
     }
     var showEnemyDialog by remember { mutableStateOf(false) }
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
+    var lastEnemyDialogType by remember { mutableStateOf(AttackerType.GOBLIN) }
+    var lastEnemyDialogLevel by remember { mutableStateOf("1") }
+    var lastEnemyDialogAmount by remember { mutableStateOf("1") }
+    var lastEnemyDialogSpawnPoint by remember { mutableStateOf<Position?>(null) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var showOfficialLevelSavedWarning by remember { mutableStateOf(false) }
     var pendingLevelToSave by remember { mutableStateOf<EditorLevel?>(null) }
@@ -1198,8 +1204,16 @@ internal fun LevelEditorView(
             presentVillainTypes = presentVillainTypes,
             turn = showEnemyDialogForTurn,
             map = currentMap,
+            initialType = lastEnemyDialogType,
+            initialLevel = lastEnemyDialogLevel,
+            initialAmount = lastEnemyDialogAmount,
+            initialSpawnPoint = lastEnemyDialogSpawnPoint,
             onDismiss = { showEnemyDialog = false },
             onAdd = { enemyType, level, amount, spawnPoint ->
+                lastEnemyDialogType = enemyType
+                lastEnemyDialogLevel = level.toString()
+                lastEnemyDialogAmount = amount.toString()
+                lastEnemyDialogSpawnPoint = spawnPoint
                 updateEnemySpawnState(
                     newEnemySpawns =
                         enemySpawns.toMutableList().apply {
