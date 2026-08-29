@@ -215,6 +215,8 @@ object SaveJsonSerializer {
             savedGame.cooldownPowerReadyIn.entries.joinToString(", ") { (type, readyIn) ->
                 "\"${type.name}\": $readyIn"
             }
+        val playedTileAnimationKeysJson =
+            savedGame.playedTileAnimationKeys.joinToString(", ") { "\"$it\"" }
 
         // Scripted-event tracking
         val triggeredEventIdsJson =
@@ -314,6 +316,7 @@ object SaveJsonSerializer {
   "supportFiefRemaining": {$supportFiefsJson},
   "cooldownPowerReadyIn": {$cooldownPowersJson},
   "coinSurgeActive": ${savedGame.coinSurgeActive},
+  "playedTileAnimationKeys": [$playedTileAnimationKeysJson],
   "triggeredEventIds": [$triggeredEventIdsJson],
   "enemiesKilledTotal": ${savedGame.enemiesKilledTotal},
   "enemiesKilledByType": {$enemiesKilledByTypeJson},
@@ -597,6 +600,21 @@ object SaveJsonSerializer {
                 } catch (e: Exception) {
                     false
                 }
+            val playedTileAnimationKeys = mutableListOf<String>()
+            if (dataJson.contains("\"playedTileAnimationKeys\":")) {
+                val section =
+                    try {
+                        dataJson.substringAfter("\"playedTileAnimationKeys\": [").substringBefore("]")
+                    } catch (e: Exception) {
+                        ""
+                    }
+                if (section.isNotBlank()) {
+                    for (item in section.split(",")) {
+                        val trimmed = item.trim().removeSurrounding("\"")
+                        if (trimmed.isNotBlank()) playedTileAnimationKeys.add(trimmed)
+                    }
+                }
+            }
 
             // Parse scripted-event tracking (optional for backward compatibility)
             val triggeredEventIds = mutableListOf<String>()
@@ -778,6 +796,7 @@ object SaveJsonSerializer {
                 supportFiefRemaining = supportFiefRemaining,
                 cooldownPowerReadyIn = cooldownPowerReadyIn,
                 coinSurgeActive = coinSurgeActive,
+                playedTileAnimationKeys = playedTileAnimationKeys,
                 triggeredEventIds = triggeredEventIds,
                 enemiesKilledTotal = enemiesKilledTotal,
                 enemiesKilledByType = enemiesKilledByType,
