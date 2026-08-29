@@ -600,38 +600,10 @@ object SaveJsonSerializer {
                 } catch (e: Exception) {
                     false
                 }
-            val playedTileAnimationKeys = mutableListOf<String>()
-            if (dataJson.contains("\"playedTileAnimationKeys\":")) {
-                val section =
-                    try {
-                        dataJson.substringAfter("\"playedTileAnimationKeys\": [").substringBefore("]")
-                    } catch (e: Exception) {
-                        ""
-                    }
-                if (section.isNotBlank()) {
-                    for (item in section.split(",")) {
-                        val trimmed = item.trim().removeSurrounding("\"")
-                        if (trimmed.isNotBlank()) playedTileAnimationKeys.add(trimmed)
-                    }
-                }
-            }
+            val playedTileAnimationKeys = parseStringArray(dataJson, "playedTileAnimationKeys")
 
             // Parse scripted-event tracking (optional for backward compatibility)
-            val triggeredEventIds = mutableListOf<String>()
-            if (dataJson.contains("\"triggeredEventIds\":")) {
-                val section =
-                    try {
-                        dataJson.substringAfter("\"triggeredEventIds\": [").substringBefore("]")
-                    } catch (e: Exception) {
-                        ""
-                    }
-                if (section.isNotBlank()) {
-                    for (item in section.split(",")) {
-                        val trimmed = item.trim().removeSurrounding("\"")
-                        if (trimmed.isNotBlank()) triggeredEventIds.add(trimmed)
-                    }
-                }
-            }
+            val triggeredEventIds = parseStringArray(dataJson, "triggeredEventIds")
             val enemiesKilledTotal =
                 try {
                     JsonUtils.extractValue(dataJson, "enemiesKilledTotal").toInt()
@@ -849,6 +821,22 @@ object SaveJsonSerializer {
             }
         }
         return result
+    }
+
+    private fun parseStringArray(
+        dataJson: String,
+        key: String,
+    ): MutableList<String> {
+        val section = JsonUtils.extractJsonArrayForKey(dataJson, key)
+        if (section.isBlank()) {
+            return mutableListOf()
+        }
+
+        return JsonUtils
+            .splitJsonArray(section)
+            .map { it.trim().removeSurrounding("\"") }
+            .filter { it.isNotBlank() }
+            .toMutableList()
     }
 
     private fun parseSavedDefender(json: String): SavedDefender {

@@ -147,11 +147,8 @@ private fun rememberShouldPlayOneShotTileAnimation(
     if (animationKey == null) {
         return false
     }
-    val shouldPlay =
-        remember(gameState, animationKey) {
-            !gameState.playedTileAnimationKeys.containsKey(animationKey)
-        }
-    if (shouldPlay) {
+    val shouldPlay = remember(animationKey) { !gameState.playedTileAnimationKeys.containsKey(animationKey) }
+    if (shouldPlay && !gameState.playedTileAnimationKeys.containsKey(animationKey)) {
         SideEffect {
             gameState.playedTileAnimationKeys[animationKey] = true
         }
@@ -3377,7 +3374,7 @@ private fun BoxScope.GridCellContent(
             oneShotTileAnimationKey("tower_attack_impact", it.targetPosition, it.turnNumber)
         }
     val shouldPlayDeathAnimation = rememberShouldPlayOneShotTileAnimation(gameState, deathAnimationKey)
-    var showGhost by remember(deathAnimationKey, towerImpactAnimationKey) {
+    var showGhost by remember(deathAnimationKey, towerImpactAnimationKey, shouldPlayDeathAnimation) {
         mutableStateOf(isDeathEffectActive && shouldPlayDeathAnimation)
     }
     if (deathEffect != null) {
