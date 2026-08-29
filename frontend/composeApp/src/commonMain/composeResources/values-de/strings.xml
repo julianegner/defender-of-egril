@@ -1093,6 +1093,12 @@
     <string name="level_the_tower_of_the_hermit_title">Der Turm des Einsiedlers</string>
     <string name="level_the_tower_of_the_hermit_subtitle">Ein einzelner Turm zur Verteidigung des Pfades</string>
     <string name="level_the_witches_title">Die Hexen</string>
+    <string name="level_gribnaks_ambush_title">Gribnaks Hinterhalt</string>
+    <string name="level_gribnaks_ambush_subtitle">Ein Schurke führt die Horde</string>
+    <string name="level_hold_the_gate_title">Haltet das Tor</string>
+    <string name="level_hold_the_gate_subtitle">Der Waaagh! rollt heran</string>
+    <string name="level_the_golden_road_title">Die Goldene Straße</string>
+    <string name="level_the_golden_road_subtitle">Beschütze die Dörfer</string>
     <!-- Map Names -->
     <string name="map_tutorial_name">Tutorial-Karte</string>
     <string name="map_straight_name">Gerade Karte</string>
@@ -1119,6 +1125,9 @@
     <string name="map_back_and_forth_path_name">Hin-und-Her-Pfad</string>
     <string name="map_curved_path_name">Kurvenreicher Pfad</string>
     <string name="map_obstacle_path_name">Hindernispfad</string>
+    <string name="map_goblin_gorge_name">Goblinschlucht</string>
+    <string name="map_the_watch_gate_name">Das Wachtor</string>
+    <string name="map_golden_road_name">Die Goldene Straße</string>
 
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>

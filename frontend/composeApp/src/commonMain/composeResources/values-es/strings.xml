@@ -1094,6 +1094,12 @@
     <string name="level_the_tower_of_the_hermit_title">La Torre del Ermitaño</string>
     <string name="level_the_tower_of_the_hermit_subtitle">Una sola Torre para defender el Camino</string>
     <string name="level_the_witches_title">Las Brujas</string>
+    <string name="level_gribnaks_ambush_title">La emboscada de Gribnak</string>
+    <string name="level_gribnaks_ambush_subtitle">Un villano lidera la horda</string>
+    <string name="level_hold_the_gate_title">Defiende la puerta</string>
+    <string name="level_hold_the_gate_subtitle">¡El Waaagh! se acerca</string>
+    <string name="level_the_golden_road_title">El Camino Dorado</string>
+    <string name="level_the_golden_road_subtitle">Protege las aldeas</string>
     <!-- Map Names -->
     <string name="map_tutorial_name">Mapa Tutorial</string>
     <string name="map_straight_name">Mapa Recto</string>
@@ -1120,6 +1126,9 @@
     <string name="map_back_and_forth_path_name">Camino de Ida y Vuelta</string>
     <string name="map_curved_path_name">Camino Curvo</string>
     <string name="map_obstacle_path_name">Camino con Obstáculos</string>
+    <string name="map_goblin_gorge_name">La Garganta Goblin</string>
+    <string name="map_the_watch_gate_name">La Puerta de la Guardia</string>
+    <string name="map_golden_road_name">El Camino Dorado</string>
 
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>

@@ -1,0 +1,75 @@
+{
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "level"
+  },
+  "data": {
+  "id": "gribnaks_ambush",
+  "mapId": "map_goblin_gorge",
+  "title": "Gribnak's Ambush",
+  "titleKey": "level_gribnaks_ambush_title",
+  "subtitle": "A villain leads the horde",
+  "subtitleKey": "level_gribnaks_ambush_subtitle",
+  "startCoins": 120,
+  "startHealthPoints": 10,
+  "enemySpawns": [
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 6}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 11}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 6}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 6}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 11}},
+    {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 11}},
+    {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 11}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 6}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 11}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 6}},
+    {"attackerType": "SNOTLING_BOSS", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 6}},
+    {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 11}},
+    {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 6}},
+    {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 6}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 11}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 6}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 11}},
+    {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 6}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 11}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 6}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 6}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 11}},
+    {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 6}},
+    {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 6}}
+  ],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
+  "waypoints": [
+    
+  ],
+  "prerequisites": ["welcome_to_defender_of_egril"],
+  "isOfficial": true,
+  "author": "Julian Egner",
+  "supports": {
+    "objects": [
+      {"type": "DWARVEN_TRAP", "count": 2, "damage": 20, "healthPoints": 50}
+    ],
+    "spells": [
+      {"spell": "FREEZE_SPELL", "count": 1}
+    ],
+    "cooldownPowers": [
+      {"type": "SKY_IS_FALLING", "cooldownTurns": 5, "startActive": true}
+    ]
+  },
+  "events": [
+    {"id": "gorge_warning", "condition": {"type": "TURN_START", "fromTurn": 4, "threshold": 0}, "actions": [], "messageKey": "event_msg_enemies_approaching", "repeatable": false},
+    {"id": "gribnak_bounty", "condition": {"type": "ENEMY_TYPE_KILLED", "fromTurn": 0, "threshold": 1, "attackerType": "SNOTLING_BOSS"}, "actions": [{"type": "GIVE_COINS", "amount": 80}], "messageKey": "event_msg_coins_received", "repeatable": false},
+    {"id": "gorge_last_stand", "condition": {"type": "HEALTH_AT_OR_BELOW", "fromTurn": 0, "threshold": 4}, "actions": [{"type": "GIVE_SUPPORT_OBJECT", "amount": 2, "supportObjectType": "BARRICADE"}], "messageKey": "event_msg_low_health_warning", "repeatable": false}
+  ]
+}
+}

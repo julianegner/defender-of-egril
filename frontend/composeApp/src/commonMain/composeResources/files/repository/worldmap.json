@@ -18,7 +18,7 @@
       "name": "The Beginning",
       "nameKey": "location_the_beginning_name",
       "position": {"x": 167, "y": 589},
-      "levelIds": ["the_first_wave"],
+      "levelIds": ["the_first_wave", "gribnaks_ambush", "hold_the_gate", "the_golden_road"],
       "iconResourceName": "start"
     },
     {

@@ -1,0 +1,77 @@
+{
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "level"
+  },
+  "data": {
+  "id": "the_golden_road",
+  "mapId": "map_golden_road",
+  "title": "The Golden Road",
+  "titleKey": "level_the_golden_road_title",
+  "subtitle": "Protect the villages",
+  "subtitleKey": "level_the_golden_road_subtitle",
+  "startCoins": 100,
+  "startHealthPoints": 10,
+  "enemySpawns": [
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "RED_WITCH", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "ZUSSA", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "RED_WITCH", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 3}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 3}}
+  ],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
+  "waypoints": [
+    
+  ],
+  "prerequisites": ["welcome_to_defender_of_egril"],
+  "isOfficial": true,
+  "author": "Julian Egner",
+  "supports": {
+    "cooldownPowers": [
+      {"type": "COIN_SURGE", "cooldownTurns": 5, "startActive": true}
+    ],
+    "fiefs": [
+      {"type": "WOODCUTTER", "count": 2}
+    ]
+  },
+  "events": [
+    {"id": "road_treasury", "condition": {"type": "COINS_AT_OR_BELOW", "fromTurn": 0, "threshold": 15}, "actions": [{"type": "GIVE_COINS", "amount": 50}], "messageKey": "event_msg_coins_received", "repeatable": false},
+    {"id": "road_witch_warning", "condition": {"type": "TURN_START", "fromTurn": 6, "threshold": 0}, "actions": [], "messageKey": "event_msg_enemies_approaching", "repeatable": false},
+    {"id": "road_zussa_bounty", "condition": {"type": "ENEMY_TYPE_KILLED", "fromTurn": 0, "threshold": 1, "attackerType": "ZUSSA"}, "actions": [{"type": "GIVE_COINS", "amount": 100}], "messageKey": "event_msg_coins_received", "repeatable": false}
+  ],
+  "initialData": {
+    "fiefs": [
+      {"position": {"x": 9, "y": 6}, "type": "MARKETPLACE"},
+      {"position": {"x": 19, "y": 6}, "type": "QUARRY"},
+      {"position": {"x": 30, "y": 5}, "type": "WOODCUTTER"}
+    ]
+  }
+}
+}
