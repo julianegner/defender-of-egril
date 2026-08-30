@@ -2,7 +2,6 @@ package de.egril.defender.editor
 
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
-import de.egril.defender.model.InitialBarricade
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
 import de.egril.defender.model.SupportObject
