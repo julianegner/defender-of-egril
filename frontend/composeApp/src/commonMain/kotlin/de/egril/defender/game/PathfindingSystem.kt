@@ -376,7 +376,7 @@ class PathfindingSystem(
         // Check if position has a barricade
         // Flying dragons can move over barricades (like they can fly over non-playable tiles)
         val isFlying = attacker?.isFlying?.value == true
-        if (!isFlying and !ignoreBarricades) {
+        if (!isFlying && !ignoreBarricades) {
             val hasBarricade =
                 search?.blockingBarricadePositions?.contains(pos)
                     ?: state.barricades.any { it.position == pos && !it.isDestroyed() }

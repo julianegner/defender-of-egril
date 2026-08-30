@@ -91,11 +91,13 @@ class LargeMapPerformanceTest {
             )
         }
         repeat(ATTACKER_COUNT) { index ->
+            // Spread the enemies over the whole map so that some of them stand right next to a
+            // target and therefore really run the pathfinding based danger check.
             state.attackers.add(
                 Attacker(
                     id = index + 1,
                     type = AttackerType.SNOTLING,
-                    position = mutableStateOf(Position(1 + index % 6, (index * 7) % GRID_HEIGHT)),
+                    position = mutableStateOf(Position(1 + (index * 13) % (GRID_WIDTH - 2), (index * 7) % GRID_HEIGHT)),
                     level = mutableStateOf(20),
                 ),
             )
@@ -109,6 +111,14 @@ class LargeMapPerformanceTest {
 
         val state = createLargeAllPathState()
         val movementSystem = EnemyMovementSystem(state, PathfindingSystem(state))
+
+        // Sanity check: some enemies must be close enough to a target that the full pathfinding
+        // based check actually runs, otherwise the measurement would be meaningless.
+        val enemiesNearTarget =
+            state.attackers.count { attacker ->
+                state.level.targetPositions.any { it.distanceTo(attacker.position.value) <= AttackerType.SNOTLING.speed }
+            }
+        assertTrue(enemiesNearTarget > 0, "Test setup must contain enemies close enough to a target")
 
         // Warm-up so JIT compilation is not part of the measurement.
         repeat(2) { state.attackers.forEach { movementSystem.canReachTargetNextTurn(it) } }
