@@ -398,8 +398,11 @@ private fun FreyaShieldWallMapOverlay(
 /**
  * Map-level overlay that draws rift portal runes for each active [Portal].
  *
- * Entry portals (blue, Futhark "ᚦ" Thurisaz = "gateway") are drawn at the villain-side tile.
- * Exit portals (orange, Futhark "ᚱ" Raido = "journey") are drawn at the demonling-side tile.
+ * Each portal pair shares the same Futhark rune shape so the player can see which entry matches
+ * which exit.  Different portals on the map cycle through a pool of distinct rune shapes.
+ *
+ * Entry portal (blue circle) is drawn at the villain-side tile.
+ * Exit portal (orange circle) is drawn at the demonling-side tile.
  */
 @Composable
 private fun RiftPortalOverlay(
@@ -427,84 +430,83 @@ private fun RiftPortalOverlay(
         )
     }
 
+    /**
+     * Builds the Path for rune [index] centred at ([cx], [cy]) with half-height [r].
+     * Each index maps to a distinct Futhark rune shape (path-approximated strokes):
+     *   0 = ᚠ Fehu   1 = ᚢ Uruz   2 = ᚦ Thurisaz
+     *   3 = ᚱ Raido  4 = ᚲ Kenaz  5 = ᚷ Gebo
+     */
+    fun runePathFor(index: Int, cx: Float, cy: Float, r: Float): androidx.compose.ui.graphics.Path =
+        androidx.compose.ui.graphics.Path().apply {
+            when (index % de.egril.defender.model.Portal.RUNE_POOL_SIZE) {
+                0 -> { // ᚠ Fehu – vertical staff with two right-angled branches pointing right
+                    moveTo(cx, cy - r); lineTo(cx, cy + r)
+                    moveTo(cx, cy - r * 0.55f); lineTo(cx + r * 0.75f, cy - r * 0.15f)
+                    moveTo(cx, cy + r * 0.05f); lineTo(cx + r * 0.75f, cy + r * 0.45f)
+                }
+                1 -> { // ᚢ Uruz – two vertical legs joined by an arch at the top
+                    moveTo(cx - r * 0.4f, cy - r); lineTo(cx - r * 0.4f, cy + r)
+                    moveTo(cx + r * 0.4f, cy - r * 0.2f); lineTo(cx + r * 0.4f, cy + r)
+                    moveTo(cx - r * 0.4f, cy - r); lineTo(cx + r * 0.4f, cy - r * 0.2f)
+                }
+                2 -> { // ᚦ Thurisaz – staff with a rightward thorn in the middle
+                    moveTo(cx, cy - r); lineTo(cx, cy + r)
+                    moveTo(cx, cy - r * 0.3f); lineTo(cx + r * 0.8f, cy + r * 0.25f)
+                    lineTo(cx, cy + r * 0.2f)
+                }
+                3 -> { // ᚱ Raido – staff with two rightward diagonal legs from the upper half
+                    moveTo(cx, cy - r); lineTo(cx, cy + r)
+                    moveTo(cx, cy - r); lineTo(cx + r * 0.85f, cy - r * 0.1f)
+                    lineTo(cx, cy + r * 0.1f); lineTo(cx + r * 0.85f, cy + r)
+                }
+                4 -> { // ᚲ Kenaz – staff with one small rightward diagonal at the bottom
+                    moveTo(cx, cy - r); lineTo(cx, cy + r)
+                    moveTo(cx, cy + r); lineTo(cx + r * 0.7f, cy + r * 0.3f)
+                }
+                else -> { // 5: ᚷ Gebo – X cross
+                    moveTo(cx - r * 0.6f, cy - r); lineTo(cx + r * 0.6f, cy + r)
+                    moveTo(cx + r * 0.6f, cy - r); lineTo(cx - r * 0.6f, cy + r)
+                }
+            }
+        }
+
     val entryColor = androidx.compose.ui.graphics.Color(0xFF2080FF)
     val exitColor = androidx.compose.ui.graphics.Color(0xFFFF7000)
     val glowAlpha = 0.25f
     val runeSize = hexSizePx * 0.55f
+    val runeR = runeSize * 0.30f
+    val runeStroke = androidx.compose.ui.graphics.drawscope.Stroke(
+        width = 2.5f,
+        cap = androidx.compose.ui.graphics.StrokeCap.Round,
+        join = androidx.compose.ui.graphics.StrokeJoin.Round,
+    )
 
     val contentWidthDp = (contentSize.width / density).dp
     val contentHeightDp = (contentSize.height / density).dp
 
     Canvas(modifier = modifier.requiredSize(contentWidthDp, contentHeightDp)) {
         for (portal in portals) {
-            // Entry rune (blue)
+            // Entry circle (blue)
             val ec = tileCenterPx(portal.entryPosition)
-            drawCircle(
-                color = entryColor.copy(alpha = glowAlpha),
-                radius = runeSize * 0.75f,
-                center = ec,
-            )
+            drawCircle(color = entryColor.copy(alpha = glowAlpha), radius = runeSize * 0.75f, center = ec)
             drawCircle(
                 color = entryColor,
                 radius = runeSize * 0.42f,
                 center = ec,
                 style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f),
             )
-            // Entry rune stroke: ᚦ (Thurisaz / Thorn)
-            val eX = ec.x
-            val eY = ec.y
-            val eR = runeSize * 0.30f
-            val entryRunePath = androidx.compose.ui.graphics.Path().apply {
-                moveTo(eX, eY - eR)
-                lineTo(eX, eY + eR)
-                moveTo(eX, eY - eR * 0.3f)
-                lineTo(eX + eR * 0.8f, eY + eR * 0.25f)
-                lineTo(eX, eY + eR * 0.2f)
-            }
-            drawPath(
-                entryRunePath,
-                color = entryColor,
-                style = androidx.compose.ui.graphics.drawscope.Stroke(
-                    width = 2.5f,
-                    cap = androidx.compose.ui.graphics.StrokeCap.Round,
-                    join = androidx.compose.ui.graphics.StrokeJoin.Round,
-                ),
-            )
+            drawPath(runePathFor(portal.runeIndex, ec.x, ec.y, runeR), color = entryColor, style = runeStroke)
 
-            // Exit rune (orange)
+            // Exit circle (orange) — same rune shape, different colour
             val xc = tileCenterPx(portal.exitPosition)
-            drawCircle(
-                color = exitColor.copy(alpha = glowAlpha),
-                radius = runeSize * 0.75f,
-                center = xc,
-            )
+            drawCircle(color = exitColor.copy(alpha = glowAlpha), radius = runeSize * 0.75f, center = xc)
             drawCircle(
                 color = exitColor,
                 radius = runeSize * 0.42f,
                 center = xc,
                 style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f),
             )
-            // Exit rune stroke: ᚱ (Raido / Ride)
-            val rX = xc.x
-            val rY = xc.y
-            val rR = runeSize * 0.30f
-            val exitRunePath = androidx.compose.ui.graphics.Path().apply {
-                moveTo(rX, rY - rR)
-                lineTo(rX, rY + rR)
-                moveTo(rX, rY - rR)
-                lineTo(rX + rR * 0.85f, rY - rR * 0.1f)
-                lineTo(rX, rY + rR * 0.1f)
-                lineTo(rX + rR * 0.85f, rY + rR)
-            }
-            drawPath(
-                exitRunePath,
-                color = exitColor,
-                style = androidx.compose.ui.graphics.drawscope.Stroke(
-                    width = 2.5f,
-                    cap = androidx.compose.ui.graphics.StrokeCap.Round,
-                    join = androidx.compose.ui.graphics.StrokeJoin.Round,
-                ),
-            )
+            drawPath(runePathFor(portal.runeIndex, xc.x, xc.y, runeR), color = exitColor, style = runeStroke)
         }
     }
 }

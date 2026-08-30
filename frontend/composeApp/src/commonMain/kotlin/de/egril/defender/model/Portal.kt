@@ -24,6 +24,12 @@ data class Portal(
     val exitPosition: Position,
     /** ID of the Zythar villain who owns this portal. */
     val villainId: Int,
+    /**
+     * Index into the Futhark rune pool used to draw this portal pair.
+     * Both the entry and exit tile display the same rune so the player can match them.
+     * Distinct portals on the same map cycle through the pool so they look different.
+     */
+    val runeIndex: Int,
 ) {
     companion object {
         /** Maximum distance to target for a demonling to create a portal (and for the villain to use one). */
@@ -34,5 +40,8 @@ data class Portal(
          * current closest portal exit / villain in order to justify creating a new portal.
          */
         const val PORTAL_ADVANCE_THRESHOLD = 20
+
+        /** Number of distinct Futhark rune shapes in the portal drawing pool. */
+        const val RUNE_POOL_SIZE = 6
     }
 }

@@ -2306,12 +2306,14 @@ class EnemyAbilitySystem(
             } ?: return
 
         // Create the portal
+        val portalId = state.nextPortalId.value++
         val portal =
             Portal(
-                id = state.nextPortalId.value++,
+                id = portalId,
                 entryPosition = entryPosition,
                 exitPosition = demonlingPos,
                 villainId = zythar.id,
+                runeIndex = portalId % Portal.RUNE_POOL_SIZE,
             )
         state.activePortals.add(portal)
 
