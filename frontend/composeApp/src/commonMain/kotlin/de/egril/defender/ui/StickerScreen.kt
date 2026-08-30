@@ -360,6 +360,8 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(centerX, centerY, s * 1.2f, outlineColor)
                             AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, centerY, s * 1.05f, attackerOutlineColor(tab.type, outlineColor))
                             AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, s * 0.85f, outlineColor)
+                            AttackerType.DEMONLING -> drawDemonlingSymbol(centerX, centerY, s * 0.9f, outlineColor)
+                            AttackerType.ZYTHAR_THE_RIFTCALLER -> drawZytharTheRiftcallerSymbol(centerX, centerY, s * 1.05f, outlineColor)
                         }
                     }
                 }
@@ -488,6 +490,8 @@ private fun DrawScope.drawVillainSymbol(
         AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(cx, cy, s * 1.2f, outlineColor)
         AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(cx, cy, s * 1.05f, adjustedOutlineColor)
         AttackerType.THE_KRAKEN -> drawKrakenSymbol(cx, cy, s * 0.85f, outlineColor)
+        AttackerType.DEMONLING -> drawDemonlingSymbol(cx, cy, s * 0.9f, outlineColor)
+        AttackerType.ZYTHAR_THE_RIFTCALLER -> drawZytharTheRiftcallerSymbol(cx, cy, s * 1.05f, outlineColor)
         else -> {}
     }
 }

@@ -587,6 +587,31 @@ enum class AttackerType(
         canSpawnOnLand = false,
         canSpawnOnWater = true,
     ),
+
+    // Demonling: a tiny demon scout summoned by Zythar the Riftcaller. Behaves like a spiderling
+    // swarm unit but carries special portal-creation logic: when it advances far enough ahead of
+    // any existing portal or is nearly at a target, it sacrifices itself to open a new rift portal.
+    DEMONLING("Demonling", health = 10, speed = 4, reward = 2, xp = 2),
+
+    // Zythar the Riftcaller: a dark sorcerer who tears holes in reality. Each enemy turn he summons
+    // demons (blue and red) plus a wave of demonling scouts. The demonlings rush ahead and, when
+    // they are either close to a target or far enough ahead of every existing portal, they sacrifice
+    // themselves to open a rift: the blue entry rune appears adjacent to Zythar and the orange exit
+    // rune appears where the demonling was. Any enemy stepping onto the entry is teleported to the
+    // exit. Zythar himself steps through his own portals when the exit is within
+    // Portal.PORTAL_NEAR_TARGET_DISTANCE tiles of a target.
+    ZYTHAR_THE_RIFTCALLER(
+        "Zythar the Riftcaller",
+        health = 220,
+        speed = 2,
+        reward = 350,
+        xp = 100,
+        canSummon = true,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Zythar",
+        useLightNarrativeText = true,
+    ),
 }
 
 /**
@@ -664,6 +689,10 @@ data class Attacker(
     val villainCooldown: MutableState<Int> = mutableStateOf(0), // Rounds until this villain's ability next activates
     val movementTurnsElapsed: MutableState<Int> = mutableStateOf(0), // Enemy turns elapsed on battlefield (for alternating movement patterns)
     val bloodlustRoundsLeft: MutableState<Int> = mutableStateOf(0), // Enemy turns of +100% movement remaining
+    // True while this attacker was teleported through a rift portal during the current enemy turn.
+    // Prevents stale pre-calculated movement steps from misplacing the unit after teleportation.
+    // Reset to false at the start of every enemy turn.
+    val teleportedThisTurn: MutableState<Boolean> = mutableStateOf(false),
     /** Remaining turns of mushroom buff (doubles speed and effective level). 0 = not active. */
     val mushroomTurnsRemaining: MutableState<Int> = mutableStateOf(0),
     /** Extra level added by mushroom buff (equals base level when mushroom is active, to double it). */
@@ -769,6 +798,7 @@ fun attackerTargetDamage(
         AttackerType.MORVATH_THE_SHADOWMASTER -> level // Shadowmaster villain: 1 HP per level
         AttackerType.DRAGON_TERROR -> level // Summoned flying dragon-terror: level damage on reach
         AttackerType.XARITHON_THE_SHADOW_DRAGON -> level // Shadow dragon finale boss: level damage on reach
+        AttackerType.ZYTHAR_THE_RIFTCALLER -> level // Riftcaller villain: 1 HP per level
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
 
@@ -786,12 +816,13 @@ fun AttackerType.isSummoner(): Boolean =
         this == AttackerType.BARON_RATTERZAHN ||
         this == AttackerType.SILAS_THE_MASKMASTER ||
         this == AttackerType.PRINCE_VALERIUS_THE_SOULREAPER ||
-        this == AttackerType.IGNIS_VA_THE_DRAGONVOICE
+        this == AttackerType.IGNIS_VA_THE_DRAGONVOICE ||
+        this == AttackerType.ZYTHAR_THE_RIFTCALLER
 
 /**
  * Swarm units can stack by moving onto the same tile, merging their health into one unit.
  */
-fun AttackerType.isSwarmUnit(): Boolean = this == AttackerType.SNOTLING || this == AttackerType.SPIDERLING
+fun AttackerType.isSwarmUnit(): Boolean = this == AttackerType.SNOTLING || this == AttackerType.SPIDERLING || this == AttackerType.DEMONLING
 
 /**
  * Spider units receive a bonus while standing inside Araxxa's spider web.
@@ -804,6 +835,7 @@ fun AttackerType.isSpider(): Boolean = this == AttackerType.SPIDERLING || this =
 fun AttackerType.isSpecialEnemy(): Boolean =
     this == AttackerType.SNOTLING ||
         this == AttackerType.SPIDERLING ||
+        this == AttackerType.DEMONLING ||
         this == AttackerType.ROBOTIC_GOBLIN ||
         this == AttackerType.ZOMBIE ||
         this == AttackerType.BLUE_DEMON ||

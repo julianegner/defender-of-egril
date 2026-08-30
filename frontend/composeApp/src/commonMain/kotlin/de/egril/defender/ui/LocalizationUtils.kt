@@ -130,6 +130,8 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
             AttackerType.XARITHON_THE_SHADOW_DRAGON -> "xarithon_name"
             AttackerType.CAPTAIN_RODERICH -> "captain_roderich_name"
             AttackerType.THE_KRAKEN -> "kraken_name"
+            AttackerType.DEMONLING -> "demonling_name"
+            AttackerType.ZYTHAR_THE_RIFTCALLER -> "zythar_name"
         }
     return LocalizedStrings.get(key, locale)
 }
@@ -154,10 +156,10 @@ fun AttackerType.getLocalizedShortName(locale: AppLocale = com.hyperether.resour
 fun Attacker.getLocalizedName(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String =
     if (type.isSwarmUnit() && currentHealth.value > 1) {
         val key =
-            if (type == AttackerType.SPIDERLING) {
-                "spiderlings_name"
-            } else {
-                "snotlings_name"
+            when (type) {
+                AttackerType.SPIDERLING -> "spiderlings_name"
+                AttackerType.DEMONLING -> "demonlings_name"
+                else -> "snotlings_name"
             }
         LocalizedStrings.get(key, locale)
     } else {

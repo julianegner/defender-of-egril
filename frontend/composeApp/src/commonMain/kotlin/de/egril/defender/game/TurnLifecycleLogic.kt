@@ -69,6 +69,7 @@ class TurnLifecycleLogic(
             .filter { !it.isDefeated.value }
             .forEach { attacker ->
                 state.enemyTurnStartPositions[attacker.id] = attacker.position.value
+                attacker.teleportedThisTurn.value = false
             }
 
         eventScriptSystem.evaluate(EventTrigger.ENEMY_TURN_START)

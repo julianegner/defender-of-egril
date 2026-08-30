@@ -2243,6 +2243,15 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_kraken_title">Le Kraken entre sur le champ de bataille</string>
     <string name="villain_kraken_backstory">Le Kraken a émergé des profondeurs de l\'océan, menaçant tous ceux qui naviguent sur les mers. Ses tentacules peuvent broyer des navires et sa présence inspire la peur même aux marins les plus courageux.</string>
 
+    <string name="demonling_name">Démonelin</string>
+    <string name="demonlings_name">Démonelings</string>
+    <string name="demonling_description">Un minuscule éclaireur imp invoqué par Zythar le Convocateur de Failles. Individuellement faible, mais lorsqu&apos;un démonelin avance suffisamment devant son maître — ou s&apos;approche d&apos;une cible — il se sacrifie pour ouvrir un portail de faille.</string>
+    <string name="zythar_name">Zythar le Convocateur de Failles</string>
+    <string name="villain_zythar_title">Zythar le Convocateur de Failles entre sur le champ de bataille</string>
+    <string name="villain_zythar_backstory">Zythar le Convocateur de Failles, un sombre sorcier qui déchire des trous dans la réalité, est entré sur le champ de bataille. Là où il marche, le tissu de l&apos;espace se déchire.</string>
+    <string name="villain_zythar_description">Portails de faille : des éclaireurs démonelins se précipitent en avant. Lorsque l&apos;un d&apos;eux avance suffisamment ou approche d&apos;une cible, il se sacrifie pour ouvrir un portail — rune d&apos;entrée bleue près de Zythar, rune de sortie orange à la position du démonelin. Tout ennemi marchant sur l&apos;entrée est instantanément téléporté à la sortie. Zythar lui-même l&apos;emprunte quand la sortie mène près d&apos;une cible.\nInvocation : toutes les 3 tours il déchaîne des démons bleus, des démons rouges et des démonelings.</string>
+    <string name="villain_zythar_portal_short">Portails de faille : les démonelings se sacrifient pour ouvrir des portails entrée bleue / sortie orange qui téléportent tout ennemi vers la sortie</string>
+
     <!-- Descriptions des Unités Ennemies -->
     <string name="goblin_description">Rapides et agiles, les gobelins sont les ennemis les plus faibles mais se déplacent rapidement. Utilisez des attaques de zone pour gérer plusieurs gobelins à la fois.</string>
     <string name="ork_description">Musclés et robustes, les Orcs sont l\'infanterie standard de la Horde. Ils se déplacent plus lentement que les gobelins mais ont plus de points de vie et de dégâts.</string>

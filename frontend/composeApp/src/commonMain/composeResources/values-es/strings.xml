@@ -2242,6 +2242,15 @@
     <string name="villain_kraken_title">El Kraken entra al campo de batalla</string>
     <string name="villain_kraken_backstory">El Kraken ha emergido de las profundidades del océano, amenazando a todos los que navegan por los mares. Sus tentáculos pueden aplastar barcos y su presencia infunde miedo incluso en los marineros más valientes.</string>
 
+    <string name="demonling_name">Demonín</string>
+    <string name="demonlings_name">Demonínes</string>
+    <string name="demonling_description">Un diminuto explorador imp invocado por Zythar el Convocador de Rifts. Individualmente débil, pero cuando un demonín avanza lo suficiente frente a su maestro — o se acerca a un objetivo — se sacrifica para abrir un portal de rift.</string>
+    <string name="zythar_name">Zythar el Convocador de Rifts</string>
+    <string name="villain_zythar_title">Zythar el Convocador de Rifts entra al campo de batalla</string>
+    <string name="villain_zythar_backstory">Zythar el Convocador de Rifts, un oscuro hechicero que rasga agujeros en la realidad, ha entrado al campo de batalla. Donde camina, el tejido del espacio se deshace.</string>
+    <string name="villain_zythar_description">Portales de Rift: exploradores demonín se adelantan. Cuando uno avanza lo suficiente o se acerca a un objetivo, se sacrifica para abrir un portal — runa de entrada azul junto a Zythar, runa de salida naranja en la posición del demonín. Todo enemigo que pise la entrada es teletransportado instantáneamente a la salida. El propio Zythar cruza cuando la salida conduce cerca de un objetivo.\nInvocación: cada 3 turnos desata demonios azules, demonios rojos y demonínes.</string>
+    <string name="villain_zythar_portal_short">Portales de Rift: los demonínes se sacrifican para abrir portales de entrada azul / salida naranja que teletransportan a cualquier enemigo a la salida</string>
+
     <!-- Descripciones de Unidades Enemigas -->
     <string name="goblin_description">Rápidos y ágiles, los goblins son los enemigos más débiles pero se mueven rápidamente. Usa ataques de área para manejar múltiples goblins a la vez.</string>
     <string name="ork_description">Musculosos y resistentes, los Orks son la infantería estándar de la Horda. Se mueven más lentamente que los goblins pero tienen más salud y daño.</string>

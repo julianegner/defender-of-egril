@@ -264,6 +264,7 @@ data class GameState(
     val nextRaftId: MutableState<Int> = mutableStateOf(1),
     val nextBarricadeId: MutableState<Int> = mutableStateOf(1),
     val nextBridgeId: MutableState<Int> = mutableStateOf(1),
+    val nextPortalId: MutableState<Int> = mutableStateOf(1),
     val currentWaveIndex: MutableState<Int> = mutableStateOf(0),
     val spawnCounter: MutableState<Int> = mutableStateOf(0),
     val attackersToSpawn: SnapshotStateList<AttackerType> = mutableStateListOf(),
@@ -289,6 +290,7 @@ data class GameState(
     val constructionCompleteEffects: SnapshotStateList<TowerConstructionEffect> = mutableStateListOf(), // Track tower construction complete visual effects
     val enemySpawnEffects: SnapshotStateList<EnemySpawnEffect> = mutableStateListOf(), // Track enemy spawn portal visual effects
     val scrapPiles: SnapshotStateList<ScrapPile> = mutableStateListOf(), // Scrap-Bot wreckage markers waiting to hatch
+    val activePortals: SnapshotStateList<Portal> = mutableStateListOf(), // Rift portals created by Zythar's demonlings
     val trapTriggerEffects: SnapshotStateList<TrapTriggerEffect> = mutableStateListOf(), // Track trap trigger visual effects
     val enemyMoveEffects: SnapshotStateList<EnemyMoveEffect> = mutableStateListOf(), // Track enemy movement trail visual effects
     val dragonLevelChangeEffects: SnapshotStateList<DragonLevelChangeEffect> = mutableStateListOf(), // Track dragon level change visual effects

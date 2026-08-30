@@ -121,6 +121,8 @@ object CheatCodeHandler {
                         "redwitch" -> AttackerType.RED_WITCH
                         "snotling" -> AttackerType.SNOTLING
                         "spiderling" -> AttackerType.SPIDERLING
+                        "demonling" -> AttackerType.DEMONLING
+                        "zythar", "riftcaller", "zythar_the_riftcaller" -> AttackerType.ZYTHAR_THE_RIFTCALLER
                         "roboticgoblin", "robotic_goblin", "scrapbot" -> AttackerType.ROBOTIC_GOBLIN
                         "snotlingboss", "gribnak" -> AttackerType.SNOTLING_BOSS
                         "araxxa", "giantspider", "giant_spider" -> AttackerType.ARAXXA

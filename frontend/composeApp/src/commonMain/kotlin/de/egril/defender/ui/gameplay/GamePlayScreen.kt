@@ -3413,6 +3413,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.THE_KRAKEN.name ->
                                             stringResource(Res.string.villain_kraken_title) to
                                                 (stringResource(Res.string.villain_kraken_backstory) + "\n" + stringResource(Res.string.villain_kraken_description))
+                                        AttackerType.ZYTHAR_THE_RIFTCALLER.name ->
+                                            stringResource(Res.string.villain_zythar_title) to
+                                                (stringResource(Res.string.villain_zythar_backstory) + "\n" + stringResource(Res.string.villain_zythar_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)
@@ -3920,6 +3923,8 @@ private fun villainMessageButtonColor(name: String?): Color? {
         AttackerType.CAPTAIN_RODERICH -> Color(0xFF0D4E74)
         // Ancient deep-sea horror – dark abyss teal
         AttackerType.THE_KRAKEN -> Color(0xFF0A3D4A)
+        // Riftcaller dark sorcerer – deep void indigo
+        AttackerType.ZYTHAR_THE_RIFTCALLER -> Color(0xFF0A001E)
         // Default for EWHAD and other villains (if any added in future)
         else -> null
     }

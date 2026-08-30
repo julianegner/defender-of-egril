@@ -2251,6 +2251,15 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_kraken_title">The Kraken enters the battlefield</string>
     <string name="villain_kraken_backstory">The Kraken has emerged from the depths of the ocean, threatening all who sail the seas. Its tentacles can crush ships and its presence instills fear in even the bravest sailors.</string>
 
+    <string name="demonling_name">Demonling</string>
+    <string name="demonlings_name">Demonlings</string>
+    <string name="demonling_description">A tiny imp-like scout summoned by Zythar the Riftcaller. Individually weak, but when a demonling advances far enough ahead of its master — or draws close to a target — it sacrifices itself to tear open a rift portal.</string>
+    <string name="zythar_name">Zythar the Riftcaller</string>
+    <string name="villain_zythar_title">Zythar the Riftcaller enters the battlefield</string>
+    <string name="villain_zythar_backstory">Zythar the Riftcaller, a dark sorcerer who tears holes in reality, has stepped onto the battlefield. Where he walks, the fabric of space unravels.</string>
+    <string name="villain_zythar_description">Rift Portals: demonling scouts rush ahead. When one advances far enough or nears a target, it sacrifices itself to open a portal — blue entry rune beside Zythar, orange exit rune at the demonling&apos;s position. Any enemy stepping on the entry is instantly teleported to the exit. Zythar himself steps through when the exit leads close to a target.\nSummon: every 3 turns he unleashes blue demons, red demons, and demonlings.</string>
+    <string name="villain_zythar_portal_short">Rift Portals: demonlings sacrifice themselves to open blue-entry / orange-exit portals that teleport any enemy stepping on them to the exit</string>
+
     <!-- Enemy Unit Descriptions -->
     <string name="goblin_description">Fast and nimble, goblins are the weakest enemies but move quickly. Use area attacks to handle multiple goblins at once.</string>
     <string name="ork_description">Muscular and tough, Orks are the standard Horde infantry. They move slower than goblins but pack more health and damage.</string>

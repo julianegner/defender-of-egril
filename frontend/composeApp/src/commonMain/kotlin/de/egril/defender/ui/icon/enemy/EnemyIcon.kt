@@ -151,6 +151,7 @@ fun EnemyIcon(
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING,
                 AttackerType.SPIDERLING,
+                AttackerType.DEMONLING,
                 -> {
                     // Swarm units: diamond layout, up to 15 icons, filled from the center outward.
                     // Each icon is 20 % of goblin size; the grid is shifted up slightly to leave
@@ -162,15 +163,20 @@ fun EnemyIcon(
                     val gridCenterY = centerY - iconSize * 0.06f
                     for (i in 0 until count) {
                         val (xFactor, yFactor) = SNOTLING_DIAMOND_OFFSETS[i]
-                        if (attacker.type == AttackerType.SPIDERLING) {
-                            drawSpiderlingSymbol(
+                        when (attacker.type) {
+                            AttackerType.SPIDERLING -> drawSpiderlingSymbol(
                                 centerX + xFactor * gridUnit,
                                 gridCenterY + yFactor * gridUnit,
                                 snotlingSize,
                                 headScale = headScale,
                             )
-                        } else {
-                            drawGoblinSymbol(
+                            AttackerType.DEMONLING -> drawDemonlingSymbol(
+                                centerX + xFactor * gridUnit,
+                                gridCenterY + yFactor * gridUnit,
+                                snotlingSize,
+                                headScale = headScale,
+                            )
+                            else -> drawGoblinSymbol(
                                 centerX + xFactor * gridUnit,
                                 gridCenterY + yFactor * gridUnit,
                                 snotlingSize,
@@ -204,6 +210,7 @@ fun EnemyIcon(
                 AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(centerX, centerY, iconSize * 0.90f, headScale = headScale)
                 AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, pirateCenterY, pirateIconSize, outlineColor = pirateClassOutlineColor, headScale = headScale, showBarge = showSeafaringPirateBarge)
                 AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
+                AttackerType.ZYTHAR_THE_RIFTCALLER -> drawZytharTheRiftcallerSymbol(centerX, centerY, iconSize * 0.80f, headScale = headScale)
             }
         }
 
@@ -303,6 +310,7 @@ fun EnemyTypeIcon(
                 // Snotlings: show a single small icon (20% of goblin icon size) in type previews
                 AttackerType.SNOTLING -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
                 AttackerType.SPIDERLING -> drawSpiderlingSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
+                AttackerType.DEMONLING -> drawDemonlingSymbol(centerX, centerY, iconSize * 0.65f * SNOTLING_ICON_SCALE, headScale = headScale)
                 AttackerType.ROBOTIC_GOBLIN -> drawRoboticGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
@@ -328,6 +336,7 @@ fun EnemyTypeIcon(
                 AttackerType.XARITHON_THE_SHADOW_DRAGON -> drawXarithonTheShadowDragonSymbol(centerX, centerY, iconSize * 0.90f, headScale = headScale)
                 AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, pirateCenterY, pirateIconSize, outlineColor = pirateClassOutlineColor, headScale = headScale)
                 AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
+                AttackerType.ZYTHAR_THE_RIFTCALLER -> drawZytharTheRiftcallerSymbol(centerX, centerY, iconSize * 0.80f, headScale = headScale)
             }
         }
     }

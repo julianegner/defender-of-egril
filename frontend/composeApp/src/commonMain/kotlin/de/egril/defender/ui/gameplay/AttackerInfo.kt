@@ -694,6 +694,16 @@ fun AttackerInfo(
                         )
                     }
 
+                    if (attacker.type == AttackerType.ZYTHAR_THE_RIFTCALLER) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.villain_zythar_portal_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
+
                     // Mighty unit warning - for wizards, witches, demons, dragons
                     val isMightyUnit =
                         when (attacker.type) {

@@ -395,6 +395,120 @@ private fun FreyaShieldWallMapOverlay(
     }
 }
 
+/**
+ * Map-level overlay that draws rift portal runes for each active [Portal].
+ *
+ * Entry portals (blue, Futhark "ᚦ" Thurisaz = "gateway") are drawn at the villain-side tile.
+ * Exit portals (orange, Futhark "ᚱ" Raido = "journey") are drawn at the demonling-side tile.
+ */
+@Composable
+private fun RiftPortalOverlay(
+    portals: List<de.egril.defender.model.Portal>,
+    hexSizeDp: Float,
+    contentSize: IntSize,
+    modifier: Modifier = Modifier,
+) {
+    if (portals.isEmpty()) return
+
+    val density = androidx.compose.ui.platform.LocalDensity.current.density
+    val hexSizePx = hexSizeDp * density
+    val hexWidthPx = hexSizePx * sqrt(3f)
+    val hexHeightPx = hexSizePx * 2f
+    val rowSpacingPx =
+        hexHeightPx * 0.75f - hexHeightPx + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT * density
+    val colSpacingPx = HexagonalGridConstants.HORIZONTAL_SPACING * density
+    val oddOffsetPx = hexWidthPx * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
+
+    fun tileCenterPx(pos: de.egril.defender.model.Position): androidx.compose.ui.geometry.Offset {
+        val oddRowOffset = if (pos.y % 2 == 1) oddOffsetPx else 0f
+        return androidx.compose.ui.geometry.Offset(
+            pos.x * (hexWidthPx + colSpacingPx) + hexWidthPx / 2f + oddRowOffset,
+            pos.y * (hexHeightPx + rowSpacingPx) + hexHeightPx / 2f,
+        )
+    }
+
+    val entryColor = androidx.compose.ui.graphics.Color(0xFF2080FF)
+    val exitColor = androidx.compose.ui.graphics.Color(0xFFFF7000)
+    val glowAlpha = 0.25f
+    val runeSize = hexSizePx * 0.55f
+
+    val contentWidthDp = (contentSize.width / density).dp
+    val contentHeightDp = (contentSize.height / density).dp
+
+    Canvas(modifier = modifier.requiredSize(contentWidthDp, contentHeightDp)) {
+        for (portal in portals) {
+            // Entry rune (blue)
+            val ec = tileCenterPx(portal.entryPosition)
+            drawCircle(
+                color = entryColor.copy(alpha = glowAlpha),
+                radius = runeSize * 0.75f,
+                center = ec,
+            )
+            drawCircle(
+                color = entryColor,
+                radius = runeSize * 0.42f,
+                center = ec,
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f),
+            )
+            // Entry rune stroke: ᚦ (Thurisaz / Thorn)
+            val eX = ec.x
+            val eY = ec.y
+            val eR = runeSize * 0.30f
+            val entryRunePath = androidx.compose.ui.graphics.Path().apply {
+                moveTo(eX, eY - eR)
+                lineTo(eX, eY + eR)
+                moveTo(eX, eY - eR * 0.3f)
+                lineTo(eX + eR * 0.8f, eY + eR * 0.25f)
+                lineTo(eX, eY + eR * 0.2f)
+            }
+            drawPath(
+                entryRunePath,
+                color = entryColor,
+                style = androidx.compose.ui.graphics.drawscope.Stroke(
+                    width = 2.5f,
+                    cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                    join = androidx.compose.ui.graphics.StrokeJoin.Round,
+                ),
+            )
+
+            // Exit rune (orange)
+            val xc = tileCenterPx(portal.exitPosition)
+            drawCircle(
+                color = exitColor.copy(alpha = glowAlpha),
+                radius = runeSize * 0.75f,
+                center = xc,
+            )
+            drawCircle(
+                color = exitColor,
+                radius = runeSize * 0.42f,
+                center = xc,
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f),
+            )
+            // Exit rune stroke: ᚱ (Raido / Ride)
+            val rX = xc.x
+            val rY = xc.y
+            val rR = runeSize * 0.30f
+            val exitRunePath = androidx.compose.ui.graphics.Path().apply {
+                moveTo(rX, rY - rR)
+                lineTo(rX, rY + rR)
+                moveTo(rX, rY - rR)
+                lineTo(rX + rR * 0.85f, rY - rR * 0.1f)
+                lineTo(rX, rY + rR * 0.1f)
+                lineTo(rX + rR * 0.85f, rY + rR)
+            }
+            drawPath(
+                exitRunePath,
+                color = exitColor,
+                style = androidx.compose.ui.graphics.drawscope.Stroke(
+                    width = 2.5f,
+                    cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                    join = androidx.compose.ui.graphics.StrokeJoin.Round,
+                ),
+            )
+        }
+    }
+}
+
 internal fun displayedRiverTile(
     levelRiverTile: RiverTile?,
     sandboxPaintedRiverTile: RiverTile?,
@@ -1238,6 +1352,15 @@ fun GameGrid(
                     if (freyaShieldWallArcs.isNotEmpty()) {
                         FreyaShieldWallMapOverlay(
                             shieldWallArcs = freyaShieldWallArcs,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                        )
+                    }
+                    // Rift portals: blue entry rune and orange exit rune for each active portal.
+                    val activePortals = gameState.activePortals.toList()
+                    if (activePortals.isNotEmpty()) {
+                        RiftPortalOverlay(
+                            portals = activePortals,
                             hexSizeDp = hexSize.value,
                             contentSize = measuredContentSize,
                         )

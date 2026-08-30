@@ -2241,6 +2241,15 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_kraken_title">Der Kraken betritt das Schlachtfeld</string>
     <string name="villain_kraken_backstory">Der Kraken ist aus den Tiefen des Ozeans aufgetaucht und bedroht alle, die auf den Meeren segeln. Seine Tentakel können Schiffe zerquetschen und seine Anwesenheit flößt selbst den mutigsten Seemännern Angst ein.</string>
 
+    <string name="demonling_name">Dämonling</string>
+    <string name="demonlings_name">Dämonlinge</string>
+    <string name="demonling_description">Ein winziger imp-ähnlicher Späher, beschworen von Zythar dem Riftrufer. Einzeln schwach, aber wenn ein Dämonling weit genug vor seinem Meister vorrückt — oder sich einem Ziel nähert — opfert er sich, um ein Rift-Portal aufzureißen.</string>
+    <string name="zythar_name">Zythar der Riftrufer</string>
+    <string name="villain_zythar_title">Zythar der Riftrufer betritt das Schlachtfeld</string>
+    <string name="villain_zythar_backstory">Zythar der Riftrufer, ein dunkler Hexenmeister, der Löcher in die Realität reißt, hat das Schlachtfeld betreten. Wo er geht, zerfällt das Gewebe des Raumes.</string>
+    <string name="villain_zythar_description">Rift-Portale: Dämonling-Späher eilen voraus. Wenn einer weit genug vorprescht oder ein Ziel erreicht, opfert er sich und öffnet ein Portal — blaue Eingangsrune bei Zythar, orange Ausgangsrune an der Position des Dämonlings. Jeder Feind, der auf den Eingang tritt, wird sofort zum Ausgang teleportiert. Zythar selbst nutzt das Portal, wenn der Ausgang nah am Ziel liegt.\nBeschwörung: Alle 3 Runden entfesselt er blaue Dämonen, rote Dämonen und Dämonlinge.</string>
+    <string name="villain_zythar_portal_short">Rift-Portale: Dämonlinge opfern sich, um blau-Eingang / orange-Ausgang Portale zu öffnen, die jeden Feind darauf zum Ausgang teleportieren</string>
+
     <!-- Beschreibungen der Feindeseinheiten -->
     <string name="goblin_description">Schnell und wendig, Goblins sind die schwächsten Gegner, bewegen sich aber schnell. Verwende Flächenattacken, um mehrere Goblins auf einmal zu bekämpfen.</string>
     <string name="ork_description">Muskulös und zäh, Orks sind die Standard-Infanterie der Horde. Sie bewegen sich langsamer als Goblins, haben aber mehr Gesundheit und Schaden.</string>
