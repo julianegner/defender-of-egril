@@ -42,6 +42,6 @@ data class Portal(
         const val PORTAL_ADVANCE_THRESHOLD = 20
 
         /** Number of distinct Futhark rune shapes in the portal drawing pool. */
-        const val RUNE_POOL_SIZE = 6
+        const val RUNE_POOL_SIZE = 24
     }
 }
