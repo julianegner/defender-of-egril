@@ -74,6 +74,8 @@ private val SNOTLING_DIAMOND_OFFSETS =
         Pair(0f, 2f),
     )
 
+private fun swarmIconCountForHealth(health: Int): Int = minOf(health.coerceAtLeast(1), SNOTLING_DIAMOND_OFFSETS.size)
+
 internal fun shouldShowSeafaringPirateBarge(
     attackerType: AttackerType,
     isRiverTile: Boolean,
@@ -157,7 +159,7 @@ fun EnemyIcon(
                     // Each icon is 20 % of goblin size; the grid is shifted up slightly to leave
                     // room for the HP counter that is always shown at the bottom.
                     val hp = healthOverride ?: attacker.currentHealth.value
-                    val count = minOf(hp, SNOTLING_DIAMOND_OFFSETS.size)
+                    val count = swarmIconCountForHealth(hp)
                     val snotlingSize = iconSize * 0.7f * SNOTLING_ICON_SCALE
                     val gridUnit = iconSize * 0.18f
                     val gridCenterY = centerY - iconSize * 0.06f
@@ -270,6 +272,7 @@ fun EnemyTypeIcon(
     attackerType: AttackerType,
     modifier: Modifier = Modifier,
     backgroundColor: Color? = null,
+    swarmHealthOverride: Int? = null,
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
@@ -307,10 +310,53 @@ fun EnemyTypeIcon(
                 AttackerType.PIRATE -> drawPirateSymbol(centerX, pirateCenterY, pirateIconSize, pirateClassOutlineColor, headScale)
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
-                // Snotlings: show a single small icon (20% of goblin icon size) in type previews
-                AttackerType.SNOTLING -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
-                AttackerType.SPIDERLING -> drawSpiderlingSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
-                AttackerType.DEMONLING -> drawDemonlingSymbol(centerX, centerY, iconSize * 0.65f * SNOTLING_ICON_SCALE, headScale = headScale)
+                AttackerType.SNOTLING,
+                AttackerType.SPIDERLING,
+                AttackerType.DEMONLING,
+                -> {
+                    // Type previews use a single icon by default. For death ghosts we can pass raw
+                    // swarm health to keep the full stack shape visible before the kill animation.
+                    val count = if (swarmHealthOverride != null) swarmIconCountForHealth(swarmHealthOverride) else 1
+                    if (count == 1) {
+                        when (attackerType) {
+                            AttackerType.SPIDERLING -> drawSpiderlingSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
+                            AttackerType.DEMONLING -> drawDemonlingSymbol(centerX, centerY, iconSize * 0.65f * SNOTLING_ICON_SCALE, headScale = headScale)
+                            else -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
+                        }
+                    } else {
+                        val swarmIconSize =
+                            if (attackerType == AttackerType.DEMONLING) {
+                                iconSize * 0.65f * SNOTLING_ICON_SCALE
+                            } else {
+                                iconSize * 0.7f * SNOTLING_ICON_SCALE
+                            }
+                        val gridUnit = iconSize * 0.18f
+                        val gridCenterY = centerY - iconSize * 0.06f
+                        for (i in 0 until count) {
+                            val (xFactor, yFactor) = SNOTLING_DIAMOND_OFFSETS[i]
+                            when (attackerType) {
+                                AttackerType.SPIDERLING -> drawSpiderlingSymbol(
+                                    centerX + xFactor * gridUnit,
+                                    gridCenterY + yFactor * gridUnit,
+                                    swarmIconSize,
+                                    headScale = headScale,
+                                )
+                                AttackerType.DEMONLING -> drawDemonlingSymbol(
+                                    centerX + xFactor * gridUnit,
+                                    gridCenterY + yFactor * gridUnit,
+                                    swarmIconSize,
+                                    headScale = headScale,
+                                )
+                                else -> drawGoblinSymbol(
+                                    centerX + xFactor * gridUnit,
+                                    gridCenterY + yFactor * gridUnit,
+                                    swarmIconSize,
+                                    headScale = headScale,
+                                )
+                            }
+                        }
+                    }
+                }
                 AttackerType.ROBOTIC_GOBLIN -> drawRoboticGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
