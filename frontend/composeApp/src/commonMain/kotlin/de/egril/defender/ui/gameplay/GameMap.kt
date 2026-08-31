@@ -156,6 +156,13 @@ private fun rememberShouldPlayOneShotTileAnimation(
     return shouldPlay
 }
 
+internal fun ghostSwarmCount(attackerType: AttackerType, displayedHealth: Int): Int? =
+    if (attackerType.isSwarmUnit()) {
+        displayedHealth.coerceAtLeast(1)
+    } else {
+        null
+    }
+
 private const val HEX_ROW_VERTICAL_SPACING_FACTOR = 0.75f
 
 // The CW traversal start/end corner index for each edge direction.
@@ -3639,6 +3646,7 @@ private fun BoxScope.GridCellContent(
     if (showGhost && isDeathEffectActive) {
         EnemyTypeIcon(
             attackerType = deathEffect.attackerType,
+            swarmCount = ghostSwarmCount(deathEffect.attackerType, displayedHealth),
             modifier = Modifier.fillMaxSize().zIndex(15f),
         )
         // Show level badge on top of the ghost icon when level > 1
