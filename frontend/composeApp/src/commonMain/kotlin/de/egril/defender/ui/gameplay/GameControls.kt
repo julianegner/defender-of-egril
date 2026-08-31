@@ -61,6 +61,7 @@ fun ColumnScope.TurnButton(
     primaryButtonColor: Color = GamePlayColors.WarningDeep,
     highlighted: Boolean = false,
     autoAttackAvailable: Boolean = false,
+    autoAttackManaOnly: Boolean = false,
 ) {
     val buttonTextSize = turnButtonLabelFontSize(AppSettings.headerTextSize.value)
     val turnButtonContentColor = GamePlayColors.readableContentColor(primaryButtonColor)
@@ -68,10 +69,20 @@ fun ColumnScope.TurnButton(
     val buttonLabel =
         when {
             !isPlayerTurn -> stringResource(Res.string.start_battle)
+            autoAttackAvailable && autoAttackManaOnly -> stringResource(Res.string.generate_mana_and_end_turn)
             autoAttackAvailable -> stringResource(Res.string.auto_attack_button)
             else -> stringResource(Res.string.end_turn_button)
         }
-    val tooltipText = if (isPlayerTurn && autoAttackAvailable) stringResource(Res.string.auto_attack_and_end_turn) else null
+    val tooltipText =
+        if (isPlayerTurn && autoAttackAvailable) {
+            if (autoAttackManaOnly) {
+                stringResource(Res.string.generate_mana_and_end_turn)
+            } else {
+                stringResource(Res.string.auto_attack_and_end_turn)
+            }
+        } else {
+            null
+        }
     TooltipWrapper(text = tooltipText, preferAbove = true) {
         Button(
             onClick = onPrimaryAction,
@@ -159,7 +170,14 @@ fun GameControlsPanel(
 
         // Determine phase-specific properties
         val isPlayerTurn = phase == GamePhase.PLAYER_TURN
-        val autoAttackAvailable = isPlayerTurn && gameState.level.allowAutoAttack && gameState.hasDefendersForAutoAttack()
+        val autoAttackAvailability =
+            if (isPlayerTurn && gameState.level.allowAutoAttack) {
+                gameState.getAutoAttackAvailability()
+            } else {
+                AutoAttackAvailability.NONE
+            }
+        val autoAttackAvailable = autoAttackAvailability != AutoAttackAvailability.NONE
+        val autoAttackManaOnly = autoAttackAvailability == AutoAttackAvailability.MANA_ONLY
         val title =
             if (isPlayerTurn) {
                 stringResource(Res.string.your_turn_message)
@@ -169,6 +187,7 @@ fun GameControlsPanel(
         val primaryButtonText =
             when {
                 !isPlayerTurn -> stringResource(Res.string.start_battle)
+                autoAttackManaOnly -> stringResource(Res.string.generate_mana_and_end_turn)
                 autoAttackAvailable -> stringResource(Res.string.auto_attack_button)
                 else -> stringResource(Res.string.end_turn_button)
             }
@@ -176,11 +195,20 @@ fun GameControlsPanel(
         val primaryButtonExpandedText =
             when {
                 !isPlayerTurn -> stringResource(Res.string.start_battle)
+                autoAttackManaOnly -> stringResource(Res.string.generate_mana_and_end_turn)
                 autoAttackAvailable -> stringResource(Res.string.auto_attack_slash_end_turn)
                 else -> stringResource(Res.string.end_turn_button)
             }
         val primaryButtonTooltip =
-            if (isPlayerTurn && autoAttackAvailable) stringResource(Res.string.auto_attack_and_end_turn) else null
+            if (isPlayerTurn && autoAttackAvailable) {
+                if (autoAttackManaOnly) {
+                    stringResource(Res.string.generate_mana_and_end_turn)
+                } else {
+                    stringResource(Res.string.auto_attack_and_end_turn)
+                }
+            } else {
+                null
+            }
         val primaryButtonColor =
             if (isPlayerTurn) {
                 GamePlayColors.WarningDeep
@@ -311,6 +339,7 @@ fun GameControlsPanel(
                                         onPrimaryAction = onPrimaryAction,
                                         highlightEndTurnButton = highlightEndTurnButton,
                                         autoAttackAvailable = autoAttackAvailable,
+                                        autoAttackManaOnly = autoAttackManaOnly,
                                         toggleSelectorKey = splitSelectorToggle,
                                         onSelectorExpandedChanged = onSplitSelectorExpandedChanged,
                                     )
@@ -353,6 +382,7 @@ fun GameControlsPanel(
                                                     onPrimaryAction,
                                                     highlighted = highlightEndTurnButton,
                                                     autoAttackAvailable = autoAttackAvailable,
+                                                    autoAttackManaOnly = autoAttackManaOnly,
                                                 )
                                             }
                                         }

@@ -80,6 +80,7 @@ fun ColumnScope.SplitTowerBuildControls(
     onPrimaryAction: () -> Unit,
     highlightEndTurnButton: Boolean,
     autoAttackAvailable: Boolean,
+    autoAttackManaOnly: Boolean,
     toggleSelectorKey: Int = 0,
     onSelectorExpandedChanged: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier,
@@ -91,6 +92,7 @@ fun ColumnScope.SplitTowerBuildControls(
             onPrimaryAction = onPrimaryAction,
             highlighted = highlightEndTurnButton,
             autoAttackAvailable = autoAttackAvailable,
+            autoAttackManaOnly = autoAttackManaOnly,
         )
         return
     }
@@ -229,6 +231,7 @@ fun ColumnScope.SplitTowerBuildControls(
             onPrimaryAction = onPrimaryAction,
             highlighted = highlightEndTurnButton,
             autoAttackAvailable = autoAttackAvailable,
+            autoAttackManaOnly = autoAttackManaOnly,
         )
     }
 }

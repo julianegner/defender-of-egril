@@ -3225,6 +3225,18 @@ private fun GamePlayScreenContent(
                     // End turn confirmation dialog
                     if (showEndTurnConfirmation) {
                         val canWinLevelNow = gameState.canWinLevelNow()
+                        val autoAttackAvailability =
+                            if (gameState.level.allowAutoAttack) {
+                                gameState.getAutoAttackAvailability()
+                            } else {
+                                AutoAttackAvailability.NONE
+                            }
+                        val autoAttackButtonText =
+                            if (autoAttackAvailability == AutoAttackAvailability.MANA_ONLY) {
+                                stringResource(Res.string.generate_mana_and_end_turn)
+                            } else {
+                                stringResource(Res.string.auto_attack_and_end_turn)
+                            }
                         EndTurnConfirmationDialog(
                             onConfirm = {
                                 showEndTurnConfirmation = false
@@ -3249,7 +3261,8 @@ private fun GamePlayScreenContent(
                             onCancel = {
                                 showEndTurnConfirmation = false
                             },
-                            showAutoAttackButton = gameState.level.allowAutoAttack && gameState.hasDefendersForAutoAttack(),
+                            showAutoAttackButton = autoAttackAvailability != AutoAttackAvailability.NONE,
+                            autoAttackButtonText = autoAttackButtonText,
                             showEndTurnWarning = gameState.hasDefendersWithUnusedActions(),
                             showWinLevelNow = canWinLevelNow && onWinLevelNow != null,
                             onWinLevelNow = {

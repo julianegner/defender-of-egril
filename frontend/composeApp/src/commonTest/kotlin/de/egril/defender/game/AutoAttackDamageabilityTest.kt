@@ -31,6 +31,22 @@ class AutoAttackDamageabilityTest {
         )
     }
 
+    private fun createLargeOpenLevel(): Level {
+        val allCells = (0 until 30).flatMap { x -> (0 until 30).map { y -> Position(x, y) } }.toSet()
+        return Level(
+            id = 2,
+            name = "Auto Attack Damageability Large Test",
+            gridWidth = 30,
+            gridHeight = 30,
+            startPositions = listOf(Position(0, 15)),
+            targetPositions = listOf(Position(29, 15)),
+            pathCells = allCells,
+            attackerWaves = emptyList(),
+            initialCoins = 1000,
+            healthPoints = 10,
+        )
+    }
+
     private fun defender(
         id: Int,
         type: DefenderType,
@@ -168,22 +184,22 @@ class AutoAttackDamageabilityTest {
     }
 
     @Test
-    fun wizardAutoAttackDoesNotGenerateManaWhenMagicalTrapIsAvailable() {
-        val state = GameState(createOpenLevel(), phase = mutableStateOf(de.egril.defender.model.GamePhase.PLAYER_TURN))
+    fun wizardAutoAttackGeneratesManaWhenNoTargetEvenIfMagicalTrapIsAvailable() {
+        val state = GameState(createLargeOpenLevel(), phase = mutableStateOf(de.egril.defender.model.GamePhase.PLAYER_TURN))
         state.maxMana.value = 20
         state.currentMana.value = 0
 
         val engine = GameEngine(state)
         val wizard = defender(1, DefenderType.WIZARD_TOWER, Position(3, 3)).apply { this.level.value = 10 }
-        val distantEnemy = attacker(1, AttackerType.GOBLIN, Position(9, 3))
+        val distantEnemy = attacker(1, AttackerType.GOBLIN, Position(29, 29))
 
         state.defenders.add(wizard)
         state.attackers.add(distantEnemy)
 
         assertTrue(state.canWizardPlaceAnyMagicalTrap(wizard), "Wizard should still have a manual magical trap option")
-        assertFalse(engine.performOneAutoAttack(wizard.id), "Auto-attack should not consume the action when a manual trap is available")
-        assertEquals(0, state.currentMana.value)
-        assertEquals(1, wizard.actionsRemaining.value)
-        assertEquals(listOf(DefenderType.WIZARD_TOWER), state.getDefenderTypesWithSpecialActions())
+        assertTrue(engine.performOneAutoAttack(wizard.id), "Auto-attack should consume the action for mana generation")
+        assertTrue(state.currentMana.value > 0, "Mana should increase")
+        assertEquals(0, wizard.actionsRemaining.value)
+        assertTrue(state.getDefenderTypesWithSpecialActions().isEmpty(), "No special action remains after consuming the action")
     }
 }

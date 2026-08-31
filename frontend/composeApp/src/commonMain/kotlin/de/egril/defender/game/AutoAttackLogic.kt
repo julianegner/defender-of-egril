@@ -16,7 +16,6 @@ class AutoAttackLogic(
 ) {
     fun autoDefenderAttacks() {
         if (state.phase.value != GamePhase.PLAYER_TURN) return
-        if (state.attackers.none { !it.isDefeated.value && !it.isBuildingBridge.value }) return
 
         for (defender in state.defenders) {
             if (!defender.isReady) continue
@@ -29,7 +28,17 @@ class AutoAttackLogic(
                     state.attackers.filter { attacker ->
                         !attacker.isDefeated.value && !attacker.isBuildingBridge.value
                     }
-                if (activeAttackers.isEmpty()) return
+                if (activeAttackers.isEmpty()) {
+                    if (defender.type == DefenderType.WIZARD_TOWER &&
+                        state.currentMana.value < state.maxMana.value
+                    ) {
+                        if (!performWizardGenerateMana(defender.id)) {
+                            break
+                        }
+                        continue
+                    }
+                    break
+                }
 
                 when (defender.type.attackType) {
                     AttackType.MELEE, AttackType.RANGED -> {
@@ -44,7 +53,7 @@ class AutoAttackLogic(
                         val targetPosition = selector.selectBestAreaAttackPosition(defender, activeAttackers)
                         if (targetPosition == null) {
                             if (defender.type == DefenderType.WIZARD_TOWER &&
-                                !state.canWizardPlaceAnyMagicalTrap(defender)
+                                state.currentMana.value < state.maxMana.value
                             ) {
                                 if (!performWizardGenerateMana(defender.id)) {
                                     break
@@ -86,7 +95,15 @@ class AutoAttackLogic(
         if (!defender.isReady || defender.actionsRemaining.value <= 0 || defender.isDisabled.value) return false
         if (defender.type.attackType == AttackType.NONE) return false
         val activeAttackers = state.attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
-        if (activeAttackers.isEmpty()) return false
+        if (activeAttackers.isEmpty()) {
+            if (defender.type == DefenderType.WIZARD_TOWER &&
+                state.currentMana.value < state.maxMana.value
+            ) {
+                return performWizardGenerateMana(defender.id).also { if (it) evaluateImmediateEvents() }
+            } else {
+                return false
+            }
+        }
         return when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> {
                 val target = selector.selectAutoTargetForDefender(defender, activeAttackers) ?: return false
@@ -98,7 +115,7 @@ class AutoAttackLogic(
                 val targetPosition = selector.selectBestAreaAttackPosition(defender, activeAttackers)
                 if (targetPosition == null) {
                     if (defender.type == DefenderType.WIZARD_TOWER &&
-                        !state.canWizardPlaceAnyMagicalTrap(defender)
+                        state.currentMana.value < state.maxMana.value
                     ) {
                         return performWizardGenerateMana(defender.id).also { if (it) evaluateImmediateEvents() }
                     }

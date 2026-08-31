@@ -3,6 +3,7 @@ package de.egril.defender.game
 import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.AutoAttackAvailability
 import de.egril.defender.model.Defender
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.GamePhase
@@ -33,6 +34,22 @@ class WizardAutoManaTest {
             gridHeight = 10,
             startPositions = listOf(Position(0, 5)),
             targetPositions = listOf(Position(9, 5)),
+            pathCells = allCells,
+            attackerWaves = emptyList(),
+            initialCoins = 1000,
+            healthPoints = 10,
+        )
+    }
+
+    private fun createLargeOpenLevel(): Level {
+        val allCells = (0 until 30).flatMap { x -> (0 until 30).map { y -> Position(x, y) } }.toSet()
+        return Level(
+            id = 2,
+            name = "Wizard Auto Mana Large Test",
+            gridWidth = 30,
+            gridHeight = 30,
+            startPositions = listOf(Position(0, 15)),
+            targetPositions = listOf(Position(29, 15)),
             pathCells = allCells,
             attackerWaves = emptyList(),
             initialCoins = 1000,
@@ -83,6 +100,43 @@ class WizardAutoManaTest {
     }
 
     @Test
+    fun wizardAutoGeneratesManaWhenNoEnemiesAreAlive() {
+        val level = createLevel()
+        val state = GameState(level, currentMana = mutableStateOf(0), maxMana = mutableStateOf(50))
+        val engine = GameEngine(state)
+
+        val wiz = wizard(id = 1, position = Position(5, 5), trapCooldown = 3)
+        state.defenders.add(wiz)
+
+        assertEquals(
+            AutoAttackAvailability.MANA_ONLY,
+            state.getAutoAttackAvailability(),
+            "Auto-action should be available as mana-only when no enemies are alive",
+        )
+        assertTrue(state.hasDefendersForAutoAttack(), "Mana-only auto-action should still enable the button state")
+
+        val manaBefore = state.currentMana.value
+        state.phase.value = GamePhase.PLAYER_TURN
+        engine.autoDefenderAttacks()
+
+        assertTrue(state.currentMana.value > manaBefore, "Mana should increase even without any living enemies")
+        assertEquals(0, wiz.actionsRemaining.value, "Wizard action should be consumed")
+    }
+
+    @Test
+    fun wizardManaOnlyActionCountsAsUnusedActionForEndTurnConfirmation() {
+        val level = createLevel()
+        val state = GameState(level, currentMana = mutableStateOf(0), maxMana = mutableStateOf(50))
+        val wiz = wizard(id = 1, position = Position(5, 5), trapCooldown = 3)
+        state.defenders.add(wiz)
+
+        assertTrue(
+            state.hasDefendersWithUnusedActions(),
+            "Wizard mana generation must trigger end-turn confirmation when no enemy is attackable",
+        )
+    }
+
+    @Test
     fun wizardDoesNotAutoGenerateManaWhenManaIsFull() {
         val level = createLevel()
         val state = GameState(level, currentMana = mutableStateOf(50), maxMana = mutableStateOf(50))
@@ -103,22 +157,24 @@ class WizardAutoManaTest {
     }
 
     @Test
-    fun wizardDoesNotAutoGenerateManaWhenItCanPlaceMagicalTrap() {
-        val level = createLevel()
+    fun wizardAutoGeneratesManaEvenWhenItCanPlaceMagicalTrap() {
+        val level = createLargeOpenLevel()
         val state = GameState(level, currentMana = mutableStateOf(0), maxMana = mutableStateOf(50))
         val engine = GameEngine(state)
 
         // Level 10+ wizard with trap cooldown 0 (can place trap), far from any enemy
         val wiz = wizard(id = 1, position = Position(5, 5), level = 10, trapCooldown = 0)
         state.defenders.add(wiz)
-        val far = goblin(id = 1, position = Position(0, 0))
+        val far = goblin(id = 1, position = Position(29, 29))
         state.attackers.add(far)
 
         val manaBefore = state.currentMana.value
+        val actionsBefore = wiz.actionsRemaining.value
         state.phase.value = GamePhase.PLAYER_TURN
         engine.autoDefenderAttacks()
 
-        assertEquals(manaBefore, state.currentMana.value, "Mana should NOT change when wizard can place a trap")
+        assertTrue(state.currentMana.value > manaBefore, "Mana should increase when no enemy is in range")
+        assertTrue(wiz.actionsRemaining.value < actionsBefore, "Wizard action should be consumed")
     }
 
     @Test
