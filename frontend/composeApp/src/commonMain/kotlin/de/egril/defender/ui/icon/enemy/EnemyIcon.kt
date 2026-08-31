@@ -322,7 +322,12 @@ fun EnemyTypeIcon(
                             else -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
                         }
                     } else {
-                        val snotlingSize = iconSize * 0.7f * SNOTLING_ICON_SCALE
+                        val swarmIconSize =
+                            if (attackerType == AttackerType.DEMONLING) {
+                                iconSize * 0.65f * SNOTLING_ICON_SCALE
+                            } else {
+                                iconSize * 0.7f * SNOTLING_ICON_SCALE
+                            }
                         val gridUnit = iconSize * 0.18f
                         val gridCenterY = centerY - iconSize * 0.06f
                         for (i in 0 until count) {
@@ -331,19 +336,19 @@ fun EnemyTypeIcon(
                                 AttackerType.SPIDERLING -> drawSpiderlingSymbol(
                                     centerX + xFactor * gridUnit,
                                     gridCenterY + yFactor * gridUnit,
-                                    snotlingSize,
+                                    swarmIconSize,
                                     headScale = headScale,
                                 )
                                 AttackerType.DEMONLING -> drawDemonlingSymbol(
                                     centerX + xFactor * gridUnit,
                                     gridCenterY + yFactor * gridUnit,
-                                    snotlingSize,
+                                    swarmIconSize,
                                     headScale = headScale,
                                 )
                                 else -> drawGoblinSymbol(
                                     centerX + xFactor * gridUnit,
                                     gridCenterY + yFactor * gridUnit,
-                                    snotlingSize,
+                                    swarmIconSize,
                                     headScale = headScale,
                                 )
                             }
