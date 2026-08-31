@@ -2298,13 +2298,19 @@ class EnemyAbilitySystem(
         if (!shouldCreatePortal) return
 
         // Find a free path tile adjacent to Zythar for the portal entry
+        // (not a spawn point, not a target tile, and no existing portal entry there)
         val zytharPos = zythar?.position?.value ?: return
         val entryPosition =
             zytharPos.getHexNeighbors().firstOrNull { candidate ->
                 state.level.isOnPath(candidate) &&
+                    !state.level.isSpawnPoint(candidate) &&
+                    !state.level.isTargetPosition(candidate) &&
                     !state.activePortals.any { it.entryPosition == candidate } &&
                     !state.attackers.any { it.position.value == candidate && !it.isDefeated.value }
             } ?: return
+
+        // The exit must also not be on a spawn point or target tile
+        if (state.level.isSpawnPoint(demonlingPos) || state.level.isTargetPosition(demonlingPos)) return
 
         // Create the portal
         val portalId = state.nextPortalId.value++

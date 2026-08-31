@@ -334,10 +334,11 @@ class PathfindingSystem(
         // Portal shortcuts: if pos is a portal entry tile, the exit-adjacent path tiles are
         // reachable in one step (actual teleportation is applied in Movement.applyMovement).
         // Water-only enemies cannot use portals (they can't stand on path tiles).
+        // Portals already used this turn are excluded (one use per portal per turn).
         val portalNeighbors =
             if (!isWaterOnly) {
                 state.activePortals
-                    .filter { portal -> portal.entryPosition == pos }
+                    .filter { portal -> portal.entryPosition == pos && !portal.usedThisTurn.value }
                     .flatMap { portal ->
                         portal.exitPosition.getHexNeighbors().filter { neighbor ->
                             neighbor.x >= 0 &&

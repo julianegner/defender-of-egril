@@ -490,8 +490,9 @@ class Movement(
      */
     private fun applyPortalTeleportation(attacker: Attacker) {
         val pos = attacker.position.value
-        // Find a portal whose entry matches this attacker's current position.
-        val portal = state.activePortals.firstOrNull { it.entryPosition == pos } ?: return
+        // Find a portal whose entry matches this attacker's current position and has not yet
+        // been used this turn (one use per portal per enemy turn to prevent chain-teleportation).
+        val portal = state.activePortals.firstOrNull { it.entryPosition == pos && !it.usedThisTurn.value } ?: return
         // Zythar only uses portals that lead close to a target; other enemies always teleport.
         if (attacker.type == AttackerType.ZYTHAR_THE_RIFTCALLER) {
             val minTargetDist =
@@ -515,8 +516,8 @@ class Movement(
         attacker.teleportedThisTurn.value = true
         // Update the attacker's waypoint target if needed at the new position.
         updateWaypointTargetIfReached(attacker, destination, "Portal teleport")
-        // Remove the portal so it cannot be used again this turn.
-        state.activePortals.remove(portal)
+        // Mark the portal as used for this turn so no second unit can chain through it.
+        portal.usedThisTurn.value = true
     }
 
     fun calculateNewlySpawnedMovements(): List<List<Pair<Int, Position>>> {

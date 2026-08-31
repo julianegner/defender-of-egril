@@ -1,5 +1,8 @@
 package de.egril.defender.model
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+
 /**
  * An active rift portal created by Zythar the Riftcaller's demonlings.
  *
@@ -15,6 +18,10 @@ package de.egril.defender.model
  * Any enemy unit that steps onto [entryPosition] is instantly teleported to the best free tile
  * adjacent to [exitPosition].  Zythar himself uses the portal whenever the exit is within
  * [PORTAL_NEAR_TARGET_DISTANCE] tiles of a target.
+ *
+ * A portal persists for the whole level.  [usedThisTurn] prevents multiple units from
+ * chaining through the same portal in a single enemy turn; it is reset at the start of
+ * each new enemy turn by [de.egril.defender.game.TurnLifecycleLogic].
  */
 data class Portal(
     val id: Int,
@@ -28,8 +35,15 @@ data class Portal(
      * Index into the Futhark rune pool used to draw this portal pair.
      * Both the entry and exit tile display the same rune so the player can match them.
      * Distinct portals on the same map cycle through the pool so they look different.
+     * This index is fixed at creation and never changes.
      */
     val runeIndex: Int,
+    /**
+     * Set to `true` when an enemy unit uses this portal during the current enemy turn.
+     * Reset to `false` at the start of every new enemy turn so the portal can be used again.
+     * This prevents multiple units from chain-teleporting through the same portal in one turn.
+     */
+    val usedThisTurn: MutableState<Boolean> = mutableStateOf(false),
 ) {
     companion object {
         /** Maximum distance to target for a demonling to create a portal (and for the villain to use one). */
