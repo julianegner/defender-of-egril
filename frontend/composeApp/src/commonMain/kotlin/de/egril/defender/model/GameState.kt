@@ -665,6 +665,20 @@ data class GameState(
             bridge.isActive && bridge.coversPosition(position)
         }
 
+    fun getPortalAtEntry(position: Position): Portal? =
+        activePortals.firstOrNull { portal ->
+            portal.entryPosition == position
+        }
+
+    fun isPortalEntry(position: Position): Boolean = getPortalAtEntry(position) != null
+
+    fun isPortalExit(position: Position): Boolean =
+        activePortals.any { portal ->
+            portal.exitPosition == position
+        }
+
+    fun isPortalTile(position: Position): Boolean = isPortalEntry(position) || isPortalExit(position)
+
     /**
      * Check if a position has a raft
      */

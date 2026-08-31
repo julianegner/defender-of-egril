@@ -598,8 +598,8 @@ enum class AttackerType(
     // they are either close to a target or far enough ahead of every existing portal, they sacrifice
     // themselves to open a rift: the blue entry rune appears adjacent to Zythar and the orange exit
     // rune appears where the demonling was. Any enemy stepping onto the entry is teleported to the
-    // exit. Zythar himself steps through his own portals when the exit is within
-    // Portal.PORTAL_NEAR_TARGET_DISTANCE tiles of a target.
+    // exit. After a portal is established, Zythar prioritizes stepping through it on later turns:
+    // if 10 tiles or less remain to a target, he pushes forward; otherwise he repositions safely.
     ZYTHAR_THE_RIFTCALLER(
         "Zythar the Riftcaller",
         health = 220,

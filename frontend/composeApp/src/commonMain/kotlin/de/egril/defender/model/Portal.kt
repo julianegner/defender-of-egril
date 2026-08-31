@@ -8,16 +8,16 @@ import androidx.compose.runtime.mutableStateOf
  *
  * When a demonling reaches a position that is either:
  * - within [PORTAL_NEAR_TARGET_DISTANCE] tiles of a target, or
- * - at least [PORTAL_ADVANCE_THRESHOLD] tiles closer to the target than the closest existing
- *   portal exit (or the villain, if no portals exist yet)
+ * - at least [PORTAL_ADVANCE_THRESHOLD_WHEN_PORTAL_EXISTS] tiles closer to the target than the
+ *   closest existing portal exit (or [PORTAL_ADVANCE_THRESHOLD_INITIAL] tiles if no portal exists)
  *
  * …the demonling sacrifices itself and creates this portal pair:
  * - [entryPosition]: a tile adjacent to the villain (the "blue" entry rune).
  * - [exitPosition]: the position where the demonling was (the "orange" exit rune).
  *
  * Any enemy unit that steps onto [entryPosition] is instantly teleported to the best free tile
- * adjacent to [exitPosition].  Zythar himself uses the portal whenever the exit is within
- * [PORTAL_NEAR_TARGET_DISTANCE] tiles of a target.
+ * adjacent to [exitPosition]. Zythar prioritizes entering available portals on later turns and
+ * then either advances toward a nearby target or repositions to safety.
  *
  * A portal persists for the whole level.  [usedThisTurn] prevents multiple units from
  * chaining through the same portal in a single enemy turn; it is reset at the start of
@@ -53,7 +53,8 @@ data class Portal(
          * Minimum lead (in tiles) by which a demonling must be closer to the target than the
          * current closest portal exit / villain in order to justify creating a new portal.
          */
-        const val PORTAL_ADVANCE_THRESHOLD = 20
+        const val PORTAL_ADVANCE_THRESHOLD_INITIAL = 20
+        const val PORTAL_ADVANCE_THRESHOLD_WHEN_PORTAL_EXISTS = 10
 
         /** Number of distinct Futhark rune shapes in the portal drawing pool. */
         const val RUNE_POOL_SIZE = 24

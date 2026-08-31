@@ -264,6 +264,18 @@ object SaveJsonSerializer {
     }"""
             }
 
+        val activePortalsJson =
+            savedGame.activePortals.joinToString(",\n    ") { portal ->
+                """{
+      "id": ${portal.id},
+      "entryPosition": {"x": ${portal.entryPosition.x}, "y": ${portal.entryPosition.y}},
+      "exitPosition": {"x": ${portal.exitPosition.x}, "y": ${portal.exitPosition.y}},
+      "villainId": ${portal.villainId},
+      "runeIndex": ${portal.runeIndex},
+      "usedThisTurn": ${portal.usedThisTurn}
+    }"""
+            }
+
         val data = """{
   "id": "${savedGame.id}",
   "timestamp": ${savedGame.timestamp},
@@ -330,6 +342,10 @@ object SaveJsonSerializer {
    $bridgesJson
   ],
   "nextBridgeId": ${savedGame.nextBridgeId},
+  "activePortals": [
+    $activePortalsJson
+  ],
+  "nextPortalId": ${savedGame.nextPortalId},
   "bridges": [
    $bridgesJson
   ],
@@ -724,6 +740,29 @@ object SaveJsonSerializer {
                     1
                 }
 
+            // Parse active portals (optional for backward compatibility with old saves)
+            val activePortals = mutableListOf<SavedPortal>()
+            if (dataJson.contains("\"activePortals\":")) {
+                val portalsSection = JsonUtils.extractJsonArrayForKey(dataJson, "activePortals")
+                if (portalsSection.isNotBlank()) {
+                    val portalEntries = JsonUtils.splitJsonArray(portalsSection)
+                    for (entry in portalEntries) {
+                        try {
+                            activePortals.add(parseSavedPortal(entry))
+                        } catch (e: Exception) {
+                            // Skip malformed portal entries.
+                        }
+                    }
+                }
+            }
+
+            val nextPortalId =
+                try {
+                    JsonUtils.extractValue(dataJson, "nextPortalId").toInt()
+                } catch (e: Exception) {
+                    1
+                }
+
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -780,6 +819,8 @@ object SaveJsonSerializer {
                 sandboxRiverTiles = sandboxRiverTiles,
                 bridges = bridges,
                 nextBridgeId = nextBridgeId,
+                activePortals = activePortals,
+                nextPortalId = nextPortalId,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
@@ -954,6 +995,34 @@ object SaveJsonSerializer {
             turnsRemaining = turnsRemaining,
             createdByAttackerId = createdByAttackerId,
             createdOnTurn = createdOnTurn,
+        )
+    }
+
+    private fun parseSavedPortal(json: String): SavedPortal {
+        val id = JsonUtils.extractValue(json, "id").toInt()
+        val villainId = JsonUtils.extractValue(json, "villainId").toInt()
+        val runeIndex = JsonUtils.extractValue(json, "runeIndex").toInt()
+        val usedThisTurn =
+            try {
+                JsonUtils.extractBooleanValue(json, "usedThisTurn")
+            } catch (e: Exception) {
+                false
+            }
+
+        val entryJson = JsonUtils.extractJsonObjectForKey(json, "entryPosition")
+        val entryX = JsonUtils.extractValue(entryJson, "x").toInt()
+        val entryY = JsonUtils.extractValue(entryJson, "y").toInt()
+        val exitJson = JsonUtils.extractJsonObjectForKey(json, "exitPosition")
+        val exitX = JsonUtils.extractValue(exitJson, "x").toInt()
+        val exitY = JsonUtils.extractValue(exitJson, "y").toInt()
+
+        return SavedPortal(
+            id = id,
+            entryPosition = Position(entryX, entryY),
+            exitPosition = Position(exitX, exitY),
+            villainId = villainId,
+            runeIndex = runeIndex,
+            usedThisTurn = usedThisTurn,
         )
     }
 

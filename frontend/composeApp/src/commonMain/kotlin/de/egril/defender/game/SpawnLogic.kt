@@ -173,6 +173,7 @@ class SpawnLogic(
             position.y < state.level.gridHeight &&
             position !in reservedPositions &&
             state.level.isEnemyTraversable(position) &&
+            !state.isPortalTile(position) &&
             !isOccupiedByStaticObject(position) &&
             state.attackers.none { !it.isDefeated.value && it.position.value == position }
 

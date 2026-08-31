@@ -389,6 +389,18 @@ object SaveFileStorage {
                 )
             }
 
+        val activePortals =
+            gameState.activePortals.map { portal ->
+                SavedPortal(
+                    id = portal.id,
+                    entryPosition = portal.entryPosition,
+                    exitPosition = portal.exitPosition,
+                    villainId = portal.villainId,
+                    runeIndex = portal.runeIndex,
+                    usedThisTurn = portal.usedThisTurn.value,
+                )
+            }
+
         return SavedGame(
             id = saveId,
             timestamp = currentTimeMillis(),
@@ -445,6 +457,8 @@ object SaveFileStorage {
                 },
             bridges = bridges,
             nextBridgeId = gameState.nextBridgeId.value,
+            activePortals = activePortals,
+            nextPortalId = gameState.nextPortalId.value,
         )
     }
 
@@ -484,6 +498,7 @@ object SaveFileStorage {
         gameState.turnNumber.value = savedGame.turnNumber
         gameState.nextRaftId.value = savedGame.nextRaftId
         gameState.nextBridgeId.value = savedGame.nextBridgeId
+        gameState.nextPortalId.value = savedGame.nextPortalId
 
         // Restore bridges
         gameState.bridges.clear()
@@ -497,6 +512,21 @@ object SaveFileStorage {
                     turnsRemaining = mutableStateOf(bridge.turnsRemaining),
                     createdByAttackerId = bridge.createdByAttackerId,
                     createdOnTurn = bridge.createdOnTurn,
+                )
+            },
+        )
+
+        // Restore active rift portals including their selected rune.
+        gameState.activePortals.clear()
+        gameState.activePortals.addAll(
+            savedGame.activePortals.map { portal ->
+                Portal(
+                    id = portal.id,
+                    entryPosition = portal.entryPosition,
+                    exitPosition = portal.exitPosition,
+                    villainId = portal.villainId,
+                    runeIndex = portal.runeIndex,
+                    usedThisTurn = mutableStateOf(portal.usedThisTurn),
                 )
             },
         )

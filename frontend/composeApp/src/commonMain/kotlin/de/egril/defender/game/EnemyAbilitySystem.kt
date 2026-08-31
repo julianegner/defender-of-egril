@@ -791,6 +791,7 @@ class EnemyAbilitySystem(
                         pos.y >= 0 &&
                         pos.y < state.level.gridHeight &&
                         state.level.isOnPath(pos) &&
+                        !state.isPortalTile(pos) &&
                         !state.attackers.any { it.position.value == pos && !it.isDefeated.value }
                 }.distinct()
 
@@ -1586,6 +1587,7 @@ class EnemyAbilitySystem(
                         pos.y >= 0 &&
                         pos.y < state.level.gridHeight &&
                         state.level.isOnPath(pos) &&
+                        !state.isPortalTile(pos) &&
                         !state.attackers.any { it.position.value == pos && !it.isDefeated.value }
                 }.distinct()
 
@@ -2264,8 +2266,9 @@ class EnemyAbilitySystem(
      *
      * Portal creation triggers when the demonling's distance to the nearest target is:
      * - at most [Portal.PORTAL_NEAR_TARGET_DISTANCE], OR
-     * - at least [Portal.PORTAL_ADVANCE_THRESHOLD] closer than the closest existing portal exit or
-     *   Zythar himself (if no portals exist).
+     * - at least [Portal.PORTAL_ADVANCE_THRESHOLD_WHEN_PORTAL_EXISTS] closer than the closest
+     *   existing portal exit (or [Portal.PORTAL_ADVANCE_THRESHOLD_INITIAL] closer than Zythar
+     *   when no portal exists yet).
      */
     fun checkAndCreatePortalForDemonling(demonling: Attacker) {
         if (demonling.isDefeated.value) return
@@ -2290,10 +2293,16 @@ class EnemyAbilitySystem(
             } else {
                 return // No Zythar and no portals — cannot create new portal
             }
+        val advanceThreshold =
+            if (portalExitDists.isNotEmpty()) {
+                Portal.PORTAL_ADVANCE_THRESHOLD_WHEN_PORTAL_EXISTS
+            } else {
+                Portal.PORTAL_ADVANCE_THRESHOLD_INITIAL
+            }
 
         val shouldCreatePortal =
             demonlingDist <= Portal.PORTAL_NEAR_TARGET_DISTANCE ||
-                demonlingDist <= referenceDist - Portal.PORTAL_ADVANCE_THRESHOLD
+                demonlingDist <= referenceDist - advanceThreshold
 
         if (!shouldCreatePortal) return
 
@@ -2305,12 +2314,12 @@ class EnemyAbilitySystem(
                 state.level.isOnPath(candidate) &&
                     !state.level.isSpawnPoint(candidate) &&
                     !state.level.isTargetPosition(candidate) &&
-                    !state.activePortals.any { it.entryPosition == candidate } &&
+                    !state.isPortalTile(candidate) &&
                     !state.attackers.any { it.position.value == candidate && !it.isDefeated.value }
             } ?: return
 
         // The exit must also not be on a spawn point or target tile
-        if (state.level.isSpawnPoint(demonlingPos) || state.level.isTargetPosition(demonlingPos)) return
+        if (state.level.isSpawnPoint(demonlingPos) || state.level.isTargetPosition(demonlingPos) || state.isPortalTile(demonlingPos)) return
 
         // Create the portal
         val portalId = state.nextPortalId.value++

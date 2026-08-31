@@ -109,6 +109,7 @@ class Movement(
         // one unit per turn and the currentPositions update reflects the exit side for correct
         // subsequent path calculations.
         val virtuallyUsedPortals = mutableSetOf<Portal>()
+        val virtuallyTeleportedAttackers = mutableSetOf<Int>()
 
         for (stepIndex in 0 until maxSpeed) {
             val movementsInThisStep = mutableListOf<Pair<Int, Position>>()
@@ -145,17 +146,18 @@ class Movement(
                     }
                 }
 
-                // Zythar stays near the back and only advances when a portal exit is close
-                // to a target (≤ PORTAL_NEAR_TARGET_DISTANCE tiles). The pathfinding already
-                // routes him through the nearest portal entry when one qualifies.
+                // Zythar always pushes when already close to a target (<= 10 tiles). Otherwise he
+                // uses portal/safe-spot behavior to stage his approach.
                 if (attacker.type == AttackerType.ZYTHAR_THE_RIFTCALLER) {
-                    val activeTargets = state.getActiveTargetPositions()
-                    val hasQualifyingPortal = state.activePortals.any { portal ->
-                        activeTargets.any { target ->
-                            portal.exitPosition.hexDistanceTo(target) <= Portal.PORTAL_NEAR_TARGET_DISTANCE
-                        }
+                    val minTargetDist =
+                        state.getActiveTargetPositions().minOfOrNull { t -> currentPos.hexDistanceTo(t) } ?: Int.MAX_VALUE
+                    if (!virtuallyTeleportedAttackers.contains(attacker.id) &&
+                        !attacker.teleportedThisTurn.value &&
+                        state.activePortals.isEmpty() &&
+                        minTargetDist > 10
+                    ) {
+                        continue
                     }
-                    if (!hasQualifyingPortal) continue
                 }
 
                 val isFeared = fearedAttackerIds.contains(attacker.id)
@@ -164,25 +166,33 @@ class Movement(
                         state.level.startPositions.minByOrNull { spawnPos -> currentPos.hexDistanceTo(spawnPos) }
                             ?: state.level.startPositions.first()
                     } else if (attacker.type == AttackerType.ZYTHAR_THE_RIFTCALLER) {
-                        // Route Zythar to the entry of the qualifying portal whose EXIT is closest
-                        // to a target, so he always picks the best portal rather than the nearest entry.
                         val activeTargets = state.getActiveTargetPositions()
-                        val bestPortalEntry =
-                            state.activePortals
-                                .filter { portal ->
-                                    activeTargets.any { t ->
-                                        portal.exitPosition.hexDistanceTo(t) <= Portal.PORTAL_NEAR_TARGET_DISTANCE
-                                    }
-                                }
-                                .minByOrNull { portal ->
-                                    activeTargets.minOfOrNull { t -> portal.exitPosition.hexDistanceTo(t) }
-                                        ?: Int.MAX_VALUE
-                                }
-                                ?.entryPosition
-                        bestPortalEntry
-                            ?: attacker.currentTarget?.value
-                            ?: activeTargets.minByOrNull { currentPos.distanceTo(it) }
-                            ?: state.level.targetPositions.first()
+                        val minTargetDist =
+                            activeTargets.minOfOrNull { t -> currentPos.hexDistanceTo(t) } ?: Int.MAX_VALUE
+                        if (virtuallyTeleportedAttackers.contains(attacker.id) || attacker.teleportedThisTurn.value) {
+                            if (minTargetDist <= 10) {
+                                attacker.currentTarget?.value
+                                    ?: activeTargets.minByOrNull { currentPos.distanceTo(it) }
+                                    ?: state.level.targetPositions.first()
+                            } else {
+                                findZytharSafeSpot(currentPos, attacker.id)
+                            }
+                        } else if (minTargetDist <= 10) {
+                            attacker.currentTarget?.value
+                                ?: activeTargets.minByOrNull { currentPos.distanceTo(it) }
+                                ?: state.level.targetPositions.first()
+                        } else {
+                            val bestPortalEntry =
+                                state.activePortals
+                                    .minByOrNull { portal ->
+                                        activeTargets.minOfOrNull { t -> portal.exitPosition.hexDistanceTo(t) }
+                                            ?: Int.MAX_VALUE
+                                    }?.entryPosition
+                            bestPortalEntry
+                                ?: attacker.currentTarget?.value
+                                ?: activeTargets.minByOrNull { currentPos.distanceTo(it) }
+                                ?: state.level.targetPositions.first()
+                        }
                     } else if (attacker.type == AttackerType.GREEN_WITCH) {
                         val healingTarget = enemyAbilities.findHealingTarget(attacker)
                         healingTarget?.position?.value
@@ -340,9 +350,11 @@ class Movement(
                             currentPositions[attacker.id] = exitAdjacent
                             positionsToOccupy.add(exitAdjacent)
                             virtuallyUsedPortals.add(portalAtNewPos)
+                            virtuallyTeleportedAttackers.add(attacker.id)
                             continue
                         }
-                        // No free exit tile: fall through to normal movement onto the entry tile.
+                        // No free exit-adjacent destination: keep portal tiles empty.
+                        continue
                     }
 
                     movementsInThisStep.add(Pair(attacker.id, newPos))
@@ -533,7 +545,11 @@ class Movement(
                 } else {
                     // Portal teleportation: if the unit just stepped onto a portal entry tile,
                     // transport it to a free path tile adjacent to the portal exit.
-                    applyPortalTeleportation(attacker)
+                    val teleported = applyPortalTeleportation(attacker)
+                    if (!teleported && state.isPortalEntry(attacker.position.value)) {
+                        attacker.position.value = oldPosition
+                        return
+                    }
                     // Demonling portal creation: if a demonling has advanced far enough, sacrifice
                     // it to open a new rift portal.
                     if (!attacker.isDefeated.value && attacker.type == AttackerType.DEMONLING) {
@@ -546,42 +562,61 @@ class Movement(
 
     /**
      * If [attacker] is standing on an active portal entry tile, teleport it to the best free path
-     * tile adjacent to the portal exit.  The portal entry is consumed (removed) after use so that
-     * multiple units cannot chain-teleport through the same portal in a single turn.
+     * tile adjacent to the portal exit.
      *
-     * Also handles Zythar himself stepping through his portal: if a ZYTHAR_THE_RIFTCALLER unit is
-     * on a portal entry and the exit is within [Portal.PORTAL_NEAR_TARGET_DISTANCE] of any target,
-     * he is teleported too (regardless of who owns the portal).
+     * Zythar also steps through portals once he reaches an entry tile.
      */
-    private fun applyPortalTeleportation(attacker: Attacker) {
+    private fun applyPortalTeleportation(attacker: Attacker): Boolean {
         val pos = attacker.position.value
-        // Find a portal whose entry matches this attacker's current position and has not yet
-        // been used this turn (one use per portal per enemy turn to prevent chain-teleportation).
-        val portal = state.activePortals.firstOrNull { it.entryPosition == pos && !it.usedThisTurn.value } ?: return
-        // Zythar only uses portals that lead close to a target; other enemies always teleport.
-        if (attacker.type == AttackerType.ZYTHAR_THE_RIFTCALLER) {
-            val minTargetDist =
-                state.getActiveTargetPositions().minOfOrNull { portal.exitPosition.hexDistanceTo(it) }
-                    ?: return
-            if (minTargetDist > Portal.PORTAL_NEAR_TARGET_DISTANCE) return
-        }
-
+        val portal = state.getPortalAtEntry(pos) ?: return true
+        if (portal.usedThisTurn.value) return false
         // Find the best free path tile adjacent to the exit.
         val exitNeighbors =
             portal.exitPosition.getHexNeighbors()
                 .filter { neighbor ->
                     state.level.isOnPath(neighbor) &&
+                        !state.isPortalTile(neighbor) &&
                         !state.attackers.any { it.id != attacker.id && !it.isDefeated.value && it.position.value == neighbor }
                 }
         val destination = exitNeighbors.minByOrNull { neighbor ->
             state.getActiveTargetPositions().minOfOrNull { neighbor.hexDistanceTo(it) } ?: Int.MAX_VALUE
-        } ?: return
+        } ?: return false
 
         attacker.position.value = destination
+        attacker.teleportedThisTurn.value = true
         // Update the attacker's waypoint target if needed at the new position.
         updateWaypointTargetIfReached(attacker, destination, "Portal teleport")
         // Mark the portal as used for this turn so no second unit can chain through it.
         portal.usedThisTurn.value = true
+        return true
+    }
+
+    private fun findZytharSafeSpot(
+        from: Position,
+        attackerId: Int,
+    ): Position {
+        val activeTargets = state.getActiveTargetPositions()
+        if (activeTargets.isEmpty()) return from
+
+        val candidates =
+            (from.getHexNeighbors() + listOf(from))
+                .filter { pos ->
+                    pos.x >= 0 &&
+                        pos.x < state.level.gridWidth &&
+                        pos.y >= 0 &&
+                        pos.y < state.level.gridHeight &&
+                        (state.level.isOnPath(pos) || state.level.isTargetPosition(pos) || state.isBridgeAt(pos)) &&
+                        !state.isPortalTile(pos) &&
+                        !state.attackers.any { it.id != attackerId && !it.isDefeated.value && it.position.value == pos } &&
+                        !state.barricades.any { it.position == pos && !it.isDestroyed() }
+                }
+        if (candidates.isEmpty()) return from
+
+        return candidates.maxWithOrNull(
+            compareBy<Position> { candidate ->
+                activeTargets.minOfOrNull { target -> candidate.hexDistanceTo(target) } ?: Int.MIN_VALUE
+            }.thenBy { -from.hexDistanceTo(it) },
+        ) ?: from
     }
 
     fun calculateNewlySpawnedMovements(): List<List<Pair<Int, Position>>> {
