@@ -215,6 +215,8 @@ object SaveJsonSerializer {
             savedGame.cooldownPowerReadyIn.entries.joinToString(", ") { (type, readyIn) ->
                 "\"${type.name}\": $readyIn"
             }
+        val playedTileAnimationKeysJson =
+            savedGame.playedTileAnimationKeys.joinToString(", ") { "\"$it\"" }
 
         // Scripted-event tracking
         val triggeredEventIdsJson =
@@ -314,6 +316,7 @@ object SaveJsonSerializer {
   "supportFiefRemaining": {$supportFiefsJson},
   "cooldownPowerReadyIn": {$cooldownPowersJson},
   "coinSurgeActive": ${savedGame.coinSurgeActive},
+  "playedTileAnimationKeys": [$playedTileAnimationKeysJson],
   "triggeredEventIds": [$triggeredEventIdsJson],
   "enemiesKilledTotal": ${savedGame.enemiesKilledTotal},
   "enemiesKilledByType": {$enemiesKilledByTypeJson},
@@ -597,23 +600,10 @@ object SaveJsonSerializer {
                 } catch (e: Exception) {
                     false
                 }
+            val playedTileAnimationKeys = parseStringArray(dataJson, "playedTileAnimationKeys")
 
             // Parse scripted-event tracking (optional for backward compatibility)
-            val triggeredEventIds = mutableListOf<String>()
-            if (dataJson.contains("\"triggeredEventIds\":")) {
-                val section =
-                    try {
-                        dataJson.substringAfter("\"triggeredEventIds\": [").substringBefore("]")
-                    } catch (e: Exception) {
-                        ""
-                    }
-                if (section.isNotBlank()) {
-                    for (item in section.split(",")) {
-                        val trimmed = item.trim().removeSurrounding("\"")
-                        if (trimmed.isNotBlank()) triggeredEventIds.add(trimmed)
-                    }
-                }
-            }
+            val triggeredEventIds = parseStringArray(dataJson, "triggeredEventIds")
             val enemiesKilledTotal =
                 try {
                     JsonUtils.extractValue(dataJson, "enemiesKilledTotal").toInt()
@@ -778,6 +768,7 @@ object SaveJsonSerializer {
                 supportFiefRemaining = supportFiefRemaining,
                 cooldownPowerReadyIn = cooldownPowerReadyIn,
                 coinSurgeActive = coinSurgeActive,
+                playedTileAnimationKeys = playedTileAnimationKeys,
                 triggeredEventIds = triggeredEventIds,
                 enemiesKilledTotal = enemiesKilledTotal,
                 enemiesKilledByType = enemiesKilledByType,
@@ -830,6 +821,22 @@ object SaveJsonSerializer {
             }
         }
         return result
+    }
+
+    private fun parseStringArray(
+        dataJson: String,
+        key: String,
+    ): MutableList<String> {
+        val section = JsonUtils.extractJsonArrayForKey(dataJson, key)
+        if (section.isBlank()) {
+            return mutableListOf()
+        }
+
+        return JsonUtils
+            .splitJsonArray(section)
+            .map { it.trim().removeSurrounding("\"") }
+            .filter { it.isNotBlank() }
+            .toMutableList()
     }
 
     private fun parseSavedDefender(json: String): SavedDefender {

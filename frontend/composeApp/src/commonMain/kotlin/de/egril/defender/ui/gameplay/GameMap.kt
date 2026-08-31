@@ -132,6 +132,30 @@ private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
  */
 private const val COIN_BUBBLE_COIN_SIZE_FRACTION = 0.14f
 
+private fun oneShotTileAnimationKey(
+    animationName: String,
+    position: Position,
+    turnNumber: Int,
+    suffix: String = "",
+): String = "$animationName:$turnNumber:${position.x},${position.y}${if (suffix.isNotEmpty()) ":$suffix" else ""}"
+
+@Composable
+private fun rememberShouldPlayOneShotTileAnimation(
+    gameState: GameState,
+    animationKey: String?,
+): Boolean {
+    if (animationKey == null) {
+        return false
+    }
+    val shouldPlay = remember(animationKey) { !gameState.playedTileAnimationKeys.containsKey(animationKey) }
+    if (shouldPlay && !gameState.playedTileAnimationKeys.containsKey(animationKey)) {
+        SideEffect {
+            gameState.playedTileAnimationKeys[animationKey] = true
+        }
+    }
+    return shouldPlay
+}
+
 private const val HEX_ROW_VERTICAL_SPACING_FACTOR = 0.75f
 
 // The CW traversal start/end corner index for each edge direction.
@@ -1767,7 +1791,6 @@ fun GridCell(
         gameState.bombExplosionEffects.find { explosion ->
             explosion.center == position || explosion.affectedPositions.contains(position)
         }
-
     // Check if this tile is a valid spell target
     val spellTargeting = gameState.spellTargeting.value
     val isValidSpellTarget =
@@ -2654,7 +2677,14 @@ private fun BoxScope.GridCellContent(
                         )
                     }
                     // Show healing effect overlay if present
-                    if (healingEffect != null) {
+                    val shouldPlayHealingAnimation =
+                        rememberShouldPlayOneShotTileAnimation(
+                            gameState,
+                            healingEffect?.let {
+                                oneShotTileAnimationKey("green_witch_healing", it.position, it.turnNumber)
+                            },
+                        )
+                    if (healingEffect != null && shouldPlayHealingAnimation) {
                         GreenWitchHealingAnimation(
                             animate = AppSettings.enableAnimations.value,
                             modifier = Modifier.fillMaxSize(),
@@ -2762,7 +2792,14 @@ private fun BoxScope.GridCellContent(
                         )
                     }
                     // Show construction complete sparkle when tower just finished building
-                    if (constructionCompleteEffect != null) {
+                    val shouldPlayConstructionCompleteAnimation =
+                        rememberShouldPlayOneShotTileAnimation(
+                            gameState,
+                            constructionCompleteEffect?.let {
+                                oneShotTileAnimationKey("tower_construction_complete", it.position, it.turnNumber)
+                            },
+                        )
+                    if (constructionCompleteEffect != null && shouldPlayConstructionCompleteAnimation) {
                         TowerConstructionCompleteAnimation(
                             animate = AppSettings.enableAnimations.value,
                             modifier = Modifier.fillMaxSize(),
@@ -2786,7 +2823,14 @@ private fun BoxScope.GridCellContent(
                                 )
                             DefenderType.DWARVEN_MINE -> {
                                 // Show dig animation on mine tile when it was just dug
-                                if (mineDigEffect != null) {
+                                val shouldPlayMineDigAnimation =
+                                    rememberShouldPlayOneShotTileAnimation(
+                                        gameState,
+                                        mineDigEffect?.let {
+                                            oneShotTileAnimationKey("mine_dig", it.position, it.turnNumber)
+                                        },
+                                    )
+                                if (mineDigEffect != null && shouldPlayMineDigAnimation) {
                                     MineDigAnimation(
                                         animate = AppSettings.enableAnimations.value,
                                         modifier = Modifier.fillMaxSize(),
@@ -3295,7 +3339,14 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show bomb explosion animation overlay on affected tiles (highest priority, above everything)
-    if (bombExplosion != null) {
+    val shouldPlayBombExplosionAnimation =
+        rememberShouldPlayOneShotTileAnimation(
+            gameState,
+            bombExplosion?.let {
+                oneShotTileAnimationKey("bomb_explosion", position, it.turnNumber, "${it.center.x},${it.center.y}")
+            },
+        )
+    if (bombExplosion != null && shouldPlayBombExplosionAnimation) {
         BombExplosionAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(20f),
@@ -3314,12 +3365,21 @@ private fun BoxScope.GridCellContent(
     // unit was killed.  The ghost disappears once the death animation has completed so that
     // the coin-gain animation plays on a clean tile.
     //
-    var showGhost by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
-        mutableStateOf(isDeathEffectActive)
+    val deathAnimationKey =
+        deathEffect?.let {
+            oneShotTileAnimationKey("enemy_death", it.position, it.turnNumber)
+        }
+    val towerImpactAnimationKey =
+        towerAttackEffect?.let {
+            oneShotTileAnimationKey("tower_attack_impact", it.targetPosition, it.turnNumber)
+        }
+    val shouldPlayDeathAnimation = rememberShouldPlayOneShotTileAnimation(gameState, deathAnimationKey)
+    var showGhost by remember(deathAnimationKey, towerImpactAnimationKey, shouldPlayDeathAnimation) {
+        mutableStateOf(isDeathEffectActive && shouldPlayDeathAnimation)
     }
     if (deathEffect != null) {
-        LaunchedEffect(deathEffect.turnNumber, deathEffect.position, towerAttackEffect?.turnNumber) {
-            if (isDeathEffectActive) {
+        LaunchedEffect(deathAnimationKey, towerImpactAnimationKey, shouldPlayDeathAnimation) {
+            if (isDeathEffectActive && shouldPlayDeathAnimation) {
                 showGhost = true
                 val arrowDelay =
                     when {
@@ -3376,12 +3436,12 @@ private fun BoxScope.GridCellContent(
         }
     }
 
-    var showDeathAnimation by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
+    var showDeathAnimation by remember(deathAnimationKey, towerImpactAnimationKey) {
         mutableStateOf(false)
     }
     if (deathEffect != null) {
-        LaunchedEffect(deathEffect.turnNumber, deathEffect.position, towerAttackEffect?.turnNumber) {
-            if (isDeathEffectActive) {
+        LaunchedEffect(deathAnimationKey, towerImpactAnimationKey, shouldPlayDeathAnimation) {
+            if (isDeathEffectActive && shouldPlayDeathAnimation) {
                 // Wait for both the projectile flight and the impact flash to finish before
                 // starting the death animation.  Also handles AoE secondary targets where
                 // towerAttackEffect is null but the tile is in the fireball/acid blast area.
@@ -3428,7 +3488,12 @@ private fun BoxScope.GridCellContent(
 
     // Show coin gain animation overlay after the full death-animation sequence has finished:
     // arrowDelay + impactDelay + deathDuration + post-death pause.
-    var showCoinAnimation by remember(coinGainEffect?.turnNumber, coinGainEffect?.position) {
+    val coinAnimationKey =
+        coinGainEffect?.let {
+            oneShotTileAnimationKey("coin_gain", it.position, it.turnNumber)
+        }
+    val shouldPlayCoinAnimation = rememberShouldPlayOneShotTileAnimation(gameState, coinAnimationKey)
+    var showCoinAnimation by remember(coinAnimationKey, towerImpactAnimationKey) {
         mutableStateOf(false)
     }
     // Track where this tile's coin-gain "bubbling" animation ends, in root coordinates, so a
@@ -3465,7 +3530,11 @@ private fun BoxScope.GridCellContent(
         )
     }
     if (coinGainEffect != null) {
-        LaunchedEffect(coinGainEffect.turnNumber, coinGainEffect.position, towerAttackEffect?.turnNumber) {
+        LaunchedEffect(coinAnimationKey, towerImpactAnimationKey, shouldPlayCoinAnimation) {
+            if (!shouldPlayCoinAnimation) {
+                showCoinAnimation = false
+                return@LaunchedEffect
+            }
             val arrowDelay =
                 when {
                     towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
@@ -3546,9 +3615,12 @@ private fun BoxScope.GridCellContent(
     // Show tower attack impact overlay when this tile was attacked.
     // When a projectile is targeting this tile the hit animation is delayed
     // so the projectile visibly arrives before the impact flash.
-    var showHitAnimation by remember(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition) {
+    val shouldPlayTowerImpactAnimation =
+        rememberShouldPlayOneShotTileAnimation(gameState, towerImpactAnimationKey)
+    var showHitAnimation by remember(towerImpactAnimationKey) {
         mutableStateOf(
-            towerAttackEffect != null &&
+            shouldPlayTowerImpactAnimation &&
+                towerAttackEffect != null &&
                 !isArrowTargetTile &&
                 !isBallistaTargetTile &&
                 !isBowTargetTile &&
@@ -3560,8 +3632,7 @@ private fun BoxScope.GridCellContent(
     }
     if (towerAttackEffect != null) {
         LaunchedEffect(
-            towerAttackEffect.turnNumber,
-            towerAttackEffect.targetPosition,
+            towerImpactAnimationKey,
             isArrowTargetTile,
             isBallistaTargetTile,
             isBowTargetTile,
@@ -3569,7 +3640,12 @@ private fun BoxScope.GridCellContent(
             isPikeTargetTile,
             isWizardTargetTile,
             isAlchemyTargetTile,
+            shouldPlayTowerImpactAnimation,
         ) {
+            if (!shouldPlayTowerImpactAnimation) {
+                showHitAnimation = false
+                return@LaunchedEffect
+            }
             when {
                 isArrowTargetTile -> {
                     kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
@@ -3615,7 +3691,14 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show enemy spawn portal overlay when an enemy just appeared at this position
-    if (enemySpawnEffect != null) {
+    val shouldPlayEnemySpawnAnimation =
+        rememberShouldPlayOneShotTileAnimation(
+            gameState,
+            enemySpawnEffect?.let {
+                oneShotTileAnimationKey("enemy_spawn", it.position, it.turnNumber)
+            },
+        )
+    if (enemySpawnEffect != null && shouldPlayEnemySpawnAnimation) {
         EnemySpawnAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(16f),
@@ -3625,7 +3708,14 @@ private fun BoxScope.GridCellContent(
     // Show trap trigger overlay when a trap was triggered at this position.
     // Uses a high z-index (21) to be visible even when the death animation is also showing
     // (which happens when the trap kills the enemy in the same turn).
-    if (trapTriggerEffect != null) {
+    val shouldPlayTrapTriggerAnimation =
+        rememberShouldPlayOneShotTileAnimation(
+            gameState,
+            trapTriggerEffect?.let {
+                oneShotTileAnimationKey("trap_trigger", it.position, it.turnNumber)
+            },
+        )
+    if (trapTriggerEffect != null && shouldPlayTrapTriggerAnimation) {
         TrapTriggerAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(21f),
@@ -3633,7 +3723,14 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show enemy movement trail when an enemy just left this tile during the enemy turn
-    if (enemyMoveEffect != null && attacker == null) {
+    val shouldPlayEnemyMoveAnimation =
+        rememberShouldPlayOneShotTileAnimation(
+            gameState,
+            enemyMoveEffect?.let {
+                oneShotTileAnimationKey("enemy_move", it.position, it.turnNumber)
+            },
+        )
+    if (enemyMoveEffect != null && attacker == null && shouldPlayEnemyMoveAnimation) {
         EnemyMoveAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(13f),
@@ -3641,7 +3738,14 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show dragon level change flash on the dragon's tile when its level changed
-    if (dragonLevelChangeEffect != null) {
+    val shouldPlayDragonLevelChangeAnimation =
+        rememberShouldPlayOneShotTileAnimation(
+            gameState,
+            dragonLevelChangeEffect?.let {
+                oneShotTileAnimationKey("dragon_level_change", it.position, it.turnNumber, if (it.isLevelUp) "up" else "down")
+            },
+        )
+    if (dragonLevelChangeEffect != null && shouldPlayDragonLevelChangeAnimation) {
         DragonLevelChangeAnimation(
             animate = AppSettings.enableAnimations.value,
             isLevelUp = dragonLevelChangeEffect.isLevelUp,
@@ -3650,7 +3754,19 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show arrow/bolt projectile on the source tower tile for ranged attacks
-    if (arrowAttackEffect != null) {
+    val shouldPlayArrowAttackAnimation =
+        rememberShouldPlayOneShotTileAnimation(
+            gameState,
+            arrowAttackEffect?.let {
+                oneShotTileAnimationKey(
+                    animationName = "arrow_attack",
+                    position = it.sourcePosition,
+                    turnNumber = it.turnNumber,
+                    suffix = "${it.targetPosition.x},${it.targetPosition.y}",
+                )
+            },
+        )
+    if (arrowAttackEffect != null && shouldPlayArrowAttackAnimation) {
         val dx = (arrowAttackEffect.targetPosition.x - arrowAttackEffect.sourcePosition.x).toFloat()
         val dy = (arrowAttackEffect.targetPosition.y - arrowAttackEffect.sourcePosition.y).toFloat()
         val angle =
