@@ -74,6 +74,8 @@ private val SNOTLING_DIAMOND_OFFSETS =
         Pair(0f, 2f),
     )
 
+private fun swarmIconCountForHealth(health: Int): Int = minOf(health.coerceAtLeast(1), SNOTLING_DIAMOND_OFFSETS.size)
+
 internal fun shouldShowSeafaringPirateBarge(
     attackerType: AttackerType,
     isRiverTile: Boolean,
@@ -157,7 +159,7 @@ fun EnemyIcon(
                     // Each icon is 20 % of goblin size; the grid is shifted up slightly to leave
                     // room for the HP counter that is always shown at the bottom.
                     val hp = healthOverride ?: attacker.currentHealth.value
-                    val count = minOf(hp, SNOTLING_DIAMOND_OFFSETS.size)
+                    val count = swarmIconCountForHealth(hp)
                     val snotlingSize = iconSize * 0.7f * SNOTLING_ICON_SCALE
                     val gridUnit = iconSize * 0.18f
                     val gridCenterY = centerY - iconSize * 0.06f
@@ -314,7 +316,7 @@ fun EnemyTypeIcon(
                 -> {
                     // Type previews use a single icon by default. For death ghosts we can pass a
                     // swarmCount to keep the full stack shape visible before the kill animation.
-                    val count = if (swarmCount != null) minOf(swarmCount, SNOTLING_DIAMOND_OFFSETS.size) else 1
+                    val count = if (swarmCount != null) swarmIconCountForHealth(swarmCount) else 1
                     if (count == 1) {
                         when (attackerType) {
                             AttackerType.SPIDERLING -> drawSpiderlingSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
