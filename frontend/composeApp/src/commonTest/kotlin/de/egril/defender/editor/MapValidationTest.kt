@@ -61,6 +61,7 @@ class MapValidationTest {
                 height = 10,
                 tiles = tiles,
                 readyToUse = false,
+                allowNoBuildableTiles = true,
             )
 
         assertTrue(map.validateReadyToUse(), "Map with all spawn points connected should be valid")
