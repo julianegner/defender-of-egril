@@ -450,7 +450,9 @@ private fun RiftPortalOverlay(
         val oddRowOffset = if (pos.y % 2 == 1) oddOffsetPx else 0f
         return androidx.compose.ui.geometry.Offset(
             pos.x * (hexWidthPx + colSpacingPx) + hexWidthPx / 2f + oddRowOffset,
-            pos.y * (hexHeightPx + rowSpacingPx) + hexHeightPx / 2f,
+            // Apply the same per-row visual correction as HexagonalMapView's
+            // `.offset(y = (-(y - 1)).dp)` modifier on each Row.
+            pos.y * (hexHeightPx + rowSpacingPx) + hexHeightPx / 2f - (pos.y - 1) * density,
         )
     }
 

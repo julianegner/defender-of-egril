@@ -141,6 +141,19 @@ class Movement(
                     }
                 }
 
+                // Zythar stays near the back and only advances when a portal exit is close
+                // to a target (≤ PORTAL_NEAR_TARGET_DISTANCE tiles). The pathfinding already
+                // routes him through the nearest portal entry when one qualifies.
+                if (attacker.type == AttackerType.ZYTHAR_THE_RIFTCALLER) {
+                    val activeTargets = state.getActiveTargetPositions()
+                    val hasQualifyingPortal = state.activePortals.any { portal ->
+                        activeTargets.any { target ->
+                            portal.exitPosition.hexDistanceTo(target) <= Portal.PORTAL_NEAR_TARGET_DISTANCE
+                        }
+                    }
+                    if (!hasQualifyingPortal) continue
+                }
+
                 val isFeared = fearedAttackerIds.contains(attacker.id)
                 val target =
                     if (isFeared) {
