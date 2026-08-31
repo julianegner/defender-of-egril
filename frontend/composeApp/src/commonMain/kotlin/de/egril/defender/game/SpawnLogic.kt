@@ -13,6 +13,7 @@ import de.egril.defender.model.GameState
 import de.egril.defender.model.Position
 import de.egril.defender.model.isUniqueEnemyAlreadyPresent
 import de.egril.defender.model.isRealVillain
+import de.egril.defender.model.isSwarmUnit
 
 class SpawnLogic(
     private val state: GameState,
@@ -60,7 +61,7 @@ class SpawnLogic(
                     position = spawnPos,
                     turnNumber = state.turnNumber.value,
                     attackerType = pending.attackerType,
-                    suppressPortalAnimation = pending.attackerType == AttackerType.SKELETON,
+                    suppressPortalAnimation = pending.attackerType == AttackerType.SKELETON || pending.attackerType.isSwarmUnit(),
                 ),
             )
         }

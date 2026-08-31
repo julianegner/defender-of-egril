@@ -3919,7 +3919,7 @@ private fun BoxScope.GridCellContent(
                 oneShotTileAnimationKey("enemy_spawn", it.position, it.turnNumber)
             },
         )
-    if (enemySpawnEffect != null && shouldPlayEnemySpawnAnimation) {
+    if (enemySpawnEffect != null && shouldPlayEnemySpawnAnimation && enemySpawnEffect.suppressPortalAnimation != true) {
         EnemySpawnAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(16f),

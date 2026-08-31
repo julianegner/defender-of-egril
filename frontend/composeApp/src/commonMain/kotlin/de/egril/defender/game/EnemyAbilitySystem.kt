@@ -1261,6 +1261,7 @@ class EnemyAbilitySystem(
                     position = spawnPos,
                     turnNumber = state.turnNumber.value,
                     attackerType = AttackerType.SPIDERLING,
+                    suppressPortalAnimation = true,
                 ),
             )
         }
