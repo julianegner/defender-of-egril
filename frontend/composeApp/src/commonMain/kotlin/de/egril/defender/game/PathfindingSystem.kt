@@ -307,29 +307,30 @@ class PathfindingSystem(
         val canUseRiver = attacker?.type?.canTraverseRiver == true
         val isWaterOnly = attacker?.type?.canOnlyMoveOnWater == true
         // Use hexagonal neighbors instead of square grid
-        val hexNeighbors = pos.getHexNeighbors().filter { neighbor ->
-            neighbor.x >= 0 &&
-                neighbor.x < state.level.gridWidth &&
-                neighbor.y >= 0 &&
-                neighbor.y < state.level.gridHeight &&
-                (
-                    if (isWaterOnly) {
-                        // Water-only enemies (e.g. The Kraken) may ONLY traverse river tiles.
-                        state.level.isRiverTile(neighbor)
-                    } else {
-                        state.level.isOnPath(neighbor) ||
-                            state.level.isTargetPosition(neighbor) ||
-                            isGoalMineForDragon(neighbor, goal, attacker) ||
-                            isDestroyedMinePosition(neighbor) ||
-                            state.isBridgeAt(neighbor) ||
-                            // River-traversal units (e.g. Cap'n Roderich) can navigate over river tiles.
-                            (canUseRiver && state.level.isRiverTile(neighbor))
-                    }
-                ) &&
-                // Bridges are walkable for enemies
-                !isBlocked(neighbor, attacker, ignoreBarricades, search) &&
-                !excludedPositions.contains(neighbor) // Exclude specified positions
-        }
+        val hexNeighbors =
+            pos.getHexNeighbors().filter { neighbor ->
+                neighbor.x >= 0 &&
+                    neighbor.x < state.level.gridWidth &&
+                    neighbor.y >= 0 &&
+                    neighbor.y < state.level.gridHeight &&
+                    (
+                        if (isWaterOnly) {
+                            // Water-only enemies (e.g. The Kraken) may ONLY traverse river tiles.
+                            state.level.isRiverTile(neighbor)
+                        } else {
+                            state.level.isOnPath(neighbor) ||
+                                state.level.isTargetPosition(neighbor) ||
+                                isGoalMineForDragon(neighbor, goal, attacker) ||
+                                isDestroyedMinePosition(neighbor) ||
+                                state.isBridgeAt(neighbor) ||
+                                // River-traversal units (e.g. Cap'n Roderich) can navigate over river tiles.
+                                (canUseRiver && state.level.isRiverTile(neighbor))
+                        }
+                    ) &&
+                    // Bridges are walkable for enemies
+                    !isBlocked(neighbor, attacker, ignoreBarricades, search) &&
+                    !excludedPositions.contains(neighbor) // Exclude specified positions
+            }
 
         // Portal shortcuts: if pos is a portal entry tile, the exit-adjacent path tiles are
         // reachable in one step (actual teleportation is applied in Movement.applyMovement).

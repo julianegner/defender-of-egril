@@ -286,6 +286,7 @@ class GameEngine(
     ): Boolean = barricadeLogic.attackBarricade(newPosition, attacker)
 
     fun getBarricadeDamageForEnemyUnit(attacker: Attacker): Int = barricadeLogic.getBarricadeDamageForEnemyUnit(attacker)
+
     fun startEnemyTurn() = turnLifecycleLogic.startEnemyTurn()
 
     /**
@@ -306,7 +307,6 @@ class GameEngine(
      * Complete enemy turn: apply effects and start player turn.
      */
     fun completeEnemyTurn() = turnLifecycleLogic.completeEnemyTurn()
-
 
     /**
      * Get effective level for a defender, accounting for active spell buffs
@@ -348,9 +348,7 @@ class GameEngine(
     /**
      * Cheat code to spawn a dragon from a random dwarven mine
      */
-    fun spawnDragonCheat(): Boolean {
-        return dragonLogic.spawnDragonCheat()
-    }
+    fun spawnDragonCheat(): Boolean = dragonLogic.spawnDragonCheat()
 
     /**
      * Set callback for combat results (for achievements)

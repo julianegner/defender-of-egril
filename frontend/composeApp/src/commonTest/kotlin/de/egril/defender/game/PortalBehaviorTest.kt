@@ -303,7 +303,8 @@ class PortalBehaviorTest {
         state.attackers.add(zythar)
 
         val landingDistance =
-            exit.getHexNeighbors()
+            exit
+                .getHexNeighbors()
                 .minOf { neighbor -> neighbor.hexDistanceTo(target) }
 
         val engine = GameEngine(state)

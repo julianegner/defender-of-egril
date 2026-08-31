@@ -46,6 +46,5 @@ class WaaghLogic(
         }
     }
 
-    fun getBarricadeFrenzyMultiplier(attacker: Attacker): Int =
-        if (state.waaghFrenzyActive.value && attacker.type in setOf(AttackerType.ORK, AttackerType.OGRE)) 2 else 1
+    fun getBarricadeFrenzyMultiplier(attacker: Attacker): Int = if (state.waaghFrenzyActive.value && attacker.type in setOf(AttackerType.ORK, AttackerType.OGRE)) 2 else 1
 }

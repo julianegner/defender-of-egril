@@ -2237,7 +2237,9 @@ class EnemyAbilitySystem(
         val spawnPos = validPositions.random()
         val inheritedTarget =
             zythar.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
-                state.level.waypoints.first().nextTarget
+                state.level.waypoints
+                    .first()
+                    .nextTarget
             } else {
                 state.level.targetPositions.first()
             }
@@ -2281,9 +2283,10 @@ class EnemyAbilitySystem(
 
         // Find the reference distance: min dist-to-target for all existing portal exits and Zythar
         val zythar = state.attackers.firstOrNull { !it.isDefeated.value && it.type == AttackerType.ZYTHAR_THE_RIFTCALLER }
-        val portalExitDists = state.activePortals.map { portal ->
-            activeTargets.minOfOrNull { portal.exitPosition.hexDistanceTo(it) } ?: Int.MAX_VALUE
-        }
+        val portalExitDists =
+            state.activePortals.map { portal ->
+                activeTargets.minOfOrNull { portal.exitPosition.hexDistanceTo(it) } ?: Int.MAX_VALUE
+            }
         val referenceDist: Int =
             if (zythar != null) {
                 val zytharDist = activeTargets.minOfOrNull { zythar.position.value.hexDistanceTo(it) } ?: Int.MAX_VALUE

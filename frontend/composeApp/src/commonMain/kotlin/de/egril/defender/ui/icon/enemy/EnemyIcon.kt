@@ -166,24 +166,27 @@ fun EnemyIcon(
                     for (i in 0 until count) {
                         val (xFactor, yFactor) = SNOTLING_DIAMOND_OFFSETS[i]
                         when (attacker.type) {
-                            AttackerType.SPIDERLING -> drawSpiderlingSymbol(
-                                centerX + xFactor * gridUnit,
-                                gridCenterY + yFactor * gridUnit,
-                                snotlingSize,
-                                headScale = headScale,
-                            )
-                            AttackerType.DEMONLING -> drawDemonlingSymbol(
-                                centerX + xFactor * gridUnit,
-                                gridCenterY + yFactor * gridUnit,
-                                snotlingSize,
-                                headScale = headScale,
-                            )
-                            else -> drawGoblinSymbol(
-                                centerX + xFactor * gridUnit,
-                                gridCenterY + yFactor * gridUnit,
-                                snotlingSize,
-                                headScale = headScale,
-                            )
+                            AttackerType.SPIDERLING ->
+                                drawSpiderlingSymbol(
+                                    centerX + xFactor * gridUnit,
+                                    gridCenterY + yFactor * gridUnit,
+                                    snotlingSize,
+                                    headScale = headScale,
+                                )
+                            AttackerType.DEMONLING ->
+                                drawDemonlingSymbol(
+                                    centerX + xFactor * gridUnit,
+                                    gridCenterY + yFactor * gridUnit,
+                                    snotlingSize,
+                                    headScale = headScale,
+                                )
+                            else ->
+                                drawGoblinSymbol(
+                                    centerX + xFactor * gridUnit,
+                                    gridCenterY + yFactor * gridUnit,
+                                    snotlingSize,
+                                    headScale = headScale,
+                                )
                         }
                     }
                 }
@@ -335,24 +338,27 @@ fun EnemyTypeIcon(
                         for (i in 0 until count) {
                             val (xFactor, yFactor) = SNOTLING_DIAMOND_OFFSETS[i]
                             when (attackerType) {
-                                AttackerType.SPIDERLING -> drawSpiderlingSymbol(
-                                    centerX + xFactor * gridUnit,
-                                    gridCenterY + yFactor * gridUnit,
-                                    swarmIconSize,
-                                    headScale = headScale,
-                                )
-                                AttackerType.DEMONLING -> drawDemonlingSymbol(
-                                    centerX + xFactor * gridUnit,
-                                    gridCenterY + yFactor * gridUnit,
-                                    swarmIconSize,
-                                    headScale = headScale,
-                                )
-                                else -> drawGoblinSymbol(
-                                    centerX + xFactor * gridUnit,
-                                    gridCenterY + yFactor * gridUnit,
-                                    swarmIconSize,
-                                    headScale = headScale,
-                                )
+                                AttackerType.SPIDERLING ->
+                                    drawSpiderlingSymbol(
+                                        centerX + xFactor * gridUnit,
+                                        gridCenterY + yFactor * gridUnit,
+                                        swarmIconSize,
+                                        headScale = headScale,
+                                    )
+                                AttackerType.DEMONLING ->
+                                    drawDemonlingSymbol(
+                                        centerX + xFactor * gridUnit,
+                                        gridCenterY + yFactor * gridUnit,
+                                        swarmIconSize,
+                                        headScale = headScale,
+                                    )
+                                else ->
+                                    drawGoblinSymbol(
+                                        centerX + xFactor * gridUnit,
+                                        gridCenterY + yFactor * gridUnit,
+                                        swarmIconSize,
+                                        headScale = headScale,
+                                    )
                             }
                         }
                     }

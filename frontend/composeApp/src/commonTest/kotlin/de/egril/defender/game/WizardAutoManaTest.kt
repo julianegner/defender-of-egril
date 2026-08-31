@@ -24,7 +24,6 @@ import kotlin.test.assertTrue
  * should appear in the "special actions remaining" warning list instead.
  */
 class WizardAutoManaTest {
-
     private fun createLevel(): Level {
         val allCells = (0 until 10).flatMap { x -> (0 until 10).map { y -> Position(x, y) } }.toSet()
         return Level(
@@ -73,8 +72,10 @@ class WizardAutoManaTest {
         trapCooldownRemaining = mutableStateOf(trapCooldown),
     )
 
-    private fun goblin(id: Int, position: Position) =
-        Attacker(id, AttackerType.GOBLIN, mutableStateOf(position), mutableStateOf(20))
+    private fun goblin(
+        id: Int,
+        position: Position,
+    ) = Attacker(id, AttackerType.GOBLIN, mutableStateOf(position), mutableStateOf(20))
 
     // -----------------------------------------------------------------------
 

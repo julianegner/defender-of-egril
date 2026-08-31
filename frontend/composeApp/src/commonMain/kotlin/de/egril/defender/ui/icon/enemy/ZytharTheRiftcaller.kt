@@ -144,16 +144,20 @@ fun DrawScope.drawDemonlingSymbol(
             Path().apply {
                 moveTo(centerX - size * 0.08f, headCenterY - size * 0.18f)
                 quadraticTo(
-                    centerX - size * 0.18f, headCenterY - size * 0.36f,
-                    centerX - size * 0.10f, headCenterY - size * 0.40f,
+                    centerX - size * 0.18f,
+                    headCenterY - size * 0.36f,
+                    centerX - size * 0.10f,
+                    headCenterY - size * 0.40f,
                 )
             }
         val rightHornPath =
             Path().apply {
                 moveTo(centerX + size * 0.08f, headCenterY - size * 0.18f)
                 quadraticTo(
-                    centerX + size * 0.18f, headCenterY - size * 0.36f,
-                    centerX + size * 0.10f, headCenterY - size * 0.40f,
+                    centerX + size * 0.18f,
+                    headCenterY - size * 0.36f,
+                    centerX + size * 0.10f,
+                    headCenterY - size * 0.40f,
                 )
             }
         drawPath(leftHornPath, hornColor, style = Stroke(width = 3f, cap = StrokeCap.Round))

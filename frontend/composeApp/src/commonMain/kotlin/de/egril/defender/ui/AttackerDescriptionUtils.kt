@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import defender_of_egril.composeapp.generated.resources.Res
-import defender_of_egril.composeapp.generated.resources.demonling_description
 import defender_of_egril.composeapp.generated.resources.blue_demon_description
+import defender_of_egril.composeapp.generated.resources.demonling_description
 import defender_of_egril.composeapp.generated.resources.dragon_description
 import defender_of_egril.composeapp.generated.resources.evil_wizard_description
 import defender_of_egril.composeapp.generated.resources.ghost_description

@@ -1,8 +1,8 @@
 package de.egril.defender.game
 
+import de.egril.defender.model.AttackType
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
-import de.egril.defender.model.AttackType
 import de.egril.defender.model.Defender
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Position

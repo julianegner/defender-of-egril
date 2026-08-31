@@ -4,9 +4,9 @@ import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.SupportObject
 import de.egril.defender.model.SupportObjectType
-import de.egril.defender.model.SpawnPointType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -109,7 +109,7 @@ class EditorStorageTest {
             )
         assertTrue(readyLevel.isReadyToPlay())
 
-            // Level without towers - should not be ready unless fallback setup exists
+        // Level without towers - should not be ready unless fallback setup exists
         val noTowersLevel =
             EditorLevel(
                 id = "no_towers",

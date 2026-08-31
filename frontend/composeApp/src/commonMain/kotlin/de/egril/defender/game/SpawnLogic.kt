@@ -11,9 +11,9 @@ import de.egril.defender.model.GameMessage
 import de.egril.defender.model.GameMessageType
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Position
-import de.egril.defender.model.isUniqueEnemyAlreadyPresent
 import de.egril.defender.model.isRealVillain
 import de.egril.defender.model.isSwarmUnit
+import de.egril.defender.model.isUniqueEnemyAlreadyPresent
 
 class SpawnLogic(
     private val state: GameState,

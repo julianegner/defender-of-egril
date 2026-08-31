@@ -89,8 +89,9 @@ fun InitialSetupTab(
                     val tileLabel = stringResource(Res.string.initial_setup_tile)
                     val pos = hoveredTilePosition
                     Text(
-                        text = stringResource(Res.string.initial_setup_click_to_place) +
-                            if (pos != null) "  $tileLabel (${pos.x}, ${pos.y})" else "",
+                        text =
+                            stringResource(Res.string.initial_setup_click_to_place) +
+                                if (pos != null) "  $tileLabel (${pos.x}, ${pos.y})" else "",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
                     )

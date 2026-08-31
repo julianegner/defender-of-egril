@@ -156,7 +156,10 @@ private fun rememberShouldPlayOneShotTileAnimation(
     return shouldPlay
 }
 
-internal fun ghostSwarmCount(attackerType: AttackerType, displayedHealth: Int): Int? =
+internal fun ghostSwarmCount(
+    attackerType: AttackerType,
+    displayedHealth: Int,
+): Int? =
     if (attackerType.isSwarmUnit()) {
         displayedHealth.coerceAtLeast(1)
     } else {
@@ -474,141 +477,218 @@ private fun RiftPortalOverlay(
      *  18=ᛖ Ehwaz   19=ᛗ Mannaz  20=ᛚ Laguz   21=ᛜ Ingwaz   22=ᛞ Dagaz  23=ᛟ Othala
      */
     @Suppress("MagicNumber")
-    fun runePathFor(index: Int, cx: Float, cy: Float, r: Float): androidx.compose.ui.graphics.Path =
+    fun runePathFor(
+        index: Int,
+        cx: Float,
+        cy: Float,
+        r: Float,
+    ): androidx.compose.ui.graphics.Path =
         androidx.compose.ui.graphics.Path().apply {
             when (index % de.egril.defender.model.Portal.RUNE_POOL_SIZE) {
                 0 -> { // ᚠ Fehu – staff + two rightward branches
-                    moveTo(cx, cy - r); lineTo(cx, cy + r)
-                    moveTo(cx, cy - r * 0.55f); lineTo(cx + r * 0.75f, cy - r * 0.15f)
-                    moveTo(cx, cy + r * 0.05f); lineTo(cx + r * 0.75f, cy + r * 0.45f)
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r * 0.55f)
+                    lineTo(cx + r * 0.75f, cy - r * 0.15f)
+                    moveTo(cx, cy + r * 0.05f)
+                    lineTo(cx + r * 0.75f, cy + r * 0.45f)
                 }
                 1 -> { // ᚢ Uruz – two legs, arched top
-                    moveTo(cx - r * 0.4f, cy - r); lineTo(cx - r * 0.4f, cy + r)
-                    moveTo(cx + r * 0.4f, cy - r * 0.2f); lineTo(cx + r * 0.4f, cy + r)
-                    moveTo(cx - r * 0.4f, cy - r); lineTo(cx + r * 0.4f, cy - r * 0.2f)
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx - r * 0.4f, cy + r)
+                    moveTo(cx + r * 0.4f, cy - r * 0.2f)
+                    lineTo(cx + r * 0.4f, cy + r)
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx + r * 0.4f, cy - r * 0.2f)
                 }
                 2 -> { // ᚦ Thurisaz – staff + rightward thorn (diamond lobe)
-                    moveTo(cx, cy - r); lineTo(cx, cy + r)
-                    moveTo(cx, cy - r * 0.3f); lineTo(cx + r * 0.8f, cy + r * 0.25f)
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r * 0.3f)
+                    lineTo(cx + r * 0.8f, cy + r * 0.25f)
                     lineTo(cx, cy + r * 0.2f)
                 }
                 3 -> { // ᚨ Ansuz – staff + two leftward branches pointing down
-                    moveTo(cx, cy - r); lineTo(cx, cy + r)
-                    moveTo(cx, cy - r * 0.3f); lineTo(cx - r * 0.7f, cy + r * 0.1f)
-                    moveTo(cx, cy + r * 0.2f); lineTo(cx - r * 0.7f, cy + r * 0.6f)
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r * 0.3f)
+                    lineTo(cx - r * 0.7f, cy + r * 0.1f)
+                    moveTo(cx, cy + r * 0.2f)
+                    lineTo(cx - r * 0.7f, cy + r * 0.6f)
                 }
                 4 -> { // ᚱ Raido – staff + two rightward legs from upper half
-                    moveTo(cx, cy - r); lineTo(cx, cy + r)
-                    moveTo(cx, cy - r); lineTo(cx + r * 0.85f, cy - r * 0.1f)
-                    lineTo(cx, cy + r * 0.1f); lineTo(cx + r * 0.85f, cy + r)
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r)
+                    lineTo(cx + r * 0.85f, cy - r * 0.1f)
+                    lineTo(cx, cy + r * 0.1f)
+                    lineTo(cx + r * 0.85f, cy + r)
                 }
                 5 -> { // ᚲ Kenaz – staff + short rightward diagonal at bottom
-                    moveTo(cx, cy - r); lineTo(cx, cy + r)
-                    moveTo(cx, cy + r); lineTo(cx + r * 0.7f, cy + r * 0.3f)
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy + r)
+                    lineTo(cx + r * 0.7f, cy + r * 0.3f)
                 }
                 6 -> { // ᚷ Gebo – X cross
-                    moveTo(cx - r * 0.6f, cy - r); lineTo(cx + r * 0.6f, cy + r)
-                    moveTo(cx + r * 0.6f, cy - r); lineTo(cx - r * 0.6f, cy + r)
+                    moveTo(cx - r * 0.6f, cy - r)
+                    lineTo(cx + r * 0.6f, cy + r)
+                    moveTo(cx + r * 0.6f, cy - r)
+                    lineTo(cx - r * 0.6f, cy + r)
                 }
                 7 -> { // ᚹ Wunjo – staff + rightward flag at the top
-                    moveTo(cx, cy - r); lineTo(cx, cy + r)
-                    moveTo(cx, cy - r); lineTo(cx + r * 0.7f, cy - r * 0.4f)
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r)
+                    lineTo(cx + r * 0.7f, cy - r * 0.4f)
                     lineTo(cx, cy - r * 0.2f)
                 }
                 8 -> { // ᚺ Hagalaz – two diagonals crossing + short horizontal bar
-                    moveTo(cx - r * 0.5f, cy - r); lineTo(cx - r * 0.5f, cy + r)
-                    moveTo(cx + r * 0.5f, cy - r); lineTo(cx + r * 0.5f, cy + r)
-                    moveTo(cx - r * 0.5f, cy); lineTo(cx + r * 0.5f, cy)
+                    moveTo(cx - r * 0.5f, cy - r)
+                    lineTo(cx - r * 0.5f, cy + r)
+                    moveTo(cx + r * 0.5f, cy - r)
+                    lineTo(cx + r * 0.5f, cy + r)
+                    moveTo(cx - r * 0.5f, cy)
+                    lineTo(cx + r * 0.5f, cy)
                 }
                 9 -> { // ᚾ Nauthiz – staff + crossing diagonal brace
-                    moveTo(cx - r * 0.4f, cy - r); lineTo(cx - r * 0.4f, cy + r)
-                    moveTo(cx + r * 0.4f, cy - r); lineTo(cx + r * 0.4f, cy + r)
-                    moveTo(cx - r * 0.4f, cy - r * 0.3f); lineTo(cx + r * 0.4f, cy + r * 0.3f)
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx - r * 0.4f, cy + r)
+                    moveTo(cx + r * 0.4f, cy - r)
+                    lineTo(cx + r * 0.4f, cy + r)
+                    moveTo(cx - r * 0.4f, cy - r * 0.3f)
+                    lineTo(cx + r * 0.4f, cy + r * 0.3f)
                 }
                 10 -> { // ᛁ Isa – single vertical staff
-                    moveTo(cx, cy - r); lineTo(cx, cy + r)
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
                 }
                 11 -> { // ᛃ Jera – two opposing angled chevrons (top-right, bottom-left)
-                    moveTo(cx - r * 0.5f, cy - r); lineTo(cx + r * 0.5f, cy - r * 0.3f)
+                    moveTo(cx - r * 0.5f, cy - r)
+                    lineTo(cx + r * 0.5f, cy - r * 0.3f)
                     lineTo(cx - r * 0.5f, cy + r * 0.3f)
-                    moveTo(cx + r * 0.5f, cy - r * 0.3f); lineTo(cx + r * 0.5f, cy + r)
+                    moveTo(cx + r * 0.5f, cy - r * 0.3f)
+                    lineTo(cx + r * 0.5f, cy + r)
                     lineTo(cx - r * 0.5f, cy + r * 0.3f)
                 }
                 12 -> { // ᛇ Eihwaz – staff + small branches each side near top and bottom
-                    moveTo(cx, cy - r); lineTo(cx, cy + r)
-                    moveTo(cx, cy - r * 0.5f); lineTo(cx - r * 0.55f, cy - r)
-                    moveTo(cx, cy + r * 0.5f); lineTo(cx + r * 0.55f, cy + r)
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r * 0.5f)
+                    lineTo(cx - r * 0.55f, cy - r)
+                    moveTo(cx, cy + r * 0.5f)
+                    lineTo(cx + r * 0.55f, cy + r)
                 }
                 13 -> { // ᛈ Perthro – open cup/bowl facing right (staff + two horizontal arms)
-                    moveTo(cx - r * 0.4f, cy - r); lineTo(cx - r * 0.4f, cy + r)
-                    moveTo(cx - r * 0.4f, cy - r); lineTo(cx + r * 0.55f, cy - r * 0.5f)
-                    moveTo(cx - r * 0.4f, cy + r); lineTo(cx + r * 0.55f, cy + r * 0.5f)
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx - r * 0.4f, cy + r)
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx + r * 0.55f, cy - r * 0.5f)
+                    moveTo(cx - r * 0.4f, cy + r)
+                    lineTo(cx + r * 0.55f, cy + r * 0.5f)
                 }
                 14 -> { // ᛉ Algiz – staff + upward Y fork at the top
-                    moveTo(cx, cy + r); lineTo(cx, cy - r * 0.2f)
-                    moveTo(cx, cy - r * 0.2f); lineTo(cx - r * 0.6f, cy - r)
-                    moveTo(cx, cy - r * 0.2f); lineTo(cx + r * 0.6f, cy - r)
+                    moveTo(cx, cy + r)
+                    lineTo(cx, cy - r * 0.2f)
+                    moveTo(cx, cy - r * 0.2f)
+                    lineTo(cx - r * 0.6f, cy - r)
+                    moveTo(cx, cy - r * 0.2f)
+                    lineTo(cx + r * 0.6f, cy - r)
                 }
                 15 -> { // ᛊ Sowilo – two diagonal strokes forming a lightning-bolt S
-                    moveTo(cx + r * 0.5f, cy - r); lineTo(cx - r * 0.5f, cy - r * 0.2f)
-                    lineTo(cx + r * 0.5f, cy + r * 0.2f); lineTo(cx - r * 0.5f, cy + r)
+                    moveTo(cx + r * 0.5f, cy - r)
+                    lineTo(cx - r * 0.5f, cy - r * 0.2f)
+                    lineTo(cx + r * 0.5f, cy + r * 0.2f)
+                    lineTo(cx - r * 0.5f, cy + r)
                 }
                 16 -> { // ᛏ Tiwaz – upward arrow / spear
-                    moveTo(cx, cy - r); lineTo(cx, cy + r)
-                    moveTo(cx, cy - r); lineTo(cx - r * 0.6f, cy - r * 0.3f)
-                    moveTo(cx, cy - r); lineTo(cx + r * 0.6f, cy - r * 0.3f)
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r)
+                    lineTo(cx - r * 0.6f, cy - r * 0.3f)
+                    moveTo(cx, cy - r)
+                    lineTo(cx + r * 0.6f, cy - r * 0.3f)
                 }
                 17 -> { // ᛒ Berkano – staff + two rightward bumps (upper and lower)
-                    moveTo(cx, cy - r); lineTo(cx, cy + r)
-                    moveTo(cx, cy - r); lineTo(cx + r * 0.65f, cy - r * 0.45f)
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r)
+                    lineTo(cx + r * 0.65f, cy - r * 0.45f)
                     lineTo(cx, cy)
-                    moveTo(cx, cy); lineTo(cx + r * 0.65f, cy + r * 0.45f)
+                    moveTo(cx, cy)
+                    lineTo(cx + r * 0.65f, cy + r * 0.45f)
                     lineTo(cx, cy + r)
                 }
                 18 -> { // ᛖ Ehwaz – two opposing E-like strokes (left and right)
-                    moveTo(cx - r * 0.4f, cy - r); lineTo(cx - r * 0.4f, cy + r)
-                    moveTo(cx + r * 0.4f, cy - r); lineTo(cx + r * 0.4f, cy + r)
-                    moveTo(cx - r * 0.4f, cy); lineTo(cx + r * 0.4f, cy)
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx - r * 0.4f, cy + r)
+                    moveTo(cx + r * 0.4f, cy - r)
+                    lineTo(cx + r * 0.4f, cy + r)
+                    moveTo(cx - r * 0.4f, cy)
+                    lineTo(cx + r * 0.4f, cy)
                 }
                 19 -> { // ᛗ Mannaz – two staffs + X brace between them
-                    moveTo(cx - r * 0.4f, cy - r); lineTo(cx - r * 0.4f, cy + r)
-                    moveTo(cx + r * 0.4f, cy - r); lineTo(cx + r * 0.4f, cy + r)
-                    moveTo(cx - r * 0.4f, cy - r); lineTo(cx + r * 0.4f, cy - r * 0.2f)
-                    moveTo(cx + r * 0.4f, cy - r); lineTo(cx - r * 0.4f, cy - r * 0.2f)
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx - r * 0.4f, cy + r)
+                    moveTo(cx + r * 0.4f, cy - r)
+                    lineTo(cx + r * 0.4f, cy + r)
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx + r * 0.4f, cy - r * 0.2f)
+                    moveTo(cx + r * 0.4f, cy - r)
+                    lineTo(cx - r * 0.4f, cy - r * 0.2f)
                 }
                 20 -> { // ᛚ Laguz – staff + single leftward diagonal pointing down
-                    moveTo(cx, cy - r); lineTo(cx, cy + r)
-                    moveTo(cx, cy - r * 0.1f); lineTo(cx - r * 0.7f, cy + r * 0.5f)
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r * 0.1f)
+                    lineTo(cx - r * 0.7f, cy + r * 0.5f)
                 }
                 21 -> { // ᛜ Ingwaz – diamond shape
-                    moveTo(cx, cy - r); lineTo(cx + r * 0.7f, cy)
-                    lineTo(cx, cy + r); lineTo(cx - r * 0.7f, cy); close()
+                    moveTo(cx, cy - r)
+                    lineTo(cx + r * 0.7f, cy)
+                    lineTo(cx, cy + r)
+                    lineTo(cx - r * 0.7f, cy)
+                    close()
                 }
                 22 -> { // ᛞ Dagaz – horizontal infinity / bow-tie
-                    moveTo(cx - r * 0.6f, cy - r); lineTo(cx + r * 0.6f, cy + r)
-                    moveTo(cx + r * 0.6f, cy - r); lineTo(cx - r * 0.6f, cy + r)
-                    moveTo(cx - r * 0.6f, cy - r); lineTo(cx - r * 0.6f, cy + r)
-                    moveTo(cx + r * 0.6f, cy - r); lineTo(cx + r * 0.6f, cy + r)
+                    moveTo(cx - r * 0.6f, cy - r)
+                    lineTo(cx + r * 0.6f, cy + r)
+                    moveTo(cx + r * 0.6f, cy - r)
+                    lineTo(cx - r * 0.6f, cy + r)
+                    moveTo(cx - r * 0.6f, cy - r)
+                    lineTo(cx - r * 0.6f, cy + r)
+                    moveTo(cx + r * 0.6f, cy - r)
+                    lineTo(cx + r * 0.6f, cy + r)
                 }
                 else -> { // 23: ᛟ Othala – diamond with two descending legs
-                    moveTo(cx, cy - r); lineTo(cx + r * 0.6f, cy)
-                    lineTo(cx, cy + r * 0.3f); lineTo(cx - r * 0.6f, cy); close()
-                    moveTo(cx - r * 0.3f, cy + r * 0.3f); lineTo(cx - r * 0.6f, cy + r)
-                    moveTo(cx + r * 0.3f, cy + r * 0.3f); lineTo(cx + r * 0.6f, cy + r)
+                    moveTo(cx, cy - r)
+                    lineTo(cx + r * 0.6f, cy)
+                    lineTo(cx, cy + r * 0.3f)
+                    lineTo(cx - r * 0.6f, cy)
+                    close()
+                    moveTo(cx - r * 0.3f, cy + r * 0.3f)
+                    lineTo(cx - r * 0.6f, cy + r)
+                    moveTo(cx + r * 0.3f, cy + r * 0.3f)
+                    lineTo(cx + r * 0.6f, cy + r)
                 }
             }
         }
 
-    val entryColor = androidx.compose.ui.graphics.Color(0xFF2080FF)
-    val exitColor = androidx.compose.ui.graphics.Color(0xFFFF7000)
+    val entryColor =
+        androidx.compose.ui.graphics
+            .Color(0xFF2080FF)
+    val exitColor =
+        androidx.compose.ui.graphics
+            .Color(0xFFFF7000)
     val glowAlpha = 0.25f
     val runeSize = hexSizePx * 0.55f
     val runeR = runeSize * 0.30f
-    val runeStroke = androidx.compose.ui.graphics.drawscope.Stroke(
-        width = 2.5f,
-        cap = androidx.compose.ui.graphics.StrokeCap.Round,
-        join = androidx.compose.ui.graphics.StrokeJoin.Round,
-    )
+    val runeStroke =
+        androidx.compose.ui.graphics.drawscope.Stroke(
+            width = 2.5f,
+            cap = androidx.compose.ui.graphics.StrokeCap.Round,
+            join = androidx.compose.ui.graphics.StrokeJoin.Round,
+        )
 
     val contentWidthDp = (contentSize.width / density).dp
     val contentHeightDp = (contentSize.height / density).dp
@@ -622,7 +702,9 @@ private fun RiftPortalOverlay(
                 color = entryColor,
                 radius = runeSize * 0.42f,
                 center = ec,
-                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f),
+                style =
+                    androidx.compose.ui.graphics.drawscope
+                        .Stroke(width = 3f),
             )
             drawPath(runePathFor(portal.runeIndex, ec.x, ec.y, runeR), color = entryColor, style = runeStroke)
 
@@ -633,7 +715,9 @@ private fun RiftPortalOverlay(
                 color = exitColor,
                 radius = runeSize * 0.42f,
                 center = xc,
-                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f),
+                style =
+                    androidx.compose.ui.graphics.drawscope
+                        .Stroke(width = 3f),
             )
             drawPath(runePathFor(portal.runeIndex, xc.x, xc.y, runeR), color = exitColor, style = runeStroke)
         }

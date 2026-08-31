@@ -346,7 +346,7 @@ class Movement(
                             }
                         if (exitAdjacent != null) {
                             movementsInThisStep.add(Pair(attacker.id, newPos))
-                            positionsToOccupy.add(newPos)   // prevent others from landing on the entry
+                            positionsToOccupy.add(newPos) // prevent others from landing on the entry
                             currentPositions[attacker.id] = exitAdjacent
                             positionsToOccupy.add(exitAdjacent)
                             virtuallyUsedPortals.add(portalAtNewPos)
@@ -572,15 +572,17 @@ class Movement(
         if (portal.usedThisTurn.value) return false
         // Find the best free path tile adjacent to the exit.
         val exitNeighbors =
-            portal.exitPosition.getHexNeighbors()
+            portal.exitPosition
+                .getHexNeighbors()
                 .filter { neighbor ->
                     state.level.isOnPath(neighbor) &&
                         !state.isPortalTile(neighbor) &&
                         !state.attackers.any { it.id != attacker.id && !it.isDefeated.value && it.position.value == neighbor }
                 }
-        val destination = exitNeighbors.minByOrNull { neighbor ->
-            state.getActiveTargetPositions().minOfOrNull { neighbor.hexDistanceTo(it) } ?: Int.MAX_VALUE
-        } ?: return false
+        val destination =
+            exitNeighbors.minByOrNull { neighbor ->
+                state.getActiveTargetPositions().minOfOrNull { neighbor.hexDistanceTo(it) } ?: Int.MAX_VALUE
+            } ?: return false
 
         attacker.position.value = destination
         attacker.teleportedThisTurn.value = true
@@ -777,7 +779,9 @@ class Movement(
     private fun calculateEffectiveEnemySpeed(
         attacker: Attacker,
         currentPos: Position,
-    ): Int = de.egril.defender.game.calculateEffectiveEnemySpeed(state, attacker, currentPos)
+    ): Int =
+        de.egril.defender.game
+            .calculateEffectiveEnemySpeed(state, attacker, currentPos)
 
     private fun applyDragonMovement(
         attacker: Attacker,

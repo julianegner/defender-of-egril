@@ -291,7 +291,9 @@ class EnemyMovementSystem(
 
         fun findPortalRedirectDestination(entryPosition: Position): Position? {
             val portal = state.getPortalAtEntry(entryPosition) ?: return null
-            return portal.exitPosition.getHexNeighbors().asSequence()
+            return portal.exitPosition
+                .getHexNeighbors()
+                .asSequence()
                 .filter { pos ->
                     pos.x >= 0 &&
                         pos.x < state.level.gridWidth &&

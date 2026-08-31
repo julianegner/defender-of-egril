@@ -31,7 +31,9 @@ class MineLogic(
                 dragon.targetMineId.value = null
                 dragon.currentTarget?.value =
                     if (state.level.waypoints.isNotEmpty()) {
-                        state.level.waypoints.first().nextTarget
+                        state.level.waypoints
+                            .first()
+                            .nextTarget
                     } else {
                         findClosestTargetPosition(dragon.position.value)
                     }
@@ -55,7 +57,9 @@ class MineLogic(
                 dragon.targetMineId.value = null
                 dragon.currentTarget?.value =
                     if (state.level.waypoints.isNotEmpty()) {
-                        state.level.waypoints.first().nextTarget
+                        state.level.waypoints
+                            .first()
+                            .nextTarget
                     } else {
                         findClosestTargetPosition(dragon.position.value)
                     }
