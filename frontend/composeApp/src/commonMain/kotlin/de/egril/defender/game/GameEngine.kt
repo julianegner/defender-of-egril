@@ -234,13 +234,13 @@ class GameEngine(
      * mine digging when using auto-attack.
      */
     fun autoMineDig() {
-        if (state.phase.value != de.egril.defender.model.GamePhase.PLAYER_TURN) return
+        if (state.phase.value != GamePhase.PLAYER_TURN) return
         for (defender in state.defenders) {
             if (defender.type != DefenderType.DWARVEN_MINE) continue
             if (!defender.isReady) continue
             while (defender.actionsRemaining.value > 0) {
                 val outcome = mineOperations.performMineDig(defender.id) ?: break
-                if (outcome == de.egril.defender.model.DigOutcome.DRAGON) break
+                if (outcome == DigOutcome.DRAGON) break
             }
         }
     }
