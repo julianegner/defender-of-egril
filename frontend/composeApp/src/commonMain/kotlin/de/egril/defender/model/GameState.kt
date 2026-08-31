@@ -352,6 +352,10 @@ data class GameState(
     // Monotonically-increasing counter, incremented each time the "Sky is Falling" power is used,
     // to trigger the full-map falling-meteor animation overlay.
     val skyIsFallingTrigger: MutableState<Int> = mutableStateOf(0),
+    // Tile-scoped one-shot animations that have already been shown for the current save state.
+    // Prevents replay when a tile is temporarily removed from composition (e.g. viewport culling)
+    // and later composed again while the same visual effect is still present.
+    val playedTileAnimationKeys: SnapshotStateMap<String, Boolean> = mutableStateMapOf(),
     // Scripted level event tracking
     val enemiesKilledTotal: MutableState<Int> = mutableStateOf(0), // Total enemies killed (by combat/traps, not those reaching the target)
     val enemiesKilledByType: SnapshotStateMap<AttackerType, Int> = mutableStateMapOf(), // Kills per enemy type

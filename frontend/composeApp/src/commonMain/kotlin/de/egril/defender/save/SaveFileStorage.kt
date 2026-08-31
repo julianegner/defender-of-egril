@@ -423,6 +423,7 @@ object SaveFileStorage {
             supportFiefRemaining = gameState.supportFiefRemaining.toMap(),
             cooldownPowerReadyIn = gameState.cooldownPowerReadyIn.toMap(),
             coinSurgeActive = gameState.coinSurgeActive.value,
+            playedTileAnimationKeys = gameState.playedTileAnimationKeys.keys.toList(),
             triggeredEventIds = gameState.triggeredEventIds.toList(),
             enemiesKilledTotal = gameState.enemiesKilledTotal.value,
             enemiesKilledByType = gameState.enemiesKilledByType.toMap(),
@@ -517,6 +518,10 @@ object SaveFileStorage {
         gameState.cooldownPowerReadyIn.clear()
         gameState.cooldownPowerReadyIn.putAll(savedGame.cooldownPowerReadyIn)
         gameState.coinSurgeActive.value = savedGame.coinSurgeActive
+        gameState.playedTileAnimationKeys.clear()
+        savedGame.playedTileAnimationKeys.forEach { key ->
+            gameState.playedTileAnimationKeys[key] = true
+        }
         gameState.waaghPoints.value = savedGame.waaghPoints
         gameState.waaghFrenzyActive.value = savedGame.waaghFrenzyActive
         gameState.waaghFrenzyRoundsLeft.value = savedGame.waaghFrenzyRoundsLeft
