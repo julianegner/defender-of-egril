@@ -1098,6 +1098,8 @@
     <string name="level_the_tower_of_the_hermit_title">The Tower of the Hermit</string>
     <string name="level_the_tower_of_the_hermit_subtitle">A single Tower to defend the Path</string>
     <string name="level_the_witches_title">The Witches</string>
+    <string name="level_gribnaks_ambush_title">Gribnak\'s Ambush</string>
+    <string name="level_gribnaks_ambush_subtitle">A villain leads the horde</string>
     <!-- Map Names -->
     <string name="map_tutorial_name">Tutorial Map</string>
     <string name="map_straight_name">Straight Map</string>
@@ -1124,10 +1126,11 @@
     <string name="map_back_and_forth_path_name">Back and Forth Path</string>
     <string name="map_curved_path_name">Curved Path</string>
     <string name="map_obstacle_path_name">Obstacle Path</string>
+    <string name="map_goblin_gorge_name">Goblin Gorge</string>
 
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
-    <string name="location_the_beginning_name">The Beginning</string>
+    <string name="location_gribnaks_ambush_name">Gribnak\'s Ambush</string>
     <string name="location_the_plains_name">The Plains</string>
     <string name="location_the_spiral_name">The Spiral</string>
     <string name="location_the_dance_name">The Dance</string>

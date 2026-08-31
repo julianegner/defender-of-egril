@@ -1094,6 +1094,8 @@
     <string name="level_the_tower_of_the_hermit_title">La Torre del Ermitaño</string>
     <string name="level_the_tower_of_the_hermit_subtitle">Una sola Torre para defender el Camino</string>
     <string name="level_the_witches_title">Las Brujas</string>
+    <string name="level_gribnaks_ambush_title">La emboscada de Gribnak</string>
+    <string name="level_gribnaks_ambush_subtitle">Un villano lidera la horda</string>
     <!-- Map Names -->
     <string name="map_tutorial_name">Mapa Tutorial</string>
     <string name="map_straight_name">Mapa Recto</string>
@@ -1120,10 +1122,11 @@
     <string name="map_back_and_forth_path_name">Camino de Ida y Vuelta</string>
     <string name="map_curved_path_name">Camino Curvo</string>
     <string name="map_obstacle_path_name">Camino con Obstáculos</string>
+    <string name="map_goblin_gorge_name">La Garganta Goblin</string>
 
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
-    <string name="location_the_beginning_name">El Comienzo</string>
+    <string name="location_gribnaks_ambush_name">La emboscada de Gribnak</string>
     <string name="location_the_plains_name">Las Llanuras</string>
     <string name="location_the_spiral_name">La Espiral</string>
     <string name="location_the_dance_name">La Danza</string>

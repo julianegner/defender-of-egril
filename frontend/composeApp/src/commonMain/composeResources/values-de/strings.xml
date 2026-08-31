@@ -1093,6 +1093,8 @@
     <string name="level_the_tower_of_the_hermit_title">Der Turm des Einsiedlers</string>
     <string name="level_the_tower_of_the_hermit_subtitle">Ein einzelner Turm zur Verteidigung des Pfades</string>
     <string name="level_the_witches_title">Die Hexen</string>
+    <string name="level_gribnaks_ambush_title">Gribnaks Hinterhalt</string>
+    <string name="level_gribnaks_ambush_subtitle">Ein Schurke führt die Horde</string>
     <!-- Map Names -->
     <string name="map_tutorial_name">Tutorial-Karte</string>
     <string name="map_straight_name">Gerade Karte</string>
@@ -1119,10 +1121,11 @@
     <string name="map_back_and_forth_path_name">Hin-und-Her-Pfad</string>
     <string name="map_curved_path_name">Kurvenreicher Pfad</string>
     <string name="map_obstacle_path_name">Hindernispfad</string>
+    <string name="map_goblin_gorge_name">Goblinschlucht</string>
 
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
-    <string name="location_the_beginning_name">Der Anfang</string>
+    <string name="location_gribnaks_ambush_name">Gribnaks Hinterhalt</string>
     <string name="location_the_plains_name">Die Ebenen</string>
     <string name="location_the_spiral_name">Die Spirale</string>
     <string name="location_the_dance_name">Der Tanz</string>
