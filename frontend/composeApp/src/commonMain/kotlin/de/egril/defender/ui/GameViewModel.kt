@@ -1904,6 +1904,8 @@ class GameViewModel {
 
             // Explicitly trigger auto-attacks for all ready defenders
             engine.autoDefenderAttacks()
+            // Auto-dig all dwarven mines that still have actions remaining
+            engine.autoMineDig()
 
             val anyAttacksFired = currentState.attackTriggerCount.value > triggerCountBefore
             val enemiesKilled = currentState.defeatedEnemyEffects.size > deathCountBefore

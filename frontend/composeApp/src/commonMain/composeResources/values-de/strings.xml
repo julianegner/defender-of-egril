@@ -2249,8 +2249,8 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="demonling_description">Ein winziger imp-ähnlicher Späher, beschworen von Zythar dem Riftrufer. Einzeln schwach, aber wenn ein Dämonling weit genug vor seinem Meister vorrückt — oder sich einem Ziel nähert — opfert er sich, um ein Rift-Portal aufzureißen.</string>
     <string name="zythar_name">Zythar der Riftrufer</string>
     <string name="villain_zythar_title">Zythar der Riftrufer betritt das Schlachtfeld</string>
-    <string name="villain_zythar_backstory">Zythar der Riftrufer, ein dunkler Hexenmeister, der Löcher in die Realität reißt, hat das Schlachtfeld betreten. Wo er geht, zerfällt das Gewebe des Raumes.</string>
-    <string name="villain_zythar_description">Rift-Portale: Dämonling-Späher eilen voraus. Wenn einer weit genug vorprescht oder ein Ziel erreicht, opfert er sich und öffnet ein Portal — blaue Eingangsrune bei Zythar, orange Ausgangsrune an der Position des Dämonlings. Jeder Feind, der auf den Eingang tritt, wird sofort zum Ausgang teleportiert. Zythar selbst nutzt das Portal, wenn der Ausgang nah am Ziel liegt.\nBeschwörung: Alle 3 Runden entfesselt er blaue Dämonen, rote Dämonen und Dämonlinge.</string>
+    <string name="villain_zythar_backstory">Zythar der Riftrufer reißt Löcher in die Realität selbst.</string>
+    <string name="villain_zythar_description">Er schickt Späher vor, um Rift-Portale zu öffnen. Feinde, die auf den Eingang treten, werden zum Ausgang teleportiert. Zythar folgt, wenn ein Portal nah am Ziel liegt.\nAlle 3 Runden beschwört er Dämonen und Dämonlinge.</string>
     <string name="villain_zythar_portal_short">Rift-Portale: Dämonlinge opfern sich, um blau-Eingang / orange-Ausgang Portale zu öffnen, die jeden Feind darauf zum Ausgang teleportieren</string>
 
     <!-- Beschreibungen der Feindeseinheiten -->

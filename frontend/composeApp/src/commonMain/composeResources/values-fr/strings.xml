@@ -2251,8 +2251,8 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="demonling_description">Un minuscule éclaireur imp invoqué par Zythar le Convocateur de Failles. Individuellement faible, mais lorsqu&apos;un démonelin avance suffisamment devant son maître — ou s&apos;approche d&apos;une cible — il se sacrifie pour ouvrir un portail de faille.</string>
     <string name="zythar_name">Zythar le Convocateur de Failles</string>
     <string name="villain_zythar_title">Zythar le Convocateur de Failles entre sur le champ de bataille</string>
-    <string name="villain_zythar_backstory">Zythar le Convocateur de Failles, un sombre sorcier qui déchire des trous dans la réalité, est entré sur le champ de bataille. Là où il marche, le tissu de l&apos;espace se déchire.</string>
-    <string name="villain_zythar_description">Portails de faille : des éclaireurs démonelins se précipitent en avant. Lorsque l&apos;un d&apos;eux avance suffisamment ou approche d&apos;une cible, il se sacrifie pour ouvrir un portail — rune d&apos;entrée bleue près de Zythar, rune de sortie orange à la position du démonelin. Tout ennemi marchant sur l&apos;entrée est instantanément téléporté à la sortie. Zythar lui-même l&apos;emprunte quand la sortie mène près d&apos;une cible.\nInvocation : toutes les 3 tours il déchaîne des démons bleus, des démons rouges et des démonelings.</string>
+    <string name="villain_zythar_backstory">Zythar le Convocateur de Failles déchire des trous dans la réalité elle-même.</string>
+    <string name="villain_zythar_description">Il envoie des éclaireurs pour ouvrir des portails de faille. Les ennemis qui marchent sur l&apos;entrée sont téléportés à la sortie. Zythar les emprunte quand un portail mène près de la cible.\nToutes les 3 tours il invoque des démons et des démonelings.</string>
     <string name="villain_zythar_portal_short">Portails de faille : les démonelings se sacrifient pour ouvrir des portails entrée bleue / sortie orange qui téléportent tout ennemi vers la sortie</string>
 
     <!-- Descriptions des Unités Ennemies -->

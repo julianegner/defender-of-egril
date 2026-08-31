@@ -2250,8 +2250,8 @@
     <string name="demonling_description">Un diminuto explorador imp invocado por Zythar el Convocador de Rifts. Individualmente débil, pero cuando un demonín avanza lo suficiente frente a su maestro — o se acerca a un objetivo — se sacrifica para abrir un portal de rift.</string>
     <string name="zythar_name">Zythar el Convocador de Rifts</string>
     <string name="villain_zythar_title">Zythar el Convocador de Rifts entra al campo de batalla</string>
-    <string name="villain_zythar_backstory">Zythar el Convocador de Rifts, un oscuro hechicero que rasga agujeros en la realidad, ha entrado al campo de batalla. Donde camina, el tejido del espacio se deshace.</string>
-    <string name="villain_zythar_description">Portales de Rift: exploradores demonín se adelantan. Cuando uno avanza lo suficiente o se acerca a un objetivo, se sacrifica para abrir un portal — runa de entrada azul junto a Zythar, runa de salida naranja en la posición del demonín. Todo enemigo que pise la entrada es teletransportado instantáneamente a la salida. El propio Zythar cruza cuando la salida conduce cerca de un objetivo.\nInvocación: cada 3 turnos desata demonios azules, demonios rojos y demonínes.</string>
+    <string name="villain_zythar_backstory">Zythar el Convocador de Rifts rasga agujeros en la realidad misma.</string>
+    <string name="villain_zythar_description">Envía exploradores para abrir portales de rift. Los enemigos que pisen la entrada son teletransportados a la salida. Zythar sigue cuando un portal lleva cerca del objetivo.\nCada 3 turnos invoca demonios y demonines.</string>
     <string name="villain_zythar_portal_short">Portales de Rift: los demonínes se sacrifican para abrir portales de entrada azul / salida naranja que teletransportan a cualquier enemigo a la salida</string>
 
     <!-- Descripciones de Unidades Enemigas -->

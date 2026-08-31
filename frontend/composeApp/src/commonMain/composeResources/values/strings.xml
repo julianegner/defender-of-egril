@@ -2259,8 +2259,8 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="demonling_description">A tiny imp-like scout summoned by Zythar the Riftcaller. Individually weak, but when a demonling advances far enough ahead of its master — or draws close to a target — it sacrifices itself to tear open a rift portal.</string>
     <string name="zythar_name">Zythar the Riftcaller</string>
     <string name="villain_zythar_title">Zythar the Riftcaller enters the battlefield</string>
-    <string name="villain_zythar_backstory">Zythar the Riftcaller, a dark sorcerer who tears holes in reality, has stepped onto the battlefield. Where he walks, the fabric of space unravels.</string>
-    <string name="villain_zythar_description">Rift Portals: demonling scouts rush ahead. When one advances far enough or nears a target, it sacrifices itself to open a portal — blue entry rune beside Zythar, orange exit rune at the demonling&apos;s position. Any enemy stepping on the entry is instantly teleported to the exit. Zythar himself steps through when the exit leads close to a target.\nSummon: every 3 turns he unleashes blue demons, red demons, and demonlings.</string>
+    <string name="villain_zythar_backstory">Zythar the Riftcaller tears holes in reality itself.</string>
+    <string name="villain_zythar_description">He sends scouts ahead to open rift portals. Enemies stepping on the entry are teleported to the exit. Zythar follows when a portal leads close to the target.\nEvery 3 turns he summons demons and demonlings.</string>
     <string name="villain_zythar_portal_short">Rift Portals: demonlings sacrifice themselves to open blue-entry / orange-exit portals that teleport any enemy stepping on them to the exit</string>
 
     <!-- Enemy Unit Descriptions -->

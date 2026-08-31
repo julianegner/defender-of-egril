@@ -105,6 +105,10 @@ class Movement(
 
         val maxSpeed = regularAttackers.maxOfOrNull { calculateEffectiveEnemySpeed(it, it.position.value) } ?: 0
         val imminentBombs = state.activeSpellEffects.filter { it.spell == SpellType.BOMB && it.position != null && it.turnsRemaining <= 1 }
+        // Track portals "used" during this pre-calculation so that each portal can only teleport
+        // one unit per turn and the currentPositions update reflects the exit side for correct
+        // subsequent path calculations.
+        val virtuallyUsedPortals = mutableSetOf<Portal>()
 
         for (stepIndex in 0 until maxSpeed) {
             val movementsInThisStep = mutableListOf<Pair<Int, Position>>()
@@ -159,6 +163,26 @@ class Movement(
                     if (isFeared) {
                         state.level.startPositions.minByOrNull { spawnPos -> currentPos.hexDistanceTo(spawnPos) }
                             ?: state.level.startPositions.first()
+                    } else if (attacker.type == AttackerType.ZYTHAR_THE_RIFTCALLER) {
+                        // Route Zythar to the entry of the qualifying portal whose EXIT is closest
+                        // to a target, so he always picks the best portal rather than the nearest entry.
+                        val activeTargets = state.getActiveTargetPositions()
+                        val bestPortalEntry =
+                            state.activePortals
+                                .filter { portal ->
+                                    activeTargets.any { t ->
+                                        portal.exitPosition.hexDistanceTo(t) <= Portal.PORTAL_NEAR_TARGET_DISTANCE
+                                    }
+                                }
+                                .minByOrNull { portal ->
+                                    activeTargets.minOfOrNull { t -> portal.exitPosition.hexDistanceTo(t) }
+                                        ?: Int.MAX_VALUE
+                                }
+                                ?.entryPosition
+                        bestPortalEntry
+                            ?: attacker.currentTarget?.value
+                            ?: activeTargets.minByOrNull { currentPos.distanceTo(it) }
+                            ?: state.level.targetPositions.first()
                     } else if (attacker.type == AttackerType.GREEN_WITCH) {
                         val healingTarget = enemyAbilities.findHealingTarget(attacker)
                         healingTarget?.position?.value
@@ -278,6 +302,49 @@ class Movement(
                     }
 
                 if (!isOccupied) {
+                    // Portal pre-calculation: if the next step is a portal entry, record the unit
+                    // as landing on the entry tile (one visual step) but track its effective position
+                    // as the exit side so subsequent path calculations start from there.  This makes
+                    // the full portal transit cost exactly one movement step.
+                    val portalAtNewPos =
+                        if (!attacker.type.canOnlyMoveOnWater) {
+                            state.activePortals.firstOrNull { portal ->
+                                portal.entryPosition == newPos &&
+                                    !virtuallyUsedPortals.contains(portal) &&
+                                    !portal.usedThisTurn.value
+                            }
+                        } else {
+                            null
+                        }
+
+                    if (portalAtNewPos != null) {
+                        // Find the best free exit-adjacent path tile (closest to any active target).
+                        val exitNeighbors =
+                            portalAtNewPos.exitPosition.getHexNeighbors().filter { neighbor ->
+                                neighbor.x >= 0 &&
+                                    neighbor.x < state.level.gridWidth &&
+                                    neighbor.y >= 0 &&
+                                    neighbor.y < state.level.gridHeight &&
+                                    (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor)) &&
+                                    !currentPositions.any { (id, pos) -> id != attacker.id && pos == neighbor } &&
+                                    !positionsToOccupy.contains(neighbor)
+                            }
+                        val exitAdjacent =
+                            exitNeighbors.minByOrNull { neighbor ->
+                                state.getActiveTargetPositions().minOfOrNull { neighbor.hexDistanceTo(it) }
+                                    ?: Int.MAX_VALUE
+                            }
+                        if (exitAdjacent != null) {
+                            movementsInThisStep.add(Pair(attacker.id, newPos))
+                            positionsToOccupy.add(newPos)   // prevent others from landing on the entry
+                            currentPositions[attacker.id] = exitAdjacent
+                            positionsToOccupy.add(exitAdjacent)
+                            virtuallyUsedPortals.add(portalAtNewPos)
+                            continue
+                        }
+                        // No free exit tile: fall through to normal movement onto the entry tile.
+                    }
+
                     movementsInThisStep.add(Pair(attacker.id, newPos))
                     if (!state.isActiveTargetPosition(newPos)) {
                         positionsToOccupy.add(newPos)
@@ -419,8 +486,6 @@ class Movement(
     ) {
         val attacker = state.attackers.find { it.id == attackerId } ?: return
         if (attacker.isDefeated.value) return
-        // Skip movement steps that were pre-calculated before a portal teleportation this turn.
-        if (attacker.teleportedThisTurn.value) return
         if (attackBarricade(newPosition, attacker)) return
 
         if (attacker.type.isDragon) {
@@ -513,7 +578,6 @@ class Movement(
         } ?: return
 
         attacker.position.value = destination
-        attacker.teleportedThisTurn.value = true
         // Update the attacker's waypoint target if needed at the new position.
         updateWaypointTargetIfReached(attacker, destination, "Portal teleport")
         // Mark the portal as used for this turn so no second unit can chain through it.

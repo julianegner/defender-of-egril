@@ -2252,8 +2252,8 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="demonling_description">Un minuscolo esploratore imp evocato da Zythar il Chiamatore di Varchi. Individualmente debole, ma quando un demonetto avanza abbastanza davanti al suo padrone — o si avvicina a un obiettivo — si sacrifica per aprire un portale di varco.</string>
     <string name="zythar_name">Zythar il Chiamatore di Varchi</string>
     <string name="villain_zythar_title">Zythar il Chiamatore di Varchi entra nel campo di battaglia</string>
-    <string name="villain_zythar_backstory">Zythar il Chiamatore di Varchi, un oscuro stregone che strappa buchi nella realtà, è entrato nel campo di battaglia. Dove cammina, il tessuto dello spazio si dissolve.</string>
-    <string name="villain_zythar_description">Portali di varco: esploratori demonetto si precipitano avanti. Quando uno avanza abbastanza o si avvicina a un obiettivo, si sacrifica per aprire un portale — runa d&apos;ingresso blu vicino a Zythar, runa d&apos;uscita arancione nella posizione del demonetto. Ogni nemico che calpesta l&apos;ingresso viene istantaneamente teletrasportato all&apos;uscita. Lo stesso Zythar lo usa quando l&apos;uscita porta vicino a un obiettivo.\nEvocazione: ogni 3 turni scatena demoni blu, demoni rossi e demonetti.</string>
+    <string name="villain_zythar_backstory">Zythar il Chiamatore di Varchi strappa buchi nella realtà stessa.</string>
+    <string name="villain_zythar_description">Invia esploratori per aprire portali di varco. I nemici che calpestano l&apos;ingresso vengono teletrasportati all&apos;uscita. Zythar segue quando un portale porta vicino all&apos;obiettivo.\nOgni 3 turni evoca demoni e demonetti.</string>
     <string name="villain_zythar_portal_short">Portali di varco: i demonetti si sacrificano per aprire portali ingresso blu / uscita arancione che teletrasportano ogni nemico all&apos;uscita</string>
 
     <!-- Descrizioni delle Unità Nemiche -->
