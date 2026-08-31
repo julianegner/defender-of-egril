@@ -1094,6 +1094,8 @@
     <string name="level_the_tower_of_the_hermit_title">La Tour de l\'Ermite</string>
     <string name="level_the_tower_of_the_hermit_subtitle">Une seule Tour pour défendre le Chemin</string>
     <string name="level_the_witches_title">Les Sorcières</string>
+    <string name="level_gribnaks_ambush_title">L\'embuscade de Gribnak</string>
+    <string name="level_gribnaks_ambush_subtitle">Un scélérat mène la horde</string>
     <!-- Map Names -->
     <string name="map_tutorial_name">Carte Tutoriel</string>
     <string name="map_straight_name">Carte Droite</string>
@@ -1120,10 +1122,11 @@
     <string name="map_back_and_forth_path_name">Chemin Aller-Retour</string>
     <string name="map_curved_path_name">Chemin Courbé</string>
     <string name="map_obstacle_path_name">Chemin avec Obstacles</string>
+    <string name="map_goblin_gorge_name">La Gorge des Gobelins</string>
 
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutoriel</string>
-    <string name="location_the_beginning_name">Le Début</string>
+    <string name="location_gribnaks_ambush_name">L\'embuscade de Gribnak</string>
     <string name="location_the_plains_name">Les Plaines</string>
     <string name="location_the_spiral_name">La Spirale</string>
     <string name="location_the_dance_name">La Danse</string>
