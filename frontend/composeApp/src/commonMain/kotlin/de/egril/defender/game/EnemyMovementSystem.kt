@@ -27,11 +27,20 @@ class EnemyMovementSystem(
         if (attacker.isDefeated.value) return false
 
         var position = attacker.position.value
+        var remainingSpeed = effectiveSpeed(attacker, position)
+
+        // Cheap lower-bound check before running the (expensive) pathfinding: an enemy moves one
+        // hex per step, so it can never enter a target that is further away than its speed.
+        // On large maps almost every enemy is filtered out here, which keeps the danger hints
+        // cheap even with many enemies on the map (issue #791).
+        val activeTargets = state.getActiveTargetPositions()
+        val shortestTargetDistance = activeTargets.minOfOrNull { position.distanceTo(it) } ?: return false
+        if (shortestTargetDistance > remainingSpeed) return false
+
         var target =
             attacker.currentTarget?.value
-                ?: state.getActiveTargetPositions().minByOrNull { position.distanceTo(it) }
+                ?: activeTargets.minByOrNull { position.distanceTo(it) }
                 ?: return false
-        var remainingSpeed = effectiveSpeed(attacker, position)
 
         while (remainingSpeed > 0) {
             val path = pathfinding.findPath(position, target, attacker)
