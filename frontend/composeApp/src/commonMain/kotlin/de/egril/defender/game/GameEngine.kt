@@ -228,23 +228,6 @@ class GameEngine(
 
     fun autoDefenderAttacks() = autoAttackLogic.autoDefenderAttacks()
 
-    /**
-     * Auto-dig all dwarven mines that still have actions remaining.
-     * Called during "Auto-Attack and End Turn" so the player never has to manually confirm
-     * mine digging when using auto-attack.
-     */
-    fun autoMineDig() {
-        if (state.phase.value != GamePhase.PLAYER_TURN) return
-        for (defender in state.defenders) {
-            if (defender.type != DefenderType.DWARVEN_MINE) continue
-            if (!defender.isReady) continue
-            while (defender.actionsRemaining.value > 0) {
-                val outcome = mineOperations.performMineDig(defender.id) ?: break
-                if (outcome == DigOutcome.DRAGON) break
-            }
-        }
-    }
-
     fun checkAndActivateTraps() {
         mineOperations.checkAndActivateTraps { combatSystem.processDefeatedAttackers() }
         evaluateImmediateEvents()
