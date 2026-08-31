@@ -252,6 +252,12 @@ data class PendingSnotlingCannonArrival(
     val turnNumber: Int,
 )
 
+enum class AutoAttackAvailability {
+    NONE,
+    ATTACK,
+    MANA_ONLY,
+}
+
 data class GameState(
     var level: Level,
     val phase: MutableState<GamePhase> = mutableStateOf(GamePhase.INITIAL_BUILDING),
@@ -264,6 +270,7 @@ data class GameState(
     val nextRaftId: MutableState<Int> = mutableStateOf(1),
     val nextBarricadeId: MutableState<Int> = mutableStateOf(1),
     val nextBridgeId: MutableState<Int> = mutableStateOf(1),
+    val nextPortalId: MutableState<Int> = mutableStateOf(1),
     val currentWaveIndex: MutableState<Int> = mutableStateOf(0),
     val spawnCounter: MutableState<Int> = mutableStateOf(0),
     val attackersToSpawn: SnapshotStateList<AttackerType> = mutableStateListOf(),
@@ -289,6 +296,7 @@ data class GameState(
     val constructionCompleteEffects: SnapshotStateList<TowerConstructionEffect> = mutableStateListOf(), // Track tower construction complete visual effects
     val enemySpawnEffects: SnapshotStateList<EnemySpawnEffect> = mutableStateListOf(), // Track enemy spawn portal visual effects
     val scrapPiles: SnapshotStateList<ScrapPile> = mutableStateListOf(), // Scrap-Bot wreckage markers waiting to hatch
+    val activePortals: SnapshotStateList<Portal> = mutableStateListOf(), // Rift portals created by Zythar's demonlings
     val trapTriggerEffects: SnapshotStateList<TrapTriggerEffect> = mutableStateListOf(), // Track trap trigger visual effects
     val enemyMoveEffects: SnapshotStateList<EnemyMoveEffect> = mutableStateListOf(), // Track enemy movement trail visual effects
     val dragonLevelChangeEffects: SnapshotStateList<DragonLevelChangeEffect> = mutableStateListOf(), // Track dragon level change visual effects
@@ -657,6 +665,20 @@ data class GameState(
             bridge.isActive && bridge.coversPosition(position)
         }
 
+    fun getPortalAtEntry(position: Position): Portal? =
+        activePortals.firstOrNull { portal ->
+            portal.entryPosition == position
+        }
+
+    fun isPortalEntry(position: Position): Boolean = getPortalAtEntry(position) != null
+
+    fun isPortalExit(position: Position): Boolean =
+        activePortals.any { portal ->
+            portal.exitPosition == position
+        }
+
+    fun isPortalTile(position: Position): Boolean = isPortalEntry(position) || isPortalExit(position)
+
     /**
      * Check if a position has a raft
      */
@@ -702,19 +724,27 @@ data class GameState(
                 return@any false
             }
 
+            val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
+
             // Special handling for different tower types
             when (defender.type) {
                 DefenderType.DWARVEN_MINE -> {
                     // Mines always count as having unused actions (digging)
                     true
                 }
+                DefenderType.WIZARD_TOWER -> {
+                    if (hasEnemiesInRange) {
+                        true
+                    } else {
+                        currentMana.value < maxMana.value
+                    }
+                }
                 else -> {
                     // Only count attack towers if they have AttackType and enemies in range
                     if (defender.type.attackType == AttackType.NONE) {
                         false
                     } else {
-                        // Check if there are any enemies in range
-                        activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
+                        hasEnemiesInRange
                     }
                 }
             }
@@ -750,40 +780,52 @@ data class GameState(
     }
 
     /**
-     * Check if there are defenders that can perform auto-attacks.
-     * Returns true if there are defenders with actions that can be automated (regular attacks).
-     * Excludes special actions like mines, traps, and alchemy towers.
+     * Determine whether the auto-action button can perform attacks or mana generation this turn.
+     * ATTACK means at least one ready tower can auto-attack an enemy in range.
+     * MANA_ONLY means no attack is currently possible, but a wizard can auto-generate mana.
      */
-    fun hasDefendersForAutoAttack(): Boolean {
+    fun getAutoAttackAvailability(): AutoAttackAvailability {
         val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value && !it.isDiving.value }
-        if (activeAttackers.isEmpty()) return false
+        var hasManaOnlyAutoAction = false
 
-        return defenders.any { defender ->
+        for (defender in defenders) {
             if (!defender.isReady ||
                 defender.actionsRemaining.value <= 0 ||
                 defender.isDisabled.value
             ) {
-                return@any false
+                continue
             }
 
-            // Only count towers that can do regular auto-attacks
+            // Only count towers that can do regular auto-attacks.
             // Exclude mines (no attack). Wizards can also qualify when auto-attack would spend
-            // their action on mana generation because they have no valid target and cannot place
-            // a magical trap right now.
+            // their action on mana generation because they have no valid target.
             when {
-                defender.type == DefenderType.DWARVEN_MINE -> false
-                defender.type.attackType == AttackType.NONE -> false
+                defender.type == DefenderType.DWARVEN_MINE -> continue
+                defender.type.attackType == AttackType.NONE -> continue
                 else -> {
                     val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
-                    if (defender.type == DefenderType.WIZARD_TOWER) {
-                        hasEnemiesInRange || (currentMana.value < maxMana.value && !canWizardPlaceAnyMagicalTrap(defender))
+                    if (hasEnemiesInRange) {
+                        return AutoAttackAvailability.ATTACK
+                    }
+                    if (defender.type == DefenderType.WIZARD_TOWER &&
+                        currentMana.value < maxMana.value
+                    ) {
+                        hasManaOnlyAutoAction = true
                     } else {
-                        hasEnemiesInRange
+                        continue
                     }
                 }
             }
         }
+
+        if (hasManaOnlyAutoAction) {
+            return AutoAttackAvailability.MANA_ONLY
+        } else {
+            return AutoAttackAvailability.NONE
+        }
     }
+
+    fun hasDefendersForAutoAttack(): Boolean = getAutoAttackAvailability() != AutoAttackAvailability.NONE
 
     /**
      * Check if there are defenders with special actions that cannot be automated effectively.

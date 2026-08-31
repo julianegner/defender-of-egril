@@ -459,8 +459,8 @@
     <string name="ewhad_warning">Ewhad solo puede aparecer una vez por nivel!</string>
     <string name="villain">Villano</string>
     <string name="villains">Villanos</string>
-    <string name="villain_defeated_title">%1$s fue derrotado</string>
-    <string name="villain_defeated_text">El villano ha caído. Su aura oscura ya no potencia a los enemigos cercanos.</string>
+    <string name="villain_defeated_title">Villano derrotado</string>
+    <string name="villain_defeated_text">%1$s fue derrotado</string>
     <string name="villain_once_warning">Cada villano solo puede aparecer una vez por nivel!</string>
     <string name="level_lv">Nv%d</string>
     <string name="arrange_level_order">Organizar orden de niveles:</string>
@@ -786,6 +786,7 @@
     <string name="win_level_now">Ganar el nivel ahora</string>
     <string name="win_level_now_description">Los enemigos restantes no son lo bastante poderosos para amenazar tu fortaleza: puedes terminar el nivel con victoria ahora mismo.</string>
     <string name="auto_attack_and_end_turn">Auto-Ataque y Terminar Turno</string>
+    <string name="generate_mana_and_end_turn">Generar maná y terminar turno</string>
     <string name="auto_attack_button">Auto-Ataque</string>
     <string name="auto_attack_slash_end_turn">Auto-Ataque / Terminar Turno</string>
     <string name="auto_attack_warning">Nota: Después de completar el auto-ataque, si las minas o torres con habilidades de trampa o ataques duraderos aún tienen puntos de acción, puede usarlos antes de que termine el turno.</string>
@@ -2244,6 +2245,15 @@
     <string name="villain_kraken_description">El Kraken es un enorme monstruo marino que puede atacar barcazas y hundirlas, y puede sumergirse para evitar el daño. Es un rival formidable que requiere una estrategia cuidadosa.</string>
     <string name="villain_kraken_title">El Kraken entra al campo de batalla</string>
     <string name="villain_kraken_backstory">El Kraken ha emergido de las profundidades del océano, amenazando a todos los que navegan por los mares. Sus tentáculos pueden aplastar barcos y su presencia infunde miedo incluso en los marineros más valientes.</string>
+
+    <string name="demonling_name">Demonín</string>
+    <string name="demonlings_name">Demonínes</string>
+    <string name="demonling_description">Un diminuto explorador imp invocado por Zythar el Convocador de Rifts. Individualmente débil, pero cuando un demonín avanza lo suficiente frente a su maestro — o se acerca a un objetivo — se sacrifica para abrir un portal de rift.</string>
+    <string name="zythar_name">Zythar el Convocador de Rifts</string>
+    <string name="villain_zythar_title">Zythar el Convocador de Rifts entra al campo de batalla</string>
+    <string name="villain_zythar_backstory">Zythar el Convocador de Rifts rasga agujeros en la realidad misma.</string>
+    <string name="villain_zythar_description">Invoca demonios y demonines, que envía por delante como exploradores para abrir portales de rift.</string>
+    <string name="villain_zythar_portal_short">Portales de Rift: los demonínes se sacrifican para abrir portales de entrada azul / salida naranja que teletransportan a cualquier enemigo a la salida</string>
 
     <!-- Descripciones de Unidades Enemigas -->
     <string name="goblin_description">Rápidos y ágiles, los goblins son los enemigos más débiles pero se mueven rápidamente. Usa ataques de área para manejar múltiples goblins a la vez.</string>

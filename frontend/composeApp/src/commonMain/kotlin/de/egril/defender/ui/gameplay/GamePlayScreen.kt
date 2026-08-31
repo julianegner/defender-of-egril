@@ -3225,6 +3225,18 @@ private fun GamePlayScreenContent(
                     // End turn confirmation dialog
                     if (showEndTurnConfirmation) {
                         val canWinLevelNow = gameState.canWinLevelNow()
+                        val autoAttackAvailability =
+                            if (gameState.level.allowAutoAttack) {
+                                gameState.getAutoAttackAvailability()
+                            } else {
+                                AutoAttackAvailability.NONE
+                            }
+                        val autoAttackButtonText =
+                            if (autoAttackAvailability == AutoAttackAvailability.MANA_ONLY) {
+                                stringResource(Res.string.generate_mana_and_end_turn)
+                            } else {
+                                stringResource(Res.string.auto_attack_and_end_turn)
+                            }
                         EndTurnConfirmationDialog(
                             onConfirm = {
                                 showEndTurnConfirmation = false
@@ -3249,7 +3261,8 @@ private fun GamePlayScreenContent(
                             onCancel = {
                                 showEndTurnConfirmation = false
                             },
-                            showAutoAttackButton = gameState.level.allowAutoAttack && gameState.hasDefendersForAutoAttack(),
+                            showAutoAttackButton = autoAttackAvailability != AutoAttackAvailability.NONE,
+                            autoAttackButtonText = autoAttackButtonText,
                             showEndTurnWarning = gameState.hasDefendersWithUnusedActions(),
                             showWinLevelNow = canWinLevelNow && onWinLevelNow != null,
                             onWinLevelNow = {
@@ -3413,6 +3426,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.THE_KRAKEN.name ->
                                             stringResource(Res.string.villain_kraken_title) to
                                                 (stringResource(Res.string.villain_kraken_backstory) + "\n" + stringResource(Res.string.villain_kraken_description))
+                                        AttackerType.ZYTHAR_THE_RIFTCALLER.name ->
+                                            stringResource(Res.string.villain_zythar_title) to
+                                                (stringResource(Res.string.villain_zythar_backstory) + "\n" + stringResource(Res.string.villain_zythar_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)
@@ -3433,8 +3449,8 @@ private fun GamePlayScreenContent(
                                 val villainName = villainType?.villainName ?: stringResource(Res.string.villain)
                                 NarrativeMessageDialog(
                                     type = NarrativeMessageType.EWHAD,
-                                    title = stringResource(Res.string.villain_defeated_title, villainName),
-                                    text = stringResource(Res.string.villain_defeated_text),
+                                    title = stringResource(Res.string.villain_defeated_title),
+                                    text = stringResource(Res.string.villain_defeated_text, villainName),
                                     onDismiss = { onDismissGameMessage?.invoke() },
                                     backgroundOverride = villainMessageBackground(msg.name),
                                     accentColorOverride = villainMessageButtonColor(msg.name),
@@ -3920,6 +3936,8 @@ private fun villainMessageButtonColor(name: String?): Color? {
         AttackerType.CAPTAIN_RODERICH -> Color(0xFF0D4E74)
         // Ancient deep-sea horror – dark abyss teal
         AttackerType.THE_KRAKEN -> Color(0xFF0A3D4A)
+        // Riftcaller dark sorcerer – deep void indigo
+        AttackerType.ZYTHAR_THE_RIFTCALLER -> Color(0xFF0A001E)
         // Default for EWHAD and other villains (if any added in future)
         else -> null
     }

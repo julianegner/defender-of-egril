@@ -459,8 +459,8 @@
     <string name="ewhad_warning">Ewhad ne peut apparaître qu'une fois par niveau!</string>
     <string name="villain">Scélérat</string>
     <string name="villains">Scélérats</string>
-    <string name="villain_defeated_title">%1$s a été vaincu</string>
-    <string name="villain_defeated_text">Le scélérat est tombé. Son aura sombre ne renforce plus les ennemis proches.</string>
+    <string name="villain_defeated_title">Scélérat vaincu</string>
+    <string name="villain_defeated_text">%1$s a été vaincu</string>
     <string name="villain_once_warning">Chaque scélérat ne peut apparaître qu'une fois par niveau!</string>
     <string name="level_lv">Niv%d</string>
     <string name="arrange_level_order">Organiser l'ordre des niveaux:</string>
@@ -786,6 +786,7 @@
     <string name="win_level_now">Gagner le niveau maintenant</string>
     <string name="win_level_now_description">Les ennemis restants ne sont pas assez puissants pour menacer votre forteresse — vous pouvez terminer le niveau par une victoire dès maintenant.</string>
     <string name="auto_attack_and_end_turn">Attaque Auto et Terminer le Tour</string>
+    <string name="generate_mana_and_end_turn">Générer du mana et terminer le tour</string>
     <string name="auto_attack_button">Attaque Auto</string>
     <string name="auto_attack_slash_end_turn">Attaque Auto / Terminer le Tour</string>
     <string name="auto_attack_warning">Note : Après la fin de l'attaque automatique, si les mines ou les tours avec des capacités de piège ou des attaques durables ont encore des points d'action, vous pouvez les utiliser avant la fin du tour.</string>
@@ -2245,6 +2246,15 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_kraken_description">Le Kraken est un immense monstre marin qui peut attaquer les barges et les couler, et peut plonger pour éviter les dégâts. C\'est un adversaire redoutable qui requiert une stratégie minutieuse.</string>
     <string name="villain_kraken_title">Le Kraken entre sur le champ de bataille</string>
     <string name="villain_kraken_backstory">Le Kraken a émergé des profondeurs de l\'océan, menaçant tous ceux qui naviguent sur les mers. Ses tentacules peuvent broyer des navires et sa présence inspire la peur même aux marins les plus courageux.</string>
+
+    <string name="demonling_name">Démonelin</string>
+    <string name="demonlings_name">Démonelings</string>
+    <string name="demonling_description">Un minuscule éclaireur imp invoqué par Zythar le Convocateur de Failles. Individuellement faible, mais lorsqu&apos;un démonelin avance suffisamment devant son maître — ou s&apos;approche d&apos;une cible — il se sacrifie pour ouvrir un portail de faille.</string>
+    <string name="zythar_name">Zythar le Convocateur de Failles</string>
+    <string name="villain_zythar_title">Zythar le Convocateur de Failles entre sur le champ de bataille</string>
+    <string name="villain_zythar_backstory">Zythar le Convocateur de Failles déchire des trous dans la réalité elle-même.</string>
+    <string name="villain_zythar_description">Il invoque des démons et des démonelings, qu&apos;il envoie en éclaireurs pour ouvrir des portails de faille.</string>
+    <string name="villain_zythar_portal_short">Portails de faille : les démonelings se sacrifient pour ouvrir des portails entrée bleue / sortie orange qui téléportent tout ennemi vers la sortie</string>
 
     <!-- Descriptions des Unités Ennemies -->
     <string name="goblin_description">Rapides et agiles, les gobelins sont les ennemis les plus faibles mais se déplacent rapidement. Utilisez des attaques de zone pour gérer plusieurs gobelins à la fois.</string>

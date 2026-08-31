@@ -86,6 +86,8 @@ data class SavedGame(
     val sandboxRiverTiles: Map<Position, de.egril.defender.model.RiverTile>? = null,
     val bridges: List<SavedBridge> = emptyList(), // Active bridges built by enemies
     val nextBridgeId: Int = 1, // Next bridge ID to use
+    val activePortals: List<SavedPortal> = emptyList(), // Active portal entry/exit pairs (including rune selection)
+    val nextPortalId: Int = 1, // Next portal ID to use
 )
 
 /**
@@ -172,6 +174,15 @@ data class SavedBridge(
     val turnsRemaining: Int, // For magical bridges (3 turns), 0 for others
     val createdByAttackerId: Int,
     val createdOnTurn: Int,
+)
+
+data class SavedPortal(
+    val id: Int,
+    val entryPosition: Position,
+    val exitPosition: Position,
+    val villainId: Int,
+    val runeIndex: Int,
+    val usedThisTurn: Boolean = false,
 )
 
 data class SavedSpellEffect(

@@ -69,7 +69,10 @@ class TurnLifecycleLogic(
             .filter { !it.isDefeated.value }
             .forEach { attacker ->
                 state.enemyTurnStartPositions[attacker.id] = attacker.position.value
+                attacker.teleportedThisTurn.value = false
             }
+        // Reset portal usage so each portal can be used once per enemy turn.
+        state.activePortals.forEach { it.usedThisTurn.value = false }
 
         eventScriptSystem.evaluate(EventTrigger.ENEMY_TURN_START)
 

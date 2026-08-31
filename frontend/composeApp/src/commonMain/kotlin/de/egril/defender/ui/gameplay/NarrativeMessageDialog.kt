@@ -396,6 +396,12 @@ internal fun narrativeTextFramePaddingFractions(
                 bottom = 0.45f,
             )
 
+        type == NarrativeMessageType.EWHAD && attackerType == AttackerType.ZYTHAR_THE_RIFTCALLER ->
+            NarrativeTextFramePaddingFractions(
+                top = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,
+                bottom = 0.40f,
+            )
+
         else ->
             NarrativeTextFramePaddingFractions(
                 top = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,

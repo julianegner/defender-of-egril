@@ -307,7 +307,7 @@ class PathfindingSystem(
         val canUseRiver = attacker?.type?.canTraverseRiver == true
         val isWaterOnly = attacker?.type?.canOnlyMoveOnWater == true
         // Use hexagonal neighbors instead of square grid
-        return pos.getHexNeighbors().filter { neighbor ->
+        val hexNeighbors = pos.getHexNeighbors().filter { neighbor ->
             neighbor.x >= 0 &&
                 neighbor.x < state.level.gridWidth &&
                 neighbor.y >= 0 &&
@@ -330,6 +330,31 @@ class PathfindingSystem(
                 !isBlocked(neighbor, attacker, ignoreBarricades, search) &&
                 !excludedPositions.contains(neighbor) // Exclude specified positions
         }
+
+        // Portal shortcuts: if pos is a portal entry tile, the exit-adjacent path tiles are
+        // reachable in one step (actual teleportation is applied in Movement.applyMovement).
+        // Water-only enemies cannot use portals (they can't stand on path tiles).
+        // Portals already used this turn are excluded (one use per portal per turn).
+        val portalNeighbors =
+            if (!isWaterOnly) {
+                state.activePortals
+                    .filter { portal -> portal.entryPosition == pos && !portal.usedThisTurn.value }
+                    .flatMap { portal ->
+                        portal.exitPosition.getHexNeighbors().filter { neighbor ->
+                            neighbor.x >= 0 &&
+                                neighbor.x < state.level.gridWidth &&
+                                neighbor.y >= 0 &&
+                                neighbor.y < state.level.gridHeight &&
+                                (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor)) &&
+                                !isBlocked(neighbor, attacker, ignoreBarricades, search) &&
+                                !excludedPositions.contains(neighbor)
+                        }
+                    }
+            } else {
+                emptyList()
+            }
+
+        return hexNeighbors + portalNeighbors
     }
 
     /**

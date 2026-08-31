@@ -465,8 +465,8 @@
     <string name="ewhad_warning">Ewhad can only be spawned once per level!</string>
     <string name="villain">Villain</string>
     <string name="villains">Villains</string>
-    <string name="villain_defeated_title">%1$s was defeated</string>
-    <string name="villain_defeated_text">The villain has fallen. Their dark aura no longer empowers nearby enemies.</string>
+    <string name="villain_defeated_title">Villain defeated</string>
+    <string name="villain_defeated_text">%1$s was defeated</string>
     <string name="villain_once_warning">Each villain can only be spawned once per level!</string>
     <string name="level_lv">Lv%d</string>
     <string name="arrange_level_order">Arrange level order:</string>
@@ -790,6 +790,7 @@
     <string name="win_level_now">Win Level Now</string>
     <string name="win_level_now_description">The remaining enemies aren't mighty enough to threaten your stronghold — you can finish the level in victory right now.</string>
     <string name="auto_attack_and_end_turn">Auto-Attack and End Turn</string>
+    <string name="generate_mana_and_end_turn">Generate Mana and End Turn</string>
     <string name="auto_attack_button">Auto-Attack</string>
     <string name="auto_attack_slash_end_turn">Auto-Attack / End Turn</string>
     <string name="auto_attack_warning">Note: After auto-attack completes, if mines or towers with trap abilities or lasting attacks still have action points, you can use them before the turn ends.</string>
@@ -2253,6 +2254,15 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_kraken_description">The Kraken is a massive sea monster that can attack barges and sink them and can dive to avoid damage. It is a formidable opponent that requires careful strategy to defeat.</string>
     <string name="villain_kraken_title">The Kraken enters the battlefield</string>
     <string name="villain_kraken_backstory">The Kraken has emerged from the depths of the ocean, threatening all who sail the seas. Its tentacles can crush ships and its presence instills fear in even the bravest sailors.</string>
+
+    <string name="demonling_name">Demonling</string>
+    <string name="demonlings_name">Demonlings</string>
+    <string name="demonling_description">A tiny imp-like scout summoned by Zythar the Riftcaller. Individually weak, but when a demonling advances far enough ahead of its master — or draws close to a target — it sacrifices itself to tear open a rift portal.</string>
+    <string name="zythar_name">Zythar the Riftcaller</string>
+    <string name="villain_zythar_title">Zythar the Riftcaller enters the battlefield</string>
+    <string name="villain_zythar_backstory">Zythar the Riftcaller tears holes in reality itself.</string>
+    <string name="villain_zythar_description">He summons demons and demonlings, which he sends ahead as scouts to open rift portals.</string>
+    <string name="villain_zythar_portal_short">Rift Portals: demonlings sacrifice themselves to open blue-entry / orange-exit portals that teleport any enemy stepping on them to the exit</string>
 
     <!-- Enemy Unit Descriptions -->
     <string name="goblin_description">Fast and nimble, goblins are the weakest enemies but move quickly. Use area attacks to handle multiple goblins at once.</string>

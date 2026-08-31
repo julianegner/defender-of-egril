@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.demonling_description
 import defender_of_egril.composeapp.generated.resources.blue_demon_description
 import defender_of_egril.composeapp.generated.resources.dragon_description
 import defender_of_egril.composeapp.generated.resources.evil_wizard_description
@@ -40,6 +41,7 @@ import defender_of_egril.composeapp.generated.resources.villain_sylvanas_descrip
 import defender_of_egril.composeapp.generated.resources.villain_valerius_description
 import defender_of_egril.composeapp.generated.resources.villain_xarithon_description
 import defender_of_egril.composeapp.generated.resources.villain_zussa_description
+import defender_of_egril.composeapp.generated.resources.villain_zythar_description
 import defender_of_egril.composeapp.generated.resources.zombie_description
 
 @Composable
@@ -86,6 +88,8 @@ fun AttackerType.getLocalizedDescription(): String {
             AttackerType.XARITHON_THE_SHADOW_DRAGON -> Res.string.villain_xarithon_description
             AttackerType.CAPTAIN_RODERICH -> Res.string.villain_roderich_description
             AttackerType.THE_KRAKEN -> Res.string.villain_kraken_description
+            AttackerType.DEMONLING -> Res.string.demonling_description
+            AttackerType.ZYTHAR_THE_RIFTCALLER -> Res.string.villain_zythar_description
         }
     return stringResource(stringRes)
 }

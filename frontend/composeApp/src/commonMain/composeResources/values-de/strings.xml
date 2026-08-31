@@ -459,8 +459,8 @@
     <string name="ewhad_warning">Ewhad kann nur einmal pro Level erscheinen!</string>
     <string name="villain">Schurke</string>
     <string name="villains">Schurken</string>
-    <string name="villain_defeated_title">%1$s wurde besiegt</string>
-    <string name="villain_defeated_text">Der Schurke ist gefallen. Seine dunkle Aura stärkt nahe Feinde nicht mehr.</string>
+    <string name="villain_defeated_title">Schurke besiegt</string>
+    <string name="villain_defeated_text">%1$s wurde besiegt</string>
     <string name="villain_once_warning">Jeder Schurke kann nur einmal pro Level erscheinen!</string>
     <string name="level_lv">Lv%d</string>
     <string name="arrange_level_order">Level-Reihenfolge festlegen:</string>
@@ -786,6 +786,7 @@
     <string name="win_level_now">Level jetzt gewinnen</string>
     <string name="win_level_now_description">Die verbleibenden Feinde sind nicht stark genug, um deine Festung zu bedrohen — du kannst das Level jetzt siegreich beenden.</string>
     <string name="auto_attack_and_end_turn">Auto-Angriff und Runde beenden</string>
+    <string name="generate_mana_and_end_turn">Mana erzeugen und Runde beenden</string>
     <string name="auto_attack_button">Auto-Angriff</string>
     <string name="auto_attack_slash_end_turn">Auto-Angriff / Runde beenden</string>
     <string name="auto_attack_warning">Hinweis: Nach Abschluss des Auto-Angriffs können Sie Minen oder Türme mit Fallenfähigkeiten oder dauerhaften Angriffen nutzen, wenn diese noch Aktionspunkte haben, bevor die Runde endet.</string>
@@ -2243,6 +2244,15 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_kraken_description">Der Kraken ist ein riesiges Seemonster, das Lastenkähne angreifen und versenken kann und tauchen kann, um Schaden zu vermeiden. Er ist ein furchtbarer Gegner, der eine sorgfältige Strategie erfordert.</string>
     <string name="villain_kraken_title">Der Kraken betritt das Schlachtfeld</string>
     <string name="villain_kraken_backstory">Der Kraken ist aus den Tiefen des Ozeans aufgetaucht und bedroht alle, die auf den Meeren segeln. Seine Tentakel können Schiffe zerquetschen und seine Anwesenheit flößt selbst den mutigsten Seemännern Angst ein.</string>
+
+    <string name="demonling_name">Dämonling</string>
+    <string name="demonlings_name">Dämonlinge</string>
+    <string name="demonling_description">Ein winziger imp-ähnlicher Späher, beschworen von Zythar dem Riftrufer. Einzeln schwach, aber wenn ein Dämonling weit genug vor seinem Meister vorrückt — oder sich einem Ziel nähert — opfert er sich, um ein Rift-Portal aufzureißen.</string>
+    <string name="zythar_name">Zythar der Riftrufer</string>
+    <string name="villain_zythar_title">Zythar der Riftrufer betritt das Schlachtfeld</string>
+    <string name="villain_zythar_backstory">Zythar der Riftrufer reißt Löcher in die Realität selbst.</string>
+    <string name="villain_zythar_description">Er beschwört Dämonen und Dämonlinge, die er als Späher vorausschickt, um Rift-Portale zu öffnen.</string>
+    <string name="villain_zythar_portal_short">Rift-Portale: Dämonlinge opfern sich, um blau-Eingang / orange-Ausgang Portale zu öffnen, die jeden Feind darauf zum Ausgang teleportieren</string>
 
     <!-- Beschreibungen der Feindeseinheiten -->
     <string name="goblin_description">Schnell und wendig, Goblins sind die schwächsten Gegner, bewegen sich aber schnell. Verwende Flächenattacken, um mehrere Goblins auf einmal zu bekämpfen.</string>

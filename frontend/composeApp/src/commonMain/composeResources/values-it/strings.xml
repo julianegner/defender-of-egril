@@ -459,8 +459,8 @@
     <string name="ewhad_warning">Ewhad può apparire solo una volta per livello!</string>
     <string name="villain">Cattivo</string>
     <string name="villains">Cattivi</string>
-    <string name="villain_defeated_title">%1$s è stato sconfitto</string>
-    <string name="villain_defeated_text">Il cattivo è caduto. La sua aura oscura non potenzia più i nemici vicini.</string>
+    <string name="villain_defeated_title">Cattivo sconfitto</string>
+    <string name="villain_defeated_text">%1$s è stato sconfitto</string>
     <string name="villain_once_warning">Ogni cattivo può apparire solo una volta per livello!</string>
     <string name="level_lv">Liv%d</string>
     <string name="arrange_level_order">Organizza ordine dei livelli:</string>
@@ -786,6 +786,7 @@
     <string name="win_level_now">Vinci il livello ora</string>
     <string name="win_level_now_description">I nemici rimasti non sono abbastanza potenti da minacciare la tua fortezza: puoi concludere il livello con la vittoria proprio ora.</string>
     <string name="auto_attack_and_end_turn">Attacco Auto e Termina Turno</string>
+    <string name="generate_mana_and_end_turn">Genera mana e termina turno</string>
     <string name="auto_attack_button">Attacco Auto</string>
     <string name="auto_attack_slash_end_turn">Attacco Auto / Termina Turno</string>
     <string name="auto_attack_warning">Nota: Dopo il completamento dell'attacco automatico, se le miniere o le torri con abilità di trappola o attacchi durevoli hanno ancora punti azione, è possibile utilizzarli prima della fine del turno.</string>
@@ -2246,6 +2247,15 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_kraken_description">Il Kraken è un enorme mostro marino che può attaccare le chiatte e affondarle e può immergersi per evitare i danni. È un avversario formidabile che richiede una strategia attenta.</string>
     <string name="villain_kraken_title">Il Kraken entra nel campo di battaglia</string>
     <string name="villain_kraken_backstory">Il Kraken è emerso dalle profondità dell\'oceano, minacciando chiunque navighi i mari. I suoi tentacoli possono schiacciare le navi e la sua presenza incute paura anche ai marinai più coraggiosi.</string>
+
+    <string name="demonling_name">Demonetto</string>
+    <string name="demonlings_name">Demonetti</string>
+    <string name="demonling_description">Un minuscolo esploratore imp evocato da Zythar il Chiamatore di Varchi. Individualmente debole, ma quando un demonetto avanza abbastanza davanti al suo padrone — o si avvicina a un obiettivo — si sacrifica per aprire un portale di varco.</string>
+    <string name="zythar_name">Zythar il Chiamatore di Varchi</string>
+    <string name="villain_zythar_title">Zythar il Chiamatore di Varchi entra nel campo di battaglia</string>
+    <string name="villain_zythar_backstory">Zythar il Chiamatore di Varchi strappa buchi nella realtà stessa.</string>
+    <string name="villain_zythar_description">Evoca demoni e demonetti, che invia avanti come esploratori per aprire portali di varco.</string>
+    <string name="villain_zythar_portal_short">Portali di varco: i demonetti si sacrificano per aprire portali ingresso blu / uscita arancione che teletrasportano ogni nemico all&apos;uscita</string>
 
     <!-- Descrizioni delle Unità Nemiche -->
     <string name="goblin_description">Veloci e agili, i goblin sono i nemici più deboli ma si muovono rapidamente. Usa gli attacchi di area per gestire più goblin contemporaneamente.</string>

@@ -236,7 +236,9 @@ class EnemyMovementSystem(
     fun findFreeSpawnPosition(): Position? {
         // Try each spawn point to find a free one
         for (spawnPos in state.level.startPositions) {
-            if (!state.attackers.any { it.position.value == spawnPos && !it.isDefeated.value }) {
+            if (!state.attackers.any { it.position.value == spawnPos && !it.isDefeated.value } &&
+                !state.isPortalTile(spawnPos)
+            ) {
                 return spawnPos
             }
         }
@@ -257,7 +259,8 @@ class EnemyMovementSystem(
                     pos.y >= 0 &&
                     pos.y < state.level.gridHeight &&
                     state.level.isOnPath(pos) &&
-                    !state.attackers.any { it.position.value == pos && !it.isDefeated.value }
+                    !state.attackers.any { it.position.value == pos && !it.isDefeated.value } &&
+                    !state.isPortalTile(pos)
                 ) {
                     return pos
                 }
@@ -277,9 +280,39 @@ class EnemyMovementSystem(
         waterOnly: Boolean = false,
         canUseRiver: Boolean = false,
     ): Position? {
+        fun isValidSpawnTile(position: Position): Boolean =
+            if (waterOnly) {
+                state.level.isRiverTile(position)
+            } else if (canUseRiver) {
+                state.level.isEnemyOccupiable(position)
+            } else {
+                state.level.isEnemyTraversable(position)
+            }
+
+        fun findPortalRedirectDestination(entryPosition: Position): Position? {
+            val portal = state.getPortalAtEntry(entryPosition) ?: return null
+            return portal.exitPosition.getHexNeighbors().asSequence()
+                .filter { pos ->
+                    pos.x >= 0 &&
+                        pos.x < state.level.gridWidth &&
+                        pos.y >= 0 &&
+                        pos.y < state.level.gridHeight &&
+                        isValidSpawnTile(pos) &&
+                        !state.isPortalTile(pos) &&
+                        !state.attackers.any { it.position.value == pos && !it.isDefeated.value }
+                }.minByOrNull { pos ->
+                    state.getActiveTargetPositions().minOfOrNull { target -> pos.hexDistanceTo(target) } ?: Int.MAX_VALUE
+                }
+        }
+
         // First, check if the preferred spawn point is free
         if (!state.attackers.any { it.position.value == preferredSpawnPoint && !it.isDefeated.value }) {
-            return preferredSpawnPoint
+            if (state.isPortalEntry(preferredSpawnPoint)) {
+                val redirected = findPortalRedirectDestination(preferredSpawnPoint)
+                if (redirected != null) return redirected
+            } else if (!state.isPortalExit(preferredSpawnPoint)) {
+                return preferredSpawnPoint
+            }
         }
 
         // BFS to find nearest free position on path (or river for water-only enemies)
@@ -306,14 +339,7 @@ class EnemyMovementSystem(
                 }
 
                 // Must be on an appropriate tile type for this enemy
-                val isValidTile =
-                    if (waterOnly) {
-                        state.level.isRiverTile(neighbor)
-                    } else if (canUseRiver) {
-                        state.level.isEnemyOccupiable(neighbor)
-                    } else {
-                        state.level.isEnemyTraversable(neighbor)
-                    }
+                val isValidTile = isValidSpawnTile(neighbor)
                 if (!isValidTile) continue
 
                 visited.add(neighbor)
@@ -325,7 +351,12 @@ class EnemyMovementSystem(
                     }
 
                 if (!isOccupied) {
-                    return neighbor
+                    if (state.isPortalEntry(neighbor)) {
+                        val redirected = findPortalRedirectDestination(neighbor)
+                        if (redirected != null) return redirected
+                    } else if (!state.isPortalExit(neighbor)) {
+                        return neighbor
+                    }
                 }
 
                 // Add to queue for further exploration (limit search depth)
