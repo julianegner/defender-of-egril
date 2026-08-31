@@ -28,13 +28,12 @@ they can be play‑tested side by side before one of them replaces *The First Wa
 - **Map** (`map_goblin_gorge`, 31×15): three spawn points feed a northern, a central and a southern
   lane. The lanes merge in front of a narrow gorge, so everything the player builds around the gorge
   mouth pays off — a first, readable lesson in choke points.
-- **Hook**: on turn 5 **Gribnak the Squealer** (`SNOTLING_BOSS`) walks in. He carries a name plate
-  instead of a health bar, rallies snotlings around himself and is the first enemy the player cannot
-  simply out‑shoot with one tower. Killing him triggers a bounty event worth 80 coins.
+- **Hook**: on turn 5 **Gribnak the Squealer** (`SNOTLING_BOSS`, level 2) walks in. He carries a name
+  plate instead of a health bar, rallies snotlings around himself and is the first enemy the player
+  cannot simply out‑shoot with one tower.
 - **Supports**: two dwarven trap tokens, one freeze‑spell token (spell tokens work even though the
   player has not unlocked any spell yet) and the *Sky is falling* cooldown power.
-- **Events**: a warning message on turn 4, the villain bounty on his death and two emergency
-  barricades when the player drops to four health points.
+- **Events**: two emergency barricades when the player drops to four health points.
 - **Why it hooks**: it turns a wave of goblins into a duel with a named opponent and hands the player
   three brand‑new toys in a level where they cannot lose much.
 

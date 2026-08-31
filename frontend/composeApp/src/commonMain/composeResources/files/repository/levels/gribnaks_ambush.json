@@ -28,7 +28,7 @@
       {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 6}},
       {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 11}},
       {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 6}},
-      {"attackerType": "SNOTLING_BOSS", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 6}},
+      {"attackerType": "SNOTLING_BOSS", "level": 2, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 6}},
       {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 2}},
       {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 11}},
       {"attackerType": "SNOTLING", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 6}},
@@ -65,8 +65,6 @@
       ]
     },
     "events": [
-      {"id": "gorge_warning", "condition": {"type": "TURN_START", "fromTurn": 4, "threshold": 0}, "actions": [], "messageKey": "event_msg_enemies_approaching", "repeatable": false},
-      {"id": "gribnak_bounty", "condition": {"type": "ENEMY_TYPE_KILLED", "fromTurn": 0, "threshold": 1, "attackerType": "SNOTLING_BOSS"}, "actions": [{"type": "GIVE_COINS", "amount": 80}], "messageKey": "event_msg_coins_received", "repeatable": false},
       {"id": "gorge_last_stand", "condition": {"type": "HEALTH_AT_OR_BELOW", "fromTurn": 0, "threshold": 4}, "actions": [{"type": "GIVE_SUPPORT_OBJECT", "amount": 2, "supportObjectType": "BARRICADE"}], "messageKey": "event_msg_low_health_warning", "repeatable": false}
     ]
   }
