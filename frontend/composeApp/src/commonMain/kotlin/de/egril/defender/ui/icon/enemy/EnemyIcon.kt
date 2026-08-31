@@ -314,7 +314,7 @@ fun EnemyTypeIcon(
                 -> {
                     // Type previews use a single icon by default. For death ghosts we can pass a
                     // swarmCount to keep the full stack shape visible before the kill animation.
-                    val count = if (swarmCount != null) minOf(swarmCount.coerceAtLeast(1), SNOTLING_DIAMOND_OFFSETS.size) else 1
+                    val count = if (swarmCount != null) minOf(swarmCount, SNOTLING_DIAMOND_OFFSETS.size) else 1
                     if (count == 1) {
                         when (attackerType) {
                             AttackerType.SPIDERLING -> drawSpiderlingSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)
