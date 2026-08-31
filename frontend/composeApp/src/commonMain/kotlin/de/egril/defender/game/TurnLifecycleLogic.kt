@@ -111,6 +111,7 @@ class TurnLifecycleLogic(
             state.pendingCoinGains.value = 0
         }
 
+        state.playedTileAnimationKeys.clear()
         state.bombExplosionEffects.clear()
         state.defeatedEnemyEffects.clear()
         state.coinGainEffects.clear()

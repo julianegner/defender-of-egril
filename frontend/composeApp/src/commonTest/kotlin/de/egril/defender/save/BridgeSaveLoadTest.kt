@@ -29,6 +29,7 @@ class BridgeSaveLoadTest {
                 attackersToSpawn = emptyList(),
                 fieldEffects = emptyList(),
                 traps = emptyList(),
+                playedTileAnimationKeys = listOf("enemy_spawn:5:2,3", "coin_gain:5:2,3"),
                 bridges =
                     listOf(
                         SavedBridge(
@@ -59,5 +60,6 @@ class BridgeSaveLoadTest {
         assertNotNull(loaded)
         assertEquals(savedGame.bridges, loaded.bridges)
         assertEquals(savedGame.nextBridgeId, loaded.nextBridgeId)
+        assertEquals(savedGame.playedTileAnimationKeys, loaded.playedTileAnimationKeys)
     }
 }

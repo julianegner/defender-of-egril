@@ -69,6 +69,7 @@ data class SavedGame(
     val supportFiefRemaining: Map<de.egril.defender.model.FiefType, Int> = emptyMap(), // Fief tokens left to place
     val cooldownPowerReadyIn: Map<CooldownPowerType, Int> = emptyMap(), // Turns until each power is ready (0 = ready)
     val coinSurgeActive: Boolean = false, // True when Coin Surge is active for the current turn
+    val playedTileAnimationKeys: List<String> = emptyList(), // One-shot tile animations already shown and not to replay after culling/save-load
     // Scripted-event tracking, persisted so events don't re-fire after save/load.
     val triggeredEventIds: List<String> = emptyList(), // IDs of scripted events that have already fired
     val enemiesKilledTotal: Int = 0, // Total enemies killed (for event conditions)

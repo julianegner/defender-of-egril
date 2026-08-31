@@ -23,43 +23,51 @@ class PathfindingSystem(
     ): List<Position> {
         if (start == goal) return listOf(start)
 
-        val openSet = mutableSetOf(start)
+        val search = SearchCache(attacker)
+        val openMembers = mutableSetOf(start)
+        val openQueue = OpenList()
         val cameFrom = mutableMapOf<Position, Position>()
         val gScore = mutableMapOf(start to 0)
         val fScore = mutableMapOf(start to start.distanceTo(goal))
+        // Insertion sequence per position. It reproduces the tie-breaking of the previous
+        // implementation, which picked the first minimum in the insertion-ordered open set.
+        val sequences = mutableMapOf(start to 0)
+        var nextSequence = 1
+        openQueue.push(OpenEntry(start, fScore.getValue(start), start.distanceTo(goal), 0))
 
         var iterations = 0
         val maxIterations = 1000 // Prevent infinite loops
 
-        while (openSet.isNotEmpty() && iterations < maxIterations) {
-            iterations++
+        while (openMembers.isNotEmpty() && iterations < maxIterations) {
+            // Pop the position with the lowest fScore.
+            // If multiple positions have the same fScore, prefer the one closest to the goal
+            // (heuristic tiebreaker), then the one that entered the open set first.
+            val entry = openQueue.popValid(openMembers, fScore, sequences) ?: break
+            val current = entry.position
 
-            // Select the position with the lowest fScore
-            // If multiple positions have the same fScore, prefer the one closest to the goal (heuristic tiebreaker)
-            val current =
-                openSet.minWithOrNull(
-                    compareBy<Position> { fScore[it] ?: Int.MAX_VALUE }
-                        .thenBy { it.distanceTo(goal) },
-                ) ?: break
+            iterations++
 
             if (current == goal) {
                 return reconstructPath(cameFrom, current)
             }
 
-            openSet.remove(current)
+            openMembers.remove(current)
 
-            for (neighbor in getNeighbors(current, goal, attacker, excludedPositions, ignoreBarricades)) {
-                val moveCost = calculateMoveCost(neighbor, attacker)
+            for (neighbor in getNeighbors(current, goal, attacker, excludedPositions, ignoreBarricades, search)) {
+                val moveCost = search.moveCost(neighbor)
                 val tentativeGScore = (gScore[current] ?: Int.MAX_VALUE) + moveCost
 
                 if (tentativeGScore < (gScore[neighbor] ?: Int.MAX_VALUE)) {
+                    val distanceToGoal = neighbor.distanceTo(goal)
                     cameFrom[neighbor] = current
                     gScore[neighbor] = tentativeGScore
-                    fScore[neighbor] = tentativeGScore + neighbor.distanceTo(goal)
+                    val neighborFScore = tentativeGScore + distanceToGoal
+                    fScore[neighbor] = neighborFScore
 
-                    if (!openSet.contains(neighbor)) {
-                        openSet.add(neighbor)
+                    if (openMembers.add(neighbor)) {
+                        sequences[neighbor] = nextSequence++
                     }
+                    openQueue.push(OpenEntry(neighbor, neighborFScore, distanceToGoal, sequences.getValue(neighbor)))
                 }
             }
         }
@@ -69,100 +77,210 @@ class PathfindingSystem(
     }
 
     /**
-     * Calculate the cost of moving to a position, considering dangers like acid and tower coverage.
-     * Returns higher costs for dangerous positions to encourage safer paths.
+     * Per-search cache of the (immutable during a single search) game state that
+     * [calculateMoveCost] and [isBlocked] depend on.
+     *
+     * On large maps that consist almost entirely of path tiles, A* expands hundreds of positions
+     * per call and is executed for every enemy — scanning all defenders, field effects and
+     * barricades for every expanded position dominated the runtime (issue #791).
      */
-    private fun calculateMoveCost(
-        position: Position,
-        attacker: Attacker?,
-    ): Int {
-        var cost = 1 // Base movement cost
-
-        // If no attacker info, use basic cost (for compatibility)
-        if (attacker == null) return cost
-
-        val attackerHealth = attacker.currentHealth.value
-
-        // Check for dead-end potential by counting available exit paths
-        // This helps avoid getting stuck in branches that don't lead to the goal
-        val exitCount =
-            position.getHexNeighbors().count { neighbor ->
-                neighbor.x >= 0 &&
-                    neighbor.x < state.level.gridWidth &&
-                    neighbor.y >= 0 &&
-                    neighbor.y < state.level.gridHeight &&
-                    (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor))
-            }
-
-        // Penalize positions with few exits (potential dead ends)
-        // 1 exit = dead end (100 penalty), 2 exits = corridor (20 penalty), 3+ exits = normal
-        when (exitCount) {
-            1 -> cost += 100 // Very likely a dead end
-            2 -> cost += 20 // Could be a narrow corridor
-            // 3+ exits get no penalty
+    private inner class SearchCache(
+        private val attacker: Attacker?,
+    ) {
+        val blockingBarricadePositions: Set<Position> by lazy {
+            state.barricades.filter { !it.isDestroyed() }.mapTo(mutableSetOf()) { it.position }
         }
 
-        // Check for acid field effects at this position
-        val acidEffect =
-            state.fieldEffects.find {
-                it.type == FieldEffectType.ACID && it.position == position
+        private val acidDamageByPosition: Map<Position, Int> by lazy {
+            val result = mutableMapOf<Position, Int>()
+            state.fieldEffects.forEach { effect ->
+                if (effect.type == FieldEffectType.ACID && !result.containsKey(effect.position)) {
+                    result[effect.position] = effect.damage
+                }
             }
-        if (acidEffect != null) {
-            // Acid applies effect.damage each turn a unit stands in it
+            result
+        }
+
+        private val towerThreats: List<TowerThreat> by lazy {
+            state.defenders.mapNotNull { defender ->
+                if (!defender.isReady) {
+                    null
+                } else {
+                    TowerThreat(
+                        position = defender.position.value,
+                        minRange = defender.type.minRange,
+                        range = defender.range,
+                        potentialDamage =
+                            when (defender.type.attackType) {
+                                AttackType.LASTING -> (defender.damage / LASTING_DAMAGE_DIVISOR) * defender.dotDuration
+                                else -> defender.damage
+                            },
+                    )
+                }
+            }
+        }
+
+        private val moveCosts = mutableMapOf<Position, Int>()
+
+        fun moveCost(position: Position): Int = moveCosts.getOrPut(position) { computeMoveCost(position) }
+
+        private fun computeMoveCost(position: Position): Int {
+            var cost = 1 // Base movement cost
+
+            // If no attacker info, use basic cost (for compatibility)
+            val currentAttacker = attacker ?: return cost
+            val attackerHealth = currentAttacker.currentHealth.value
+
+            // Check for dead-end potential by counting available exit paths
+            // This helps avoid getting stuck in branches that don't lead to the goal
+            val exitCount =
+                position.getHexNeighbors().count { neighbor ->
+                    neighbor.x >= 0 &&
+                        neighbor.x < state.level.gridWidth &&
+                        neighbor.y >= 0 &&
+                        neighbor.y < state.level.gridHeight &&
+                        (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor))
+                }
+
+            // Penalize positions with few exits (potential dead ends)
+            // 1 exit = dead end (100 penalty), 2 exits = corridor (20 penalty), 3+ exits = normal
+            when (exitCount) {
+                1 -> cost += 100 // Very likely a dead end
+                2 -> cost += 20 // Could be a narrow corridor
+                // 3+ exits get no penalty
+            }
+
+            // Acid applies effect.damage each turn a unit stands in it.
             // For pathfinding cost calculation, we assume 1 turn of exposure:
             // - Units move through cells one at a time during their movement phase
             // - Even if blocked, they won't choose to stay in acid (will seek alternate paths)
-            // - This provides a reasonable heuristic for path cost without over-penalizing
             // Note: The high cost (1000) for lethal acid ensures it's only chosen as last resort
-            val acidDamage = acidEffect.damage
-
-            // If acid would defeat the unit, add very high cost (but not impossible)
-            if (acidDamage >= attackerHealth) {
-                cost += 1000 // Very high cost, avoid if possible
-            } else {
-                // Add cost proportional to the damage (encourage avoiding acid)
-                cost += acidDamage * 10
-            }
-        }
-
-        // Check for tower coverage at this position
-        var maxTowerDamage = 0
-        var totalTowerThreat = 0
-
-        for (defender in state.defenders) {
-            if (!defender.isReady) continue
-
-            val distance = defender.position.value.distanceTo(position)
-
-            // Check if position is in tower range
-            if (distance >= defender.type.minRange && distance <= defender.range) {
-                val potentialDamage =
-                    when (defender.type.attackType) {
-                        AttackType.LASTING -> {
-                            // DOT damage over multiple turns
-                            val dotDamagePerTurn = defender.damage / LASTING_DAMAGE_DIVISOR
-                            dotDamagePerTurn * defender.dotDuration
-                        }
-                        else -> defender.damage
+            val acidDamage = acidDamageByPosition[position]
+            if (acidDamage != null) {
+                cost +=
+                    if (acidDamage >= attackerHealth) {
+                        1000 // Very high cost, avoid if possible
+                    } else {
+                        acidDamage * 10 // Encourage avoiding acid
                     }
+            }
 
-                maxTowerDamage = maxOf(maxTowerDamage, potentialDamage)
-                totalTowerThreat += potentialDamage
+            // Check for tower coverage at this position
+            var maxTowerDamage = 0
+            var totalTowerThreat = 0
+            for (threat in towerThreats) {
+                val distance = threat.position.distanceTo(position)
+                if (distance >= threat.minRange && distance <= threat.range) {
+                    maxTowerDamage = maxOf(maxTowerDamage, threat.potentialDamage)
+                    totalTowerThreat += threat.potentialDamage
+                }
+            }
+
+            if (totalTowerThreat > 0) {
+                cost +=
+                    if (maxTowerDamage >= attackerHealth) {
+                        500 // High cost for lethal positions
+                    } else {
+                        // Add moderate cost for tower coverage (prefer paths outside tower range)
+                        // Use total threat to account for multiple overlapping towers
+                        (totalTowerThreat / 10).coerceAtMost(100)
+                    }
+            }
+
+            return cost
+        }
+    }
+
+    private data class TowerThreat(
+        val position: Position,
+        val minRange: Int,
+        val range: Int,
+        val potentialDamage: Int,
+    )
+
+    private data class OpenEntry(
+        val position: Position,
+        val fScore: Int,
+        val distanceToGoal: Int,
+        val sequence: Int,
+    )
+
+    /**
+     * Minimal binary min-heap for the A* open list. Replaces the previous linear scan over the
+     * open set, which was O(open set size) for every expanded position.
+     *
+     * Outdated entries are not removed eagerly; [popValid] skips entries whose position has
+     * already been closed or whose score has been improved since the entry was pushed.
+     */
+    private class OpenList {
+        private val heap = mutableListOf<OpenEntry>()
+
+        fun push(entry: OpenEntry) {
+            heap.add(entry)
+            var index = heap.size - 1
+            while (index > 0) {
+                val parent = (index - 1) / 2
+                if (isLess(heap[index], heap[parent])) {
+                    swap(index, parent)
+                    index = parent
+                } else {
+                    break
+                }
             }
         }
 
-        if (totalTowerThreat > 0) {
-            // If tower damage would defeat the unit, add high cost
-            if (maxTowerDamage >= attackerHealth) {
-                cost += 500 // High cost for lethal positions
-            } else {
-                // Add moderate cost for tower coverage (prefer paths outside tower range)
-                // Use total threat to account for multiple overlapping towers
-                cost += (totalTowerThreat / 10).coerceAtMost(100)
+        fun popValid(
+            openMembers: Set<Position>,
+            fScore: Map<Position, Int>,
+            sequences: Map<Position, Int>,
+        ): OpenEntry? {
+            while (true) {
+                val entry = pop() ?: return null
+                if (!openMembers.contains(entry.position)) continue
+                if (fScore[entry.position] != entry.fScore) continue
+                if (sequences[entry.position] != entry.sequence) continue
+                return entry
             }
         }
 
-        return cost
+        private fun pop(): OpenEntry? {
+            if (heap.isEmpty()) return null
+            val result = heap[0]
+            val last = heap.removeAt(heap.size - 1)
+            if (heap.isNotEmpty()) {
+                heap[0] = last
+                var index = 0
+                while (true) {
+                    val left = 2 * index + 1
+                    val right = left + 1
+                    var smallest = index
+                    if (left < heap.size && isLess(heap[left], heap[smallest])) smallest = left
+                    if (right < heap.size && isLess(heap[right], heap[smallest])) smallest = right
+                    if (smallest == index) break
+                    swap(index, smallest)
+                    index = smallest
+                }
+            }
+            return result
+        }
+
+        private fun swap(
+            first: Int,
+            second: Int,
+        ) {
+            val temp = heap[first]
+            heap[first] = heap[second]
+            heap[second] = temp
+        }
+
+        private fun isLess(
+            first: OpenEntry,
+            second: OpenEntry,
+        ): Boolean {
+            if (first.fScore != second.fScore) return first.fScore < second.fScore
+            if (first.distanceToGoal != second.distanceToGoal) return first.distanceToGoal < second.distanceToGoal
+            return first.sequence < second.sequence
+        }
     }
 
     private fun reconstructPath(
@@ -184,6 +302,7 @@ class PathfindingSystem(
         attacker: Attacker?,
         excludedPositions: Set<Position> = emptySet(),
         ignoreBarricades: Boolean = false,
+        search: SearchCache? = null,
     ): List<Position> {
         val canUseRiver = attacker?.type?.canTraverseRiver == true
         val isWaterOnly = attacker?.type?.canOnlyMoveOnWater == true
@@ -208,7 +327,7 @@ class PathfindingSystem(
                     }
                 ) &&
                 // Bridges are walkable for enemies
-                !isBlocked(neighbor, attacker, ignoreBarricades) &&
+                !isBlocked(neighbor, attacker, ignoreBarricades, search) &&
                 !excludedPositions.contains(neighbor) // Exclude specified positions
         }
     }
@@ -246,6 +365,7 @@ class PathfindingSystem(
         pos: Position,
         attacker: Attacker? = null,
         ignoreBarricades: Boolean = false,
+        search: SearchCache? = null,
     ): Boolean {
         // Pirates may traverse rivers, but never the exact tile occupied by an active raft.
         if (attacker?.type == AttackerType.PIRATE && state.isRaftAt(pos)) return true
@@ -256,8 +376,10 @@ class PathfindingSystem(
         // Check if position has a barricade
         // Flying dragons can move over barricades (like they can fly over non-playable tiles)
         val isFlying = attacker?.isFlying?.value == true
-        if (!isFlying and !ignoreBarricades) {
-            val hasBarricade = state.barricades.any { it.position == pos && !it.isDestroyed() }
+        if (!isFlying && !ignoreBarricades) {
+            val hasBarricade =
+                search?.blockingBarricadePositions?.contains(pos)
+                    ?: state.barricades.any { it.position == pos && !it.isDestroyed() }
             if (hasBarricade) return true
         }
 
