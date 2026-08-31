@@ -19,7 +19,7 @@
   "waypoints": [
 
   ],
-  "prerequisites": ["the_first_wave"],
+  "prerequisites": ["gribnaks_ambush"],
   "allowAutoAttack": true,
   "isOfficial": true,
   "author": "Julian Egner",

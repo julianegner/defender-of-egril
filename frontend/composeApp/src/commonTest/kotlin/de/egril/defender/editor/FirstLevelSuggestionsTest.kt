@@ -8,9 +8,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Validates the three suggested "first level after the tutorial" levels (see issue #788) and
- * their maps: they must be loadable, playable directly after the tutorial and actually use the
- * villain, support and scripted-event mechanics they were designed to showcase.
+ * Validates the suggested "first level after the tutorial" level (see issue #788) and its map:
+ * it must be loadable, playable directly after the tutorial and actually use the villain,
+ * support and scripted-event mechanics it was designed to showcase.
  *
  * Like the other repository tests, these checks are skipped when the repository resources are not
  * available in the current test environment.
@@ -19,15 +19,11 @@ class FirstLevelSuggestionsTest {
     private val levelToMap =
         mapOf(
             "gribnaks_ambush" to "map_goblin_gorge",
-            "hold_the_gate" to "map_the_watch_gate",
-            "the_golden_road" to "map_golden_road",
         )
 
     private val villainPerLevel =
         mapOf(
             "gribnaks_ambush" to AttackerType.SNOTLING_BOSS,
-            "hold_the_gate" to AttackerType.MORGUK_BONEWHISPER,
-            "the_golden_road" to AttackerType.ZUSSA,
         )
 
     @Test

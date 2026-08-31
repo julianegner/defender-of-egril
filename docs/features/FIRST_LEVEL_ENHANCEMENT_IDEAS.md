@@ -11,15 +11,16 @@ barricades, spell tokens, cooldown powers), fiefs, the Waaagh! horde mechanic an
 events. Players who stop after the tutorial never see any of it.
 
 Each suggestion below therefore introduces **one** new mechanic as its hook, stays inside the
-beginner tower set (spike, spear, bow) and lasts about ten turns. All three are shipped as playable
-official content at the world‑map location *The Beginning*, unlocked directly by the tutorial, so
-they can be play‑tested side by side before one of them replaces *The First Wave*.
+beginner tower set (spike, spear, bow) and lasts about ten turns. **Suggestion 1 was picked and is
+shipped as playable official content**: it now occupies the world‑map location that follows the
+tutorial, while *The First Wave* is kept as a level but no longer appears on the world map.
+Suggestions 2 and 3 are documented here as design ideas only.
 
 | # | Level | Map | Hook |
 |---|-------|-----|------|
-| 1 | Gribnak's Ambush (`gribnaks_ambush`) | `map_goblin_gorge` | First named **villain** + support tokens |
-| 2 | Hold the Gate (`hold_the_gate`) | `map_the_watch_gate` | **Barricades / gate** defence + **Waaagh!** |
-| 3 | The Golden Road (`the_golden_road`) | `map_golden_road` | **Fiefs**: economy under threat |
+| 1 | Gribnak's Ambush (`gribnaks_ambush`, implemented) | `map_goblin_gorge` | First named **villain** + support tokens |
+| 2 | Hold the Gate (idea) | a watch‑gate map | **Barricades / gate** defence + **Waaagh!** |
+| 3 | The Golden Road (idea) | a long trade‑road map | **Fiefs**: economy under threat |
 
 ## Suggestion 1 — Gribnak's Ambush
 
@@ -37,12 +38,12 @@ they can be play‑tested side by side before one of them replaces *The First Wa
 - **Why it hooks**: it turns a wave of goblins into a duel with a named opponent and hands the player
   three brand‑new toys in a level where they cannot lose much.
 
-## Suggestion 2 — Hold the Gate
+## Suggestion 2 — Hold the Gate (idea)
 
 *The Waaagh! rolls in.*
 
-- **Map** (`map_the_watch_gate`, 29×19): a northern and a southern road converge on the gate corridor
-  of a watch fort; the corridor is the only way to the target.
+- **Map**: a northern and a southern road converge on the gate corridor of a watch fort; the corridor
+  is the only way to the target.
 - **Hook**: the level starts with a **named gate** — two barricades called *The Watch Gate* — and two
   pre‑placed spear towers on the ramparts. The player does not start on an empty field but inherits a
   fortification that is already under attack, and the growing ork pressure charges the
@@ -56,12 +57,12 @@ they can be play‑tested side by side before one of them replaces *The First Wa
 - **Why it hooks**: it is a siege, not a corridor. Losing the gate is visible and dramatic, and
   rebuilding it is an immediate, satisfying goal.
 
-## Suggestion 3 — The Golden Road
+## Suggestion 3 — The Golden Road (idea)
 
 *Protect the villages.*
 
-- **Map** (`map_golden_road`, 33×15): one long, winding trade road with generous farmland on both
-  sides — plenty of room for towers, but a long way to defend.
+- **Map**: one long, winding trade road with generous farmland on both sides — plenty of room for
+  towers, but a long way to defend.
 - **Hook**: three **fiefs** sit on the road (a marketplace early, a quarry in the middle, a
   woodcutter close to the target). They pay coins every turn but are destroyed the moment any enemy
   walks over them, so the player is rewarded for stopping enemies *early* instead of at the last
@@ -74,23 +75,18 @@ they can be play‑tested side by side before one of them replaces *The First Wa
 - **Why it hooks**: it gives the player something to protect other than an abstract health counter,
   and every fief that survives is visible proof that their defence worked.
 
-## Files added
+## Files added for suggestion 1
 
 ```text
 frontend/composeApp/src/commonMain/composeResources/files/repository/
 ├── maps/map_goblin_gorge.json
-├── maps/map_the_watch_gate.json
-├── maps/map_golden_road.json
-├── levels/gribnaks_ambush.json
-├── levels/hold_the_gate.json
-└── levels/the_golden_road.json
+└── levels/gribnaks_ambush.json
 ```
 
-`sequence.json` lists the three levels right after `the_first_wave`, and they share the world‑map
-location *The Beginning* with it. Titles, subtitles and map names are translated into all five
-supported languages. `FirstLevelSuggestionsTest` validates that the maps are playable, that the
-spawn points, fiefs, barricades and towers are placed on legal tiles and that every scripted event
-uses a known story message.
-
-Once a favourite has been picked in play‑testing, the other two can either be removed or kept as
-optional side levels.
+`sequence.json` lists `gribnaks_ambush` right after `the_first_wave`, and the world‑map location that
+used to be *The Beginning* now carries the name *Gribnak's Ambush* and holds this level only.
+*The First Wave* remains available as a level file but is no longer part of the world map; the levels
+that used to require it (`prison_break`, `the_creek`) now require `gribnaks_ambush`. Title, subtitle,
+map name and location name are translated into all five supported languages.
+`FirstLevelSuggestionsTest` validates that the map is playable, that spawn points and placements sit
+on legal tiles and that every scripted event uses a known story message.

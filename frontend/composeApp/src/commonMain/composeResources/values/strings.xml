@@ -1100,10 +1100,6 @@
     <string name="level_the_witches_title">The Witches</string>
     <string name="level_gribnaks_ambush_title">Gribnak\'s Ambush</string>
     <string name="level_gribnaks_ambush_subtitle">A villain leads the horde</string>
-    <string name="level_hold_the_gate_title">Hold the Gate</string>
-    <string name="level_hold_the_gate_subtitle">The Waaagh! rolls in</string>
-    <string name="level_the_golden_road_title">The Golden Road</string>
-    <string name="level_the_golden_road_subtitle">Protect the villages</string>
     <!-- Map Names -->
     <string name="map_tutorial_name">Tutorial Map</string>
     <string name="map_straight_name">Straight Map</string>
@@ -1131,12 +1127,10 @@
     <string name="map_curved_path_name">Curved Path</string>
     <string name="map_obstacle_path_name">Obstacle Path</string>
     <string name="map_goblin_gorge_name">Goblin Gorge</string>
-    <string name="map_the_watch_gate_name">The Watch Gate</string>
-    <string name="map_golden_road_name">The Golden Road</string>
 
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
-    <string name="location_the_beginning_name">The Beginning</string>
+    <string name="location_gribnaks_ambush_name">Gribnak\'s Ambush</string>
     <string name="location_the_plains_name">The Plains</string>
     <string name="location_the_spiral_name">The Spiral</string>
     <string name="location_the_dance_name">The Dance</string>
