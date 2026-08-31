@@ -459,8 +459,8 @@
     <string name="ewhad_warning">Ewhad kann nur einmal pro Level erscheinen!</string>
     <string name="villain">Schurke</string>
     <string name="villains">Schurken</string>
-    <string name="villain_defeated_title">%1$s wurde besiegt</string>
-    <string name="villain_defeated_text">Der Schurke ist gefallen. Seine dunkle Aura stärkt nahe Feinde nicht mehr.</string>
+    <string name="villain_defeated_title">Schurke besiegt</string>
+    <string name="villain_defeated_text">%1$s wurde besiegt</string>
     <string name="villain_once_warning">Jeder Schurke kann nur einmal pro Level erscheinen!</string>
     <string name="level_lv">Lv%d</string>
     <string name="arrange_level_order">Level-Reihenfolge festlegen:</string>
@@ -2251,7 +2251,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="zythar_name">Zythar der Riftrufer</string>
     <string name="villain_zythar_title">Zythar der Riftrufer betritt das Schlachtfeld</string>
     <string name="villain_zythar_backstory">Zythar der Riftrufer reißt Löcher in die Realität selbst.</string>
-    <string name="villain_zythar_description">Er schickt Späher vor, um Rift-Portale zu öffnen. Feinde, die auf den Eingang treten, werden zum Ausgang teleportiert. Zythar folgt, wenn ein Portal nah am Ziel liegt.\nAlle 3 Runden beschwört er Dämonen und Dämonlinge.</string>
+    <string name="villain_zythar_description">Er beschwört Dämonen und Dämonlinge, die er als Späher vorausschickt, um Rift-Portale zu öffnen.</string>
     <string name="villain_zythar_portal_short">Rift-Portale: Dämonlinge opfern sich, um blau-Eingang / orange-Ausgang Portale zu öffnen, die jeden Feind darauf zum Ausgang teleportieren</string>
 
     <!-- Beschreibungen der Feindeseinheiten -->

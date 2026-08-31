@@ -465,8 +465,8 @@
     <string name="ewhad_warning">Ewhad can only be spawned once per level!</string>
     <string name="villain">Villain</string>
     <string name="villains">Villains</string>
-    <string name="villain_defeated_title">%1$s was defeated</string>
-    <string name="villain_defeated_text">The villain has fallen. Their dark aura no longer empowers nearby enemies.</string>
+    <string name="villain_defeated_title">Villain defeated</string>
+    <string name="villain_defeated_text">%1$s was defeated</string>
     <string name="villain_once_warning">Each villain can only be spawned once per level!</string>
     <string name="level_lv">Lv%d</string>
     <string name="arrange_level_order">Arrange level order:</string>
@@ -2261,7 +2261,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="zythar_name">Zythar the Riftcaller</string>
     <string name="villain_zythar_title">Zythar the Riftcaller enters the battlefield</string>
     <string name="villain_zythar_backstory">Zythar the Riftcaller tears holes in reality itself.</string>
-    <string name="villain_zythar_description">He sends scouts ahead to open rift portals. Enemies stepping on the entry are teleported to the exit. Zythar follows when a portal leads close to the target.\nEvery 3 turns he summons demons and demonlings.</string>
+    <string name="villain_zythar_description">He summons demons and demonlings, which he sends ahead as scouts to open rift portals.</string>
     <string name="villain_zythar_portal_short">Rift Portals: demonlings sacrifice themselves to open blue-entry / orange-exit portals that teleport any enemy stepping on them to the exit</string>
 
     <!-- Enemy Unit Descriptions -->

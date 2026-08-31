@@ -459,8 +459,8 @@
     <string name="ewhad_warning">Ewhad ne peut apparaître qu'une fois par niveau!</string>
     <string name="villain">Scélérat</string>
     <string name="villains">Scélérats</string>
-    <string name="villain_defeated_title">%1$s a été vaincu</string>
-    <string name="villain_defeated_text">Le scélérat est tombé. Son aura sombre ne renforce plus les ennemis proches.</string>
+    <string name="villain_defeated_title">Scélérat vaincu</string>
+    <string name="villain_defeated_text">%1$s a été vaincu</string>
     <string name="villain_once_warning">Chaque scélérat ne peut apparaître qu'une fois par niveau!</string>
     <string name="level_lv">Niv%d</string>
     <string name="arrange_level_order">Organiser l'ordre des niveaux:</string>
@@ -2253,7 +2253,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="zythar_name">Zythar le Convocateur de Failles</string>
     <string name="villain_zythar_title">Zythar le Convocateur de Failles entre sur le champ de bataille</string>
     <string name="villain_zythar_backstory">Zythar le Convocateur de Failles déchire des trous dans la réalité elle-même.</string>
-    <string name="villain_zythar_description">Il envoie des éclaireurs pour ouvrir des portails de faille. Les ennemis qui marchent sur l&apos;entrée sont téléportés à la sortie. Zythar les emprunte quand un portail mène près de la cible.\nToutes les 3 tours il invoque des démons et des démonelings.</string>
+    <string name="villain_zythar_description">Il invoque des démons et des démonelings, qu&apos;il envoie en éclaireurs pour ouvrir des portails de faille.</string>
     <string name="villain_zythar_portal_short">Portails de faille : les démonelings se sacrifient pour ouvrir des portails entrée bleue / sortie orange qui téléportent tout ennemi vers la sortie</string>
 
     <!-- Descriptions des Unités Ennemies -->

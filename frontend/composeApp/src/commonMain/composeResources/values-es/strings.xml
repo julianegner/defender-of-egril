@@ -459,8 +459,8 @@
     <string name="ewhad_warning">Ewhad solo puede aparecer una vez por nivel!</string>
     <string name="villain">Villano</string>
     <string name="villains">Villanos</string>
-    <string name="villain_defeated_title">%1$s fue derrotado</string>
-    <string name="villain_defeated_text">El villano ha caído. Su aura oscura ya no potencia a los enemigos cercanos.</string>
+    <string name="villain_defeated_title">Villano derrotado</string>
+    <string name="villain_defeated_text">%1$s fue derrotado</string>
     <string name="villain_once_warning">Cada villano solo puede aparecer una vez por nivel!</string>
     <string name="level_lv">Nv%d</string>
     <string name="arrange_level_order">Organizar orden de niveles:</string>
@@ -2252,7 +2252,7 @@
     <string name="zythar_name">Zythar el Convocador de Rifts</string>
     <string name="villain_zythar_title">Zythar el Convocador de Rifts entra al campo de batalla</string>
     <string name="villain_zythar_backstory">Zythar el Convocador de Rifts rasga agujeros en la realidad misma.</string>
-    <string name="villain_zythar_description">Envía exploradores para abrir portales de rift. Los enemigos que pisen la entrada son teletransportados a la salida. Zythar sigue cuando un portal lleva cerca del objetivo.\nCada 3 turnos invoca demonios y demonines.</string>
+    <string name="villain_zythar_description">Invoca demonios y demonines, que envía por delante como exploradores para abrir portales de rift.</string>
     <string name="villain_zythar_portal_short">Portales de Rift: los demonínes se sacrifican para abrir portales de entrada azul / salida naranja que teletransportan a cualquier enemigo a la salida</string>
 
     <!-- Descripciones de Unidades Enemigas -->

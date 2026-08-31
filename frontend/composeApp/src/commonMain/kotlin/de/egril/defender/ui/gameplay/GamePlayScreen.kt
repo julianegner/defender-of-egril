@@ -3449,8 +3449,8 @@ private fun GamePlayScreenContent(
                                 val villainName = villainType?.villainName ?: stringResource(Res.string.villain)
                                 NarrativeMessageDialog(
                                     type = NarrativeMessageType.EWHAD,
-                                    title = stringResource(Res.string.villain_defeated_title, villainName),
-                                    text = stringResource(Res.string.villain_defeated_text),
+                                    title = stringResource(Res.string.villain_defeated_title),
+                                    text = stringResource(Res.string.villain_defeated_text, villainName),
                                     onDismiss = { onDismissGameMessage?.invoke() },
                                     backgroundOverride = villainMessageBackground(msg.name),
                                     accentColorOverride = villainMessageButtonColor(msg.name),
