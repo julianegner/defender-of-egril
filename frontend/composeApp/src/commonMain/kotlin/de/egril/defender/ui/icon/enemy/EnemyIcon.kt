@@ -272,7 +272,7 @@ fun EnemyTypeIcon(
     attackerType: AttackerType,
     modifier: Modifier = Modifier,
     backgroundColor: Color? = null,
-    swarmCount: Int? = null,
+    swarmHealthOverride: Int? = null,
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
@@ -314,9 +314,9 @@ fun EnemyTypeIcon(
                 AttackerType.SPIDERLING,
                 AttackerType.DEMONLING,
                 -> {
-                    // Type previews use a single icon by default. For death ghosts we can pass a
-                    // swarmCount to keep the full stack shape visible before the kill animation.
-                    val count = if (swarmCount != null) swarmIconCountForHealth(swarmCount) else 1
+                    // Type previews use a single icon by default. For death ghosts we can pass raw
+                    // swarm health to keep the full stack shape visible before the kill animation.
+                    val count = if (swarmHealthOverride != null) swarmIconCountForHealth(swarmHealthOverride) else 1
                     if (count == 1) {
                         when (attackerType) {
                             AttackerType.SPIDERLING -> drawSpiderlingSymbol(centerX, centerY, iconSize * 0.7f * SNOTLING_ICON_SCALE, headScale = headScale)

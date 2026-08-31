@@ -3646,7 +3646,7 @@ private fun BoxScope.GridCellContent(
     if (showGhost && isDeathEffectActive) {
         EnemyTypeIcon(
             attackerType = deathEffect.attackerType,
-            swarmCount = ghostSwarmCount(deathEffect.attackerType, displayedHealth),
+            swarmHealthOverride = ghostSwarmCount(deathEffect.attackerType, displayedHealth),
             modifier = Modifier.fillMaxSize().zIndex(15f),
         )
         // Show level badge on top of the ghost icon when level > 1
