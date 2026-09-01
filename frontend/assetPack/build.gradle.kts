@@ -51,7 +51,7 @@ assetPack {
 // the generated import statements (e.g. defender_of_egril.composeapp.generated.resources.Res).
 val cmpPackage = "defender_of_egril.composeapp.generated.resources"
 
-val syncComposeResources by tasks.registering(Sync::class) {
+val syncComposeResources = tasks.register<Sync>("syncComposeResources") {
     description = "Copies composeResources into the asset pack before bundling."
     group = "build"
 
@@ -79,7 +79,7 @@ val syncComposeResources by tasks.registering(Sync::class) {
 // inherited from the root project's `dependencyResolutionManagement` block
 // (mavenCentral, google, JetBrains Space), so no extra repository declaration
 // is needed here.
-val materialSymbolsFontDeps by configurations.creating {
+val materialSymbolsFontDeps = configurations.create("materialSymbolsFontDeps") {
     isTransitive = false
     isCanBeResolved = true
     isCanBeConsumed = false
@@ -99,11 +99,13 @@ val materialSymbolsCmpPackage = "dev.vicart.compose.material.symbols.resources"
 
 // Copy (not Sync) so we do not accidentally delete the app resources written by
 // `syncComposeResources` which targets a sibling subdirectory of `src/main/assets`.
-val syncMaterialSymbolsFonts by tasks.registering(Copy::class) {
+val syncMaterialSymbolsFonts = tasks.register<Copy>("syncMaterialSymbolsFonts") {
     description = "Extracts Material Symbols TTF fonts from the library AAR into the asset pack."
     group = "build"
 
-    from(zipTree(materialSymbolsFontDeps.singleFile)) {
+    from({
+        zipTree(materialSymbolsFontDeps.singleFile)
+    }) {
         // Only include the font assets; other AAR entries (classes.jar, etc.) are not needed.
         include("assets/composeResources/$materialSymbolsCmpPackage/**")
         eachFile {
