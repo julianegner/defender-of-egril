@@ -2403,4 +2403,17 @@
     <string name="to_y">Hasta Y</string>
     <string name="template_description">Descripcion de plantilla</string>
     <string name="unreachable">Inalcanzable</string>
+    <string name="level_generator">Generador de niveles</string>
+    <string name="level_generator_description">Elige la dificultad, los villanos y el mapa. El generador crea un borrador de nivel completo que puedes ajustar después.</string>
+    <string name="level_generator_villains_hint">Los villanos seleccionados determinan qué enemigos se usan principalmente.</string>
+    <string name="level_generator_map_source">Mapa</string>
+    <string name="level_generator_map_generated">Generar un mapa nuevo</string>
+    <string name="level_generator_map_existing">Usar un mapa existente</string>
+    <string name="level_generator_select_map">Seleccionar mapa</string>
+    <string name="level_generator_map_size">Tamaño del mapa</string>
+    <string name="level_generator_size_small">Pequeño</string>
+    <string name="level_generator_size_medium">Mediano</string>
+    <string name="level_generator_size_large">Grande</string>
+    <string name="level_generator_size_gigantic">Gigantesco</string>
+    <string name="level_generator_generate">Generar nivel</string>
 </resources>

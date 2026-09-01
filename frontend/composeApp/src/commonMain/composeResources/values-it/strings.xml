@@ -2405,4 +2405,17 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="to_y">A Y</string>
     <string name="template_description">Descrizione modello</string>
     <string name="unreachable">Irraggiungibile</string>
+    <string name="level_generator">Generatore di livelli</string>
+    <string name="level_generator_description">Scegli difficoltà, cattivi e mappa. Il generatore crea una bozza di livello completa che puoi perfezionare in seguito.</string>
+    <string name="level_generator_villains_hint">I cattivi selezionati determinano quali nemici vengono usati principalmente.</string>
+    <string name="level_generator_map_source">Mappa</string>
+    <string name="level_generator_map_generated">Genera una nuova mappa</string>
+    <string name="level_generator_map_existing">Usa una mappa esistente</string>
+    <string name="level_generator_select_map">Seleziona mappa</string>
+    <string name="level_generator_map_size">Dimensione della mappa</string>
+    <string name="level_generator_size_small">Piccola</string>
+    <string name="level_generator_size_medium">Media</string>
+    <string name="level_generator_size_large">Grande</string>
+    <string name="level_generator_size_gigantic">Gigantesca</string>
+    <string name="level_generator_generate">Genera livello</string>
 </resources>

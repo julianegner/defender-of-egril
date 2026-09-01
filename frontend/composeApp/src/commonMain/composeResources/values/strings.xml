@@ -2412,4 +2412,17 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="to_y">To Y</string>
     <string name="template_description">Template description</string>
     <string name="unreachable">Unreachable</string>
+    <string name="level_generator">Level Generator</string>
+    <string name="level_generator_description">Choose difficulty, villains and the map. The generator creates a complete level draft that you can refine afterwards.</string>
+    <string name="level_generator_villains_hint">The selected villains determine which enemies are mainly used.</string>
+    <string name="level_generator_map_source">Map</string>
+    <string name="level_generator_map_generated">Generate a new map</string>
+    <string name="level_generator_map_existing">Use an existing map</string>
+    <string name="level_generator_select_map">Select map</string>
+    <string name="level_generator_map_size">Map size</string>
+    <string name="level_generator_size_small">Small</string>
+    <string name="level_generator_size_medium">Medium</string>
+    <string name="level_generator_size_large">Large</string>
+    <string name="level_generator_size_gigantic">Gigantic</string>
+    <string name="level_generator_generate">Generate level</string>
 </resources>

@@ -2402,4 +2402,17 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="to_y">Bis Y</string>
     <string name="template_description">Vorlagenbeschreibung</string>
     <string name="unreachable">Nicht erreichbar</string>
+    <string name="level_generator">Level-Generator</string>
+    <string name="level_generator_description">Wähle Schwierigkeit, Schurken und die Karte. Der Generator erstellt einen vollständigen Level-Entwurf, den du danach anpassen kannst.</string>
+    <string name="level_generator_villains_hint">Die ausgewählten Schurken bestimmen, welche Gegner hauptsächlich verwendet werden.</string>
+    <string name="level_generator_map_source">Karte</string>
+    <string name="level_generator_map_generated">Neue Karte generieren</string>
+    <string name="level_generator_map_existing">Vorhandene Karte verwenden</string>
+    <string name="level_generator_select_map">Karte auswählen</string>
+    <string name="level_generator_map_size">Kartengröße</string>
+    <string name="level_generator_size_small">Klein</string>
+    <string name="level_generator_size_medium">Mittel</string>
+    <string name="level_generator_size_large">Groß</string>
+    <string name="level_generator_size_gigantic">Gigantisch</string>
+    <string name="level_generator_generate">Level generieren</string>
 </resources>

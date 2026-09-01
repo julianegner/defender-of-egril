@@ -35,6 +35,8 @@ import de.egril.defender.ui.editor.CreateLevelDialog
 import de.egril.defender.ui.editor.SaveAsDialog
 import de.egril.defender.ui.editor.getDefaultAuthorName
 import de.egril.defender.ui.editor.level.enemies.EnemySpawnsTab
+import de.egril.defender.ui.editor.level.generator.LevelGenerator
+import de.egril.defender.ui.editor.level.generator.LevelGeneratorDialog
 import de.egril.defender.ui.editor.level.tower.TowersTab
 import de.egril.defender.ui.editor.level.waypoint.WaypointsTab
 import de.egril.defender.ui.icon.*
@@ -97,6 +99,7 @@ internal fun LevelEditorContent(
     var selectedLevelId by remember { mutableStateOf<String?>(null) }
     var editingLevel by remember { mutableStateOf<EditorLevel?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
+    var showGeneratorDialog by remember { mutableStateOf(false) }
     var showVillainUsage by remember { mutableStateOf(false) }
     var levelToDelete by remember { mutableStateOf<EditorLevel?>(null) }
     val iamState by de.egril.defender.iam.IamService.state
@@ -151,6 +154,9 @@ internal fun LevelEditorContent(
                 ) {
                     Button(onClick = { showVillainUsage = true }) {
                         Text(stringResource(Res.string.villain_usage))
+                    }
+                    Button(onClick = { showGeneratorDialog = true }) {
+                        Text(stringResource(Res.string.level_generator))
                     }
                     Button(onClick = { showCreateDialog = true }) {
                         Text(stringResource(Res.string.create_new_level))
@@ -220,6 +226,23 @@ internal fun LevelEditorContent(
                     selectedLevelId = null
                 }
                 levelToDelete = null
+            },
+        )
+    }
+
+    if (showGeneratorDialog) {
+        val defaultAuthor = getDefaultAuthorName(iamState)
+        LevelGeneratorDialog(
+            availableMaps = EditorStorage.getAllMaps().filter { it.readyToUse },
+            defaultAuthor = defaultAuthor,
+            onDismiss = { showGeneratorDialog = false },
+            onGenerate = { config ->
+                val result = LevelGenerator.generate(config)
+                result.generatedMap?.let { EditorStorage.saveMap(it) }
+                EditorStorage.saveLevel(result.level)
+                levels.value = EditorStorage.getAllLevels()
+                showGeneratorDialog = false
+                editingLevel = result.level
             },
         )
     }

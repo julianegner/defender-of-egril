@@ -1,0 +1,288 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
+package de.egril.defender.ui.editor.level.generator
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.hyperether.resources.stringResource
+import de.egril.defender.editor.EditorMap
+import de.egril.defender.model.AttackerType
+import de.egril.defender.model.isRealVillain
+import de.egril.defender.ui.getLocalizedName
+import defender_of_egril.composeapp.generated.resources.*
+
+/**
+ * Dialog of the Level Generator. All generation inputs (difficulty, villains and the map to use)
+ * are collected here and have to be chosen before the level is generated.
+ */
+@Composable
+internal fun LevelGeneratorDialog(
+    availableMaps: List<EditorMap>,
+    defaultAuthor: String = "",
+    onDismiss: () -> Unit,
+    onGenerate: (LevelGeneratorConfig) -> Unit,
+) {
+    var title by remember { mutableStateOf("") }
+    var author by remember { mutableStateOf(defaultAuthor) }
+    var difficulty by remember { mutableStateOf(GeneratorDifficulty.MEDIUM) }
+    var difficultyExpanded by remember { mutableStateOf(false) }
+    var selectedVillains by remember { mutableStateOf(emptySet<AttackerType>()) }
+    var mapSource by remember { mutableStateOf(GeneratorMapSource.GENERATED_MAP) }
+    var mapSize by remember { mutableStateOf(GeneratedMapSize.MEDIUM) }
+    var mapSizeExpanded by remember { mutableStateOf(false) }
+    var selectedMap by remember { mutableStateOf(availableMaps.firstOrNull()) }
+    var mapExpanded by remember { mutableStateOf(false) }
+
+    val villainTypes = remember { AttackerType.entries.filter { it.isRealVillain } }
+    val canGenerate = title.isNotBlank() && (mapSource == GeneratorMapSource.GENERATED_MAP || selectedMap != null)
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(Res.string.level_generator)) },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text(
+                    text = stringResource(Res.string.level_generator_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text(stringResource(Res.string.level_title)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                )
+                OutlinedTextField(
+                    value = author,
+                    onValueChange = { author = it },
+                    label = { Text(stringResource(Res.string.author_optional)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                )
+
+                ExposedDropdownMenuBox(
+                    expanded = difficultyExpanded,
+                    onExpandedChange = { difficultyExpanded = it },
+                ) {
+                    OutlinedTextField(
+                        value = difficulty.localizedLabel(),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(Res.string.difficulty)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = difficultyExpanded) },
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
+                    )
+                    ExposedDropdownMenu(
+                        expanded = difficultyExpanded,
+                        onDismissRequest = { difficultyExpanded = false },
+                    ) {
+                        GeneratorDifficulty.entries.forEach { entry ->
+                            DropdownMenuItem(
+                                text = { Text(entry.localizedLabel()) },
+                                onClick = {
+                                    difficulty = entry
+                                    difficultyExpanded = false
+                                },
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(Res.string.villains),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                Text(
+                    text = stringResource(Res.string.level_generator_villains_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
+                Column(
+                    modifier = Modifier.height(150.dp).verticalScroll(rememberScrollState()),
+                ) {
+                    villainTypes.forEach { type ->
+                        val checked = type in selectedVillains
+                        Row(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        selectedVillains =
+                                            if (checked) selectedVillains - type else selectedVillains + type
+                                    }.padding(vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(
+                                checked = checked,
+                                onCheckedChange = {
+                                    selectedVillains =
+                                        if (checked) selectedVillains - type else selectedVillains + type
+                                },
+                            )
+                            Text(type.getLocalizedName())
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(Res.string.level_generator_map_source),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { mapSource = GeneratorMapSource.GENERATED_MAP },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(
+                        selected = mapSource == GeneratorMapSource.GENERATED_MAP,
+                        onClick = { mapSource = GeneratorMapSource.GENERATED_MAP },
+                    )
+                    Text(stringResource(Res.string.level_generator_map_generated))
+                }
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { mapSource = GeneratorMapSource.EXISTING_MAP },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(
+                        selected = mapSource == GeneratorMapSource.EXISTING_MAP,
+                        onClick = { mapSource = GeneratorMapSource.EXISTING_MAP },
+                        enabled = availableMaps.isNotEmpty(),
+                    )
+                    Text(stringResource(Res.string.level_generator_map_existing))
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                if (mapSource == GeneratorMapSource.GENERATED_MAP) {
+                    ExposedDropdownMenuBox(
+                        expanded = mapSizeExpanded,
+                        onExpandedChange = { mapSizeExpanded = it },
+                    ) {
+                        OutlinedTextField(
+                            value = mapSize.localizedLabel(),
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(stringResource(Res.string.level_generator_map_size)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = mapSizeExpanded) },
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = mapSizeExpanded,
+                            onDismissRequest = { mapSizeExpanded = false },
+                        ) {
+                            GeneratedMapSize.entries.forEach { entry ->
+                                DropdownMenuItem(
+                                    text = { Text(entry.localizedLabel()) },
+                                    onClick = {
+                                        mapSize = entry
+                                        mapSizeExpanded = false
+                                    },
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    ExposedDropdownMenuBox(
+                        expanded = mapExpanded,
+                        onExpandedChange = { mapExpanded = it },
+                    ) {
+                        OutlinedTextField(
+                            value = selectedMap?.name.orEmpty(),
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(stringResource(Res.string.level_generator_select_map)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = mapExpanded) },
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = mapExpanded,
+                            onDismissRequest = { mapExpanded = false },
+                        ) {
+                            availableMaps.forEach { map ->
+                                DropdownMenuItem(
+                                    text = { Text(map.name) },
+                                    onClick = {
+                                        selectedMap = map
+                                        mapExpanded = false
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                enabled = canGenerate,
+                onClick = {
+                    onGenerate(
+                        LevelGeneratorConfig(
+                            title = title.trim(),
+                            author = author.trim(),
+                            difficulty = difficulty,
+                            villains = selectedVillains,
+                            mapSource = mapSource,
+                            existingMap = selectedMap.takeIf { mapSource == GeneratorMapSource.EXISTING_MAP },
+                            mapSize = mapSize,
+                            seed = kotlin.random.Random.nextInt(),
+                        ),
+                    )
+                },
+            ) {
+                Text(stringResource(Res.string.level_generator_generate))
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(Res.string.cancel))
+            }
+        },
+    )
+}
+
+@Composable
+private fun GeneratorDifficulty.localizedLabel(): String =
+    when (this) {
+        GeneratorDifficulty.EASY -> stringResource(Res.string.difficulty_easy)
+        GeneratorDifficulty.MEDIUM -> stringResource(Res.string.difficulty_medium)
+        GeneratorDifficulty.HARD -> stringResource(Res.string.difficulty_hard)
+        GeneratorDifficulty.NIGHTMARE -> stringResource(Res.string.difficulty_nightmare)
+    }
+
+@Composable
+private fun GeneratedMapSize.localizedLabel(): String {
+    val name =
+        when (this) {
+            GeneratedMapSize.SMALL -> stringResource(Res.string.level_generator_size_small)
+            GeneratedMapSize.MEDIUM -> stringResource(Res.string.level_generator_size_medium)
+            GeneratedMapSize.LARGE -> stringResource(Res.string.level_generator_size_large)
+            GeneratedMapSize.GIGANTIC -> stringResource(Res.string.level_generator_size_gigantic)
+        }
+    return "$name (${width}x$height)"
+}

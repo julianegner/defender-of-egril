@@ -69,6 +69,22 @@ To toggle between states, click the collapse/expand button in the header.
   - Available tower types
   - Level title and subtitle
 
+#### Level Generator
+
+The **Level Generator** button in the Level Editor tab opens a dialog that creates a complete level
+draft from a few inputs. Everything is chosen before the generation starts:
+
+- **Difficulty** (easy, medium, hard, nightmare): controls the number of waves, the enemy levels and
+  the starting coins and health points.
+- **Villains**: any number of villains can be selected. Their factions determine which regular
+  enemies are mainly used (for example, an undead villain leads to undead minions). Each selected
+  villain is spawned exactly once, in one of the last waves.
+- **Map**: either an existing map is selected, or a new map is generated. When a map is generated,
+  its size can be chosen as small, medium, large or gigantic.
+
+The generated level (and, if requested, the generated map) is saved and opened in the level editor
+so it can be refined like any other level.
+
 #### Events Tab (within Level Editor)
 
 The **Events** tab lets you script events for a level. Each event pairs a *condition* with one or
