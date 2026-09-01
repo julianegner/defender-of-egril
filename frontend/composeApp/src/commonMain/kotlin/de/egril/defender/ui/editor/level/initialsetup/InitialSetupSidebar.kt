@@ -64,6 +64,7 @@ fun InitialSetupSidebar(
     onRemoveBarricade: (Int) -> Unit,
     onRemoveFief: (Int) -> Unit,
     onRemoveMushroom: (Int) -> Unit,
+    onRemovePortal: (Int) -> Unit,
     selectedElement: SelectedElement?,
     onSelectedElementChange: (SelectedElement?) -> Unit,
 ) {
@@ -228,6 +229,21 @@ fun InitialSetupSidebar(
                     ) {
                         Text(stringResource(Res.string.initial_setup_mushrooms))
                     }
+                    Button(
+                        onClick = { onPlacementModeChange(PlacementMode.PORTAL) },
+                        modifier = Modifier.weight(1f),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor =
+                                    if (placementMode == PlacementMode.PORTAL) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.secondary
+                                    },
+                            ),
+                    ) {
+                        Text(stringResource(Res.string.initial_setup_portals))
+                    }
                 }
             }
 
@@ -318,6 +334,22 @@ fun InitialSetupSidebar(
                 PlacementMode.MUSHROOM -> {
                     // No configuration needed for mushrooms - they are simply placed on path tiles
                 }
+                PlacementMode.PORTAL -> {
+                    item {
+                        Card(
+                            colors =
+                                CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                ),
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.initial_setup_portal_hint),
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(12.dp),
+                            )
+                        }
+                    }
+                }
                 null -> {
                     // Selection mode - show selected element details
                     if (selectedElement != null) {
@@ -332,6 +364,7 @@ fun InitialSetupSidebar(
                                         is SelectedElement.Barricade -> onRemoveBarricade(selectedElement.index)
                                         is SelectedElement.Fief -> onRemoveFief(selectedElement.index)
                                         is SelectedElement.Mushroom -> onRemoveMushroom(selectedElement.index)
+                                        is SelectedElement.Portal -> onRemovePortal(selectedElement.index)
                                     }
                                 },
                                 onDeselect = { onSelectedElementChange(null) },
@@ -375,6 +408,7 @@ fun InitialSetupSidebar(
                     traps = initialData.traps,
                     barricades = initialData.barricades,
                     fiefs = initialData.fiefs,
+                    portals = initialData.portals,
                 )
             }
         }
@@ -954,6 +988,22 @@ fun SelectedElementPanel(
                         )
                     }
                 }
+                is SelectedElement.Portal -> {
+                    Column {
+                        Text(
+                            text = stringResource(Res.string.initial_setup_portals),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            text = "${stringResource(Res.string.initial_setup_portal_entry)}: (${selectedElement.portal.entryPosition.x}, ${selectedElement.portal.entryPosition.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Text(
+                            text = "${stringResource(Res.string.initial_setup_portal_exit)}: (${selectedElement.portal.exitPosition.x}, ${selectedElement.portal.exitPosition.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
             }
 
             Row(
@@ -988,6 +1038,7 @@ fun PlacedElementsSummary(
     traps: List<InitialTrap>,
     barricades: List<InitialBarricade>,
     fiefs: List<InitialFief>,
+    portals: List<InitialPortal> = emptyList(),
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -1012,6 +1063,12 @@ fun PlacedElementsSummary(
             text = "${stringResource(Res.string.initial_setup_fiefs)}: ${fiefs.size}",
             style = MaterialTheme.typography.bodySmall,
         )
+        if (portals.isNotEmpty()) {
+            Text(
+                text = "${stringResource(Res.string.initial_setup_portals)}: ${portals.size}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
 }
 

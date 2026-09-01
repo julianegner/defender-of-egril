@@ -405,6 +405,8 @@
     <string name="map_tooling_info">Map Tooling Info</string>
     <string name="allow_no_buildable_tiles">Allow maps without buildable tiles</string>
     <string name="allow_no_buildable_tiles_hint">Use this for maps that rely on supports or tower bases instead of build areas.</string>
+    <string name="allow_no_direct_path">Allow maps without direct spawn-to-target path</string>
+    <string name="allow_no_direct_path_hint">Use this for maps where portals added in the level editor bridge the gap between spawn points and targets.</string>
     <string name="width">Width</string>
     <string name="height">Height</string>
     <string name="select_map_to_edit">Select a map to edit:</string>
@@ -709,6 +711,13 @@
     <string name="initial_setup_barricades">Barricades</string>
     <string name="initial_setup_fiefs">Fiefs</string>
     <string name="initial_setup_mushrooms">Mushrooms</string>
+    <string name="initial_setup_portals">Portals</string>
+    <string name="initial_setup_portal_entry">Entry</string>
+    <string name="initial_setup_portal_exit">Exit</string>
+    <string name="initial_setup_portal_place_entry">Click on the map to place the portal entry position</string>
+    <string name="initial_setup_portal_place_exit">Click on the map to place the portal exit position</string>
+    <string name="initial_setup_portal_hint">Add a portal pair: enemies entering the blue entry tile are teleported to the orange exit tile.</string>
+    <string name="initial_setup_portal_validation_failed">Portals must create a valid path from all spawn points to at least one target.</string>
     <string name="mushroom">Mushroom</string>
     <string name="mushroom_buff_description">2x speed and level for 2 turns (horde units and witches only)</string>
     <string name="mushroom_enhanced_horde">Mushroom boost: 2x speed and level</string>

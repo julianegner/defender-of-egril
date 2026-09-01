@@ -87,6 +87,7 @@ private data class MapEditorSnapshot(
     val mapAuthor: String,
     val mapToolingInfo: String,
     val allowNoBuildableTiles: Boolean,
+    val allowNoDirectPath: Boolean,
 )
 
 private data class MapRegionClipboard(
@@ -386,6 +387,7 @@ fun MapEditorView(
     var mapAuthor by remember { mutableStateOf(map.author) }
     var mapToolingInfo by remember { mutableStateOf(map.mapToolingInfo) }
     var allowNoBuildableTiles by remember { mutableStateOf(map.allowNoBuildableTiles) }
+    var allowNoDirectPath by remember { mutableStateOf(map.allowNoDirectPath) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var showSaveTemplateDialog by remember { mutableStateOf(false) }
     var showTileReplacementDialog by remember { mutableStateOf(false) }
@@ -443,7 +445,7 @@ fun MapEditorView(
 
     // Create updated map for minimap that reflects current tiles state
     val currentMap =
-        remember(mapWidth, mapHeight, tiles, riverTiles, targetInfoMap, spawnPointInfoMap, mapToolingInfo, allowNoBuildableTiles) {
+        remember(mapWidth, mapHeight, tiles, riverTiles, targetInfoMap, spawnPointInfoMap, mapToolingInfo, allowNoBuildableTiles, allowNoDirectPath) {
             map.copy(
                 width = mapWidth,
                 height = mapHeight,
@@ -453,6 +455,7 @@ fun MapEditorView(
                 spawnPointInfoMap = spawnPointInfoMap.toMap(),
                 mapToolingInfo = mapToolingInfo,
                 allowNoBuildableTiles = allowNoBuildableTiles,
+                allowNoDirectPath = allowNoDirectPath,
             )
         }
     val mapFlowSummary = remember(currentMap) { analyzeMapFlow(currentMap) }
@@ -501,6 +504,7 @@ fun MapEditorView(
             mapAuthor = mapAuthor,
             mapToolingInfo = mapToolingInfo,
             allowNoBuildableTiles = allowNoBuildableTiles,
+            allowNoDirectPath = allowNoDirectPath,
         )
 
     fun restoreSnapshot(snapshot: MapEditorSnapshot) {
@@ -514,6 +518,7 @@ fun MapEditorView(
         mapAuthor = snapshot.mapAuthor
         mapToolingInfo = snapshot.mapToolingInfo
         allowNoBuildableTiles = snapshot.allowNoBuildableTiles
+        allowNoDirectPath = snapshot.allowNoDirectPath
         replacementToX = (snapshot.width - 1).coerceAtLeast(0).toString()
         replacementToY = (snapshot.height - 1).coerceAtLeast(0).toString()
         copyToX = replacementToX
@@ -985,6 +990,7 @@ fun MapEditorView(
                                 author = mapAuthor,
                                 mapToolingInfo = mapToolingInfo,
                                 allowNoBuildableTiles = allowNoBuildableTiles,
+                                allowNoDirectPath = allowNoDirectPath,
                                 width = mapWidth,
                                 height = mapHeight,
                                 tiles = tiles.toMap(),
@@ -1031,7 +1037,7 @@ fun MapEditorView(
             val iamState by de.egril.defender.iam.IamService.state
             if (!map.isOfficial && iamState.isAuthenticated) {
                 val currentMapJson =
-                    remember(map.id, mapWidth, mapHeight, tiles.hashCode(), riverTiles.hashCode(), targetInfoMap.hashCode(), spawnPointInfoMap.hashCode(), mapToolingInfo, allowNoBuildableTiles) {
+                    remember(map.id, mapWidth, mapHeight, tiles.hashCode(), riverTiles.hashCode(), targetInfoMap.hashCode(), spawnPointInfoMap.hashCode(), mapToolingInfo, allowNoBuildableTiles, allowNoDirectPath) {
                         val updatedMap =
                             map.copy(
                                 width = mapWidth,
@@ -1042,6 +1048,7 @@ fun MapEditorView(
                                 spawnPointInfoMap = spawnPointInfoMap.toMap(),
                                 mapToolingInfo = mapToolingInfo,
                                 allowNoBuildableTiles = allowNoBuildableTiles,
+                                allowNoDirectPath = allowNoDirectPath,
                             )
                         de.egril.defender.editor.EditorJsonSerializer
                             .serializeMap(updatedMap)
@@ -1077,6 +1084,7 @@ fun MapEditorView(
                                     spawnPointInfoMap = spawnPointInfoMap.toMap(),
                                     mapToolingInfo = mapToolingInfo,
                                     allowNoBuildableTiles = allowNoBuildableTiles,
+                                    allowNoDirectPath = allowNoDirectPath,
                                 )
                             de.egril.defender.editor.EditorStorage.saveCommunityMap(
                                 updatedMap,
@@ -1177,6 +1185,8 @@ fun MapEditorView(
             onMapToolingInfoChange = { mapToolingInfo = it },
             allowNoBuildableTiles = allowNoBuildableTiles,
             onAllowNoBuildableTilesChange = { allowNoBuildableTiles = it },
+            allowNoDirectPath = allowNoDirectPath,
+            onAllowNoDirectPathChange = { allowNoDirectPath = it },
             mapWidth = mapWidth,
             mapHeight = mapHeight,
             resizeLeft = resizeLeft,
@@ -1304,6 +1314,7 @@ fun MapEditorView(
                         author = mapAuthor,
                         mapToolingInfo = mapToolingInfo,
                         allowNoBuildableTiles = allowNoBuildableTiles,
+                        allowNoDirectPath = allowNoDirectPath,
                         width = mapWidth,
                         height = mapHeight,
                         tiles = tiles.toMap(),

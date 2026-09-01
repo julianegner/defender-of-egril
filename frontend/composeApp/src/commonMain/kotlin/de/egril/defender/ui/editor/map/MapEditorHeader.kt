@@ -42,6 +42,8 @@ fun MapEditorHeader(
     onMapToolingInfoChange: (String) -> Unit,
     allowNoBuildableTiles: Boolean,
     onAllowNoBuildableTilesChange: (Boolean) -> Unit,
+    allowNoDirectPath: Boolean,
+    onAllowNoDirectPathChange: (Boolean) -> Unit,
     mapWidth: Int,
     mapHeight: Int,
     resizeLeft: String,
@@ -102,6 +104,8 @@ fun MapEditorHeader(
             onMapToolingInfoChange = onMapToolingInfoChange,
             allowNoBuildableTiles = allowNoBuildableTiles,
             onAllowNoBuildableTilesChange = onAllowNoBuildableTilesChange,
+            allowNoDirectPath = allowNoDirectPath,
+            onAllowNoDirectPathChange = onAllowNoDirectPathChange,
             mapWidth = mapWidth,
             mapHeight = mapHeight,
             resizeLeft = resizeLeft,
@@ -187,6 +191,8 @@ private fun ExpandedMapEditorHeader(
     onMapToolingInfoChange: (String) -> Unit,
     allowNoBuildableTiles: Boolean,
     onAllowNoBuildableTilesChange: (Boolean) -> Unit,
+    allowNoDirectPath: Boolean,
+    onAllowNoDirectPathChange: (Boolean) -> Unit,
     mapWidth: Int,
     mapHeight: Int,
     resizeLeft: String,
@@ -360,6 +366,31 @@ private fun ExpandedMapEditorHeader(
             if (allowNoBuildableTiles && map.getBuildAreas().isEmpty()) {
                 Text(
                     text = stringResource(Res.string.allow_no_buildable_tiles_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = stringResource(Res.string.allow_no_direct_path),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                Switch(
+                    checked = allowNoDirectPath,
+                    onCheckedChange = onAllowNoDirectPathChange,
+                    enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
+                )
+            }
+            if (allowNoDirectPath) {
+                Text(
+                    text = stringResource(Res.string.allow_no_direct_path_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 8.dp),

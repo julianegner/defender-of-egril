@@ -1273,6 +1273,14 @@ object EditorStorage {
             return false
         }
 
+        // When the map allows no direct path, the level's portals must bridge the gap.
+        if (map.allowNoDirectPath) {
+            val portals = level.getEffectiveInitialData().portals
+            if (!map.validateReadyToUseWithPortals(portals, includeRiversAsWalkable = true)) {
+                return false
+            }
+        }
+
         if (map.allowNoBuildableTiles && map.getBuildAreas().isEmpty() && !level.hasNoBuildableTileFallback()) {
             return false
         }

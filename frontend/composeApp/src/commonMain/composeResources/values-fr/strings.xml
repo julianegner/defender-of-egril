@@ -399,6 +399,8 @@
     <string name="map_tooling_info">Infos de création de carte</string>
     <string name="allow_no_buildable_tiles">Autoriser les cartes sans cases constructibles</string>
     <string name="allow_no_buildable_tiles_hint">À utiliser pour les cartes qui reposent sur des soutiens ou des bases de tour plutôt que sur des zones de construction.</string>
+    <string name="allow_no_direct_path">Autoriser les cartes sans chemin direct vers la cible</string>
+    <string name="allow_no_direct_path_hint">Utilisez ceci pour les cartes où des portails de l'éditeur de niveaux relient les points d'apparition aux cibles.</string>
     <string name="width">Largeur</string>
     <string name="height">Hauteur</string>
     <string name="select_map_to_edit">Sélectionner une carte à modifier:</string>
@@ -704,6 +706,13 @@
     <string name="initial_setup_barricades">Barricades</string>
     <string name="initial_setup_fiefs">Fiefs</string>
     <string name="initial_setup_mushrooms">Champignons</string>
+    <string name="initial_setup_portals">Portails</string>
+    <string name="initial_setup_portal_entry">Entrée</string>
+    <string name="initial_setup_portal_exit">Sortie</string>
+    <string name="initial_setup_portal_place_entry">Cliquez sur la carte pour placer l'entrée du portail</string>
+    <string name="initial_setup_portal_place_exit">Cliquez sur la carte pour placer la sortie du portail</string>
+    <string name="initial_setup_portal_hint">Ajoutez une paire de portails : les ennemis entrant sur la case bleue seront téléportés vers la case orange.</string>
+    <string name="initial_setup_portal_validation_failed">Les portails doivent créer un chemin valide depuis tous les points d'apparition vers au moins une cible.</string>
     <string name="mushroom">Champignon</string>
     <string name="mushroom_buff_description">2x vitesse et niveau pendant 2 tours (unités de horde et sorcières uniquement)</string>
     <string name="mushroom_enhanced_horde">Boost champignon : vitesse et niveau x2</string>

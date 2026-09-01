@@ -53,6 +53,7 @@ data class EditorMap(
     val spawnPointInfoMap: Map<String, SpawnPointType> = emptyMap(), // "x,y" -> SpawnPointType for SPAWN_POINT tiles (LAND or WATER)
     val mapToolingInfo: String = DEFAULT_MAP_TOOLING_INFO, // Free-form map tooling text; known standard values are localized at runtime
     val allowNoBuildableTiles: Boolean = false, // True if a map may be ready without any BUILD_AREA tiles
+    val allowNoDirectPath: Boolean = false, // True if this map may have no direct spawn-to-target path (portals added in level editor will bridge the gap)
 ) {
     fun getTileType(
         x: Int,
@@ -158,6 +159,10 @@ data class EditorMap(
         if (targets.isEmpty()) return false
         if (buildAreas.isEmpty() && !allowNoBuildableTiles) return false
 
+        // When allowNoDirectPath is set, skip the spawn-to-target connectivity check.
+        // The level editor is responsible for verifying that portals bridge the gap.
+        if (allowNoDirectPath) return true
+
         // Build set of traversable cells (spawn points + path cells + all targets)
         val traversableCells = pathCells.toMutableSet()
 
@@ -175,6 +180,99 @@ data class EditorMap(
                 hasPathBFS(spawn, target, traversableCells)
             }
         }
+    }
+
+    /**
+     * Validates that portals bridge the gap when [allowNoDirectPath] is true.
+     * Returns true if, when portals teleport enemies from their exit positions to tiles adjacent
+     * to their entry positions (note: entry = where enemies step in, exit = where they appear),
+     * every spawn point can still reach at least one target.
+     *
+     * @param portals The initial portals defined by the level.
+     * @param includeRiversAsWalkable If true, river cells are included as walkable.
+     */
+    fun validateReadyToUseWithPortals(
+        portals: List<InitialPortal>,
+        includeRiversAsWalkable: Boolean = true,
+    ): Boolean {
+        val spawnPoints = getSpawnPoints()
+        val targets = getTargets()
+        val pathCells = getPathCells()
+        val riverCells = getRiverCells()
+        val buildAreas = getBuildAreas()
+
+        if (spawnPoints.isEmpty()) return false
+        if (targets.isEmpty()) return false
+        if (buildAreas.isEmpty() && !allowNoBuildableTiles) return false
+        if (portals.isEmpty()) return false
+
+        val traversableCells = pathCells.toMutableSet()
+        if (includeRiversAsWalkable) {
+            traversableCells.addAll(riverCells)
+        }
+        traversableCells.addAll(spawnPoints)
+        traversableCells.addAll(targets)
+        // Portal tiles themselves are traversable
+        for (portal in portals) {
+            traversableCells.add(portal.entryPosition)
+            traversableCells.add(portal.exitPosition)
+        }
+
+        return spawnPoints.all { spawn ->
+            targets.any { target ->
+                hasPathBFSWithPortals(spawn, target, traversableCells, portals)
+            }
+        }
+    }
+
+    private fun hasPathBFSWithPortals(
+        start: Position,
+        end: Position,
+        validCells: Set<Position>,
+        portals: List<InitialPortal>,
+    ): Boolean {
+        if (start == end) return true
+
+        val queue = ArrayDeque<Position>()
+        queue.add(start)
+        val visited = mutableSetOf(start)
+        val usedPortals = mutableSetOf<InitialPortal>()
+
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+
+            // Check if current position is a portal entry – if so, also enqueue the exit
+            for (portal in portals) {
+                if (portal.entryPosition == current && portal !in usedPortals) {
+                    usedPortals.add(portal)
+                    if (portal.exitPosition == end) return true
+                    if (portal.exitPosition !in visited) {
+                        visited.add(portal.exitPosition)
+                        queue.add(portal.exitPosition)
+                    }
+                }
+            }
+
+            val neighbors =
+                listOf(
+                    Position(current.x + 1, current.y),
+                    Position(current.x - 1, current.y),
+                    Position(current.x, current.y + 1),
+                    Position(current.x, current.y - 1),
+                    Position(current.x + if (current.y % 2 == 0) -1 else 1, current.y + 1),
+                    Position(current.x + if (current.y % 2 == 0) -1 else 1, current.y - 1),
+                )
+
+            for (neighbor in neighbors) {
+                if (neighbor == end) return true
+                if (neighbor !in visited && neighbor in validCells) {
+                    visited.add(neighbor)
+                    queue.add(neighbor)
+                }
+            }
+        }
+
+        return false
     }
 
     private fun hasPathBFS(
@@ -297,8 +395,18 @@ data class InitialMushroom(
 )
 
 /**
+ * Pre-placed portal pair for level start.
+ * Any enemy that steps onto [entryPosition] is instantly teleported to the best free tile
+ * adjacent to [exitPosition].  Portals persist for the whole level and are reset between turns.
+ */
+data class InitialPortal(
+    val entryPosition: Position,
+    val exitPosition: Position,
+)
+
+/**
  * Wrapper for all initial placement data
- * This groups defenders, attackers, traps, barricades, fiefs, and mushrooms in a single object
+ * This groups defenders, attackers, traps, barricades, fiefs, mushrooms, and portals in a single object
  */
 data class InitialData(
     val defenders: List<InitialDefender> = emptyList(),
@@ -307,6 +415,7 @@ data class InitialData(
     val barricades: List<InitialBarricade> = emptyList(),
     val fiefs: List<InitialFief> = emptyList(),
     val mushrooms: List<InitialMushroom> = emptyList(),
+    val portals: List<InitialPortal> = emptyList(),
 ) {
     companion object {
         val EMPTY = InitialData()

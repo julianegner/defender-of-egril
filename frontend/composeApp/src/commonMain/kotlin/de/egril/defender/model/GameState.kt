@@ -1011,5 +1011,18 @@ data class GameState(
         for (initialMushroom in initialData.mushrooms) {
             mushrooms.add(Mushroom(position = initialMushroom.position))
         }
+
+        // Place initial portals (level-designer-placed portal pairs, villainId = 0)
+        for ((index, initialPortal) in initialData.portals.withIndex()) {
+            activePortals.add(
+                Portal(
+                    id = nextPortalId.value++,
+                    entryPosition = initialPortal.entryPosition,
+                    exitPosition = initialPortal.exitPosition,
+                    villainId = 0,
+                    runeIndex = index % Portal.RUNE_POOL_SIZE,
+                ),
+            )
+        }
     }
 }
