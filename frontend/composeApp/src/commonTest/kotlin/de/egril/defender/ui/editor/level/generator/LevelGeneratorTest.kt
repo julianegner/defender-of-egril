@@ -1,7 +1,10 @@
 package de.egril.defender.ui.editor.level.generator
 
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.MapTemplateDefinition
+import de.egril.defender.editor.MapTemplateLayoutKind
 import de.egril.defender.editor.TileType
+import de.egril.defender.ui.editor.map.createMapFromTemplate
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.EnemyFaction
 import de.egril.defender.model.isRealVillain
@@ -339,6 +342,49 @@ class LevelGeneratorTest {
     }
 
     @Test
+    fun riverCrossingMapsStayReadyToUse() {
+        val map =
+            createMapFromTemplate(
+                id = "river_crossing_test",
+                name = "River Crossing Test",
+                width = 30,
+                height = 20,
+                author = "Test",
+                template =
+                    MapTemplateDefinition(
+                        id = "river_crossing_test_template",
+                        name = "River Crossing Test",
+                        layoutKind = MapTemplateLayoutKind.RIVER_CROSSING,
+                    ),
+            )
+
+        assertTrue(map.readyToUse)
+        assertTrue(map.getSpawnPoints().isNotEmpty())
+        assertTrue(map.getTargets().isNotEmpty())
+    }
+
+    @Test
+    fun generatedSpawnsStayWithinNearbySpawnCapacity() {
+        val result =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Spawn Cap",
+                    difficulty = GeneratorDifficulty.NIGHTMARE,
+                    mapSource = GeneratorMapSource.EXISTING_MAP,
+                    existingMap = existingMap(),
+                    seed = 99,
+                ),
+            )
+
+        val maxPerTurn =
+            result.level.enemySpawns
+                .groupBy { it.spawnTurn }
+                .values
+                .maxOfOrNull { it.size } ?: 0
+        assertTrue(maxPerTurn <= 6)
+    }
+
+    @Test
     fun covenTwinsAreNotSelectableAsStandaloneVillains() {
         assertFalse(AttackerType.HAGA.isSelectableGeneratorVillain)
         assertFalse(AttackerType.ZUSSA.isSelectableGeneratorVillain)
@@ -364,9 +410,7 @@ class LevelGeneratorTest {
                 result.level.enemySpawns
                     .groupBy { it.spawnTurn }
                     .mapValues { it.value.size }
-            assertTrue(perTurn.values.all { it >= 4 }, "$difficulty has a turn with fewer than 4 units: $perTurn")
-            // Later waves are bigger than the first ones.
-            assertTrue(perTurn.getValue(perTurn.keys.max()) > perTurn.getValue(1))
+            assertTrue(perTurn.values.all { it in 4..6 }, "$difficulty has an implausible spawn density: $perTurn")
         }
     }
 }

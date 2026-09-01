@@ -79,18 +79,64 @@ private fun createProceduralTemplateMap(
         MapTemplateLayoutKind.SPIRAL_SIEGE -> populateSpiralSiege(draft)
         MapTemplateLayoutKind.SPIDER_WEB -> populateSpiderWeb(draft)
     }
-    return EditorMap(
-        id = id,
-        name = name,
-        width = width,
-        height = height,
-        author = author,
-        tiles = draft.tiles,
-        riverTiles = draft.riverTiles,
-        targetInfoMap = draft.targetInfoMap,
-        spawnPointInfoMap = draft.spawnPointInfoMap,
-        mapToolingInfo = DEFAULT_MAP_TOOLING_INFO,
-    )
+    val map =
+        EditorMap(
+            id = id,
+            name = name,
+            width = width,
+            height = height,
+            author = author,
+            tiles = draft.tiles,
+            riverTiles = draft.riverTiles,
+            targetInfoMap = draft.targetInfoMap,
+            spawnPointInfoMap = draft.spawnPointInfoMap,
+            mapToolingInfo = DEFAULT_MAP_TOOLING_INFO,
+        )
+    return if (map.validateReadyToUse()) {
+        map
+    } else {
+        repairUnreachableGeneratedMap(draft, map)
+    }
+}
+
+private fun repairUnreachableGeneratedMap(
+    draft: MutableMapDraft,
+    map: EditorMap,
+): EditorMap {
+    val target = map.getTarget() ?: return map
+    val spawnPoints = map.getSpawnPoints()
+    if (spawnPoints.isEmpty()) return map
+
+    val repairedDraft = MutableMapDraft(width = map.width, height = map.height)
+    repairedDraft.tiles.putAll(draft.tiles)
+    repairedDraft.riverTiles.putAll(draft.riverTiles)
+    repairedDraft.targetInfoMap.putAll(draft.targetInfoMap)
+    repairedDraft.spawnPointInfoMap.putAll(draft.spawnPointInfoMap)
+
+    val spawnSet = spawnPoints.toSet()
+    for (spawn in spawnPoints) {
+        val path = hexLine(spawn, target, map.width, map.height)
+        path.forEach { position ->
+            if (position != target && position !in spawnSet) {
+                repairedDraft.setTile(position, TileType.PATH)
+            }
+        }
+    }
+
+    val repairedMap =
+        EditorMap(
+            id = map.id,
+            name = map.name,
+            width = map.width,
+            height = map.height,
+            author = map.author,
+            tiles = repairedDraft.tiles,
+            riverTiles = repairedDraft.riverTiles,
+            targetInfoMap = repairedDraft.targetInfoMap,
+            spawnPointInfoMap = repairedDraft.spawnPointInfoMap,
+            mapToolingInfo = map.mapToolingInfo,
+        )
+    return repairedMap.copy(readyToUse = repairedMap.validateReadyToUse())
 }
 
 private data class MutableMapDraft(

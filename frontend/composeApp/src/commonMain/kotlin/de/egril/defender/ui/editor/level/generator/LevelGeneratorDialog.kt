@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.model.AttackerType
+import de.egril.defender.ui.getLocalizedDescription
 import de.egril.defender.ui.getLocalizedName
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -159,8 +160,9 @@ internal fun LevelGeneratorDialog(
                                     .clickable {
                                         selectedVillains =
                                             if (checked) selectedVillains - type else selectedVillains + type
-                                    }.padding(vertical = 2.dp),
+                                    }.padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             Checkbox(
                                 checked = checked,
@@ -169,7 +171,14 @@ internal fun LevelGeneratorDialog(
                                         if (checked) selectedVillains - type else selectedVillains + type
                                 },
                             )
-                            Text(type.getLocalizedName())
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(type.getLocalizedName())
+                                Text(
+                                    text = type.getLocalizedDescription(),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                         }
                     }
                 }

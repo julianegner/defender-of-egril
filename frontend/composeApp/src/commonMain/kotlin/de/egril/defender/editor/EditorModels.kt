@@ -118,6 +118,8 @@ data class EditorMap(
 
     fun hasBuildAreas(): Boolean = getBuildAreas().isNotEmpty()
 
+    fun hasBuildablePlacementTiles(): Boolean = hasBuildAreas() || getRiverCells().isNotEmpty()
+
     fun getRiverCells(): Set<Position> =
         tiles
             .filter { it.value == TileType.RIVER }
@@ -153,11 +155,11 @@ data class EditorMap(
         val targets = getTargets()
         val pathCells = getPathCells()
         val riverCells = getRiverCells()
-        val buildAreas = getBuildAreas()
+        val hasBuildablePlacementTiles = hasBuildablePlacementTiles()
 
         if (spawnPoints.isEmpty()) return false
         if (targets.isEmpty()) return false
-        if (buildAreas.isEmpty() && !allowNoBuildableTiles) return false
+        if (!hasBuildablePlacementTiles && !allowNoBuildableTiles) return false
 
         // When allowNoDirectPath is set, skip the spawn-to-target connectivity check.
         // The level editor is responsible for verifying that portals bridge the gap.
@@ -199,11 +201,11 @@ data class EditorMap(
         val targets = getTargets()
         val pathCells = getPathCells()
         val riverCells = getRiverCells()
-        val buildAreas = getBuildAreas()
+        val hasBuildablePlacementTiles = hasBuildablePlacementTiles()
 
         if (spawnPoints.isEmpty()) return false
         if (targets.isEmpty()) return false
-        if (buildAreas.isEmpty() && !allowNoBuildableTiles) return false
+        if (!hasBuildablePlacementTiles && !allowNoBuildableTiles) return false
         if (portals.isEmpty()) return false
 
         val traversableCells = pathCells.toMutableSet()

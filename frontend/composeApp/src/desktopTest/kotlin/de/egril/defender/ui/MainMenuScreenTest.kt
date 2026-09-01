@@ -135,6 +135,37 @@ class MainMenuScreenTest {
     }
 
     @Test
+    fun testMainMenuShowsLevelEditorButtonWhenAvailable() {
+        if (!isEditorAvailable()) {
+            return
+        }
+
+        var editorClicked = false
+        composeTestRule.setContent {
+            MainMenuScreen(
+                onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,
+                onShowRules = {},
+                onOpenEditor = { editorClicked = true },
+                onShowInstallationInfo = {},
+                onEditPlayerName = {},
+                currentPlayerName = null,
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithText("Level Editor", substring = true, ignoreCase = true)
+            .assertExists()
+            .assertHasClickAction()
+            .performClick()
+
+        assertTrue(editorClicked, "Level Editor button should trigger callback")
+    }
+
+    @Test
     fun testMainMenuHasSettingsButton() {
         composeTestRule.setContent {
             MainMenuScreen(

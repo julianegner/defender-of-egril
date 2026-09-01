@@ -409,6 +409,7 @@ fun App() {
                             onContinueGame = { viewModel.continueFromAutosave() },
                             hasAutosave = viewModel.hasAutosave(),
                             onShowRules = { viewModel.navigateToRules() },
+                            onOpenEditor = { viewModel.navigateToLevelEditor() },
                             onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
                             onShowDownloadInfo = { viewModel.navigateToDownloadInfo() },
                             onShowBackendInfo = { viewModel.navigateToBackendInfo() },

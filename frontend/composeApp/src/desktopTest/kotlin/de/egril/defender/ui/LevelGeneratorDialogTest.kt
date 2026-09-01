@@ -63,6 +63,24 @@ class LevelGeneratorDialogTest {
     }
 
     @Test
+    fun villainDescriptionsAreShownInSelectionList() {
+        composeTestRule.setContent {
+            LevelGeneratorDialog(
+                availableMaps = listOf(testMap),
+                onDismiss = {},
+                onGenerate = {},
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Garokk the Skullsplitter").performScrollTo().assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(
+                "His War Cry drives nearby Horde units into a frenzy, letting them advance faster. Cut him down before his roar overwhelms your defenses!",
+            ).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
     fun rosterSelectionIsShownWhenNoVillainIsSelected() {
         composeTestRule.setContent {
             LevelGeneratorDialog(

@@ -239,23 +239,34 @@ internal fun LevelEditorContent(
             availableMaps = EditorStorage.getAllMaps().filter { it.readyToUse },
             defaultAuthor = defaultAuthor,
             isGenerating = generatorConfig != null,
-            onDismiss = { showGeneratorDialog = false },
+            onDismiss = {
+                showGeneratorDialog = false
+                generatorConfig = null
+            },
             onGenerate = { config -> generatorConfig = config },
         )
     }
 
     // Generating a big map takes a moment, so the generation runs after the dialog had a chance to
-    // render its loading indicator.
+    // render its loading indicator. Always clear the generation state in a finally block so the
+    // spinner can't get stuck if generation fails or the dialog is dismissed mid-flight.
     LaunchedEffect(generatorConfig) {
         val config = generatorConfig ?: return@LaunchedEffect
-        delay(50)
-        val result = LevelGenerator.generate(config)
-        result.generatedMap?.let { EditorStorage.saveMap(it) }
-        EditorStorage.saveLevel(result.level)
-        levels.value = EditorStorage.getAllLevels()
-        generatorConfig = null
-        showGeneratorDialog = false
-        editingLevel = result.level
+        try {
+            // Keep the heavy map generation off the UI thread so the spinner can animate while the
+            // editor is working.
+            delay(50)
+            val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { LevelGenerator.generate(config) }
+            result.generatedMap?.let { EditorStorage.saveMap(it) }
+            EditorStorage.saveLevel(result.level)
+            levels.value = EditorStorage.getAllLevels()
+            showGeneratorDialog = false
+            editingLevel = result.level
+        } finally {
+            if (generatorConfig == config) {
+                generatorConfig = null
+            }
+        }
     }
 
     if (showCreateDialog) {
@@ -650,7 +661,7 @@ internal fun LevelEditorView(
     val isEnemySpawnsReady = isSandbox || enemySpawns.isNotEmpty()
     val hasInitialSetupTowerSupport = supportsState.isNotEmpty() || initialDataState.defenders.isNotEmpty()
     val hasInitialTowerBases = initialDataState.barricades.any { it.supportsTower }
-    val mapNeedsNoBuildFallback = currentMap?.allowNoBuildableTiles == true && currentMap.getBuildAreas().isEmpty()
+    val mapNeedsNoBuildFallback = currentMap?.allowNoBuildableTiles == true && !currentMap.hasBuildablePlacementTiles()
     val hasNoBuildFallback = supportsState.isNotEmpty() || hasInitialTowerBases
     val hasNoBuildFallbackIssue = mapNeedsNoBuildFallback && !hasNoBuildFallback
     val isTowersReady = availableTowersState.isNotEmpty() || hasInitialSetupTowerSupport

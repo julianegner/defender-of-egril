@@ -201,6 +201,27 @@ class MapValidationTest {
     }
 
     @Test
+    fun testMapWithoutBuildAreasButWithRiverTilesIsValid() {
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["1,0"] = TileType.PATH
+        tiles["2,0"] = TileType.TARGET
+        tiles["1,1"] = TileType.RIVER
+
+        val map =
+            EditorMap(
+                id = "test_river_tiles_count_as_buildable",
+                name = "Test River Tiles Count As Buildable",
+                width = 3,
+                height = 2,
+                tiles = tiles,
+                readyToUse = false,
+            )
+
+        assertTrue(map.validateReadyToUse(), "Map with river tiles used for water placements should be valid even without build areas")
+    }
+
+    @Test
     fun testSpiralMapAllSpawnPointsConnected() {
         // Test the actual spiral map to ensure all spawn points can reach the target
         val spiralMap = EditorStorage.getMap("map_spiral")

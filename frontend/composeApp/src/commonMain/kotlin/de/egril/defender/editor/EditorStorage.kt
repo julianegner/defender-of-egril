@@ -742,7 +742,24 @@ object EditorStorage {
             }
         }
 
-        return levelsCache.values.toList()
+        val officialSequence = getLevelSequence().sequence
+        val userSequence = getUserLevelSequence().sequence
+
+        return levelsCache.values
+            .toList()
+            .sortedWith(
+                compareBy<EditorLevel> { if (it.isOfficial) 0 else 1 }
+                    .thenBy { level ->
+                        val index =
+                            if (level.isOfficial) {
+                                officialSequence.indexOf(level.id)
+                            } else {
+                                userSequence.indexOf(level.id)
+                            }
+                        if (index >= 0) index else Int.MAX_VALUE
+                    }
+                    .thenBy { it.title.lowercase() },
+            )
     }
 
     // ---------------------------------------------------------------------------
@@ -1281,7 +1298,7 @@ object EditorStorage {
             }
         }
 
-        if (map.allowNoBuildableTiles && map.getBuildAreas().isEmpty() && !level.hasNoBuildableTileFallback()) {
+        if (map.allowNoBuildableTiles && !map.hasBuildablePlacementTiles() && !level.hasNoBuildableTileFallback()) {
             return false
         }
 

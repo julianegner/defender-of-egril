@@ -283,14 +283,15 @@ internal object LevelGenerator {
                 .mapIndexed { index, villain -> (firstVillainWave + index).coerceAtMost(difficulty.waveCount) to villain }
                 .groupBy({ it.first }, { it.second })
 
+        val maxUnitsPerTurn = 6
         for (wave in 1..difficulty.waveCount) {
             val enemyLevel = difficulty.baseEnemyLevel + (wave - 1) / 3
-            // Waves grow noticeably over the course of the level.
-            val amount = difficulty.enemiesPerWave + (wave - 1) * difficulty.enemiesPerWave / 4
-            // Every wave covers two consecutive turns and both of them get enemies, so that there
-            // is never a spawn turn without any enemy.
+            // Keep the wave size stable instead of growing indefinitely with each wave. The generator
+            // must respect the limited number of tiles available around a spawn point, otherwise late
+            // turns end up with impossible spawn densities.
+            val amount = difficulty.enemiesPerWave
             val firstTurn = wave * 2 - 1
-            val amountPerTurn = listOf((amount + 1) / 2, amount / 2)
+            val amountPerTurn = listOf((amount + 1) / 2, amount / 2).map { it.coerceAtMost(maxUnitsPerTurn) }
             amountPerTurn.forEachIndexed { turnOffset, turnAmount ->
                 repeat(turnAmount) { index ->
                     val type = minionPool[random.nextInt(minionPool.size)]
