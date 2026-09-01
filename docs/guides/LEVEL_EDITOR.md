@@ -76,9 +76,13 @@ draft from a few inputs. Everything is chosen before the generation starts:
 
 - **Difficulty** (easy, medium, hard, nightmare): controls the number of waves, the enemy levels and
   the starting coins and health points.
-- **Villains**: any number of villains can be selected. Their factions determine which regular
-  enemies are mainly used (for example, an undead villain leads to undead minions). Each selected
-  villain is spawned exactly once, in one of the last waves.
+- **Villains**: optional; any number of villains can be selected. Their factions determine which
+  regular enemies are mainly used (for example, an undead villain leads to undead minions). Each
+  selected villain is spawned exactly once, at the end of the first third of the waves, so it has
+  time to build up its potential (summoning, auras) instead of arriving right before the end.
+- **Enemy rosters**: shown only when no villain is selected. A primary roster (horde, undead,
+  demons, magic or pirates) and an optional secondary roster define which enemies the waves are
+  drawn from.
 - **Map**: either an existing map is selected, or a new map is generated. When a map is generated,
   its size can be chosen as small, medium, large or gigantic.
 

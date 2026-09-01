@@ -34,6 +34,10 @@ internal fun LevelGeneratorDialog(
     var difficulty by remember { mutableStateOf(GeneratorDifficulty.MEDIUM) }
     var difficultyExpanded by remember { mutableStateOf(false) }
     var selectedVillains by remember { mutableStateOf(emptySet<AttackerType>()) }
+    var primaryRoster by remember { mutableStateOf(GeneratorEnemyRoster.HORDE) }
+    var primaryRosterExpanded by remember { mutableStateOf(false) }
+    var secondaryRoster by remember { mutableStateOf<GeneratorEnemyRoster?>(null) }
+    var secondaryRosterExpanded by remember { mutableStateOf(false) }
     var mapSource by remember { mutableStateOf(GeneratorMapSource.GENERATED_MAP) }
     var mapSize by remember { mutableStateOf(GeneratedMapSize.MEDIUM) }
     var mapSizeExpanded by remember { mutableStateOf(false) }
@@ -133,6 +137,87 @@ internal fun LevelGeneratorDialog(
                                 },
                             )
                             Text(type.getLocalizedName())
+                        }
+                    }
+                }
+
+                // Enemy rosters are only relevant without villains: with villains the enemies are
+                // derived from the villains' factions instead.
+                if (selectedVillains.isEmpty()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(Res.string.level_generator_rosters_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 4.dp),
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = primaryRosterExpanded,
+                        onExpandedChange = { primaryRosterExpanded = it },
+                    ) {
+                        OutlinedTextField(
+                            value = primaryRoster.localizedLabel(),
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(stringResource(Res.string.level_generator_primary_roster)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = primaryRosterExpanded) },
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = primaryRosterExpanded,
+                            onDismissRequest = { primaryRosterExpanded = false },
+                        ) {
+                            GeneratorEnemyRoster.entries.forEach { entry ->
+                                DropdownMenuItem(
+                                    text = { Text(entry.localizedLabel()) },
+                                    onClick = {
+                                        primaryRoster = entry
+                                        if (secondaryRoster == entry) secondaryRoster = null
+                                        primaryRosterExpanded = false
+                                    },
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ExposedDropdownMenuBox(
+                        expanded = secondaryRosterExpanded,
+                        onExpandedChange = { secondaryRosterExpanded = it },
+                    ) {
+                        OutlinedTextField(
+                            value = secondaryRoster?.localizedLabel() ?: stringResource(Res.string.level_generator_roster_none),
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(stringResource(Res.string.level_generator_secondary_roster)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = secondaryRosterExpanded) },
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = secondaryRosterExpanded,
+                            onDismissRequest = { secondaryRosterExpanded = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(Res.string.level_generator_roster_none)) },
+                                onClick = {
+                                    secondaryRoster = null
+                                    secondaryRosterExpanded = false
+                                },
+                            )
+                            GeneratorEnemyRoster.entries.filter { it != primaryRoster }.forEach { entry ->
+                                DropdownMenuItem(
+                                    text = { Text(entry.localizedLabel()) },
+                                    onClick = {
+                                        secondaryRoster = entry
+                                        secondaryRosterExpanded = false
+                                    },
+                                )
+                            }
                         }
                     }
                 }
@@ -247,6 +332,8 @@ internal fun LevelGeneratorDialog(
                             author = author.trim(),
                             difficulty = difficulty,
                             villains = selectedVillains,
+                            primaryRoster = primaryRoster,
+                            secondaryRoster = secondaryRoster,
                             mapSource = mapSource,
                             existingMap = selectedMap.takeIf { mapSource == GeneratorMapSource.EXISTING_MAP },
                             mapSize = mapSize,
@@ -273,6 +360,16 @@ private fun GeneratorDifficulty.localizedLabel(): String =
         GeneratorDifficulty.MEDIUM -> stringResource(Res.string.difficulty_medium)
         GeneratorDifficulty.HARD -> stringResource(Res.string.difficulty_hard)
         GeneratorDifficulty.NIGHTMARE -> stringResource(Res.string.difficulty_nightmare)
+    }
+
+@Composable
+private fun GeneratorEnemyRoster.localizedLabel(): String =
+    when (this) {
+        GeneratorEnemyRoster.HORDE -> stringResource(Res.string.level_generator_roster_horde)
+        GeneratorEnemyRoster.UNDEAD -> stringResource(Res.string.level_generator_roster_undead)
+        GeneratorEnemyRoster.DEMONS -> stringResource(Res.string.level_generator_roster_demons)
+        GeneratorEnemyRoster.MAGIC -> stringResource(Res.string.level_generator_roster_magic)
+        GeneratorEnemyRoster.PIRATES -> stringResource(Res.string.level_generator_roster_pirates)
     }
 
 @Composable

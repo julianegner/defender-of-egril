@@ -137,12 +137,79 @@ class LevelGeneratorTest {
     }
 
     @Test
-    fun minionPoolFallsBackToAllFactionsWithoutVillains() {
-        val pool = LevelGenerator.minionPoolFor(emptyList())
+    fun minionPoolWithoutVillainsUsesSelectedRosters() {
+        val primaryOnly = LevelGenerator.minionPoolFor(emptyList(), GeneratorEnemyRoster.UNDEAD)
+        assertEquals(GeneratorEnemyRoster.UNDEAD.types, primaryOnly)
 
-        assertTrue(pool.isNotEmpty())
-        assertTrue(pool.none { it.isRealVillain })
-        assertTrue(pool.any { it.faction == EnemyFaction.HORDE })
-        assertTrue(pool.any { it.faction == EnemyFaction.UNDEAD })
+        val withSecondary =
+            LevelGenerator.minionPoolFor(emptyList(), GeneratorEnemyRoster.UNDEAD, GeneratorEnemyRoster.DEMONS)
+        assertEquals(GeneratorEnemyRoster.UNDEAD.types + GeneratorEnemyRoster.DEMONS.types, withSecondary)
+    }
+
+    @Test
+    fun levelWithoutVillainsOnlyUsesTheSelectedRosters() {
+        val result =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Roster Level",
+                    villains = emptySet(),
+                    primaryRoster = GeneratorEnemyRoster.MAGIC,
+                    secondaryRoster = GeneratorEnemyRoster.PIRATES,
+                    mapSource = GeneratorMapSource.EXISTING_MAP,
+                    existingMap = existingMap(),
+                    seed = 3,
+                ),
+            )
+
+        val allowed = (GeneratorEnemyRoster.MAGIC.types + GeneratorEnemyRoster.PIRATES.types).toSet()
+        assertTrue(result.level.enemySpawns.isNotEmpty())
+        assertTrue(result.level.enemySpawns.all { it.attackerType in allowed })
+    }
+
+    @Test
+    fun rostersAreIgnoredWhenVillainsAreSelected() {
+        val result =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Villain Wins Over Roster",
+                    villains = setOf(AttackerType.GAROKK),
+                    primaryRoster = GeneratorEnemyRoster.PIRATES,
+                    mapSource = GeneratorMapSource.EXISTING_MAP,
+                    existingMap = existingMap(),
+                    seed = 13,
+                ),
+            )
+
+        val minions =
+            result.level.enemySpawns
+                .map { it.attackerType }
+                .filter { !it.isRealVillain }
+        assertTrue(minions.isNotEmpty())
+        assertTrue(minions.all { it.faction == EnemyFaction.HORDE })
+    }
+
+    @Test
+    fun villainsSpawnAfterTheFirstThirdOfTheWavesAndNotAtTheEnd() {
+        val difficulty = GeneratorDifficulty.MEDIUM
+        val result =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Early Villain",
+                    difficulty = difficulty,
+                    villains = setOf(AttackerType.GAROKK),
+                    mapSource = GeneratorMapSource.EXISTING_MAP,
+                    existingMap = existingMap(),
+                    seed = 17,
+                ),
+            )
+
+        val lastTurn = result.level.enemySpawns.maxOf { it.spawnTurn }
+        val villainTurn =
+            result.level.enemySpawns
+                .first { it.attackerType == AttackerType.GAROKK }
+                .spawnTurn
+        // End of the first third of the waves, and well before the final wave.
+        assertEquals(((difficulty.waveCount + 2) / 3) * 2, villainTurn)
+        assertTrue(villainTurn < lastTurn)
     }
 }

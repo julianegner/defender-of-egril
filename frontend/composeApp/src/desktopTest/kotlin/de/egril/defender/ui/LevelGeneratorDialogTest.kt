@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.editor.EditorMap
@@ -56,9 +57,24 @@ class LevelGeneratorDialogTest {
         composeTestRule.onNodeWithText("Level Generator").assertIsDisplayed()
         composeTestRule.onNodeWithText("Difficulty").assertIsDisplayed()
         composeTestRule.onNodeWithText("Villains").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Generate a new map").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Use an existing map").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Map size").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Generate a new map").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Use an existing map").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Map size").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun rosterSelectionIsShownWhenNoVillainIsSelected() {
+        composeTestRule.setContent {
+            LevelGeneratorDialog(
+                availableMaps = listOf(testMap),
+                onDismiss = {},
+                onGenerate = {},
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Primary roster").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Secondary roster (optional)").assertIsDisplayed()
     }
 
     @Test
@@ -72,10 +88,10 @@ class LevelGeneratorDialogTest {
         }
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Use an existing map").performClick()
+        composeTestRule.onNodeWithText("Use an existing map").performScrollTo().performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Select map").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Generator Test Map").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Select map").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Generator Test Map").performScrollTo().assertIsDisplayed()
     }
 }

@@ -54,6 +54,20 @@ internal enum class GeneratorMapSource {
 }
 
 /**
+ * Enemy rosters that can be picked when no villain is selected. Each roster is a themed group of
+ * regular enemies that the generator draws its waves from.
+ */
+internal enum class GeneratorEnemyRoster(
+    val types: List<AttackerType>,
+) {
+    HORDE(listOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.TROLL, AttackerType.ROBOTIC_GOBLIN)),
+    UNDEAD(listOf(AttackerType.SKELETON, AttackerType.ZOMBIE, AttackerType.GHOST)),
+    DEMONS(listOf(AttackerType.BLUE_DEMON, AttackerType.RED_DEMON)),
+    MAGIC(listOf(AttackerType.EVIL_WIZARD, AttackerType.RED_WITCH, AttackerType.GREEN_WITCH)),
+    PIRATES(listOf(AttackerType.PIRATE)),
+}
+
+/**
  * All inputs of a level generator run.
  */
 internal data class LevelGeneratorConfig(
@@ -61,7 +75,11 @@ internal data class LevelGeneratorConfig(
     val author: String = "",
     val difficulty: GeneratorDifficulty = GeneratorDifficulty.MEDIUM,
     // Selected villains. Their factions determine which regular enemies are mainly used.
+    // May be empty; the enemy rosters below are then used instead.
     val villains: Set<AttackerType> = emptySet(),
+    // Enemy rosters, only used when no villain is selected.
+    val primaryRoster: GeneratorEnemyRoster = GeneratorEnemyRoster.HORDE,
+    val secondaryRoster: GeneratorEnemyRoster? = null,
     val mapSource: GeneratorMapSource = GeneratorMapSource.GENERATED_MAP,
     // Used when [mapSource] is EXISTING_MAP.
     val existingMap: EditorMap? = null,
@@ -102,7 +120,7 @@ internal object LevelGenerator {
             }
         val map = generatedMap ?: config.existingMap
         val villains = config.villains.filter { it.isRealVillain }.sortedBy { it.ordinal }
-        val minionPool = minionPoolFor(villains)
+        val minionPool = minionPoolFor(villains, config.primaryRoster, config.secondaryRoster)
         val spawns = generateSpawns(map, config.difficulty, villains, minionPool, random)
 
         val level =
@@ -120,11 +138,14 @@ internal object LevelGenerator {
     }
 
     /**
-     * Regular enemies matching the factions of the selected villains. When no villain is selected
-     * (or all of them are faction-less), enemies of all factions may be used.
+     * The regular enemies the waves are built from. When villains are selected, their factions
+     * decide which enemies fit their army. Without villains the explicitly chosen rosters are used.
      */
-    fun minionPoolFor(villains: Collection<AttackerType>): List<AttackerType> {
-        val factions = villains.map { it.faction }.filter { it != EnemyFaction.NONE }.toSet()
+    fun minionPoolFor(
+        villains: Collection<AttackerType>,
+        primaryRoster: GeneratorEnemyRoster = GeneratorEnemyRoster.HORDE,
+        secondaryRoster: GeneratorEnemyRoster? = null,
+    ): List<AttackerType> {
         val spawnable =
             AttackerType.entries.filter {
                 !it.isRealVillain &&
@@ -134,6 +155,12 @@ internal object LevelGenerator {
                     !it.isSwarmUnit() &&
                     it.canSpawnOnLand
             }
+        val realVillains = villains.filter { it.isRealVillain }
+        if (realVillains.isEmpty()) {
+            val rosterTypes = (primaryRoster.types + secondaryRoster?.types.orEmpty()).distinct()
+            return rosterTypes.filter { it in spawnable }.ifEmpty { spawnable }
+        }
+        val factions = realVillains.map { it.faction }.filter { it != EnemyFaction.NONE }.toSet()
         val matching = spawnable.filter { it.faction in factions }
         return matching.ifEmpty { spawnable }
     }
@@ -168,8 +195,13 @@ internal object LevelGenerator {
     ): List<EditorEnemySpawn> {
         if (minionPool.isEmpty()) return emptyList()
         val spawns = mutableListOf<EditorEnemySpawn>()
-        // Villains appear in the last waves, one per wave, so the level ends with its hardest fight.
-        val firstVillainWave = (difficulty.waveCount - villains.size + 1).coerceAtLeast(1)
+        // Villains enter at the end of the first third of the waves: most of them need time to build
+        // up their potential (summoning, auras), so spawning them late would waste their abilities.
+        val firstVillainWave = ((difficulty.waveCount + 2) / 3).coerceAtLeast(1)
+        val villainWaves =
+            villains
+                .mapIndexed { index, villain -> (firstVillainWave + index).coerceAtMost(difficulty.waveCount) to villain }
+                .groupBy({ it.first }, { it.second })
 
         for (wave in 1..difficulty.waveCount) {
             val turn = wave * 2
@@ -185,9 +217,7 @@ internal object LevelGenerator {
                         spawnPoint = spawnPointFor(map, type, index),
                     )
             }
-            val villainIndex = wave - firstVillainWave
-            if (villainIndex in villains.indices) {
-                val villain = villains[villainIndex]
+            villainWaves[wave].orEmpty().forEach { villain ->
                 spawns +=
                     EditorEnemySpawn(
                         attackerType = villain,

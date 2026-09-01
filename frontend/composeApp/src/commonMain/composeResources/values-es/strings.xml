@@ -2405,7 +2405,7 @@
     <string name="unreachable">Inalcanzable</string>
     <string name="level_generator">Generador de niveles</string>
     <string name="level_generator_description">Elige la dificultad, los villanos y el mapa. El generador crea un borrador de nivel completo que puedes ajustar después.</string>
-    <string name="level_generator_villains_hint">Los villanos seleccionados determinan qué enemigos se usan principalmente.</string>
+    <string name="level_generator_villains_hint">Opcional. Los villanos seleccionados determinan qué enemigos se usan principalmente.</string>
     <string name="level_generator_map_source">Mapa</string>
     <string name="level_generator_map_generated">Generar un mapa nuevo</string>
     <string name="level_generator_map_existing">Usar un mapa existente</string>
@@ -2416,4 +2416,13 @@
     <string name="level_generator_size_large">Grande</string>
     <string name="level_generator_size_gigantic">Gigantesco</string>
     <string name="level_generator_generate">Generar nivel</string>
+    <string name="level_generator_rosters_hint">Sin villanos, elige de qué plantillas de enemigos se componen las oleadas.</string>
+    <string name="level_generator_primary_roster">Plantilla principal</string>
+    <string name="level_generator_secondary_roster">Plantilla secundaria (opcional)</string>
+    <string name="level_generator_roster_none">Ninguna</string>
+    <string name="level_generator_roster_horde">Horda</string>
+    <string name="level_generator_roster_undead">No muertos</string>
+    <string name="level_generator_roster_demons">Demonios</string>
+    <string name="level_generator_roster_magic">Magia</string>
+    <string name="level_generator_roster_pirates">Piratas</string>
 </resources>

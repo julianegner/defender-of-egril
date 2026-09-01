@@ -2404,7 +2404,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="unreachable">Nicht erreichbar</string>
     <string name="level_generator">Level-Generator</string>
     <string name="level_generator_description">Wähle Schwierigkeit, Schurken und die Karte. Der Generator erstellt einen vollständigen Level-Entwurf, den du danach anpassen kannst.</string>
-    <string name="level_generator_villains_hint">Die ausgewählten Schurken bestimmen, welche Gegner hauptsächlich verwendet werden.</string>
+    <string name="level_generator_villains_hint">Optional. Die ausgewählten Schurken bestimmen, welche Gegner hauptsächlich verwendet werden.</string>
     <string name="level_generator_map_source">Karte</string>
     <string name="level_generator_map_generated">Neue Karte generieren</string>
     <string name="level_generator_map_existing">Vorhandene Karte verwenden</string>
@@ -2415,4 +2415,13 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="level_generator_size_large">Groß</string>
     <string name="level_generator_size_gigantic">Gigantisch</string>
     <string name="level_generator_generate">Level generieren</string>
+    <string name="level_generator_rosters_hint">Ohne Schurken kannst du wählen, aus welchen Gegner-Aufgeboten die Wellen bestehen.</string>
+    <string name="level_generator_primary_roster">Primäres Aufgebot</string>
+    <string name="level_generator_secondary_roster">Sekundäres Aufgebot (optional)</string>
+    <string name="level_generator_roster_none">Keines</string>
+    <string name="level_generator_roster_horde">Horde</string>
+    <string name="level_generator_roster_undead">Untote</string>
+    <string name="level_generator_roster_demons">Dämonen</string>
+    <string name="level_generator_roster_magic">Magie</string>
+    <string name="level_generator_roster_pirates">Piraten</string>
 </resources>

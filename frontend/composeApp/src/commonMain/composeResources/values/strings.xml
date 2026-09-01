@@ -2414,7 +2414,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="unreachable">Unreachable</string>
     <string name="level_generator">Level Generator</string>
     <string name="level_generator_description">Choose difficulty, villains and the map. The generator creates a complete level draft that you can refine afterwards.</string>
-    <string name="level_generator_villains_hint">The selected villains determine which enemies are mainly used.</string>
+    <string name="level_generator_villains_hint">Optional. The selected villains determine which enemies are mainly used.</string>
     <string name="level_generator_map_source">Map</string>
     <string name="level_generator_map_generated">Generate a new map</string>
     <string name="level_generator_map_existing">Use an existing map</string>
@@ -2425,4 +2425,13 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="level_generator_size_large">Large</string>
     <string name="level_generator_size_gigantic">Gigantic</string>
     <string name="level_generator_generate">Generate level</string>
+    <string name="level_generator_rosters_hint">Without villains, choose which enemy rosters the waves are drawn from.</string>
+    <string name="level_generator_primary_roster">Primary roster</string>
+    <string name="level_generator_secondary_roster">Secondary roster (optional)</string>
+    <string name="level_generator_roster_none">None</string>
+    <string name="level_generator_roster_horde">Horde</string>
+    <string name="level_generator_roster_undead">Undead</string>
+    <string name="level_generator_roster_demons">Demons</string>
+    <string name="level_generator_roster_magic">Magic</string>
+    <string name="level_generator_roster_pirates">Pirates</string>
 </resources>

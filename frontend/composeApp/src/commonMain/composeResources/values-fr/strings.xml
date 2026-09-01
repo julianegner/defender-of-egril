@@ -2406,7 +2406,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="unreachable">Inaccessible</string>
     <string name="level_generator">Générateur de niveaux</string>
     <string name="level_generator_description">Choisissez la difficulté, les vilains et la carte. Le générateur crée un brouillon de niveau complet que vous pouvez ensuite affiner.</string>
-    <string name="level_generator_villains_hint">Les vilains sélectionnés déterminent quels ennemis sont principalement utilisés.</string>
+    <string name="level_generator_villains_hint">Facultatif. Les vilains sélectionnés déterminent quels ennemis sont principalement utilisés.</string>
     <string name="level_generator_map_source">Carte</string>
     <string name="level_generator_map_generated">Générer une nouvelle carte</string>
     <string name="level_generator_map_existing">Utiliser une carte existante</string>
@@ -2417,4 +2417,13 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="level_generator_size_large">Grande</string>
     <string name="level_generator_size_gigantic">Gigantesque</string>
     <string name="level_generator_generate">Générer le niveau</string>
+    <string name="level_generator_rosters_hint">Sans vilains, choisissez les effectifs d'ennemis qui composent les vagues.</string>
+    <string name="level_generator_primary_roster">Effectif principal</string>
+    <string name="level_generator_secondary_roster">Effectif secondaire (facultatif)</string>
+    <string name="level_generator_roster_none">Aucun</string>
+    <string name="level_generator_roster_horde">Horde</string>
+    <string name="level_generator_roster_undead">Morts-vivants</string>
+    <string name="level_generator_roster_demons">Démons</string>
+    <string name="level_generator_roster_magic">Magie</string>
+    <string name="level_generator_roster_pirates">Pirates</string>
 </resources>

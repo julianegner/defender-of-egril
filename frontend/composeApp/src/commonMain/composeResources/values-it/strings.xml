@@ -2407,7 +2407,7 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="unreachable">Irraggiungibile</string>
     <string name="level_generator">Generatore di livelli</string>
     <string name="level_generator_description">Scegli difficoltà, cattivi e mappa. Il generatore crea una bozza di livello completa che puoi perfezionare in seguito.</string>
-    <string name="level_generator_villains_hint">I cattivi selezionati determinano quali nemici vengono usati principalmente.</string>
+    <string name="level_generator_villains_hint">Facoltativo. I cattivi selezionati determinano quali nemici vengono usati principalmente.</string>
     <string name="level_generator_map_source">Mappa</string>
     <string name="level_generator_map_generated">Genera una nuova mappa</string>
     <string name="level_generator_map_existing">Usa una mappa esistente</string>
@@ -2418,4 +2418,13 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="level_generator_size_large">Grande</string>
     <string name="level_generator_size_gigantic">Gigantesca</string>
     <string name="level_generator_generate">Genera livello</string>
+    <string name="level_generator_rosters_hint">Senza cattivi, scegli da quali schieramenti di nemici sono composte le ondate.</string>
+    <string name="level_generator_primary_roster">Schieramento primario</string>
+    <string name="level_generator_secondary_roster">Schieramento secondario (opzionale)</string>
+    <string name="level_generator_roster_none">Nessuno</string>
+    <string name="level_generator_roster_horde">Orda</string>
+    <string name="level_generator_roster_undead">Non morti</string>
+    <string name="level_generator_roster_demons">Demoni</string>
+    <string name="level_generator_roster_magic">Magia</string>
+    <string name="level_generator_roster_pirates">Pirati</string>
 </resources>
