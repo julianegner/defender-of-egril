@@ -76,18 +76,26 @@ draft from a few inputs. Everything is chosen before the generation starts:
 
 - **Difficulty** (easy, medium, hard, nightmare): controls the number of waves, the enemy levels and
   the starting coins and health points.
-- **Villains**: optional; any number of villains can be selected. Their factions determine which
-  regular enemies are mainly used (for example, an undead villain leads to undead minions). Each
-  selected villain is spawned exactly once, at the end of the first third of the waves, so it has
-  time to build up its potential (summoning, auras) instead of arriving right before the end.
+- **Villains**: optional; any number of villains can be selected. Every villain has a themed roster
+  (for example, Araxxa the Giant Spider leads spiders and forest beasts, undead villains lead
+  undead minions), which determines the regular enemies of the level. Each selected villain is
+  spawned exactly once, at the end of the first third of the waves, so it has time to build up its
+  potential (summoning, auras) instead of arriving right before the end.
 - **Enemy rosters**: shown only when no villain is selected. A primary roster (horde, undead,
-  demons, magic or pirates) and an optional secondary roster define which enemies the waves are
-  drawn from.
-- **Map**: either an existing map is selected, or a new map is generated. When a map is generated,
-  its size can be chosen as small, medium, large or gigantic.
+  demons, magic, pirates or wilds) and an optional secondary roster define which enemies the waves
+  are drawn from.
+- **Map**: either an existing map is selected, or a new map is generated. For a generated map the
+  general size (small 20x20, medium 30x30, large 40x40, gigantic 50x50 — based on the sizes of the
+  existing maps) is chosen first; the exact width and height can then be adjusted. The map layout
+  follows the chosen theme: spider and forest villains get a spider-web map, seafaring villains a
+  river crossing, and otherwise a random layout is used.
 
-The generated level (and, if requested, the generated map) is saved and opened in the level editor
-so it can be refined like any other level.
+Every wave covers two consecutive turns and both of them get enemies, so a generated level never
+contains a spawn turn without enemies.
+
+While the level is being generated a loading indicator is shown. Afterwards the generated level
+(and, if requested, the generated map) is saved and opened in the level editor so it can be refined
+like any other level.
 
 #### Events Tab (within Level Editor)
 

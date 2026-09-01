@@ -18,6 +18,9 @@ import de.egril.defender.model.isRealVillain
 import de.egril.defender.ui.getLocalizedName
 import defender_of_egril.composeapp.generated.resources.*
 
+private const val MIN_MAP_SIZE = 5
+private const val MAX_MAP_SIZE = 100
+
 /**
  * Dialog of the Level Generator. All generation inputs (difficulty, villains and the map to use)
  * are collected here and have to be chosen before the level is generated.
@@ -26,6 +29,7 @@ import defender_of_egril.composeapp.generated.resources.*
 internal fun LevelGeneratorDialog(
     availableMaps: List<EditorMap>,
     defaultAuthor: String = "",
+    isGenerating: Boolean = false,
     onDismiss: () -> Unit,
     onGenerate: (LevelGeneratorConfig) -> Unit,
 ) {
@@ -41,17 +45,38 @@ internal fun LevelGeneratorDialog(
     var mapSource by remember { mutableStateOf(GeneratorMapSource.GENERATED_MAP) }
     var mapSize by remember { mutableStateOf(GeneratedMapSize.MEDIUM) }
     var mapSizeExpanded by remember { mutableStateOf(false) }
+    var mapWidth by remember { mutableStateOf(GeneratedMapSize.MEDIUM.width.toString()) }
+    var mapHeight by remember { mutableStateOf(GeneratedMapSize.MEDIUM.height.toString()) }
     var selectedMap by remember { mutableStateOf(availableMaps.firstOrNull()) }
     var mapExpanded by remember { mutableStateOf(false) }
 
     val villainTypes = remember { AttackerType.entries.filter { it.isRealVillain } }
-    val canGenerate = title.isNotBlank() && (mapSource == GeneratorMapSource.GENERATED_MAP || selectedMap != null)
+    val width = mapWidth.toIntOrNull()
+    val height = mapHeight.toIntOrNull()
+    val sizeIsValid = width != null && height != null && width in MIN_MAP_SIZE..MAX_MAP_SIZE && height in MIN_MAP_SIZE..MAX_MAP_SIZE
+    val canGenerate =
+        !isGenerating &&
+            title.isNotBlank() &&
+            if (mapSource == GeneratorMapSource.GENERATED_MAP) sizeIsValid else selectedMap != null
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.level_generator)) },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                if (isGenerating) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                        Text(
+                            text = stringResource(Res.string.level_generator_generating),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
                 Text(
                     text = stringResource(Res.string.level_generator_description),
                     style = MaterialTheme.typography.bodySmall,
@@ -282,12 +307,39 @@ internal fun LevelGeneratorDialog(
                                     text = { Text(entry.localizedLabel()) },
                                     onClick = {
                                         mapSize = entry
+                                        mapWidth = entry.width.toString()
+                                        mapHeight = entry.height.toString()
                                         mapSizeExpanded = false
                                     },
                                 )
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = mapWidth,
+                            onValueChange = { mapWidth = it.filter { char -> char.isDigit() } },
+                            label = { Text(stringResource(Res.string.width)) },
+                            isError = !sizeIsValid,
+                            singleLine = true,
+                            modifier = Modifier.weight(1f),
+                        )
+                        OutlinedTextField(
+                            value = mapHeight,
+                            onValueChange = { mapHeight = it.filter { char -> char.isDigit() } },
+                            label = { Text(stringResource(Res.string.height)) },
+                            isError = !sizeIsValid,
+                            singleLine = true,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    Text(
+                        text = stringResource(Res.string.level_generator_map_size_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
                 } else {
                     ExposedDropdownMenuBox(
                         expanded = mapExpanded,
@@ -337,16 +389,26 @@ internal fun LevelGeneratorDialog(
                             mapSource = mapSource,
                             existingMap = selectedMap.takeIf { mapSource == GeneratorMapSource.EXISTING_MAP },
                             mapSize = mapSize,
+                            mapWidth = width ?: mapSize.width,
+                            mapHeight = height ?: mapSize.height,
                             seed = kotlin.random.Random.nextInt(),
                         ),
                     )
                 },
             ) {
+                if (isGenerating) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
                 Text(stringResource(Res.string.level_generator_generate))
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            Button(onClick = onDismiss, enabled = !isGenerating) {
                 Text(stringResource(Res.string.cancel))
             }
         },
@@ -370,6 +432,7 @@ private fun GeneratorEnemyRoster.localizedLabel(): String =
         GeneratorEnemyRoster.DEMONS -> stringResource(Res.string.level_generator_roster_demons)
         GeneratorEnemyRoster.MAGIC -> stringResource(Res.string.level_generator_roster_magic)
         GeneratorEnemyRoster.PIRATES -> stringResource(Res.string.level_generator_roster_pirates)
+        GeneratorEnemyRoster.WILDS -> stringResource(Res.string.level_generator_roster_wilds)
     }
 
 @Composable

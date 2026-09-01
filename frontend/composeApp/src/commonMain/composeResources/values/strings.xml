@@ -2434,4 +2434,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="level_generator_roster_demons">Demons</string>
     <string name="level_generator_roster_magic">Magic</string>
     <string name="level_generator_roster_pirates">Pirates</string>
+    <string name="level_generator_generating">Generating level…</string>
+    <string name="level_generator_map_size_hint">The size can be adjusted after choosing a general map size.</string>
+    <string name="level_generator_roster_wilds">Wilds</string>
 </resources>

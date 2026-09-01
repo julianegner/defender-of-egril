@@ -42,6 +42,20 @@ class MapDesignTemplatesTest {
         assertEquals(TravelBand.LONG, flow.travelLength)
     }
 
+    @Test
+    fun spiderWebTemplateCreatesWebWithCenterTarget() {
+        val map = createMapFromTemplate("web", "Web", 24, 24, "tester", spiderWebTemplate())
+
+        assertTrue(map.readyToUse)
+        assertEquals(1, map.getTargets().size)
+        assertEquals(
+            de.egril.defender.model
+                .Position(12, 12),
+            map.getTargets().first(),
+        )
+        assertTrue(map.getSpawnPoints().size >= 3)
+    }
+
     private fun straightTemplate(): MapTemplateDefinition =
         MapTemplateDefinition(
             id = "straight_template",
@@ -61,5 +75,12 @@ class MapDesignTemplatesTest {
             id = "river_template",
             name = "River template",
             layoutKind = MapTemplateLayoutKind.RIVER_CROSSING,
+        )
+
+    private fun spiderWebTemplate(): MapTemplateDefinition =
+        MapTemplateDefinition(
+            id = "web_template",
+            name = "Web template",
+            layoutKind = MapTemplateLayoutKind.SPIDER_WEB,
         )
 }

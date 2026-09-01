@@ -12,6 +12,11 @@ import de.egril.defender.model.RiverTile
 import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.TargetType
 import de.egril.defender.model.getHexNeighbors
+import de.egril.defender.model.hexDistanceTo
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.roundToInt
+import kotlin.math.sin
 
 internal fun createMapFromTemplate(
     id: String,
@@ -72,6 +77,7 @@ private fun createProceduralTemplateMap(
         MapTemplateLayoutKind.SPLIT_LANES -> populateSplitLanes(draft)
         MapTemplateLayoutKind.RIVER_CROSSING -> populateRiverCrossing(draft)
         MapTemplateLayoutKind.SPIRAL_SIEGE -> populateSpiralSiege(draft)
+        MapTemplateLayoutKind.SPIDER_WEB -> populateSpiderWeb(draft)
     }
     return EditorMap(
         id = id,
@@ -200,6 +206,71 @@ private fun populateSpiralSiege(draft: MutableMapDraft) {
     }
     draft.setSpawn(Position(0, rows.first()))
     draft.setTarget(Position(draft.width - 1, rows.last()), "Citadel")
+}
+
+/**
+ * Web-shaped layout: the target sits in the middle of the web, spokes lead outwards to the spawn
+ * points on the map border and two rings connect the spokes so the enemies can switch lanes.
+ */
+private fun populateSpiderWeb(draft: MutableMapDraft) {
+    val center = Position(draft.width / 2, draft.height / 2)
+    val spokeCount = 6
+    val radiusX = (draft.width / 2 - 1).coerceAtLeast(1)
+    val radiusY = (draft.height / 2 - 1).coerceAtLeast(1)
+    val spokes =
+        (0 until spokeCount).map { index ->
+            val angle = 2.0 * PI * index / spokeCount
+            val end =
+                Position(
+                    (center.x + cos(angle) * radiusX).roundToInt().coerceIn(0, draft.width - 1),
+                    (center.y + sin(angle) * radiusY).roundToInt().coerceIn(0, draft.height - 1),
+                )
+            hexLine(center, end, draft.width, draft.height)
+        }
+
+    val pathTiles = mutableListOf<Position>()
+    spokes.forEach { pathTiles += it }
+    // Two rings between the center and the outer ends of the spokes.
+    listOf(0.45, 0.85).forEach { fraction ->
+        spokes.indices.forEach { index ->
+            val from = spokes[index].ringTile(fraction)
+            val to = spokes[(index + 1) % spokes.size].ringTile(fraction)
+            pathTiles += hexLine(from, to, draft.width, draft.height)
+        }
+    }
+
+    pathTiles.forEach { draft.setTile(it, TileType.PATH) }
+    pathTiles.forEach { addAdjacentBuildAreas(draft, it) }
+    spokes.forEach { spoke -> draft.setSpawn(spoke.last()) }
+    draft.setTarget(center, "Web Heart")
+}
+
+private fun List<Position>.ringTile(fraction: Double): Position = this[(size * fraction).roundToInt().coerceIn(1, size - 1)]
+
+/**
+ * Walks from [from] to [to] over hex neighbors, so the resulting tiles form a connected path.
+ */
+private fun hexLine(
+    from: Position,
+    to: Position,
+    width: Int,
+    height: Int,
+): List<Position> {
+    val line = mutableListOf(from)
+    var current = from
+    var guard = 0
+    while (current != to && guard < width * height) {
+        guard++
+        val next =
+            current
+                .getHexNeighbors()
+                .filter { it.x in 0 until width && it.y in 0 until height }
+                .minByOrNull { it.hexDistanceTo(to) } ?: break
+        if (next.hexDistanceTo(to) >= current.hexDistanceTo(to)) break
+        current = next
+        line += current
+    }
+    return line
 }
 
 private fun addAdjacentBuildAreas(

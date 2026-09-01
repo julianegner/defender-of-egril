@@ -50,4 +50,5 @@ enum class MapTemplateLayoutKind {
     SPLIT_LANES,
     RIVER_CROSSING,
     SPIRAL_SIEGE,
+    SPIDER_WEB,
 }

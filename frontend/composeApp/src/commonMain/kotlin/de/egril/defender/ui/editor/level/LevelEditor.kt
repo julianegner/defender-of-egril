@@ -36,6 +36,7 @@ import de.egril.defender.ui.editor.SaveAsDialog
 import de.egril.defender.ui.editor.getDefaultAuthorName
 import de.egril.defender.ui.editor.level.enemies.EnemySpawnsTab
 import de.egril.defender.ui.editor.level.generator.LevelGenerator
+import de.egril.defender.ui.editor.level.generator.LevelGeneratorConfig
 import de.egril.defender.ui.editor.level.generator.LevelGeneratorDialog
 import de.egril.defender.ui.editor.level.tower.TowersTab
 import de.egril.defender.ui.editor.level.waypoint.WaypointsTab
@@ -45,6 +46,7 @@ import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_message
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_title
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -100,6 +102,7 @@ internal fun LevelEditorContent(
     var editingLevel by remember { mutableStateOf<EditorLevel?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
     var showGeneratorDialog by remember { mutableStateOf(false) }
+    var generatorConfig by remember { mutableStateOf<LevelGeneratorConfig?>(null) }
     var showVillainUsage by remember { mutableStateOf(false) }
     var levelToDelete by remember { mutableStateOf<EditorLevel?>(null) }
     val iamState by de.egril.defender.iam.IamService.state
@@ -235,16 +238,24 @@ internal fun LevelEditorContent(
         LevelGeneratorDialog(
             availableMaps = EditorStorage.getAllMaps().filter { it.readyToUse },
             defaultAuthor = defaultAuthor,
+            isGenerating = generatorConfig != null,
             onDismiss = { showGeneratorDialog = false },
-            onGenerate = { config ->
-                val result = LevelGenerator.generate(config)
-                result.generatedMap?.let { EditorStorage.saveMap(it) }
-                EditorStorage.saveLevel(result.level)
-                levels.value = EditorStorage.getAllLevels()
-                showGeneratorDialog = false
-                editingLevel = result.level
-            },
+            onGenerate = { config -> generatorConfig = config },
         )
+    }
+
+    // Generating a big map takes a moment, so the generation runs after the dialog had a chance to
+    // render its loading indicator.
+    LaunchedEffect(generatorConfig) {
+        val config = generatorConfig ?: return@LaunchedEffect
+        delay(50)
+        val result = LevelGenerator.generate(config)
+        result.generatedMap?.let { EditorStorage.saveMap(it) }
+        EditorStorage.saveLevel(result.level)
+        levels.value = EditorStorage.getAllLevels()
+        generatorConfig = null
+        showGeneratorDialog = false
+        editingLevel = result.level
     }
 
     if (showCreateDialog) {

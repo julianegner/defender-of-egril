@@ -2425,4 +2425,7 @@
     <string name="level_generator_roster_demons">Demonios</string>
     <string name="level_generator_roster_magic">Magia</string>
     <string name="level_generator_roster_pirates">Piratas</string>
+    <string name="level_generator_generating">Generando nivel…</string>
+    <string name="level_generator_map_size_hint">El tamaño puede ajustarse tras elegir un tamaño general de mapa.</string>
+    <string name="level_generator_roster_wilds">Naturaleza salvaje</string>
 </resources>

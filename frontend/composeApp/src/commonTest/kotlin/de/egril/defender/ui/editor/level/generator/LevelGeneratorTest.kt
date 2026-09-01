@@ -209,7 +209,81 @@ class LevelGeneratorTest {
                 .first { it.attackerType == AttackerType.GAROKK }
                 .spawnTurn
         // End of the first third of the waves, and well before the final wave.
-        assertEquals(((difficulty.waveCount + 2) / 3) * 2, villainTurn)
+        assertEquals(((difficulty.waveCount + 2) / 3) * 2 - 1, villainTurn)
         assertTrue(villainTurn < lastTurn)
+    }
+
+    @Test
+    fun everySpawnTurnHasEnemies() {
+        GeneratorDifficulty.entries.forEach { difficulty ->
+            val result =
+                LevelGenerator.generate(
+                    LevelGeneratorConfig(
+                        title = "Dense Waves",
+                        difficulty = difficulty,
+                        mapSource = GeneratorMapSource.EXISTING_MAP,
+                        existingMap = existingMap(),
+                        seed = 23,
+                    ),
+                )
+
+            val turns =
+                result.level.enemySpawns
+                    .map { it.spawnTurn }
+                    .distinct()
+                    .sorted()
+            assertEquals(1, turns.first())
+            assertEquals((1..turns.last()).toList(), turns)
+        }
+    }
+
+    @Test
+    fun villainsUseTheirThemedRosterInsteadOfARandomMix() {
+        val araxxaPool = LevelGenerator.minionPoolFor(listOf(AttackerType.ARAXXA))
+        assertEquals(GeneratorEnemyRoster.WILDS.types, araxxaPool)
+
+        val pirateVillainPool = LevelGenerator.minionPoolFor(listOf(AttackerType.CAPTAIN_RODERICH))
+        assertEquals(GeneratorEnemyRoster.PIRATES.types, pirateVillainPool)
+    }
+
+    @Test
+    fun spiderVillainGetsASpiderWebMap() {
+        val result =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Web Lair",
+                    villains = setOf(AttackerType.ARAXXA),
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    mapSize = GeneratedMapSize.MEDIUM,
+                    seed = 31,
+                ),
+            )
+
+        val map = assertNotNull(result.generatedMap)
+        assertTrue(map.readyToUse)
+        // A web has several spawn points around the target in the middle of the map.
+        assertTrue(map.getSpawnPoints().size >= 3)
+        val target = assertNotNull(map.getTargets().firstOrNull())
+        assertEquals(map.width / 2, target.x)
+        assertEquals(map.height / 2, target.y)
+    }
+
+    @Test
+    fun generatedMapSizeCanBeAdjusted() {
+        val result =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Custom Size",
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    mapSize = GeneratedMapSize.LARGE,
+                    mapWidth = 27,
+                    mapHeight = 19,
+                    seed = 4,
+                ),
+            )
+
+        val map = assertNotNull(result.generatedMap)
+        assertEquals(27, map.width)
+        assertEquals(19, map.height)
     }
 }

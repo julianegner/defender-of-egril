@@ -10,7 +10,6 @@ import de.egril.defender.model.DefenderType
 import de.egril.defender.model.EnemyFaction
 import de.egril.defender.model.Position
 import de.egril.defender.model.isRealVillain
-import de.egril.defender.model.isSwarmUnit
 import de.egril.defender.ui.editor.map.createMapFromTemplate
 import kotlin.random.Random
 
@@ -21,10 +20,12 @@ internal enum class GeneratedMapSize(
     val width: Int,
     val height: Int,
 ) {
-    SMALL(20, 10),
-    MEDIUM(34, 16),
-    LARGE(50, 24),
-    GIGANTIC(70, 34),
+    // The dimensions follow the sizes of the existing official maps and can be adjusted
+    // after a size has been selected.
+    SMALL(20, 20),
+    MEDIUM(30, 30),
+    LARGE(40, 40),
+    GIGANTIC(50, 50),
 }
 
 /**
@@ -65,7 +66,47 @@ internal enum class GeneratorEnemyRoster(
     DEMONS(listOf(AttackerType.BLUE_DEMON, AttackerType.RED_DEMON)),
     MAGIC(listOf(AttackerType.EVIL_WIZARD, AttackerType.RED_WITCH, AttackerType.GREEN_WITCH)),
     PIRATES(listOf(AttackerType.PIRATE)),
+    WILDS(listOf(AttackerType.SPIDERLING, AttackerType.TROLL, AttackerType.OGRE)),
 }
+
+/**
+ * The roster that fits a villain. Villains without a faction (for example Araxxa) would otherwise
+ * end up with a random enemy mix, so every villain gets an explicitly themed roster here.
+ */
+internal fun AttackerType.generatorRoster(): GeneratorEnemyRoster =
+    when (this) {
+        AttackerType.SNOTLING_BOSS,
+        AttackerType.GAROKK,
+        AttackerType.MORGUK_BONEWHISPER,
+        AttackerType.BARON_RATTERZAHN,
+        AttackerType.EWHAD,
+        -> GeneratorEnemyRoster.HORDE
+        AttackerType.FALLEN_SHIELDMAIDEN_FREYA,
+        AttackerType.PRINCE_VALERIUS_THE_SOULREAPER,
+        AttackerType.MORVATH_THE_SHADOWMASTER,
+        -> GeneratorEnemyRoster.UNDEAD
+        AttackerType.ZYTHAR_THE_RIFTCALLER,
+        AttackerType.IGNIS_VA_THE_DRAGONVOICE,
+        AttackerType.XARITHON_THE_SHADOW_DRAGON,
+        -> GeneratorEnemyRoster.DEMONS
+        AttackerType.GRAND_COVEN_MOTHER_SYBILLA,
+        AttackerType.HAGA,
+        AttackerType.ZUSSA,
+        AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE,
+        AttackerType.SILAS_THE_MASKMASTER,
+        -> GeneratorEnemyRoster.MAGIC
+        AttackerType.CAPTAIN_RODERICH,
+        AttackerType.THE_KRAKEN,
+        -> GeneratorEnemyRoster.PIRATES
+        AttackerType.ARAXXA,
+        AttackerType.SYLVANAS_THE_MOLDING,
+        -> GeneratorEnemyRoster.WILDS
+        else ->
+            when (faction) {
+                EnemyFaction.UNDEAD -> GeneratorEnemyRoster.UNDEAD
+                else -> GeneratorEnemyRoster.HORDE
+            }
+    }
 
 /**
  * All inputs of a level generator run.
@@ -85,6 +126,10 @@ internal data class LevelGeneratorConfig(
     val existingMap: EditorMap? = null,
     // Used when [mapSource] is GENERATED_MAP.
     val mapSize: GeneratedMapSize = GeneratedMapSize.MEDIUM,
+    // Exact dimensions of the generated map. They default to the selected [mapSize] but can be
+    // adjusted in the generator dialog.
+    val mapWidth: Int = mapSize.width,
+    val mapHeight: Int = mapSize.height,
     val seed: Int = 0,
 )
 
@@ -102,6 +147,16 @@ internal data class GeneratedLevelResult(
  * the map to play on). The result is a normal [EditorLevel] that can be refined in the level editor.
  */
 internal object LevelGenerator {
+    // Layouts used when no villain theme applies. The spiral layout is left out on purpose: it is
+    // just a long S-shaped path and makes for boring levels.
+    private val randomLayouts =
+        listOf(
+            MapTemplateLayoutKind.STRAIGHT_APPROACH,
+            MapTemplateLayoutKind.SPLIT_LANES,
+            MapTemplateLayoutKind.RIVER_CROSSING,
+            MapTemplateLayoutKind.SPIDER_WEB,
+        )
+
     private val baseTowers =
         setOf(
             DefenderType.SPIKE_TOWER,
@@ -138,31 +193,23 @@ internal object LevelGenerator {
     }
 
     /**
-     * The regular enemies the waves are built from. When villains are selected, their factions
-     * decide which enemies fit their army. Without villains the explicitly chosen rosters are used.
+     * The regular enemies the waves are built from. When villains are selected, their themed
+     * rosters (see [generatorRoster]) decide which enemies fit their army. Without villains the
+     * explicitly chosen rosters are used.
      */
     fun minionPoolFor(
         villains: Collection<AttackerType>,
         primaryRoster: GeneratorEnemyRoster = GeneratorEnemyRoster.HORDE,
         secondaryRoster: GeneratorEnemyRoster? = null,
     ): List<AttackerType> {
-        val spawnable =
-            AttackerType.entries.filter {
-                !it.isRealVillain &&
-                    !it.isMirrorImage &&
-                    !it.isBoss &&
-                    !it.isDragon &&
-                    !it.isSwarmUnit() &&
-                    it.canSpawnOnLand
-            }
         val realVillains = villains.filter { it.isRealVillain }
-        if (realVillains.isEmpty()) {
-            val rosterTypes = (primaryRoster.types + secondaryRoster?.types.orEmpty()).distinct()
-            return rosterTypes.filter { it in spawnable }.ifEmpty { spawnable }
-        }
-        val factions = realVillains.map { it.faction }.filter { it != EnemyFaction.NONE }.toSet()
-        val matching = spawnable.filter { it.faction in factions }
-        return matching.ifEmpty { spawnable }
+        val rosters =
+            if (realVillains.isEmpty()) {
+                listOfNotNull(primaryRoster, secondaryRoster)
+            } else {
+                realVillains.map { it.generatorRoster() }.distinct()
+            }
+        return rosters.flatMap { it.types }.distinct().filter { !it.isRealVillain }
     }
 
     private fun generateMap(
@@ -170,12 +217,12 @@ internal object LevelGenerator {
         config: LevelGeneratorConfig,
         random: Random,
     ): EditorMap {
-        val layoutKind = MapTemplateLayoutKind.entries[random.nextInt(MapTemplateLayoutKind.entries.size)]
+        val layoutKind = layoutKindFor(config, random)
         return createMapFromTemplate(
             id = "${levelId}_map",
             name = "${config.title} Map",
-            width = config.mapSize.width,
-            height = config.mapSize.height,
+            width = config.mapWidth,
+            height = config.mapHeight,
             author = config.author,
             template =
                 MapTemplateDefinition(
@@ -184,6 +231,27 @@ internal object LevelGenerator {
                     layoutKind = layoutKind,
                 ),
         )
+    }
+
+    /**
+     * Picks a map layout that fits the selected villains: Araxxa and other web weavers get a
+     * spider web, seafaring villains a river crossing. Otherwise a random layout is used.
+     */
+    private fun layoutKindFor(
+        config: LevelGeneratorConfig,
+        random: Random,
+    ): MapTemplateLayoutKind {
+        val rosters =
+            if (config.villains.any { it.isRealVillain }) {
+                config.villains.filter { it.isRealVillain }.map { it.generatorRoster() }
+            } else {
+                listOfNotNull(config.primaryRoster, config.secondaryRoster)
+            }
+        return when {
+            GeneratorEnemyRoster.WILDS in rosters -> MapTemplateLayoutKind.SPIDER_WEB
+            GeneratorEnemyRoster.PIRATES in rosters -> MapTemplateLayoutKind.RIVER_CROSSING
+            else -> randomLayouts[random.nextInt(randomLayouts.size)]
+        }
     }
 
     private fun generateSpawns(
@@ -204,25 +272,30 @@ internal object LevelGenerator {
                 .groupBy({ it.first }, { it.second })
 
         for (wave in 1..difficulty.waveCount) {
-            val turn = wave * 2
             val enemyLevel = difficulty.baseEnemyLevel + (wave - 1) / 3
             val amount = difficulty.enemiesPerWave + (wave - 1) / 3
-            repeat(amount) { index ->
-                val type = minionPool[random.nextInt(minionPool.size)]
-                spawns +=
-                    EditorEnemySpawn(
-                        attackerType = type,
-                        level = enemyLevel,
-                        spawnTurn = turn,
-                        spawnPoint = spawnPointFor(map, type, index),
-                    )
+            // Every wave covers two consecutive turns and both of them get enemies, so that there
+            // is never a spawn turn without any enemy.
+            val firstTurn = wave * 2 - 1
+            val amountPerTurn = listOf((amount + 1) / 2, amount / 2)
+            amountPerTurn.forEachIndexed { turnOffset, turnAmount ->
+                repeat(turnAmount) { index ->
+                    val type = minionPool[random.nextInt(minionPool.size)]
+                    spawns +=
+                        EditorEnemySpawn(
+                            attackerType = type,
+                            level = enemyLevel,
+                            spawnTurn = firstTurn + turnOffset,
+                            spawnPoint = spawnPointFor(map, type, index),
+                        )
+                }
             }
             villainWaves[wave].orEmpty().forEach { villain ->
                 spawns +=
                     EditorEnemySpawn(
                         attackerType = villain,
                         level = enemyLevel,
-                        spawnTurn = turn,
+                        spawnTurn = firstTurn,
                         spawnPoint = spawnPointFor(map, villain, 0),
                     )
             }
