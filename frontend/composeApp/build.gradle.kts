@@ -500,10 +500,10 @@ if (configureAndroid) {
             }
 
             val variantNameCapped = variant.name.replaceFirstChar { it.uppercase() }
-            val mergeAssetsTask = tasks.named("merge${variantNameCapped}Assets")
             tasks.matching { it.name == "build${variantNameCapped}PreBundle" }.configureEach {
                 doFirst {
-                    mergeAssetsTask.get().outputs.files.files.forEach { mergeOutputDir ->
+                    val mergeAssetsTask = tasks.findByName("merge${variantNameCapped}Assets") ?: return@doFirst
+                    mergeAssetsTask.outputs.files.files.forEach { mergeOutputDir ->
                         // Remove the app's own CMP resources (served from the asset pack).
                         val appComposeResDir = File(
                             mergeOutputDir,
@@ -552,30 +552,66 @@ val mapDebugImagesDir = layout.projectDirectory.dir("map-debug-images").asFile.a
 
 val sanitizeWasmImportObjects = tasks.register("sanitizeWasmImportObjects") {
     doLast {
-        val nodeInteropBlock =
+        val persistModuleBlock =
             Regex(
-                """'kotlinx\.io\.node\.persistModule'\s*:\s*.*?'kotlinx\.io\.node\.requireModule'\s*:\s*\(require, mod\)\s*=>\s*\{.*?\}""",
+                """'kotlinx\.io\.node\.persistModule'\s*:\s*\(globalThis\.module\s*=\s*.*?void 0,\s*\(\)\s*=>\s*\{\}\)\s*,""",
                 setOf(RegexOption.DOT_MATCHES_ALL),
             )
-        fileTree(layout.buildDirectory.dir("compileSync/wasmJs")) {
-            include("**/*.import-object.mjs")
-        }.files.forEach { importObjectFile ->
-            val original = importObjectFile.readText()
-            val sanitized =
-                original.replace(
-                    nodeInteropBlock,
-                    """
-                    'kotlinx.io.node.persistModule' :
-                        (() => {})
-                    ,
-                    'kotlinx.io.node.getRequire' : () => null
-                    ,
-                    'kotlinx.io.node.requireModule' :
-                        (_require, _mod) => null
-                    """.trimIndent(),
-                )
-            if (sanitized != original) {
-                importObjectFile.writeText(sanitized)
+        val getRequireBlock =
+            Regex(
+                """'kotlinx\.io\.node\.getRequire'\s*:\s*\(\)\s*=>\s*\{\s*const importMeta = import\.meta;\s*return globalThis\.module\.default\.createRequire\((?:importMeta\.url|"[^"]*")\);\s*\}\s*,""",
+                setOf(RegexOption.DOT_MATCHES_ALL),
+            )
+        val requireModuleBlock =
+            Regex(
+                """'kotlinx\.io\.node\.requireModule'\s*:\s*\(require,\s*mod\)\s*=>\s*\{\s*try\s*\{\s*let m = require\(mod\);\s*if \(m\) return m;\s*return null;\s*\}\s*catch \(e\)\s*\{\s*return null;\s*\}\s*\}""",
+                setOf(RegexOption.DOT_MATCHES_ALL),
+            )
+        val dynamicImportCall =
+            Regex(
+                """'io\.ktor\.client\.utils\.makeImport'\s*:\s*\(name\)\s*=>\s*import\(name\)""",
+            )
+        val candidateDirs =
+            listOf(
+                layout.buildDirectory.dir("compileSync/wasmJs").get().asFile,
+                rootProject.layout.buildDirectory.dir("wasm").get().asFile,
+            )
+        candidateDirs.forEach { candidateDir ->
+            fileTree(candidateDir) {
+                include("**/*.import-object.mjs")
+            }.files.forEach { importObjectFile ->
+                val original = importObjectFile.readText()
+                val sanitized =
+                    original
+                        .replace(
+                            persistModuleBlock,
+                            """
+                            'kotlinx.io.node.persistModule' :
+                                (() => {})
+                            ,
+                            """.trimIndent(),
+                        ).replace(
+                            getRequireBlock,
+                            """
+                            'kotlinx.io.node.getRequire' : () => null
+                            ,
+                            """.trimIndent(),
+                        ).replace(
+                            requireModuleBlock,
+                            """
+                            'kotlinx.io.node.requireModule' :
+                                (_require, _mod) => null
+                            """.trimIndent(),
+                        ).replace(
+                            dynamicImportCall,
+                            """
+                            'io.ktor.client.utils.makeImport' :
+                                (name) => Function("moduleName", "return import(moduleName)")(name)
+                            """.trimIndent(),
+                        )
+                if (sanitized != original) {
+                    importObjectFile.writeText(sanitized)
+                }
             }
         }
     }

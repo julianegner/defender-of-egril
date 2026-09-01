@@ -1028,7 +1028,7 @@ class GameViewModel {
                     de.egril.defender.editor.EditorStorage
                         .getLevel(editorLevelId)
                         ?.isOfficial == true
-            if (level.connectedToPreviousLevel && isOfficialLevel) {
+            if (level.connectedToPreviousLevel && isOfficialLevel && editorLevelId != null) {
                 val resolvedEditorLevelId = editorLevelId
                 if (
                     de.egril.defender.save.SaveFileStorage
