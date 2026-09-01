@@ -2425,14 +2425,15 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="level_generator_size_large">Large</string>
     <string name="level_generator_size_gigantic">Gigantic</string>
     <string name="level_generator_generate">Generate level</string>
-    <string name="level_generator_rosters_hint">Without villains, choose which enemy rosters the waves are drawn from.</string>
+    <string name="level_generator_rosters_hint">Choose which enemy rosters the waves are drawn from. Selecting villains pre-sets them.</string>
     <string name="level_generator_primary_roster">Primary roster</string>
     <string name="level_generator_secondary_roster">Secondary roster (optional)</string>
     <string name="level_generator_roster_none">None</string>
     <string name="level_generator_roster_horde">Horde</string>
     <string name="level_generator_roster_undead">Undead</string>
     <string name="level_generator_roster_demons">Demons</string>
-    <string name="level_generator_roster_magic">Magic</string>
+    <string name="level_generator_roster_witches">Witches</string>
+    <string name="level_generator_roster_spiders">Spiders</string>
     <string name="level_generator_roster_pirates">Pirates</string>
     <string name="level_generator_generating">Generating level…</string>
     <string name="level_generator_map_size_hint">The size can be adjusted after choosing a general map size.</string>

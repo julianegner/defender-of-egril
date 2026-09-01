@@ -2415,14 +2415,15 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="level_generator_size_large">Groß</string>
     <string name="level_generator_size_gigantic">Gigantisch</string>
     <string name="level_generator_generate">Level generieren</string>
-    <string name="level_generator_rosters_hint">Ohne Schurken kannst du wählen, aus welchen Gegner-Aufgeboten die Wellen bestehen.</string>
+    <string name="level_generator_rosters_hint">Wähle, aus welchen Gegner-Aufgeboten die Wellen bestehen. Schurken setzen sie vor.</string>
     <string name="level_generator_primary_roster">Primäres Aufgebot</string>
     <string name="level_generator_secondary_roster">Sekundäres Aufgebot (optional)</string>
     <string name="level_generator_roster_none">Keines</string>
     <string name="level_generator_roster_horde">Horde</string>
     <string name="level_generator_roster_undead">Untote</string>
     <string name="level_generator_roster_demons">Dämonen</string>
-    <string name="level_generator_roster_magic">Magie</string>
+    <string name="level_generator_roster_witches">Hexen</string>
+    <string name="level_generator_roster_spiders">Spinnen</string>
     <string name="level_generator_roster_pirates">Piraten</string>
     <string name="level_generator_generating">Level wird generiert…</string>
     <string name="level_generator_map_size_hint">Die Größe kann nach der Wahl einer allgemeinen Kartengröße angepasst werden.</string>

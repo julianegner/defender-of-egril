@@ -50,6 +50,15 @@ internal fun LevelGeneratorDialog(
     var mapExpanded by remember { mutableStateOf(false) }
 
     val villainTypes = remember { AttackerType.entries.filter { it.isSelectableGeneratorVillain } }
+
+    // Selecting villains pre-sets the rosters with their themes. They stay editable afterwards.
+    LaunchedEffect(selectedVillains) {
+        if (selectedVillains.isNotEmpty()) {
+            val (primary, secondary) = rostersForVillains(selectedVillains)
+            primaryRoster = primary
+            secondaryRoster = secondary
+        }
+    }
     val width = mapWidth.toIntOrNull()
     val height = mapHeight.toIntOrNull()
     val sizeIsValid = width != null && height != null && width in MIN_MAP_SIZE..MAX_MAP_SIZE && height in MIN_MAP_SIZE..MAX_MAP_SIZE
@@ -165,83 +174,81 @@ internal fun LevelGeneratorDialog(
                     }
                 }
 
-                // Enemy rosters are only relevant without villains: with villains the enemies are
-                // derived from the villains' factions instead.
-                if (selectedVillains.isEmpty()) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = stringResource(Res.string.level_generator_rosters_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(bottom = 4.dp),
+                // Enemy rosters decide which regular enemies the waves are made of. Selecting
+                // villains pre-sets them, but they stay editable.
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(Res.string.level_generator_rosters_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
+                ExposedDropdownMenuBox(
+                    expanded = primaryRosterExpanded,
+                    onExpandedChange = { primaryRosterExpanded = it },
+                ) {
+                    OutlinedTextField(
+                        value = primaryRoster.localizedLabel(),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(Res.string.level_generator_primary_roster)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = primaryRosterExpanded) },
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
                     )
-                    ExposedDropdownMenuBox(
+                    ExposedDropdownMenu(
                         expanded = primaryRosterExpanded,
-                        onExpandedChange = { primaryRosterExpanded = it },
+                        onDismissRequest = { primaryRosterExpanded = false },
                     ) {
-                        OutlinedTextField(
-                            value = primaryRoster.localizedLabel(),
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text(stringResource(Res.string.level_generator_primary_roster)) },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = primaryRosterExpanded) },
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
-                        )
-                        ExposedDropdownMenu(
-                            expanded = primaryRosterExpanded,
-                            onDismissRequest = { primaryRosterExpanded = false },
-                        ) {
-                            GeneratorEnemyRoster.entries.forEach { entry ->
-                                DropdownMenuItem(
-                                    text = { Text(entry.localizedLabel()) },
-                                    onClick = {
-                                        primaryRoster = entry
-                                        if (secondaryRoster == entry) secondaryRoster = null
-                                        primaryRosterExpanded = false
-                                    },
-                                )
-                            }
+                        GeneratorEnemyRoster.entries.forEach { entry ->
+                            DropdownMenuItem(
+                                text = { Text(entry.localizedLabel()) },
+                                onClick = {
+                                    primaryRoster = entry
+                                    if (secondaryRoster == entry) secondaryRoster = null
+                                    primaryRosterExpanded = false
+                                },
+                            )
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    ExposedDropdownMenuBox(
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                ExposedDropdownMenuBox(
+                    expanded = secondaryRosterExpanded,
+                    onExpandedChange = { secondaryRosterExpanded = it },
+                ) {
+                    OutlinedTextField(
+                        value = secondaryRoster?.localizedLabel() ?: stringResource(Res.string.level_generator_roster_none),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(Res.string.level_generator_secondary_roster)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = secondaryRosterExpanded) },
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
+                    )
+                    ExposedDropdownMenu(
                         expanded = secondaryRosterExpanded,
-                        onExpandedChange = { secondaryRosterExpanded = it },
+                        onDismissRequest = { secondaryRosterExpanded = false },
                     ) {
-                        OutlinedTextField(
-                            value = secondaryRoster?.localizedLabel() ?: stringResource(Res.string.level_generator_roster_none),
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text(stringResource(Res.string.level_generator_secondary_roster)) },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = secondaryRosterExpanded) },
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true),
+                        DropdownMenuItem(
+                            text = { Text(stringResource(Res.string.level_generator_roster_none)) },
+                            onClick = {
+                                secondaryRoster = null
+                                secondaryRosterExpanded = false
+                            },
                         )
-                        ExposedDropdownMenu(
-                            expanded = secondaryRosterExpanded,
-                            onDismissRequest = { secondaryRosterExpanded = false },
-                        ) {
+                        GeneratorEnemyRoster.entries.filter { it != primaryRoster }.forEach { entry ->
                             DropdownMenuItem(
-                                text = { Text(stringResource(Res.string.level_generator_roster_none)) },
+                                text = { Text(entry.localizedLabel()) },
                                 onClick = {
-                                    secondaryRoster = null
+                                    secondaryRoster = entry
                                     secondaryRosterExpanded = false
                                 },
                             )
-                            GeneratorEnemyRoster.entries.filter { it != primaryRoster }.forEach { entry ->
-                                DropdownMenuItem(
-                                    text = { Text(entry.localizedLabel()) },
-                                    onClick = {
-                                        secondaryRoster = entry
-                                        secondaryRosterExpanded = false
-                                    },
-                                )
-                            }
                         }
                     }
                 }
@@ -429,8 +436,9 @@ private fun GeneratorEnemyRoster.localizedLabel(): String =
         GeneratorEnemyRoster.HORDE -> stringResource(Res.string.level_generator_roster_horde)
         GeneratorEnemyRoster.UNDEAD -> stringResource(Res.string.level_generator_roster_undead)
         GeneratorEnemyRoster.DEMONS -> stringResource(Res.string.level_generator_roster_demons)
-        GeneratorEnemyRoster.MAGIC -> stringResource(Res.string.level_generator_roster_magic)
+        GeneratorEnemyRoster.WITCHES -> stringResource(Res.string.level_generator_roster_witches)
         GeneratorEnemyRoster.PIRATES -> stringResource(Res.string.level_generator_roster_pirates)
+        GeneratorEnemyRoster.SPIDERS -> stringResource(Res.string.level_generator_roster_spiders)
         GeneratorEnemyRoster.WILDS -> stringResource(Res.string.level_generator_roster_wilds)
     }
 

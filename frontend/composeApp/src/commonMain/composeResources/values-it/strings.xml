@@ -2418,14 +2418,15 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="level_generator_size_large">Grande</string>
     <string name="level_generator_size_gigantic">Gigantesca</string>
     <string name="level_generator_generate">Genera livello</string>
-    <string name="level_generator_rosters_hint">Senza cattivi, scegli da quali schieramenti di nemici sono composte le ondate.</string>
+    <string name="level_generator_rosters_hint">Scegli da quali schieramenti di nemici sono composte le ondate. I cattivi li preimpostano.</string>
     <string name="level_generator_primary_roster">Schieramento primario</string>
     <string name="level_generator_secondary_roster">Schieramento secondario (opzionale)</string>
     <string name="level_generator_roster_none">Nessuno</string>
     <string name="level_generator_roster_horde">Orda</string>
     <string name="level_generator_roster_undead">Non morti</string>
     <string name="level_generator_roster_demons">Demoni</string>
-    <string name="level_generator_roster_magic">Magia</string>
+    <string name="level_generator_roster_witches">Streghe</string>
+    <string name="level_generator_roster_spiders">Ragni</string>
     <string name="level_generator_roster_pirates">Pirati</string>
     <string name="level_generator_generating">Generazione del livello…</string>
     <string name="level_generator_map_size_hint">La dimensione può essere regolata dopo aver scelto una dimensione generale della mappa.</string>

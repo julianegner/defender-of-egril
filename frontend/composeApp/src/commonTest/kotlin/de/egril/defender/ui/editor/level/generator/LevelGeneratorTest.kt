@@ -107,6 +107,7 @@ class LevelGeneratorTest {
                 LevelGeneratorConfig(
                     title = "Undead Level",
                     villains = setOf(villain),
+                    primaryRoster = rostersForVillains(setOf(villain)).first,
                     mapSource = GeneratorMapSource.EXISTING_MAP,
                     existingMap = existingMap(),
                     seed = 5,
@@ -138,12 +139,12 @@ class LevelGeneratorTest {
     }
 
     @Test
-    fun minionPoolWithoutVillainsUsesSelectedRosters() {
-        val primaryOnly = LevelGenerator.minionPoolFor(emptyList(), GeneratorEnemyRoster.UNDEAD)
+    fun minionPoolUsesSelectedRosters() {
+        val primaryOnly = LevelGenerator.minionPoolFor(GeneratorEnemyRoster.UNDEAD)
         assertEquals(GeneratorEnemyRoster.UNDEAD.types, primaryOnly)
 
         val withSecondary =
-            LevelGenerator.minionPoolFor(emptyList(), GeneratorEnemyRoster.UNDEAD, GeneratorEnemyRoster.DEMONS)
+            LevelGenerator.minionPoolFor(GeneratorEnemyRoster.UNDEAD, GeneratorEnemyRoster.DEMONS)
         assertEquals(GeneratorEnemyRoster.UNDEAD.types + GeneratorEnemyRoster.DEMONS.types, withSecondary)
     }
 
@@ -154,7 +155,7 @@ class LevelGeneratorTest {
                 LevelGeneratorConfig(
                     title = "Roster Level",
                     villains = emptySet(),
-                    primaryRoster = GeneratorEnemyRoster.MAGIC,
+                    primaryRoster = GeneratorEnemyRoster.WITCHES,
                     secondaryRoster = GeneratorEnemyRoster.PIRATES,
                     mapSource = GeneratorMapSource.EXISTING_MAP,
                     existingMap = existingMap(),
@@ -162,17 +163,17 @@ class LevelGeneratorTest {
                 ),
             )
 
-        val allowed = (GeneratorEnemyRoster.MAGIC.types + GeneratorEnemyRoster.PIRATES.types).toSet()
+        val allowed = (GeneratorEnemyRoster.WITCHES.types + GeneratorEnemyRoster.PIRATES.types).toSet()
         assertTrue(result.level.enemySpawns.isNotEmpty())
         assertTrue(result.level.enemySpawns.all { it.attackerType in allowed })
     }
 
     @Test
-    fun rostersAreIgnoredWhenVillainsAreSelected() {
+    fun selectedRostersAreUsedEvenWithVillains() {
         val result =
             LevelGenerator.generate(
                 LevelGeneratorConfig(
-                    title = "Villain Wins Over Roster",
+                    title = "Roster Wins Over Villain",
                     villains = setOf(AttackerType.GAROKK),
                     primaryRoster = GeneratorEnemyRoster.PIRATES,
                     mapSource = GeneratorMapSource.EXISTING_MAP,
@@ -186,7 +187,19 @@ class LevelGeneratorTest {
                 .map { it.attackerType }
                 .filter { !it.isRealVillain }
         assertTrue(minions.isNotEmpty())
-        assertTrue(minions.all { it.faction == EnemyFaction.HORDE })
+        assertTrue(minions.all { it in GeneratorEnemyRoster.PIRATES.types })
+    }
+
+    @Test
+    fun rostersArePresetFromTheSelectedVillains() {
+        assertEquals(GeneratorEnemyRoster.HORDE to null, rostersForVillains(setOf(AttackerType.GAROKK)))
+        assertEquals(GeneratorEnemyRoster.SPIDERS to null, rostersForVillains(setOf(AttackerType.ARAXXA)))
+        assertEquals(
+            GeneratorEnemyRoster.SPIDERS to GeneratorEnemyRoster.PIRATES,
+            rostersForVillains(listOf(AttackerType.ARAXXA, AttackerType.CAPTAIN_RODERICH)),
+        )
+        // Without villains the default roster is kept.
+        assertEquals(GeneratorEnemyRoster.HORDE to null, rostersForVillains(emptySet()))
     }
 
     @Test
@@ -240,11 +253,39 @@ class LevelGeneratorTest {
 
     @Test
     fun villainsUseTheirThemedRosterInsteadOfARandomMix() {
-        val araxxaPool = LevelGenerator.minionPoolFor(listOf(AttackerType.ARAXXA))
-        assertEquals(GeneratorEnemyRoster.WILDS.types, araxxaPool)
+        assertEquals(GeneratorEnemyRoster.SPIDERS, AttackerType.ARAXXA.generatorRoster())
+        assertEquals(GeneratorEnemyRoster.PIRATES, AttackerType.CAPTAIN_RODERICH.generatorRoster())
+    }
 
-        val pirateVillainPool = LevelGenerator.minionPoolFor(listOf(AttackerType.CAPTAIN_RODERICH))
-        assertEquals(GeneratorEnemyRoster.PIRATES.types, pirateVillainPool)
+    @Test
+    fun spiderRosterContainsOnlySpiders() {
+        assertEquals(listOf(AttackerType.SPIDERLING), GeneratorEnemyRoster.SPIDERS.types)
+
+        val result =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Spider Waves",
+                    villains = setOf(AttackerType.ARAXXA),
+                    primaryRoster = GeneratorEnemyRoster.SPIDERS,
+                    mapSource = GeneratorMapSource.EXISTING_MAP,
+                    existingMap = existingMap(),
+                    seed = 5,
+                ),
+            )
+
+        val minions =
+            result.level.enemySpawns
+                .map { it.attackerType }
+                .filter { !it.isRealVillain }
+        assertTrue(minions.isNotEmpty())
+        assertTrue(minions.all { it == AttackerType.SPIDERLING })
+    }
+
+    @Test
+    fun evilWizardBelongsToTheDemonsRoster() {
+        assertTrue(AttackerType.EVIL_WIZARD in GeneratorEnemyRoster.DEMONS.types)
+        assertFalse(AttackerType.EVIL_WIZARD in GeneratorEnemyRoster.WITCHES.types)
+        assertEquals(listOf(AttackerType.RED_WITCH, AttackerType.GREEN_WITCH), GeneratorEnemyRoster.WITCHES.types)
     }
 
     @Test
@@ -291,10 +332,10 @@ class LevelGeneratorTest {
     @Test
     fun sylvanasUsesTheWitchesRosterLikeSybilla() {
         assertEquals(
-            LevelGenerator.minionPoolFor(listOf(AttackerType.GRAND_COVEN_MOTHER_SYBILLA)),
-            LevelGenerator.minionPoolFor(listOf(AttackerType.SYLVANAS_THE_MOLDING)),
+            AttackerType.GRAND_COVEN_MOTHER_SYBILLA.generatorRoster(),
+            AttackerType.SYLVANAS_THE_MOLDING.generatorRoster(),
         )
-        assertEquals(GeneratorEnemyRoster.MAGIC.types, LevelGenerator.minionPoolFor(listOf(AttackerType.SYLVANAS_THE_MOLDING)))
+        assertEquals(GeneratorEnemyRoster.WITCHES, AttackerType.SYLVANAS_THE_MOLDING.generatorRoster())
     }
 
     @Test

@@ -2416,14 +2416,15 @@
     <string name="level_generator_size_large">Grande</string>
     <string name="level_generator_size_gigantic">Gigantesco</string>
     <string name="level_generator_generate">Generar nivel</string>
-    <string name="level_generator_rosters_hint">Sin villanos, elige de qué plantillas de enemigos se componen las oleadas.</string>
+    <string name="level_generator_rosters_hint">Elige de qué plantillas de enemigos se componen las oleadas. Los villanos las preseleccionan.</string>
     <string name="level_generator_primary_roster">Plantilla principal</string>
     <string name="level_generator_secondary_roster">Plantilla secundaria (opcional)</string>
     <string name="level_generator_roster_none">Ninguna</string>
     <string name="level_generator_roster_horde">Horda</string>
     <string name="level_generator_roster_undead">No muertos</string>
     <string name="level_generator_roster_demons">Demonios</string>
-    <string name="level_generator_roster_magic">Magia</string>
+    <string name="level_generator_roster_witches">Brujas</string>
+    <string name="level_generator_roster_spiders">Arañas</string>
     <string name="level_generator_roster_pirates">Piratas</string>
     <string name="level_generator_generating">Generando nivel…</string>
     <string name="level_generator_map_size_hint">El tamaño puede ajustarse tras elegir un tamaño general de mapa.</string>

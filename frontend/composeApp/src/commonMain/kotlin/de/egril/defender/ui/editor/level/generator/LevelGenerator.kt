@@ -63,10 +63,11 @@ internal enum class GeneratorEnemyRoster(
 ) {
     HORDE(listOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.TROLL, AttackerType.ROBOTIC_GOBLIN)),
     UNDEAD(listOf(AttackerType.SKELETON, AttackerType.ZOMBIE, AttackerType.GHOST)),
-    DEMONS(listOf(AttackerType.BLUE_DEMON, AttackerType.RED_DEMON)),
-    MAGIC(listOf(AttackerType.EVIL_WIZARD, AttackerType.RED_WITCH, AttackerType.GREEN_WITCH)),
+    DEMONS(listOf(AttackerType.BLUE_DEMON, AttackerType.RED_DEMON, AttackerType.EVIL_WIZARD)),
+    WITCHES(listOf(AttackerType.RED_WITCH, AttackerType.GREEN_WITCH)),
     PIRATES(listOf(AttackerType.PIRATE)),
-    WILDS(listOf(AttackerType.SPIDERLING, AttackerType.TROLL, AttackerType.OGRE)),
+    SPIDERS(listOf(AttackerType.SPIDERLING)),
+    WILDS(listOf(AttackerType.TROLL, AttackerType.OGRE)),
 }
 
 /**
@@ -103,12 +104,12 @@ internal fun AttackerType.generatorRoster(): GeneratorEnemyRoster =
         AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE,
         AttackerType.SILAS_THE_MASKMASTER,
         AttackerType.SYLVANAS_THE_MOLDING,
-        -> GeneratorEnemyRoster.MAGIC
+        -> GeneratorEnemyRoster.WITCHES
         AttackerType.CAPTAIN_RODERICH,
         AttackerType.THE_KRAKEN,
         -> GeneratorEnemyRoster.PIRATES
         AttackerType.ARAXXA,
-        -> GeneratorEnemyRoster.WILDS
+        -> GeneratorEnemyRoster.SPIDERS
         else ->
             when (faction) {
                 EnemyFaction.UNDEAD -> GeneratorEnemyRoster.UNDEAD
@@ -117,16 +118,30 @@ internal fun AttackerType.generatorRoster(): GeneratorEnemyRoster =
     }
 
 /**
+ * The rosters that fit a set of villains. The first roster is used as primary roster, the second
+ * one (if the villains span two themes) as secondary roster. The generator dialog uses this to
+ * pre-set the roster dropdowns, which stay editable afterwards.
+ */
+internal fun rostersForVillains(villains: Collection<AttackerType>): Pair<GeneratorEnemyRoster, GeneratorEnemyRoster?> {
+    val rosters =
+        villains
+            .filter { it.isRealVillain }
+            .map { it.generatorRoster() }
+            .distinct()
+    return (rosters.firstOrNull() ?: GeneratorEnemyRoster.HORDE) to rosters.getOrNull(1)
+}
+
+/**
  * All inputs of a level generator run.
  */
 internal data class LevelGeneratorConfig(
     val title: String,
     val author: String = "",
     val difficulty: GeneratorDifficulty = GeneratorDifficulty.MEDIUM,
-    // Selected villains. Their factions determine which regular enemies are mainly used.
-    // May be empty; the enemy rosters below are then used instead.
+    // Selected villains. They spawn as unique enemies; their themed rosters are pre-selected in
+    // the generator dialog but can be changed there.
     val villains: Set<AttackerType> = emptySet(),
-    // Enemy rosters, only used when no villain is selected.
+    // Enemy rosters the regular waves are drawn from.
     val primaryRoster: GeneratorEnemyRoster = GeneratorEnemyRoster.HORDE,
     val secondaryRoster: GeneratorEnemyRoster? = null,
     val mapSource: GeneratorMapSource = GeneratorMapSource.GENERATED_MAP,
@@ -183,7 +198,7 @@ internal object LevelGenerator {
             }
         val map = generatedMap ?: config.existingMap
         val villains = config.villains.filter { it.isRealVillain }.sortedBy { it.ordinal }
-        val minionPool = minionPoolFor(villains, config.primaryRoster, config.secondaryRoster)
+        val minionPool = minionPoolFor(config.primaryRoster, config.secondaryRoster)
         val spawns = generateSpawns(map, config.difficulty, villains, minionPool, random)
 
         val level =
@@ -201,24 +216,18 @@ internal object LevelGenerator {
     }
 
     /**
-     * The regular enemies the waves are built from. When villains are selected, their themed
-     * rosters (see [generatorRoster]) decide which enemies fit their army. Without villains the
-     * explicitly chosen rosters are used.
+     * The regular enemies the waves are built from. The rosters are pre-set from the selected
+     * villains in the generator dialog but can be changed there, so the generator always uses the
+     * rosters of the configuration.
      */
     fun minionPoolFor(
-        villains: Collection<AttackerType>,
         primaryRoster: GeneratorEnemyRoster = GeneratorEnemyRoster.HORDE,
         secondaryRoster: GeneratorEnemyRoster? = null,
-    ): List<AttackerType> {
-        val realVillains = villains.filter { it.isRealVillain }
-        val rosters =
-            if (realVillains.isEmpty()) {
-                listOfNotNull(primaryRoster, secondaryRoster)
-            } else {
-                realVillains.map { it.generatorRoster() }.distinct()
-            }
-        return rosters.flatMap { it.types }.distinct().filter { !it.isRealVillain }
-    }
+    ): List<AttackerType> =
+        listOfNotNull(primaryRoster, secondaryRoster)
+            .flatMap { it.types }
+            .distinct()
+            .filter { !it.isRealVillain }
 
     private fun generateMap(
         levelId: String,
@@ -242,21 +251,16 @@ internal object LevelGenerator {
     }
 
     /**
-     * Picks a map layout that fits the selected villains: Araxxa and other web weavers get a
-     * spider web, seafaring villains a river crossing. Otherwise a random layout is used.
+     * Picks a map layout that fits the selected rosters: spider armies get a spider web, seafaring
+     * enemies a river crossing. Otherwise a random layout is used.
      */
     private fun layoutKindFor(
         config: LevelGeneratorConfig,
         random: Random,
     ): MapTemplateLayoutKind {
-        val rosters =
-            if (config.villains.any { it.isRealVillain }) {
-                config.villains.filter { it.isRealVillain }.map { it.generatorRoster() }
-            } else {
-                listOfNotNull(config.primaryRoster, config.secondaryRoster)
-            }
+        val rosters = listOfNotNull(config.primaryRoster, config.secondaryRoster)
         return when {
-            GeneratorEnemyRoster.WILDS in rosters -> MapTemplateLayoutKind.SPIDER_WEB
+            GeneratorEnemyRoster.SPIDERS in rosters -> MapTemplateLayoutKind.SPIDER_WEB
             GeneratorEnemyRoster.PIRATES in rosters -> MapTemplateLayoutKind.RIVER_CROSSING
             else -> randomLayouts[random.nextInt(randomLayouts.size)]
         }
