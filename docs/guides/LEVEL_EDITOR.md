@@ -78,7 +78,8 @@ draft from a few inputs. Everything is chosen before the generation starts:
   the starting coins and health points.
 - **Villains**: optional; any number of villains can be selected. Every villain has a themed roster
   (for example, Araxxa the Giant Spider leads spiders and forest beasts, undead villains lead
-  undead minions), which determines the regular enemies of the level. Each selected villain is
+  undead minions), which determines the regular enemies of the level. The coven twins Haga and
+  Zussa are not offered, since they only make sense together with Grand Coven-Mother Sybilla. Each selected villain is
   spawned exactly once, at the end of the first third of the waves, so it has time to build up its
   potential (summoning, auras) instead of arriving right before the end.
 - **Enemy rosters**: shown only when no villain is selected. A primary roster (horde, undead,
@@ -91,7 +92,8 @@ draft from a few inputs. Everything is chosen before the generation starts:
   river crossing, and otherwise a random layout is used.
 
 Every wave covers two consecutive turns and both of them get enemies, so a generated level never
-contains a spawn turn without enemies.
+contains a spawn turn without enemies. Wave sizes scale with the difficulty and grow over the
+course of the level.
 
 While the level is being generated a loading indicator is shown. Afterwards the generated level
 (and, if requested, the generated map) is saved and opened in the level editor so it can be refined

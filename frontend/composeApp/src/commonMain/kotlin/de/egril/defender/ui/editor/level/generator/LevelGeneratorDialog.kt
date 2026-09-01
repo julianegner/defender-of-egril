@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.model.AttackerType
-import de.egril.defender.model.isRealVillain
 import de.egril.defender.ui.getLocalizedName
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -50,7 +49,7 @@ internal fun LevelGeneratorDialog(
     var selectedMap by remember { mutableStateOf(availableMaps.firstOrNull()) }
     var mapExpanded by remember { mutableStateOf(false) }
 
-    val villainTypes = remember { AttackerType.entries.filter { it.isRealVillain } }
+    val villainTypes = remember { AttackerType.entries.filter { it.isSelectableGeneratorVillain } }
     val width = mapWidth.toIntOrNull()
     val height = mapHeight.toIntOrNull()
     val sizeIsValid = width != null && height != null && width in MIN_MAP_SIZE..MAX_MAP_SIZE && height in MIN_MAP_SIZE..MAX_MAP_SIZE

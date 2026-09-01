@@ -39,10 +39,10 @@ internal enum class GeneratorDifficulty(
     val startCoins: Int,
     val startHealthPoints: Int,
 ) {
-    EASY(waveCount = 6, enemiesPerWave = 2, baseEnemyLevel = 1, startCoins = 220, startHealthPoints = 15),
-    MEDIUM(waveCount = 9, enemiesPerWave = 3, baseEnemyLevel = 1, startCoins = 160, startHealthPoints = 12),
-    HARD(waveCount = 12, enemiesPerWave = 4, baseEnemyLevel = 2, startCoins = 120, startHealthPoints = 10),
-    NIGHTMARE(waveCount = 15, enemiesPerWave = 5, baseEnemyLevel = 3, startCoins = 100, startHealthPoints = 8),
+    EASY(waveCount = 6, enemiesPerWave = 8, baseEnemyLevel = 1, startCoins = 220, startHealthPoints = 15),
+    MEDIUM(waveCount = 9, enemiesPerWave = 12, baseEnemyLevel = 1, startCoins = 160, startHealthPoints = 12),
+    HARD(waveCount = 12, enemiesPerWave = 16, baseEnemyLevel = 2, startCoins = 120, startHealthPoints = 10),
+    NIGHTMARE(waveCount = 15, enemiesPerWave = 20, baseEnemyLevel = 3, startCoins = 100, startHealthPoints = 8),
 }
 
 /**
@@ -70,6 +70,14 @@ internal enum class GeneratorEnemyRoster(
 }
 
 /**
+ * Villains that can be picked in the level generator. Haga and Zussa are the coven twins of
+ * Grand Coven-Mother Sybilla and only make sense together with her, so they are not offered as
+ * standalone villains here.
+ */
+internal val AttackerType.isSelectableGeneratorVillain: Boolean
+    get() = isRealVillain && this != AttackerType.HAGA && this != AttackerType.ZUSSA
+
+/**
  * The roster that fits a villain. Villains without a faction (for example Araxxa) would otherwise
  * end up with a random enemy mix, so every villain gets an explicitly themed roster here.
  */
@@ -94,12 +102,12 @@ internal fun AttackerType.generatorRoster(): GeneratorEnemyRoster =
         AttackerType.ZUSSA,
         AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE,
         AttackerType.SILAS_THE_MASKMASTER,
+        AttackerType.SYLVANAS_THE_MOLDING,
         -> GeneratorEnemyRoster.MAGIC
         AttackerType.CAPTAIN_RODERICH,
         AttackerType.THE_KRAKEN,
         -> GeneratorEnemyRoster.PIRATES
         AttackerType.ARAXXA,
-        AttackerType.SYLVANAS_THE_MOLDING,
         -> GeneratorEnemyRoster.WILDS
         else ->
             when (faction) {
@@ -273,7 +281,8 @@ internal object LevelGenerator {
 
         for (wave in 1..difficulty.waveCount) {
             val enemyLevel = difficulty.baseEnemyLevel + (wave - 1) / 3
-            val amount = difficulty.enemiesPerWave + (wave - 1) / 3
+            // Waves grow noticeably over the course of the level.
+            val amount = difficulty.enemiesPerWave + (wave - 1) * difficulty.enemiesPerWave / 4
             // Every wave covers two consecutive turns and both of them get enemies, so that there
             // is never a spawn turn without any enemy.
             val firstTurn = wave * 2 - 1

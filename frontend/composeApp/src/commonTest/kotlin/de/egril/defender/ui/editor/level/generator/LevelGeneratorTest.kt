@@ -7,6 +7,7 @@ import de.egril.defender.model.EnemyFaction
 import de.egril.defender.model.isRealVillain
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -285,5 +286,46 @@ class LevelGeneratorTest {
         val map = assertNotNull(result.generatedMap)
         assertEquals(27, map.width)
         assertEquals(19, map.height)
+    }
+
+    @Test
+    fun sylvanasUsesTheWitchesRosterLikeSybilla() {
+        assertEquals(
+            LevelGenerator.minionPoolFor(listOf(AttackerType.GRAND_COVEN_MOTHER_SYBILLA)),
+            LevelGenerator.minionPoolFor(listOf(AttackerType.SYLVANAS_THE_MOLDING)),
+        )
+        assertEquals(GeneratorEnemyRoster.MAGIC.types, LevelGenerator.minionPoolFor(listOf(AttackerType.SYLVANAS_THE_MOLDING)))
+    }
+
+    @Test
+    fun covenTwinsAreNotSelectableAsStandaloneVillains() {
+        assertFalse(AttackerType.HAGA.isSelectableGeneratorVillain)
+        assertFalse(AttackerType.ZUSSA.isSelectableGeneratorVillain)
+        assertTrue(AttackerType.GRAND_COVEN_MOTHER_SYBILLA.isSelectableGeneratorVillain)
+        assertTrue(AttackerType.entries.filter { it.isSelectableGeneratorVillain }.all { it.isRealVillain })
+    }
+
+    @Test
+    fun everySpawnTurnContainsSeveralUnits() {
+        GeneratorDifficulty.entries.forEach { difficulty ->
+            val result =
+                LevelGenerator.generate(
+                    LevelGeneratorConfig(
+                        title = "Big Waves",
+                        difficulty = difficulty,
+                        mapSource = GeneratorMapSource.EXISTING_MAP,
+                        existingMap = existingMap(),
+                        seed = 77,
+                    ),
+                )
+
+            val perTurn =
+                result.level.enemySpawns
+                    .groupBy { it.spawnTurn }
+                    .mapValues { it.value.size }
+            assertTrue(perTurn.values.all { it >= 4 }, "$difficulty has a turn with fewer than 4 units: $perTurn")
+            // Later waves are bigger than the first ones.
+            assertTrue(perTurn.getValue(perTurn.keys.max()) > perTurn.getValue(1))
+        }
     }
 }
