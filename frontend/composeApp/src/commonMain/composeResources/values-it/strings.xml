@@ -399,6 +399,8 @@
     <string name="map_tooling_info">Info creazione mappa</string>
     <string name="allow_no_buildable_tiles">Consenti mappe senza caselle costruibili</string>
     <string name="allow_no_buildable_tiles_hint">Usalo per mappe che si basano su supporti o basi torre invece che su aree di costruzione.</string>
+    <string name="allow_no_direct_path">Permetti mappe senza percorso diretto al bersaglio</string>
+    <string name="allow_no_direct_path_hint">Usalo per mappe in cui i portali dell'editor di livelli colmano il divario tra i punti di partenza e i bersagli.</string>
     <string name="width">Larghezza</string>
     <string name="height">Altezza</string>
     <string name="select_map_to_edit">Seleziona una mappa da modificare:</string>
@@ -704,6 +706,13 @@
     <string name="initial_setup_barricades">Barricate</string>
     <string name="initial_setup_fiefs">Feudi</string>
     <string name="initial_setup_mushrooms">Funghi</string>
+    <string name="initial_setup_portals">Portali</string>
+    <string name="initial_setup_portal_entry">Ingresso</string>
+    <string name="initial_setup_portal_exit">Uscita</string>
+    <string name="initial_setup_portal_place_entry">Clicca sulla mappa per posizionare l'ingresso del portale</string>
+    <string name="initial_setup_portal_place_exit">Clicca sulla mappa per posizionare l'uscita del portale</string>
+    <string name="initial_setup_portal_hint">Aggiungi una coppia di portali: i nemici che entrano nel riquadro blu vengono teletrasportati al riquadro arancione.</string>
+    <string name="initial_setup_portal_validation_failed">I portali devono creare un percorso valido da tutti i punti di partenza verso almeno un bersaglio.</string>
     <string name="mushroom">Fungo</string>
     <string name="mushroom_buff_description">2x velocità e livello per 2 turni (solo unità orda e streghe)</string>
     <string name="mushroom_enhanced_horde">Bonus fungo: 2x velocità e livello</string>

@@ -399,6 +399,8 @@
     <string name="map_tooling_info">Información de creación del mapa</string>
     <string name="allow_no_buildable_tiles">Permitir mapas sin casillas construibles</string>
     <string name="allow_no_buildable_tiles_hint">Úsalo para mapas que dependen de apoyos o bases de torre en lugar de áreas de construcción.</string>
+    <string name="allow_no_direct_path">Permitir mapas sin ruta directa hacia el objetivo</string>
+    <string name="allow_no_direct_path_hint">Úsalo para mapas donde los portales del editor de niveles conectan los puntos de aparición con los objetivos.</string>
     <string name="width">Ancho</string>
     <string name="height">Alto</string>
     <string name="select_map_to_edit">Seleccionar un mapa para editar:</string>
@@ -704,6 +706,13 @@
     <string name="initial_setup_barricades">Barricadas</string>
     <string name="initial_setup_fiefs">Feudos</string>
     <string name="initial_setup_mushrooms">Hongos</string>
+    <string name="initial_setup_portals">Portales</string>
+    <string name="initial_setup_portal_entry">Entrada</string>
+    <string name="initial_setup_portal_exit">Salida</string>
+    <string name="initial_setup_portal_place_entry">Haz clic en el mapa para colocar la posición de entrada del portal</string>
+    <string name="initial_setup_portal_place_exit">Haz clic en el mapa para colocar la posición de salida del portal</string>
+    <string name="initial_setup_portal_hint">Añade un par de portales: los enemigos que entren por el mosaico azul serán teletransportados al mosaico naranja.</string>
+    <string name="initial_setup_portal_validation_failed">Los portales deben crear una ruta válida desde todos los puntos de aparición hasta al menos un objetivo.</string>
     <string name="mushroom">Hongo</string>
     <string name="mushroom_buff_description">2x velocidad y nivel durante 2 turnos (solo unidades de horda y brujas)</string>
     <string name="mushroom_enhanced_horde">Impulso de hongo: 2x velocidad y nivel</string>

@@ -62,6 +62,9 @@ fun InitialSetupTab(
 
     var editBarricadeIndex by remember { mutableStateOf<Int?>(null) } // Index of barricade being edited
 
+    // Portal placement state: first click sets entry, second click creates the pair
+    var pendingPortalEntry by remember { mutableStateOf<Position?>(null) }
+
     var selectedElement by remember { mutableStateOf<SelectedElement?>(null) }
     var hoveredTilePosition by remember { mutableStateOf<Position?>(null) }
 
@@ -88,10 +91,15 @@ fun InitialSetupTab(
                 if (placementMode != null) {
                     val tileLabel = stringResource(Res.string.initial_setup_tile)
                     val pos = hoveredTilePosition
+                    val hintText = when {
+                        placementMode == PlacementMode.PORTAL && pendingPortalEntry != null ->
+                            stringResource(Res.string.initial_setup_portal_place_exit)
+                        placementMode == PlacementMode.PORTAL ->
+                            stringResource(Res.string.initial_setup_portal_place_entry)
+                        else -> stringResource(Res.string.initial_setup_click_to_place)
+                    }
                     Text(
-                        text =
-                            stringResource(Res.string.initial_setup_click_to_place) +
-                                if (pos != null) "  $tileLabel (${pos.x}, ${pos.y})" else "",
+                        text = hintText + if (pos != null) "  $tileLabel (${pos.x}, ${pos.y})" else "",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -110,6 +118,7 @@ fun InitialSetupTab(
                         selectedAttackerType = selectedAttackerType,
                         selectedFiefType = selectedFiefType,
                         initialData = initialData,
+                        pendingPortalEntry = pendingPortalEntry,
                         selectedElement = selectedElement,
                         onTileClick = { position ->
                             when (placementMode) {
@@ -199,6 +208,20 @@ fun InitialSetupTab(
                                         onInitialDataChange(initialData.copy(mushrooms = initialData.mushrooms + newMushroom))
                                     }
                                 }
+                                PlacementMode.PORTAL -> {
+                                    if (isValidPlacement(position, PlacementMode.PORTAL, map)) {
+                                        val entry = pendingPortalEntry
+                                        if (entry == null) {
+                                            // First click: record pending entry position
+                                            pendingPortalEntry = position
+                                        } else if (position != entry) {
+                                            // Second click: create the portal pair
+                                            val newPortal = InitialPortal(entryPosition = entry, exitPosition = position)
+                                            onInitialDataChange(initialData.copy(portals = initialData.portals + newPortal))
+                                            pendingPortalEntry = null
+                                        }
+                                    }
+                                }
                                 null -> {
                                     // Selection mode - find clicked element
                                     val clickedElement =
@@ -222,6 +245,7 @@ fun InitialSetupTab(
             onPlacementModeChange = {
                 placementMode = it
                 selectedElement = null
+                pendingPortalEntry = null // Reset pending portal entry when mode changes
             },
             selectedDefenderType = selectedDefenderType,
             onSelectedDefenderTypeChange = { selectedDefenderType = it },
@@ -288,6 +312,13 @@ fun InitialSetupTab(
                 newList.removeAt(index)
                 onInitialDataChange(initialData.copy(mushrooms = newList))
                 selectedElement = null
+            },
+            onRemovePortal = { index ->
+                val newList = initialData.portals.toMutableList()
+                newList.removeAt(index)
+                onInitialDataChange(initialData.copy(portals = newList))
+                selectedElement = null
+                pendingPortalEntry = null
             },
             selectedElement = selectedElement,
             onSelectedElementChange = { selectedElement = it },
@@ -546,6 +577,11 @@ sealed class SelectedElement {
         val index: Int,
         val mushroom: InitialMushroom,
     ) : SelectedElement()
+
+    data class Portal(
+        val index: Int,
+        val portal: InitialPortal,
+    ) : SelectedElement()
 }
 
 private fun findElementAtPosition(
@@ -580,6 +616,11 @@ private fun findElementAtPosition(
     initialData.mushrooms.forEachIndexed { index, mushroom ->
         if (mushroom.position == position) {
             return SelectedElement.Mushroom(index, mushroom)
+        }
+    }
+    initialData.portals.forEachIndexed { index, portal ->
+        if (portal.entryPosition == position || portal.exitPosition == position) {
+            return SelectedElement.Portal(index, portal)
         }
     }
     return null

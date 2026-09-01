@@ -399,6 +399,8 @@
     <string name="map_tooling_info">Infos zur Kartenerstellung</string>
     <string name="allow_no_buildable_tiles">Karten ohne baubare Felder erlauben</string>
     <string name="allow_no_buildable_tiles_hint">Verwende dies für Karten, die auf Unterstützungen oder Turmbasen statt auf Bauflächen setzen.</string>
+    <string name="allow_no_direct_path">Karten ohne direkten Weg erlauben</string>
+    <string name="allow_no_direct_path_hint">Für Karten, bei denen Portale aus dem Level-Editor die Verbindung zwischen Startpunkten und Zielen herstellen.</string>
     <string name="width">Breite</string>
     <string name="height">Höhe</string>
     <string name="select_map_to_edit">Wähle eine Karte zum Bearbeiten:</string>
@@ -704,6 +706,13 @@
     <string name="initial_setup_barricades">Barrikaden</string>
     <string name="initial_setup_fiefs">Lehen</string>
     <string name="initial_setup_mushrooms">Pilze</string>
+    <string name="initial_setup_portals">Portale</string>
+    <string name="initial_setup_portal_entry">Eingang</string>
+    <string name="initial_setup_portal_exit">Ausgang</string>
+    <string name="initial_setup_portal_place_entry">Klicke auf die Karte, um den Portal-Eingang zu platzieren</string>
+    <string name="initial_setup_portal_place_exit">Klicke auf die Karte, um den Portal-Ausgang zu platzieren</string>
+    <string name="initial_setup_portal_hint">Portalpaar hinzufügen: Feinde, die das blaue Eingangsfeld betreten, werden zum orangen Ausgangsfeld teleportiert.</string>
+    <string name="initial_setup_portal_validation_failed">Portale müssen einen gültigen Weg von allen Startpunkten zu mindestens einem Ziel schaffen.</string>
     <string name="mushroom">Pilz</string>
     <string name="mushroom_buff_description">2x Geschwindigkeit und Level für 2 Runden (nur Horden-Einheiten und Hexen)</string>
     <string name="mushroom_enhanced_horde">Pilzschub: 2x Tempo und Stufe</string>

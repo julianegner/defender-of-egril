@@ -45,6 +45,7 @@ enum class PlacementMode {
     BARRICADE, // Barricades: PATH
     FIEF, // Fiefs: PATH
     MUSHROOM, // Mushrooms: PATH
+    PORTAL, // Portals: any PATH/SPAWN_POINT/TARGET tile
 }
 
 /**
@@ -85,6 +86,7 @@ fun isValidPlacement(
         PlacementMode.BARRICADE -> tileType == TileType.PATH
         PlacementMode.FIEF -> tileType == TileType.PATH
         PlacementMode.MUSHROOM -> tileType == TileType.PATH
+        PlacementMode.PORTAL -> tileType == TileType.PATH || tileType == TileType.SPAWN_POINT || tileType == TileType.TARGET
     }
 }
 
@@ -175,6 +177,7 @@ fun InitialSetupMinimap(
     selectedAttackerType: AttackerType? = null,
     selectedFiefType: FiefType? = null,
     initialData: InitialData = InitialData.EMPTY,
+    pendingPortalEntry: Position? = null,
     selectedElement: de.egril.defender.ui.editor.level.initialsetup.SelectedElement? = null,
     onTileClick: (Position) -> Unit = {},
     onTileHover: (Position?) -> Unit = {},
@@ -324,6 +327,9 @@ fun InitialSetupMinimap(
                             selectedElement.fief.position == pos
                         is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Mushroom ->
                             selectedElement.mushroom.position == pos
+                        is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Portal ->
+                            selectedElement.portal.entryPosition == pos ||
+                                selectedElement.portal.exitPosition == pos
                         null -> false
                     }
 
@@ -453,6 +459,49 @@ fun InitialSetupMinimap(
 
             drawCircle(
                 color = Color(0xFFFF8C00), // Orange for mushrooms
+                radius = iconSize / 2,
+                center = Offset(centerX, centerY),
+            )
+        }
+
+        // Draw portals: blue circle for entry, orange circle for exit, connected by a line
+        initialData.portals.forEach { portal ->
+            val entryOffsetX = if (portal.entryPosition.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+            val entryX = geometry.offsetXCanvas + portal.entryPosition.x * geometry.hexWidth + entryOffsetX + geometry.hexWidth / 2
+            val entryY = geometry.offsetYCanvas + portal.entryPosition.y * geometry.verticalSpacing + geometry.hexHeight / 2
+
+            val exitOffsetX = if (portal.exitPosition.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+            val exitX = geometry.offsetXCanvas + portal.exitPosition.x * geometry.hexWidth + exitOffsetX + geometry.hexWidth / 2
+            val exitY = geometry.offsetYCanvas + portal.exitPosition.y * geometry.verticalSpacing + geometry.hexHeight / 2
+
+            // Line connecting entry and exit
+            drawLine(
+                color = Color(0xFF8888FF),
+                start = Offset(entryX, entryY),
+                end = Offset(exitX, exitY),
+                strokeWidth = 1.5f,
+            )
+            // Blue entry circle
+            drawCircle(
+                color = Color(0xFF3366FF),
+                radius = iconSize / 2,
+                center = Offset(entryX, entryY),
+            )
+            // Orange exit circle
+            drawCircle(
+                color = Color(0xFFFF6600),
+                radius = iconSize / 2,
+                center = Offset(exitX, exitY),
+            )
+        }
+
+        // Draw pending portal entry (first click while in PORTAL mode)
+        if (pendingPortalEntry != null) {
+            val offsetXHex = if (pendingPortalEntry.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+            val centerX = geometry.offsetXCanvas + pendingPortalEntry.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
+            val centerY = geometry.offsetYCanvas + pendingPortalEntry.y * geometry.verticalSpacing + geometry.hexHeight / 2
+            drawCircle(
+                color = Color(0x883366FF), // Semi-transparent blue for pending entry
                 radius = iconSize / 2,
                 center = Offset(centerX, centerY),
             )

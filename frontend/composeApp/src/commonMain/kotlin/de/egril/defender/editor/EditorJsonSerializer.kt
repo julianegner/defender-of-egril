@@ -85,6 +85,13 @@ object EditorJsonSerializer {
                 ""
             }
 
+        val allowNoDirectPathJson =
+            if (map.allowNoDirectPath) {
+                ",\n  \"allowNoDirectPath\": true"
+            } else {
+                ""
+            }
+
         val targetInfoJson =
             if (map.targetInfoMap.isNotEmpty()) {
                 val targetData =
@@ -113,7 +120,7 @@ object EditorJsonSerializer {
   "width": ${map.width},
   "height": ${map.height},
   "readyToUse": ${map.readyToUse},
-  "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson$mapToolingInfoJson$allowNoBuildableTilesJson,
+  "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson$mapToolingInfoJson$allowNoBuildableTilesJson$allowNoDirectPathJson,
   "tiles": {
     $tilesJson
   }$riverTilesJson$targetInfoJson$spawnPointInfoJson
@@ -167,6 +174,12 @@ object EditorJsonSerializer {
             val allowNoBuildableTiles =
                 try {
                     JsonUtils.extractBooleanValue(dataJson, "allowNoBuildableTiles")
+                } catch (e: Exception) {
+                    false
+                }
+            val allowNoDirectPath =
+                try {
+                    JsonUtils.extractBooleanValue(dataJson, "allowNoDirectPath")
                 } catch (e: Exception) {
                     false
                 }
@@ -379,6 +392,7 @@ object EditorJsonSerializer {
                 spawnPointInfoMap = spawnPointInfoMap,
                 mapToolingInfo = mapToolingInfo,
                 allowNoBuildableTiles = allowNoBuildableTiles,
+                allowNoDirectPath = allowNoDirectPath,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -567,7 +581,8 @@ object EditorJsonSerializer {
                 initialData.traps.isNotEmpty() ||
                 initialData.barricades.isNotEmpty() ||
                 initialData.fiefs.isNotEmpty() ||
-                initialData.mushrooms.isNotEmpty()
+                initialData.mushrooms.isNotEmpty() ||
+                initialData.portals.isNotEmpty()
             ) {
                 val parts = mutableListOf<String>()
 
@@ -686,6 +701,19 @@ object EditorJsonSerializer {
                     parts.add(
                         """"mushrooms": [
       $mushroomsData
+    ]""",
+                    )
+                }
+
+                // Portals
+                if (initialData.portals.isNotEmpty()) {
+                    val portalsData =
+                        initialData.portals.joinToString(",\n      ") { portal ->
+                            """{"entryPosition": {"x": ${portal.entryPosition.x}, "y": ${portal.entryPosition.y}}, "exitPosition": {"x": ${portal.exitPosition.x}, "y": ${portal.exitPosition.y}}}"""
+                        }
+                    parts.add(
+                        """"portals": [
+      $portalsData
     ]""",
                     )
                 }
@@ -999,6 +1027,7 @@ object EditorJsonSerializer {
             var initialBarricades = mutableListOf<InitialBarricade>()
             var initialFiefs = mutableListOf<InitialFief>()
             var initialMushrooms = mutableListOf<InitialMushroom>()
+            var initialPortals = mutableListOf<InitialPortal>()
 
             if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING && id == "t3") {
                 println("")
@@ -1361,6 +1390,33 @@ object EditorJsonSerializer {
                             }
                         }
                     }
+                    // Parse portals from new format
+                    if (initialDataSection.contains("\"portals\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"portals\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val afterBracket = afterKey.substring(openBracketIndex + 1)
+                            val portalsSection =
+                                if (afterBracket.contains("],")) {
+                                    afterBracket.substringBefore("],")
+                                } else {
+                                    afterBracket.substringBefore("]")
+                                }
+                            if (portalsSection.isNotBlank()) {
+                                val portalEntries = splitJsonArrayObjects(portalsSection)
+                                for (entry in portalEntries) {
+                                    if (!entry.contains("entryPosition") || !entry.contains("exitPosition")) continue
+                                    val entrySection = entry.substringAfter("\"entryPosition\": {").substringBefore("}")
+                                    val exitSection = entry.substringAfter("\"exitPosition\": {").substringBefore("}")
+                                    val entryX = JsonUtils.extractValue("{$entrySection}", "x").toInt()
+                                    val entryY = JsonUtils.extractValue("{$entrySection}", "y").toInt()
+                                    val exitX = JsonUtils.extractValue("{$exitSection}", "x").toInt()
+                                    val exitY = JsonUtils.extractValue("{$exitSection}", "y").toInt()
+                                    initialPortals.add(InitialPortal(Position(entryX, entryY), Position(exitX, exitY)))
+                                }
+                            }
+                        }
+                    }
                 } catch (e: Exception) {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Error parsing initial data (new format): ${e.message}")
@@ -1548,9 +1604,10 @@ object EditorJsonSerializer {
                     initialTraps.isNotEmpty() ||
                     initialBarricades.isNotEmpty() ||
                     initialFiefs.isNotEmpty() ||
-                    initialMushrooms.isNotEmpty()
+                    initialMushrooms.isNotEmpty() ||
+                    initialPortals.isNotEmpty()
                 ) {
-                    InitialData(initialDefenders, initialAttackers, initialTraps, initialBarricades, initialFiefs, initialMushrooms)
+                    InitialData(initialDefenders, initialAttackers, initialTraps, initialBarricades, initialFiefs, initialMushrooms, initialPortals)
                 } else {
                     null
                 }
