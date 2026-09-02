@@ -1028,21 +1028,20 @@ class GameViewModel {
                     de.egril.defender.editor.EditorStorage
                         .getLevel(editorLevelId)
                         ?.isOfficial == true
-            if (level.connectedToPreviousLevel && isOfficialLevel) {
-                editorLevelId?.let { resolvedEditorLevelId ->
-                    if (
+            if (level.connectedToPreviousLevel && isOfficialLevel && editorLevelId != null) {
+                val resolvedEditorLevelId = editorLevelId
+                if (
+                    de.egril.defender.save.SaveFileStorage
+                        .hasLevelHandoff(resolvedEditorLevelId)
+                ) {
+                    val handoff =
                         de.egril.defender.save.SaveFileStorage
-                            .hasLevelHandoff(resolvedEditorLevelId)
-                    ) {
-                        val handoff =
-                            de.egril.defender.save.SaveFileStorage
-                                .loadLevelHandoff(resolvedEditorLevelId)
-                        if (handoff != null && handoff.mapId == level.mapId) {
-                            // Show the handoff choice dialog
-                            _pendingLevelHandoff.value = handoff
-                            pendingLevelIdForHandoff = levelId
-                            return
-                        }
+                            .loadLevelHandoff(resolvedEditorLevelId)
+                    if (handoff != null && handoff.mapId == level.mapId) {
+                        // Show the handoff choice dialog
+                        _pendingLevelHandoff.value = handoff
+                        pendingLevelIdForHandoff = levelId
+                        return
                     }
                 }
             }

@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import java.util.Properties
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -6,11 +8,24 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.localization)
+}
+
+val requestedTasks = gradle.startParameter.taskNames
+val configureAndroid =
+    requestedTasks.isEmpty() ||
+        requestedTasks.any { requestedTask ->
+            !requestedTask.contains("wasm", ignoreCase = true) &&
+                requestedTask != "clean" &&
+                !requestedTask.endsWith(":clean")
+        }
+
+if (configureAndroid) {
+    apply(plugin = "com.android.application")
 }
 
 // Build configuration output directory
@@ -56,7 +71,7 @@ val macOsPackageVersion: String = run {
 }
 
 // Task to generate BuildConfig with current commit hash
-val generateBuildConfig by tasks.registering {
+val generateBuildConfig = tasks.register("generateBuildConfig") {
     val outputFile = buildConfigOutputDir.get().file("de/egril/defender/AppBuildInfo.kt")
     
     outputs.dir(buildConfigOutputDir)
@@ -142,7 +157,7 @@ val generateBuildConfig by tasks.registering {
 }
 
 // Task to generate WithImpressum constant based on project property
-val generateWithImpressumConstant by tasks.registering {
+val generateWithImpressumConstant = tasks.register("generateWithImpressumConstant") {
     val outputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin").get().asFile
     outputs.dir(outputDir)
     
@@ -169,7 +184,7 @@ val generateWithImpressumConstant by tasks.registering {
 }
 
 // Task to generate OfficialEditMode constant based on project property
-val generateOfficialEditModeConstant by tasks.registering {
+val generateOfficialEditModeConstant = tasks.register("generateOfficialEditModeConstant") {
     val outputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin").get().asFile
     outputs.dir(outputDir)
     outputs.upToDateWhen { false } // Always regenerate to ensure latest property value
@@ -233,10 +248,12 @@ fun loadProfileProperties(profileName: String): Properties {
 }
 
 kotlin {
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+    if (configureAndroid) {
+        androidTarget {
+            @OptIn(ExperimentalKotlinGradlePluginApi::class)
+            compilerOptions {
+                jvmTarget.set(JvmTarget.JVM_11)
+            }
         }
     }
     
@@ -266,18 +283,16 @@ kotlin {
     }
     
     sourceSets {
-        val desktopMain by getting
-        val desktopTest by getting
-        val wasmJsMain by getting
-        val androidMain by getting
+        val desktopMain = getByName("desktopMain")
+        val desktopTest = getByName("desktopTest")
         
         // Create iosMain source set for iOS targets
-        val iosMain by creating {
+        val iosMain = create("iosMain") {
             dependsOn(commonMain.get())
         }
         
         // Connect each iOS target's main compilation to iosMain
-        val iosArm64Main by getting
+        val iosArm64Main = getByName("iosArm64Main")
         
         iosArm64Main.dependsOn(iosMain)
         
@@ -293,23 +308,21 @@ kotlin {
         }
         
         // Create jvmMain as intermediate source set shared by Android and Desktop
-        val jvmMain by creating {
+        val jvmMain = create("jvmMain") {
             dependsOn(commonMain.get())
         }
         
-        // Configure androidMain to depend on jvmMain
-        androidMain.apply {
-            dependsOn(jvmMain)
-        }
-        
         // Configure desktopMain to depend on jvmMain
-        desktopMain.apply {
-            dependsOn(jvmMain)
-        }
-        
-        // Create androidUnitTest source set for Android-specific tests
-        val androidUnitTest by getting {
-            dependencies {
+        desktopMain.dependsOn(jvmMain)
+
+        if (configureAndroid) {
+            val androidMain = getByName("androidMain")
+
+            // Configure androidMain to depend on jvmMain
+            androidMain.dependsOn(jvmMain)
+
+            // Create androidUnitTest source set for Android-specific tests
+            getByName("androidUnitTest").dependencies {
                 implementation(libs.kotlin.test)
                 implementation(libs.kotlin.test.junit)
                 implementation(libs.junit)
@@ -317,12 +330,12 @@ kotlin {
                 implementation(libs.robolectric)
                 implementation(libs.kotlinx.coroutines.test)
             }
-        }
-        
-        androidMain.dependencies {
-            implementation(libs.compose.ui.tooling.preview)
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.oidc.appsupport)
+
+            androidMain.dependencies {
+                implementation(libs.compose.ui.tooling.preview)
+                implementation(libs.androidx.activity.compose)
+                implementation(libs.oidc.appsupport)
+            }
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -336,9 +349,9 @@ kotlin {
             implementation(libs.flagkit)
             implementation(libs.multiplatform.settings)
             // Compottie for Lottie animations
-            implementation("io.github.alexzhirkevich:compottie:2.2.4")
-            implementation("io.github.alexzhirkevich:compottie-dot:2.2.4")
-            implementation("io.github.alexzhirkevich:compottie-network:2.2.4")
+            implementation(libs.compottie)
+            implementation(libs.compottie.dot)
+            implementation(libs.compottie.network)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -387,114 +400,222 @@ tasks.named("generateTranslateFile").configure {
 }
 
 
-android {
-    namespace = "de.egril.defender"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+if (configureAndroid) {
+    extensions.configure<ApplicationExtension> {
+        namespace = "de.egril.defender"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
 
-    defaultConfig {
-        applicationId = "de.egril.defender"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = appVersionCode
-        versionName = appVersion
-        
-        // Redirect scheme for OIDC (kotlin-multiplatform-oidc library)
-        addManifestPlaceholders(mapOf("oidcRedirectScheme" to "egril"))
-        
-        // Configure test instrumentation runner
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        defaultConfig {
+            applicationId = "de.egril.defender"
+            minSdk = libs.versions.android.minSdk.get().toInt()
+            targetSdk = libs.versions.android.targetSdk.get().toInt()
+            versionCode = appVersionCode
+            versionName = appVersion
+            
+            // Redirect scheme for OIDC (kotlin-multiplatform-oidc library)
+            addManifestPlaceholders(mapOf("oidcRedirectScheme" to "egril"))
+            
+            // Configure test instrumentation runner
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
+        packaging {
+            resources {
+                excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            }
+        }
+
+        // ---------------------------------------------------------------------------
+        // Android App Bundle (AAB) asset-pack configuration
+        //
+        // The `:assetPack` module is an install-time asset pack that holds the
+        // Compose Multiplatform resources (~220 MB).  Including it in the bundle
+        // moves those assets out of the base module, which would otherwise exceed
+        // Google Play's 200 MB base-module limit.
+        //
+        // NOTE: This only affects `bundle*` (AAB) builds.  Plain `assemble*` APK
+        //       builds remain self-contained so sideloading still works.
+        // ---------------------------------------------------------------------------
+        bundle {
+            assetPacks += listOf(":assetPack")
+        }
+
+        // Enable BuildConfig generation so flavors can inject URLs
+        buildFeatures {
+            buildConfig = true
+        }
+
+        // Product flavors bake the Keycloak and backend URLs into the APK at build
+        // time, since Android apps cannot read JVM system properties at runtime.
+        //
+        //   local      – points at the local Docker Compose stack (localhost URLs)
+        //   production – points at the production server (configure frontend/profiles/production.properties)
+        //
+        // Generated tasks (install on connected device):
+        //   installLocalDebug        → ./gradlew :composeApp:installLocal
+        //   installProductionDebug   → ./gradlew :composeApp:installDebug / installProduction
+        flavorDimensions += "env"
+        productFlavors {
+            val localProps = loadProfileProperties("local")
+            val productionProps = loadProfileProperties("production")
+
+            create("local") {
+                dimension = "env"
+                buildConfigField(
+                    "String", "IAM_BASE_URL",
+                    "\"${localProps.getProperty("iam.base.url") ?: "http://localhost:8081"}\""
+                )
+                buildConfigField(
+                    "String", "BACKEND_URL",
+                    "\"${localProps.getProperty("defender.backend.url") ?: "http://localhost:8080"}\""
+                )
+            }
+            create("production") {
+                dimension = "env"
+                buildConfigField(
+                    "String", "IAM_BASE_URL",
+                    "\"${productionProps.getProperty("iam.base.url") ?: "https://sso.julianegner.de"}\""
+                )
+                buildConfigField(
+                    "String", "BACKEND_URL",
+                    "\"${productionProps.getProperty("defender.backend.url") ?: "https://backend.your-server.com"}\""
+                )
+            }
+        }
+
+        buildTypes {
+            getByName("release") {
+                isMinifyEnabled = false
+            }
+        }
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
         }
     }
 
-    // ---------------------------------------------------------------------------
-    // Android App Bundle (AAB) asset-pack configuration
-    //
-    // The `:assetPack` module is an install-time asset pack that holds the
-    // Compose Multiplatform resources (~220 MB).  Including it in the bundle
-    // moves those assets out of the base module, which would otherwise exceed
-    // Google Play's 200 MB base-module limit.
-    //
-    // NOTE: This only affects `bundle*` (AAB) builds.  Plain `assemble*` APK
-    //       builds remain self-contained so sideloading still works.
-    // ---------------------------------------------------------------------------
-    bundle {
-        assetPacks += listOf(":assetPack")
-    }
+    extensions.configure<ApplicationAndroidComponentsExtension> {
+        onVariants(selector().all()) { variant ->
+            variant.outputs.forEach { output ->
+                output.outputFileName.set("de.egril.defender-${variant.name}.apk")
+            }
 
-    // Enable BuildConfig generation so flavors can inject URLs
-    buildFeatures {
-        buildConfig = true
-    }
+            val variantNameCapped = variant.name.replaceFirstChar { it.uppercase() }
+            tasks.matching { it.name == "build${variantNameCapped}PreBundle" }.configureEach {
+                doFirst {
+                    val mergeAssetsTask = tasks.findByName("merge${variantNameCapped}Assets") ?: return@doFirst
+                    mergeAssetsTask.outputs.files.files.forEach { mergeOutputDir ->
+                        // Remove the app's own CMP resources (served from the asset pack).
+                        val appComposeResDir = File(
+                            mergeOutputDir,
+                            "composeResources/defender_of_egril.composeapp.generated.resources"
+                        )
+                        if (appComposeResDir.exists()) {
+                            appComposeResDir.deleteRecursively()
+                            logger.lifecycle(
+                                "Asset-pack split: removed app composeResources package from base AAB " +
+                                    "module (app resources are served from the install-time asset pack)"
+                            )
+                        }
 
-    // Product flavors bake the Keycloak and backend URLs into the APK at build
-    // time, since Android apps cannot read JVM system properties at runtime.
-    //
-    //   local      – points at the local Docker Compose stack (localhost URLs)
-    //   production – points at the production server (configure frontend/profiles/production.properties)
-    //
-    // Generated tasks (install on connected device):
-    //   installLocalDebug        → ./gradlew :composeApp:installLocal
-    //   installProductionDebug   → ./gradlew :composeApp:installDebug / installProduction
-    flavorDimensions += "env"
-    productFlavors {
-        val localProps = loadProfileProperties("local")
-        val productionProps = loadProfileProperties("production")
-
-        create("local") {
-            dimension = "env"
-            buildConfigField(
-                "String", "IAM_BASE_URL",
-                "\"${localProps.getProperty("iam.base.url") ?: "http://localhost:8081"}\""
-            )
-            buildConfigField(
-                "String", "BACKEND_URL",
-                "\"${localProps.getProperty("defender.backend.url") ?: "http://localhost:8080"}\""
-            )
-        }
-        create("production") {
-            dimension = "env"
-            buildConfigField(
-                "String", "IAM_BASE_URL",
-                "\"${productionProps.getProperty("iam.base.url") ?: "https://sso.julianegner.de"}\""
-            )
-            buildConfigField(
-                "String", "BACKEND_URL",
-                "\"${productionProps.getProperty("defender.backend.url") ?: "https://backend.your-server.com"}\""
-            )
-        }
-    }
-
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    
-    // Configure output file naming
-    applicationVariants.all {
-        outputs.all {
-            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
-                "de.egril.defender-${name}.apk"
+                        // Remove the compose-material-symbols library CMP resources from the base
+                        // module; they are now served from the install-time asset pack alongside
+                        // the app's resources, ensuring they are reachable via AssetManager in
+                        // AAB installs.
+                        val libComposeResDir = File(
+                            mergeOutputDir,
+                            "composeResources/$materialSymbolsCmpPackage"
+                        )
+                        if (libComposeResDir.exists()) {
+                            libComposeResDir.deleteRecursively()
+                            logger.lifecycle(
+                                "Asset-pack split: removed compose-material-symbols fonts from base " +
+                                    "AAB module (fonts are served from the install-time asset pack)"
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
-dependencies {
-    debugImplementation(libs.compose.ui.tooling)
+if (configureAndroid) {
+    dependencies {
+        add("debugImplementation", libs.compose.ui.tooling)
+    }
 }
 
 // Shared path to the repository maps directory used by mapgen tasks
 val repositoryMapsDir = layout.projectDirectory.dir("src/commonMain/composeResources/files/repository/maps").asFile.absolutePath
 // Debug overlay output — outside composeResources so images are tracked in git but not compiled into the app
 val mapDebugImagesDir = layout.projectDirectory.dir("map-debug-images").asFile.absolutePath
+
+val sanitizeWasmImportObjects = tasks.register("sanitizeWasmImportObjects") {
+    doLast {
+        val persistModuleBlock =
+            Regex(
+                """'kotlinx\.io\.node\.persistModule'\s*:\s*\(globalThis\.module\s*=\s*.*?void 0,\s*\(\)\s*=>\s*\{\}\)\s*,""",
+                setOf(RegexOption.DOT_MATCHES_ALL),
+            )
+        val getRequireBlock =
+            Regex(
+                """'kotlinx\.io\.node\.getRequire'\s*:\s*\(\)\s*=>\s*\{\s*const importMeta = import\.meta;\s*return globalThis\.module\.default\.createRequire\((?:importMeta\.url|"[^"]*")\);\s*\}\s*,""",
+                setOf(RegexOption.DOT_MATCHES_ALL),
+            )
+        val requireModuleBlock =
+            Regex(
+                """'kotlinx\.io\.node\.requireModule'\s*:\s*\(require,\s*mod\)\s*=>\s*\{\s*try\s*\{\s*let m = require\(mod\);\s*if \(m\) return m;\s*return null;\s*\}\s*catch \(e\)\s*\{\s*return null;\s*\}\s*\}""",
+                setOf(RegexOption.DOT_MATCHES_ALL),
+            )
+        val dynamicImportCall =
+            Regex(
+                """'io\.ktor\.client\.utils\.makeImport'\s*:\s*\(name\)\s*=>\s*import\(name\)""",
+            )
+        val candidateDirs =
+            listOf(
+                layout.buildDirectory.dir("compileSync/wasmJs").get().asFile,
+                rootProject.layout.buildDirectory.dir("wasm").get().asFile,
+            )
+        candidateDirs.forEach { candidateDir ->
+            fileTree(candidateDir) {
+                include("**/*.import-object.mjs")
+            }.files.forEach { importObjectFile ->
+                val original = importObjectFile.readText()
+                val sanitized =
+                    original
+                        .replace(
+                            persistModuleBlock,
+                            """
+                            'kotlinx.io.node.persistModule' :
+                                (() => {})
+                            ,
+                            """.trimIndent(),
+                        ).replace(
+                            getRequireBlock,
+                            """
+                            'kotlinx.io.node.getRequire' : () => null
+                            ,
+                            """.trimIndent(),
+                        ).replace(
+                            requireModuleBlock,
+                            """
+                            'kotlinx.io.node.requireModule' :
+                                (_require, _mod) => null
+                            """.trimIndent(),
+                        ).replace(
+                            dynamicImportCall,
+                            """
+                            'io.ktor.client.utils.makeImport' :
+                                (name) => Function("moduleName", "return import(moduleName)")(name)
+                            """.trimIndent(),
+                        )
+                if (sanitized != original) {
+                    importObjectFile.writeText(sanitized)
+                }
+            }
+        }
+    }
+}
 
 // Task to generate map PNG images from map JSON files using the Kotlin MapImageGenerator
 tasks.register<JavaExec>("generateMapImages") {
@@ -587,54 +708,17 @@ afterEvaluate {
         dependsOn(":assetPack:syncMaterialSymbolsFonts")
     }
 
-    // 2. Remove both the app's and the library's CMP resource packages from the base
-    //    module's merged-assets output immediately before the base module is assembled.
-    //    doFirst on build*PreBundle runs even when the upstream merge*Assets task was
-    //    UP-TO-DATE, which is the common case when an APK build has already executed
-    //    merge*Assets in the same Gradle cache (e.g. in CI where APK and AAB are built
-    //    back-to-back).
-    //
-    //    NOTE: Earlier versions hooked into package*Bundle, but that task runs AFTER
-    //    build*PreBundle has already packaged the assets into the base module – making
-    //    the deletion too late and causing the "Both modules contain asset entry" error
-    //    from bundletool.
-    android.applicationVariants.all {
-        val variantNameCapped = name.replaceFirstChar { it.uppercase() }
-        val mergeAssetsTask = tasks.named("merge${variantNameCapped}Assets")
-        tasks.matching { it.name == "build${variantNameCapped}PreBundle" }.configureEach {
-            doFirst {
-                mergeAssetsTask.get().outputs.files.files.forEach { mergeOutputDir ->
-                    // Remove the app's own CMP resources (served from the asset pack).
-                    val appComposeResDir = File(
-                        mergeOutputDir,
-                        "composeResources/defender_of_egril.composeapp.generated.resources"
-                    )
-                    if (appComposeResDir.exists()) {
-                        appComposeResDir.deleteRecursively()
-                        logger.lifecycle(
-                            "Asset-pack split: removed app composeResources package from base AAB " +
-                                "module (app resources are served from the install-time asset pack)"
-                        )
-                    }
+    sanitizeWasmImportObjects.configure {
+        dependsOn(
+            tasks.matching {
+                it.name.contains("wasmJs", ignoreCase = true) &&
+                    it.name.contains("CompileSync", ignoreCase = true)
+            },
+        )
+    }
 
-                    // Remove the compose-material-symbols library CMP resources from the base
-                    // module; they are now served from the install-time asset pack alongside
-                    // the app's resources, ensuring they are reachable via AssetManager in
-                    // AAB installs.
-                    val libComposeResDir = File(
-                        mergeOutputDir,
-                        "composeResources/$materialSymbolsCmpPackage"
-                    )
-                    if (libComposeResDir.exists()) {
-                        libComposeResDir.deleteRecursively()
-                        logger.lifecycle(
-                            "Asset-pack split: removed compose-material-symbols fonts from base " +
-                                "AAB module (fonts are served from the install-time asset pack)"
-                        )
-                    }
-                }
-            }
-        }
+    tasks.matching { it.name.contains("wasmJsBrowser", ignoreCase = true) }.configureEach {
+        dependsOn(sanitizeWasmImportObjects)
     }
 }
 
@@ -930,24 +1014,26 @@ afterEvaluate {
     // generated; it is replaced by installLocalDebug / installProductionDebug.
     // We register new tasks under the familiar names so existing workflows
     // continue to work and the default (installDebug → production) is clear.
-    tasks.register("installDebug") {
-        group = "install"
-        description = "Installs the Production Debug build on a connected device (default profile). " +
-            "Use installLocal for the local-stack flavor."
-        dependsOn("installProductionDebug")
-    }
+    if (configureAndroid) {
+        tasks.register("installDebug") {
+            group = "install"
+            description = "Installs the Production Debug build on a connected device (default profile). " +
+                "Use installLocal for the local-stack flavor."
+            dependsOn("installProductionDebug")
+        }
 
-    tasks.register("installProduction") {
-        group = "install"
-        description = "Installs the Production Debug build on a connected device."
-        dependsOn("installProductionDebug")
-    }
+        tasks.register("installProduction") {
+            group = "install"
+            description = "Installs the Production Debug build on a connected device."
+            dependsOn("installProductionDebug")
+        }
 
-    tasks.register("installLocal") {
-        group = "install"
-        description = "Installs the Local Debug build on a connected device " +
-            "(connects to the local Docker Compose stack)."
-        dependsOn("installLocalDebug")
+        tasks.register("installLocal") {
+            group = "install"
+            description = "Installs the Local Debug build on a connected device " +
+                "(connects to the local Docker Compose stack)."
+            dependsOn("installLocalDebug")
+        }
     }
 }
 
