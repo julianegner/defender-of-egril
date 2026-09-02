@@ -363,7 +363,7 @@ private fun ExpandedMapEditorHeader(
                     enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                 )
             }
-            if (allowNoBuildableTiles && map.getBuildAreas().isEmpty()) {
+            if (allowNoBuildableTiles && !map.hasBuildablePlacementTiles()) {
                 Text(
                     text = stringResource(Res.string.allow_no_buildable_tiles_hint),
                     style = MaterialTheme.typography.bodySmall,

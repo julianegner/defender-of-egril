@@ -35,6 +35,9 @@ import de.egril.defender.ui.editor.CreateLevelDialog
 import de.egril.defender.ui.editor.SaveAsDialog
 import de.egril.defender.ui.editor.getDefaultAuthorName
 import de.egril.defender.ui.editor.level.enemies.EnemySpawnsTab
+import de.egril.defender.ui.editor.level.generator.LevelGenerator
+import de.egril.defender.ui.editor.level.generator.LevelGeneratorConfig
+import de.egril.defender.ui.editor.level.generator.LevelGeneratorDialog
 import de.egril.defender.ui.editor.level.tower.TowersTab
 import de.egril.defender.ui.editor.level.waypoint.WaypointsTab
 import de.egril.defender.ui.icon.*
@@ -43,6 +46,7 @@ import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_message
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_title
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -97,6 +101,8 @@ internal fun LevelEditorContent(
     var selectedLevelId by remember { mutableStateOf<String?>(null) }
     var editingLevel by remember { mutableStateOf<EditorLevel?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
+    var showGeneratorDialog by remember { mutableStateOf(false) }
+    var generatorConfig by remember { mutableStateOf<LevelGeneratorConfig?>(null) }
     var showVillainUsage by remember { mutableStateOf(false) }
     var levelToDelete by remember { mutableStateOf<EditorLevel?>(null) }
     val iamState by de.egril.defender.iam.IamService.state
@@ -151,6 +157,9 @@ internal fun LevelEditorContent(
                 ) {
                     Button(onClick = { showVillainUsage = true }) {
                         Text(stringResource(Res.string.villain_usage))
+                    }
+                    Button(onClick = { showGeneratorDialog = true }) {
+                        Text(stringResource(Res.string.level_generator))
                     }
                     Button(onClick = { showCreateDialog = true }) {
                         Text(stringResource(Res.string.create_new_level))
@@ -222,6 +231,42 @@ internal fun LevelEditorContent(
                 levelToDelete = null
             },
         )
+    }
+
+    if (showGeneratorDialog) {
+        val defaultAuthor = getDefaultAuthorName(iamState)
+        LevelGeneratorDialog(
+            availableMaps = EditorStorage.getAllMaps().filter { it.readyToUse },
+            defaultAuthor = defaultAuthor,
+            isGenerating = generatorConfig != null,
+            onDismiss = {
+                showGeneratorDialog = false
+                generatorConfig = null
+            },
+            onGenerate = { config -> generatorConfig = config },
+        )
+    }
+
+    // Generating a big map takes a moment, so the generation runs after the dialog had a chance to
+    // render its loading indicator. Always clear the generation state in a finally block so the
+    // spinner can't get stuck if generation fails or the dialog is dismissed mid-flight.
+    LaunchedEffect(generatorConfig) {
+        val config = generatorConfig ?: return@LaunchedEffect
+        try {
+            // Keep the heavy map generation off the UI thread so the spinner can animate while the
+            // editor is working.
+            delay(50)
+            val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { LevelGenerator.generate(config) }
+            result.generatedMap?.let { EditorStorage.saveMap(it) }
+            EditorStorage.saveLevel(result.level)
+            levels.value = EditorStorage.getAllLevels()
+            showGeneratorDialog = false
+            editingLevel = result.level
+        } finally {
+            if (generatorConfig == config) {
+                generatorConfig = null
+            }
+        }
     }
 
     if (showCreateDialog) {
@@ -616,7 +661,7 @@ internal fun LevelEditorView(
     val isEnemySpawnsReady = isSandbox || enemySpawns.isNotEmpty()
     val hasInitialSetupTowerSupport = supportsState.isNotEmpty() || initialDataState.defenders.isNotEmpty()
     val hasInitialTowerBases = initialDataState.barricades.any { it.supportsTower }
-    val mapNeedsNoBuildFallback = currentMap?.allowNoBuildableTiles == true && currentMap.getBuildAreas().isEmpty()
+    val mapNeedsNoBuildFallback = currentMap?.allowNoBuildableTiles == true && !currentMap.hasBuildablePlacementTiles()
     val hasNoBuildFallback = supportsState.isNotEmpty() || hasInitialTowerBases
     val hasNoBuildFallbackIssue = mapNeedsNoBuildFallback && !hasNoBuildFallback
     val isTowersReady = availableTowersState.isNotEmpty() || hasInitialSetupTowerSupport

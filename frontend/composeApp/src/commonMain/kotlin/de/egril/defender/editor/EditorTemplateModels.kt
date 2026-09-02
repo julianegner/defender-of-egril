@@ -47,7 +47,15 @@ data class MapTemplateDefinition(
 
 enum class MapTemplateLayoutKind {
     STRAIGHT_APPROACH,
+    BENT_APPROACH,
     SPLIT_LANES,
+    DUAL_FRONT,
     RIVER_CROSSING,
+    RIVER_DELTA,
+    ISLAND_CHAIN,
     SPIRAL_SIEGE,
+    SERPENTINE_MARCH,
+    SPIDER_WEB,
+    RING_ROAD,
+    CROSSROADS,
 }

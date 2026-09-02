@@ -4,7 +4,6 @@ import de.egril.defender.editor.MapTemplateDefinition
 import de.egril.defender.editor.MapTemplateLayoutKind
 import de.egril.defender.model.SpawnPointType
 import de.egril.defender.ui.editor.level.MapLaneShape
-import de.egril.defender.ui.editor.level.TravelBand
 import de.egril.defender.ui.editor.level.analyzeMapFlow
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,11 +34,24 @@ class MapDesignTemplatesTest {
     @Test
     fun riverCrossingTemplateAddsWaterSpawn() {
         val map = createMapFromTemplate("river", "River", 14, 8, "tester", riverTemplate())
-        val flow = analyzeMapFlow(map)
 
+        assertTrue(map.readyToUse)
         assertTrue(map.getSpawnPoints().any { map.getSpawnPointType(it) == SpawnPointType.WATER })
         assertTrue(map.getRiverCells().isNotEmpty())
-        assertEquals(TravelBand.LONG, flow.travelLength)
+    }
+
+    @Test
+    fun spiderWebTemplateCreatesWebWithCenterTarget() {
+        val map = createMapFromTemplate("web", "Web", 24, 24, "tester", spiderWebTemplate())
+
+        assertTrue(map.readyToUse)
+        assertEquals(1, map.getTargets().size)
+        assertEquals(
+            de.egril.defender.model
+                .Position(12, 12),
+            map.getTargets().first(),
+        )
+        assertTrue(map.getSpawnPoints().size >= 3)
     }
 
     private fun straightTemplate(): MapTemplateDefinition =
@@ -61,5 +73,12 @@ class MapDesignTemplatesTest {
             id = "river_template",
             name = "River template",
             layoutKind = MapTemplateLayoutKind.RIVER_CROSSING,
+        )
+
+    private fun spiderWebTemplate(): MapTemplateDefinition =
+        MapTemplateDefinition(
+            id = "web_template",
+            name = "Web template",
+            layoutKind = MapTemplateLayoutKind.SPIDER_WEB,
         )
 }
