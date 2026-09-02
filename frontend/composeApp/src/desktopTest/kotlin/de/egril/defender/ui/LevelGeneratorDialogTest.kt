@@ -60,6 +60,7 @@ class LevelGeneratorDialogTest {
         composeTestRule.onNodeWithText("Generate a new map").performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText("Use an existing map").performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText("Map size").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Map description (optional)").performScrollTo().assertIsDisplayed()
     }
 
     @Test

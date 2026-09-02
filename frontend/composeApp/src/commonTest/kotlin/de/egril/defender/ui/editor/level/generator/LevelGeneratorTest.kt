@@ -1,12 +1,10 @@
 package de.egril.defender.ui.editor.level.generator
 
 import de.egril.defender.editor.EditorMap
-import de.egril.defender.editor.MapTemplateDefinition
-import de.egril.defender.editor.MapTemplateLayoutKind
 import de.egril.defender.editor.TileType
-import de.egril.defender.ui.editor.map.createMapFromTemplate
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.EnemyFaction
+import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.isRealVillain
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -292,25 +290,24 @@ class LevelGeneratorTest {
     }
 
     @Test
-    fun spiderVillainGetsASpiderWebMap() {
+    fun spiderVillainGetsASpiderThemedMap() {
         val result =
             LevelGenerator.generate(
                 LevelGeneratorConfig(
                     title = "Web Lair",
                     villains = setOf(AttackerType.ARAXXA),
+                    primaryRoster = GeneratorEnemyRoster.SPIDERS,
                     mapSource = GeneratorMapSource.GENERATED_MAP,
-                    mapSize = GeneratedMapSize.MEDIUM,
+                    mapDescription = "spider web",
                     seed = 31,
                 ),
             )
 
         val map = assertNotNull(result.generatedMap)
         assertTrue(map.readyToUse)
-        // A web has several spawn points around the target in the middle of the map.
+        // Spider-themed layouts still keep the "many lanes around one objective" feel.
         assertTrue(map.getSpawnPoints().size >= 3)
-        val target = assertNotNull(map.getTargets().firstOrNull())
-        assertEquals(map.width / 2, target.x)
-        assertEquals(map.height / 2, target.y)
+        assertEquals(1, map.getTargets().size)
     }
 
     @Test
@@ -344,20 +341,17 @@ class LevelGeneratorTest {
     @Test
     fun riverCrossingMapsStayReadyToUse() {
         val map =
-            createMapFromTemplate(
-                id = "river_crossing_test",
-                name = "River Crossing Test",
-                width = 30,
-                height = 20,
-                author = "Test",
-                template =
-                    MapTemplateDefinition(
-                        id = "river_crossing_test_template",
-                        name = "River Crossing Test",
-                        layoutKind = MapTemplateLayoutKind.RIVER_CROSSING,
-                    ),
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "River Crossing Test",
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    mapDescription = "river crossing with water spawn",
+                    seed = 41,
+                ),
             )
+                .generatedMap
 
+        assertNotNull(map)
         assertTrue(map.readyToUse)
         assertTrue(map.getSpawnPoints().isNotEmpty())
         assertTrue(map.getTargets().isNotEmpty())
@@ -412,5 +406,70 @@ class LevelGeneratorTest {
                     .mapValues { it.value.size }
             assertTrue(perTurn.values.all { it in 4..6 }, "$difficulty has an implausible spawn density: $perTurn")
         }
+    }
+
+    @Test
+    fun mapDescriptionCanRequestRiverLikeLayouts() {
+        val result =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "River Request",
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    mapDescription = "river map with islands and water enemies",
+                    seed = 1234,
+                ),
+            )
+
+        val map = assertNotNull(result.generatedMap)
+        assertTrue(map.readyToUse)
+        assertTrue(map.getRiverCells().isNotEmpty())
+        assertTrue(map.getSpawnPoints().any { map.getSpawnPointType(it) == SpawnPointType.WATER })
+    }
+
+    @Test
+    fun generatedMapsAreNoLongerLockedToOneShape() {
+        val uniqueTileLayouts =
+            (1..8)
+                .map { seed ->
+                    LevelGenerator
+                        .generate(
+                            LevelGeneratorConfig(
+                                title = "Variation",
+                                mapSource = GeneratorMapSource.GENERATED_MAP,
+                                mapDescription = "straight battlefield",
+                                seed = seed,
+                            ),
+                        ).generatedMap
+                        ?.tiles
+                }.toSet()
+
+        assertTrue(uniqueTileLayouts.size >= 2)
+    }
+
+    @Test
+    fun differentDescriptionsYieldDifferentProceduralShaping() {
+        val riverMap =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "River Variant",
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    mapDescription = "river with islands",
+                    seed = 7,
+                ),
+            ).generatedMap
+
+        val spiderMap =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Spider Variant",
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    mapDescription = "spider web with rings",
+                    seed = 7,
+                ),
+            ).generatedMap
+
+        assertNotNull(riverMap)
+        assertNotNull(spiderMap)
+        assertTrue(riverMap.tiles != spiderMap.tiles)
     }
 }

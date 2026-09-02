@@ -3,14 +3,11 @@ package de.egril.defender.ui.editor.level.generator
 import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
-import de.egril.defender.editor.MapTemplateDefinition
-import de.egril.defender.editor.MapTemplateLayoutKind
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.EnemyFaction
 import de.egril.defender.model.Position
 import de.egril.defender.model.isRealVillain
-import de.egril.defender.ui.editor.map.createMapFromTemplate
 import kotlin.random.Random
 
 /**
@@ -153,6 +150,18 @@ internal data class LevelGeneratorConfig(
     // adjusted in the generator dialog.
     val mapWidth: Int = mapSize.width,
     val mapHeight: Int = mapSize.height,
+    // Optional plain-text description of the desired map style (for example "river map with
+    // islands and multiple spawns"). Used to pick fitting procedural layouts.
+    val mapDescription: String = "",
+    // Optional amount of spawn points on generated maps (0 = auto based on description/roster).
+    val spawnCount: Int = 0,
+    // Optional amount of targets on generated maps (0 = auto based on description/roster).
+    val targetCount: Int = 0,
+    // 0.0 = straight paths, 1.0 = very winding paths.
+    val pathWindingFactor: Float = 0.35f,
+    // 0.0 = dry, 1.0 = very wet map with broader rivers.
+    val waterLevel: Float = 0.2f,
+    val requirePath: Boolean = true,
     val seed: Int = 0,
 )
 
@@ -172,14 +181,6 @@ internal data class GeneratedLevelResult(
 internal object LevelGenerator {
     // Layouts used when no villain theme applies. The spiral layout is left out on purpose: it is
     // just a long S-shaped path and makes for boring levels.
-    private val randomLayouts =
-        listOf(
-            MapTemplateLayoutKind.STRAIGHT_APPROACH,
-            MapTemplateLayoutKind.SPLIT_LANES,
-            MapTemplateLayoutKind.RIVER_CROSSING,
-            MapTemplateLayoutKind.SPIDER_WEB,
-        )
-
     private val baseTowers =
         setOf(
             DefenderType.SPIKE_TOWER,
@@ -234,36 +235,7 @@ internal object LevelGenerator {
         config: LevelGeneratorConfig,
         random: Random,
     ): EditorMap {
-        val layoutKind = layoutKindFor(config, random)
-        return createMapFromTemplate(
-            id = "${levelId}_map",
-            name = "${config.title} Map",
-            width = config.mapWidth,
-            height = config.mapHeight,
-            author = config.author,
-            template =
-                MapTemplateDefinition(
-                    id = "generated_${layoutKind.name.lowercase()}",
-                    name = layoutKind.name,
-                    layoutKind = layoutKind,
-                ),
-        )
-    }
-
-    /**
-     * Picks a map layout that fits the selected rosters: spider armies get a spider web, seafaring
-     * enemies a river crossing. Otherwise a random layout is used.
-     */
-    private fun layoutKindFor(
-        config: LevelGeneratorConfig,
-        random: Random,
-    ): MapTemplateLayoutKind {
-        val rosters = listOfNotNull(config.primaryRoster, config.secondaryRoster)
-        return when {
-            GeneratorEnemyRoster.SPIDERS in rosters -> MapTemplateLayoutKind.SPIDER_WEB
-            GeneratorEnemyRoster.PIRATES in rosters -> MapTemplateLayoutKind.RIVER_CROSSING
-            else -> randomLayouts[random.nextInt(randomLayouts.size)]
-        }
+        return ProceduralMapGenerator.generateMap(levelId, config, random)
     }
 
     private fun generateSpawns(

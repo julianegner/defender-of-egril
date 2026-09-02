@@ -2437,5 +2437,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="level_generator_roster_pirates">Pirates</string>
     <string name="level_generator_generating">Generating level…</string>
     <string name="level_generator_map_size_hint">The size can be adjusted after choosing a general map size.</string>
+    <string name="level_generator_map_description_label">Map description (optional)</string>
+    <string name="level_generator_map_description_hint">Describe the map you want in plain text, for example: "river map with islands and multiple spawn points".</string>
     <string name="level_generator_roster_wilds">Wilds</string>
 </resources>

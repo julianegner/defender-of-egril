@@ -47,6 +47,7 @@ internal fun LevelGeneratorDialog(
     var mapSizeExpanded by remember { mutableStateOf(false) }
     var mapWidth by remember { mutableStateOf(GeneratedMapSize.MEDIUM.width.toString()) }
     var mapHeight by remember { mutableStateOf(GeneratedMapSize.MEDIUM.height.toString()) }
+    var mapDescription by remember { mutableStateOf("") }
     var selectedMap by remember { mutableStateOf(availableMaps.firstOrNull()) }
     var mapExpanded by remember { mutableStateOf(false) }
 
@@ -355,6 +356,21 @@ internal fun LevelGeneratorDialog(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 4.dp),
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = mapDescription,
+                        onValueChange = { mapDescription = it },
+                        label = { Text(stringResource(Res.string.level_generator_map_description_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 2,
+                        maxLines = 4,
+                    )
+                    Text(
+                        text = stringResource(Res.string.level_generator_map_description_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
                 } else {
                     ExposedDropdownMenuBox(
                         expanded = mapExpanded,
@@ -406,6 +422,7 @@ internal fun LevelGeneratorDialog(
                             mapSize = mapSize,
                             mapWidth = width ?: mapSize.width,
                             mapHeight = height ?: mapSize.height,
+                            mapDescription = mapDescription.trim(),
                             seed = kotlin.random.Random.nextInt(),
                         ),
                     )

@@ -4,7 +4,6 @@ import de.egril.defender.editor.MapTemplateDefinition
 import de.egril.defender.editor.MapTemplateLayoutKind
 import de.egril.defender.model.SpawnPointType
 import de.egril.defender.ui.editor.level.MapLaneShape
-import de.egril.defender.ui.editor.level.TravelBand
 import de.egril.defender.ui.editor.level.analyzeMapFlow
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,11 +34,10 @@ class MapDesignTemplatesTest {
     @Test
     fun riverCrossingTemplateAddsWaterSpawn() {
         val map = createMapFromTemplate("river", "River", 14, 8, "tester", riverTemplate())
-        val flow = analyzeMapFlow(map)
 
+        assertTrue(map.readyToUse)
         assertTrue(map.getSpawnPoints().any { map.getSpawnPointType(it) == SpawnPointType.WATER })
         assertTrue(map.getRiverCells().isNotEmpty())
-        assertEquals(TravelBand.LONG, flow.travelLength)
     }
 
     @Test

@@ -2429,5 +2429,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="level_generator_roster_pirates">Pirates</string>
     <string name="level_generator_generating">Génération du niveau…</string>
     <string name="level_generator_map_size_hint">La taille peut être ajustée après avoir choisi une taille de carte générale.</string>
+    <string name="level_generator_map_description_label">Description de la carte (facultatif)</string>
+    <string name="level_generator_map_description_hint">Décrivez la carte souhaitée en texte libre, par exemple : "carte fluviale avec des îles et plusieurs points d'apparition".</string>
     <string name="level_generator_roster_wilds">Nature sauvage</string>
 </resources>

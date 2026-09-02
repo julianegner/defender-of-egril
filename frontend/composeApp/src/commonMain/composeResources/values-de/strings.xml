@@ -2427,5 +2427,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="level_generator_roster_pirates">Piraten</string>
     <string name="level_generator_generating">Level wird generiert…</string>
     <string name="level_generator_map_size_hint">Die Größe kann nach der Wahl einer allgemeinen Kartengröße angepasst werden.</string>
+    <string name="level_generator_map_description_label">Kartenbeschreibung (optional)</string>
+    <string name="level_generator_map_description_hint">Beschreibe die gewünschte Karte in Klartext, zum Beispiel: "Flusskarte mit Inseln und mehreren Spawnpunkten".</string>
     <string name="level_generator_roster_wilds">Wildnis</string>
 </resources>
