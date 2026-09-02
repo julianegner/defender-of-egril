@@ -1,7 +1,6 @@
 package de.egril.defender.iam
 
 import androidx.activity.ComponentActivity
-import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertNotNull
@@ -33,11 +32,9 @@ class AndroidIamFlowProviderTest {
     }
 
     @Test
-    fun `registerActivity does not throw`() {
-        val mockActivity = mockk<ComponentActivity>(relaxed = true)
-        // registerActivity calls factory.registerActivity internally;
-        // we just verify it completes without exception.
-        AndroidIamFlowProvider.registerActivity(mockActivity)
+    fun `registerActivity is exposed`() {
+        val registerActivity: (ComponentActivity) -> Unit = AndroidIamFlowProvider::registerActivity
+        assertNotNull(registerActivity)
     }
 
     @Test

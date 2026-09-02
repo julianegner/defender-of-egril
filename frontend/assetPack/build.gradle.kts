@@ -51,13 +51,14 @@ assetPack {
 // the generated import statements (e.g. defender_of_egril.composeapp.generated.resources.Res).
 val cmpPackage = "defender_of_egril.composeapp.generated.resources"
 
-val syncComposeResources by tasks.registering(Sync::class) {
-    description = "Copies composeResources into the asset pack before bundling."
-    group = "build"
+val syncComposeResources =
+    tasks.register<Sync>("syncComposeResources") {
+        description = "Copies composeResources into the asset pack before bundling."
+        group = "build"
 
-    from(rootProject.file("frontend/composeApp/src/commonMain/composeResources"))
-    into(layout.projectDirectory.dir("src/main/assets/composeResources/$cmpPackage"))
-}
+        from(rootProject.file("frontend/composeApp/src/commonMain/composeResources"))
+        into(layout.projectDirectory.dir("src/main/assets/composeResources/$cmpPackage"))
+    }
 
 // ---------------------------------------------------------------------------
 // Material Symbols font sync – extracts TTF font files from the library AAR
@@ -79,11 +80,12 @@ val syncComposeResources by tasks.registering(Sync::class) {
 // inherited from the root project's `dependencyResolutionManagement` block
 // (mavenCentral, google, JetBrains Space), so no extra repository declaration
 // is needed here.
-val materialSymbolsFontDeps by configurations.creating {
-    isTransitive = false
-    isCanBeResolved = true
-    isCanBeConsumed = false
-}
+val materialSymbolsFontDeps =
+    configurations.create("materialSymbolsFontDeps") {
+        isTransitive = false
+        isCanBeResolved = true
+        isCanBeConsumed = false
+    }
 
 dependencies {
     // Request the Android-specific AAR artifact directly so we can unzip its assets.
@@ -99,22 +101,25 @@ val materialSymbolsCmpPackage = "dev.vicart.compose.material.symbols.resources"
 
 // Copy (not Sync) so we do not accidentally delete the app resources written by
 // `syncComposeResources` which targets a sibling subdirectory of `src/main/assets`.
-val syncMaterialSymbolsFonts by tasks.registering(Copy::class) {
-    description = "Extracts Material Symbols TTF fonts from the library AAR into the asset pack."
-    group = "build"
+val syncMaterialSymbolsFonts =
+    tasks.register<Copy>("syncMaterialSymbolsFonts") {
+        description = "Extracts Material Symbols TTF fonts from the library AAR into the asset pack."
+        group = "build"
 
-    from(zipTree(materialSymbolsFontDeps.singleFile)) {
-        // Only include the font assets; other AAR entries (classes.jar, etc.) are not needed.
-        include("assets/composeResources/$materialSymbolsCmpPackage/**")
-        eachFile {
-            // Strip the leading "assets/" segment so the file lands at
-            // src/main/assets/composeResources/dev.vicart.../font/material_symbols_*.ttf
-            relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray())
+        from({
+            zipTree(materialSymbolsFontDeps.singleFile)
+        }) {
+            // Only include the font assets; other AAR entries (classes.jar, etc.) are not needed.
+            include("assets/composeResources/$materialSymbolsCmpPackage/**")
+            eachFile {
+                // Strip the leading "assets/" segment so the file lands at
+                // src/main/assets/composeResources/dev.vicart.../font/material_symbols_*.ttf
+                relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray())
+            }
+            includeEmptyDirs = false
         }
-        includeEmptyDirs = false
+        into(layout.projectDirectory.dir("src/main/assets"))
     }
-    into(layout.projectDirectory.dir("src/main/assets"))
-}
 
 // Only make tasks that actually generate or package the asset pack depend on the syncs.
 // Using targeted matching avoids unnecessary dependencies for help, clean, and other
