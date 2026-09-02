@@ -48,7 +48,7 @@ internal fun LevelGeneratorDialog(
     var mapSizeExpanded by remember { mutableStateOf(false) }
     var mapWidth by remember { mutableStateOf(GeneratedMapSize.MEDIUM.width.toString()) }
     var mapHeight by remember { mutableStateOf(GeneratedMapSize.MEDIUM.height.toString()) }
-    var landSpawnCountInput by remember { mutableStateOf("2") }
+    var landSpawnCountInput by remember { mutableStateOf("1") }
     var targetCountInput by remember { mutableStateOf("1") }
     var waterSpawnCountInput by remember { mutableStateOf("0") }
     var minPathWidthInput by remember { mutableStateOf("3") }

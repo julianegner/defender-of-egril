@@ -20,7 +20,7 @@ import kotlin.random.Random
 internal data class GenerationConfig(
     val width: Int = 20,
     val height: Int = 15,
-    val landSpawnCount: Int = 2,
+    val landSpawnCount: Int = 1,
     val waterSpawnCount: Int = 0,
     val targetCount: Int = 1,
     val pathWindingFactor: Float = 0.3f, // 0.0 = straight, 1.0 = very winding

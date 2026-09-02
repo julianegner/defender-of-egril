@@ -151,7 +151,7 @@ internal data class LevelGeneratorConfig(
     val mapWidth: Int = mapSize.width,
     val mapHeight: Int = mapSize.height,
     // Amount of LAND spawn points on generated maps (minimum 0).
-    val landSpawnCount: Int = 2,
+    val landSpawnCount: Int = 1,
     // Amount of targets on generated maps (minimum 1).
     val targetCount: Int = 1,
     // Amount of WATER spawn points on generated maps (minimum 0).
