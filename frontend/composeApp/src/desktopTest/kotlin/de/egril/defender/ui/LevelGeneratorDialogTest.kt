@@ -85,7 +85,8 @@ class LevelGeneratorDialogTest {
         composeTestRule
             .onNodeWithText(
                 "His War Cry drives nearby Horde units into a frenzy, letting them advance faster. Cut him down before his roar overwhelms your defenses!",
-            ).performScrollTo().assertIsDisplayed()
+            ).performScrollTo()
+            .assertIsDisplayed()
     }
 
     @Test

@@ -757,8 +757,7 @@ object EditorStorage {
                                 userSequence.indexOf(level.id)
                             }
                         if (index >= 0) index else Int.MAX_VALUE
-                    }
-                    .thenBy { it.title.lowercase() },
+                    }.thenBy { it.title.lowercase() },
             )
     }
 

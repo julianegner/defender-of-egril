@@ -7,8 +7,8 @@ import de.egril.defender.model.EnemyFaction
 import de.egril.defender.model.Position
 import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.getHexNeighbors
-import de.egril.defender.model.isRealVillain
 import de.egril.defender.model.hexDistanceTo
+import de.egril.defender.model.isRealVillain
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -374,15 +374,16 @@ class LevelGeneratorTest {
     @Test
     fun generatedMapsUsePathAsTheDefaultTerrain() {
         val map =
-            LevelGenerator.generate(
-                LevelGeneratorConfig(
-                    title = "Path Default",
-                    mapSource = GeneratorMapSource.GENERATED_MAP,
-                    waterLevel = 0f,
-                    requirePath = false,
-                    seed = 202,
-                ),
-            ).generatedMap
+            LevelGenerator
+                .generate(
+                    LevelGeneratorConfig(
+                        title = "Path Default",
+                        mapSource = GeneratorMapSource.GENERATED_MAP,
+                        waterLevel = 0f,
+                        requirePath = false,
+                        seed = 202,
+                    ),
+                ).generatedMap
 
         val generatedMap = assertNotNull(map)
         val pathTiles = generatedMap.tiles.count { it.value == TileType.PATH }
@@ -394,35 +395,37 @@ class LevelGeneratorTest {
     @Test
     fun minimumPathWidthParameterExpandsGeneratedPathCorridors() {
         val narrow =
-            LevelGenerator.generate(
-                LevelGeneratorConfig(
-                    title = "Narrow Paths",
-                    mapSource = GeneratorMapSource.GENERATED_MAP,
-                    mapWidth = 30,
-                    mapHeight = 20,
-                    landSpawnCount = 1,
-                    targetCount = 1,
-                    waterLevel = 0f,
-                    minPathWidth = 1,
-                    requirePath = true,
-                    seed = 404,
-                ),
-            ).generatedMap
+            LevelGenerator
+                .generate(
+                    LevelGeneratorConfig(
+                        title = "Narrow Paths",
+                        mapSource = GeneratorMapSource.GENERATED_MAP,
+                        mapWidth = 30,
+                        mapHeight = 20,
+                        landSpawnCount = 1,
+                        targetCount = 1,
+                        waterLevel = 0f,
+                        minPathWidth = 1,
+                        requirePath = true,
+                        seed = 404,
+                    ),
+                ).generatedMap
         val wide =
-            LevelGenerator.generate(
-                LevelGeneratorConfig(
-                    title = "Wide Paths",
-                    mapSource = GeneratorMapSource.GENERATED_MAP,
-                    mapWidth = 30,
-                    mapHeight = 20,
-                    landSpawnCount = 1,
-                    targetCount = 1,
-                    waterLevel = 0f,
-                    minPathWidth = 3,
-                    requirePath = true,
-                    seed = 404,
-                ),
-            ).generatedMap
+            LevelGenerator
+                .generate(
+                    LevelGeneratorConfig(
+                        title = "Wide Paths",
+                        mapSource = GeneratorMapSource.GENERATED_MAP,
+                        mapWidth = 30,
+                        mapHeight = 20,
+                        landSpawnCount = 1,
+                        targetCount = 1,
+                        waterLevel = 0f,
+                        minPathWidth = 3,
+                        requirePath = true,
+                        seed = 404,
+                    ),
+                ).generatedMap
 
         val narrowMap = assertNotNull(narrow)
         val wideMap = assertNotNull(wide)
@@ -432,19 +435,20 @@ class LevelGeneratorTest {
     @Test
     fun generatedTargetsStayFarAwayFromSpawnPoints() {
         val map =
-            LevelGenerator.generate(
-                LevelGeneratorConfig(
-                    title = "Long March",
-                    mapSource = GeneratorMapSource.GENERATED_MAP,
-                    mapWidth = 40,
-                    mapHeight = 28,
-                    landSpawnCount = 3,
-                    targetCount = 2,
-                    waterLevel = 0.5f,
-                    requirePath = true,
-                    seed = 1337,
-                ),
-            ).generatedMap
+            LevelGenerator
+                .generate(
+                    LevelGeneratorConfig(
+                        title = "Long March",
+                        mapSource = GeneratorMapSource.GENERATED_MAP,
+                        mapWidth = 40,
+                        mapHeight = 28,
+                        landSpawnCount = 3,
+                        targetCount = 2,
+                        waterLevel = 0.5f,
+                        requirePath = true,
+                        seed = 1337,
+                    ),
+                ).generatedMap
 
         val generatedMap = assertNotNull(map)
         val spawnPoints = generatedMap.getSpawnPoints()
@@ -459,15 +463,16 @@ class LevelGeneratorTest {
     @Test
     fun spawnAndTargetCountsAreClampedToAtLeastOne() {
         val map =
-            LevelGenerator.generate(
-                LevelGeneratorConfig(
-                    title = "Minimum Counts",
-                    mapSource = GeneratorMapSource.GENERATED_MAP,
-                    landSpawnCount = 0,
-                    targetCount = 0,
-                    seed = 912,
-                ),
-            ).generatedMap
+            LevelGenerator
+                .generate(
+                    LevelGeneratorConfig(
+                        title = "Minimum Counts",
+                        mapSource = GeneratorMapSource.GENERATED_MAP,
+                        landSpawnCount = 0,
+                        targetCount = 0,
+                        seed = 912,
+                    ),
+                ).generatedMap
 
         val generatedMap = assertNotNull(map)
         assertTrue(generatedMap.getSpawnPoints().isNotEmpty())
@@ -477,17 +482,18 @@ class LevelGeneratorTest {
     @Test
     fun requestedWaterSpawnCountCreatesDistinctSpawnTypes() {
         val map =
-            LevelGenerator.generate(
-                LevelGeneratorConfig(
-                    title = "Mixed Spawn Types",
-                    mapSource = GeneratorMapSource.GENERATED_MAP,
-                    landSpawnCount = 3,
-                    waterSpawnCount = 1,
-                    targetCount = 1,
-                    waterLevel = 0.8f,
-                    seed = 581,
-                ),
-            ).generatedMap
+            LevelGenerator
+                .generate(
+                    LevelGeneratorConfig(
+                        title = "Mixed Spawn Types",
+                        mapSource = GeneratorMapSource.GENERATED_MAP,
+                        landSpawnCount = 3,
+                        waterSpawnCount = 1,
+                        targetCount = 1,
+                        waterLevel = 0.8f,
+                        seed = 581,
+                    ),
+                ).generatedMap
 
         val generatedMap = assertNotNull(map)
         val spawnPoints = generatedMap.getSpawnPoints()
@@ -524,28 +530,30 @@ class LevelGeneratorTest {
     @Test
     fun spawnTargetPathsAreLongWhenMeasuredOnAllowedTiles() {
         val map =
-            LevelGenerator.generate(
-                LevelGeneratorConfig(
-                    title = "Long Traversable Paths",
-                    mapSource = GeneratorMapSource.GENERATED_MAP,
-                    mapWidth = 40,
-                    mapHeight = 28,
-                    landSpawnCount = 2,
-                    targetCount = 2,
-                    waterSpawnCount = 1,
-                    waterLevel = 0.65f,
-                    requirePath = true,
-                    seed = 777,
-                ),
-            ).generatedMap
+            LevelGenerator
+                .generate(
+                    LevelGeneratorConfig(
+                        title = "Long Traversable Paths",
+                        mapSource = GeneratorMapSource.GENERATED_MAP,
+                        mapWidth = 40,
+                        mapHeight = 28,
+                        landSpawnCount = 2,
+                        targetCount = 2,
+                        waterSpawnCount = 1,
+                        waterLevel = 0.65f,
+                        requirePath = true,
+                        seed = 777,
+                    ),
+                ).generatedMap
 
         val generatedMap = assertNotNull(map)
         val targets = generatedMap.getTargets()
         val pathLengths =
             generatedMap.getSpawnPoints().mapNotNull { spawn ->
-                targets.mapNotNull { target ->
-                    shortestAllowedPathLength(generatedMap, spawn, target)
-                }.maxOrNull()
+                targets
+                    .mapNotNull { target ->
+                        shortestAllowedPathLength(generatedMap, spawn, target)
+                    }.maxOrNull()
             }
 
         assertTrue(pathLengths.isNotEmpty())
@@ -566,7 +574,8 @@ class LevelGeneratorTest {
             val (current, distance) = queue.removeFirst()
             if (current == end) return distance
 
-            current.getHexNeighbors()
+            current
+                .getHexNeighbors()
                 .filter { it.x in 0 until map.width && it.y in 0 until map.height && it !in visited }
                 .forEach { neighbor ->
                     val type = map.getTileType(neighbor.x, neighbor.y)

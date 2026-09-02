@@ -91,13 +91,14 @@ fun InitialSetupTab(
                 if (placementMode != null) {
                     val tileLabel = stringResource(Res.string.initial_setup_tile)
                     val pos = hoveredTilePosition
-                    val hintText = when {
-                        placementMode == PlacementMode.PORTAL && pendingPortalEntry != null ->
-                            stringResource(Res.string.initial_setup_portal_place_exit)
-                        placementMode == PlacementMode.PORTAL ->
-                            stringResource(Res.string.initial_setup_portal_place_entry)
-                        else -> stringResource(Res.string.initial_setup_click_to_place)
-                    }
+                    val hintText =
+                        when {
+                            placementMode == PlacementMode.PORTAL && pendingPortalEntry != null ->
+                                stringResource(Res.string.initial_setup_portal_place_exit)
+                            placementMode == PlacementMode.PORTAL ->
+                                stringResource(Res.string.initial_setup_portal_place_entry)
+                            else -> stringResource(Res.string.initial_setup_click_to_place)
+                        }
                     Text(
                         text = hintText + if (pos != null) "  $tileLabel (${pos.x}, ${pos.y})" else "",
                         style = MaterialTheme.typography.bodySmall,

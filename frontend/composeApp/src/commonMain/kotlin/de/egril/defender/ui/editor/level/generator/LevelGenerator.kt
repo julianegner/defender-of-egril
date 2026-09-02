@@ -236,9 +236,7 @@ internal object LevelGenerator {
         levelId: String,
         config: LevelGeneratorConfig,
         random: Random,
-    ): EditorMap {
-        return ProceduralMapGenerator.generateMap(levelId, config, random)
-    }
+    ): EditorMap = ProceduralMapGenerator.generateMap(levelId, config, random)
 
     private fun generateSpawns(
         map: EditorMap?,

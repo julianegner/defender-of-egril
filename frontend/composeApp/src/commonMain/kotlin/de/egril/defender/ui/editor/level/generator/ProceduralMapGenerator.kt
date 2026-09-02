@@ -197,7 +197,8 @@ private class HexMapGenerator(
                 visited += current
 
                 if (config.waterLevel > 0.5f) {
-                    current.getHexNeighbors()
+                    current
+                        .getHexNeighbors()
                         .filter { it in validGridPositions && random.nextFloat() < 0.35f + ((config.waterLevel - 0.5f) * 0.35f) }
                         .forEach { neighbor ->
                             tiles[key(neighbor)] = TileType.RIVER
@@ -317,8 +318,7 @@ private class HexMapGenerator(
                         tileType(tiles, position) != TileType.NO_PLAY &&
                         tileType(tiles, position) != TileType.RIVER &&
                         position.x >= config.width / 2
-                }
-                .ifEmpty {
+                }.ifEmpty {
                     validGridPositions.filter { position ->
                         position !in existingTargets &&
                             tileType(tiles, position) != TileType.NO_PLAY &&
@@ -347,17 +347,18 @@ private class HexMapGenerator(
         val withThreshold = candidateScores.filter { (_, minPathLength) -> minPathLength >= minimumDistance }
         val evaluationPool = if (withThreshold.isNotEmpty()) withThreshold else candidateScores
 
-        return evaluationPool.maxByOrNull { (target, minPathLength) ->
-            val pathLengthScore = if (minPathLength < 0) 0f else minPathLength.toFloat() * 4f
-            val targetSpacingScore =
-                if (existingTargets.isEmpty()) {
-                    0f
-                } else {
-                    existingTargets.minOf { it.hexDistanceTo(target) } * 0.4f
-                }
-            val rightSideBias = (target.x.toFloat() / config.width) * 1.5f
-            pathLengthScore + targetSpacingScore + rightSideBias + random.nextFloat() * 0.5f
-        }?.first ?: evaluationPool.first().first
+        return evaluationPool
+            .maxByOrNull { (target, minPathLength) ->
+                val pathLengthScore = if (minPathLength < 0) 0f else minPathLength.toFloat() * 4f
+                val targetSpacingScore =
+                    if (existingTargets.isEmpty()) {
+                        0f
+                    } else {
+                        existingTargets.minOf { it.hexDistanceTo(target) } * 0.4f
+                    }
+                val rightSideBias = (target.x.toFloat() / config.width) * 1.5f
+                pathLengthScore + targetSpacingScore + rightSideBias + random.nextFloat() * 0.5f
+            }?.first ?: evaluationPool.first().first
     }
 
     private fun farthestTargetForSpawn(
@@ -392,7 +393,8 @@ private class HexMapGenerator(
             val (current, distance) = queue.removeFirst()
             if (current == end) return distance
 
-            current.getHexNeighbors()
+            current
+                .getHexNeighbors()
                 .filter { it in validGridPositions && it !in visited }
                 .forEach { neighbor ->
                     val neighborType = tileType(tiles, neighbor)
@@ -428,7 +430,8 @@ private class HexMapGenerator(
             if (current == end) return reconstructPath(cameFrom, end)
 
             openSet.remove(current)
-            current.getHexNeighbors()
+            current
+                .getHexNeighbors()
                 .filter { it in validGridPositions }
                 .forEach { neighbor ->
                     val baseCost =
@@ -513,7 +516,6 @@ private class HexMapGenerator(
     ): TileType = tiles[key(position)] ?: TileType.NO_PLAY
 
     private fun key(position: Position): String = "${position.x},${position.y}"
-
 }
 
 private fun repairGeneratedMap(
