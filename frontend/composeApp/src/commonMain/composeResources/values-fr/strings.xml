@@ -2431,5 +2431,14 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="level_generator_map_size_hint">La taille peut être ajustée après avoir choisi une taille de carte générale.</string>
     <string name="level_generator_map_description_label">Description de la carte (facultatif)</string>
     <string name="level_generator_map_description_hint">Décrivez la carte souhaitée en texte libre, par exemple : "carte fluviale avec des îles et plusieurs points d'apparition".</string>
+    <string name="level_generator_parameters">Paramètres de génération</string>
+    <string name="level_generator_count_hint">Le nombre d'objectifs doit être au moins 1. Les apparitions terrestres et aquatiques peuvent être combinées librement, mais leur somme doit être au moins 1.</string>
+    <string name="level_generator_land_spawn_count">Nombre d'apparitions terrestres</string>
+    <string name="level_generator_target_count">Nombre d'objectifs</string>
+    <string name="level_generator_water_spawn_count">Nombre d'apparitions aquatiques</string>
+    <string name="level_generator_min_path_width">Largeur minimale du chemin</string>
+    <string name="level_generator_winding_factor">Facteur de sinuosité du chemin</string>
+    <string name="level_generator_water_level">Niveau d'eau</string>
+    <string name="level_generator_require_path">Exiger un chemin des apparitions vers les objectifs</string>
     <string name="level_generator_roster_wilds">Nature sauvage</string>
 </resources>

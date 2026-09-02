@@ -2430,5 +2430,14 @@
     <string name="level_generator_map_size_hint">El tamaño puede ajustarse tras elegir un tamaño general de mapa.</string>
     <string name="level_generator_map_description_label">Descripcion del mapa (opcional)</string>
     <string name="level_generator_map_description_hint">Describe el mapa que quieres en texto plano, por ejemplo: "mapa de rio con islas y varios puntos de aparicion".</string>
+    <string name="level_generator_parameters">Parametros de generacion</string>
+    <string name="level_generator_count_hint">El numero de objetivos debe ser al menos 1. Las apariciones terrestres y de agua se pueden combinar libremente, pero su suma debe ser al menos 1.</string>
+    <string name="level_generator_land_spawn_count">Numero de apariciones terrestres</string>
+    <string name="level_generator_target_count">Numero de objetivos</string>
+    <string name="level_generator_water_spawn_count">Numero de apariciones de agua</string>
+    <string name="level_generator_min_path_width">Ancho minimo del camino</string>
+    <string name="level_generator_winding_factor">Factor de curvas del camino</string>
+    <string name="level_generator_water_level">Nivel de agua</string>
+    <string name="level_generator_require_path">Requerir camino desde apariciones a objetivos</string>
     <string name="level_generator_roster_wilds">Naturaleza salvaje</string>
 </resources>

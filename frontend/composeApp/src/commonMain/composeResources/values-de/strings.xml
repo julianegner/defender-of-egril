@@ -2429,5 +2429,14 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="level_generator_map_size_hint">Die Größe kann nach der Wahl einer allgemeinen Kartengröße angepasst werden.</string>
     <string name="level_generator_map_description_label">Kartenbeschreibung (optional)</string>
     <string name="level_generator_map_description_hint">Beschreibe die gewünschte Karte in Klartext, zum Beispiel: "Flusskarte mit Inseln und mehreren Spawnpunkten".</string>
+    <string name="level_generator_parameters">Generierungsparameter</string>
+    <string name="level_generator_count_hint">Die Ziel-Anzahl muss mindestens 1 sein. Land- und Wasser-Spawns sind frei kombinierbar, aber ihre Summe muss mindestens 1 sein.</string>
+    <string name="level_generator_land_spawn_count">Land-Spawn-Anzahl</string>
+    <string name="level_generator_target_count">Ziel-Anzahl</string>
+    <string name="level_generator_water_spawn_count">Wasser-Spawn-Anzahl</string>
+    <string name="level_generator_min_path_width">Minimale Pfadbreite</string>
+    <string name="level_generator_winding_factor">Pfad-Windungsfaktor</string>
+    <string name="level_generator_water_level">Wasserstand</string>
+    <string name="level_generator_require_path">Pfad von Spawns zu Zielen erzwingen</string>
     <string name="level_generator_roster_wilds">Wildnis</string>
 </resources>

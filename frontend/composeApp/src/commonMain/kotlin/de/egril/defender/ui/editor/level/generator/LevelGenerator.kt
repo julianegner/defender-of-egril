@@ -153,14 +153,18 @@ internal data class LevelGeneratorConfig(
     // Optional plain-text description of the desired map style (for example "river map with
     // islands and multiple spawns"). Used to pick fitting procedural layouts.
     val mapDescription: String = "",
-    // Optional amount of spawn points on generated maps (0 = auto based on description/roster).
-    val spawnCount: Int = 0,
-    // Optional amount of targets on generated maps (0 = auto based on description/roster).
-    val targetCount: Int = 0,
+    // Amount of LAND spawn points on generated maps (minimum 0).
+    val landSpawnCount: Int = 2,
+    // Amount of targets on generated maps (minimum 1).
+    val targetCount: Int = 1,
+    // Amount of WATER spawn points on generated maps (minimum 0).
+    val waterSpawnCount: Int = 0,
     // 0.0 = straight paths, 1.0 = very winding paths.
     val pathWindingFactor: Float = 0.35f,
     // 0.0 = dry, 1.0 = very wet map with broader rivers.
     val waterLevel: Float = 0.2f,
+    // Minimum width of generated mandatory paths (1 = single-tile path).
+    val minPathWidth: Int = 1,
     val requirePath: Boolean = true,
     val seed: Int = 0,
 )
@@ -245,13 +249,15 @@ internal object LevelGenerator {
         minionPool: List<AttackerType>,
         random: Random,
     ): List<EditorEnemySpawn> {
-        if (minionPool.isEmpty()) return emptyList()
+        val effectiveMinionPool = filterTypesBySpawnCompatibility(minionPool, map, fallbackToAnyCompatible = true)
+        if (effectiveMinionPool.isEmpty()) return emptyList()
+        val effectiveVillains = filterTypesBySpawnCompatibility(villains, map, fallbackToAnyCompatible = false)
         val spawns = mutableListOf<EditorEnemySpawn>()
         // Villains enter at the end of the first third of the waves: most of them need time to build
         // up their potential (summoning, auras), so spawning them late would waste their abilities.
         val firstVillainWave = ((difficulty.waveCount + 2) / 3).coerceAtLeast(1)
         val villainWaves =
-            villains
+            effectiveVillains
                 .mapIndexed { index, villain -> (firstVillainWave + index).coerceAtMost(difficulty.waveCount) to villain }
                 .groupBy({ it.first }, { it.second })
 
@@ -266,7 +272,7 @@ internal object LevelGenerator {
             val amountPerTurn = listOf((amount + 1) / 2, amount / 2).map { it.coerceAtMost(maxUnitsPerTurn) }
             amountPerTurn.forEachIndexed { turnOffset, turnAmount ->
                 repeat(turnAmount) { index ->
-                    val type = minionPool[random.nextInt(minionPool.size)]
+                    val type = effectiveMinionPool[random.nextInt(effectiveMinionPool.size)]
                     spawns +=
                         EditorEnemySpawn(
                             attackerType = type,
@@ -294,8 +300,33 @@ internal object LevelGenerator {
         type: AttackerType,
         index: Int,
     ): Position? {
-        val compatible = map?.getCompatibleSpawnPoints(type).orEmpty()
+        val compatible = compatibleSpawnPoints(map, type)
         return if (compatible.isEmpty()) null else compatible[index % compatible.size]
+    }
+
+    private fun compatibleSpawnPoints(
+        map: EditorMap?,
+        type: AttackerType,
+    ): List<Position> =
+        map
+            ?.getSpawnPoints()
+            .orEmpty()
+            .filter { spawn ->
+                when (map?.getSpawnPointType(spawn)) {
+                    de.egril.defender.model.SpawnPointType.WATER -> type.canSpawnOnWater
+                    de.egril.defender.model.SpawnPointType.LAND, null -> type.canSpawnOnLand
+                }
+            }
+
+    private fun filterTypesBySpawnCompatibility(
+        types: List<AttackerType>,
+        map: EditorMap?,
+        fallbackToAnyCompatible: Boolean,
+    ): List<AttackerType> {
+        if (map == null) return types
+        val filtered = types.filter { compatibleSpawnPoints(map, it).isNotEmpty() }
+        if (filtered.isNotEmpty() || !fallbackToAnyCompatible) return filtered
+        return AttackerType.entries.filter { !it.isRealVillain && compatibleSpawnPoints(map, it).isNotEmpty() }
     }
 
     /**

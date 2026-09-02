@@ -20,10 +20,12 @@ import kotlin.random.Random
 internal data class GenerationConfig(
     val width: Int = 20,
     val height: Int = 15,
-    val spawnCount: Int = 1,
+    val landSpawnCount: Int = 2,
+    val waterSpawnCount: Int = 0,
     val targetCount: Int = 1,
     val pathWindingFactor: Float = 0.3f, // 0.0 = straight, 1.0 = very winding
     val waterLevel: Float = 0.2f, // 0.0 = dry, 1.0 = very wet
+    val minPathWidth: Int = 1,
     val requirePath: Boolean = true,
 )
 
@@ -46,7 +48,7 @@ internal object ProceduralMapGenerator {
         return if (map.validateReadyToUse()) {
             map.copy(readyToUse = true)
         } else {
-            repairGeneratedMap(map).copy(readyToUse = true)
+            repairGeneratedMap(map, generationConfig.minPathWidth).copy(readyToUse = true)
         }
     }
 
@@ -54,22 +56,9 @@ internal object ProceduralMapGenerator {
         val normalized = config.mapDescription.lowercase()
         val rosters = listOfNotNull(config.primaryRoster, config.secondaryRoster)
 
-        val suggestedSpawnCount =
-            when {
-                config.spawnCount > 0 -> config.spawnCount
-                "web" in normalized || "spider" in normalized -> 4
-                "cross" in normalized || "split" in normalized || "dual" in normalized || "fork" in normalized -> 3
-                GeneratorEnemyRoster.SPIDERS in rosters -> 4
-                GeneratorEnemyRoster.PIRATES in rosters -> 3
-                else -> 2
-            }
-        val suggestedTargetCount =
-            when {
-                config.targetCount > 0 -> config.targetCount
-                "multi target" in normalized || "multiple target" in normalized || "several target" in normalized -> 2
-                "cross" in normalized || "split" in normalized -> 2
-                else -> 1
-            }
+        val suggestedLandSpawnCount = config.landSpawnCount
+        val suggestedTargetCount = config.targetCount
+        val suggestedWaterSpawns = config.waterSpawnCount
         val suggestedWaterLevel =
             when {
                 "river" in normalized || "water" in normalized || "harbor" in normalized || "raft" in normalized -> 0.6f
@@ -84,13 +73,21 @@ internal object ProceduralMapGenerator {
                 else -> config.pathWindingFactor
             }
 
+        val clampedLandSpawnCount = suggestedLandSpawnCount.coerceIn(0, 8)
+        val clampedWaterSpawnCount = suggestedWaterSpawns.coerceIn(0, 8)
+        val totalSpawnCount = clampedLandSpawnCount + clampedWaterSpawnCount
+        val normalizedLandSpawnCount = if (totalSpawnCount == 0) 1 else clampedLandSpawnCount
+        val normalizedWaterSpawnCount = if (totalSpawnCount == 0) 0 else clampedWaterSpawnCount
+
         return GenerationConfig(
             width = config.mapWidth.coerceIn(5, 100),
             height = config.mapHeight.coerceIn(5, 100),
-            spawnCount = suggestedSpawnCount.coerceIn(1, 8),
+            landSpawnCount = normalizedLandSpawnCount,
+            waterSpawnCount = normalizedWaterSpawnCount,
             targetCount = suggestedTargetCount.coerceIn(1, 4),
             pathWindingFactor = suggestedWinding.coerceIn(0f, 1f),
             waterLevel = suggestedWaterLevel.coerceIn(0f, 1f),
+            minPathWidth = config.minPathWidth.coerceIn(1, 4),
             requirePath = config.requirePath,
         )
     }
@@ -121,35 +118,46 @@ private class HexMapGenerator(
         val spawnPointInfoMap = mutableMapOf<String, SpawnPointType>()
 
         validGridPositions.forEach { position ->
-            tiles[key(position)] = TileType.BUILD_AREA
+            tiles[key(position)] = TileType.PATH
         }
 
         generateRiversAndWater(tiles, riverTiles)
         generateNoPlayAreas(tiles)
 
+        val spawns = mutableListOf<Position>()
+        repeat(config.waterSpawnCount) {
+            val spawn = findSpawnPosition(tiles, requireWater = true, excluded = spawns)
+            tiles[key(spawn)] = TileType.SPAWN_POINT
+            spawnPointInfoMap[key(spawn)] = SpawnPointType.WATER
+            spawns += spawn
+        }
+        repeat(config.landSpawnCount) {
+            val spawn = findSpawnPosition(tiles, requireWater = false, excluded = spawns)
+            tiles[key(spawn)] = TileType.SPAWN_POINT
+            spawnPointInfoMap[key(spawn)] = SpawnPointType.LAND
+            spawns += spawn
+        }
+
         val targets = mutableListOf<Position>()
+        val minimumDistance = minimumSpawnTargetDistance()
         repeat(config.targetCount) {
-            val target = findValidExtremePosition(tiles, preferLeft = false, excluded = targets)
+            val target = findFarTargetPosition(tiles, spawns, spawnPointInfoMap, targets, minimumDistance)
             tiles[key(target)] = TileType.TARGET
             targetInfoMap[key(target)] = EditorTargetInfo(name = "Target ${targets.size + 1}", type = TargetType.STANDARD)
             targets += target
         }
 
-        val spawns = mutableListOf<Position>()
-        repeat(config.spawnCount) { index ->
-            val preferWaterSpawn = config.waterLevel > 0.4f && index % 2 == 0
-            val spawn = findSpawnPosition(tiles, preferWaterSpawn, spawns + targets)
-            val wasRiverSpawn = tileType(tiles, spawn) == TileType.RIVER
-            tiles[key(spawn)] = TileType.SPAWN_POINT
-            spawnPointInfoMap[key(spawn)] = if (wasRiverSpawn) SpawnPointType.WATER else SpawnPointType.LAND
-            spawns += spawn
-        }
-
+        val protectedPathTiles = mutableSetOf<Position>()
         if (config.requirePath && targets.isNotEmpty()) {
             spawns.forEachIndexed { index, spawn ->
-                val target = targets[index % targets.size]
+                if (spawnPointInfoMap[key(spawn)] == SpawnPointType.WATER) {
+                    return@forEachIndexed
+                }
+                val target = farthestTargetForSpawn(spawn, targets, spawnPointInfoMap.getValue(key(spawn)), tiles, index)
                 val path = findWindingPath(spawn, target, tiles)
-                path.forEach { position ->
+                val widenedPath = widenPath(path, config.minPathWidth)
+                protectedPathTiles.addAll(widenedPath)
+                widenedPath.forEach { position ->
                     if (position != spawn && position != target) {
                         val type = tileType(tiles, position)
                         if (type != TileType.SPAWN_POINT && type != TileType.TARGET) {
@@ -160,20 +168,7 @@ private class HexMapGenerator(
             }
         }
 
-        // Ensure path tiles have enough adjacent tower placement possibilities.
-        tiles.entries
-            .filter { it.value == TileType.PATH || it.value == TileType.SPAWN_POINT || it.value == TileType.TARGET }
-            .map { decode(it.key) }
-            .forEach { pathTile ->
-                pathTile.getHexNeighbors()
-                    .filter { it in validGridPositions }
-                    .forEach { neighbor ->
-                        val current = tileType(tiles, neighbor)
-                        if (current == TileType.BUILD_AREA && random.nextFloat() < 0.6f) {
-                            tiles[key(neighbor)] = TileType.BUILD_AREA
-                        }
-                    }
-            }
+        addBuildAreas(tiles, protectedPathTiles, spawns, targets)
 
         val map =
             EditorMap(
@@ -247,25 +242,57 @@ private class HexMapGenerator(
     private fun generateNoPlayAreas(tiles: MutableMap<String, TileType>) {
         val blockedChance = 0.14f * (1f - config.waterLevel)
         validGridPositions.forEach { position ->
-            if (tileType(tiles, position) == TileType.BUILD_AREA && random.nextFloat() < blockedChance) {
+            if (tileType(tiles, position) == TileType.PATH && random.nextFloat() < blockedChance) {
                 tiles[key(position)] = TileType.NO_PLAY
+            }
+        }
+    }
+
+    private fun addBuildAreas(
+        tiles: MutableMap<String, TileType>,
+        protectedPathTiles: Set<Position>,
+        spawns: List<Position>,
+        targets: List<Position>,
+    ) {
+        val reserved = (spawns + targets).toSet() + protectedPathTiles
+        validGridPositions.forEach { position ->
+            if (position in reserved) return@forEach
+            if (tileType(tiles, position) != TileType.PATH) return@forEach
+            val nearProtectedPath = position.getHexNeighbors().any { it in protectedPathTiles }
+            val chance = if (nearProtectedPath) 0.5f else 0.08f
+            if (random.nextFloat() < chance) {
+                tiles[key(position)] = TileType.BUILD_AREA
+            }
+        }
+
+        val hasBuildAreas = tiles.values.any { it == TileType.BUILD_AREA }
+        val hasRiverTiles = tiles.values.any { it == TileType.RIVER }
+        if (!hasBuildAreas && !hasRiverTiles) {
+            val fallbackBuildArea =
+                validGridPositions.firstOrNull { position ->
+                    position !in reserved && tileType(tiles, position) == TileType.PATH
+                }
+            if (fallbackBuildArea != null) {
+                tiles[key(fallbackBuildArea)] = TileType.BUILD_AREA
             }
         }
     }
 
     private fun findSpawnPosition(
         tiles: Map<String, TileType>,
-        preferWater: Boolean,
+        requireWater: Boolean,
         excluded: List<Position>,
     ): Position {
-        if (preferWater) {
+        if (requireWater) {
             val riverSpawns =
                 validGridPositions.filter { position ->
                     tileType(tiles, position) == TileType.RIVER &&
                         position !in excluded &&
                         position.x < config.width / 3
                 }
-            if (riverSpawns.isNotEmpty()) return riverSpawns.random(random)
+            if (riverSpawns.isNotEmpty()) {
+                return riverSpawns.maxByOrNull { it.hexDistanceTo(Position(config.width - 1, config.height / 2)) } ?: riverSpawns.first()
+            }
         }
         return findValidExtremePosition(tiles, preferLeft = true, excluded = excluded)
     }
@@ -284,6 +311,122 @@ private class HexMapGenerator(
         } else {
             candidates.maxByOrNull { it.x - random.nextInt(0, 3) } ?: candidates.first()
         }
+    }
+
+    private fun minimumSpawnTargetDistance(): Int {
+        val shorterSide = minOf(config.width, config.height)
+        return (shorterSide * 0.5f).toInt().coerceAtLeast(6)
+    }
+
+    private fun findFarTargetPosition(
+        tiles: Map<String, TileType>,
+        spawns: List<Position>,
+        spawnPointInfoMap: Map<String, SpawnPointType>,
+        existingTargets: List<Position>,
+        minimumDistance: Int,
+    ): Position {
+        val spawnAnchors = spawns.filter { tileType(tiles, it) == TileType.SPAWN_POINT }
+        val candidates =
+            validGridPositions
+                .filter { position ->
+                    position !in existingTargets &&
+                        tileType(tiles, position) != TileType.NO_PLAY &&
+                        tileType(tiles, position) != TileType.RIVER &&
+                        position.x >= config.width / 2
+                }
+                .ifEmpty {
+                    validGridPositions.filter { position ->
+                        position !in existingTargets &&
+                            tileType(tiles, position) != TileType.NO_PLAY &&
+                            tileType(tiles, position) != TileType.RIVER
+                    }
+                }
+        if (candidates.isEmpty()) {
+            return findValidExtremePosition(tiles, preferLeft = false, excluded = existingTargets)
+        }
+
+        val candidateScores =
+            candidates.map { target ->
+                val pathLengths =
+                    spawnAnchors.mapNotNull { spawn ->
+                        val spawnType = spawnPointInfoMap[key(spawn)] ?: SpawnPointType.LAND
+                        shortestPathLength(
+                            start = spawn,
+                            end = target,
+                            tiles = tiles,
+                            allowRiverTiles = spawnType == SpawnPointType.WATER,
+                        )
+                    }
+                val minPathLength = pathLengths.minOrNull() ?: -1
+                target to minPathLength
+            }
+        val withThreshold = candidateScores.filter { (_, minPathLength) -> minPathLength >= minimumDistance }
+        val evaluationPool = if (withThreshold.isNotEmpty()) withThreshold else candidateScores
+
+        return evaluationPool.maxByOrNull { (target, minPathLength) ->
+            val pathLengthScore = if (minPathLength < 0) 0f else minPathLength.toFloat() * 4f
+            val targetSpacingScore =
+                if (existingTargets.isEmpty()) {
+                    0f
+                } else {
+                    existingTargets.minOf { it.hexDistanceTo(target) } * 0.4f
+                }
+            val rightSideBias = (target.x.toFloat() / config.width) * 1.5f
+            pathLengthScore + targetSpacingScore + rightSideBias + random.nextFloat() * 0.5f
+        }?.first ?: evaluationPool.first().first
+    }
+
+    private fun farthestTargetForSpawn(
+        spawn: Position,
+        targets: List<Position>,
+        spawnType: SpawnPointType,
+        tiles: Map<String, TileType>,
+        salt: Int,
+    ): Position =
+        targets.maxByOrNull { target ->
+            val shortestPath =
+                shortestPathLength(
+                    start = spawn,
+                    end = target,
+                    tiles = tiles,
+                    allowRiverTiles = spawnType == SpawnPointType.WATER,
+                ) ?: spawn.hexDistanceTo(target)
+            shortestPath * 100 + random.nextInt(0, 3) + salt
+        } ?: targets.first()
+
+    private fun shortestPathLength(
+        start: Position,
+        end: Position,
+        tiles: Map<String, TileType>,
+        allowRiverTiles: Boolean,
+    ): Int? {
+        val queue = ArrayDeque<Pair<Position, Int>>()
+        val visited = mutableSetOf(start)
+        queue.add(start to 0)
+
+        while (queue.isNotEmpty()) {
+            val (current, distance) = queue.removeFirst()
+            if (current == end) return distance
+
+            current.getHexNeighbors()
+                .filter { it in validGridPositions && it !in visited }
+                .forEach { neighbor ->
+                    val neighborType = tileType(tiles, neighbor)
+                    val traversable =
+                        when (neighborType) {
+                            TileType.NO_PLAY,
+                            TileType.BUILD_AREA,
+                            -> false
+                            TileType.RIVER -> allowRiverTiles
+                            else -> true
+                        }
+                    if (traversable) {
+                        visited += neighbor
+                        queue.add(neighbor to distance + 1)
+                    }
+                }
+        }
+        return null
     }
 
     private fun findWindingPath(
@@ -357,6 +500,29 @@ private class HexMapGenerator(
         return path
     }
 
+    private fun widenPath(
+        path: List<Position>,
+        minPathWidth: Int,
+    ): Set<Position> {
+        val radius = (minPathWidth - 1).coerceAtLeast(0)
+        if (radius == 0) return path.toSet()
+
+        val widened = path.toMutableSet()
+        path.forEach { start ->
+            val visited = mutableSetOf(start)
+            var frontier = setOf(start)
+            repeat(radius) {
+                frontier =
+                    frontier
+                        .flatMap { current -> current.getHexNeighbors() }
+                        .filter { it in validGridPositions && visited.add(it) }
+                        .toSet()
+                widened.addAll(frontier)
+            }
+        }
+        return widened
+    }
+
     private fun tileType(
         tiles: Map<String, TileType>,
         position: Position,
@@ -364,22 +530,23 @@ private class HexMapGenerator(
 
     private fun key(position: Position): String = "${position.x},${position.y}"
 
-    private fun decode(key: String): Position {
-        val parts = key.split(",")
-        return Position(parts[0].toInt(), parts[1].toInt())
-    }
 }
 
-private fun repairGeneratedMap(map: EditorMap): EditorMap {
+private fun repairGeneratedMap(
+    map: EditorMap,
+    minPathWidth: Int,
+): EditorMap {
     val target = map.getTarget() ?: return map
     val spawnPoints = map.getSpawnPoints()
     if (spawnPoints.isEmpty()) return map
 
     val tiles = map.tiles.toMutableMap()
-    val spawnSet = spawnPoints.toSet()
+    val requiredSpawns = spawnPoints.filter { map.getSpawnPointType(it) != SpawnPointType.WATER }
+    val spawnSet = requiredSpawns.toSet()
 
-    spawnPoints.forEach { spawn ->
+    requiredSpawns.forEach { spawn ->
         var current = spawn
+        val linePath = mutableListOf(current)
         var guard = 0
         while (current != target && guard < map.width * map.height) {
             guard++
@@ -389,12 +556,41 @@ private fun repairGeneratedMap(map: EditorMap): EditorMap {
                     .filter { it.x in 0 until map.width && it.y in 0 until map.height }
                     .minByOrNull { it.hexDistanceTo(target) } ?: break
             if (next.hexDistanceTo(target) >= current.hexDistanceTo(target)) break
-            if (next != target && next !in spawnSet) {
-                tiles["${next.x},${next.y}"] = TileType.PATH
-            }
             current = next
+            linePath += current
+        }
+
+        widenPathWithinBounds(linePath, minPathWidth, map.width, map.height).forEach { position ->
+            if (position != target && position !in spawnSet) {
+                tiles["${position.x},${position.y}"] = TileType.PATH
+            }
         }
     }
 
     return map.copy(tiles = tiles)
+}
+
+private fun widenPathWithinBounds(
+    path: List<Position>,
+    minPathWidth: Int,
+    width: Int,
+    height: Int,
+): Set<Position> {
+    val radius = (minPathWidth - 1).coerceAtLeast(0)
+    if (radius == 0) return path.toSet()
+
+    val widened = path.toMutableSet()
+    path.forEach { start ->
+        val visited = mutableSetOf(start)
+        var frontier = setOf(start)
+        repeat(radius) {
+            frontier =
+                frontier
+                    .flatMap { current -> current.getHexNeighbors() }
+                    .filter { it.x in 0 until width && it.y in 0 until height && visited.add(it) }
+                    .toSet()
+            widened.addAll(frontier)
+        }
+    }
+    return widened
 }

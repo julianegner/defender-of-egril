@@ -4,8 +4,11 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.EnemyFaction
+import de.egril.defender.model.Position
 import de.egril.defender.model.SpawnPointType
+import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.model.isRealVillain
+import de.egril.defender.model.hexDistanceTo
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -298,6 +301,7 @@ class LevelGeneratorTest {
                     villains = setOf(AttackerType.ARAXXA),
                     primaryRoster = GeneratorEnemyRoster.SPIDERS,
                     mapSource = GeneratorMapSource.GENERATED_MAP,
+                    landSpawnCount = 3,
                     mapDescription = "spider web",
                     seed = 31,
                 ),
@@ -415,6 +419,7 @@ class LevelGeneratorTest {
                 LevelGeneratorConfig(
                     title = "River Request",
                     mapSource = GeneratorMapSource.GENERATED_MAP,
+                    waterSpawnCount = 1,
                     mapDescription = "river map with islands and water enemies",
                     seed = 1234,
                 ),
@@ -471,5 +476,219 @@ class LevelGeneratorTest {
         assertNotNull(riverMap)
         assertNotNull(spiderMap)
         assertTrue(riverMap.tiles != spiderMap.tiles)
+    }
+
+    @Test
+    fun generatedMapsUsePathAsTheDefaultTerrain() {
+        val map =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Path Default",
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    mapDescription = "dry plain",
+                    waterLevel = 0f,
+                    requirePath = false,
+                    seed = 202,
+                ),
+            ).generatedMap
+
+        val generatedMap = assertNotNull(map)
+        val pathTiles = generatedMap.tiles.count { it.value == TileType.PATH }
+        val buildTiles = generatedMap.tiles.count { it.value == TileType.BUILD_AREA }
+        assertTrue(pathTiles > 0)
+        assertTrue(pathTiles > buildTiles, "Default terrain should be path-dominant")
+    }
+
+    @Test
+    fun minimumPathWidthParameterExpandsGeneratedPathCorridors() {
+        val narrow =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Narrow Paths",
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    mapWidth = 30,
+                    mapHeight = 20,
+                    landSpawnCount = 1,
+                    targetCount = 1,
+                    waterLevel = 0f,
+                    minPathWidth = 1,
+                    requirePath = true,
+                    seed = 404,
+                ),
+            ).generatedMap
+        val wide =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Wide Paths",
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    mapWidth = 30,
+                    mapHeight = 20,
+                    landSpawnCount = 1,
+                    targetCount = 1,
+                    waterLevel = 0f,
+                    minPathWidth = 3,
+                    requirePath = true,
+                    seed = 404,
+                ),
+            ).generatedMap
+
+        val narrowMap = assertNotNull(narrow)
+        val wideMap = assertNotNull(wide)
+        assertTrue(wideMap.getPathCells().size > narrowMap.getPathCells().size, "Wider path setting should create larger corridors")
+    }
+
+    @Test
+    fun generatedTargetsStayFarAwayFromSpawnPoints() {
+        val map =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Long March",
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    mapWidth = 40,
+                    mapHeight = 28,
+                    landSpawnCount = 3,
+                    targetCount = 2,
+                    waterLevel = 0.5f,
+                    requirePath = true,
+                    seed = 1337,
+                ),
+            ).generatedMap
+
+        val generatedMap = assertNotNull(map)
+        val spawnPoints = generatedMap.getSpawnPoints()
+        val targets = generatedMap.getTargets()
+        val minimumDistance =
+            spawnPoints.minOf { spawn ->
+                targets.minOf { target -> spawn.hexDistanceTo(target) }
+            }
+        assertTrue(minimumDistance >= 10, "Spawn points and targets should be far apart for long playable paths")
+    }
+
+    @Test
+    fun spawnAndTargetCountsAreClampedToAtLeastOne() {
+        val map =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Minimum Counts",
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    landSpawnCount = 0,
+                    targetCount = 0,
+                    seed = 912,
+                ),
+            ).generatedMap
+
+        val generatedMap = assertNotNull(map)
+        assertTrue(generatedMap.getSpawnPoints().isNotEmpty())
+        assertTrue(generatedMap.getTargets().isNotEmpty())
+    }
+
+    @Test
+    fun requestedWaterSpawnCountCreatesDistinctSpawnTypes() {
+        val map =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Mixed Spawn Types",
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    landSpawnCount = 3,
+                    waterSpawnCount = 1,
+                    targetCount = 1,
+                    waterLevel = 0.8f,
+                    seed = 581,
+                ),
+            ).generatedMap
+
+        val generatedMap = assertNotNull(map)
+        val spawnPoints = generatedMap.getSpawnPoints()
+        val waterSpawns = spawnPoints.count { generatedMap.getSpawnPointType(it) == SpawnPointType.WATER }
+        val landSpawns = spawnPoints.count { generatedMap.getSpawnPointType(it) == SpawnPointType.LAND }
+        assertTrue(waterSpawns >= 1, "At least one spawn should be marked as WATER")
+        assertTrue(landSpawns >= 1, "At least one spawn should be marked as LAND")
+    }
+
+    @Test
+    fun waterOnlySpawnMapsUseOnlyWaterCompatibleEnemyTypes() {
+        val result =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Water Only",
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    landSpawnCount = 0,
+                    waterSpawnCount = 2,
+                    targetCount = 1,
+                    primaryRoster = GeneratorEnemyRoster.HORDE,
+                    waterLevel = 0.8f,
+                    seed = 919,
+                ),
+            )
+
+        val generatedMap = assertNotNull(result.generatedMap)
+        val spawnPoints = generatedMap.getSpawnPoints()
+        assertTrue(spawnPoints.isNotEmpty())
+        assertTrue(spawnPoints.all { generatedMap.getSpawnPointType(it) == SpawnPointType.WATER })
+        assertTrue(result.level.enemySpawns.isNotEmpty())
+        assertTrue(result.level.enemySpawns.all { it.attackerType.canSpawnOnWater })
+    }
+
+    @Test
+    fun spawnTargetPathsAreLongWhenMeasuredOnAllowedTiles() {
+        val map =
+            LevelGenerator.generate(
+                LevelGeneratorConfig(
+                    title = "Long Traversable Paths",
+                    mapSource = GeneratorMapSource.GENERATED_MAP,
+                    mapWidth = 40,
+                    mapHeight = 28,
+                    landSpawnCount = 2,
+                    targetCount = 2,
+                    waterSpawnCount = 1,
+                    waterLevel = 0.65f,
+                    requirePath = true,
+                    seed = 777,
+                ),
+            ).generatedMap
+
+        val generatedMap = assertNotNull(map)
+        val targets = generatedMap.getTargets()
+        val pathLengths =
+            generatedMap.getSpawnPoints().mapNotNull { spawn ->
+                targets.mapNotNull { target ->
+                    shortestAllowedPathLength(generatedMap, spawn, target)
+                }.maxOrNull()
+            }
+
+        assertTrue(pathLengths.isNotEmpty())
+        assertTrue(pathLengths.minOrNull() ?: 0 >= 10, "Spawn-to-target traversable paths should stay long")
+    }
+
+    private fun shortestAllowedPathLength(
+        map: EditorMap,
+        start: Position,
+        end: Position,
+    ): Int? {
+        val allowRiverTiles = map.getSpawnPointType(start) == SpawnPointType.WATER
+        val queue = ArrayDeque<Pair<Position, Int>>()
+        val visited = mutableSetOf(start)
+        queue.add(start to 0)
+
+        while (queue.isNotEmpty()) {
+            val (current, distance) = queue.removeFirst()
+            if (current == end) return distance
+
+            current.getHexNeighbors()
+                .filter { it.x in 0 until map.width && it.y in 0 until map.height && it !in visited }
+                .forEach { neighbor ->
+                    val type = map.getTileType(neighbor.x, neighbor.y)
+                    val traversable =
+                        type == TileType.PATH ||
+                            type == TileType.SPAWN_POINT ||
+                            type == TileType.TARGET ||
+                            (allowRiverTiles && type == TileType.RIVER)
+                    if (traversable) {
+                        visited += neighbor
+                        queue.add(neighbor to distance + 1)
+                    }
+                }
+        }
+        return null
     }
 }

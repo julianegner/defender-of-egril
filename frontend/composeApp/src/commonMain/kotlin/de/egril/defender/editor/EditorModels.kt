@@ -146,7 +146,8 @@ data class EditorMap(
      * Validates if map is ready to use:
      * - Has at least one spawn point
      * - Has at least one target
-     * - ALL spawn points have a continuous path at least one target
+     * - All LAND spawn points have a continuous path to at least one target.
+     *   WATER spawn points are allowed to be disconnected.
      *
      * @param includeRiversAsWalkable If true, river cells are considered walkable for validation
      */
@@ -165,6 +166,9 @@ data class EditorMap(
         // The level editor is responsible for verifying that portals bridge the gap.
         if (allowNoDirectPath) return true
 
+        val requiredSpawns = spawnPoints.filter { getSpawnPointType(it) != SpawnPointType.WATER }
+        if (requiredSpawns.isEmpty()) return true
+
         // Build set of traversable cells (spawn points + path cells + all targets)
         val traversableCells = pathCells.toMutableSet()
 
@@ -177,7 +181,7 @@ data class EditorMap(
         traversableCells.addAll(targets)
 
         // Check if there's a path from all spawn points to any target using BFS
-        return spawnPoints.all { spawn ->
+        return requiredSpawns.all { spawn ->
             targets.any { target ->
                 hasPathBFS(spawn, target, traversableCells)
             }
@@ -206,6 +210,8 @@ data class EditorMap(
         if (spawnPoints.isEmpty()) return false
         if (targets.isEmpty()) return false
         if (!hasBuildablePlacementTiles && !allowNoBuildableTiles) return false
+        val requiredSpawns = spawnPoints.filter { getSpawnPointType(it) != SpawnPointType.WATER }
+        if (requiredSpawns.isEmpty()) return true
         if (portals.isEmpty()) return false
 
         val traversableCells = pathCells.toMutableSet()
@@ -220,7 +226,7 @@ data class EditorMap(
             traversableCells.add(portal.exitPosition)
         }
 
-        return spawnPoints.all { spawn ->
+        return requiredSpawns.all { spawn ->
             targets.any { target ->
                 hasPathBFSWithPortals(spawn, target, traversableCells, portals)
             }

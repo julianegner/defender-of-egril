@@ -2432,5 +2432,14 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="level_generator_map_size_hint">La dimensione può essere regolata dopo aver scelto una dimensione generale della mappa.</string>
     <string name="level_generator_map_description_label">Descrizione della mappa (opzionale)</string>
     <string name="level_generator_map_description_hint">Descrivi la mappa desiderata in testo libero, per esempio: "mappa fluviale con isole e più punti di comparsa".</string>
+    <string name="level_generator_parameters">Parametri di generazione</string>
+    <string name="level_generator_count_hint">Il numero di obiettivi deve essere almeno 1. Gli spawn terrestri e acquatici possono essere combinati liberamente, ma la loro somma deve essere almeno 1.</string>
+    <string name="level_generator_land_spawn_count">Numero di spawn terrestri</string>
+    <string name="level_generator_target_count">Numero di obiettivi</string>
+    <string name="level_generator_water_spawn_count">Numero di spawn acquatici</string>
+    <string name="level_generator_min_path_width">Larghezza minima del percorso</string>
+    <string name="level_generator_winding_factor">Fattore di tortuosità del percorso</string>
+    <string name="level_generator_water_level">Livello dell'acqua</string>
+    <string name="level_generator_require_path">Richiedi percorso dagli spawn agli obiettivi</string>
     <string name="level_generator_roster_wilds">Terre selvagge</string>
 </resources>

@@ -17,6 +17,7 @@ import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.getLocalizedDescription
 import de.egril.defender.ui.getLocalizedName
 import defender_of_egril.composeapp.generated.resources.*
+import kotlin.math.roundToInt
 
 private const val MIN_MAP_SIZE = 5
 private const val MAX_MAP_SIZE = 100
@@ -48,6 +49,13 @@ internal fun LevelGeneratorDialog(
     var mapWidth by remember { mutableStateOf(GeneratedMapSize.MEDIUM.width.toString()) }
     var mapHeight by remember { mutableStateOf(GeneratedMapSize.MEDIUM.height.toString()) }
     var mapDescription by remember { mutableStateOf("") }
+    var landSpawnCountInput by remember { mutableStateOf("2") }
+    var targetCountInput by remember { mutableStateOf("1") }
+    var waterSpawnCountInput by remember { mutableStateOf("0") }
+    var minPathWidthInput by remember { mutableStateOf("1") }
+    var pathWindingFactor by remember { mutableStateOf(0.35f) }
+    var waterLevel by remember { mutableStateOf(0.2f) }
+    var requirePath by remember { mutableStateOf(true) }
     var selectedMap by remember { mutableStateOf(availableMaps.firstOrNull()) }
     var mapExpanded by remember { mutableStateOf(false) }
 
@@ -63,11 +71,22 @@ internal fun LevelGeneratorDialog(
     }
     val width = mapWidth.toIntOrNull()
     val height = mapHeight.toIntOrNull()
+    val landSpawnCount = landSpawnCountInput.toIntOrNull()
+    val targetCount = targetCountInput.toIntOrNull()
+    val waterSpawnCount = waterSpawnCountInput.toIntOrNull()
     val sizeIsValid = width != null && height != null && width in MIN_MAP_SIZE..MAX_MAP_SIZE && height in MIN_MAP_SIZE..MAX_MAP_SIZE
+    val landSpawnCountIsValid = landSpawnCount != null && landSpawnCount >= 0
+    val targetCountIsValid = targetCount != null && targetCount >= 1
+    val waterSpawnCountIsValid = waterSpawnCount != null && waterSpawnCount >= 0
+    val totalSpawnCountIsValid = (landSpawnCount ?: 0) + (waterSpawnCount ?: 0) >= 1
     val canGenerate =
         !isGenerating &&
             title.isNotBlank() &&
-            if (mapSource == GeneratorMapSource.GENERATED_MAP) sizeIsValid else selectedMap != null
+            if (mapSource == GeneratorMapSource.GENERATED_MAP) {
+                sizeIsValid && landSpawnCountIsValid && targetCountIsValid && waterSpawnCountIsValid && totalSpawnCountIsValid
+            } else {
+                selectedMap != null
+            }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -371,6 +390,83 @@ internal fun LevelGeneratorDialog(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 4.dp),
                     )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(Res.string.level_generator_parameters),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    Text(
+                        text = stringResource(Res.string.level_generator_count_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 6.dp),
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = landSpawnCountInput,
+                            onValueChange = { landSpawnCountInput = it.filter(Char::isDigit) },
+                            label = { Text(stringResource(Res.string.level_generator_land_spawn_count)) },
+                            isError = !landSpawnCountIsValid || !totalSpawnCountIsValid,
+                            singleLine = true,
+                            modifier = Modifier.weight(1f),
+                        )
+                        OutlinedTextField(
+                            value = targetCountInput,
+                            onValueChange = { targetCountInput = it.filter(Char::isDigit) },
+                            label = { Text(stringResource(Res.string.level_generator_target_count)) },
+                            isError = !targetCountIsValid,
+                            singleLine = true,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    OutlinedTextField(
+                        value = waterSpawnCountInput,
+                        onValueChange = { waterSpawnCountInput = it.filter(Char::isDigit) },
+                        label = { Text(stringResource(Res.string.level_generator_water_spawn_count)) },
+                        isError = !waterSpawnCountIsValid || !totalSpawnCountIsValid,
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    OutlinedTextField(
+                        value = minPathWidthInput,
+                        onValueChange = { minPathWidthInput = it.filter(Char::isDigit) },
+                        label = { Text(stringResource(Res.string.level_generator_min_path_width)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "${stringResource(Res.string.level_generator_winding_factor)}: ${(pathWindingFactor * 100).roundToInt()}%",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Slider(
+                        value = pathWindingFactor,
+                        onValueChange = { pathWindingFactor = it },
+                        valueRange = 0f..1f,
+                    )
+                    Text(
+                        text = "${stringResource(Res.string.level_generator_water_level)}: ${(waterLevel * 100).roundToInt()}%",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Slider(
+                        value = waterLevel,
+                        onValueChange = { waterLevel = it },
+                        valueRange = 0f..1f,
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.level_generator_require_path),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Switch(
+                            checked = requirePath,
+                            onCheckedChange = { requirePath = it },
+                        )
+                    }
                 } else {
                     ExposedDropdownMenuBox(
                         expanded = mapExpanded,
@@ -423,6 +519,13 @@ internal fun LevelGeneratorDialog(
                             mapWidth = width ?: mapSize.width,
                             mapHeight = height ?: mapSize.height,
                             mapDescription = mapDescription.trim(),
+                            landSpawnCount = (landSpawnCountInput.toIntOrNull() ?: 0).coerceAtLeast(0),
+                            targetCount = (targetCountInput.toIntOrNull() ?: 1).coerceAtLeast(1),
+                            waterSpawnCount = (waterSpawnCountInput.toIntOrNull() ?: 0).coerceAtLeast(0),
+                            minPathWidth = minPathWidthInput.toIntOrNull() ?: 1,
+                            pathWindingFactor = pathWindingFactor,
+                            waterLevel = waterLevel,
+                            requirePath = requirePath,
                             seed = kotlin.random.Random.nextInt(),
                         ),
                     )

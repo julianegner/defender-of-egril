@@ -1,6 +1,7 @@
 package de.egril.defender.editor
 
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.getHexNeighbors
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -100,6 +101,30 @@ class MapValidationTest {
             )
 
         assertFalse(map.validateReadyToUse(), "Map with disconnected spawn point should be invalid")
+    }
+
+    @Test
+    fun testDisconnectedWaterSpawnPointIsAllowed() {
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT // LAND spawn (connected)
+        tiles["4,4"] = TileType.SPAWN_POINT // WATER spawn (disconnected)
+        tiles["1,0"] = TileType.PATH
+        tiles["2,0"] = TileType.PATH
+        tiles["3,0"] = TileType.TARGET
+        tiles["1,1"] = TileType.BUILD_AREA
+
+        val map =
+            EditorMap(
+                id = "test_disconnected_water_spawn",
+                name = "Test Disconnected Water Spawn",
+                width = 5,
+                height = 5,
+                tiles = tiles,
+                spawnPointInfoMap = mapOf("0,0" to SpawnPointType.LAND, "4,4" to SpawnPointType.WATER),
+                readyToUse = false,
+            )
+
+        assertTrue(map.validateReadyToUse(), "Disconnected water spawns should not invalidate a map")
     }
 
     @Test

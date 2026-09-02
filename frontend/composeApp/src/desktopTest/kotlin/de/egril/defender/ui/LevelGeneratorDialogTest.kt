@@ -61,6 +61,14 @@ class LevelGeneratorDialogTest {
         composeTestRule.onNodeWithText("Use an existing map").performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText("Map size").performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText("Map description (optional)").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Generation parameters").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Land spawn count").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Target count").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Water spawn count").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Minimum path width").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Path winding factor", substring = true).performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Water level", substring = true).performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Require path from spawns to targets").performScrollTo().assertIsDisplayed()
     }
 
     @Test
