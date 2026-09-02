@@ -150,9 +150,6 @@ internal data class LevelGeneratorConfig(
     // adjusted in the generator dialog.
     val mapWidth: Int = mapSize.width,
     val mapHeight: Int = mapSize.height,
-    // Optional plain-text description of the desired map style (for example "river map with
-    // islands and multiple spawns"). Used to pick fitting procedural layouts.
-    val mapDescription: String = "",
     // Amount of LAND spawn points on generated maps (minimum 0).
     val landSpawnCount: Int = 2,
     // Amount of targets on generated maps (minimum 1).
@@ -163,8 +160,9 @@ internal data class LevelGeneratorConfig(
     val pathWindingFactor: Float = 0.35f,
     // 0.0 = dry, 1.0 = very wet map with broader rivers.
     val waterLevel: Float = 0.2f,
-    // Minimum width of generated mandatory paths (1 = single-tile path).
-    val minPathWidth: Int = 1,
+    // Minimum width of generated mandatory paths (1 = single-tile path; default 3 keeps routes
+    // more open and readable).
+    val minPathWidth: Int = 3,
     val requirePath: Boolean = true,
     val seed: Int = 0,
 )

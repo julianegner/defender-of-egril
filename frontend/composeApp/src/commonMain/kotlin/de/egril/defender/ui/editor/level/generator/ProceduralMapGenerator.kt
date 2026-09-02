@@ -25,7 +25,7 @@ internal data class GenerationConfig(
     val targetCount: Int = 1,
     val pathWindingFactor: Float = 0.3f, // 0.0 = straight, 1.0 = very winding
     val waterLevel: Float = 0.2f, // 0.0 = dry, 1.0 = very wet
-    val minPathWidth: Int = 1,
+    val minPathWidth: Int = 3,
     val requirePath: Boolean = true,
 )
 
@@ -39,7 +39,7 @@ internal object ProceduralMapGenerator {
         val map =
             HexMapGenerator(
                 config = generationConfig,
-                random = Random(config.seed xor config.mapDescription.hashCode()),
+                random = Random(config.seed),
             ).generate(
                 mapId = "${levelId}_map",
                 mapName = "${config.title} Map",
@@ -53,25 +53,9 @@ internal object ProceduralMapGenerator {
     }
 
     private fun buildGenerationConfig(config: LevelGeneratorConfig): GenerationConfig {
-        val normalized = config.mapDescription.lowercase()
-        val rosters = listOfNotNull(config.primaryRoster, config.secondaryRoster)
-
         val suggestedLandSpawnCount = config.landSpawnCount
         val suggestedTargetCount = config.targetCount
         val suggestedWaterSpawns = config.waterSpawnCount
-        val suggestedWaterLevel =
-            when {
-                "river" in normalized || "water" in normalized || "harbor" in normalized || "raft" in normalized -> 0.6f
-                "island" in normalized || "archipelago" in normalized -> 0.75f
-                GeneratorEnemyRoster.PIRATES in rosters -> 0.65f
-                else -> config.waterLevel
-            }
-        val suggestedWinding =
-            when {
-                "straight" in normalized || "plain" in normalized -> 0.05f
-                "snake" in normalized || "serpentine" in normalized || "winding" in normalized || "maze" in normalized -> 0.8f
-                else -> config.pathWindingFactor
-            }
 
         val clampedLandSpawnCount = suggestedLandSpawnCount.coerceIn(0, 8)
         val clampedWaterSpawnCount = suggestedWaterSpawns.coerceIn(0, 8)
@@ -85,8 +69,8 @@ internal object ProceduralMapGenerator {
             landSpawnCount = normalizedLandSpawnCount,
             waterSpawnCount = normalizedWaterSpawnCount,
             targetCount = suggestedTargetCount.coerceIn(1, 4),
-            pathWindingFactor = suggestedWinding.coerceIn(0f, 1f),
-            waterLevel = suggestedWaterLevel.coerceIn(0f, 1f),
+            pathWindingFactor = config.pathWindingFactor.coerceIn(0f, 1f),
+            waterLevel = config.waterLevel.coerceIn(0f, 1f),
             minPathWidth = config.minPathWidth.coerceIn(1, 4),
             requirePath = config.requirePath,
         )

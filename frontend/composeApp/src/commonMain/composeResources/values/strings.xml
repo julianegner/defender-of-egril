@@ -2437,8 +2437,6 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="level_generator_roster_pirates">Pirates</string>
     <string name="level_generator_generating">Generating level…</string>
     <string name="level_generator_map_size_hint">The size can be adjusted after choosing a general map size.</string>
-    <string name="level_generator_map_description_label">Map description (optional)</string>
-    <string name="level_generator_map_description_hint">Describe the map you want in plain text, for example: "river map with islands and multiple spawn points".</string>
     <string name="level_generator_parameters">Generation parameters</string>
     <string name="level_generator_count_hint">Target count must be at least 1. Land and water spawns can be mixed freely, but their sum must be at least 1.</string>
     <string name="level_generator_land_spawn_count">Land spawn count</string>

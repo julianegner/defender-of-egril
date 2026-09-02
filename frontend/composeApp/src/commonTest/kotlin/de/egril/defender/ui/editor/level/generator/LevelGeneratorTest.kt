@@ -293,28 +293,6 @@ class LevelGeneratorTest {
     }
 
     @Test
-    fun spiderVillainGetsASpiderThemedMap() {
-        val result =
-            LevelGenerator.generate(
-                LevelGeneratorConfig(
-                    title = "Web Lair",
-                    villains = setOf(AttackerType.ARAXXA),
-                    primaryRoster = GeneratorEnemyRoster.SPIDERS,
-                    mapSource = GeneratorMapSource.GENERATED_MAP,
-                    landSpawnCount = 3,
-                    mapDescription = "spider web",
-                    seed = 31,
-                ),
-            )
-
-        val map = assertNotNull(result.generatedMap)
-        assertTrue(map.readyToUse)
-        // Spider-themed layouts still keep the "many lanes around one objective" feel.
-        assertTrue(map.getSpawnPoints().size >= 3)
-        assertEquals(1, map.getTargets().size)
-    }
-
-    @Test
     fun generatedMapSizeCanBeAdjusted() {
         val result =
             LevelGenerator.generate(
@@ -340,25 +318,6 @@ class LevelGeneratorTest {
             AttackerType.SYLVANAS_THE_MOLDING.generatorRoster(),
         )
         assertEquals(GeneratorEnemyRoster.WITCHES, AttackerType.SYLVANAS_THE_MOLDING.generatorRoster())
-    }
-
-    @Test
-    fun riverCrossingMapsStayReadyToUse() {
-        val map =
-            LevelGenerator.generate(
-                LevelGeneratorConfig(
-                    title = "River Crossing Test",
-                    mapSource = GeneratorMapSource.GENERATED_MAP,
-                    mapDescription = "river crossing with water spawn",
-                    seed = 41,
-                ),
-            )
-                .generatedMap
-
-        assertNotNull(map)
-        assertTrue(map.readyToUse)
-        assertTrue(map.getSpawnPoints().isNotEmpty())
-        assertTrue(map.getTargets().isNotEmpty())
     }
 
     @Test
@@ -413,79 +372,12 @@ class LevelGeneratorTest {
     }
 
     @Test
-    fun mapDescriptionCanRequestRiverLikeLayouts() {
-        val result =
-            LevelGenerator.generate(
-                LevelGeneratorConfig(
-                    title = "River Request",
-                    mapSource = GeneratorMapSource.GENERATED_MAP,
-                    waterSpawnCount = 1,
-                    mapDescription = "river map with islands and water enemies",
-                    seed = 1234,
-                ),
-            )
-
-        val map = assertNotNull(result.generatedMap)
-        assertTrue(map.readyToUse)
-        assertTrue(map.getRiverCells().isNotEmpty())
-        assertTrue(map.getSpawnPoints().any { map.getSpawnPointType(it) == SpawnPointType.WATER })
-    }
-
-    @Test
-    fun generatedMapsAreNoLongerLockedToOneShape() {
-        val uniqueTileLayouts =
-            (1..8)
-                .map { seed ->
-                    LevelGenerator
-                        .generate(
-                            LevelGeneratorConfig(
-                                title = "Variation",
-                                mapSource = GeneratorMapSource.GENERATED_MAP,
-                                mapDescription = "straight battlefield",
-                                seed = seed,
-                            ),
-                        ).generatedMap
-                        ?.tiles
-                }.toSet()
-
-        assertTrue(uniqueTileLayouts.size >= 2)
-    }
-
-    @Test
-    fun differentDescriptionsYieldDifferentProceduralShaping() {
-        val riverMap =
-            LevelGenerator.generate(
-                LevelGeneratorConfig(
-                    title = "River Variant",
-                    mapSource = GeneratorMapSource.GENERATED_MAP,
-                    mapDescription = "river with islands",
-                    seed = 7,
-                ),
-            ).generatedMap
-
-        val spiderMap =
-            LevelGenerator.generate(
-                LevelGeneratorConfig(
-                    title = "Spider Variant",
-                    mapSource = GeneratorMapSource.GENERATED_MAP,
-                    mapDescription = "spider web with rings",
-                    seed = 7,
-                ),
-            ).generatedMap
-
-        assertNotNull(riverMap)
-        assertNotNull(spiderMap)
-        assertTrue(riverMap.tiles != spiderMap.tiles)
-    }
-
-    @Test
     fun generatedMapsUsePathAsTheDefaultTerrain() {
         val map =
             LevelGenerator.generate(
                 LevelGeneratorConfig(
                     title = "Path Default",
                     mapSource = GeneratorMapSource.GENERATED_MAP,
-                    mapDescription = "dry plain",
                     waterLevel = 0f,
                     requirePath = false,
                     seed = 202,

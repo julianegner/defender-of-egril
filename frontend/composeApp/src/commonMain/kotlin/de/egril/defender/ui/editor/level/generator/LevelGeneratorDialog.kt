@@ -48,11 +48,10 @@ internal fun LevelGeneratorDialog(
     var mapSizeExpanded by remember { mutableStateOf(false) }
     var mapWidth by remember { mutableStateOf(GeneratedMapSize.MEDIUM.width.toString()) }
     var mapHeight by remember { mutableStateOf(GeneratedMapSize.MEDIUM.height.toString()) }
-    var mapDescription by remember { mutableStateOf("") }
     var landSpawnCountInput by remember { mutableStateOf("2") }
     var targetCountInput by remember { mutableStateOf("1") }
     var waterSpawnCountInput by remember { mutableStateOf("0") }
-    var minPathWidthInput by remember { mutableStateOf("1") }
+    var minPathWidthInput by remember { mutableStateOf("3") }
     var pathWindingFactor by remember { mutableStateOf(0.35f) }
     var waterLevel by remember { mutableStateOf(0.2f) }
     var requirePath by remember { mutableStateOf(true) }
@@ -375,21 +374,6 @@ internal fun LevelGeneratorDialog(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 4.dp),
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = mapDescription,
-                        onValueChange = { mapDescription = it },
-                        label = { Text(stringResource(Res.string.level_generator_map_description_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        minLines = 2,
-                        maxLines = 4,
-                    )
-                    Text(
-                        text = stringResource(Res.string.level_generator_map_description_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 4.dp),
-                    )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = stringResource(Res.string.level_generator_parameters),
@@ -429,7 +413,13 @@ internal fun LevelGeneratorDialog(
                     )
                     OutlinedTextField(
                         value = minPathWidthInput,
-                        onValueChange = { minPathWidthInput = it.filter(Char::isDigit) },
+                        onValueChange = { input ->
+                            val digitsOnly = input.filter(Char::isDigit)
+                            minPathWidthInput = digitsOnly.ifEmpty { "" }
+                            if (digitsOnly.isNotEmpty() && digitsOnly.toInt() < 1) {
+                                minPathWidthInput = "1"
+                            }
+                        },
                         label = { Text(stringResource(Res.string.level_generator_min_path_width)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
@@ -518,11 +508,10 @@ internal fun LevelGeneratorDialog(
                             mapSize = mapSize,
                             mapWidth = width ?: mapSize.width,
                             mapHeight = height ?: mapSize.height,
-                            mapDescription = mapDescription.trim(),
                             landSpawnCount = (landSpawnCountInput.toIntOrNull() ?: 0).coerceAtLeast(0),
                             targetCount = (targetCountInput.toIntOrNull() ?: 1).coerceAtLeast(1),
                             waterSpawnCount = (waterSpawnCountInput.toIntOrNull() ?: 0).coerceAtLeast(0),
-                            minPathWidth = minPathWidthInput.toIntOrNull() ?: 1,
+                            minPathWidth = (minPathWidthInput.toIntOrNull() ?: 3).coerceAtLeast(1),
                             pathWindingFactor = pathWindingFactor,
                             waterLevel = waterLevel,
                             requirePath = requirePath,

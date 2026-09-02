@@ -60,7 +60,6 @@ class LevelGeneratorDialogTest {
         composeTestRule.onNodeWithText("Generate a new map").performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText("Use an existing map").performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText("Map size").performScrollTo().assertIsDisplayed()
-        composeTestRule.onNodeWithText("Map description (optional)").performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText("Generation parameters").performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText("Land spawn count").performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithText("Target count").performScrollTo().assertIsDisplayed()
