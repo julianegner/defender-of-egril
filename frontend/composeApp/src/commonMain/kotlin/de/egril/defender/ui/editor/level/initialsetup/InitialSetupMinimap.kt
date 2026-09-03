@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,7 +20,13 @@ import androidx.compose.ui.input.pointer.pointerInput
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.InitialData
 import de.egril.defender.editor.TileType
+import de.egril.defender.model.AttackerType
+import de.egril.defender.model.DefenderType
+import de.egril.defender.model.FiefType
 import de.egril.defender.model.Position
+import de.egril.defender.model.RiverFlow
+import de.egril.defender.model.SpawnPointType
+import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.settings.AppSettings
 import kotlin.math.PI
 import kotlin.math.cos
@@ -36,6 +43,9 @@ enum class PlacementMode {
     ATTACKER, // Enemies: PATH or SPAWN_POINT
     TRAP, // Traps: PATH
     BARRICADE, // Barricades: PATH
+    FIEF, // Fiefs: PATH
+    MUSHROOM, // Mushrooms: PATH
+    PORTAL, // Portals: any PATH/SPAWN_POINT/TARGET tile
 }
 
 /**
@@ -45,15 +55,72 @@ fun isValidPlacement(
     position: Position,
     mode: PlacementMode,
     map: EditorMap,
+    selectedDefenderType: DefenderType? = null,
+    selectedAttackerType: AttackerType? = null,
 ): Boolean {
     val tileType = map.getTileType(position.x, position.y)
     return when (mode) {
-        PlacementMode.DEFENDER -> tileType == TileType.BUILD_AREA
-        PlacementMode.ATTACKER -> tileType == TileType.PATH || tileType == TileType.SPAWN_POINT
+        PlacementMode.DEFENDER -> {
+            val isBuildArea = tileType == TileType.BUILD_AREA
+            val isFlowingWaterTile = isFlowingWaterTile(position, map)
+            if (selectedDefenderType == DefenderType.DWARVEN_MINE) {
+                isBuildArea
+            } else {
+                isBuildArea || isFlowingWaterTile
+            }
+        }
+        PlacementMode.ATTACKER -> {
+            val isRegularEnemyTile = tileType == TileType.PATH || tileType == TileType.SPAWN_POINT
+            val attackerType = selectedAttackerType ?: return isRegularEnemyTile
+            val canUseWater =
+                attackerType.canTraverseRiver ||
+                    attackerType.canOnlyMoveOnWater ||
+                    attackerType.canSpawnOnWater
+            if (canUseWater) {
+                isRegularEnemyTile || isWaterTile(position, map)
+            } else {
+                isRegularEnemyTile
+            }
+        }
         PlacementMode.TRAP -> tileType == TileType.PATH
         PlacementMode.BARRICADE -> tileType == TileType.PATH
+        PlacementMode.FIEF -> tileType == TileType.PATH
+        PlacementMode.MUSHROOM -> tileType == TileType.PATH
+        PlacementMode.PORTAL -> tileType == TileType.PATH || tileType == TileType.SPAWN_POINT || tileType == TileType.TARGET
     }
 }
+
+private fun isWaterTile(
+    position: Position,
+    map: EditorMap,
+): Boolean {
+    val tileType = map.getTileType(position.x, position.y)
+    val isWaterSpawn = tileType == TileType.SPAWN_POINT && map.getSpawnPointType(position) == SpawnPointType.WATER
+    return tileType == TileType.RIVER || map.getRiverTile(position.x, position.y) != null || isWaterSpawn
+}
+
+private fun isFlowingWaterTile(
+    position: Position,
+    map: EditorMap,
+): Boolean {
+    val riverTile = map.getRiverTile(position.x, position.y) ?: return false
+    return riverTile.flowDirection != RiverFlow.NONE && riverTile.flowDirection != RiverFlow.MAELSTROM
+}
+
+private fun hasAdjacentWaterTile(
+    position: Position,
+    map: EditorMap,
+): Boolean =
+    position
+        .getHexNeighbors()
+        .any { neighbor ->
+            if (neighbor.x !in 0 until map.width || neighbor.y !in 0 until map.height) {
+                return@any false
+            }
+            val neighborTileType = map.getTileType(neighbor.x, neighbor.y)
+            neighborTileType == TileType.RIVER ||
+                (neighborTileType == TileType.SPAWN_POINT && map.getSpawnPointType(neighbor) == SpawnPointType.WATER)
+        }
 
 /**
  * Data class to hold hexagon geometry calculations
@@ -106,9 +173,14 @@ private fun calculateHexGeometry(
 fun InitialSetupMinimap(
     map: EditorMap,
     placementMode: PlacementMode?,
+    selectedDefenderType: DefenderType? = null,
+    selectedAttackerType: AttackerType? = null,
+    selectedFiefType: FiefType? = null,
     initialData: InitialData = InitialData.EMPTY,
+    pendingPortalEntry: Position? = null,
     selectedElement: de.egril.defender.ui.editor.level.initialsetup.SelectedElement? = null,
     onTileClick: (Position) -> Unit = {},
+    onTileHover: (Position?) -> Unit = {},
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
     var hoveredPosition by remember { mutableStateOf<Position?>(null) }
@@ -203,14 +275,40 @@ fun InitialSetupMinimap(
                 val hasAttacker = initialData.attackers.any { it.position == pos }
                 val hasTrap = initialData.traps.any { it.position == pos }
                 val hasBarricade = initialData.barricades.any { it.position == pos }
+                val hasFief = initialData.fiefs.any { it.position == pos }
+                val hasMushroom = initialData.mushrooms.any { it.position == pos }
                 val barricadeAtPos = initialData.barricades.find { it.position == pos }
                 val isTowerBase = barricadeAtPos?.canSupportTower() == true
 
                 val isValidForPlacement =
                     when (placementMode) {
                         PlacementMode.DEFENDER ->
-                            isValidPlacement(pos, placementMode, map) || (isTowerBase && !hasDefender)
-                        else -> placementMode?.let { isValidPlacement(pos, it, map) } ?: false
+                            isValidPlacement(
+                                pos,
+                                placementMode,
+                                map,
+                                selectedDefenderType = selectedDefenderType,
+                            ) ||
+                                (isTowerBase && !hasDefender)
+                        PlacementMode.FIEF -> {
+                            val isPath = isValidPlacement(pos, placementMode, map)
+                            val isFisher = selectedFiefType == FiefType.FISHER
+                            if (isPath && isFisher) {
+                                hasAdjacentWaterTile(pos, map)
+                            } else {
+                                isPath
+                            }
+                        }
+                        else ->
+                            placementMode?.let {
+                                isValidPlacement(
+                                    pos,
+                                    it,
+                                    map,
+                                    selectedDefenderType = selectedDefenderType,
+                                    selectedAttackerType = selectedAttackerType,
+                                )
+                            } ?: false
                     }
                 val isHovered = pos == hoveredPosition
                 val isSelected =
@@ -225,19 +323,28 @@ fun InitialSetupMinimap(
                         is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Barricade ->
                             selectedElement.barricade.position ==
                                 pos
+                        is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Fief ->
+                            selectedElement.fief.position == pos
+                        is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Mushroom ->
+                            selectedElement.mushroom.position == pos
+                        is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Portal ->
+                            selectedElement.portal.entryPosition == pos ||
+                                selectedElement.portal.exitPosition == pos
                         null -> false
                     }
 
                 // Validation checks for placement conflicts
                 // Rule: Only one element (tower, trap, barricade, OR unit) is possible on a tile,
                 //       except towers can be placed on top of barricades that support towers (HP >= 100)
-                val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade
+                val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade || hasFief || hasMushroom
                 val hasConflict =
                     when (placementMode) {
                         PlacementMode.DEFENDER ->
                             // Allow tower on tower base as long as no tower is already there
                             if (isTowerBase && !hasDefender) false else hasAnyElement
-                        PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE -> hasAnyElement
+                        PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE,
+                        PlacementMode.FIEF, PlacementMode.MUSHROOM,
+                        -> hasAnyElement
                         else -> false
                     }
 
@@ -247,6 +354,7 @@ fun InitialSetupMinimap(
                         hasConflict && isHovered && placementMode != null -> Color(0xFFFF4444) // Red for invalid placement
                         isHovered && isValidForPlacement -> Color(0xFF00FFFF) // Cyan for valid hover
                         tileType == TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90) // Always show BUILD_AREA in green (same as tower placement)
+                        isWaterTile(pos, map) -> if (isDarkMode) Color(0xFF0D47A1) else Color(0xFF42A5F5)
                         tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
                         tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
                         tileType == TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
@@ -321,6 +429,87 @@ fun InitialSetupMinimap(
                 size = Size(iconSize, iconSize),
             )
         }
+
+        // Draw fiefs
+        initialData.fiefs.forEach { fief ->
+            val offsetXHex = if (fief.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+            val centerX =
+                geometry.offsetXCanvas + fief.position.x * geometry.hexWidth +
+                    offsetXHex + geometry.hexWidth / 2
+            val centerY =
+                geometry.offsetYCanvas + fief.position.y * geometry.verticalSpacing +
+                    geometry.hexHeight / 2
+
+            drawCircle(
+                color = Color(0xFF4CAF50),
+                radius = iconSize / 2,
+                center = Offset(centerX, centerY),
+            )
+        }
+
+        // Draw mushrooms
+        initialData.mushrooms.forEach { mushroom ->
+            val offsetXHex = if (mushroom.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+            val centerX =
+                geometry.offsetXCanvas + mushroom.position.x * geometry.hexWidth +
+                    offsetXHex + geometry.hexWidth / 2
+            val centerY =
+                geometry.offsetYCanvas + mushroom.position.y * geometry.verticalSpacing +
+                    geometry.hexHeight / 2
+
+            drawCircle(
+                color = Color(0xFFFF8C00), // Orange for mushrooms
+                radius = iconSize / 2,
+                center = Offset(centerX, centerY),
+            )
+        }
+
+        // Draw portals: blue circle for entry, orange circle for exit, connected by a line
+        initialData.portals.forEach { portal ->
+            val entryOffsetX = if (portal.entryPosition.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+            val entryX = geometry.offsetXCanvas + portal.entryPosition.x * geometry.hexWidth + entryOffsetX + geometry.hexWidth / 2
+            val entryY = geometry.offsetYCanvas + portal.entryPosition.y * geometry.verticalSpacing + geometry.hexHeight / 2
+
+            val exitOffsetX = if (portal.exitPosition.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+            val exitX = geometry.offsetXCanvas + portal.exitPosition.x * geometry.hexWidth + exitOffsetX + geometry.hexWidth / 2
+            val exitY = geometry.offsetYCanvas + portal.exitPosition.y * geometry.verticalSpacing + geometry.hexHeight / 2
+
+            // Line connecting entry and exit
+            drawLine(
+                color = Color(0xFF8888FF),
+                start = Offset(entryX, entryY),
+                end = Offset(exitX, exitY),
+                strokeWidth = 1.5f,
+            )
+            // Blue entry circle
+            drawCircle(
+                color = Color(0xFF3366FF),
+                radius = iconSize / 2,
+                center = Offset(entryX, entryY),
+            )
+            // Orange exit circle
+            drawCircle(
+                color = Color(0xFFFF6600),
+                radius = iconSize / 2,
+                center = Offset(exitX, exitY),
+            )
+        }
+
+        // Draw pending portal entry (first click while in PORTAL mode)
+        if (pendingPortalEntry != null) {
+            val offsetXHex = if (pendingPortalEntry.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+            val centerX = geometry.offsetXCanvas + pendingPortalEntry.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
+            val centerY = geometry.offsetYCanvas + pendingPortalEntry.y * geometry.verticalSpacing + geometry.hexHeight / 2
+            drawCircle(
+                color = Color(0x883366FF), // Semi-transparent blue for pending entry
+                radius = iconSize / 2,
+                center = Offset(centerX, centerY),
+            )
+        }
+    }
+
+    LaunchedEffect(hoveredPosition) {
+        onTileHover(hoveredPosition)
     }
 }
 

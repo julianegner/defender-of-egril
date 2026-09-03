@@ -627,6 +627,61 @@ fun WarningIcon(
 }
 
 /**
+ * Displays a stylized spider web icon using Canvas.
+ */
+@Composable
+fun WebIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    color: Color = Color(0xFFE6E0F8),
+) {
+    Canvas(
+        modifier = modifier.size(size),
+    ) {
+        val radius = minOf(this.size.width, this.size.height) * 0.42f
+        val center = Offset(this.size.width / 2f, this.size.height / 2f)
+        val spokeAngles = List(8) { it * (PI / 4.0) }
+        val stroke = radius * 0.12f
+
+        spokeAngles.forEach { angle ->
+            val end =
+                Offset(
+                    x = center.x + (radius * cos(angle)).toFloat(),
+                    y = center.y + (radius * sin(angle)).toFloat(),
+                )
+            drawLine(
+                color = color,
+                start = center,
+                end = end,
+                strokeWidth = stroke,
+                cap = StrokeCap.Round,
+            )
+        }
+
+        listOf(0.35f, 0.62f, 0.88f).forEach { scale ->
+            val points =
+                spokeAngles.map { angle ->
+                    Offset(
+                        x = center.x + (radius * scale * cos(angle)).toFloat(),
+                        y = center.y + (radius * scale * sin(angle)).toFloat(),
+                    )
+                }
+            for (i in points.indices) {
+                val start = points[i]
+                val end = points[(i + 1) % points.size]
+                drawLine(
+                    color = color,
+                    start = start,
+                    end = end,
+                    strokeWidth = stroke * 0.75f,
+                    cap = StrokeCap.Round,
+                )
+            }
+        }
+    }
+}
+
+/**
  * Displays a right arrow icon
  */
 @Composable
@@ -1514,5 +1569,83 @@ fun UpgradeTowerIcon(
                 close()
             }
         drawPath(head, Color.Red)
+    }
+}
+
+/**
+ * Displays a mushroom icon drawn on a canvas.
+ * Mushrooms boost horde units and witches: 2x speed and 2x level for 2 turns.
+ */
+@Composable
+fun MushroomIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp,
+    capColor: Color = Color(0xFFFF6D00), // Orange-red cap
+    spotColor: Color = Color(0xFFFFFFFF), // White spots
+    stemColor: Color = Color(0xFFFFF9C4), // Pale yellow stem
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val minDimension = minOf(this.size.width, this.size.height)
+        val capColors =
+            listOf(
+                capColor,
+                Color(0xFFE53935),
+                Color(0xFF8E24AA),
+            )
+
+        fun drawTinyMushroom(
+            centerX: Float,
+            baseY: Float,
+            mushroomHeight: Float,
+            mushroomCapColor: Color,
+        ) {
+            val stemHeight = mushroomHeight * 0.58f
+            val stemWidth = mushroomHeight * 0.18f
+            val stemLeft = centerX - stemWidth / 2f
+            val stemTop = baseY - stemHeight
+            drawRoundRect(
+                color = stemColor,
+                topLeft = Offset(stemLeft, stemTop),
+                size = Size(stemWidth, stemHeight),
+                cornerRadius =
+                    androidx.compose.ui.geometry
+                        .CornerRadius(stemWidth * 0.45f),
+            )
+
+            val capWidth = mushroomHeight * 0.58f
+            val capHeight = mushroomHeight * 0.26f
+            val capTop = stemTop - capHeight * 0.7f
+            drawOval(
+                color = mushroomCapColor,
+                topLeft = Offset(centerX - capWidth / 2f, capTop),
+                size = Size(capWidth, capHeight),
+            )
+
+            drawCircle(
+                color = spotColor,
+                radius = capWidth * 0.08f,
+                center = Offset(centerX - capWidth * 0.12f, capTop + capHeight * 0.42f),
+            )
+        }
+
+        val mushroomHeight = minDimension * 0.22f
+        drawTinyMushroom(
+            centerX = minDimension * 0.28f,
+            baseY = minDimension * 0.78f,
+            mushroomHeight = mushroomHeight,
+            mushroomCapColor = capColors[0],
+        )
+        drawTinyMushroom(
+            centerX = minDimension * 0.50f,
+            baseY = minDimension * 0.60f,
+            mushroomHeight = mushroomHeight,
+            mushroomCapColor = capColors[1],
+        )
+        drawTinyMushroom(
+            centerX = minDimension * 0.72f,
+            baseY = minDimension * 0.78f,
+            mushroomHeight = mushroomHeight,
+            mushroomCapColor = capColors[2],
+        )
     }
 }

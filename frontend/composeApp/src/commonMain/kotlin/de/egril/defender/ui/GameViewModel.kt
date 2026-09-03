@@ -7,12 +7,14 @@ import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
 import de.egril.defender.editor.EditorJsonSerializer
+import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.OfficialContent
 import de.egril.defender.game.GameEngine
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
 import de.egril.defender.ui.animations.SKY_IS_FALLING_DURATION_MS
+import de.egril.defender.ui.gameplay.GamePlayConstants
 import de.egril.defender.ui.infopage.NewVersionInfo
 import de.egril.defender.ui.infopage.checkForNewerVersion
 import de.egril.defender.ui.settings.AppSettings
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 
 /**
  * Represents the progress of loading repository data files (levels, maps, worldmap).
@@ -54,7 +57,9 @@ sealed class Screen {
 
     object VillainsAnnouncement : Screen()
 
-    object LevelEditor : Screen()
+    data class LevelEditor(
+        val openLevelId: String? = null,
+    ) : Screen()
 
     object LoadGame : Screen()
 
@@ -113,6 +118,10 @@ data class ReminderMessage(
     val type: de.egril.defender.ui.gameplay.ReminderType,
     val elapsedMs: Long? = null,
     val timeDescription: String? = null,
+)
+
+private data class EditorPlaytestSession(
+    val editorLevel: EditorLevel,
 )
 
 class GameViewModel {
@@ -241,6 +250,7 @@ class GameViewModel {
 
     private var gameEngine: GameEngine? = null
     private val viewModelScope = CoroutineScope(Dispatchers.Default)
+    private var editorPlaytestSession: EditorPlaytestSession? = null
 
     // Demo mode state
     private val _isDemoMode = MutableStateFlow(false)
@@ -877,6 +887,7 @@ class GameViewModel {
         // Player explicitly left gameplay – remove any background save so it is not
         // restored on the next cold start.
         deleteBackgroundSave()
+        editorPlaytestSession = null
         // Reload levels from disk to ensure latest changes are visible
         reloadWorldMap()
         _currentScreen.value = Screen.WorldMap
@@ -902,8 +913,72 @@ class GameViewModel {
         _currentScreen.value = Screen.VillainsAnnouncement
     }
 
-    fun navigateToLevelEditor() {
-        _currentScreen.value = Screen.LevelEditor
+    fun navigateToLevelEditor(openLevelId: String? = null) {
+        stopTimeTracking()
+        deleteBackgroundSave()
+        editorPlaytestSession = null
+        _currentScreen.value = Screen.LevelEditor(openLevelId)
+    }
+
+    fun navigateBackFromGameplay() {
+        val playtestSession = editorPlaytestSession
+        if (playtestSession != null) {
+            stopTimeTracking()
+            deleteBackgroundSave()
+            editorPlaytestSession = null
+            _currentScreen.value = Screen.LevelEditor(playtestSession.editorLevel.id)
+            return
+        }
+        navigateToWorldMap()
+    }
+
+    fun startEditorPlaytest(editorLevel: EditorLevel) {
+        val numericId =
+            -editorLevel.id
+                .hashCode()
+                .absoluteValue
+                .coerceAtLeast(1)
+        val gameLevel =
+            de.egril.defender.editor.EditorStorage
+                .convertToGameLevel(editorLevel, numericId) ?: return
+        editorPlaytestSession = EditorPlaytestSession(editorLevel)
+        startEditorPlaytestInternal(gameLevel)
+    }
+
+    private fun startEditorPlaytestInternal(level: Level) {
+        _pendingGameMessage.value = null
+        val difficulty = AppSettings.difficulty.value
+        val playerStats = PlayerAbilities()
+        val modifiedSpawnPlan =
+            if (level.directSpawnPlan != null) {
+                DifficultyModifiers.applySpawnPlanModifier(level.directSpawnPlan, difficulty)
+            } else {
+                val basePlan = generateSpawnPlan(level.attackerWaves)
+                DifficultyModifiers.applySpawnPlanModifier(basePlan, difficulty)
+            }
+        val totalCoins = DifficultyModifiers.applyCoinsModifier(level.initialCoins, difficulty) + playerStats.getBonusStartCoins()
+        val totalHealth = DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty) + playerStats.getBonusHealth()
+        val maxMana = playerStats.getMaxMana()
+        val newGameState =
+            GameState(
+                level = level,
+                difficulty = difficulty,
+                coins = mutableStateOf(totalCoins),
+                healthPoints = mutableStateOf(totalHealth),
+                spawnPlan = modifiedSpawnPlan,
+                maxMana = mutableStateOf(maxMana),
+                currentMana = mutableStateOf(maxMana),
+                incomeMultiplier = playerStats.getIncomeMultiplier(),
+                constructionLevel = playerStats.constructionAbility,
+            )
+        newGameState.initializePrePlacedElements()
+        _gameState.value = newGameState
+        gameEngine = GameEngine(newGameState)
+        _currentScreen.value = Screen.GamePlay(level.id)
+        initialGameStateSnapshot = createGameStateSnapshot(newGameState)
+        lastSaveSnapshot = initialGameStateSnapshot
+        achievementManager = null
+        startTimeTracking()
     }
 
     fun navigateToSticker() {
@@ -1013,6 +1088,7 @@ class GameViewModel {
     }
 
     fun startLevel(levelId: Int) {
+        editorPlaytestSession = null
         // Clear any pending message from a previous level
         _pendingGameMessage.value = null
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
@@ -1028,15 +1104,14 @@ class GameViewModel {
                     de.egril.defender.editor.EditorStorage
                         .getLevel(editorLevelId)
                         ?.isOfficial == true
-            if (level.connectedToPreviousLevel && isOfficialLevel && editorLevelId != null) {
-                val resolvedEditorLevelId = editorLevelId
+            if (level.connectedToPreviousLevel && isOfficialLevel) {
                 if (
                     de.egril.defender.save.SaveFileStorage
-                        .hasLevelHandoff(resolvedEditorLevelId)
+                        .hasLevelHandoff(editorLevelId)
                 ) {
                     val handoff =
                         de.egril.defender.save.SaveFileStorage
-                            .loadLevelHandoff(resolvedEditorLevelId)
+                            .loadLevelHandoff(editorLevelId)
                     if (handoff != null && handoff.mapId == level.mapId) {
                         // Show the handoff choice dialog
                         _pendingLevelHandoff.value = handoff
@@ -1085,6 +1160,7 @@ class GameViewModel {
     }
 
     private fun startLevelInternal(levelId: Int) {
+        editorPlaytestSession = null
         // Clear any pending message from a previous level
         _pendingGameMessage.value = null
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
@@ -1172,8 +1248,13 @@ class GameViewModel {
                 // Set up combat result callback for kill tracking
                 gameEngine?.setCombatResultCallback { result ->
                     // Track kills from this attack
-                    result.killedEnemyTypes.forEach { enemyType ->
-                        achievementManager?.onEnemyKilled(enemyType, result.killsThisAttack)
+                    result.killInfos.forEach { killInfo ->
+                        achievementManager?.onEnemyKilled(
+                            enemyType = killInfo.enemyType,
+                            killsInThisAttack = result.killsThisAttack,
+                            wasUninjured = killInfo.wasUninjured,
+                            usedSupportElement = killInfo.usedSupportElement,
+                        )
                     }
                 }
 
@@ -1211,6 +1292,7 @@ class GameViewModel {
         levelId: Int,
         handoff: de.egril.defender.save.LevelHandoffSave,
     ) {
+        editorPlaytestSession = null
         _pendingGameMessage.value = null
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
@@ -1362,8 +1444,13 @@ class GameViewModel {
                         startLevel(newGameState.healthPoints.value)
                     }
                 gameEngine?.setCombatResultCallback { result ->
-                    result.killedEnemyTypes.forEach { enemyType ->
-                        achievementManager?.onEnemyKilled(enemyType, result.killsThisAttack)
+                    result.killInfos.forEach { killInfo ->
+                        achievementManager?.onEnemyKilled(
+                            enemyType = killInfo.enemyType,
+                            killsInThisAttack = result.killsThisAttack,
+                            wasUninjured = killInfo.wasUninjured,
+                            usedSupportElement = killInfo.usedSupportElement,
+                        )
                     }
                 }
                 gameEngine?.setRaftLossCallback { reason ->
@@ -1553,9 +1640,12 @@ class GameViewModel {
         if (result) {
             // Surface any messages queued by the attack (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
             surfaceNextPendingMessageIfIdle()
-            // Check for immediate victory after attack
+            // Check for immediate level end after attack
+            // Check loss first: a villain breaching a target loses immediately, even if all enemies are defeated
             val state = _gameState.value
-            if (state != null && state.isLevelWon()) {
+            if (state != null && state.isLevelLost()) {
+                completeLevel(state.level.id, won = false)
+            } else if (state != null && state.isLevelWon()) {
                 completeLevel(state.level.id, won = true)
             }
         }
@@ -1572,9 +1662,12 @@ class GameViewModel {
 
             // Surface any messages queued by the attack (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
             surfaceNextPendingMessageIfIdle()
-            // Check for immediate victory after attack
+            // Check for immediate level end after attack
+            // Check loss first: a villain breaching a target loses immediately, even if all enemies are defeated
             val state = _gameState.value
-            if (state != null && state.isLevelWon()) {
+            if (state != null && state.isLevelLost()) {
+                completeLevel(state.level.id, won = false)
+            } else if (state != null && state.isLevelWon()) {
                 completeLevel(state.level.id, won = true)
             }
         }
@@ -1669,6 +1762,8 @@ class GameViewModel {
             // Start enemy turn: change phase to ENEMY_TURN
             // The UI immediately shows "ENEMY TURN" indicator when phase changes
             engine.startEnemyTurn()
+            surfaceNextPendingMessageIfIdle()
+            waitForBlockingNarrativeMessageDismissal()
 
             // Calculate all movement steps for existing units
             val enemyTurnMovements = engine.calculateEnemyTurnMovements()
@@ -1717,6 +1812,7 @@ class GameViewModel {
             // Surface any pending spawn messages (e.g. Ewhad enters) while units are still at
             // their spawn points, so the message is displayed before they move away.
             surfaceNextPendingMessageIfIdle()
+            waitForBlockingNarrativeMessageDismissal()
 
             // Move newly spawned units away from spawn points
             val newSpawnMovements = engine.calculateNewlySpawnedMovements()
@@ -1745,6 +1841,26 @@ class GameViewModel {
             // Complete enemy turn: apply effects and return to player turn
             engine.completeEnemyTurn()
 
+            // Wait for Morvath's shadow orb animation to reach the distant fog tile before
+            // applying the fog, so the fog appears only when the orb arrives.
+            if (_gameState.value?.morvathShadowOrbEffects?.isNotEmpty() == true) {
+                delay(GamePlayConstants.AnimationTimings.MORVATH_ORB_FLIGHT_DELAY_MS)
+                engine.applyPendingMorvathFog()
+            }
+
+            // Snotling cannon survivors arrive only after the projectile animation hits home.
+            if (_gameState.value?.pendingSnotlingCannonArrivals?.isNotEmpty() == true) {
+                delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
+                engine.processPendingSnotlingCannonArrivals()
+            }
+
+            // Process pending barge deletions from Roderich's Broadside after the cannonball animation completes.
+            // The animation duration is BALLISTA_FLIGHT_DELAY_MS (1000ms), so we delay before processing.
+            if (_gameState.value?.pendingBargeDeletions?.isNotEmpty() == true) {
+                delay(GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS)
+                engine.processPendingBargeDeletions()
+            }
+
             // Trigger camera pan to bomb explosion position if any bomb exploded this turn
             val currentStateForBombs = _gameState.value
             if (currentStateForBombs != null && currentStateForBombs.bombExplosionEffects.isNotEmpty()) {
@@ -1764,10 +1880,11 @@ class GameViewModel {
             val updatedState = _gameState.value ?: return@launch
             // Track turn count achievement (100 turns in a single level)
             achievementManager?.onTurnReached(updatedState.turnNumber.value)
-            if (updatedState.isLevelWon()) {
-                completeLevel(updatedState.level.id, won = true)
-            } else if (updatedState.isLevelLost()) {
+            // Check loss first: a villain breaching a target loses immediately, even if all enemies are defeated
+            if (updatedState.isLevelLost()) {
                 completeLevel(updatedState.level.id, won = false)
+            } else if (updatedState.isLevelWon()) {
+                completeLevel(updatedState.level.id, won = true)
             }
         }
     }
@@ -1778,23 +1895,60 @@ class GameViewModel {
         val engine = gameEngine ?: return
         val currentState = gameState.value ?: return
 
-        // Explicitly trigger auto-attacks for all ready defenders
-        engine.autoDefenderAttacks()
+        viewModelScope.launch {
+            // Track whether any attacks fired / enemies killed so we can wait for animations
+            val triggerCountBefore = currentState.attackTriggerCount.value
+            val deathCountBefore = currentState.defeatedEnemyEffects.size
 
-        // Surface any messages queued by scripted events fired by the auto-attacks (kills), so they
-        // are shown even when the turn does not end immediately (special actions remaining below).
-        surfaceNextPendingMessageIfIdle()
+            // Explicitly trigger auto-attacks for all ready defenders
+            engine.autoDefenderAttacks()
 
-        // Check if there are special actions remaining (mines, alchemy, wizard traps)
-        val specialActionTypes = currentState.getDefenderTypesWithSpecialActions()
+            val anyAttacksFired = currentState.attackTriggerCount.value > triggerCountBefore
+            val enemiesKilled = currentState.defeatedEnemyEffects.size > deathCountBefore
 
-        if (specialActionTypes.isNotEmpty()) {
-            // There are special actions remaining - show warning dialog instead of ending turn
-            // Store the types so the UI can display them
-            _specialActionsRemaining.value = specialActionTypes
-        } else {
-            // No special actions remaining - proceed with ending turn
-            endPlayerTurn()
+            if (anyAttacksFired) {
+                // Determine the projectile flight duration (ballista/wizard/alchemy = 1000 ms,
+                // arrows/spears/pikes = 900 ms).
+                val flightDelayMs =
+                    if (
+                        currentState.ballistaAttackEffects.any { it.turnNumber == currentState.turnNumber.value } ||
+                        currentState.wizardAttackEffects.any { it.turnNumber == currentState.turnNumber.value } ||
+                        currentState.alchemyAttackEffects.any { it.turnNumber == currentState.turnNumber.value }
+                    ) {
+                        GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                    } else {
+                        GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    }
+
+                // Wait for the projectile to arrive visually
+                delay(flightDelayMs)
+
+                if (enemiesKilled) {
+                    // Death animation, then the full coin-gain sequence (bubble-up + fly-to-counter)
+                    delay(GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS)
+                    delay(GamePlayConstants.AnimationTimings.COIN_GAIN_DELAY_AFTER_DEATH_MS)
+                    delay(GamePlayConstants.AnimationTimings.COIN_GAIN_ANIMATION_DURATION_MS)
+                } else {
+                    // No kills — just let the impact flash finish
+                    delay(GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
+                }
+            }
+
+            // Surface any messages queued by scripted events fired by the auto-attacks (kills), so they
+            // are shown even when the turn does not end immediately (special actions remaining below).
+            surfaceNextPendingMessageIfIdle()
+
+            // Check if there are special actions remaining (mines, alchemy, wizard traps)
+            val specialActionTypes = currentState.getDefenderTypesWithSpecialActions()
+
+            if (specialActionTypes.isNotEmpty()) {
+                // There are special actions remaining - show warning dialog instead of ending turn
+                // Store the types so the UI can display them
+                _specialActionsRemaining.value = specialActionTypes
+            } else {
+                // No special actions remaining - proceed with ending turn
+                endPlayerTurn()
+            }
         }
     }
 
@@ -1819,6 +1973,7 @@ class GameViewModel {
         levelId: Int,
         won: Boolean,
     ) {
+        val activeEditorPlaytest = editorPlaytestSession
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
         val rawXpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
         val isSandbox = _gameState.value?.level?.isSandbox == true
@@ -1839,6 +1994,21 @@ class GameViewModel {
             turnNumber,
             _gameState.value?.difficulty?.name ?: AppSettings.difficulty.value.name,
         )
+
+        if (activeEditorPlaytest != null) {
+            deleteBackgroundSave()
+            _currentScreen.value =
+                Screen.LevelComplete(
+                    levelId = levelId,
+                    won = won,
+                    isLastLevel = false,
+                    xpEarned = 0,
+                    newPlayerLevel = 0,
+                    playerLevelGained = 0,
+                    abilityPointsGained = 0,
+                )
+            return
+        }
 
         // Track achievement for level completion
         if (won) {
@@ -1962,6 +2132,10 @@ class GameViewModel {
     }
 
     fun restartLevel() {
+        editorPlaytestSession?.let { playtest ->
+            startEditorPlaytest(playtest.editorLevel)
+            return
+        }
         val levelId =
             (_currentScreen.value as? Screen.LevelComplete)?.levelId
                 ?: (_currentScreen.value as? Screen.GamePlay)?.levelId
@@ -2118,6 +2292,7 @@ class GameViewModel {
     fun startDemoMode() {
         _pendingDemoDeepLink.value = false
         _isDemoMode.value = true
+        editorPlaytestSession = null
         demoLevelIndex = 0
         loadDemoLevel(0)
     }
@@ -2229,15 +2404,16 @@ class GameViewModel {
                     val success = engine.performOneAutoAttack(id)
                     if (!success) break
 
-                    // Check for immediate level end (last enemy killed) — trigger completeLevel
+                    // Check for immediate level end (last enemy killed or villain breached) — trigger completeLevel
                     // right now instead of waiting for endPlayerTurn so the demo advances immediately.
+                    // Check loss first: a villain breaching a target loses immediately, even if all enemies are defeated
                     val stateAfterAttack = _gameState.value
                     if (stateAfterAttack != null) {
-                        if (stateAfterAttack.isLevelWon()) {
-                            completeLevel(stateAfterAttack.level.id, won = true)
-                            return
-                        } else if (stateAfterAttack.isLevelLost()) {
+                        if (stateAfterAttack.isLevelLost()) {
                             completeLevel(stateAfterAttack.level.id, won = false)
+                            return
+                        } else if (stateAfterAttack.isLevelWon()) {
+                            completeLevel(stateAfterAttack.level.id, won = true)
                             return
                         }
                     }
@@ -3810,6 +3986,31 @@ class GameViewModel {
     }
 
     /**
+     * Blocks enemy-turn progression while a narrative/villain story message is open, so units do
+     * not keep moving behind the dialog.
+     */
+    private suspend fun waitForBlockingNarrativeMessageDismissal() {
+        while (true) {
+            val currentMessage = _pendingGameMessage.value ?: return
+            if (!currentMessage.type.blocksEnemyTurnMovement()) return
+            delay(50L)
+        }
+    }
+
+    private fun de.egril.defender.model.GameMessageType.blocksEnemyTurnMovement(): Boolean =
+        when (this) {
+            de.egril.defender.model.GameMessageType.STORY_INTRO,
+            de.egril.defender.model.GameMessageType.EWHAD_ENTERS,
+            de.egril.defender.model.GameMessageType.EWHAD_RETREATS,
+            de.egril.defender.model.GameMessageType.EWHAD_DEFEATED,
+            de.egril.defender.model.GameMessageType.VILLAIN_ENTERS,
+            de.egril.defender.model.GameMessageType.VILLAIN_DEFEATED,
+            de.egril.defender.model.GameMessageType.WAAAGH_FRENZY,
+            -> true
+            else -> false
+        }
+
+    /**
      * Get the local hour (0-23) from timestamp
      */
     private fun getLocalHour(timestamp: Long): Int =
@@ -4109,10 +4310,13 @@ class GameViewModel {
         // scripted event the spell triggered.
         surfaceNextPendingMessageIfIdle()
 
-        // Check if the spell killed the last enemy and the level is now won
+        // Check if the spell killed the last enemy or caused a villain to breach a target
+        // A villain breaching a target loses immediately, even if all enemies are defeated
         if (spell == SpellType.ATTACK_AIMED || spell == SpellType.ATTACK_AREA) {
             val currentStateAfterSpell = _gameState.value
-            if (currentStateAfterSpell != null && currentStateAfterSpell.isLevelWon()) {
+            if (currentStateAfterSpell != null && currentStateAfterSpell.isLevelLost()) {
+                completeLevel(currentStateAfterSpell.level.id, won = false)
+            } else if (currentStateAfterSpell != null && currentStateAfterSpell.isLevelWon()) {
                 completeLevel(currentStateAfterSpell.level.id, won = true)
             }
         }
@@ -4354,6 +4558,7 @@ class GameViewModel {
                         val occupiedByBarricade = gameState.barricades.map { it.position }.toSet()
                         val occupiedByFieldEffect = gameState.fieldEffects.map { it.position }.toSet()
                         val occupiedByTrap = gameState.traps.map { it.position }.toSet()
+                        val occupiedByFief = gameState.fiefs.map { it.position }.toSet()
                         val occupiedByBomb =
                             gameState.activeSpellEffects
                                 .filter { it.spell == SpellType.BOMB && it.position != null }
@@ -4361,7 +4566,7 @@ class GameViewModel {
                                 .toSet()
                         val blocked =
                             occupiedByEnemy + occupiedByBarricade + occupiedByFieldEffect +
-                                occupiedByTrap + occupiedByBomb
+                                occupiedByTrap + occupiedByBomb + occupiedByFief
                         val positions = mutableSetOf<Position>()
                         for (x in 0 until gameState.level.gridWidth) {
                             for (y in 0 until gameState.level.gridHeight) {
@@ -4538,6 +4743,27 @@ class GameViewModel {
     }
 
     /**
+     * Place a player-granted fief support token at a position.
+     * Does not require a tower or tech level and does not consume tower actions.
+     * Returns true if the fief was placed and a token consumed.
+     */
+    fun placeSupportFief(
+        type: de.egril.defender.model.FiefType,
+        position: de.egril.defender.model.Position,
+    ): Boolean {
+        val gameState = _gameState.value ?: return false
+        val remaining = gameState.supportFiefRemaining[type] ?: 0
+        if (remaining <= 0) return false
+
+        val success = gameEngine?.placeSupportFief(position, type) ?: false
+
+        if (success) {
+            gameState.supportFiefRemaining[type] = consumeSupportCount(remaining)
+        }
+        return success
+    }
+
+    /**
      * Activate a cooldown-based support power for the whole level.
      *
      * Does nothing if the power is not part of the level, is still on cooldown, or the level has not
@@ -4609,7 +4835,10 @@ class GameViewModel {
         gameEngine?.processDefeatedAttackers()
         surfaceNextPendingMessageIfIdle()
         val stateAfter = _gameState.value
-        if (stateAfter != null && stateAfter.isLevelWon()) {
+        // Check loss first: a villain breaching a target loses immediately, even if all enemies are defeated
+        if (stateAfter != null && stateAfter.isLevelLost()) {
+            completeLevel(stateAfter.level.id, won = false)
+        } else if (stateAfter != null && stateAfter.isLevelWon()) {
             completeLevel(stateAfter.level.id, won = true)
         }
     }

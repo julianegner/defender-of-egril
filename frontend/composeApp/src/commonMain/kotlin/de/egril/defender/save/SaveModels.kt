@@ -56,6 +56,8 @@ data class SavedGame(
     val rafts: List<SavedRaft> = emptyList(), // Rafts on river tiles
     val nextRaftId: Int = 1, // Next raft ID to use
     val barricades: List<SavedBarricade> = emptyList(), // Barricades placed by spike/spear towers
+    val fiefs: List<SavedFief> = emptyList(), // Active fiefs (income-generating path objects)
+    val mushrooms: List<SavedMushroom> = emptyList(), // Active mushrooms placed during level preparation
     val worldMapSave: WorldMapSave? = null, // World map progress at the time of saving (for conflict detection on load)
     val playerProfileData: PlayerProfileData? = null, // Player profile data (achievements, XP, stats) when game data transfer is ON
     val currentMana: Int = 0, // Current mana at the time of saving
@@ -64,18 +66,28 @@ data class SavedGame(
     // Player-usable supports remaining/recharging this level. Persisted so they survive save/load.
     val supportObjectsRemaining: Map<SupportObjectType, Int> = emptyMap(), // Placeable objects left to deploy
     val supportSpellsRemaining: Map<SpellType, Int> = emptyMap(), // Spell tokens left to cast
+    val supportFiefRemaining: Map<de.egril.defender.model.FiefType, Int> = emptyMap(), // Fief tokens left to place
     val cooldownPowerReadyIn: Map<CooldownPowerType, Int> = emptyMap(), // Turns until each power is ready (0 = ready)
     val coinSurgeActive: Boolean = false, // True when Coin Surge is active for the current turn
+    val playedTileAnimationKeys: List<String> = emptyList(), // One-shot tile animations already shown and not to replay after culling/save-load
     // Scripted-event tracking, persisted so events don't re-fire after save/load.
     val triggeredEventIds: List<String> = emptyList(), // IDs of scripted events that have already fired
     val enemiesKilledTotal: Int = 0, // Total enemies killed (for event conditions)
     val enemiesKilledByType: Map<AttackerType, Int> = emptyMap(), // Kills per enemy type (for event conditions)
+    val waaghPoints: Int = 0, // Current Waaagh! meter
+    val waaghFrenzyActive: Boolean = false, // True while the Waaagh! frenzy is active
+    val waaghFrenzyRoundsLeft: Int = 0, // Enemy turns left in the current frenzy
+    val hasShownWaaghFrenzyMessage: Boolean = false, // True once the frenzy intro dialog has been shown
     // Sandbox: only the tiles whose type differs from the original map (position -> new type),
     // persisted so the runtime edits are restored on load without storing the whole map.
     val sandboxMapTiles: Map<Position, de.egril.defender.editor.TileType>? = null,
     // Sandbox: flow direction/speed chosen for runtime-painted river tiles, persisted so the
     // chosen water direction is restored on load (position -> river flow).
     val sandboxRiverTiles: Map<Position, de.egril.defender.model.RiverTile>? = null,
+    val bridges: List<SavedBridge> = emptyList(), // Active bridges built by enemies
+    val nextBridgeId: Int = 1, // Next bridge ID to use
+    val activePortals: List<SavedPortal> = emptyList(), // Active portal entry/exit pairs (including rune selection)
+    val nextPortalId: Int = 1, // Next portal ID to use
 )
 
 /**
@@ -98,6 +110,7 @@ data class SavedDefender(
     val dragonName: String? = null, // Dragon's name (for dragon's lair only)
     val raftId: Int? = null, // ID of the raft this tower is on (null if not on raft)
     val towerBaseBarricadeId: Int? = null, // ID of barricade this tower is on (null if not on tower base)
+    val hasRootGripAnimation: Boolean = false, // Tower is being engulfed by Sylvanas vines (default false for backward compatibility)
 )
 
 data class SavedAttacker(
@@ -109,6 +122,9 @@ data class SavedAttacker(
     val isDefeated: Boolean,
     val dragonName: String? = null, // Dragon's name (for dragons only)
     val movementPenalty: Int = 0, // Movement points lost due to spike tower barbs (default 0 for backward compatibility)
+    val bloodlustRoundsLeft: Int = 0, // Enemy turns of bloodlust remaining
+    val mushroomTurnsRemaining: Int = 0, // Enemy turns of mushroom buff remaining (0 = not active)
+    val mushroomLevelBonus: Int = 0, // Extra level from mushroom buff (0 = not active)
 )
 
 data class SavedFieldEffect(
@@ -127,6 +143,15 @@ data class SavedTrap(
     val type: String = "DWARVEN", // Trap type as string for serialization
 )
 
+data class SavedFief(
+    val position: Position,
+    val type: String, // FiefType name as string for serialization
+)
+
+data class SavedMushroom(
+    val position: Position,
+)
+
 data class SavedRaft(
     val id: Int,
     val defenderId: Int, // The tower on this raft
@@ -139,6 +164,25 @@ data class SavedBarricade(
     val defenderId: Int, // The tower that built this barricade
     val id: Int = 0, // Barricade ID (0 for old saves)
     val supportedTowerId: Int? = null, // ID of tower on this barricade (null if none)
+)
+
+data class SavedBridge(
+    val id: Int,
+    val type: BridgeType,
+    val positions: List<Position>,
+    val currentHealth: Int,
+    val turnsRemaining: Int, // For magical bridges (3 turns), 0 for others
+    val createdByAttackerId: Int,
+    val createdOnTurn: Int,
+)
+
+data class SavedPortal(
+    val id: Int,
+    val entryPosition: Position,
+    val exitPosition: Position,
+    val villainId: Int,
+    val runeIndex: Int,
+    val usedThisTurn: Boolean = false,
 )
 
 data class SavedSpellEffect(

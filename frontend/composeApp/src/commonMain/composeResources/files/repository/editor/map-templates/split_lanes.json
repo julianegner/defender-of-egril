@@ -1,0 +1,8 @@
+{
+  "metadata": {"program": "Defender of Egril", "type": "map-template"},
+  "data": {
+    "id": "split_lanes",
+    "name": "Split lanes",
+    "layoutKind": "SPLIT_LANES"
+  }
+}

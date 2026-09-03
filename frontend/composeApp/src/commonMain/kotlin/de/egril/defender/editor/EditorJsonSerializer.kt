@@ -14,6 +14,7 @@ import de.egril.defender.model.LevelEvent
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObject
 import de.egril.defender.model.SupportObjectType
@@ -77,6 +78,20 @@ object EditorJsonSerializer {
 
         val mapToolingInfoJson = ",\n  \"mapToolingInfo\": \"${map.mapToolingInfo}\""
 
+        val allowNoBuildableTilesJson =
+            if (map.allowNoBuildableTiles) {
+                ",\n  \"allowNoBuildableTiles\": true"
+            } else {
+                ""
+            }
+
+        val allowNoDirectPathJson =
+            if (map.allowNoDirectPath) {
+                ",\n  \"allowNoDirectPath\": true"
+            } else {
+                ""
+            }
+
         val targetInfoJson =
             if (map.targetInfoMap.isNotEmpty()) {
                 val targetData =
@@ -88,16 +103,27 @@ object EditorJsonSerializer {
                 ""
             }
 
+        val spawnPointInfoJson =
+            if (map.spawnPointInfoMap.isNotEmpty()) {
+                val spawnData =
+                    map.spawnPointInfoMap.entries.joinToString(",\n    ") { (pos, type) ->
+                        "\"$pos\": \"${type.name}\""
+                    }
+                ",\n  \"spawnPointInfo\": {\n    $spawnData\n  }"
+            } else {
+                ""
+            }
+
         val data = """{
   "id": "${map.id}",
   "name": "${map.name}"$nameKeyJson,
   "width": ${map.width},
   "height": ${map.height},
   "readyToUse": ${map.readyToUse},
-  "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson$mapToolingInfoJson,
+  "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson$mapToolingInfoJson$allowNoBuildableTilesJson$allowNoDirectPathJson,
   "tiles": {
     $tilesJson
-  }$riverTilesJson$targetInfoJson
+  }$riverTilesJson$targetInfoJson$spawnPointInfoJson
 }"""
         return """{
   "metadata": {
@@ -144,6 +170,18 @@ object EditorJsonSerializer {
                     JsonUtils.extractStringValue(dataJson, "mapToolingInfo").ifBlank { DEFAULT_MAP_TOOLING_INFO }
                 } catch (e: Exception) {
                     DEFAULT_MAP_TOOLING_INFO // Optional field with default for backward compatibility
+                }
+            val allowNoBuildableTiles =
+                try {
+                    JsonUtils.extractBooleanValue(dataJson, "allowNoBuildableTiles")
+                } catch (e: Exception) {
+                    false
+                }
+            val allowNoDirectPath =
+                try {
+                    JsonUtils.extractBooleanValue(dataJson, "allowNoDirectPath")
+                } catch (e: Exception) {
+                    false
                 }
 
             // Parse optional world map position
@@ -299,6 +337,45 @@ object EditorJsonSerializer {
                 // targetInfo is optional, continue without it
             }
 
+            // Parse optional spawnPointInfo section
+            val spawnPointInfoMap = mutableMapOf<String, SpawnPointType>()
+            try {
+                if (dataJson.contains("\"spawnPointInfo\"")) {
+                    val startMarker = "\"spawnPointInfo\": {"
+                    val startIdx = dataJson.indexOf(startMarker)
+                    if (startIdx != -1) {
+                        val contentStart = startIdx + startMarker.length
+                        var braceCount = 1
+                        var endIdx = contentStart
+                        while (endIdx < dataJson.length && braceCount > 0) {
+                            when (dataJson[endIdx]) {
+                                '{' -> braceCount++
+                                '}' -> braceCount--
+                            }
+                            endIdx++
+                        }
+                        if (braceCount == 0) {
+                            val spawnSection = dataJson.substring(contentStart, endIdx - 1)
+                            // Each entry looks like: "x,y": "LAND" or "x,y": "WATER"
+                            val entryRegex = Regex(""""(\d+,\d+)":\s*"([A-Z_]+)"""")
+                            for (match in entryRegex.findAll(spawnSection)) {
+                                val pos = match.groupValues[1]
+                                val typeStr = match.groupValues[2]
+                                try {
+                                    spawnPointInfoMap[pos] = SpawnPointType.valueOf(typeStr)
+                                } catch (e: Exception) {
+                                    println("Unknown SpawnPointType '$typeStr' for pos '$pos', defaulting to LAND")
+                                    spawnPointInfoMap[pos] = SpawnPointType.LAND
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                println("Error deserializing spawnPointInfo: ${e.message}")
+                // spawnPointInfo is optional, continue without it
+            }
+
             return EditorMap(
                 id = id,
                 name = name,
@@ -312,7 +389,10 @@ object EditorJsonSerializer {
                 isOfficial = isOfficial,
                 author = author,
                 targetInfoMap = targetInfoMap,
+                spawnPointInfoMap = spawnPointInfoMap,
                 mapToolingInfo = mapToolingInfo,
+                allowNoBuildableTiles = allowNoBuildableTiles,
+                allowNoDirectPath = allowNoDirectPath,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -372,15 +452,8 @@ object EditorJsonSerializer {
             }
 
         val allowAutoAttackJson =
-            if (level.allowAutoAttack) {
-                ",\n  \"allowAutoAttack\": true"
-            } else {
-                ""
-            }
-
-        val splitBuildTowerButtonJson =
-            if (!level.splitBuildTowerButton) {
-                ",\n  \"splitBuildTowerButton\": false"
+            if (!level.allowAutoAttack) {
+                ",\n  \"allowAutoAttack\": false"
             } else {
                 ""
             }
@@ -395,6 +468,13 @@ object EditorJsonSerializer {
         val isSandboxJson =
             if (level.isSandbox) {
                 ",\n  \"isSandbox\": true"
+            } else {
+                ""
+            }
+
+        val waaghEnabledJson =
+            if (level.waaghEnabled) {
+                ",\n  \"waaghEnabled\": true"
             } else {
                 ""
             }
@@ -464,6 +544,17 @@ object EditorJsonSerializer {
     ]""",
                     )
                 }
+                if (level.supports.fiefs.isNotEmpty()) {
+                    val fiefsData =
+                        level.supports.fiefs.joinToString(",\n      ") { supportFief ->
+                            """{"type": "${supportFief.type.name}", "count": ${serializeSupportCount(supportFief.count)}}"""
+                        }
+                    parts.add(
+                        """"fiefs": [
+      $fiefsData
+    ]""",
+                    )
+                }
                 val allParts = parts.joinToString(",\n    ")
                 ",\n  \"supports\": {\n    $allParts\n  }"
             } else {
@@ -488,7 +579,10 @@ object EditorJsonSerializer {
             if (initialData.defenders.isNotEmpty() ||
                 initialData.attackers.isNotEmpty() ||
                 initialData.traps.isNotEmpty() ||
-                initialData.barricades.isNotEmpty()
+                initialData.barricades.isNotEmpty() ||
+                initialData.fiefs.isNotEmpty() ||
+                initialData.mushrooms.isNotEmpty() ||
+                initialData.portals.isNotEmpty()
             ) {
                 val parts = mutableListOf<String>()
 
@@ -580,6 +674,50 @@ object EditorJsonSerializer {
                     )
                 }
 
+                // Fiefs
+                if (initialData.fiefs.isNotEmpty()) {
+                    val fiefsData =
+                        initialData.fiefs.joinToString(",\n      ") { fief ->
+                            val x = fief.position.x
+                            val y = fief.position.y
+                            val type = fief.type.name
+                            """{"position": {"x": $x, "y": $y}, "type": "$type"}"""
+                        }
+                    parts.add(
+                        """"fiefs": [
+      $fiefsData
+    ]""",
+                    )
+                }
+
+                // Mushrooms
+                if (initialData.mushrooms.isNotEmpty()) {
+                    val mushroomsData =
+                        initialData.mushrooms.joinToString(",\n      ") { mushroom ->
+                            val x = mushroom.position.x
+                            val y = mushroom.position.y
+                            """{"position": {"x": $x, "y": $y}}"""
+                        }
+                    parts.add(
+                        """"mushrooms": [
+      $mushroomsData
+    ]""",
+                    )
+                }
+
+                // Portals
+                if (initialData.portals.isNotEmpty()) {
+                    val portalsData =
+                        initialData.portals.joinToString(",\n      ") { portal ->
+                            """{"entryPosition": {"x": ${portal.entryPosition.x}, "y": ${portal.entryPosition.y}}, "exitPosition": {"x": ${portal.exitPosition.x}, "y": ${portal.exitPosition.y}}}"""
+                        }
+                    parts.add(
+                        """"portals": [
+      $portalsData
+    ]""",
+                    )
+                }
+
                 val allParts = parts.joinToString(",\n    ")
                 ",\n  \"initialData\": {\n    $allParts\n  }"
             } else {
@@ -600,7 +738,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$splitBuildTowerButtonJson$connectedToPreviousLevelJson$isSandboxJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isSandboxJson$waaghEnabledJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
 }"""
         return """{
   "metadata": {
@@ -810,23 +948,11 @@ object EditorJsonSerializer {
                     false
                 }
 
-            // Parse allowAutoAttack (optional, defaults to false)
+            // Parse allowAutoAttack (optional, defaults to true)
             val allowAutoAttack =
                 if (dataJson.contains("\"allowAutoAttack\"")) {
                     try {
                         JsonUtils.extractValue(dataJson, "allowAutoAttack").toBoolean()
-                    } catch (e: Exception) {
-                        false
-                    }
-                } else {
-                    false
-                }
-
-            // Parse splitBuildTowerButton (optional, defaults to true)
-            val splitBuildTowerButton =
-                if (dataJson.contains("\"splitBuildTowerButton\"")) {
-                    try {
-                        JsonUtils.extractValue(dataJson, "splitBuildTowerButton").toBoolean()
                     } catch (e: Exception) {
                         true
                     }
@@ -851,6 +977,18 @@ object EditorJsonSerializer {
                 if (dataJson.contains("\"isSandbox\"")) {
                     try {
                         JsonUtils.extractValue(dataJson, "isSandbox").toBoolean()
+                    } catch (e: Exception) {
+                        false
+                    }
+                } else {
+                    false
+                }
+
+            // Parse waaghEnabled (optional, defaults to false)
+            val waaghEnabled =
+                if (dataJson.contains("\"waaghEnabled\"")) {
+                    try {
+                        JsonUtils.extractValue(dataJson, "waaghEnabled").toBoolean()
                     } catch (e: Exception) {
                         false
                     }
@@ -887,6 +1025,9 @@ object EditorJsonSerializer {
             var initialAttackers = mutableListOf<InitialAttacker>()
             var initialTraps = mutableListOf<InitialTrap>()
             var initialBarricades = mutableListOf<InitialBarricade>()
+            var initialFiefs = mutableListOf<InitialFief>()
+            var initialMushrooms = mutableListOf<InitialMushroom>()
+            var initialPortals = mutableListOf<InitialPortal>()
 
             if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING && id == "t3") {
                 println("")
@@ -1191,6 +1332,91 @@ object EditorJsonSerializer {
                             }
                         }
                     }
+
+                    // Parse fiefs from new format
+                    if (initialDataSection.contains("\"fiefs\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"fiefs\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val afterBracket = afterKey.substring(openBracketIndex + 1)
+                            val fiefsSection =
+                                if (afterBracket.contains("],")) {
+                                    afterBracket.substringBefore("],")
+                                } else {
+                                    afterBracket.substringBefore("]")
+                                }
+                            if (fiefsSection.isNotBlank()) {
+                                val fiefEntries = splitJsonArrayObjects(fiefsSection)
+                                for (entry in fiefEntries) {
+                                    if (!entry.contains("position")) continue
+                                    val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                    val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                    val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                    val position = Position(x, y)
+                                    val type =
+                                        try {
+                                            val typeStr = JsonUtils.extractValue(entry, "type")
+                                            de.egril.defender.model.FiefType
+                                                .valueOf(typeStr)
+                                        } catch (e: Exception) {
+                                            de.egril.defender.model.FiefType.FISHER
+                                        }
+                                    initialFiefs.add(InitialFief(position, type))
+                                }
+                            }
+                        }
+                    }
+                    // Parse mushrooms from new format
+                    if (initialDataSection.contains("\"mushrooms\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"mushrooms\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val afterBracket = afterKey.substring(openBracketIndex + 1)
+                            val mushroomsSection =
+                                if (afterBracket.contains("],")) {
+                                    afterBracket.substringBefore("],")
+                                } else {
+                                    afterBracket.substringBefore("]")
+                                }
+                            if (mushroomsSection.isNotBlank()) {
+                                val mushroomEntries = splitJsonArrayObjects(mushroomsSection)
+                                for (entry in mushroomEntries) {
+                                    if (!entry.contains("position")) continue
+                                    val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                    val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                    val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                    initialMushrooms.add(InitialMushroom(Position(x, y)))
+                                }
+                            }
+                        }
+                    }
+                    // Parse portals from new format
+                    if (initialDataSection.contains("\"portals\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"portals\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val afterBracket = afterKey.substring(openBracketIndex + 1)
+                            val portalsSection =
+                                if (afterBracket.contains("],")) {
+                                    afterBracket.substringBefore("],")
+                                } else {
+                                    afterBracket.substringBefore("]")
+                                }
+                            if (portalsSection.isNotBlank()) {
+                                val portalEntries = splitJsonArrayObjects(portalsSection)
+                                for (entry in portalEntries) {
+                                    if (!entry.contains("entryPosition") || !entry.contains("exitPosition")) continue
+                                    val entrySection = entry.substringAfter("\"entryPosition\": {").substringBefore("}")
+                                    val exitSection = entry.substringAfter("\"exitPosition\": {").substringBefore("}")
+                                    val entryX = JsonUtils.extractValue("{$entrySection}", "x").toInt()
+                                    val entryY = JsonUtils.extractValue("{$entrySection}", "y").toInt()
+                                    val exitX = JsonUtils.extractValue("{$exitSection}", "x").toInt()
+                                    val exitY = JsonUtils.extractValue("{$exitSection}", "y").toInt()
+                                    initialPortals.add(InitialPortal(Position(entryX, entryY), Position(exitX, exitY)))
+                                }
+                            }
+                        }
+                    }
                 } catch (e: Exception) {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Error parsing initial data (new format): ${e.message}")
@@ -1202,7 +1428,8 @@ object EditorJsonSerializer {
             if (initialDefenders.isEmpty() &&
                 initialAttackers.isEmpty() &&
                 initialTraps.isEmpty() &&
-                initialBarricades.isEmpty()
+                initialBarricades.isEmpty() &&
+                initialFiefs.isEmpty()
             ) {
                 // Parse initial defenders (legacy flat format)
                 if (dataJson.contains("\"initialDefenders\"")) {
@@ -1358,8 +1585,15 @@ object EditorJsonSerializer {
             } // End of legacy format fallback
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                val defenderCount = initialDefenders.size
+                val attackerCount = initialAttackers.size
+                val trapCount = initialTraps.size
+                val barricadeCount = initialBarricades.size
+                val fiefCount = initialFiefs.size
                 println(
-                    "EditorJsonSerializer.deserializeLevel: Parsed level $id with ${initialDefenders.size} defenders, ${initialAttackers.size} attackers, ${initialTraps.size} traps, ${initialBarricades.size} barricades",
+                    "EditorJsonSerializer.deserializeLevel: Parsed level $id " +
+                        "with $defenderCount defenders, $attackerCount attackers, " +
+                        "$trapCount traps, $barricadeCount barricades, $fiefCount fiefs",
                 )
             }
 
@@ -1368,9 +1602,12 @@ object EditorJsonSerializer {
                 if (initialDefenders.isNotEmpty() ||
                     initialAttackers.isNotEmpty() ||
                     initialTraps.isNotEmpty() ||
-                    initialBarricades.isNotEmpty()
+                    initialBarricades.isNotEmpty() ||
+                    initialFiefs.isNotEmpty() ||
+                    initialMushrooms.isNotEmpty() ||
+                    initialPortals.isNotEmpty()
                 ) {
-                    InitialData(initialDefenders, initialAttackers, initialTraps, initialBarricades)
+                    InitialData(initialDefenders, initialAttackers, initialTraps, initialBarricades, initialFiefs, initialMushrooms, initialPortals)
                 } else {
                     null
                 }
@@ -1398,8 +1635,8 @@ object EditorJsonSerializer {
                 testingOnly = testingOnly,
                 allowAutoAttack = allowAutoAttack,
                 connectedToPreviousLevel = connectedToPreviousLevel,
-                splitBuildTowerButton = splitBuildTowerButton,
                 isSandbox = isSandbox,
+                waaghEnabled = waaghEnabled,
                 isOfficial = isOfficial,
                 author = author,
                 communityDescription = communityDescription,
@@ -1807,7 +2044,25 @@ object EditorJsonSerializer {
             }
         }
 
-        return LevelSupports(objects = objects, spells = spells, cooldownPowers = cooldownPowers)
+        val fiefs = mutableListOf<de.egril.defender.model.SupportFief>()
+        val fiefsSection = extractArraySection(supportsSection, "fiefs")
+        if (fiefsSection.isNotBlank()) {
+            for (entry in splitJsonArrayObjects(fiefsSection)) {
+                val typeName = runCatching { JsonUtils.extractValue(entry, "type") }.getOrNull() ?: continue
+                val type =
+                    runCatching {
+                        de.egril.defender.model.FiefType
+                            .valueOf(typeName)
+                    }.getOrNull() ?: continue
+                val count = parseSupportCount(runCatching { JsonUtils.extractValue(entry, "count") }.getOrDefault(""))
+                fiefs.add(
+                    de.egril.defender.model
+                        .SupportFief(type = type, count = count),
+                )
+            }
+        }
+
+        return LevelSupports(objects = objects, spells = spells, cooldownPowers = cooldownPowers, fiefs = fiefs)
     }
 
     private fun serializeSupportCount(count: Int): String =

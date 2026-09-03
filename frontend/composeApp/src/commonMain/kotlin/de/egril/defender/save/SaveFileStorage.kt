@@ -286,6 +286,7 @@ object SaveFileStorage {
                     dragonName = defender.dragonName,
                     raftId = defender.raftId.value,
                     towerBaseBarricadeId = defender.towerBaseBarricadeId.value,
+                    hasRootGripAnimation = defender.hasRootGripAnimation.value,
                 )
             }
 
@@ -300,6 +301,9 @@ object SaveFileStorage {
                     isDefeated = attacker.isDefeated.value,
                     dragonName = attacker.dragonName,
                     movementPenalty = attacker.movementPenalty.value,
+                    bloodlustRoundsLeft = attacker.bloodlustRoundsLeft.value,
+                    mushroomTurnsRemaining = attacker.mushroomTurnsRemaining.value,
+                    mushroomLevelBonus = attacker.mushroomLevelBonus.value,
                 )
             }
 
@@ -345,6 +349,21 @@ object SaveFileStorage {
                 )
             }
 
+        val fiefs =
+            gameState.fiefs.map { fief ->
+                SavedFief(
+                    position = fief.position,
+                    type = fief.type.name,
+                )
+            }
+
+        val mushrooms =
+            gameState.mushrooms.map { mushroom ->
+                SavedMushroom(
+                    position = mushroom.position,
+                )
+            }
+
         val spellEffects =
             gameState.activeSpellEffects.map { effect ->
                 SavedSpellEffect(
@@ -354,6 +373,31 @@ object SaveFileStorage {
                     attackerId = effect.attackerId,
                     turnsRemaining = effect.turnsRemaining,
                     castTurn = effect.castTurn,
+                )
+            }
+
+        val bridges =
+            gameState.bridges.map { bridge ->
+                SavedBridge(
+                    id = bridge.id,
+                    type = bridge.type,
+                    positions = bridge.positions,
+                    currentHealth = bridge.currentHealth.value,
+                    turnsRemaining = bridge.turnsRemaining.value,
+                    createdByAttackerId = bridge.createdByAttackerId,
+                    createdOnTurn = bridge.createdOnTurn,
+                )
+            }
+
+        val activePortals =
+            gameState.activePortals.map { portal ->
+                SavedPortal(
+                    id = portal.id,
+                    entryPosition = portal.entryPosition,
+                    exitPosition = portal.exitPosition,
+                    villainId = portal.villainId,
+                    runeIndex = portal.runeIndex,
+                    usedThisTurn = portal.usedThisTurn.value,
                 )
             }
 
@@ -380,17 +424,25 @@ object SaveFileStorage {
             rafts = rafts,
             nextRaftId = gameState.nextRaftId.value,
             barricades = barricades,
+            fiefs = fiefs,
+            mushrooms = mushrooms,
             worldMapSave = null, // Don't automatically include world map - only on explicit export
             currentMana = gameState.currentMana.value,
             maxMana = gameState.maxMana.value,
             spellEffects = spellEffects,
             supportObjectsRemaining = gameState.supportObjectsRemaining.toMap(),
             supportSpellsRemaining = gameState.supportSpellsRemaining.toMap(),
+            supportFiefRemaining = gameState.supportFiefRemaining.toMap(),
             cooldownPowerReadyIn = gameState.cooldownPowerReadyIn.toMap(),
             coinSurgeActive = gameState.coinSurgeActive.value,
+            playedTileAnimationKeys = gameState.playedTileAnimationKeys.keys.toList(),
             triggeredEventIds = gameState.triggeredEventIds.toList(),
             enemiesKilledTotal = gameState.enemiesKilledTotal.value,
             enemiesKilledByType = gameState.enemiesKilledByType.toMap(),
+            waaghPoints = gameState.waaghPoints.value,
+            waaghFrenzyActive = gameState.waaghFrenzyActive.value,
+            waaghFrenzyRoundsLeft = gameState.waaghFrenzyRoundsLeft.value,
+            hasShownWaaghFrenzyMessage = gameState.hasShownWaaghFrenzyMessage.value,
             sandboxMapTiles =
                 if (gameState.level.isSandbox && gameState.sandboxPaintedTiles.isNotEmpty()) {
                     gameState.sandboxPaintedTiles.toMap()
@@ -403,6 +455,10 @@ object SaveFileStorage {
                 } else {
                     null
                 },
+            bridges = bridges,
+            nextBridgeId = gameState.nextBridgeId.value,
+            activePortals = activePortals,
+            nextPortalId = gameState.nextPortalId.value,
         )
     }
 
@@ -441,6 +497,39 @@ object SaveFileStorage {
         gameState.spawnCounter.value = savedGame.spawnCounter
         gameState.turnNumber.value = savedGame.turnNumber
         gameState.nextRaftId.value = savedGame.nextRaftId
+        gameState.nextBridgeId.value = savedGame.nextBridgeId
+        gameState.nextPortalId.value = savedGame.nextPortalId
+
+        // Restore bridges
+        gameState.bridges.clear()
+        gameState.bridges.addAll(
+            savedGame.bridges.map { bridge ->
+                Bridge(
+                    id = bridge.id,
+                    type = bridge.type,
+                    positions = bridge.positions,
+                    currentHealth = mutableStateOf(bridge.currentHealth),
+                    turnsRemaining = mutableStateOf(bridge.turnsRemaining),
+                    createdByAttackerId = bridge.createdByAttackerId,
+                    createdOnTurn = bridge.createdOnTurn,
+                )
+            },
+        )
+
+        // Restore active rift portals including their selected rune.
+        gameState.activePortals.clear()
+        gameState.activePortals.addAll(
+            savedGame.activePortals.map { portal ->
+                Portal(
+                    id = portal.id,
+                    entryPosition = portal.entryPosition,
+                    exitPosition = portal.exitPosition,
+                    villainId = portal.villainId,
+                    runeIndex = portal.runeIndex,
+                    usedThisTurn = mutableStateOf(portal.usedThisTurn),
+                )
+            },
+        )
 
         // Restore mana
         gameState.currentMana.value = savedGame.currentMana
@@ -454,9 +543,19 @@ object SaveFileStorage {
         gameState.supportObjectsRemaining.putAll(savedGame.supportObjectsRemaining)
         gameState.supportSpellsRemaining.clear()
         gameState.supportSpellsRemaining.putAll(savedGame.supportSpellsRemaining)
+        gameState.supportFiefRemaining.clear()
+        gameState.supportFiefRemaining.putAll(savedGame.supportFiefRemaining)
         gameState.cooldownPowerReadyIn.clear()
         gameState.cooldownPowerReadyIn.putAll(savedGame.cooldownPowerReadyIn)
         gameState.coinSurgeActive.value = savedGame.coinSurgeActive
+        gameState.playedTileAnimationKeys.clear()
+        savedGame.playedTileAnimationKeys.forEach { key ->
+            gameState.playedTileAnimationKeys[key] = true
+        }
+        gameState.waaghPoints.value = savedGame.waaghPoints
+        gameState.waaghFrenzyActive.value = savedGame.waaghFrenzyActive
+        gameState.waaghFrenzyRoundsLeft.value = savedGame.waaghFrenzyRoundsLeft
+        gameState.hasShownWaaghFrenzyMessage.value = savedGame.hasShownWaaghFrenzyMessage
 
         // Restore scripted-event tracking so already-fired events don't re-trigger after load.
         gameState.triggeredEventIds.clear()
@@ -493,6 +592,7 @@ object SaveFileStorage {
             defender.actionsRemaining.value = savedDefender.actionsRemaining
             defender.raftId.value = savedDefender.raftId // Restore raft linkage
             defender.towerBaseBarricadeId.value = savedDefender.towerBaseBarricadeId // Restore tower base linkage
+            defender.hasRootGripAnimation.value = savedDefender.hasRootGripAnimation // Restore Sylvanas vine animation
             gameState.defenders.add(defender)
         }
 
@@ -510,6 +610,9 @@ object SaveFileStorage {
             attacker.currentHealth.value = savedAttacker.currentHealth
             attacker.isDefeated.value = savedAttacker.isDefeated
             attacker.movementPenalty.value = savedAttacker.movementPenalty
+            attacker.bloodlustRoundsLeft.value = savedAttacker.bloodlustRoundsLeft
+            attacker.mushroomTurnsRemaining.value = savedAttacker.mushroomTurnsRemaining
+            attacker.mushroomLevelBonus.value = savedAttacker.mushroomLevelBonus
             gameState.attackers.add(attacker)
         }
 
@@ -571,6 +674,28 @@ object SaveFileStorage {
                     defenderId = barricade.defenderId,
                     supportedTowerId = mutableStateOf(barricade.supportedTowerId),
                 )
+            },
+        )
+
+        // Restore fiefs
+        gameState.fiefs.clear()
+        gameState.fiefs.addAll(
+            savedGame.fiefs.mapNotNull { savedFief ->
+                val fiefType =
+                    try {
+                        FiefType.valueOf(savedFief.type)
+                    } catch (e: Exception) {
+                        null
+                    }
+                fiefType?.let { Fief(position = savedFief.position, type = it) }
+            },
+        )
+
+        // Restore mushrooms
+        gameState.mushrooms.clear()
+        gameState.mushrooms.addAll(
+            savedGame.mushrooms.map { savedMushroom ->
+                Mushroom(position = savedMushroom.position)
             },
         )
 

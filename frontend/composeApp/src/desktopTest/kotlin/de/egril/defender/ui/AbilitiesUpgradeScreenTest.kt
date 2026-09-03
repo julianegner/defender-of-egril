@@ -7,7 +7,6 @@ import com.hyperether.resources.currentLanguage
 import de.egril.defender.model.PlayerAbilities
 import de.egril.defender.model.SpellType
 import de.egril.defender.save.PlayerProfile
-import de.egril.defender.ui.ScreenshotTestUtils
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

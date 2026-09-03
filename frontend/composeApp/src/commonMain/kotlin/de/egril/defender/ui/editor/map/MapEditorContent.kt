@@ -108,6 +108,7 @@ fun MapEditorContent(
     fun handleSave(
         mapToSave: EditorMap,
         oldId: String? = null,
+        backgroundImageBytes: ByteArray? = null,
     ) {
         generatorMapName = mapToSave.name
         generatorTargetPath = targetPath(mapToSave)
@@ -117,7 +118,7 @@ fun MapEditorContent(
         generationSuccess = null
         generationError = null
         generatedPainter = null
-        imageWasRegenerated = true
+        imageWasRegenerated = backgroundImageBytes == null
         generationStep = ""
         compressedSizeKb = 0L
 
@@ -129,7 +130,16 @@ fun MapEditorContent(
                         EditorStorage.saveMapData(mapToSave, oldId)
                     }
 
-                if (saveResult.imageNeedsRegeneration) {
+                if (backgroundImageBytes != null) {
+                    // Use provided background image directly
+                    generationStep = "compressing"
+                    val sizeBytes =
+                        withContext(Dispatchers.Default) {
+                            EditorStorage.saveProvidedMapImage(saveResult.validatedMap, backgroundImageBytes)
+                        }
+                    compressedSizeKb = if (sizeBytes > 0) sizeBytes / 1024 else 0L
+                    imageWasRegenerated = false
+                } else if (saveResult.imageNeedsRegeneration) {
                     // Step 2: Generate map image pixels
                     generationStep = "generating"
                     val (pixels, width, height) =
@@ -169,7 +179,7 @@ fun MapEditorContent(
         // Map editing view
         MapEditorView(
             map = editingMap!!,
-            onSave = { updatedMap, oldId -> handleSave(updatedMap, oldId) },
+            onSave = { updatedMap, oldId, backgroundImageBytes -> handleSave(updatedMap, oldId, backgroundImageBytes) },
             onCancel = { editingMap = null },
         )
     } else {
@@ -266,7 +276,8 @@ fun MapEditorContent(
         CreateMapDialog(
             onDismiss = { showCreateDialog = false },
             defaultAuthor = defaultAuthor,
-            onCreate = { name, width, height, author ->
+            mapTemplates = EditorStorage.getMapTemplates(),
+            onCreate = { name, width, height, author, template ->
                 // Generate ID from name with underscores (lowercase)
                 val sanitizedName =
                     name
@@ -281,15 +292,7 @@ fun MapEditorContent(
                     } else {
                         "map_custom_${Random.nextInt(10000, 99999)}"
                     }
-                val newMap =
-                    EditorMap(
-                        id = newId,
-                        name = name,
-                        width = width,
-                        height = height,
-                        tiles = emptyMap(),
-                        author = author,
-                    )
+                val newMap = createMapFromTemplate(newId, name, width, height, author, template)
                 showCreateDialog = false
                 showCreatingMapDialog = true
                 creatingMapError = null

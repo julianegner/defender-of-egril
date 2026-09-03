@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -103,6 +104,7 @@ fun GamePlayScreen(
     onGetAutoAttackTarget: ((Int) -> Position?)? = null, // Get best auto-attack target for a tower
     onWinLevelNow: (() -> Unit)? = null, // Instantly win the level when guaranteed (finish level fast)
     onPlaceSupportObject: ((SupportObjectType, Position) -> Boolean)? = null, // Place a level support object at a position
+    onPlaceSupportFief: ((de.egril.defender.model.FiefType, Position) -> Boolean)? = null, // Place a level support fief token at a position
     onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
     activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
     onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
@@ -171,6 +173,7 @@ fun GamePlayScreen(
         onGetAutoAttackTarget = onGetAutoAttackTarget,
         onWinLevelNow = onWinLevelNow,
         onPlaceSupportObject = onPlaceSupportObject,
+        onPlaceSupportFief = onPlaceSupportFief,
         onCastSupportSpellToken = onCastSupportSpellToken,
         activeSpellToken = activeSpellToken,
         onActivateCooldownPower = onActivateCooldownPower,
@@ -244,6 +247,7 @@ private fun GamePlayScreenContent(
     onGetAutoAttackTarget: ((Int) -> Position?)? = null, // Get best auto-attack target for a tower
     onWinLevelNow: (() -> Unit)? = null, // Instantly win the level when guaranteed (finish level fast)
     onPlaceSupportObject: ((SupportObjectType, Position) -> Boolean)? = null, // Place a level support object at a position
+    onPlaceSupportFief: ((de.egril.defender.model.FiefType, Position) -> Boolean)? = null, // Place a level support fief token at a position
     onCastSupportSpellToken: ((SpellType) -> Unit)? = null, // Start casting a level support spell token (no mana cost)
     activeSpellToken: SpellType? = null, // Currently active support spell token (highlighted in support bar)
     onActivateCooldownPower: ((de.egril.defender.model.CooldownPowerType) -> Unit)? = null, // Activate a cooldown-based support power
@@ -253,6 +257,7 @@ private fun GamePlayScreenContent(
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedSupportObject by remember { mutableStateOf<SupportObjectType?>(null) }
+    var selectedSupportFief by remember { mutableStateOf<de.egril.defender.model.FiefType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
     var selectedAttackerId by remember { mutableStateOf<Int?>(null) } // Add enemy selection
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
@@ -762,8 +767,8 @@ private fun GamePlayScreenContent(
 
     // Reset the keyboard placement/targeting cursor when neither a support object is selected nor a
     // spell is being targeted, so a stale cursor does not linger after placement finishes or is cancelled.
-    LaunchedEffect(selectedSupportObject, gameState.spellTargeting.value) {
-        if (selectedSupportObject == null && gameState.spellTargeting.value == null) {
+    LaunchedEffect(selectedSupportObject, selectedSupportFief, gameState.spellTargeting.value) {
+        if (selectedSupportObject == null && selectedSupportFief == null && gameState.spellTargeting.value == null) {
             keyboardPlacementTile = null
         }
     }
@@ -938,7 +943,7 @@ private fun GamePlayScreenContent(
                         event.key == Key.B &&
                         !event.isCtrlPressed &&
                         !event.isAltPressed &&
-                        gameState.level.splitBuildTowerButton &&
+                        AppSettings.splitBuildTowerButton.value &&
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
                         splitSelectorToggle++
                         true
@@ -1010,7 +1015,8 @@ private fun GamePlayScreenContent(
                         val defender = gameState.defenders.find { it.id == selectedDefenderId }
                         if (defender != null) {
                             val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
-                            val canSell = defender.isReady && defender.actionsRemaining.value > 0
+                            // Cannot sell while the Kraken has gripped this barge
+                            val canSell = defender.isReady && defender.actionsRemaining.value > 0 && !defender.isGrippedByKraken.value
                             when {
                                 canUndo -> {
                                     // Show confirmation dialog: isUndo = true (full refund)
@@ -1192,10 +1198,11 @@ private fun GamePlayScreenContent(
                                 isShortcutBindingPressed(event, AppSettings.shortcutPanDown.value)
                         ) &&
                         !showMagicPanel &&
-                        (selectedSupportObject != null || gameState.spellTargeting.value != null) &&
+                        (selectedSupportObject != null || selectedSupportFief != null || gameState.spellTargeting.value != null) &&
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
                         val candidateTiles =
                             selectedSupportObject?.let { supportObjectPlacementTiles(gameState, it) }
+                                ?: selectedSupportFief?.let { supportFiefPlacementTiles(gameState, it) }
                                 ?: spellTargetPositions(gameState)
                         if (candidateTiles.isEmpty()) {
                             false
@@ -1221,10 +1228,11 @@ private fun GamePlayScreenContent(
                                 isShortcutBindingPressed(event, AppSettings.shortcutPrevEnemyTarget.value)
                         ) &&
                         !showMagicPanel &&
-                        (selectedSupportObject != null || gameState.spellTargeting.value != null) &&
+                        (selectedSupportObject != null || selectedSupportFief != null || gameState.spellTargeting.value != null) &&
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
                         val candidateTiles =
                             selectedSupportObject?.let { supportObjectPlacementTiles(gameState, it) }
+                                ?: selectedSupportFief?.let { supportFiefPlacementTiles(gameState, it) }
                                 ?: spellTargetPositions(gameState)
                         if (candidateTiles.isEmpty()) {
                             false
@@ -1340,14 +1348,22 @@ private fun GamePlayScreenContent(
                             when (slot) {
                                 is SupportSlot.ObjectSlot -> {
                                     selectedSupportObject = if (selectedSupportObject == slot.type) null else slot.type
+                                    selectedSupportFief = null
+                                    selectedDefenderType = null
+                                }
+                                is SupportSlot.FiefSlot -> {
+                                    selectedSupportFief = if (selectedSupportFief == slot.type) null else slot.type
+                                    selectedSupportObject = null
                                     selectedDefenderType = null
                                 }
                                 is SupportSlot.SpellSlot -> {
                                     selectedSupportObject = null
+                                    selectedSupportFief = null
                                     onCastSupportSpellToken?.invoke(slot.spell)
                                 }
                                 is SupportSlot.PowerSlot -> {
                                     selectedSupportObject = null
+                                    selectedSupportFief = null
                                     onActivateCooldownPower?.invoke(slot.type)
                                 }
                             }
@@ -1372,9 +1388,10 @@ private fun GamePlayScreenContent(
                         !event.isAltPressed &&
                         !event.isMetaPressed &&
                         !showMagicPanel &&
-                        (selectedSupportObject != null || gameState.spellTargeting.value != null) &&
+                        (selectedSupportObject != null || selectedSupportFief != null || gameState.spellTargeting.value != null) &&
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
                         val supportType = selectedSupportObject
+                        val fiefType = selectedSupportFief
                         if (supportType != null) {
                             val candidateTiles = supportObjectPlacementTiles(gameState, supportType)
                             val tile =
@@ -1393,6 +1410,27 @@ private fun GamePlayScreenContent(
                                     // next remaining tile.
                                     val placedIndex = candidateTiles.indexOf(tile)
                                     val remainingTiles = supportObjectPlacementTiles(gameState, supportType)
+                                    keyboardPlacementTile =
+                                        if (remainingTiles.isEmpty()) {
+                                            null
+                                        } else {
+                                            remainingTiles[placedIndex.coerceIn(0, remainingTiles.lastIndex)]
+                                        }
+                                }
+                            }
+                        } else if (fiefType != null) {
+                            val candidateTiles = supportFiefPlacementTiles(gameState, fiefType)
+                            val tile =
+                                keyboardPlacementTile?.takeIf { candidateTiles.contains(it) }
+                                    ?: candidateTiles.firstOrNull()
+                            if (tile != null && onPlaceSupportFief?.invoke(fiefType, tile) == true) {
+                                val remaining = gameState.supportFiefRemaining[fiefType] ?: 0
+                                if (remaining <= 0) {
+                                    selectedSupportFief = null
+                                    keyboardPlacementTile = null
+                                } else {
+                                    val placedIndex = candidateTiles.indexOf(tile)
+                                    val remainingTiles = supportFiefPlacementTiles(gameState, fiefType)
                                     keyboardPlacementTile =
                                         if (remainingTiles.isEmpty()) {
                                             null
@@ -1559,11 +1597,11 @@ private fun GamePlayScreenContent(
                     event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutBackToWorldMap.value) &&
                         !isDemoMode &&
-                        (selectedSupportObject != null || gameState.spellTargeting.value != null) -> {
-                        if (selectedSupportObject != null) {
-                            selectedSupportObject = null
-                        } else {
-                            onExitSpellTargeting?.invoke()
+                        (selectedSupportObject != null || selectedSupportFief != null || gameState.spellTargeting.value != null) -> {
+                        when {
+                            selectedSupportObject != null -> selectedSupportObject = null
+                            selectedSupportFief != null -> selectedSupportFief = null
+                            else -> onExitSpellTargeting?.invoke()
                         }
                         keyboardPlacementTile = null
                         true
@@ -1885,6 +1923,18 @@ private fun GamePlayScreenContent(
                                     return@GameGrid
                                 }
 
+                                // Handle fief support placement mode
+                                selectedSupportFief?.let { fiefType ->
+                                    if (onPlaceSupportFief?.invoke(fiefType, position) == true) {
+                                        // Deselect if no more of this fief type remain
+                                        val remaining = gameState.supportFiefRemaining[fiefType] ?: 0
+                                        if (remaining <= 0) {
+                                            selectedSupportFief = null
+                                        }
+                                    }
+                                    return@GameGrid
+                                }
+
                                 // Try to place defender if one is selected
                                 selectedDefenderType?.let { type ->
                                     if (onPlaceDefender(type, position)) {
@@ -1932,7 +1982,8 @@ private fun GamePlayScreenContent(
 
                                 // Check if there's an attacker at this position (only if no defender is being placed)
                                 val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
-                                if (attacker != null && selectedDefenderId == null) {
+                                val positionInShadowFog = gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == position }
+                                if (attacker != null && selectedDefenderId == null && !positionInShadowFog) {
                                     if (previousSelectedAttackerId == attacker.id) {
                                         // Deselect if clicking the same attacker
                                         selectedAttackerId = null
@@ -2066,25 +2117,32 @@ private fun GamePlayScreenContent(
                                                 distance <= effectiveRange
                                             ) {
                                                 selectedTargetPosition = position
-                                                // Also set targetId if there's an enemy at this position
+                                                // Set targetId only if there's a visible enemy (not hidden in shadow fog)
+                                                val hasFog = gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == position }
                                                 val enemyAtPosition =
-                                                    gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                                                    if (hasFog) null else gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                                 selectedTargetId = enemyAtPosition?.id
                                             }
                                         } else {
-                                            // For single-target attacks, allow targeting enemies or bridges
+                                            // For single-target attacks, allow targeting enemies, bridges, or shadow fog tiles
                                             val distance = selectedDefender.position.value.distanceTo(position)
                                             val attackerForTargeting =
                                                 gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                             val bridgeAtPosition = gameState.getBridgeAt(position)
+                                            val hasShadowFog =
+                                                gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == position }
 
                                             if (distance >= selectedDefender.type.minRange && distance <= effectiveRange) {
-                                                if (attackerForTargeting != null) {
+                                                if (attackerForTargeting != null && !hasShadowFog) {
                                                     selectedTargetId = attackerForTargeting.id
                                                     selectedTargetPosition = position // to be able to show the 3 circles to highlight the target
                                                 } else if (bridgeAtPosition != null && bridgeAtPosition.isActive) {
                                                     // Allow targeting bridge tiles
                                                     selectedTargetId = null // Bridges don't have attacker IDs
+                                                    selectedTargetPosition = position
+                                                } else if (hasShadowFog) {
+                                                    // Allow targeting shadow fog tiles blind (enemy may be hidden there)
+                                                    selectedTargetId = null
                                                     selectedTargetPosition = position
                                                 }
                                             }
@@ -2106,6 +2164,7 @@ private fun GamePlayScreenContent(
                             keyboardHoveredPosition = keyboardSelectedBuildTile,
                             keyboardPlacementCursor = keyboardPlacementTile,
                             selectedSupportObject = selectedSupportObject,
+                            selectedSupportFief = selectedSupportFief,
                         )
 
                         // Sandbox: persistent map-tile selector (from the map editor), always
@@ -2664,6 +2723,46 @@ private fun GamePlayScreenContent(
                                     }
                                 }
                             }
+                        } else if (selectedSupportFief != null) {
+                            // Fief placement mode: show a compact instruction + cancel card
+                            // selectedSupportFief is a mutable var, so smart-cast is not possible;
+                            // capture a local non-null copy for use within this branch.
+                            val placingFief = selectedSupportFief!!
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors =
+                                    CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = placingFief.localizedFiefName(),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                        Text(
+                                            text = stringResource(Res.string.spell_targeting_position),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                        PlacementKeyboardHints(modifier = Modifier.padding(top = 4.dp))
+                                    }
+                                    OutlinedButton(onClick = { selectedSupportFief = null }) {
+                                        Text(stringResource(Res.string.spell_targeting_cancel))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        ShortcutKeyChip(
+                                            text = "Esc",
+                                            color = LocalContentColor.current.copy(alpha = 0.75f),
+                                        )
+                                    }
+                                }
+                            }
                         } else {
                             Column(modifier = Modifier.fillMaxWidth()) {
                                 // Support bar: placable objects + spell tokens shown directly above the button row
@@ -2677,16 +2776,25 @@ private fun GamePlayScreenContent(
                                     onObjectClick = { type ->
                                         // Toggle object placement selection; clear other selections
                                         selectedSupportObject = if (selectedSupportObject == type) null else type
+                                        selectedSupportFief = null
                                         selectedDefenderType = null
                                     },
                                     onSpellClick = { spell ->
                                         selectedSupportObject = null
+                                        selectedSupportFief = null
                                         onCastSupportSpellToken?.invoke(spell)
                                     },
                                     modifier = Modifier.align(Alignment.CenterHorizontally),
                                     onCooldownPowerClick = { power ->
                                         selectedSupportObject = null
+                                        selectedSupportFief = null
                                         onActivateCooldownPower?.invoke(power)
+                                    },
+                                    selectedSupportFief = selectedSupportFief,
+                                    onFiefClick = { type ->
+                                        selectedSupportFief = if (selectedSupportFief == type) null else type
+                                        selectedSupportObject = null
+                                        selectedDefenderType = null
                                     },
                                     focusedSlotIndex =
                                         supportFocusIndex?.let { idx ->
@@ -3117,6 +3225,18 @@ private fun GamePlayScreenContent(
                     // End turn confirmation dialog
                     if (showEndTurnConfirmation) {
                         val canWinLevelNow = gameState.canWinLevelNow()
+                        val autoAttackAvailability =
+                            if (gameState.level.allowAutoAttack) {
+                                gameState.getAutoAttackAvailability()
+                            } else {
+                                AutoAttackAvailability.NONE
+                            }
+                        val autoAttackButtonText =
+                            if (autoAttackAvailability == AutoAttackAvailability.MANA_ONLY) {
+                                stringResource(Res.string.generate_mana_and_end_turn)
+                            } else {
+                                stringResource(Res.string.auto_attack_and_end_turn)
+                            }
                         EndTurnConfirmationDialog(
                             onConfirm = {
                                 showEndTurnConfirmation = false
@@ -3141,7 +3261,8 @@ private fun GamePlayScreenContent(
                             onCancel = {
                                 showEndTurnConfirmation = false
                             },
-                            showAutoAttackButton = gameState.level.allowAutoAttack && gameState.hasDefendersForAutoAttack(),
+                            showAutoAttackButton = autoAttackAvailability != AutoAttackAvailability.NONE,
+                            autoAttackButtonText = autoAttackButtonText,
                             showEndTurnWarning = gameState.hasDefendersWithUnusedActions(),
                             showWinLevelNow = canWinLevelNow && onWinLevelNow != null,
                             onWinLevelNow = {
@@ -3252,6 +3373,122 @@ private fun GamePlayScreenContent(
                                     title = stringResource(Res.string.ewhad_defeated_title),
                                     text = stringResource(Res.string.ewhad_defeated_text),
                                     onDismiss = { onDismissGameMessage?.invoke() },
+                                )
+                            GameMessageType.VILLAIN_ENTERS -> {
+                                val villainType = attackerTypeFromMessageName(msg.name)
+                                val (villainTitle, villainText) =
+                                    when (msg.name) {
+                                        AttackerType.GAROKK.name ->
+                                            stringResource(Res.string.villain_garokk_title) to
+                                                (stringResource(Res.string.villain_garokk_backstory) + "\n" + stringResource(Res.string.villain_garokk_description))
+                                        AttackerType.SNOTLING_BOSS.name ->
+                                            stringResource(Res.string.villain_gribnak_title) to
+                                                (stringResource(Res.string.villain_gribnak_backstory) + "\n" + stringResource(Res.string.villain_gribnak_description))
+                                        AttackerType.MORGUK_BONEWHISPER.name ->
+                                            stringResource(Res.string.villain_morguk_title) to
+                                                (stringResource(Res.string.villain_morguk_backstory) + "\n" + stringResource(Res.string.villain_morguk_description))
+                                        AttackerType.ARAXXA.name ->
+                                            stringResource(Res.string.villain_araxxa_title) to
+                                                (stringResource(Res.string.villain_araxxa_backstory) + "\n" + stringResource(Res.string.villain_araxxa_description))
+                                        AttackerType.BARON_RATTERZAHN.name ->
+                                            stringResource(Res.string.villain_ratterzahn_title) to
+                                                (stringResource(Res.string.villain_ratterzahn_backstory) + "\n" + stringResource(Res.string.villain_ratterzahn_description))
+                                        AttackerType.FALLEN_SHIELDMAIDEN_FREYA.name ->
+                                            stringResource(Res.string.villain_freya_title) to
+                                                (stringResource(Res.string.villain_freya_backstory) + "\n" + stringResource(Res.string.villain_freya_description))
+                                        AttackerType.PRINCE_VALERIUS_THE_SOULREAPER.name ->
+                                            stringResource(Res.string.villain_valerius_title) to
+                                                (stringResource(Res.string.villain_valerius_backstory) + "\n" + stringResource(Res.string.villain_valerius_description))
+                                        AttackerType.SILAS_THE_MASKMASTER.name ->
+                                            stringResource(Res.string.villain_silas_title) to
+                                                (stringResource(Res.string.villain_silas_backstory) + "\n" + stringResource(Res.string.villain_silas_description))
+                                        AttackerType.GRAND_COVEN_MOTHER_SYBILLA.name ->
+                                            stringResource(Res.string.villain_sybilla_title) to
+                                                (stringResource(Res.string.villain_sybilla_backstory) + "\n" + stringResource(Res.string.villain_sybilla_description))
+                                        AttackerType.SYLVANAS_THE_MOLDING.name ->
+                                            stringResource(Res.string.villain_sylvanas_title) to
+                                                (stringResource(Res.string.villain_sylvanas_backstory) + "\n" + stringResource(Res.string.villain_sylvanas_description))
+                                        AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE.name ->
+                                            stringResource(Res.string.villain_malakor_title) to
+                                                (stringResource(Res.string.villain_malakor_backstory) + "\n" + stringResource(Res.string.villain_malakor_description))
+                                        AttackerType.IGNIS_VA_THE_DRAGONVOICE.name ->
+                                            stringResource(Res.string.villain_ignis_va_title) to
+                                                (stringResource(Res.string.villain_ignis_va_backstory) + "\n" + stringResource(Res.string.villain_ignis_va_description))
+                                        AttackerType.MORVATH_THE_SHADOWMASTER.name ->
+                                            stringResource(Res.string.villain_morvath_title) to
+                                                (stringResource(Res.string.villain_morvath_backstory) + "\n" + stringResource(Res.string.villain_morvath_description))
+                                        AttackerType.XARITHON_THE_SHADOW_DRAGON.name ->
+                                            stringResource(Res.string.villain_xarithon_title) to
+                                                (stringResource(Res.string.villain_xarithon_backstory) + "\n" + stringResource(Res.string.villain_xarithon_description))
+                                        AttackerType.CAPTAIN_RODERICH.name ->
+                                            stringResource(Res.string.villain_roderich_title) to
+                                                (stringResource(Res.string.villain_roderich_backstory) + "\n" + stringResource(Res.string.villain_roderich_description))
+                                        AttackerType.THE_KRAKEN.name ->
+                                            stringResource(Res.string.villain_kraken_title) to
+                                                (stringResource(Res.string.villain_kraken_backstory) + "\n" + stringResource(Res.string.villain_kraken_description))
+                                        AttackerType.ZYTHAR_THE_RIFTCALLER.name ->
+                                            stringResource(Res.string.villain_zythar_title) to
+                                                (stringResource(Res.string.villain_zythar_backstory) + "\n" + stringResource(Res.string.villain_zythar_description))
+                                        else ->
+                                            stringResource(Res.string.villain_enters_title) to
+                                                stringResource(Res.string.villain_enters_text)
+                                    }
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.EWHAD,
+                                    title = villainTitle,
+                                    text = villainText,
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                    supports = gameState.level.supports,
+                                    backgroundOverride = villainMessageBackground(msg.name),
+                                    accentColorOverride = villainMessageButtonColor(msg.name),
+                                    iconAttackerTypeOverride = villainType,
+                                )
+                            }
+                            GameMessageType.VILLAIN_DEFEATED -> {
+                                val villainType = attackerTypeFromMessageName(msg.name)
+                                val villainName = villainType?.villainName ?: stringResource(Res.string.villain)
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.EWHAD,
+                                    title = stringResource(Res.string.villain_defeated_title),
+                                    text = stringResource(Res.string.villain_defeated_text, villainName),
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                    backgroundOverride = villainMessageBackground(msg.name),
+                                    accentColorOverride = villainMessageButtonColor(msg.name),
+                                    iconAttackerTypeOverride = villainType,
+                                )
+                            }
+                            GameMessageType.SILAS_MIRROR_HIT ->
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.EWHAD,
+                                    title = stringResource(Res.string.villain_silas_mirror_hit_title),
+                                    text = stringResource(Res.string.villain_silas_mirror_hit_text),
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                    backgroundOverride = villainMessageBackground(AttackerType.SILAS_THE_MASKMASTER.name),
+                                    accentColorOverride = villainMessageButtonColor(AttackerType.SILAS_THE_MASKMASTER.name),
+                                    iconAttackerTypeOverride = AttackerType.SILAS_THE_MASKMASTER,
+                                )
+                            GameMessageType.COVEN_SWAP -> {
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.EWHAD,
+                                    title = stringResource(Res.string.villain_coven_swap_title),
+                                    text = stringResource(Res.string.villain_coven_swap_text),
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                    backgroundOverride = villainMessageBackground(AttackerType.GRAND_COVEN_MOTHER_SYBILLA.name),
+                                    accentColorOverride = villainMessageButtonColor(AttackerType.GRAND_COVEN_MOTHER_SYBILLA.name),
+                                    iconAttackerTypeOverride = AttackerType.GRAND_COVEN_MOTHER_SYBILLA,
+                                )
+                            }
+                            GameMessageType.WAAAGH_FRENZY ->
+                                NarrativeMessageDialog(
+                                    type = NarrativeMessageType.EWHAD,
+                                    title = stringResource(Res.string.waaagh_frenzy_title),
+                                    text = stringResource(Res.string.waaagh_frenzy_message),
+                                    onDismiss = { onDismissGameMessage?.invoke() },
+                                    backgroundOverride = Res.drawable.message_background_waaagh,
+                                    accentColorOverride = Color(0xFFD32F2F),
+                                    topImageOverride = Res.drawable.waaagh_image,
+                                    topImageFillWidth = true,
+                                    contentTopOffset = 48.dp,
                                 )
                             GameMessageType.STORY_INTRO -> {
                                 val levelEditorId = msg.name
@@ -3631,3 +3868,86 @@ private fun SupportBarKeyboardHints(modifier: Modifier = Modifier) {
         )
     }
 }
+
+/**
+ * Returns a villain's message frame from drawables named `message_background_<abbreviated_villain_name>`.
+ *
+ * The lookup is automatic and uses [AttackerType.villainName]. Example:
+ * `message_background_garokk.png` is used for "Garokk".
+ */
+private fun villainMessageBackground(name: String?): org.jetbrains.compose.resources.DrawableResource? {
+    val attackerType = attackerTypeFromMessageName(name) ?: return null
+    if (!attackerType.isVillain) return null
+    val villainShortName = attackerType.villainName ?: return null
+    val normalizedVillainName = villainShortName.lowercase().replace(Regex("[^a-z0-9]+"), "_").trim('_')
+    if (normalizedVillainName.isEmpty()) return null
+    return Res.allDrawableResources["message_background_$normalizedVillainName"]
+}
+
+/**
+ * Returns a villain-specific button color for narrative message dialogs.
+ *
+ * Each villain gets a thematic button color based on their visual design and personality.
+ * For non-villains or unrecognized types, returns null (uses default color).
+ *
+ * The color should be distinct, fitting to the villain's character, and maintain good
+ * contrast with white text on the button.
+ */
+private fun villainMessageButtonColor(name: String?): Color? {
+    val attackerType = attackerTypeFromMessageName(name) ?: return null
+    if (!attackerType.isVillain) return null
+
+    return when (attackerType) {
+        // Horde warchief – aggressive red
+        AttackerType.GAROKK -> Color(0xFFE31C1C)
+        // Goblin summoner – olive green
+        AttackerType.SNOTLING_BOSS -> Color(0xFF6B8E23)
+        // Shaman summoner – dark indigo
+        AttackerType.MORGUK_BONEWHISPER -> Color(0xFF4B0082)
+        // Giant spider – earthy brown
+        AttackerType.ARAXXA -> Color(0xFF2F1B0C)
+        // Rat warlord – dark steel gray
+        AttackerType.BARON_RATTERZAHN -> Color(0xFF4B4F56)
+        // Illusionist – deep purple magic
+        AttackerType.SILAS_THE_MASKMASTER -> Color(0xFF5D3A8C)
+        // Mirror images use the same color as Silas
+        AttackerType.SILAS_MIRROR_IMAGE -> Color(0xFF5D3A8C)
+        // Undead shieldmaiden – dark armor blue
+        AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> Color(0xFF2A2F3A)
+        // Undead prince – soul-reaper purple
+        AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> Color(0xFF28304D)
+        // Witch coven leader – magical purple
+        AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> Color(0xFF5B2C6F)
+        // Green witch – healing green
+        AttackerType.HAGA -> Color(0xFF006400)
+        // Red witch – disabling crimson
+        AttackerType.ZUSSA -> Color(0xFF6B0000)
+        // Corrupted nature – dark emerald
+        AttackerType.SYLVANAS_THE_MOLDING -> Color(0xFF1A3A20)
+        // Archmage forbidden astral magic – deep void blue
+        AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> Color(0xFF0D1B3E)
+        // Dragon cultist – deep dragon-fire crimson
+        AttackerType.IGNIS_VA_THE_DRAGONVOICE -> Color(0xFF8B1A00)
+        // Shadowmaster – black-violet shadow mist
+        AttackerType.MORVATH_THE_SHADOWMASTER -> Color(0xFF2A003A)
+        // Shadow dragon – void purple-black
+        AttackerType.XARITHON_THE_SHADOW_DRAGON -> Color(0xFF1E0040)
+        // Pirate captain – deep ocean blue
+        AttackerType.CAPTAIN_RODERICH -> Color(0xFF0D4E74)
+        // Ancient deep-sea horror – dark abyss teal
+        AttackerType.THE_KRAKEN -> Color(0xFF0A3D4A)
+        // Riftcaller dark sorcerer – deep void indigo
+        AttackerType.ZYTHAR_THE_RIFTCALLER -> Color(0xFF0A001E)
+        // Default for EWHAD and other villains (if any added in future)
+        else -> null
+    }
+}
+
+/**
+ * Safely converts a queued game-message name to [AttackerType].
+ * Returns null when the name is null or does not map to a valid enum constant.
+ *
+ * Villain narrative messages carry the attacker type as a string in [GameMessage.name],
+ * so this helper prevents crashes from invalid payloads and keeps message rendering resilient.
+ */
+private fun attackerTypeFromMessageName(name: String?): AttackerType? = name?.let { runCatching { AttackerType.valueOf(it) }.getOrNull() }

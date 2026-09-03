@@ -2,6 +2,7 @@ package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -15,11 +16,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -36,7 +40,9 @@ import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.LogConfig
 import de.egril.defender.game.EnemyMovementSystem
+import de.egril.defender.game.FreyaShieldWallArc
 import de.egril.defender.game.PathfindingSystem
+import de.egril.defender.game.freyaShieldWallArcs
 import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
@@ -57,11 +63,15 @@ import de.egril.defender.ui.animations.EnemyMoveAnimation
 import de.egril.defender.ui.animations.EnemySpawnAnimation
 import de.egril.defender.ui.animations.FearSpellAnimation
 import de.egril.defender.ui.animations.FreezeSpellAnimation
+import de.egril.defender.ui.animations.GarokkWarCryOverlay
 import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.MineDigAnimation
+import de.egril.defender.ui.animations.MushroomBuffAnimation
 import de.egril.defender.ui.animations.PikeAttackOverlay
+import de.egril.defender.ui.animations.RocketAttackOverlay
 import de.egril.defender.ui.animations.SkyIsFallingAnimation
+import de.egril.defender.ui.animations.SnotlingCannonThrowOverlay
 import de.egril.defender.ui.animations.SpearAttackOverlay
 import de.egril.defender.ui.animations.SpellDoubleReachColor
 import de.egril.defender.ui.animations.TowerAttackImpactAnimation
@@ -85,9 +95,11 @@ import de.egril.defender.ui.icon.BombIcon
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.GateIcon
+import de.egril.defender.ui.icon.MushroomIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.TrapIcon
+import de.egril.defender.ui.icon.WebIcon
 import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreview
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
@@ -97,6 +109,8 @@ import de.egril.defender.ui.icon.enemy.enemyAttackPreview
 import de.egril.defender.ui.rememberMapImageState
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.roundToInt
@@ -117,6 +131,598 @@ private const val COIN_BUBBLE_END_HEIGHT_FRACTION = 0.25f
  * fitted (smaller) side. The fly-to-counter coins use this so they match the bubbling coins' size.
  */
 private const val COIN_BUBBLE_COIN_SIZE_FRACTION = 0.14f
+
+private fun oneShotTileAnimationKey(
+    animationName: String,
+    position: Position,
+    turnNumber: Int,
+    suffix: String = "",
+): String = "$animationName:$turnNumber:${position.x},${position.y}${if (suffix.isNotEmpty()) ":$suffix" else ""}"
+
+@Composable
+private fun rememberShouldPlayOneShotTileAnimation(
+    gameState: GameState,
+    animationKey: String?,
+): Boolean {
+    if (animationKey == null) {
+        return false
+    }
+    val shouldPlay = remember(animationKey) { !gameState.playedTileAnimationKeys.containsKey(animationKey) }
+    if (shouldPlay && !gameState.playedTileAnimationKeys.containsKey(animationKey)) {
+        SideEffect {
+            gameState.playedTileAnimationKeys[animationKey] = true
+        }
+    }
+    return shouldPlay
+}
+
+internal fun ghostSwarmCount(
+    attackerType: AttackerType,
+    displayedHealth: Int,
+): Int? =
+    if (attackerType.isSwarmUnit()) {
+        displayedHealth.coerceAtLeast(1)
+    } else {
+        null
+    }
+
+private const val HEX_ROW_VERTICAL_SPACING_FACTOR = 0.75f
+
+// The CW traversal start/end corner index for each edge direction.
+// CW order of edges: NE(1), E(0), SE(5), SW(4), W(3), NW(2).
+// CW order of corners: top(0), top-right(1), bottom-right(2), bottom(3), bottom-left(4), top-left(5).
+private val SHIELD_WALL_EDGE_START_CORNER = intArrayOf(1, 0, 5, 4, 3, 2)
+private val SHIELD_WALL_EDGE_END_CORNER = intArrayOf(2, 1, 0, 5, 4, 3)
+
+// For corner K of tile P, the two neighbor-directions whose tiles also share that corner.
+private val SHIELD_WALL_CORNER_DIR_PAIRS =
+    arrayOf(
+        intArrayOf(1, 2), // Corner 0 (top): NE and NW neighbors
+        intArrayOf(0, 1), // Corner 1 (top-right): E and NE neighbors
+        intArrayOf(5, 0), // Corner 2 (bottom-right): SE and E neighbors
+        intArrayOf(4, 5), // Corner 3 (bottom): SW and SE neighbors
+        intArrayOf(3, 4), // Corner 4 (bottom-left): W and SW neighbors
+        intArrayOf(2, 3), // Corner 5 (top-left): NW and W neighbors
+    )
+
+/** Edge between a shield-wall tile and a non-shield-wall neighbor, identified by its midpoint and its two endpoint corner keys. */
+private data class ShieldWallBoundaryEdge(
+    val midpoint: Offset,
+    val startKey: String,
+    val endKey: String,
+)
+
+private fun getFisherRodRotationDegrees(
+    position: Position,
+    level: Level,
+): Float {
+    val waterNeighbor =
+        position
+            .getHexNeighbors()
+            .filter { neighbor ->
+                neighbor.x in 0 until level.gridWidth &&
+                    neighbor.y in 0 until level.gridHeight
+            }.firstOrNull { neighbor ->
+                level.isRiverTile(neighbor)
+            } ?: return 0f
+
+    val sourceX = position.x + if (position.y % 2 == 1) 0.5f else 0f
+    val sourceY = position.y * HEX_ROW_VERTICAL_SPACING_FACTOR
+    val targetX = waterNeighbor.x + if (waterNeighbor.y % 2 == 1) 0.5f else 0f
+    val targetY = waterNeighbor.y * HEX_ROW_VERTICAL_SPACING_FACTOR
+    val dx = targetX - sourceX
+    val dy = targetY - sourceY
+
+    return (atan2(dy, dx) * 180f / PI.toFloat())
+}
+
+/** Returns a canonical key for a hex corner shared by three tiles (tile P and two neighbors). */
+private fun shieldWallCornerKey(
+    pos: Position,
+    cornerIndex: Int,
+): String {
+    val dirPair = SHIELD_WALL_CORNER_DIR_PAIRS[cornerIndex]
+    val neighbors = pos.getHexNeighbors()
+    val sorted =
+        listOf(pos, neighbors[dirPair[0]], neighbors[dirPair[1]])
+            .sortedWith(compareBy({ it.y }, { it.x }))
+    return "${sorted[0].x},${sorted[0].y}|${sorted[1].x},${sorted[1].y}|${sorted[2].x},${sorted[2].y}"
+}
+
+/**
+ * Trim [trimFraction] (0..1) of the total arc length from each end of an ordered list of path
+ * points. Returns a new list whose first/last points are interpolated so that the rendered arc
+ * does not extend all the way to the sharp tip corners.
+ */
+private fun trimArcPathEnds(
+    points: List<Offset>,
+    trimFraction: Float,
+): List<Offset> {
+    if (points.size < 2) return points
+    val segLens =
+        FloatArray(points.size - 1) { i ->
+            val dx = points[i + 1].x - points[i].x
+            val dy = points[i + 1].y - points[i].y
+            sqrt(dx * dx + dy * dy)
+        }
+    val totalLen = segLens.sum()
+    if (totalLen == 0f) return points
+    val startDist = totalLen * trimFraction
+    val endDist = totalLen * (1f - trimFraction)
+
+    fun pointAt(dist: Float): Offset {
+        var cum = 0f
+        for (i in segLens.indices) {
+            val segEnd = cum + segLens[i]
+            if (dist <= segEnd || i == segLens.lastIndex) {
+                val t = if (segLens[i] > 0f) ((dist - cum) / segLens[i]).coerceIn(0f, 1f) else 0f
+                return Offset(
+                    points[i].x + t * (points[i + 1].x - points[i].x),
+                    points[i].y + t * (points[i + 1].y - points[i].y),
+                )
+            }
+            cum = segEnd
+        }
+        return points.last()
+    }
+
+    val result = mutableListOf(pointAt(startDist))
+    var cum = 0f
+    for (i in segLens.indices) {
+        val segEnd = cum + segLens[i]
+        if (segEnd > startDist && segEnd < endDist) result.add(points[i + 1])
+        cum = segEnd
+    }
+    result.add(pointAt(endDist))
+    return result
+}
+
+/**
+ * Map-level overlay that draws the Freya shield wall as a smooth open arc along the front-facing
+ * edges of the shield wall formation.
+ *
+ * Only edges whose direction falls within the front arc (forward ± 1 direction) are included,
+ * producing a visual barrier on the side facing the enemy. The arc is rendered as a
+ * grey–blue–grey stripe, rounded via [PathEffect.cornerPathEffect] for a smooth appearance.
+ */
+@Composable
+private fun FreyaShieldWallMapOverlay(
+    shieldWallArcs: List<FreyaShieldWallArc>,
+    hexSizeDp: Float,
+    contentSize: IntSize,
+    modifier: Modifier = Modifier,
+) {
+    if (shieldWallArcs.isEmpty()) return
+
+    val density = androidx.compose.ui.platform.LocalDensity.current.density
+    val hexSizePx = hexSizeDp * density
+    val hexWidthPx = hexSizePx * sqrt(3f)
+    val hexHeightPx = hexSizePx * 2f
+    val rowSpacingPx =
+        hexHeightPx * 0.75f - hexHeightPx + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT * density
+    val colSpacingPx = HexagonalGridConstants.HORIZONTAL_SPACING * density
+    val oddOffsetPx = hexWidthPx * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
+
+    fun tileCenterPx(pos: Position): Offset {
+        val oddRowOffset = if (pos.y % 2 == 1) oddOffsetPx else 0f
+        return Offset(
+            pos.x * (hexWidthPx + colSpacingPx) + hexWidthPx / 2f + oddRowOffset,
+            pos.y * (hexHeightPx + rowSpacingPx) + hexHeightPx / 2f,
+        )
+    }
+
+    // Build an open-chain arc path for each Freya.
+    val arcPaths = mutableListOf<Path>()
+
+    for (arc in shieldWallArcs) {
+        val shieldWallPositions = arc.positions
+        val frontDirection = arc.frontDirection
+        // Only edges facing the front arc (forward, forward-left, forward-right).
+        val frontArcDirs =
+            setOf(
+                frontDirection.mod(6),
+                (frontDirection + 1).mod(6),
+                (frontDirection + 5).mod(6),
+            )
+
+        // Collect front-arc boundary edges (edges between a shield tile and a non-shield tile).
+        val boundaryEdges = mutableListOf<ShieldWallBoundaryEdge>()
+        for (pos in shieldWallPositions) {
+            val center = tileCenterPx(pos)
+            val neighbors = pos.getHexNeighbors()
+            for (dir in 0..5) {
+                if (dir in frontArcDirs && neighbors[dir] !in shieldWallPositions) {
+                    val nbrCenter = tileCenterPx(neighbors[dir])
+                    val mid = Offset((center.x + nbrCenter.x) / 2f, (center.y + nbrCenter.y) / 2f)
+                    boundaryEdges.add(
+                        ShieldWallBoundaryEdge(
+                            midpoint = mid,
+                            startKey = shieldWallCornerKey(pos, SHIELD_WALL_EDGE_START_CORNER[dir]),
+                            endKey = shieldWallCornerKey(pos, SHIELD_WALL_EDGE_END_CORNER[dir]),
+                        ),
+                    )
+                }
+            }
+        }
+        if (boundaryEdges.isEmpty()) continue
+
+        // Build adjacency: corner key → edges touching that corner.
+        val cornerToEdges = mutableMapOf<String, MutableList<ShieldWallBoundaryEdge>>()
+        for (edge in boundaryEdges) {
+            cornerToEdges.getOrPut(edge.startKey) { mutableListOf() }.add(edge)
+            cornerToEdges.getOrPut(edge.endKey) { mutableListOf() }.add(edge)
+        }
+
+        // Find terminal corners (degree 1) — the two endpoints of the open chain.
+        val startKey =
+            cornerToEdges.entries.firstOrNull { it.value.size == 1 }?.key ?: continue
+
+        // Walk the chain from one terminal to the other, collecting midpoints in order.
+        val midpoints = mutableListOf<Offset>()
+        val visited = mutableSetOf<ShieldWallBoundaryEdge>()
+        var prevKey = startKey
+        var cur = cornerToEdges[startKey]!!.first()
+        while (true) {
+            if (cur in visited) break
+            visited.add(cur)
+            midpoints.add(cur.midpoint)
+            val nextKey = if (prevKey == cur.startKey) cur.endKey else cur.startKey
+            val next = cornerToEdges[nextKey]?.firstOrNull { it !in visited } ?: break
+            prevKey = nextKey
+            cur = next
+        }
+        if (midpoints.size < 2) continue
+
+        // Trim 12% from each end so the arc does not extend too far at its tips.
+        val trimmed = trimArcPathEnds(midpoints, 0.12f)
+        if (trimmed.size < 2) continue
+
+        // Build as straight segments; smoothing is applied via PathEffect.cornerPathEffect.
+        arcPaths.add(
+            Path().apply {
+                moveTo(trimmed[0].x, trimmed[0].y)
+                for (i in 1 until trimmed.size) lineTo(trimmed[i].x, trimmed[i].y)
+            },
+        )
+    }
+
+    if (arcPaths.isEmpty()) return
+
+    val outerStrokeWidth = hexSizePx * 0.26f
+    val innerStrokeWidth = hexSizePx * 0.10f
+    val cornerRadius = hexSizePx * 0.45f
+    // Match the shield trim color from Freya's icon (FallenShieldmaidenFreya.kt shieldTrim).
+    val blueColor = Color(0xFF7DD7FF).copy(alpha = 0.95f)
+    val greyColor = Color(0xFFAAAAAA).copy(alpha = 0.95f)
+
+    val contentWidthDp = (contentSize.width / density).dp
+    val contentHeightDp = (contentSize.height / density).dp
+
+    Canvas(
+        modifier =
+            modifier
+                .requiredSize(contentWidthDp, contentHeightDp)
+                .semantics { contentDescription = "Shield Wall" },
+    ) {
+        for (path in arcPaths) {
+            // Grey outer stroke (wider) drawn first, leaving grey visible on both sides of the arc.
+            drawPath(
+                path = path,
+                color = greyColor,
+                style =
+                    Stroke(
+                        width = outerStrokeWidth,
+                        pathEffect = PathEffect.cornerPathEffect(cornerRadius),
+                    ),
+            )
+            // Blue inner stroke drawn on top, creating the grey–blue–grey stripe effect.
+            drawPath(
+                path = path,
+                color = blueColor,
+                style =
+                    Stroke(
+                        width = innerStrokeWidth,
+                        pathEffect = PathEffect.cornerPathEffect(cornerRadius),
+                    ),
+            )
+        }
+    }
+}
+
+/**
+ * Map-level overlay that draws rift portal runes for each active [Portal].
+ *
+ * Each portal pair shares the same Futhark rune shape so the player can see which entry matches
+ * which exit.  Different portals on the map cycle through a pool of distinct rune shapes.
+ *
+ * Entry portal (blue circle) is drawn at the villain-side tile.
+ * Exit portal (orange circle) is drawn at the demonling-side tile.
+ */
+@Composable
+private fun RiftPortalOverlay(
+    portals: List<de.egril.defender.model.Portal>,
+    hexSizeDp: Float,
+    contentSize: IntSize,
+    modifier: Modifier = Modifier,
+) {
+    if (portals.isEmpty()) return
+
+    val density = androidx.compose.ui.platform.LocalDensity.current.density
+    val hexSizePx = hexSizeDp * density
+    val hexWidthPx = hexSizePx * sqrt(3f)
+    val hexHeightPx = hexSizePx * 2f
+    val rowSpacingPx =
+        hexHeightPx * 0.75f - hexHeightPx + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT * density
+    val colSpacingPx = HexagonalGridConstants.HORIZONTAL_SPACING * density
+    val oddOffsetPx = hexWidthPx * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
+
+    fun tileCenterPx(pos: de.egril.defender.model.Position): androidx.compose.ui.geometry.Offset {
+        val oddRowOffset = if (pos.y % 2 == 1) oddOffsetPx else 0f
+        return androidx.compose.ui.geometry.Offset(
+            pos.x * (hexWidthPx + colSpacingPx) + hexWidthPx / 2f + oddRowOffset,
+            // Apply the same per-row visual correction as HexagonalMapView's
+            // `.offset(y = (-(y - 1)).dp)` modifier on each Row.
+            pos.y * (hexHeightPx + rowSpacingPx) + hexHeightPx / 2f - (pos.y - 1) * density,
+        )
+    }
+
+    /**
+     * Builds the Path for rune [index] centred at ([cx], [cy]) with half-height [r].
+     * Each index maps to a distinct Elder Futhark rune shape (all 24 runes, path-approximated).
+     *
+     * Elder Futhark order used here:
+     *   0=ᚠ Fehu    1=ᚢ Uruz    2=ᚦ Thurisaz  3=ᚨ Ansuz    4=ᚱ Raido    5=ᚲ Kenaz
+     *   6=ᚷ Gebo    7=ᚹ Wunjo   8=ᚺ Hagalaz   9=ᚾ Nauthiz  10=ᛁ Isa    11=ᛃ Jera
+     *  12=ᛇ Eihwaz  13=ᛈ Perthro 14=ᛉ Algiz   15=ᛊ Sowilo   16=ᛏ Tiwaz  17=ᛒ Berkano
+     *  18=ᛖ Ehwaz   19=ᛗ Mannaz  20=ᛚ Laguz   21=ᛜ Ingwaz   22=ᛞ Dagaz  23=ᛟ Othala
+     */
+    @Suppress("MagicNumber")
+    fun runePathFor(
+        index: Int,
+        cx: Float,
+        cy: Float,
+        r: Float,
+    ): androidx.compose.ui.graphics.Path =
+        androidx.compose.ui.graphics.Path().apply {
+            when (index % de.egril.defender.model.Portal.RUNE_POOL_SIZE) {
+                0 -> { // ᚠ Fehu – staff + two rightward branches
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r * 0.55f)
+                    lineTo(cx + r * 0.75f, cy - r * 0.15f)
+                    moveTo(cx, cy + r * 0.05f)
+                    lineTo(cx + r * 0.75f, cy + r * 0.45f)
+                }
+                1 -> { // ᚢ Uruz – two legs, arched top
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx - r * 0.4f, cy + r)
+                    moveTo(cx + r * 0.4f, cy - r * 0.2f)
+                    lineTo(cx + r * 0.4f, cy + r)
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx + r * 0.4f, cy - r * 0.2f)
+                }
+                2 -> { // ᚦ Thurisaz – staff + rightward thorn (diamond lobe)
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r * 0.3f)
+                    lineTo(cx + r * 0.8f, cy + r * 0.25f)
+                    lineTo(cx, cy + r * 0.2f)
+                }
+                3 -> { // ᚨ Ansuz – staff + two leftward branches pointing down
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r * 0.3f)
+                    lineTo(cx - r * 0.7f, cy + r * 0.1f)
+                    moveTo(cx, cy + r * 0.2f)
+                    lineTo(cx - r * 0.7f, cy + r * 0.6f)
+                }
+                4 -> { // ᚱ Raido – staff + two rightward legs from upper half
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r)
+                    lineTo(cx + r * 0.85f, cy - r * 0.1f)
+                    lineTo(cx, cy + r * 0.1f)
+                    lineTo(cx + r * 0.85f, cy + r)
+                }
+                5 -> { // ᚲ Kenaz – staff + short rightward diagonal at bottom
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy + r)
+                    lineTo(cx + r * 0.7f, cy + r * 0.3f)
+                }
+                6 -> { // ᚷ Gebo – X cross
+                    moveTo(cx - r * 0.6f, cy - r)
+                    lineTo(cx + r * 0.6f, cy + r)
+                    moveTo(cx + r * 0.6f, cy - r)
+                    lineTo(cx - r * 0.6f, cy + r)
+                }
+                7 -> { // ᚹ Wunjo – staff + rightward flag at the top
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r)
+                    lineTo(cx + r * 0.7f, cy - r * 0.4f)
+                    lineTo(cx, cy - r * 0.2f)
+                }
+                8 -> { // ᚺ Hagalaz – two diagonals crossing + short horizontal bar
+                    moveTo(cx - r * 0.5f, cy - r)
+                    lineTo(cx - r * 0.5f, cy + r)
+                    moveTo(cx + r * 0.5f, cy - r)
+                    lineTo(cx + r * 0.5f, cy + r)
+                    moveTo(cx - r * 0.5f, cy)
+                    lineTo(cx + r * 0.5f, cy)
+                }
+                9 -> { // ᚾ Nauthiz – staff + crossing diagonal brace
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx - r * 0.4f, cy + r)
+                    moveTo(cx + r * 0.4f, cy - r)
+                    lineTo(cx + r * 0.4f, cy + r)
+                    moveTo(cx - r * 0.4f, cy - r * 0.3f)
+                    lineTo(cx + r * 0.4f, cy + r * 0.3f)
+                }
+                10 -> { // ᛁ Isa – single vertical staff
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                }
+                11 -> { // ᛃ Jera – two opposing angled chevrons (top-right, bottom-left)
+                    moveTo(cx - r * 0.5f, cy - r)
+                    lineTo(cx + r * 0.5f, cy - r * 0.3f)
+                    lineTo(cx - r * 0.5f, cy + r * 0.3f)
+                    moveTo(cx + r * 0.5f, cy - r * 0.3f)
+                    lineTo(cx + r * 0.5f, cy + r)
+                    lineTo(cx - r * 0.5f, cy + r * 0.3f)
+                }
+                12 -> { // ᛇ Eihwaz – staff + small branches each side near top and bottom
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r * 0.5f)
+                    lineTo(cx - r * 0.55f, cy - r)
+                    moveTo(cx, cy + r * 0.5f)
+                    lineTo(cx + r * 0.55f, cy + r)
+                }
+                13 -> { // ᛈ Perthro – open cup/bowl facing right (staff + two horizontal arms)
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx - r * 0.4f, cy + r)
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx + r * 0.55f, cy - r * 0.5f)
+                    moveTo(cx - r * 0.4f, cy + r)
+                    lineTo(cx + r * 0.55f, cy + r * 0.5f)
+                }
+                14 -> { // ᛉ Algiz – staff + upward Y fork at the top
+                    moveTo(cx, cy + r)
+                    lineTo(cx, cy - r * 0.2f)
+                    moveTo(cx, cy - r * 0.2f)
+                    lineTo(cx - r * 0.6f, cy - r)
+                    moveTo(cx, cy - r * 0.2f)
+                    lineTo(cx + r * 0.6f, cy - r)
+                }
+                15 -> { // ᛊ Sowilo – two diagonal strokes forming a lightning-bolt S
+                    moveTo(cx + r * 0.5f, cy - r)
+                    lineTo(cx - r * 0.5f, cy - r * 0.2f)
+                    lineTo(cx + r * 0.5f, cy + r * 0.2f)
+                    lineTo(cx - r * 0.5f, cy + r)
+                }
+                16 -> { // ᛏ Tiwaz – upward arrow / spear
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r)
+                    lineTo(cx - r * 0.6f, cy - r * 0.3f)
+                    moveTo(cx, cy - r)
+                    lineTo(cx + r * 0.6f, cy - r * 0.3f)
+                }
+                17 -> { // ᛒ Berkano – staff + two rightward bumps (upper and lower)
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r)
+                    lineTo(cx + r * 0.65f, cy - r * 0.45f)
+                    lineTo(cx, cy)
+                    moveTo(cx, cy)
+                    lineTo(cx + r * 0.65f, cy + r * 0.45f)
+                    lineTo(cx, cy + r)
+                }
+                18 -> { // ᛖ Ehwaz – two opposing E-like strokes (left and right)
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx - r * 0.4f, cy + r)
+                    moveTo(cx + r * 0.4f, cy - r)
+                    lineTo(cx + r * 0.4f, cy + r)
+                    moveTo(cx - r * 0.4f, cy)
+                    lineTo(cx + r * 0.4f, cy)
+                }
+                19 -> { // ᛗ Mannaz – two staffs + X brace between them
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx - r * 0.4f, cy + r)
+                    moveTo(cx + r * 0.4f, cy - r)
+                    lineTo(cx + r * 0.4f, cy + r)
+                    moveTo(cx - r * 0.4f, cy - r)
+                    lineTo(cx + r * 0.4f, cy - r * 0.2f)
+                    moveTo(cx + r * 0.4f, cy - r)
+                    lineTo(cx - r * 0.4f, cy - r * 0.2f)
+                }
+                20 -> { // ᛚ Laguz – staff + single leftward diagonal pointing down
+                    moveTo(cx, cy - r)
+                    lineTo(cx, cy + r)
+                    moveTo(cx, cy - r * 0.1f)
+                    lineTo(cx - r * 0.7f, cy + r * 0.5f)
+                }
+                21 -> { // ᛜ Ingwaz – diamond shape
+                    moveTo(cx, cy - r)
+                    lineTo(cx + r * 0.7f, cy)
+                    lineTo(cx, cy + r)
+                    lineTo(cx - r * 0.7f, cy)
+                    close()
+                }
+                22 -> { // ᛞ Dagaz – horizontal infinity / bow-tie
+                    moveTo(cx - r * 0.6f, cy - r)
+                    lineTo(cx + r * 0.6f, cy + r)
+                    moveTo(cx + r * 0.6f, cy - r)
+                    lineTo(cx - r * 0.6f, cy + r)
+                    moveTo(cx - r * 0.6f, cy - r)
+                    lineTo(cx - r * 0.6f, cy + r)
+                    moveTo(cx + r * 0.6f, cy - r)
+                    lineTo(cx + r * 0.6f, cy + r)
+                }
+                else -> { // 23: ᛟ Othala – diamond with two descending legs
+                    moveTo(cx, cy - r)
+                    lineTo(cx + r * 0.6f, cy)
+                    lineTo(cx, cy + r * 0.3f)
+                    lineTo(cx - r * 0.6f, cy)
+                    close()
+                    moveTo(cx - r * 0.3f, cy + r * 0.3f)
+                    lineTo(cx - r * 0.6f, cy + r)
+                    moveTo(cx + r * 0.3f, cy + r * 0.3f)
+                    lineTo(cx + r * 0.6f, cy + r)
+                }
+            }
+        }
+
+    val entryColor =
+        androidx.compose.ui.graphics
+            .Color(0xFF2080FF)
+    val exitColor =
+        androidx.compose.ui.graphics
+            .Color(0xFFFF7000)
+    val glowAlpha = 0.25f
+    val runeSize = hexSizePx * 0.55f
+    val runeR = runeSize * 0.30f
+    val runeStroke =
+        androidx.compose.ui.graphics.drawscope.Stroke(
+            width = 2.5f,
+            cap = androidx.compose.ui.graphics.StrokeCap.Round,
+            join = androidx.compose.ui.graphics.StrokeJoin.Round,
+        )
+
+    val contentWidthDp = (contentSize.width / density).dp
+    val contentHeightDp = (contentSize.height / density).dp
+
+    Canvas(modifier = modifier.requiredSize(contentWidthDp, contentHeightDp)) {
+        for (portal in portals) {
+            // Entry circle (blue)
+            val ec = tileCenterPx(portal.entryPosition)
+            drawCircle(color = entryColor.copy(alpha = glowAlpha), radius = runeSize * 0.75f, center = ec)
+            drawCircle(
+                color = entryColor,
+                radius = runeSize * 0.42f,
+                center = ec,
+                style =
+                    androidx.compose.ui.graphics.drawscope
+                        .Stroke(width = 3f),
+            )
+            drawPath(runePathFor(portal.runeIndex, ec.x, ec.y, runeR), color = entryColor, style = runeStroke)
+
+            // Exit circle (orange) — same rune shape, different colour
+            val xc = tileCenterPx(portal.exitPosition)
+            drawCircle(color = exitColor.copy(alpha = glowAlpha), radius = runeSize * 0.75f, center = xc)
+            drawCircle(
+                color = exitColor,
+                radius = runeSize * 0.42f,
+                center = xc,
+                style =
+                    androidx.compose.ui.graphics.drawscope
+                        .Stroke(width = 3f),
+            )
+            drawPath(runePathFor(portal.runeIndex, xc.x, xc.y, runeR), color = exitColor, style = runeStroke)
+        }
+    }
+}
 
 internal fun displayedRiverTile(
     levelRiverTile: RiverTile?,
@@ -143,6 +749,7 @@ fun GameGrid(
     keyboardHoveredPosition: Position? = null, // overrides the local hover for keyboard build tile selection
     keyboardPlacementCursor: Position? = null, // keyboard cursor tile while placing a support object / targeting a spell
     selectedSupportObject: SupportObjectType? = null, // support object currently selected for placement (barricade/trap/magical trap)
+    selectedSupportFief: de.egril.defender.model.FiefType? = null, // fief type currently selected for placement
     extraFocusTrigger: Int = 0,
 ) {
     // Establish a snapshot dependency on runtime map edits (sandbox tile painting) so the entire
@@ -230,6 +837,7 @@ fun GameGrid(
     // Find the selected defender and track its actions for dependency tracking
     val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
     val selectedDefenderActions = selectedDefender?.actionsRemaining?.value
+    val freyaShieldWallArcs = gameState.freyaShieldWallArcs()
 
     val targetCircleMap =
         remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size) {
@@ -666,6 +1274,15 @@ fun GameGrid(
         }
     }
 
+    // Valid tiles for placing a fief support token. Empty when no fief is being placed.
+    val supportFiefPlacementPositions: Set<Position> by remember(gameState.level, selectedSupportFief) {
+        derivedStateOf {
+            selectedSupportFief
+                ?.let { supportFiefPlacementTiles(gameState, it).toHashSet() }
+                ?: emptySet()
+        }
+    }
+
     // Pre-compute O(1) position-keyed lookup maps to replace O(N) .find{} / .any{} scans per tile.
     // derivedStateOf ensures each map is only rebuilt when its source list actually changes.
     // Compose's strong-skipping then skips cells whose resolved value remains null.
@@ -710,6 +1327,12 @@ fun GameGrid(
     }
     val mineDigEffectsByPosition by remember {
         derivedStateOf { gameState.mineDigEffects.associateBy { it.position } }
+    }
+    val fiefsByPositionMap by remember {
+        derivedStateOf { gameState.fiefs.associateBy { it.position } }
+    }
+    val mushroomsByPositionMap by remember {
+        derivedStateOf { gameState.mushrooms.associateBy { it.position } }
     }
     // Attack target position sets for O(1) membership checks
     val arrowAttackTargetPositions by remember {
@@ -906,12 +1529,57 @@ fun GameGrid(
                             animate = AppSettings.enableAnimations.value,
                         )
                     }
+                    val rocketEffects = gameState.rocketAttackEffects.toList()
+                    if (rocketEffects.isNotEmpty()) {
+                        RocketAttackOverlay(
+                            effects = rocketEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
+                    val snotlingCannonEffects = gameState.snotlingCannonThrowEffects.toList()
+                    if (snotlingCannonEffects.isNotEmpty()) {
+                        SnotlingCannonThrowOverlay(
+                            effects = snotlingCannonEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
+                    val garokkWarCryEffects = gameState.garokkWarCryEffects.toList()
+                    if (garokkWarCryEffects.isNotEmpty()) {
+                        GarokkWarCryOverlay(
+                            effects = garokkWarCryEffects,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                            animate = AppSettings.enableAnimations.value,
+                        )
+                    }
                     // Full-map falling-meteor shower for the "Sky is Falling" support power.
                     SkyIsFallingAnimation(
                         triggerKey = gameState.skyIsFallingTrigger.value,
                         contentSize = measuredContentSize,
                         animate = AppSettings.enableAnimations.value,
                     )
+                    // Freya shield wall boundary: three curvy parallel lines (grey, blue, grey)
+                    // drawn above the map following the outer edge of the shield wall formation.
+                    if (freyaShieldWallArcs.isNotEmpty()) {
+                        FreyaShieldWallMapOverlay(
+                            shieldWallArcs = freyaShieldWallArcs,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                        )
+                    }
+                    // Rift portals: blue entry rune and orange exit rune for each active portal.
+                    val activePortals = gameState.activePortals.toList()
+                    if (activePortals.isNotEmpty()) {
+                        RiftPortalOverlay(
+                            portals = activePortals,
+                            hexSizeDp = hexSize.value,
+                            contentSize = measuredContentSize,
+                        )
+                    }
                 },
             ) { position ->
                 // Pre-compute the two hover-position-dependent booleans per cell.
@@ -1005,6 +1673,10 @@ fun GameGrid(
                         null
                     }
 
+                // True when a fief support token is selected and this tile is a valid placement target.
+                val supportFiefPlacementHighlight: Boolean =
+                    selectedSupportFief != null && supportFiefPlacementPositions.contains(position)
+
                 // Memoize the event-handler lambdas so Compose's strong-skipping can work correctly.
                 //
                 // Without memoization, `{ onCellClick(position) }` and `{ localHoveredPosition = ... }`
@@ -1051,6 +1723,7 @@ fun GameGrid(
                     isKeyboardPlacementCursor = isKeyboardPlacementCursor,
                     supportObjectPreviewType = supportObjectPreviewType,
                     supportObjectPlacementHighlightType = supportObjectPlacementHighlightType,
+                    supportFiefPlacementHighlight = supportFiefPlacementHighlight,
                     // NOTE: the null guard on selectedDefenderId/selectedTargetId is critical for
                     // correctness AND performance.  Without it, `null?.id == null` evaluates to
                     // `null == null = true`, so every cell without a defender/attacker becomes
@@ -1079,6 +1752,8 @@ fun GameGrid(
                     fieldEffect = fieldEffectsByPosition[position],
                     trap = trapsByPositionMap[position],
                     barricade = barricadesByPositionMap[position],
+                    fief = fiefsByPositionMap[position],
+                    mushroom = mushroomsByPositionMap[position],
                     constructionCompleteEffect = constructionCompleteEffectsByPosition[position],
                     enemySpawnEffect = enemySpawnEffectsByPosition[position],
                     trapTriggerEffect = trapTriggerEffectsByPosition[position],
@@ -1244,6 +1919,8 @@ fun GridCell(
     // (border + diagonal stripes) that a tower shows when placing the equivalent item, but without
     // the tower's range restriction.
     supportObjectPlacementHighlightType: SupportObjectType? = null,
+    // True when a fief support token is selected and this tile is a valid placement target.
+    supportFiefPlacementHighlight: Boolean = false,
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
@@ -1276,6 +1953,8 @@ fun GridCell(
     fieldEffect: FieldEffect? = null,
     trap: Trap? = null,
     barricade: Barricade? = null,
+    fief: de.egril.defender.model.Fief? = null,
+    mushroom: de.egril.defender.model.Mushroom? = null,
     constructionCompleteEffect: TowerConstructionEffect? = null,
     enemySpawnEffect: EnemySpawnEffect? = null,
     trapTriggerEffect: TrapTriggerEffect? = null,
@@ -1426,7 +2105,6 @@ fun GridCell(
         gameState.bombExplosionEffects.find { explosion ->
             explosion.center == position || explosion.affectedPositions.contains(position)
         }
-
     // Check if this tile is a valid spell target
     val spellTargeting = gameState.spellTargeting.value
     val isValidSpellTarget =
@@ -1517,7 +2195,9 @@ fun GridCell(
                 val hasEnemy = attacker != null
                 val hasTrap = trap != null
                 val hasFieldEffect = fieldEffect != null
-                isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect
+                val hasFief = fief != null
+                val hasMushroom = mushroom != null
+                isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect && !hasFief && !hasMushroom
             } ?: false
         } else {
             false
@@ -1537,7 +2217,7 @@ fun GridCell(
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= 3
                 // Check if empty path tile (no defender, no attacker, can have existing barricade for reinforcement)
-                val isEmptyPath = isOnPath && defender == null && attacker == null
+                val isEmptyPath = isOnPath && defender == null && attacker == null && fief == null && mushroom == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -1554,7 +2234,7 @@ fun GridCell(
             selectedDefender?.let { sel ->
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
+                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null && mushroom == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -1568,7 +2248,7 @@ fun GridCell(
             selectedDefender?.let { sel ->
                 val distance = sel.position.value.distanceTo(position)
                 val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
+                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null && mushroom == null
                 isInRange && isEmptyPath
             } ?: false
         } else {
@@ -1724,6 +2404,9 @@ fun GridCell(
                 when (effectiveFieldEffect.type) {
                     FieldEffectType.FIREBALL -> GamePlayColors.Warning.copy(alpha = 0.5f) // Orange tint for fireball
                     FieldEffectType.ACID -> GamePlayColors.Success.copy(alpha = 0.6f) // Green tint for acid
+                    FieldEffectType.WEB -> Color(0xFF8E7CC3).copy(alpha = 0.5f) // Violet tint for spider web
+                    FieldEffectType.BURNING_TILE -> Color(0xFFFF4500).copy(alpha = 0.55f) // Red-orange for burning tile
+                    FieldEffectType.SHADOW_FOG -> Color(0xFF2A003A).copy(alpha = 0.65f) // Black-violet fog
                 }
             }
 
@@ -1809,8 +2492,10 @@ fun GridCell(
             isInPreviewRange -> GamePlayColors.Success // Green border for range preview tiles
 
             // Barricade and trap placement range - brown borders (light brown diagonal stripes)
-            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement ||
-                cellIsSupportBarricadePlacement || cellIsSupportDwarvenTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
+            cellIsInBarricadeRange ||
+                cellIsValidForMineTrapPlacement ||
+                cellIsSupportBarricadePlacement ||
+                cellIsSupportDwarvenTrapPlacement -> GamePlayColors.TrapPlacementHighlight // Brown border for barricade/trap placement range
 
             // Magical trap placement range - lilac borders
             cellIsValidForMagicalTrapPlacement || cellIsSupportMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight // Lilac border for magical trap placement range
@@ -1844,6 +2529,9 @@ fun GridCell(
                 when (effectiveFieldEffect.type) {
                     FieldEffectType.FIREBALL -> GamePlayColors.WarningDeep // Deep orange border for fireball
                     FieldEffectType.ACID -> GamePlayColors.Success // Green border for acid
+                    FieldEffectType.WEB -> Color(0xFF5E35B1) // Deep violet border for spider web
+                    FieldEffectType.BURNING_TILE -> Color(0xFFCC2200) // Deep red border for burning tile
+                    FieldEffectType.SHADOW_FOG -> Color(0xFF4A148C) // Deep purple border for shadow fog
                 }
             }
 
@@ -1858,8 +2546,12 @@ fun GridCell(
             isKeyboardPlacementCursor -> 6.dp // Prominent border for the keyboard placement/targeting cursor
             showPlacementPreview -> 6.dp // Double thickness for hovered build tile
             isInPreviewRange -> 3.dp // Medium border for range preview
-            cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement ||
-                cellIsSupportBarricadePlacement || cellIsSupportDwarvenTrapPlacement || cellIsSupportMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
+            cellIsInBarricadeRange ||
+                cellIsValidForMineTrapPlacement ||
+                cellIsValidForMagicalTrapPlacement ||
+                cellIsSupportBarricadePlacement ||
+                cellIsSupportDwarvenTrapPlacement ||
+                cellIsSupportMagicalTrapPlacement -> 3.dp // Medium border for trap/barricade placement range
             isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp // Medium border for buildable tiles and tower bases
             isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp // Extra thick border for selected defender (not during initial building)
             cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> 2.dp // Thin purple border for double-reach-only tiles
@@ -1986,6 +2678,8 @@ fun GridCell(
                 fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
+                fief = fief,
+                mushroom = mushroom,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -2055,6 +2749,8 @@ fun GridCell(
                 fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
+                fief = fief,
+                mushroom = mushroom,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -2122,6 +2818,8 @@ private fun BoxScope.GridCellContent(
     fieldEffect: FieldEffect?,
     trap: Trap?,
     barricade: Barricade?,
+    fief: de.egril.defender.model.Fief? = null,
+    mushroom: de.egril.defender.model.Mushroom? = null,
     isSpawnPoint: Boolean,
     isTarget: Boolean,
     isRiverTile: Boolean,
@@ -2281,6 +2979,7 @@ private fun BoxScope.GridCellContent(
                         backgroundColor = attackerTileBackground,
                         healthTextColor = healthTextColor,
                         healthOverride = displayedHealth,
+                        showWaaghGlow = gameState.waaghFrenzyActive.value && attacker.type in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING),
                     )
                     if (isDangerous) {
                         Text(
@@ -2292,7 +2991,14 @@ private fun BoxScope.GridCellContent(
                         )
                     }
                     // Show healing effect overlay if present
-                    if (healingEffect != null) {
+                    val shouldPlayHealingAnimation =
+                        rememberShouldPlayOneShotTileAnimation(
+                            gameState,
+                            healingEffect?.let {
+                                oneShotTileAnimationKey("green_witch_healing", it.position, it.turnNumber)
+                            },
+                        )
+                    if (healingEffect != null && shouldPlayHealingAnimation) {
                         GreenWitchHealingAnimation(
                             animate = AppSettings.enableAnimations.value,
                             modifier = Modifier.fillMaxSize(),
@@ -2348,6 +3054,13 @@ private fun BoxScope.GridCellContent(
                                 }
                             }
                         }
+                        // Show mushroom buff overlay when the enemy is under mushroom buff
+                        if (attacker.mushroomTurnsRemaining.value > 0) {
+                            MushroomBuffAnimation(
+                                animate = AppSettings.enableAnimations.value,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        }
                     }
                     // Attack damage / lethality / immunity preview at the left border
                     if (attackPreview != null) {
@@ -2393,7 +3106,14 @@ private fun BoxScope.GridCellContent(
                         )
                     }
                     // Show construction complete sparkle when tower just finished building
-                    if (constructionCompleteEffect != null) {
+                    val shouldPlayConstructionCompleteAnimation =
+                        rememberShouldPlayOneShotTileAnimation(
+                            gameState,
+                            constructionCompleteEffect?.let {
+                                oneShotTileAnimationKey("tower_construction_complete", it.position, it.turnNumber)
+                            },
+                        )
+                    if (constructionCompleteEffect != null && shouldPlayConstructionCompleteAnimation) {
                         TowerConstructionCompleteAnimation(
                             animate = AppSettings.enableAnimations.value,
                             modifier = Modifier.fillMaxSize(),
@@ -2417,7 +3137,14 @@ private fun BoxScope.GridCellContent(
                                 )
                             DefenderType.DWARVEN_MINE -> {
                                 // Show dig animation on mine tile when it was just dug
-                                if (mineDigEffect != null) {
+                                val shouldPlayMineDigAnimation =
+                                    rememberShouldPlayOneShotTileAnimation(
+                                        gameState,
+                                        mineDigEffect?.let {
+                                            oneShotTileAnimationKey("mine_dig", it.position, it.turnNumber)
+                                        },
+                                    )
+                                if (mineDigEffect != null && shouldPlayMineDigAnimation) {
                                     MineDigAnimation(
                                         animate = AppSettings.enableAnimations.value,
                                         modifier = Modifier.fillMaxSize(),
@@ -2475,6 +3202,145 @@ private fun BoxScope.GridCellContent(
                         )
                     }
                 }
+
+                FieldEffectType.WEB -> {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        WebIcon(size = 20.dp)
+                        Text(
+                            "${fieldEffect.turnsRemaining}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = GamePlayColors.Yellow,
+                        )
+                    }
+                }
+
+                FieldEffectType.BURNING_TILE -> {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        ExplosionIcon(size = 22.dp)
+                        Text(
+                            "${fieldEffect.turnsRemaining}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = GamePlayColors.Yellow,
+                        )
+                    }
+                }
+                FieldEffectType.SHADOW_FOG -> {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .size(GamePlayConstants.TileIconSizes.ShadowFogOverlay)
+                                    .background(Color(0xB020002A), RoundedCornerShape(50)),
+                        )
+                        Text(
+                            "${fieldEffect.turnsRemaining}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFFE1BEE7),
+                        )
+                    }
+                }
+            }
+        }
+
+        fief != null -> {
+            // Show fief image, type name, and coin income
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                val fiefName =
+                    when (fief.type) {
+                        de.egril.defender.model.FiefType.FISHER ->
+                            stringResource(Res.string.fief_type_fisher)
+                        de.egril.defender.model.FiefType.WOODCUTTER ->
+                            stringResource(Res.string.fief_type_woodcutter)
+                        de.egril.defender.model.FiefType.QUARRY ->
+                            stringResource(Res.string.fief_type_quarry)
+                        de.egril.defender.model.FiefType.MARKETPLACE ->
+                            stringResource(Res.string.fief_type_marketplace)
+                    }
+
+                when (fief.type) {
+                    de.egril.defender.model.FiefType.FISHER -> {
+                        val rodRotation = getFisherRodRotationDegrees(position, gameState.level)
+                        Box(
+                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Image(
+                                painter = painterResource(Res.drawable.fief_fisher_hut),
+                                contentDescription = fiefName,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                            Image(
+                                painter = painterResource(Res.drawable.fief_fishing_rod),
+                                contentDescription = null,
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .graphicsLayer(
+                                            rotationZ = rodRotation,
+                                            transformOrigin = TransformOrigin(0.38f, 0.56f),
+                                        ),
+                            )
+                        }
+                    }
+                    de.egril.defender.model.FiefType.WOODCUTTER -> {
+                        Image(
+                            painter = painterResource(Res.drawable.fief_woodcutter),
+                            contentDescription = fiefName,
+                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
+                        )
+                    }
+                    de.egril.defender.model.FiefType.QUARRY -> {
+                        Image(
+                            painter = painterResource(Res.drawable.fief_quarry),
+                            contentDescription = fiefName,
+                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
+                        )
+                    }
+                    de.egril.defender.model.FiefType.MARKETPLACE -> {
+                        Image(
+                            painter = painterResource(Res.drawable.fief_marketplace),
+                            contentDescription = fiefName,
+                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
+                        )
+                    }
+                }
+                Text(
+                    fiefName,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.offset(y = (-3).dp),
+                )
+                Text(
+                    "+${fief.type.incomePerTurn}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = GamePlayColors.Yellow,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.offset(y = (-3).dp),
+                )
+            }
+        }
+
+        mushroom != null -> {
+            // Show mushroom icon
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                MushroomIcon(size = GamePlayConstants.TileIconSizes.Mushroom)
             }
         }
 
@@ -2787,7 +3653,14 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show bomb explosion animation overlay on affected tiles (highest priority, above everything)
-    if (bombExplosion != null) {
+    val shouldPlayBombExplosionAnimation =
+        rememberShouldPlayOneShotTileAnimation(
+            gameState,
+            bombExplosion?.let {
+                oneShotTileAnimationKey("bomb_explosion", position, it.turnNumber, "${it.center.x},${it.center.y}")
+            },
+        )
+    if (bombExplosion != null && shouldPlayBombExplosionAnimation) {
         BombExplosionAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(20f),
@@ -2806,12 +3679,21 @@ private fun BoxScope.GridCellContent(
     // unit was killed.  The ghost disappears once the death animation has completed so that
     // the coin-gain animation plays on a clean tile.
     //
-    var showGhost by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
-        mutableStateOf(isDeathEffectActive)
+    val deathAnimationKey =
+        deathEffect?.let {
+            oneShotTileAnimationKey("enemy_death", it.position, it.turnNumber)
+        }
+    val towerImpactAnimationKey =
+        towerAttackEffect?.let {
+            oneShotTileAnimationKey("tower_attack_impact", it.targetPosition, it.turnNumber)
+        }
+    val shouldPlayDeathAnimation = rememberShouldPlayOneShotTileAnimation(gameState, deathAnimationKey)
+    var showGhost by remember(deathAnimationKey, towerImpactAnimationKey, shouldPlayDeathAnimation) {
+        mutableStateOf(isDeathEffectActive && shouldPlayDeathAnimation)
     }
     if (deathEffect != null) {
-        LaunchedEffect(deathEffect.turnNumber, deathEffect.position, towerAttackEffect?.turnNumber) {
-            if (isDeathEffectActive) {
+        LaunchedEffect(deathAnimationKey, towerImpactAnimationKey, shouldPlayDeathAnimation) {
+            if (isDeathEffectActive && shouldPlayDeathAnimation) {
                 showGhost = true
                 val arrowDelay =
                     when {
@@ -2848,6 +3730,7 @@ private fun BoxScope.GridCellContent(
     if (showGhost && isDeathEffectActive) {
         EnemyTypeIcon(
             attackerType = deathEffect.attackerType,
+            swarmHealthOverride = ghostSwarmCount(deathEffect.attackerType, displayedHealth),
             modifier = Modifier.fillMaxSize().zIndex(15f),
         )
         // Show level badge on top of the ghost icon when level > 1
@@ -2868,12 +3751,12 @@ private fun BoxScope.GridCellContent(
         }
     }
 
-    var showDeathAnimation by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
+    var showDeathAnimation by remember(deathAnimationKey, towerImpactAnimationKey) {
         mutableStateOf(false)
     }
     if (deathEffect != null) {
-        LaunchedEffect(deathEffect.turnNumber, deathEffect.position, towerAttackEffect?.turnNumber) {
-            if (isDeathEffectActive) {
+        LaunchedEffect(deathAnimationKey, towerImpactAnimationKey, shouldPlayDeathAnimation) {
+            if (isDeathEffectActive && shouldPlayDeathAnimation) {
                 // Wait for both the projectile flight and the impact flash to finish before
                 // starting the death animation.  Also handles AoE secondary targets where
                 // towerAttackEffect is null but the tile is in the fireball/acid blast area.
@@ -2920,7 +3803,12 @@ private fun BoxScope.GridCellContent(
 
     // Show coin gain animation overlay after the full death-animation sequence has finished:
     // arrowDelay + impactDelay + deathDuration + post-death pause.
-    var showCoinAnimation by remember(coinGainEffect?.turnNumber, coinGainEffect?.position) {
+    val coinAnimationKey =
+        coinGainEffect?.let {
+            oneShotTileAnimationKey("coin_gain", it.position, it.turnNumber)
+        }
+    val shouldPlayCoinAnimation = rememberShouldPlayOneShotTileAnimation(gameState, coinAnimationKey)
+    var showCoinAnimation by remember(coinAnimationKey, towerImpactAnimationKey) {
         mutableStateOf(false)
     }
     // Track where this tile's coin-gain "bubbling" animation ends, in root coordinates, so a
@@ -2957,7 +3845,11 @@ private fun BoxScope.GridCellContent(
         )
     }
     if (coinGainEffect != null) {
-        LaunchedEffect(coinGainEffect.turnNumber, coinGainEffect.position, towerAttackEffect?.turnNumber) {
+        LaunchedEffect(coinAnimationKey, towerImpactAnimationKey, shouldPlayCoinAnimation) {
+            if (!shouldPlayCoinAnimation) {
+                showCoinAnimation = false
+                return@LaunchedEffect
+            }
             val arrowDelay =
                 when {
                     towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
@@ -3038,9 +3930,12 @@ private fun BoxScope.GridCellContent(
     // Show tower attack impact overlay when this tile was attacked.
     // When a projectile is targeting this tile the hit animation is delayed
     // so the projectile visibly arrives before the impact flash.
-    var showHitAnimation by remember(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition) {
+    val shouldPlayTowerImpactAnimation =
+        rememberShouldPlayOneShotTileAnimation(gameState, towerImpactAnimationKey)
+    var showHitAnimation by remember(towerImpactAnimationKey) {
         mutableStateOf(
-            towerAttackEffect != null &&
+            shouldPlayTowerImpactAnimation &&
+                towerAttackEffect != null &&
                 !isArrowTargetTile &&
                 !isBallistaTargetTile &&
                 !isBowTargetTile &&
@@ -3052,8 +3947,7 @@ private fun BoxScope.GridCellContent(
     }
     if (towerAttackEffect != null) {
         LaunchedEffect(
-            towerAttackEffect.turnNumber,
-            towerAttackEffect.targetPosition,
+            towerImpactAnimationKey,
             isArrowTargetTile,
             isBallistaTargetTile,
             isBowTargetTile,
@@ -3061,7 +3955,12 @@ private fun BoxScope.GridCellContent(
             isPikeTargetTile,
             isWizardTargetTile,
             isAlchemyTargetTile,
+            shouldPlayTowerImpactAnimation,
         ) {
+            if (!shouldPlayTowerImpactAnimation) {
+                showHitAnimation = false
+                return@LaunchedEffect
+            }
             when {
                 isArrowTargetTile -> {
                     kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
@@ -3107,7 +4006,14 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show enemy spawn portal overlay when an enemy just appeared at this position
-    if (enemySpawnEffect != null) {
+    val shouldPlayEnemySpawnAnimation =
+        rememberShouldPlayOneShotTileAnimation(
+            gameState,
+            enemySpawnEffect?.let {
+                oneShotTileAnimationKey("enemy_spawn", it.position, it.turnNumber)
+            },
+        )
+    if (enemySpawnEffect != null && shouldPlayEnemySpawnAnimation && enemySpawnEffect.suppressPortalAnimation != true) {
         EnemySpawnAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(16f),
@@ -3117,7 +4023,14 @@ private fun BoxScope.GridCellContent(
     // Show trap trigger overlay when a trap was triggered at this position.
     // Uses a high z-index (21) to be visible even when the death animation is also showing
     // (which happens when the trap kills the enemy in the same turn).
-    if (trapTriggerEffect != null) {
+    val shouldPlayTrapTriggerAnimation =
+        rememberShouldPlayOneShotTileAnimation(
+            gameState,
+            trapTriggerEffect?.let {
+                oneShotTileAnimationKey("trap_trigger", it.position, it.turnNumber)
+            },
+        )
+    if (trapTriggerEffect != null && shouldPlayTrapTriggerAnimation) {
         TrapTriggerAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(21f),
@@ -3125,7 +4038,14 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show enemy movement trail when an enemy just left this tile during the enemy turn
-    if (enemyMoveEffect != null && attacker == null) {
+    val shouldPlayEnemyMoveAnimation =
+        rememberShouldPlayOneShotTileAnimation(
+            gameState,
+            enemyMoveEffect?.let {
+                oneShotTileAnimationKey("enemy_move", it.position, it.turnNumber)
+            },
+        )
+    if (enemyMoveEffect != null && attacker == null && shouldPlayEnemyMoveAnimation) {
         EnemyMoveAnimation(
             animate = AppSettings.enableAnimations.value,
             modifier = Modifier.fillMaxSize().zIndex(13f),
@@ -3133,7 +4053,14 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show dragon level change flash on the dragon's tile when its level changed
-    if (dragonLevelChangeEffect != null) {
+    val shouldPlayDragonLevelChangeAnimation =
+        rememberShouldPlayOneShotTileAnimation(
+            gameState,
+            dragonLevelChangeEffect?.let {
+                oneShotTileAnimationKey("dragon_level_change", it.position, it.turnNumber, if (it.isLevelUp) "up" else "down")
+            },
+        )
+    if (dragonLevelChangeEffect != null && shouldPlayDragonLevelChangeAnimation) {
         DragonLevelChangeAnimation(
             animate = AppSettings.enableAnimations.value,
             isLevelUp = dragonLevelChangeEffect.isLevelUp,
@@ -3142,7 +4069,19 @@ private fun BoxScope.GridCellContent(
     }
 
     // Show arrow/bolt projectile on the source tower tile for ranged attacks
-    if (arrowAttackEffect != null) {
+    val shouldPlayArrowAttackAnimation =
+        rememberShouldPlayOneShotTileAnimation(
+            gameState,
+            arrowAttackEffect?.let {
+                oneShotTileAnimationKey(
+                    animationName = "arrow_attack",
+                    position = it.sourcePosition,
+                    turnNumber = it.turnNumber,
+                    suffix = "${it.targetPosition.x},${it.targetPosition.y}",
+                )
+            },
+        )
+    if (arrowAttackEffect != null && shouldPlayArrowAttackAnimation) {
         val dx = (arrowAttackEffect.targetPosition.x - arrowAttackEffect.sourcePosition.x).toFloat()
         val dy = (arrowAttackEffect.targetPosition.y - arrowAttackEffect.sourcePosition.y).toFloat()
         val angle =

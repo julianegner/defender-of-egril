@@ -105,7 +105,8 @@ class BarricadeSystem(
             state.defenders.any { defender ->
                 defender.position.value == barricadePosition && defender.towerBaseBarricadeId.value == null
             }
-        if (hasAttacker || hasDefenderNotOnTowerBase) return false
+        val hasFief = state.fiefs.any { it.position == barricadePosition }
+        if (hasAttacker || hasDefenderNotOnTowerBase || hasFief) return false
 
         // Calculate HP to add
         val hpToAdd = calculateBarricadeHP(tower)
@@ -159,7 +160,8 @@ class BarricadeSystem(
             state.defenders.any { defender ->
                 defender.position.value == barricadePosition && defender.towerBaseBarricadeId.value == null
             }
-        if (hasAttacker || hasTrap || hasDefenderNotOnTowerBase) return false
+        val hasFief = state.fiefs.any { it.position == barricadePosition }
+        if (hasAttacker || hasTrap || hasDefenderNotOnTowerBase || hasFief) return false
 
         val existingBarricade = state.barricades.find { it.position == barricadePosition }
         if (existingBarricade != null) {
@@ -254,6 +256,9 @@ class BarricadeSystem(
         }
 
         if (wasDestroyed) {
+            if (enemy.type.faction == de.egril.defender.model.EnemyFaction.HORDE || enemy.type.unitSize > 0) {
+                state.addWaaghPoints(5)
+            }
             // Emit gate-destroyed message if the barricade has a name
             if (!barricade.name.isNullOrBlank()) {
                 state.pendingMessages.add(

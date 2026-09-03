@@ -26,11 +26,15 @@ object EditorStorage {
     private val OFFICIAL_LEVELS_DIR = "gamedata/official/levels"
     private val OFFICIAL_SEQUENCE_FILE = "gamedata/official/sequence.json"
     private val OFFICIAL_WORLDMAP_FILE = "gamedata/official/worldmap.json"
+    private val OFFICIAL_MAP_TEMPLATES_DIR = "gamedata/official/editor/map-templates"
+    private val OFFICIAL_SPAWN_TEMPLATES_DIR = "gamedata/official/editor/spawn-templates"
 
     // User content directories (created by users in editor)
     private val USER_MAPS_DIR = "gamedata/user/maps"
     private val USER_LEVELS_DIR = "gamedata/user/levels"
     private val USER_SEQUENCE_FILE = "gamedata/user/sequence.json"
+    private val USER_MAP_TEMPLATES_DIR = "gamedata/user/editor/map-templates"
+    private val USER_SPAWN_TEMPLATES_DIR = "gamedata/user/editor/spawn-templates"
 
     // Community content directories (downloaded from backend)
     private val COMMUNITY_MAPS_DIR = "gamedata/community/maps"
@@ -259,7 +263,7 @@ object EditorStorage {
         val pngExists = fileStorage.fileExists(pngPath)
         val tilesChanged =
             existingMap == null ||
-                normalizeForImageComparison(existingMap.tiles) != normalizeForImageComparison(validatedMap.tiles)
+                normalizeForImageComparison(existingMap) != normalizeForImageComparison(validatedMap)
         val imageNeedsRegeneration = !pngExists || tilesChanged
 
         if (!imageNeedsRegeneration) {
@@ -308,6 +312,20 @@ object EditorStorage {
             return pngBytes.size.toLong()
         }
         return -1
+    }
+
+    /**
+     * Save a provided map image (PNG bytes) directly without generation or encoding.
+     * Used when a user provides a background image to use as the map image.
+     */
+    fun saveProvidedMapImage(
+        map: EditorMap,
+        imageBytes: ByteArray,
+    ): Long {
+        val targetDir = if (map.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
+        fileStorage.writeBinaryFile("$targetDir/${map.id}.png", imageBytes)
+        println("Saved provided map image: ${map.id}.png (${imageBytes.size / 1024} KB)")
+        return imageBytes.size.toLong()
     }
 
     /**
@@ -366,15 +384,19 @@ object EditorStorage {
         } ?: fileStorage.readBinaryFile("$LEGACY_MAPS_DIR/$mapId.png")
 
     /**
-     * Normalizes tile types for the purpose of deciding whether the map image needs to be
-     * regenerated. SPAWN_POINT and TARGET use the same visual biome as PATH in the image
-     * generator, so they are mapped to PATH so that changes between these types do not
-     * trigger an unnecessary repaint.
+     * Normalizes tile types for deciding whether map image regeneration is needed.
+     * TARGET always uses PATH visuals. SPAWN_POINT uses PATH when LAND and RIVER when WATER.
      */
-    internal fun normalizeForImageComparison(tiles: Map<String, TileType>): Map<String, TileType> =
-        tiles.mapValues { (_, tileType) ->
+    internal fun normalizeForImageComparison(map: EditorMap): Map<String, TileType> =
+        map.tiles.mapValues { (pos, tileType) ->
             when (tileType) {
-                TileType.SPAWN_POINT, TileType.TARGET -> TileType.PATH
+                TileType.SPAWN_POINT ->
+                    if (map.spawnPointInfoMap[pos] == de.egril.defender.model.SpawnPointType.WATER) {
+                        TileType.RIVER
+                    } else {
+                        TileType.PATH
+                    }
+                TileType.TARGET -> TileType.PATH
                 else -> tileType
             }
         }
@@ -511,6 +533,68 @@ object EditorStorage {
 
         return mapsCache.values.toList()
     }
+
+    fun getMapTemplates(): List<MapTemplateDefinition> {
+        ensureInitialized()
+        fileStorage.createDirectory(OFFICIAL_MAP_TEMPLATES_DIR)
+        fileStorage.createDirectory(USER_MAP_TEMPLATES_DIR)
+
+        val templatesById = linkedMapOf<String, MapTemplateDefinition>()
+        loadMapTemplatesFromDirectory(OFFICIAL_MAP_TEMPLATES_DIR).forEach { template ->
+            templatesById[template.id] = template
+        }
+        loadMapTemplatesFromDirectory(USER_MAP_TEMPLATES_DIR).forEach { template ->
+            templatesById[template.id] = template
+        }
+        return templatesById.values.sortedBy { it.name.lowercase() }
+    }
+
+    fun getSpawnTurnTemplates(): List<SpawnTurnTemplateDefinition> {
+        ensureInitialized()
+        fileStorage.createDirectory(OFFICIAL_SPAWN_TEMPLATES_DIR)
+        fileStorage.createDirectory(USER_SPAWN_TEMPLATES_DIR)
+
+        val templatesById = linkedMapOf<String, SpawnTurnTemplateDefinition>()
+        loadSpawnTurnTemplatesFromDirectory(OFFICIAL_SPAWN_TEMPLATES_DIR).forEach { template ->
+            templatesById[template.id] = template
+        }
+        loadSpawnTurnTemplatesFromDirectory(USER_SPAWN_TEMPLATES_DIR).forEach { template ->
+            templatesById[template.id] = template
+        }
+        return templatesById.values.sortedBy { it.name.lowercase() }
+    }
+
+    fun saveMapTemplate(template: MapTemplateDefinition) {
+        ensureInitialized()
+        fileStorage.createDirectory(USER_MAP_TEMPLATES_DIR)
+        val json = EditorTemplateJsonSerializer.serializeMapTemplate(template)
+        fileStorage.writeFile("$USER_MAP_TEMPLATES_DIR/${template.id}.json", json)
+    }
+
+    fun saveSpawnTurnTemplate(template: SpawnTurnTemplateDefinition) {
+        ensureInitialized()
+        fileStorage.createDirectory(USER_SPAWN_TEMPLATES_DIR)
+        val json = EditorTemplateJsonSerializer.serializeSpawnTurnTemplate(template)
+        fileStorage.writeFile("$USER_SPAWN_TEMPLATES_DIR/${template.id}.json", json)
+    }
+
+    private fun loadMapTemplatesFromDirectory(directory: String): List<MapTemplateDefinition> =
+        fileStorage
+            .listFiles(directory)
+            .filter { it.endsWith(".json") }
+            .mapNotNull { filename ->
+                val json = fileStorage.readFile("$directory/$filename") ?: return@mapNotNull null
+                EditorTemplateJsonSerializer.deserializeMapTemplate(json)
+            }
+
+    private fun loadSpawnTurnTemplatesFromDirectory(directory: String): List<SpawnTurnTemplateDefinition> =
+        fileStorage
+            .listFiles(directory)
+            .filter { it.endsWith(".json") }
+            .mapNotNull { filename ->
+                val json = fileStorage.readFile("$directory/$filename") ?: return@mapNotNull null
+                EditorTemplateJsonSerializer.deserializeSpawnTurnTemplate(json)
+            }
 
     /**
      * Helper function to ensure all enemy spawns have spawn points assigned.
@@ -658,7 +742,23 @@ object EditorStorage {
             }
         }
 
-        return levelsCache.values.toList()
+        val officialSequence = getLevelSequence().sequence
+        val userSequence = getUserLevelSequence().sequence
+
+        return levelsCache.values
+            .toList()
+            .sortedWith(
+                compareBy<EditorLevel> { if (it.isOfficial) 0 else 1 }
+                    .thenBy { level ->
+                        val index =
+                            if (level.isOfficial) {
+                                officialSequence.indexOf(level.id)
+                            } else {
+                                userSequence.indexOf(level.id)
+                            }
+                        if (index >= 0) index else Int.MAX_VALUE
+                    }.thenBy { it.title.lowercase() },
+            )
     }
 
     // ---------------------------------------------------------------------------
@@ -1189,6 +1289,18 @@ object EditorStorage {
             return false
         }
 
+        // When the map allows no direct path, the level's portals must bridge the gap.
+        if (map.allowNoDirectPath) {
+            val portals = level.getEffectiveInitialData().portals
+            if (!map.validateReadyToUseWithPortals(portals, includeRiversAsWalkable = true)) {
+                return false
+            }
+        }
+
+        if (map.allowNoBuildableTiles && !map.hasBuildablePlacementTiles() && !level.hasNoBuildableTileFallback()) {
+            return false
+        }
+
         // check if the waypoints of the level are valid
         val targets = map.getTargets()
         if (targets.isEmpty()) {
@@ -1521,6 +1633,15 @@ object EditorStorage {
                         )
                 }.toMap()
 
+        // Convert editor spawn point info map to model SpawnPointType map
+        val gameSpawnPointTypeMap: Map<Position, de.egril.defender.model.SpawnPointType> =
+            map.spawnPointInfoMap.entries
+                .mapNotNull { (key, spawnType) ->
+                    val parts = key.split(",")
+                    val pos = Position(parts[0].toInt(), parts[1].toInt())
+                    pos to spawnType
+                }.toMap()
+
         val level =
             Level(
                 id = numericId,
@@ -1546,9 +1667,10 @@ object EditorStorage {
                 riverTiles = map.getRiverTilesMap(), // Add river tiles with flow direction and speed
                 allowAutoAttack = editorLevel.allowAutoAttack, // Allow auto-attack option
                 connectedToPreviousLevel = editorLevel.connectedToPreviousLevel, // Connected level flag
-                splitBuildTowerButton = editorLevel.splitBuildTowerButton, // Split build-tower button option
                 isSandbox = editorLevel.isSandbox, // Sandbox mode flag (free building, no win, no XP, no events)
+                waaghEnabled = editorLevel.waaghEnabled, // Waaagh! horde mechanics flag
                 targetInfoMap = gameTargetInfoMap, // Named / SINGLE_HIT target metadata
+                spawnPointTypeMap = gameSpawnPointTypeMap, // LAND/WATER classification per spawn point
                 supports = editorLevel.supports, // Player-usable supports (objects + spell tokens)
                 events = editorLevel.events, // Scripted level events (conditions + actions + messages)
                 initialData = editorLevel.getEffectiveInitialData(), // Pre-placed elements using new structure

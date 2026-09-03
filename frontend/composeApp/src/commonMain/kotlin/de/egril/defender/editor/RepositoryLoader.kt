@@ -35,6 +35,47 @@ object RepositoryLoader {
             null
         }
 
+    private suspend fun loadRepositoryTemplateIds(path: String): List<String> {
+        val bytes = readRepositoryBytesOrNull(path) ?: return emptyList()
+        return EditorTemplateJsonSerializer.deserializeTemplateIndex(bytes.decodeToString())
+    }
+
+    private suspend fun syncRepositoryTemplatesToStorage(storage: FileStorage) {
+        syncTemplateDirectory(
+            storage = storage,
+            indexPath = "editor/map_templates_index.json",
+            repositoryDirectory = "editor/map-templates",
+            storageDirectory = "gamedata/official/editor/map-templates",
+        )
+        syncTemplateDirectory(
+            storage = storage,
+            indexPath = "editor/spawn_templates_index.json",
+            repositoryDirectory = "editor/spawn-templates",
+            storageDirectory = "gamedata/official/editor/spawn-templates",
+        )
+    }
+
+    private suspend fun syncTemplateDirectory(
+        storage: FileStorage,
+        indexPath: String,
+        repositoryDirectory: String,
+        storageDirectory: String,
+    ) {
+        val templateIds = loadRepositoryTemplateIds(indexPath)
+        storage.createDirectory(storageDirectory)
+        val expectedFiles = templateIds.map { "$it.json" }.toSet()
+        storage
+            .listFiles(storageDirectory)
+            .filter { it.endsWith(".json") && it !in expectedFiles }
+            .forEach { staleFile ->
+                storage.deleteFile("$storageDirectory/$staleFile")
+            }
+        for (templateId in templateIds) {
+            val json = readRepositoryBytes("$repositoryDirectory/$templateId.json").decodeToString()
+            storage.writeFile("$storageDirectory/$templateId.json", json)
+        }
+    }
+
     /**
      * Builds a stable repository fingerprint using FNV-1a over each file path and file payload.
      * Zero and 0xFF separator bytes are inserted between the path, payload, and file boundary so
@@ -83,6 +124,8 @@ object RepositoryLoader {
             readRepositoryBytesOrNull("version.txt")?.let { builder.addFile("version.txt", it) }
             readRepositoryBytesOrNull("dragon_names.json")?.let { builder.addFile("dragon_names.json", it) }
             readRepositoryBytesOrNull("worldmap.json")?.let { builder.addFile("worldmap.json", it) }
+            readRepositoryBytesOrNull("editor/map_templates_index.json")?.let { builder.addFile("editor/map_templates_index.json", it) }
+            readRepositoryBytesOrNull("editor/spawn_templates_index.json")?.let { builder.addFile("editor/spawn_templates_index.json", it) }
 
             val mapIds = linkedSetOf<String>()
             for (levelId in sequence.sequence) {
@@ -104,6 +147,15 @@ object RepositoryLoader {
                 val mapBytes = readRepositoryBytes(mapPath)
                 builder.addFile(mapPath, mapBytes)
                 readRepositoryBytesOrNull("maps/$mapId.png")?.let { builder.addFile("maps/$mapId.png", it) }
+            }
+
+            for (templateId in loadRepositoryTemplateIds("editor/map_templates_index.json").sorted()) {
+                val path = "editor/map-templates/$templateId.json"
+                readRepositoryBytesOrNull(path)?.let { builder.addFile(path, it) }
+            }
+            for (templateId in loadRepositoryTemplateIds("editor/spawn_templates_index.json").sorted()) {
+                val path = "editor/spawn-templates/$templateId.json"
+                readRepositoryBytesOrNull(path)?.let { builder.addFile(path, it) }
             }
 
             builder.build()
@@ -332,6 +384,7 @@ object RepositoryLoader {
                     // via the Level Editor, so we overwrite it here regardless of the fast path.
                     refreshWorldMapInStorage(storage)
                     refreshOfficialMapToolingInfoInStorage(storage)
+                    syncRepositoryTemplatesToStorage(storage)
                     return true
                 }
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -359,8 +412,11 @@ object RepositoryLoader {
                 println("Found ${sequence.sequence.size} levels in repository sequence")
             }
 
+            val mapTemplateIds = loadRepositoryTemplateIds("editor/map_templates_index.json")
+            val spawnTemplateIds = loadRepositoryTemplateIds("editor/spawn_templates_index.json")
+
             // Estimated total: levels (N) + maps upper-bound (N, since each level may need a unique map) + 1 worldmap file
-            val estimatedTotal = sequence.sequence.size * 2 + 1 // N levels + N maps (max) + 1 worldmap
+            val estimatedTotal = sequence.sequence.size * 2 + 1 + mapTemplateIds.size + spawnTemplateIds.size
             var loaded = 0
 
             // Track which maps we need to load
@@ -393,7 +449,8 @@ object RepositoryLoader {
 
             // Now that we know the actual number of unique maps, compute the real total:
             // N levels + M unique maps + 1 worldmap file (M ≤ N since maps are shared across levels)
-            val actualTotal = sequence.sequence.size + mapsToLoad.size + 1 // N levels + M maps + 1 worldmap
+            val actualTotal =
+                sequence.sequence.size + mapsToLoad.size + 1 + mapTemplateIds.size + spawnTemplateIds.size
 
             // Load all required maps
             var mapCount = 0
@@ -449,6 +506,22 @@ object RepositoryLoader {
             }
             loaded++
             onProgress?.invoke(loaded, actualTotal, "worldmap.json")
+
+            storage.createDirectory("gamedata/official/editor/map-templates")
+            for (templateId in mapTemplateIds) {
+                val json = readRepositoryBytes("editor/map-templates/$templateId.json").decodeToString()
+                storage.writeFile("gamedata/official/editor/map-templates/$templateId.json", json)
+                loaded++
+                onProgress?.invoke(loaded, actualTotal, "$templateId.json")
+            }
+
+            storage.createDirectory("gamedata/official/editor/spawn-templates")
+            for (templateId in spawnTemplateIds) {
+                val json = readRepositoryBytes("editor/spawn-templates/$templateId.json").decodeToString()
+                storage.writeFile("gamedata/official/editor/spawn-templates/$templateId.json", json)
+                loaded++
+                onProgress?.invoke(loaded, actualTotal, "$templateId.json")
+            }
 
             // Save version file (use bundledVersion if available, otherwise fall back to hardcoded)
             storage.writeFile("gamedata/version.txt", bundledVersion ?: "10")
@@ -516,6 +589,7 @@ object RepositoryLoader {
                     // via the Level Editor, so we overwrite it here regardless of the fast path.
                     refreshWorldMapInStorage(storage)
                     refreshOfficialMapToolingInfoInStorage(storage)
+                    syncRepositoryTemplatesToStorage(storage)
                     onFirstLevelReady()
                     return true
                 }
@@ -668,6 +742,7 @@ object RepositoryLoader {
             if (bundledFingerprint != null) {
                 storage.writeFile(STORED_FINGERPRINT_FILE, bundledFingerprint)
             }
+            syncRepositoryTemplatesToStorage(storage)
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("Repository files loaded successfully (priority mode): $successCount levels, $mapCount maps")

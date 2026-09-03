@@ -3,9 +3,11 @@ package de.egril.defender.ui
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.LocalizedStrings
 import de.egril.defender.model.AttackType
+import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.SpellType
+import de.egril.defender.model.isSwarmUnit
 
 /**
  * Get localized name for a DefenderType
@@ -91,17 +93,78 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
             AttackerType.GOBLIN -> "goblin_name"
             AttackerType.ORK -> "ork_name"
             AttackerType.OGRE -> "ogre_name"
+            AttackerType.TROLL -> "troll_name"
             AttackerType.SKELETON -> "skeleton_name"
+            AttackerType.ZOMBIE -> "zombie_name"
             AttackerType.EVIL_WIZARD -> "evil_wizard_name"
             AttackerType.BLUE_DEMON -> "blue_demon_name"
             AttackerType.RED_DEMON -> "red_demon_name"
+            AttackerType.GHOST -> "ghost_name"
+            AttackerType.PIRATE -> "pirate_name"
             AttackerType.RED_WITCH -> "red_witch_name"
             AttackerType.GREEN_WITCH -> "green_witch_name"
+            AttackerType.SNOTLING -> "snotling_name"
+            AttackerType.SPIDERLING -> "spiderling_name"
+            AttackerType.ROBOTIC_GOBLIN -> "robotic_goblin_name"
+            AttackerType.SNOTLING_BOSS -> "snotling_boss_name"
             AttackerType.EWHAD -> "ewhad_name"
             AttackerType.DRAGON -> "dragon_name"
+            AttackerType.UNDEAD_DRAGON -> "undead_dragon_name"
+            AttackerType.GAROKK -> "garokk_name"
+            AttackerType.MORGUK_BONEWHISPER -> "morguk_name"
+            AttackerType.ARAXXA -> "araxxa_name"
+            AttackerType.BARON_RATTERZAHN -> "baron_ratterzahn_name"
+            AttackerType.SILAS_THE_MASKMASTER,
+            AttackerType.SILAS_MIRROR_IMAGE,
+            -> "silas_name"
+            AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> "fallen_shieldmaiden_freya_name"
+            AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> "prince_valerius_the_soulreaper_name"
+            AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> "grand_coven_mother_sybilla_name"
+            AttackerType.HAGA -> "haga_name"
+            AttackerType.ZUSSA -> "zussa_name"
+            AttackerType.SYLVANAS_THE_MOLDING -> "sylvanas_name"
+            AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE -> "archmage_malakor_the_renegade_name"
+            AttackerType.IGNIS_VA_THE_DRAGONVOICE -> "ignis_va_name"
+            AttackerType.DRAGON_TERROR -> "dragon_terror_name"
+            AttackerType.MORVATH_THE_SHADOWMASTER -> "morvath_name"
+            AttackerType.XARITHON_THE_SHADOW_DRAGON -> "xarithon_name"
+            AttackerType.CAPTAIN_RODERICH -> "captain_roderich_name"
+            AttackerType.THE_KRAKEN -> "kraken_name"
+            AttackerType.DEMONLING -> "demonling_name"
+            AttackerType.ZYTHAR_THE_RIFTCALLER -> "zythar_name"
         }
     return LocalizedStrings.get(key, locale)
 }
+
+/**
+ * Get localized short name for an AttackerType (for compact displays such as the
+ * battlefield icon where villains show their name in place of health points).
+ *
+ * Villains carry a language-independent proper name ([AttackerType.villainName]) in the enum
+ * itself, because their names are identical in every language and therefore do not belong in the
+ * translated string resources. Regular enemies fall back to their translated [getLocalizedName].
+ */
+fun AttackerType.getLocalizedShortName(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String {
+    villainName?.let { return it }
+    return getLocalizedName(locale)
+}
+
+/**
+ * Get localized name for an Attacker instance, applying plural forms where appropriate.
+ * For swarm units, uses the plural form when the stack has more than one creature (hp > 1).
+ */
+fun Attacker.getLocalizedName(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String =
+    if (type.isSwarmUnit() && currentHealth.value > 1) {
+        val key =
+            when (type) {
+                AttackerType.SPIDERLING -> "spiderlings_name"
+                AttackerType.DEMONLING -> "demonlings_name"
+                else -> "snotlings_name"
+            }
+        LocalizedStrings.get(key, locale)
+    } else {
+        type.getLocalizedName(locale)
+    }
 
 /**
  * Get localized short name for a DefenderType (for compact displays)

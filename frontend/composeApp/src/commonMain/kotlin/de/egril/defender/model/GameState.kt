@@ -17,6 +17,9 @@ enum class GamePhase {
 enum class FieldEffectType {
     FIREBALL, // Visual effect for wizard fireball area
     ACID, // Visual effect for alchemy acid with duration
+    WEB, // Araxxa's spreading spider web area
+    BURNING_TILE, // Ignis-Va death: burning ground that disables nearby towers
+    SHADOW_FOG, // Morvath's shadow veil that hides tile information
 }
 
 enum class HealingEffectType {
@@ -85,6 +88,14 @@ data class TowerConstructionEffect(
 data class EnemySpawnEffect(
     val position: Position, // Spawn position of the newly appeared enemy
     val turnNumber: Int, // Turn when this spawn occurred
+    val attackerType: AttackerType? = null, // Spawned enemy type (used to suppress specific spawn visuals)
+    val suppressPortalAnimation: Boolean = false,
+)
+
+data class ScrapPile(
+    val position: Position,
+    val ownerAttackerId: Int,
+    val hatchTurn: Int,
 )
 
 data class TrapTriggerEffect(
@@ -150,6 +161,37 @@ data class AlchemyAttackEffect(
     val turnNumber: Int, // Turn when this attack occurred
 )
 
+data class RocketAttackEffect(
+    val sourcePosition: Position,
+    val targetPosition: Position,
+    val turnNumber: Int,
+)
+
+data class SnotlingCannonThrowEffect(
+    val sourcePosition: Position,
+    val targetPosition: Position,
+    val thrownCount: Int,
+    val turnNumber: Int,
+)
+
+data class GarokkWarCryEffect(
+    val position: Position,
+    val turnNumber: Int,
+)
+
+data class ShadowSpewEffect(
+    val sourcePosition: Position, // Xarithon's tile
+    val targetPosition: Position, // Center of the 2×2 target area
+    val turnNumber: Int, // Turn when Shadow Spew was activated
+)
+
+data class MorvathShadowOrbEffect(
+    val sourcePosition: Position, // Morvath's tile
+    val targetPosition: Position, // Distant fog tile being added
+    val turnNumber: Int, // Turn when the orb was launched
+    val attackerId: Int, // Morvath's attacker id
+)
+
 /**
  * Types of in-game event messages that are shown to the player.
  */
@@ -159,6 +201,11 @@ enum class GameMessageType {
     EWHAD_ENTERS, // Ewhad has entered the battlefield
     EWHAD_RETREATS, // Ewhad has retreated (health reached 0, not final stand)
     EWHAD_DEFEATED, // Ewhad is defeated (health reached 0, final stand level)
+    VILLAIN_ENTERS, // A villain has entered the battlefield (name = AttackerType.name)
+    VILLAIN_DEFEATED, // A non-Ewhad villain was defeated (name = AttackerType.name)
+    SILAS_MIRROR_HIT, // A tower struck Silas's illusion and was blinded
+    COVEN_SWAP, // Sybilla swapped places with a witch
+    WAAAGH_FRENZY, // The horde has entered a Waaagh! frenzy
     STORY_INTRO, // Story narrative shown at the start of a level (name = editorLevelId)
     EVENT_MESSAGE, // Scripted-event story message (name = string-resource key of the predefined text)
 }
@@ -170,12 +217,46 @@ enum class GameMessageType {
  *                      it is the optional string-resource key of the predefined text (may be null).
  * @param eventActions  For [GameMessageType.EVENT_MESSAGE]: the actions the event applied, so the
  *                      granted elements (coins, mana, supports, …) can be shown to the player.
- */
+* @param highlightPositions  Optional pair of positions to highlight (e.g., old and new position for coven swap).
+*/
 data class GameMessage(
     val type: GameMessageType,
     val name: String? = null,
     val eventActions: List<EventAction>? = null,
+    val highlightPositions: Pair<Position, Position>? = null,
 )
+
+data class PendingSoulCall(
+    val position: Position,
+    val attackerType: AttackerType,
+    val level: Int,
+    val reviveTurn: Int,
+    val dragonName: String? = null,
+    val currentTarget: Position? = null,
+)
+
+/**
+ * Pending barge (raft + defender) deletion from Roderich's Broadside attack.
+ * The barge is removed after the cannonball animation completes.
+ */
+data class PendingBargeDeletion(
+    val raftId: Int,
+    val defenderId: Int,
+    val towerCost: Int, // Cost to add to Roderich's treasure
+    val bargePosition: Position, // For logging
+)
+
+data class PendingSnotlingCannonArrival(
+    val targetPosition: Position,
+    val thrownCount: Int,
+    val turnNumber: Int,
+)
+
+enum class AutoAttackAvailability {
+    NONE,
+    ATTACK,
+    MANA_ONLY,
+}
 
 data class GameState(
     var level: Level,
@@ -188,9 +269,12 @@ data class GameState(
     val nextAttackerId: MutableState<Int> = mutableStateOf(1),
     val nextRaftId: MutableState<Int> = mutableStateOf(1),
     val nextBarricadeId: MutableState<Int> = mutableStateOf(1),
+    val nextBridgeId: MutableState<Int> = mutableStateOf(1),
+    val nextPortalId: MutableState<Int> = mutableStateOf(1),
     val currentWaveIndex: MutableState<Int> = mutableStateOf(0),
     val spawnCounter: MutableState<Int> = mutableStateOf(0),
     val attackersToSpawn: SnapshotStateList<AttackerType> = mutableStateListOf(),
+    val enemyTurnStartPositions: SnapshotStateMap<Int, Position> = mutableStateMapOf(), // Snapshot of enemy positions at start of enemy turn
     val turnNumber: MutableState<Int> = mutableStateOf(0),
     val actionsRemainingThisTurn: MutableState<Int> = mutableStateOf(0),
     val spawnPlan: List<PlannedEnemySpawn> = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves),
@@ -199,6 +283,8 @@ data class GameState(
     val damageEffects: SnapshotStateList<DamageEffect> = mutableStateListOf(), // Track barricade damage effects
     val traps: SnapshotStateList<Trap> = mutableStateListOf(), // Track active traps
     val barricades: SnapshotStateList<Barricade> = mutableStateListOf(), // Track active barricades
+    val fiefs: SnapshotStateList<Fief> = mutableStateListOf(), // Track active fiefs (income-generating path objects)
+    val mushrooms: SnapshotStateList<Mushroom> = mutableStateListOf(), // Track active mushrooms
     val bridges: SnapshotStateList<Bridge> = mutableStateListOf(), // Track active bridges
     val rafts: SnapshotStateList<Raft> = mutableStateListOf(), // Track active rafts (towers on rivers)
     val bombExplosionEffects: SnapshotStateList<BombExplosionEffect> = mutableStateListOf(), // Track bomb explosion visual effects
@@ -209,6 +295,8 @@ data class GameState(
     val attackTriggerCount: MutableState<Int> = mutableStateOf(0), // Monotonically-increasing counter, incremented on every attack (bypasses per-tile deduplication)
     val constructionCompleteEffects: SnapshotStateList<TowerConstructionEffect> = mutableStateListOf(), // Track tower construction complete visual effects
     val enemySpawnEffects: SnapshotStateList<EnemySpawnEffect> = mutableStateListOf(), // Track enemy spawn portal visual effects
+    val scrapPiles: SnapshotStateList<ScrapPile> = mutableStateListOf(), // Scrap-Bot wreckage markers waiting to hatch
+    val activePortals: SnapshotStateList<Portal> = mutableStateListOf(), // Rift portals created by Zythar's demonlings
     val trapTriggerEffects: SnapshotStateList<TrapTriggerEffect> = mutableStateListOf(), // Track trap trigger visual effects
     val enemyMoveEffects: SnapshotStateList<EnemyMoveEffect> = mutableStateListOf(), // Track enemy movement trail visual effects
     val dragonLevelChangeEffects: SnapshotStateList<DragonLevelChangeEffect> = mutableStateListOf(), // Track dragon level change visual effects
@@ -220,6 +308,11 @@ data class GameState(
     val pikeAttackEffects: SnapshotStateList<PikeAttackEffect> = mutableStateListOf(), // Track pike extend overlay effects
     val wizardAttackEffects: SnapshotStateList<WizardAttackEffect> = mutableStateListOf(), // Track wizard fireball overlay effects
     val alchemyAttackEffects: SnapshotStateList<AlchemyAttackEffect> = mutableStateListOf(), // Track alchemy acid vial overlay effects
+    val rocketAttackEffects: SnapshotStateList<RocketAttackEffect> = mutableStateListOf(), // Track Baron rocket projectile overlay effects
+    val snotlingCannonThrowEffects: SnapshotStateList<SnotlingCannonThrowEffect> = mutableStateListOf(), // Track Snotling cannon throw projectile effects
+    val garokkWarCryEffects: SnapshotStateList<GarokkWarCryEffect> = mutableStateListOf(), // Track Garokk's war cry pulse effect
+    val shadowSpewEffects: SnapshotStateList<ShadowSpewEffect> = mutableStateListOf(), // Track Xarithon shadow spew flying fireball effects
+    val morvathShadowOrbEffects: SnapshotStateList<MorvathShadowOrbEffect> = mutableStateListOf(), // Track Morvath's shadow orb flying to distant fog tile
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM, // Track difficulty for this game session
     val tutorialState: MutableState<TutorialState> =
         mutableStateOf(
@@ -241,12 +334,23 @@ data class GameState(
     val constructionLevel: Int = 0, // Construction level from player stats (0-3+, gates tower abilities)
     val spellTargeting: MutableState<SpellTargetingState?> = mutableStateOf(null), // Active spell targeting state (null when not targeting)
     val instantTowerSpellActive: MutableState<Boolean> = mutableStateOf(false), // True when Instant Tower spell is active (waiting for next tower placement)
+    // Villains: set to true when any villain reaches a target. A villain breaching a target loses the
+    // level immediately, regardless of remaining health points (see issue #538).
+    val villainReachedTarget: MutableState<Boolean> = mutableStateOf(false),
     // SINGLE_HIT target tracking
     val takenTargets: SnapshotStateList<Position> = mutableStateListOf(), // Positions of taken SINGLE_HIT targets
     val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf(), // Messages queued for display
-    // Player-usable supports remaining this level (placable objects + spell tokens)
+    val waaghPoints: MutableState<Int> = mutableStateOf(0), // Current Waaagh! meter (0-100)
+    val waaghFrenzyActive: MutableState<Boolean> = mutableStateOf(false), // True while Waaagh! frenzy is active
+    val waaghFrenzyRoundsLeft: MutableState<Int> = mutableStateOf(0), // Enemy turns remaining in the current frenzy
+    val hasShownWaaghFrenzyMessage: MutableState<Boolean> = mutableStateOf(false), // True once the frenzy intro narrative was shown
+    val pendingSoulCalls: SnapshotStateList<PendingSoulCall> = mutableStateListOf(), // Valerius resurrection queue for the next round
+    val pendingBargeDeletions: SnapshotStateList<PendingBargeDeletion> = mutableStateListOf(), // Barges (rafts + defenders) to be deleted after animation completes
+    val pendingSnotlingCannonArrivals: SnapshotStateList<PendingSnotlingCannonArrival> = mutableStateListOf(), // Snotlings arriving at their landing tile after the cannonball animation completes
+    // Player-usable supports remaining this level (placable objects + spell tokens + fief tokens)
     val supportObjectsRemaining: SnapshotStateMap<SupportObjectType, Int> = mutableStateMapOf(),
     val supportSpellsRemaining: SnapshotStateMap<SpellType, Int> = mutableStateMapOf(),
+    val supportFiefRemaining: SnapshotStateMap<FiefType, Int> = mutableStateMapOf(),
     // Cooldown-based support powers: turns remaining until the power can be used again (0 = ready)
     val cooldownPowerReadyIn: SnapshotStateMap<CooldownPowerType, Int> = mutableStateMapOf(),
     // True when the Coin Surge power is active this turn (doubles coins earned)
@@ -254,6 +358,10 @@ data class GameState(
     // Monotonically-increasing counter, incremented each time the "Sky is Falling" power is used,
     // to trigger the full-map falling-meteor animation overlay.
     val skyIsFallingTrigger: MutableState<Int> = mutableStateOf(0),
+    // Tile-scoped one-shot animations that have already been shown for the current save state.
+    // Prevents replay when a tile is temporarily removed from composition (e.g. viewport culling)
+    // and later composed again while the same visual effect is still present.
+    val playedTileAnimationKeys: SnapshotStateMap<String, Boolean> = mutableStateMapOf(),
     // Scripted level event tracking
     val enemiesKilledTotal: MutableState<Int> = mutableStateOf(0), // Total enemies killed (by combat/traps, not those reaching the target)
     val enemiesKilledByType: SnapshotStateMap<AttackerType, Int> = mutableStateMapOf(), // Kills per enemy type
@@ -390,16 +498,34 @@ data class GameState(
         return map
     }
 
+    private fun AttackerType.countsAsHordeForWaagh(): Boolean = faction == EnemyFaction.HORDE || unitSize > 0
+
+    val hasHordeUnitsInLevel: Boolean
+        get() =
+            spawnPlan.any { it.attackerType.countsAsHordeForWaagh() } ||
+                level.getEffectiveInitialData().attackers.any { it.type.countsAsHordeForWaagh() } ||
+                attackers.any { !it.isDefeated.value && it.type.countsAsHordeForWaagh() }
+
+    fun addWaaghPoints(amount: Int) {
+        if (amount <= 0 || !level.waaghEnabled) return
+        waaghPoints.value = (waaghPoints.value + amount).coerceAtMost(100)
+    }
+
     fun isLevelWon(): Boolean {
         // Sandbox levels can never be won, even when all enemies are gone.
         if (level.isSandbox) return false
         // Check if all planned spawns have occurred and all enemies are defeated
         val allSpawned = spawnPlan.all { it.spawnTurn <= turnNumber.value }
-        return allSpawned && attackers.all { it.isDefeated.value }
+        return allSpawned &&
+            attackers
+                .filter { it.type != AttackerType.THE_KRAKEN }
+                .all { it.isDefeated.value }
     }
 
     fun isLevelLost(): Boolean {
         if (healthPoints.value <= 0) return true
+        // A villain breaching a target loses the level immediately, regardless of remaining health.
+        if (villainReachedTarget.value) return true
         // Level is also lost when all SINGLE_HIT targets have been taken
         val singleHitTargets = level.targetInfoMap.filter { it.value.type == TargetType.SINGLE_HIT }.keys
         if (singleHitTargets.isNotEmpty() && takenTargets.containsAll(singleHitTargets)) return true
@@ -415,7 +541,7 @@ data class GameState(
         var total = 0L
         for (attacker in attackers) {
             if (attacker.isDefeated.value) continue
-            total += attackerTargetDamage(attacker.type, attacker.level.value).toLong()
+            total += attacker.calculateTargetDamage().toLong()
         }
         for (spawn in spawnPlan) {
             if (spawn.spawnTurn > turnNumber.value) {
@@ -433,6 +559,8 @@ data class GameState(
      *  - Not during the player's turn (e.g. building phase or enemy turn).
      *  - Levels with SINGLE_HIT targets, which can be lost regardless of remaining health.
      *  - When a summoner enemy remains, since it can create an unbounded number of additional units.
+     *  - When a villain remains (on the field or still to spawn), since a villain reaching a target
+     *    loses the level outright, regardless of remaining health.
      */
     fun canWinLevelNow(): Boolean {
         // Sandbox levels can never be won, so never offer the instant win.
@@ -447,6 +575,17 @@ data class GameState(
         if (aliveEnemies.isEmpty() && enemiesToSpawn.isEmpty()) return false
         // Summoners can create additional enemies, so the total threat cannot be bounded.
         if (aliveEnemies.any { it.type.isSummoner() } || enemiesToSpawn.any { it.attackerType.isSummoner() }) return false
+        // A villain (on the field or still to spawn) loses the level the moment it reaches a target,
+        // regardless of remaining health, so a guaranteed win can never be offered while one remains.
+        if (aliveEnemies
+                .filter { it.type != AttackerType.THE_KRAKEN }
+                .any { it.type.isRealVillain } ||
+            enemiesToSpawn
+                .filter { it.attackerType != AttackerType.THE_KRAKEN }
+                .any { it.attackerType.isRealVillain }
+        ) {
+            return false
+        }
 
         return getRemainingEnemyThreat() < healthPoints.value.toLong()
     }
@@ -495,14 +634,15 @@ data class GameState(
 
     fun canPlaceDefender(type: DefenderType): Boolean = (level.isSandbox || coins.value >= type.baseCost) && level.availableTowers.contains(type)
 
-    fun canUpgradeDefender(defender: Defender): Boolean = level.isSandbox || coins.value >= defender.upgradeCost
+    fun canUpgradeDefender(defender: Defender): Boolean = (level.isSandbox || coins.value >= defender.upgradeCost) && !defender.isGrippedByKraken.value
 
     fun hasActionsRemaining(): Boolean = actionsRemainingThisTurn.value > 0
 
+    fun getRemainingPlannedEnemySpawns(): List<PlannedEnemySpawn> =
+        spawnPlan.filter { it.spawnTurn > turnNumber.value }
+
     fun getRemainingEnemyCount(): Int {
-        val totalSpawned = this.nextAttackerId.value - 1
-        val plannedSpawns = this.spawnPlan.drop(totalSpawned)
-        return plannedSpawns.size
+        return getRemainingPlannedEnemySpawns().size
     }
 
     fun getActiveEnemyCount(): Int {
@@ -525,6 +665,20 @@ data class GameState(
         bridges.find { bridge ->
             bridge.isActive && bridge.coversPosition(position)
         }
+
+    fun getPortalAtEntry(position: Position): Portal? =
+        activePortals.firstOrNull { portal ->
+            portal.entryPosition == position
+        }
+
+    fun isPortalEntry(position: Position): Boolean = getPortalAtEntry(position) != null
+
+    fun isPortalExit(position: Position): Boolean =
+        activePortals.any { portal ->
+            portal.exitPosition == position
+        }
+
+    fun isPortalTile(position: Position): Boolean = isPortalEntry(position) || isPortalExit(position)
 
     /**
      * Check if a position has a raft
@@ -561,7 +715,7 @@ data class GameState(
      */
     fun hasDefendersWithUnusedActions(): Boolean {
         // Get active attackers (not defeated, not building bridges)
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value && !it.isDiving.value }
 
         return defenders.any { defender ->
             if (!defender.isReady ||
@@ -571,19 +725,27 @@ data class GameState(
                 return@any false
             }
 
+            val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
+
             // Special handling for different tower types
             when (defender.type) {
                 DefenderType.DWARVEN_MINE -> {
                     // Mines always count as having unused actions (digging)
                     true
                 }
+                DefenderType.WIZARD_TOWER -> {
+                    if (hasEnemiesInRange) {
+                        true
+                    } else {
+                        currentMana.value < maxMana.value
+                    }
+                }
                 else -> {
                     // Only count attack towers if they have AttackType and enemies in range
                     if (defender.type.attackType == AttackType.NONE) {
                         false
                     } else {
-                        // Check if there are any enemies in range
-                        activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
+                        hasEnemiesInRange
                     }
                 }
             }
@@ -596,7 +758,7 @@ data class GameState(
      * left-to-right) for deterministic Tab cycling.
      */
     fun getActionableTowersForTab(): List<Defender> {
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value && !it.isDiving.value }
         return defenders
             .filter { defender ->
                 if (!defender.isReady ||
@@ -619,36 +781,52 @@ data class GameState(
     }
 
     /**
-     * Check if there are defenders that can perform auto-attacks.
-     * Returns true if there are defenders with actions that can be automated (regular attacks).
-     * Excludes special actions like mines, traps, and alchemy towers.
+     * Determine whether the auto-action button can perform attacks or mana generation this turn.
+     * ATTACK means at least one ready tower can auto-attack an enemy in range.
+     * MANA_ONLY means no attack is currently possible, but a wizard can auto-generate mana.
      */
-    fun hasDefendersForAutoAttack(): Boolean {
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
-        if (activeAttackers.isEmpty()) return false
+    fun getAutoAttackAvailability(): AutoAttackAvailability {
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value && !it.isDiving.value }
+        var hasManaOnlyAutoAction = false
 
-        return defenders.any { defender ->
+        for (defender in defenders) {
             if (!defender.isReady ||
                 defender.actionsRemaining.value <= 0 ||
                 defender.isDisabled.value
             ) {
-                return@any false
+                continue
             }
 
-            // Only count towers that can do regular auto-attacks
-            // Exclude mines (no attack) and wizard towers level 10+ (have trap ability that needs manual placement)
-            // Alchemy towers CAN auto-attack (they check acid immunity like wizard towers check fireball immunity)
+            // Only count towers that can do regular auto-attacks.
+            // Exclude mines (no attack). Wizards can also qualify when auto-attack would spend
+            // their action on mana generation because they have no valid target.
             when {
-                defender.type == DefenderType.DWARVEN_MINE -> false
-                defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 -> false
-                defender.type.attackType == AttackType.NONE -> false
+                defender.type == DefenderType.DWARVEN_MINE -> continue
+                defender.type.attackType == AttackType.NONE -> continue
                 else -> {
-                    // Check if there are any enemies in range
-                    activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
+                    val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
+                    if (hasEnemiesInRange) {
+                        return AutoAttackAvailability.ATTACK
+                    }
+                    if (defender.type == DefenderType.WIZARD_TOWER &&
+                        currentMana.value < maxMana.value
+                    ) {
+                        hasManaOnlyAutoAction = true
+                    } else {
+                        continue
+                    }
                 }
             }
         }
+
+        if (hasManaOnlyAutoAction) {
+            return AutoAttackAvailability.MANA_ONLY
+        } else {
+            return AutoAttackAvailability.NONE
+        }
     }
+
+    fun hasDefendersForAutoAttack(): Boolean = getAutoAttackAvailability() != AutoAttackAvailability.NONE
 
     /**
      * Check if there are defenders with special actions that cannot be automated effectively.
@@ -656,7 +834,7 @@ data class GameState(
      */
     fun getDefenderTypesWithSpecialActions(): List<DefenderType> {
         val typesWithActions = mutableSetOf<DefenderType>()
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value && !it.isDiving.value }
 
         defenders.forEach { defender ->
             if (!defender.isReady || defender.actionsRemaining.value <= 0 || defender.isDisabled.value) {
@@ -678,7 +856,7 @@ data class GameState(
                 }
                 // Wizard towers (level 10+) with magical trap available
                 defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 -> {
-                    if (defender.trapCooldownRemaining.value == 0) {
+                    if (canWizardPlaceAnyMagicalTrap(defender)) {
                         typesWithActions.add(DefenderType.WIZARD_TOWER)
                     }
                 }
@@ -688,6 +866,31 @@ data class GameState(
         return typesWithActions.toList()
     }
 
+    fun canWizardPlaceMagicalTrapAt(
+        wizard: Defender,
+        trapPosition: Position,
+    ): Boolean {
+        if (wizard.type != DefenderType.WIZARD_TOWER) return false
+        if (wizard.level.value < 10) return false
+        if (!wizard.isReady || wizard.actionsRemaining.value <= 0) return false
+        if (wizard.trapCooldownRemaining.value > 0) return false
+
+        val distance = wizard.position.value.distanceTo(trapPosition)
+        if (distance > effectiveRange(wizard)) return false
+        if (!level.isOnPath(trapPosition)) return false
+        if (traps.any { it.position == trapPosition }) return false
+        if (attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
+        if (fieldEffects.any { it.position == trapPosition }) return false
+        if (fiefs.any { it.position == trapPosition }) return false
+
+        return true
+    }
+
+    fun canWizardPlaceAnyMagicalTrap(wizard: Defender): Boolean =
+        level.pathCells.any { position ->
+            canWizardPlaceMagicalTrapAt(wizard, position)
+        }
+
     /**
      * Initialize pre-placed defenders, attackers, traps, and barricades from level configuration.
      * This should be called right after GameState creation to set up the initial level state.
@@ -696,7 +899,7 @@ data class GameState(
         // Get initial data using the helper method that handles both old and new formats
         val initialData = level.getEffectiveInitialData()
 
-        // Initialize player-usable supports (placable objects + spell tokens) for this level
+        // Initialize player-usable supports (placable objects + spell tokens + fief tokens) for this level
         supportObjectsRemaining.clear()
         for (supportObject in level.supports.objects) {
             supportObjectsRemaining[supportObject.type] =
@@ -706,6 +909,11 @@ data class GameState(
         for (supportSpell in level.supports.spells) {
             supportSpellsRemaining[supportSpell.spell] =
                 combineSupportCounts(supportSpellsRemaining[supportSpell.spell] ?: 0, supportSpell.count)
+        }
+        supportFiefRemaining.clear()
+        for (supportFief in level.supports.fiefs) {
+            supportFiefRemaining[supportFief.type] =
+                combineSupportCounts(supportFiefRemaining[supportFief.type] ?: 0, supportFief.count)
         }
 
         // Initialize cooldown-based support powers. Powers that start active are immediately usable
@@ -793,6 +1001,29 @@ data class GameState(
                     type = trapType,
                 )
             traps.add(trap)
+        }
+
+        // Place initial fiefs
+        for (initialFief in initialData.fiefs) {
+            fiefs.add(Fief(position = initialFief.position, type = initialFief.type))
+        }
+
+        // Place initial mushrooms
+        for (initialMushroom in initialData.mushrooms) {
+            mushrooms.add(Mushroom(position = initialMushroom.position))
+        }
+
+        // Place initial portals (level-designer-placed portal pairs, villainId = 0)
+        for ((index, initialPortal) in initialData.portals.withIndex()) {
+            activePortals.add(
+                Portal(
+                    id = nextPortalId.value++,
+                    entryPosition = initialPortal.entryPosition,
+                    exitPosition = initialPortal.exitPosition,
+                    villainId = 0,
+                    runeIndex = index % Portal.RUNE_POOL_SIZE,
+                ),
+            )
         }
     }
 }

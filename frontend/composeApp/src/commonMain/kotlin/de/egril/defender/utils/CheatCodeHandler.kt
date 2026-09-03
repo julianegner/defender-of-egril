@@ -114,10 +114,20 @@ object CheatCodeHandler {
                         "goblin" -> AttackerType.GOBLIN
                         "ork", "orc" -> AttackerType.ORK
                         "ogre" -> AttackerType.OGRE
+                        "troll" -> AttackerType.TROLL
                         "skeleton" -> AttackerType.SKELETON
                         "wizard", "evil_wizard", "evilwizard" -> AttackerType.EVIL_WIZARD
                         "greenwitch" -> AttackerType.GREEN_WITCH
                         "redwitch" -> AttackerType.RED_WITCH
+                        "snotling" -> AttackerType.SNOTLING
+                        "spiderling" -> AttackerType.SPIDERLING
+                        "demonling" -> AttackerType.DEMONLING
+                        "zythar", "riftcaller", "zythar_the_riftcaller" -> AttackerType.ZYTHAR_THE_RIFTCALLER
+                        "roboticgoblin", "robotic_goblin", "scrapbot" -> AttackerType.ROBOTIC_GOBLIN
+                        "snotlingboss", "gribnak" -> AttackerType.SNOTLING_BOSS
+                        "araxxa", "giantspider", "giant_spider" -> AttackerType.ARAXXA
+                        "baron", "ratterzahn", "baronratterzahn", "baron_ratterzahn" -> AttackerType.BARON_RATTERZAHN
+                        "freya", "shieldmaiden", "fallenfreya", "fallen_shieldmaiden_freya" -> AttackerType.FALLEN_SHIELDMAIDEN_FREYA
                         else -> return Pair(false, null)
                     }
 

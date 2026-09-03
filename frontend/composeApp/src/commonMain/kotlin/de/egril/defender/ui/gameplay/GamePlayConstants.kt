@@ -153,6 +153,12 @@ object GamePlayConstants {
         /** Icon size for barricades on tiles */
         val Barricade = 48.dp
 
+        /** Icon size for fiefs on tiles */
+        val Fief = 48.dp
+
+        /** Icon size for mushrooms on tiles */
+        val Mushroom = 48.dp
+
         /** Icon size for trap preview when hovering during placement mode */
         val TrapPreview = 48.dp
 
@@ -161,6 +167,15 @@ object GamePlayConstants {
 
         /** Icon size for static damage effect overlay (shown when animations are disabled) */
         val DamageEffect = 24.dp
+
+        /** Icon size for spider web background rendered on web-affected tiles */
+        val SpiderWebBackground = 44.dp
+
+        /** Icon size for Baron Ratterzahn scrap piles waiting to hatch */
+        val ScrapPile = 40.dp
+
+        /** Overlay size for Morvath's shadow fog tiles */
+        val ShadowFogOverlay = 40.dp
     }
 
     /**
@@ -173,6 +188,18 @@ object GamePlayConstants {
          * action markers (lightning bolts) – are drawn fully opaque.
          */
         const val InactiveTower = 0.5f
+    }
+
+    /**
+     * Z-index layers used to control the stacking order of UI elements on the gameplay screen.
+     * Higher values render on top of lower values.
+     */
+    object LayerZ {
+        /** Z-index for river flow direction arrows (13f). */
+        const val RiverArrows = 13f
+
+        /** Z-index for gamepad/control panel overlay (30f). */
+        const val Gamepad = 30f
     }
 
     /**
@@ -194,6 +221,12 @@ object GamePlayConstants {
 
         /** Delay before the wizard fireball hit animation so the fireball visibly arrives first. */
         const val WIZARD_FLIGHT_DELAY_MS = 1000L
+
+        /** Delay for Xarithon's shadow spew fireball flight animation. */
+        const val SHADOW_SPEW_FLIGHT_DELAY_MS = 1100L
+
+        /** Delay for Morvath's shadow orb flight animation to a distant fog tile. */
+        const val MORVATH_ORB_FLIGHT_DELAY_MS = 1000L
 
         /** Delay before the alchemy acid vial hit animation so the vial visibly arrives first. */
         const val ALCHEMY_FLIGHT_DELAY_MS = 1000L

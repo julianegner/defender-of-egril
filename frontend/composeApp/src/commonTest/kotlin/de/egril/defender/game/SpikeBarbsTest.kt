@@ -459,7 +459,7 @@ class SpikeBarbsTest {
         state.attackers.add(greenWitch)
 
         // Process enemy abilities (Green Witch should remove barbs)
-        val abilitySystem = EnemyAbilitySystem(state)
+        val abilitySystem = EnemyAbilitySystem(state, PathfindingSystem(state))
         abilitySystem.processEnemyAbilities()
 
         // Check that Green Witch removed 3 barbs (5 - 3 = 2 remaining)
@@ -516,7 +516,7 @@ class SpikeBarbsTest {
         state.attackers.add(greenWitch)
 
         // Process enemy abilities (Green Witch should remove all barbs)
-        val abilitySystem = EnemyAbilitySystem(state)
+        val abilitySystem = EnemyAbilitySystem(state, PathfindingSystem(state))
         abilitySystem.processEnemyAbilities()
 
         // Check that Green Witch removed all 2 barbs

@@ -17,12 +17,58 @@ import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.InfoIcon
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.LockIcon
+import de.egril.defender.ui.icon.MushroomIcon
 import de.egril.defender.ui.icon.RightArrowIcon
 import de.egril.defender.ui.icon.ShieldIcon
 import de.egril.defender.ui.icon.SnowflakeIcon
 import de.egril.defender.ui.icon.WarningIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import defender_of_egril.composeapp.generated.resources.*
+
+private const val VILLAIN_INFO_FIRST_COLUMN_MAX_ENTRIES = 4
+
+internal enum class MushroomEnhancementKind {
+    SPEED_AND_LEVEL,
+    SPEED_LEVEL_AND_ABILITIES,
+}
+
+internal fun Attacker.mushroomEnhancementKind(): MushroomEnhancementKind? =
+    if (mushroomTurnsRemaining.value <= 0) {
+        null
+    } else if (type.hasMushroomAbilityBoost) {
+        MushroomEnhancementKind.SPEED_LEVEL_AND_ABILITIES
+    } else {
+        MushroomEnhancementKind.SPEED_AND_LEVEL
+    }
+
+private val AttackerType.hasMushroomAbilityBoost: Boolean
+    get() =
+        canHeal ||
+            canDisableTowers ||
+            this == AttackerType.GRAND_COVEN_MOTHER_SYBILLA ||
+            this == AttackerType.HAGA ||
+            this == AttackerType.ZUSSA
+
+private enum class AttackerInfoEntryIcon {
+    WARNING,
+    LIGHTNING,
+    HEART,
+    LOCK,
+    SHIELD,
+}
+
+private data class AttackerInfoEntry(
+    val icon: AttackerInfoEntryIcon,
+    val text: String,
+    val color: Color,
+    val isBold: Boolean = false,
+)
+
+/**
+ * Returns the localized description for an attacker type, or an empty string if none exists.
+ */
+@Composable
+private fun getAttackerDescription(attackerType: AttackerType): String = attackerType.getLocalizedDescription()
 
 /**
  * Display details about a selected enemy attacker
@@ -34,13 +80,33 @@ fun AttackerInfo(
     activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = androidx.compose.runtime.mutableStateListOf(),
     isMobile: Boolean = false,
     onShowDragonInfo: () -> Unit = {},
+    waaghActive: Boolean = false,
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
     val attackerDisplayName =
         if (attacker.type.isDragon && attacker.dragonName != null) {
-            "${stringResource(Res.string.the_dragon)} ${attacker.dragonName}"
+            val dragonLabel =
+                if (attacker.type == AttackerType.UNDEAD_DRAGON) {
+                    stringResource(Res.string.undead_dragon_label)
+                } else {
+                    stringResource(Res.string.the_dragon)
+                }
+            "$dragonLabel ${attacker.dragonName}"
         } else {
-            attacker.type.getLocalizedName(locale)
+            attacker.getLocalizedName(locale)
+        }
+    val showWaaghGlow = waaghActive && attacker.type in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
+    val waaghBoostText =
+        if (waaghActive) {
+            when (attacker.type) {
+                AttackerType.GOBLIN -> stringResource(Res.string.waagh_goblin_boost)
+                AttackerType.ORK -> stringResource(Res.string.waagh_ork_boost)
+                AttackerType.OGRE -> stringResource(Res.string.waagh_ogre_boost)
+                AttackerType.SNOTLING -> stringResource(Res.string.waagh_snotling_boost)
+                else -> null
+            }
+        } else {
+            null
         }
     val healthLabel = stringResource(Res.string.health)
     val healthPointsLabel = stringResource(Res.string.health_points)
@@ -48,18 +114,26 @@ fun AttackerInfo(
     val attackerCardLabel =
         buildString {
             append(attackerDisplayName)
-            append(", ")
-            append(healthLabel)
-            append(": ")
-            append(attacker.currentHealth.value)
-            append(", ")
-            append(healthPointsLabel)
-            append(": ")
-            append(attacker.maxHealth)
+            if (!attacker.type.hidesHealthBar) {
+                append(", ")
+                append(healthLabel)
+                append(": ")
+                append(attacker.currentHealth.value)
+                append(", ")
+                append(healthPointsLabel)
+                append(": ")
+                append(attacker.maxHealth)
+            }
             append(", ")
             append(speedLabel)
             append(": ")
-            append(attacker.type.speed)
+            append(
+                if (attacker.hasMushroomBuff) {
+                    attacker.type.speed * 2
+                } else {
+                    attacker.type.speed
+                },
+            )
         }
 
     // Use key to force recomposition when attacker stats change
@@ -71,6 +145,7 @@ fun AttackerInfo(
         attacker.position.value.y,
         attacker.greed,
         attacker.movementPenalty.value,
+        attacker.mushroomTurnsRemaining.value,
     ) {
         Card(
             modifier =
@@ -91,7 +166,11 @@ fun AttackerInfo(
                     modifier = Modifier.size(iconSize),
                     contentAlignment = Alignment.Center,
                 ) {
-                    EnemyIcon(attacker = attacker, modifier = Modifier.size(iconInnerSize))
+                    EnemyIcon(
+                        attacker = attacker,
+                        modifier = Modifier.size(iconInnerSize),
+                        showWaaghGlow = showWaaghGlow,
+                    )
                 }
 
                 val horizontalSpacing = if (isMobile) 4.dp else 8.dp
@@ -107,13 +186,17 @@ fun AttackerInfo(
                                 attacker.position.value.hexDistanceTo(effect.position) <= 2
                         }
                     val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
-                    val cooledSpeed = if (coolingEffect != null) maxOf(0, barbsSpeed - 1) else null
+                    val mushroomSpeed = if (attacker.hasMushroomBuff) barbsSpeed * 2 else barbsSpeed
+                    val cooledSpeed = if (coolingEffect != null) maxOf(0, mushroomSpeed - 1) else null
+                    val waaghSpeed = if (waaghActive && attacker.type == AttackerType.ORK) attacker.type.speed * 2 else null
 
                     // Pre-compute freeze effect for reuse throughout the Column
                     val freezeEffect =
                         activeSpellEffects.find {
                             it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
                         }
+                    val mushroomEnhancementKind = attacker.mushroomEnhancementKind()
+                    val displayedLevel = attacker.displayLevel
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -125,9 +208,13 @@ fun AttackerInfo(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
-                        if (attacker.level.value > 1) {
+                        if (displayedLevel > 1) {
                             Text(
-                                "Lvl ${attacker.level.value}",
+                                if (attacker.hasMushroomBuff) {
+                                    "Lvl $displayedLevel (x2)"
+                                } else {
+                                    "Lvl $displayedLevel"
+                                },
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = GamePlayColors.ErrorDark,
@@ -138,7 +225,7 @@ fun AttackerInfo(
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        if (attacker.type != AttackerType.EWHAD) {
+                        if (!attacker.type.hidesHealthBar) {
                             Text(
                                 "${stringResource(Res.string.hp_short)}: ${attacker.currentHealth.value}/${attacker.maxHealth}",
                                 style = MaterialTheme.typography.bodySmall,
@@ -164,6 +251,26 @@ fun AttackerInfo(
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Red,
+                                )
+                            }
+
+                            if (attacker.hasMushroomBuff) {
+                                RightArrowIcon(size = 12.dp, tint = Color(0xFFFF8C00))
+                                Text(
+                                    "$mushroomSpeed",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFFFF8C00),
+                                )
+                            }
+
+                            if (waaghSpeed != null) {
+                                RightArrowIcon(size = 12.dp, tint = Color(0xFFFFB000))
+                                Text(
+                                    "$waaghSpeed",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFFFFB000),
                                 )
                             }
 
@@ -195,6 +302,43 @@ fun AttackerInfo(
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray,
                         )
+                    }
+
+                    if (mushroomEnhancementKind != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(top = 4.dp),
+                        ) {
+                            MushroomIcon(size = 14.dp)
+                            Text(
+                                when (mushroomEnhancementKind) {
+                                    MushroomEnhancementKind.SPEED_AND_LEVEL ->
+                                        stringResource(Res.string.mushroom_enhanced_horde)
+                                    MushroomEnhancementKind.SPEED_LEVEL_AND_ABILITIES ->
+                                        stringResource(Res.string.mushroom_enhanced_witch)
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFFFF8C00),
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+
+                    if (waaghBoostText != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(top = 4.dp),
+                        ) {
+                            WarningIcon(size = 14.dp)
+                            Text(
+                                waaghBoostText,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFFFFB000),
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
                     }
 
                     // Show barbs effect explanation if affected
@@ -355,70 +499,209 @@ fun AttackerInfo(
                     }
 
                     // Additional info about special abilities
+                    val infoEntries = mutableListOf<AttackerInfoEntry>()
+                    if (attacker.type.isVillain && attacker.type != AttackerType.THE_KRAKEN) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.WARNING,
+                                text = stringResource(Res.string.ewhad_target_warning, attacker.type.getLocalizedShortName(locale)),
+                                color = GamePlayColors.ErrorDark,
+                                isBold = true,
+                            ),
+                        )
+                    }
                     if (attacker.type.canSummon) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            LightningIcon(size = 14.dp)
-                            Text(
-                                stringResource(Res.string.can_summon),
-                                style = MaterialTheme.typography.bodySmall,
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.can_summon),
                                 color = GamePlayColors.Warning,
-                            )
-                        }
+                            ),
+                        )
                     }
                     if (attacker.type.canHeal) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            HeartIcon(size = 14.dp)
-                            Text(
-                                stringResource(Res.string.can_heal),
-                                style = MaterialTheme.typography.bodySmall,
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.HEART,
+                                text = stringResource(Res.string.can_heal),
                                 color = GamePlayColors.Success,
-                            )
-                        }
+                            ),
+                        )
                     }
                     if (attacker.type.canDisableTowers) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            LockIcon(size = 14.dp)
-                            Text(
-                                stringResource(Res.string.can_disable_towers),
-                                style = MaterialTheme.typography.bodySmall,
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LOCK,
+                                text = stringResource(Res.string.can_disable_towers),
                                 color = GamePlayColors.ErrorDark,
-                            )
-                        }
+                            ),
+                        )
                     }
-                    if (attacker.type.immuneToAcid) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            ShieldIcon(size = 14.dp)
-                            Text(
-                                stringResource(Res.string.immune_to_acid),
-                                style = MaterialTheme.typography.bodySmall,
+                    if (attacker.type == AttackerType.GHOST) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.can_only_be_harmed_by_magical_attacks),
                                 color = GamePlayColors.InfoDark,
-                            )
-                        }
+                            ),
+                        )
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.ghost_movement_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    } else if (attacker.type.immuneToAcid) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.immune_to_acid),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
                     }
                     if (attacker.type.immuneToFireball) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            ShieldIcon(size = 14.dp)
-                            Text(
-                                stringResource(Res.string.immune_to_fireball),
-                                style = MaterialTheme.typography.bodySmall,
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.immune_to_fireball),
                                 color = GamePlayColors.InfoDark,
-                            )
-                        }
+                            ),
+                        )
+                    }
+                    if (attacker.type.shieldWallFormationWidth > 0) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.villain_freya_shield_wall_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
+                    if (attacker.type == AttackerType.PRINCE_VALERIUS_THE_SOULREAPER) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.villain_valerius_soul_call_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
+                    if (attacker.type == AttackerType.GRAND_COVEN_MOTHER_SYBILLA ||
+                        attacker.type == AttackerType.HAGA ||
+                        attacker.type == AttackerType.ZUSSA
+                    ) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.villain_coven_synergy_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
+                    if (attacker.type == AttackerType.SYLVANAS_THE_MOLDING) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LOCK,
+                                text = stringResource(Res.string.villain_sylvanas_root_grip_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.HEART,
+                                text = stringResource(Res.string.villain_sylvanas_self_heal_short),
+                                color = GamePlayColors.Success,
+                            ),
+                        )
+                    }
+                    if (attacker.type == AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LOCK,
+                                text = stringResource(Res.string.villain_malakor_time_loop_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.villain_malakor_flies_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
+
+                    if (attacker.type == AttackerType.MORVATH_THE_SHADOWMASTER) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LOCK,
+                                text = stringResource(Res.string.villain_morvath_shadow_fog_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
+
+                    if (attacker.type == AttackerType.XARITHON_THE_SHADOW_DRAGON) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LOCK,
+                                text = stringResource(Res.string.villain_xarithon_shadow_spew_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.villain_xarithon_immune_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
+
+                    if (attacker.type == AttackerType.CAPTAIN_RODERICH) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.villain_roderich_seaworthy_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.villain_roderich_broadside_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
+
+                    if (attacker.type == AttackerType.THE_KRAKEN) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.villain_kraken_water_domain_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.SHIELD,
+                                text = stringResource(Res.string.villain_kraken_dive_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
+                    }
+
+                    if (attacker.type == AttackerType.ZYTHAR_THE_RIFTCALLER) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.LIGHTNING,
+                                text = stringResource(Res.string.villain_zythar_portal_short),
+                                color = GamePlayColors.InfoDark,
+                            ),
+                        )
                     }
 
                     // Mighty unit warning - for wizards, witches, demons, dragons
@@ -433,40 +716,87 @@ fun AttackerInfo(
                             -> true
                             else -> false
                         }
-
                     if (isMightyUnit) {
                         val damage = attacker.level.value
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            WarningIcon(size = 14.dp)
-                            Text(
-                                stringResource(Res.string.mighty_unit_warning, damage),
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold,
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.WARNING,
+                                text = stringResource(Res.string.mighty_unit_warning, damage),
                                 color = GamePlayColors.ErrorDark,
-                            )
-                        }
+                                isBold = true,
+                            ),
+                        )
                     }
 
-                    // Special Ewhad warning
-                    if (attacker.type == AttackerType.EWHAD) {
+                    if (attacker.type.isVillain && !isMobile && infoEntries.size > VILLAIN_INFO_FIRST_COLUMN_MAX_ENTRIES) {
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            WarningIcon(size = 14.dp)
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                            ) {
+                                infoEntries
+                                    .take(VILLAIN_INFO_FIRST_COLUMN_MAX_ENTRIES)
+                                    .forEach { entry -> AttackerInfoEntryRow(entry) }
+                            }
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                            ) {
+                                infoEntries
+                                    .drop(VILLAIN_INFO_FIRST_COLUMN_MAX_ENTRIES)
+                                    .forEach { entry -> AttackerInfoEntryRow(entry) }
+                            }
+                        }
+                    } else {
+                        infoEntries.forEach { entry -> AttackerInfoEntryRow(entry) }
+                    }
+                }
+                // Description column (desktop only – right of the stats column)
+                // Displays descriptive text for all enemy types
+                if (!isMobile) {
+                    val description = getAttackerDescription(attacker.type)
+                    if (description.isNotEmpty()) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column(
+                            modifier =
+                                Modifier
+                                    .weight(1f)
+                                    .padding(end = 8.dp, top = 4.dp, bottom = 4.dp),
+                        ) {
                             Text(
-                                stringResource(Res.string.ewhad_target_warning),
+                                text = description,
                                 style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold,
-                                color = GamePlayColors.ErrorDark,
+                                color = Color.Gray,
                             )
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun AttackerInfoEntryRow(entry: AttackerInfoEntry) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        when (entry.icon) {
+            AttackerInfoEntryIcon.WARNING -> WarningIcon(size = 14.dp)
+            AttackerInfoEntryIcon.LIGHTNING -> LightningIcon(size = 14.dp)
+            AttackerInfoEntryIcon.HEART -> HeartIcon(size = 14.dp)
+            AttackerInfoEntryIcon.LOCK -> LockIcon(size = 14.dp)
+            AttackerInfoEntryIcon.SHIELD -> ShieldIcon(size = 14.dp)
+        }
+        Text(
+            text = entry.text,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = if (entry.isBold) FontWeight.Bold else FontWeight.Normal,
+            color = entry.color,
+        )
     }
 }

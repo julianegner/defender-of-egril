@@ -19,8 +19,6 @@ import de.egril.defender.model.*
 class BridgeSystem(
     private val state: GameState,
 ) {
-    private var nextBridgeId = 1
-
     /**
      * Check if an attacker should build a bridge based on strategic considerations.
      * - For Wizards (Evil Wizard/Ewhad): Always build if possible
@@ -228,7 +226,7 @@ class BridgeSystem(
 
                 val bridge =
                     Bridge(
-                        id = nextBridgeId++,
+                        id = state.nextBridgeId.value++,
                         type = BridgeType.WOODEN,
                         positions = positions,
                         currentHealth = mutableStateOf(attacker.currentHealth.value),
@@ -239,6 +237,7 @@ class BridgeSystem(
 
                 // Destroy the ork
                 attacker.isBuildingBridge.value = true
+                attacker.wasMerged.value = true
                 attacker.isDefeated.value = true
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("Ork ${attacker.id} built wooden bridge at ${positions[0]} with ${bridge.currentHealth.value} HP")
@@ -252,7 +251,7 @@ class BridgeSystem(
 
                 val bridge =
                     Bridge(
-                        id = nextBridgeId++,
+                        id = state.nextBridgeId.value++,
                         type = BridgeType.STONE,
                         positions = positions,
                         currentHealth = mutableStateOf(attacker.currentHealth.value),
@@ -263,6 +262,7 @@ class BridgeSystem(
 
                 // Destroy the ogre
                 attacker.isBuildingBridge.value = true
+                attacker.wasMerged.value = true
                 attacker.isDefeated.value = true
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("Ogre ${attacker.id} built stone bridge at $positions with ${bridge.currentHealth.value} HP")
@@ -277,7 +277,7 @@ class BridgeSystem(
 
                 val bridge =
                     Bridge(
-                        id = nextBridgeId++,
+                        id = state.nextBridgeId.value++,
                         type = BridgeType.MAGICAL,
                         positions = positions,
                         currentHealth = mutableStateOf(0), // No HP
