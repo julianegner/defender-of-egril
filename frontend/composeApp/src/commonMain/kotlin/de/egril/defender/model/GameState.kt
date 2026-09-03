@@ -638,10 +638,11 @@ data class GameState(
 
     fun hasActionsRemaining(): Boolean = actionsRemainingThisTurn.value > 0
 
+    fun getRemainingPlannedEnemySpawns(): List<PlannedEnemySpawn> =
+        spawnPlan.filter { it.spawnTurn > turnNumber.value }
+
     fun getRemainingEnemyCount(): Int {
-        val totalSpawned = this.nextAttackerId.value - 1
-        val plannedSpawns = this.spawnPlan.drop(totalSpawned)
-        return plannedSpawns.size
+        return getRemainingPlannedEnemySpawns().size
     }
 
     fun getActiveEnemyCount(): Int {

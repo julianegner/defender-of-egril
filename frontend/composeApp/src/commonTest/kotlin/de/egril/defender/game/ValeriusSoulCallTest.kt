@@ -8,6 +8,7 @@ import de.egril.defender.model.GamePhase
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Level
 import de.egril.defender.model.Position
+import de.egril.defender.model.PlannedEnemySpawn
 import de.egril.defender.model.getSoulCallResurrectionType
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -154,5 +155,48 @@ class ValeriusSoulCallTest {
 
         assertEquals(AttackerType.SKELETON, state.enemySpawnEffects.single().attackerType)
         assertTrue(state.enemySpawnEffects.single().suppressPortalAnimation)
+    }
+
+    @Test
+    fun valeriusResurrectionDoesNotHideLaterPlannedSpawns() {
+        val level =
+            Level(
+                id = 2,
+                name = "Valerius Long Level",
+                gridWidth = 12,
+                gridHeight = 6,
+                startPositions = listOf(Position(0, 3)),
+                targetPositions = listOf(Position(11, 3)),
+                pathCells = (0..11).map { Position(it, 3) }.toSet(),
+                attackerWaves = emptyList(),
+                directSpawnPlan =
+                    listOf(
+                        PlannedEnemySpawn(AttackerType.GOBLIN, spawnTurn = 15),
+                        PlannedEnemySpawn(AttackerType.ORK, spawnTurn = 16),
+                    ),
+                initialCoins = 100,
+                healthPoints = 10,
+            )
+        val state = GameState(level, phase = mutableStateOf(GamePhase.PLAYER_TURN))
+        state.turnNumber.value = 14
+
+        state.nextAttackerId.value = 6
+        state.attackers.addAll(
+            listOf(
+                Attacker(
+                    id = 1,
+                    type = AttackerType.PRINCE_VALERIUS_THE_SOULREAPER,
+                    position = mutableStateOf(Position(4, 3)),
+                ),
+                Attacker(
+                    id = 2,
+                    type = AttackerType.ZOMBIE,
+                    position = mutableStateOf(Position(6, 3)),
+                ),
+            ),
+        )
+
+        assertEquals(2, state.getRemainingPlannedEnemySpawns().size)
+        assertEquals(2, state.getRemainingEnemyCount())
     }
 }

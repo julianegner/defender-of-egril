@@ -313,12 +313,9 @@ fun EnemyListPanel(
             .filter { it.type == FieldEffectType.SHADOW_FOG }
             .mapTo(mutableSetOf()) { it.position }
 
-    // Calculate how many enemies have spawned from the spawn plan
-    // nextAttackerId starts at 1, so (nextAttackerId - 1) gives us the count of spawned enemies
-    val totalSpawned = gameState.nextAttackerId.value - 1
-
-    // Get the remaining planned spawns (those that haven't spawned yet)
-    val plannedSpawns = gameState.spawnPlan.drop(totalSpawned) // .take(15)
+    // Planned spawns are determined by the schedule, not by attacker IDs, because Valerius and
+    // other abilities can create extra units that should not consume future planned entries.
+    val plannedSpawns = gameState.getRemainingPlannedEnemySpawns()
 
     ExpandableCard(
         title = stringResource(Res.string.enemies),
