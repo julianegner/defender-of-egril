@@ -717,7 +717,10 @@ afterEvaluate {
         )
     }
 
-    tasks.matching { it.name.contains("wasmJsBrowser", ignoreCase = true) }.configureEach {
+    tasks.matching {
+        it.name.contains("wasmJsBrowser", ignoreCase = true) &&
+            !it.name.startsWith("clean", ignoreCase = true)
+    }.configureEach {
         dependsOn(sanitizeWasmImportObjects)
     }
 }
