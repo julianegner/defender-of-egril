@@ -425,6 +425,7 @@ fun MapEditorView(
     var showAreaClipboardDialog by remember { mutableStateOf(false) }
     var showMapFlowOverlay by remember { mutableStateOf(false) }
     var showMapPathPreviewOverlay by remember { mutableStateOf(false) }
+    var showCrosshair by remember { mutableStateOf(false) }
     var copyFromX by remember { mutableStateOf("0") }
     var copyFromY by remember { mutableStateOf("0") }
     var copyToX by remember { mutableStateOf((map.width - 1).coerceAtLeast(0).toString()) }
@@ -667,6 +668,11 @@ fun MapEditorView(
                                     }
                                 }
                             },
+                    overlayContent = { measuredContentSize ->
+                        if (showCrosshair) {
+                            MapCrosshairOverlay(contentSize = measuredContentSize)
+                        }
+                    },
                 ) { position ->
                     val key = "${position.x},${position.y}"
                     val tileType = tiles[key] ?: TileType.NO_PLAY
@@ -852,6 +858,11 @@ fun MapEditorView(
                             label = stringResource(Res.string.map_path_preview),
                             isActive = showMapPathPreviewOverlay,
                             onClick = { showMapPathPreviewOverlay = !showMapPathPreviewOverlay },
+                        )
+                        OverlayToggleButton(
+                            label = stringResource(Res.string.map_crosshair),
+                            isActive = showCrosshair,
+                            onClick = { showCrosshair = !showCrosshair },
                         )
                         Button(
                             onClick = {
@@ -1906,6 +1917,39 @@ private fun MapFlowMetric(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(text = value, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+/**
+ * Draws a red hairline crosshair centered on the map's tile content (not the screen/canvas),
+ * so it stays anchored to the exact center of the map regardless of zoom or pan.
+ *
+ * This is rendered via the [HexagonalMapView] `overlayContent` slot, which applies the same
+ * scale/translation transform as the tile grid itself.
+ */
+@Composable
+private fun MapCrosshairOverlay(contentSize: IntSize) {
+    if (contentSize.width == 0 || contentSize.height == 0) return
+    val density = LocalDensity.current
+    val contentWidthDp = with(density) { contentSize.width.toDp() }
+    val contentHeightDp = with(density) { contentSize.height.toDp() }
+    androidx.compose.foundation.Canvas(
+        modifier = Modifier.requiredSize(contentWidthDp, contentHeightDp),
+    ) {
+        val centerX = size.width / 2f
+        val centerY = size.height / 2f
+        drawLine(
+            color = Color.Red,
+            start = Offset(0f, centerY),
+            end = Offset(size.width, centerY),
+            strokeWidth = 2f,
+        )
+        drawLine(
+            color = Color.Red,
+            start = Offset(centerX, 0f),
+            end = Offset(centerX, size.height),
+            strokeWidth = 2f,
+        )
     }
 }
 

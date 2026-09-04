@@ -2382,6 +2382,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="paste_region">Bereich einfuegen</string>
     <string name="region_copied_size">Kopierter Bereich: %1$d x %2$d</string>
     <string name="map_path_preview">Karten-Pfadvorschau</string>
+    <string name="map_crosshair">Fadenkreuz</string>
     <string name="path_preview_summary">Erreichbar: %1$d, nicht erreichbar: %2$d, mehrdeutig: %3$d</string>
     <string name="used_level_checks">Pruefung verwendeter Level</string>
     <string name="wave_simulator">Wellen-Simulator</string>

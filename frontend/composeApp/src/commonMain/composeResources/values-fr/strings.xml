@@ -2384,6 +2384,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="paste_region">Coller la zone</string>
     <string name="region_copied_size">Zone copiee : %1$d x %2$d</string>
     <string name="map_path_preview">Apercu des chemins de la carte</string>
+    <string name="map_crosshair">Reticule</string>
     <string name="path_preview_summary">Accessible : %1$d, inaccessible : %2$d, ambigu : %3$d</string>
     <string name="used_level_checks">Verifications des niveaux utilises</string>
     <string name="wave_simulator">Simulateur de vagues</string>
