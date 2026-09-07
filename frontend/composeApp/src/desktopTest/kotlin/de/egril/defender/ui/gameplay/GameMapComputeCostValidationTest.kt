@@ -169,7 +169,8 @@ class GameMapComputeCostValidationTest {
     }
 
     private fun extractHexagonalMapViewTileLambda(content: String): String {
-        val gameGridMatch = gameGridPattern.find(content)
+        val sanitizedContent = stripCommentsAndStrings(content)
+        val gameGridMatch = gameGridPattern.find(sanitizedContent)
         if (gameGridMatch == null) {
             fail("Could not find GameGrid composable in GameMap.kt")
         }
@@ -185,7 +186,7 @@ class GameMapComputeCostValidationTest {
             fail("Could not find GameGrid body end in GameMap.kt")
         }
 
-        val gameGridBody = content.substring(gameGridOpeningBrace + 1, gameGridClosingBrace)
+        val gameGridBody = sanitizedContent.substring(gameGridOpeningBrace + 1, gameGridClosingBrace)
         val localInvocationMatch = hexagonalMapViewPattern.find(gameGridBody)
         if (localInvocationMatch == null) {
             fail("Could not find HexagonalMapView call inside GameGrid in GameMap.kt")
@@ -341,19 +342,24 @@ class GameMapComputeCostValidationTest {
                 if (current == '\n') {
                     inLineComment = false
                     result.append('\n')
+                } else {
+                    result.append(' ')
                 }
                 index++
                 continue
             }
 
             if (inBlockComment) {
-                if (current == '\n') {
-                    result.append('\n')
-                }
                 if (current == '*' && next == '/') {
+                    result.append("  ")
                     inBlockComment = false
                     index += 2
                 } else {
+                    if (current == '\n') {
+                        result.append('\n')
+                    } else {
+                        result.append(' ')
+                    }
                     index++
                 }
                 continue
@@ -402,11 +408,13 @@ class GameMapComputeCostValidationTest {
             escaping = false
 
             if (current == '/' && next == '/') {
+                result.append("  ")
                 inLineComment = true
                 index += 2
                 continue
             }
             if (current == '/' && next == '*') {
+                result.append("  ")
                 inBlockComment = true
                 index += 2
                 continue
