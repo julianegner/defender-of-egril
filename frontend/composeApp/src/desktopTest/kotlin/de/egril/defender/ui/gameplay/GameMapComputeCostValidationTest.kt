@@ -37,25 +37,39 @@ class GameMapComputeCostValidationTest {
                 "wizardAttackEffects",
                 "alchemyAttackEffects",
             )
+        private val forbiddenCollectionOperations =
+            listOf(
+                "any",
+                "associate",
+                "associateBy",
+                "associateWith",
+                "count",
+                "filter",
+                "find",
+                "firstOrNull",
+                "flatMap",
+                "fold",
+                "forEach",
+                "groupBy",
+                "lastOrNull",
+                "map",
+                "maxOf",
+                "maxOfOrNull",
+                "minOf",
+                "minOfOrNull",
+                "none",
+                "reduce",
+                "reduceOrNull",
+                "singleOrNull",
+                "sumOf",
+            )
         private val gameGridPattern = Regex("""fun\s+GameGrid\s*\(""")
         private val hexagonalMapViewPattern = Regex("""HexagonalMapView\s*\(""")
+        private const val gameMapRelativePath =
+            "composeApp/src/commonMain/kotlin/de/egril/defender/ui/gameplay/GameMap.kt"
     }
 
-    private val projectRoot: File =
-        run {
-            val currentDir = File(System.getProperty("user.dir"))
-            if (currentDir.name == "composeApp") {
-                currentDir.parentFile
-            } else {
-                currentDir
-            }
-        }
-
-    private val gameMapFile =
-        File(
-            projectRoot,
-            "composeApp/src/commonMain/kotlin/de/egril/defender/ui/gameplay/GameMap.kt",
-        )
+    private val gameMapFile = findGameMapFile()
 
     @Test
     fun hexagonalMapViewTileLambdaDoesNotContainAccumulatingComputeCost() {
@@ -138,9 +152,10 @@ class GameMapComputeCostValidationTest {
 
     private fun findViolations(tileLambda: String): List<String> {
         val guardedCollectionsPattern = guardedGameStateCollections.joinToString(separator = "|")
+        val forbiddenOperationsPattern = forbiddenCollectionOperations.joinToString(separator = "|")
         val forbiddenCollectionScanPattern =
             Regex(
-                """gameState\.($guardedCollectionsPattern)\s*\.\s*(any|count|filter|find|firstOrNull|flatMap|forEach|groupBy|lastOrNull|map|none|singleOrNull)\b""",
+                """gameState\.($guardedCollectionsPattern)\s*\.\s*($forbiddenOperationsPattern)\b""",
             )
         val forbiddenLoopPatterns =
             listOf(
@@ -214,6 +229,26 @@ class GameMapComputeCostValidationTest {
         }
 
         return content.substring(lambdaStart + 1, lambdaEnd)
+    }
+
+    private fun findGameMapFile(): File {
+        var currentDir = File(System.getProperty("user.dir")).absoluteFile
+
+        while (true) {
+            val repoRootCandidate = File(currentDir, "frontend/$gameMapRelativePath")
+            if (repoRootCandidate.exists()) {
+                return repoRootCandidate
+            }
+
+            val frontendRootCandidate = File(currentDir, gameMapRelativePath)
+            if (frontendRootCandidate.exists()) {
+                return frontendRootCandidate
+            }
+
+            currentDir = currentDir.parentFile ?: break
+        }
+
+        fail("Could not locate GameMap.kt from user.dir=${System.getProperty("user.dir")}")
     }
 
     private fun findMatchingClosingDelimiter(
