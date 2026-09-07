@@ -47,12 +47,17 @@ class GameMapComputeCostValidationTest {
     @Test
     fun validatorIgnoresCommentsAndStrings() {
         val tileLambda =
-            """
-            val description = "repeat for gameState.attackers.any should stay in this string"
-            /* for (attacker in gameState.attackers) { } */
-            // while gameState.defenders.any { true }
-            val isHovering = hoveredPosition == position
-            """.trimIndent()
+            listOf(
+                "val description = \"repeat for gameState.attackers.any should stay in this string\"",
+                "val rawDescription = \"\"\"",
+                "repeat(gameState.attackers.size)",
+                "for (attacker in gameState.attackers) { }",
+                "gameState.attackers.any { true }",
+                "\"\"\".trimIndent()",
+                "/* for (attacker in gameState.attackers) { } */",
+                "// while gameState.defenders.any { true }",
+                "val isHovering = hoveredPosition == position",
+            ).joinToString(separator = "\n")
 
         assertTrue(findViolations(tileLambda).isEmpty(), "Comments and strings must not trigger violations")
     }
@@ -78,7 +83,7 @@ class GameMapComputeCostValidationTest {
         val source =
             """
             @Composable
-            fun Example() {
+            fun GameGrid() {
                 HexagonalMapView(
                     backgroundContent = { size ->
                         println(size)
@@ -103,7 +108,12 @@ class GameMapComputeCostValidationTest {
             Regex(
                 """gameState\.(attackers|defenders|healingEffects|damageEffects|defeatedEnemyEffects|coinGainEffects|towerAttackEffects|fieldEffects|traps|barricades|constructionCompleteEffects|enemySpawnEffects|trapTriggerEffects|enemyMoveEffects|dragonLevelChangeEffects|mineDigEffects|fiefs|mushrooms|arrowAttackEffects|ballistaAttackEffects|bowAttackEffects|spearAttackEffects|pikeAttackEffects|wizardAttackEffects|alchemyAttackEffects)\s*\.\s*(any|count|filter|find|firstOrNull|flatMap|forEach|groupBy|lastOrNull|map|none|singleOrNull)\b""",
             )
-        val forbiddenLoopPattern = Regex("""\b(for|while|repeat)\b""")
+        val forbiddenLoopPatterns =
+            listOf(
+                Regex("""\bfor\s*\("""),
+                Regex("""\bwhile\s*\("""),
+                Regex("""\brepeat\s*\("""),
+            )
         val sanitizedLines = stripCommentsAndStrings(tileLambda).lines()
         val originalLines = tileLambda.lines()
         val violations = mutableListOf<String>()
@@ -114,7 +124,10 @@ class GameMapComputeCostValidationTest {
                 return@forEachIndexed
             }
 
-            if (forbiddenCollectionScanPattern.containsMatchIn(codeLine) || forbiddenLoopPattern.containsMatchIn(codeLine)) {
+            if (
+                forbiddenCollectionScanPattern.containsMatchIn(codeLine) ||
+                forbiddenLoopPatterns.any { it.containsMatchIn(codeLine) }
+            ) {
                 violations += "Line ${index + 1}: ${originalLines[index].trim()}"
             }
         }
@@ -122,11 +135,28 @@ class GameMapComputeCostValidationTest {
     }
 
     private fun extractHexagonalMapViewTileLambda(content: String): String {
-        val invocationStart = content.indexOf("HexagonalMapView(")
-        if (invocationStart == -1) {
-            fail("Could not find HexagonalMapView call in GameMap.kt")
+        val gameGridStart = content.indexOf("fun GameGrid(")
+        if (gameGridStart == -1) {
+            fail("Could not find GameGrid composable in GameMap.kt")
         }
 
+        val gameGridOpeningBrace = content.indexOf('{', gameGridStart)
+        if (gameGridOpeningBrace == -1) {
+            fail("Could not find GameGrid body start in GameMap.kt")
+        }
+
+        val gameGridClosingBrace = findMatchingClosingDelimiter(content, gameGridOpeningBrace, '{', '}')
+        if (gameGridClosingBrace == -1) {
+            fail("Could not find GameGrid body end in GameMap.kt")
+        }
+
+        val gameGridBody = content.substring(gameGridOpeningBrace + 1, gameGridClosingBrace)
+        val localInvocationStart = gameGridBody.indexOf("HexagonalMapView(")
+        if (localInvocationStart == -1) {
+            fail("Could not find HexagonalMapView call inside GameGrid in GameMap.kt")
+        }
+
+        val invocationStart = gameGridOpeningBrace + 1 + localInvocationStart
         val openingParenthesisIndex = content.indexOf('(', invocationStart)
         val closingParenthesisIndex = findMatchingClosingDelimiter(content, openingParenthesisIndex, '(', ')')
         if (closingParenthesisIndex == -1) {
@@ -160,12 +190,14 @@ class GameMapComputeCostValidationTest {
         var inLineComment = false
         var inBlockComment = false
         var inString = false
+        var inRawString = false
         var inChar = false
         var escaping = false
 
         while (index < source.length) {
             val current = source[index]
             val next = source.getOrNull(index + 1)
+            val third = source.getOrNull(index + 2)
 
             if (inLineComment) {
                 if (current == '\n') {
@@ -179,6 +211,16 @@ class GameMapComputeCostValidationTest {
                 if (current == '*' && next == '/') {
                     inBlockComment = false
                     index += 2
+                } else {
+                    index++
+                }
+                continue
+            }
+
+            if (inRawString) {
+                if (current == '"' && next == '"' && third == '"') {
+                    inRawString = false
+                    index += 3
                 } else {
                     index++
                 }
@@ -215,6 +257,11 @@ class GameMapComputeCostValidationTest {
                 index += 2
                 continue
             }
+            if (current == '"' && next == '"' && third == '"') {
+                inRawString = true
+                index += 3
+                continue
+            }
             if (current == '"') {
                 inString = true
                 index++
@@ -245,12 +292,14 @@ class GameMapComputeCostValidationTest {
         var inLineComment = false
         var inBlockComment = false
         var inString = false
+        var inRawString = false
         var inChar = false
         var escaping = false
 
         while (index < source.length) {
             val current = source[index]
             val next = source.getOrNull(index + 1)
+            val third = source.getOrNull(index + 2)
 
             if (inLineComment) {
                 if (current == '\n') {
@@ -268,6 +317,22 @@ class GameMapComputeCostValidationTest {
                 if (current == '*' && next == '/') {
                     inBlockComment = false
                     index += 2
+                } else {
+                    index++
+                }
+                continue
+            }
+
+            if (inRawString) {
+                if (current == '\n') {
+                    result.append('\n')
+                } else {
+                    result.append(' ')
+                }
+                if (current == '"' && next == '"' && third == '"') {
+                    result.append("  ")
+                    inRawString = false
+                    index += 3
                 } else {
                     index++
                 }
@@ -308,6 +373,12 @@ class GameMapComputeCostValidationTest {
             if (current == '/' && next == '*') {
                 inBlockComment = true
                 index += 2
+                continue
+            }
+            if (current == '"' && next == '"' && third == '"') {
+                inRawString = true
+                result.append("   ")
+                index += 3
                 continue
             }
             if (current == '"') {
