@@ -30,6 +30,11 @@ import de.egril.defender.utils.JsonUtils
 object EditorJsonSerializer {
     private const val PROGRAM_NAME = "Defender of Egril"
 
+    private data class ParsedTilesResult(
+        val tiles: Map<String, TileType>,
+        val exceedsDeclaredBounds: Boolean,
+    )
+
     /**
      * Extracts the "data" section from a file with metadata wrapper.
      * If the JSON has no metadata wrapper (old format), returns the JSON as-is for backward compatibility.
@@ -199,35 +204,41 @@ object EditorJsonSerializer {
                 } catch (e: Exception) {
                     null // Optional field - null if not present
                 }
+            fun invalidMap(
+                tiles: Map<String, TileType> = emptyMap(),
+                riverTiles: Map<String, de.egril.defender.model.RiverTile> = emptyMap(),
+                targetInfoMap: Map<String, EditorTargetInfo> = emptyMap(),
+                spawnPointInfoMap: Map<String, SpawnPointType> = emptyMap(),
+            ): EditorMap =
+                EditorMap(
+                    id = id,
+                    name = name,
+                    nameKey = nameKey,
+                    width = width,
+                    height = height,
+                    tiles = tiles,
+                    readyToUse = false,
+                    worldMapPosition = worldMapPosition,
+                    riverTiles = riverTiles,
+                    isOfficial = isOfficial,
+                    author = author,
+                    targetInfoMap = targetInfoMap,
+                    spawnPointInfoMap = spawnPointInfoMap,
+                    mapToolingInfo = mapToolingInfo,
+                    allowNoBuildableTiles = allowNoBuildableTiles,
+                    allowNoDirectPath = allowNoDirectPath,
+                    isValid = false,
+                )
 
-            val tiles = mutableMapOf<String, TileType>()
-            val tilesSection =
-                dataJson
-                    .substringAfter("\"tiles\": {")
-                    .substringBefore("}")
-                    .replace("\",", "\";")
-            val tileEntries = tilesSection.split(";").map { it.trim() }
-
-            for (entry in tileEntries) {
-                if (entry.isBlank()) continue
-                val parts = entry.split(":")
-                if (parts.size != 2) continue
-
-                val pos = parts[0].trim().removeSurrounding("\"")
-                val typeStr = parts[1].trim().removeSurrounding("\"")
-                // Backward compatibility: map legacy/unknown tile type names to current types
-                val tileType =
-                    when (typeStr) {
-                        "ISLAND" -> TileType.BUILD_AREA
-                        else ->
-                            try {
-                                TileType.valueOf(typeStr)
-                            } catch (e: IllegalArgumentException) {
-                                null
-                            }
-                    }
-                if (tileType != null) tiles[pos] = tileType
+            if (!MapSizeLimits.isWithinLimits(width, height)) {
+                return invalidMap()
             }
+
+            val parsedTiles = parseTiles(dataJson, width, height) ?: return null
+            if (parsedTiles.exceedsDeclaredBounds) {
+                return invalidMap()
+            }
+            val tiles = parsedTiles.tiles.toMutableMap()
 
             // Parse optional river tiles
             val riverTiles = mutableMapOf<String, de.egril.defender.model.RiverTile>()
@@ -270,6 +281,12 @@ object EditorJsonSerializer {
 
                                     val parts = pos.split(",")
                                     val position = Position(parts[0].toInt(), parts[1].toInt())
+                                    if (position.x !in 0 until width || position.y !in 0 until height) {
+                                        return invalidMap(
+                                            tiles = tiles,
+                                            riverTiles = riverTiles,
+                                        )
+                                    }
                                     riverTiles[pos] =
                                         de.egril.defender.model
                                             .RiverTile(position, flowDirection, flowSpeed)
@@ -393,6 +410,7 @@ object EditorJsonSerializer {
                 mapToolingInfo = mapToolingInfo,
                 allowNoBuildableTiles = allowNoBuildableTiles,
                 allowNoDirectPath = allowNoDirectPath,
+                isValid = true,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -400,6 +418,83 @@ object EditorJsonSerializer {
             }
             return null
         }
+    }
+
+    private fun parseTiles(
+        dataJson: String,
+        width: Int,
+        height: Int,
+    ): ParsedTilesResult? {
+        val tiles = mutableMapOf<String, TileType>()
+        val tilesKeyIndex = dataJson.indexOf("\"tiles\"")
+        if (tilesKeyIndex == -1) {
+            return ParsedTilesResult(emptyMap(), exceedsDeclaredBounds = false)
+        }
+
+        val colonIndex = dataJson.indexOf(':', tilesKeyIndex)
+        if (colonIndex == -1) return null
+
+        var index = colonIndex + 1
+        while (index < dataJson.length && dataJson[index].isWhitespace()) {
+            index++
+        }
+        if (index >= dataJson.length || dataJson[index] != '{') return null
+        index++
+
+        while (index < dataJson.length) {
+            while (index < dataJson.length && (dataJson[index].isWhitespace() || dataJson[index] == ',')) {
+                index++
+            }
+            if (index >= dataJson.length) return null
+            if (dataJson[index] == '}') {
+                return ParsedTilesResult(tiles, exceedsDeclaredBounds = false)
+            }
+            if (dataJson[index] != '"') return null
+
+            val posEnd = dataJson.indexOf('"', startIndex = index + 1)
+            if (posEnd == -1) return null
+            val pos = dataJson.substring(index + 1, posEnd)
+            val parts = pos.split(",")
+            if (parts.size != 2) {
+                return ParsedTilesResult(emptyMap(), exceedsDeclaredBounds = true)
+            }
+            val x = parts[0].toIntOrNull()
+            val y = parts[1].toIntOrNull()
+            if (x == null || y == null || x !in 0 until width || y !in 0 until height) {
+                return ParsedTilesResult(emptyMap(), exceedsDeclaredBounds = true)
+            }
+
+            index = posEnd + 1
+            while (index < dataJson.length && dataJson[index].isWhitespace()) {
+                index++
+            }
+            if (index >= dataJson.length || dataJson[index] != ':') return null
+            index++
+            while (index < dataJson.length && dataJson[index].isWhitespace()) {
+                index++
+            }
+            if (index >= dataJson.length || dataJson[index] != '"') return null
+
+            val typeEnd = dataJson.indexOf('"', startIndex = index + 1)
+            if (typeEnd == -1) return null
+            val typeStr = dataJson.substring(index + 1, typeEnd)
+            val tileType =
+                when (typeStr) {
+                    "ISLAND" -> TileType.BUILD_AREA
+                    else ->
+                        try {
+                            TileType.valueOf(typeStr)
+                        } catch (e: IllegalArgumentException) {
+                            null
+                        }
+                }
+            if (tileType != null) {
+                tiles[pos] = tileType
+            }
+            index = typeEnd + 1
+        }
+
+        return null
     }
 
     fun serializeLevel(level: EditorLevel): String {

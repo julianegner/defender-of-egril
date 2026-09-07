@@ -1,6 +1,7 @@
 package de.egril.defender.mapgen
 
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.MapSizeLimits
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.SpawnPointType
 import kotlin.math.ceil
@@ -153,6 +154,9 @@ object MapImageGenerator {
 
     // --- Public API ---
     fun generatePixels(map: EditorMap): Triple<IntArray, Int, Int> {
+        require(map.canRenderMinimap()) {
+            "Map preview generation requires a valid map within ${MapSizeLimits.MAX_WIDTH}x${MapSizeLimits.MAX_HEIGHT}"
+        }
         val (imgW, imgH) = imageSize(map.width, map.height)
 
         // Build tile arrays

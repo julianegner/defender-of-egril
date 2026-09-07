@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
+import de.egril.defender.editor.MapSizeLimits
 import de.egril.defender.iam.IamService
 import de.egril.defender.save.CommunityFileInfo
 import de.egril.defender.ui.MapImageProvider
@@ -278,6 +279,9 @@ fun MapEditorContent(
             defaultAuthor = defaultAuthor,
             mapTemplates = EditorStorage.getMapTemplates(),
             onCreate = { name, width, height, author, template ->
+                if (!MapSizeLimits.isWithinLimits(width, height)) {
+                    return@CreateMapDialog
+                }
                 // Generate ID from name with underscores (lowercase)
                 val sanitizedName =
                     name

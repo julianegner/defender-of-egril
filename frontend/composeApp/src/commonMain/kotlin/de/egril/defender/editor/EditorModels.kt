@@ -54,7 +54,12 @@ data class EditorMap(
     val mapToolingInfo: String = DEFAULT_MAP_TOOLING_INFO, // Free-form map tooling text; known standard values are localized at runtime
     val allowNoBuildableTiles: Boolean = false, // True if a map may be ready without any BUILD_AREA tiles
     val allowNoDirectPath: Boolean = false, // True if this map may have no direct spawn-to-target path (portals added in level editor will bridge the gap)
+    val isValid: Boolean = true,
 ) {
+    fun hasSupportedSize(): Boolean = MapSizeLimits.isWithinLimits(width, height)
+
+    fun canRenderMinimap(): Boolean = isValid && hasSupportedSize()
+
     fun getTileType(
         x: Int,
         y: Int,
@@ -152,6 +157,8 @@ data class EditorMap(
      * @param includeRiversAsWalkable If true, river cells are considered walkable for validation
      */
     fun validateReadyToUse(includeRiversAsWalkable: Boolean = true): Boolean {
+        if (!canRenderMinimap()) return false
+
         val spawnPoints = getSpawnPoints()
         val targets = getTargets()
         val pathCells = getPathCells()
@@ -201,6 +208,8 @@ data class EditorMap(
         portals: List<InitialPortal>,
         includeRiversAsWalkable: Boolean = true,
     ): Boolean {
+        if (!canRenderMinimap()) return false
+
         val spawnPoints = getSpawnPoints()
         val targets = getTargets()
         val pathCells = getPathCells()
