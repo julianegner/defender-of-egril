@@ -1,6 +1,7 @@
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import java.util.Properties
+import org.gradle.api.tasks.testing.Test
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -397,6 +398,10 @@ tasks.named("generateTranslateFile").configure {
     )
         .withPropertyName("localizationStringResources")
         .withPathSensitivity(org.gradle.api.tasks.PathSensitivity.RELATIVE)
+}
+
+tasks.withType<Test>().configureEach {
+    systemProperty("composeApp.projectDir", projectDir.absolutePath)
 }
 
 
