@@ -88,7 +88,7 @@ class GameMapComputeCostValidationTest {
                 ),
             )
         private val gridCellCallPattern = Regex("""\bGridCell\s*\(""")
-        private val explicitLambdaHeaderPattern = Regex("""\{\s*[^{}]{0,160}->""", setOf(RegexOption.DOT_MATCHES_ALL))
+        private val hexagonalMapViewPattern = Regex("""\bHexagonalMapView\s*\(""")
         private const val gameMapModuleRelativePath =
             "src/commonMain/kotlin/de/egril/defender/ui/gameplay/GameMap.kt"
     }
@@ -198,6 +198,13 @@ class GameMapComputeCostValidationTest {
         assertContains(extracted, "GridCell(position = position, isHovering = isHovering)")
     }
 
+    @Test
+    fun productionGameMapExtractionFindsGridCellTileLambda() {
+        val extracted = extractHexagonalMapViewTileLambda(findGameMapFile().readText())
+        assertContains(extracted, "GridCell(")
+        assertContains(extracted, "defender = defendersByPosition[position]")
+    }
+
     private fun findViolations(tileLambda: String): List<String> {
         val sanitizedLambda = stripCommentsAndStrings(tileLambda)
         val matches =
@@ -216,24 +223,33 @@ class GameMapComputeCostValidationTest {
 
     private fun extractHexagonalMapViewTileLambda(content: String): String {
         val sanitizedContent = stripCommentsAndStrings(content)
-        val gridCellCall = gridCellCallPattern.find(sanitizedContent)
-        if (gridCellCall == null) {
-            fail("Could not find GridCell call in GameMap.kt")
-        }
-        val gridCellIndex = gridCellCall.range.first
-
-        var candidateStart = sanitizedContent.lastIndexOf('{', startIndex = gridCellIndex)
-        while (candidateStart != -1) {
-            val candidateEnd = findMatchingClosingDelimiter(content, candidateStart, '{', '}')
-            if (
-                candidateEnd > gridCellIndex &&
-                explicitLambdaHeaderPattern.containsMatchIn(sanitizedContent.substring(candidateStart, minOf(candidateEnd + 1, candidateStart + 200)))
-            ) {
-                return content.substring(candidateStart + 1, candidateEnd)
+        val invocationMatches = hexagonalMapViewPattern.findAll(sanitizedContent).toList()
+        for (invocationMatch in invocationMatches) {
+            val openingParenthesisIndex = sanitizedContent.indexOf('(', invocationMatch.range.first)
+            val closingParenthesisIndex = findMatchingClosingDelimiter(content, openingParenthesisIndex, '(', ')')
+            if (closingParenthesisIndex == -1) {
+                continue
             }
-            candidateStart = sanitizedContent.lastIndexOf('{', startIndex = candidateStart - 1)
+
+            var lambdaStart = closingParenthesisIndex + 1
+            while (lambdaStart < sanitizedContent.length && sanitizedContent[lambdaStart].isWhitespace()) {
+                lambdaStart++
+            }
+            if (lambdaStart >= sanitizedContent.length || sanitizedContent[lambdaStart] != '{') {
+                continue
+            }
+
+            val lambdaEnd = findMatchingClosingDelimiter(content, lambdaStart, '{', '}')
+            if (lambdaEnd == -1) {
+                continue
+            }
+
+            val lambdaContent = content.substring(lambdaStart + 1, lambdaEnd)
+            if (gridCellCallPattern.containsMatchIn(stripCommentsAndStrings(lambdaContent))) {
+                return lambdaContent
+            }
         }
-        fail("Could not find explicit lambda enclosing the GridCell call in GameMap.kt")
+        fail("Could not find HexagonalMapView trailing lambda containing GridCell in GameMap.kt")
     }
 
     private fun findGameMapFile(): File {
