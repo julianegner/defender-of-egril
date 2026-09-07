@@ -63,7 +63,7 @@ class GameMapComputeCostValidationTest {
                 "singleOrNull",
                 "sumOf",
             )
-        private val gameGridPattern = Regex("""fun\s+GameGrid\s*\(""")
+        private val gameGridPattern = Regex("""@Composable\s+fun\s+GameGrid\s*\(""")
         private val hexagonalMapViewPattern = Regex("""HexagonalMapView\s*\(""")
         private const val gameMapRelativePath =
             "composeApp/src/commonMain/kotlin/de/egril/defender/ui/gameplay/GameMap.kt"
@@ -126,6 +126,18 @@ class GameMapComputeCostValidationTest {
     }
 
     @Test
+    fun validatorAllowsLoopsThatDoNotScanGuardedCollections() {
+        val tileLambda =
+            """
+            for (neighbor in position.getHexNeighbors()) {
+                println(neighbor)
+            }
+            """.trimIndent()
+
+        assertTrue(findViolations(tileLambda).isEmpty(), "Constant-size loops unrelated to guarded gameState collections should be allowed")
+    }
+
+    @Test
     fun tileLambdaExtractionHandlesNestedArgumentLambdas() {
         val source =
             """
@@ -153,6 +165,7 @@ class GameMapComputeCostValidationTest {
     private fun findViolations(tileLambda: String): List<String> {
         val guardedCollectionsPattern = guardedGameStateCollections.joinToString(separator = "|")
         val forbiddenOperationsPattern = forbiddenCollectionOperations.joinToString(separator = "|")
+        val guardedCollectionReferencePattern = Regex("""gameState\.($guardedCollectionsPattern)\b""")
         val forbiddenCollectionScanPattern =
             Regex(
                 """gameState\.($guardedCollectionsPattern)\s*\.\s*($forbiddenOperationsPattern)\b""",
@@ -175,7 +188,10 @@ class GameMapComputeCostValidationTest {
 
             if (
                 forbiddenCollectionScanPattern.containsMatchIn(codeLine) ||
-                forbiddenLoopPatterns.any { it.containsMatchIn(codeLine) }
+                (
+                    guardedCollectionReferencePattern.containsMatchIn(codeLine) &&
+                        forbiddenLoopPatterns.any { it.containsMatchIn(codeLine) }
+                )
             ) {
                 violations += "Line ${index + 1}: ${originalLines[index].trim()}"
             }
