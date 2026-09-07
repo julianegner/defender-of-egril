@@ -63,8 +63,10 @@ class GameMapComputeCostValidationTest {
                 "singleOrNull",
                 "sumOf",
             )
-        private val guardedCollectionsPattern = guardedGameStateCollections.joinToString(separator = "|")
-        private val forbiddenOperationsPattern = forbiddenCollectionOperations.joinToString(separator = "|")
+        private val guardedCollectionsPattern =
+            guardedGameStateCollections.joinToString(separator = "|") { Regex.escape(it) }
+        private val forbiddenOperationsPattern =
+            forbiddenCollectionOperations.joinToString(separator = "|") { Regex.escape(it) }
         private val guardedCollectionReferencePattern = Regex("""gameState\.($guardedCollectionsPattern)\b""")
         private val forbiddenCollectionScanPattern =
             Regex(
@@ -82,10 +84,9 @@ class GameMapComputeCostValidationTest {
             "src/commonMain/kotlin/de/egril/defender/ui/gameplay/GameMap.kt"
     }
 
-    private val gameMapFile = findGameMapFile()
-
     @Test
     fun hexagonalMapViewTileLambdaDoesNotContainAccumulatingComputeCost() {
+        val gameMapFile = findGameMapFile()
         if (!gameMapFile.exists()) {
             fail("GameMap source file not found: ${gameMapFile.absolutePath}")
         }
