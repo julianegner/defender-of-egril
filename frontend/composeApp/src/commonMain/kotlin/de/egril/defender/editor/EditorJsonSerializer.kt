@@ -152,18 +152,6 @@ object EditorJsonSerializer {
                 }
             val width = JsonUtils.extractValue(dataJson, "width").toInt()
             val height = JsonUtils.extractValue(dataJson, "height").toInt()
-            if (!MapSizeLimits.isWithinLimits(width, height)) {
-                return EditorMap(
-                    id = id,
-                    name = name,
-                    nameKey = nameKey,
-                    width = width,
-                    height = height,
-                    tiles = emptyMap(),
-                    readyToUse = false,
-                    isValid = false,
-                )
-            }
             val readyToUse =
                 try {
                     JsonUtils.extractBooleanValue(dataJson, "readyToUse")
@@ -216,20 +204,39 @@ object EditorJsonSerializer {
                 } catch (e: Exception) {
                     null // Optional field - null if not present
                 }
-
-            val parsedTiles = parseTiles(dataJson, width, height) ?: return null
-            if (parsedTiles.exceedsDeclaredBounds) {
-                return EditorMap(
+            fun invalidMap(
+                tiles: Map<String, TileType> = emptyMap(),
+                riverTiles: Map<String, de.egril.defender.model.RiverTile> = emptyMap(),
+                targetInfoMap: Map<String, EditorTargetInfo> = emptyMap(),
+                spawnPointInfoMap: Map<String, SpawnPointType> = emptyMap(),
+            ): EditorMap =
+                EditorMap(
                     id = id,
                     name = name,
                     nameKey = nameKey,
                     width = width,
                     height = height,
-                    tiles = emptyMap(),
+                    tiles = tiles,
                     readyToUse = false,
                     worldMapPosition = worldMapPosition,
+                    riverTiles = riverTiles,
+                    isOfficial = isOfficial,
+                    author = author,
+                    targetInfoMap = targetInfoMap,
+                    spawnPointInfoMap = spawnPointInfoMap,
+                    mapToolingInfo = mapToolingInfo,
+                    allowNoBuildableTiles = allowNoBuildableTiles,
+                    allowNoDirectPath = allowNoDirectPath,
                     isValid = false,
                 )
+
+            if (!MapSizeLimits.isWithinLimits(width, height)) {
+                return invalidMap()
+            }
+
+            val parsedTiles = parseTiles(dataJson, width, height) ?: return null
+            if (parsedTiles.exceedsDeclaredBounds) {
+                return invalidMap()
             }
             val tiles = parsedTiles.tiles.toMutableMap()
 
@@ -275,21 +282,9 @@ object EditorJsonSerializer {
                                     val parts = pos.split(",")
                                     val position = Position(parts[0].toInt(), parts[1].toInt())
                                     if (position.x !in 0 until width || position.y !in 0 until height) {
-                                        return EditorMap(
-                                            id = id,
-                                            name = name,
-                                            nameKey = nameKey,
-                                            width = width,
-                                            height = height,
-                                            tiles = emptyMap(),
-                                            readyToUse = false,
-                                            worldMapPosition = worldMapPosition,
-                                            isOfficial = isOfficial,
-                                            author = author,
-                                            mapToolingInfo = mapToolingInfo,
-                                            allowNoBuildableTiles = allowNoBuildableTiles,
-                                            allowNoDirectPath = allowNoDirectPath,
-                                            isValid = false,
+                                        return invalidMap(
+                                            tiles = tiles,
+                                            riverTiles = riverTiles,
                                         )
                                     }
                                     riverTiles[pos] =
