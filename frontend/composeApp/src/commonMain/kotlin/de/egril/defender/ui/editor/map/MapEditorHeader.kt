@@ -87,6 +87,8 @@ fun MapEditorHeader(
     onToggleMapFlowOverlay: () -> Unit = {},
     showMapPathPreviewOverlay: Boolean = false,
     onToggleMapPathPreviewOverlay: () -> Unit = {},
+    showCrosshair: Boolean = false,
+    onToggleCrosshair: () -> Unit = {},
     onUndo: () -> Unit = {},
     canUndo: Boolean = false,
     onRedo: () -> Unit = {},
@@ -168,6 +170,8 @@ fun MapEditorHeader(
             onToggleMapFlowOverlay = onToggleMapFlowOverlay,
             showMapPathPreviewOverlay = showMapPathPreviewOverlay,
             onToggleMapPathPreviewOverlay = onToggleMapPathPreviewOverlay,
+            showCrosshair = showCrosshair,
+            onToggleCrosshair = onToggleCrosshair,
             onUndo = onUndo,
             canUndo = canUndo,
             onRedo = onRedo,
@@ -782,6 +786,8 @@ private fun CollapsedMapEditorHeader(
     onToggleMapFlowOverlay: () -> Unit = {},
     showMapPathPreviewOverlay: Boolean = false,
     onToggleMapPathPreviewOverlay: () -> Unit = {},
+    showCrosshair: Boolean = false,
+    onToggleCrosshair: () -> Unit = {},
     onUndo: () -> Unit = {},
     canUndo: Boolean = false,
     onRedo: () -> Unit = {},
@@ -959,15 +965,20 @@ private fun CollapsedMapEditorHeader(
                 de.egril.defender.ui.icon
                     .LeftArrowIcon(size = 16.dp)
             }
-            CompactToggleChip(
+            OverlayToggleButton(
                 label = stringResource(Res.string.map_flow_validator),
-                active = showMapFlowOverlay,
+                isActive = showMapFlowOverlay,
                 onClick = onToggleMapFlowOverlay,
             )
-            CompactToggleChip(
+            OverlayToggleButton(
                 label = stringResource(Res.string.map_path_preview),
-                active = showMapPathPreviewOverlay,
+                isActive = showMapPathPreviewOverlay,
                 onClick = onToggleMapPathPreviewOverlay,
+            )
+            OverlayToggleButton(
+                label = stringResource(Res.string.map_crosshair),
+                isActive = showCrosshair,
+                onClick = onToggleCrosshair,
             )
             AssistChip(
                 onClick = onUndo,
@@ -1245,6 +1256,34 @@ private fun CompactToggleChip(
                     },
             ),
     )
+}
+
+@Composable
+internal fun OverlayToggleButton(
+    label: String,
+    isActive: Boolean,
+    onClick: () -> Unit,
+) {
+    Button(
+        onClick = onClick,
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor =
+                    if (isActive) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    },
+                contentColor =
+                    if (isActive) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+            ),
+    ) {
+        Text(label)
+    }
 }
 
 @Composable

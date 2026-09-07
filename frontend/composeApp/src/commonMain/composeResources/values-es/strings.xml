@@ -2383,6 +2383,7 @@
     <string name="paste_region">Pegar region</string>
     <string name="region_copied_size">Region copiada: %1$d x %2$d</string>
     <string name="map_path_preview">Vista previa de rutas del mapa</string>
+    <string name="map_crosshair">Mira</string>
     <string name="path_preview_summary">Alcanzable: %1$d, inalcanzable: %2$d, ambiguo: %3$d</string>
     <string name="used_level_checks">Comprobaciones de niveles usados</string>
     <string name="wave_simulator">Simulador de oleadas</string>

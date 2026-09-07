@@ -2385,6 +2385,7 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="paste_region">Incolla area</string>
     <string name="region_copied_size">Area copiata: %1$d x %2$d</string>
     <string name="map_path_preview">Anteprima percorsi mappa</string>
+    <string name="map_crosshair">Mirino</string>
     <string name="path_preview_summary">Raggiungibile: %1$d, irraggiungibile: %2$d, ambiguo: %3$d</string>
     <string name="used_level_checks">Controlli livelli usati</string>
     <string name="wave_simulator">Simulatore ondate</string>
