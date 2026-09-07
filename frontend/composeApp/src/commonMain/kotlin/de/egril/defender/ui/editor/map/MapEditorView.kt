@@ -1286,6 +1286,8 @@ fun MapEditorView(
             onToggleMapFlowOverlay = { showMapFlowOverlay = !showMapFlowOverlay },
             showMapPathPreviewOverlay = showMapPathPreviewOverlay,
             onToggleMapPathPreviewOverlay = { showMapPathPreviewOverlay = !showMapPathPreviewOverlay },
+            showCrosshair = showCrosshair,
+            onToggleCrosshair = { showCrosshair = !showCrosshair },
             onUndo = {
                 undoHistory.lastOrNull()?.let { snapshot ->
                     undoHistory = undoHistory.dropLast(1)
@@ -1950,34 +1952,6 @@ private fun MapCrosshairOverlay(contentSize: IntSize) {
             end = Offset(centerX, size.height),
             strokeWidth = 2f,
         )
-    }
-}
-
-@Composable
-private fun OverlayToggleButton(
-    label: String,
-    isActive: Boolean,
-    onClick: () -> Unit,
-) {
-    Button(
-        onClick = onClick,
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor =
-                    if (isActive) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.surfaceVariant
-                    },
-                contentColor =
-                    if (isActive) {
-                        MaterialTheme.colorScheme.onPrimary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-            ),
-    ) {
-        Text(label)
     }
 }
 
