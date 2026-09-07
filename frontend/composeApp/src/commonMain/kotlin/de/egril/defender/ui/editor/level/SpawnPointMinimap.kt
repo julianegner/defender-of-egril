@@ -25,6 +25,8 @@ fun SpawnPointMinimap(
     selectedSpawnPoint: Position?,
     visibleSpawnPoints: Set<Position>? = null,
 ) {
+    if (!map.canRenderMinimap()) return
+
     val isDarkMode = AppSettings.isDarkMode.value
 
     Canvas(modifier = Modifier.fillMaxSize()) {

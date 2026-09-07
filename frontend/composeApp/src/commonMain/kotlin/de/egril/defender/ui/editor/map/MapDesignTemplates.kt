@@ -3,6 +3,7 @@ package de.egril.defender.ui.editor.map
 import de.egril.defender.editor.DEFAULT_MAP_TOOLING_INFO
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorTargetInfo
+import de.egril.defender.editor.MapSizeLimits
 import de.egril.defender.editor.MapTemplateDefinition
 import de.egril.defender.editor.MapTemplateLayoutKind
 import de.egril.defender.editor.TileType
@@ -28,6 +29,7 @@ internal fun createMapFromTemplate(
     template: MapTemplateDefinition?,
     variationSeed: Int? = null,
 ): EditorMap {
+    require(MapSizeLimits.isWithinLimits(width, height))
     val templateMap =
         when {
             template == null -> createBlankMap(id, name, width, height, author)

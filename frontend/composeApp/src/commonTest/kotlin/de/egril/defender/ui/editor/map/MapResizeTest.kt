@@ -10,6 +10,7 @@ import de.egril.defender.model.TargetType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class MapResizeTest {
@@ -67,5 +68,23 @@ class MapResizeTest {
         assertTrue(isSafeEndExpansion(leftDelta = 0, rightDelta = 2, topDelta = 0, bottomDelta = 1))
         assertFalse(isSafeEndExpansion(leftDelta = 1, rightDelta = 0, topDelta = 0, bottomDelta = 0))
         assertFalse(isSafeEndExpansion(leftDelta = 0, rightDelta = -1, topDelta = 0, bottomDelta = 0))
+    }
+
+    @Test
+    fun resizeRejectsMapsLargerThanConfiguredLimit() {
+        assertFailsWith<IllegalArgumentException> {
+            applyResizeToMapData(
+                width = 500,
+                height = 500,
+                leftDelta = 0,
+                rightDelta = 1,
+                topDelta = 0,
+                bottomDelta = 0,
+                tiles = emptyMap(),
+                riverTiles = emptyMap(),
+                targetInfoMap = emptyMap(),
+                spawnPointInfoMap = emptyMap(),
+            )
+        }
     }
 }

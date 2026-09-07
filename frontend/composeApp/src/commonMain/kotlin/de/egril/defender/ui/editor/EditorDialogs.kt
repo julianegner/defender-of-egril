@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.MapTemplateDefinition
+import de.egril.defender.editor.MapSizeLimits
 import de.egril.defender.iam.IamState
 import de.egril.defender.ui.editor.level.EditorLevelTemplate
 import de.egril.defender.utils.getCurrentUsername
@@ -85,6 +86,12 @@ internal fun CreateMapDialog(
     var author by remember { mutableStateOf(defaultAuthor) }
     var selectedTemplate by remember { mutableStateOf<MapTemplateDefinition?>(null) }
     var templateExpanded by remember { mutableStateOf(false) }
+    val parsedWidth = width.toIntOrNull()
+    val parsedHeight = height.toIntOrNull()
+    val sizeIsValid =
+        parsedWidth != null &&
+            parsedHeight != null &&
+            MapSizeLimits.isWithinLimits(parsedWidth, parsedHeight)
 
     LaunchedEffect(selectedTemplate?.id) {
         selectedTemplate?.templateMap?.let { templateMap ->
@@ -164,10 +171,11 @@ internal fun CreateMapDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val w = width.toIntOrNull() ?: 30
-                    val h = height.toIntOrNull() ?: 8
+                    val w = parsedWidth ?: 30
+                    val h = parsedHeight ?: 8
                     onCreate(name, w, h, author, selectedTemplate)
                 },
+                enabled = name.isNotBlank() && sizeIsValid,
             ) {
                 Text(stringResource(Res.string.create))
             }

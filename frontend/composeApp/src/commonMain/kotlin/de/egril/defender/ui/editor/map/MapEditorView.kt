@@ -22,6 +22,7 @@ import de.egril.defender.editor.EditorJsonSerializer
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.EditorTargetInfo
+import de.egril.defender.editor.MapSizeLimits
 import de.egril.defender.editor.MapTemplateDefinition
 import de.egril.defender.editor.TileReplacementArea
 import de.egril.defender.editor.TileType
@@ -122,6 +123,7 @@ internal fun applyResizeToMapData(
     val newWidth = width + leftDelta + rightDelta
     val newHeight = height + topDelta + bottomDelta
     require(newWidth > 0 && newHeight > 0)
+    require(MapSizeLimits.isWithinLimits(newWidth, newHeight))
 
     fun shiftedPosition(position: Position): Position? {
         val shifted = Position(position.x + leftDelta, position.y + topDelta)
@@ -480,7 +482,10 @@ fun MapEditorView(
     val parsedResizeBottom = resizeBottom.toIntOrNull() ?: 0
     val resizedWidthPreview = mapWidth + parsedResizeLeft + parsedResizeRight
     val resizedHeightPreview = mapHeight + parsedResizeTop + parsedResizeBottom
-    val canApplyResize = resizedWidthPreview > 0 && resizedHeightPreview > 0
+    val canApplyResize =
+        resizedWidthPreview > 0 &&
+            resizedHeightPreview > 0 &&
+            MapSizeLimits.isWithinLimits(resizedWidthPreview, resizedHeightPreview)
     val showUnsafeResizeWarning =
         levelsUsingMap.isNotEmpty() &&
             !isSafeEndExpansion(

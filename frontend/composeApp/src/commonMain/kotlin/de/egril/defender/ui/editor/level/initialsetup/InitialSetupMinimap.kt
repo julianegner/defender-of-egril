@@ -182,6 +182,8 @@ fun InitialSetupMinimap(
     onTileClick: (Position) -> Unit = {},
     onTileHover: (Position?) -> Unit = {},
 ) {
+    if (!map.canRenderMinimap()) return
+
     val isDarkMode = AppSettings.isDarkMode.value
     var hoveredPosition by remember { mutableStateOf<Position?>(null) }
 

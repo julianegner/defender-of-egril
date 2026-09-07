@@ -250,7 +250,7 @@ object EditorStorage {
         map: EditorMap,
         oldId: String? = null,
     ): MapSaveResult {
-        val validatedMap = map.copy(readyToUse = map.validateReadyToUse())
+        val validatedMap = map.copy(readyToUse = if (map.isValid) map.validateReadyToUse() else false)
         val existingMap = mapsCache[validatedMap.id]
 
         mapsCache[validatedMap.id] = validatedMap
@@ -264,7 +264,7 @@ object EditorStorage {
         val tilesChanged =
             existingMap == null ||
                 normalizeForImageComparison(existingMap) != normalizeForImageComparison(validatedMap)
-        val imageNeedsRegeneration = !pngExists || tilesChanged
+        val imageNeedsRegeneration = validatedMap.canRenderMinimap() && (!pngExists || tilesChanged)
 
         if (!imageNeedsRegeneration) {
             println("Skipping map image regeneration for ${validatedMap.id} (no tile type changes)")
@@ -351,10 +351,14 @@ object EditorStorage {
         sourceMap: EditorMap,
         copiedMap: EditorMap,
     ) {
-        val validatedMap = copiedMap.copy(readyToUse = copiedMap.validateReadyToUse())
+        val validatedMap = copiedMap.copy(readyToUse = if (copiedMap.isValid) copiedMap.validateReadyToUse() else false)
         mapsCache[validatedMap.id] = validatedMap
         val json = EditorJsonSerializer.serializeMap(validatedMap)
         fileStorage.writeFile("$USER_MAPS_DIR/${validatedMap.id}.json", json)
+
+        if (!validatedMap.canRenderMinimap()) {
+            return
+        }
 
         // Copy the PNG from the source map rather than regenerating it
         val sourcePng = readMapImageBytes(sourceMap.id, sourceMap.isOfficial)
@@ -402,6 +406,9 @@ object EditorStorage {
         }
 
     private fun generateAndSaveMapImage(map: EditorMap) {
+        if (!map.canRenderMinimap()) {
+            return
+        }
         try {
             val (pixels, width, height) =
                 de.egril.defender.mapgen.MapImageGenerator
@@ -420,6 +427,9 @@ object EditorStorage {
     }
 
     private fun generateAndSaveCommunityMapImage(map: EditorMap) {
+        if (!map.canRenderMinimap()) {
+            return
+        }
         try {
             val (pixels, width, height) =
                 de.egril.defender.mapgen.MapImageGenerator
@@ -489,7 +499,7 @@ object EditorStorage {
                 // Set isOfficial and isCommunity flags based on which directory it was found in
                 val validatedMap =
                     map.copy(
-                        readyToUse = map.validateReadyToUse(),
+                        readyToUse = if (map.isValid) map.validateReadyToUse() else false,
                         isOfficial = map.isOfficial || isOfficial,
                         isCommunity = isCommunity,
                     )
