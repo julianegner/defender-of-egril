@@ -67,18 +67,27 @@ class GameMapComputeCostValidationTest {
             guardedGameStateCollections.joinToString(separator = "|") { Regex.escape(it) }
         private val forbiddenOperationsPattern =
             forbiddenCollectionOperations.joinToString(separator = "|") { Regex.escape(it) }
-        private val guardedCollectionReferencePattern = Regex("""gameState\.($guardedCollectionsPattern)\b""")
         private val forbiddenCollectionScanPattern =
             Regex(
                 """gameState\.($guardedCollectionsPattern)\s*\.\s*($forbiddenOperationsPattern)\b""",
+                setOf(RegexOption.DOT_MATCHES_ALL),
             )
-        private val forbiddenLoopPatterns =
+        private val forbiddenLoopOnGuardedCollectionPatterns =
             listOf(
-                Regex("""\bfor\s*\("""),
-                Regex("""\bwhile\s*\("""),
-                Regex("""\brepeat\s*\("""),
+                Regex(
+                    """\bfor\s*\([^)]*gameState\.($guardedCollectionsPattern)\b[^)]*\)""",
+                    setOf(RegexOption.DOT_MATCHES_ALL),
+                ),
+                Regex(
+                    """\bwhile\s*\([^)]*gameState\.($guardedCollectionsPattern)\b[^)]*\)""",
+                    setOf(RegexOption.DOT_MATCHES_ALL),
+                ),
+                Regex(
+                    """\brepeat\s*\(\s*gameState\.($guardedCollectionsPattern)\b[^)]*\)""",
+                    setOf(RegexOption.DOT_MATCHES_ALL),
+                ),
             )
-        private val gameGridPattern = Regex("""@Composable\s+fun\s+GameGrid\s*\(""")
+        private val gameGridPattern = Regex("""\bfun\s+GameGrid\s*\(""")
         private val hexagonalMapViewPattern = Regex("""HexagonalMapView\s*\(""")
         private const val gameMapModuleRelativePath =
             "src/commonMain/kotlin/de/egril/defender/ui/gameplay/GameMap.kt"
@@ -177,27 +186,19 @@ class GameMapComputeCostValidationTest {
     }
 
     private fun findViolations(tileLambda: String): List<String> {
-        val sanitizedLines = stripCommentsAndStrings(tileLambda).lines()
-        val originalLines = tileLambda.lines()
-        val violations = mutableListOf<String>()
+        val sanitizedLambda = stripCommentsAndStrings(tileLambda)
+        val matches =
+            buildList {
+                forbiddenCollectionScanPattern.findAll(sanitizedLambda).forEach { add(it.range.first) }
+                forbiddenLoopOnGuardedCollectionPatterns.forEach { pattern ->
+                    pattern.findAll(sanitizedLambda).forEach { add(it.range.first) }
+                }
+            }.sorted()
 
-        sanitizedLines.forEachIndexed { index, sanitizedLine ->
-            val codeLine = sanitizedLine.trim()
-            if (codeLine.isEmpty()) {
-                return@forEachIndexed
-            }
-
-            if (
-                forbiddenCollectionScanPattern.containsMatchIn(codeLine) ||
-                (
-                    guardedCollectionReferencePattern.containsMatchIn(codeLine) &&
-                        forbiddenLoopPatterns.any { it.containsMatchIn(codeLine) }
-                )
-            ) {
-                violations += "Line ${index + 1}: ${originalLines[index].trim()}"
-            }
+        return matches.map { matchIndex ->
+            val lineNumber = lineNumberAt(sanitizedLambda, matchIndex)
+            "Line $lineNumber: ${tileLambda.lines()[lineNumber - 1].trim()}"
         }
-        return violations
     }
 
     private fun extractHexagonalMapViewTileLambda(content: String): String {
@@ -219,33 +220,35 @@ class GameMapComputeCostValidationTest {
         }
 
         val gameGridBody = sanitizedContent.substring(gameGridOpeningBrace + 1, gameGridClosingBrace)
-        val localInvocationMatch = hexagonalMapViewPattern.find(gameGridBody)
-        if (localInvocationMatch == null) {
-            fail("Could not find HexagonalMapView call inside GameGrid in GameMap.kt")
-        }
-        val localInvocationStart = localInvocationMatch.range.first
+        val invocationOffsets =
+            hexagonalMapViewPattern.findAll(gameGridBody).map { it.range.first }.toList()
+        for (localInvocationStart in invocationOffsets) {
+            val invocationStart = gameGridOpeningBrace + 1 + localInvocationStart
+            val openingParenthesisIndex = content.indexOf('(', invocationStart)
+            val closingParenthesisIndex = findMatchingClosingDelimiter(content, openingParenthesisIndex, '(', ')')
+            if (closingParenthesisIndex == -1) {
+                continue
+            }
 
-        val invocationStart = gameGridOpeningBrace + 1 + localInvocationStart
-        val openingParenthesisIndex = content.indexOf('(', invocationStart)
-        val closingParenthesisIndex = findMatchingClosingDelimiter(content, openingParenthesisIndex, '(', ')')
-        if (closingParenthesisIndex == -1) {
-            fail("Could not find HexagonalMapView argument list end in GameMap.kt")
-        }
+            var lambdaStart = closingParenthesisIndex + 1
+            while (lambdaStart < content.length && content[lambdaStart].isWhitespace()) {
+                lambdaStart++
+            }
+            if (lambdaStart >= content.length || content[lambdaStart] != '{') {
+                continue
+            }
 
-        var lambdaStart = closingParenthesisIndex + 1
-        while (lambdaStart < content.length && content[lambdaStart].isWhitespace()) {
-            lambdaStart++
-        }
-        if (lambdaStart >= content.length || content[lambdaStart] != '{') {
-            fail("Could not find HexagonalMapView trailing lambda in GameMap.kt")
-        }
+            val lambdaEnd = findMatchingClosingDelimiter(content, lambdaStart, '{', '}')
+            if (lambdaEnd == -1) {
+                continue
+            }
 
-        val lambdaEnd = findMatchingClosingDelimiter(content, lambdaStart, '{', '}')
-        if (lambdaEnd == -1) {
-            fail("Could not find HexagonalMapView trailing lambda end in GameMap.kt")
+            val lambdaContent = content.substring(lambdaStart + 1, lambdaEnd)
+            if ("GridCell(" in lambdaContent) {
+                return lambdaContent
+            }
         }
-
-        return content.substring(lambdaStart + 1, lambdaEnd)
+        fail("Could not find HexagonalMapView call with a GridCell lambda inside GameGrid in GameMap.kt")
     }
 
     private fun findGameMapFile(): File {
@@ -268,6 +271,8 @@ class GameMapComputeCostValidationTest {
 
         fail("Could not locate GameMap.kt from classpath location=${codeSourceLocation.absolutePath}")
     }
+
+    private fun lineNumberAt(source: String, index: Int): Int = source.substring(0, index).count { it == '\n' } + 1
 
     private fun findMatchingClosingDelimiter(
         source: String,
