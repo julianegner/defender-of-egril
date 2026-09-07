@@ -8,6 +8,39 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class GameMapComputeCostValidationTest {
+    private companion object {
+        private val guardedGameStateCollections =
+            listOf(
+                "attackers",
+                "defenders",
+                "healingEffects",
+                "damageEffects",
+                "defeatedEnemyEffects",
+                "coinGainEffects",
+                "towerAttackEffects",
+                "fieldEffects",
+                "traps",
+                "barricades",
+                "constructionCompleteEffects",
+                "enemySpawnEffects",
+                "trapTriggerEffects",
+                "enemyMoveEffects",
+                "dragonLevelChangeEffects",
+                "mineDigEffects",
+                "fiefs",
+                "mushrooms",
+                "arrowAttackEffects",
+                "ballistaAttackEffects",
+                "bowAttackEffects",
+                "spearAttackEffects",
+                "pikeAttackEffects",
+                "wizardAttackEffects",
+                "alchemyAttackEffects",
+            )
+        private val gameGridPattern = Regex("""fun\s+GameGrid\s*\(""")
+        private val hexagonalMapViewPattern = Regex("""HexagonalMapView\s*\(""")
+    }
+
     private val projectRoot: File =
         run {
             val currentDir = File(System.getProperty("user.dir"))
@@ -104,9 +137,10 @@ class GameMapComputeCostValidationTest {
     }
 
     private fun findViolations(tileLambda: String): List<String> {
+        val guardedCollectionsPattern = guardedGameStateCollections.joinToString(separator = "|")
         val forbiddenCollectionScanPattern =
             Regex(
-                """gameState\.(attackers|defenders|healingEffects|damageEffects|defeatedEnemyEffects|coinGainEffects|towerAttackEffects|fieldEffects|traps|barricades|constructionCompleteEffects|enemySpawnEffects|trapTriggerEffects|enemyMoveEffects|dragonLevelChangeEffects|mineDigEffects|fiefs|mushrooms|arrowAttackEffects|ballistaAttackEffects|bowAttackEffects|spearAttackEffects|pikeAttackEffects|wizardAttackEffects|alchemyAttackEffects)\s*\.\s*(any|count|filter|find|firstOrNull|flatMap|forEach|groupBy|lastOrNull|map|none|singleOrNull)\b""",
+                """gameState\.($guardedCollectionsPattern)\s*\.\s*(any|count|filter|find|firstOrNull|flatMap|forEach|groupBy|lastOrNull|map|none|singleOrNull)\b""",
             )
         val forbiddenLoopPatterns =
             listOf(
@@ -135,10 +169,11 @@ class GameMapComputeCostValidationTest {
     }
 
     private fun extractHexagonalMapViewTileLambda(content: String): String {
-        val gameGridStart = content.indexOf("fun GameGrid(")
-        if (gameGridStart == -1) {
+        val gameGridMatch = gameGridPattern.find(content)
+        if (gameGridMatch == null) {
             fail("Could not find GameGrid composable in GameMap.kt")
         }
+        val gameGridStart = gameGridMatch.range.first
 
         val gameGridOpeningBrace = content.indexOf('{', gameGridStart)
         if (gameGridOpeningBrace == -1) {
@@ -151,10 +186,11 @@ class GameMapComputeCostValidationTest {
         }
 
         val gameGridBody = content.substring(gameGridOpeningBrace + 1, gameGridClosingBrace)
-        val localInvocationStart = gameGridBody.indexOf("HexagonalMapView(")
-        if (localInvocationStart == -1) {
+        val localInvocationMatch = hexagonalMapViewPattern.find(gameGridBody)
+        if (localInvocationMatch == null) {
             fail("Could not find HexagonalMapView call inside GameGrid in GameMap.kt")
         }
+        val localInvocationStart = localInvocationMatch.range.first
 
         val invocationStart = gameGridOpeningBrace + 1 + localInvocationStart
         val openingParenthesisIndex = content.indexOf('(', invocationStart)
