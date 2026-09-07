@@ -253,14 +253,33 @@ class GameMapComputeCostValidationTest {
     }
 
     private fun findGameMapFile(): File {
-        val composeAppProjectDir =
-            System.getProperty("composeApp.projectDir")
-                ?: fail("Missing required system property composeApp.projectDir")
-        val gameMapFile = File(composeAppProjectDir, gameMapModuleRelativePath)
-        if (gameMapFile.exists()) {
-            return gameMapFile
+        System.getProperty("composeApp.projectDir")?.let { composeAppProjectDir ->
+            val gameMapFile = File(composeAppProjectDir, gameMapModuleRelativePath)
+            if (gameMapFile.exists()) {
+                return gameMapFile
+            }
         }
-        fail("Could not locate GameMap.kt at ${gameMapFile.absolutePath}")
+
+        val codeSourceLocation =
+            runCatching {
+                File(GameMapComputeCostValidationTest::class.java.protectionDomain.codeSource.location.toURI()).absoluteFile
+            }.getOrElse { error ->
+                fail("Could not resolve test class location for GameMap lookup: ${error.message}")
+            }
+        var currentDir = if (codeSourceLocation.isDirectory) codeSourceLocation else codeSourceLocation.parentFile
+
+        while (true) {
+            val moduleRootCandidate = File(currentDir, gameMapModuleRelativePath)
+            if (moduleRootCandidate.exists()) {
+                return moduleRootCandidate
+            }
+
+            currentDir = currentDir.parentFile ?: break
+        }
+
+        fail(
+            "Could not locate GameMap.kt via composeApp.projectDir or classpath location ${codeSourceLocation.absolutePath}",
+        )
     }
 
     private fun lineNumberAt(source: String, index: Int): Int = source.substring(0, index).count { it == '\n' } + 1
