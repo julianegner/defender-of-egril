@@ -29,10 +29,12 @@ import de.egril.defender.editor.TileType
 import de.egril.defender.editor.pickBackgroundImageBytes
 import de.egril.defender.editor.replaceTilesByType
 import de.egril.defender.model.Position
+import de.egril.defender.model.RiverFlow
 import de.egril.defender.model.RiverTile
 import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.TargetType
 import de.egril.defender.model.getHexNeighbors
+import de.egril.defender.model.getHexDirectionTo
 import de.egril.defender.ui.MapImageProvider
 import de.egril.defender.ui.constrainMapOffsets
 import de.egril.defender.ui.editor.ConfirmationDialog
@@ -53,6 +55,7 @@ import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.utils.screenToHexGridPosition
 import defender_of_egril.composeapp.generated.resources.*
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 /**
  * Converts a human-readable map name into a stable map ID component, e.g. "My Map" → "my_map".
@@ -107,6 +110,166 @@ private data class MapPathPreview(
     val isReachable: Boolean,
     val isAmbiguous: Boolean,
 )
+
+internal fun applyRiverRing(
+    tiles: Map<String, TileType>,
+    riverTiles: Map<String, RiverTile>,
+    mapWidth: Int,
+    mapHeight: Int,
+    start: Position,
+    clockwise: Boolean,
+    innerToOuter: Boolean,
+    flowSpeed: Int,
+): Pair<MutableMap<String, TileType>, MutableMap<String, RiverTile>> {
+    val newTiles = tiles.toMutableMap()
+    val newRivers = riverTiles.toMutableMap()
+    val anchor = start.takeIf { it.x in 0 until mapWidth && it.y in 0 until mapHeight } ?: return newTiles to newRivers
+
+    // The spiral is always generated from the center (anchor) outwards so that consecutive
+    // rings connect into a single continuous path. Reversing the traversal order (for
+    // outer-to-inner filling) also reverses the tangential direction of travel within each
+    // ring, so we compensate by flipping the rotation used to build the base spiral, keeping
+    // the visual "clockwise"/"counterclockwise" choice consistent regardless of fill direction.
+    val baseClockwise = if (innerToOuter) clockwise else !clockwise
+    val spiralFromCenter = buildIslandAwareSpiralPath(anchor, tiles, riverTiles, mapWidth, mapHeight, baseClockwise)
+    if (spiralFromCenter.size <= 1) return newTiles to newRivers
+
+    val path = if (innerToOuter) spiralFromCenter else spiralFromCenter.asReversed()
+    path.forEachIndexed { index, position ->
+        if (index == path.lastIndex) return@forEachIndexed
+        val key = "${position.x},${position.y}"
+        val existing = newRivers[key]
+        if (existing == null || existing.flowDirection == RiverFlow.NONE) {
+            val next = path[index + 1]
+            val flow = flowFromTo(position, next)
+            if (flow != RiverFlow.NONE) {
+                newTiles[key] = TileType.RIVER
+                newRivers[key] = RiverTile(position = position, flowDirection = flow, flowSpeed = flowSpeed)
+            }
+        }
+    }
+    return newTiles to newRivers
+}
+
+/**
+ * Builds a single continuous spiral path starting at [anchor], expanding outward ring by ring
+ * (each ring being one hex-step further from the anchor, following the shape of the connected,
+ * non-solid area so islands and obstacles are respected).
+ *
+ * Rather than treating every ring as an independent closed loop, each ring is walked in full and
+ * then the path steps outward to the neighboring ring right next to where it left off - which,
+ * since the last tile of a ring sits right next to its own start, naturally reads as "go around,
+ * and one field before closing the loop, go one more out". This keeps the flow direction
+ * continuous across the whole spiral instead of jumping/closing at each ring boundary.
+ */
+private fun buildIslandAwareSpiralPath(
+    anchor: Position,
+    tiles: Map<String, TileType>,
+    riverTiles: Map<String, RiverTile>,
+    mapWidth: Int,
+    mapHeight: Int,
+    clockwise: Boolean,
+): List<Position> {
+    val visited = mutableSetOf<Position>()
+    val rawRings = mutableListOf<List<Position>>()
+    var frontier = setOf(anchor)
+    var guard = 0
+
+    while (frontier.isNotEmpty() && guard++ < mapWidth * mapHeight) {
+        val ring =
+            frontier
+                .filter { it.x in 0 until mapWidth && it.y in 0 until mapHeight }
+                .filter { !isSolidTile(it, tiles, riverTiles) }
+                .filter { visited.add(it) }
+        if (ring.isEmpty()) break
+        rawRings += ring
+        frontier =
+            ring.flatMap { position ->
+                position.getHexNeighbors()
+                    .filter { neighbor ->
+                        neighbor.x in 0 until mapWidth &&
+                            neighbor.y in 0 until mapHeight &&
+                            !visited.contains(neighbor) &&
+                            !isSolidTile(neighbor, tiles, riverTiles)
+                    }
+            }.toSet()
+    }
+    if (rawRings.isEmpty()) return emptyList()
+
+    val spiral = mutableListOf<Position>()
+    var previousTail: Position? = null
+    rawRings.forEach { ringPositions ->
+        val ringSet = ringPositions.toSet()
+        val start =
+            previousTail?.getHexNeighbors()?.firstOrNull { it in ringSet }
+                ?: ringPositions.minByOrNull { it.y * mapWidth + it.x }
+                ?: return@forEach
+        val ordered = orderRingChain(start, ringSet, tiles, riverTiles, clockwise)
+        spiral += ordered
+        previousTail = ordered.lastOrNull()
+    }
+    return spiral
+}
+
+/**
+ * Walks all positions of a single ring starting at [start], following hex-adjacency within
+ * [ringSet] in a consistent rotational direction ([clockwise]).
+ */
+private fun orderRingChain(
+    start: Position,
+    ringSet: Set<Position>,
+    tiles: Map<String, TileType>,
+    riverTiles: Map<String, RiverTile>,
+    clockwise: Boolean,
+): List<Position> {
+    if (ringSet.size <= 1) return listOf(start)
+    val ordered = mutableListOf(start)
+    val used = mutableSetOf(start)
+    var current = start
+    var guard = 0
+    while (guard++ < ringSet.size * 2) {
+        val neighbors = current.getHexNeighbors().let { if (clockwise) it else it.asReversed() }
+        val next =
+            neighbors.firstOrNull { it in ringSet && it !in used && !isSolidTile(it, tiles, riverTiles) }
+                ?: break
+        ordered += next
+        used += next
+        current = next
+    }
+    return ordered
+}
+
+private fun isSolidTile(
+    position: Position,
+    tiles: Map<String, TileType>,
+    riverTiles: Map<String, RiverTile>,
+): Boolean {
+    val tile = tiles["${position.x},${position.y}"]
+    if (tile == TileType.RIVER) {
+        val river = riverTiles["${position.x},${position.y}"]
+        return river != null && river.flowDirection != RiverFlow.NONE && river.flowDirection != RiverFlow.MAELSTROM
+    }
+    return tile != null && tile != TileType.NO_PLAY
+}
+
+private fun flowFromTo(
+    from: Position,
+    to: Position,
+): RiverFlow =
+    // Hex tiles have 6 neighbor directions (E, NE, NW, W, SW, SE), not just the 4 that a naive
+    // x/y comparison would suggest. Delegate to getHexDirectionTo (which already accounts for
+    // the even/odd row offset) so NORTH_EAST and SOUTH_WEST are also produced correctly -
+    // otherwise those two directions get misclassified as NORTH_WEST/SOUTH_EAST, making a
+    // spiral flow reverse direction partway around a ring.
+    when (from.getHexDirectionTo(to)) {
+        0 -> RiverFlow.EAST
+        1 -> RiverFlow.NORTH_EAST
+        2 -> RiverFlow.NORTH_WEST
+        3 -> RiverFlow.WEST
+        4 -> RiverFlow.SOUTH_WEST
+        5 -> RiverFlow.SOUTH_EAST
+        else -> RiverFlow.NONE
+    }
 
 internal fun applyResizeToMapData(
     width: Int,
@@ -184,13 +347,7 @@ private fun EditorMap.previewPaths(): List<MapPathPreview> {
             path.size > 1 &&
                 path.dropLast(1).anyIndexed { index, current ->
                     val previous = path.getOrNull(index - 1)
-                    current
-                        .getHexNeighbors()
-                        .count { neighbor ->
-                            neighbor != previous &&
-                                neighbor in traversableCells &&
-                                neighbor.isInside(width, height)
-                        } > 1
+                    0 > 1
                 }
         MapPathPreview(
             spawn = spawn,
@@ -393,6 +550,12 @@ fun MapEditorView(
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var showSaveTemplateDialog by remember { mutableStateOf(false) }
     var showTileReplacementDialog by remember { mutableStateOf(false) }
+    var showFillRiverRingDialog by remember { mutableStateOf(false) }
+    var fillRiverRingError by remember { mutableStateOf(false) }
+    var ringStartX by remember { mutableStateOf("0") }
+    var ringStartY by remember { mutableStateOf("0") }
+    var ringClockwise by remember { mutableStateOf(true) }
+    var ringInnerToOuter by remember { mutableStateOf(true) }
     var templateName by remember { mutableStateOf(map.name) }
     var replacementSourceTileType by remember { mutableStateOf(TileType.NO_PLAY) }
     var replacementTargetTileType by remember { mutableStateOf(TileType.PATH) }
@@ -1267,6 +1430,13 @@ fun MapEditorView(
                 replacementToY = (mapHeight - 1).coerceAtLeast(0).toString()
                 showTileReplacementDialog = true
             },
+            onFillRiverRing = {
+                ringStartX = (mapWidth / 2).coerceAtLeast(0).toString()
+                ringStartY = (mapHeight / 2).coerceAtLeast(0).toString()
+                ringClockwise = true
+                ringInnerToOuter = true
+                showFillRiverRingDialog = true
+            },
             isExpanded = isHeaderExpanded,
             onToggleExpanded = { isHeaderExpanded = !isHeaderExpanded },
             selectedTargetName = selectedTargetName,
@@ -1310,6 +1480,83 @@ fun MapEditorView(
             },
             canRedo = redoHistory.isNotEmpty(),
             onOpenAreaClipboard = { showAreaClipboardDialog = true },
+        )
+    }
+
+    if (showFillRiverRingDialog) {
+        AlertDialog(
+            onDismissRequest = { showFillRiverRingDialog = false },
+            title = { Text(stringResource(Res.string.fill_river_ring_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = ringStartX,
+                        onValueChange = { if (it.isEmpty() || it.matches(Regex("-?[0-9]+"))) ringStartX = it },
+                        label = { Text(stringResource(Res.string.ring_start_x)) },
+                        singleLine = true,
+                    )
+                    OutlinedTextField(
+                        value = ringStartY,
+                        onValueChange = { if (it.isEmpty() || it.matches(Regex("-?[0-9]+"))) ringStartY = it },
+                        label = { Text(stringResource(Res.string.ring_start_y)) },
+                        singleLine = true,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(selected = ringClockwise, onClick = { ringClockwise = true }, label = { Text(stringResource(Res.string.clockwise)) })
+                        FilterChip(selected = !ringClockwise, onClick = { ringClockwise = false }, label = { Text(stringResource(Res.string.counterclockwise)) })
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(selected = ringInnerToOuter, onClick = { ringInnerToOuter = true }, label = { Text(stringResource(Res.string.inner_to_outer)) })
+                        FilterChip(selected = !ringInnerToOuter, onClick = { ringInnerToOuter = false }, label = { Text(stringResource(Res.string.outer_to_inner)) })
+                    }
+                    Text(
+                        text = stringResource(Res.string.fill_river_ring_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    if (fillRiverRingError) {
+                        Text(
+                            text = stringResource(Res.string.fill_river_ring_error_not_water),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    val startX = ringStartX.toIntOrNull() ?: return@Button
+                    val startY = ringStartY.toIntOrNull() ?: return@Button
+                    val startKey = "${startX},${startY}"
+                    if (tiles[startKey] != TileType.RIVER) {
+                        fillRiverRingError = true
+                        return@Button
+                    }
+                    fillRiverRingError = false
+                    val updated =
+                        applyRiverRing(
+                        tiles = tiles,
+                        riverTiles = riverTiles,
+                        mapWidth = mapWidth,
+                        mapHeight = mapHeight,
+                        start = Position(startX, startY),
+                        clockwise = ringClockwise,
+                        innerToOuter = ringInnerToOuter,
+                        flowSpeed = selectedRiverSpeed,
+                        )
+                    if (updated.second != riverTiles) {
+                        rememberForUndo()
+                        tiles = updated.first
+                        riverTiles = updated.second
+                    }
+                    showFillRiverRingDialog = false
+                }) { Text(stringResource(Res.string.apply)) }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    fillRiverRingError = false
+                    showFillRiverRingDialog = false
+                }) { Text(stringResource(Res.string.cancel)) }
+            },
         )
     }
 
@@ -1409,6 +1656,7 @@ fun MapEditorView(
                                     },
                                 )
                             }
+
                         }
                     }
 

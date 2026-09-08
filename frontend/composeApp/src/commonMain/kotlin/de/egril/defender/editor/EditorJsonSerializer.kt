@@ -30,11 +30,6 @@ import de.egril.defender.utils.JsonUtils
 object EditorJsonSerializer {
     private const val PROGRAM_NAME = "Defender of Egril"
 
-    private data class ParsedTilesResult(
-        val tiles: Map<String, TileType>,
-        val exceedsDeclaredBounds: Boolean,
-    )
-
     /**
      * Extracts the "data" section from a file with metadata wrapper.
      * If the JSON has no metadata wrapper (old format), returns the JSON as-is for backward compatibility.
@@ -234,11 +229,11 @@ object EditorJsonSerializer {
                 return invalidMap()
             }
 
-            val parsedTiles = parseTiles(dataJson, width, height) ?: return null
-            if (parsedTiles.exceedsDeclaredBounds) {
-                return invalidMap()
-            }
-            val tiles = parsedTiles.tiles.toMutableMap()
+            // Individual tile/river entries that fall outside the map's declared width/height are
+            // silently skipped rather than invalidating the whole map: legacy authoring artifacts
+            // (e.g. a single stray tile left over from a resize) shouldn't make an otherwise valid,
+            // hand-crafted map unusable.
+            val tiles = parseTiles(dataJson, width, height)?.toMutableMap() ?: return null
 
             // Parse optional river tiles
             val riverTiles = mutableMapOf<String, de.egril.defender.model.RiverTile>()
@@ -282,10 +277,7 @@ object EditorJsonSerializer {
                                     val parts = pos.split(",")
                                     val position = Position(parts[0].toInt(), parts[1].toInt())
                                     if (position.x !in 0 until width || position.y !in 0 until height) {
-                                        return invalidMap(
-                                            tiles = tiles,
-                                            riverTiles = riverTiles,
-                                        )
+                                        continue // Skip this stray river tile entry, keep the rest of the map
                                     }
                                     riverTiles[pos] =
                                         de.egril.defender.model
@@ -424,11 +416,11 @@ object EditorJsonSerializer {
         dataJson: String,
         width: Int,
         height: Int,
-    ): ParsedTilesResult? {
+    ): Map<String, TileType>? {
         val tiles = mutableMapOf<String, TileType>()
         val tilesKeyIndex = dataJson.indexOf("\"tiles\"")
         if (tilesKeyIndex == -1) {
-            return ParsedTilesResult(emptyMap(), exceedsDeclaredBounds = false)
+            return emptyMap()
         }
 
         val colonIndex = dataJson.indexOf(':', tilesKeyIndex)
@@ -447,7 +439,7 @@ object EditorJsonSerializer {
             }
             if (index >= dataJson.length) return null
             if (dataJson[index] == '}') {
-                return ParsedTilesResult(tiles, exceedsDeclaredBounds = false)
+                return tiles
             }
             if (dataJson[index] != '"') return null
 
@@ -455,14 +447,12 @@ object EditorJsonSerializer {
             if (posEnd == -1) return null
             val pos = dataJson.substring(index + 1, posEnd)
             val parts = pos.split(",")
-            if (parts.size != 2) {
-                return ParsedTilesResult(emptyMap(), exceedsDeclaredBounds = true)
-            }
-            val x = parts[0].toIntOrNull()
-            val y = parts[1].toIntOrNull()
-            if (x == null || y == null || x !in 0 until width || y !in 0 until height) {
-                return ParsedTilesResult(emptyMap(), exceedsDeclaredBounds = true)
-            }
+            val x = parts.getOrNull(0)?.toIntOrNull()
+            val y = parts.getOrNull(1)?.toIntOrNull()
+            // Skip - rather than reject the whole map for - a single malformed/out-of-bounds tile
+            // entry. Legacy maps sometimes carry a handful of stray positions (e.g. left over from
+            // a resize) that shouldn't make an otherwise valid, hand-crafted map unusable.
+            val isWithinBounds = parts.size == 2 && x != null && y != null && x in 0 until width && y in 0 until height
 
             index = posEnd + 1
             while (index < dataJson.length && dataJson[index].isWhitespace()) {
@@ -488,7 +478,7 @@ object EditorJsonSerializer {
                             null
                         }
                 }
-            if (tileType != null) {
+            if (tileType != null && isWithinBounds) {
                 tiles[pos] = tileType
             }
             index = typeEnd + 1

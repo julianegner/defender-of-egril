@@ -54,6 +54,14 @@ class MapDesignTemplatesTest {
         assertTrue(map.getSpawnPoints().size >= 3)
     }
 
+    @Test
+    fun ringRoadTemplateCreatesRiverTiles() {
+        val map = createMapFromTemplate("ring", "Ring", 18, 18, "tester", ringTemplate())
+
+        assertTrue(map.getRiverCells().isNotEmpty())
+        assertTrue(map.getRiverTilesMap().values.all { it.flowSpeed == 1 })
+    }
+
     private fun straightTemplate(): MapTemplateDefinition =
         MapTemplateDefinition(
             id = "straight_template",
@@ -80,5 +88,12 @@ class MapDesignTemplatesTest {
             id = "web_template",
             name = "Web template",
             layoutKind = MapTemplateLayoutKind.SPIDER_WEB,
+        )
+
+    private fun ringTemplate(): MapTemplateDefinition =
+        MapTemplateDefinition(
+            id = "ring_template",
+            name = "Ring template",
+            layoutKind = MapTemplateLayoutKind.RING_ROAD,
         )
 }

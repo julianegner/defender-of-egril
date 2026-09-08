@@ -12,6 +12,7 @@ import de.egril.defender.model.RiverFlow
 import de.egril.defender.model.RiverTile
 import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.TargetType
+import de.egril.defender.model.getHexDirectionTo
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.model.hexDistanceTo
 import kotlin.math.PI
@@ -448,7 +449,51 @@ private fun populateRingRoad(
         draft.setSpawn(spawn)
     }
     draft.setTarget(center, "Keep")
+
+    // A river moat traces the map border, one tile outside the road ring, so it never
+    // overlaps the road or the spawn spokes leading to the center.
+    addBorderRiverMoat(draft)
 }
+
+/**
+ * Carves a continuous river ring around the outer border of the map. Flow direction is derived
+ * from each hop's actual hex neighbor index (see [flowDirection]) so the current keeps flowing
+ * the same way around the whole loop instead of reversing partway through.
+ */
+private fun addBorderRiverMoat(draft: MutableMapDraft) {
+    if (draft.width < 3 || draft.height < 3) return
+    val corners =
+        listOf(
+            Position(0, 0),
+            Position(draft.width - 1, 0),
+            Position(draft.width - 1, draft.height - 1),
+            Position(0, draft.height - 1),
+        )
+    val ring =
+        corners
+            .zipWithNext()
+            .flatMap { (from, to) -> hexLine(from, to, draft.width, draft.height) } +
+            hexLine(corners.last(), corners.first(), draft.width, draft.height)
+    val loop = ring.distinct()
+    loop.forEachIndexed { index, position ->
+        val next = loop[(index + 1) % loop.size]
+        draft.setRiver(position, flowDirection(position, next))
+    }
+}
+
+private fun flowDirection(
+    from: Position,
+    to: Position,
+): RiverFlow =
+    when (from.getHexDirectionTo(to)) {
+        0 -> RiverFlow.EAST
+        1 -> RiverFlow.NORTH_EAST
+        2 -> RiverFlow.NORTH_WEST
+        3 -> RiverFlow.WEST
+        4 -> RiverFlow.SOUTH_WEST
+        5 -> RiverFlow.SOUTH_EAST
+        else -> RiverFlow.NONE
+    }
 
 private fun populateCrossroads(
     draft: MutableMapDraft,
@@ -515,6 +560,7 @@ private fun setRiverPath(
         draft.setRiver(position, RiverFlow.SOUTH_EAST)
     }
 }
+
 
 private fun jitteredRow(
     base: Int,

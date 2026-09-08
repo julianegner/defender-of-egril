@@ -24,6 +24,19 @@ enum class TileType {
 }
 
 /**
+ * Reasons why [EditorMap.validateReadyToUse] can fail, used to explain to the user in the UI why a
+ * map is currently shown as "not ready" (see [EditorMap.getValidationIssues]).
+ */
+enum class MapValidationIssue {
+    INVALID_MAP_DATA, // The map file could not be parsed correctly (e.g. corrupted/legacy data)
+    UNSUPPORTED_SIZE, // Map dimensions exceed MapSizeLimits
+    NO_SPAWN_POINT,
+    NO_TARGET,
+    NO_BUILDABLE_TILES, // No BUILD_AREA/river tiles and allowNoBuildableTiles is not set
+    NO_PATH_FROM_SPAWN_TO_TARGET,
+}
+
+/**
  * Optional metadata for a TARGET tile in the map editor.
  * Mirrors [de.egril.defender.model.TargetInfo] but lives in the editor layer.
  */
@@ -146,6 +159,41 @@ data class EditorMap(
             val parts = key.split(",")
             Position(parts[0].toInt(), parts[1].toInt())
         }
+
+    /**
+     * Returns every reason [validateReadyToUse] would currently fail for, so the UI can explain to
+     * the user why a map is not ready instead of just showing a plain "not ready" flag.
+     * An empty result is equivalent to `validateReadyToUse(includeRiversAsWalkable) == true`.
+     */
+    fun getValidationIssues(includeRiversAsWalkable: Boolean = true): List<MapValidationIssue> {
+        val issues = mutableListOf<MapValidationIssue>()
+        if (!isValid) issues += MapValidationIssue.INVALID_MAP_DATA
+        if (!hasSupportedSize()) issues += MapValidationIssue.UNSUPPORTED_SIZE
+        if (!canRenderMinimap()) return issues
+
+        val spawnPoints = getSpawnPoints()
+        val targets = getTargets()
+        val hasSpawnPoint = spawnPoints.isNotEmpty()
+        val hasTarget = targets.isNotEmpty()
+        if (!hasSpawnPoint) issues += MapValidationIssue.NO_SPAWN_POINT
+        if (!hasTarget) issues += MapValidationIssue.NO_TARGET
+        if (!hasBuildablePlacementTiles() && !allowNoBuildableTiles) issues += MapValidationIssue.NO_BUILDABLE_TILES
+
+        if (!hasSpawnPoint || !hasTarget || allowNoDirectPath) return issues
+
+        val requiredSpawns = spawnPoints.filter { getSpawnPointType(it) != SpawnPointType.WATER }
+        if (requiredSpawns.isEmpty()) return issues
+
+        val traversableCells = getPathCells().toMutableSet()
+        if (includeRiversAsWalkable) traversableCells.addAll(getRiverCells())
+        traversableCells.addAll(spawnPoints)
+        traversableCells.addAll(targets)
+
+        val allConnected = requiredSpawns.all { spawn -> targets.any { target -> hasPathBFS(spawn, target, traversableCells) } }
+        if (!allConnected) issues += MapValidationIssue.NO_PATH_FROM_SPAWN_TO_TARGET
+
+        return issues
+    }
 
     /**
      * Validates if map is ready to use:

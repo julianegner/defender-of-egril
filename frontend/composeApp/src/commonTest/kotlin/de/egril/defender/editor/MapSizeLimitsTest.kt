@@ -33,7 +33,7 @@ class MapSizeLimitsTest {
     }
 
     @Test
-    fun outOfBoundsTileMarksMapInvalidAndStopsParsing() {
+    fun outOfBoundsTileIsSkippedButRestOfMapRemainsValid() {
         val json = """{
   "metadata": {"program": "Defender of Egril", "type": "map"},
   "data": {
@@ -49,7 +49,7 @@ class MapSizeLimitsTest {
       "2,2": "TARGET"
     },
     "targetInfo": {
-      "2,2": {"name": "Should Not Be Parsed", "type": "STANDARD"}
+      "2,2": {"name": "Should Still Be Parsed", "type": "STANDARD"}
     }
   }
 }"""
@@ -57,9 +57,10 @@ class MapSizeLimitsTest {
         val map = EditorJsonSerializer.deserializeMap(json)
 
         assertNotNull(map)
-        assertFalse(map.isValid)
-        assertFalse(map.readyToUse)
-        assertTrue(map.tiles.isEmpty())
-        assertTrue(map.targetInfoMap.isEmpty())
+        assertTrue(map.isValid)
+        assertFalse("3,0" in map.tiles, "Out-of-bounds tile entry should be skipped")
+        assertTrue("0,0" in map.tiles, "In-bounds tile entries should still be parsed")
+        assertTrue("2,2" in map.tiles, "In-bounds tile entries should still be parsed")
+        assertTrue("2,2" in map.targetInfoMap, "Target info for valid tiles should still be parsed")
     }
 }
