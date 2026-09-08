@@ -14,9 +14,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -27,7 +31,10 @@ import de.egril.defender.editor.EditorLevel
 import de.egril.defender.ui.getLocalizedDescription
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.getLocalizedTitle
+import de.egril.defender.ui.icon.WarningIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
+import de.egril.defender.ui.settings.AppSettings
+import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.back_to_levels
 import defender_of_egril.composeapp.generated.resources.name_label
@@ -42,7 +49,15 @@ internal fun VillainUsagePage(
     levels: List<EditorLevel>,
     onBack: () -> Unit,
 ) {
-    val usageEntries = remember(levels) { villainUsageEntries(levels) }
+    var showTestingLevels by remember { mutableStateOf(AppSettings.showTestingLevels.value) }
+    val visibleLevels = remember(levels, showTestingLevels) {
+        if (showTestingLevels) {
+            levels
+        } else {
+            levels.filterNot { it.testingOnly }
+        }
+    }
+    val usageEntries = remember(visibleLevels) { villainUsageEntries(visibleLevels) }
     val locale = currentLanguage.value
 
     Column(
@@ -58,6 +73,22 @@ internal fun VillainUsagePage(
                 text = stringResource(Res.string.villain_usage),
                 style = MaterialTheme.typography.titleMedium,
             )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = stringResource(Res.string.show_testing_levels),
+                    style = MaterialTheme.typography.labelMedium,
+                )
+                Switch(
+                    checked = showTestingLevels,
+                    onCheckedChange = {
+                        showTestingLevels = it
+                        AppSettings.showTestingLevels.value = it
+                    },
+                )
+            }
             Button(onClick = onBack) {
                 Text(stringResource(Res.string.back_to_levels))
             }
@@ -109,11 +140,18 @@ internal fun VillainUsagePage(
                         }
                         Column(modifier = Modifier.weight(1.5f)) {
                             if (entry.levels.isEmpty()) {
-                                Text(
-                                    text = stringResource(Res.string.not_used_in_any_level),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                ) {
+                                    WarningIcon(size = 14.dp)
+                                    Text(
+                                        text = stringResource(Res.string.not_used_in_any_level),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
                             } else {
                                 entry.levels.forEach { level ->
                                     Text(
