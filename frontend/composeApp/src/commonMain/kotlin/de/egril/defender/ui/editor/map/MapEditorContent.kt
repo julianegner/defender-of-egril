@@ -1,5 +1,6 @@
 package de.egril.defender.ui.editor.map
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -20,6 +21,9 @@ import de.egril.defender.save.CommunityFileInfo
 import de.egril.defender.ui.MapImageProvider
 import de.egril.defender.ui.editor.CreateMapDialog
 import de.egril.defender.ui.editor.getDefaultAuthorName
+import de.egril.defender.ui.editor.level.generator.LevelGenerator
+import de.egril.defender.ui.editor.level.generator.LevelGeneratorConfig
+import de.egril.defender.ui.editor.level.generator.LevelGeneratorDialog
 import de.egril.defender.ui.icon.CheckmarkIcon
 import defender_of_egril.composeapp.generated.resources.*
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +44,18 @@ private fun allMapsForEditor(): List<EditorMap> {
     return userAndOfficialMaps + communityMaps
 }
 
+private enum class MapUsageFilter {
+    ALL,
+    USED,
+    UNUSED,
+}
+
+private enum class MapValidityFilter {
+    ALL,
+    VALID,
+    INVALID,
+}
+
 /**
  * Main content for the Map Editor tab
  *
@@ -54,9 +70,29 @@ fun MapEditorContent(
     onDownloadRemoteMap: ((CommunityFileInfo) -> Unit)? = null,
 ) {
     val maps = remember { mutableStateOf(allMapsForEditor()) }
+    var mapUsageFilter by remember { mutableStateOf(MapUsageFilter.ALL) }
+    var mapValidityFilter by remember { mutableStateOf(MapValidityFilter.ALL) }
+    val levelsByMapId = remember(maps.value) {
+        EditorStorage.getAllLevels().filter { it.mapId.isNotBlank() }.groupBy { it.mapId }
+    }
+    val visibleMaps = remember(maps.value, mapUsageFilter, mapValidityFilter, levelsByMapId) {
+        val usageFiltered =
+            when (mapUsageFilter) {
+                MapUsageFilter.ALL -> maps.value
+                MapUsageFilter.USED -> maps.value.filter { (levelsByMapId[it.id] ?: emptyList()).isNotEmpty() }
+                MapUsageFilter.UNUSED -> maps.value.filter { (levelsByMapId[it.id] ?: emptyList()).isEmpty() }
+            }
+        when (mapValidityFilter) {
+            MapValidityFilter.ALL -> usageFiltered
+            MapValidityFilter.VALID -> usageFiltered.filter { it.readyToUse }
+            MapValidityFilter.INVALID -> usageFiltered.filter { !it.readyToUse }
+        }
+    }
     var selectedMapId by remember { mutableStateOf<String?>(null) }
     var editingMap by remember { mutableStateOf<EditorMap?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
+    var showMapGeneratorDialog by remember { mutableStateOf(false) }
+    var mapGeneratorConfig by remember { mutableStateOf<LevelGeneratorConfig?>(null) }
     val coroutineScope = rememberCoroutineScope()
     val iamState by IamService.state
 
@@ -194,13 +230,75 @@ fun MapEditorContent(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = stringResource(Res.string.maps),
+                    text = stringResource(Res.string.maps_with_count, visibleMaps.size, maps.value.size),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
 
-                Button(onClick = { showCreateDialog = true }) {
-                    Text(stringResource(Res.string.create_new_map))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Surface(
+                        shape = MaterialTheme.shapes.medium,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        ) {
+                            MapListFilterChip(
+                                label = stringResource(Res.string.map_filter_all),
+                                selected = mapUsageFilter == MapUsageFilter.ALL,
+                                onClick = { mapUsageFilter = MapUsageFilter.ALL },
+                            )
+                            MapListFilterChip(
+                                label = stringResource(Res.string.map_filter_used),
+                                selected = mapUsageFilter == MapUsageFilter.USED,
+                                onClick = { mapUsageFilter = MapUsageFilter.USED },
+                            )
+                            MapListFilterChip(
+                                label = stringResource(Res.string.map_filter_unused),
+                                selected = mapUsageFilter == MapUsageFilter.UNUSED,
+                                onClick = { mapUsageFilter = MapUsageFilter.UNUSED },
+                            )
+                        }
+                    }
+
+                    Surface(
+                        shape = MaterialTheme.shapes.medium,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        ) {
+                            MapListFilterChip(
+                                label = stringResource(Res.string.map_filter_all),
+                                selected = mapValidityFilter == MapValidityFilter.ALL,
+                                onClick = { mapValidityFilter = MapValidityFilter.ALL },
+                            )
+                            MapListFilterChip(
+                                label = stringResource(Res.string.map_filter_valid),
+                                selected = mapValidityFilter == MapValidityFilter.VALID,
+                                onClick = { mapValidityFilter = MapValidityFilter.VALID },
+                            )
+                            MapListFilterChip(
+                                label = stringResource(Res.string.map_filter_invalid),
+                                selected = mapValidityFilter == MapValidityFilter.INVALID,
+                                onClick = { mapValidityFilter = MapValidityFilter.INVALID },
+                            )
+                        }
+                    }
+
+                    Button(onClick = { showMapGeneratorDialog = true }) {
+                        Text(stringResource(Res.string.map_generator))
+                    }
+                    Button(onClick = { showCreateDialog = true }) {
+                        Text(stringResource(Res.string.create_new_map))
+                    }
                 }
             }
 
@@ -217,9 +315,10 @@ fun MapEditorContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 // Locally-available maps (official + user + already-downloaded community)
-                items(maps.value) { map ->
+                items(visibleMaps) { map ->
                     MapListCard(
                         map = map,
+                        levelsUsingMap = levelsByMapId[map.id].orEmpty(),
                         isSelected = selectedMapId == map.id,
                         onSelect = {
                             selectedMapId = map.id
@@ -268,6 +367,37 @@ fun MapEditorContent(
                         },
                     )
                 }
+            }
+        }
+    }
+
+    if (showMapGeneratorDialog) {
+        val defaultAuthor = getDefaultAuthorName(iamState)
+        LevelGeneratorDialog(
+            availableMaps = EditorStorage.getAllMaps().filter { it.readyToUse },
+            defaultAuthor = defaultAuthor,
+            isGenerating = mapGeneratorConfig != null,
+            onDismiss = {
+                showMapGeneratorDialog = false
+                mapGeneratorConfig = null
+            },
+            onGenerate = { config -> mapGeneratorConfig = config },
+        )
+    }
+
+    LaunchedEffect(mapGeneratorConfig) {
+        val config = mapGeneratorConfig ?: return@LaunchedEffect
+        try {
+            kotlinx.coroutines.delay(50)
+            val result = withContext(Dispatchers.Default) { LevelGenerator.generate(config) }
+            val generatedMap = result.generatedMap ?: return@LaunchedEffect
+            withContext(Dispatchers.Default) { EditorStorage.saveMap(generatedMap) }
+            maps.value = allMapsForEditor()
+            showMapGeneratorDialog = false
+            editingMap = generatedMap
+        } finally {
+            if (mapGeneratorConfig == config) {
+                mapGeneratorConfig = null
             }
         }
     }
@@ -452,4 +582,17 @@ fun MapEditorContent(
             },
         )
     }
+}
+
+@Composable
+private fun MapListFilterChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = { Text(label) },
+    )
 }

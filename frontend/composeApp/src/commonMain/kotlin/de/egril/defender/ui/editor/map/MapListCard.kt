@@ -3,19 +3,20 @@ package de.egril.defender.ui.editor.map
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.model.Level
 import de.egril.defender.model.Position
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.CrossIcon
+import de.egril.defender.ui.icon.InfoIcon
 import de.egril.defender.ui.loadgame.SavefileLocationChip
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -25,11 +26,13 @@ import defender_of_egril.composeapp.generated.resources.*
 @Composable
 fun MapListCard(
     map: EditorMap,
+    levelsUsingMap: List<EditorLevel> = emptyList(),
     isSelected: Boolean,
     onSelect: () -> Unit,
     onDelete: () -> Unit,
     onCopy: () -> Unit,
 ) {
+    var showLevelsDialog by remember { mutableStateOf(false) }
     Card(
         modifier =
             Modifier
@@ -145,17 +148,30 @@ fun MapListCard(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                // Ready/not ready check indicator
-                if (map.readyToUse) {
-                    CheckmarkIcon(
-                        size = 20.dp,
-                        tint = Color.Green,
-                    )
-                } else {
-                    CrossIcon(
-                        size = 20.dp,
-                        tint = Color.Red,
-                    )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    if (levelsUsingMap.isNotEmpty()) {
+                        IconButton(
+                            onClick = { showLevelsDialog = true },
+                            modifier = Modifier.size(24.dp),
+                        ) {
+                            InfoIcon(size = 18.dp)
+                        }
+                    }
+                    // Ready/not ready check indicator
+                    if (map.readyToUse) {
+                        CheckmarkIcon(
+                            size = 20.dp,
+                            tint = Color.Green,
+                        )
+                    } else {
+                        CrossIcon(
+                            size = 20.dp,
+                            tint = Color.Red,
+                        )
+                    }
                 }
                 // Official badge below the check
                 if (map.isOfficial) {
@@ -193,5 +209,31 @@ fun MapListCard(
                 }
             }
         }
+    }
+
+    if (showLevelsDialog) {
+        AlertDialog(
+            onDismissRequest = { showLevelsDialog = false },
+            title = { Text(stringResource(Res.string.used_in_levels)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (levelsUsingMap.isEmpty()) {
+                        Text(stringResource(Res.string.not_used_in_any_level))
+                    } else {
+                        levelsUsingMap.forEach { level ->
+                            Text(
+                                text = "${level.title.ifBlank { level.id }} (${level.id})",
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLevelsDialog = false }) {
+                    Text(stringResource(Res.string.close))
+                }
+            },
+        )
     }
 }

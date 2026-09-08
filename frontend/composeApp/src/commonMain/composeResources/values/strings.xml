@@ -384,6 +384,8 @@
     <string name="map_editor">Map Editor</string>
     <string name="level_sequence">Level Sequence</string>
     <string name="maps">Maps</string>
+    <string name="maps_with_count">Maps: %1$d (%2$d)</string>
+    <string name="map_generator">Map Generator</string>
     <string name="levels">Levels</string>
     <string name="create_new_map">Create New Map</string>
     <string name="create_new_level">Create New Level</string>
@@ -415,6 +417,11 @@
     <string name="editing_level">Editing Level: %s</string>
     <string name="ready_to_use">Ready to use</string>
     <string name="not_ready">Not ready</string>
+    <string name="map_filter_all">All</string>
+    <string name="map_filter_used">Used</string>
+    <string name="map_filter_unused">Unused</string>
+    <string name="map_filter_valid">Valid</string>
+    <string name="map_filter_invalid">Invalid</string>
     <string name="ready">Ready</string>
     <string name="file">File</string>
     <string name="size">Size</string>

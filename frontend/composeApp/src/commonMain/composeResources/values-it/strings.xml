@@ -378,6 +378,8 @@
     <string name="map_editor">Editor di mappe</string>
     <string name="level_sequence">Sequenza di livelli</string>
     <string name="maps">Mappe</string>
+    <string name="maps_with_count">Mappe: %1$d (%2$d)</string>
+    <string name="map_generator">Generatore di mappe</string>
     <string name="levels">Livelli</string>
     <string name="create_new_map">Crea nuova mappa</string>
     <string name="create_new_level">Crea nuovo livello</string>
@@ -409,6 +411,11 @@
     <string name="editing_level">Modifica livello: %s</string>
     <string name="ready_to_use">Pronto all'uso</string>
     <string name="not_ready">Non pronto</string>
+    <string name="map_filter_all">Tutte</string>
+    <string name="map_filter_used">Usate</string>
+    <string name="map_filter_unused">Non usate</string>
+    <string name="map_filter_valid">Valide</string>
+    <string name="map_filter_invalid">Non valide</string>
     <string name="ready">Pronto</string>
     <string name="file">File</string>
     <string name="size">Dimensione</string>
