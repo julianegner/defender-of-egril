@@ -1575,15 +1575,28 @@ fun MapEditorView(
             },
             onClearBackgroundImage = { backgroundImageBytes = null },
             onOpenMapPreview = {
-                mapImageGenerationRunning = false
-                mapImageGenerationError = null
-                mapImageGenerationStep = ""
-                mapImageCompressedSizeKb = 0L
-                mapImageGenerationWasRegenerated = false
-                mapPreviewRegenerating = false
-                mapPreviewError = null
-                mapPreviewPainter = null
-                mapPreviewBytes = null
+                val dialogState =
+                    stateForOpeningMapPreviewDialog(
+                        MapPreviewDialogState(
+                            generationRunning = mapImageGenerationRunning,
+                            generationSuccess = mapImageGenerationSuccess,
+                            generationError = mapImageGenerationError,
+                            generationStep = mapImageGenerationStep,
+                            compressedSizeKb = mapImageCompressedSizeKb,
+                            generationWasRegenerated = mapImageGenerationWasRegenerated,
+                            previewRegenerating = mapPreviewRegenerating,
+                            previewError = mapPreviewError,
+                            hasPreviewPainter = mapPreviewPainter != null,
+                        ),
+                    )
+                mapImageGenerationRunning = dialogState.generationRunning
+                mapImageGenerationSuccess = dialogState.generationSuccess
+                mapImageGenerationError = dialogState.generationError
+                mapImageGenerationStep = dialogState.generationStep
+                mapImageCompressedSizeKb = dialogState.compressedSizeKb
+                mapImageGenerationWasRegenerated = dialogState.generationWasRegenerated
+                mapPreviewRegenerating = dialogState.previewRegenerating
+                mapPreviewError = dialogState.previewError
                 showMapImageGenerationDialog = true
             },
             mapOverlayAlpha = mapOverlayAlpha,
@@ -1615,9 +1628,7 @@ fun MapEditorView(
     }
 
     LaunchedEffect(showMapImageGenerationDialog) {
-        if (showMapImageGenerationDialog) {
-            mapPreviewPainter = null
-            mapPreviewBytes = null
+        if (showMapImageGenerationDialog && shouldLoadMapPreviewFromDisk(mapPreviewPainter != null)) {
             mapPreviewPainter = loadMapPreviewFromDisk()
         }
     }
