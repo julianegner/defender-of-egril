@@ -2,6 +2,7 @@ package de.egril.defender.model
 
 import de.egril.defender.editor.InitialBridge
 import de.egril.defender.editor.InitialData
+import de.egril.defender.game.PathfindingSystem
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -41,5 +42,8 @@ class InitialBridgeSetupTest {
         assertEquals(123, bridge.currentHealth.value)
         assertTrue(bridge.isIndestructible)
         assertTrue(state.isBridgeAt(Position(2, 0)))
+
+        val path = PathfindingSystem(state).findPath(Position(1, 0), Position(3, 0))
+        assertTrue(path.contains(Position(2, 0)))
     }
 }

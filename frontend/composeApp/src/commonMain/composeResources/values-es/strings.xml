@@ -995,7 +995,7 @@
     <string name="river_info_placement">¡Puedes colocar torres en casillas de río! Cuando lo hagas, se colocarán en balsas.</string>
     <string name="river_info_movement">Las balsas se mueven automáticamente con el flujo del río al final de cada turno. La velocidad del flujo determina cuántas casillas se mueven (1 o 2 casillas).</string>
     <string name="river_info_destruction">Las balsas se destruyen si alcanzan un remolino o se mueven fuera de los límites del mapa. La torre en la balsa también se destruye.</string>
-    <string name="river_info_bridges">Los puentes bloquean el movimiento de las balsas. Las balsas no pueden pasar a través de puentes que cruzan el río. Múltiples balsas en el mismo río se mueven en orden - las que están río abajo se mueven primero.</string>
+    <string name="river_info_bridges">Los puentes no bloquean el movimiento de las balsas. Las balsas pasan sobre las casillas de puente y continúan siguiendo la corriente del río. Varias balsas en el mismo río se mueven en orden: las que están río abajo se mueven primero.</string>
 
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">No se puede colocar mina en el río</string>

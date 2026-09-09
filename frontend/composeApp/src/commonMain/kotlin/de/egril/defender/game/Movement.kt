@@ -335,7 +335,7 @@ class Movement(
                                     neighbor.x < state.level.gridWidth &&
                                     neighbor.y >= 0 &&
                                     neighbor.y < state.level.gridHeight &&
-                                    (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor)) &&
+                                    (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor) || state.isBridgeAt(neighbor)) &&
                                     !currentPositions.any { (id, pos) -> id != attacker.id && pos == neighbor } &&
                                     !positionsToOccupy.contains(neighbor)
                             }
@@ -575,7 +575,7 @@ class Movement(
             portal.exitPosition
                 .getHexNeighbors()
                 .filter { neighbor ->
-                    state.level.isOnPath(neighbor) &&
+                    (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor)) &&
                         !state.isPortalTile(neighbor) &&
                         !state.attackers.any { it.id != attacker.id && !it.isDefeated.value && it.position.value == neighbor }
                 }
@@ -816,7 +816,7 @@ class Movement(
                 newPosition
                     .getHexNeighbors()
                     .filter { pos ->
-                        state.level.isOnPath(pos) &&
+                        (state.level.isOnPath(pos) || state.isBridgeAt(pos)) &&
                             state.attackers.none { it.position.value == pos && !it.isDefeated.value }
                     }.minByOrNull {
                         it.distanceTo(
@@ -940,7 +940,7 @@ class Movement(
                     neighbor.x < state.level.gridWidth &&
                     neighbor.y >= 0 &&
                     neighbor.y < state.level.gridHeight &&
-                    state.level.isOnPath(neighbor)
+                    (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor))
             }
 
         val availableNeighbors =

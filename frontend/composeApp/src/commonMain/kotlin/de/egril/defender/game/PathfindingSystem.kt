@@ -139,7 +139,7 @@ class PathfindingSystem(
                         neighbor.x < state.level.gridWidth &&
                         neighbor.y >= 0 &&
                         neighbor.y < state.level.gridHeight &&
-                        (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor))
+                        (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor) || state.isBridgeAt(neighbor))
                 }
 
             // Penalize positions with few exits (potential dead ends)

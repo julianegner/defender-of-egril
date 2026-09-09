@@ -995,7 +995,7 @@
     <string name="river_info_placement">Du kannst Türme auf Flussfeldern platzieren! Wenn du das tust, werden sie auf Flößen platziert.</string>
     <string name="river_info_movement">Flöße bewegen sich automatisch mit der Flussströmung am Ende jeder Runde. Die Fließgeschwindigkeit bestimmt, wie viele Felder sie sich bewegen (1 oder 2 Felder).</string>
     <string name="river_info_destruction">Flöße werden zerstört, wenn sie einen Strudel erreichen oder aus den Kartengrenzen hinausbewegt werden. Der Turm auf dem Floß wird ebenfalls zerstört.</string>
-    <string name="river_info_bridges">Brücken blockieren die Bewegung von Flößen. Flöße können nicht durch Brücken hindurch, die über den Fluss gespannt sind. Mehrere Flöße auf demselben Fluss bewegen sich nacheinander - flussabwärts zuerst.</string>
+    <string name="river_info_bridges">Brücken blockieren Flöße nicht. Flöße fahren über Brückenfelder und folgen weiter der Flussrichtung. Mehrere Flöße auf demselben Fluss bewegen sich nacheinander - flussabwärts zuerst.</string>
 
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">Kann Mine nicht auf Fluss platzieren</string>
