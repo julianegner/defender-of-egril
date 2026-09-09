@@ -7,6 +7,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorLevel
@@ -153,9 +155,13 @@ fun MapListCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     if (levelsUsingMap.isNotEmpty()) {
+                        val usedInLevelsLabel = stringResource(Res.string.used_in_levels)
                         IconButton(
                             onClick = { showLevelsDialog = true },
-                            modifier = Modifier.size(24.dp),
+                            modifier =
+                                Modifier
+                                    .size(24.dp)
+                                    .semantics { contentDescription = usedInLevelsLabel },
                         ) {
                             InfoIcon(size = 18.dp)
                         }
