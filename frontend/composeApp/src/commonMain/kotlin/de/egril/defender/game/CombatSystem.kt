@@ -719,6 +719,15 @@ class CombatSystem(
             }
         }
 
+        // Damage all bridges in affected positions
+        affectedPositions.forEach { pos ->
+            if (pos in blockedPositions) return@forEach
+            val bridge = state.getBridgeAt(pos)
+            if (bridge != null && bridge.isActive) {
+                bridgeSystem.damageBridge(pos, getEffectiveDamage(defender))
+            }
+        }
+
         // Get all positions with active fireball effects (fire burns away acid)
         val fireballPositions =
             state.fieldEffects

@@ -4359,6 +4359,14 @@ class GameViewModel {
                                 "Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} at $position (HP: ${attacker.currentHealth.value})",
                             )
                         }
+                    } else {
+                        val bridge = gameState.getBridgeAt(position)
+                        if (bridge != null && bridge.isActive) {
+                            bridge.takeDamage(80)
+                            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                                println("Attack Aimed: Dealt 80 damage to bridge at $position (HP: ${bridge.currentHealth.value})")
+                            }
+                        }
                     }
                 }
             }
@@ -4388,6 +4396,9 @@ class GameViewModel {
                             damagedCount++
                         }
                     }
+                    gameState.bridges
+                        .filter { it.isActive && it.positions.any { bridgePosition -> bridgePosition.hexDistanceTo(position) <= 2 } }
+                        .forEach { it.takeDamage(50) }
                     if (LogConfig.ENABLE_SPELL_LOGGING) {
                         println("Attack Area: Dealt 50 damage to $damagedCount enemies within 2 hex range of $position")
                     }
@@ -4593,7 +4604,7 @@ class GameViewModel {
                         }
                         positions
                     } else if (spell == SpellType.ATTACK_AREA) {
-                        // Attack Area: only path tiles without a barricade
+                        // Attack Area: enemy-occupiable tiles (path/spawn/river/bridge) without a barricade
                         val occupiedByBarricade =
                             gameState.barricades
                                 .filter { !it.isDestroyed() }
@@ -4603,18 +4614,25 @@ class GameViewModel {
                         for (x in 0 until gameState.level.gridWidth) {
                             for (y in 0 until gameState.level.gridHeight) {
                                 val pos = Position(x, y)
-                                if (gameState.level.isOnPath(pos) && pos !in occupiedByBarricade) {
+                                if ((gameState.level.isEnemyOccupiable(pos) || gameState.isBridgeAt(pos)) && pos !in occupiedByBarricade) {
                                     positions.add(pos)
                                 }
                             }
                         }
                         positions
                     } else if (spell == SpellType.ATTACK_AIMED) {
-                        // Attack Aimed: only tiles that have an enemy on them
-                        gameState.attackers
-                            .filter { !it.isDefeated.value }
-                            .map { it.position.value }
-                            .toSet()
+                        // Attack Aimed: tiles that have an enemy or active bridge on them
+                        val attackerPositions =
+                            gameState.attackers
+                                .filter { !it.isDefeated.value }
+                                .map { it.position.value }
+                                .toSet()
+                        val bridgePositions =
+                            gameState.bridges
+                                .filter { it.isActive }
+                                .flatMap { it.positions }
+                                .toSet()
+                        attackerPositions + bridgePositions
                     } else {
                         // All tiles on the map are valid positions for other spells
                         val positions = mutableSetOf<Position>()

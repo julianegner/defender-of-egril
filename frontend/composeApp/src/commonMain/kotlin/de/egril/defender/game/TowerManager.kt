@@ -52,6 +52,9 @@ class TowerManager(
             if (riverTile != null && (riverTile.flowDirection == RiverFlow.NONE || riverTile.flowDirection == RiverFlow.MAELSTROM)) {
                 return false
             }
+            if (state.isBridgeAt(position)) {
+                return false
+            }
         }
 
         // Can place in build areas OR on river tiles (for rafts, except mines) OR on tower bases

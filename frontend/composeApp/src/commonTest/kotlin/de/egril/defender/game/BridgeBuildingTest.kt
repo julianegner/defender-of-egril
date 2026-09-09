@@ -546,6 +546,90 @@ class BridgeBuildingTest {
         assertTrue(pathWithBridge.contains(Position(2, 0)), "Path should go through bridge")
     }
 
+    @Test
+    fun testBallistaCanAttackBridgeTile() {
+        val level =
+            Level(
+                id = 1,
+                name = "Test Ballista Bridge Attack",
+                gridWidth = 6,
+                gridHeight = 1,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(5, 0)),
+                pathCells = setOf(Position(2, 0), Position(3, 0), Position(5, 0)),
+                buildAreas = setOf(Position(1, 0), Position(2, 0), Position(3, 0)),
+                attackerWaves = emptyList(),
+                initialCoins = 200,
+                riverTiles =
+                    mapOf(
+                        Position(4, 0) to RiverTile(position = Position(4, 0), flowDirection = RiverFlow.EAST, flowSpeed = 1),
+                    ),
+                availableTowers = setOf(DefenderType.BALLISTA_TOWER),
+            )
+
+        val state = GameState(level = level)
+        val engine = GameEngine(state)
+        state.bridges.add(
+            Bridge(
+                id = 1,
+                type = BridgeType.STONE,
+                positions = listOf(Position(4, 0)),
+                currentHealth = mutableStateOf(100),
+                createdByAttackerId = 1,
+                createdOnTurn = 1,
+            ),
+        )
+
+        assertTrue(engine.placeDefender(DefenderType.BALLISTA_TOWER, Position(1, 0)))
+        val bridge = state.bridges.first()
+        val damaged = engine.defenderAttackPosition(state.defenders.first().id, Position(4, 0))
+
+        assertTrue(damaged, "Ballista should be able to target bridge tiles")
+        assertTrue(bridge.currentHealth.value < 100, "Ballista attack should damage bridge HP")
+    }
+
+    @Test
+    fun testAcidCanAttackBridgeTile() {
+        val level =
+            Level(
+                id = 1,
+                name = "Test Acid Bridge Attack",
+                gridWidth = 6,
+                gridHeight = 1,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(5, 0)),
+                pathCells = setOf(Position(1, 0), Position(3, 0), Position(5, 0)),
+                buildAreas = setOf(Position(2, 0), Position(3, 0)),
+                attackerWaves = emptyList(),
+                initialCoins = 200,
+                riverTiles =
+                    mapOf(
+                        Position(4, 0) to RiverTile(position = Position(4, 0), flowDirection = RiverFlow.EAST, flowSpeed = 1),
+                    ),
+                availableTowers = setOf(DefenderType.ALCHEMY_TOWER),
+            )
+
+        val state = GameState(level = level)
+        val engine = GameEngine(state)
+        state.bridges.add(
+            Bridge(
+                id = 1,
+                type = BridgeType.STONE,
+                positions = listOf(Position(4, 0)),
+                currentHealth = mutableStateOf(100),
+                createdByAttackerId = 1,
+                createdOnTurn = 1,
+            ),
+        )
+
+        assertTrue(engine.placeDefender(DefenderType.ALCHEMY_TOWER, Position(2, 0)))
+        val bridge = state.bridges.first()
+        val damaged = engine.defenderAttackPosition(state.defenders.first().id, Position(4, 0))
+
+        assertTrue(damaged, "Alchemy tower should be able to target bridge tiles")
+        assertTrue(bridge.currentHealth.value < 100, "Acid attack should damage bridge HP")
+    }
+
     /**
      * Test that bridge-building units don't count toward enemy count for winning
      */

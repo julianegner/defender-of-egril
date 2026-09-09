@@ -377,6 +377,51 @@ class RaftTest {
         assertEquals(Position(3, 0), raft.currentPosition.value, "Raft should pass over bridge tiles")
     }
 
+    @Test
+    fun testCannotPlaceBargeOnBridgeTile() {
+        val riverTilesMap =
+            mapOf(
+                Position(2, 0) to
+                    RiverTile(
+                        position = Position(2, 0),
+                        flowDirection = RiverFlow.EAST,
+                        flowSpeed = 1,
+                    ),
+            )
+
+        val level =
+            Level(
+                id = 1,
+                name = "Test Barge Bridge Placement",
+                pathCells = setOf(Position(1, 0), Position(3, 0)),
+                buildAreas = setOf(Position(1, 0), Position(2, 0), Position(3, 0)),
+                attackerWaves = emptyList(),
+                initialCoins = 100,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(4, 0)),
+                riverTiles = riverTilesMap,
+            )
+
+        val state = GameState(level = level)
+        val engine = GameEngine(state)
+        state.bridges.add(
+            Bridge(
+                id = 1,
+                type = BridgeType.WOODEN,
+                positions = listOf(Position(2, 0)),
+                currentHealth = mutableStateOf(50),
+                createdByAttackerId = 1,
+                createdOnTurn = 1,
+            ),
+        )
+
+        val success = engine.placeDefender(DefenderType.BOW_TOWER, Position(2, 0))
+
+        assertFalse(success, "Should not be able to place a barge on a river tile with a bridge")
+        assertTrue(state.defenders.isEmpty(), "Should not place defender on bridged river tile")
+        assertTrue(state.rafts.isEmpty(), "Should not create raft on bridged river tile")
+    }
+
     /**
      * Test that rafts cannot pass through other rafts
      */
