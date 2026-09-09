@@ -724,6 +724,7 @@ private fun countInitialPlacementIssues(
             initialData.attackers.size +
             initialData.traps.size +
             initialData.barricades.size +
+            initialData.bridges.size +
             initialData.fiefs.size
     }
     val buildAreas = map.getBuildAreas()
@@ -734,6 +735,7 @@ private fun countInitialPlacementIssues(
         initialData.attackers.count { it.position !in traversable } +
         initialData.traps.count { it.position !in traversable } +
         initialData.barricades.count { !it.position.isInside(map.width, map.height) } +
+        initialData.bridges.count { it.position !in map.getRiverCells() } +
         initialData.fiefs.count { it.position !in traversable }
 }
 

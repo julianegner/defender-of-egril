@@ -729,7 +729,7 @@
 
     <!-- Initial Setup Tab -->
     <string name="initial_setup">Initial Setup</string>
-    <string name="initial_setup_info">Place towers, enemies, traps, barricades, and fiefs on the map before the level starts (optional)</string>
+    <string name="initial_setup_info">Place towers, enemies, traps, barricades, bridges, and fiefs on the map before the level starts (optional)</string>
     <string name="initial_setup_towers">Towers</string>
     <string name="initial_setup_enemies">Enemies</string>
     <string name="initial_setup_traps">Traps</string>
@@ -779,6 +779,11 @@
     <string name="enemy_configuration">Enemy Configuration</string>
     <string name="trap_configuration">Trap Configuration</string>
     <string name="barricade_configuration">Barricade Configuration</string>
+    <string name="bridge_configuration">Bridge Configuration</string>
+    <string name="bridges">Bridges</string>
+    <string name="wooden_bridge">Wooden Bridge</string>
+    <string name="stone_bridge">Stone Bridge</string>
+    <string name="indestructible">Indestructible</string>
     <string name="selected_element">Selected Element</string>
     <string name="no_map_selected">No map selected. Please select or create a map first.</string>
     <string name="deselect">Deselect</string>

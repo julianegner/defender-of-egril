@@ -1,6 +1,7 @@
 package de.egril.defender.editor
 
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.BridgeType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.LevelSupports
@@ -441,6 +442,21 @@ data class InitialBarricade(
 }
 
 /**
+ * Initial bridge placement for level start.
+ */
+data class InitialBridge(
+    val position: Position,
+    val type: BridgeType,
+    val healthPoints: Int,
+    val isIndestructible: Boolean = false,
+) {
+    companion object {
+        const val DEFAULT_WOODEN_HEALTH = 50
+        const val DEFAULT_STONE_HEALTH = 100
+    }
+}
+
+/**
  * Initial fief placement for level start
  */
 data class InitialFief(
@@ -478,6 +494,7 @@ data class InitialData(
     val attackers: List<InitialAttacker> = emptyList(),
     val traps: List<InitialTrap> = emptyList(),
     val barricades: List<InitialBarricade> = emptyList(),
+    val bridges: List<InitialBridge> = emptyList(),
     val fiefs: List<InitialFief> = emptyList(),
     val mushrooms: List<InitialMushroom> = emptyList(),
     val portals: List<InitialPortal> = emptyList(),

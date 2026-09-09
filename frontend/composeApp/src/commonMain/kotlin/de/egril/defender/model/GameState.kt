@@ -1003,6 +1003,21 @@ data class GameState(
             traps.add(trap)
         }
 
+        // Place initial bridges
+        for (initialBridge in initialData.bridges) {
+            val bridge =
+                Bridge(
+                    id = nextBridgeId.value++,
+                    type = initialBridge.type,
+                    positions = listOf(initialBridge.position),
+                    currentHealth = mutableStateOf(initialBridge.healthPoints),
+                    createdByAttackerId = 0,
+                    createdOnTurn = 0,
+                    isIndestructible = initialBridge.isIndestructible,
+                )
+            bridges.add(bridge)
+        }
+
         // Place initial fiefs
         for (initialFief in initialData.fiefs) {
             fiefs.add(Fief(position = initialFief.position, type = initialFief.type))

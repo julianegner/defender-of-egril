@@ -724,7 +724,7 @@
     <string name="initial_setup_click_to_place">Cliquez sur la carte pour placer l'élément sélectionné</string>
     <string name="initial_setup_tile">Case:</string>
     <string name="initial_setup">Configuration Initiale</string>
-    <string name="initial_setup_info">Placez des tours, des ennemis, des pièges, des barricades et des fiefs sur la carte avant que le niveau ne commence (optionnel)</string>
+    <string name="initial_setup_info">Placez des tours, des ennemis, des pièges, des barricades, des ponts et des fiefs sur la carte avant que le niveau ne commence (optionnel)</string>
     <string name="initial_setup_towers">Tours</string>
     <string name="initial_setup_enemies">Ennemis</string>
     <string name="initial_setup_traps">Pièges</string>
@@ -752,6 +752,11 @@
     <string name="enemy_configuration">Configuration d'Ennemi</string>
     <string name="trap_configuration">Configuration de Piège</string>
     <string name="barricade_configuration">Configuration de Barricade</string>
+    <string name="bridge_configuration">Configuration de Pont</string>
+    <string name="bridges">Ponts</string>
+    <string name="wooden_bridge">Pont en Bois</string>
+    <string name="stone_bridge">Pont en Pierre</string>
+    <string name="indestructible">Indestructible</string>
     <string name="selected_element">Élément Sélectionné</string>
     <string name="health_points">Points de Vie</string>
     <string name="level_label">Niveau</string>

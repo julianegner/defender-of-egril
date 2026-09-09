@@ -724,7 +724,7 @@
     <string name="initial_setup_click_to_place">Clicca sulla mappa per posizionare l'elemento selezionato</string>
     <string name="initial_setup_tile">Casella:</string>
     <string name="initial_setup">Configurazione Iniziale</string>
-    <string name="initial_setup_info">Posiziona torri, nemici, trappole, barricate e feudi sulla mappa prima che inizi il livello (opzionale)</string>
+    <string name="initial_setup_info">Posiziona torri, nemici, trappole, barricate, ponti e feudi sulla mappa prima che inizi il livello (opzionale)</string>
     <string name="initial_setup_towers">Torri</string>
     <string name="initial_setup_enemies">Nemici</string>
     <string name="initial_setup_traps">Trappole</string>
@@ -752,6 +752,11 @@
     <string name="enemy_configuration">Configurazione Nemico</string>
     <string name="trap_configuration">Configurazione Trappola</string>
     <string name="barricade_configuration">Configurazione Barricata</string>
+    <string name="bridge_configuration">Configurazione Ponte</string>
+    <string name="bridges">Ponti</string>
+    <string name="wooden_bridge">Ponte di Legno</string>
+    <string name="stone_bridge">Ponte di Pietra</string>
+    <string name="indestructible">Indistruttibile</string>
     <string name="selected_element">Elemento Selezionato</string>
     <string name="health_points">Punti Vita</string>
     <string name="level_label">Livello</string>

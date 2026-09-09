@@ -450,6 +450,42 @@ class BridgeBuildingTest {
         assertTrue(goblin2.isDefeated.value, "Goblin 2 should be defeated")
     }
 
+    @Test
+    fun testIndestructibleBridgeIgnoresDamage() {
+        val level =
+            Level(
+                id = 1,
+                name = "Test Level",
+                gridWidth = 5,
+                gridHeight = 1,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(4, 0)),
+                pathCells = setOf(Position(0, 0), Position(1, 0), Position(3, 0), Position(4, 0)),
+                attackerWaves = emptyList(),
+                riverTiles = mapOf(Position(2, 0) to RiverTile(Position(2, 0))),
+            )
+
+        val state = GameState(level = level)
+        val bridgeSystem = BridgeSystem(state)
+        val bridge =
+            Bridge(
+                id = 1,
+                type = BridgeType.STONE,
+                positions = listOf(Position(2, 0)),
+                currentHealth = mutableStateOf(100),
+                createdByAttackerId = 1,
+                createdOnTurn = 1,
+                isIndestructible = true,
+            )
+        state.bridges.add(bridge)
+
+        bridgeSystem.damageBridge(Position(2, 0), 1000)
+        bridgeSystem.processBridges()
+
+        assertEquals(1, state.bridges.size, "Bridge should remain")
+        assertEquals(100, bridge.currentHealth.value, "Bridge health must not change")
+    }
+
     /**
      * Test that bridges are walkable for pathfinding
      */

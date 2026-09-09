@@ -724,7 +724,7 @@
     <string name="initial_setup_click_to_place">Haz clic en el mapa para colocar el elemento seleccionado</string>
     <string name="initial_setup_tile">Casilla:</string>
     <string name="initial_setup">Configuración Inicial</string>
-    <string name="initial_setup_info">Coloca torres, enemigos, trampas, barricadas y feudos en el mapa antes de que comience el nivel (opcional)</string>
+    <string name="initial_setup_info">Coloca torres, enemigos, trampas, barricadas, puentes y feudos en el mapa antes de que comience el nivel (opcional)</string>
     <string name="initial_setup_towers">Torres</string>
     <string name="initial_setup_enemies">Enemigos</string>
     <string name="initial_setup_traps">Trampas</string>
@@ -752,6 +752,11 @@
     <string name="enemy_configuration">Configuración de Enemigo</string>
     <string name="trap_configuration">Configuración de Trampa</string>
     <string name="barricade_configuration">Configuración de Barricada</string>
+    <string name="bridge_configuration">Configuración de Puente</string>
+    <string name="bridges">Puentes</string>
+    <string name="wooden_bridge">Puente de Madera</string>
+    <string name="stone_bridge">Puente de Piedra</string>
+    <string name="indestructible">Indestructible</string>
     <string name="selected_element">Elemento Seleccionado</string>
     <string name="health_points">Puntos de Salud</string>
     <string name="level_label">Nivel</string>

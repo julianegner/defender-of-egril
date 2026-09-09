@@ -4407,7 +4407,7 @@ fun BridgeVisualization(bridge: Bridge) {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        // Draw bridge arc
+        // Draw bridge arcs
         Canvas(modifier = Modifier.fillMaxSize()) {
             val centerX = size.width / 2
             val centerY = size.height / 2
@@ -4422,7 +4422,7 @@ fun BridgeVisualization(bridge: Bridge) {
                     BridgeType.MAGICAL -> Color(0xFFFF00FF) // Magenta/purple for magical
                 }
 
-            // Draw half arc (bridge shape) - opening at bottom
+            // Draw top half arc
             drawArc(
                 color = bridgeColor,
                 startAngle = 180f, // Start from bottom-left
@@ -4432,6 +4432,24 @@ fun BridgeVisualization(bridge: Bridge) {
                     androidx.compose.ui.geometry.Offset(
                         centerX - arcWidth / 2,
                         centerY - arcHeight / 2,
+                    ),
+                size =
+                    androidx.compose.ui.geometry
+                        .Size(arcWidth, arcHeight),
+                style =
+                    androidx.compose.ui.graphics.drawscope
+                        .Stroke(width = 6f),
+            )
+            // Draw second parallel arc to create the bridge deck effect
+            drawArc(
+                color = bridgeColor,
+                startAngle = 180f,
+                sweepAngle = 180f,
+                useCenter = false,
+                topLeft =
+                    androidx.compose.ui.geometry.Offset(
+                        centerX - arcWidth / 2,
+                        centerY - arcHeight / 2 + 10f,
                     ),
                 size =
                     androidx.compose.ui.geometry
@@ -4474,14 +4492,15 @@ fun BridgeVisualization(bridge: Bridge) {
         ) {
             when (bridge.type) {
                 BridgeType.WOODEN, BridgeType.STONE -> {
-                    // Show remaining health
-                    Text(
-                        text = "${bridge.currentHealth.value}",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 13.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                    )
+                    if (!bridge.isIndestructible) {
+                        Text(
+                            text = "${bridge.currentHealth.value}",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 13.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
                 }
                 BridgeType.MAGICAL -> {
                     // Show remaining turns

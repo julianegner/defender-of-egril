@@ -724,7 +724,7 @@
     <string name="initial_setup_click_to_place">Klicke auf die Karte um das ausgewählte Element zu platzieren</string>
     <string name="initial_setup_tile">Kachel:</string>
     <string name="initial_setup">Anfangsaufbau</string>
-    <string name="initial_setup_info">Platziere Türme, Gegner, Fallen, Barrikaden und Lehen auf der Karte bevor das Level startet (optional)</string>
+    <string name="initial_setup_info">Platziere Türme, Gegner, Fallen, Barrikaden, Brücken und Lehen auf der Karte bevor das Level startet (optional)</string>
     <string name="initial_setup_towers">Türme</string>
     <string name="initial_setup_enemies">Gegner</string>
     <string name="initial_setup_traps">Fallen</string>
@@ -752,6 +752,11 @@
     <string name="enemy_configuration">Gegnerkonfiguration</string>
     <string name="trap_configuration">Fallenkonfiguration</string>
     <string name="barricade_configuration">Barrikadenkonfiguration</string>
+    <string name="bridge_configuration">Brückenkonfiguration</string>
+    <string name="bridges">Brücken</string>
+    <string name="wooden_bridge">Holzbrücke</string>
+    <string name="stone_bridge">Steinbrücke</string>
+    <string name="indestructible">Unzerstörbar</string>
     <string name="selected_element">Ausgewähltes Element</string>
     <string name="health_points">Lebenspunkte</string>
     <string name="level_label">Level</string>

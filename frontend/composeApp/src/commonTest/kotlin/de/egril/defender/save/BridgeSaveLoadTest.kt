@@ -40,6 +40,7 @@ class BridgeSaveLoadTest {
                             turnsRemaining = 0,
                             createdByAttackerId = 11,
                             createdOnTurn = 8,
+                            isIndestructible = true,
                         ),
                         SavedBridge(
                             id = 2,

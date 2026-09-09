@@ -386,6 +386,7 @@ object SaveFileStorage {
                     turnsRemaining = bridge.turnsRemaining.value,
                     createdByAttackerId = bridge.createdByAttackerId,
                     createdOnTurn = bridge.createdOnTurn,
+                    isIndestructible = bridge.isIndestructible,
                 )
             }
 
@@ -512,6 +513,7 @@ object SaveFileStorage {
                     turnsRemaining = mutableStateOf(bridge.turnsRemaining),
                     createdByAttackerId = bridge.createdByAttackerId,
                     createdOnTurn = bridge.createdOnTurn,
+                    isIndestructible = bridge.isIndestructible,
                 )
             },
         )
