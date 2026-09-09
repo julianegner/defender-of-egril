@@ -584,7 +584,7 @@ fun MapEditorView(
     var isHeaderExpanded by remember { mutableStateOf(false) }
     var backgroundImageBytes by remember { mutableStateOf<ByteArray?>(null) }
     var mapPreviewBytes by remember { mutableStateOf<ByteArray?>(null) }
-    var mapPreviewPainter by remember(mapPreviewBytes) { mutableStateOf<BitmapPainter?>(null) }
+    var mapPreviewPainter by remember { mutableStateOf<BitmapPainter?>(null) }
     var mapPreviewRegenerating by remember { mutableStateOf(false) }
     var mapPreviewError by remember { mutableStateOf<String?>(null) }
     var showMapImageGenerationDialog by remember { mutableStateOf(false) }
