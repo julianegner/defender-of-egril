@@ -948,6 +948,9 @@
     <string name="required_count">Nombre Requis</string>
     <string name="required_count_hint">Laissez vide pour exiger tous les prérequis. Entrez un nombre pour n\'en exiger qu'un certain nombre.</string>
     <string name="all">tous</string>
+    <string name="map_filter_non_official">Non officiel</string>
+    <string name="map_preview">Aperçu de la carte</string>
+    <string name="regenerate_map_image">Régénérer l'image de la carte</string>
     <string name="requires">Nécessite</string>
     <string name="entry_point">Point d'Entrée</string>
     <string name="villain_usage">Utilisation des méchants</string>

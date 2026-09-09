@@ -85,6 +85,7 @@ fun MapEditorHeader(
     backgroundImageLoaded: Boolean = false,
     onLoadBackgroundImage: () -> Unit = {},
     onClearBackgroundImage: () -> Unit = {},
+    onOpenMapPreview: () -> Unit = {},
     mapOverlayAlpha: Float = 0.7f,
     onMapOverlayAlphaChange: (Float) -> Unit = {},
     showMapFlowOverlay: Boolean = false,
@@ -173,6 +174,7 @@ fun MapEditorHeader(
             backgroundImageLoaded = backgroundImageLoaded,
             onLoadBackgroundImage = onLoadBackgroundImage,
             onClearBackgroundImage = onClearBackgroundImage,
+            onOpenMapPreview = onOpenMapPreview,
             showMapFlowOverlay = showMapFlowOverlay,
             onToggleMapFlowOverlay = onToggleMapFlowOverlay,
             showMapPathPreviewOverlay = showMapPathPreviewOverlay,
@@ -699,6 +701,7 @@ private fun CollapsedMapEditorHeader(
     backgroundImageLoaded: Boolean = false,
     onLoadBackgroundImage: () -> Unit = {},
     onClearBackgroundImage: () -> Unit = {},
+    onOpenMapPreview: () -> Unit = {},
     showMapFlowOverlay: Boolean = false,
     onToggleMapFlowOverlay: () -> Unit = {},
     showMapPathPreviewOverlay: Boolean = false,
@@ -879,6 +882,17 @@ private fun CollapsedMapEditorHeader(
                         de.egril.defender.ui.icon
                             .DownloadIcon(size = 16.dp)
                     }
+                }
+            }
+
+            val mapPreviewLabel = stringResource(Res.string.map_preview)
+            TooltipWrapper(text = mapPreviewLabel) {
+                IconButton(
+                    onClick = onOpenMapPreview,
+                    modifier = Modifier.size(32.dp).semantics { contentDescription = mapPreviewLabel },
+                ) {
+                    de.egril.defender.ui.icon
+                        .MagnifyingGlassIcon(size = 16.dp)
                 }
             }
 

@@ -948,6 +948,9 @@
     <string name="required_count">Cantidad Requerida</string>
     <string name="required_count_hint">Deje vacío para requerir todos los prerrequisitos. Ingrese un número para requerir solo esa cantidad.</string>
     <string name="all">todos</string>
+    <string name="map_filter_non_official">No oficial</string>
+    <string name="map_preview">Vista previa del mapa</string>
+    <string name="regenerate_map_image">Regenerar imagen del mapa</string>
     <string name="requires">Requiere</string>
     <string name="entry_point">Punto de Entrada</string>
     <string name="villain_usage">Uso de villanos</string>

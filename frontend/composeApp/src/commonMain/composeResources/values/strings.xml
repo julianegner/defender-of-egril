@@ -1041,6 +1041,9 @@
     <string name="locations">Locations</string>
     <string name="auto_connect_by_dependencies">Auto-Connect by Dependencies</string>
     <string name="edit_location">Edit Location</string>
+    <string name="map_filter_non_official">Non-official</string>
+    <string name="map_preview">Map Preview</string>
+    <string name="regenerate_map_image">Regenerate Map Image</string>
     <string name="all_road">All Road</string>
     <string name="all_sea">All Sea</string>
     <string name="segment_types">Segment Types (%d segments):</string>

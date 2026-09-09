@@ -948,6 +948,9 @@
     <string name="required_count">Erforderliche Anzahl</string>
     <string name="required_count_hint">Leer lassen, um alle Voraussetzungen zu verlangen. Geben Sie eine Zahl ein, um nur so viele zu verlangen.</string>
     <string name="all">alle</string>
+    <string name="map_filter_non_official">Nicht offiziell</string>
+    <string name="map_preview">Kartenvorschau</string>
+    <string name="regenerate_map_image">Kartenbild neu erzeugen</string>
     <string name="requires">Erfordert</string>
     <string name="entry_point">Einstiegspunkt</string>
     <string name="villain_usage">Schurkenverwendung</string>

@@ -948,6 +948,9 @@
     <string name="required_count">Quantità Richiesta</string>
     <string name="required_count_hint">Lascia vuoto per richiedere tutti i prerequisiti. Inserisci un numero per richiederne solo quel numero.</string>
     <string name="all">tutti</string>
+    <string name="map_filter_non_official">Non ufficiale</string>
+    <string name="map_preview">Anteprima mappa</string>
+    <string name="regenerate_map_image">Rigenera immagine mappa</string>
     <string name="requires">Richiede</string>
     <string name="entry_point">Punto di Ingresso</string>
     <string name="villain_usage">Uso dei cattivi</string>
