@@ -15,6 +15,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import de.egril.defender.editor.EditorMap
@@ -295,7 +296,7 @@ fun InitialSetupMinimap(
                                 map,
                                 selectedDefenderType = selectedDefenderType,
                             ) ||
-                                (isTowerBase && !hasDefender)
+                                (isTowerBase && !hasDefender && selectedDefenderType != DefenderType.DWARVEN_MINE)
                         PlacementMode.FIEF -> {
                             val isPath = isValidPlacement(pos, placementMode, map)
                             val isFisher = selectedFiefType == FiefType.FISHER
@@ -349,7 +350,7 @@ fun InitialSetupMinimap(
                     when (placementMode) {
                         PlacementMode.DEFENDER ->
                             // Allow tower on tower base as long as no tower is already there
-                            if (isTowerBase && !hasDefender) false else hasAnyElement
+                            if (isTowerBase && !hasDefender && selectedDefenderType != DefenderType.DWARVEN_MINE) false else hasAnyElement
                         PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE,
                         PlacementMode.BRIDGE, PlacementMode.FIEF, PlacementMode.MUSHROOM,
                         -> hasAnyElement
@@ -458,7 +459,7 @@ fun InitialSetupMinimap(
                 useCenter = false,
                 topLeft = Offset(centerX - arcWidth / 2, centerY - arcHeight / 2 - iconSize * 0.15f),
                 size = Size(arcWidth, arcHeight),
-                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.6f),
+                style = Stroke(width = 1.6f),
             )
             drawArc(
                 color = color,
@@ -467,7 +468,7 @@ fun InitialSetupMinimap(
                 useCenter = false,
                 topLeft = Offset(centerX - arcWidth / 2, centerY - arcHeight / 2 + iconSize * 0.15f),
                 size = Size(arcWidth, arcHeight),
-                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.6f),
+                style = Stroke(width = 1.6f),
             )
         }
 

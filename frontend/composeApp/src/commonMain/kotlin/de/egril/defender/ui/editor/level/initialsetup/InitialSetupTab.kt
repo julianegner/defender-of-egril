@@ -490,6 +490,9 @@ private fun canPlaceDefender(
 
     // On a tower base: only check that no defender is already placed there
     if (isOnTowerBase) {
+        if (selectedDefenderType == DefenderType.DWARVEN_MINE) {
+            return false
+        }
         return initialData.defenders.none { it.position == position }
     }
 

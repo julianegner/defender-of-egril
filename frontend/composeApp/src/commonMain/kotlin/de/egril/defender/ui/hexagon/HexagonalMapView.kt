@@ -382,6 +382,7 @@ fun HexagonalMapView(
                     verticalSpacing = verticalSpacingPx,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
+                    buffer = 6,
                 )
             val visibleMinX = visibleRange[0]
             val visibleMaxX = visibleRange[1]

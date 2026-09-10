@@ -341,6 +341,8 @@ class CombatSystem(
             }
         soundEvent?.let { GlobalSoundManager.playSound(it) }
 
+        var deferredBridgeDamage: Int? = null
+
         // Perform attack based on type
         when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> {
@@ -351,10 +353,10 @@ class CombatSystem(
                     // Attack enemy (takes priority)
                     singleTargetAttack(defender, target)
                 } else {
-                    // No enemy, attack bridge if present
+                    // No enemy, attack bridge if present (deferred until after attack visuals are queued)
                     val bridge = state.getBridgeAt(targetPosition)
                     if (bridge != null && bridge.isActive) {
-                        bridgeSystem.damageBridge(targetPosition, getEffectiveDamage(defender))
+                        deferredBridgeDamage = getEffectiveDamage(defender)
                     }
                     // If targeting a shadow fog tile with no enemy/bridge, the action is
                     // consumed but the attack misses (the tile was targeted blind).
@@ -459,6 +461,11 @@ class CombatSystem(
                     ),
                 )
             }
+        }
+
+        // Apply deferred bridge damage after queuing attack visuals so animation starts first.
+        if (deferredBridgeDamage != null) {
+            bridgeSystem.damageBridge(targetPosition, deferredBridgeDamage)
         }
 
         if (defender.isDisabled.value) {

@@ -880,10 +880,16 @@ fun GameGrid(
                         if (hasMagicalBridge && !hasEnemy && attackType != AttackType.AREA && attackType != AttackType.LASTING) {
                             emptyMap()
                         } else {
+                            val isSingleTargetBridgeOnly =
+                                (attackType == AttackType.MELEE || attackType == AttackType.RANGED) &&
+                                    gameState.isBridgeAt(selectedTargetPosition) &&
+                                    !hasEnemy
+                            val effectiveMarkerColor = if (isSingleTargetBridgeOnly) Color.LightGray else markerColor
+
                             // Central target tile
                             result[selectedTargetPosition] =
                                 TargetCircleInfo.CentralTarget(
-                                    color = markerColor,
+                                    color = effectiveMarkerColor,
                                     attackType = attackType,
                                     isExtendedArea = isExtendedArea,
                                 )
@@ -1231,14 +1237,24 @@ fun GameGrid(
             gameState.level.buildAreas + flowingRiver
         }
 
-    // Subset of structurally buildable positions that are currently unoccupied (no defender,
-    // no active attacker). derivedStateOf re-evaluates when defendersByPosition or
-    // activeAttackersByPosition change. remember(gameState.level) re-creates the derived
-    // state when the level changes (so the new structurallyBuildablePositions is captured).
-    val buildableEmptyPositions by remember(gameState.level) {
-        derivedStateOf {
+    // Subset of structurally buildable positions that are currently unoccupied and valid for the
+    // currently selected defender type (mine constraints, bridge-on-river constraints, etc.).
+    val buildableEmptyPositions: Set<Position> by remember(gameState.level, selectedDefenderType) {
+        derivedStateOf<Set<Position>> {
+            val selectedType = selectedDefenderType ?: return@derivedStateOf emptySet<Position>()
             structurallyBuildablePositions.filterTo(mutableSetOf()) { pos ->
-                !defendersByPosition.containsKey(pos) && !activeAttackersByPosition.containsKey(pos)
+                if (defendersByPosition.containsKey(pos) || activeAttackersByPosition.containsKey(pos)) {
+                    return@filterTo false
+                }
+                if (gameState.level.isSpawnPoint(pos) || gameState.level.isTargetPosition(pos)) {
+                    return@filterTo false
+                }
+                val isRiverPlacement = gameState.level.isRiverTile(pos)
+                if (isRiverPlacement) {
+                    if (selectedType == DefenderType.DWARVEN_MINE) return@filterTo false
+                    if (gameState.isBridgeAt(pos)) return@filterTo false
+                }
+                true
             }
         }
     }
@@ -1256,12 +1272,24 @@ fun GameGrid(
         }
     }
 
+    val placementPreviewPositions: Set<Position> by remember(selectedDefenderType, gameState.level) {
+        derivedStateOf<Set<Position>> {
+            if (selectedDefenderType == null) {
+                emptySet<Position>()
+            } else if (selectedDefenderType == DefenderType.DWARVEN_MINE) {
+                buildableEmptyPositions
+            } else {
+                buildableEmptyPositions + barricadeTowerBasePositions
+            }
+        }
+    }
+
     // Pre-compute whether the hovered position is buildable. Uses buildableEmptyPositions
     // (O(1) Set.contains) instead of the previous 5-step manual check.
     val hoveredPositionIsBuildableForGrid =
         selectedDefenderType != null &&
             hoveredPosition != null &&
-            buildableEmptyPositions.contains(hoveredPosition)
+            placementPreviewPositions.contains(hoveredPosition)
 
     // Valid tiles for placing the currently selected support object (barricade / trap / magical
     // trap). Computed once per selection change so the per-cell hover preview below is an O(1)
@@ -1629,17 +1657,18 @@ fun GameGrid(
                 val showPlacementPreview =
                     isHovering &&
                         isBuildingMode &&
-                        buildableEmptyPositions.contains(position)
+                        placementPreviewPositions.contains(position)
 
                 // Green-bordered buildable highlight — excludes the hovered cell (shows preview instead).
                 val isBuildableAndEmpty =
                     isBuildingMode &&
-                        buildableEmptyPositions.contains(position) &&
+                        placementPreviewPositions.contains(position) &&
                         !showPlacementPreview
 
                 // Barricade tower-base highlight — only for barricade cells with HP >= 100 and no tower.
                 val canBeUsedAsTowerBase =
                     isBuildingMode &&
+                        selectedDefenderType != DefenderType.DWARVEN_MINE &&
                         barricadeTowerBasePositions.contains(position) &&
                         !showPlacementPreview
 
@@ -2475,12 +2504,12 @@ fun GridCell(
             false
         }
 
-    // Enemy-occupiable tiles are valid targets for area attacks; enemy-traversable for single-target
+    // Enemy-occupiable tiles are valid targets for area attacks; enemy-traversable + bridges for single-target
     val isValidTargetTile =
         if (hasAreaAttack) {
             isEnemyOccupiable
         } else {
-            isEnemyTraversable
+            isEnemyTraversable || gameState.isBridgeAt(position)
         }
 
     val borderColor =
