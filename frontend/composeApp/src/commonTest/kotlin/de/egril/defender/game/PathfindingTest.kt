@@ -417,4 +417,56 @@ class PathfindingTest {
 
         assertTrue(path.contains(Position(1, 1)) && path.contains(Position(2, 1)), "Land units should traverse active bridge tiles")
     }
+
+    @Test
+    fun goblinCanReachWaypointGoalViaBridgeInsteadOfGreedyRiverEdgeStall() {
+        val waypointGoal = Position(5, 0) // Not on path; used as explicit current target (waypoint-like)
+        val bridgeTile = Position(3, 0)
+        val level =
+            Level(
+                id = 4,
+                name = "Waypoint Bridge Routing",
+                gridWidth = 7,
+                gridHeight = 3,
+                startPositions = listOf(Position(0, 1)),
+                targetPositions = listOf(Position(6, 1)),
+                pathCells =
+                    setOf(
+                        Position(0, 1),
+                        Position(1, 1),
+                        Position(2, 1),
+                        Position(2, 0),
+                        Position(4, 0),
+                        Position(4, 1),
+                        Position(5, 1),
+                        Position(6, 1),
+                    ),
+                attackerWaves = emptyList(),
+                initialCoins = 100,
+                healthPoints = 10,
+                riverTiles = mapOf(Position(3, 1) to RiverTile(Position(3, 1), RiverFlow.EAST, 1)),
+            )
+
+        val state = GameState(level)
+        state.bridges.add(
+            Bridge(
+                id = 1,
+                type = BridgeType.WOODEN,
+                positions = listOf(bridgeTile),
+                currentHealth = mutableStateOf(50),
+                isDestroyed = mutableStateOf(false),
+                turnsRemaining = mutableStateOf(0),
+                createdByAttackerId = 0,
+                createdOnTurn = 1,
+            ),
+        )
+        val pathfinding = PathfindingSystem(state)
+        val goblin = Attacker(id = 1, type = AttackerType.GOBLIN, position = mutableStateOf(Position(0, 1)))
+
+        val path = pathfinding.findPath(Position(0, 1), waypointGoal, goblin)
+
+        assertEquals(waypointGoal, path.last(), "Pathfinding should reach the current waypoint target instead of stalling at river edge")
+        assertTrue(path.contains(bridgeTile), "Goblin should be able to route via bridge tiles")
+        assertTrue(path.none { it == Position(3, 1) }, "Goblin must not treat plain river tiles as traversable")
+    }
 }

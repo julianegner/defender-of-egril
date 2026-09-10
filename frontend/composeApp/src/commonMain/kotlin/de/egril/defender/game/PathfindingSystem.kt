@@ -327,7 +327,8 @@ class PathfindingSystem(
                             // Water-only enemies (e.g. The Kraken) may ONLY traverse river tiles.
                             state.level.isRiverTile(neighbor)
                         } else {
-                            state.level.isOnPath(neighbor) ||
+                            neighbor == goal ||
+                                state.level.isOnPath(neighbor) ||
                                 state.level.isTargetPosition(neighbor) ||
                                 isGoalMineForDragon(neighbor, goal, attacker) ||
                                 isDestroyedMinePosition(neighbor) ||
@@ -443,7 +444,8 @@ class PathfindingSystem(
                         if (isWaterOnly) {
                             state.level.isRiverTile(neighbor)
                         } else {
-                            state.level.isOnPath(neighbor) ||
+                            neighbor == to ||
+                                state.level.isOnPath(neighbor) ||
                                 state.level.isTargetPosition(neighbor) ||
                                 isGoalMineForDragon(neighbor, to, attacker) ||
                                 isDestroyedMinePosition(neighbor) ||
