@@ -1,7 +1,11 @@
 package de.egril.defender.game
 
 import androidx.compose.runtime.mutableStateOf
+import de.egril.defender.editor.EditorLevel
+import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.RepositoryLoader
 import de.egril.defender.model.*
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -468,5 +472,65 @@ class PathfindingTest {
         assertEquals(waypointGoal, path.last(), "Pathfinding should reach the current waypoint target instead of stalling at river edge")
         assertTrue(path.contains(bridgeTile), "Goblin should be able to route via bridge tiles")
         assertTrue(path.none { it == Position(3, 1) }, "Goblin must not treat plain river tiles as traversable")
+    }
+
+    @Test
+    fun goblinFindsRouteOnTownAtRiverLevelUsingBridgeOrLandPath() =
+        runTest {
+            val editorMap = RepositoryLoader.loadMap("map_the_town_at_the_river") ?: return@runTest
+            val editorLevel = RepositoryLoader.loadLevel("the_town_at_the_river") ?: return@runTest
+            val runtimeLevel = createRuntimeLevelForPathfinding(editorMap, editorLevel)
+            val state = GameState(runtimeLevel).also { it.initializePrePlacedElements() }
+            val pathfinding = PathfindingSystem(state)
+
+            val spawn = Position(2, 2)
+            val waypointGoal = Position(9, 49)
+            val goblin = Attacker(id = 1, type = AttackerType.GOBLIN, position = mutableStateOf(spawn), level = mutableStateOf(1))
+
+            val path = pathfinding.findPath(spawn, waypointGoal, goblin)
+            val activeBridgeTiles = state.bridges.filter { !it.isDestroyed.value }.flatMap { it.positions }.toSet()
+            val illegalRiverTiles = path.filter { runtimeLevel.isRiverTile(it) && it !in activeBridgeTiles }
+
+            assertEquals(waypointGoal, path.last(), "Goblin should find a complete path to the waypoint target on this level")
+            assertTrue(illegalRiverTiles.isEmpty(), "Goblin path must not traverse plain river tiles: $illegalRiverTiles")
+        }
+
+    private fun createRuntimeLevelForPathfinding(
+        map: EditorMap,
+        level: EditorLevel,
+    ): Level {
+        val waypoints = level.waypoints.map { waypoint -> Waypoint(waypoint.position, waypoint.nextTargetPosition) }
+        val pathCells = map.getPathCells().toMutableSet().apply { addAll(waypoints.map { it.position }) }
+        return Level(
+            id = 999,
+            name = level.title,
+            subtitle = level.subtitle,
+            titleKey = level.titleKey,
+            subtitleKey = level.subtitleKey,
+            gridWidth = map.width,
+            gridHeight = map.height,
+            startPositions = map.getSpawnPoints(),
+            targetPositions = map.getTargets(),
+            pathCells = pathCells,
+            buildAreas = map.getBuildAreas(),
+            attackerWaves = emptyList(),
+            initialCoins = level.startCoins,
+            healthPoints = level.startHealthPoints,
+            directSpawnPlan =
+                level.enemySpawns.map { spawn ->
+                    PlannedEnemySpawn(spawn.attackerType, spawn.level, spawn.spawnTurn, spawn.spawnPoint)
+                },
+            availableTowers = level.availableTowers,
+            waypoints = waypoints,
+            mapId = level.mapId,
+            riverTiles = map.getRiverTilesMap(),
+            allowAutoAttack = level.allowAutoAttack,
+            connectedToPreviousLevel = level.connectedToPreviousLevel,
+            isSandbox = level.isSandbox,
+            waaghEnabled = level.waaghEnabled,
+            supports = level.supports,
+            events = level.events,
+            initialData = level.getEffectiveInitialData(),
+        )
     }
 }

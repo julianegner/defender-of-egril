@@ -36,7 +36,16 @@ class PathfindingSystem(
         openQueue.push(OpenEntry(start, fScore.getValue(start), start.distanceTo(goal), 0))
 
         var iterations = 0
-        val maxIterations = 1000 // Prevent infinite loops
+        val canUseRiver =
+            attacker?.let { it.type.canOnlyMoveOnWater || it.type.canTraverseRiver || it.type.canBuildBridge } == true
+        val traversableUpperBound =
+            state.level.pathCells.size +
+                state.level.startPositions.size +
+                state.level.targetPositions.size +
+                state.level.waypoints.size +
+                state.bridges.sumOf { it.positions.size } +
+                if (canUseRiver) state.level.riverTiles.size else 0
+        val maxIterations = maxOf(1000, traversableUpperBound * 2) // Prevent infinite loops on large maps
 
         while (openMembers.isNotEmpty() && iterations < maxIterations) {
             // Pop the position with the lowest fScore.
