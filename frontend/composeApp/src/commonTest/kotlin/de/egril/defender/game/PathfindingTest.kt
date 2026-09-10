@@ -520,6 +520,46 @@ class PathfindingTest {
             assertEquals(target, current, "Goblin should reach target when following successive pathfinding steps")
         }
 
+    @Test
+    fun singleGoblinReachesTownAtRiverTargetWithin100Turns() =
+        runTest {
+            val editorMap = RepositoryLoader.loadMap("map_the_town_at_the_river") ?: return@runTest
+            val editorLevel = RepositoryLoader.loadLevel("the_town_at_the_river") ?: return@runTest
+            val runtimeLevel = createRuntimeLevelForPathfinding(editorMap, editorLevel)
+            val state = GameState(runtimeLevel).also { it.initializePrePlacedElements() }
+            val engine = GameEngine(state)
+
+            val spawn = Position(2, 2)
+            val target = Position(9, 49)
+            val goblin =
+                Attacker(
+                    id = state.nextAttackerId.value++,
+                    type = AttackerType.GOBLIN,
+                    position = mutableStateOf(spawn),
+                    level = mutableStateOf(1),
+                    currentTarget = mutableStateOf(target),
+                )
+            state.attackers.add(goblin)
+
+            val startHealthPoints = state.healthPoints.value
+            var reachedTarget = false
+
+            repeat(100) {
+                val movements = engine.calculateEnemyTurnMovements()
+                movements.allMovementSteps.forEach { movementStep ->
+                    movementStep.forEach { (attackerId, newPosition) ->
+                        engine.applyMovement(attackerId, newPosition)
+                    }
+                }
+                if (state.healthPoints.value < startHealthPoints) {
+                    reachedTarget = true
+                    return@repeat
+                }
+            }
+
+            assertTrue(reachedTarget, "Goblin should reach and damage the target within 100 turns on the town-at-river level")
+        }
+
     private fun createRuntimeLevelForPathfinding(
         map: EditorMap,
         level: EditorLevel,
