@@ -286,7 +286,7 @@ class EnemyMovementSystem(
             } else if (canUseRiver) {
                 state.level.isEnemyOccupiable(position)
             } else {
-                state.level.isEnemyTraversable(position)
+                state.level.isEnemyTraversable(position) && !state.level.isWaterSpawnPoint(position)
             }
 
         fun findPortalRedirectDestination(entryPosition: Position): Position? {
@@ -309,11 +309,13 @@ class EnemyMovementSystem(
 
         // First, check if the preferred spawn point is free
         if (!state.attackers.any { it.position.value == preferredSpawnPoint && !it.isDefeated.value }) {
-            if (state.isPortalEntry(preferredSpawnPoint)) {
-                val redirected = findPortalRedirectDestination(preferredSpawnPoint)
-                if (redirected != null) return redirected
-            } else if (!state.isPortalExit(preferredSpawnPoint)) {
-                return preferredSpawnPoint
+            if (isValidSpawnTile(preferredSpawnPoint)) {
+                if (state.isPortalEntry(preferredSpawnPoint)) {
+                    val redirected = findPortalRedirectDestination(preferredSpawnPoint)
+                    if (redirected != null) return redirected
+                } else if (!state.isPortalExit(preferredSpawnPoint)) {
+                    return preferredSpawnPoint
+                }
             }
         }
 

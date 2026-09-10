@@ -267,6 +267,40 @@ class WaterSpawnPointTest {
     }
 
     @Test
+    fun findFreePositionNearSkipsWaterSpawnForLandOnlyEnemy() {
+        val waterSpawn = Position(0, 0)
+        val fallbackLandPath = Position(1, 0)
+        val level =
+            Level(
+                id = 6,
+                name = "Goblin Water Spawn Fallback",
+                gridWidth = 4,
+                gridHeight = 2,
+                startPositions = listOf(waterSpawn),
+                targetPositions = listOf(Position(3, 0)),
+                pathCells = setOf(fallbackLandPath, Position(2, 0), Position(3, 0)),
+                attackerWaves = emptyList(),
+                spawnPointTypeMap = mapOf(waterSpawn to SpawnPointType.WATER),
+            )
+
+        val state = GameState(level = level)
+        val pathfinding = PathfindingSystem(state)
+        val movement = EnemyMovementSystem(state, pathfinding)
+        val fallback =
+            movement.findFreePositionNear(
+                preferredSpawnPoint = waterSpawn,
+                waterOnly = false,
+                canUseRiver = false,
+            )
+
+        assertEquals(
+            fallbackLandPath,
+            fallback,
+            "Land-only enemy spawn fallback should skip water spawn points and use nearby land path tiles",
+        )
+    }
+
+    @Test
     fun findFreePositionNearAllowsRiverFallbackForRoderich() {
         val waterSpawn = Position(0, 0)
         val riverNeighbor = Position(1, 0)
