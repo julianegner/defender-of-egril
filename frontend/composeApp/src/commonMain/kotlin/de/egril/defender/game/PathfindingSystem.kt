@@ -45,7 +45,9 @@ class PathfindingSystem(
                 state.level.waypoints.size +
                 state.bridges.sumOf { it.positions.size } +
                 if (canUseRiver) state.level.riverTiles.size else 0
-        val maxIterations = maxOf(1000, traversableUpperBound * 2) // Prevent infinite loops on large maps
+        val maxIterations = maxOf(1000, traversableUpperBound * 4) // Prevent premature fallback on large maps
+        var bestDistanceToGoal = start.distanceTo(goal)
+        var bestPosition = start
 
         while (openMembers.isNotEmpty() && iterations < maxIterations) {
             // Pop the position with the lowest fScore.
@@ -55,6 +57,11 @@ class PathfindingSystem(
             val current = entry.position
 
             iterations++
+            val currentDistanceToGoal = current.distanceTo(goal)
+            if (currentDistanceToGoal < bestDistanceToGoal) {
+                bestDistanceToGoal = currentDistanceToGoal
+                bestPosition = current
+            }
 
             if (current == goal) {
                 return reconstructPath(cameFrom, current)
@@ -79,6 +86,10 @@ class PathfindingSystem(
                     openQueue.push(OpenEntry(neighbor, neighborFScore, distanceToGoal, sequences.getValue(neighbor)))
                 }
             }
+        }
+
+        if (iterations >= maxIterations && bestPosition != start) {
+            return reconstructPath(cameFrom, bestPosition)
         }
 
         // No path found or max iterations reached, return simple path towards goal

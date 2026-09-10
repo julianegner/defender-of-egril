@@ -495,6 +495,31 @@ class PathfindingTest {
             assertTrue(illegalRiverTiles.isEmpty(), "Goblin path must not traverse plain river tiles: $illegalRiverTiles")
         }
 
+    @Test
+    fun goblinStepByStepPathQueriesDoNotFallBackToGreedyOnTownAtRiver() =
+        runTest {
+            val editorMap = RepositoryLoader.loadMap("map_the_town_at_the_river") ?: return@runTest
+            val editorLevel = RepositoryLoader.loadLevel("the_town_at_the_river") ?: return@runTest
+            val runtimeLevel = createRuntimeLevelForPathfinding(editorMap, editorLevel)
+            val state = GameState(runtimeLevel).also { it.initializePrePlacedElements() }
+            val pathfinding = PathfindingSystem(state)
+
+            val target = Position(9, 49)
+            val goblin = Attacker(id = 1, type = AttackerType.GOBLIN, position = mutableStateOf(Position(2, 2)), level = mutableStateOf(1))
+            var current = goblin.position.value
+
+            repeat(30) {
+                val path = pathfinding.findPath(current, target, goblin)
+                assertEquals(target, path.last(), "Path query from $current should not fall back to greedy movement")
+                if (path.size > 1) {
+                    current = path[1]
+                }
+                if (current == target) return@runTest
+            }
+
+            assertEquals(target, current, "Goblin should reach target when following successive pathfinding steps")
+        }
+
     private fun createRuntimeLevelForPathfinding(
         map: EditorMap,
         level: EditorLevel,
