@@ -137,6 +137,11 @@ private data class RouteContext(
     val traversableCells: Set<Position>,
 )
 
+private data class RouteContexts(
+    val landAndBridges: RouteContext,
+    val riverAndBridges: RouteContext,
+)
+
 internal fun analyzeLevelDesign(
     level: EditorLevel,
     map: EditorMap?,
@@ -163,18 +168,18 @@ internal fun analyzeLevelDesign(
         )
     }
 
-    val routeContext = map?.buildRouteContext(level)
+    val routeContexts = map?.buildRouteContexts(level)
     val arrivalBuckets =
         level.enemySpawns
             .mapNotNull { spawn ->
-                estimateArrivalTurn(spawn, map, level, routeContext)?.let { arrivalTurn ->
+                estimateArrivalTurn(spawn, map, level, routeContexts)?.let { arrivalTurn ->
                     arrivalTurn to spawn
                 }
             }.groupBy({ it.first }, { it.second })
     val previews =
         (1..maxTurn).map { turn ->
             val spawns = level.enemySpawns.filter { it.spawnTurn == turn }
-            val arrivals = spawns.mapNotNull { spawn -> estimateArrivalTurn(spawn, map, level, routeContext) }
+            val arrivals = spawns.mapNotNull { spawn -> estimateArrivalTurn(spawn, map, level, routeContexts) }
             TurnPressurePreview(
                 turn = turn,
                 enemyCount = spawns.size,
@@ -281,10 +286,10 @@ internal fun buildWaveArrivalBuckets(
     level: EditorLevel,
     map: EditorMap?,
 ): List<WaveArrivalBucket> {
-    val routeContext = map?.buildRouteContext(level)
+    val routeContexts = map?.buildRouteContexts(level)
     return level.enemySpawns
         .mapNotNull { spawn ->
-            estimateArrivalTurn(spawn, map, level, routeContext)?.let { arrivalTurn ->
+            estimateArrivalTurn(spawn, map, level, routeContexts)?.let { arrivalTurn ->
                 arrivalTurn to spawn
             }
         }.groupBy({ it.first }, { it.second })
@@ -620,7 +625,7 @@ private fun estimateArrivalTurn(
     spawn: EditorEnemySpawn,
     map: EditorMap?,
     level: EditorLevel,
-    routeContext: RouteContext?,
+    routeContexts: RouteContexts?,
 ): Int? {
     val chosenSpawnPoint =
         spawn.spawnPoint
@@ -633,7 +638,17 @@ private fun estimateArrivalTurn(
                 map?.getTargets()?.minOfOrNull { target -> chosenSpawnPoint.distanceTo(target) } ?: return null
             }
             else -> {
-                val distances = routeContext?.distances ?: map.buildRouteContext(level).distances
+                val useRiverPathing =
+                    spawn.attackerType.canBuildBridge ||
+                        spawn.attackerType.canTraverseRiver ||
+                        spawn.attackerType.canOnlyMoveOnWater
+                val selectedRouteContext =
+                    if (useRiverPathing) {
+                        routeContexts?.riverAndBridges ?: map.buildRouteContexts(level).riverAndBridges
+                    } else {
+                        routeContexts?.landAndBridges ?: map.buildRouteContexts(level).landAndBridges
+                    }
+                val distances = selectedRouteContext.distances
                 distances[chosenSpawnPoint] ?: return null
             }
         }
@@ -646,12 +661,15 @@ private fun estimateArrivalTurn(
     return spawn.spawnTurn + travelTurns
 }
 
-private fun EditorMap?.buildRouteContext(level: EditorLevel): RouteContext {
-    if (this == null) return RouteContext(emptyMap(), emptySet())
+private fun EditorMap?.buildRouteContexts(level: EditorLevel): RouteContexts {
+    if (this == null) {
+        val emptyContext = RouteContext(emptyMap(), emptySet())
+        return RouteContexts(landAndBridges = emptyContext, riverAndBridges = emptyContext)
+    }
     val initialData = level.getEffectiveInitialData()
     val blockedByBarricades = initialData.barricades.mapTo(mutableSetOf()) { it.position }
     val bridgeCells = initialData.bridges.mapTo(mutableSetOf()) { it.position }
-    val traversableCells =
+    val landAndBridgeCells =
         (
             getPathCells() +
                 getSpawnPoints() +
@@ -659,9 +677,18 @@ private fun EditorMap?.buildRouteContext(level: EditorLevel): RouteContext {
                 level.waypoints.map { it.position } +
                 bridgeCells
         ) - blockedByBarricades
-    return RouteContext(
-        distances = computeDistancesToTargets(traversableCells, getTargets(), width, height),
-        traversableCells = traversableCells,
+    val riverAndBridgeCells = landAndBridgeCells + getRiverCells()
+    return RouteContexts(
+        landAndBridges =
+            RouteContext(
+                distances = computeDistancesToTargets(landAndBridgeCells, getTargets(), width, height),
+                traversableCells = landAndBridgeCells,
+            ),
+        riverAndBridges =
+            RouteContext(
+                distances = computeDistancesToTargets(riverAndBridgeCells, getTargets(), width, height),
+                traversableCells = riverAndBridgeCells,
+            ),
     )
 }
 

@@ -4,11 +4,14 @@ import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorEnemyTemplateKind
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.InitialBridge
+import de.egril.defender.editor.InitialData
 import de.egril.defender.editor.SpawnTurnTemplateDefinition
 import de.egril.defender.editor.SpawnTurnTemplateEntry
 import de.egril.defender.editor.SpawnTurnTemplateVariant
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.BridgeType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
@@ -147,6 +150,41 @@ class LevelDesignAnalysisTest {
         assertTrue(playtest.title.contains("first villain"))
     }
 
+    @Test
+    fun analyzeLevelDesignUsesWaterOnlyForBridgeBuildersAndRiverUnitsButKeepsBridgesPassableForAll() {
+        val map = riverShortcutTestMap()
+        val zombieLevel = testLevel(spawns = listOf(EditorEnemySpawn(AttackerType.ZOMBIE, spawnTurn = 1)))
+        val bridgeBuilderLevel = testLevel(spawns = listOf(EditorEnemySpawn(AttackerType.ORK, spawnTurn = 1)))
+        val bridgedZombieLevel =
+            zombieLevel.copy(
+                initialData =
+                    InitialData(
+                        bridges =
+                            listOf(
+                                InitialBridge(Position(1, 2), BridgeType.WOODEN, 50),
+                                InitialBridge(Position(2, 2), BridgeType.WOODEN, 50),
+                                InitialBridge(Position(3, 2), BridgeType.WOODEN, 50),
+                                InitialBridge(Position(4, 2), BridgeType.WOODEN, 50),
+                                InitialBridge(Position(5, 2), BridgeType.WOODEN, 50),
+                            ),
+                    ),
+            )
+
+        val zombieArrival = analyzeLevelDesign(zombieLevel, map).turnPreviews.first { it.turn == 1 }.earliestArrivalTurn
+        val builderArrival = analyzeLevelDesign(bridgeBuilderLevel, map).turnPreviews.first { it.turn == 1 }.earliestArrivalTurn
+        val bridgedZombieArrival = analyzeLevelDesign(bridgedZombieLevel, map).turnPreviews.first { it.turn == 1 }.earliestArrivalTurn
+
+        assertTrue(zombieArrival != null && builderArrival != null && bridgedZombieArrival != null)
+        assertTrue(
+            builderArrival < zombieArrival,
+            "Bridge builders should keep river-aware pathing while non-water units treat water as blocked (builder=$builderArrival zombie=$zombieArrival)",
+        )
+        assertTrue(
+            bridgedZombieArrival < zombieArrival,
+            "Pre-placed bridges must stay passable for non-water units during route analysis",
+        )
+    }
+
     private fun straightTestMap(): EditorMap {
         val tiles = mutableMapOf<String, TileType>()
         for (x in 0..6) {
@@ -159,6 +197,33 @@ class LevelDesignAnalysisTest {
             name = "Test Map",
             width = 8,
             height = 5,
+            tiles = tiles,
+        )
+    }
+
+    private fun riverShortcutTestMap(): EditorMap {
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,2"] = TileType.SPAWN_POINT
+        tiles["6,2"] = TileType.TARGET
+        tiles["0,1"] = TileType.PATH
+        tiles["0,0"] = TileType.PATH
+        tiles["1,0"] = TileType.PATH
+        tiles["2,0"] = TileType.PATH
+        tiles["3,0"] = TileType.PATH
+        tiles["4,0"] = TileType.PATH
+        tiles["5,0"] = TileType.PATH
+        tiles["6,0"] = TileType.PATH
+        tiles["6,1"] = TileType.PATH
+        tiles["1,2"] = TileType.RIVER
+        tiles["2,2"] = TileType.RIVER
+        tiles["3,2"] = TileType.RIVER
+        tiles["4,2"] = TileType.RIVER
+        tiles["5,2"] = TileType.RIVER
+        return EditorMap(
+            id = "river_shortcut_map",
+            name = "River Shortcut Map",
+            width = 7,
+            height = 4,
             tiles = tiles,
         )
     }
