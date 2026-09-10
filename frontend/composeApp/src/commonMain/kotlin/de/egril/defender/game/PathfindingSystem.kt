@@ -133,13 +133,22 @@ class PathfindingSystem(
 
             // Check for dead-end potential by counting available exit paths
             // This helps avoid getting stuck in branches that don't lead to the goal
+            val canUseRiverForTraversal =
+                currentAttacker.type.canTraverseRiver ||
+                    currentAttacker.type.canBuildBridge ||
+                    currentAttacker.type.canOnlyMoveOnWater
             val exitCount =
                 position.getHexNeighbors().count { neighbor ->
                     neighbor.x >= 0 &&
                         neighbor.x < state.level.gridWidth &&
                         neighbor.y >= 0 &&
                         neighbor.y < state.level.gridHeight &&
-                        (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor) || state.isBridgeAt(neighbor))
+                        (
+                            state.level.isOnPath(neighbor) ||
+                                state.level.isTargetPosition(neighbor) ||
+                                state.isBridgeAt(neighbor) ||
+                                (canUseRiverForTraversal && state.level.isRiverTile(neighbor))
+                        )
                 }
 
             // Penalize positions with few exits (potential dead ends)
@@ -304,7 +313,7 @@ class PathfindingSystem(
         ignoreBarricades: Boolean = false,
         search: SearchCache? = null,
     ): List<Position> {
-        val canUseRiver = attacker?.type?.canTraverseRiver == true
+        val canUseRiver = attacker?.let { it.type.canTraverseRiver || it.type.canBuildBridge } == true
         val isWaterOnly = attacker?.type?.canOnlyMoveOnWater == true
         // Use hexagonal neighbors instead of square grid
         val hexNeighbors =
@@ -418,7 +427,7 @@ class PathfindingSystem(
         attacker: Attacker? = null,
         excludedPositions: Set<Position> = emptySet(),
     ): Position {
-        val canUseRiver = attacker?.type?.canTraverseRiver == true
+        val canUseRiver = attacker?.let { it.type.canTraverseRiver || it.type.canBuildBridge } == true
         val isWaterOnly = attacker?.type?.canOnlyMoveOnWater == true
         // Use hexagonal neighbors to find the best next position
         val hexNeighbors = from.getHexNeighbors()

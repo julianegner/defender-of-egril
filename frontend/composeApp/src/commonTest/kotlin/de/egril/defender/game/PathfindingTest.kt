@@ -333,4 +333,88 @@ class PathfindingTest {
 
         assertTrue(path.none { it == Position(1, 0) }, "Pirate path must not include a tile occupied by a raft")
     }
+
+    @Test
+    fun landUnitsAvoidRiverButBridgeBuildersMayUseRiverTiles() {
+        val level =
+            Level(
+                id = 2,
+                name = "River Traversal Rules",
+                gridWidth = 5,
+                gridHeight = 3,
+                startPositions = listOf(Position(0, 1)),
+                targetPositions = listOf(Position(4, 1)),
+                pathCells =
+                    setOf(
+                        Position(0, 1),
+                        Position(0, 0),
+                        Position(1, 0),
+                        Position(2, 0),
+                        Position(3, 0),
+                        Position(4, 0),
+                    ),
+                attackerWaves = emptyList(),
+                initialCoins = 100,
+                healthPoints = 10,
+                riverTiles =
+                    mapOf(
+                        Position(1, 1) to RiverTile(Position(1, 1), RiverFlow.EAST, 1),
+                        Position(2, 1) to RiverTile(Position(2, 1), RiverFlow.EAST, 1),
+                        Position(3, 1) to RiverTile(Position(3, 1), RiverFlow.EAST, 1),
+                    ),
+            )
+
+        val state = GameState(level)
+        val pathfinding = PathfindingSystem(state)
+        val goblin = Attacker(id = 1, type = AttackerType.GOBLIN, position = mutableStateOf(Position(0, 1)))
+        val ork = Attacker(id = 2, type = AttackerType.ORK, position = mutableStateOf(Position(0, 1)))
+
+        val goblinPath = pathfinding.findPath(Position(0, 1), Position(4, 1), goblin)
+        val orkPath = pathfinding.findPath(Position(0, 1), Position(4, 1), ork)
+        val riverTiles = setOf(Position(1, 1), Position(2, 1), Position(3, 1))
+
+        assertTrue(goblinPath.none { it in riverTiles }, "Land units without bridge-building must avoid river tiles")
+        assertTrue(orkPath.any { it in riverTiles }, "Bridge-building land units should be able to use river tiles")
+    }
+
+    @Test
+    fun landUnitsUseBridgesAsPassableTiles() {
+        val level =
+            Level(
+                id = 3,
+                name = "Bridge Is Passable",
+                gridWidth = 4,
+                gridHeight = 3,
+                startPositions = listOf(Position(0, 1)),
+                targetPositions = listOf(Position(3, 1)),
+                pathCells = setOf(Position(0, 1), Position(3, 1)),
+                attackerWaves = emptyList(),
+                initialCoins = 100,
+                healthPoints = 10,
+                riverTiles =
+                    mapOf(
+                        Position(1, 1) to RiverTile(Position(1, 1), RiverFlow.EAST, 1),
+                        Position(2, 1) to RiverTile(Position(2, 1), RiverFlow.EAST, 1),
+                    ),
+            )
+        val state = GameState(level)
+        state.bridges.add(
+            Bridge(
+                id = 1,
+                type = BridgeType.WOODEN,
+                positions = listOf(Position(1, 1), Position(2, 1)),
+                currentHealth = mutableStateOf(50),
+                isDestroyed = mutableStateOf(false),
+                turnsRemaining = mutableStateOf(0),
+                createdByAttackerId = 0,
+                createdOnTurn = 1,
+            ),
+        )
+        val pathfinding = PathfindingSystem(state)
+        val goblin = Attacker(id = 1, type = AttackerType.GOBLIN, position = mutableStateOf(Position(0, 1)))
+
+        val path = pathfinding.findPath(Position(0, 1), Position(3, 1), goblin)
+
+        assertTrue(path.contains(Position(1, 1)) && path.contains(Position(2, 1)), "Land units should traverse active bridge tiles")
+    }
 }
