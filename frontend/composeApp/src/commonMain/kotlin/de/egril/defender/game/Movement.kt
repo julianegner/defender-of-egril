@@ -258,15 +258,16 @@ class Movement(
                     // silently gave up and fell back to a naive single greedy step — its own
                     // internal fallback always returns a 2-element path even on total failure, so
                     // checking path.size alone is not enough; we must also verify it truly reaches
-                    // the target). Fall back to the enemy's intended route, ignoring barricades
-                    // (they are temporary obstacles the enemy will eventually break through), using
-                    // the unweighted BFS (findSimplePath) rather than findPath: on long/winding
-                    // levels the inflated A* costs make the heuristic non-admissible and it can
-                    // exceed its iteration cap before reaching a distant goal, even though a route
-                    // genuinely exists.
-                    val pathIgnoringBarricades = pathfinding.findSimplePath(currentPos, target, attacker, ignoreBarricades = true)
-                    if (pathIgnoringBarricades.size >= 2) {
-                        path = pathIgnoringBarricades
+                    // the target). Fall back to the enemy's intended route through barricades,
+                    // weighing both distance and the turns needed to destroy any barricades in the
+                    // way (see findPathThroughBarricades) so the enemy prefers the cheapest overall
+                    // route rather than just the geometrically shortest one. Uses an uncapped
+                    // Dijkstra search rather than findPath: on long/winding levels the inflated A*
+                    // costs make the heuristic non-admissible and it can exceed its iteration cap
+                    // before reaching a distant goal, even though a route genuinely exists.
+                    val pathThroughBarricades = pathfinding.findPathThroughBarricades(currentPos, target, attacker)
+                    if (pathThroughBarricades.size >= 2 && pathThroughBarricades.last() == target) {
+                        path = pathThroughBarricades
                     }
                 }
 
@@ -737,15 +738,16 @@ class Movement(
                     // silently gave up and fell back to a naive single greedy step — its own
                     // internal fallback always returns a 2-element path even on total failure, so
                     // checking path.size alone is not enough; we must also verify it truly reaches
-                    // the target). Fall back to the enemy's intended route, ignoring barricades
-                    // (they are temporary obstacles the enemy will eventually break through), using
-                    // the unweighted BFS (findSimplePath) rather than findPath: on long/winding
-                    // levels the inflated A* costs make the heuristic non-admissible and it can
-                    // exceed its iteration cap before reaching a distant goal, even though a route
-                    // genuinely exists.
-                    val pathIgnoringBarricades = pathfinding.findSimplePath(currentPos, target, attacker, ignoreBarricades = true)
-                    if (pathIgnoringBarricades.size >= 2) {
-                        path = pathIgnoringBarricades
+                    // the target). Fall back to the enemy's intended route through barricades,
+                    // weighing both distance and the turns needed to destroy any barricades in the
+                    // way (see findPathThroughBarricades) so the enemy prefers the cheapest overall
+                    // route rather than just the geometrically shortest one. Uses an uncapped
+                    // Dijkstra search rather than findPath: on long/winding levels the inflated A*
+                    // costs make the heuristic non-admissible and it can exceed its iteration cap
+                    // before reaching a distant goal, even though a route genuinely exists.
+                    val pathThroughBarricades = pathfinding.findPathThroughBarricades(currentPos, target, attacker)
+                    if (pathThroughBarricades.size >= 2 && pathThroughBarricades.last() == target) {
+                        path = pathThroughBarricades
                     }
                 }
 

@@ -762,13 +762,14 @@ internal fun plannedEnemyPathForDisplay(
         // segment can never silently fall back to a single-step path (see findSimplePath kdoc).
         // Prefer the real, barricade-respecting route first (what the enemy can actually walk
         // right now). Only if that yields no full path to this segment's target do we fall back
-        // to ignoring barricades, so the preview still shows the enemy's intended route rather than
-        // reporting "no path" while a barricade happens to be standing in the way.
+        // to the cheapest route through barricades (findPathThroughBarricades weighs both distance
+        // and barricade-destruction time — see its kdoc), keeping the preview consistent with the
+        // enemy's actual movement/fallback logic in Movement.kt.
         var segment = pathfinding.findSimplePath(position, target, attacker)
         if (segment.size < 2 || segment.last() != target) {
-            val segmentIgnoringBarricades = pathfinding.findSimplePath(position, target, attacker, ignoreBarricades = true)
-            if (segmentIgnoringBarricades.size >= 2 && segmentIgnoringBarricades.last() == target) {
-                segment = segmentIgnoringBarricades
+            val segmentThroughBarricades = pathfinding.findPathThroughBarricades(position, target, attacker)
+            if (segmentThroughBarricades.size >= 2 && segmentThroughBarricades.last() == target) {
+                segment = segmentThroughBarricades
             }
         }
         if (segment.size < 2) {

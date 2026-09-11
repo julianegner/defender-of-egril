@@ -61,6 +61,128 @@ class PathfindingSystem(
         return listOf(start, moveTowards(start, goal, attacker))
     }
 
+    /**
+     * Estimates how many turns [attacker] needs to destroy the barricade standing at [position],
+     * plus the one movement step onto that tile once it is destroyed. Positions without an active
+     * barricade cost a plain 1 (a single movement step). This mirrors [BarricadeLogic]'s damage
+     * formula (frenzy is intentionally ignored here, since it is a temporary buff that should not
+     * bias route planning).
+     */
+    private fun barricadeCrossingCost(
+        position: Position,
+        attacker: Attacker?,
+    ): Int {
+        val barricade = state.barricades.firstOrNull { it.position == position && !it.isDestroyed() } ?: return 1
+        if (attacker == null) return 1 + barricade.healthPoints.value
+        val baseDamage =
+            when {
+                attacker.type == AttackerType.SNOTLING || attacker.type == AttackerType.SPIDERLING ->
+                    maxOf(1, attacker.currentHealth.value / 5)
+                attacker.type.isDragon -> attacker.effectiveLevel * 5
+                else -> attacker.effectiveLevel
+            }
+        val damagePerTurn = maxOf(1, baseDamage * attacker.type.barricadeDamageMultiplier)
+        val turnsToDestroy = (barricade.healthPoints.value + damagePerTurn - 1) / damagePerTurn
+        return 1 + turnsToDestroy
+    }
+
+    /**
+     * Finds the cheapest route from [start] to [goal] that may cross barricades, weighing both the
+     * distance travelled AND the number of turns needed to destroy any barricades standing in the
+     * way (see [barricadeCrossingCost]). This lets route selection correctly prefer, say, a longer
+     * detour around a heavily-fortified barricade over a shorter path through it, or vice-versa.
+     *
+     * Uses a plain Dijkstra (uniform-cost search, no heuristic) rather than [findPath]'s A*: since
+     * barricade costs can be large and highly variable, a distance-only heuristic would not be
+     * admissible here, and (unlike [findPath]) this search has no iteration cap — it is guaranteed
+     * to find the true cheapest route on any finite, reachable graph.
+     */
+    fun findPathThroughBarricades(
+        start: Position,
+        goal: Position,
+        attacker: Attacker? = null,
+    ): List<Position> {
+        if (start == goal) return listOf(start)
+
+        data class CostEntry(
+            val position: Position,
+            val cost: Int,
+            val sequence: Int,
+        )
+
+        val heap = mutableListOf<CostEntry>()
+
+        fun isLess(
+            a: CostEntry,
+            b: CostEntry,
+        ): Boolean = a.cost < b.cost || (a.cost == b.cost && a.sequence < b.sequence)
+
+        fun push(entry: CostEntry) {
+            heap.add(entry)
+            var index = heap.size - 1
+            while (index > 0) {
+                val parent = (index - 1) / 2
+                if (isLess(heap[index], heap[parent])) {
+                    val tmp = heap[index]
+                    heap[index] = heap[parent]
+                    heap[parent] = tmp
+                    index = parent
+                } else {
+                    break
+                }
+            }
+        }
+
+        fun pop(): CostEntry? {
+            if (heap.isEmpty()) return null
+            val top = heap[0]
+            val last = heap.removeAt(heap.size - 1)
+            if (heap.isNotEmpty()) {
+                heap[0] = last
+                var index = 0
+                while (true) {
+                    val left = 2 * index + 1
+                    val right = 2 * index + 2
+                    var smallest = index
+                    if (left < heap.size && isLess(heap[left], heap[smallest])) smallest = left
+                    if (right < heap.size && isLess(heap[right], heap[smallest])) smallest = right
+                    if (smallest == index) break
+                    val tmp = heap[index]
+                    heap[index] = heap[smallest]
+                    heap[smallest] = tmp
+                    index = smallest
+                }
+            }
+            return top
+        }
+
+        val cameFrom = mutableMapOf<Position, Position>()
+        val bestCost = mutableMapOf(start to 0)
+        val visited = mutableSetOf<Position>()
+        var nextSequence = 0
+        push(CostEntry(start, 0, nextSequence++))
+
+        while (true) {
+            val entry = pop() ?: break
+            if (!visited.add(entry.position)) continue
+            if (entry.cost != bestCost[entry.position]) continue
+            if (entry.position == goal) return reconstructPath(cameFrom, entry.position)
+
+            for (neighbor in getNeighbors(entry.position, goal, attacker, ignoreBarricades = true)) {
+                if (neighbor in visited) continue
+                val newCost = entry.cost + barricadeCrossingCost(neighbor, attacker)
+                if (newCost < (bestCost[neighbor] ?: Int.MAX_VALUE)) {
+                    bestCost[neighbor] = newCost
+                    cameFrom[neighbor] = entry.position
+                    push(CostEntry(neighbor, newCost, nextSequence++))
+                }
+            }
+        }
+
+        // No path found (goal unreachable even ignoring barricades) — fall back to a naive step.
+        return listOf(start, moveTowards(start, goal, attacker))
+    }
+
     fun findPath(
         start: Position,
         goal: Position,
