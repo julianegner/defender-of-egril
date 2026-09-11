@@ -297,6 +297,23 @@ fun GameHeader(
                                     },
                                     onClick = { AppSettings.showMapSizeOverlay.value = !AppSettings.showMapSizeOverlay.value },
                                 )
+
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Text(stringResource(Res.string.debug_display_enemy_path))
+                                            Spacer(modifier = Modifier.weight(1f))
+                                            Switch(
+                                                checked = AppSettings.showEnemyPathfinding.value,
+                                                onCheckedChange = { AppSettings.showEnemyPathfinding.value = it },
+                                            )
+                                        }
+                                    },
+                                    onClick = { AppSettings.showEnemyPathfinding.value = !AppSettings.showEnemyPathfinding.value },
+                                )
                             }
                         }
                     }

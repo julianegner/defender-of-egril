@@ -14,6 +14,53 @@ class PathfindingSystem(
         private const val LASTING_DAMAGE_DIVISOR = 2
     }
 
+    /**
+     * Plain unweighted breadth-first search from [start] to [goal], ignoring the cost-inflation
+     * (dead-end / tower-threat) penalties that [findPath] applies for AI movement decisions.
+     *
+     * [findPath] is tuned for real enemy movement, where avoiding dead ends and tower fire is more
+     * important than finding the shortest walkable route, and its A* search is capped at a fixed
+     * number of iterations for performance. On long, winding levels the inflated costs make the
+     * distance heuristic non-admissible, which can cause the search to exceed that cap before ever
+     * reaching a distant goal — silently falling back to a single-step path.
+     *
+     * For UI purposes (e.g. the enemy path preview overlay) we only need the true shortest walkable
+     * route, so a BFS over unweighted edges is both simpler and immune to that failure mode: it is
+     * guaranteed to find the shortest path to any reachable goal, exploring at most once per tile.
+     *
+     * [ignoreBarricades] lets callers preview the *intended* route even when barricades currently
+     * block it (barricades are temporary obstacles enemies eventually destroy or route around), so
+     * the preview reflects the planned path rather than "no path" while a barricade still stands.
+     */
+    fun findSimplePath(
+        start: Position,
+        goal: Position,
+        attacker: Attacker? = null,
+        ignoreBarricades: Boolean = false,
+    ): List<Position> {
+        if (start == goal) return listOf(start)
+
+        val cameFrom = mutableMapOf<Position, Position>()
+        val visited = mutableSetOf(start)
+        val queue = ArrayDeque<Position>()
+        queue.add(start)
+
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+            if (current == goal) return reconstructPath(cameFrom, current)
+
+            for (neighbor in getNeighbors(current, goal, attacker, ignoreBarricades = ignoreBarricades)) {
+                if (visited.add(neighbor)) {
+                    cameFrom[neighbor] = current
+                    queue.add(neighbor)
+                }
+            }
+        }
+
+        // No path found (goal unreachable) — fall back to a single naive step, same as findPath.
+        return listOf(start, moveTowards(start, goal, attacker))
+    }
+
     fun findPath(
         start: Position,
         goal: Position,

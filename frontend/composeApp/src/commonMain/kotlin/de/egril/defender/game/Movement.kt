@@ -242,13 +242,31 @@ class Movement(
                         pathfinding.findPath(currentPos, target, attacker)
                     }
 
-                if (path.size < 2 && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
+                if ((path.size < 2 || path.last() != target) && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
                     if (bridgeSystem.shouldAutoBuildBridge(attacker)) {
                         val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
                         if (bridgeBuilt) {
                             if (attacker.isDefeated.value) continue
                             path = pathfinding.findPath(currentPos, target, attacker)
                         }
+                    }
+                }
+
+                if (path.size < 2 || path.last() != target) {
+                    // Barricade-aware pathing found no full route to the target (e.g. a wall of
+                    // barricades fully blocks the current approach, or findPath's cost-inflated A*
+                    // silently gave up and fell back to a naive single greedy step — its own
+                    // internal fallback always returns a 2-element path even on total failure, so
+                    // checking path.size alone is not enough; we must also verify it truly reaches
+                    // the target). Fall back to the enemy's intended route, ignoring barricades
+                    // (they are temporary obstacles the enemy will eventually break through), using
+                    // the unweighted BFS (findSimplePath) rather than findPath: on long/winding
+                    // levels the inflated A* costs make the heuristic non-admissible and it can
+                    // exceed its iteration cap before reaching a distant goal, even though a route
+                    // genuinely exists.
+                    val pathIgnoringBarricades = pathfinding.findSimplePath(currentPos, target, attacker, ignoreBarricades = true)
+                    if (pathIgnoringBarricades.size >= 2) {
+                        path = pathIgnoringBarricades
                     }
                 }
 
@@ -696,7 +714,7 @@ class Movement(
                 }
                 var path = pathfinding.findPath(currentPos, target, attacker)
 
-                if (path.size < 2 && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
+                if ((path.size < 2 || path.last() != target) && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
                     if (bridgeSystem.shouldAutoBuildBridge(attacker)) {
                         val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
                         if (bridgeBuilt) {
@@ -710,6 +728,24 @@ class Movement(
                             }
                             path = pathfinding.findPath(currentPos, target, attacker)
                         }
+                    }
+                }
+
+                if (path.size < 2 || path.last() != target) {
+                    // Barricade-aware pathing found no full route to the target (e.g. a wall of
+                    // barricades fully blocks the current approach, or findPath's cost-inflated A*
+                    // silently gave up and fell back to a naive single greedy step — its own
+                    // internal fallback always returns a 2-element path even on total failure, so
+                    // checking path.size alone is not enough; we must also verify it truly reaches
+                    // the target). Fall back to the enemy's intended route, ignoring barricades
+                    // (they are temporary obstacles the enemy will eventually break through), using
+                    // the unweighted BFS (findSimplePath) rather than findPath: on long/winding
+                    // levels the inflated A* costs make the heuristic non-admissible and it can
+                    // exceed its iteration cap before reaching a distant goal, even though a route
+                    // genuinely exists.
+                    val pathIgnoringBarricades = pathfinding.findSimplePath(currentPos, target, attacker, ignoreBarricades = true)
+                    if (pathIgnoringBarricades.size >= 2) {
+                        path = pathIgnoringBarricades
                     }
                 }
 

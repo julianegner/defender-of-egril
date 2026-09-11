@@ -729,12 +729,81 @@ internal fun displayedRiverTile(
     sandboxPaintedRiverTile: RiverTile?,
 ): RiverTile? = sandboxPaintedRiverTile ?: levelRiverTile
 
+internal fun plannedEnemyPathForDisplay(
+    gameState: GameState,
+    attacker: Attacker,
+): List<Position>? {
+    if (attacker.isDefeated.value) {
+        return null
+    }
+    val pathfinding = PathfindingSystem(gameState)
+
+    // Enemies do not walk in a single straight A* line to the final target: they follow a chain
+    // of waypoints (attacker.currentTarget is only the NEXT waypoint, not the final destination —
+    // see EnemyMovementSystem.canReachTargetNextTurn for the equivalent real-movement logic).
+    // A single findPath(start, finalTarget) call therefore either returns just the next short
+    // segment (when using currentTarget) or can fail to resolve a long, winding, cost-inflated
+    // route within the A* iteration cap (when aiming straight at the final target). To display the
+    // WHOLE planned route we must replicate the same waypoint-by-waypoint chaining used by actual
+    // enemy movement, concatenating each resolved segment until an active target is reached.
+    var position = attacker.position.value
+    var target =
+        attacker.currentTarget?.value
+            ?: gameState.getActiveTargetPositions().minByOrNull { position.distanceTo(it) }
+            ?: gameState.level.targetPositions.firstOrNull()
+            ?: return null
+
+    val fullPath = mutableListOf(position)
+    val visitedWaypointTargets = mutableSetOf<Position>()
+    val maxSegments = 200 // Safety guard against pathological waypoint loops
+
+    for (segmentIndex in 0 until maxSegments) {
+        // Use the unweighted BFS search (not findPath's cost-inflated A*) so a long / winding
+        // segment can never silently fall back to a single-step path (see findSimplePath kdoc).
+        // Prefer the real, barricade-respecting route first (what the enemy can actually walk
+        // right now). Only if that yields no full path to this segment's target do we fall back
+        // to ignoring barricades, so the preview still shows the enemy's intended route rather than
+        // reporting "no path" while a barricade happens to be standing in the way.
+        var segment = pathfinding.findSimplePath(position, target, attacker)
+        if (segment.size < 2 || segment.last() != target) {
+            val segmentIgnoringBarricades = pathfinding.findSimplePath(position, target, attacker, ignoreBarricades = true)
+            if (segmentIgnoringBarricades.size >= 2 && segmentIgnoringBarricades.last() == target) {
+                segment = segmentIgnoringBarricades
+            }
+        }
+        if (segment.size < 2) {
+            break // No progress possible towards this segment's target
+        }
+
+        fullPath.addAll(segment.drop(1))
+        position = segment.last()
+
+        if (gameState.isActiveTargetPosition(position)) {
+            break // Reached an active final target — the preview stops here
+        }
+
+        if (position != target) {
+            break // Segment couldn't fully reach its target (blocked) — stop to avoid looping
+        }
+
+        val nextWaypointTarget = gameState.level.getWaypointAt(position)?.nextTarget
+        if (nextWaypointTarget == null || !visitedWaypointTargets.add(target)) {
+            break // No further waypoint, or this waypoint target was already used (loop guard)
+        }
+        target = nextWaypointTarget
+    }
+
+    return fullPath.takeIf { it.size > 1 }
+}
+
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GameGrid(
     gameState: GameState,
     selectedDefenderType: DefenderType?,
     selectedDefenderId: Int?,
+    selectedAttackerId: Int? = null,
     selectedTargetId: Int?,
     selectedTargetPosition: Position?,
     selectedMineAction: MineAction?,
@@ -838,6 +907,25 @@ fun GameGrid(
     val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
     val selectedDefenderActions = selectedDefender?.actionsRemaining?.value
     val freyaShieldWallArcs = gameState.freyaShieldWallArcs()
+
+    val selectedEnemyPathPositions: Set<Position> by remember(
+        selectedAttackerId,
+        gameState.attackers.size,
+        gameState.attackers.map { it.position.value },
+        gameState.turnNumber.value,
+        AppSettings.showEnemyPathfinding.value,
+    ) {
+        derivedStateOf {
+            if (!AppSettings.showEnemyPathfinding.value || selectedAttackerId == null) {
+                emptySet()
+            } else {
+                val selectedEnemy =
+                    gameState.attackers.find { it.id == selectedAttackerId && !it.isDefeated.value }
+                        ?: return@derivedStateOf emptySet()
+                plannedEnemyPathForDisplay(gameState, selectedEnemy)?.drop(1)?.toSet() ?: emptySet()
+            }
+        }
+    }
 
     val targetCircleMap =
         remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size) {
@@ -1764,6 +1852,7 @@ fun GameGrid(
                     isTargetSelected =
                         selectedTargetId != null &&
                             activeAttackersByPosition[position]?.id == selectedTargetId,
+                    isInSelectedEnemyPath = selectedEnemyPathPositions.contains(position),
                     selectedDefenderId = selectedDefenderId,
                     selectedMineAction = selectedMineAction,
                     selectedWizardAction = selectedWizardAction,
@@ -1952,6 +2041,7 @@ fun GridCell(
     supportFiefPlacementHighlight: Boolean = false,
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
+    isInSelectedEnemyPath: Boolean = false,
     selectedDefenderId: Int?,
     selectedMineAction: MineAction?,
     selectedWizardAction: WizardAction? = null,
@@ -2400,6 +2490,7 @@ fun GridCell(
         when {
             // Keyboard placement/targeting cursor — bright cyan tint so the active tile stands out.
             isKeyboardPlacementCursor -> Color(0xFF00E5FF).copy(alpha = 0.45f)
+            isInSelectedEnemyPath -> Color(0xFF00E5FF).copy(alpha = 0.28f)
             attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f) // Turquoise background for frozen/cooled-to-zero enemies
             attacker != null && enemyBgSuppressed -> if (useTransparentBackground) Color.Transparent else baseBackgroundColor
             attacker != null ->
@@ -2516,6 +2607,7 @@ fun GridCell(
         when {
             // Keyboard placement/targeting cursor — bright cyan border for the active tile.
             isKeyboardPlacementCursor -> Color(0xFF00B8D4)
+            isInSelectedEnemyPath -> Color(0xFF00B8D4)
             // Tower placement preview - dashed borders for preview (we'll handle this with Canvas later)
             showPlacementPreview -> GamePlayColors.Yellow // Yellow border for hovered build tile
             isInPreviewRange -> GamePlayColors.Success // Green border for range preview tiles
@@ -2573,6 +2665,7 @@ fun GridCell(
     val borderWidth =
         when {
             isKeyboardPlacementCursor -> 6.dp // Prominent border for the keyboard placement/targeting cursor
+            isInSelectedEnemyPath -> 4.dp
             showPlacementPreview -> 6.dp // Double thickness for hovered build tile
             isInPreviewRange -> 3.dp // Medium border for range preview
             cellIsInBarricadeRange ||
@@ -2755,6 +2848,7 @@ fun GridCell(
                 suppressEnemyBackground = suppressEnemyBackground,
                 attackPreview = attackPreview,
                 isDangerous = isDangerous,
+                isInSelectedEnemyPath = isInSelectedEnemyPath,
             )
         }
     } else {
@@ -2826,6 +2920,7 @@ fun GridCell(
                 suppressEnemyBackground = suppressEnemyBackground,
                 attackPreview = attackPreview,
                 isDangerous = isDangerous,
+                isInSelectedEnemyPath = isInSelectedEnemyPath,
             )
         }
     }
@@ -2900,6 +2995,7 @@ private fun BoxScope.GridCellContent(
     // Precomputed attack damage/lethality/immunity preview for the enemy on this tile (issue #591).
     // Non-null only when a defender is selected that could attack this enemy.
     attackPreview: EnemyAttackPreview? = null,
+    isInSelectedEnemyPath: Boolean = false,
 ) {
     // When animations are enabled, delay updating the enemy's displayed health value until
     // the attack animation (projectile flight + impact flash) has completed.
@@ -2960,6 +3056,7 @@ private fun BoxScope.GridCellContent(
                 attacker.position.value.y,
                 attacker.level,
                 attacker.movementPenalty.value,
+                isInSelectedEnemyPath,
             ) {
                 // Detect freeze effect before Box so it can be used in modifier for outline
                 val freezeEffect =
@@ -3105,6 +3202,15 @@ private fun BoxScope.GridCellContent(
                     }
                 }
             }
+        }
+
+        isInSelectedEnemyPath -> {
+            Text(
+                text = "PATH",
+                color = Color(0xFF00E5FF),
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+            )
         }
 
         defender != null -> {

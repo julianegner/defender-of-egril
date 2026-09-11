@@ -1867,6 +1867,7 @@ private fun GamePlayScreenContent(
                             gameState = gameState,
                             selectedDefenderType = selectedDefenderType,
                             selectedDefenderId = selectedDefenderId,
+                            selectedAttackerId = selectedAttackerId,
                             selectedTargetId = selectedTargetId,
                             selectedTargetPosition = selectedTargetPosition,
                             selectedMineAction = selectedMineAction,
