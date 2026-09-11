@@ -1632,12 +1632,34 @@ class GameViewModel {
         }
     }
 
+    private fun schedulePendingBridgeDamageAfterAttack() {
+        val currentState = _gameState.value ?: return
+        if (currentState.pendingBridgeDamage.isEmpty()) return
+
+        viewModelScope.launch {
+            val flightDelayMs =
+                if (
+                    currentState.ballistaAttackEffects.any { it.turnNumber == currentState.turnNumber.value } ||
+                    currentState.wizardAttackEffects.any { it.turnNumber == currentState.turnNumber.value } ||
+                    currentState.alchemyAttackEffects.any { it.turnNumber == currentState.turnNumber.value }
+                ) {
+                    GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                } else {
+                    GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                }
+
+            delay(flightDelayMs + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
+            gameEngine?.processPendingBridgeDamage()
+        }
+    }
+
     fun defenderAttack(
         defenderId: Int,
         targetId: Int,
     ): Boolean {
         val result = gameEngine?.defenderAttack(defenderId, targetId) ?: false
         if (result) {
+            schedulePendingBridgeDamageAfterAttack()
             // Surface any messages queued by the attack (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
             surfaceNextPendingMessageIfIdle()
             // Check for immediate level end after attack
@@ -1658,6 +1680,7 @@ class GameViewModel {
     ): Boolean {
         val result = gameEngine?.defenderAttackPosition(defenderId, targetPosition) ?: false
         if (result) {
+            schedulePendingBridgeDamageAfterAttack()
             // triggerStateUpdate()
 
             // Surface any messages queued by the attack (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
@@ -1920,7 +1943,7 @@ class GameViewModel {
                         GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     }
 
-                // Wait for the projectile to arrive visually
+                // Wait for the projectile to arrive visually.
                 delay(flightDelayMs)
 
                 if (enemiesKilled) {
@@ -1929,8 +1952,12 @@ class GameViewModel {
                     delay(GamePlayConstants.AnimationTimings.COIN_GAIN_DELAY_AFTER_DEATH_MS)
                     delay(GamePlayConstants.AnimationTimings.COIN_GAIN_ANIMATION_DURATION_MS)
                 } else {
-                    // No kills — just let the impact flash finish
+                    // No kills — just let the impact flash finish.
                     delay(GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
+                }
+
+                if (currentState.pendingBridgeDamage.isNotEmpty()) {
+                    engine.processPendingBridgeDamage()
                 }
             }
 

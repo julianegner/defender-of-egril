@@ -585,7 +585,10 @@ class BridgeBuildingTest {
         val damaged = engine.defenderAttackPosition(state.defenders.first().id, Position(4, 0))
 
         assertTrue(damaged, "Ballista should be able to target bridge tiles")
-        assertTrue(bridge.currentHealth.value < 100, "Ballista attack should damage bridge HP")
+        assertEquals(100, bridge.currentHealth.value, "Bridge damage should be deferred until the attack animation finishes")
+        assertEquals(1, state.pendingBridgeDamage.size, "Ballista bridge damage should be queued until after the animation")
+        engine.processPendingBridgeDamage()
+        assertTrue(bridge.currentHealth.value < 100, "Ballista attack should damage bridge HP after the queued animation")
     }
 
     @Test
@@ -627,7 +630,10 @@ class BridgeBuildingTest {
         val damaged = engine.defenderAttackPosition(state.defenders.first().id, Position(4, 0))
 
         assertTrue(damaged, "Alchemy tower should be able to target bridge tiles")
-        assertTrue(bridge.currentHealth.value < 100, "Acid attack should damage bridge HP")
+        assertEquals(100, bridge.currentHealth.value, "Acid bridge damage should be deferred until the attack animation finishes")
+        assertEquals(1, state.pendingBridgeDamage.size, "Alchemy bridge damage should be queued until after the animation")
+        engine.processPendingBridgeDamage()
+        assertTrue(bridge.currentHealth.value < 100, "Acid attack should damage bridge HP after the queued animation")
     }
 
     /**

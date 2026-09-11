@@ -252,6 +252,15 @@ data class PendingSnotlingCannonArrival(
     val turnNumber: Int,
 )
 
+/**
+ * Bridge damage that is intentionally deferred until the tower attack animation has fully resolved.
+ * This avoids reducing bridge health before the projectile/impact visual has finished.
+ */
+data class PendingBridgeDamage(
+    val position: Position,
+    val damage: Int,
+)
+
 enum class AutoAttackAvailability {
     NONE,
     ATTACK,
@@ -347,6 +356,7 @@ data class GameState(
     val pendingSoulCalls: SnapshotStateList<PendingSoulCall> = mutableStateListOf(), // Valerius resurrection queue for the next round
     val pendingBargeDeletions: SnapshotStateList<PendingBargeDeletion> = mutableStateListOf(), // Barges (rafts + defenders) to be deleted after animation completes
     val pendingSnotlingCannonArrivals: SnapshotStateList<PendingSnotlingCannonArrival> = mutableStateListOf(), // Snotlings arriving at their landing tile after the cannonball animation completes
+    val pendingBridgeDamage: SnapshotStateList<PendingBridgeDamage> = mutableStateListOf(), // Bridge HP reductions deferred until tower attack visuals finish
     // Player-usable supports remaining this level (placable objects + spell tokens + fief tokens)
     val supportObjectsRemaining: SnapshotStateMap<SupportObjectType, Int> = mutableStateMapOf(),
     val supportSpellsRemaining: SnapshotStateMap<SpellType, Int> = mutableStateMapOf(),

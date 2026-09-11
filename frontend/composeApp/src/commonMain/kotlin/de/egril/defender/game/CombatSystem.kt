@@ -151,6 +151,10 @@ class CombatSystem(
         return if (isOnBarge) (raw * (1f - reduction)).toInt().coerceAtLeast(1) else raw
     }
 
+    private fun queueBridgeDamage(position: Position, damage: Int) {
+        state.pendingBridgeDamage.add(PendingBridgeDamage(position = position, damage = damage))
+    }
+
     /**
      * Returns true if the given position is a valid area-attack target tile:
      * on any enemy-occupiable tile (path, spawn point, river) or a bridge.
@@ -363,13 +367,9 @@ class CombatSystem(
                 }
             }
             AttackType.AREA -> {
-                // Area attack affects both enemies AND bridges in range
+                // Area attack affects both enemies AND bridges in range; bridge HP is deferred
+                // until the animation has finished so the damage appears after projectile impact.
                 areaAttack(defender, targetPosition)
-                // Also damage bridge at target position if present
-                val bridge = state.getBridgeAt(targetPosition)
-                if (bridge != null && bridge.isActive) {
-                    bridgeSystem.damageBridge(targetPosition, getEffectiveDamage(defender))
-                }
             }
             AttackType.LASTING -> lastingAttack(defender, targetPosition)
             AttackType.NONE -> return false // Mines and special structures can't attack
@@ -463,9 +463,9 @@ class CombatSystem(
             }
         }
 
-        // Apply deferred bridge damage after queuing attack visuals so animation starts first.
+        // Apply deferred bridge damage after the attack animation is queued so the visual starts first.
         if (deferredBridgeDamage != null) {
-            bridgeSystem.damageBridge(targetPosition, deferredBridgeDamage)
+            queueBridgeDamage(targetPosition, deferredBridgeDamage)
         }
 
         if (defender.isDisabled.value) {
@@ -602,12 +602,12 @@ class CombatSystem(
             it.type == FieldEffectType.WEB && it.position in affectedPositions && it.position !in blockedPositions
         }
 
-        // Damage all bridges in affected positions
+        // Queue bridge damage until after the fireball animation has finished.
         affectedPositions.forEach { pos ->
             if (pos in blockedPositions) return@forEach
             val bridge = state.getBridgeAt(pos)
             if (bridge != null && bridge.isActive) {
-                bridgeSystem.damageBridge(pos, getEffectiveDamage(defender))
+                queueBridgeDamage(pos, getEffectiveDamage(defender))
             }
         }
 
@@ -726,12 +726,12 @@ class CombatSystem(
             }
         }
 
-        // Damage all bridges in affected positions
+        // Queue bridge damage until after the acid projectile/impact animation has finished.
         affectedPositions.forEach { pos ->
             if (pos in blockedPositions) return@forEach
             val bridge = state.getBridgeAt(pos)
             if (bridge != null && bridge.isActive) {
-                bridgeSystem.damageBridge(pos, getEffectiveDamage(defender))
+                queueBridgeDamage(pos, getEffectiveDamage(defender))
             }
         }
 

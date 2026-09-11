@@ -373,6 +373,13 @@ class GameEngine(
      */
     fun processPendingBargeDeletions() = enemyAbilities.processPendingBargeDeletions()
 
+    fun processPendingBridgeDamage() {
+        for (pendingDamage in state.pendingBridgeDamage.toList()) {
+            bridgeSystem.damageBridge(pendingDamage.position, pendingDamage.damage)
+        }
+        state.pendingBridgeDamage.clear()
+    }
+
     fun processPendingSnotlingCannonArrivals() = enemyAbilities.processPendingSnotlingCannonArrivals()
 
     /**
