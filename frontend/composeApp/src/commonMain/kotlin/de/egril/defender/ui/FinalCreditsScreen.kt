@@ -111,8 +111,8 @@ private fun drawableResourceByName(name: String): DrawableResource? =
     when (name) {
         "world_map_background" -> Res.drawable.world_map_background
         "dragon_destroying_mine" -> Res.drawable.dragon_destroying_mine
-        "ewhad_message_background" -> Res.drawable.ewhad_message_background
-        "story_message_background" -> Res.drawable.story_message_background
+        "ewhad_message_background" -> Res.drawable.message_background_ewhad
+        "story_message_background" -> Res.drawable.message_background_story
         "location_fortress" -> Res.drawable.location_fortress
         "location_round_tower" -> Res.drawable.location_round_tower
         "location_square_tower" -> Res.drawable.location_square_tower

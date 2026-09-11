@@ -14,6 +14,11 @@ class EnemyMovementSystem(
     private val state: GameState,
     private val pathfinding: PathfindingSystem,
 ) {
+    private fun effectiveSpeed(
+        attacker: Attacker,
+        position: Position,
+    ): Int = calculateEffectiveEnemySpeed(state, attacker, position)
+
     /**
      * Returns whether an attacker will enter an active target during its next movement turn.
      * This mirrors normal movement, including waypoint transitions, without changing game state.
@@ -22,11 +27,20 @@ class EnemyMovementSystem(
         if (attacker.isDefeated.value) return false
 
         var position = attacker.position.value
+        var remainingSpeed = effectiveSpeed(attacker, position)
+
+        // Cheap lower-bound check before running the (expensive) pathfinding: an enemy moves one
+        // hex per step, so it can never enter a target that is further away than its speed.
+        // On large maps almost every enemy is filtered out here, which keeps the danger hints
+        // cheap even with many enemies on the map (issue #791).
+        val activeTargets = state.getActiveTargetPositions()
+        val shortestTargetDistance = activeTargets.minOfOrNull { position.distanceTo(it) } ?: return false
+        if (shortestTargetDistance > remainingSpeed) return false
+
         var target =
             attacker.currentTarget?.value
-                ?: state.getActiveTargetPositions().minByOrNull { position.distanceTo(it) }
+                ?: activeTargets.minByOrNull { position.distanceTo(it) }
                 ?: return false
-        var remainingSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
 
         while (remainingSpeed > 0) {
             val path = pathfinding.findPath(position, target, attacker)
@@ -104,17 +118,27 @@ class EnemyMovementSystem(
 
         if (enemiesToSpawnThisTurn.isEmpty()) return
 
-        val spawnPoints = state.level.startPositions
-
         enemiesToSpawnThisTurn.forEachIndexed { index, plannedSpawn ->
-            // Use fixed spawn point if specified, otherwise use round-robin
-            val preferredSpawnPoint = plannedSpawn.spawnPoint ?: spawnPoints[index % spawnPoints.size]
+            // Use fixed spawn point if specified; otherwise pick a compatible spawn point via
+            // round-robin, honouring the enemy's canSpawnOnLand/canSpawnOnWater flags.
+            val preferredSpawnPoint =
+                plannedSpawn.spawnPoint
+                    ?: run {
+                        val compatiblePoints = state.level.getCompatibleSpawnPoints(plannedSpawn.attackerType)
+                        compatiblePoints[index % compatiblePoints.size]
+                    }
 
             // Get the initial target based on the preferred spawn point (before finding actual position)
             val initialTarget = getInitialTarget(preferredSpawnPoint)
 
-            // Find a free position near the preferred spawn point
-            val spawnPos = findFreePositionNear(preferredSpawnPoint)
+            // Find a free position near the preferred spawn point.
+            // Water-only enemies spawn on river tiles; all others spawn on path tiles.
+            val spawnPos =
+                findFreePositionNear(
+                    preferredSpawnPoint,
+                    waterOnly = plannedSpawn.attackerType.canOnlyMoveOnWater,
+                    canUseRiver = plannedSpawn.attackerType.canTraverseRiver,
+                )
 
             if (spawnPos == null) {
                 // No free position found - skip this enemy for now
@@ -122,16 +146,10 @@ class EnemyMovementSystem(
                 return@forEachIndexed
             }
 
-            // Ensure only one Ewhad exists at a time (boss is unique)
-            if (plannedSpawn.attackerType == AttackerType.EWHAD) {
-                val ewhadExists =
-                    state.attackers.any {
-                        it.type == AttackerType.EWHAD && !it.isDefeated.value
-                    }
-                if (ewhadExists) {
-                    // Skip spawning another Ewhad if one already exists
-                    return@forEachIndexed
-                }
+            // Ensure unique enemies (Ewhad boss and villains) only exist once at a time
+            if (isUniqueEnemyAlreadyPresent(plannedSpawn.attackerType, state.attackers)) {
+                // Skip spawning another copy of this unique enemy if one already exists
+                return@forEachIndexed
             }
 
             val attacker =
@@ -143,6 +161,7 @@ class EnemyMovementSystem(
                     currentTarget = mutableStateOf(initialTarget),
                 )
             state.attackers.add(attacker)
+            state.enemyTurnStartPositions[attacker.id] = spawnPos
             GameLogBuffer.log("SPAWN", "${attacker.type} Lv${attacker.level.value} spawned at $spawnPos (turn $currentTurn)")
 
             // Record enemy spawn visual effect for animation.
@@ -153,6 +172,7 @@ class EnemyMovementSystem(
                 EnemySpawnEffect(
                     position = preferredSpawnPoint,
                     turnNumber = state.turnNumber.value,
+                    attackerType = plannedSpawn.attackerType,
                 ),
             )
 
@@ -162,6 +182,52 @@ class EnemyMovementSystem(
                     GameMessage(type = GameMessageType.EWHAD_ENTERS),
                 )
             }
+
+            // Queue villain backstory message when a villain enters the battlefield.
+            // Ewhad is a villain but has its own dedicated narrative (EWHAD_ENTERS above), so it is
+            // excluded here to avoid showing two dialogs.
+            if (plannedSpawn.attackerType.isRealVillain && plannedSpawn.attackerType != AttackerType.EWHAD) {
+                state.pendingMessages.add(
+                    GameMessage(type = GameMessageType.VILLAIN_ENTERS, name = plannedSpawn.attackerType.name),
+                )
+            }
+
+            // Spawn arrival companions (e.g. Haga and Zussa always arrive with Sybilla).
+            // Each companion is spawned at a free position near the same spawn point.
+            // The unique-villain check still applies: already-present companions are skipped.
+            for (companionType in plannedSpawn.attackerType.arrivalCompanions) {
+                if (isUniqueEnemyAlreadyPresent(companionType, state.attackers)) continue
+                val companionPos =
+                    findFreePositionNear(
+                        preferredSpawnPoint,
+                        waterOnly = companionType.canOnlyMoveOnWater,
+                        canUseRiver = companionType.canTraverseRiver,
+                    ) ?: continue
+                val companionTarget = getInitialTarget(preferredSpawnPoint)
+                val companion =
+                    Attacker(
+                        id = state.nextAttackerId.value++,
+                        type = companionType,
+                        position = mutableStateOf(companionPos),
+                        level = mutableStateOf(plannedSpawn.level),
+                        currentTarget = mutableStateOf(companionTarget),
+                    )
+                state.attackers.add(companion)
+                state.enemyTurnStartPositions[companion.id] = companionPos
+                GameLogBuffer.log(
+                    "SPAWN",
+                    "${companion.type} Lv${companion.level.value} spawned as companion at $companionPos (turn $currentTurn)",
+                )
+                state.enemySpawnEffects.add(
+                    EnemySpawnEffect(
+                        position = preferredSpawnPoint,
+                        turnNumber = state.turnNumber.value,
+                        attackerType = companionType,
+                    ),
+                )
+                // Companion villains (e.g., Haga and Zussa) are not queued with their own VILLAIN_ENTERS
+                // message; instead, they are mentioned as part of their parent villain's message (e.g., Sybilla).
+            }
         }
         // Play spawn sound
         GlobalSoundManager.playSound(SoundEvent.ENEMY_SPAWN)
@@ -170,7 +236,9 @@ class EnemyMovementSystem(
     fun findFreeSpawnPosition(): Position? {
         // Try each spawn point to find a free one
         for (spawnPos in state.level.startPositions) {
-            if (!state.attackers.any { it.position.value == spawnPos && !it.isDefeated.value }) {
+            if (!state.attackers.any { it.position.value == spawnPos && !it.isDefeated.value } &&
+                !state.isPortalTile(spawnPos)
+            ) {
                 return spawnPos
             }
         }
@@ -191,7 +259,8 @@ class EnemyMovementSystem(
                     pos.y >= 0 &&
                     pos.y < state.level.gridHeight &&
                     state.level.isOnPath(pos) &&
-                    !state.attackers.any { it.position.value == pos && !it.isDefeated.value }
+                    !state.attackers.any { it.position.value == pos && !it.isDefeated.value } &&
+                    !state.isPortalTile(pos)
                 ) {
                     return pos
                 }
@@ -204,14 +273,51 @@ class EnemyMovementSystem(
     /**
      * Find a free position for spawning, starting from the preferred spawn point.
      * If the spawn point is occupied, search neighboring path tiles using hex grid neighbors.
+     * For water-capable enemies, the fallback includes river tiles.
      */
-    fun findFreePositionNear(preferredSpawnPoint: Position): Position? {
-        // First, check if the preferred spawn point is free
-        if (!state.attackers.any { it.position.value == preferredSpawnPoint && !it.isDefeated.value }) {
-            return preferredSpawnPoint
+    fun findFreePositionNear(
+        preferredSpawnPoint: Position,
+        waterOnly: Boolean = false,
+        canUseRiver: Boolean = false,
+    ): Position? {
+        fun isValidSpawnTile(position: Position): Boolean =
+            if (waterOnly) {
+                state.level.isRiverTile(position)
+            } else if (canUseRiver) {
+                state.level.isEnemyOccupiable(position)
+            } else {
+                state.level.isEnemyTraversable(position)
+            }
+
+        fun findPortalRedirectDestination(entryPosition: Position): Position? {
+            val portal = state.getPortalAtEntry(entryPosition) ?: return null
+            return portal.exitPosition
+                .getHexNeighbors()
+                .asSequence()
+                .filter { pos ->
+                    pos.x >= 0 &&
+                        pos.x < state.level.gridWidth &&
+                        pos.y >= 0 &&
+                        pos.y < state.level.gridHeight &&
+                        isValidSpawnTile(pos) &&
+                        !state.isPortalTile(pos) &&
+                        !state.attackers.any { it.position.value == pos && !it.isDefeated.value }
+                }.minByOrNull { pos ->
+                    state.getActiveTargetPositions().minOfOrNull { target -> pos.hexDistanceTo(target) } ?: Int.MAX_VALUE
+                }
         }
 
-        // BFS to find nearest free position on path
+        // First, check if the preferred spawn point is free
+        if (!state.attackers.any { it.position.value == preferredSpawnPoint && !it.isDefeated.value }) {
+            if (state.isPortalEntry(preferredSpawnPoint)) {
+                val redirected = findPortalRedirectDestination(preferredSpawnPoint)
+                if (redirected != null) return redirected
+            } else if (!state.isPortalExit(preferredSpawnPoint)) {
+                return preferredSpawnPoint
+            }
+        }
+
+        // BFS to find nearest free position on path (or river for water-only enemies)
         val visited = mutableSetOf<Position>()
         val queue = mutableListOf(preferredSpawnPoint)
         visited.add(preferredSpawnPoint)
@@ -225,7 +331,7 @@ class EnemyMovementSystem(
                 // Skip if already visited
                 if (neighbor in visited) continue
 
-                // Check if position is valid and on path
+                // Check if position is valid
                 if (neighbor.x < 0 ||
                     neighbor.x >= state.level.gridWidth ||
                     neighbor.y < 0 ||
@@ -234,10 +340,9 @@ class EnemyMovementSystem(
                     continue
                 }
 
-                // Must be on path or a spawn point
-                if (!state.level.isEnemyTraversable(neighbor)) {
-                    continue
-                }
+                // Must be on an appropriate tile type for this enemy
+                val isValidTile = isValidSpawnTile(neighbor)
+                if (!isValidTile) continue
 
                 visited.add(neighbor)
 
@@ -248,7 +353,12 @@ class EnemyMovementSystem(
                     }
 
                 if (!isOccupied) {
-                    return neighbor
+                    if (state.isPortalEntry(neighbor)) {
+                        val redirected = findPortalRedirectDestination(neighbor)
+                        if (redirected != null) return redirected
+                    } else if (!state.isPortalExit(neighbor)) {
+                        return neighbor
+                    }
                 }
 
                 // Add to queue for further exploration (limit search depth)
@@ -259,6 +369,39 @@ class EnemyMovementSystem(
         }
 
         return null // No free position found nearby
+    }
+
+    /**
+     * Calculate movement path for water-only enemies such as [AttackerType.THE_KRAKEN].
+     *
+     * The unit moves on river tiles only, heading toward the nearest active barge (raft).
+     * If no barge exists on the map, the unit stays in place.
+     *
+     * @return A list of intermediate positions to move through (up to [AttackerType.speed] steps),
+     *         or an empty list when no move is possible.
+     */
+    fun calculateKrakenMovementPath(kraken: Attacker): List<Position> {
+        val startPos = kraken.position.value
+        val speed = kraken.type.speed
+
+        // Target the nearest active barge (raft with a defender on it)
+        val target =
+            state.rafts
+                .filter { it.isActive }
+                .minByOrNull { it.currentPosition.value.hexDistanceTo(startPos) }
+                ?.currentPosition
+                ?.value
+                ?: return emptyList() // No barges – stay put
+
+        val path = pathfinding.findPath(startPos, target, kraken)
+        if (path.size <= 1) return emptyList()
+
+        val stepsToTake = minOf(speed, path.size - 1)
+        val result = mutableListOf<Position>()
+        for (i in 1..stepsToTake) {
+            result.add(path[i])
+        }
+        return result
     }
 
     /**
@@ -442,7 +585,75 @@ class EnemyMovementSystem(
     }
 
     /**
-     * Apply damage to health points when an enemy reaches the target.
+     * Calculate floating movement path for enemies with [AttackerType.canFlyOverTerrain] (e.g.
+     * Archmage Malakor). The unit glides over any terrain — it may traverse non-path tiles during
+     * movement — but it **must land on a path tile** at the end of the turn.
+     *
+     * Uses BFS to enumerate every reachable tile within [AttackerType.speed] hexagonal steps,
+     * then picks the path-tile destination closest to the current target.
+     *
+     * @return A one-element list containing the final destination, or an empty list if no
+     *         reachable path tile exists (the unit stays in place).
+     */
+    fun calculateFloatingMovementPath(floater: Attacker): List<Position> {
+        val startPos = floater.position.value
+        val speed = effectiveSpeed(floater, startPos)
+
+        val target =
+            floater.currentTarget?.value
+                ?: state.getActiveTargetPositions().minByOrNull { startPos.distanceTo(it) }
+                ?: state.level.targetPositions.first()
+
+        // BFS over all tiles within the speed radius, ignoring terrain restrictions.
+        val visited = mutableSetOf(startPos)
+        val queue = mutableListOf(Pair(startPos, 0))
+        val reachablePathPositions = mutableListOf<Pair<Position, Int>>()
+
+        while (queue.isNotEmpty()) {
+            val (pos, dist) = queue.removeAt(0)
+
+            if (pos != startPos) {
+                val isValidLandingSpot =
+                    (
+                        state.level.isOnPath(pos) ||
+                            state.level.isTargetPosition(pos) ||
+                            state.level.isSpawnPoint(pos)
+                    ) &&
+                        state.barricades.none { it.position == pos && !it.isDestroyed() } &&
+                        state.attackers.none { it.id != floater.id && !it.isDefeated.value && it.position.value == pos }
+                if (isValidLandingSpot) {
+                    reachablePathPositions.add(Pair(pos, dist))
+                }
+            }
+
+            if (dist < speed) {
+                for (neighbor in pos.getHexNeighbors()) {
+                    if (neighbor.x < 0 ||
+                        neighbor.x >= state.level.gridWidth ||
+                        neighbor.y < 0 ||
+                        neighbor.y >= state.level.gridHeight
+                    ) {
+                        continue
+                    }
+                    if (neighbor !in visited) {
+                        visited.add(neighbor)
+                        queue.add(Pair(neighbor, dist + 1))
+                    }
+                }
+            }
+        }
+
+        val bestPosition =
+            reachablePathPositions.minByOrNull { (pos, _) -> pos.distanceTo(target) }?.first
+
+        return if (bestPosition != null && bestPosition != startPos) {
+            listOf(bestPosition)
+        } else {
+            emptyList()
+        }
+    }
+
+    /**
      * For SINGLE_HIT targets, the target is "taken" instead of dealing HP damage.
      * Handles variable damage based on enemy type and marks the attacker as defeated.
      */
@@ -468,6 +679,11 @@ class EnemyMovementSystem(
             val damage = attacker.calculateTargetDamage()
             state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
         }
+        // A villain breaching a target loses the level immediately (see issue #538), regardless of
+        // how much health remains. Record it so GameState.isLevelLost() reports the loss.
+        if (attacker.type.isRealVillain) {
+            state.villainReachedTarget.value = true
+        }
         attacker.isDefeated.value = true
     }
 
@@ -481,7 +697,7 @@ class EnemyMovementSystem(
             if (!state.level.isSpawnPoint(attacker.position.value)) continue
 
             // Calculate effective speed by subtracting movement penalty from spike barbs
-            var remainingSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+            var remainingSpeed = effectiveSpeed(attacker, attacker.position.value)
 
             while (remainingSpeed > 0) {
                 // Re-calculate path with current target for each step
@@ -517,8 +733,8 @@ class EnemyMovementSystem(
                 // Check for barricades (barricades block non-flying enemies)
                 val barricadeAtPosition = state.barricades.find { it.position == newPos && !it.isDestroyed() }
                 if (barricadeAtPosition != null) {
-                    // Goblin encounters barricade - attack it
-                    val damage = attacker.level.value // Goblins are not dragons, so regular damage
+                    // Enemy encounters barricade - attack it
+                    val damage = attacker.level.value * attacker.type.barricadeDamageMultiplier
                     barricadeAtPosition.takeDamage(damage)
 
                     // Add damage effect for visualization

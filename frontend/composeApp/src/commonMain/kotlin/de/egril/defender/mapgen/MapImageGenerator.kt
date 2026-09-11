@@ -1,7 +1,9 @@
 package de.egril.defender.mapgen
 
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.MapSizeLimits
 import de.egril.defender.editor.TileType
+import de.egril.defender.model.SpawnPointType
 import kotlin.math.ceil
 import kotlin.math.exp
 import kotlin.math.floor
@@ -25,15 +27,16 @@ object MapImageGenerator {
     private val SQRT3 = sqrt(3.0)
     private val HEX_WIDTH = HEX_SIZE * SQRT3 // ~69.28 px
     private const val HEX_HEIGHT = HEX_SIZE * 2.0 // 80 px
-    private const val VERTICAL_SPACING = HEX_HEIGHT * 0.75 // 60 px
+    private const val VERTICAL_SPACING_ADJUSTMENT = -7.0
+    private val EFFECTIVE_ROW_STEP = HEX_HEIGHT * 0.75 + VERTICAL_SPACING_ADJUSTMENT // 53 px (layout step)
+    private val VISUAL_ROW_STEP = EFFECTIVE_ROW_STEP - 1.0 // 52 px (after per-row offset correction)
+    private const val ROW_ZERO_VISUAL_OFFSET = 1.0
     private const val HORIZONTAL_SPACING = -10.0
     private const val ODD_ROW_OFFSET_RATIO = 0.42
 
     // Nudge river tile centers north when blending so water stays aligned with
     // hexes and doesn't bleed into southern neighbours.
     private const val RIVER_Y_BIAS = -HEX_HEIGHT * 0.5 // -40 px
-    private const val PADDING = 20.0
-
     // Slightly lower sigma to sharpen biome transitions while keeping soft edges
     private val BLEND_SIGMA = HEX_WIDTH * 0.45 // ~31.2 px
 
@@ -131,8 +134,8 @@ object MapImageGenerator {
         gy: Int,
     ): Pair<Double, Double> {
         val rowOffset = if (gy % 2 == 1) HEX_WIDTH * ODD_ROW_OFFSET_RATIO else 0.0
-        val cx = gx * (HEX_WIDTH + HORIZONTAL_SPACING) + rowOffset + HEX_WIDTH / 2 + PADDING
-        val cy = gy * VERTICAL_SPACING + HEX_HEIGHT / 2 + PADDING
+        val cx = gx * (HEX_WIDTH + HORIZONTAL_SPACING) + rowOffset + HEX_WIDTH / 2
+        val cy = gy * VISUAL_ROW_STEP + ROW_ZERO_VISUAL_OFFSET + HEX_HEIGHT / 2
         return Pair(cx, cy)
     }
 
@@ -140,18 +143,22 @@ object MapImageGenerator {
         gridWidth: Int,
         gridHeight: Int,
     ): Pair<Int, Int> {
-        val lastCol = gridWidth - 1
-        val lastRow = gridHeight - 1
-        val maxRowOffset = if (lastRow % 2 == 1) HEX_WIDTH * ODD_ROW_OFFSET_RATIO else 0.0
-        val rightEdge = lastCol * (HEX_WIDTH + HORIZONTAL_SPACING) + maxRowOffset + HEX_WIDTH
-        val bottomEdge = lastRow * VERTICAL_SPACING + HEX_HEIGHT
-        val width = ceil(rightEdge + PADDING * 2).toInt()
-        val height = ceil(bottomEdge + PADDING * 2).toInt()
+        val maxOddOffset = if (gridHeight > 1) HEX_WIDTH * ODD_ROW_OFFSET_RATIO else 0.0
+        val width =
+            ceil(
+                gridWidth * HEX_WIDTH +
+                    (gridWidth - 1) * HORIZONTAL_SPACING +
+                    maxOddOffset,
+            ).toInt()
+        val height = ceil((gridHeight - 1) * EFFECTIVE_ROW_STEP + HEX_HEIGHT).toInt()
         return Pair(width, height)
     }
 
     // --- Public API ---
     fun generatePixels(map: EditorMap): Triple<IntArray, Int, Int> {
+        require(map.canRenderMinimap()) {
+            "Map preview generation requires a valid map within ${MapSizeLimits.MAX_WIDTH}x${MapSizeLimits.MAX_HEIGHT}"
+        }
         val (imgW, imgH) = imageSize(map.width, map.height)
 
         // Build tile arrays
@@ -169,9 +176,17 @@ object MapImageGenerator {
             for (gy in 0 until map.height) {
                 val (cx, cy) = hexCenter(gx, gy)
                 val tileType = map.tiles["$gx,$gy"] ?: TileType.NO_PLAY
-                val biome = TILE_BIOME[tileType] ?: DEFAULT_BIOME
+                val effectiveTileType =
+                    if (tileType == TileType.SPAWN_POINT &&
+                        map.spawnPointInfoMap["$gx,$gy"] == SpawnPointType.WATER
+                    ) {
+                        TileType.RIVER
+                    } else {
+                        tileType
+                    }
+                val biome = TILE_BIOME[effectiveTileType] ?: DEFAULT_BIOME
                 cX[idx] = cx
-                cY[idx] = if (tileType == TileType.RIVER) cy + RIVER_Y_BIAS else cy
+                cY[idx] = if (effectiveTileType == TileType.RIVER) cy + RIVER_Y_BIAS else cy
                 elevBase[idx] = biome.elevation
                 moistBase[idx] = biome.moisture
                 noiseAmps[idx] = biome.noiseAmp

@@ -31,7 +31,6 @@ import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.InfoIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.StarIcon
-import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.isShortcutBindingPressed

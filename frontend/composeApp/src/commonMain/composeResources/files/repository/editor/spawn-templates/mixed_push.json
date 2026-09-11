@@ -1,0 +1,56 @@
+{
+  "metadata": {"program": "Defender of Egril", "type": "spawn-turn-template"},
+  "data": {
+    "id": "mixed_push",
+    "name": "Mixed push",
+    "description": "A two-turn pressure wave with light support.",
+    "variants": [
+      {
+        "kind": "MIXED",
+        "entries": [
+          {"attackerType": "GOBLIN", "turnOffset": 0, "amount": 2},
+          {"attackerType": "ORK", "turnOffset": 0, "amount": 1},
+          {"attackerType": "SKELETON", "turnOffset": 1, "amount": 2}
+        ]
+      },
+      {
+        "kind": "HORDE",
+        "entries": [
+          {"attackerType": "GOBLIN", "turnOffset": 0, "amount": 2},
+          {"attackerType": "ORK", "turnOffset": 0, "amount": 1},
+          {"attackerType": "ROBOTIC_GOBLIN", "turnOffset": 1, "amount": 2}
+        ]
+      },
+      {
+        "kind": "UNDEAD",
+        "entries": [
+          {"attackerType": "SKELETON", "turnOffset": 0, "amount": 2},
+          {"attackerType": "ZOMBIE", "turnOffset": 0, "amount": 1},
+          {"attackerType": "SKELETON", "turnOffset": 1, "amount": 2}
+        ]
+      },
+      {
+        "kind": "DARK_MAGIC",
+        "entries": [
+          {"attackerType": "EVIL_WIZARD", "turnOffset": 0, "amount": 1},
+          {"attackerType": "GREEN_WITCH", "turnOffset": 0, "amount": 1},
+          {"attackerType": "RED_WITCH", "turnOffset": 1, "amount": 1}
+        ]
+      },
+      {
+        "kind": "DEMONIC",
+        "entries": [
+          {"attackerType": "BLUE_DEMON", "turnOffset": 0, "amount": 2},
+          {"attackerType": "RED_DEMON", "turnOffset": 1, "amount": 1}
+        ]
+      },
+      {
+        "kind": "PIRATES",
+        "entries": [
+          {"attackerType": "PIRATE", "turnOffset": 0, "amount": 2},
+          {"attackerType": "PIRATE", "turnOffset": 1, "amount": 2}
+        ]
+      }
+    ]
+  }
+}

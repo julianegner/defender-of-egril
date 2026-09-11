@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,8 +19,6 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
-import de.egril.defender.ui.animations.InstantTowerSpellAnimation
-import de.egril.defender.ui.animations.SpellInstantTowerColor
 import de.egril.defender.ui.gameplay.defenderButtons.CompactDefenderButton
 import de.egril.defender.ui.gameplay.defenderButtons.DefenderButton
 import de.egril.defender.ui.isMobileWebBrowser
@@ -64,6 +61,7 @@ fun ColumnScope.TurnButton(
     primaryButtonColor: Color = GamePlayColors.WarningDeep,
     highlighted: Boolean = false,
     autoAttackAvailable: Boolean = false,
+    autoAttackManaOnly: Boolean = false,
 ) {
     val buttonTextSize = turnButtonLabelFontSize(AppSettings.headerTextSize.value)
     val turnButtonContentColor = GamePlayColors.readableContentColor(primaryButtonColor)
@@ -71,10 +69,20 @@ fun ColumnScope.TurnButton(
     val buttonLabel =
         when {
             !isPlayerTurn -> stringResource(Res.string.start_battle)
+            autoAttackAvailable && autoAttackManaOnly -> stringResource(Res.string.generate_mana_and_end_turn)
             autoAttackAvailable -> stringResource(Res.string.auto_attack_button)
             else -> stringResource(Res.string.end_turn_button)
         }
-    val tooltipText = if (isPlayerTurn && autoAttackAvailable) stringResource(Res.string.auto_attack_and_end_turn) else null
+    val tooltipText =
+        if (isPlayerTurn && autoAttackAvailable) {
+            if (autoAttackManaOnly) {
+                stringResource(Res.string.generate_mana_and_end_turn)
+            } else {
+                stringResource(Res.string.auto_attack_and_end_turn)
+            }
+        } else {
+            null
+        }
     TooltipWrapper(text = tooltipText, preferAbove = true) {
         Button(
             onClick = onPrimaryAction,
@@ -162,7 +170,14 @@ fun GameControlsPanel(
 
         // Determine phase-specific properties
         val isPlayerTurn = phase == GamePhase.PLAYER_TURN
-        val autoAttackAvailable = isPlayerTurn && gameState.level.allowAutoAttack && gameState.hasDefendersForAutoAttack()
+        val autoAttackAvailability =
+            if (isPlayerTurn && gameState.level.allowAutoAttack) {
+                gameState.getAutoAttackAvailability()
+            } else {
+                AutoAttackAvailability.NONE
+            }
+        val autoAttackAvailable = autoAttackAvailability != AutoAttackAvailability.NONE
+        val autoAttackManaOnly = autoAttackAvailability == AutoAttackAvailability.MANA_ONLY
         val title =
             if (isPlayerTurn) {
                 stringResource(Res.string.your_turn_message)
@@ -172,6 +187,7 @@ fun GameControlsPanel(
         val primaryButtonText =
             when {
                 !isPlayerTurn -> stringResource(Res.string.start_battle)
+                autoAttackManaOnly -> stringResource(Res.string.generate_mana_and_end_turn)
                 autoAttackAvailable -> stringResource(Res.string.auto_attack_button)
                 else -> stringResource(Res.string.end_turn_button)
             }
@@ -179,11 +195,20 @@ fun GameControlsPanel(
         val primaryButtonExpandedText =
             when {
                 !isPlayerTurn -> stringResource(Res.string.start_battle)
+                autoAttackManaOnly -> stringResource(Res.string.generate_mana_and_end_turn)
                 autoAttackAvailable -> stringResource(Res.string.auto_attack_slash_end_turn)
                 else -> stringResource(Res.string.end_turn_button)
             }
         val primaryButtonTooltip =
-            if (isPlayerTurn && autoAttackAvailable) stringResource(Res.string.auto_attack_and_end_turn) else null
+            if (isPlayerTurn && autoAttackAvailable) {
+                if (autoAttackManaOnly) {
+                    stringResource(Res.string.generate_mana_and_end_turn)
+                } else {
+                    stringResource(Res.string.auto_attack_and_end_turn)
+                }
+            } else {
+                null
+            }
         val primaryButtonColor =
             if (isPlayerTurn) {
                 GamePlayColors.WarningDeep
@@ -257,6 +282,7 @@ fun GameControlsPanel(
                                             activeSpellEffects = gameState.activeSpellEffects,
                                             isMobile = uiScale < 1f,
                                             onShowDragonInfo = onShowDragonInfo,
+                                            waaghActive = gameState.waaghFrenzyActive.value,
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -283,7 +309,7 @@ fun GameControlsPanel(
                             // When using the split button, use exactly the split control width so the
                             // info area on the left gets all remaining horizontal space.
                             val rightColumnModifier =
-                                if (gameState.level.splitBuildTowerButton) {
+                                if (AppSettings.splitBuildTowerButton.value) {
                                     Modifier.width(SplitControlMaxWidth)
                                 } else {
                                     Modifier.widthIn(max = 600.dp).fillMaxWidth()
@@ -299,7 +325,7 @@ fun GameControlsPanel(
                                         .fillMaxWidth()
                                         .height(if (isMobile) 45.dp else 45.dp)
 
-                                if (gameState.level.splitBuildTowerButton) {
+                                if (AppSettings.splitBuildTowerButton.value) {
                                     val types =
                                         gameState.level.availableTowers
                                             .filter { it != DefenderType.DRAGONS_LAIR }
@@ -313,6 +339,7 @@ fun GameControlsPanel(
                                         onPrimaryAction = onPrimaryAction,
                                         highlightEndTurnButton = highlightEndTurnButton,
                                         autoAttackAvailable = autoAttackAvailable,
+                                        autoAttackManaOnly = autoAttackManaOnly,
                                         toggleSelectorKey = splitSelectorToggle,
                                         onSelectorExpandedChanged = onSplitSelectorExpandedChanged,
                                     )
@@ -355,6 +382,7 @@ fun GameControlsPanel(
                                                     onPrimaryAction,
                                                     highlighted = highlightEndTurnButton,
                                                     autoAttackAvailable = autoAttackAvailable,
+                                                    autoAttackManaOnly = autoAttackManaOnly,
                                                 )
                                             }
                                         }

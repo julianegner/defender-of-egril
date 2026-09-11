@@ -69,6 +69,36 @@ To toggle between states, click the collapse/expand button in the header.
   - Available tower types
   - Level title and subtitle
 
+#### Level Generator
+
+The **Level Generator** button in the Level Editor tab opens a dialog that creates a complete level
+draft from a few inputs. Everything is chosen before the generation starts:
+
+- **Difficulty** (easy, medium, hard, nightmare): controls the number of waves, the enemy levels and
+  the starting coins and health points.
+- **Villains**: optional; any number of villains can be selected. Every villain has a themed roster
+  (for example, Araxxa the Giant Spider leads spiders, undead villains lead undead minions) which
+  pre-sets the roster dropdowns below. The coven twins Haga and Zussa are not offered, since they
+  only make sense together with Grand Coven-Mother Sybilla. Each selected villain is spawned exactly
+  once, at the end of the first third of the waves, so it has time to build up its potential
+  (summoning, auras) instead of arriving right before the end.
+- **Enemy rosters**: a primary roster (horde, undead, demons, witches, pirates, spiders or wilds)
+  and an optional secondary roster define which enemies the waves are drawn from. Selecting villains
+  pre-sets both dropdowns with their themes, but they remain editable.
+- **Map**: either an existing map is selected, or a new map is generated. For a generated map the
+  general size (small 20x20, medium 30x30, large 40x40, gigantic 50x50 — based on the sizes of the
+  existing maps) is chosen first; the exact width and height can then be adjusted. The map layout
+  follows the chosen rosters: the spiders roster gets a spider-web map, the pirates roster a river
+  crossing, and otherwise a random layout is used.
+
+Every wave covers two consecutive turns and both of them get enemies, so a generated level never
+contains a spawn turn without enemies. Wave sizes scale with the difficulty and grow over the
+course of the level.
+
+While the level is being generated a loading indicator is shown. Afterwards the generated level
+(and, if requested, the generated map) is saved and opened in the level editor so it can be refined
+like any other level.
+
 #### Events Tab (within Level Editor)
 
 The **Events** tab lets you script events for a level. Each event pairs a *condition* with one or

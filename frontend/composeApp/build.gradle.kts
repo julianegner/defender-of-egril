@@ -1,6 +1,7 @@
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import java.util.Properties
+import org.gradle.api.tasks.testing.Test
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -399,6 +400,10 @@ tasks.named("generateTranslateFile").configure {
         .withPathSensitivity(org.gradle.api.tasks.PathSensitivity.RELATIVE)
 }
 
+tasks.withType<Test>().configureEach {
+    systemProperty("composeApp.projectDir", projectDir.absolutePath)
+}
+
 
 if (configureAndroid) {
     extensions.configure<ApplicationExtension> {
@@ -717,7 +722,10 @@ afterEvaluate {
         )
     }
 
-    tasks.matching { it.name.contains("wasmJsBrowser", ignoreCase = true) }.configureEach {
+    tasks.matching {
+        it.name.contains("wasmJsBrowser", ignoreCase = true) &&
+            !it.name.startsWith("clean", ignoreCase = true)
+    }.configureEach {
         dependsOn(sanitizeWasmImportObjects)
     }
 }

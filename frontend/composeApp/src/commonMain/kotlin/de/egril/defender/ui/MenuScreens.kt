@@ -40,13 +40,13 @@ import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.icon.UnlockIcon
 import de.egril.defender.ui.infopage.ImpressumWrapper
-import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.AccessibilityBanner
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.AppSettings.isDarkMode
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
 import de.egril.defender.ui.settings.SettingsTab
+import de.egril.defender.ui.worldmap.EditorButtonCard
 import de.egril.defender.utils.isPlatformDesktop
 import de.egril.defender.utils.isPlatformIos
 import de.egril.defender.utils.isPlatformMobile
@@ -107,6 +107,8 @@ private fun MainMenuButtonRow(
     hasAutosave: Boolean,
     isDataLoaded: Boolean,
     onShowRules: () -> Unit,
+    onOpenEditor: () -> Unit = {},
+    showEditorButton: Boolean = false,
     buttonHeight: androidx.compose.ui.unit.Dp,
     textStyle: androidx.compose.ui.text.TextStyle,
     contentPadding: PaddingValues? = null,
@@ -169,6 +171,15 @@ private fun MainMenuButtonRow(
                 )
             }
         }
+
+        if (showEditorButton) {
+            Box(
+                modifier = Modifier.weight(1f).heightIn(min = buttonHeight),
+                contentAlignment = Alignment.Center,
+            ) {
+                EditorButtonCard(onClick = onOpenEditor)
+            }
+        }
     }
 }
 
@@ -203,6 +214,7 @@ fun MainMenuScreen(
     onContinueGame: () -> Unit,
     hasAutosave: Boolean,
     onShowRules: () -> Unit,
+    onOpenEditor: () -> Unit = {},
     onShowInstallationInfo: () -> Unit,
     onShowDownloadInfo: () -> Unit = {},
     onShowBackendInfo: () -> Unit = {},
@@ -222,6 +234,7 @@ fun MainMenuScreen(
 ) {
     // Track if settings hint should be shown
     val showSettingsHint by AppSettings.settingsHintShown
+    val showEditorButton = isEditorAvailable()
 
     // Track if accessibility banner should be shown
     val showAccessibilityBanner by AppSettings.accessibilityBannerShown
@@ -782,6 +795,8 @@ fun MainMenuScreen(
                             hasAutosave = hasAutosave,
                             isDataLoaded = isDataLoaded,
                             onShowRules = onShowRules,
+                            onOpenEditor = onOpenEditor,
+                            showEditorButton = showEditorButton,
                             buttonHeight = if (isPlatformMobile) 40.dp else 34.dp,
                             textStyle = if (isPlatformMobile) MaterialTheme.typography.bodySmall else MaterialTheme.typography.labelSmall,
                         )
@@ -1036,10 +1051,18 @@ fun MainMenuScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = onShowRules, modifier = Modifier.defaultMinSize(minWidth = 200.dp, minHeight = 60.dp)) {
-                        Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium, maxLines = 1)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Button(onClick = onShowRules, modifier = Modifier.defaultMinSize(minWidth = 200.dp, minHeight = 60.dp)) {
+                            Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
+                        }
+                        if (showEditorButton) {
+                            EditorButtonCard(onClick = onOpenEditor)
+                        }
                     }
                     if (isPlatformWasm && WithImpressum.withImpressum) {
                         Spacer(modifier = Modifier.height(16.dp))

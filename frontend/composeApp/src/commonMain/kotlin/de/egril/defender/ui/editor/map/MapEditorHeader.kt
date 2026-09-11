@@ -1,9 +1,11 @@
 package de.egril.defender.ui.editor.map
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,11 +21,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.MapValidationIssue
 import de.egril.defender.editor.TileType
+import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.editor.RiverFlowIndicator
-import de.egril.defender.ui.editor.TileTypeButton
 import de.egril.defender.ui.editor.getTileColor
 import de.egril.defender.ui.icon.MagnifyingGlassIcon
+import de.egril.defender.ui.icon.RedCircleIcon
+import de.egril.defender.ui.icon.WaterIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -38,6 +43,26 @@ fun MapEditorHeader(
     onMapAuthorChange: (String) -> Unit,
     mapToolingInfo: String,
     onMapToolingInfoChange: (String) -> Unit,
+    allowNoBuildableTiles: Boolean,
+    onAllowNoBuildableTilesChange: (Boolean) -> Unit,
+    allowNoDirectPath: Boolean,
+    onAllowNoDirectPathChange: (Boolean) -> Unit,
+    mapWidth: Int,
+    mapHeight: Int,
+    resizeLeft: String,
+    onResizeLeftChange: (String) -> Unit,
+    resizeRight: String,
+    onResizeRightChange: (String) -> Unit,
+    resizeTop: String,
+    onResizeTopChange: (String) -> Unit,
+    resizeBottom: String,
+    onResizeBottomChange: (String) -> Unit,
+    onApplyResize: () -> Unit,
+    canApplyResize: Boolean,
+    resultingMapWidth: Int,
+    resultingMapHeight: Int,
+    showUnsafeResizeWarning: Boolean,
+    mapUsageLevelNames: List<String>,
     selectedTileType: TileType,
     onTileTypeChange: (TileType) -> Unit,
     selectedRiverFlow: de.egril.defender.model.RiverFlow,
@@ -48,12 +73,32 @@ fun MapEditorHeader(
     onZoomIn: () -> Unit,
     onZoomOut: () -> Unit,
     onChangeAllNoPlayToPath: () -> Unit,
+    onFillRiverRing: () -> Unit = {},
     isExpanded: Boolean,
     onToggleExpanded: () -> Unit,
     selectedTargetName: String = "",
     onTargetNameChange: (String) -> Unit = {},
     selectedTargetType: de.egril.defender.model.TargetType = de.egril.defender.model.TargetType.STANDARD,
     onTargetTypeChange: (de.egril.defender.model.TargetType) -> Unit = {},
+    selectedSpawnPointType: de.egril.defender.model.SpawnPointType = de.egril.defender.model.SpawnPointType.LAND,
+    onSpawnPointTypeChange: (de.egril.defender.model.SpawnPointType) -> Unit = {},
+    backgroundImageLoaded: Boolean = false,
+    onLoadBackgroundImage: () -> Unit = {},
+    onClearBackgroundImage: () -> Unit = {},
+    onOpenMapPreview: () -> Unit = {},
+    mapOverlayAlpha: Float = 0.7f,
+    onMapOverlayAlphaChange: (Float) -> Unit = {},
+    showMapFlowOverlay: Boolean = false,
+    onToggleMapFlowOverlay: () -> Unit = {},
+    showMapPathPreviewOverlay: Boolean = false,
+    onToggleMapPathPreviewOverlay: () -> Unit = {},
+    showCrosshair: Boolean = false,
+    onToggleCrosshair: () -> Unit = {},
+    onUndo: () -> Unit = {},
+    canUndo: Boolean = false,
+    onRedo: () -> Unit = {},
+    canRedo: Boolean = false,
+    onOpenAreaClipboard: () -> Unit = {},
 ) {
     if (isExpanded) {
         ExpandedMapEditorHeader(
@@ -64,6 +109,26 @@ fun MapEditorHeader(
             onMapAuthorChange = onMapAuthorChange,
             mapToolingInfo = mapToolingInfo,
             onMapToolingInfoChange = onMapToolingInfoChange,
+            allowNoBuildableTiles = allowNoBuildableTiles,
+            onAllowNoBuildableTilesChange = onAllowNoBuildableTilesChange,
+            allowNoDirectPath = allowNoDirectPath,
+            onAllowNoDirectPathChange = onAllowNoDirectPathChange,
+            mapWidth = mapWidth,
+            mapHeight = mapHeight,
+            resizeLeft = resizeLeft,
+            onResizeLeftChange = onResizeLeftChange,
+            resizeRight = resizeRight,
+            onResizeRightChange = onResizeRightChange,
+            resizeTop = resizeTop,
+            onResizeTopChange = onResizeTopChange,
+            resizeBottom = resizeBottom,
+            onResizeBottomChange = onResizeBottomChange,
+            onApplyResize = onApplyResize,
+            canApplyResize = canApplyResize,
+            resultingMapWidth = resultingMapWidth,
+            resultingMapHeight = resultingMapHeight,
+            showUnsafeResizeWarning = showUnsafeResizeWarning,
+            mapUsageLevelNames = mapUsageLevelNames,
             selectedTileType = selectedTileType,
             onTileTypeChange = onTileTypeChange,
             selectedRiverFlow = selectedRiverFlow,
@@ -74,14 +139,23 @@ fun MapEditorHeader(
             onZoomIn = onZoomIn,
             onZoomOut = onZoomOut,
             onChangeAllNoPlayToPath = onChangeAllNoPlayToPath,
+            onFillRiverRing = onFillRiverRing,
             onCollapse = onToggleExpanded,
             selectedTargetName = selectedTargetName,
             onTargetNameChange = onTargetNameChange,
             selectedTargetType = selectedTargetType,
             onTargetTypeChange = onTargetTypeChange,
+            selectedSpawnPointType = selectedSpawnPointType,
+            onSpawnPointTypeChange = onSpawnPointTypeChange,
+            backgroundImageLoaded = backgroundImageLoaded,
+            onLoadBackgroundImage = onLoadBackgroundImage,
+            onClearBackgroundImage = onClearBackgroundImage,
+            mapOverlayAlpha = mapOverlayAlpha,
+            onMapOverlayAlphaChange = onMapOverlayAlphaChange,
         )
     } else {
         CollapsedMapEditorHeader(
+            map = map,
             selectedTileType = selectedTileType,
             onTileTypeChange = onTileTypeChange,
             selectedRiverFlow = selectedRiverFlow,
@@ -89,10 +163,29 @@ fun MapEditorHeader(
             selectedRiverSpeed = selectedRiverSpeed,
             onRiverSpeedChange = onRiverSpeedChange,
             onExpand = onToggleExpanded,
+            onChangeAllNoPlayToPath = onChangeAllNoPlayToPath,
+            onFillRiverRing = onFillRiverRing,
             selectedTargetName = selectedTargetName,
             onTargetNameChange = onTargetNameChange,
             selectedTargetType = selectedTargetType,
             onTargetTypeChange = onTargetTypeChange,
+            selectedSpawnPointType = selectedSpawnPointType,
+            onSpawnPointTypeChange = onSpawnPointTypeChange,
+            backgroundImageLoaded = backgroundImageLoaded,
+            onLoadBackgroundImage = onLoadBackgroundImage,
+            onClearBackgroundImage = onClearBackgroundImage,
+            onOpenMapPreview = onOpenMapPreview,
+            showMapFlowOverlay = showMapFlowOverlay,
+            onToggleMapFlowOverlay = onToggleMapFlowOverlay,
+            showMapPathPreviewOverlay = showMapPathPreviewOverlay,
+            onToggleMapPathPreviewOverlay = onToggleMapPathPreviewOverlay,
+            showCrosshair = showCrosshair,
+            onToggleCrosshair = onToggleCrosshair,
+            onUndo = onUndo,
+            canUndo = canUndo,
+            onRedo = onRedo,
+            canRedo = canRedo,
+            onOpenAreaClipboard = onOpenAreaClipboard,
         )
     }
 }
@@ -109,6 +202,26 @@ private fun ExpandedMapEditorHeader(
     onMapAuthorChange: (String) -> Unit,
     mapToolingInfo: String,
     onMapToolingInfoChange: (String) -> Unit,
+    allowNoBuildableTiles: Boolean,
+    onAllowNoBuildableTilesChange: (Boolean) -> Unit,
+    allowNoDirectPath: Boolean,
+    onAllowNoDirectPathChange: (Boolean) -> Unit,
+    mapWidth: Int,
+    mapHeight: Int,
+    resizeLeft: String,
+    onResizeLeftChange: (String) -> Unit,
+    resizeRight: String,
+    onResizeRightChange: (String) -> Unit,
+    resizeTop: String,
+    onResizeTopChange: (String) -> Unit,
+    resizeBottom: String,
+    onResizeBottomChange: (String) -> Unit,
+    onApplyResize: () -> Unit,
+    canApplyResize: Boolean,
+    resultingMapWidth: Int,
+    resultingMapHeight: Int,
+    showUnsafeResizeWarning: Boolean,
+    mapUsageLevelNames: List<String>,
     selectedTileType: TileType,
     onTileTypeChange: (TileType) -> Unit,
     selectedRiverFlow: de.egril.defender.model.RiverFlow,
@@ -119,11 +232,19 @@ private fun ExpandedMapEditorHeader(
     onZoomIn: () -> Unit,
     onZoomOut: () -> Unit,
     onChangeAllNoPlayToPath: () -> Unit,
+    onFillRiverRing: () -> Unit,
     onCollapse: () -> Unit,
     selectedTargetName: String = "",
     onTargetNameChange: (String) -> Unit = {},
     selectedTargetType: de.egril.defender.model.TargetType = de.egril.defender.model.TargetType.STANDARD,
     onTargetTypeChange: (de.egril.defender.model.TargetType) -> Unit = {},
+    selectedSpawnPointType: de.egril.defender.model.SpawnPointType = de.egril.defender.model.SpawnPointType.LAND,
+    onSpawnPointTypeChange: (de.egril.defender.model.SpawnPointType) -> Unit = {},
+    backgroundImageLoaded: Boolean = false,
+    onLoadBackgroundImage: () -> Unit = {},
+    onClearBackgroundImage: () -> Unit = {},
+    mapOverlayAlpha: Float = 0.7f,
+    onMapOverlayAlphaChange: (Float) -> Unit = {},
 ) {
     Card(
         modifier =
@@ -199,18 +320,18 @@ private fun ExpandedMapEditorHeader(
                 }
 
                 Button(
-                    onClick = onCollapse,
-                    modifier = Modifier.height(32.dp),
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        onClick = onCollapse,
+                        modifier = Modifier.height(32.dp),
                     ) {
-                        de.egril.defender.ui.icon
-                            .TriangleUpIcon(size = 12.dp)
-                        Text(stringResource(Res.string.collapse), fontSize = 12.sp)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            de.egril.defender.ui.icon
+                                .TriangleUpIcon(size = 12.dp)
+                            Text(stringResource(Res.string.collapse), fontSize = 12.sp)
+                        }
                     }
-                }
             }
 
             // Map name input
@@ -240,24 +361,54 @@ private fun ExpandedMapEditorHeader(
                 singleLine = true,
             )
 
-            // Tile type selector
-            Text(
-                text = stringResource(Res.string.select_tile_type),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 4.dp),
-            )
-
-            LazyRow(
+            Row(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(TileType.entries.toList()) { tileType ->
-                    TileTypeButton(
-                        tileType = tileType,
-                        selected = selectedTileType == tileType,
-                        onClick = { onTileTypeChange(tileType) },
-                    )
-                }
+                Text(
+                    text = stringResource(Res.string.allow_no_buildable_tiles),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                Switch(
+                    checked = allowNoBuildableTiles,
+                    onCheckedChange = onAllowNoBuildableTilesChange,
+                    enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
+                )
+            }
+            if (allowNoBuildableTiles && !map.hasBuildablePlacementTiles()) {
+                Text(
+                    text = stringResource(Res.string.allow_no_buildable_tiles_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = stringResource(Res.string.allow_no_direct_path),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                Switch(
+                    checked = allowNoDirectPath,
+                    onCheckedChange = onAllowNoDirectPathChange,
+                    enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
+                )
+            }
+            if (allowNoDirectPath) {
+                Text(
+                    text = stringResource(Res.string.allow_no_direct_path_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
             }
 
             // River properties (shown when RIVER tile is selected)
@@ -302,6 +453,47 @@ private fun ExpandedMapEditorHeader(
                                 ) {
                                     Text(flow.name.replace("_", " "), fontSize = 10.sp)
                                 }
+
+                                if (selectedTileType == TileType.SPAWN_POINT) {
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                                        colors =
+                                            CardDefaults.cardColors(
+                                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                            ),
+                                    ) {
+                                        Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                            Text(
+                                                text = stringResource(Res.string.spawn_point_type),
+                                                style = MaterialTheme.typography.bodySmall,
+                                            )
+                                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                                de.egril.defender.model.SpawnPointType.entries.forEach { type ->
+                                                    val label =
+                                                        when (type) {
+                                                            de.egril.defender.model.SpawnPointType.LAND -> stringResource(Res.string.spawn_point_type_land)
+                                                            de.egril.defender.model.SpawnPointType.WATER -> stringResource(Res.string.spawn_point_type_water)
+                                                        }
+                                                    Button(
+                                                        onClick = { onSpawnPointTypeChange(type) },
+                                                        colors =
+                                                            ButtonDefaults.buttonColors(
+                                                                containerColor =
+                                                                    if (selectedSpawnPointType == type) {
+                                                                        MaterialTheme.colorScheme.primary
+                                                                    } else {
+                                                                        MaterialTheme.colorScheme.secondary
+                                                                    },
+                                                            ),
+                                                        modifier = Modifier.height(32.dp),
+                                                    ) {
+                                                        Text(label, fontSize = 10.sp)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -344,6 +536,21 @@ private fun ExpandedMapEditorHeader(
                             ) {
                                 Text(stringResource(Res.string.speed_fast), fontSize = 10.sp)
                             }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Button(
+                            onClick = {
+                                onTileTypeChange(TileType.SPAWN_POINT)
+                                onSpawnPointTypeChange(de.egril.defender.model.SpawnPointType.WATER)
+                            },
+                            modifier = Modifier.height(32.dp),
+                        ) {
+                            Text(
+                                "${stringResource(Res.string.spawn_point)} (${stringResource(Res.string.spawn_point_type_water)})",
+                                fontSize = 10.sp,
+                            )
                         }
                     }
                 }
@@ -402,12 +609,62 @@ private fun ExpandedMapEditorHeader(
                 }
             }
 
-            // Change All NO_PLAY to PATH button
+            // Replace tile types button
             Button(
                 onClick = onChangeAllNoPlayToPath,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
             ) {
-                Text(stringResource(Res.string.change_all_no_play_to_path))
+                Text(stringResource(Res.string.replace_tiles))
+            }
+            Button(
+                onClick = onFillRiverRing,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            ) {
+                Text(stringResource(Res.string.fill_river_ring))
+            }
+
+            // Background image controls
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
+            ) {
+                Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = stringResource(Res.string.map_background_image),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = onLoadBackgroundImage,
+                            modifier = Modifier.weight(1f).height(32.dp),
+                        ) {
+                            Text(stringResource(Res.string.map_background_image_load), fontSize = 11.sp)
+                        }
+                        if (backgroundImageLoaded) {
+                            OutlinedButton(
+                                onClick = onClearBackgroundImage,
+                                modifier = Modifier.weight(1f).height(32.dp),
+                            ) {
+                                Text(stringResource(Res.string.map_background_image_clear), fontSize = 11.sp)
+                            }
+                        }
+                    }
+                    if (backgroundImageLoaded) {
+                        Text(
+                            text = stringResource(Res.string.map_background_image_opacity),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Slider(
+                            value = mapOverlayAlpha,
+                            onValueChange = onMapOverlayAlphaChange,
+                            valueRange = 0.1f..1.0f,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
             }
 
             ZoomControls(
@@ -425,6 +682,7 @@ private fun ExpandedMapEditorHeader(
  */
 @Composable
 private fun CollapsedMapEditorHeader(
+    map: EditorMap,
     selectedTileType: TileType,
     onTileTypeChange: (TileType) -> Unit,
     selectedRiverFlow: de.egril.defender.model.RiverFlow,
@@ -432,19 +690,41 @@ private fun CollapsedMapEditorHeader(
     selectedRiverSpeed: Int,
     onRiverSpeedChange: (Int) -> Unit,
     onExpand: () -> Unit,
+    onChangeAllNoPlayToPath: () -> Unit = {},
+    onFillRiverRing: () -> Unit = {},
     selectedTargetName: String = "",
     onTargetNameChange: (String) -> Unit = {},
     selectedTargetType: de.egril.defender.model.TargetType = de.egril.defender.model.TargetType.STANDARD,
     onTargetTypeChange: (de.egril.defender.model.TargetType) -> Unit = {},
+    selectedSpawnPointType: de.egril.defender.model.SpawnPointType = de.egril.defender.model.SpawnPointType.LAND,
+    onSpawnPointTypeChange: (de.egril.defender.model.SpawnPointType) -> Unit = {},
+    backgroundImageLoaded: Boolean = false,
+    onLoadBackgroundImage: () -> Unit = {},
+    onClearBackgroundImage: () -> Unit = {},
+    onOpenMapPreview: () -> Unit = {},
+    showMapFlowOverlay: Boolean = false,
+    onToggleMapFlowOverlay: () -> Unit = {},
+    showMapPathPreviewOverlay: Boolean = false,
+    onToggleMapPathPreviewOverlay: () -> Unit = {},
+    showCrosshair: Boolean = false,
+    onToggleCrosshair: () -> Unit = {},
+    onUndo: () -> Unit = {},
+    canUndo: Boolean = false,
+    onRedo: () -> Unit = {},
+    canRedo: Boolean = false,
+    onOpenAreaClipboard: () -> Unit = {},
 ) {
     var showRiverPropertiesDialog by remember { mutableStateOf(false) }
     var showTargetPropertiesDialog by remember { mutableStateOf(false) }
+    var showSpawnPointPropertiesDialog by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
+    var showNotReadyDialog by remember { mutableStateOf(false) }
+    val validationIssues = remember(map) { map.getValidationIssues() }
 
     Card(
         modifier =
             Modifier
-                .width(280.dp)
+                .fillMaxWidth()
                 .padding(top = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
@@ -453,12 +733,17 @@ private fun CollapsedMapEditorHeader(
                 Modifier
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(8.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Tile type dropdown - styled to look like a dropdown
-            Box(modifier = Modifier.weight(1f)) {
+            Box(
+                modifier =
+                    Modifier
+                        .widthIn(min = 180.dp, max = 240.dp),
+            ) {
                 OutlinedButton(
                     onClick = { expanded = true },
                     modifier = Modifier.fillMaxWidth(),
@@ -477,20 +762,17 @@ private fun CollapsedMapEditorHeader(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                             modifier = Modifier.weight(1f),
                         ) {
-                            // Color indicator box
                             Box(
                                 modifier =
                                     Modifier
                                         .size(16.dp)
                                         .background(getTileColor(selectedTileType), shape = MaterialTheme.shapes.small),
                             )
-                            // Tile type name
                             Text(
                                 text = selectedTileType.name,
                                 fontSize = 11.sp,
                                 modifier = Modifier.weight(1f, fill = false),
                             )
-                            // River flow indicator if it's a river tile
                             if (selectedTileType == TileType.RIVER) {
                                 RiverFlowIndicator(
                                     flowDirection = selectedRiverFlow,
@@ -498,7 +780,6 @@ private fun CollapsedMapEditorHeader(
                                     size = 14.dp,
                                 )
                             }
-                            // Target type indicator if it's a target tile
                             if (selectedTileType == TileType.TARGET) {
                                 val typeLabel =
                                     when (selectedTargetType) {
@@ -512,13 +793,11 @@ private fun CollapsedMapEditorHeader(
                                 )
                             }
                         }
-                        // Dropdown triangle
                         de.egril.defender.ui.icon
                             .TriangleDownIcon(size = 10.dp)
                     }
                 }
 
-                // Dropdown menu
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
@@ -530,25 +809,24 @@ private fun CollapsedMapEditorHeader(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 ) {
-                                    // Color indicator box
                                     Box(
                                         modifier =
                                             Modifier
                                                 .size(16.dp)
                                                 .background(getTileColor(tileType), shape = MaterialTheme.shapes.small),
                                     )
-                                    // Tile type name
                                     Text(tileType.name)
                                 }
                             },
                             onClick = {
                                 onTileTypeChange(tileType)
                                 expanded = false
-                                // Show properties dialog if RIVER or TARGET is selected
                                 if (tileType == TileType.RIVER) {
                                     showRiverPropertiesDialog = true
                                 } else if (tileType == TileType.TARGET) {
                                     showTargetPropertiesDialog = true
+                                } else if (tileType == TileType.SPAWN_POINT) {
+                                    showSpawnPointPropertiesDialog = true
                                 }
                             },
                         )
@@ -556,26 +834,144 @@ private fun CollapsedMapEditorHeader(
                 }
             }
 
-            // Show target properties button when TARGET is already selected
-            if (selectedTileType == TileType.TARGET) {
+            if (selectedTileType == TileType.TARGET || selectedTileType == TileType.SPAWN_POINT) {
                 val editLabel = stringResource(Res.string.edit)
-                IconButton(
-                    onClick = { showTargetPropertiesDialog = true },
-                    modifier = Modifier.size(32.dp).semantics { contentDescription = editLabel },
-                ) {
-                    de.egril.defender.ui.icon
-                        .PencilIcon(size = 16.dp)
+                TooltipWrapper(text = editLabel) {
+                    IconButton(
+                        onClick = {
+                            if (selectedTileType == TileType.TARGET) {
+                                showTargetPropertiesDialog = true
+                            } else {
+                                showSpawnPointPropertiesDialog = true
+                            }
+                        },
+                        modifier = Modifier.size(32.dp).semantics { contentDescription = editLabel },
+                    ) {
+                        de.egril.defender.ui.icon
+                            .PencilIcon(size = 16.dp)
+                    }
                 }
             }
 
-            // Expand button - just icon, no text
+            val replaceTilesLabel = stringResource(Res.string.replace_tiles)
+            TooltipWrapper(text = replaceTilesLabel) {
+                IconButton(
+                    onClick = onChangeAllNoPlayToPath,
+                    modifier = Modifier.size(32.dp).semantics { contentDescription = replaceTilesLabel },
+                ) {
+                    de.egril.defender.ui.icon
+                        .ToolsIcon(size = 16.dp)
+                }
+            }
+
+            val bgImageLabel =
+                if (backgroundImageLoaded) {
+                    stringResource(Res.string.map_background_image_clear)
+                } else {
+                    stringResource(Res.string.map_background_image_load)
+                }
+            TooltipWrapper(text = bgImageLabel) {
+                IconButton(
+                    onClick = if (backgroundImageLoaded) onClearBackgroundImage else onLoadBackgroundImage,
+                    modifier = Modifier.size(32.dp).semantics { contentDescription = bgImageLabel },
+                ) {
+                    if (backgroundImageLoaded) {
+                        de.egril.defender.ui.icon
+                            .CrossIcon(size = 16.dp, tint = MaterialTheme.colorScheme.primary)
+                    } else {
+                        de.egril.defender.ui.icon
+                            .DownloadIcon(size = 16.dp)
+                    }
+                }
+            }
+
+            val mapPreviewLabel = stringResource(Res.string.map_preview)
+            TooltipWrapper(text = mapPreviewLabel) {
+                IconButton(
+                    onClick = onOpenMapPreview,
+                    modifier = Modifier.size(32.dp).semantics { contentDescription = mapPreviewLabel },
+                ) {
+                    de.egril.defender.ui.icon
+                        .MagnifyingGlassIcon(size = 16.dp)
+                }
+            }
+
             val expandLabel = stringResource(Res.string.expand)
-            IconButton(
-                onClick = onExpand,
-                modifier = Modifier.size(32.dp).semantics { contentDescription = expandLabel },
-            ) {
-                de.egril.defender.ui.icon
-                    .LeftArrowIcon(size = 16.dp)
+            TooltipWrapper(text = expandLabel) {
+                IconButton(
+                    onClick = onExpand,
+                    modifier = Modifier.size(32.dp).semantics { contentDescription = expandLabel },
+                ) {
+                    de.egril.defender.ui.icon
+                        .LeftArrowIcon(size = 16.dp)
+                }
+            }
+            val mapFlowValidatorLabel = stringResource(Res.string.map_flow_validator)
+            TooltipWrapper(text = mapFlowValidatorLabel) {
+                OverlayToggleButton(
+                    label = mapFlowValidatorLabel,
+                    isActive = showMapFlowOverlay,
+                    onClick = onToggleMapFlowOverlay,
+                )
+            }
+            val mapPathPreviewLabel = stringResource(Res.string.map_path_preview)
+            TooltipWrapper(text = mapPathPreviewLabel) {
+                OverlayToggleButton(
+                    label = mapPathPreviewLabel,
+                    isActive = showMapPathPreviewOverlay,
+                    onClick = onToggleMapPathPreviewOverlay,
+                )
+            }
+            val mapCrosshairLabel = stringResource(Res.string.map_crosshair)
+            TooltipWrapper(text = mapCrosshairLabel) {
+                OverlayToggleButton(
+                    label = mapCrosshairLabel,
+                    isActive = showCrosshair,
+                    onClick = onToggleCrosshair,
+                )
+            }
+            if (validationIssues.isNotEmpty()) {
+                val notReadyLabel = stringResource(Res.string.map_not_ready_indicator)
+                TooltipWrapper(text = notReadyLabel) {
+                    IconButton(
+                        onClick = { showNotReadyDialog = true },
+                        modifier = Modifier.size(32.dp).semantics { contentDescription = notReadyLabel },
+                    ) {
+                        RedCircleIcon(size = 16.dp)
+                    }
+                }
+            }
+            val fillRiverRingLabel = stringResource(Res.string.fill_river_ring)
+            TooltipWrapper(text = fillRiverRingLabel) {
+                IconButton(
+                    onClick = onFillRiverRing,
+                    modifier = Modifier.size(32.dp).semantics { contentDescription = fillRiverRingLabel },
+                ) {
+                    WaterIcon(size = 16.dp)
+                }
+            }
+            val undoLabel = stringResource(Res.string.undo)
+            TooltipWrapper(text = undoLabel) {
+                AssistChip(
+                    onClick = onUndo,
+                    enabled = canUndo,
+                    label = { Text(undoLabel, fontSize = 11.sp) },
+                )
+            }
+            val redoLabel = stringResource(Res.string.redo)
+            TooltipWrapper(text = redoLabel) {
+                AssistChip(
+                    onClick = onRedo,
+                    enabled = canRedo,
+                    label = { Text(redoLabel, fontSize = 11.sp) },
+                )
+            }
+            val areaClipboardLabel = stringResource(Res.string.area_clipboard)
+            TooltipWrapper(text = areaClipboardLabel) {
+                AssistChip(
+                    onClick = onOpenAreaClipboard,
+                    label = { Text(areaClipboardLabel, fontSize = 11.sp) },
+                )
             }
         }
     }
@@ -684,6 +1080,22 @@ private fun CollapsedMapEditorHeader(
                             Text(stringResource(Res.string.speed_fast), fontSize = 10.sp)
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = {
+                            onTileTypeChange(TileType.SPAWN_POINT)
+                            onSpawnPointTypeChange(de.egril.defender.model.SpawnPointType.WATER)
+                            showRiverPropertiesDialog = false
+                        },
+                        modifier = Modifier.height(32.dp),
+                    ) {
+                        Text(
+                            "${stringResource(Res.string.spawn_point)} (${stringResource(Res.string.spawn_point_type_water)})",
+                            fontSize = 10.sp,
+                        )
+                    }
                 }
             },
             confirmButton = {
@@ -732,6 +1144,51 @@ private fun CollapsedMapEditorHeader(
                             ) {
                                 Text(label, fontSize = 11.sp)
                             }
+
+                            if (showSpawnPointPropertiesDialog) {
+                                AlertDialog(
+                                    onDismissRequest = { showSpawnPointPropertiesDialog = false },
+                                    title = { Text(stringResource(Res.string.spawn_point_type)) },
+                                    text = {
+                                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                                de.egril.defender.model.SpawnPointType.entries.forEach { type ->
+                                                    val label =
+                                                        when (type) {
+                                                            de.egril.defender.model.SpawnPointType.LAND -> stringResource(Res.string.spawn_point_type_land)
+                                                            de.egril.defender.model.SpawnPointType.WATER -> stringResource(Res.string.spawn_point_type_water)
+                                                        }
+                                                    Button(
+                                                        onClick = { onSpawnPointTypeChange(type) },
+                                                        colors =
+                                                            ButtonDefaults.buttonColors(
+                                                                containerColor =
+                                                                    if (selectedSpawnPointType == type) {
+                                                                        MaterialTheme.colorScheme.primary
+                                                                    } else {
+                                                                        MaterialTheme.colorScheme.secondary
+                                                                    },
+                                                            ),
+                                                        modifier = Modifier.height(36.dp),
+                                                    ) {
+                                                        Text(label, fontSize = 11.sp)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    confirmButton = {
+                                        Button(onClick = { showSpawnPointPropertiesDialog = false }) {
+                                            Text(stringResource(Res.string.ok))
+                                        }
+                                    },
+                                    dismissButton = {
+                                        Button(onClick = { showSpawnPointPropertiesDialog = false }) {
+                                            Text(stringResource(Res.string.cancel))
+                                        }
+                                    },
+                                )
+                            }
                         }
                     }
                 }
@@ -750,6 +1207,94 @@ private fun CollapsedMapEditorHeader(
                 }
             },
         )
+    }
+
+    // "Map not ready" details dialog, opened via the red dot indicator in the header.
+    if (showNotReadyDialog) {
+        AlertDialog(
+            onDismissRequest = { showNotReadyDialog = false },
+            title = { Text(stringResource(Res.string.map_not_ready_dialog_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    validationIssues.forEach { issue ->
+                        val issueText =
+                            when (issue) {
+                                MapValidationIssue.INVALID_MAP_DATA -> stringResource(Res.string.map_validation_invalid_map_data)
+                                MapValidationIssue.UNSUPPORTED_SIZE -> stringResource(Res.string.map_validation_unsupported_size)
+                                MapValidationIssue.NO_SPAWN_POINT -> stringResource(Res.string.map_validation_no_spawn_point)
+                                MapValidationIssue.NO_TARGET -> stringResource(Res.string.map_validation_no_target)
+                                MapValidationIssue.NO_BUILDABLE_TILES -> stringResource(Res.string.map_validation_no_buildable_tiles)
+                                MapValidationIssue.NO_PATH_FROM_SPAWN_TO_TARGET ->
+                                    stringResource(Res.string.map_validation_no_path_from_spawn_to_target)
+                            }
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("•")
+                            Text(issueText)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showNotReadyDialog = false }) {
+                    Text(stringResource(Res.string.ok))
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun CompactToggleChip(
+    label: String,
+    active: Boolean,
+    onClick: () -> Unit,
+) {
+    AssistChip(
+        onClick = onClick,
+        label = { Text(label, fontSize = 11.sp) },
+        colors =
+            AssistChipDefaults.assistChipColors(
+                containerColor =
+                    if (active) {
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    },
+                labelColor =
+                    if (active) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+            ),
+    )
+}
+
+@Composable
+internal fun OverlayToggleButton(
+    label: String,
+    isActive: Boolean,
+    onClick: () -> Unit,
+) {
+    Button(
+        onClick = onClick,
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor =
+                    if (isActive) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    },
+                contentColor =
+                    if (isActive) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+            ),
+    ) {
+        Text(label)
     }
 }
 

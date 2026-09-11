@@ -103,6 +103,24 @@ class NewEnemiesTest {
     }
 
     @Test
+    fun testPirateIsNotImmuneToAnyTowerAttackType() {
+        val pirate =
+            Attacker(
+                id = 1,
+                type = AttackerType.PIRATE,
+                position = mutableStateOf(Position(0, 0)),
+                level = mutableStateOf(1),
+            )
+
+        assertTrue(pirate.canBeDamagedByFireball(), "Pirate should be damaged by fireballs")
+        assertTrue(pirate.canBeDamagedByAcid(), "Pirate should be damaged by acid")
+        assertFalse(pirate.isImmuneToAttackFrom(DefenderType.WIZARD_TOWER), "Pirate should not be immune to wizard attacks")
+        assertFalse(pirate.isImmuneToAttackFrom(DefenderType.ALCHEMY_TOWER), "Pirate should not be immune to alchemy attacks")
+        assertFalse(pirate.isImmuneToAttackFrom(DefenderType.BOW_TOWER), "Pirate should not be immune to ranged attacks")
+        assertFalse(pirate.isImmuneToAttackFrom(DefenderType.SPIKE_TOWER), "Pirate should not be immune to melee attacks")
+    }
+
+    @Test
     fun testTowerDisableStatus() {
         val tower =
             Defender(

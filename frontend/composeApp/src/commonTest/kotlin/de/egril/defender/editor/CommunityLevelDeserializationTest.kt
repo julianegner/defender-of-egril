@@ -46,6 +46,7 @@ class CommunityLevelDeserializationTest {
   "height": 1,
   "readyToUse": true,
   "isOfficial": $isOfficial$authorJson,
+  "allowNoBuildableTiles": true,
   "tiles": {
     "0,0": "SPAWN_POINT",
     "1,0": "PATH",
@@ -271,6 +272,7 @@ class CommunityLevelDeserializationTest {
                 isCommunity = true,
                 author = "community_author",
                 communityAuthorUsername = "community_author",
+                allowNoBuildableTiles = true,
             )
 
         val json = EditorJsonSerializer.serializeMap(original)
@@ -341,6 +343,7 @@ class CommunityLevelDeserializationTest {
                         "4,0" to TileType.TARGET,
                     ),
                 readyToUse = true,
+                allowNoBuildableTiles = true,
             )
 
         val json = EditorJsonSerializer.serializeMap(mapWithBraceName)
@@ -372,6 +375,7 @@ class CommunityLevelDeserializationTest {
                         "4,0" to TileType.TARGET,
                     ),
                 readyToUse = true,
+                allowNoBuildableTiles = true,
             )
 
         val json = EditorJsonSerializer.serializeMap(mapWithBraceAuthor)
@@ -401,6 +405,7 @@ class CommunityLevelDeserializationTest {
                         "4,0" to TileType.TARGET,
                     ),
                 readyToUse = true,
+                allowNoBuildableTiles = true,
             )
 
         val json = EditorJsonSerializer.serializeMap(mapWithSpecialName)

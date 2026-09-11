@@ -20,7 +20,6 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.a11y.a11ySemantics
 import de.egril.defender.ui.animations.SpellDoubleLevelColor
 import de.egril.defender.ui.animations.SpellDoubleReachColor
-import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.gameplay.defenderButtons.TowerStats
 import de.egril.defender.ui.icon.HammerIcon
 import de.egril.defender.ui.icon.InfoIcon
@@ -263,6 +262,21 @@ fun DefenderInfo(
                                 Modifier
                                     .width(240.dp)
                                     .height(buttonHeight),
+                        )
+                    }
+                }
+
+                if (defender.isGrippedByKraken.value) {
+                    Spacer(modifier = Modifier.width(horizontalSpacing))
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            stringResource(Res.string.villain_kraken_barge_grip_short),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = GamePlayColors.ErrorDark,
+                            fontWeight = FontWeight.Bold,
                         )
                     }
                 }

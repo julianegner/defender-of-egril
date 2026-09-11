@@ -15,10 +15,10 @@
     },
     {
       "id": "the_beginning",
-      "name": "The Beginning",
-      "nameKey": "location_the_beginning_name",
+      "name": "Gribnak's Ambush",
+      "nameKey": "location_gribnaks_ambush_name",
       "position": {"x": 167, "y": 589},
-      "levelIds": ["the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises"],
+      "levelIds": ["gribnaks_ambush"],
       "iconResourceName": "start"
     },
     {
