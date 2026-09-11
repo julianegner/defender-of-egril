@@ -724,7 +724,7 @@
     <string name="initial_setup_click_to_place">Haz clic en el mapa para colocar el elemento seleccionado</string>
     <string name="initial_setup_tile">Casilla:</string>
     <string name="initial_setup">Configuración Inicial</string>
-    <string name="initial_setup_info">Coloca torres, enemigos, trampas, barricadas y feudos en el mapa antes de que comience el nivel (opcional)</string>
+    <string name="initial_setup_info">Coloca torres, enemigos, trampas, barricadas, puentes y feudos en el mapa antes de que comience el nivel (opcional)</string>
     <string name="initial_setup_towers">Torres</string>
     <string name="initial_setup_enemies">Enemigos</string>
     <string name="initial_setup_traps">Trampas</string>
@@ -752,6 +752,11 @@
     <string name="enemy_configuration">Configuración de Enemigo</string>
     <string name="trap_configuration">Configuración de Trampa</string>
     <string name="barricade_configuration">Configuración de Barricada</string>
+    <string name="bridge_configuration">Configuración de Puente</string>
+    <string name="bridges">Puentes</string>
+    <string name="wooden_bridge">Puente de Madera</string>
+    <string name="stone_bridge">Puente de Piedra</string>
+    <string name="indestructible">Indestructible</string>
     <string name="selected_element">Elemento Seleccionado</string>
     <string name="health_points">Puntos de Salud</string>
     <string name="level_label">Nivel</string>
@@ -990,7 +995,7 @@
     <string name="river_info_placement">¡Puedes colocar torres en casillas de río! Cuando lo hagas, se colocarán en balsas.</string>
     <string name="river_info_movement">Las balsas se mueven automáticamente con el flujo del río al final de cada turno. La velocidad del flujo determina cuántas casillas se mueven (1 o 2 casillas).</string>
     <string name="river_info_destruction">Las balsas se destruyen si alcanzan un remolino o se mueven fuera de los límites del mapa. La torre en la balsa también se destruye.</string>
-    <string name="river_info_bridges">Los puentes bloquean el movimiento de las balsas. Las balsas no pueden pasar a través de puentes que cruzan el río. Múltiples balsas en el mismo río se mueven en orden - las que están río abajo se mueven primero.</string>
+    <string name="river_info_bridges">Los puentes no bloquean el movimiento de las balsas. Las balsas pasan sobre las casillas de puente y continúan siguiendo la corriente del río. Varias balsas en el mismo río se mueven en orden: las que están río abajo se mueven primero.</string>
 
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">No se puede colocar mina en el río</string>
@@ -1631,6 +1636,7 @@
     <string name="debug_display_tile_borders">Mostrar bordes de celdas</string>
     <string name="debug_display_tile_positions">Mostrar posiciones de celdas</string>
     <string name="debug_display_map_size">Mostrar tamaño del mapa</string>
+    <string name="debug_display_enemy_path">Mostrar ruta del enemigo</string>
     <string name="debug_map_size_overlay">Mapa hex: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContenido: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nVista: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nDesplazamiento: %13$d, %14$d</string>
 
     <!-- XP System -->

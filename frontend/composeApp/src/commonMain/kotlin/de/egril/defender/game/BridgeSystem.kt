@@ -348,7 +348,7 @@ class BridgeSystem(
             }
 
             // Check if bridge is destroyed by damage
-            if (bridge.currentHealth.value <= 0 && bridge.type != BridgeType.MAGICAL) {
+            if (bridge.currentHealth.value <= 0 && bridge.type != BridgeType.MAGICAL && !bridge.isIndestructible) {
                 bridge.isDestroyed.value = true
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("${bridge.type} bridge ${bridge.id} destroyed at ${bridge.positions}")

@@ -1632,12 +1632,34 @@ class GameViewModel {
         }
     }
 
+    private fun schedulePendingBridgeDamageAfterAttack() {
+        val currentState = _gameState.value ?: return
+        if (currentState.pendingBridgeDamage.isEmpty()) return
+
+        viewModelScope.launch {
+            val flightDelayMs =
+                if (
+                    currentState.ballistaAttackEffects.any { it.turnNumber == currentState.turnNumber.value } ||
+                    currentState.wizardAttackEffects.any { it.turnNumber == currentState.turnNumber.value } ||
+                    currentState.alchemyAttackEffects.any { it.turnNumber == currentState.turnNumber.value }
+                ) {
+                    GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                } else {
+                    GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                }
+
+            delay(flightDelayMs + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
+            gameEngine?.processPendingBridgeDamage()
+        }
+    }
+
     fun defenderAttack(
         defenderId: Int,
         targetId: Int,
     ): Boolean {
         val result = gameEngine?.defenderAttack(defenderId, targetId) ?: false
         if (result) {
+            schedulePendingBridgeDamageAfterAttack()
             // Surface any messages queued by the attack (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
             surfaceNextPendingMessageIfIdle()
             // Check for immediate level end after attack
@@ -1658,6 +1680,7 @@ class GameViewModel {
     ): Boolean {
         val result = gameEngine?.defenderAttackPosition(defenderId, targetPosition) ?: false
         if (result) {
+            schedulePendingBridgeDamageAfterAttack()
             // triggerStateUpdate()
 
             // Surface any messages queued by the attack (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
@@ -1920,7 +1943,7 @@ class GameViewModel {
                         GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     }
 
-                // Wait for the projectile to arrive visually
+                // Wait for the projectile to arrive visually.
                 delay(flightDelayMs)
 
                 if (enemiesKilled) {
@@ -1929,8 +1952,12 @@ class GameViewModel {
                     delay(GamePlayConstants.AnimationTimings.COIN_GAIN_DELAY_AFTER_DEATH_MS)
                     delay(GamePlayConstants.AnimationTimings.COIN_GAIN_ANIMATION_DURATION_MS)
                 } else {
-                    // No kills — just let the impact flash finish
+                    // No kills — just let the impact flash finish.
                     delay(GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
+                }
+
+                if (currentState.pendingBridgeDamage.isNotEmpty()) {
+                    engine.processPendingBridgeDamage()
                 }
             }
 
@@ -4359,6 +4386,14 @@ class GameViewModel {
                                 "Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} at $position (HP: ${attacker.currentHealth.value})",
                             )
                         }
+                    } else {
+                        val bridge = gameState.getBridgeAt(position)
+                        if (bridge != null && bridge.isActive) {
+                            bridge.takeDamage(80)
+                            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                                println("Attack Aimed: Dealt 80 damage to bridge at $position (HP: ${bridge.currentHealth.value})")
+                            }
+                        }
                     }
                 }
             }
@@ -4388,6 +4423,9 @@ class GameViewModel {
                             damagedCount++
                         }
                     }
+                    gameState.bridges
+                        .filter { it.isActive && it.positions.any { bridgePosition -> bridgePosition.hexDistanceTo(position) <= 2 } }
+                        .forEach { it.takeDamage(50) }
                     if (LogConfig.ENABLE_SPELL_LOGGING) {
                         println("Attack Area: Dealt 50 damage to $damagedCount enemies within 2 hex range of $position")
                     }
@@ -4593,7 +4631,7 @@ class GameViewModel {
                         }
                         positions
                     } else if (spell == SpellType.ATTACK_AREA) {
-                        // Attack Area: only path tiles without a barricade
+                        // Attack Area: enemy-occupiable tiles (path/spawn/river/bridge) without a barricade
                         val occupiedByBarricade =
                             gameState.barricades
                                 .filter { !it.isDestroyed() }
@@ -4603,18 +4641,25 @@ class GameViewModel {
                         for (x in 0 until gameState.level.gridWidth) {
                             for (y in 0 until gameState.level.gridHeight) {
                                 val pos = Position(x, y)
-                                if (gameState.level.isOnPath(pos) && pos !in occupiedByBarricade) {
+                                if ((gameState.level.isEnemyOccupiable(pos) || gameState.isBridgeAt(pos)) && pos !in occupiedByBarricade) {
                                     positions.add(pos)
                                 }
                             }
                         }
                         positions
                     } else if (spell == SpellType.ATTACK_AIMED) {
-                        // Attack Aimed: only tiles that have an enemy on them
-                        gameState.attackers
-                            .filter { !it.isDefeated.value }
-                            .map { it.position.value }
-                            .toSet()
+                        // Attack Aimed: tiles that have an enemy or active bridge on them
+                        val attackerPositions =
+                            gameState.attackers
+                                .filter { !it.isDefeated.value }
+                                .map { it.position.value }
+                                .toSet()
+                        val bridgePositions =
+                            gameState.bridges
+                                .filter { it.isActive }
+                                .flatMap { it.positions }
+                                .toSet()
+                        attackerPositions + bridgePositions
                     } else {
                         // All tiles on the map are valid positions for other spells
                         val positions = mutableSetOf<Position>()

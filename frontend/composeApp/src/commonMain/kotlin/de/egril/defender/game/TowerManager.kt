@@ -45,11 +45,18 @@ class TowerManager(
             state.infoState.value = state.infoState.value.showInfo(InfoType.MINE_ON_RIVER_WARNING)
             return false
         }
+        // Dwarven Mines cannot be placed on tower bases (barricades), only on build areas.
+        if (type == DefenderType.DWARVEN_MINE && isOnTowerBase) {
+            return false
+        }
 
         // Cannot place barges on still water (NONE or MAELSTROM) river tiles — silently ignore like NO_PLAY
         if (isRiverPlacement) {
             val riverTile = state.level.getRiverTile(position)
             if (riverTile != null && (riverTile.flowDirection == RiverFlow.NONE || riverTile.flowDirection == RiverFlow.MAELSTROM)) {
+                return false
+            }
+            if (state.isBridgeAt(position)) {
                 return false
             }
         }

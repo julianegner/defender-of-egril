@@ -15,12 +15,14 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.InitialData
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.BridgeType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.FiefType
 import de.egril.defender.model.Position
@@ -43,6 +45,7 @@ enum class PlacementMode {
     ATTACKER, // Enemies: PATH or SPAWN_POINT
     TRAP, // Traps: PATH
     BARRICADE, // Barricades: PATH
+    BRIDGE, // Bridges: RIVER
     FIEF, // Fiefs: PATH
     MUSHROOM, // Mushrooms: PATH
     PORTAL, // Portals: any PATH/SPAWN_POINT/TARGET tile
@@ -84,6 +87,7 @@ fun isValidPlacement(
         }
         PlacementMode.TRAP -> tileType == TileType.PATH
         PlacementMode.BARRICADE -> tileType == TileType.PATH
+        PlacementMode.BRIDGE -> tileType == TileType.RIVER || map.getRiverTile(position.x, position.y) != null
         PlacementMode.FIEF -> tileType == TileType.PATH
         PlacementMode.MUSHROOM -> tileType == TileType.PATH
         PlacementMode.PORTAL -> tileType == TileType.PATH || tileType == TileType.SPAWN_POINT || tileType == TileType.TARGET
@@ -277,6 +281,7 @@ fun InitialSetupMinimap(
                 val hasAttacker = initialData.attackers.any { it.position == pos }
                 val hasTrap = initialData.traps.any { it.position == pos }
                 val hasBarricade = initialData.barricades.any { it.position == pos }
+                val hasBridge = initialData.bridges.any { it.position == pos }
                 val hasFief = initialData.fiefs.any { it.position == pos }
                 val hasMushroom = initialData.mushrooms.any { it.position == pos }
                 val barricadeAtPos = initialData.barricades.find { it.position == pos }
@@ -291,7 +296,7 @@ fun InitialSetupMinimap(
                                 map,
                                 selectedDefenderType = selectedDefenderType,
                             ) ||
-                                (isTowerBase && !hasDefender)
+                                (isTowerBase && !hasDefender && selectedDefenderType != DefenderType.DWARVEN_MINE)
                         PlacementMode.FIEF -> {
                             val isPath = isValidPlacement(pos, placementMode, map)
                             val isFisher = selectedFiefType == FiefType.FISHER
@@ -325,6 +330,8 @@ fun InitialSetupMinimap(
                         is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Barricade ->
                             selectedElement.barricade.position ==
                                 pos
+                        is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Bridge ->
+                            selectedElement.bridge.position == pos
                         is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Fief ->
                             selectedElement.fief.position == pos
                         is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Mushroom ->
@@ -338,14 +345,14 @@ fun InitialSetupMinimap(
                 // Validation checks for placement conflicts
                 // Rule: Only one element (tower, trap, barricade, OR unit) is possible on a tile,
                 //       except towers can be placed on top of barricades that support towers (HP >= 100)
-                val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade || hasFief || hasMushroom
+                val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade || hasBridge || hasFief || hasMushroom
                 val hasConflict =
                     when (placementMode) {
                         PlacementMode.DEFENDER ->
                             // Allow tower on tower base as long as no tower is already there
-                            if (isTowerBase && !hasDefender) false else hasAnyElement
+                            if (isTowerBase && !hasDefender && selectedDefenderType != DefenderType.DWARVEN_MINE) false else hasAnyElement
                         PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE,
-                        PlacementMode.FIEF, PlacementMode.MUSHROOM,
+                        PlacementMode.BRIDGE, PlacementMode.FIEF, PlacementMode.MUSHROOM,
                         -> hasAnyElement
                         else -> false
                     }
@@ -429,6 +436,39 @@ fun InitialSetupMinimap(
                 color = Color(0xFF8D6E63),
                 topLeft = Offset(centerX - iconSize / 2, centerY - iconSize / 2),
                 size = Size(iconSize, iconSize),
+            )
+        }
+
+        // Draw bridges
+        initialData.bridges.forEach { bridge ->
+            val offsetXHex = if (bridge.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+            val centerX = geometry.offsetXCanvas + bridge.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
+            val centerY = geometry.offsetYCanvas + bridge.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
+            val color =
+                when (bridge.type) {
+                    BridgeType.WOODEN -> Color(0xFF8B4513)
+                    BridgeType.STONE -> Color(0xFF808080)
+                    BridgeType.MAGICAL -> Color(0xFFFF00FF)
+                }
+            val arcWidth = iconSize
+            val arcHeight = iconSize * 0.6f
+            drawArc(
+                color = color,
+                startAngle = 180f,
+                sweepAngle = 180f,
+                useCenter = false,
+                topLeft = Offset(centerX - arcWidth / 2, centerY - arcHeight / 2 - iconSize * 0.15f),
+                size = Size(arcWidth, arcHeight),
+                style = Stroke(width = 1.6f),
+            )
+            drawArc(
+                color = color,
+                startAngle = 180f,
+                sweepAngle = 180f,
+                useCenter = false,
+                topLeft = Offset(centerX - arcWidth / 2, centerY - arcHeight / 2 + iconSize * 0.15f),
+                size = Size(arcWidth, arcHeight),
+                style = Stroke(width = 1.6f),
             )
         }
 

@@ -109,4 +109,37 @@ class InitialSetupPlacementRulesTest {
             ),
         )
     }
+
+    @Test
+    fun bridgeCanBePlacedOnRiverTile() {
+        val waterPos = Position(1, 1)
+        val map = mapWithFlowingWaterAt(waterPos)
+
+        assertTrue(
+            isValidPlacement(
+                position = waterPos,
+                mode = PlacementMode.BRIDGE,
+                map = map,
+            ),
+        )
+    }
+
+    @Test
+    fun bridgeCannotBePlacedOnPathTile() {
+        val map =
+            EditorMap(
+                id = "test-map",
+                width = 4,
+                height = 4,
+                tiles = mapOf("1,1" to TileType.PATH),
+            )
+
+        assertFalse(
+            isValidPlacement(
+                position = Position(1, 1),
+                mode = PlacementMode.BRIDGE,
+                map = map,
+            ),
+        )
+    }
 }

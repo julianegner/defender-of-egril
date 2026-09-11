@@ -163,18 +163,18 @@ internal fun analyzeLevelDesign(
         )
     }
 
-    val routeContext = map?.buildRouteContext(level.waypoints)
+    val routeContext = map?.buildRouteContext(level)
     val arrivalBuckets =
         level.enemySpawns
             .mapNotNull { spawn ->
-                estimateArrivalTurn(spawn, map, level.waypoints, routeContext)?.let { arrivalTurn ->
+                estimateArrivalTurn(spawn, map, level, routeContext)?.let { arrivalTurn ->
                     arrivalTurn to spawn
                 }
             }.groupBy({ it.first }, { it.second })
     val previews =
         (1..maxTurn).map { turn ->
             val spawns = level.enemySpawns.filter { it.spawnTurn == turn }
-            val arrivals = spawns.mapNotNull { spawn -> estimateArrivalTurn(spawn, map, level.waypoints, routeContext) }
+            val arrivals = spawns.mapNotNull { spawn -> estimateArrivalTurn(spawn, map, level, routeContext) }
             TurnPressurePreview(
                 turn = turn,
                 enemyCount = spawns.size,
@@ -281,10 +281,10 @@ internal fun buildWaveArrivalBuckets(
     level: EditorLevel,
     map: EditorMap?,
 ): List<WaveArrivalBucket> {
-    val routeContext = map?.buildRouteContext(level.waypoints)
+    val routeContext = map?.buildRouteContext(level)
     return level.enemySpawns
         .mapNotNull { spawn ->
-            estimateArrivalTurn(spawn, map, level.waypoints, routeContext)?.let { arrivalTurn ->
+            estimateArrivalTurn(spawn, map, level, routeContext)?.let { arrivalTurn ->
                 arrivalTurn to spawn
             }
         }.groupBy({ it.first }, { it.second })
@@ -619,7 +619,7 @@ private fun spawnPressureScore(spawn: EditorEnemySpawn): Double {
 private fun estimateArrivalTurn(
     spawn: EditorEnemySpawn,
     map: EditorMap?,
-    waypoints: List<EditorWaypoint>,
+    level: EditorLevel,
     routeContext: RouteContext?,
 ): Int? {
     val chosenSpawnPoint =
@@ -633,7 +633,7 @@ private fun estimateArrivalTurn(
                 map?.getTargets()?.minOfOrNull { target -> chosenSpawnPoint.distanceTo(target) } ?: return null
             }
             else -> {
-                val distances = routeContext?.distances ?: map.buildRouteContext(waypoints).distances
+                val distances = routeContext?.distances ?: map.buildRouteContext(level).distances
                 distances[chosenSpawnPoint] ?: return null
             }
         }
@@ -646,9 +646,19 @@ private fun estimateArrivalTurn(
     return spawn.spawnTurn + travelTurns
 }
 
-private fun EditorMap?.buildRouteContext(waypoints: List<EditorWaypoint>): RouteContext {
+private fun EditorMap?.buildRouteContext(level: EditorLevel): RouteContext {
     if (this == null) return RouteContext(emptyMap(), emptySet())
-    val traversableCells = getPathCells() + getSpawnPoints() + getTargets() + getRiverCells() + waypoints.map { it.position }
+    val initialData = level.getEffectiveInitialData()
+    val blockedByBarricades = initialData.barricades.mapTo(mutableSetOf()) { it.position }
+    val bridgeCells = initialData.bridges.mapTo(mutableSetOf()) { it.position }
+    val traversableCells =
+        (
+            getPathCells() +
+                getSpawnPoints() +
+                getTargets() +
+                level.waypoints.map { it.position } +
+                bridgeCells
+        ) - blockedByBarricades
     return RouteContext(
         distances = computeDistancesToTargets(traversableCells, getTargets(), width, height),
         traversableCells = traversableCells,
@@ -724,6 +734,7 @@ private fun countInitialPlacementIssues(
             initialData.attackers.size +
             initialData.traps.size +
             initialData.barricades.size +
+            initialData.bridges.size +
             initialData.fiefs.size
     }
     val buildAreas = map.getBuildAreas()
@@ -734,6 +745,7 @@ private fun countInitialPlacementIssues(
         initialData.attackers.count { it.position !in traversable } +
         initialData.traps.count { it.position !in traversable } +
         initialData.barricades.count { !it.position.isInside(map.width, map.height) } +
+        initialData.bridges.count { it.position !in map.getRiverCells() } +
         initialData.fiefs.count { it.position !in traversable }
 }
 

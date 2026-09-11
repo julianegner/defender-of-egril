@@ -729,12 +729,82 @@ internal fun displayedRiverTile(
     sandboxPaintedRiverTile: RiverTile?,
 ): RiverTile? = sandboxPaintedRiverTile ?: levelRiverTile
 
+internal fun plannedEnemyPathForDisplay(
+    gameState: GameState,
+    attacker: Attacker,
+): List<Position>? {
+    if (attacker.isDefeated.value) {
+        return null
+    }
+    val pathfinding = PathfindingSystem(gameState)
+
+    // Enemies do not walk in a single straight A* line to the final target: they follow a chain
+    // of waypoints (attacker.currentTarget is only the NEXT waypoint, not the final destination —
+    // see EnemyMovementSystem.canReachTargetNextTurn for the equivalent real-movement logic).
+    // A single findPath(start, finalTarget) call therefore either returns just the next short
+    // segment (when using currentTarget) or can fail to resolve a long, winding, cost-inflated
+    // route within the A* iteration cap (when aiming straight at the final target). To display the
+    // WHOLE planned route we must replicate the same waypoint-by-waypoint chaining used by actual
+    // enemy movement, concatenating each resolved segment until an active target is reached.
+    var position = attacker.position.value
+    var target =
+        attacker.currentTarget?.value
+            ?: gameState.getActiveTargetPositions().minByOrNull { position.distanceTo(it) }
+            ?: gameState.level.targetPositions.firstOrNull()
+            ?: return null
+
+    val fullPath = mutableListOf(position)
+    val visitedWaypointTargets = mutableSetOf<Position>()
+    val maxSegments = 200 // Safety guard against pathological waypoint loops
+
+    for (segmentIndex in 0 until maxSegments) {
+        // Use the unweighted BFS search (not findPath's cost-inflated A*) so a long / winding
+        // segment can never silently fall back to a single-step path (see findSimplePath kdoc).
+        // Prefer the real, barricade-respecting route first (what the enemy can actually walk
+        // right now). Only if that yields no full path to this segment's target do we fall back
+        // to the cheapest route through barricades (findPathThroughBarricades weighs both distance
+        // and barricade-destruction time — see its kdoc), keeping the preview consistent with the
+        // enemy's actual movement/fallback logic in Movement.kt.
+        var segment = pathfinding.findSimplePath(position, target, attacker)
+        if (segment.size < 2 || segment.last() != target) {
+            val segmentThroughBarricades = pathfinding.findPathThroughBarricades(position, target, attacker)
+            if (segmentThroughBarricades.size >= 2 && segmentThroughBarricades.last() == target) {
+                segment = segmentThroughBarricades
+            }
+        }
+        if (segment.size < 2) {
+            break // No progress possible towards this segment's target
+        }
+
+        fullPath.addAll(segment.drop(1))
+        position = segment.last()
+
+        if (gameState.isActiveTargetPosition(position)) {
+            break // Reached an active final target — the preview stops here
+        }
+
+        if (position != target) {
+            break // Segment couldn't fully reach its target (blocked) — stop to avoid looping
+        }
+
+        val nextWaypointTarget = gameState.level.getWaypointAt(position)?.nextTarget
+        if (nextWaypointTarget == null || !visitedWaypointTargets.add(target)) {
+            break // No further waypoint, or this waypoint target was already used (loop guard)
+        }
+        target = nextWaypointTarget
+    }
+
+    return fullPath.takeIf { it.size > 1 }
+}
+
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GameGrid(
     gameState: GameState,
     selectedDefenderType: DefenderType?,
     selectedDefenderId: Int?,
+    selectedAttackerId: Int? = null,
     selectedTargetId: Int?,
     selectedTargetPosition: Position?,
     selectedMineAction: MineAction?,
@@ -839,6 +909,25 @@ fun GameGrid(
     val selectedDefenderActions = selectedDefender?.actionsRemaining?.value
     val freyaShieldWallArcs = gameState.freyaShieldWallArcs()
 
+    val selectedEnemyPathPositions: Set<Position> by remember(
+        selectedAttackerId,
+        gameState.attackers.size,
+        gameState.attackers.map { it.position.value },
+        gameState.turnNumber.value,
+        AppSettings.showEnemyPathfinding.value,
+    ) {
+        derivedStateOf {
+            if (!AppSettings.showEnemyPathfinding.value || selectedAttackerId == null) {
+                emptySet()
+            } else {
+                val selectedEnemy =
+                    gameState.attackers.find { it.id == selectedAttackerId && !it.isDefeated.value }
+                        ?: return@derivedStateOf emptySet()
+                plannedEnemyPathForDisplay(gameState, selectedEnemy)?.drop(1)?.toSet() ?: emptySet()
+            }
+        }
+    }
+
     val targetCircleMap =
         remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size) {
             if (selectedTargetPosition == null || selectedDefenderId == null || selectedDefender == null) {
@@ -880,10 +969,16 @@ fun GameGrid(
                         if (hasMagicalBridge && !hasEnemy && attackType != AttackType.AREA && attackType != AttackType.LASTING) {
                             emptyMap()
                         } else {
+                            val isSingleTargetBridgeOnly =
+                                (attackType == AttackType.MELEE || attackType == AttackType.RANGED) &&
+                                    gameState.isBridgeAt(selectedTargetPosition) &&
+                                    !hasEnemy
+                            val effectiveMarkerColor = if (isSingleTargetBridgeOnly) Color.LightGray else markerColor
+
                             // Central target tile
                             result[selectedTargetPosition] =
                                 TargetCircleInfo.CentralTarget(
-                                    color = markerColor,
+                                    color = effectiveMarkerColor,
                                     attackType = attackType,
                                     isExtendedArea = isExtendedArea,
                                 )
@@ -1231,14 +1326,24 @@ fun GameGrid(
             gameState.level.buildAreas + flowingRiver
         }
 
-    // Subset of structurally buildable positions that are currently unoccupied (no defender,
-    // no active attacker). derivedStateOf re-evaluates when defendersByPosition or
-    // activeAttackersByPosition change. remember(gameState.level) re-creates the derived
-    // state when the level changes (so the new structurallyBuildablePositions is captured).
-    val buildableEmptyPositions by remember(gameState.level) {
-        derivedStateOf {
+    // Subset of structurally buildable positions that are currently unoccupied and valid for the
+    // currently selected defender type (mine constraints, bridge-on-river constraints, etc.).
+    val buildableEmptyPositions: Set<Position> by remember(gameState.level, selectedDefenderType) {
+        derivedStateOf<Set<Position>> {
+            val selectedType = selectedDefenderType ?: return@derivedStateOf emptySet<Position>()
             structurallyBuildablePositions.filterTo(mutableSetOf()) { pos ->
-                !defendersByPosition.containsKey(pos) && !activeAttackersByPosition.containsKey(pos)
+                if (defendersByPosition.containsKey(pos) || activeAttackersByPosition.containsKey(pos)) {
+                    return@filterTo false
+                }
+                if (gameState.level.isSpawnPoint(pos) || gameState.level.isTargetPosition(pos)) {
+                    return@filterTo false
+                }
+                val isRiverPlacement = gameState.level.isRiverTile(pos)
+                if (isRiverPlacement) {
+                    if (selectedType == DefenderType.DWARVEN_MINE) return@filterTo false
+                    if (gameState.isBridgeAt(pos)) return@filterTo false
+                }
+                true
             }
         }
     }
@@ -1256,12 +1361,24 @@ fun GameGrid(
         }
     }
 
+    val placementPreviewPositions: Set<Position> by remember(selectedDefenderType, gameState.level) {
+        derivedStateOf<Set<Position>> {
+            if (selectedDefenderType == null) {
+                emptySet<Position>()
+            } else if (selectedDefenderType == DefenderType.DWARVEN_MINE) {
+                buildableEmptyPositions
+            } else {
+                buildableEmptyPositions + barricadeTowerBasePositions
+            }
+        }
+    }
+
     // Pre-compute whether the hovered position is buildable. Uses buildableEmptyPositions
     // (O(1) Set.contains) instead of the previous 5-step manual check.
     val hoveredPositionIsBuildableForGrid =
         selectedDefenderType != null &&
             hoveredPosition != null &&
-            buildableEmptyPositions.contains(hoveredPosition)
+            placementPreviewPositions.contains(hoveredPosition)
 
     // Valid tiles for placing the currently selected support object (barricade / trap / magical
     // trap). Computed once per selection change so the per-cell hover preview below is an O(1)
@@ -1629,17 +1746,18 @@ fun GameGrid(
                 val showPlacementPreview =
                     isHovering &&
                         isBuildingMode &&
-                        buildableEmptyPositions.contains(position)
+                        placementPreviewPositions.contains(position)
 
                 // Green-bordered buildable highlight — excludes the hovered cell (shows preview instead).
                 val isBuildableAndEmpty =
                     isBuildingMode &&
-                        buildableEmptyPositions.contains(position) &&
+                        placementPreviewPositions.contains(position) &&
                         !showPlacementPreview
 
                 // Barricade tower-base highlight — only for barricade cells with HP >= 100 and no tower.
                 val canBeUsedAsTowerBase =
                     isBuildingMode &&
+                        selectedDefenderType != DefenderType.DWARVEN_MINE &&
                         barricadeTowerBasePositions.contains(position) &&
                         !showPlacementPreview
 
@@ -1735,6 +1853,7 @@ fun GameGrid(
                     isTargetSelected =
                         selectedTargetId != null &&
                             activeAttackersByPosition[position]?.id == selectedTargetId,
+                    isInSelectedEnemyPath = selectedEnemyPathPositions.contains(position),
                     selectedDefenderId = selectedDefenderId,
                     selectedMineAction = selectedMineAction,
                     selectedWizardAction = selectedWizardAction,
@@ -1923,6 +2042,7 @@ fun GridCell(
     supportFiefPlacementHighlight: Boolean = false,
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
+    isInSelectedEnemyPath: Boolean = false,
     selectedDefenderId: Int?,
     selectedMineAction: MineAction?,
     selectedWizardAction: WizardAction? = null,
@@ -2371,6 +2491,7 @@ fun GridCell(
         when {
             // Keyboard placement/targeting cursor — bright cyan tint so the active tile stands out.
             isKeyboardPlacementCursor -> Color(0xFF00E5FF).copy(alpha = 0.45f)
+            isInSelectedEnemyPath -> Color(0xFF00E5FF).copy(alpha = 0.28f)
             attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f) // Turquoise background for frozen/cooled-to-zero enemies
             attacker != null && enemyBgSuppressed -> if (useTransparentBackground) Color.Transparent else baseBackgroundColor
             attacker != null ->
@@ -2475,18 +2596,19 @@ fun GridCell(
             false
         }
 
-    // Enemy-occupiable tiles are valid targets for area attacks; enemy-traversable for single-target
+    // Enemy-occupiable tiles are valid targets for area attacks; enemy-traversable + bridges for single-target
     val isValidTargetTile =
         if (hasAreaAttack) {
             isEnemyOccupiable
         } else {
-            isEnemyTraversable
+            isEnemyTraversable || gameState.isBridgeAt(position)
         }
 
     val borderColor =
         when {
             // Keyboard placement/targeting cursor — bright cyan border for the active tile.
             isKeyboardPlacementCursor -> Color(0xFF00B8D4)
+            isInSelectedEnemyPath -> Color(0xFF00B8D4)
             // Tower placement preview - dashed borders for preview (we'll handle this with Canvas later)
             showPlacementPreview -> GamePlayColors.Yellow // Yellow border for hovered build tile
             isInPreviewRange -> GamePlayColors.Success // Green border for range preview tiles
@@ -2544,6 +2666,7 @@ fun GridCell(
     val borderWidth =
         when {
             isKeyboardPlacementCursor -> 6.dp // Prominent border for the keyboard placement/targeting cursor
+            isInSelectedEnemyPath -> 4.dp
             showPlacementPreview -> 6.dp // Double thickness for hovered build tile
             isInPreviewRange -> 3.dp // Medium border for range preview
             cellIsInBarricadeRange ||
@@ -2726,6 +2849,7 @@ fun GridCell(
                 suppressEnemyBackground = suppressEnemyBackground,
                 attackPreview = attackPreview,
                 isDangerous = isDangerous,
+                isInSelectedEnemyPath = isInSelectedEnemyPath,
             )
         }
     } else {
@@ -2797,6 +2921,7 @@ fun GridCell(
                 suppressEnemyBackground = suppressEnemyBackground,
                 attackPreview = attackPreview,
                 isDangerous = isDangerous,
+                isInSelectedEnemyPath = isInSelectedEnemyPath,
             )
         }
     }
@@ -2871,6 +2996,7 @@ private fun BoxScope.GridCellContent(
     // Precomputed attack damage/lethality/immunity preview for the enemy on this tile (issue #591).
     // Non-null only when a defender is selected that could attack this enemy.
     attackPreview: EnemyAttackPreview? = null,
+    isInSelectedEnemyPath: Boolean = false,
 ) {
     // When animations are enabled, delay updating the enemy's displayed health value until
     // the attack animation (projectile flight + impact flash) has completed.
@@ -2931,6 +3057,7 @@ private fun BoxScope.GridCellContent(
                 attacker.position.value.y,
                 attacker.level,
                 attacker.movementPenalty.value,
+                isInSelectedEnemyPath,
             ) {
                 // Detect freeze effect before Box so it can be used in modifier for outline
                 val freezeEffect =
@@ -3076,6 +3203,15 @@ private fun BoxScope.GridCellContent(
                     }
                 }
             }
+        }
+
+        isInSelectedEnemyPath -> {
+            Text(
+                text = "PATH",
+                color = Color(0xFF00E5FF),
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+            )
         }
 
         defender != null -> {
@@ -4407,7 +4543,7 @@ fun BridgeVisualization(bridge: Bridge) {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        // Draw bridge arc
+        // Draw bridge arcs
         Canvas(modifier = Modifier.fillMaxSize()) {
             val centerX = size.width / 2
             val centerY = size.height / 2
@@ -4422,7 +4558,7 @@ fun BridgeVisualization(bridge: Bridge) {
                     BridgeType.MAGICAL -> Color(0xFFFF00FF) // Magenta/purple for magical
                 }
 
-            // Draw half arc (bridge shape) - opening at bottom
+            // Draw top half arc
             drawArc(
                 color = bridgeColor,
                 startAngle = 180f, // Start from bottom-left
@@ -4432,6 +4568,24 @@ fun BridgeVisualization(bridge: Bridge) {
                     androidx.compose.ui.geometry.Offset(
                         centerX - arcWidth / 2,
                         centerY - arcHeight / 2,
+                    ),
+                size =
+                    androidx.compose.ui.geometry
+                        .Size(arcWidth, arcHeight),
+                style =
+                    androidx.compose.ui.graphics.drawscope
+                        .Stroke(width = 6f),
+            )
+            // Draw second parallel arc to create the bridge deck effect
+            drawArc(
+                color = bridgeColor,
+                startAngle = 180f,
+                sweepAngle = 180f,
+                useCenter = false,
+                topLeft =
+                    androidx.compose.ui.geometry.Offset(
+                        centerX - arcWidth / 2,
+                        centerY - arcHeight / 2 + 10f,
                     ),
                 size =
                     androidx.compose.ui.geometry
@@ -4474,14 +4628,15 @@ fun BridgeVisualization(bridge: Bridge) {
         ) {
             when (bridge.type) {
                 BridgeType.WOODEN, BridgeType.STONE -> {
-                    // Show remaining health
-                    Text(
-                        text = "${bridge.currentHealth.value}",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 13.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                    )
+                    if (!bridge.isIndestructible) {
+                        Text(
+                            text = "${bridge.currentHealth.value}",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 13.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
                 }
                 BridgeType.MAGICAL -> {
                     // Show remaining turns

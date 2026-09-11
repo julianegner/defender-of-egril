@@ -2,6 +2,7 @@ package de.egril.defender.editor
 
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.BridgeType
 import de.egril.defender.model.CooldownPower
 import de.egril.defender.model.CooldownPowerType
 import de.egril.defender.model.DefenderType
@@ -665,6 +666,7 @@ object EditorJsonSerializer {
                 initialData.attackers.isNotEmpty() ||
                 initialData.traps.isNotEmpty() ||
                 initialData.barricades.isNotEmpty() ||
+                initialData.bridges.isNotEmpty() ||
                 initialData.fiefs.isNotEmpty() ||
                 initialData.mushrooms.isNotEmpty() ||
                 initialData.portals.isNotEmpty()
@@ -755,6 +757,25 @@ object EditorJsonSerializer {
                     parts.add(
                         """"barricades": [
       $barricadesData
+    ]""",
+                    )
+                }
+
+                // Bridges
+                if (initialData.bridges.isNotEmpty()) {
+                    val bridgesData =
+                        initialData.bridges.joinToString(",\n      ") { bridge ->
+                            val isIndestructibleJson =
+                                if (bridge.isIndestructible) {
+                                    """, "isIndestructible": true"""
+                                } else {
+                                    ""
+                                }
+                            """{"position": {"x": ${bridge.position.x}, "y": ${bridge.position.y}}, "type": "${bridge.type.name}", "healthPoints": ${bridge.healthPoints}$isIndestructibleJson}"""
+                        }
+                    parts.add(
+                        """"bridges": [
+      $bridgesData
     ]""",
                     )
                 }
@@ -1110,6 +1131,7 @@ object EditorJsonSerializer {
             var initialAttackers = mutableListOf<InitialAttacker>()
             var initialTraps = mutableListOf<InitialTrap>()
             var initialBarricades = mutableListOf<InitialBarricade>()
+            var initialBridges = mutableListOf<InitialBridge>()
             var initialFiefs = mutableListOf<InitialFief>()
             var initialMushrooms = mutableListOf<InitialMushroom>()
             var initialPortals = mutableListOf<InitialPortal>()
@@ -1418,6 +1440,55 @@ object EditorJsonSerializer {
                         }
                     }
 
+                    // Parse bridges from new format
+                    if (initialDataSection.contains("\"bridges\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"bridges\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val afterBracket = afterKey.substring(openBracketIndex + 1)
+                            val bridgesSection =
+                                if (afterBracket.contains("],")) {
+                                    afterBracket.substringBefore("],")
+                                } else {
+                                    afterBracket.substringBefore("]")
+                                }
+                            if (bridgesSection.isNotBlank()) {
+                                val bridgeEntries = splitJsonArrayObjects(bridgesSection)
+                                for (entry in bridgeEntries) {
+                                    if (!entry.contains("position")) continue
+                                    val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                    val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                    val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                    val position = Position(x, y)
+                                    val type =
+                                        try {
+                                            BridgeType.valueOf(JsonUtils.extractValue(entry, "type"))
+                                        } catch (e: Exception) {
+                                            BridgeType.WOODEN
+                                        }
+                                    val healthPoints =
+                                        JsonUtils.extractValue(entry, "healthPoints")
+                                            .toIntOrNull()
+                                            ?: if (type == BridgeType.STONE) InitialBridge.DEFAULT_STONE_HEALTH else InitialBridge.DEFAULT_WOODEN_HEALTH
+                                    val isIndestructible =
+                                        try {
+                                            JsonUtils.extractBooleanValue(entry, "isIndestructible")
+                                        } catch (e: Exception) {
+                                            false
+                                        }
+                                    initialBridges.add(
+                                        InitialBridge(
+                                            position = position,
+                                            type = type,
+                                            healthPoints = healthPoints,
+                                            isIndestructible = isIndestructible,
+                                        ),
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                     // Parse fiefs from new format
                     if (initialDataSection.contains("\"fiefs\"")) {
                         val afterKey = initialDataSection.substringAfter("\"fiefs\"")
@@ -1514,6 +1585,7 @@ object EditorJsonSerializer {
                 initialAttackers.isEmpty() &&
                 initialTraps.isEmpty() &&
                 initialBarricades.isEmpty() &&
+                initialBridges.isEmpty() &&
                 initialFiefs.isEmpty()
             ) {
                 // Parse initial defenders (legacy flat format)
@@ -1674,11 +1746,12 @@ object EditorJsonSerializer {
                 val attackerCount = initialAttackers.size
                 val trapCount = initialTraps.size
                 val barricadeCount = initialBarricades.size
+                val bridgeCount = initialBridges.size
                 val fiefCount = initialFiefs.size
                 println(
                     "EditorJsonSerializer.deserializeLevel: Parsed level $id " +
                         "with $defenderCount defenders, $attackerCount attackers, " +
-                        "$trapCount traps, $barricadeCount barricades, $fiefCount fiefs",
+                        "$trapCount traps, $barricadeCount barricades, $bridgeCount bridges, $fiefCount fiefs",
                 )
             }
 
@@ -1688,11 +1761,21 @@ object EditorJsonSerializer {
                     initialAttackers.isNotEmpty() ||
                     initialTraps.isNotEmpty() ||
                     initialBarricades.isNotEmpty() ||
+                    initialBridges.isNotEmpty() ||
                     initialFiefs.isNotEmpty() ||
                     initialMushrooms.isNotEmpty() ||
                     initialPortals.isNotEmpty()
                 ) {
-                    InitialData(initialDefenders, initialAttackers, initialTraps, initialBarricades, initialFiefs, initialMushrooms, initialPortals)
+                    InitialData(
+                        defenders = initialDefenders,
+                        attackers = initialAttackers,
+                        traps = initialTraps,
+                        barricades = initialBarricades,
+                        bridges = initialBridges,
+                        fiefs = initialFiefs,
+                        mushrooms = initialMushrooms,
+                        portals = initialPortals,
+                    )
                 } else {
                     null
                 }

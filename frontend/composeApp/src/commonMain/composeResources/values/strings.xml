@@ -729,7 +729,7 @@
 
     <!-- Initial Setup Tab -->
     <string name="initial_setup">Initial Setup</string>
-    <string name="initial_setup_info">Place towers, enemies, traps, barricades, and fiefs on the map before the level starts (optional)</string>
+    <string name="initial_setup_info">Place towers, enemies, traps, barricades, bridges, and fiefs on the map before the level starts (optional)</string>
     <string name="initial_setup_towers">Towers</string>
     <string name="initial_setup_enemies">Enemies</string>
     <string name="initial_setup_traps">Traps</string>
@@ -779,6 +779,11 @@
     <string name="enemy_configuration">Enemy Configuration</string>
     <string name="trap_configuration">Trap Configuration</string>
     <string name="barricade_configuration">Barricade Configuration</string>
+    <string name="bridge_configuration">Bridge Configuration</string>
+    <string name="bridges">Bridges</string>
+    <string name="wooden_bridge">Wooden Bridge</string>
+    <string name="stone_bridge">Stone Bridge</string>
+    <string name="indestructible">Indestructible</string>
     <string name="selected_element">Selected Element</string>
     <string name="no_map_selected">No map selected. Please select or create a map first.</string>
     <string name="deselect">Deselect</string>
@@ -992,7 +997,7 @@
     <string name="river_info_placement">You can place towers on river tiles! When you do, they will be placed on rafts.</string>
     <string name="river_info_movement">Rafts move automatically with the river flow at the end of each turn. The flow speed determines how many tiles they move (1 or 2 tiles).</string>
     <string name="river_info_destruction">Rafts are destroyed if they reach a maelstrom (whirlpool) or move out of the map boundaries. The tower on the raft is also destroyed.</string>
-    <string name="river_info_bridges">Bridges block raft movement. Rafts cannot pass through bridges spanning the river. Multiple rafts on the same river move in order - downstream rafts move first.</string>
+    <string name="river_info_bridges">Bridges do not block raft movement. Rafts pass over bridge tiles and continue following river flow. Multiple rafts on the same river move in order - downstream rafts move first.</string>
 
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">Cannot Place Mine on River</string>
@@ -1635,6 +1640,7 @@
     <string name="debug_display_tile_borders">Display Tile Borders</string>
     <string name="debug_display_tile_positions">Display Tile Positions</string>
     <string name="debug_display_map_size">Display Map Size</string>
+    <string name="debug_display_enemy_path">Display Enemy Path</string>
     <string name="debug_map_size_overlay">Hexmap: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContent: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nViewport: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nOffset: %13$d, %14$d</string>
 
     <!-- XP System -->

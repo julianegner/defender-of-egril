@@ -151,6 +151,10 @@ class CombatSystem(
         return if (isOnBarge) (raw * (1f - reduction)).toInt().coerceAtLeast(1) else raw
     }
 
+    private fun queueBridgeDamage(position: Position, damage: Int) {
+        state.pendingBridgeDamage.add(PendingBridgeDamage(position = position, damage = damage))
+    }
+
     /**
      * Returns true if the given position is a valid area-attack target tile:
      * on any enemy-occupiable tile (path, spawn point, river) or a bridge.
@@ -341,6 +345,8 @@ class CombatSystem(
             }
         soundEvent?.let { GlobalSoundManager.playSound(it) }
 
+        var deferredBridgeDamage: Int? = null
+
         // Perform attack based on type
         when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> {
@@ -351,23 +357,19 @@ class CombatSystem(
                     // Attack enemy (takes priority)
                     singleTargetAttack(defender, target)
                 } else {
-                    // No enemy, attack bridge if present
+                    // No enemy, attack bridge if present (deferred until after attack visuals are queued)
                     val bridge = state.getBridgeAt(targetPosition)
                     if (bridge != null && bridge.isActive) {
-                        bridgeSystem.damageBridge(targetPosition, getEffectiveDamage(defender))
+                        deferredBridgeDamage = getEffectiveDamage(defender)
                     }
                     // If targeting a shadow fog tile with no enemy/bridge, the action is
                     // consumed but the attack misses (the tile was targeted blind).
                 }
             }
             AttackType.AREA -> {
-                // Area attack affects both enemies AND bridges in range
+                // Area attack affects both enemies AND bridges in range; bridge HP is deferred
+                // until the animation has finished so the damage appears after projectile impact.
                 areaAttack(defender, targetPosition)
-                // Also damage bridge at target position if present
-                val bridge = state.getBridgeAt(targetPosition)
-                if (bridge != null && bridge.isActive) {
-                    bridgeSystem.damageBridge(targetPosition, getEffectiveDamage(defender))
-                }
             }
             AttackType.LASTING -> lastingAttack(defender, targetPosition)
             AttackType.NONE -> return false // Mines and special structures can't attack
@@ -459,6 +461,11 @@ class CombatSystem(
                     ),
                 )
             }
+        }
+
+        // Apply deferred bridge damage after the attack animation is queued so the visual starts first.
+        if (deferredBridgeDamage != null) {
+            queueBridgeDamage(targetPosition, deferredBridgeDamage)
         }
 
         if (defender.isDisabled.value) {
@@ -595,12 +602,12 @@ class CombatSystem(
             it.type == FieldEffectType.WEB && it.position in affectedPositions && it.position !in blockedPositions
         }
 
-        // Damage all bridges in affected positions
+        // Queue bridge damage until after the fireball animation has finished.
         affectedPositions.forEach { pos ->
             if (pos in blockedPositions) return@forEach
             val bridge = state.getBridgeAt(pos)
             if (bridge != null && bridge.isActive) {
-                bridgeSystem.damageBridge(pos, getEffectiveDamage(defender))
+                queueBridgeDamage(pos, getEffectiveDamage(defender))
             }
         }
 
@@ -716,6 +723,15 @@ class CombatSystem(
         affectedPositions.forEach { pos ->
             if (pos !in blockedPositions) {
                 state.fiefs.removeAll { it.position == pos }
+            }
+        }
+
+        // Queue bridge damage until after the acid projectile/impact animation has finished.
+        affectedPositions.forEach { pos ->
+            if (pos in blockedPositions) return@forEach
+            val bridge = state.getBridgeAt(pos)
+            if (bridge != null && bridge.isActive) {
+                queueBridgeDamage(pos, getEffectiveDamage(defender))
             }
         }
 

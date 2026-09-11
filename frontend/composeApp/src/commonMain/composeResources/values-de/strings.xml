@@ -724,7 +724,7 @@
     <string name="initial_setup_click_to_place">Klicke auf die Karte um das ausgewählte Element zu platzieren</string>
     <string name="initial_setup_tile">Kachel:</string>
     <string name="initial_setup">Anfangsaufbau</string>
-    <string name="initial_setup_info">Platziere Türme, Gegner, Fallen, Barrikaden und Lehen auf der Karte bevor das Level startet (optional)</string>
+    <string name="initial_setup_info">Platziere Türme, Gegner, Fallen, Barrikaden, Brücken und Lehen auf der Karte bevor das Level startet (optional)</string>
     <string name="initial_setup_towers">Türme</string>
     <string name="initial_setup_enemies">Gegner</string>
     <string name="initial_setup_traps">Fallen</string>
@@ -752,6 +752,11 @@
     <string name="enemy_configuration">Gegnerkonfiguration</string>
     <string name="trap_configuration">Fallenkonfiguration</string>
     <string name="barricade_configuration">Barrikadenkonfiguration</string>
+    <string name="bridge_configuration">Brückenkonfiguration</string>
+    <string name="bridges">Brücken</string>
+    <string name="wooden_bridge">Holzbrücke</string>
+    <string name="stone_bridge">Steinbrücke</string>
+    <string name="indestructible">Unzerstörbar</string>
     <string name="selected_element">Ausgewähltes Element</string>
     <string name="health_points">Lebenspunkte</string>
     <string name="level_label">Level</string>
@@ -990,7 +995,7 @@
     <string name="river_info_placement">Du kannst Türme auf Flussfeldern platzieren! Wenn du das tust, werden sie auf Flößen platziert.</string>
     <string name="river_info_movement">Flöße bewegen sich automatisch mit der Flussströmung am Ende jeder Runde. Die Fließgeschwindigkeit bestimmt, wie viele Felder sie sich bewegen (1 oder 2 Felder).</string>
     <string name="river_info_destruction">Flöße werden zerstört, wenn sie einen Strudel erreichen oder aus den Kartengrenzen hinausbewegt werden. Der Turm auf dem Floß wird ebenfalls zerstört.</string>
-    <string name="river_info_bridges">Brücken blockieren die Bewegung von Flößen. Flöße können nicht durch Brücken hindurch, die über den Fluss gespannt sind. Mehrere Flöße auf demselben Fluss bewegen sich nacheinander - flussabwärts zuerst.</string>
+    <string name="river_info_bridges">Brücken blockieren Flöße nicht. Flöße fahren über Brückenfelder und folgen weiter der Flussrichtung. Mehrere Flöße auf demselben Fluss bewegen sich nacheinander - flussabwärts zuerst.</string>
 
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">Kann Mine nicht auf Fluss platzieren</string>
@@ -1629,6 +1634,7 @@
     <string name="debug_display_tile_borders">Kachel-Umrandungen anzeigen</string>
     <string name="debug_display_tile_positions">Kachel-Positionen anzeigen</string>
     <string name="debug_display_map_size">Kartengröße anzeigen</string>
+    <string name="debug_display_enemy_path">Gegnerpfad anzeigen</string>
     <string name="debug_map_size_overlay">Hexkarte: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nInhalt: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nAnsicht: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nOffset: %13$d, %14$d</string>
 
     <!-- XP System -->

@@ -260,7 +260,8 @@ object SaveJsonSerializer {
       "currentHealth": ${bridge.currentHealth},
       "turnsRemaining": ${bridge.turnsRemaining},
       "createdByAttackerId": ${bridge.createdByAttackerId},
-      "createdOnTurn": ${bridge.createdOnTurn}
+      "createdOnTurn": ${bridge.createdOnTurn},
+      "isIndestructible": ${bridge.isIndestructible}
     }"""
             }
 
@@ -974,6 +975,12 @@ object SaveJsonSerializer {
         val turnsRemaining = JsonUtils.extractValue(json, "turnsRemaining").toInt()
         val createdByAttackerId = JsonUtils.extractValue(json, "createdByAttackerId").toInt()
         val createdOnTurn = JsonUtils.extractValue(json, "createdOnTurn").toInt()
+        val isIndestructible =
+            try {
+                JsonUtils.extractBooleanValue(json, "isIndestructible")
+            } catch (e: Exception) {
+                false
+            }
 
         val positions = mutableListOf<Position>()
         val positionsSection = JsonUtils.extractJsonArrayForKey(json, "positions")
@@ -995,6 +1002,7 @@ object SaveJsonSerializer {
             turnsRemaining = turnsRemaining,
             createdByAttackerId = createdByAttackerId,
             createdOnTurn = createdOnTurn,
+            isIndestructible = isIndestructible,
         )
     }
 

@@ -450,6 +450,42 @@ class BridgeBuildingTest {
         assertTrue(goblin2.isDefeated.value, "Goblin 2 should be defeated")
     }
 
+    @Test
+    fun testIndestructibleBridgeIgnoresDamage() {
+        val level =
+            Level(
+                id = 1,
+                name = "Test Level",
+                gridWidth = 5,
+                gridHeight = 1,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(4, 0)),
+                pathCells = setOf(Position(0, 0), Position(1, 0), Position(3, 0), Position(4, 0)),
+                attackerWaves = emptyList(),
+                riverTiles = mapOf(Position(2, 0) to RiverTile(Position(2, 0))),
+            )
+
+        val state = GameState(level = level)
+        val bridgeSystem = BridgeSystem(state)
+        val bridge =
+            Bridge(
+                id = 1,
+                type = BridgeType.STONE,
+                positions = listOf(Position(2, 0)),
+                currentHealth = mutableStateOf(100),
+                createdByAttackerId = 1,
+                createdOnTurn = 1,
+                isIndestructible = true,
+            )
+        state.bridges.add(bridge)
+
+        bridgeSystem.damageBridge(Position(2, 0), 1000)
+        bridgeSystem.processBridges()
+
+        assertEquals(1, state.bridges.size, "Bridge should remain")
+        assertEquals(100, bridge.currentHealth.value, "Bridge health must not change")
+    }
+
     /**
      * Test that bridges are walkable for pathfinding
      */
@@ -508,6 +544,96 @@ class BridgeBuildingTest {
         val pathWithBridge = pathfinding.findPath(Position(1, 0), Position(3, 0))
         assertTrue(pathWithBridge.size >= 3, "With bridge, should find full path")
         assertTrue(pathWithBridge.contains(Position(2, 0)), "Path should go through bridge")
+    }
+
+    @Test
+    fun testBallistaCanAttackBridgeTile() {
+        val level =
+            Level(
+                id = 1,
+                name = "Test Ballista Bridge Attack",
+                gridWidth = 6,
+                gridHeight = 1,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(5, 0)),
+                pathCells = setOf(Position(2, 0), Position(3, 0), Position(5, 0)),
+                buildAreas = setOf(Position(1, 0), Position(2, 0), Position(3, 0)),
+                attackerWaves = emptyList(),
+                initialCoins = 200,
+                riverTiles =
+                    mapOf(
+                        Position(4, 0) to RiverTile(position = Position(4, 0), flowDirection = RiverFlow.EAST, flowSpeed = 1),
+                    ),
+                availableTowers = setOf(DefenderType.BALLISTA_TOWER),
+            )
+
+        val state = GameState(level = level)
+        val engine = GameEngine(state)
+        state.bridges.add(
+            Bridge(
+                id = 1,
+                type = BridgeType.STONE,
+                positions = listOf(Position(4, 0)),
+                currentHealth = mutableStateOf(100),
+                createdByAttackerId = 1,
+                createdOnTurn = 1,
+            ),
+        )
+
+        assertTrue(engine.placeDefender(DefenderType.BALLISTA_TOWER, Position(1, 0)))
+        val bridge = state.bridges.first()
+        val damaged = engine.defenderAttackPosition(state.defenders.first().id, Position(4, 0))
+
+        assertTrue(damaged, "Ballista should be able to target bridge tiles")
+        assertEquals(100, bridge.currentHealth.value, "Bridge damage should be deferred until the attack animation finishes")
+        assertEquals(1, state.pendingBridgeDamage.size, "Ballista bridge damage should be queued until after the animation")
+        engine.processPendingBridgeDamage()
+        assertTrue(bridge.currentHealth.value < 100, "Ballista attack should damage bridge HP after the queued animation")
+    }
+
+    @Test
+    fun testAcidCanAttackBridgeTile() {
+        val level =
+            Level(
+                id = 1,
+                name = "Test Acid Bridge Attack",
+                gridWidth = 6,
+                gridHeight = 1,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(5, 0)),
+                pathCells = setOf(Position(1, 0), Position(3, 0), Position(5, 0)),
+                buildAreas = setOf(Position(2, 0), Position(3, 0)),
+                attackerWaves = emptyList(),
+                initialCoins = 200,
+                riverTiles =
+                    mapOf(
+                        Position(4, 0) to RiverTile(position = Position(4, 0), flowDirection = RiverFlow.EAST, flowSpeed = 1),
+                    ),
+                availableTowers = setOf(DefenderType.ALCHEMY_TOWER),
+            )
+
+        val state = GameState(level = level)
+        val engine = GameEngine(state)
+        state.bridges.add(
+            Bridge(
+                id = 1,
+                type = BridgeType.STONE,
+                positions = listOf(Position(4, 0)),
+                currentHealth = mutableStateOf(100),
+                createdByAttackerId = 1,
+                createdOnTurn = 1,
+            ),
+        )
+
+        assertTrue(engine.placeDefender(DefenderType.ALCHEMY_TOWER, Position(2, 0)))
+        val bridge = state.bridges.first()
+        val damaged = engine.defenderAttackPosition(state.defenders.first().id, Position(4, 0))
+
+        assertTrue(damaged, "Alchemy tower should be able to target bridge tiles")
+        assertEquals(100, bridge.currentHealth.value, "Acid bridge damage should be deferred until the attack animation finishes")
+        assertEquals(1, state.pendingBridgeDamage.size, "Alchemy bridge damage should be queued until after the animation")
+        engine.processPendingBridgeDamage()
+        assertTrue(bridge.currentHealth.value < 100, "Acid attack should damage bridge HP after the queued animation")
     }
 
     /**

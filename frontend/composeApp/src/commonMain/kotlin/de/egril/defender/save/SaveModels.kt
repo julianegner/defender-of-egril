@@ -174,6 +174,7 @@ data class SavedBridge(
     val turnsRemaining: Int, // For magical bridges (3 turns), 0 for others
     val createdByAttackerId: Int,
     val createdOnTurn: Int,
+    val isIndestructible: Boolean = false,
 )
 
 data class SavedPortal(

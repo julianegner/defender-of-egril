@@ -242,13 +242,32 @@ class Movement(
                         pathfinding.findPath(currentPos, target, attacker)
                     }
 
-                if (path.size < 2 && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
+                if ((path.size < 2 || path.last() != target) && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
                     if (bridgeSystem.shouldAutoBuildBridge(attacker)) {
                         val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
                         if (bridgeBuilt) {
                             if (attacker.isDefeated.value) continue
                             path = pathfinding.findPath(currentPos, target, attacker)
                         }
+                    }
+                }
+
+                if (path.size < 2 || path.last() != target) {
+                    // Barricade-aware pathing found no full route to the target (e.g. a wall of
+                    // barricades fully blocks the current approach, or findPath's cost-inflated A*
+                    // silently gave up and fell back to a naive single greedy step — its own
+                    // internal fallback always returns a 2-element path even on total failure, so
+                    // checking path.size alone is not enough; we must also verify it truly reaches
+                    // the target). Fall back to the enemy's intended route through barricades,
+                    // weighing both distance and the turns needed to destroy any barricades in the
+                    // way (see findPathThroughBarricades) so the enemy prefers the cheapest overall
+                    // route rather than just the geometrically shortest one. Uses an uncapped
+                    // Dijkstra search rather than findPath: on long/winding levels the inflated A*
+                    // costs make the heuristic non-admissible and it can exceed its iteration cap
+                    // before reaching a distant goal, even though a route genuinely exists.
+                    val pathThroughBarricades = pathfinding.findPathThroughBarricades(currentPos, target, attacker)
+                    if (pathThroughBarricades.size >= 2 && pathThroughBarricades.last() == target) {
+                        path = pathThroughBarricades
                     }
                 }
 
@@ -335,7 +354,7 @@ class Movement(
                                     neighbor.x < state.level.gridWidth &&
                                     neighbor.y >= 0 &&
                                     neighbor.y < state.level.gridHeight &&
-                                    (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor)) &&
+                                    (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor) || state.isBridgeAt(neighbor)) &&
                                     !currentPositions.any { (id, pos) -> id != attacker.id && pos == neighbor } &&
                                     !positionsToOccupy.contains(neighbor)
                             }
@@ -575,7 +594,7 @@ class Movement(
             portal.exitPosition
                 .getHexNeighbors()
                 .filter { neighbor ->
-                    state.level.isOnPath(neighbor) &&
+                    (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor)) &&
                         !state.isPortalTile(neighbor) &&
                         !state.attackers.any { it.id != attacker.id && !it.isDefeated.value && it.position.value == neighbor }
                 }
@@ -696,7 +715,7 @@ class Movement(
                 }
                 var path = pathfinding.findPath(currentPos, target, attacker)
 
-                if (path.size < 2 && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
+                if ((path.size < 2 || path.last() != target) && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
                     if (bridgeSystem.shouldAutoBuildBridge(attacker)) {
                         val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
                         if (bridgeBuilt) {
@@ -710,6 +729,25 @@ class Movement(
                             }
                             path = pathfinding.findPath(currentPos, target, attacker)
                         }
+                    }
+                }
+
+                if (path.size < 2 || path.last() != target) {
+                    // Barricade-aware pathing found no full route to the target (e.g. a wall of
+                    // barricades fully blocks the current approach, or findPath's cost-inflated A*
+                    // silently gave up and fell back to a naive single greedy step — its own
+                    // internal fallback always returns a 2-element path even on total failure, so
+                    // checking path.size alone is not enough; we must also verify it truly reaches
+                    // the target). Fall back to the enemy's intended route through barricades,
+                    // weighing both distance and the turns needed to destroy any barricades in the
+                    // way (see findPathThroughBarricades) so the enemy prefers the cheapest overall
+                    // route rather than just the geometrically shortest one. Uses an uncapped
+                    // Dijkstra search rather than findPath: on long/winding levels the inflated A*
+                    // costs make the heuristic non-admissible and it can exceed its iteration cap
+                    // before reaching a distant goal, even though a route genuinely exists.
+                    val pathThroughBarricades = pathfinding.findPathThroughBarricades(currentPos, target, attacker)
+                    if (pathThroughBarricades.size >= 2 && pathThroughBarricades.last() == target) {
+                        path = pathThroughBarricades
                     }
                 }
 
@@ -816,7 +854,7 @@ class Movement(
                 newPosition
                     .getHexNeighbors()
                     .filter { pos ->
-                        state.level.isOnPath(pos) &&
+                        (state.level.isOnPath(pos) || state.isBridgeAt(pos)) &&
                             state.attackers.none { it.position.value == pos && !it.isDefeated.value }
                     }.minByOrNull {
                         it.distanceTo(
@@ -940,7 +978,7 @@ class Movement(
                     neighbor.x < state.level.gridWidth &&
                     neighbor.y >= 0 &&
                     neighbor.y < state.level.gridHeight &&
-                    state.level.isOnPath(neighbor)
+                    (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor))
             }
 
         val availableNeighbors =
