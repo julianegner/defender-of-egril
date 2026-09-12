@@ -243,6 +243,43 @@ class BridgeBuildingTest {
     }
 
     @Test
+    fun testBentTwoTileBridgeCanGenerateRevenue() {
+        val level =
+            Level(
+                id = 1,
+                name = "Bent Stone Bridge Revenue",
+                gridWidth = 5,
+                gridHeight = 3,
+                startPositions = listOf(Position(0, 1)),
+                targetPositions = listOf(Position(3, 0)),
+                pathCells = setOf(Position(0, 1), Position(1, 0), Position(3, 0)),
+                attackerWaves = emptyList(),
+                riverTiles =
+                    mapOf(
+                        Position(1, 1) to RiverTile(Position(1, 1)),
+                        Position(2, 0) to RiverTile(Position(2, 0)),
+                    ),
+            )
+        val state = GameState(level = level)
+        val bridgeSystem = BridgeSystem(state)
+        val engine = GameEngine(state)
+        val ogre =
+            Attacker(
+                id = 1,
+                type = AttackerType.OGRE,
+                position = mutableStateOf(Position(0, 1)),
+                currentHealth = mutableStateOf(80),
+            )
+        state.attackers.add(ogre)
+        assertTrue(bridgeSystem.buildBridge(ogre, listOf(Position(1, 1), Position(2, 0))))
+
+        state.phase.value = GamePhase.ENEMY_TURN
+        engine.completeEnemyTurn()
+
+        assertEquals(106, state.coins.value, "A bent 2-tile bridge that reaches the far bank should add 6 coins")
+    }
+
+    @Test
     fun testSingleTileBridgeRevenueNeedsOppositeBanks() {
         val level =
             Level(

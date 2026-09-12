@@ -446,17 +446,22 @@ class BridgeSystem(
                     }.toSet()
             bankDirections.any { direction -> (direction + 3).mod(6) in bankDirections }
         } else {
-            val orderedBridgePositions = getOrderedStraightBridgePositions(bridge) ?: return false
-            val spanDirection =
-                orderedBridgePositions.first().getHexDirectionTo(orderedBridgePositions[1]) ?: return false
-            val startBank = orderedBridgePositions.first().getHexNeighbor(spanDirection + 3)
-            val endBank = orderedBridgePositions.last().getHexNeighbor(spanDirection)
-            isBridgeLandingTile(startBank, bridgePositions) &&
-                isBridgeLandingTile(endBank, bridgePositions)
+            val orderedBridgePositions = getOrderedBridgePositions(bridge) ?: return false
+            val bankNeighborsByEndpoint =
+                listOf(orderedBridgePositions.first(), orderedBridgePositions.last()).map { endpoint ->
+                    endpoint
+                        .getHexNeighbors()
+                        .filter { neighbor ->
+                            isBridgeLandingTile(neighbor, bridgePositions)
+                        }.toSet()
+                }
+            bankNeighborsByEndpoint.all { it.isNotEmpty() } &&
+                bankNeighborsByEndpoint[0].minus(bankNeighborsByEndpoint[1]).isNotEmpty() &&
+                bankNeighborsByEndpoint[1].minus(bankNeighborsByEndpoint[0]).isNotEmpty()
         }
     }
 
-    private fun getOrderedStraightBridgePositions(bridge: Bridge): List<Position>? {
+    private fun getOrderedBridgePositions(bridge: Bridge): List<Position>? {
         val bridgePositions = bridge.positions.toSet()
         val neighborsByPosition =
             bridgePositions.associateWith { position ->
@@ -478,12 +483,7 @@ class BridgeSystem(
             current = next
         }
 
-        if (orderedPositions.size != bridgePositions.size) return null
-
-        val spanDirection = orderedPositions.first().getHexDirectionTo(orderedPositions[1]) ?: return null
-        return orderedPositions.takeIf { positions ->
-            positions.zipWithNext().all { (from, to) -> from.getHexDirectionTo(to) == spanDirection }
-        }
+        return orderedPositions.takeIf { it.size == bridgePositions.size }
     }
 
     private fun isBridgeLandingTile(
