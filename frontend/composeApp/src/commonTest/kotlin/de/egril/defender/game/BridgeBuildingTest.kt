@@ -138,6 +138,110 @@ class BridgeBuildingTest {
         assertTrue(state.coinGainEffects.isEmpty(), "Bridge sacrifice must not create coin gain effects")
     }
 
+    @Test
+    fun testBridgeRevenueRequiresReachingOppositeRiverbank() {
+        val crossingLevel =
+            Level(
+                id = 1,
+                name = "Crossing Level",
+                gridWidth = 5,
+                gridHeight = 1,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(4, 0)),
+                pathCells = setOf(Position(1, 0), Position(3, 0)),
+                attackerWaves = emptyList(),
+                riverTiles = mapOf(Position(2, 0) to RiverTile(Position(2, 0))),
+            )
+        val crossingState = GameState(level = crossingLevel)
+        val crossingBridgeSystem = BridgeSystem(crossingState)
+        val crossingEngine = GameEngine(crossingState)
+        val ork =
+            Attacker(
+                id = 1,
+                type = AttackerType.ORK,
+                position = mutableStateOf(Position(1, 0)),
+                currentHealth = mutableStateOf(40),
+            )
+        crossingState.attackers.add(ork)
+        assertTrue(crossingBridgeSystem.buildBridge(ork, listOf(Position(2, 0))))
+
+        crossingState.phase.value = GamePhase.ENEMY_TURN
+        crossingEngine.completeEnemyTurn()
+
+        assertEquals(103, crossingState.coins.value, "A 1-tile bridge that reaches the far bank should add 3 coins")
+
+        val partialLevel =
+            Level(
+                id = 2,
+                name = "Partial Bridge Level",
+                gridWidth = 6,
+                gridHeight = 1,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(5, 0)),
+                pathCells = setOf(Position(1, 0), Position(4, 0)),
+                attackerWaves = emptyList(),
+                riverTiles =
+                    mapOf(
+                        Position(2, 0) to RiverTile(Position(2, 0)),
+                        Position(3, 0) to RiverTile(Position(3, 0)),
+                    ),
+            )
+        val partialState = GameState(level = partialLevel)
+        val partialBridgeSystem = BridgeSystem(partialState)
+        val partialEngine = GameEngine(partialState)
+        val partialOrk =
+            Attacker(
+                id = 1,
+                type = AttackerType.ORK,
+                position = mutableStateOf(Position(1, 0)),
+                currentHealth = mutableStateOf(40),
+            )
+        partialState.attackers.add(partialOrk)
+        assertTrue(partialBridgeSystem.buildBridge(partialOrk, listOf(Position(2, 0))))
+
+        partialState.phase.value = GamePhase.ENEMY_TURN
+        partialEngine.completeEnemyTurn()
+
+        assertEquals(100, partialState.coins.value, "A bridge that does not reach the far bank must not add income")
+    }
+
+    @Test
+    fun testCrossingBridgeRevenueIsThreeCoinsPerTile() {
+        val level =
+            Level(
+                id = 1,
+                name = "Stone Bridge Revenue",
+                gridWidth = 6,
+                gridHeight = 1,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(5, 0)),
+                pathCells = setOf(Position(1, 0), Position(4, 0)),
+                attackerWaves = emptyList(),
+                riverTiles =
+                    mapOf(
+                        Position(2, 0) to RiverTile(Position(2, 0)),
+                        Position(3, 0) to RiverTile(Position(3, 0)),
+                    ),
+            )
+        val state = GameState(level = level)
+        val bridgeSystem = BridgeSystem(state)
+        val engine = GameEngine(state)
+        val ogre =
+            Attacker(
+                id = 1,
+                type = AttackerType.OGRE,
+                position = mutableStateOf(Position(1, 0)),
+                currentHealth = mutableStateOf(80),
+            )
+        state.attackers.add(ogre)
+        assertTrue(bridgeSystem.buildBridge(ogre, listOf(Position(2, 0), Position(3, 0))))
+
+        state.phase.value = GamePhase.ENEMY_TURN
+        engine.completeEnemyTurn()
+
+        assertEquals(106, state.coins.value, "A 2-tile bridge that crosses the river should add 6 coins")
+    }
+
     /**
      * Test that an Ogre can build a stone bridge over 1-2 river tiles
      */
