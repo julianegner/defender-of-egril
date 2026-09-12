@@ -435,18 +435,6 @@ class BridgeSystem(
         if (bridge.positions.isEmpty()) return false
 
         val bridgePositions = bridge.positions.toSet()
-        val bankNeighborsByEndpoint =
-            listOf(bridge.positions.first(), bridge.positions.last()).map { endpoint ->
-                endpoint
-                    .getHexNeighbors()
-                    .filter { neighbor ->
-                        neighbor.x in 0 until state.level.gridWidth &&
-                            neighbor.y in 0 until state.level.gridHeight &&
-                            neighbor !in bridgePositions &&
-                            !state.level.isRiverTile(neighbor) &&
-                            (state.level.isEnemyTraversable(neighbor) || state.level.isTargetPosition(neighbor))
-                    }.toSet()
-            }
 
         return if (bridge.positions.size == 1) {
             val bankDirections =
@@ -454,13 +442,57 @@ class BridgeSystem(
                     .first()
                     .getHexNeighbors()
                     .mapIndexedNotNull { direction, neighbor ->
-                        neighbor.takeIf { it in bankNeighborsByEndpoint.first() }?.let { direction }
+                        neighbor.takeIf { isBridgeLandingTile(neighbor, bridgePositions) }?.let { direction }
                     }.toSet()
             bankDirections.any { direction -> (direction + 3).mod(6) in bankDirections }
         } else {
-            bankNeighborsByEndpoint.all { it.isNotEmpty() } &&
-                bankNeighborsByEndpoint[0].minus(bankNeighborsByEndpoint[1]).isNotEmpty() &&
-                bankNeighborsByEndpoint[1].minus(bankNeighborsByEndpoint[0]).isNotEmpty()
+            val orderedBridgePositions = getOrderedStraightBridgePositions(bridge) ?: return false
+            val spanDirection =
+                orderedBridgePositions.first().getHexDirectionTo(orderedBridgePositions[1]) ?: return false
+            val startBank = orderedBridgePositions.first().getHexNeighbor(spanDirection + 3)
+            val endBank = orderedBridgePositions.last().getHexNeighbor(spanDirection)
+            isBridgeLandingTile(startBank, bridgePositions) &&
+                isBridgeLandingTile(endBank, bridgePositions)
         }
     }
+
+    private fun getOrderedStraightBridgePositions(bridge: Bridge): List<Position>? {
+        val bridgePositions = bridge.positions.toSet()
+        val neighborsByPosition =
+            bridgePositions.associateWith { position ->
+                position.getHexNeighbors().filter { it in bridgePositions }
+            }
+        if (neighborsByPosition.values.any { it.size > 2 }) return null
+
+        val endpoints = neighborsByPosition.filterValues { it.size == 1 }.keys.toList()
+        if (endpoints.size != 2) return null
+
+        val orderedPositions = mutableListOf<Position>()
+        var previous: Position? = null
+        var current = endpoints.first()
+
+        while (true) {
+            orderedPositions.add(current)
+            val next = neighborsByPosition.getValue(current).firstOrNull { it != previous } ?: break
+            previous = current
+            current = next
+        }
+
+        if (orderedPositions.size != bridgePositions.size) return null
+
+        val spanDirection = orderedPositions.first().getHexDirectionTo(orderedPositions[1]) ?: return null
+        return orderedPositions.takeIf { positions ->
+            positions.zipWithNext().all { (from, to) -> from.getHexDirectionTo(to) == spanDirection }
+        }
+    }
+
+    private fun isBridgeLandingTile(
+        position: Position,
+        bridgePositions: Set<Position>,
+    ): Boolean =
+        position.x in 0 until state.level.gridWidth &&
+            position.y in 0 until state.level.gridHeight &&
+            position !in bridgePositions &&
+            !state.level.isRiverTile(position) &&
+            (state.level.isEnemyTraversable(position) || state.level.isTargetPosition(position))
 }

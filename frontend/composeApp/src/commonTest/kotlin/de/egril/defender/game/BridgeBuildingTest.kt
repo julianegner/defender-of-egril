@@ -275,6 +275,45 @@ class BridgeBuildingTest {
         assertEquals(100, state.coins.value, "A 1-tile bridge with bank tiles on the same side must not add income")
     }
 
+    @Test
+    fun testBridgeRevenueIsAppliedOncePerCompletedEnemyTurn() {
+        val level =
+            Level(
+                id = 1,
+                name = "Repeated Bridge Revenue",
+                gridWidth = 5,
+                gridHeight = 1,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(4, 0)),
+                pathCells = setOf(Position(1, 0), Position(3, 0)),
+                attackerWaves = emptyList(),
+                riverTiles = mapOf(Position(2, 0) to RiverTile(Position(2, 0))),
+            )
+        val state = GameState(level = level)
+        val bridgeSystem = BridgeSystem(state)
+        val engine = GameEngine(state)
+        val ork =
+            Attacker(
+                id = 1,
+                type = AttackerType.ORK,
+                position = mutableStateOf(Position(1, 0)),
+                currentHealth = mutableStateOf(40),
+            )
+        state.attackers.add(ork)
+        assertTrue(bridgeSystem.buildBridge(ork, listOf(Position(2, 0))))
+
+        state.phase.value = GamePhase.ENEMY_TURN
+        engine.completeEnemyTurn()
+        assertEquals(103, state.coins.value, "Bridge revenue should be applied at player-turn start")
+
+        engine.completeEnemyTurn()
+        assertEquals(103, state.coins.value, "Calling completeEnemyTurn outside ENEMY_TURN must not add income again")
+
+        state.phase.value = GamePhase.ENEMY_TURN
+        engine.completeEnemyTurn()
+        assertEquals(106, state.coins.value, "Bridge revenue should be applied again on the next completed enemy turn")
+    }
+
     /**
      * Test that an Ogre can build a stone bridge over 1-2 river tiles
      */
