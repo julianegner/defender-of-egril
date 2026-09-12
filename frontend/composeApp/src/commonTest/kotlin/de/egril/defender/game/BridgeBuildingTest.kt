@@ -242,6 +242,39 @@ class BridgeBuildingTest {
         assertEquals(106, state.coins.value, "A 2-tile bridge that crosses the river should add 6 coins")
     }
 
+    @Test
+    fun testSingleTileBridgeRevenueNeedsOppositeBanks() {
+        val level =
+            Level(
+                id = 1,
+                name = "Single Tile Same Bank",
+                gridWidth = 4,
+                gridHeight = 4,
+                startPositions = listOf(Position(0, 1)),
+                targetPositions = listOf(Position(3, 3)),
+                pathCells = setOf(Position(0, 1), Position(1, 0), Position(3, 3)),
+                attackerWaves = emptyList(),
+                riverTiles = mapOf(Position(1, 1) to RiverTile(Position(1, 1))),
+            )
+        val state = GameState(level = level)
+        val bridgeSystem = BridgeSystem(state)
+        val engine = GameEngine(state)
+        val ork =
+            Attacker(
+                id = 1,
+                type = AttackerType.ORK,
+                position = mutableStateOf(Position(0, 1)),
+                currentHealth = mutableStateOf(40),
+            )
+        state.attackers.add(ork)
+        assertTrue(bridgeSystem.buildBridge(ork, listOf(Position(1, 1))))
+
+        state.phase.value = GamePhase.ENEMY_TURN
+        engine.completeEnemyTurn()
+
+        assertEquals(100, state.coins.value, "A 1-tile bridge with bank tiles on the same side must not add income")
+    }
+
     /**
      * Test that an Ogre can build a stone bridge over 1-2 river tiles
      */

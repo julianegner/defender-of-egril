@@ -443,12 +443,20 @@ class BridgeSystem(
                         neighbor.x in 0 until state.level.gridWidth &&
                             neighbor.y in 0 until state.level.gridHeight &&
                             neighbor !in bridgePositions &&
-                            !state.level.isRiverTile(neighbor)
+                            !state.level.isRiverTile(neighbor) &&
+                            (state.level.isEnemyTraversable(neighbor) || state.level.isTargetPosition(neighbor))
                     }.toSet()
             }
 
         return if (bridge.positions.size == 1) {
-            bankNeighborsByEndpoint.first().size >= 2
+            val bankDirections =
+                bridge.positions
+                    .first()
+                    .getHexNeighbors()
+                    .mapIndexedNotNull { direction, neighbor ->
+                        neighbor.takeIf { it in bankNeighborsByEndpoint.first() }?.let { direction }
+                    }.toSet()
+            bankDirections.any { direction -> (direction + 3).mod(6) in bankDirections }
         } else {
             bankNeighborsByEndpoint.all { it.isNotEmpty() } &&
                 bankNeighborsByEndpoint[0].minus(bankNeighborsByEndpoint[1]).isNotEmpty() &&
