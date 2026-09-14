@@ -7,7 +7,6 @@ import de.egril.defender.model.AttackerWave
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Level
 import de.egril.defender.model.Position
-import de.egril.defender.ui.settings.AppSettings
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -121,17 +120,17 @@ class EnemyPathfindingOverlayTest {
             )
         gameState.attackers.add(attacker)
 
-        AppSettings.showEnemyPathfinding.value = false
+        var showEnemyPathfinding = false
         val hiddenPath =
-            if (!AppSettings.showEnemyPathfinding.value) {
+            if (!showEnemyPathfinding) {
                 emptySet()
             } else {
                 plannedEnemyPathForDisplay(gameState, attacker)?.drop(1)?.toSet() ?: emptySet()
             }
 
-        AppSettings.showEnemyPathfinding.value = true
+        showEnemyPathfinding = true
         val visiblePath =
-            if (!AppSettings.showEnemyPathfinding.value) {
+            if (!showEnemyPathfinding) {
                 emptySet()
             } else {
                 plannedEnemyPathForDisplay(gameState, attacker)?.drop(1)?.toSet() ?: emptySet()
