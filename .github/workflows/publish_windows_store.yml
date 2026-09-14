@@ -1,0 +1,277 @@
+# Publish to Microsoft Store
+#
+# Trigger: workflow_call from the Release workflow (after a successful release),
+#          or workflow_dispatch for manual re-runs.
+#
+# What it does:
+#   1. Validates inputs.
+#   2. Checks that all required Microsoft Store credentials are configured.
+#      If any are missing, logs a warning and exits successfully (skips upload).
+#   3. Downloads the MSIX package from the specified (or latest) GitHub Release.
+#   4. Submits the MSIX to the Microsoft Store via the Partner Center
+#      Submission API using OAuth2 client credentials.
+#
+# Required secrets (all optional – workflow skips gracefully when absent):
+#   WINDOWS_STORE_TENANT_ID          – Azure AD directory (tenant) ID
+#   WINDOWS_STORE_CLIENT_ID          – Azure AD application (client) ID
+#   WINDOWS_STORE_CLIENT_SECRET      – Azure AD client secret value
+#   WINDOWS_STORE_APP_ID             – Partner Center product / application ID
+#
+# See frontend/windowsstore/README.md for step-by-step setup instructions.
+
+name: Publish to Microsoft Store
+
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        description: "Release tag to publish from (e.g. v1.0.3). Defaults to the latest release."
+        required: false
+        type: string
+    secrets:
+      WINDOWS_STORE_TENANT_ID:
+        required: false
+      WINDOWS_STORE_CLIENT_ID:
+        required: false
+      WINDOWS_STORE_CLIENT_SECRET:
+        required: false
+      WINDOWS_STORE_APP_ID:
+        required: false
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag to publish from (e.g. v1.0.3). Leave empty to use the latest release."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish_windows_store:
+    name: Publish MSIX to Microsoft Store
+    runs-on: windows-latest
+
+    steps:
+      # -------------------------------------------------------------------------
+      # Validate the release_tag format when provided.
+      # -------------------------------------------------------------------------
+      - name: Validate workflow inputs
+        shell: pwsh
+        run: |
+          $releaseTag = "${{ inputs.release_tag }}"
+          if ($releaseTag -and $releaseTag -notmatch '^v\d+\.\d+\.\d+') {
+            Write-Error "release_tag must start with 'v<major>.<minor>.<patch>' (got '$releaseTag')."
+            exit 1
+          }
+
+      # -------------------------------------------------------------------------
+      # Check that all four required secrets are present.
+      # If any are missing, set skip=true and continue; all later steps are
+      # gated on this output so the job still succeeds (just does nothing).
+      # -------------------------------------------------------------------------
+      - name: Check Microsoft Store credentials
+        id: check
+        env:
+          WINDOWS_STORE_TENANT_ID: ${{ secrets.WINDOWS_STORE_TENANT_ID }}
+          WINDOWS_STORE_CLIENT_ID: ${{ secrets.WINDOWS_STORE_CLIENT_ID }}
+          WINDOWS_STORE_CLIENT_SECRET: ${{ secrets.WINDOWS_STORE_CLIENT_SECRET }}
+          WINDOWS_STORE_APP_ID: ${{ secrets.WINDOWS_STORE_APP_ID }}
+        shell: pwsh
+        run: |
+          $missing = @()
+          if (-not $env:WINDOWS_STORE_TENANT_ID)     { $missing += "WINDOWS_STORE_TENANT_ID" }
+          if (-not $env:WINDOWS_STORE_CLIENT_ID)     { $missing += "WINDOWS_STORE_CLIENT_ID" }
+          if (-not $env:WINDOWS_STORE_CLIENT_SECRET) { $missing += "WINDOWS_STORE_CLIENT_SECRET" }
+          if (-not $env:WINDOWS_STORE_APP_ID)        { $missing += "WINDOWS_STORE_APP_ID" }
+
+          if ($missing.Count -gt 0) {
+            Write-Warning "Microsoft Store credentials not configured ($($missing -join ', ')); skipping Store publish."
+            "skip=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          } else {
+            "skip=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
+
+      # -------------------------------------------------------------------------
+      # Download the MSIX from the GitHub Release.
+      # -------------------------------------------------------------------------
+      - name: Download MSIX from GitHub Release
+        if: steps.check.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path msix-artifact | Out-Null
+          $releaseTag = "${{ inputs.release_tag }}"
+          if ($releaseTag) {
+            Write-Host "Downloading MSIX from release $releaseTag ..."
+            gh release download $releaseTag `
+              --repo "${{ github.repository }}" `
+              --pattern "*.msix" `
+              --dir msix-artifact
+          } else {
+            Write-Host "No release_tag provided; downloading MSIX from the latest release ..."
+            gh release download `
+              --repo "${{ github.repository }}" `
+              --pattern "*.msix" `
+              --dir msix-artifact
+          }
+
+      # -------------------------------------------------------------------------
+      # Locate the downloaded MSIX file and expose its path for later steps.
+      # -------------------------------------------------------------------------
+      - name: Locate MSIX file
+        if: steps.check.outputs.skip != 'true'
+        id: locate
+        shell: pwsh
+        run: |
+          $msixFile = Get-ChildItem msix-artifact -Filter "*.msix" | Select-Object -First 1
+          if (-not $msixFile) {
+            Write-Error "No .msix file found in downloaded release assets. Make sure the build_windows_msix job ran successfully and attached the MSIX to the release."
+            exit 1
+          }
+          Write-Host "Found MSIX: $($msixFile.FullName)"
+          "msix=$($msixFile.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "msix_name=$($msixFile.Name)"  | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      # -------------------------------------------------------------------------
+      # Submit the MSIX to the Microsoft Store via the Partner Center
+      # Submission API.
+      #
+      # API reference:
+      #   https://learn.microsoft.com/en-us/windows/apps/publish/manage-app-submissions/
+      #     create-and-manage-submissions-using-windows-store-services
+      #
+      # Flow:
+      #   1. Obtain an OAuth2 access token from Azure AD.
+      #   2. Fetch the current app to check for an existing pending submission.
+      #   3. Create a new submission (or delete the old pending one first).
+      #   4. Add the MSIX package entry to the submission.
+      #   5. Upload a ZIP archive containing the MSIX to Azure Blob Storage
+      #      using the fileUploadUrl from the submission.
+      #   6. Commit the submission so it moves into the review queue.
+      # -------------------------------------------------------------------------
+      - name: Submit MSIX to Microsoft Store
+        if: steps.check.outputs.skip != 'true'
+        id: submit
+        env:
+          TENANT_ID: ${{ secrets.WINDOWS_STORE_TENANT_ID }}
+          CLIENT_ID: ${{ secrets.WINDOWS_STORE_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.WINDOWS_STORE_CLIENT_SECRET }}
+          APP_ID: ${{ secrets.WINDOWS_STORE_APP_ID }}
+          MSIX_PATH: ${{ steps.locate.outputs.msix }}
+          MSIX_NAME: ${{ steps.locate.outputs.msix_name }}
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+
+          $devCenterBase = "https://manage.devcenter.microsoft.com/v1.0/my"
+
+          # --- 1. Obtain OAuth2 access token from Azure AD ---
+          Write-Host "Authenticating with Azure AD ..."
+          $tokenUrl  = "https://login.microsoftonline.com/$env:TENANT_ID/oauth2/token"
+          $tokenBody = @{
+            grant_type    = "client_credentials"
+            client_id     = $env:CLIENT_ID
+            client_secret = $env:CLIENT_SECRET
+            resource      = "https://manage.devcenter.microsoft.com"
+          }
+          $tokenResp   = Invoke-RestMethod -Method Post -Uri $tokenUrl -Body $tokenBody
+          $accessToken = $tokenResp.access_token
+          $authValue   = "Bearer " + $accessToken
+          $headers = @{
+            Authorization  = $authValue
+            "Content-Type" = "application/json"
+          }
+          Write-Host "Authentication successful."
+
+          # --- 2. Fetch application info ---
+          $appUrl  = "$devCenterBase/applications/$env:APP_ID"
+          Write-Host "Fetching application info ..."
+          $appInfo = Invoke-RestMethod -Method Get -Uri $appUrl -Headers $headers
+
+          # --- 3. Create a new submission (delete any existing pending one first) ---
+          $pendingId = $appInfo.pendingApplicationSubmission.id
+          if ($pendingId) {
+            Write-Host "Deleting existing pending submission $pendingId ..."
+            Invoke-RestMethod -Method Delete `
+              -Uri "$appUrl/submissions/$pendingId" `
+              -Headers $headers | Out-Null
+          }
+
+          Write-Host "Creating new submission ..."
+          $submission   = Invoke-RestMethod -Method Post -Uri "$appUrl/submissions" -Headers $headers
+          $submissionId = $submission.id
+          $uploadUrl    = $submission.fileUploadUrl
+          Write-Host "New submission ID: $submissionId"
+
+          # --- 4. Add MSIX package entry to the submission ---
+          $submission.applicationPackages = @(
+            [pscustomobject]@{
+              fileName              = $env:MSIX_NAME
+              fileStatus            = "PendingUpload"
+              minimumDirectXVersion = "None"
+              minimumSystemRam      = "None"
+            }
+          )
+          $submissionJson = $submission | ConvertTo-Json -Depth 20
+          Invoke-RestMethod -Method Put `
+            -Uri "$appUrl/submissions/$submissionId" `
+            -Headers $headers `
+            -Body $submissionJson | Out-Null
+          Write-Host "Submission updated with package entry."
+
+          # --- 5. Upload ZIP archive to Azure Blob Storage ---
+          # The Partner Center API expects a ZIP that contains the MSIX at its root.
+          $zipPath = [System.IO.Path]::ChangeExtension($env:MSIX_PATH, ".zip")
+          Write-Host "Packaging MSIX into ZIP for upload ..."
+          Compress-Archive -Path $env:MSIX_PATH -DestinationPath $zipPath -Force
+
+          Write-Host "Uploading package archive to Partner Center blob storage ..."
+          $uploadHeaders = @{ "x-ms-blob-type" = "BlockBlob" }
+          Invoke-WebRequest -Method Put -Uri $uploadUrl `
+            -Headers $uploadHeaders `
+            -InFile $zipPath `
+            -ContentType "application/octet-stream" | Out-Null
+          Write-Host "Upload complete."
+
+          # --- 6. Commit the submission ---
+          Write-Host "Committing submission $submissionId ..."
+          Invoke-RestMethod -Method Post `
+            -Uri "$appUrl/submissions/$submissionId/commit" `
+            -Headers $headers | Out-Null
+
+          Write-Host ""
+          Write-Host "Submission $submissionId committed successfully."
+          Write-Host "Monitor progress at: https://partner.microsoft.com/en-us/dashboard/products/$env:APP_ID"
+
+          "submission_id=$submissionId" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      # -------------------------------------------------------------------------
+      # Write a step summary so the operator can quickly review what was uploaded.
+      # -------------------------------------------------------------------------
+      - name: Write publish summary
+        if: steps.check.outputs.skip != 'true'
+        env:
+          MSIX_NAME: ${{ steps.locate.outputs.msix_name }}
+          SUBMISSION_ID: ${{ steps.submit.outputs.submission_id }}
+        shell: pwsh
+        run: |
+          $releaseTag = "${{ inputs.release_tag }}"
+          if (-not $releaseTag) { $releaseTag = "(latest)" }
+          $summary = @"
+          ## Microsoft Store Submission Complete
+
+          | Field | Value |
+          |-------|-------|
+          | Release tag | ``$releaseTag`` |
+          | MSIX file | ``$env:MSIX_NAME`` |
+          | Submission ID | ``$env:SUBMISSION_ID`` |
+          | Status | Submitted - awaiting certification |
+          | Partner Center | [View submission](https://partner.microsoft.com/en-us/dashboard) |
+
+          > **Next step:** Monitor certification progress in [Partner Center](https://partner.microsoft.com/en-us/dashboard).
+          > Certification typically takes 1-3 business days for a new submission.
+          "@
+          $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  MSIX AppxManifest.xml template for Defender of Egril
+  =====================================================
+
+  Placeholders that are replaced at build time:
+    {{VERSION}}                – Four-part version string (e.g. 1.2.3.0)
+    {{PUBLISHER}}              – Publisher identity from Partner Center
+                                 (e.g. "CN=ABC12345, O=Example Corp")
+                                 Configured via the WINDOWS_STORE_PUBLISHER_ID
+                                 secret in GitHub Actions.
+    {{PUBLISHER_DISPLAY_NAME}} – Human-readable publisher name
+                                 Configured via the WINDOWS_STORE_PUBLISHER_DISPLAY_NAME
+                                 secret in GitHub Actions.
+
+  IMPORTANT – before your first Store submission:
+    1. Open Partner Center → Product management → MSIX packaging.
+    2. Copy your exact "Publisher" identity string (starts with "CN=").
+    3. Set that string as the WINDOWS_STORE_PUBLISHER_ID repository secret.
+    4. Set your display name as WINDOWS_STORE_PUBLISHER_DISPLAY_NAME.
+    5. The Package Name below must match the one reserved in Partner Center.
+
+  See frontend/windowsstore/README.md for full setup instructions.
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap rescap">
+
+  <!--
+    Identity.Name  – must exactly match the Package Name reserved in Partner Center.
+    Identity.Publisher – must exactly match your Partner Center publisher identity.
+    Identity.Version   – four-part version; the fourth component is always 0.
+  -->
+  <Identity
+    Name="JulianEgner.DefenderOfEgril"
+    Publisher="{{PUBLISHER}}"
+    Version="{{VERSION}}"
+    ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>Defender of Egril</DisplayName>
+    <PublisherDisplayName>{{PUBLISHER_DISPLAY_NAME}}</PublisherDisplayName>
+    <Description>Turn-based tower defense game. Protect Egril from waves of enemies!</Description>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <!-- Minimum: Windows 10 1809 (17763); tested up to Windows 11 22H2 (22621) -->
+    <TargetDeviceFamily
+      Name="Windows.Desktop"
+      MinVersion="10.0.17763.0"
+      MaxVersionTested="10.0.22621.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+
+  <Applications>
+    <Application
+      Id="App"
+      Executable="DefenderOfEgril\DefenderOfEgril.exe"
+      EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Defender of Egril"
+        Description="Turn-based tower defense game. Protect Egril from waves of enemies!"
+        BackgroundColor="transparent"
+        Square44x44Logo="Assets\Square44x44Logo.png"
+        Square150x150Logo="Assets\Square150x150Logo.png">
+        <uap:DefaultTile
+          Wide310x150Logo="Assets\Wide310x150Logo.png"
+          Square310x310Logo="Assets\Square310x310Logo.png"
+          ShortName="Defender of Egril" />
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+
+  <!--
+    runFullTrust is required for Win32/JVM desktop apps packaged as MSIX.
+    This capability allows the app to run as a full-trust process.
+  -->
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+
+</Package>
