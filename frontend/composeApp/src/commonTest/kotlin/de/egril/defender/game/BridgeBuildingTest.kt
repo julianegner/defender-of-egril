@@ -206,6 +206,41 @@ class BridgeBuildingTest {
     }
 
     @Test
+    fun testBridgeRevenueCountsNonPathRiverbanks() {
+        val level =
+            Level(
+                id = 1,
+                name = "Bridge Build Area Crossing",
+                gridWidth = 5,
+                gridHeight = 1,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(4, 0)),
+                pathCells = emptySet(),
+                buildAreas = setOf(Position(1, 0), Position(3, 0)),
+                attackerWaves = emptyList(),
+                riverTiles = mapOf(Position(2, 0) to RiverTile(Position(2, 0))),
+            )
+        val state = GameState(level = level)
+        val bridgeSystem = BridgeSystem(state)
+        val engine = GameEngine(state)
+        val ork =
+            Attacker(
+                id = 1,
+                type = AttackerType.ORK,
+                position = mutableStateOf(Position(1, 0)),
+                currentHealth = mutableStateOf(40),
+            )
+        state.attackers.add(ork)
+        assertTrue(bridgeSystem.buildBridge(ork, listOf(Position(2, 0))))
+
+        state.phase.value = GamePhase.ENEMY_TURN
+        engine.completeEnemyTurn()
+
+        assertEquals(103, state.coins.value, "A bridge crossing between non-path riverbanks should still add income")
+        assertEquals(3, bridgeSystem.getBridgeIncomePerTile(state.bridges.single()), "Each bridge tile should yield 3 coins")
+    }
+
+    @Test
     fun testCrossingBridgeRevenueIsThreeCoinsPerTile() {
         val level =
             Level(

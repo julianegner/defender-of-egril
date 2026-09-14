@@ -427,8 +427,12 @@ class BridgeSystem(
      * Only bridges that span from one riverbank to another provide income.
      */
     fun getBridgeIncomePerTurn(bridge: Bridge): Int {
+        return bridge.positions.size * getBridgeIncomePerTile(bridge)
+    }
+
+    fun getBridgeIncomePerTile(bridge: Bridge): Int {
         if (!bridge.isActive || !crossesToOtherRiverbank(bridge)) return 0
-        return bridge.positions.size * BRIDGE_TILE_INCOME
+        return BRIDGE_TILE_INCOME
     }
 
     private fun crossesToOtherRiverbank(bridge: Bridge): Boolean {
@@ -494,5 +498,5 @@ class BridgeSystem(
             position.y in 0 until state.level.gridHeight &&
             position !in bridgePositions &&
             !state.level.isRiverTile(position) &&
-            (state.level.isEnemyTraversable(position) || state.level.isTargetPosition(position))
+            (state.level.isEnemyTraversable(position) || state.level.isBuildArea(position) || state.level.isTargetPosition(position))
 }
