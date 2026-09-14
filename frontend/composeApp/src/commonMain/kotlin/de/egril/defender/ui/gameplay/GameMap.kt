@@ -39,6 +39,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.LogConfig
+import de.egril.defender.game.BridgeSystem
 import de.egril.defender.game.EnemyMovementSystem
 import de.egril.defender.game.FreyaShieldWallArc
 import de.egril.defender.game.PathfindingSystem
@@ -2998,6 +2999,8 @@ private fun BoxScope.GridCellContent(
     attackPreview: EnemyAttackPreview? = null,
     isInSelectedEnemyPath: Boolean = false,
 ) {
+    val bridgeSystem = remember(gameState) { BridgeSystem(gameState) }
+
     // When animations are enabled, delay updating the enemy's displayed health value until
     // the attack animation (projectile flight + impact flash) has completed.
     // This way the health number on the icon only changes after the impact flash, matching
@@ -3677,7 +3680,8 @@ private fun BoxScope.GridCellContent(
             val bridge = gameState.getBridgeAt(position)
             if (bridge != null) {
                 // Show bridge over river
-                BridgeVisualization(bridge = bridge)
+                val bridgeIncomePerTile = bridgeSystem.getBridgeIncomePerTile(bridge)
+                BridgeVisualization(bridge = bridge, incomePerTile = bridgeIncomePerTile)
             } else {
                 // Show river flow direction arrows
                 if (riverTile != null) {
@@ -4538,7 +4542,10 @@ private fun BoxScope.GridCellContent(
  * Visualize a bridge over a river tile
  */
 @Composable
-fun BridgeVisualization(bridge: Bridge) {
+fun BridgeVisualization(
+    bridge: Bridge,
+    incomePerTile: Int,
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -4617,7 +4624,7 @@ fun BridgeVisualization(bridge: Bridge) {
             }
         }
 
-        // Display health or turn count below the arc
+        // Display health/turn count and coin income below the arc
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom,
@@ -4626,28 +4633,40 @@ fun BridgeVisualization(bridge: Bridge) {
                     .fillMaxSize()
                     .padding(bottom = 4.dp),
         ) {
-            when (bridge.type) {
-                BridgeType.WOODEN, BridgeType.STONE -> {
-                    if (!bridge.isIndestructible) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                when (bridge.type) {
+                    BridgeType.WOODEN, BridgeType.STONE -> {
+                        if (!bridge.isIndestructible) {
+                            Text(
+                                text = "${bridge.currentHealth.value}",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontSize = 13.sp,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+                    BridgeType.MAGICAL -> {
+                        // Show remaining turns
                         Text(
-                            text = "${bridge.currentHealth.value}",
+                            text = "${bridge.turnsRemaining.value}T",
                             style = MaterialTheme.typography.labelSmall,
                             fontSize = 13.sp,
-                            color = Color.White,
+                            color = Color(0xFFFFFF00), // Yellow
                             fontWeight = FontWeight.Bold,
                         )
                     }
                 }
-                BridgeType.MAGICAL -> {
-                    // Show remaining turns
-                    Text(
-                        text = "${bridge.turnsRemaining.value}T",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 13.sp,
-                        color = Color(0xFFFFFF00), // Yellow
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
+                Text(
+                    text = "+$incomePerTile",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = 13.sp,
+                    color = GamePlayColors.Yellow,
+                    fontWeight = FontWeight.Bold,
+                )
             }
             Spacer(modifier = Modifier.height(10.dp))
         }

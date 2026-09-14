@@ -162,9 +162,11 @@ class TurnLifecycleLogic(
         }
         state.coinSurgeActive.value = false
 
-        val fiefIncome = state.fiefs.sumOf { it.type.incomePerTurn }
-        if (fiefIncome > 0) {
-            state.coins.value += fiefIncome
+        val passiveIncome =
+            state.fiefs.sumOf { it.type.incomePerTurn } +
+                state.bridges.sumOf { bridge -> bridgeSystem.getBridgeIncomePerTurn(bridge) }
+        if (passiveIncome > 0) {
+            state.coins.value += passiveIncome
         }
 
         state.phase.value = GamePhase.PLAYER_TURN
