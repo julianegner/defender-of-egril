@@ -51,6 +51,7 @@ import de.egril.defender.ui.editor.level.analyzeMapFlow
 import de.egril.defender.ui.hexagon.BaseGridCell
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 import de.egril.defender.ui.hexagon.HexagonalMapConfig
+import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import de.egril.defender.ui.hexagon.HexagonalMapView
 import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.icon.CheckmarkIcon
@@ -891,7 +892,10 @@ fun MapEditorView(
             // Spacer to account for header height (dynamic based on expanded/collapsed state)
             Spacer(modifier = Modifier.height(headerHeight))
 
-            val hexSizePx = with(LocalDensity.current) { hexSize.toPx() }
+            val density = LocalDensity.current
+            val hexSizePx = with(density) { hexSize.toPx() }
+            val horizontalSpacingPx = with(density) { HexagonalGridConstants.HORIZONTAL_SPACING.dp.toPx() }
+            val verticalSpacingAdjustmentPx = with(density) { HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT.dp.toPx() }
             Box(
                 modifier =
                     Modifier
@@ -949,7 +953,16 @@ fun MapEditorView(
                                     val adjustedY = pointerPos.y - (containerSize.height - scaledHeight) / 2f
                                     val adjustedPointerPos = Offset(adjustedX, adjustedY)
 
-                                    val tilePos = screenToHexGridPosition(adjustedPointerPos, offsetX, offsetY, zoomLevel, hexSizePx)
+                                    val tilePos =
+                                        screenToHexGridPosition(
+                                            adjustedPointerPos,
+                                            offsetX,
+                                            offsetY,
+                                            zoomLevel,
+                                            hexSizePx,
+                                            horizontalSpacingPx,
+                                            verticalSpacingAdjustmentPx,
+                                        )
                                     if (tilePos != null) {
                                         onBrushPaint(tilePos)
                                     }
