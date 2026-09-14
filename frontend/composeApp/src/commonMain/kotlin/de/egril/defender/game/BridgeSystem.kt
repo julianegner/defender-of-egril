@@ -436,58 +436,70 @@ class BridgeSystem(
     }
 
     private fun crossesToOtherRiverbank(bridge: Bridge): Boolean {
-        if (bridge.positions.isEmpty()) return false
+        val bridgePositions = getConnectedBridgePositions(bridge)
+        if (bridgePositions.isEmpty()) return false
 
-        val bridgePositions = bridge.positions.toSet()
+        val landingTiles =
+            bridgePositions
+                .flatMap { position -> position.getHexNeighbors() }
+                .filter { neighbor -> isBridgeLandingTile(neighbor, bridgePositions) }
+                .toSet()
 
-        return if (bridge.positions.size == 1) {
-            val bankDirections =
-                bridge.positions
-                    .first()
-                    .getHexNeighbors()
-                    .mapIndexedNotNull { direction, neighbor ->
-                        neighbor.takeIf { isBridgeLandingTile(neighbor, bridgePositions) }?.let { direction }
-                    }.toSet()
-            bankDirections.any { direction -> (direction + 3).mod(6) in bankDirections }
-        } else {
-            val orderedBridgePositions = getOrderedBridgePositions(bridge) ?: return false
-            val bankNeighborsByEndpoint =
-                listOf(orderedBridgePositions.first(), orderedBridgePositions.last()).map { endpoint ->
-                    endpoint
-                        .getHexNeighbors()
-                        .filter { neighbor ->
-                            isBridgeLandingTile(neighbor, bridgePositions)
-                        }.toSet()
-                }
-            bankNeighborsByEndpoint.all { it.isNotEmpty() } &&
-                bankNeighborsByEndpoint[0].minus(bankNeighborsByEndpoint[1]).isNotEmpty() &&
-                bankNeighborsByEndpoint[1].minus(bankNeighborsByEndpoint[0]).isNotEmpty()
-        }
+        return countLandingRegions(landingTiles) >= 2
     }
 
-    private fun getOrderedBridgePositions(bridge: Bridge): List<Position>? {
-        val bridgePositions = bridge.positions.toSet()
-        val neighborsByPosition =
-            bridgePositions.associateWith { position ->
-                position.getHexNeighbors().filter { it in bridgePositions }
+    private fun getConnectedBridgePositions(bridge: Bridge): Set<Position> {
+        val allActiveBridgePositions =
+            state.bridges
+                .asSequence()
+                .filter { it.isActive }
+                .flatMap { it.positions.asSequence() }
+                .toSet()
+
+        val connected = mutableSetOf<Position>()
+        val frontier = ArrayDeque<Position>()
+        bridge.positions
+            .filter { it in allActiveBridgePositions }
+            .forEach { position ->
+                connected.add(position)
+                frontier.add(position)
             }
-        if (neighborsByPosition.values.any { it.size > 2 }) return null
 
-        val endpoints = neighborsByPosition.filterValues { it.size == 1 }.keys.toList()
-        if (endpoints.size != 2) return null
-
-        val orderedPositions = mutableListOf<Position>()
-        var previous: Position? = null
-        var current = endpoints.first()
-
-        while (true) {
-            orderedPositions.add(current)
-            val next = neighborsByPosition.getValue(current).firstOrNull { it != previous } ?: break
-            previous = current
-            current = next
+        while (frontier.isNotEmpty()) {
+            val current = frontier.removeFirst()
+            current
+                .getHexNeighbors()
+                .filter { it in allActiveBridgePositions && connected.add(it) }
+                .forEach { frontier.add(it) }
         }
 
-        return orderedPositions.takeIf { it.size == bridgePositions.size }
+        return connected
+    }
+
+    private fun countLandingRegions(landingTiles: Set<Position>): Int {
+        val remaining = landingTiles.toMutableSet()
+        var regions = 0
+
+        while (remaining.isNotEmpty()) {
+            regions++
+            val start = remaining.first()
+            val frontier = ArrayDeque<Position>()
+            frontier.add(start)
+            remaining.remove(start)
+
+            while (frontier.isNotEmpty()) {
+                val current = frontier.removeFirst()
+                current
+                    .getHexNeighbors()
+                    .filter { it in remaining }
+                    .forEach { neighbor ->
+                        remaining.remove(neighbor)
+                        frontier.add(neighbor)
+                    }
+            }
+        }
+
+        return regions
     }
 
     private fun isBridgeLandingTile(

@@ -241,6 +241,58 @@ class BridgeBuildingTest {
     }
 
     @Test
+    fun testConnectedInitialBridgeClusterGeneratesRevenuePerTile() {
+        val level =
+            Level(
+                id = 1,
+                name = "Initial Bridge Cluster",
+                gridWidth = 4,
+                gridHeight = 4,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(3, 3)),
+                pathCells =
+                    setOf(
+                        Position(0, 0),
+                        Position(1, 0),
+                        Position(2, 0),
+                        Position(0, 3),
+                        Position(1, 3),
+                        Position(2, 3),
+                    ),
+                attackerWaves = emptyList(),
+                riverTiles =
+                    mapOf(
+                        Position(1, 1) to RiverTile(Position(1, 1)),
+                        Position(2, 1) to RiverTile(Position(2, 1)),
+                        Position(0, 2) to RiverTile(Position(0, 2)),
+                        Position(1, 2) to RiverTile(Position(1, 2)),
+                    ),
+            )
+        val state = GameState(level = level)
+        val bridgeSystem = BridgeSystem(state)
+        val engine = GameEngine(state)
+
+        state.bridges.addAll(
+            listOf(
+                Bridge(1, BridgeType.WOODEN, listOf(Position(1, 1)), mutableStateOf(50), createdByAttackerId = 0, createdOnTurn = 0),
+                Bridge(2, BridgeType.WOODEN, listOf(Position(2, 1)), mutableStateOf(50), createdByAttackerId = 0, createdOnTurn = 0),
+                Bridge(3, BridgeType.WOODEN, listOf(Position(0, 2)), mutableStateOf(50), createdByAttackerId = 0, createdOnTurn = 0),
+                Bridge(4, BridgeType.WOODEN, listOf(Position(1, 2)), mutableStateOf(50), createdByAttackerId = 0, createdOnTurn = 0),
+            ),
+        )
+
+        assertEquals(4, state.bridges.size, "Connected bridge tiles should exist as separate bridge objects")
+        state.bridges.forEach { bridge ->
+            assertEquals(3, bridgeSystem.getBridgeIncomePerTile(bridge), "Each bridge tile in the connected crossing should yield 3 coins")
+        }
+
+        state.phase.value = GamePhase.ENEMY_TURN
+        engine.completeEnemyTurn()
+
+        assertEquals(112, state.coins.value, "A 4-tile connected initial bridge crossing should add 12 coins total")
+    }
+
+    @Test
     fun testCrossingBridgeRevenueIsThreeCoinsPerTile() {
         val level =
             Level(
