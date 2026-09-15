@@ -191,7 +191,11 @@ fun AttackerInfo(
                     val cooledSpeed = if (coolingEffect != null) maxOf(0, mushroomSpeed - 1) else null
                     val waaghSpeed =
                         if (waaghActive && (attacker.type == AttackerType.GOBLIN || attacker.type == AttackerType.GOBLIN_RUNNER || attacker.type == AttackerType.ORK)) {
-                            attacker.currentBaseMovementSpeed * 2
+                            when (attacker.type) {
+                                AttackerType.GOBLIN_RUNNER -> (attacker.type.speed * 2) + attacker.goblinRunnerUndamagedRounds.value
+                                AttackerType.ORK -> attacker.type.speed * 2
+                                else -> attacker.type.speed * 2
+                            }
                         } else {
                             null
                         }

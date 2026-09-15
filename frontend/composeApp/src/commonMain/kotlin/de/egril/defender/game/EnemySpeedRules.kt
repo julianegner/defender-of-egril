@@ -16,9 +16,15 @@ internal fun calculateEffectiveEnemySpeed(
         state.level.waaghEnabled &&
             state.waaghFrenzyActive.value &&
             (attacker.type == AttackerType.GOBLIN || attacker.type == AttackerType.GOBLIN_RUNNER)
+    val goblinRunnerMomentumBonus =
+        if (attacker.type == AttackerType.GOBLIN_RUNNER) {
+            attacker.goblinRunnerUndamagedRounds.value
+        } else {
+            0
+        }
     val baseSpeed =
         if (ignoresSlowing) {
-            attacker.currentBaseMovementSpeed * 2
+            (attacker.type.speed * 2) + goblinRunnerMomentumBonus
         } else {
             var speed = maxOf(1, attacker.currentBaseMovementSpeed - attacker.movementPenalty.value)
             if (attacker.type == AttackerType.ORK &&
