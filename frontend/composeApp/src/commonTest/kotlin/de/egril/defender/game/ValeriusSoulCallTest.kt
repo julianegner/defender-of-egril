@@ -7,8 +7,8 @@ import de.egril.defender.model.AttackerWave
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Level
-import de.egril.defender.model.Position
 import de.egril.defender.model.PlannedEnemySpawn
+import de.egril.defender.model.Position
 import de.egril.defender.model.getSoulCallResurrectionType
 import kotlin.test.Test
 import kotlin.test.assertEquals

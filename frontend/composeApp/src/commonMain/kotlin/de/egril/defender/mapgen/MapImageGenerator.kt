@@ -37,6 +37,7 @@ object MapImageGenerator {
     // Nudge river tile centers north when blending so water stays aligned with
     // hexes and doesn't bleed into southern neighbours.
     private const val RIVER_Y_BIAS = -HEX_HEIGHT * 0.5 // -40 px
+
     // Slightly lower sigma to sharpen biome transitions while keeping soft edges
     private val BLEND_SIGMA = HEX_WIDTH * 0.45 // ~31.2 px
 

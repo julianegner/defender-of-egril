@@ -25,9 +25,10 @@ class MapEditorCrosshairToggleTest {
             width = 5,
             height = 5,
             tiles =
-                (0 until 5).flatMap { y ->
-                    (0 until 5).map { x -> "$x,$y" to TileType.BUILD_AREA }
-                }.toMap(),
+                (0 until 5)
+                    .flatMap { y ->
+                        (0 until 5).map { x -> "$x,$y" to TileType.BUILD_AREA }
+                    }.toMap(),
         )
 
     @Test
@@ -64,4 +65,3 @@ class MapEditorCrosshairToggleTest {
         composeTestRule.onRoot().assertExists()
     }
 }
-

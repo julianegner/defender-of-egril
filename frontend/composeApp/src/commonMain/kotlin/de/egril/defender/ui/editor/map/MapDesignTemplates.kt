@@ -561,7 +561,6 @@ private fun setRiverPath(
     }
 }
 
-
 private fun jitteredRow(
     base: Int,
     height: Int,

@@ -86,8 +86,7 @@ internal fun attackerOutlineColor(
     defaultOutlineColor: Color,
 ): Color = if (attackerType == AttackerType.PIRATE || attackerType == AttackerType.CAPTAIN_RODERICH) Color.White else defaultOutlineColor
 
-private fun AttackerType.isWaaghAffectedUnit(): Boolean =
-    this in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
+private fun AttackerType.isWaaghAffectedUnit(): Boolean = this in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
 
 @Composable
 fun EnemyIcon(

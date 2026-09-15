@@ -151,7 +151,10 @@ class CombatSystem(
         return if (isOnBarge) (raw * (1f - reduction)).toInt().coerceAtLeast(1) else raw
     }
 
-    private fun queueBridgeDamage(position: Position, damage: Int) {
+    private fun queueBridgeDamage(
+        position: Position,
+        damage: Int,
+    ) {
         state.pendingBridgeDamage.add(PendingBridgeDamage(position = position, damage = damage))
     }
 

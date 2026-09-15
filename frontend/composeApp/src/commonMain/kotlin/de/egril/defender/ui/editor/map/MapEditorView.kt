@@ -34,8 +34,8 @@ import de.egril.defender.model.RiverFlow
 import de.egril.defender.model.RiverTile
 import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.TargetType
-import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.model.getHexDirectionTo
+import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.MapImageProvider
 import de.egril.defender.ui.constrainMapOffsets
 import de.egril.defender.ui.editor.ConfirmationDialog
@@ -50,8 +50,8 @@ import de.egril.defender.ui.editor.level.analyzeLevelMapConsistency
 import de.egril.defender.ui.editor.level.analyzeMapFlow
 import de.egril.defender.ui.hexagon.BaseGridCell
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
-import de.egril.defender.ui.hexagon.HexagonalMapConfig
 import de.egril.defender.ui.hexagon.HexagonalGridConstants
+import de.egril.defender.ui.hexagon.HexagonalMapConfig
 import de.egril.defender.ui.hexagon.HexagonalMapView
 import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.icon.CheckmarkIcon
@@ -189,15 +189,17 @@ private fun buildIslandAwareSpiralPath(
         if (ring.isEmpty()) break
         rawRings += ring
         frontier =
-            ring.flatMap { position ->
-                position.getHexNeighbors()
-                    .filter { neighbor ->
-                        neighbor.x in 0 until mapWidth &&
-                            neighbor.y in 0 until mapHeight &&
-                            !visited.contains(neighbor) &&
-                            !isSolidTile(neighbor, tiles, riverTiles)
-                    }
-            }.toSet()
+            ring
+                .flatMap { position ->
+                    position
+                        .getHexNeighbors()
+                        .filter { neighbor ->
+                            neighbor.x in 0 until mapWidth &&
+                                neighbor.y in 0 until mapHeight &&
+                                !visited.contains(neighbor) &&
+                                !isSolidTile(neighbor, tiles, riverTiles)
+                        }
+                }.toSet()
     }
     if (rawRings.isEmpty()) return emptyList()
 
@@ -1771,7 +1773,7 @@ fun MapEditorView(
                 Button(onClick = {
                     val startX = ringStartX.toIntOrNull() ?: return@Button
                     val startY = ringStartY.toIntOrNull() ?: return@Button
-                    val startKey = "${startX},${startY}"
+                    val startKey = "$startX,$startY"
                     if (tiles[startKey] != TileType.RIVER) {
                         fillRiverRingError = true
                         return@Button
@@ -1779,14 +1781,14 @@ fun MapEditorView(
                     fillRiverRingError = false
                     val updated =
                         applyRiverRing(
-                        tiles = tiles,
-                        riverTiles = riverTiles,
-                        mapWidth = mapWidth,
-                        mapHeight = mapHeight,
-                        start = Position(startX, startY),
-                        clockwise = ringClockwise,
-                        innerToOuter = ringInnerToOuter,
-                        flowSpeed = selectedRiverSpeed,
+                            tiles = tiles,
+                            riverTiles = riverTiles,
+                            mapWidth = mapWidth,
+                            mapHeight = mapHeight,
+                            start = Position(startX, startY),
+                            clockwise = ringClockwise,
+                            innerToOuter = ringInnerToOuter,
+                            flowSpeed = selectedRiverSpeed,
                         )
                     if (updated.second != riverTiles) {
                         rememberForUndo()
@@ -1901,7 +1903,6 @@ fun MapEditorView(
                                     },
                                 )
                             }
-
                         }
                     }
 

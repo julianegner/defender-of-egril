@@ -32,9 +32,10 @@ class MapEditorMapPreviewPopupTest {
                     width = 5,
                     height = 5,
                     tiles =
-                        (0 until 5).flatMap { y ->
-                            (0 until 5).map { x -> "$x,$y" to TileType.BUILD_AREA }
-                        }.toMap(),
+                        (0 until 5)
+                            .flatMap { y ->
+                                (0 until 5).map { x -> "$x,$y" to TileType.BUILD_AREA }
+                            }.toMap(),
                 )
 
             val mapImageFile = File(tempHome, ".defender-of-egril/gamedata/user/maps/${testMap.id}.png")
@@ -54,7 +55,8 @@ class MapEditorMapPreviewPopupTest {
             composeTestRule.waitUntil(timeoutMillis = 5_000) {
                 composeTestRule
                     .onAllNodesWithText("Map image preview", substring = true, ignoreCase = true)
-                    .fetchSemanticsNodes().isNotEmpty()
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
             }
 
             composeTestRule.onNodeWithText("Map image preview", substring = true, ignoreCase = true).assertExists()

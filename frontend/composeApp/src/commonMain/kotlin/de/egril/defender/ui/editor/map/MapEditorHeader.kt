@@ -320,18 +320,18 @@ private fun ExpandedMapEditorHeader(
                 }
 
                 Button(
-                        onClick = onCollapse,
-                        modifier = Modifier.height(32.dp),
+                    onClick = onCollapse,
+                    modifier = Modifier.height(32.dp),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            de.egril.defender.ui.icon
-                                .TriangleUpIcon(size = 12.dp)
-                            Text(stringResource(Res.string.collapse), fontSize = 12.sp)
-                        }
+                        de.egril.defender.ui.icon
+                            .TriangleUpIcon(size = 12.dp)
+                        Text(stringResource(Res.string.collapse), fontSize = 12.sp)
                     }
+                }
             }
 
             // Map name input

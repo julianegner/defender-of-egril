@@ -798,7 +798,6 @@ internal fun plannedEnemyPathForDisplay(
     return fullPath.takeIf { it.size > 1 }
 }
 
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GameGrid(

@@ -8,8 +8,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
-import de.egril.defender.editor.MapTemplateDefinition
 import de.egril.defender.editor.MapSizeLimits
+import de.egril.defender.editor.MapTemplateDefinition
 import de.egril.defender.iam.IamState
 import de.egril.defender.ui.editor.level.EditorLevelTemplate
 import de.egril.defender.utils.getCurrentUsername

@@ -50,13 +50,14 @@ internal fun VillainUsagePage(
     onBack: () -> Unit,
 ) {
     var showTestingLevels by remember { mutableStateOf(AppSettings.showTestingLevels.value) }
-    val visibleLevels = remember(levels, showTestingLevels) {
-        if (showTestingLevels) {
-            levels
-        } else {
-            levels.filterNot { it.testingOnly }
+    val visibleLevels =
+        remember(levels, showTestingLevels) {
+            if (showTestingLevels) {
+                levels
+            } else {
+                levels.filterNot { it.testingOnly }
+            }
         }
-    }
     val usageEntries = remember(visibleLevels) { villainUsageEntries(visibleLevels) }
     val locale = currentLanguage.value
 

@@ -200,6 +200,7 @@ object EditorJsonSerializer {
                 } catch (e: Exception) {
                     null // Optional field - null if not present
                 }
+
             fun invalidMap(
                 tiles: Map<String, TileType> = emptyMap(),
                 riverTiles: Map<String, de.egril.defender.model.RiverTile> = emptyMap(),
@@ -1467,7 +1468,8 @@ object EditorJsonSerializer {
                                             BridgeType.WOODEN
                                         }
                                     val healthPoints =
-                                        JsonUtils.extractValue(entry, "healthPoints")
+                                        JsonUtils
+                                            .extractValue(entry, "healthPoints")
                                             .toIntOrNull()
                                             ?: if (type == BridgeType.STONE) InitialBridge.DEFAULT_STONE_HEALTH else InitialBridge.DEFAULT_WOODEN_HEALTH
                                     val isIndestructible =

@@ -648,12 +648,9 @@ data class GameState(
 
     fun hasActionsRemaining(): Boolean = actionsRemainingThisTurn.value > 0
 
-    fun getRemainingPlannedEnemySpawns(): List<PlannedEnemySpawn> =
-        spawnPlan.filter { it.spawnTurn > turnNumber.value }
+    fun getRemainingPlannedEnemySpawns(): List<PlannedEnemySpawn> = spawnPlan.filter { it.spawnTurn > turnNumber.value }
 
-    fun getRemainingEnemyCount(): Int {
-        return getRemainingPlannedEnemySpawns().size
-    }
+    fun getRemainingEnemyCount(): Int = getRemainingPlannedEnemySpawns().size
 
     fun getActiveEnemyCount(): Int {
         // Count only non-defeated enemies that are NOT building bridges

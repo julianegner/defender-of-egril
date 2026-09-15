@@ -79,28 +79,30 @@ fun MapEditorContent(
     var mapUsageFilter by remember { mutableStateOf(MapUsageFilter.ALL) }
     var mapValidityFilter by remember { mutableStateOf(MapValidityFilter.ALL) }
     var mapSourceFilter by remember { mutableStateOf(MapSourceFilter.ALL) }
-    val levelsByMapId = remember(maps.value) {
-        EditorStorage.getAllLevels().filter { it.mapId.isNotBlank() }.groupBy { it.mapId }
-    }
-    val visibleMaps = remember(maps.value, mapUsageFilter, mapValidityFilter, mapSourceFilter, levelsByMapId) {
-        val usageFiltered =
-            when (mapUsageFilter) {
-                MapUsageFilter.ALL -> maps.value
-                MapUsageFilter.USED -> maps.value.filter { (levelsByMapId[it.id] ?: emptyList()).isNotEmpty() }
-                MapUsageFilter.UNUSED -> maps.value.filter { (levelsByMapId[it.id] ?: emptyList()).isEmpty() }
-            }
-        val sourceFiltered =
-            when (mapSourceFilter) {
-                MapSourceFilter.ALL -> usageFiltered
-                MapSourceFilter.OFFICIAL -> usageFiltered.filter { it.isOfficial }
-                MapSourceFilter.NON_OFFICIAL -> usageFiltered.filter { !it.isOfficial }
-            }
-        when (mapValidityFilter) {
-            MapValidityFilter.ALL -> sourceFiltered
-            MapValidityFilter.VALID -> sourceFiltered.filter { it.readyToUse }
-            MapValidityFilter.INVALID -> sourceFiltered.filter { !it.readyToUse }
+    val levelsByMapId =
+        remember(maps.value) {
+            EditorStorage.getAllLevels().filter { it.mapId.isNotBlank() }.groupBy { it.mapId }
         }
-    }
+    val visibleMaps =
+        remember(maps.value, mapUsageFilter, mapValidityFilter, mapSourceFilter, levelsByMapId) {
+            val usageFiltered =
+                when (mapUsageFilter) {
+                    MapUsageFilter.ALL -> maps.value
+                    MapUsageFilter.USED -> maps.value.filter { (levelsByMapId[it.id] ?: emptyList()).isNotEmpty() }
+                    MapUsageFilter.UNUSED -> maps.value.filter { (levelsByMapId[it.id] ?: emptyList()).isEmpty() }
+                }
+            val sourceFiltered =
+                when (mapSourceFilter) {
+                    MapSourceFilter.ALL -> usageFiltered
+                    MapSourceFilter.OFFICIAL -> usageFiltered.filter { it.isOfficial }
+                    MapSourceFilter.NON_OFFICIAL -> usageFiltered.filter { !it.isOfficial }
+                }
+            when (mapValidityFilter) {
+                MapValidityFilter.ALL -> sourceFiltered
+                MapValidityFilter.VALID -> sourceFiltered.filter { it.readyToUse }
+                MapValidityFilter.INVALID -> sourceFiltered.filter { !it.readyToUse }
+            }
+        }
     var selectedMapId by remember { mutableStateOf<String?>(null) }
     var editingMap by remember { mutableStateOf<EditorMap?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }

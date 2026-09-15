@@ -262,7 +262,10 @@ class GameMapComputeCostValidationTest {
 
         val codeSourceLocation =
             runCatching {
-                File(GameMapComputeCostValidationTest::class.java.protectionDomain.codeSource.location.toURI()).absoluteFile
+                File(
+                    GameMapComputeCostValidationTest::class.java.protectionDomain.codeSource.location
+                        .toURI(),
+                ).absoluteFile
             }.getOrElse { error ->
                 fail("Could not resolve test class location for GameMap lookup: ${error.message}")
             }
@@ -282,7 +285,10 @@ class GameMapComputeCostValidationTest {
         )
     }
 
-    private fun lineNumberAt(source: String, index: Int): Int = source.substring(0, index).count { it == '\n' } + 1
+    private fun lineNumberAt(
+        source: String,
+        index: Int,
+    ): Int = source.substring(0, index).count { it == '\n' } + 1
 
     private fun findMatchingClosingDelimiter(
         source: String,
