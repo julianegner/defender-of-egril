@@ -200,4 +200,52 @@ class GoblinRunnerTest {
         assertEquals(3, runner.goblinRunnerSpawnTurnNumber.value)
         assertTrue(runner.goblinRunnerMomentumReady.value)
     }
+
+    @Test
+    fun deserializingOldSaveWithoutGoblinRunnerMomentumFieldsUsesDefaults() {
+        val oldSaveJson =
+            """{
+  "id": "old_runner_save",
+  "timestamp": 1234567890,
+  "levelId": 1,
+  "levelName": "Goblin Runner Test",
+  "turnNumber": 5,
+  "coins": 100,
+  "healthPoints": 10,
+  "phase": "PLAYER_TURN",
+  "defenders": [],
+  "attackers": [
+    {
+      "id": 1,
+      "type": "GOBLIN_RUNNER",
+      "position": {"x": 3, "y": 1},
+      "level": 1,
+      "currentHealth": 12,
+      "isDefeated": false,
+      "dragonName": null,
+      "movementPenalty": 0,
+      "bloodlustRoundsLeft": 0,
+      "mushroomTurnsRemaining": 0,
+      "mushroomLevelBonus": 0
+    }
+  ],
+  "nextDefenderId": 1,
+  "nextAttackerId": 2,
+  "currentWaveIndex": 0,
+  "spawnCounter": 0,
+  "attackersToSpawn": [],
+  "fieldEffects": [],
+  "traps": [],
+  "comment": null
+}"""
+
+        val loaded = assertNotNull(SaveJsonSerializer.deserializeSavedGame(oldSaveJson))
+        val runner = loaded.attackers.single()
+
+        assertEquals(AttackerType.GOBLIN_RUNNER, runner.type)
+        assertEquals(0, runner.goblinRunnerUndamagedRounds)
+        assertFalse(runner.goblinRunnerTookDamageSinceLastTurn)
+        assertEquals(-1, runner.goblinRunnerSpawnTurnNumber)
+        assertFalse(runner.goblinRunnerMomentumReady)
+    }
 }
