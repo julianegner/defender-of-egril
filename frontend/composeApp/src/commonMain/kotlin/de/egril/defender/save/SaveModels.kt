@@ -127,6 +127,7 @@ data class SavedAttacker(
     val mushroomLevelBonus: Int = 0, // Extra level from mushroom buff (0 = not active)
     val goblinRunnerUndamagedRounds: Int = 0, // Consecutive damage-free rounds for Goblin Runner acceleration
     val goblinRunnerTookDamageSinceLastTurn: Boolean = false, // Pending Goblin Runner speed reset state
+    val goblinRunnerMomentumReady: Boolean = false, // Whether the Goblin Runner has already completed its initial move turn
 )
 
 data class SavedFieldEffect(

@@ -159,6 +159,7 @@ class EnemyMovementSystem(
                     position = mutableStateOf(spawnPos),
                     level = mutableStateOf(plannedSpawn.level),
                     currentTarget = mutableStateOf(initialTarget),
+                    goblinRunnerMomentumReady = mutableStateOf(plannedSpawn.attackerType == AttackerType.GOBLIN_RUNNER),
                 )
             state.attackers.add(attacker)
             state.enemyTurnStartPositions[attacker.id] = spawnPos
@@ -211,6 +212,7 @@ class EnemyMovementSystem(
                         position = mutableStateOf(companionPos),
                         level = mutableStateOf(plannedSpawn.level),
                         currentTarget = mutableStateOf(companionTarget),
+                        goblinRunnerMomentumReady = mutableStateOf(companionType == AttackerType.GOBLIN_RUNNER),
                     )
                 state.attackers.add(companion)
                 state.enemyTurnStartPositions[companion.id] = companionPos

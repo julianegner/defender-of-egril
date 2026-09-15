@@ -7,6 +7,7 @@ import de.egril.defender.model.GamePhase
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Level
 import de.egril.defender.model.Position
+import de.egril.defender.save.SaveFileStorage
 import de.egril.defender.save.SaveJsonSerializer
 import de.egril.defender.save.SavedAttacker
 import de.egril.defender.save.SavedGame
@@ -33,7 +34,7 @@ class GoblinRunnerTest {
         )
 
     @Test
-    fun goblinRunnerStartsSlowBuildsMomentumAndResetsAfterDamage() {
+    fun goblinRunnerStartsSlowBuildsMomentumAfterFirstRoundAndResetsAfterDamage() {
         val state = GameState(createTestLevel())
         val runner =
             Attacker(
@@ -42,6 +43,12 @@ class GoblinRunnerTest {
                 position = mutableStateOf(Position(0, 1)),
             )
 
+        assertEquals(3, runner.baseMovementSpeed)
+        assertEquals(3, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
+
+        runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart()
+        assertTrue(runner.goblinRunnerMomentumReady.value)
+        assertEquals(0, runner.goblinRunnerUndamagedRounds.value)
         assertEquals(3, runner.baseMovementSpeed)
         assertEquals(3, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
 
@@ -63,7 +70,7 @@ class GoblinRunnerTest {
     }
 
     @Test
-    fun startEnemyTurnIncrementsGoblinRunnerMomentumWhenUndamaged() {
+    fun firstEnemyTurnKeepsFreshGoblinRunnerAtBaseSpeed() {
         val state = GameState(createTestLevel(), phase = mutableStateOf(GamePhase.PLAYER_TURN))
         val engine = GameEngine(state)
         val runner =
@@ -75,6 +82,24 @@ class GoblinRunnerTest {
         state.attackers.add(runner)
 
         engine.startEnemyTurn()
+
+        assertTrue(runner.goblinRunnerMomentumReady.value)
+        assertEquals(0, runner.goblinRunnerUndamagedRounds.value)
+        assertEquals(3, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
+    }
+
+    @Test
+    fun spawnedGoblinRunnerGainsMomentumOnNextEnemyTurn() {
+        val state = GameState(createTestLevel())
+        val runner =
+            Attacker(
+                id = 1,
+                type = AttackerType.GOBLIN_RUNNER,
+                position = mutableStateOf(Position(0, 1)),
+                goblinRunnerMomentumReady = mutableStateOf(true),
+            )
+
+        runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart()
 
         assertEquals(1, runner.goblinRunnerUndamagedRounds.value)
         assertEquals(4, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
@@ -104,6 +129,7 @@ class GoblinRunnerTest {
                             isDefeated = false,
                             goblinRunnerUndamagedRounds = 2,
                             goblinRunnerTookDamageSinceLastTurn = true,
+                            goblinRunnerMomentumReady = true,
                         ),
                     ),
                 nextDefenderId = 1,
@@ -121,5 +147,52 @@ class GoblinRunnerTest {
         assertEquals(AttackerType.GOBLIN_RUNNER, runner.type)
         assertEquals(2, runner.goblinRunnerUndamagedRounds)
         assertTrue(runner.goblinRunnerTookDamageSinceLastTurn)
+        assertTrue(runner.goblinRunnerMomentumReady)
+    }
+
+    @Test
+    fun saveFileStorageRoundTripPreservesGoblinRunnerMomentumState() {
+        val level = createTestLevel()
+        val savedGame =
+            SavedGame(
+                id = "runner-state",
+                timestamp = 2L,
+                levelId = level.id,
+                levelName = level.name,
+                turnNumber = 4,
+                coins = 10,
+                healthPoints = 8,
+                phase = GamePhase.PLAYER_TURN,
+                defenders = emptyList(),
+                attackers =
+                    listOf(
+                        SavedAttacker(
+                            id = 9,
+                            type = AttackerType.GOBLIN_RUNNER,
+                            position = Position(2, 1),
+                            level = 1,
+                            currentHealth = 11,
+                            isDefeated = false,
+                            goblinRunnerUndamagedRounds = 1,
+                            goblinRunnerTookDamageSinceLastTurn = true,
+                            goblinRunnerMomentumReady = true,
+                        ),
+                    ),
+                nextDefenderId = 1,
+                nextAttackerId = 10,
+                currentWaveIndex = 0,
+                spawnCounter = 0,
+                attackersToSpawn = emptyList(),
+                fieldEffects = emptyList(),
+                traps = emptyList(),
+            )
+
+        val restored = SaveFileStorage.convertSavedGameToGameState(savedGame, level)
+        val runner = restored.attackers.single()
+
+        assertEquals(AttackerType.GOBLIN_RUNNER, runner.type)
+        assertEquals(1, runner.goblinRunnerUndamagedRounds.value)
+        assertTrue(runner.goblinRunnerTookDamageSinceLastTurn.value)
+        assertTrue(runner.goblinRunnerMomentumReady.value)
     }
 }
