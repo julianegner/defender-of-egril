@@ -20,7 +20,7 @@ internal fun calculateEffectiveEnemySpeed(
         } else {
             var speed =
                 if (goblinRunnerWaaghActive) {
-                    maxOf(1, attacker.currentBaseMovementSpeed + attacker.type.speed - attacker.movementPenalty.value)
+                    attacker.currentBaseMovementSpeed + attacker.type.speed
                 } else {
                     maxOf(1, attacker.currentBaseMovementSpeed - attacker.movementPenalty.value)
                 }
