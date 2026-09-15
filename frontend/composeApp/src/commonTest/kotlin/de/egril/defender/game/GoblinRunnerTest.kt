@@ -21,7 +21,7 @@ class GoblinRunnerTest {
     private fun createTestLevel(): Level =
         Level(
             id = 1,
-            name = "Goblin Runner Test",
+            name = "test_level",
             gridWidth = 10,
             gridHeight = 3,
             startPositions = listOf(Position(0, 1)),
@@ -113,7 +113,7 @@ class GoblinRunnerTest {
                 id = "runner",
                 timestamp = 1L,
                 levelId = 1,
-                levelName = "Goblin Runner Test",
+                levelName = "test_level",
                 turnNumber = 7,
                 coins = 50,
                 healthPoints = 9,
@@ -208,7 +208,7 @@ class GoblinRunnerTest {
   "id": "old_runner_save",
   "timestamp": 1234567890,
   "levelId": 1,
-  "levelName": "Goblin Runner Test",
+  "levelName": "test_level",
   "turnNumber": 5,
   "coins": 100,
   "healthPoints": 10,
