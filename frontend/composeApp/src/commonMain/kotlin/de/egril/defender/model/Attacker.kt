@@ -719,7 +719,7 @@ data class Attacker(
     var onDragonLevelChanged: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
     val mushroomBonusHealth: Int get() = type.health * mushroomLevelBonus.value
     val maxHealth: Int get() = type.health * effectiveLevel
-    val baseMovementSpeed: Int
+    val currentBaseMovementSpeed: Int
         get() =
             if (type == AttackerType.GOBLIN_RUNNER) {
                 type.speed + goblinRunnerUndamagedRounds.value

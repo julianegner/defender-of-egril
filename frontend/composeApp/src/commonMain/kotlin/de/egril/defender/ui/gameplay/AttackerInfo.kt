@@ -130,9 +130,9 @@ fun AttackerInfo(
             append(": ")
             append(
                 if (attacker.hasMushroomBuff) {
-                    attacker.baseMovementSpeed * 2
+                    attacker.currentBaseMovementSpeed * 2
                 } else {
-                    attacker.baseMovementSpeed
+                    attacker.currentBaseMovementSpeed
                 },
             )
         }
@@ -186,12 +186,12 @@ fun AttackerInfo(
                                 effect.position != null &&
                                 attacker.position.value.hexDistanceTo(effect.position) <= 2
                         }
-                    val barbsSpeed = maxOf(1, attacker.baseMovementSpeed - attacker.movementPenalty.value)
+                    val barbsSpeed = maxOf(1, attacker.currentBaseMovementSpeed - attacker.movementPenalty.value)
                     val mushroomSpeed = if (attacker.hasMushroomBuff) barbsSpeed * 2 else barbsSpeed
                     val cooledSpeed = if (coolingEffect != null) maxOf(0, mushroomSpeed - 1) else null
                     val waaghSpeed =
                         if (waaghActive && (attacker.type == AttackerType.GOBLIN || attacker.type == AttackerType.GOBLIN_RUNNER || attacker.type == AttackerType.ORK)) {
-                            attacker.baseMovementSpeed * 2
+                            attacker.currentBaseMovementSpeed * 2
                         } else {
                             null
                         }
@@ -244,7 +244,7 @@ fun AttackerInfo(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                "${stringResource(Res.string.speed_label)}: ${attacker.baseMovementSpeed}",
+                                "${stringResource(Res.string.speed_label)}: ${attacker.currentBaseMovementSpeed}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Gray,
                             )

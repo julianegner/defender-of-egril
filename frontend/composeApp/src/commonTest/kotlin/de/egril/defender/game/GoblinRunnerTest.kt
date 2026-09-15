@@ -43,23 +43,23 @@ class GoblinRunnerTest {
                 position = mutableStateOf(Position(0, 1)),
             )
 
-        assertEquals(3, runner.baseMovementSpeed)
+        assertEquals(3, runner.currentBaseMovementSpeed)
         assertEquals(3, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
 
         runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart()
         assertTrue(runner.goblinRunnerMomentumReady.value)
         assertEquals(0, runner.goblinRunnerUndamagedRounds.value)
-        assertEquals(3, runner.baseMovementSpeed)
+        assertEquals(3, runner.currentBaseMovementSpeed)
         assertEquals(3, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
 
         runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart()
         assertEquals(1, runner.goblinRunnerUndamagedRounds.value)
-        assertEquals(4, runner.baseMovementSpeed)
+        assertEquals(4, runner.currentBaseMovementSpeed)
         assertEquals(4, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
 
         runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart()
         assertEquals(2, runner.goblinRunnerUndamagedRounds.value)
-        assertEquals(5, runner.baseMovementSpeed)
+        assertEquals(5, runner.currentBaseMovementSpeed)
         assertEquals(5, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
 
         runner.recordDamageTaken(1)
