@@ -100,6 +100,7 @@ object SaveJsonSerializer {
       "mushroomLevelBonus": ${attacker.mushroomLevelBonus},
       "goblinRunnerUndamagedRounds": ${attacker.goblinRunnerUndamagedRounds},
       "goblinRunnerTookDamageSinceLastTurn": ${attacker.goblinRunnerTookDamageSinceLastTurn},
+      "goblinRunnerSpawnTurnNumber": ${attacker.goblinRunnerSpawnTurnNumber},
       "goblinRunnerMomentumReady": ${attacker.goblinRunnerMomentumReady}
     }"""
             }
@@ -1089,6 +1090,12 @@ object SaveJsonSerializer {
             } catch (e: Exception) {
                 false
             }
+        val goblinRunnerSpawnTurnNumber =
+            try {
+                JsonUtils.extractValue(json, "goblinRunnerSpawnTurnNumber").toInt()
+            } catch (e: Exception) {
+                -1
+            }
         val goblinRunnerMomentumReady =
             try {
                 JsonUtils.extractValue(json, "goblinRunnerMomentumReady").toBoolean()
@@ -1110,6 +1117,7 @@ object SaveJsonSerializer {
             mushroomLevelBonus = mushroomLevelBonus,
             goblinRunnerUndamagedRounds = goblinRunnerUndamagedRounds,
             goblinRunnerTookDamageSinceLastTurn = goblinRunnerTookDamageSinceLastTurn,
+            goblinRunnerSpawnTurnNumber = goblinRunnerSpawnTurnNumber,
             goblinRunnerMomentumReady = goblinRunnerMomentumReady,
         )
     }

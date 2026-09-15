@@ -70,7 +70,7 @@ class TurnLifecycleLogic(
             .forEach { attacker ->
                 state.enemyTurnStartPositions[attacker.id] = attacker.position.value
                 attacker.teleportedThisTurn.value = false
-                attacker.updateGoblinRunnerSpeedStateAtEnemyTurnStart()
+                attacker.updateGoblinRunnerSpeedStateAtEnemyTurnStart(state.turnNumber.value)
             }
         // Reset portal usage so each portal can be used once per enemy turn.
         state.activePortals.forEach { it.usedThisTurn.value = false }

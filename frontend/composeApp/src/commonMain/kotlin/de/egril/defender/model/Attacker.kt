@@ -689,6 +689,7 @@ data class Attacker(
     val movementPenalty: MutableState<Int> = mutableStateOf(0), // Movement points lost due to spike tower barbs (level 10+)
     val goblinRunnerUndamagedRounds: MutableState<Int> = mutableStateOf(0), // Consecutive rounds without damage for Goblin Runner speed scaling
     val goblinRunnerTookDamageSinceLastTurn: MutableState<Boolean> = mutableStateOf(false), // True once Goblin Runner took damage since the previous enemy turn
+    val goblinRunnerSpawnTurnNumber: MutableState<Int> = mutableStateOf(-1), // Enemy turn number on which a Goblin Runner spawned (-1 for pre-existing/manual setups)
     val goblinRunnerMomentumReady: MutableState<Boolean> = mutableStateOf(false), // Freshly created runners wait until after their first move turn before gaining bonus speed
     val speedBonus: MutableState<Int> = mutableStateOf(0), // Extra movement granted by a villain aura (e.g. Garokk's War Cry)
     val villainCooldown: MutableState<Int> = mutableStateOf(0), // Rounds until this villain's ability next activates
@@ -752,13 +753,15 @@ data class Attacker(
         }
     }
 
-    fun updateGoblinRunnerSpeedStateAtEnemyTurnStart() {
+    fun updateGoblinRunnerSpeedStateAtEnemyTurnStart(currentTurnNumber: Int) {
         if (type != AttackerType.GOBLIN_RUNNER) return
-        if (!goblinRunnerMomentumReady.value) {
+        val spawnedOnPreviousEnemyTurn = !goblinRunnerMomentumReady.value && goblinRunnerSpawnTurnNumber.value == currentTurnNumber - 1
+        if (!goblinRunnerMomentumReady.value && !spawnedOnPreviousEnemyTurn) {
             goblinRunnerMomentumReady.value = true
             goblinRunnerTookDamageSinceLastTurn.value = false
             return
         }
+        goblinRunnerMomentumReady.value = true
         goblinRunnerUndamagedRounds.value =
             if (goblinRunnerTookDamageSinceLastTurn.value) {
                 0

@@ -46,24 +46,24 @@ class GoblinRunnerTest {
         assertEquals(3, runner.currentBaseMovementSpeed)
         assertEquals(3, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
 
-        runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart()
+        runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart(currentTurnNumber = 2)
         assertTrue(runner.goblinRunnerMomentumReady.value)
         assertEquals(0, runner.goblinRunnerUndamagedRounds.value)
         assertEquals(3, runner.currentBaseMovementSpeed)
         assertEquals(3, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
 
-        runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart()
+        runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart(currentTurnNumber = 3)
         assertEquals(1, runner.goblinRunnerUndamagedRounds.value)
         assertEquals(4, runner.currentBaseMovementSpeed)
         assertEquals(4, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
 
-        runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart()
+        runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart(currentTurnNumber = 4)
         assertEquals(2, runner.goblinRunnerUndamagedRounds.value)
         assertEquals(5, runner.currentBaseMovementSpeed)
         assertEquals(5, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
 
         runner.recordDamageTaken(1)
-        runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart()
+        runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart(currentTurnNumber = 5)
         assertEquals(0, runner.goblinRunnerUndamagedRounds.value)
         assertFalse(runner.goblinRunnerTookDamageSinceLastTurn.value)
         assertEquals(3, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
@@ -91,20 +91,17 @@ class GoblinRunnerTest {
     @Test
     fun spawnedGoblinRunnerGainsMomentumOnNextEnemyTurn() {
         val state = GameState(createTestLevel())
-        val engine = GameEngine(state)
         val runner =
             Attacker(
                 id = 1,
                 type = AttackerType.GOBLIN_RUNNER,
                 position = mutableStateOf(Position(0, 1)),
+                goblinRunnerSpawnTurnNumber = mutableStateOf(4),
             )
-        state.attackers.add(runner)
 
-        engine.applyMovement(runner.id, Position(1, 1))
+        runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart(currentTurnNumber = 5)
 
         assertTrue(runner.goblinRunnerMomentumReady.value)
-        runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart()
-
         assertEquals(1, runner.goblinRunnerUndamagedRounds.value)
         assertEquals(4, calculateEffectiveEnemySpeed(state, runner, runner.position.value))
     }
@@ -133,6 +130,7 @@ class GoblinRunnerTest {
                             isDefeated = false,
                             goblinRunnerUndamagedRounds = 2,
                             goblinRunnerTookDamageSinceLastTurn = true,
+                            goblinRunnerSpawnTurnNumber = 6,
                             goblinRunnerMomentumReady = true,
                         ),
                     ),
@@ -151,6 +149,7 @@ class GoblinRunnerTest {
         assertEquals(AttackerType.GOBLIN_RUNNER, runner.type)
         assertEquals(2, runner.goblinRunnerUndamagedRounds)
         assertTrue(runner.goblinRunnerTookDamageSinceLastTurn)
+        assertEquals(6, runner.goblinRunnerSpawnTurnNumber)
         assertTrue(runner.goblinRunnerMomentumReady)
     }
 
@@ -179,6 +178,7 @@ class GoblinRunnerTest {
                             isDefeated = false,
                             goblinRunnerUndamagedRounds = 1,
                             goblinRunnerTookDamageSinceLastTurn = true,
+                            goblinRunnerSpawnTurnNumber = 3,
                             goblinRunnerMomentumReady = true,
                         ),
                     ),
@@ -197,6 +197,7 @@ class GoblinRunnerTest {
         assertEquals(AttackerType.GOBLIN_RUNNER, runner.type)
         assertEquals(1, runner.goblinRunnerUndamagedRounds.value)
         assertTrue(runner.goblinRunnerTookDamageSinceLastTurn.value)
+        assertEquals(3, runner.goblinRunnerSpawnTurnNumber.value)
         assertTrue(runner.goblinRunnerMomentumReady.value)
     }
 }
