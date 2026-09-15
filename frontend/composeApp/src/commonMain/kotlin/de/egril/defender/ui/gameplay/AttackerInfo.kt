@@ -192,7 +192,7 @@ fun AttackerInfo(
                     val waaghSpeed =
                         if (waaghActive && (attacker.type == AttackerType.GOBLIN || attacker.type == AttackerType.GOBLIN_RUNNER || attacker.type == AttackerType.ORK)) {
                             when (attacker.type) {
-                                AttackerType.GOBLIN_RUNNER -> (attacker.type.speed * 2) + attacker.goblinRunnerUndamagedRounds.value
+                                AttackerType.GOBLIN_RUNNER -> attacker.currentBaseMovementSpeed + attacker.type.speed
                                 AttackerType.ORK -> attacker.type.speed * 2
                                 else -> attacker.type.speed * 2
                             }
