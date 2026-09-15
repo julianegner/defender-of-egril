@@ -690,7 +690,7 @@ data class Attacker(
     val goblinRunnerUndamagedRounds: MutableState<Int> = mutableStateOf(0), // Consecutive rounds without damage for Goblin Runner speed scaling
     val goblinRunnerTookDamageSinceLastTurn: MutableState<Boolean> = mutableStateOf(false), // True once Goblin Runner took damage since the previous enemy turn
     val goblinRunnerSpawnTurnNumber: MutableState<Int> = mutableStateOf(-1), // Enemy turn number on which a Goblin Runner spawned (-1 for pre-existing/manual setups)
-    val goblinRunnerMomentumReady: MutableState<Boolean> = mutableStateOf(false), // Freshly created runners wait until after their first move turn before gaining bonus speed
+    val goblinRunnerMomentumReady: MutableState<Boolean> = mutableStateOf(false), // Turn-start initialization flag; runners spawned during enemy turn N can gain their first +1 speed at the start of enemy turn N+1
     val speedBonus: MutableState<Int> = mutableStateOf(0), // Extra movement granted by a villain aura (e.g. Garokk's War Cry)
     val villainCooldown: MutableState<Int> = mutableStateOf(0), // Rounds until this villain's ability next activates
     val movementTurnsElapsed: MutableState<Int> = mutableStateOf(0), // Enemy turns elapsed on battlefield (for alternating movement patterns)
@@ -755,6 +755,8 @@ data class Attacker(
 
     fun updateGoblinRunnerSpeedStateAtEnemyTurnStart(currentTurnNumber: Int) {
         if (type != AttackerType.GOBLIN_RUNNER) return
+        // Fresh/manual placements need one initialization pass. Runners that already spawned during
+        // the previous enemy turn are immediately eligible for their first undamaged-round bonus.
         val spawnedOnPreviousEnemyTurn = !goblinRunnerMomentumReady.value && goblinRunnerSpawnTurnNumber.value == currentTurnNumber - 1
         if (!goblinRunnerMomentumReady.value && !spawnedOnPreviousEnemyTurn) {
             goblinRunnerMomentumReady.value = true
