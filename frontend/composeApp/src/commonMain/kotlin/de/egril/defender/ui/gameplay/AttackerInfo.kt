@@ -95,12 +95,11 @@ fun AttackerInfo(
         } else {
             attacker.getLocalizedName(locale)
         }
-    val showWaaghGlow = waaghActive && attacker.type in setOf(AttackerType.GOBLIN, AttackerType.GOBLIN_RUNNER, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
+    val showWaaghGlow = waaghActive && attacker.type in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
     val waaghBoostText =
         if (waaghActive) {
             when (attacker.type) {
                 AttackerType.GOBLIN -> stringResource(Res.string.waagh_goblin_boost)
-                AttackerType.GOBLIN_RUNNER -> stringResource(Res.string.waagh_goblin_boost)
                 AttackerType.ORK -> stringResource(Res.string.waagh_ork_boost)
                 AttackerType.OGRE -> stringResource(Res.string.waagh_ogre_boost)
                 AttackerType.SNOTLING -> stringResource(Res.string.waagh_snotling_boost)
@@ -190,9 +189,8 @@ fun AttackerInfo(
                     val mushroomSpeed = if (attacker.hasMushroomBuff) barbsSpeed * 2 else barbsSpeed
                     val cooledSpeed = if (coolingEffect != null) maxOf(0, mushroomSpeed - 1) else null
                     val waaghSpeed =
-                        if (waaghActive && (attacker.type == AttackerType.GOBLIN || attacker.type == AttackerType.GOBLIN_RUNNER || attacker.type == AttackerType.ORK)) {
+                        if (waaghActive && (attacker.type == AttackerType.GOBLIN || attacker.type == AttackerType.ORK)) {
                             when (attacker.type) {
-                                AttackerType.GOBLIN_RUNNER -> attacker.currentBaseMovementSpeed + attacker.type.speed
                                 AttackerType.ORK -> attacker.type.speed * 2
                                 else -> attacker.type.speed * 2
                             }

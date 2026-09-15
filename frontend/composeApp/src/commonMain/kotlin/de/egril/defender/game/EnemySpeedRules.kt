@@ -13,17 +13,11 @@ internal fun calculateEffectiveEnemySpeed(
     currentPos: Position,
 ): Int {
     val goblinWaaghActive = state.level.waaghEnabled && state.waaghFrenzyActive.value && attacker.type == AttackerType.GOBLIN
-    val goblinRunnerWaaghActive = state.level.waaghEnabled && state.waaghFrenzyActive.value && attacker.type == AttackerType.GOBLIN_RUNNER
     val baseSpeed =
         if (goblinWaaghActive) {
             attacker.type.speed * 2
         } else {
-            var speed =
-                if (goblinRunnerWaaghActive) {
-                    attacker.currentBaseMovementSpeed + attacker.type.speed
-                } else {
-                    maxOf(1, attacker.currentBaseMovementSpeed - attacker.movementPenalty.value)
-                }
+            var speed = maxOf(1, attacker.currentBaseMovementSpeed - attacker.movementPenalty.value)
             if (attacker.type == AttackerType.ORK &&
                 (state.level.waaghEnabled && state.waaghFrenzyActive.value || attacker.bloodlustRoundsLeft.value > 0)
             ) {
