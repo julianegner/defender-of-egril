@@ -91,14 +91,18 @@ class GoblinRunnerTest {
     @Test
     fun spawnedGoblinRunnerGainsMomentumOnNextEnemyTurn() {
         val state = GameState(createTestLevel())
+        val engine = GameEngine(state)
         val runner =
             Attacker(
                 id = 1,
                 type = AttackerType.GOBLIN_RUNNER,
                 position = mutableStateOf(Position(0, 1)),
-                goblinRunnerMomentumReady = mutableStateOf(true),
             )
+        state.attackers.add(runner)
 
+        engine.applyMovement(runner.id, Position(1, 1))
+
+        assertTrue(runner.goblinRunnerMomentumReady.value)
         runner.updateGoblinRunnerSpeedStateAtEnemyTurnStart()
 
         assertEquals(1, runner.goblinRunnerUndamagedRounds.value)

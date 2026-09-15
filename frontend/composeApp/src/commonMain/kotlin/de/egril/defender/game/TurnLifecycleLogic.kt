@@ -146,9 +146,6 @@ class TurnLifecycleLogic(
         enemyAbilities.processEnemyAbilities()
         bridgeSystem.processBridges()
         combatSystem.processDefeatedAttackers()
-        state.attackers
-            .filter { !it.isDefeated.value && it.type == AttackerType.GOBLIN_RUNNER && !it.goblinRunnerMomentumReady.value }
-            .forEach { it.goblinRunnerMomentumReady.value = true }
 
         if (state.attackersToSpawn.isEmpty() && state.attackers.isEmpty()) {
             enemyMovement.loadNextWave()

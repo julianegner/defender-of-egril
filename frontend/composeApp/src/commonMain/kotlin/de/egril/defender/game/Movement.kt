@@ -553,6 +553,9 @@ class Movement(
             val oldPosition = attacker.position.value
             attacker.position.value = newPosition
             if (oldPosition != newPosition) {
+                if (attacker.type == AttackerType.GOBLIN_RUNNER && !attacker.goblinRunnerMomentumReady.value) {
+                    attacker.goblinRunnerMomentumReady.value = true
+                }
                 applyTileEffectsForArrival(attacker, newPosition)
             }
 
