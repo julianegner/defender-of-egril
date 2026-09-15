@@ -2,6 +2,11 @@ package de.egril.defender.editor
 
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.LevelSupports
+import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnPointType
+import de.egril.defender.model.SupportObject
+import de.egril.defender.model.SupportObjectType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -104,7 +109,7 @@ class EditorStorageTest {
             )
         assertTrue(readyLevel.isReadyToPlay())
 
-        // Level without towers - should not be ready
+        // Level without towers - should not be ready unless fallback setup exists
         val noTowersLevel =
             EditorLevel(
                 id = "no_towers",
@@ -115,6 +120,29 @@ class EditorStorageTest {
                 availableTowers = emptySet(),
             )
         assertTrue(!noTowersLevel.isReadyToPlay())
+
+        val fallbackLevel =
+            EditorLevel(
+                id = "fallback_level",
+                mapId = "test_map",
+                title = "Fallback Level",
+                startCoins = 100,
+                enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+                availableTowers = emptySet(),
+                supports = LevelSupports(objects = listOf(SupportObject(SupportObjectType.BARRICADE))),
+                initialData =
+                    InitialData(
+                        barricades =
+                            listOf(
+                                InitialBarricade(
+                                    position = Position(1, 1),
+                                    healthPoints = 100,
+                                    supportsTower = true,
+                                ),
+                            ),
+                    ),
+            )
+        assertTrue(fallbackLevel.isReadyToPlay())
 
         // Level without enemy spawns - should not be ready
         val noSpawnsLevel =
@@ -152,6 +180,10 @@ class EditorStorageTest {
                 availableTowers = emptySet(),
             )
         assertTrue(!emptyLevel.isReadyToPlay())
+
+        assertTrue(readyLevel.hasTowerSelectionOptions())
+        assertTrue(fallbackLevel.hasTowerSelectionOptions())
+        assertTrue(fallbackLevel.hasNoBuildableTileFallback())
     }
 
     @Test
@@ -732,8 +764,24 @@ class EditorStorageTest {
                 "2,2" to TileType.BUILD_AREA,
             )
 
-        val normalizedPath = EditorStorage.normalizeForImageComparison(tilesWithPath)
-        val normalizedSpawnTarget = EditorStorage.normalizeForImageComparison(tilesWithSpawnAndTarget)
+        val normalizedPath =
+            EditorStorage.normalizeForImageComparison(
+                EditorMap(
+                    id = "normalize_path",
+                    width = 3,
+                    height = 3,
+                    tiles = tilesWithPath,
+                ),
+            )
+        val normalizedSpawnTarget =
+            EditorStorage.normalizeForImageComparison(
+                EditorMap(
+                    id = "normalize_spawn_target",
+                    width = 3,
+                    height = 3,
+                    tiles = tilesWithSpawnAndTarget,
+                ),
+            )
 
         assertEquals(
             normalizedPath,
@@ -751,10 +799,32 @@ class EditorStorageTest {
                 "1,1" to TileType.NO_PLAY,
                 "2,2" to TileType.RIVER,
             )
-        val normalized = EditorStorage.normalizeForImageComparison(tiles)
+        val normalized =
+            EditorStorage.normalizeForImageComparison(
+                EditorMap(
+                    id = "normalize_unchanged",
+                    width = 3,
+                    height = 3,
+                    tiles = tiles,
+                ),
+            )
         assertEquals(TileType.BUILD_AREA, normalized["0,0"])
         assertEquals(TileType.NO_PLAY, normalized["1,1"])
         assertEquals(TileType.RIVER, normalized["2,2"])
+    }
+
+    @Test
+    fun testNormalizeForImageComparisonWaterSpawnPointTreatedAsRiver() {
+        val mapWithWaterSpawn =
+            EditorMap(
+                id = "normalize_water_spawn",
+                width = 2,
+                height = 2,
+                tiles = mapOf("0,0" to TileType.SPAWN_POINT),
+                spawnPointInfoMap = mapOf("0,0" to SpawnPointType.WATER),
+            )
+        val normalized = EditorStorage.normalizeForImageComparison(mapWithWaterSpawn)
+        assertEquals(TileType.RIVER, normalized["0,0"])
     }
 
     @Test

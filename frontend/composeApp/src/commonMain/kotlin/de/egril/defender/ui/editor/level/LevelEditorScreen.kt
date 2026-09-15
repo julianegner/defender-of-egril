@@ -34,8 +34,10 @@ import kotlinx.coroutines.launch
  * Main screen for level editing with tabs for Map Editor, Level Editor, Level Sequence, and World Map Positions
  */
 @Composable
-fun LevelEditorScreen(
+internal fun LevelEditorScreen(
     onBack: () -> Unit,
+    initialEditingLevelId: String? = null,
+    onStartPlaytest: ((de.egril.defender.editor.EditorLevel, FocusedPlaytestType) -> Unit)? = null,
     remoteCommunityMaps: List<de.egril.defender.save.CommunityFileInfo> = emptyList(),
     downloadingMapId: String? = null,
     onDownloadRemoteMap: ((de.egril.defender.save.CommunityFileInfo) -> Unit)? = null,
@@ -153,7 +155,11 @@ fun LevelEditorScreen(
                             downloadingMapId = downloadingMapId,
                             onDownloadRemoteMap = onDownloadRemoteMap,
                         )
-                    EditorTab.LEVEL_EDITOR -> LevelEditorContent()
+                    EditorTab.LEVEL_EDITOR ->
+                        LevelEditorContent(
+                            initialEditingLevelId = initialEditingLevelId,
+                            onStartPlaytest = onStartPlaytest,
+                        )
                     EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
                     EditorTab.WORLD_MAP_POSITIONS -> WorldMapPositionEditorContent()
                 }

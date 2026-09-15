@@ -9,12 +9,16 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.*
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.BridgeType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.FiefType
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnPointType
+import de.egril.defender.model.getHexNeighbors
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
- * Tab 5: Initial Setup - Place towers, enemies, traps, and barricades before level starts
+ * Tab 5: Initial Setup - Place towers, enemies, traps, barricades, and bridges before level starts
  * New unified interface with map on left and configuration sidebar on right
  */
 @Composable
@@ -55,10 +59,18 @@ fun InitialSetupTab(
     var barricadeHealthPoints by remember { mutableStateOf(10) }
     var barricadeName by remember { mutableStateOf("") }
     var barricadeIsGate by remember { mutableStateOf(false) }
+    var selectedBridgeType by remember { mutableStateOf(BridgeType.WOODEN) }
+    var bridgeHealthPoints by remember { mutableStateOf(InitialBridge.DEFAULT_WOODEN_HEALTH) }
+    var bridgeIsIndestructible by remember { mutableStateOf(false) }
+    var selectedFiefType by remember { mutableStateOf(FiefType.FISHER) }
 
     var editBarricadeIndex by remember { mutableStateOf<Int?>(null) } // Index of barricade being edited
 
+    // Portal placement state: first click sets entry, second click creates the pair
+    var pendingPortalEntry by remember { mutableStateOf<Position?>(null) }
+
     var selectedElement by remember { mutableStateOf<SelectedElement?>(null) }
+    var hoveredTilePosition by remember { mutableStateOf<Position?>(null) }
 
     Row(
         modifier = Modifier.fillMaxSize(),
@@ -81,8 +93,18 @@ fun InitialSetupTab(
                 )
 
                 if (placementMode != null) {
+                    val tileLabel = stringResource(Res.string.initial_setup_tile)
+                    val pos = hoveredTilePosition
+                    val hintText =
+                        when {
+                            placementMode == PlacementMode.PORTAL && pendingPortalEntry != null ->
+                                stringResource(Res.string.initial_setup_portal_place_exit)
+                            placementMode == PlacementMode.PORTAL ->
+                                stringResource(Res.string.initial_setup_portal_place_entry)
+                            else -> stringResource(Res.string.initial_setup_click_to_place)
+                        }
                     Text(
-                        text = stringResource(Res.string.initial_setup_click_to_place),
+                        text = hintText + if (pos != null) "  $tileLabel (${pos.x}, ${pos.y})" else "",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -97,12 +119,16 @@ fun InitialSetupTab(
                     InitialSetupMinimap(
                         map = map,
                         placementMode = placementMode,
+                        selectedDefenderType = selectedDefenderType,
+                        selectedAttackerType = selectedAttackerType,
+                        selectedFiefType = selectedFiefType,
                         initialData = initialData,
+                        pendingPortalEntry = pendingPortalEntry,
                         selectedElement = selectedElement,
                         onTileClick = { position ->
                             when (placementMode) {
                                 PlacementMode.DEFENDER -> {
-                                    if (canPlaceDefender(position, initialData, map)) {
+                                    if (canPlaceDefender(position, selectedDefenderType, initialData, map)) {
                                         val barricadeAtPosition = initialData.barricades.find { it.position == position }
                                         val isOnTowerBase = barricadeAtPosition?.canSupportTower() == true
                                         val newDefender =
@@ -124,7 +150,7 @@ fun InitialSetupTab(
                                     }
                                 }
                                 PlacementMode.ATTACKER -> {
-                                    if (canPlaceAttacker(position, initialData, map)) {
+                                    if (canPlaceAttacker(position, selectedAttackerType, initialData, map)) {
                                         val newAttacker =
                                             InitialAttacker(
                                                 type = selectedAttackerType,
@@ -171,6 +197,48 @@ fun InitialSetupTab(
                                         onInitialDataChange(initialData.copy(barricades = initialData.barricades + newBarricade))
                                     }
                                 }
+                                PlacementMode.BRIDGE -> {
+                                    if (canPlaceBridge(position, initialData, map)) {
+                                        val newBridge =
+                                            InitialBridge(
+                                                position = position,
+                                                type = selectedBridgeType,
+                                                healthPoints = bridgeHealthPoints,
+                                                isIndestructible = bridgeIsIndestructible,
+                                            )
+                                        onInitialDataChange(initialData.copy(bridges = initialData.bridges + newBridge))
+                                    }
+                                }
+                                PlacementMode.FIEF -> {
+                                    if (canPlaceFief(position, selectedFiefType, initialData, map)) {
+                                        val newFief =
+                                            InitialFief(
+                                                position = position,
+                                                type = selectedFiefType,
+                                            )
+                                        onInitialDataChange(initialData.copy(fiefs = initialData.fiefs + newFief))
+                                    }
+                                }
+                                PlacementMode.MUSHROOM -> {
+                                    if (canPlaceMushroom(position, initialData, map)) {
+                                        val newMushroom = InitialMushroom(position = position)
+                                        onInitialDataChange(initialData.copy(mushrooms = initialData.mushrooms + newMushroom))
+                                    }
+                                }
+                                PlacementMode.PORTAL -> {
+                                    if (isValidPlacement(position, PlacementMode.PORTAL, map)) {
+                                        val entry = pendingPortalEntry
+                                        if (entry == null) {
+                                            // First click: record pending entry position
+                                            pendingPortalEntry = position
+                                        } else if (position != entry) {
+                                            // Second click: create the portal pair
+                                            val newPortal = InitialPortal(entryPosition = entry, exitPosition = position)
+                                            onInitialDataChange(initialData.copy(portals = initialData.portals + newPortal))
+                                            pendingPortalEntry = null
+                                        }
+                                    }
+                                }
                                 null -> {
                                     // Selection mode - find clicked element
                                     val clickedElement =
@@ -182,6 +250,7 @@ fun InitialSetupTab(
                                 }
                             }
                         },
+                        onTileHover = { hoveredTilePosition = it },
                     )
                 }
             }
@@ -193,6 +262,7 @@ fun InitialSetupTab(
             onPlacementModeChange = {
                 placementMode = it
                 selectedElement = null
+                pendingPortalEntry = null // Reset pending portal entry when mode changes
             },
             selectedDefenderType = selectedDefenderType,
             onSelectedDefenderTypeChange = { selectedDefenderType = it },
@@ -220,6 +290,22 @@ fun InitialSetupTab(
             onBarricadeNameChange = { barricadeName = it },
             barricadeIsGate = barricadeIsGate,
             onBarricadeIsGateChange = { barricadeIsGate = it },
+            selectedBridgeType = selectedBridgeType,
+            onSelectedBridgeTypeChange = {
+                selectedBridgeType = it
+                bridgeHealthPoints =
+                    when (it) {
+                        BridgeType.WOODEN -> InitialBridge.DEFAULT_WOODEN_HEALTH
+                        BridgeType.STONE -> InitialBridge.DEFAULT_STONE_HEALTH
+                        BridgeType.MAGICAL -> 0
+                    }
+            },
+            bridgeHealthPoints = bridgeHealthPoints,
+            onBridgeHealthPointsChange = { bridgeHealthPoints = it },
+            bridgeIsIndestructible = bridgeIsIndestructible,
+            onBridgeIsIndestructibleChange = { bridgeIsIndestructible = it },
+            selectedFiefType = selectedFiefType,
+            onSelectedFiefTypeChange = { selectedFiefType = it },
             availableTowers = availableTowers,
             initialData = initialData,
             onRemoveDefender = { index ->
@@ -245,6 +331,31 @@ fun InitialSetupTab(
                 newList.removeAt(index)
                 onInitialDataChange(initialData.copy(barricades = newList))
                 selectedElement = null
+            },
+            onRemoveBridge = { index ->
+                val newList = initialData.bridges.toMutableList()
+                newList.removeAt(index)
+                onInitialDataChange(initialData.copy(bridges = newList))
+                selectedElement = null
+            },
+            onRemoveFief = { index ->
+                val newList = initialData.fiefs.toMutableList()
+                newList.removeAt(index)
+                onInitialDataChange(initialData.copy(fiefs = newList))
+                selectedElement = null
+            },
+            onRemoveMushroom = { index ->
+                val newList = initialData.mushrooms.toMutableList()
+                newList.removeAt(index)
+                onInitialDataChange(initialData.copy(mushrooms = newList))
+                selectedElement = null
+            },
+            onRemovePortal = { index ->
+                val newList = initialData.portals.toMutableList()
+                newList.removeAt(index)
+                onInitialDataChange(initialData.copy(portals = newList))
+                selectedElement = null
+                pendingPortalEntry = null
             },
             selectedElement = selectedElement,
             onSelectedElementChange = { selectedElement = it },
@@ -341,7 +452,7 @@ fun InitialSetupTab(
 
 /**
  * Check if a position is occupied by ANY element type.
- * Rule: Only one element (tower, trap, barricade, OR unit) is possible on a tile.
+ * Rule: Only one element (tower, trap, barricade, bridge, OR unit) is possible on a tile.
  */
 private fun isPositionOccupied(
     position: Position,
@@ -350,10 +461,14 @@ private fun isPositionOccupied(
     initialData.defenders.any { it.position == position } ||
         initialData.attackers.any { it.position == position } ||
         initialData.traps.any { it.position == position } ||
-        initialData.barricades.any { it.position == position }
+        initialData.barricades.any { it.position == position } ||
+        initialData.bridges.any { it.position == position } ||
+        initialData.fiefs.any { it.position == position } ||
+        initialData.mushrooms.any { it.position == position }
 
 private fun canPlaceDefender(
     position: Position,
+    selectedDefenderType: DefenderType,
     initialData: InitialData,
     map: EditorMap,
 ): Boolean {
@@ -362,12 +477,22 @@ private fun canPlaceDefender(
     val isOnTowerBase = barricadeAtPosition?.canSupportTower() == true
 
     // Must be valid tile type for defenders, OR be on a tower base
-    if (!isOnTowerBase && !isValidPlacement(position, PlacementMode.DEFENDER, map)) {
+    if (!isOnTowerBase &&
+        !isValidPlacement(
+            position,
+            PlacementMode.DEFENDER,
+            map,
+            selectedDefenderType = selectedDefenderType,
+        )
+    ) {
         return false
     }
 
     // On a tower base: only check that no defender is already placed there
     if (isOnTowerBase) {
+        if (selectedDefenderType == DefenderType.DWARVEN_MINE) {
+            return false
+        }
         return initialData.defenders.none { it.position == position }
     }
 
@@ -377,11 +502,12 @@ private fun canPlaceDefender(
 
 private fun canPlaceAttacker(
     position: Position,
+    selectedAttackerType: AttackerType,
     initialData: InitialData,
     map: EditorMap,
 ): Boolean {
     // Must be valid tile type for attackers
-    if (!isValidPlacement(position, PlacementMode.ATTACKER, map)) {
+    if (!isValidPlacement(position, PlacementMode.ATTACKER, map, selectedAttackerType = selectedAttackerType)) {
         return false
     }
     // Must not be occupied by any element
@@ -414,6 +540,62 @@ private fun canPlaceBarricade(
     return !isPositionOccupied(position, initialData)
 }
 
+private fun canPlaceBridge(
+    position: Position,
+    initialData: InitialData,
+    map: EditorMap,
+): Boolean {
+    if (!isValidPlacement(position, PlacementMode.BRIDGE, map)) {
+        return false
+    }
+    return !isPositionOccupied(position, initialData)
+}
+
+private fun canPlaceFief(
+    position: Position,
+    fiefType: FiefType,
+    initialData: InitialData,
+    map: EditorMap,
+): Boolean {
+    // Must be valid tile type for fiefs (PATH only)
+    if (!isValidPlacement(position, PlacementMode.FIEF, map)) {
+        return false
+    }
+    if (fiefType == FiefType.FISHER && !hasAdjacentWaterTile(position, map)) {
+        return false
+    }
+    // Must not be occupied by any element
+    return !isPositionOccupied(position, initialData)
+}
+
+private fun canPlaceMushroom(
+    position: Position,
+    initialData: InitialData,
+    map: EditorMap,
+): Boolean {
+    // Must be valid tile type for mushrooms (PATH only)
+    if (!isValidPlacement(position, PlacementMode.MUSHROOM, map)) {
+        return false
+    }
+    // Must not be occupied by any element
+    return !isPositionOccupied(position, initialData)
+}
+
+private fun hasAdjacentWaterTile(
+    position: Position,
+    map: EditorMap,
+): Boolean =
+    position
+        .getHexNeighbors()
+        .any { neighbor ->
+            if (neighbor.x !in 0 until map.width || neighbor.y !in 0 until map.height) {
+                return@any false
+            }
+            val neighborTileType = map.getTileType(neighbor.x, neighbor.y)
+            neighborTileType == TileType.RIVER ||
+                (neighborTileType == TileType.SPAWN_POINT && map.getSpawnPointType(neighbor) == SpawnPointType.WATER)
+        }
+
 /**
  * Represents a selected element on the map
  */
@@ -436,6 +618,26 @@ sealed class SelectedElement {
     data class Barricade(
         val index: Int,
         val barricade: InitialBarricade,
+    ) : SelectedElement()
+
+    data class Bridge(
+        val index: Int,
+        val bridge: InitialBridge,
+    ) : SelectedElement()
+
+    data class Fief(
+        val index: Int,
+        val fief: InitialFief,
+    ) : SelectedElement()
+
+    data class Mushroom(
+        val index: Int,
+        val mushroom: InitialMushroom,
+    ) : SelectedElement()
+
+    data class Portal(
+        val index: Int,
+        val portal: InitialPortal,
     ) : SelectedElement()
 }
 
@@ -461,6 +663,26 @@ private fun findElementAtPosition(
     initialData.barricades.forEachIndexed { index, barricade ->
         if (barricade.position == position) {
             return SelectedElement.Barricade(index, barricade)
+        }
+    }
+    initialData.bridges.forEachIndexed { index, bridge ->
+        if (bridge.position == position) {
+            return SelectedElement.Bridge(index, bridge)
+        }
+    }
+    initialData.fiefs.forEachIndexed { index, fief ->
+        if (fief.position == position) {
+            return SelectedElement.Fief(index, fief)
+        }
+    }
+    initialData.mushrooms.forEachIndexed { index, mushroom ->
+        if (mushroom.position == position) {
+            return SelectedElement.Mushroom(index, mushroom)
+        }
+    }
+    initialData.portals.forEachIndexed { index, portal ->
+        if (portal.entryPosition == position || portal.exitPosition == position) {
+            return SelectedElement.Portal(index, portal)
         }
     }
     return null

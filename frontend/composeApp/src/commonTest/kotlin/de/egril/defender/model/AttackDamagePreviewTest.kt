@@ -63,6 +63,15 @@ class AttackDamagePreviewTest {
     }
 
     @Test
+    fun ghostIsOnlyVulnerableToWizardTower() {
+        val ghost = attacker(AttackerType.GHOST)
+        assertTrue(ghost.isImmuneToAttackFrom(DefenderType.SPIKE_TOWER))
+        assertTrue(ghost.isImmuneToAttackFrom(DefenderType.BOW_TOWER))
+        assertTrue(ghost.isImmuneToAttackFrom(DefenderType.ALCHEMY_TOWER))
+        assertFalse(ghost.isImmuneToAttackFrom(DefenderType.WIZARD_TOWER))
+    }
+
+    @Test
     fun regularEnemyNotImmune() {
         val goblin = attacker(AttackerType.GOBLIN)
         assertFalse(goblin.isImmuneToAttackFrom(DefenderType.WIZARD_TOWER))
@@ -93,6 +102,33 @@ class AttackDamagePreviewTest {
         val wizard = defender(DefenderType.WIZARD_TOWER, 1)
         val preview = enemyAttackPreview(redDemon, wizard, hasDoubleLevelBuff = false)
         assertTrue(preview.isImmune)
+        assertFalse(preview.isLethal)
+    }
+
+    @Test
+    fun previewMarksFreyaShieldWallProtectionAsImmune() {
+        val level =
+            Level(
+                id = 1,
+                name = "Preview Test",
+                gridWidth = 10,
+                gridHeight = 6,
+                startPositions = listOf(Position(0, 3)),
+                targetPositions = listOf(Position(9, 3)),
+                pathCells = (0..9).map { Position(it, 3) }.toSet(),
+                attackerWaves = listOf(AttackerWave(listOf(AttackerType.FALLEN_SHIELDMAIDEN_FREYA))),
+                initialCoins = 100,
+                healthPoints = 10,
+            )
+        val state = GameState(level)
+        val freya = Attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, mutableStateOf(Position(4, 3)), mutableStateOf(1))
+        val frontBow = Defender(1, DefenderType.BOW_TOWER, mutableStateOf(Position(6, 3)), mutableStateOf(1))
+
+        state.attackers.add(freya)
+        state.defenders.add(frontBow)
+
+        val preview = enemyAttackPreview(freya, frontBow, hasDoubleLevelBuff = false, gameState = state)
+        assertTrue(preview.isImmune, "Frontal attacks blocked by Freya's Shield Wall should preview as immune")
         assertFalse(preview.isLethal)
     }
 }

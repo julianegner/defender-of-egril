@@ -37,8 +37,8 @@ tile-based maps used in Defender of Egril.
 The generated image dimensions match the exact hexagonal grid layout:
 
 - Based on `hexSize=40dp` (same as the game's rendering)
-- Uses the same coordinate formulas as `HexUtils.kt`
-- Pixel coordinates match the tile center positions from the game engine
+- Uses the same effective grid geometry as `HexagonalMapView.kt` / `GameMap.kt`
+- Pixel coordinates match the in-game tile center positions (including row-step adjustment)
 
 ## Gradle Tasks
 

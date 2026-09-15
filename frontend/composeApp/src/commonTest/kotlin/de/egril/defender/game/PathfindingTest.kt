@@ -3,6 +3,7 @@ package de.egril.defender.game
 import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.*
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
@@ -241,5 +242,95 @@ class PathfindingTest {
                 "Path $i should be the same as first path. Expected: $firstPath, Got: ${paths[i]}",
             )
         }
+    }
+
+    @Test
+    fun ghostCanMoveThroughBarricadesButLandsOnEmptyPathTile() {
+        val pathCells =
+            setOf(
+                Position(0, 0),
+                Position(1, 0),
+                Position(2, 0),
+                Position(3, 0),
+                Position(4, 0),
+            )
+        val level =
+            Level(
+                id = 1,
+                name = "Ghost Test",
+                gridWidth = 5,
+                gridHeight = 3,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(4, 0)),
+                pathCells = pathCells,
+                attackerWaves = emptyList(),
+                initialCoins = 100,
+                healthPoints = 10,
+            )
+
+        val state = GameState(level)
+        state.barricades.add(Barricade(id = 1, position = Position(1, 0), healthPoints = mutableStateOf(50), defenderId = 0))
+        state.barricades.add(Barricade(id = 2, position = Position(2, 0), healthPoints = mutableStateOf(50), defenderId = 0))
+
+        val ghost =
+            Attacker(
+                id = 1,
+                type = AttackerType.GHOST,
+                position = mutableStateOf(Position(0, 0)),
+                level = mutableStateOf(1),
+            )
+        state.attackers.add(ghost)
+
+        val engine = GameEngine(state)
+        val movements = engine.calculateEnemyTurnMovements()
+
+        assertEquals(1, movements.allMovementSteps.size)
+        assertEquals(listOf(1 to Position(3, 0)), movements.allMovementSteps.single())
+    }
+
+    @Test
+    fun pirateCannotMoveOntoRaftTile() {
+        val level =
+            Level(
+                id = 1,
+                name = "Pirate Raft Block Test",
+                gridWidth = 4,
+                gridHeight = 3,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(2, 0)),
+                pathCells = emptySet(),
+                attackerWaves = emptyList(),
+                initialCoins = 100,
+                healthPoints = 10,
+                riverTiles =
+                    mapOf(
+                        Position(0, 0) to RiverTile(Position(0, 0), RiverFlow.EAST, 1),
+                        Position(1, 0) to RiverTile(Position(1, 0), RiverFlow.EAST, 1),
+                        Position(2, 0) to RiverTile(Position(2, 0), RiverFlow.EAST, 1),
+                    ),
+            )
+
+        val state = GameState(level)
+        state.rafts.add(
+            Raft(
+                id = 1,
+                defenderId = 42,
+                currentPosition = mutableStateOf(Position(1, 0)),
+            ),
+        )
+
+        val pirate =
+            Attacker(
+                id = 1,
+                type = AttackerType.PIRATE,
+                position = mutableStateOf(Position(0, 0)),
+                level = mutableStateOf(1),
+            )
+        state.attackers.add(pirate)
+
+        val pathfinding = PathfindingSystem(state)
+        val path = pathfinding.findPath(Position(0, 0), Position(2, 0), pirate)
+
+        assertTrue(path.none { it == Position(1, 0) }, "Pirate path must not include a tile occupied by a raft")
     }
 }

@@ -45,11 +45,18 @@ class TowerManager(
             state.infoState.value = state.infoState.value.showInfo(InfoType.MINE_ON_RIVER_WARNING)
             return false
         }
+        // Dwarven Mines cannot be placed on tower bases (barricades), only on build areas.
+        if (type == DefenderType.DWARVEN_MINE && isOnTowerBase) {
+            return false
+        }
 
         // Cannot place barges on still water (NONE or MAELSTROM) river tiles — silently ignore like NO_PLAY
         if (isRiverPlacement) {
             val riverTile = state.level.getRiverTile(position)
             if (riverTile != null && (riverTile.flowDirection == RiverFlow.NONE || riverTile.flowDirection == RiverFlow.MAELSTROM)) {
+                return false
+            }
+            if (state.isBridgeAt(position)) {
                 return false
             }
         }
@@ -102,6 +109,8 @@ class TowerManager(
     fun upgradeDefender(defenderId: Int): Boolean {
         val defender = state.defenders.find { it.id == defenderId } ?: return false
         if (!state.canUpgradeDefender(defender)) return false
+        // cannot upgrade a barge that is gripped by a kraken
+        if (defender.isGrippedByKraken.value) return false
 
         // Store the old actionsPerTurn before upgrade
         val oldActionsPerTurn = defender.actionsPerTurnCalculated
@@ -203,6 +212,9 @@ class TowerManager(
 
         // Cannot sell dragon's lair
         if (!defender.canSell) return false
+
+        // Cannot sell while the tower's barge is gripped by the Kraken
+        if (defender.isGrippedByKraken.value) return false
 
         // Can only sell if tower is ready and has actions remaining
         if (!defender.isReady) return false

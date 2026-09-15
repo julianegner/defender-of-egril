@@ -662,7 +662,7 @@ private fun AttackerTypeDropdown(
                     },
                 )
             }
-            AttackerType.entries.forEach { type ->
+            AttackerType.entries.filterNot { it.isMirrorImage }.forEach { type ->
                 DropdownMenuItem(
                     text = { Text(type.getLocalizedName()) },
                     onClick = {

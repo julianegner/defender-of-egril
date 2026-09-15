@@ -1146,6 +1146,19 @@ private fun LevelTabContent() {
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
+
+            // Split build tower button switch
+            NumberedSetting(8) {
+                GenericSwitch(
+                    state = AppSettings.splitBuildTowerButton,
+                    checkedText = stringResource(Res.string.split_build_tower_button),
+                    uncheckedText = stringResource(Res.string.split_build_tower_button),
+                    onCheckedChange = { enabled ->
+                        AppSettings.saveSplitBuildTowerButton(enabled)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
     }
 }
@@ -1974,6 +1987,10 @@ private fun handleSettingsNumberKey(
                 }
                 7 -> {
                     AppSettings.saveAutoJumpToNextTower(!AppSettings.autoJumpToNextTower.value)
+                    true
+                }
+                8 -> {
+                    AppSettings.saveSplitBuildTowerButton(!AppSettings.splitBuildTowerButton.value)
                     true
                 }
                 else -> false

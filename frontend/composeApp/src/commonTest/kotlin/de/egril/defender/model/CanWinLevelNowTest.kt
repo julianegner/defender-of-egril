@@ -104,6 +104,23 @@ class CanWinLevelNowTest {
     }
 
     @Test
+    fun noWinWhenVillainAlive() {
+        // A villain reaching a target loses the level outright, so no guaranteed win can be offered
+        // while one is on the battlefield, regardless of how much health remains.
+        val state = playerTurnState(buildLevel(healthPoints = 1000))
+        addAttacker(state, AttackerType.GAROKK, level = 1)
+        assertFalse(state.canWinLevelNow())
+    }
+
+    @Test
+    fun noWinWhenVillainYetToSpawn() {
+        val spawnPlan = listOf(PlannedEnemySpawn(AttackerType.GAROKK, spawnTurn = 30))
+        val state = playerTurnState(buildLevel(healthPoints = 1000, spawnPlan = spawnPlan))
+        addAttacker(state, AttackerType.GOBLIN)
+        assertFalse(state.canWinLevelNow())
+    }
+
+    @Test
     fun noWinDuringBuildingPhase() {
         val level = buildLevel(healthPoints = 10)
         val state = GameState(level)

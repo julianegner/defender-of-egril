@@ -29,6 +29,7 @@ class LevelFilteringTest {
                 width = 10,
                 height = 5,
                 tiles = tiles,
+                allowNoBuildableTiles = true,
             )
 
         assertTrue(validMap.validateReadyToUse(), "Map with valid path should be ready")
@@ -46,6 +47,7 @@ class LevelFilteringTest {
                 width = 10,
                 height = 5,
                 tiles = noTargetTiles,
+                allowNoBuildableTiles = true,
             )
 
         assertTrue(!noTargetMap.validateReadyToUse(), "Map without target should not be ready")
@@ -63,6 +65,7 @@ class LevelFilteringTest {
                 width = 10,
                 height = 5,
                 tiles = noSpawnTiles,
+                allowNoBuildableTiles = true,
             )
 
         assertTrue(!noSpawnMap.validateReadyToUse(), "Map without spawn should not be ready")
