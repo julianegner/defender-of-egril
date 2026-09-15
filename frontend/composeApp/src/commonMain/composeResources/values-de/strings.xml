@@ -254,6 +254,7 @@
 
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Goblin</string>
+    <string name="goblin_runner_name">Goblin-Läufer</string>
     <string name="ork_name">Ork</string>
     <string name="troll_name">Troll</string>
     <string name="ogre_name">Oger</string>
@@ -2299,6 +2300,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
 
     <!-- Beschreibungen der Feindeseinheiten -->
     <string name="goblin_description">Schnell und wendig, Goblins sind die schwächsten Gegner, bewegen sich aber schnell. Verwende Flächenattacken, um mehrere Goblins auf einmal zu bekämpfen.</string>
+    <string name="goblin_runner_description">Ein drahtiger Sprinter mit leuchtender Kriegsbemalung und langem Federschmuck. Goblin-Läufer starten mit Geschwindigkeit 3 und erhalten +1 Bewegung für jede aufeinanderfolgende Runde ohne Schaden, daher reicht schon ein kleiner Treffer pro Runde, um sie einzubremsen.</string>
     <string name="ork_description">Muskulös und zäh, Orks sind die Standard-Infanterie der Horde. Sie bewegen sich langsamer als Goblins, haben aber mehr Gesundheit und Schaden.</string>
     <string name="ogre_description">Massiv und mächtig, Oger sind gefährliche Gegner mit hoher Lebenspunkte. Trotz ihrer Größe können sie besonders in Gruppen äußerst gefährlich sein.</string>
     <string name="troll_description">Eine Kreatur aus Stein, die gegen Klingenangriffe immun ist — Nahkampf- und Fernkampftürme fügen keinen Schaden zu. Nur Feuer und Säure können es verletzen. Der Troll bewegt sich jeden zweiten Zug und zertrampelt kleinere Gegner. Er zerstört Barrikaden mit großer Kraft.</string>

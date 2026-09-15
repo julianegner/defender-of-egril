@@ -157,6 +157,7 @@ enum class AttackerType(
     val barricadeDamageMultiplier: Int = 1,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE, unitSize = 2),
+    GOBLIN_RUNNER("Goblin Runner", health = 15, speed = 3, reward = 7, xp = 4, faction = EnemyFaction.HORDE, unitSize = 1),
     ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true, faction = EnemyFaction.HORDE, unitSize = 3),
     OGRE("Ogre", health = 80, speed = 1, reward = 20, xp = 12, canBuildBridge = true, faction = EnemyFaction.HORDE, unitSize = 4),
 
@@ -656,6 +657,7 @@ val AttackerType.arrivalCompanions: List<AttackerType>
 val AttackerType.canEatMushroom: Boolean
     get() =
         this == AttackerType.GOBLIN ||
+            this == AttackerType.GOBLIN_RUNNER ||
             this == AttackerType.ORK ||
             this == AttackerType.OGRE ||
             this == AttackerType.SNOTLING ||
@@ -685,6 +687,8 @@ data class Attacker(
     val mineWarningShown: MutableState<Boolean> = mutableStateOf(false), // Track if mine warning has been shown for current target
     val isBuildingBridge: MutableState<Boolean> = mutableStateOf(false), // Track if this unit is currently building a bridge (sacrifice units)
     val movementPenalty: MutableState<Int> = mutableStateOf(0), // Movement points lost due to spike tower barbs (level 10+)
+    val goblinRunnerUndamagedRounds: MutableState<Int> = mutableStateOf(0), // Consecutive rounds without damage for Goblin Runner speed scaling
+    val goblinRunnerTookDamageSinceLastTurn: MutableState<Boolean> = mutableStateOf(false), // True once Goblin Runner took damage since the previous enemy turn
     val speedBonus: MutableState<Int> = mutableStateOf(0), // Extra movement granted by a villain aura (e.g. Garokk's War Cry)
     val villainCooldown: MutableState<Int> = mutableStateOf(0), // Rounds until this villain's ability next activates
     val movementTurnsElapsed: MutableState<Int> = mutableStateOf(0), // Enemy turns elapsed on battlefield (for alternating movement patterns)
@@ -714,6 +718,13 @@ data class Attacker(
     var onDragonLevelChanged: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
     val mushroomBonusHealth: Int get() = type.health * mushroomLevelBonus.value
     val maxHealth: Int get() = type.health * effectiveLevel
+    val baseMovementSpeed: Int
+        get() =
+            if (type == AttackerType.GOBLIN_RUNNER) {
+                type.speed + goblinRunnerUndamagedRounds.value
+            } else {
+                type.speed
+            }
 
     /**
      * Calculate dragon's greed level based on its level.
@@ -733,6 +744,23 @@ data class Attacker(
     fun canBeDamagedByAcid(): Boolean = !type.immuneToAcid
 
     fun canBeDamagedByFireball(): Boolean = !type.immuneToFireball
+
+    fun recordDamageTaken(damage: Int) {
+        if (damage > 0 && type == AttackerType.GOBLIN_RUNNER) {
+            goblinRunnerTookDamageSinceLastTurn.value = true
+        }
+    }
+
+    fun updateGoblinRunnerSpeedStateAtEnemyTurnStart() {
+        if (type != AttackerType.GOBLIN_RUNNER) return
+        goblinRunnerUndamagedRounds.value =
+            if (goblinRunnerTookDamageSinceLastTurn.value) {
+                0
+            } else {
+                goblinRunnerUndamagedRounds.value + 1
+            }
+        goblinRunnerTookDamageSinceLastTurn.value = false
+    }
 
     /**
      * Update dragon level based on current health.
@@ -836,6 +864,7 @@ fun AttackerType.isSpecialEnemy(): Boolean =
     this == AttackerType.SNOTLING ||
         this == AttackerType.SPIDERLING ||
         this == AttackerType.DEMONLING ||
+        this == AttackerType.GOBLIN_RUNNER ||
         this == AttackerType.ROBOTIC_GOBLIN ||
         this == AttackerType.ZOMBIE ||
         this == AttackerType.BLUE_DEMON ||

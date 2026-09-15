@@ -157,6 +157,8 @@ class CheatCodeHandlerTest {
         val testCases =
             listOf(
                 Triple("spawn goblin", AttackerType.GOBLIN, 1),
+                Triple("spawn goblinrunner", AttackerType.GOBLIN_RUNNER, 1),
+                Triple("spawn runner", AttackerType.GOBLIN_RUNNER, 1),
                 Triple("spawn ork", AttackerType.ORK, 1),
                 Triple("spawn orc", AttackerType.ORK, 1),
                 Triple("spawn ogre", AttackerType.OGRE, 1),

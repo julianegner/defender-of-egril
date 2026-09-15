@@ -125,6 +125,8 @@ data class SavedAttacker(
     val bloodlustRoundsLeft: Int = 0, // Enemy turns of bloodlust remaining
     val mushroomTurnsRemaining: Int = 0, // Enemy turns of mushroom buff remaining (0 = not active)
     val mushroomLevelBonus: Int = 0, // Extra level from mushroom buff (0 = not active)
+    val goblinRunnerUndamagedRounds: Int = 0, // Consecutive damage-free rounds for Goblin Runner acceleration
+    val goblinRunnerTookDamageSinceLastTurn: Boolean = false, // Pending Goblin Runner speed reset state
 )
 
 data class SavedFieldEffect(

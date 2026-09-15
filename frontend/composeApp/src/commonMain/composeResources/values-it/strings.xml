@@ -254,6 +254,7 @@
 
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Goblin</string>
+    <string name="goblin_runner_name">Goblin corridore</string>
     <string name="ork_name">Orco</string>
     <string name="troll_name">Troll</string>
     <string name="ogre_name">Ogre</string>
@@ -2302,6 +2303,7 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
 
     <!-- Descrizioni delle Unità Nemiche -->
     <string name="goblin_description">Veloci e agili, i goblin sono i nemici più deboli ma si muovono rapidamente. Usa gli attacchi di area per gestire più goblin contemporaneamente.</string>
+    <string name="goblin_runner_description">Uno specialista della corsa, esile e atletico, con pittura di guerra brillante e un lungo pennacchio. I goblin corridori partono con velocità 3 e ottengono +1 velocità per ogni turno consecutivo senza subire danni, quindi anche un piccolo colpo per turno basta a rallentarli.</string>
     <string name="ork_description">Muscolosi e resistenti, gli Ork sono la fanteria standard dell\'Orda. Si muovono più lentamente dei goblin ma hanno più punti vita e danno.</string>
     <string name="ogre_description">Massicce e potenti, gli Ogre sono nemici formidabili con molti punti vita. Nonostante le loro dimensioni, possono essere estremamente pericolose in gruppi.</string>
     <string name="troll_description">Una creatura di pietra immune agli attacchi di lama — le torri da mischia e a distanza non infliggono danno. Solo il fuoco e l\'acido possono ferirla. Il Troll si muove ogni altro turno e calpesta i nemici più piccoli. Distrugge le barricate con una forza tremenda.</string>

@@ -254,6 +254,7 @@
 
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Gobelin</string>
+    <string name="goblin_runner_name">Gobelin coureur</string>
     <string name="ork_name">Orc</string>
     <string name="troll_name">Troll</string>
     <string name="ogre_name">Ogre</string>
@@ -2301,6 +2302,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
 
     <!-- Descriptions des Unités Ennemies -->
     <string name="goblin_description">Rapides et agiles, les gobelins sont les ennemis les plus faibles mais se déplacent rapidement. Utilisez des attaques de zone pour gérer plusieurs gobelins à la fois.</string>
+    <string name="goblin_runner_description">Un sprinteur maigre et athlétique, reconnaissable à sa peinture de guerre éclatante et à sa longue plume. Les gobelins coureurs commencent avec une vitesse de 3 et gagnent +1 vitesse pour chaque manche consécutive sans subir de dégâts, donc même une petite touche par manche suffit à les ralentir.</string>
     <string name="ork_description">Musclés et robustes, les Orcs sont l\'infanterie standard de la Horde. Ils se déplacent plus lentement que les gobelins mais ont plus de points de vie et de dégâts.</string>
     <string name="ogre_description">Massifs et puissants, les Ogres sont des ennemis redoutables avec beaucoup de points de vie. Malgré leur taille, ils peuvent être extrêmement dangereux en groupes.</string>
     <string name="troll_description">Une créature de pierre immunisée contre les attaques de lames — les tours de combat rapproché et à distance n\'infligent aucun dégât. Seul le feu et l\'acide peuvent le blesser. Le Troll se déplace tous les deux tours et piétine les ennemis plus petits. Il détruit les barricades avec une force redoutable.</string>

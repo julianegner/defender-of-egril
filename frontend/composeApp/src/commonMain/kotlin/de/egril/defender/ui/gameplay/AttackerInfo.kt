@@ -95,11 +95,12 @@ fun AttackerInfo(
         } else {
             attacker.getLocalizedName(locale)
         }
-    val showWaaghGlow = waaghActive && attacker.type in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
+    val showWaaghGlow = waaghActive && attacker.type in setOf(AttackerType.GOBLIN, AttackerType.GOBLIN_RUNNER, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
     val waaghBoostText =
         if (waaghActive) {
             when (attacker.type) {
                 AttackerType.GOBLIN -> stringResource(Res.string.waagh_goblin_boost)
+                AttackerType.GOBLIN_RUNNER -> stringResource(Res.string.waagh_goblin_boost)
                 AttackerType.ORK -> stringResource(Res.string.waagh_ork_boost)
                 AttackerType.OGRE -> stringResource(Res.string.waagh_ogre_boost)
                 AttackerType.SNOTLING -> stringResource(Res.string.waagh_snotling_boost)
@@ -129,9 +130,9 @@ fun AttackerInfo(
             append(": ")
             append(
                 if (attacker.hasMushroomBuff) {
-                    attacker.type.speed * 2
+                    attacker.baseMovementSpeed * 2
                 } else {
-                    attacker.type.speed
+                    attacker.baseMovementSpeed
                 },
             )
         }
@@ -185,10 +186,15 @@ fun AttackerInfo(
                                 effect.position != null &&
                                 attacker.position.value.hexDistanceTo(effect.position) <= 2
                         }
-                    val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                    val barbsSpeed = maxOf(1, attacker.baseMovementSpeed - attacker.movementPenalty.value)
                     val mushroomSpeed = if (attacker.hasMushroomBuff) barbsSpeed * 2 else barbsSpeed
                     val cooledSpeed = if (coolingEffect != null) maxOf(0, mushroomSpeed - 1) else null
-                    val waaghSpeed = if (waaghActive && attacker.type == AttackerType.ORK) attacker.type.speed * 2 else null
+                    val waaghSpeed =
+                        if (waaghActive && (attacker.type == AttackerType.GOBLIN || attacker.type == AttackerType.GOBLIN_RUNNER || attacker.type == AttackerType.ORK)) {
+                            attacker.baseMovementSpeed * 2
+                        } else {
+                            null
+                        }
 
                     // Pre-compute freeze effect for reuse throughout the Column
                     val freezeEffect =
@@ -238,7 +244,7 @@ fun AttackerInfo(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                "${stringResource(Res.string.speed_label)}: ${attacker.type.speed}",
+                                "${stringResource(Res.string.speed_label)}: ${attacker.baseMovementSpeed}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Gray,
                             )

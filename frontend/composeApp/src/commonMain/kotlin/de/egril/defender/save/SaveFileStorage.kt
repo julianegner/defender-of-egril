@@ -304,6 +304,8 @@ object SaveFileStorage {
                     bloodlustRoundsLeft = attacker.bloodlustRoundsLeft.value,
                     mushroomTurnsRemaining = attacker.mushroomTurnsRemaining.value,
                     mushroomLevelBonus = attacker.mushroomLevelBonus.value,
+                    goblinRunnerUndamagedRounds = attacker.goblinRunnerUndamagedRounds.value,
+                    goblinRunnerTookDamageSinceLastTurn = attacker.goblinRunnerTookDamageSinceLastTurn.value,
                 )
             }
 
@@ -615,6 +617,8 @@ object SaveFileStorage {
             attacker.bloodlustRoundsLeft.value = savedAttacker.bloodlustRoundsLeft
             attacker.mushroomTurnsRemaining.value = savedAttacker.mushroomTurnsRemaining
             attacker.mushroomLevelBonus.value = savedAttacker.mushroomLevelBonus
+            attacker.goblinRunnerUndamagedRounds.value = savedAttacker.goblinRunnerUndamagedRounds
+            attacker.goblinRunnerTookDamageSinceLastTurn.value = savedAttacker.goblinRunnerTookDamageSinceLastTurn
             gameState.attackers.add(attacker)
         }
 

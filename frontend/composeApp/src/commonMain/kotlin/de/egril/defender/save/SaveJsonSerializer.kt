@@ -97,7 +97,9 @@ object SaveJsonSerializer {
       "movementPenalty": ${attacker.movementPenalty},
       "bloodlustRoundsLeft": ${attacker.bloodlustRoundsLeft},
       "mushroomTurnsRemaining": ${attacker.mushroomTurnsRemaining},
-      "mushroomLevelBonus": ${attacker.mushroomLevelBonus}
+      "mushroomLevelBonus": ${attacker.mushroomLevelBonus},
+      "goblinRunnerUndamagedRounds": ${attacker.goblinRunnerUndamagedRounds},
+      "goblinRunnerTookDamageSinceLastTurn": ${attacker.goblinRunnerTookDamageSinceLastTurn}
     }"""
             }
 
@@ -1074,8 +1076,34 @@ object SaveJsonSerializer {
             } catch (e: Exception) {
                 0
             }
+        val goblinRunnerUndamagedRounds =
+            try {
+                JsonUtils.extractValue(json, "goblinRunnerUndamagedRounds").toInt()
+            } catch (e: Exception) {
+                0
+            }
+        val goblinRunnerTookDamageSinceLastTurn =
+            try {
+                JsonUtils.extractValue(json, "goblinRunnerTookDamageSinceLastTurn").toBoolean()
+            } catch (e: Exception) {
+                false
+            }
 
-        return SavedAttacker(id, type, position, level, currentHealth, isDefeated, dragonName, movementPenalty, bloodlustRoundsLeft, mushroomTurnsRemaining, mushroomLevelBonus)
+        return SavedAttacker(
+            id = id,
+            type = type,
+            position = position,
+            level = level,
+            currentHealth = currentHealth,
+            isDefeated = isDefeated,
+            dragonName = dragonName,
+            movementPenalty = movementPenalty,
+            bloodlustRoundsLeft = bloodlustRoundsLeft,
+            mushroomTurnsRemaining = mushroomTurnsRemaining,
+            mushroomLevelBonus = mushroomLevelBonus,
+            goblinRunnerUndamagedRounds = goblinRunnerUndamagedRounds,
+            goblinRunnerTookDamageSinceLastTurn = goblinRunnerTookDamageSinceLastTurn,
+        )
     }
 
     private fun parseSavedFieldEffect(json: String): SavedFieldEffect {

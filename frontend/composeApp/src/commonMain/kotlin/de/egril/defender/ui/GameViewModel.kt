@@ -4376,6 +4376,7 @@ class GameViewModel {
                 if (position != null) {
                     val attacker = gameState.attackers.find { !it.isDefeated.value && it.position.value == position }
                     if (attacker != null) {
+                        attacker.recordDamageTaken(minOf(attacker.currentHealth.value, 80))
                         attacker.currentHealth.value -= 80
                         if (attacker.currentHealth.value <= 0) {
                             attacker.currentHealth.value = 0
@@ -4415,6 +4416,7 @@ class GameViewModel {
                     gameState.attackers.filter { !it.isDefeated.value }.forEach { attacker ->
                         val distance = attacker.position.value.hexDistanceTo(position)
                         if (distance <= 2) {
+                            attacker.recordDamageTaken(minOf(attacker.currentHealth.value, 50))
                             attacker.currentHealth.value -= 50
                             if (attacker.currentHealth.value <= 0) {
                                 attacker.currentHealth.value = 0
@@ -4871,6 +4873,7 @@ class GameViewModel {
         gameState.attackers
             .filter { !it.isDefeated.value }
             .forEach { attacker ->
+                attacker.recordDamageTaken(minOf(attacker.currentHealth.value, SKY_IS_FALLING_DAMAGE))
                 attacker.currentHealth.value -= SKY_IS_FALLING_DAMAGE
                 if (attacker.currentHealth.value <= 0) {
                     attacker.isDefeated.value = true

@@ -91,6 +91,7 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
     val key =
         when (this) {
             AttackerType.GOBLIN -> "goblin_name"
+            AttackerType.GOBLIN_RUNNER -> "goblin_runner_name"
             AttackerType.ORK -> "ork_name"
             AttackerType.OGRE -> "ogre_name"
             AttackerType.TROLL -> "troll_name"
