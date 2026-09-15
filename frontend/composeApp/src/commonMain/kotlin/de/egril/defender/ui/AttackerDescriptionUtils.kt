@@ -10,6 +10,7 @@ import defender_of_egril.composeapp.generated.resources.dragon_description
 import defender_of_egril.composeapp.generated.resources.evil_wizard_description
 import defender_of_egril.composeapp.generated.resources.ghost_description
 import defender_of_egril.composeapp.generated.resources.goblin_description
+import defender_of_egril.composeapp.generated.resources.goblin_runner_description
 import defender_of_egril.composeapp.generated.resources.green_witch_description
 import defender_of_egril.composeapp.generated.resources.ogre_description
 import defender_of_egril.composeapp.generated.resources.ork_description
@@ -49,6 +50,7 @@ fun AttackerType.getLocalizedDescription(): String {
     val stringRes =
         when (this) {
             AttackerType.GOBLIN -> Res.string.goblin_description
+            AttackerType.GOBLIN_RUNNER -> Res.string.goblin_runner_description
             AttackerType.ORK -> Res.string.ork_description
             AttackerType.OGRE -> Res.string.ogre_description
             AttackerType.TROLL -> Res.string.troll_description

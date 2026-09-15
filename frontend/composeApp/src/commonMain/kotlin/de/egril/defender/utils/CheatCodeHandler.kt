@@ -112,6 +112,7 @@ object CheatCodeHandler {
                 val attackerType =
                     when (typeName) {
                         "goblin" -> AttackerType.GOBLIN
+                        "goblinrunner", "goblin_runner", "runner" -> AttackerType.GOBLIN_RUNNER
                         "ork", "orc" -> AttackerType.ORK
                         "ogre" -> AttackerType.OGRE
                         "troll" -> AttackerType.TROLL

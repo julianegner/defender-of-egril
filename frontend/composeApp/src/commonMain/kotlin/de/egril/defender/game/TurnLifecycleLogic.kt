@@ -70,6 +70,7 @@ class TurnLifecycleLogic(
             .forEach { attacker ->
                 state.enemyTurnStartPositions[attacker.id] = attacker.position.value
                 attacker.teleportedThisTurn.value = false
+                attacker.updateGoblinRunnerSpeedStateAtEnemyTurnStart(state.turnNumber.value)
             }
         // Reset portal usage so each portal can be used once per enemy turn.
         state.activePortals.forEach { it.usedThisTurn.value = false }
@@ -268,6 +269,7 @@ class TurnLifecycleLogic(
                 val distance = attacker.position.value.hexDistanceTo(position)
                 if (distance <= explosionRange && !attacker.type.isMirrorImage) {
                     val dmg = damageAt(distance)
+                    attacker.recordDamageTaken(minOf(attacker.currentHealth.value, dmg))
                     attacker.currentHealth.value = (attacker.currentHealth.value - dmg).coerceAtLeast(0)
                     enemiesDamaged++
                     if (attacker.currentHealth.value <= 0) {

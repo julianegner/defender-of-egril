@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import de.egril.defender.ui.editor.level.AddEnemyDialog
 import org.junit.Rule
 import org.junit.Test
@@ -24,9 +25,9 @@ class AddEnemyDialogTest {
         }
 
         composeTestRule.onNodeWithText("Special", substring = true, ignoreCase = true).performClick()
-        composeTestRule.onNodeWithText("Blue Demon", substring = true, ignoreCase = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("Red Demon", substring = true, ignoreCase = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("Zombie", substring = true, ignoreCase = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Blue Demon", substring = true, ignoreCase = true).performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Goblin Runner", substring = true, ignoreCase = true).performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Zombie", substring = true, ignoreCase = true).performScrollTo().assertIsDisplayed()
     }
 
     @Test

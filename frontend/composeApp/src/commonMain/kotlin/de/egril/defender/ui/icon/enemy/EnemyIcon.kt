@@ -86,7 +86,8 @@ internal fun attackerOutlineColor(
     defaultOutlineColor: Color,
 ): Color = if (attackerType == AttackerType.PIRATE || attackerType == AttackerType.CAPTAIN_RODERICH) Color.White else defaultOutlineColor
 
-private fun AttackerType.isWaaghAffectedUnit(): Boolean = this in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
+private fun AttackerType.isWaaghAffectedUnit(): Boolean =
+    this in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING)
 
 @Composable
 fun EnemyIcon(
@@ -139,6 +140,7 @@ fun EnemyIcon(
 
             when (attacker.type) {
                 AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.GOBLIN_RUNNER -> drawGoblinRunnerSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
                 AttackerType.TROLL -> drawTrollSymbol(centerX, centerY, iconSize * 0.82f, headScale = headScale)
@@ -301,6 +303,7 @@ fun EnemyTypeIcon(
 
             when (attackerType) {
                 AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.GOBLIN_RUNNER -> drawGoblinRunnerSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
                 AttackerType.TROLL -> drawTrollSymbol(centerX, centerY, iconSize * 0.82f, headScale = headScale)

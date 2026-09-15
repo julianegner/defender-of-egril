@@ -2405,7 +2405,7 @@ fun GridCell(
         attacker != null &&
             isInCoolingArea &&
             run {
-                val penalizedSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                val penalizedSpeed = maxOf(1, attacker.currentBaseMovementSpeed - attacker.movementPenalty.value)
                 maxOf(0, penalizedSpeed - 1) == 0
             }
 
@@ -3071,7 +3071,7 @@ private fun BoxScope.GridCellContent(
                 val coolingReducesToZero =
                     isInCoolingArea &&
                         run {
-                            val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                            val barbsSpeed = maxOf(1, attacker.currentBaseMovementSpeed - attacker.movementPenalty.value)
                             maxOf(0, barbsSpeed - 1) == 0
                         }
                 // Compute the actual tile background color so the icon can derive the correct outline color.

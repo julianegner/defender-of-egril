@@ -321,6 +321,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                         val s = iconSize * 0.75f
                         when (tab.type) {
                             AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, s, outlineColor)
+                            AttackerType.GOBLIN_RUNNER -> drawGoblinRunnerSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.ORK -> drawOrkSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, s * 1.05f, outlineColor)
                             AttackerType.TROLL -> drawTrollSymbol(centerX, centerY, s * 1.1f, outlineColor)

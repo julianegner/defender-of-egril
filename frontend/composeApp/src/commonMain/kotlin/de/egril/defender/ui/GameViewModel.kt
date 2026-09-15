@@ -4376,11 +4376,7 @@ class GameViewModel {
                 if (position != null) {
                     val attacker = gameState.attackers.find { !it.isDefeated.value && it.position.value == position }
                     if (attacker != null) {
-                        attacker.currentHealth.value -= 80
-                        if (attacker.currentHealth.value <= 0) {
-                            attacker.currentHealth.value = 0
-                            attacker.isDefeated.value = true
-                        }
+                        damageAttacker(attacker, 80)
                         if (LogConfig.ENABLE_SPELL_LOGGING) {
                             println(
                                 "Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} at $position (HP: ${attacker.currentHealth.value})",
@@ -4415,11 +4411,7 @@ class GameViewModel {
                     gameState.attackers.filter { !it.isDefeated.value }.forEach { attacker ->
                         val distance = attacker.position.value.hexDistanceTo(position)
                         if (distance <= 2) {
-                            attacker.currentHealth.value -= 50
-                            if (attacker.currentHealth.value <= 0) {
-                                attacker.currentHealth.value = 0
-                                attacker.isDefeated.value = true
-                            }
+                            damageAttacker(attacker, 50)
                             damagedCount++
                         }
                     }
@@ -4871,10 +4863,7 @@ class GameViewModel {
         gameState.attackers
             .filter { !it.isDefeated.value }
             .forEach { attacker ->
-                attacker.currentHealth.value -= SKY_IS_FALLING_DAMAGE
-                if (attacker.currentHealth.value <= 0) {
-                    attacker.isDefeated.value = true
-                }
+                damageAttacker(attacker, SKY_IS_FALLING_DAMAGE)
             }
         // Award coins/XP and remove defeated enemies immediately (mirrors damage spells).
         gameEngine?.processDefeatedAttackers()
@@ -4885,6 +4874,17 @@ class GameViewModel {
             completeLevel(stateAfter.level.id, won = false)
         } else if (stateAfter != null && stateAfter.isLevelWon()) {
             completeLevel(stateAfter.level.id, won = true)
+        }
+    }
+
+    private fun damageAttacker(
+        attacker: Attacker,
+        damage: Int,
+    ) {
+        attacker.recordDamageTaken(minOf(attacker.currentHealth.value, damage))
+        attacker.currentHealth.value = (attacker.currentHealth.value - damage).coerceAtLeast(0)
+        if (attacker.currentHealth.value <= 0) {
+            attacker.isDefeated.value = true
         }
     }
 

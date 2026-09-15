@@ -254,6 +254,7 @@
 
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Goblin</string>
+    <string name="goblin_runner_name">Corredor goblin</string>
     <string name="ork_name">Orco</string>
     <string name="troll_name">Trol</string>
     <string name="ogre_name">Ogro</string>
@@ -2300,6 +2301,7 @@
 
     <!-- Descripciones de Unidades Enemigas -->
     <string name="goblin_description">Rápidos y ágiles, los goblins son los enemigos más débiles pero se mueven rápidamente. Usa ataques de área para manejar múltiples goblins a la vez.</string>
+    <string name="goblin_runner_description">Un especialista en velocidad, delgado y atlético, con pintura de guerra brillante y un largo penacho de plumas. Los corredores goblin empiezan con velocidad 3 y ganan +1 de velocidad por cada ronda consecutiva sin recibir daño, así que incluso un pequeño golpe por ronda basta para frenarlos.</string>
     <string name="ork_description">Musculosos y resistentes, los Orks son la infantería estándar de la Horda. Se mueven más lentamente que los goblins pero tienen más salud y daño.</string>
     <string name="ogre_description">Masivos y poderosos, los Ogres son enemigos formidables con una salud muy alta. A pesar de su tamaño, pueden ser extremadamente peligrosos en grupos.</string>
     <string name="troll_description">Una criatura de piedra inmune a los ataques de cuchilla — las torres de combate cuerpo a cuerpo y a distancia no le infligen daño. Solo el fuego y el ácido pueden dañarlo. El Troll se mueve cada otro turno y aplasta a los enemigos más pequeños. Destruye barricadas con una fuerza tremenda.</string>

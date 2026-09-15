@@ -129,9 +129,9 @@ fun AttackerInfo(
             append(": ")
             append(
                 if (attacker.hasMushroomBuff) {
-                    attacker.type.speed * 2
+                    attacker.currentBaseMovementSpeed * 2
                 } else {
-                    attacker.type.speed
+                    attacker.currentBaseMovementSpeed
                 },
             )
         }
@@ -185,10 +185,18 @@ fun AttackerInfo(
                                 effect.position != null &&
                                 attacker.position.value.hexDistanceTo(effect.position) <= 2
                         }
-                    val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                    val barbsSpeed = maxOf(1, attacker.currentBaseMovementSpeed - attacker.movementPenalty.value)
                     val mushroomSpeed = if (attacker.hasMushroomBuff) barbsSpeed * 2 else barbsSpeed
                     val cooledSpeed = if (coolingEffect != null) maxOf(0, mushroomSpeed - 1) else null
-                    val waaghSpeed = if (waaghActive && attacker.type == AttackerType.ORK) attacker.type.speed * 2 else null
+                    val waaghSpeed =
+                        if (waaghActive && (attacker.type == AttackerType.GOBLIN || attacker.type == AttackerType.ORK)) {
+                            when (attacker.type) {
+                                AttackerType.ORK -> attacker.type.speed * 2
+                                else -> attacker.type.speed * 2
+                            }
+                        } else {
+                            null
+                        }
 
                     // Pre-compute freeze effect for reuse throughout the Column
                     val freezeEffect =
@@ -238,7 +246,7 @@ fun AttackerInfo(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                "${stringResource(Res.string.speed_label)}: ${attacker.type.speed}",
+                                "${stringResource(Res.string.speed_label)}: ${attacker.currentBaseMovementSpeed}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Gray,
                             )

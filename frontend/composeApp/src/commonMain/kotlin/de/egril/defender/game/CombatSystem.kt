@@ -508,6 +508,7 @@ class CombatSystem(
         val targetWasUninjured = target.currentHealth.value == target.maxHealth
         val damage = getEffectiveDamageAgainst(defender, target)
         val actualDamage = minOf(target.currentHealth.value, damage)
+        target.recordDamageTaken(actualDamage)
         target.currentHealth.value -= damage
         trackWaaghChargeFromHit(target, actualDamage)
         if (target.currentHealth.value <= 0) {
@@ -578,6 +579,7 @@ class CombatSystem(
                 val targetWasUninjured = target.currentHealth.value == target.maxHealth
                 val damage = getEffectiveDamageAgainst(defender, target)
                 val actualDamage = minOf(target.currentHealth.value, damage)
+                target.recordDamageTaken(actualDamage)
                 target.currentHealth.value -= damage
                 trackWaaghChargeFromHit(target, actualDamage)
                 if (target.currentHealth.value <= 0) {
@@ -699,6 +701,7 @@ class CombatSystem(
                 // Initial damage is same as DOT tick damage (not full damage)
                 val damage = getEffectiveDamageAgainst(defender, target) / LASTING_DAMAGE_DIVISOR
                 val actualDamage = minOf(target.currentHealth.value, damage)
+                target.recordDamageTaken(actualDamage)
                 target.currentHealth.value -= damage
                 trackWaaghChargeFromHit(target, actualDamage)
                 // Mark for additional rounds of DOT based on tower level
@@ -805,6 +808,7 @@ class CombatSystem(
                 // Check immunity to acid (Blue Demons)
                 if (attacker.canBeDamagedByAcid()) {
                     val actualDamage = minOf(attacker.currentHealth.value, effect.damage)
+                    attacker.recordDamageTaken(actualDamage)
                     attacker.currentHealth.value -= effect.damage
                     trackWaaghChargeFromHit(attacker, actualDamage)
                     if (attacker.currentHealth.value <= 0) {

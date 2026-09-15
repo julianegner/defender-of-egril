@@ -311,6 +311,7 @@ class MineOperations(
                     TrapType.DWARVEN -> {
                         // Deal damage to enemy
                         if (!enemyAtPosition.type.isMirrorImage) {
+                            enemyAtPosition.recordDamageTaken(minOf(enemyAtPosition.currentHealth.value, trap.damage))
                             enemyAtPosition.currentHealth.value -= trap.damage
                         }
 
@@ -450,6 +451,7 @@ class MineOperations(
                     val attackerWasUninjured = attacker.currentHealth.value == attacker.maxHealth
                     // Deal damage to enemy
                     if (!attacker.type.isMirrorImage) {
+                        attacker.recordDamageTaken(minOf(attacker.currentHealth.value, trapAtPosition.damage))
                         attacker.currentHealth.value -= trapAtPosition.damage
                     }
 
