@@ -12,6 +12,15 @@ import kotlin.test.assertTrue
 
 class GameViewModelDemoModeTest {
     @Test
+    fun `demodemo level stays official when loaded from storage`() {
+        EditorStorage.ensureInitialized()
+
+        val level = assertNotNull(EditorStorage.getLevel(DemoMode.DEMO_DEMO_LEVEL_ID))
+
+        assertTrue(level.isOfficial)
+    }
+
+    @Test
     fun `demodemo setup uses level file tower bases`() {
         EditorStorage.ensureInitialized()
 
