@@ -194,12 +194,12 @@ object DemoMode {
 
     /** Numeric IDs reserved for the three demo levels (won't overlap with real levels). */
     const val DEMO_LEVEL_ID_BASE = 9000
+    const val DEMO_DEMO_NUMERIC_LEVEL_ID = 9099
 
     fun getLevelCount(scenario: Scenario): Int =
-        if (scenario == Scenario.DEMO_DEMO) {
-            1
-        } else {
-            DEMO_MAP_IDS.size
+        when (scenario) {
+            Scenario.STANDARD -> DEMO_MAP_IDS.size
+            Scenario.DEMO_DEMO -> 1
         }
 
     /**
@@ -261,7 +261,7 @@ object DemoMode {
 
     private fun createDemoDemoLevelSetup(): DemoLevelSetup? {
         val editorLevel = EditorStorage.getLevel(DEMO_DEMO_LEVEL_ID) ?: return null
-        val level = EditorStorage.convertToGameLevel(editorLevel, DEMO_LEVEL_ID_BASE + DEMO_MAP_IDS.size) ?: return null
+        val level = EditorStorage.convertToGameLevel(editorLevel, DEMO_DEMO_NUMERIC_LEVEL_ID) ?: return null
         val initialData = level.getEffectiveInitialData()
 
         return DemoLevelSetup(

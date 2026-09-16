@@ -6,9 +6,9 @@
   "data": {
   "id": "demo_demo",
   "mapId": "map_demo",
-  "title": "Demo Demo",
+  "title": "",
   "titleKey": "level_demo_demo_title",
-  "subtitle": "Tower Base Showcase",
+  "subtitle": "",
   "subtitleKey": "level_demo_demo_subtitle",
   "startCoins": 2500,
   "startHealthPoints": 100,

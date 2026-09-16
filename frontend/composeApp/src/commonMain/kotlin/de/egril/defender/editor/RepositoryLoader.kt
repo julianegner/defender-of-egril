@@ -9,6 +9,11 @@ import defender_of_egril.composeapp.generated.resources.Res
  * Repository files are stored in composeResources/files/repository/
  */
 object RepositoryLoader {
+    private val EXTRA_REPOSITORY_LEVEL_IDS = listOf("demo_demo")
+
+    private fun getRepositoryLevelIds(sequence: LevelSequence): List<String> =
+        (sequence.sequence + EXTRA_REPOSITORY_LEVEL_IDS).distinct()
+
     private const val STORED_FINGERPRINT_FILE = "gamedata/repository_fingerprint.txt"
     private const val FNV1A_64_OFFSET_BASIS = 1469598103934665603UL
     private const val FNV1A_64_PRIME = 1099511628211UL
@@ -127,8 +132,9 @@ object RepositoryLoader {
             readRepositoryBytesOrNull("editor/map_templates_index.json")?.let { builder.addFile("editor/map_templates_index.json", it) }
             readRepositoryBytesOrNull("editor/spawn_templates_index.json")?.let { builder.addFile("editor/spawn_templates_index.json", it) }
 
+            val levelIds = getRepositoryLevelIds(sequence)
             val mapIds = linkedSetOf<String>()
-            for (levelId in sequence.sequence) {
+            for (levelId in levelIds) {
                 val levelPath = "levels/$levelId.json"
                 val levelBytes = readRepositoryBytes(levelPath)
                 builder.addFile(levelPath, levelBytes)
@@ -416,7 +422,8 @@ object RepositoryLoader {
             val spawnTemplateIds = loadRepositoryTemplateIds("editor/spawn_templates_index.json")
 
             // Estimated total: levels (N) + maps upper-bound (N, since each level may need a unique map) + 1 worldmap file
-            val estimatedTotal = sequence.sequence.size * 2 + 1 + mapTemplateIds.size + spawnTemplateIds.size
+            val levelIds = getRepositoryLevelIds(sequence)
+            val estimatedTotal = levelIds.size * 2 + 1 + mapTemplateIds.size + spawnTemplateIds.size
             var loaded = 0
 
             // Track which maps we need to load
@@ -424,7 +431,7 @@ object RepositoryLoader {
 
             // Load all levels in the sequence
             var successCount = 0
-            for (levelId in sequence.sequence) {
+            for (levelId in levelIds) {
                 val level = loadLevel(levelId)
                 if (level != null) {
                     // Mark level as official and save to official directory
@@ -450,7 +457,7 @@ object RepositoryLoader {
             // Now that we know the actual number of unique maps, compute the real total:
             // N levels + M unique maps + 1 worldmap file (M ≤ N since maps are shared across levels)
             val actualTotal =
-                sequence.sequence.size + mapsToLoad.size + 1 + mapTemplateIds.size + spawnTemplateIds.size
+                levelIds.size + mapsToLoad.size + 1 + mapTemplateIds.size + spawnTemplateIds.size
 
             // Load all required maps
             var mapCount = 0
@@ -617,6 +624,8 @@ object RepositoryLoader {
                 println("Found ${sequence.sequence.size} levels in repository sequence (priority mode)")
             }
 
+            val levelIds = getRepositoryLevelIds(sequence)
+
             // Save sequence and worldmap first so they are available after onFirstLevelReady().
             val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
             storage.writeFile("gamedata/official/sequence.json", sequenceJson)
@@ -631,11 +640,11 @@ object RepositoryLoader {
             }
 
             // Estimated total: levels (N) + maps upper-bound (N) + 1 worldmap
-            val estimatedTotal = sequence.sequence.size * 2 + 1
+            val estimatedTotal = levelIds.size * 2 + 1
             var loaded = 0
 
             // --- Priority phase: load the first level and its map ---
-            val priorityLevelId = sequence.sequence.first()
+            val priorityLevelId = levelIds.first()
             val priorityLevel = loadLevel(priorityLevelId)
             var priorityMapId: String? = null
             if (priorityLevel != null) {
@@ -677,7 +686,7 @@ object RepositoryLoader {
             if (priorityMapId != null) mapsToLoad.add(priorityMapId)
 
             var successCount = if (priorityLevel != null) 1 else 0
-            for (levelId in sequence.sequence.drop(1)) {
+            for (levelId in levelIds.drop(1)) {
                 val level = loadLevel(levelId)
                 if (level != null) {
                     val officialLevel = level.copy(isOfficial = true)
@@ -699,7 +708,7 @@ object RepositoryLoader {
                 onProgress?.invoke(loaded, estimatedTotal, "$levelId.json")
             }
 
-            val actualTotal = sequence.sequence.size + mapsToLoad.size + 1
+            val actualTotal = levelIds.size + mapsToLoad.size + 1
             var mapCount = if (priorityMapId != null) 1 else 0
             for (mapId in mapsToLoad) {
                 if (mapId == priorityMapId) {

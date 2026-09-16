@@ -512,21 +512,6 @@ object EditorStorage {
             }
         }
 
-        val repositoryMap =
-            runBlockingCompat {
-                RepositoryLoader.loadMap(id)
-            }
-        if (repositoryMap != null) {
-            val validatedMap =
-                repositoryMap.copy(
-                    readyToUse = if (repositoryMap.isValid) repositoryMap.validateReadyToUse() else false,
-                    isOfficial = true,
-                    isCommunity = false,
-                )
-            mapsCache[id] = validatedMap
-            return validatedMap
-        }
-
         return null
     }
 
@@ -735,16 +720,6 @@ object EditorStorage {
                 levelsCache[id] = levelWithFlag
                 return levelWithFlag
             }
-        }
-
-        val repositoryLevel =
-            runBlockingCompat {
-                RepositoryLoader.loadLevel(id)
-            }
-        if (repositoryLevel != null) {
-            val levelWithFlag = applyOfficialFlags(repositoryLevel, isOfficial = true)
-            levelsCache[id] = levelWithFlag
-            return levelWithFlag
         }
 
         return null
