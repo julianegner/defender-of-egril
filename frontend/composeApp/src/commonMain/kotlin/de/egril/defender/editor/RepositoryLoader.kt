@@ -1,6 +1,7 @@
 package de.egril.defender.editor
 
 import de.egril.defender.config.LogConfig
+import de.egril.defender.game.DemoMode
 import de.egril.defender.utils.JsonUtils
 import defender_of_egril.composeapp.generated.resources.Res
 
@@ -9,7 +10,7 @@ import defender_of_egril.composeapp.generated.resources.Res
  * Repository files are stored in composeResources/files/repository/
  */
 object RepositoryLoader {
-    private val EXTRA_REPOSITORY_LEVEL_IDS = listOf("demo_demo")
+    private val EXTRA_REPOSITORY_LEVEL_IDS = listOf(DemoMode.DEMO_DEMO_LEVEL_ID)
 
     private fun getRepositoryLevelIds(sequence: LevelSequence): List<String> =
         (sequence.sequence + EXTRA_REPOSITORY_LEVEL_IDS).distinct()
