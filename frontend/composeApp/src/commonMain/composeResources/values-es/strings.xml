@@ -1128,6 +1128,8 @@
     <string name="level_the_creek_title">El Arroyo</string>
     <string name="level_the_island_title">La Isla</string>
     <string name="level_the_river_title">El Río</string>
+    <string name="level_demo_demo_title">Demo Demo</string>
+    <string name="level_demo_demo_subtitle">Demostración de bases de torre</string>
     <string name="level_creek_valley_title">Valle del Arroyo</string>
     <string name="level_maelstrom_title">Vorágine</string>
     <string name="level_defend_the_city_title">Defiende la Ciudad</string>
@@ -1750,6 +1752,7 @@
     <string name="cheat_breakreminder_desc">Mostrar recordatorio de descanso de inmediato</string>
     <string name="cheat_sleepreminder_desc">Mostrar recordatorio de sueño de inmediato</string>
     <string name="cheat_demo_desc">Iniciar modo demo automático del mapa mundial</string>
+    <string name="cheat_demodemo_desc">Iniciar modo demo automático de bases de torre en map_demo</string>
     <string name="cheat_sticker_desc">Abrir la pantalla de stickers</string>
     <string name="cheat_spinner_desc">Mostrar demostración del spinner de carga</string>
     <string name="cheat_credits_desc">Abrir pantalla de créditos finales</string>

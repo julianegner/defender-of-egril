@@ -741,6 +741,12 @@ object EditorJsonSerializer {
                 if (initialData.barricades.isNotEmpty()) {
                     val barricadesData =
                         initialData.barricades.joinToString(",\n      ") { barricade ->
+                            val supportsTowerJson =
+                                if (barricade.supportsTower) {
+                                    """, "supportsTower": true"""
+                                } else {
+                                    ""
+                                }
                             val nameJson =
                                 if (!barricade.name.isNullOrBlank()) {
                                     """, "name": "${barricade.name}""""
@@ -753,7 +759,7 @@ object EditorJsonSerializer {
                                 } else {
                                     ""
                                 }
-                            """{"position": {"x": ${barricade.position.x}, "y": ${barricade.position.y}}, "healthPoints": ${barricade.healthPoints}$nameJson$isGateJson}"""
+                            """{"position": {"x": ${barricade.position.x}, "y": ${barricade.position.y}}, "healthPoints": ${barricade.healthPoints}$supportsTowerJson$nameJson$isGateJson}"""
                         }
                     parts.add(
                         """"barricades": [
@@ -1424,13 +1430,27 @@ object EditorJsonSerializer {
                                     } catch (e: Exception) {
                                         null
                                     }
+                                val supportsTower =
+                                    try {
+                                        JsonUtils.extractBooleanValue(entry, "supportsTower")
+                                    } catch (e: Exception) {
+                                        false
+                                    }
                                 val isGate =
                                     try {
                                         JsonUtils.extractBooleanValue(entry, "isGate")
                                     } catch (e: Exception) {
                                         false
                                     }
-                                initialBarricades.add(InitialBarricade(position, healthPoints, name = barricadeName, isGate = isGate))
+                                initialBarricades.add(
+                                    InitialBarricade(
+                                        position,
+                                        healthPoints,
+                                        supportsTower = supportsTower,
+                                        name = barricadeName,
+                                        isGate = isGate,
+                                    ),
+                                )
                             }
                             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                                 println("EditorJsonSerializer: Parsed ${initialBarricades.size} initial barricades")
@@ -1732,7 +1752,13 @@ object EditorJsonSerializer {
                                 val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
                                 val position = Position(x, y)
                                 val healthPoints = JsonUtils.extractValue(entry, "healthPoints").toInt()
-                                initialBarricades.add(InitialBarricade(position, healthPoints))
+                                val supportsTower =
+                                    try {
+                                        JsonUtils.extractBooleanValue(entry, "supportsTower")
+                                    } catch (e: Exception) {
+                                        false
+                                    }
+                                initialBarricades.add(InitialBarricade(position, healthPoints, supportsTower = supportsTower))
                             }
                         }
                     } catch (e: Exception) {

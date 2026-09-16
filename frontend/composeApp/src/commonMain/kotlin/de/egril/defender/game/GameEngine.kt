@@ -126,6 +126,11 @@ class GameEngine(
         return result
     }
 
+    fun canPlaceDefenderAt(
+        type: DefenderType,
+        position: Position,
+    ): Boolean = towerManager.canPlaceDefenderAt(type, position)
+
     fun upgradeDefender(defenderId: Int): Boolean {
         val result = towerManager.upgradeDefender(defenderId)
         if (result) evaluateImmediateEvents()

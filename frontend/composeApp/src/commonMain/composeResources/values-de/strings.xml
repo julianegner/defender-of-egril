@@ -1127,6 +1127,8 @@
     <string name="level_the_creek_title">Der Bach</string>
     <string name="level_the_island_title">Die Insel</string>
     <string name="level_the_river_title">Der Fluss</string>
+    <string name="level_demo_demo_title">Demo Demo</string>
+    <string name="level_demo_demo_subtitle">Turmbasen-Demonstration</string>
     <string name="level_creek_valley_title">Bachtal</string>
     <string name="level_maelstrom_title">Mahlstrom</string>
     <string name="level_defend_the_city_title">Verteidige die Stadt</string>
@@ -1749,6 +1751,7 @@
     <string name="cheat_breakreminder_desc">Pausenerinnerung sofort anzeigen</string>
     <string name="cheat_sleepreminder_desc">Schlaferinnerung sofort anzeigen</string>
     <string name="cheat_demo_desc">Automatischen Weltkarten-Demomodus starten</string>
+    <string name="cheat_demodemo_desc">Automatischen map_demo-Turmbasen-Demomodus starten</string>
     <string name="cheat_sticker_desc">Sticker-Bildschirm öffnen</string>
     <string name="cheat_spinner_desc">Lade-Spinner-Demo anzeigen</string>
     <string name="cheat_credits_desc">Finalen Abspann-Bildschirm öffnen</string>

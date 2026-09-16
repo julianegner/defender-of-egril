@@ -716,8 +716,7 @@ object EditorStorage {
                 println("EditorStorage: Deserialized level $id: $level")
             }
             if (level != null) {
-                // Set isOfficial flag based on which directory it was found in
-                val levelWithFlag = level.copy(isOfficial = level.isOfficial || isOfficial)
+                val levelWithFlag = applyOfficialFlags(level, isOfficial)
                 levelsCache[id] = levelWithFlag
                 return levelWithFlag
             }
@@ -725,6 +724,11 @@ object EditorStorage {
 
         return null
     }
+
+    private fun applyOfficialFlags(
+        level: EditorLevel,
+        isOfficial: Boolean,
+    ): EditorLevel = level.copy(isOfficial = level.isOfficial || isOfficial)
 
     fun getAllLevels(): List<EditorLevel> {
         // Load all levels from both official and user directories
