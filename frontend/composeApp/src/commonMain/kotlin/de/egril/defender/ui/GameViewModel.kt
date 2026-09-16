@@ -2493,14 +2493,11 @@ class GameViewModel {
                             }
 
                             // Try to place a new tower if coins allow and a free build area or tower base exists
-                            val freePlacementPositions = getDemoPlacementPositions(currentState)
-                            if (freePlacementPositions.isNotEmpty()) {
+                            val placementTargets = getDemoPlacementTargets(currentState)
+                            if (placementTargets.buildAreas.isNotEmpty() || placementTargets.towerBases.isNotEmpty()) {
                                 for (type in currentState.level.availableTowers.sortedByDescending { it.baseCost }) {
                                     if (currentState.canPlaceDefender(type)) {
-                                        val targetPos =
-                                            freePlacementPositions.firstOrNull { position ->
-                                                gameEngine?.canPlaceDefenderAt(type, position) == true
-                                            } ?: continue
+                                        val targetPos = findDemoPlacementPosition(type, placementTargets) ?: continue
                                         // Show preview, then place
                                         _demoSelectedDefenderType.value = type
                                         _demoHoveredPosition.value = targetPos
@@ -2560,7 +2557,12 @@ class GameViewModel {
             }
     }
 
-    private fun getDemoPlacementPositions(state: GameState): List<Position> {
+    private data class DemoPlacementTargets(
+        val buildAreas: List<Position>,
+        val towerBases: List<Position>,
+    )
+
+    private fun getDemoPlacementTargets(state: GameState): DemoPlacementTargets {
         val occupiedPositions = state.defenders.map { it.position.value }.toSet()
         val barricadePositions = state.barricades.map { it.position }.toSet()
         val freeBuildAreas = state.level.buildAreas.filter { it !in occupiedPositions && it !in barricadePositions }
@@ -2568,7 +2570,25 @@ class GameViewModel {
             state.barricades
                 .filter { it.canSupportTower() && !it.hasTower() }
                 .map { it.position }
-        return (freeBuildAreas + freeTowerBases).distinct()
+        return DemoPlacementTargets(
+            buildAreas = freeBuildAreas,
+            towerBases = freeTowerBases,
+        )
+    }
+
+    private fun findDemoPlacementPosition(
+        type: DefenderType,
+        placementTargets: DemoPlacementTargets,
+    ): Position? {
+        val candidatePositions =
+            if (type == DefenderType.DWARVEN_MINE) {
+                placementTargets.buildAreas
+            } else {
+                placementTargets.towerBases + placementTargets.buildAreas
+            }
+        return candidatePositions.firstOrNull { position ->
+            gameEngine?.canPlaceDefenderAt(type, position) == true
+        }
     }
 
     /**
