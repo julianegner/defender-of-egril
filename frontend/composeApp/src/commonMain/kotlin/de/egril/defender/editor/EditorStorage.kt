@@ -731,7 +731,7 @@ object EditorStorage {
                 println("EditorStorage: Deserialized level $id: $level")
             }
             if (level != null) {
-                val levelWithFlag = applyRepositoryOfficialContent(level, isOfficial)
+                val levelWithFlag = applyOfficialFlags(level, isOfficial)
                 levelsCache[id] = levelWithFlag
                 return levelWithFlag
             }
@@ -742,7 +742,7 @@ object EditorStorage {
                 RepositoryLoader.loadLevel(id)
             }
         if (repositoryLevel != null) {
-            val levelWithFlag = applyRepositoryOfficialContent(repositoryLevel, isOfficial = true)
+            val levelWithFlag = applyOfficialFlags(repositoryLevel, isOfficial = true)
             levelsCache[id] = levelWithFlag
             return levelWithFlag
         }
@@ -750,7 +750,7 @@ object EditorStorage {
         return null
     }
 
-    private fun applyRepositoryOfficialContent(
+    private fun applyOfficialFlags(
         level: EditorLevel,
         isOfficial: Boolean,
     ): EditorLevel = level.copy(isOfficial = level.isOfficial || isOfficial)

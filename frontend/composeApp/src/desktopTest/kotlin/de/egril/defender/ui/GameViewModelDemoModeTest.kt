@@ -2,6 +2,7 @@ package de.egril.defender.ui
 
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.game.DemoMode
+import de.egril.defender.model.AttackerType
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
@@ -25,6 +26,12 @@ class GameViewModelDemoModeTest {
         assertTrue(setup.initialTowers.all { it.onTowerBase })
         assertTrue(initialData.defenders.isEmpty(), "Demo runtime level should start without pre-placed defenders")
         assertTrue(initialData.barricades.count { it.supportsTower } >= 20, "Demo level should provide many tower-base barricades")
+        val spawnTypes = level.directSpawnPlan.orEmpty().map { it.attackerType }.toSet()
+        assertTrue(AttackerType.SNOTLING_BOSS in spawnTypes)
+        assertTrue(AttackerType.BARON_RATTERZAHN in spawnTypes)
+        assertTrue(AttackerType.FALLEN_SHIELDMAIDEN_FREYA in spawnTypes)
+        assertTrue(AttackerType.PRINCE_VALERIUS_THE_SOULREAPER in spawnTypes)
+        assertTrue(AttackerType.MORGUK_BONEWHISPER in spawnTypes)
     }
 
     @Test
