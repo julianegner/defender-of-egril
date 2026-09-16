@@ -2559,7 +2559,8 @@ class GameViewModel {
 
     private fun getDemoPlacementPositions(state: GameState): List<Position> {
         val occupiedPositions = state.defenders.map { it.position.value }.toSet()
-        val freeBuildAreas = state.level.buildAreas.filter { it !in occupiedPositions }
+        val barricadePositions = state.barricades.map { it.position }.toSet()
+        val freeBuildAreas = state.level.buildAreas.filter { it !in occupiedPositions && it !in barricadePositions }
         val freeTowerBases =
             state.barricades
                 .filter { it.canSupportTower() && !it.hasTower() }
