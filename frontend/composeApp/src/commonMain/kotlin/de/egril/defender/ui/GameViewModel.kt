@@ -2497,7 +2497,10 @@ class GameViewModel {
                             if (freePlacementPositions.isNotEmpty()) {
                                 for (type in currentState.level.availableTowers.sortedByDescending { it.baseCost }) {
                                     if (currentState.canPlaceDefender(type)) {
-                                        val targetPos = freePlacementPositions.first()
+                                        val targetPos =
+                                            freePlacementPositions.firstOrNull { position ->
+                                                gameEngine?.canPlaceDefenderAt(type, position) == true
+                                            } ?: continue
                                         // Show preview, then place
                                         _demoSelectedDefenderType.value = type
                                         _demoHoveredPosition.value = targetPos

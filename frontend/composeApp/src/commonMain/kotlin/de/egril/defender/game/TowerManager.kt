@@ -19,51 +19,12 @@ class TowerManager(
         position: Position,
         instantDeploy: Boolean = false,
     ): Boolean {
-        if (!state.canPlaceDefender(type)) return false
+        if (!canPlaceDefenderAt(type, position, showWarnings = true)) return false
 
         // Check if position is on a barricade with at least 100 HP (tower base)
         val barricadeAtPosition = state.barricades.find { it.position == position }
         val isOnTowerBase = barricadeAtPosition != null && barricadeAtPosition.canSupportTower()
-
-        // If placing on a tower base, allow placement even if position would normally be occupied
-        if (!isOnTowerBase) {
-            if (isPositionOccupied(position)) return false
-        } else {
-            // On tower base, check if there's already a tower on this barricade
-            if (barricadeAtPosition.hasTower()) return false
-        }
-
-        // Cannot place on spawn points or any target
-        if (state.level.isSpawnPoint(position) || state.level.isTargetPosition(position)) return false
-
-        // Check if position is on a river tile (for raft placement)
         val isRiverPlacement = state.level.isRiverTile(position)
-
-        // Cannot place Dwarven Mines on rafts (river tiles)
-        if (type == DefenderType.DWARVEN_MINE && isRiverPlacement) {
-            // Show info message
-            state.infoState.value = state.infoState.value.showInfo(InfoType.MINE_ON_RIVER_WARNING)
-            return false
-        }
-        // Dwarven Mines cannot be placed on tower bases (barricades), only on build areas.
-        if (type == DefenderType.DWARVEN_MINE && isOnTowerBase) {
-            return false
-        }
-
-        // Cannot place barges on still water (NONE or MAELSTROM) river tiles — silently ignore like NO_PLAY
-        if (isRiverPlacement) {
-            val riverTile = state.level.getRiverTile(position)
-            if (riverTile != null && (riverTile.flowDirection == RiverFlow.NONE || riverTile.flowDirection == RiverFlow.MAELSTROM)) {
-                return false
-            }
-            if (state.isBridgeAt(position)) {
-                return false
-            }
-        }
-
-        // Can place in build areas OR on river tiles (for rafts, except mines) OR on tower bases
-        if (!state.level.isBuildArea(position) && !isRiverPlacement && !isOnTowerBase) return false
-
         val buildTime = if (state.phase.value == GamePhase.INITIAL_BUILDING || instantDeploy || state.level.isSandbox) 0 else type.buildTime
 
         // Get initial tower level based on difficulty
@@ -102,6 +63,65 @@ class TowerManager(
         if (defender.isReady) {
             defender.resetActions()
         }
+
+        return true
+    }
+
+    fun canPlaceDefenderAt(
+        type: DefenderType,
+        position: Position,
+    ): Boolean = canPlaceDefenderAt(type, position, showWarnings = false)
+
+    private fun canPlaceDefenderAt(
+        type: DefenderType,
+        position: Position,
+        showWarnings: Boolean,
+    ): Boolean {
+        if (!state.canPlaceDefender(type)) return false
+
+        // Check if position is on a barricade with at least 100 HP (tower base)
+        val barricadeAtPosition = state.barricades.find { it.position == position }
+        val isOnTowerBase = barricadeAtPosition != null && barricadeAtPosition.canSupportTower()
+
+        // If placing on a tower base, allow placement even if position would normally be occupied
+        if (!isOnTowerBase) {
+            if (isPositionOccupied(position)) return false
+        } else {
+            // On tower base, check if there's already a tower on this barricade
+            if (barricadeAtPosition.hasTower()) return false
+        }
+
+        // Cannot place on spawn points or any target
+        if (state.level.isSpawnPoint(position) || state.level.isTargetPosition(position)) return false
+
+        // Check if position is on a river tile (for raft placement)
+        val isRiverPlacement = state.level.isRiverTile(position)
+
+        // Cannot place Dwarven Mines on rafts (river tiles)
+        if (type == DefenderType.DWARVEN_MINE && isRiverPlacement) {
+            if (showWarnings) {
+                state.infoState.value = state.infoState.value.showInfo(InfoType.MINE_ON_RIVER_WARNING)
+            }
+            return false
+        }
+        // Dwarven Mines cannot be placed on tower bases (barricades), only on build areas.
+        if (type == DefenderType.DWARVEN_MINE && isOnTowerBase) {
+            return false
+        }
+
+        // Cannot place barges on still water (NONE or MAELSTROM) river tiles — silently ignore like NO_PLAY
+        if (isRiverPlacement) {
+            val riverTile = state.level.getRiverTile(position)
+            if (riverTile != null && (riverTile.flowDirection == RiverFlow.NONE || riverTile.flowDirection == RiverFlow.MAELSTROM)) {
+                return false
+            }
+            if (state.isBridgeAt(position)) {
+                return false
+            }
+        }
+
+        // Can place in build areas OR on river tiles (for rafts, except mines) OR on tower bases
+        if (!state.level.isBuildArea(position) && !isRiverPlacement && !isOnTowerBase) return false
 
         return true
     }
