@@ -1132,6 +1132,8 @@
     <string name="level_the_creek_title">The Creek</string>
     <string name="level_the_island_title">The Island</string>
     <string name="level_the_river_title">The River</string>
+    <string name="level_demo_demo_title">Demo Demo</string>
+    <string name="level_demo_demo_subtitle">Tower Base Showcase</string>
     <string name="level_creek_valley_title">Creek Valley</string>
     <string name="level_maelstrom_title">Maelstrom</string>
     <string name="level_defend_the_city_title">Defend the City</string>
@@ -1755,6 +1757,7 @@
     <string name="cheat_breakreminder_desc">Show break reminder immediately</string>
     <string name="cheat_sleepreminder_desc">Show sleep reminder immediately</string>
     <string name="cheat_demo_desc">Start automated world map demo mode</string>
+    <string name="cheat_demodemo_desc">Start automated map_demo tower-base demo mode</string>
     <string name="cheat_sticker_desc">Open the sticker screen</string>
     <string name="cheat_spinner_desc">Show loading spinner demo</string>
     <string name="cheat_credits_desc">Open the final credits screen</string>

@@ -6,6 +6,7 @@ import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
+import de.egril.defender.editor.InitialDefender
 import de.egril.defender.editor.EditorJsonSerializer
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.OfficialContent
@@ -257,6 +258,8 @@ class GameViewModel {
     val isDemoMode: StateFlow<Boolean> = _isDemoMode.asStateFlow()
     private var demoLevelIndex = 0
     private var demoJob: Job? = null
+    private var demoScenario = de.egril.defender.game.DemoMode.Scenario.STANDARD
+    private var demoInitialTowers: List<InitialDefender> = emptyList()
 
     // Demo visual state – drives placement preview and attack aiming circles in the UI
     private val _demoSelectedDefenderType = MutableStateFlow<DefenderType?>(null)
@@ -2136,7 +2139,9 @@ class GameViewModel {
             viewModelScope.launch {
                 delay(4000L)
                 if (_isDemoMode.value) {
-                    demoLevelIndex = (demoLevelIndex + 1) % de.egril.defender.game.DemoMode.DEMO_MAP_IDS.size
+                    demoLevelIndex =
+                        (demoLevelIndex + 1) %
+                            de.egril.defender.game.DemoMode.getLevelCount(demoScenario)
                     loadDemoLevel(demoLevelIndex)
                 }
             }
@@ -2316,10 +2321,11 @@ class GameViewModel {
     // Demo Mode
     // -------------------------------------------------------------------------
 
-    fun startDemoMode() {
+    fun startDemoMode(scenario: de.egril.defender.game.DemoMode.Scenario = de.egril.defender.game.DemoMode.Scenario.STANDARD) {
         _pendingDemoDeepLink.value = false
         _isDemoMode.value = true
         editorPlaytestSession = null
+        demoScenario = scenario
         demoLevelIndex = 0
         loadDemoLevel(0)
     }
@@ -2337,9 +2343,11 @@ class GameViewModel {
     }
 
     private fun loadDemoLevel(index: Int) {
-        val demoLevel =
+        val demoSetup =
             de.egril.defender.game.DemoMode
-                .createDemoLevel(index) ?: return
+                .createDemoLevelSetup(index, demoScenario) ?: return
+        demoInitialTowers = demoSetup.initialTowers
+        val demoLevel = demoSetup.level
 
         val newGameState =
             GameState(
@@ -2460,14 +2468,9 @@ class GameViewModel {
         demoJob?.cancel()
         demoJob =
             viewModelScope.launch {
-                val mapId =
-                    de.egril.defender.game.DemoMode.DEMO_MAP_IDS
-                        .getOrNull(demoLevelIndex)
-                val initialTowers = mapId?.let { de.egril.defender.game.DemoMode.DEMO_TOWERS[it] } ?: emptyList()
-
                 // Phase 1: place initial towers one by one with preview + delays in the INITIAL_BUILDING phase
                 delay(de.egril.defender.game.DemoMode.INITIAL_BUILDING_DELAY_MS)
-                for (tower in initialTowers) {
+                for (tower in demoInitialTowers) {
                     if (!_isDemoMode.value || _gameState.value?.phase?.value != GamePhase.INITIAL_BUILDING) break
                     demoPlaceTowerWithPreview(tower.type, tower.position)
                 }
@@ -2489,13 +2492,12 @@ class GameViewModel {
                                 continue
                             }
 
-                            // Try to place a new tower if coins allow and a free build area exists
-                            val occupiedPositions = currentState.defenders.map { it.position.value }.toSet()
-                            val freeBuildAreas = currentState.level.buildAreas - occupiedPositions
-                            if (freeBuildAreas.isNotEmpty()) {
+                            // Try to place a new tower if coins allow and a free build area or tower base exists
+                            val freePlacementPositions = getDemoPlacementPositions(currentState)
+                            if (freePlacementPositions.isNotEmpty()) {
                                 for (type in currentState.level.availableTowers.sortedByDescending { it.baseCost }) {
                                     if (currentState.canPlaceDefender(type)) {
-                                        val targetPos = freeBuildAreas.first()
+                                        val targetPos = freePlacementPositions.first()
                                         // Show preview, then place
                                         _demoSelectedDefenderType.value = type
                                         _demoHoveredPosition.value = targetPos
@@ -2553,6 +2555,16 @@ class GameViewModel {
                     }
                 }
             }
+    }
+
+    private fun getDemoPlacementPositions(state: GameState): List<Position> {
+        val occupiedPositions = state.defenders.map { it.position.value }.toSet()
+        val freeBuildAreas = state.level.buildAreas.filter { it !in occupiedPositions }
+        val freeTowerBases =
+            state.barricades
+                .filter { it.canSupportTower() && !it.hasTower() }
+                .map { it.position }
+        return (freeBuildAreas + freeTowerBases).distinct()
     }
 
     /**
@@ -2800,6 +2812,10 @@ class GameViewModel {
         // Check for "demo" cheat code (starts automated demo mode)
         if (code.lowercase().trim() == "demo") {
             startDemoMode()
+            return true
+        }
+        if (code.lowercase().trim() == "demodemo") {
+            startDemoMode(de.egril.defender.game.DemoMode.Scenario.DEMO_DEMO)
             return true
         }
 

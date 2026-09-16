@@ -12,8 +12,19 @@ import de.egril.defender.model.*
  * It is started from the world map via the cheat code "demo".
  */
 object DemoMode {
+    enum class Scenario {
+        STANDARD,
+        DEMO_DEMO,
+    }
+
+    data class DemoLevelSetup(
+        val level: Level,
+        val initialTowers: List<InitialDefender>,
+    )
+
     /** Map IDs cycled through in demo mode, in order */
     val DEMO_MAP_IDS = listOf("map_straight", "map_the_creek", "map_plains")
+    const val DEMO_DEMO_LEVEL_ID = "demo_demo"
 
     /** Delay in ms before auto-starting from the initial building phase */
     const val INITIAL_BUILDING_DELAY_MS = 1500L
@@ -184,13 +195,34 @@ object DemoMode {
     /** Numeric IDs reserved for the three demo levels (won't overlap with real levels). */
     const val DEMO_LEVEL_ID_BASE = 9000
 
+    fun getLevelCount(scenario: Scenario): Int =
+        if (scenario == Scenario.DEMO_DEMO) {
+            1
+        } else {
+            DEMO_MAP_IDS.size
+        }
+
+    /**
+     * Creates the requested demo level plus the scripted initial tower placements that the automated
+     * player should perform during the initial building phase.
+     */
+    fun createDemoLevelSetup(
+        demoIndex: Int,
+        scenario: Scenario,
+    ): DemoLevelSetup? =
+        if (scenario == Scenario.DEMO_DEMO) {
+            createDemoDemoLevelSetup()
+        } else {
+            createStandardDemoLevelSetup(demoIndex)
+        }
+
     /**
      * Creates a demo [Level] for the given [demoIndex] (0, 1, or 2).
      * Towers are NOT pre-placed — they are placed one by one during the INITIAL_BUILDING phase
      * by the auto-play loop so the 800 ms delay is visible.
      * Returns `null` if the map cannot be loaded.
      */
-    fun createDemoLevel(demoIndex: Int): Level? {
+    private fun createStandardDemoLevelSetup(demoIndex: Int): DemoLevelSetup? {
         val mapId = DEMO_MAP_IDS.getOrNull(demoIndex) ?: return null
         val map = EditorStorage.getMap(mapId) ?: return null
 
@@ -201,25 +233,40 @@ object DemoMode {
         val targets = map.getTargets()
         if (targets.isEmpty()) return null
 
-        return Level(
-            id = DEMO_LEVEL_ID_BASE + demoIndex,
-            name = map.name.ifBlank { "Demo" }, // Use map's display name (e.g. "The Creek"); titleKey handles localization
-            titleKey = map.nameKey, // Use map's localized string key (e.g. "map_the_creek_name")
-            subtitle = "",
-            gridWidth = map.width,
-            gridHeight = map.height,
-            startPositions = map.getSpawnPoints(),
-            targetPositions = targets,
-            pathCells = map.getPathCells(),
-            buildAreas = map.getBuildAreas(),
-            attackerWaves = emptyList(),
-            initialCoins = startCoins,
-            healthPoints = 10,
-            directSpawnPlan = spawns,
-            availableTowers = availableTowers,
-            riverTiles = map.getRiverTilesMap(),
-            mapId = mapId,
-            // No initialData: towers are placed dynamically by startDemoAutoPlay()
+        return DemoLevelSetup(
+            level =
+                Level(
+                    id = DEMO_LEVEL_ID_BASE + demoIndex,
+                    name = map.name.ifBlank { "Demo" }, // Use map's display name (e.g. "The Creek"); titleKey handles localization
+                    titleKey = map.nameKey, // Use map's localized string key (e.g. "map_the_creek_name")
+                    subtitle = "",
+                    gridWidth = map.width,
+                    gridHeight = map.height,
+                    startPositions = map.getSpawnPoints(),
+                    targetPositions = targets,
+                    pathCells = map.getPathCells(),
+                    buildAreas = map.getBuildAreas(),
+                    attackerWaves = emptyList(),
+                    initialCoins = startCoins,
+                    healthPoints = 10,
+                    directSpawnPlan = spawns,
+                    availableTowers = availableTowers,
+                    riverTiles = map.getRiverTilesMap(),
+                    mapId = mapId,
+                    // No initialData: towers are placed dynamically by startDemoAutoPlay()
+                ),
+            initialTowers = DEMO_TOWERS[mapId] ?: emptyList(),
+        )
+    }
+
+    private fun createDemoDemoLevelSetup(): DemoLevelSetup? {
+        val editorLevel = EditorStorage.getLevel(DEMO_DEMO_LEVEL_ID) ?: return null
+        val level = EditorStorage.convertToGameLevel(editorLevel, DEMO_LEVEL_ID_BASE + DEMO_MAP_IDS.size) ?: return null
+        val initialData = level.getEffectiveInitialData()
+
+        return DemoLevelSetup(
+            level = level.copy(initialData = initialData.copy(defenders = emptyList())),
+            initialTowers = initialData.defenders,
         )
     }
 }
