@@ -687,9 +687,8 @@ object RepositoryLoader {
             if (priorityMapId != null) mapsToLoad.add(priorityMapId)
 
             var successCount = if (priorityLevel != null) 1 else 0
-            val remainingLevelIds = levelIds.toMutableList()
-            remainingLevelIds.remove(priorityLevelId)
-            for (levelId in remainingLevelIds) {
+            val extraLevelIds = EXTRA_REPOSITORY_LEVEL_IDS.filter { it !in sequence.sequence }
+            for (levelId in sequence.sequence.drop(1) + extraLevelIds) {
                 val level = loadLevel(levelId)
                 if (level != null) {
                     val officialLevel = level.copy(isOfficial = true)
