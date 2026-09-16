@@ -644,7 +644,7 @@ object RepositoryLoader {
             var loaded = 0
 
             // --- Priority phase: load the first level and its map ---
-            val priorityLevelId = levelIds.first()
+            val priorityLevelId = sequence.sequence.first()
             val priorityLevel = loadLevel(priorityLevelId)
             var priorityMapId: String? = null
             if (priorityLevel != null) {
