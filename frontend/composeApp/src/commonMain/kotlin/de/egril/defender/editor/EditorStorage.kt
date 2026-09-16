@@ -731,8 +731,7 @@ object EditorStorage {
                 println("EditorStorage: Deserialized level $id: $level")
             }
             if (level != null) {
-                // Set isOfficial flag based on which directory it was found in
-                val levelWithFlag = level.copy(isOfficial = level.isOfficial || isOfficial)
+                val levelWithFlag = applyRepositoryOfficialContent(level, isOfficial)
                 levelsCache[id] = levelWithFlag
                 return levelWithFlag
             }
@@ -743,13 +742,18 @@ object EditorStorage {
                 RepositoryLoader.loadLevel(id)
             }
         if (repositoryLevel != null) {
-            val levelWithFlag = repositoryLevel.copy(isOfficial = true)
+            val levelWithFlag = applyRepositoryOfficialContent(repositoryLevel, isOfficial = true)
             levelsCache[id] = levelWithFlag
             return levelWithFlag
         }
 
         return null
     }
+
+    private fun applyRepositoryOfficialContent(
+        level: EditorLevel,
+        isOfficial: Boolean,
+    ): EditorLevel = level.copy(isOfficial = level.isOfficial || isOfficial)
 
     fun getAllLevels(): List<EditorLevel> {
         // Load all levels from both official and user directories
