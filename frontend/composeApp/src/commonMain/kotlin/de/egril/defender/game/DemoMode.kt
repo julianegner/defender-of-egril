@@ -53,6 +53,9 @@ object DemoMode {
     /** Delay in ms after level start before any showing info dialogs are dismissed */
     const val INFO_DISMISS_DELAY_MS = 3000L
 
+    /** Delay in ms before demo-mode villain dialogs are auto-dismissed */
+    const val VILLAIN_MESSAGE_DISMISS_DELAY_MS = 4000L
+
     /**
      * Pre-placed tower configurations for each demo map.
      * Each list defines the towers that are placed one by one during the INITIAL_BUILDING phase.

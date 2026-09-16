@@ -3,11 +3,16 @@ package de.egril.defender.ui
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.game.DemoMode
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.GameMessage
+import de.egril.defender.model.GameMessageType
+import de.egril.defender.model.GameState
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class GameViewModelDemoModeTest {
@@ -74,8 +79,53 @@ class GameViewModelDemoModeTest {
             assertEquals("map_demo", state.level.mapId)
             assertEquals(100, state.healthPoints.value)
             assertTrue(state.defenders.isEmpty(), "Towers should still be placed by the automated player")
-            assertTrue(state.level.getEffectiveInitialData().barricades.count { it.canSupportTower() } >= 20)
+            assertTrue(state.barricades.count { it.canSupportTower() } >= 20, "Runtime demo should initialize tower-base barricades")
 
             viewModel.stopDemoMode()
+        }
+
+    @Test
+    fun `demodemo level data keeps initial towers linked to tower bases`() {
+        EditorStorage.ensureInitialized()
+
+        val editorLevel = assertNotNull(EditorStorage.getLevel(DemoMode.DEMO_DEMO_LEVEL_ID))
+        val gameLevel = assertNotNull(EditorStorage.convertToGameLevel(editorLevel, 9001))
+        val state = GameState(level = gameLevel)
+
+        state.initializePrePlacedElements()
+
+        assertTrue(state.defenders.isNotEmpty())
+        assertTrue(state.defenders.all { it.towerBaseBarricadeId.value != null })
+        assertTrue(state.barricades.count { it.hasTower() } == state.defenders.size)
+    }
+
+    @Test
+    fun `demo mode auto dismisses villain messages after four seconds`() =
+        runBlocking {
+            val viewModel = GameViewModel()
+            viewModel.navigateToWorldMap()
+            assertTrue(viewModel.applyWorldMapCheatCode("demodemo"))
+            val state = assertNotNull(viewModel.gameState.first())
+
+            try {
+                state.pendingMessages.add(
+                    GameMessage(
+                        type = GameMessageType.VILLAIN_ENTERS,
+                        name = AttackerType.SNOTLING_BOSS.name,
+                    ),
+                )
+                GameViewModel::class.java
+                    .getDeclaredMethod("surfaceNextPendingMessageIfIdle")
+                    .apply { isAccessible = true }
+                    .invoke(viewModel)
+
+                assertEquals(GameMessageType.VILLAIN_ENTERS, viewModel.pendingGameMessage.first()?.type)
+
+                delay(DemoMode.VILLAIN_MESSAGE_DISMISS_DELAY_MS + 750L)
+
+                assertNull(viewModel.pendingGameMessage.first())
+            } finally {
+                viewModel.stopDemoMode()
+            }
         }
 }

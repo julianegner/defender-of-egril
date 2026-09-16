@@ -27,6 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -296,6 +297,17 @@ class GameViewModel {
 
         // Reload world map data after a successful restore from repository.
         de.egril.defender.editor.RepositoryManager.onDataRestored = { reloadWorldMap() }
+
+        viewModelScope.launch {
+            _pendingGameMessage.collectLatest { message ->
+                if (_isDemoMode.value && message?.type?.autoDismissesInDemoMode() == true) {
+                    delay(de.egril.defender.game.DemoMode.VILLAIN_MESSAGE_DISMISS_DELAY_MS)
+                    if (_isDemoMode.value && _pendingGameMessage.value == message) {
+                        dismissGameMessage()
+                    }
+                }
+            }
+        }
 
         if (isPlatformWasm) {
             // On WASM, repository files are loaded asynchronously. Initialize with progress
@@ -2356,7 +2368,9 @@ class GameViewModel {
                 healthPoints = mutableStateOf(demoLevel.healthPoints),
                 spawnPlan = demoLevel.directSpawnPlan ?: emptyList(),
             )
-        // Towers are placed dynamically by startDemoAutoPlay() — no pre-placed elements here.
+        // Defenders are placed dynamically by startDemoAutoPlay(), but other initial elements like
+        // tower-base barricades still have to be initialized from the level data.
+        newGameState.initializePrePlacedElements()
 
         _gameState.value = newGameState
         gameEngine = GameEngine(newGameState)
@@ -4073,6 +4087,14 @@ class GameViewModel {
             de.egril.defender.model.GameMessageType.VILLAIN_ENTERS,
             de.egril.defender.model.GameMessageType.VILLAIN_DEFEATED,
             de.egril.defender.model.GameMessageType.WAAAGH_FRENZY,
+            -> true
+            else -> false
+        }
+
+    private fun de.egril.defender.model.GameMessageType.autoDismissesInDemoMode(): Boolean =
+        when (this) {
+            de.egril.defender.model.GameMessageType.VILLAIN_ENTERS,
+            de.egril.defender.model.GameMessageType.VILLAIN_DEFEATED,
             -> true
             else -> false
         }
