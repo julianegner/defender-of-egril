@@ -487,6 +487,23 @@ fun CheckmarkIcon(
 }
 
 /**
+ * Displays a resize icon using Material Symbols for cross-platform compatibility
+ */
+@Composable
+fun ResizeIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color? = null,
+) {
+    FilledSymbol(
+        icon = MaterialSymbols.RESIZE,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier,
+    )
+}
+
+/**
  * Displays a tools emoji icon using Image for cross-platform compatibility
  * Source: Noto Emoji (U+1F6E0)
  */

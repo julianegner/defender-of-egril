@@ -156,6 +156,22 @@ fun MapEditorHeader(
     } else {
         CollapsedMapEditorHeader(
             map = map,
+            mapWidth = mapWidth,
+            mapHeight = mapHeight,
+            resizeLeft = resizeLeft,
+            onResizeLeftChange = onResizeLeftChange,
+            resizeRight = resizeRight,
+            onResizeRightChange = onResizeRightChange,
+            resizeTop = resizeTop,
+            onResizeTopChange = onResizeTopChange,
+            resizeBottom = resizeBottom,
+            onResizeBottomChange = onResizeBottomChange,
+            onApplyResize = onApplyResize,
+            canApplyResize = canApplyResize,
+            resultingMapWidth = resultingMapWidth,
+            resultingMapHeight = resultingMapHeight,
+            showUnsafeResizeWarning = showUnsafeResizeWarning,
+            mapUsageLevelNames = mapUsageLevelNames,
             selectedTileType = selectedTileType,
             onTileTypeChange = onTileTypeChange,
             selectedRiverFlow = selectedRiverFlow,
@@ -683,6 +699,22 @@ private fun ExpandedMapEditorHeader(
 @Composable
 private fun CollapsedMapEditorHeader(
     map: EditorMap,
+    mapWidth: Int,
+    mapHeight: Int,
+    resizeLeft: String,
+    onResizeLeftChange: (String) -> Unit,
+    resizeRight: String,
+    onResizeRightChange: (String) -> Unit,
+    resizeTop: String,
+    onResizeTopChange: (String) -> Unit,
+    resizeBottom: String,
+    onResizeBottomChange: (String) -> Unit,
+    onApplyResize: () -> Unit,
+    canApplyResize: Boolean,
+    resultingMapWidth: Int,
+    resultingMapHeight: Int,
+    showUnsafeResizeWarning: Boolean,
+    mapUsageLevelNames: List<String>,
     selectedTileType: TileType,
     onTileTypeChange: (TileType) -> Unit,
     selectedRiverFlow: de.egril.defender.model.RiverFlow,
@@ -719,6 +751,7 @@ private fun CollapsedMapEditorHeader(
     var showSpawnPointPropertiesDialog by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     var showNotReadyDialog by remember { mutableStateOf(false) }
+    var showResizeMapDialog by remember { mutableStateOf(false) }
     val validationIssues = remember(map) { map.getValidationIssues() }
 
     Card(
@@ -882,6 +915,17 @@ private fun CollapsedMapEditorHeader(
                         de.egril.defender.ui.icon
                             .DownloadIcon(size = 16.dp)
                     }
+                }
+            }
+
+            val resizeMapLabel = stringResource(Res.string.resize_map)
+            TooltipWrapper(text = resizeMapLabel) {
+                IconButton(
+                    onClick = { showResizeMapDialog = true },
+                    modifier = Modifier.size(32.dp).semantics { contentDescription = resizeMapLabel },
+                ) {
+                    de.egril.defender.ui.icon
+                        .ResizeIcon(size = 16.dp)
                 }
             }
 
@@ -1237,6 +1281,93 @@ private fun CollapsedMapEditorHeader(
             confirmButton = {
                 Button(onClick = { showNotReadyDialog = false }) {
                     Text(stringResource(Res.string.ok))
+                }
+            },
+        )
+    }
+
+    // Resize map dialog, opened via the resize icon in the header.
+    if (showResizeMapDialog) {
+        AlertDialog(
+            onDismissRequest = { showResizeMapDialog = false },
+            title = { Text(stringResource(Res.string.resize_map)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "${stringResource(Res.string.map_size)}: $mapWidth x $mapHeight",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Text(
+                        text = stringResource(Res.string.resize_map_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = resizeLeft,
+                            onValueChange = { if (it.isEmpty() || it == "-" || it.matches(Regex("-?[0-9]+"))) onResizeLeftChange(it) },
+                            label = { Text(stringResource(Res.string.columns_left)) },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                        )
+                        OutlinedTextField(
+                            value = resizeRight,
+                            onValueChange = { if (it.isEmpty() || it == "-" || it.matches(Regex("-?[0-9]+"))) onResizeRightChange(it) },
+                            label = { Text(stringResource(Res.string.columns_right)) },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                        )
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = resizeTop,
+                            onValueChange = { if (it.isEmpty() || it == "-" || it.matches(Regex("-?[0-9]+"))) onResizeTopChange(it) },
+                            label = { Text(stringResource(Res.string.rows_top)) },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                        )
+                        OutlinedTextField(
+                            value = resizeBottom,
+                            onValueChange = { if (it.isEmpty() || it == "-" || it.matches(Regex("-?[0-9]+"))) onResizeBottomChange(it) },
+                            label = { Text(stringResource(Res.string.rows_bottom)) },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                        )
+                    }
+                    Text(
+                        text = stringResource(Res.string.resulting_map_size, resultingMapWidth, resultingMapHeight),
+                        style = MaterialTheme.typography.bodySmall,
+                        color =
+                            if (canApplyResize) {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.error
+                            },
+                    )
+                    if (showUnsafeResizeWarning) {
+                        Text(
+                            text =
+                                "${stringResource(Res.string.map_resize_in_use_warning)} " +
+                                    "${stringResource(Res.string.used_in_levels)}: ${mapUsageLevelNames.joinToString(", ")}",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onApplyResize()
+                        showResizeMapDialog = false
+                    },
+                    enabled = canApplyResize && (!map.isOfficial || de.egril.defender.OfficialEditMode.enabled),
+                ) {
+                    Text(stringResource(Res.string.apply))
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showResizeMapDialog = false }) {
+                    Text(stringResource(Res.string.cancel))
                 }
             },
         )
