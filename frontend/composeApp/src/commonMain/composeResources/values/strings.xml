@@ -1520,6 +1520,8 @@
     <string name="level_map_image">Level Map Image</string>
     <string name="unit_tower_background_on">Unit Backgrounds On</string>
     <string name="unit_tower_background_off">Transparent Tiles</string>
+    <string name="enemy_sprites_on">Enemy Sprites On</string>
+    <string name="enemy_sprites_off">Drawn Icons</string>
     <string name="debug_options">Debug Options</string>
     <string name="debug_display_tile_borders">Display Tile Borders</string>
     <string name="debug_display_tile_positions">Display Tile Positions</string>

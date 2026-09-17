@@ -1518,6 +1518,8 @@
     <string name="level_map_image">Imagen del mapa</string>
     <string name="unit_tower_background_on">Fondos de Unidades Activados</string>
     <string name="unit_tower_background_off">Casillas Transparentes</string>
+    <string name="enemy_sprites_on">Sprites de Enemigos Activados</string>
+    <string name="enemy_sprites_off">Iconos Dibujados</string>
     <string name="debug_options">Opciones de depuración</string>
     <string name="debug_display_tile_borders">Mostrar bordes de celdas</string>
     <string name="debug_display_tile_positions">Mostrar posiciones de celdas</string>

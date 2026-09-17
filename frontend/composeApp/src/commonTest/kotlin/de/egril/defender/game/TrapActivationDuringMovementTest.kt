@@ -176,4 +176,60 @@ class TrapActivationDuringMovementTest {
         // Verify trap was removed
         assertTrue(gameState.traps.isEmpty(), "Trap should be removed after activation")
     }
+
+    @Test
+    fun testApplyMovementUpdatesFacingForRegularEnemy() {
+        val level = createTestLevel()
+        val gameState = GameState(level)
+        val gameEngine = GameEngine(gameState)
+        val from = Position(1, 0)
+        val to = Position(2, 0)
+
+        val enemy =
+            Attacker(
+                id = 1,
+                type = AttackerType.GOBLIN,
+                position = mutableStateOf(from),
+                level = mutableStateOf(1),
+                currentHealth = mutableStateOf(20),
+            )
+        gameState.attackers.add(enemy)
+
+        gameEngine.applyMovement(enemy.id, to)
+
+        assertEquals(to, enemy.position.value, "Enemy should move to requested position")
+        assertEquals(
+            hexDirectionBetween(from, to),
+            enemy.facing.value,
+            "Enemy facing should match last movement direction",
+        )
+    }
+
+    @Test
+    fun testApplyMovementUpdatesFacingForDragon() {
+        val level = createTestLevel()
+        val gameState = GameState(level)
+        val gameEngine = GameEngine(gameState)
+        val from = Position(1, 0)
+        val to = Position(2, 0)
+
+        val dragon =
+            Attacker(
+                id = 2,
+                type = AttackerType.DRAGON,
+                position = mutableStateOf(from),
+                level = mutableStateOf(1),
+                currentHealth = mutableStateOf(500),
+            )
+        gameState.attackers.add(dragon)
+
+        gameEngine.applyMovement(dragon.id, to)
+
+        assertEquals(to, dragon.position.value, "Dragon should move to requested position")
+        assertEquals(
+            hexDirectionBetween(from, to),
+            dragon.facing.value,
+            "Dragon facing should match last movement direction",
+        )
+    }
 }

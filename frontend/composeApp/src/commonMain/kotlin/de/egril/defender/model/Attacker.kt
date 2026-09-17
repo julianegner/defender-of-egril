@@ -50,6 +50,7 @@ data class Attacker(
     val mineWarningShown: MutableState<Boolean> = mutableStateOf(false), // Track if mine warning has been shown for current target
     val isBuildingBridge: MutableState<Boolean> = mutableStateOf(false), // Track if this unit is currently building a bridge (sacrifice units)
     val movementPenalty: MutableState<Int> = mutableStateOf(0), // Movement points lost due to spike tower barbs (level 10+)
+    val facing: MutableState<HexDirection> = mutableStateOf(HexDirection.DEFAULT), // Direction the unit is currently looking, based on its last move
 ) {
     // Callback for dragon level changes (for achievements)
     var onDragonLevelChanged: ((oldLevel: Int, newLevel: Int) -> Unit)? = null

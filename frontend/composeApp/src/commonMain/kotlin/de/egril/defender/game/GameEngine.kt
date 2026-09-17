@@ -1350,6 +1350,7 @@ class GameEngine(
                 if (state.enemyMoveEffects.none { it.position == oldPosDragon }) {
                     state.enemyMoveEffects.add(EnemyMoveEffect(oldPosDragon, state.turnNumber.value))
                 }
+                attacker.facing.value = hexDirectionBetween(oldPosDragon, newPosition) ?: attacker.facing.value
                 attacker.position.value = newPosition
 
                 // Check for traps at the new position
@@ -1393,6 +1394,7 @@ class GameEngine(
                     if (state.enemyMoveEffects.none { it.position == oldPosAlt }) {
                         state.enemyMoveEffects.add(EnemyMoveEffect(oldPosAlt, state.turnNumber.value))
                     }
+                    attacker.facing.value = hexDirectionBetween(oldPosAlt, alternatePos) ?: attacker.facing.value
                     attacker.position.value = alternatePos
 
                     // Check for traps at the alternate position
@@ -1427,6 +1429,7 @@ class GameEngine(
                 if (state.enemyMoveEffects.none { it.position == oldPosNormal }) {
                     state.enemyMoveEffects.add(EnemyMoveEffect(oldPosNormal, state.turnNumber.value))
                 }
+                attacker.facing.value = hexDirectionBetween(oldPosNormal, newPosition) ?: attacker.facing.value
                 attacker.position.value = newPosition
 
                 // Check for traps at the new position
@@ -1486,6 +1489,7 @@ class GameEngine(
         // Only move if position is not occupied
         if (!isOccupied) {
             val oldPosition = attacker.position.value
+            attacker.facing.value = hexDirectionBetween(oldPosition, newPosition) ?: attacker.facing.value
             attacker.position.value = newPosition
 
             // Check for traps at the new position (only if enemy actually moved)
@@ -1540,6 +1544,8 @@ class GameEngine(
             val wasDestroyed = barricadeSystem.handleEnemyAttackBarricade(attacker, barricadeAtPosition, damage)
             if (wasDestroyed) {
                 // Barricade was destroyed, enemy moves to barricade position
+                val oldPosition = attacker.position.value
+                attacker.facing.value = hexDirectionBetween(oldPosition, newPosition) ?: attacker.facing.value
                 attacker.position.value = newPosition
 
                 // Check for traps at the new position
