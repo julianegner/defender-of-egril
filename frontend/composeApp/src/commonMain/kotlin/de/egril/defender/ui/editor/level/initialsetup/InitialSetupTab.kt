@@ -27,6 +27,7 @@ fun InitialSetupTab(
     onInitialDataChange: (InitialData) -> Unit,
     map: EditorMap?,
     availableTowers: Set<DefenderType>,
+    issueDescription: String? = null,
 ) {
     if (map == null) {
         Box(
@@ -91,6 +92,14 @@ fun InitialSetupTab(
                     text = stringResource(Res.string.initial_setup_map),
                     style = MaterialTheme.typography.titleMedium,
                 )
+
+                if (issueDescription != null) {
+                    Text(
+                        text = issueDescription,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
 
                 if (placementMode != null) {
                     val tileLabel = stringResource(Res.string.initial_setup_tile)

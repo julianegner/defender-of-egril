@@ -2445,6 +2445,8 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="invalid_waypoints_count">Invalid waypoints: %1$d</string>
     <string name="invalid_initial_positions">Invalid initial positions: %1$d</string>
     <string name="invalid_event_positions">Invalid event positions: %1$d</string>
+    <string name="initial_setup_invalid_positions_explainer">This level has %1$d invalid initial placement(s). At least one pre-placed object is on a tile where it is not allowed. For Flotsam City, the problem comes from bridges placed on non-river tiles.</string>
+    <string name="events_invalid_positions_explainer">This level has %1$d event position(s) outside the map. Open the affected events and correct their X/Y coordinates.</string>
     <string name="turn_mode">Turn mode</string>
     <string name="table_mode">Table mode</string>
     <string name="auto_spawn_point">Auto</string>

@@ -2436,6 +2436,8 @@
     <string name="invalid_waypoints_count">Puntos de ruta no validos: %1$d</string>
     <string name="invalid_initial_positions">Posiciones iniciales no validas: %1$d</string>
     <string name="invalid_event_positions">Posiciones de evento no validas: %1$d</string>
+    <string name="initial_setup_invalid_positions_explainer">Este nivel tiene %1$d colocacion(es) inicial(es) no valida(s). Al menos un objeto precolocado esta en una casilla donde no esta permitido. En Flotsam City, el problema viene de puentes colocados sobre casillas que no son de rio.</string>
+    <string name="events_invalid_positions_explainer">Este nivel tiene %1$d posicion(es) de evento fuera del mapa. Abre los eventos afectados y corrige sus coordenadas X/Y.</string>
     <string name="turn_mode">Modo por turnos</string>
     <string name="table_mode">Modo tabla</string>
     <string name="auto_spawn_point">Auto</string>

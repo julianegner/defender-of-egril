@@ -12,7 +12,6 @@
   "isOfficial": false,
   "author": "Julian Egner",
   "mapToolingInfo": "procedural generation",
-  "allowNoDirectPath": true,
   "tiles": {
     "0,0": "RIVER",
     "0,1": "RIVER",

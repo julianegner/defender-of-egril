@@ -2435,6 +2435,8 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="invalid_waypoints_count">Ungueltige Wegpunkte: %1$d</string>
     <string name="invalid_initial_positions">Ungueltige Startpositionen: %1$d</string>
     <string name="invalid_event_positions">Ungueltige Event-Positionen: %1$d</string>
+    <string name="initial_setup_invalid_positions_explainer">Dieses Level hat %1$d ungueltige Startplatzierung(en). Mindestens ein vorplatziertes Objekt liegt auf einem Feld, auf dem es nicht erlaubt ist. Bei Flotsam City kommen die Probleme von Bruecken, die auf Nicht-Fluss-Feldern liegen.</string>
+    <string name="events_invalid_positions_explainer">Dieses Level hat %1$d Event-Position(en) ausserhalb der Karte. Oeffne die betroffenen Events und korrigiere ihre X/Y-Koordinaten.</string>
     <string name="turn_mode">Rundenmodus</string>
     <string name="table_mode">Tabellenmodus</string>
     <string name="auto_spawn_point">Auto</string>

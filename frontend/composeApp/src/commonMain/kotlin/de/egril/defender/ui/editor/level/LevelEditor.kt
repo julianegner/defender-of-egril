@@ -712,6 +712,16 @@ internal fun LevelEditorView(
     val levelDesignSummary = remember(draftLevel, currentMap) { analyzeLevelDesign(draftLevel, currentMap) }
     val waveArrivals = remember(draftLevel, currentMap) { buildWaveArrivalBuckets(draftLevel, currentMap) }
     val levelConsistencySummary = remember(draftLevel, currentMap) { analyzeLevelMapConsistency(draftLevel, currentMap) }
+    val initialSetupIssueCount = levelConsistencySummary.invalidInitialPlacementCount
+    val eventIssueCount = levelConsistencySummary.invalidEventPositionCount
+    val hasPortalPathIssue =
+        remember(draftLevel, currentMap) {
+            currentMap?.allowNoDirectPath == true &&
+                !currentMap.validateReadyToUseWithPortals(
+                    portals = draftLevel.getEffectiveInitialData().portals,
+                    includeRiversAsWalkable = true,
+                )
+        }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -861,6 +871,9 @@ internal fun LevelEditorView(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(stringResource(Res.string.initial_setup))
+                        if (initialSetupIssueCount > 0 || hasPortalPathIssue) {
+                            RedDotBadge()
+                        }
                     }
                 },
             )
@@ -886,6 +899,9 @@ internal fun LevelEditorView(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             Text(stringResource(Res.string.events_tab))
+                            if (eventIssueCount > 0) {
+                                RedDotBadge()
+                            }
                         }
                     },
                 )
@@ -1003,6 +1019,14 @@ internal fun LevelEditorView(
                         onInitialDataChange = { initialDataState = it },
                         map = currentMap,
                         availableTowers = availableTowersState,
+                        issueDescription =
+                            when {
+                                initialSetupIssueCount > 0 ->
+                                    stringResource(Res.string.initial_setup_invalid_positions_explainer, initialSetupIssueCount)
+                                hasPortalPathIssue ->
+                                    stringResource(Res.string.initial_setup_portal_validation_failed)
+                                else -> null
+                            },
                     )
                 tabIndices.supports ->
                     de.egril.defender.ui.editor.level.supports.SupportsTab(
@@ -1018,6 +1042,12 @@ internal fun LevelEditorView(
                                 .filter { it.type == DefenderType.DWARVEN_MINE }
                                 .map { it.position }
                                 .toSet(),
+                        issueDescription =
+                            if (eventIssueCount > 0) {
+                                stringResource(Res.string.events_invalid_positions_explainer, eventIssueCount)
+                            } else {
+                                null
+                            },
                     )
             }
         }

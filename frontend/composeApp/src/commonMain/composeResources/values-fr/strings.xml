@@ -2437,6 +2437,8 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="invalid_waypoints_count">Points de passage invalides : %1$d</string>
     <string name="invalid_initial_positions">Positions initiales invalides : %1$d</string>
     <string name="invalid_event_positions">Positions d'evenement invalides : %1$d</string>
+    <string name="initial_setup_invalid_positions_explainer">Ce niveau contient %1$d placement(s) initial(aux) invalide(s). Au moins un objet pre-place se trouve sur une case ou il n'est pas autorise. Pour Flotsam City, le probleme vient de ponts poses sur des cases qui ne sont pas des rivieres.</string>
+    <string name="events_invalid_positions_explainer">Ce niveau contient %1$d position(s) d'evenement hors de la carte. Ouvrez les evenements concernes et corrigez leurs coordonnees X/Y.</string>
     <string name="turn_mode">Mode tours</string>
     <string name="table_mode">Mode tableau</string>
     <string name="auto_spawn_point">Auto</string>

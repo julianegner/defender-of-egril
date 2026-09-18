@@ -2438,6 +2438,8 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="invalid_waypoints_count">Waypoint non validi: %1$d</string>
     <string name="invalid_initial_positions">Posizioni iniziali non valide: %1$d</string>
     <string name="invalid_event_positions">Posizioni evento non valide: %1$d</string>
+    <string name="initial_setup_invalid_positions_explainer">Questo livello contiene %1$d posizionamento/i iniziale/i non valido/i. Almeno un oggetto pre-posizionato si trova su una casella dove non e consentito. In Flotsam City, il problema deriva da ponti posizionati su caselle che non sono fiume.</string>
+    <string name="events_invalid_positions_explainer">Questo livello contiene %1$d posizione/i evento fuori dalla mappa. Apri gli eventi interessati e correggi le coordinate X/Y.</string>
     <string name="turn_mode">Modalita turni</string>
     <string name="table_mode">Modalita tabella</string>
     <string name="auto_spawn_point">Auto</string>
