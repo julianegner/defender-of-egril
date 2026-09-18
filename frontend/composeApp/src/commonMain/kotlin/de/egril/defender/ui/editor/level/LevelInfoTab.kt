@@ -41,13 +41,13 @@ import defender_of_egril.composeapp.generated.resources.level_title
 import defender_of_egril.composeapp.generated.resources.map_label
 import defender_of_egril.composeapp.generated.resources.ok
 import defender_of_egril.composeapp.generated.resources.sandbox_level
-import defender_of_egril.composeapp.generated.resources.split_build_tower_button
 import defender_of_egril.composeapp.generated.resources.start_coins
 import defender_of_egril.composeapp.generated.resources.start_hp
 import defender_of_egril.composeapp.generated.resources.subtitle_optional
 import defender_of_egril.composeapp.generated.resources.test_level
 import defender_of_egril.composeapp.generated.resources.user_map_not_allowed_message
 import defender_of_egril.composeapp.generated.resources.user_map_not_allowed_title
+import defender_of_egril.composeapp.generated.resources.waagh_enabled
 
 /**
  * Tab 1: Level Info (title, subtitle, map, coins, HP)
@@ -78,10 +78,10 @@ fun LevelInfoTab(
     onAllowAutoAttackChange: (Boolean) -> Unit,
     connectedToPreviousLevel: Boolean,
     onConnectedToPreviousLevelChange: (Boolean) -> Unit,
-    splitBuildTowerButton: Boolean,
-    onSplitBuildTowerButtonChange: (Boolean) -> Unit,
     isSandbox: Boolean = false,
     onIsSandboxChange: (Boolean) -> Unit = {},
+    waaghEnabled: Boolean = false,
+    onWaaghEnabledChange: (Boolean) -> Unit = {},
     isOfficial: Boolean = false,
     canEnableConnectedToPreviousLevel: Boolean = true,
 ) {
@@ -210,21 +210,6 @@ fun LevelInfoTab(
                         )
                     }
 
-                    // Split build tower button toggle
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.split_build_tower_button),
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                        Switch(
-                            checked = splitBuildTowerButton,
-                            onCheckedChange = onSplitBuildTowerButtonChange,
-                        )
-                    }
-
                     // Sandbox level toggle
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -237,6 +222,21 @@ fun LevelInfoTab(
                         Switch(
                             checked = isSandbox,
                             onCheckedChange = onIsSandboxChange,
+                        )
+                    }
+
+                    // Waaagh! enabled toggle
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.waagh_enabled),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Switch(
+                            checked = waaghEnabled,
+                            onCheckedChange = onWaaghEnabledChange,
                         )
                     }
                 }

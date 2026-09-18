@@ -155,6 +155,8 @@ class AchievementManager(
     fun onEnemyKilled(
         enemyType: AttackerType,
         killsInThisAttack: Int,
+        wasUninjured: Boolean = false,
+        usedSupportElement: Boolean = false,
     ) {
         currentTurnKillCount++
         lastAttackKillCount = killsInThisAttack
@@ -166,6 +168,18 @@ class AchievementManager(
 
         if (killsInThisAttack >= 2) {
             checkAndAward(AchievementId.KILL_TWO_ENEMIES_SAME_ATTACK)
+        }
+
+        if (wasUninjured) {
+            checkAndAward(AchievementId.HEADSHOT)
+        }
+
+        if (usedSupportElement) {
+            checkAndAward(AchievementId.WITH_HELP_FROM_A_FRIEND)
+        }
+
+        if (enemyType.isRealVillain) {
+            checkAndAward(AchievementId.KILL_VILLAIN)
         }
 
         // Check for specific enemy type kills

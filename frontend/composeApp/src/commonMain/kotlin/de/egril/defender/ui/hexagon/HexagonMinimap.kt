@@ -102,6 +102,17 @@ fun HexagonMinimap(
         return ""
     }
 
+    if (!map.canRenderMinimap()) {
+        Box(
+            modifier =
+                modifier
+                    .background(config.backgroundColor)
+                    .border(2.dp, config.borderColor)
+                    .padding(4.dp),
+        )
+        return ""
+    }
+
     Box(
         modifier =
             modifier
@@ -155,6 +166,17 @@ fun HexagonMinimapFromEditorMap(
                 attackerWaves = emptyList(),
             )
         }
+
+    if (!map.canRenderMinimap()) {
+        Box(
+            modifier =
+                modifier
+                    .background(config.backgroundColor)
+                    .border(2.dp, config.borderColor)
+                    .padding(4.dp),
+        )
+        return
+    }
 
     Box(
         modifier =

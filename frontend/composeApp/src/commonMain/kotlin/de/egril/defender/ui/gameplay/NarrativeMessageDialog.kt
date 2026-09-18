@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -55,9 +56,14 @@ enum class NarrativeMessageType {
     EWHAD, // Ewhad message with dark gargoyle frame background
 }
 
+internal data class NarrativeTextFramePaddingFractions(
+    val top: Float,
+    val bottom: Float,
+)
+
 private const val KEYBOARD_SCROLL_STEP = 150
 
-// story_message_background.png has original source dimensions of 500×500 px, with wooden side rails starting at 165 px
+// message_background_story.png has original source dimensions of 500×500 px, with wooden side rails starting at 165 px
 // and whose parchment content begins 135 px from the top and bottom.
 private const val STORY_BACKGROUND_SOURCE_SIZE = 500
 private const val STORY_BACKGROUND_SIDE_SLICE_PX = 165
@@ -66,6 +72,8 @@ private const val STORY_BACKGROUND_VERTICAL_PADDING_PX = 135f
 // Keep the precomputed ratio alongside the source-asset constants so every sizing calculation uses
 // the same scaling factor instead of re-deriving it at each call site.
 private const val STORY_BACKGROUND_SIDE_RATIO = 165f / STORY_BACKGROUND_SOURCE_SIZE.toFloat()
+private const val NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO = STORY_BACKGROUND_VERTICAL_PADDING_PX / STORY_BACKGROUND_SOURCE_SIZE
+private const val NARRATIVE_TOP_IMAGE_FULL_BLEED_HEIGHT_RATIO = 0.34f
 private val STORY_DIALOG_DESKTOP_WIDTH = 960.dp
 private val STORY_DIALOG_DESKTOP_HEIGHT = 700.dp
 private val EWHAD_DIALOG_DESKTOP_WIDTH = 700.dp
@@ -85,6 +93,10 @@ private val EWHAD_DIALOG_DESKTOP_WIDTH = 700.dp
  *   available player supports (objects + spell tokens) is shown below the body text.
  * @param eventGains Optional scripted-event actions; when non-null and non-empty, the granted
  *   elements (coins, mana, supports, …) are shown with symbols, names and amounts below the body.
+ * @param iconAttackerTypeOverride Optional attacker type used for the top icon in Ewhad-style
+ *   narrative dialogs (including villain messages that reuse this frame). When null, Ewhad is
+ *   shown as before.
+ * @param topImageOverride Optional drawable shown in the top image slot of Ewhad-style dialogs.
  */
 @Composable
 fun NarrativeMessageDialog(
@@ -94,6 +106,15 @@ fun NarrativeMessageDialog(
     onDismiss: () -> Unit,
     supports: de.egril.defender.model.LevelSupports? = null,
     eventGains: List<EventAction>? = null,
+    // Optional per-message frame overrides. Used to give each villain its own distinct message
+    // border/background (see issue #538): pass the villain's dedicated background image and an accent
+    // colour for the button. When null, the [type]-based defaults are used.
+    backgroundOverride: org.jetbrains.compose.resources.DrawableResource? = null,
+    accentColorOverride: Color? = null,
+    iconAttackerTypeOverride: AttackerType? = null,
+    topImageOverride: org.jetbrains.compose.resources.DrawableResource? = null,
+    topImageFillWidth: Boolean = false,
+    contentTopOffset: Dp = 0.dp,
 ) {
     val isMobile = isPlatformMobile
     val useWideStoryLayout = type == NarrativeMessageType.STORY && !isMobile
@@ -103,11 +124,13 @@ fun NarrativeMessageDialog(
         properties = DialogProperties(usePlatformDefaultWidth = !useWideStoryLayout),
     ) {
         val focusRequester = remember { FocusRequester() }
-        LaunchedEffect(Unit) {
+        val scrollState = rememberScrollState()
+        LaunchedEffect(type, title, text) {
             try {
                 focusRequester.requestFocus()
             } catch (_: IllegalStateException) {
             }
+            scrollState.scrollTo(0)
         }
         val titleFontSize =
             when {
@@ -118,22 +141,23 @@ fun NarrativeMessageDialog(
             }
         val bodyFontSize = if (isMobile) 12.sp else MaterialTheme.typography.bodyMedium.fontSize
         val iconSize = if (isMobile) 56.dp else 80.dp
-        val scrollState = rememberScrollState()
         val coroutineScope = rememberCoroutineScope()
 
         val backgroundPainter =
-            when (type) {
-                NarrativeMessageType.STORY -> painterResource(Res.drawable.story_message_background)
-                NarrativeMessageType.EWHAD -> painterResource(Res.drawable.ewhad_message_background)
+            when {
+                backgroundOverride != null -> painterResource(backgroundOverride)
+                type == NarrativeMessageType.STORY -> painterResource(Res.drawable.message_background_story)
+                else -> painterResource(Res.drawable.message_background_ewhad)
             }
-        val buttonColor = if (type == NarrativeMessageType.EWHAD) Color(0xFF4A2060) else Color(0xFF5C3A1E)
+        val buttonColor = accentColorOverride ?: if (type == NarrativeMessageType.EWHAD) Color(0xFF4A2060) else Color(0xFF5C3A1E)
+        val textColors = narrativeTextColors(iconAttackerTypeOverride)
 
         // Both background images are square (500×500 and 1024×1024).
         // Padding keeps text inside the frame border, computed as a fixed fraction of
         // the dialog dimensions:
-        //   story_message_background.png: inner parchment starts at px ≈ 165/500 per side (h)
+        //   message_background_story.png: inner parchment starts at px ≈ 165/500 per side (h)
         //                                 and px ≈ 135/500 per side (v).
-        //   ewhad_message_background.png: inner area at ≈ 280/1024 per side — smaller, so the
+        //   message_background_ewhad.png: inner area at ≈ 280/1024 per side — smaller, so the
         //                                 story fractions cover both.
         // On mobile, BoxWithConstraints fills the available popup width so the dialog scales to
         // the actual device screen size rather than using a fixed narrow value.
@@ -180,7 +204,9 @@ fun NarrativeMessageDialog(
                 } else {
                     dialogWidth * STORY_BACKGROUND_SIDE_RATIO
                 }
-            val verticalPadding = dialogHeight * (STORY_BACKGROUND_VERTICAL_PADDING_PX / STORY_BACKGROUND_SOURCE_SIZE)
+            val verticalPaddingFractions = narrativeTextFramePaddingFractions(type, iconAttackerTypeOverride)
+            val topPadding = dialogHeight * verticalPaddingFractions.top
+            val bottomPadding = dialogHeight * verticalPaddingFractions.bottom
 
             Box(
                 modifier =
@@ -201,18 +227,48 @@ fun NarrativeMessageDialog(
                     )
                 }
 
+                if (type == NarrativeMessageType.EWHAD && topImageOverride != null && topImageFillWidth) {
+                    Image(
+                        painter = painterResource(topImageOverride),
+                        contentDescription = null,
+                        modifier =
+                            Modifier
+                                .align(Alignment.TopCenter)
+                                .fillMaxWidth()
+                                .height(dialogHeight * NARRATIVE_TOP_IMAGE_FULL_BLEED_HEIGHT_RATIO),
+                        contentScale = ContentScale.FillBounds,
+                    )
+                }
+
                 // Content overlaid on background – scrollable so long texts never overflow the frame
                 Column(
                     modifier =
-                        Modifier
-                            .padding(
-                                horizontal = horizontalPadding,
-                                vertical = verticalPadding,
-                            ).fillMaxWidth()
-                            .verticalScroll(scrollState),
+                        if (type == NarrativeMessageType.EWHAD) {
+                            Modifier
+                                .fillMaxSize()
+                                .padding(
+                                    start = horizontalPadding,
+                                    end = horizontalPadding,
+                                    top = topPadding,
+                                    bottom = bottomPadding,
+                                ).verticalScroll(scrollState)
+                        } else {
+                            Modifier
+                                .padding(
+                                    start = horizontalPadding,
+                                    end = horizontalPadding,
+                                    top = topPadding,
+                                    bottom = bottomPadding,
+                                ).fillMaxWidth()
+                                .verticalScroll(scrollState)
+                        },
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
+                    if (contentTopOffset != 0.dp) {
+                        Spacer(modifier = Modifier.height(contentTopOffset))
+                    }
+
                     // Scroll hint at the top so it is visible before any scrolling
                     if (AppSettings.showButtonShortcutHints.value) {
                         Row(
@@ -229,15 +285,23 @@ fun NarrativeMessageDialog(
                     }
 
                     // For Ewhad type: show Ewhad icon at top center
-                    if (type == NarrativeMessageType.EWHAD) {
+                    if (type == NarrativeMessageType.EWHAD && !topImageFillWidth) {
                         Box(
                             modifier = Modifier.size(iconSize),
                             contentAlignment = Alignment.Center,
                         ) {
-                            EnemyTypeIcon(
-                                attackerType = AttackerType.EWHAD,
-                                modifier = Modifier.fillMaxSize(),
-                            )
+                            if (topImageOverride != null) {
+                                Image(
+                                    painter = painterResource(topImageOverride),
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                            } else {
+                                EnemyTypeIcon(
+                                    attackerType = iconAttackerTypeOverride ?: AttackerType.EWHAD,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                            }
                         }
                     }
                     // Title
@@ -245,7 +309,7 @@ fun NarrativeMessageDialog(
                         text = title,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1A1A1A),
+                        color = textColors.title,
                         textAlign = TextAlign.Center,
                         fontSize = titleFontSize,
                     )
@@ -255,7 +319,7 @@ fun NarrativeMessageDialog(
                         SelectableText(
                             text = text,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF333333),
+                            color = textColors.body,
                             textAlign = TextAlign.Center,
                             fontSize = bodyFontSize,
                         )
@@ -270,7 +334,7 @@ fun NarrativeMessageDialog(
                     }
 
                     // Optional summary of the level's available player supports
-                    if (supports != null && supports.isNotEmpty()) {
+                    if (type == NarrativeMessageType.STORY && supports != null && supports.isNotEmpty()) {
                         LevelSupportsSummary(
                             supports = supports,
                             title = stringResource(Res.string.level_supports_title),
@@ -303,9 +367,69 @@ fun NarrativeMessageDialog(
     }
 }
 
+internal fun narrativeTextFramePaddingFractions(
+    type: NarrativeMessageType,
+    attackerType: AttackerType?,
+): NarrativeTextFramePaddingFractions =
+    when {
+        type == NarrativeMessageType.EWHAD && attackerType == AttackerType.SNOTLING_BOSS ->
+            NarrativeTextFramePaddingFractions(
+                top = 0.31f,
+                bottom = 0.33f,
+            )
+
+        type == NarrativeMessageType.EWHAD && attackerType == AttackerType.MORGUK_BONEWHISPER ->
+            NarrativeTextFramePaddingFractions(
+                top = 0.30f,
+                bottom = 0.33f,
+            )
+
+        type == NarrativeMessageType.EWHAD && attackerType == AttackerType.ARAXXA ->
+            NarrativeTextFramePaddingFractions(
+                top = 0.36f,
+                bottom = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,
+            )
+
+        type == NarrativeMessageType.EWHAD && attackerType == AttackerType.GRAND_COVEN_MOTHER_SYBILLA ->
+            NarrativeTextFramePaddingFractions(
+                top = 0.29f,
+                bottom = 0.45f,
+            )
+
+        type == NarrativeMessageType.EWHAD && attackerType == AttackerType.ZYTHAR_THE_RIFTCALLER ->
+            NarrativeTextFramePaddingFractions(
+                top = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,
+                bottom = 0.40f,
+            )
+
+        else ->
+            NarrativeTextFramePaddingFractions(
+                top = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,
+                bottom = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,
+            )
+    }
+
+internal fun narrativeTextColors(attackerType: AttackerType?): NarrativeTextColors =
+    if (attackerType?.useLightNarrativeText == true) {
+        NarrativeTextColors(
+            title = Color(0xFFF7F1E8),
+            body = Color(0xFFE9DFD2),
+        )
+    } else {
+        NarrativeTextColors(
+            title = Color(0xFF1A1A1A),
+            body = Color(0xFF333333),
+        )
+    }
+
+internal data class NarrativeTextColors(
+    val title: Color,
+    val body: Color,
+)
+
 @Composable
 private fun StoryMessageBackground(modifier: Modifier = Modifier) {
-    val source = imageResource(Res.drawable.story_message_background)
+    val source = imageResource(Res.drawable.message_background_story)
 
     Canvas(modifier = modifier) {
         val sideSlicePx = STORY_BACKGROUND_SIDE_SLICE_PX

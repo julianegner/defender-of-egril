@@ -36,6 +36,9 @@ fun AttackButton(
     onDefenderAttackPosition: (Int, Position) -> Unit,
     modifier: Modifier = Modifier.fillMaxWidth().height(56.dp),
 ) {
+    val isSelectedTileInShadowFog =
+        selectedTargetPosition != null &&
+            gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == selectedTargetPosition }
     if (defender.isReady && defender.actionsRemaining.value > 0) {
         // Determine if attack mode is active (target or position selected)
         val isAttackModeActive = selectedTargetId != null || selectedTargetPosition != null
@@ -81,9 +84,13 @@ fun AttackButton(
                                     overflow = TextOverflow.Clip,
                                 )
                                 Text(
-                                    "${target.type.getLocalizedName(
-                                        locale,
-                                    )} (${target.currentHealth.value}/${target.maxHealth} ${stringResource(Res.string.hp_label)}) + Area",
+                                    if (isSelectedTileInShadowFog) {
+                                        stringResource(Res.string.fog_label)
+                                    } else {
+                                        "${target.type.getLocalizedName(
+                                            locale,
+                                        )} (${target.currentHealth.value}/${target.maxHealth} ${stringResource(Res.string.hp_label)}) + Area"
+                                    },
                                     fontSize = 11.sp,
                                 )
                             }
@@ -126,7 +133,11 @@ fun AttackButton(
                                 fontWeight = FontWeight.Bold,
                             )
                             Text(
-                                "at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})",
+                                if (isSelectedTileInShadowFog) {
+                                    stringResource(Res.string.fog_label)
+                                } else {
+                                    "at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})"
+                                },
                                 fontSize = 11.sp,
                             )
                         }
@@ -141,6 +152,10 @@ fun AttackButton(
             // For all towers, allow attacking enemies
             val target = gameState.attackers.find { it.id == selectedTargetId }
             if (target != null && defender.canAttack(target, gameState.effectiveRange(defender))) {
+                val isTargetInShadowFog =
+                    gameState.fieldEffects.any {
+                        it.type == FieldEffectType.SHADOW_FOG && it.position == target.position.value
+                    }
                 Button(
                     onClick = { onDefenderAttack(defender.id, selectedTargetId) },
                     modifier = modifier,
@@ -172,9 +187,13 @@ fun AttackButton(
                                 fontWeight = FontWeight.Bold,
                             )
                             Text(
-                                "${target.type.getLocalizedName(
-                                    locale,
-                                )} (${target.currentHealth.value}/${target.maxHealth} ${stringResource(Res.string.hp_label)})",
+                                if (isTargetInShadowFog || isSelectedTileInShadowFog) {
+                                    stringResource(Res.string.fog_label)
+                                } else {
+                                    "${target.type.getLocalizedName(
+                                        locale,
+                                    )} (${target.currentHealth.value}/${target.maxHealth} ${stringResource(Res.string.hp_label)})"
+                                },
                                 fontSize = 11.sp,
                             )
                         }
@@ -188,10 +207,12 @@ fun AttackButton(
         } else if (selectedTargetPosition != null &&
             (defender.type.attackType == AttackType.MELEE || defender.type.attackType == AttackType.RANGED)
         ) {
-            // For single-target towers, allow attacking bridges when no enemy is present
+            // For single-target towers, allow attacking bridges or shadow fog tiles when no enemy is visible
             val bridge = gameState.getBridgeAt(selectedTargetPosition)
+            val isShadowFogTarget =
+                gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == selectedTargetPosition }
+            val distance = defender.position.value.distanceTo(selectedTargetPosition)
             if (bridge != null && bridge.isActive) {
-                val distance = defender.position.value.distanceTo(selectedTargetPosition)
                 if (distance >= defender.type.minRange && distance <= defender.range) {
                     Button(
                         onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
@@ -231,6 +252,48 @@ fun AttackButton(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value))
                             }
+                        }
+                    }
+                }
+            } else if (isShadowFogTarget && distance >= defender.type.minRange && distance <= defender.range) {
+                // Allow attacking into shadow fog tiles (enemy may be hidden there)
+                Button(
+                    onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
+                    modifier = modifier,
+                    border =
+                        if (isAttackModeActive) {
+                            androidx.compose.foundation.BorderStroke(
+                                width = 3.dp,
+                                color = GamePlayColors.Yellow,
+                            )
+                        } else {
+                            null
+                        },
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = GamePlayColors.ErrorDark,
+                        ),
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        SwordIcon(size = 24.dp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text(
+                                stringResource(Res.string.attack_button),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Text(
+                                stringResource(Res.string.fog_label),
+                                fontSize = 11.sp,
+                            )
+                        }
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value))
                         }
                     }
                 }
@@ -362,7 +425,8 @@ fun UndoOrSellButton(
 
     // Determine if undo or sell is available
     val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
-    val canSell = defender.isReady && defender.actionsRemaining.value > 0
+    // Cannot sell while the Kraken has gripped this barge
+    val canSell = defender.isReady && defender.actionsRemaining.value > 0 && !defender.isGrippedByKraken.value
     val shortcutHint =
         if (AppSettings.showButtonShortcutHints.value) {
             formatShortcutBindingForDisplay(AppSettings.shortcutUndoOrSellSelectedTower.value)

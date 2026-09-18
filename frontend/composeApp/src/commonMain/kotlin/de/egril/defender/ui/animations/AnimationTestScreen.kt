@@ -13,12 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.animations.AlchemyAttackTestPreview
-import de.egril.defender.ui.animations.BallistaAttackTestPreview
-import de.egril.defender.ui.animations.BowAttackTestPreview
-import de.egril.defender.ui.animations.PikeAttackTestPreview
-import de.egril.defender.ui.animations.SpearAttackTestPreview
-import de.egril.defender.ui.animations.WizardAttackTestPreview
 import de.egril.defender.ui.icon.ReloadIcon
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleUpIcon
@@ -365,4 +359,5 @@ private fun AnimationType.displayName(): String =
         AnimationType.ALCHEMY_ATTACK -> "Alchemy Attack (Acid Vial)"
         AnimationType.WORLD_MAP_WAVES -> "World Map Waves"
         AnimationType.WORLD_MAP_RIVERS -> "World Map Rivers"
+        AnimationType.SYLVANAS_ROOT_GRIP -> "Sylvanas Root Grip"
     }

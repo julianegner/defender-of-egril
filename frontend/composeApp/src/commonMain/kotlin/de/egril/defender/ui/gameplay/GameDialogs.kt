@@ -334,6 +334,7 @@ fun EndTurnConfirmationDialog(
     onAutoAttackAndConfirm: () -> Unit,
     onCancel: () -> Unit,
     showAutoAttackButton: Boolean = true,
+    autoAttackButtonText: String = "",
     showEndTurnWarning: Boolean = true,
     showWinLevelNow: Boolean = false,
     onWinLevelNow: () -> Unit = {},
@@ -442,7 +443,7 @@ fun EndTurnConfirmationDialog(
                                 containerColor = MaterialTheme.colorScheme.primary,
                             ),
                     ) {
-                        Text(stringResource(Res.string.auto_attack_and_end_turn))
+                        Text(autoAttackButtonText)
                     }
                 }
             }
