@@ -226,6 +226,15 @@ object MapImageGenerator {
                     tW += w
                 }
 
+                val i = py * imgW + px
+                if (tW <= 0.0 || !tW.isFinite()) {
+                    val fallbackTileIndex = nearestTileIndex(px.toDouble(), py.toDouble(), cX, cY)
+                    elevMap[i] = elevBase[fallbackTileIndex]
+                    moistMap[i] = moistBase[fallbackTileIndex]
+                    naMap[i] = noiseAmps[fallbackTileIndex]
+                    continue
+                }
+
                 var e = aE / tW
                 val m = aM / tW
                 val na = aNA / tW
@@ -239,7 +248,6 @@ object MapImageGenerator {
                     e = (e + na * noiseVal).coerceIn(-1.0, 1.0)
                 }
 
-                val i = py * imgW + px
                 elevMap[i] = e
                 moistMap[i] = m
                 naMap[i] = na
@@ -294,6 +302,26 @@ object MapImageGenerator {
         }
 
         return Triple(pixels, imgW, imgH)
+    }
+
+    internal fun nearestTileIndex(
+        px: Double,
+        py: Double,
+        cX: DoubleArray,
+        cY: DoubleArray,
+    ): Int {
+        var nearestIndex = 0
+        var nearestDistance = Double.POSITIVE_INFINITY
+        for (index in cX.indices) {
+            val dx = px - cX[index]
+            val dy = py - cY[index]
+            val distance = dx * dx + dy * dy
+            if (distance < nearestDistance) {
+                nearestDistance = distance
+                nearestIndex = index
+            }
+        }
+        return nearestIndex
     }
 
     // --- Helpers (hash + PRNG) ---
