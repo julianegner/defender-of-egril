@@ -107,6 +107,7 @@ import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.icon.enemy.enemyAttackPreview
+import de.egril.defender.ui.icon.enemy.shouldShowSeafaringPirateBarge
 import de.egril.defender.ui.rememberMapImageState
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
@@ -3109,6 +3110,7 @@ private fun BoxScope.GridCellContent(
                         healthTextColor = healthTextColor,
                         healthOverride = displayedHealth,
                         showWaaghGlow = gameState.waaghFrenzyActive.value && attacker.type in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING),
+                        showSeafaringPirateBarge = shouldShowSeafaringPirateBarge(attacker.type, isRiverTile),
                     )
                     if (isDangerous) {
                         Text(
