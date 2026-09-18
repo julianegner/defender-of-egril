@@ -48,6 +48,12 @@ class WaterSpawnPointTest {
     }
 
     @Test
+    fun pirateCanSpawnOnBothLandAndWaterFromFlags() {
+        assertTrue(AttackerType.PIRATE.canSpawnOnLand, "Pirate must be able to spawn on land")
+        assertTrue(AttackerType.PIRATE.canSpawnOnWater, "Pirate must be able to spawn on water")
+    }
+
+    @Test
     fun regularEnemiesAreSpawnOnLandOnly() {
         val landOnlyEnemies =
             listOf(
@@ -306,5 +312,116 @@ class WaterSpawnPointTest {
                 canUseRiver = true,
             )
         assertEquals(riverNeighbor, fallback, "River-capable spawn fallback should use neighboring river tiles")
+    }
+
+    @Test
+    fun pirateMovementCanEnterWaterAfterLandSpawn() {
+            val landSpawn = Position(0, 0)
+            val waterTile = Position(1, 0)
+            val target = Position(3, 0)
+            val level =
+                Level(
+                    id = 6,
+                    name = "Pirate Land To Water",
+                    gridWidth = 4,
+                    gridHeight = 2,
+                    startPositions = listOf(landSpawn),
+                    targetPositions = listOf(target),
+                    pathCells = setOf(landSpawn, target),
+                    attackerWaves = emptyList(),
+                    riverTiles = mapOf(waterTile to de.egril.defender.model.RiverTile(waterTile)),
+                )
+            val state = GameState(level = level)
+            val pathfinding = PathfindingSystem(state)
+            val pirate =
+                Attacker(
+                    id = 2,
+                    type = AttackerType.PIRATE,
+                    position = mutableStateOf(landSpawn),
+                )
+
+            val next = pathfinding.moveTowards(landSpawn, target, pirate)
+
+            assertEquals(waterTile, next, "Pirate spawned on land should still be able to move onto water")
+    }
+
+    @Test
+    fun pirateSidestepsOntoWaterWhenPreferredTileIsPermanentlyCongested() {
+        // Regression test for: pirates getting stuck right at the water's edge whenever their
+        // preferred next tile is occupied by another attacker that never moves out of the way
+        // (e.g. a pile-up of several pirates arriving faster than the front of the queue can
+        // clear). Movement.findAlternativePosition used to only consider path/bridge tiles as
+        // sidestep candidates, never river tiles, so a river-traversal unit blocked at the
+        // shoreline had no water tile to divert to and simply stood still on land forever,
+        // instead of stepping onto a different, unobstructed adjacent water tile.
+        val landSpawn = Position(3, 3)
+        val target = Position(9, 3)
+        val waterTiles =
+            (0..9).flatMap { x -> (0..9).map { y -> Position(x, y) } }
+                .filter { it != landSpawn }
+                .associateWith { de.egril.defender.model.RiverTile(it) }
+        val level =
+            Level(
+                id = 7,
+                name = "Pirate Congestion At Shoreline",
+                gridWidth = 10,
+                gridHeight = 10,
+                startPositions = listOf(landSpawn),
+                targetPositions = listOf(target),
+                pathCells = setOf(landSpawn, target),
+                attackerWaves = emptyList(),
+                riverTiles = waterTiles,
+            )
+        val state = GameState(level = level)
+
+        // Determine, via a throwaway pathfinding probe, which water tile a lone pirate would
+        // pick as its very first step out of landSpawn — that is the tile we permanently occupy.
+        val probePirate =
+            Attacker(id = -1, type = AttackerType.PIRATE, position = mutableStateOf(landSpawn))
+        val preferredFirstStep = PathfindingSystem(state).findPath(landSpawn, target, probePirate)[1]
+
+        val engine = GameEngine(state)
+
+        // Blocker sits permanently on the pirates' shared preferred tile (simulating a queue
+        // front that never clears, e.g. because it is itself waiting on something further along).
+        val blocker =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.PIRATE,
+                position = mutableStateOf(preferredFirstStep),
+            )
+        // Frozen so it never moves, regardless of speed — simulating a queue front that never
+        // clears (e.g. a pirate genuinely unable to advance further for some other reason).
+        state.activeSpellEffects.add(
+            de.egril.defender.model.ActiveSpellEffect(
+                spell = de.egril.defender.model.SpellType.FREEZE_SPELL,
+                attackerId = blocker.id,
+                turnsRemaining = 100,
+            ),
+        )
+        val stalledPirate =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.PIRATE,
+                position = mutableStateOf(landSpawn),
+            )
+        state.attackers.addAll(listOf(blocker, stalledPirate))
+
+        // Simulate several enemy turns; the blocker never moves (frozen), so the conflict at
+        // preferredFirstStep recurs every turn.
+        repeat(3) {
+            val movements = engine.calculateEnemyTurnMovements()
+            for (step in movements.allMovementSteps) {
+                for ((attackerId, newPos) in step) {
+                    engine.applyMovement(attackerId, newPos)
+                }
+            }
+        }
+        assertEquals(preferredFirstStep, blocker.position.value, "Blocker must remain in place (test setup sanity check)")
+        assertTrue(
+            level.isRiverTile(stalledPirate.position.value),
+            "Pirate blocked at its preferred shoreline tile must sidestep onto an adjacent water tile " +
+                "instead of staying stuck on land at ${stalledPirate.position.value}",
+        )
     }
 }

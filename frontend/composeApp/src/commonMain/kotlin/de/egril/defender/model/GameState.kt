@@ -1,6 +1,7 @@
 package de.egril.defender.model
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -267,6 +268,17 @@ enum class AutoAttackAvailability {
     MANA_ONLY,
 }
 
+// Marked @Stable so Compose trusts referential/structural equality on this class instead of
+// treating it as unstable (which the `var level` property would otherwise force). GameState is
+// mutated exclusively through its Compose-observable fields (MutableState/SnapshotStateList); the
+// `level` property is set once at construction and never reassigned during gameplay, so this
+// annotation does not violate the @Stable contract in practice.
+//
+// Without this, every composable that takes a GameState parameter (e.g. GridCell, called once per
+// map tile) can never be skipped by Compose's recomposition optimizer, forcing a full recompute of
+// every visible tile on every single state change (attacker move, effect update, etc.) — this can
+// become a severe performance problem on large, mostly-open maps (e.g. Flotsam City's 80x80 grid).
+@Stable
 data class GameState(
     var level: Level,
     val phase: MutableState<GamePhase> = mutableStateOf(GamePhase.INITIAL_BUILDING),

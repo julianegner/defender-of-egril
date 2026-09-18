@@ -492,7 +492,8 @@ class PathfindingSystem(
                                 isGoalMineForDragon(neighbor, goal, attacker) ||
                                 isDestroyedMinePosition(neighbor) ||
                                 state.isBridgeAt(neighbor) ||
-                                // River-traversal units (e.g. Cap'n Roderich) can navigate over river tiles.
+                                // River-traversal units (e.g. Cap'n Roderich, Pirate) can navigate over river tiles,
+                                // regardless of which spawn point type they entered from.
                                 (canUseRiver && state.level.isRiverTile(neighbor))
                         }
                     ) &&

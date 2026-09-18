@@ -1,5 +1,6 @@
 package de.egril.defender.model
 
+import androidx.compose.runtime.Immutable
 import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 
 /**
@@ -39,6 +40,11 @@ data class TargetInfo(
     val type: TargetType = TargetType.STANDARD,
 )
 
+// Marked @Immutable: every property is a `val` set once at construction and never mutated
+// afterwards — Level is a fixed level definition. This lets Compose trust equality/stability on
+// Level (and, transitively, on GameState which holds it), restoring recomposition-skip
+// optimizations for composables like GridCell that read Level data per map tile.
+@Immutable
 data class Level(
     val id: Int,
     val name: String,

@@ -382,7 +382,15 @@ class Movement(
                     }
                     currentPositions[attacker.id] = newPos
                 } else {
-                    val alternativePos = findAlternativePosition(currentPos, target, attacker.id, currentPositions, positionsToOccupy)
+                    val alternativePos =
+                        findAlternativePosition(
+                            currentPos,
+                            target,
+                            attacker.id,
+                            currentPositions,
+                            positionsToOccupy,
+                            canUseRiver = attacker.type.canTraverseRiver,
+                        )
                     if (alternativePos != null) {
                         if (barricadeSystem.getBarricadeAt(alternativePos) == null) {
                             movementsInThisStep.add(Pair(attacker.id, alternativePos))
@@ -781,7 +789,15 @@ class Movement(
                     currentPositions[attacker.id] = newPos
                     updateWaypointTargetIfReached(attacker, newPos, "Attacker")
                 } else {
-                    val alternativePos = findAlternativePosition(currentPos, target, attacker.id, currentPositions, positionsToOccupy)
+                    val alternativePos =
+                        findAlternativePosition(
+                            currentPos,
+                            target,
+                            attacker.id,
+                            currentPositions,
+                            positionsToOccupy,
+                            canUseRiver = attacker.type.canTraverseRiver,
+                        )
                     if (alternativePos != null) {
                         movementsInThisStep.add(Pair(attacker.id, alternativePos))
                         if (!state.isActiveTargetPosition(alternativePos)) {
@@ -969,6 +985,7 @@ class Movement(
         attackerId: Int,
         currentPositions: Map<Int, Position>,
         positionsToOccupy: Set<Position>,
+        canUseRiver: Boolean = false,
     ): Position? {
         val currentDistance = currentPos.distanceTo(target)
         val neighbors = currentPos.getHexNeighbors()
@@ -978,7 +995,15 @@ class Movement(
                     neighbor.x < state.level.gridWidth &&
                     neighbor.y >= 0 &&
                     neighbor.y < state.level.gridHeight &&
-                    (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor))
+                    (
+                        state.level.isOnPath(neighbor) ||
+                            state.isBridgeAt(neighbor) ||
+                            // River-traversal units (e.g. Cap'n Roderich, Pirate) must also be able to
+                            // sidestep onto river tiles here, or they get stuck in place forever whenever
+                            // their primary next tile is occupied by another attacker congesting near the
+                            // water's edge (see issue: pirates stall right at the shoreline).
+                            (canUseRiver && state.level.isRiverTile(neighbor))
+                    )
             }
 
         val availableNeighbors =
