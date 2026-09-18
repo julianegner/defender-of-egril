@@ -575,20 +575,25 @@ data class GameState(
 
     /**
      * Returns true when the level is guaranteed to be won: even if every remaining enemy reached the
-     * target, the player would still have health points left. Used to offer an instant "Win Level now".
+     * target, the player would still have health points left (or, for SINGLE_HIT-only levels, not
+     * enough remaining enemies to take all remaining targets). Used to offer an instant "Win Level now".
      *
      * Excluded cases where a win cannot be guaranteed:
      *  - Not during the player's turn (e.g. building phase or enemy turn).
-     *  - Levels with SINGLE_HIT targets, which can be lost regardless of remaining health.
      *  - When a summoner enemy remains, since it can create an unbounded number of additional units.
      *  - When a villain remains (on the field or still to spawn), since a villain reaching a target
      *    loses the level outright, regardless of remaining health.
+     *
+     * Levels mixing SINGLE_HIT and STANDARD targets (or with no SINGLE_HIT targets at all) fall back
+     * to the HP-based calculation, since at least one STANDARD target always remains reachable.
      */
     fun canWinLevelNow(): Boolean {
         // Sandbox levels can never be won, so never offer the instant win.
         if (level.isSandbox) return false
         if (phase.value != GamePhase.PLAYER_TURN) return false
-        if (level.targetInfoMap.any { it.value.type == TargetType.SINGLE_HIT }) return false
+
+        val singleHitTargets = level.targetInfoMap.filter { it.value.type == TargetType.SINGLE_HIT }.keys
+        val onlySingleHitTargets = singleHitTargets.isNotEmpty() && singleHitTargets.size == level.targetInfoMap.size
         if (isLevelLost() || isLevelWon()) return false
 
         val aliveEnemies = attackers.filter { !it.isDefeated.value }
@@ -607,6 +612,14 @@ data class GameState(
                 .any { it.attackerType.isRealVillain }
         ) {
             return false
+        }
+
+        if (onlySingleHitTargets) {
+            // Each remaining enemy can take at most one SINGLE_HIT target. If there are fewer
+            // remaining enemies than remaining (untaken) targets, not all targets can be taken,
+            // so the level is guaranteed to be won once all enemies are defeated.
+            val remainingSingleHitTargets = singleHitTargets.count { !takenTargets.contains(it) }
+            return aliveEnemies.size + enemiesToSpawn.size < remainingSingleHitTargets
         }
 
         return getRemainingEnemyThreat() < healthPoints.value.toLong()
