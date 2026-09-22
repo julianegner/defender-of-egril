@@ -59,15 +59,58 @@ jobs:
           STAGING_DIR="$RUNNER_TEMP/pages-site"
           RELEASE_CHANNEL="${{ github.event.inputs.release_channel }}"
           STABLE_WORKTREE="$RUNNER_TEMP/stable-site-src"
+          BETA_WORKTREE="$RUNNER_TEMP/beta-site-src"
           if [ -z "$RELEASE_CHANNEL" ]; then
             RELEASE_CHANNEL="stable"
           fi
-
-          cleanup_stable_worktree() {
+          
+          cleanup_worktrees() {
             git worktree remove "$STABLE_WORKTREE" --force 2>/dev/null || true
+            git worktree remove "$BETA_WORKTREE" --force 2>/dev/null || true
           }
-
-          trap cleanup_stable_worktree EXIT
+          
+          latest_beta_tag() {
+            gh api repos/${{ github.repository }}/releases?per_page=100 | python - <<'PY'
+              import json
+              import re
+              import sys
+              
+              beta_pattern = re.compile(r"^v?(\\d+)\\.(\\d+)\\.(\\d+)-beta(?:[.-](.*))?$", re.IGNORECASE)
+              
+              def beta_suffix_key(tag_suffix):
+                  if not tag_suffix:
+                      return ()
+                  return tuple(
+                      (0, int(token)) if token.isdigit() else (1, token.lower())
+                      for token in re.split(r"[.-]", tag_suffix)
+                      if token
+                  )
+              
+              best_key = None
+              best_tag = ""
+              
+              for release in json.load(sys.stdin):
+                  if not release.get("prerelease"):
+                      continue
+                  tag = release.get("tag_name", "")
+                  match = beta_pattern.match(tag)
+                  if not match:
+                      continue
+                  key = (
+                      int(match.group(1)),
+                      int(match.group(2)),
+                      int(match.group(3)),
+                      beta_suffix_key(match.group(4)),
+                  )
+                  if best_key is None or key > best_key:
+                      best_key = key
+                      best_tag = tag
+              
+              print(best_tag)
+              PY
+          }
+          
+          trap cleanup_worktrees EXIT
 
           rm -rf "$STAGING_DIR"
           mkdir -p "$STAGING_DIR"
@@ -100,6 +143,20 @@ jobs:
             echo "Building stable site for production root."
             ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
             cp -R ./frontend/composeApp/build/dist/wasmJs/productionExecutable/. "$STAGING_DIR/"
+
+            LATEST_BETA_TAG="$(latest_beta_tag)"
+            if [ -n "$LATEST_BETA_TAG" ]; then
+              echo "Preserving beta site from $LATEST_BETA_TAG under /beta."
+              git worktree add "$BETA_WORKTREE" "$LATEST_BETA_TAG"
+              (
+                cd "$BETA_WORKTREE" &&
+                  ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true -PappVersion="${LATEST_BETA_TAG#v}"
+              )
+              mkdir -p "$STAGING_DIR/beta"
+              cp -R "$BETA_WORKTREE/frontend/composeApp/build/dist/wasmJs/productionExecutable/." "$STAGING_DIR/beta/"
+            else
+              echo "No beta release found; stable deployment will not publish /beta."
+            fi
           fi
 
       # 5. Include APT repository content (served at /apt/ alongside the web app)
