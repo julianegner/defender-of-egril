@@ -60,6 +60,7 @@ jobs:
           RELEASE_CHANNEL="${{ github.event.inputs.release_channel }}"
           STABLE_WORKTREE="$RUNNER_TEMP/stable-site-src"
           BETA_WORKTREE="$RUNNER_TEMP/beta-site-src"
+          EXISTING_BETA_DIR="$RUNNER_TEMP/existing-beta-site"
           if [ -z "$RELEASE_CHANNEL" ]; then
             RELEASE_CHANNEL="stable"
           fi
@@ -113,6 +114,7 @@ jobs:
           trap cleanup_worktrees EXIT
 
           rm -rf "$STAGING_DIR"
+          rm -rf "$EXISTING_BETA_DIR"
           mkdir -p "$STAGING_DIR"
 
           if [ "$RELEASE_CHANNEL" = "beta" ]; then
@@ -157,7 +159,19 @@ jobs:
               mkdir -p "$STAGING_DIR/beta"
               cp -R "$BETA_WORKTREE/frontend/composeApp/build/dist/wasmJs/productionExecutable/." "$STAGING_DIR/beta/"
             else
-              echo "No beta release found; stable deployment will not publish /beta."
+              echo "No beta release found; attempting to preserve the currently published /beta content."
+              if wget --mirror --no-verbose --directory-prefix "$EXISTING_BETA_DIR" https://defender.egril.de/beta/; then
+                EXISTING_BETA_PATH="$EXISTING_BETA_DIR/defender.egril.de/beta"
+                if [ -d "$EXISTING_BETA_PATH" ]; then
+                  mkdir -p "$STAGING_DIR/beta"
+                  cp -R "$EXISTING_BETA_PATH/." "$STAGING_DIR/beta/"
+                  echo "Preserved existing published /beta content."
+                else
+                  echo "Published /beta path was not found in mirrored content; skipping beta preservation."
+                fi
+              else
+                echo "::warning::Could not mirror the currently published /beta content; stable deployment will proceed without /beta."
+              fi
             fi
           fi
 
