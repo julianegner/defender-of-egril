@@ -81,16 +81,16 @@ jobs:
 
             STABLE_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')
             if [ -z "$STABLE_TAG" ]; then
-              echo "::error::No stable release found. Cannot preserve the production web deployment while publishing beta."
-              exit 1
+              echo "No stable release found yet; publishing beta content under /beta only."
+            else
+              echo "Building stable site from $STABLE_TAG for production root."
+              git worktree add "$STABLE_WORKTREE" "$STABLE_TAG"
+              (
+                cd "$STABLE_WORKTREE" &&
+                  ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
+              )
+              cp -R "$STABLE_WORKTREE/frontend/composeApp/build/dist/wasmJs/productionExecutable/." "$STAGING_DIR/"
             fi
-            echo "Building stable site from $STABLE_TAG for production root."
-            git worktree add "$STABLE_WORKTREE" "$STABLE_TAG"
-            (
-              cd "$STABLE_WORKTREE" &&
-                ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
-            )
-            cp -R "$STABLE_WORKTREE/frontend/composeApp/build/dist/wasmJs/productionExecutable/." "$STAGING_DIR/"
 
             echo "Building beta site for /beta using version $BETA_VERSION."
             ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true -PappVersion="$BETA_VERSION"

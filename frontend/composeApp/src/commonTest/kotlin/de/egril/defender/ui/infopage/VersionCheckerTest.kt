@@ -57,6 +57,7 @@ class VersionCheckerTest {
         assertTrue(isBetaVersion("1.0.0-beta.1"))
         assertTrue(isBetaVersion("1.0.0-BETA-hotfix"))
         assertFalse(isBetaVersion("1.0.0"))
+        assertFalse(isBetaVersion("1.0.0-beta2-extra"))
     }
 
     // ---------------------------------------------------------------------------
