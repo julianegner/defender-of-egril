@@ -34,6 +34,10 @@ fun NewVersionDialog(
     infos: List<NewVersionInfo>,
     onDismiss: () -> Unit,
 ) {
+    if (infos.isEmpty()) {
+        return
+    }
+
     val uriHandler = LocalUriHandler.current
     val focusRequester = remember { FocusRequester() }
     val primaryInfo = infos.first()
