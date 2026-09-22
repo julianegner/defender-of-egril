@@ -50,6 +50,7 @@ class VersionCheckerTest {
         assertTrue(compareVersions("1.0.0-beta", "1.0.0") < 0)
         assertEquals(0, compareVersions("1.0.0-beta", "1.0.0-beta"))
         assertTrue(compareVersions("1.0.0-beta.2", "1.0.0-beta.1") > 0)
+        assertTrue(compareVersions("1.0.0-beta.10", "1.0.0-beta.2a") < 0)
     }
 
     @Test
@@ -59,6 +60,7 @@ class VersionCheckerTest {
         assertTrue(isBetaVersion("1.0.0-BETA-hotfix"))
         assertFalse(isBetaVersion("1.0.0"))
         assertFalse(isBetaVersion("1.0.0-beta2-extra"))
+        assertFalse(isBetaVersion("1.0.0-rc-beta"))
     }
 
     // ---------------------------------------------------------------------------

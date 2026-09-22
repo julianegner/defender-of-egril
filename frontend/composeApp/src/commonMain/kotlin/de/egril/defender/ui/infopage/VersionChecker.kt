@@ -109,7 +109,7 @@ internal fun compareVersions(
     }
 }
 
-private val betaVersionSuffixRegex = Regex("^.+-beta(?:[.-].*)?$", RegexOption.IGNORE_CASE)
+private val betaVersionSuffixRegex = Regex("^\\d+(?:\\.\\d+){0,2}-beta(?:[.-].*)?$", RegexOption.IGNORE_CASE)
 
 internal fun isBetaVersion(version: String): Boolean = betaVersionSuffixRegex.matches(version)
 
@@ -141,10 +141,11 @@ private fun compareBetaSuffixes(
         val numeric1 = token1.toIntOrNull()
         val numeric2 = token2.toIntOrNull()
         val diff =
-            if (numeric1 != null && numeric2 != null) {
-                numeric1 - numeric2
-            } else {
-                token1.compareTo(token2, ignoreCase = true)
+            when {
+                numeric1 != null && numeric2 != null -> numeric1 - numeric2
+                numeric1 != null -> -1
+                numeric2 != null -> 1
+                else -> token1.compareTo(token2, ignoreCase = true)
             }
         if (diff != 0) {
             return diff
