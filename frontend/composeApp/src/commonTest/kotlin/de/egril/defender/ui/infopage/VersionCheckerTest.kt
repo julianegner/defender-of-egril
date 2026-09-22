@@ -207,4 +207,47 @@ class VersionCheckerTest {
             newerVersions,
         )
     }
+
+    @Test
+    fun `findNewerVersions picks the newest stable and beta releases even when input order varies`() {
+        val releases =
+            listOf(
+                GithubRelease(
+                    tagName = "v1.0.8",
+                    assets = listOf(GithubReleaseAsset("defender_1.0.8.deb", "https://example.com/stable-old.deb")),
+                ),
+                GithubRelease(
+                    tagName = "v1.0.9-beta",
+                    prerelease = true,
+                    assets = listOf(GithubReleaseAsset("defender_1.0.9-beta.deb", "https://example.com/beta-new.deb")),
+                ),
+                GithubRelease(
+                    tagName = "v1.0.10",
+                    assets = listOf(GithubReleaseAsset("defender_1.0.10.deb", "https://example.com/stable-new.deb")),
+                ),
+                GithubRelease(
+                    tagName = "v1.0.8-beta",
+                    prerelease = true,
+                    assets = listOf(GithubReleaseAsset("defender_1.0.8-beta.deb", "https://example.com/beta-old.deb")),
+                ),
+            )
+
+        val newerVersions = findNewerVersions("1.0.7-beta", releases, listOf(".deb"))
+
+        assertEquals(
+            listOf(
+                NewVersionInfo(
+                    version = "1.0.9-beta",
+                    releasePageUrl = "https://github.com/julianegner/defender-of-egril/releases/tag/v1.0.9-beta",
+                    isBetaRelease = true,
+                ),
+                NewVersionInfo(
+                    version = "1.0.10",
+                    releasePageUrl = "https://github.com/julianegner/defender-of-egril/releases/tag/v1.0.10",
+                    isBetaRelease = false,
+                ),
+            ),
+            newerVersions,
+        )
+    }
 }

@@ -85,11 +85,10 @@ jobs:
               exit 1
             fi
             echo "Building stable site from $STABLE_TAG for production root."
-            echo "Building stable site from $STABLE_TAG for production root."
+            git worktree add "$STABLE_WORKTREE" "$STABLE_TAG"
             (
-            (
+              cd "$STABLE_WORKTREE" &&
                 ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
-            )
             )
             cp -R "$STABLE_WORKTREE/frontend/composeApp/build/dist/wasmJs/productionExecutable/." "$STAGING_DIR/"
 
