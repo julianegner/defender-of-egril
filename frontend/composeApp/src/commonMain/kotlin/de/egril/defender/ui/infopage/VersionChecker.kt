@@ -101,12 +101,7 @@ internal fun compareVersions(
         val diff = (parts1.getOrElse(i) { 0 }) - (parts2.getOrElse(i) { 0 })
         if (diff != 0) return diff
     }
-    return when {
-        isBetaVersion(v1) && !isBetaVersion(v2) -> -1
-        !isBetaVersion(v1) && isBetaVersion(v2) -> 1
-        isBetaVersion(v1) && isBetaVersion(v2) -> compareBetaSuffixes(v1, v2)
-        else -> 0
-    }
+    return comparePrereleaseSuffixes(v1, v2)
 }
 
 private val betaVersionRegex = Regex("^(\\d+(?:\\.\\d+){0,2})-beta(?:[.-](.*))?$", RegexOption.IGNORE_CASE)
@@ -128,12 +123,24 @@ private fun selectNewerVersionInfo(
     }
 }
 
-private fun compareBetaSuffixes(
+private fun comparePrereleaseSuffixes(
     v1: String,
     v2: String,
 ): Int {
-    val tokens1 = betaSuffixTokens(v1)
-    val tokens2 = betaSuffixTokens(v2)
+    val suffix1 = prereleaseSuffix(v1)
+    val suffix2 = prereleaseSuffix(v2)
+    if (suffix1 == null && suffix2 == null) {
+        return 0
+    }
+    if (suffix1 == null) {
+        return 1
+    }
+    if (suffix2 == null) {
+        return -1
+    }
+
+    val tokens1 = prereleaseTokens(suffix1)
+    val tokens2 = prereleaseTokens(suffix2)
     val maxSize = maxOf(tokens1.size, tokens2.size)
     for (index in 0 until maxSize) {
         val token1 = tokens1.getOrNull(index) ?: return -1
@@ -154,8 +161,9 @@ private fun compareBetaSuffixes(
     return 0
 }
 
-private fun betaSuffixTokens(version: String): List<String> {
-    val suffix = betaVersionRegex.matchEntire(version)?.groupValues?.getOrNull(2).orEmpty()
+private fun prereleaseSuffix(version: String): String? = version.substringAfter('-', "").ifEmpty { null }
+
+private fun prereleaseTokens(suffix: String): List<String> {
     return if (suffix.isEmpty()) {
         emptyList()
     } else {

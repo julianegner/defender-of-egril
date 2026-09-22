@@ -42,6 +42,7 @@ fun NewVersionDialog(
     val focusRequester = remember { FocusRequester() }
     val primaryInfo = infos.first()
     val secondaryInfos = infos.drop(1)
+    val showChannelLabels = infos.size > 1
     val openReleasePage =
         remember(uriHandler, onDismiss) {
             { releasePageUrl: String ->
@@ -93,14 +94,14 @@ fun NewVersionDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 SelectionContainer {
-                    Text(stringResource(Res.string.new_version_available_message, primaryInfo.version))
+                    Text(updateMessage(primaryInfo, showChannelLabels))
                 }
                 secondaryInfos.forEach { info ->
                     SelectionContainer {
-                        Text(stringResource(Res.string.new_version_available_message, info.version))
+                        Text(updateMessage(info, showChannelLabels))
                     }
                     TextButton(onClick = { openReleasePage(info.releasePageUrl) }) {
-                        Text(stringResource(Res.string.new_version_go_to_releases_with_version, info.version))
+                        Text(updateButtonLabel(info, showChannelLabels))
                     }
                 }
             }
@@ -111,7 +112,7 @@ fun NewVersionDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    Text(stringResource(Res.string.new_version_go_to_releases_with_version, primaryInfo.version))
+                    Text(updateButtonLabel(primaryInfo, showChannelLabels))
                     ShortcutKeyChip(
                         text = "Enter",
                         color = LocalContentColor.current.copy(alpha = 0.75f),
@@ -134,4 +135,45 @@ fun NewVersionDialog(
             }
         },
     )
+}
+
+@Composable
+private fun updateMessage(
+    info: NewVersionInfo,
+    showChannelLabels: Boolean,
+): String {
+    return if (showChannelLabels) {
+        stringResource(
+            Res.string.new_version_available_message_with_channel,
+            info.version,
+            channelLabel(info),
+        )
+    } else {
+        stringResource(Res.string.new_version_available_message, info.version)
+    }
+}
+
+@Composable
+private fun updateButtonLabel(
+    info: NewVersionInfo,
+    showChannelLabels: Boolean,
+): String {
+    return if (showChannelLabels) {
+        stringResource(
+            Res.string.new_version_go_to_releases_with_version_and_channel,
+            info.version,
+            channelLabel(info),
+        )
+    } else {
+        stringResource(Res.string.new_version_go_to_releases_with_version, info.version)
+    }
+}
+
+@Composable
+private fun channelLabel(info: NewVersionInfo): String {
+    return if (info.isBetaRelease) {
+        stringResource(Res.string.new_version_release_type_beta)
+    } else {
+        stringResource(Res.string.new_version_release_type_stable)
+    }
 }
