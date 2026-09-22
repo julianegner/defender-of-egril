@@ -102,7 +102,7 @@ fun NewVersionDialog(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
-                            Text("${stringResource(Res.string.new_version_go_to_releases)} ${info.version}")
+                            Text(stringResource(Res.string.new_version_go_to_releases_with_version, info.version))
                             if (index == 0) {
                                 ShortcutKeyChip(
                                     text = "Enter",

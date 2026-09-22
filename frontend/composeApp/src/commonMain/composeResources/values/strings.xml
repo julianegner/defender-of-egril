@@ -1915,6 +1915,7 @@
     <string name="new_version_available_title">New Version Available</string>
     <string name="new_version_available_message">Version %1$s is available for download.</string>
     <string name="new_version_go_to_releases">Go to Download</string>
+    <string name="new_version_go_to_releases_with_version">Go to Download %1$s</string>
     <string name="check_for_updates">Check for updates</string>
     <string name="check_for_updates_description">Checks for a newer version on the same platform on startup (not for web, not for Android if installed from the Play Store).</string>
 

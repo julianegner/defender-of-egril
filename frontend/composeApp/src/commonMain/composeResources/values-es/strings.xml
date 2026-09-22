@@ -1909,6 +1909,7 @@
     <string name="new_version_available_title">Nueva versión disponible</string>
     <string name="new_version_available_message">La versión %1$s está disponible para descargar.</string>
     <string name="new_version_go_to_releases">Ir a la descarga</string>
+    <string name="new_version_go_to_releases_with_version">Ir a la descarga %1$s</string>
     <string name="check_for_updates">Buscar actualizaciones</string>
     <string name="check_for_updates_description">Comprueba si hay una versión más reciente para la misma plataforma al iniciar (no para web, ni para Android si se instaló desde Play Store).</string>
 

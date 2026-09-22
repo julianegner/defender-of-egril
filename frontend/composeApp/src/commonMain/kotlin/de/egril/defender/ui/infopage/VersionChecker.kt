@@ -110,4 +110,4 @@ internal fun compareVersions(
     }
 }
 
-internal fun isBetaVersion(version: String): Boolean = version.contains("-beta")
+internal fun isBetaVersion(version: String): Boolean = version.contains("-beta", ignoreCase = true)
