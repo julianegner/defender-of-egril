@@ -157,44 +157,44 @@ jobs:
 
           if [ "$RELEASE_CHANNEL" = "beta" ]; then
             LATEST_TAG=$(
-              gh api repos/${{ github.repository }}/releases?per_page=100 2>/dev/null | python - <<'PY'
-              import json
-              import re
-              import sys
+              gh api repos/${{ github.repository }}/releases?per_page=100 2>/dev/null | python -c '
+                import json
+                import re
+                import sys
 
-              beta_pattern = re.compile(r"^v?(\\d+)\\.(\\d+)\\.(\\d+)-beta(?:[.-](.*))?$", re.IGNORECASE)
+                beta_pattern = re.compile(r"^v?(\\d+)\\.(\\d+)\\.(\\d+)-beta(?:[.-](.*))?$", re.IGNORECASE)
 
-              def beta_suffix_key(tag_suffix):
-                  if not tag_suffix:
-                      return ()
-                  return tuple(
-                      (0, int(token)) if token.isdigit() else (1, token.lower())
-                      for token in re.split(r"[.-]", tag_suffix)
-                      if token
-                  )
+                def beta_suffix_key(tag_suffix):
+                    if not tag_suffix:
+                        return ()
+                    return tuple(
+                        (0, int(token)) if token.isdigit() else (1, token.lower())
+                        for token in re.split(r"[.-]", tag_suffix)
+                        if token
+                    )
 
-              best_key = None
-              best_tag = ""
+                best_key = None
+                best_tag = ""
 
-              for release in json.load(sys.stdin):
-                  if not release.get("prerelease"):
-                      continue
-                  tag = release.get("tag_name", "")
-                  match = beta_pattern.match(tag)
-                  if not match:
-                      continue
-                  key = (
-                      int(match.group(1)),
-                      int(match.group(2)),
-                      int(match.group(3)),
-                      beta_suffix_key(match.group(4)),
-                  )
-                  if best_key is None or key > best_key:
-                      best_key = key
-                      best_tag = tag
-              
-              print(best_tag)
-              PY
+                for release in json.load(sys.stdin):
+                    if not release.get("prerelease"):
+                        continue
+                    tag = release.get("tag_name", "")
+                    match = beta_pattern.match(tag)
+                    if not match:
+                        continue
+                    key = (
+                        int(match.group(1)),
+                        int(match.group(2)),
+                        int(match.group(3)),
+                        beta_suffix_key(match.group(4)),
+                    )
+                    if best_key is None or key > best_key:
+                        best_key = key
+                        best_tag = tag
+
+                print(best_tag)
+                '
             )
           else
             # Fetch the latest stable release tag via the GitHub API.
@@ -1161,8 +1161,8 @@ jobs:
             repos/${{ github.repository }}/actions/workflows/deploy_wasm_to_github_pages.yml/dispatches \
             -X POST \
             -f ref="main" \
-            -F inputs[release_channel]="${{ needs.prepare.outputs.is_beta == 'true' && 'beta' || 'stable' }}" \
-            -F inputs[beta_version]="${{ needs.prepare.outputs.version }}"
+            -F "inputs[release_channel]=${{ needs.prepare.outputs.is_beta == 'true' && 'beta' || 'stable' }}" \
+            -F "inputs[beta_version]=${{ needs.prepare.outputs.version }}"
 
   # ---------------------------------------------------------------------------
   # Publish the .deb package to the self-hosted APT repository on GitHub Pages.
@@ -1200,13 +1200,13 @@ jobs:
     if: |
       always() &&
       needs.release.result == 'success' &&
-      needs.build_linux_deb.result == 'success' &&
-      needs.prepare.outputs.is_beta != 'true'
+      needs.build_linux_deb.result == 'success'
     permissions:
       contents: write
     uses: ./.github/workflows/publish_linux_apt.yml
     with:
       release_tag: ${{ needs.prepare.outputs.version_tag }}
+      apt_channel: ${{ needs.prepare.outputs.is_beta == 'true' && 'beta' || 'stable' }}
     secrets: inherit
 
   # ---------------------------------------------------------------------------
@@ -1272,5 +1272,5 @@ jobs:
             repos/${{ github.repository }}/actions/workflows/deploy-play-store-aab.yml/dispatches \
             -X POST \
             -f ref="main" \
-            -F inputs[release_tag]="${{ needs.prepare.outputs.version_tag }}" \
-            -F inputs[track]="${{ needs.prepare.outputs.play_store_track }}"
+            -F "inputs[release_tag]=${{ needs.prepare.outputs.version_tag }}" \
+            -F "inputs[track]=${{ needs.prepare.outputs.play_store_track }}"

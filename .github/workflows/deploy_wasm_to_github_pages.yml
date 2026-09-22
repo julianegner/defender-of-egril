@@ -64,20 +64,20 @@ jobs:
           if [ -z "$RELEASE_CHANNEL" ]; then
             RELEASE_CHANNEL="stable"
           fi
-          
+
           cleanup_worktrees() {
             git worktree remove "$STABLE_WORKTREE" --force 2>/dev/null || true
             git worktree remove "$BETA_WORKTREE" --force 2>/dev/null || true
           }
-          
+
           latest_beta_tag() {
-            gh api repos/${{ github.repository }}/releases?per_page=100 | python - <<'PY'
+            gh api repos/${{ github.repository }}/releases?per_page=100 | python -c '
               import json
               import re
               import sys
-              
+
               beta_pattern = re.compile(r"^v?(\\d+)\\.(\\d+)\\.(\\d+)-beta(?:[.-](.*))?$", re.IGNORECASE)
-              
+
               def beta_suffix_key(tag_suffix):
                   if not tag_suffix:
                       return ()
@@ -86,10 +86,10 @@ jobs:
                       for token in re.split(r"[.-]", tag_suffix)
                       if token
                   )
-              
+
               best_key = None
               best_tag = ""
-              
+
               for release in json.load(sys.stdin):
                   if not release.get("prerelease"):
                       continue
@@ -106,11 +106,11 @@ jobs:
                   if best_key is None or key > best_key:
                       best_key = key
                       best_tag = tag
-              
+
               print(best_tag)
-              PY
+              '
           }
-          
+
           trap cleanup_worktrees EXIT
 
           rm -rf "$STAGING_DIR"
@@ -191,33 +191,41 @@ jobs:
             echo "APT repository content included."
 
             # The .deb binary is not stored in the apt-repo git branch (it exceeds
-            # GitHub's 100 MB per-file limit).  Download it from the GitHub Release
-            # that matches the Packages index and place it in the pool directory so
-            # APT clients can fetch it from the Pages site.
-            PACKAGES_FILE="$APT_DEST/dists/stable/main/binary-amd64/Packages"
-            if [ -f "$PACKAGES_FILE" ]; then
-              DEB_FILENAME=$(grep "^Filename:" "$PACKAGES_FILE" | head -1 | awk '{print $2}')
-              if [ -n "$DEB_FILENAME" ]; then
-                DEB_BASENAME=$(basename "$DEB_FILENAME")
-                DEB_POOL_DIR="$APT_DEST/$(dirname "$DEB_FILENAME")"
-                # Derive the release tag from the .deb filename (e.g. defender-of-egril_1.0.3_amd64.deb → v1.0.3)
-                DEB_NO_PREFIX="${DEB_BASENAME#defender-of-egril_}"
-                DEB_VERSION="${DEB_NO_PREFIX%%_*}"
-                RELEASE_TAG="v${DEB_VERSION}"
-                mkdir -p "$DEB_POOL_DIR"
-                echo "Downloading $DEB_BASENAME from release $RELEASE_TAG..."
-                if gh release download "$RELEASE_TAG" \
-                    --repo "${{ github.repository }}" \
-                    --pattern "$DEB_BASENAME" \
-                    --dir "$DEB_POOL_DIR" \
-                    --clobber; then
-                  echo "Downloaded $DEB_BASENAME to $DEB_POOL_DIR."
+            # GitHub's 100 MB per-file limit). Download each .deb referenced by a
+            # published Packages index and place it in the pool directory so APT
+            # clients can fetch it from the Pages site.
+            PACKAGES_FILES=$(find "$APT_DEST/dists" -path '*/main/binary-amd64/Packages' -type f)
+            if [ -n "$PACKAGES_FILES" ]; then
+              echo "$PACKAGES_FILES" | while read -r PACKAGES_FILE; do
+                [ -n "$PACKAGES_FILE" ] || continue
+                DEB_FILENAME=$(grep "^Filename:" "$PACKAGES_FILE" | head -1 | awk '{print $2}')
+                if [ -n "$DEB_FILENAME" ]; then
+                  DEB_BASENAME=$(basename "$DEB_FILENAME")
+                  DEB_POOL_DIR="$APT_DEST/$(dirname "$DEB_FILENAME")"
+                  # Derive the release tag from the .deb filename
+                  # (e.g. defender-of-egril_1.0.3_amd64.deb → v1.0.3)
+                  DEB_NO_PREFIX="${DEB_BASENAME#defender-of-egril_}"
+                  DEB_VERSION="${DEB_NO_PREFIX%%_*}"
+                  RELEASE_TAG="v${DEB_VERSION}"
+                  mkdir -p "$DEB_POOL_DIR"
+                  echo "Downloading $DEB_BASENAME from release $RELEASE_TAG..."
+                  if gh release download "$RELEASE_TAG" \
+                      --repo "${{ github.repository }}" \
+                      --pattern "$DEB_BASENAME" \
+                      --dir "$DEB_POOL_DIR" \
+                      --clobber; then
+                    echo "Downloaded $DEB_BASENAME to $DEB_POOL_DIR."
+                  else
+                    echo "::warning::Could not download $DEB_BASENAME from release"
+                    echo "::warning::$RELEASE_TAG. Verify that the release exists"
+                    echo "::warning::and contains the .deb asset. APT pool will"
+                    echo "::warning::not contain the .deb binary."
+                  fi
                 else
-                  echo "::warning::Could not download $DEB_BASENAME from release $RELEASE_TAG. Verify that the release exists and contains the .deb asset. APT pool will not contain the .deb binary."
+                  echo "::warning::No Filename found in $PACKAGES_FILE;"
+                  echo "::warning::skipping .deb download."
                 fi
-              else
-                echo "::warning::No Filename found in Packages index; skipping .deb download."
-              fi
+              done
             else
               echo "::warning::Packages index not found; skipping .deb download."
             fi
