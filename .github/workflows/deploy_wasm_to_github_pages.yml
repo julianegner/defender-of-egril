@@ -124,7 +124,9 @@ jobs:
 
             STABLE_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name' 2>/dev/null || true)
             if [ -z "$STABLE_TAG" ]; then
-              echo "No stable release found yet; publishing beta content under /beta only."
+              echo "No stable release found yet; building production root from the current checkout."
+              ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
+              cp -R ./frontend/composeApp/build/dist/wasmJs/productionExecutable/. "$STAGING_DIR/"
             else
               echo "Building stable site from $STABLE_TAG for production root."
               git worktree add "$STABLE_WORKTREE" "$STABLE_TAG"
