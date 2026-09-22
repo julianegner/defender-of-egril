@@ -163,10 +163,9 @@ private fun comparePrereleaseSuffixes(
 
 private fun prereleaseSuffix(version: String): String? = version.substringAfter('-', "").ifEmpty { null }
 
-private fun prereleaseTokens(suffix: String): List<String> {
-    return if (suffix.isEmpty()) {
+private fun prereleaseTokens(suffix: String): List<String> =
+    if (suffix.isEmpty()) {
         emptyList()
     } else {
         suffix.split('.', '-').filter { it.isNotEmpty() }
     }
-}

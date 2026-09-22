@@ -141,8 +141,8 @@ fun NewVersionDialog(
 private fun updateMessage(
     info: NewVersionInfo,
     showChannelLabels: Boolean,
-): String {
-    return if (showChannelLabels) {
+): String =
+    if (showChannelLabels) {
         stringResource(
             Res.string.new_version_available_message_with_channel,
             info.version,
@@ -151,14 +151,13 @@ private fun updateMessage(
     } else {
         stringResource(Res.string.new_version_available_message, info.version)
     }
-}
 
 @Composable
 private fun updateButtonLabel(
     info: NewVersionInfo,
     showChannelLabels: Boolean,
-): String {
-    return if (showChannelLabels) {
+): String =
+    if (showChannelLabels) {
         stringResource(
             Res.string.new_version_go_to_releases_with_version_and_channel,
             info.version,
@@ -167,13 +166,11 @@ private fun updateButtonLabel(
     } else {
         stringResource(Res.string.new_version_go_to_releases_with_version, info.version)
     }
-}
 
 @Composable
-private fun channelLabel(info: NewVersionInfo): String {
-    return if (info.isBetaRelease) {
+private fun channelLabel(info: NewVersionInfo): String =
+    if (info.isBetaRelease) {
         stringResource(Res.string.new_version_release_type_beta)
     } else {
         stringResource(Res.string.new_version_release_type_stable)
     }
-}
