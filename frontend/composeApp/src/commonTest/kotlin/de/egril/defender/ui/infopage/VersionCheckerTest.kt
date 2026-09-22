@@ -2,6 +2,7 @@ package de.egril.defender.ui.infopage
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -48,6 +49,14 @@ class VersionCheckerTest {
         assertTrue(compareVersions("1.0.0", "1.0.0-beta") > 0)
         assertTrue(compareVersions("1.0.0-beta", "1.0.0") < 0)
         assertEquals(0, compareVersions("1.0.0-beta", "1.0.0-beta"))
+    }
+
+    @Test
+    fun `isBetaVersion recognizes beta suffix variants`() {
+        assertTrue(isBetaVersion("1.0.0-beta"))
+        assertTrue(isBetaVersion("1.0.0-beta.1"))
+        assertTrue(isBetaVersion("1.0.0-BETA-hotfix"))
+        assertFalse(isBetaVersion("1.0.0"))
     }
 
     // ---------------------------------------------------------------------------

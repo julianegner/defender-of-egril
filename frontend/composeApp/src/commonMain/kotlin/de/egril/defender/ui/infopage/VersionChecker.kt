@@ -108,7 +108,9 @@ internal fun compareVersions(
     }
 }
 
-internal fun isBetaVersion(version: String): Boolean = version.endsWith("-beta", ignoreCase = true)
+private val betaVersionSuffixRegex = Regex("-beta(?:[.-].*)?$", RegexOption.IGNORE_CASE)
+
+internal fun isBetaVersion(version: String): Boolean = betaVersionSuffixRegex.containsMatchIn(version)
 
 private fun selectNewerVersionInfo(
     current: NewVersionInfo?,
