@@ -109,9 +109,9 @@ internal fun compareVersions(
     }
 }
 
-private val betaVersionSuffixRegex = Regex("^\\d+(?:\\.\\d+){0,2}-beta(?:[.-].*)?$", RegexOption.IGNORE_CASE)
+private val betaVersionRegex = Regex("^(\\d+(?:\\.\\d+){0,2})-beta(?:[.-](.*))?$", RegexOption.IGNORE_CASE)
 
-internal fun isBetaVersion(version: String): Boolean = betaVersionSuffixRegex.matches(version)
+internal fun isBetaVersion(version: String): Boolean = betaVersionRegex.matches(version)
 
 private fun selectNewerVersionInfo(
     current: NewVersionInfo?,
@@ -155,7 +155,7 @@ private fun compareBetaSuffixes(
 }
 
 private fun betaSuffixTokens(version: String): List<String> {
-    val suffix = version.substringAfter("-beta", "").trimStart('.', '-')
+    val suffix = betaVersionRegex.matchEntire(version)?.groupValues?.getOrNull(2).orEmpty()
     return if (suffix.isEmpty()) {
         emptyList()
     } else {

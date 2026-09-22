@@ -161,11 +161,21 @@ jobs:
               import json
               import re
               import sys
-              
-              beta_pattern = re.compile(r"^v?(\\d+)\\.(\\d+)\\.(\\d+)(?:-beta(?:[.-].*)?)?$", re.IGNORECASE)
+
+              beta_pattern = re.compile(r"^v?(\\d+)\\.(\\d+)\\.(\\d+)-beta(?:[.-](.*))?$", re.IGNORECASE)
+
+              def beta_suffix_key(tag_suffix):
+                  if not tag_suffix:
+                      return ()
+                  return tuple(
+                      (0, int(token)) if token.isdigit() else (1, token.lower())
+                      for token in re.split(r"[.-]", tag_suffix)
+                      if token
+                  )
+
               best_key = None
               best_tag = ""
-              
+
               for release in json.load(sys.stdin):
                   if not release.get("prerelease"):
                       continue
@@ -173,7 +183,12 @@ jobs:
                   match = beta_pattern.match(tag)
                   if not match:
                       continue
-                  key = (int(match.group(1)), int(match.group(2)), int(match.group(3)), tag.lower())
+                  key = (
+                      int(match.group(1)),
+                      int(match.group(2)),
+                      int(match.group(3)),
+                      beta_suffix_key(match.group(4)),
+                  )
                   if best_key is None or key > best_key:
                       best_key = key
                       best_tag = tag
