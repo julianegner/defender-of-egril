@@ -58,9 +58,17 @@ jobs:
         run: |
           STAGING_DIR="$RUNNER_TEMP/pages-site"
           RELEASE_CHANNEL="${{ github.event.inputs.release_channel }}"
+          STABLE_WORKTREE="$RUNNER_TEMP/stable-site-src"
           if [ -z "$RELEASE_CHANNEL" ]; then
             RELEASE_CHANNEL="stable"
           fi
+
+          cleanup_stable_worktree() {
+            git worktree remove "$STABLE_WORKTREE" --force 2>/dev/null || true
+          }
+
+          trap cleanup_stable_worktree EXIT
+
           rm -rf "$STAGING_DIR"
           mkdir -p "$STAGING_DIR"
 
@@ -76,15 +84,14 @@ jobs:
               echo "::error::No stable release found. Cannot preserve the production web deployment while publishing beta."
               exit 1
             fi
-
             echo "Building stable site from $STABLE_TAG for production root."
-            git worktree add "$RUNNER_TEMP/stable-site-src" "$STABLE_TAG"
+            echo "Building stable site from $STABLE_TAG for production root."
             (
-              cd "$RUNNER_TEMP/stable-site-src" &&
+            (
                 ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
             )
-            cp -R "$RUNNER_TEMP/stable-site-src/frontend/composeApp/build/dist/wasmJs/productionExecutable/." "$STAGING_DIR/"
-            git worktree remove "$RUNNER_TEMP/stable-site-src" --force
+            )
+            cp -R "$STABLE_WORKTREE/frontend/composeApp/build/dist/wasmJs/productionExecutable/." "$STAGING_DIR/"
 
             echo "Building beta site for /beta using version $BETA_VERSION."
             ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true -PappVersion="$BETA_VERSION"

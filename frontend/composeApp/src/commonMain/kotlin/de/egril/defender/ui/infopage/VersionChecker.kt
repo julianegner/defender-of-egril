@@ -71,22 +71,20 @@ internal fun findNewerVersions(
 
         if (currentIsBeta) {
             if (isBetaRelease) {
-                if (newerBeta == null) {
-                    newerBeta = info
-                }
-            } else if (newerStable == null) {
-                newerStable = info
-            }
-
-            if (newerBeta != null && newerStable != null) {
-                break
+                newerBeta = selectNewerVersionInfo(newerBeta, info)
+            } else {
+                newerStable = selectNewerVersionInfo(newerStable, info)
             }
         } else if (!isBetaRelease) {
-            return listOf(info)
+            newerStable = selectNewerVersionInfo(newerStable, info)
         }
     }
 
-    return listOfNotNull(newerBeta, newerStable)
+    return if (currentIsBeta) {
+        listOfNotNull(newerBeta, newerStable)
+    } else {
+        listOfNotNull(newerStable)
+    }
 }
 
 /**
@@ -111,3 +109,18 @@ internal fun compareVersions(
 }
 
 internal fun isBetaVersion(version: String): Boolean = version.endsWith("-beta", ignoreCase = true)
+
+private fun selectNewerVersionInfo(
+    current: NewVersionInfo?,
+    candidate: NewVersionInfo,
+): NewVersionInfo {
+    if (current == null) {
+        return candidate
+    }
+
+    return if (compareVersions(candidate.version, current.version) > 0) {
+        candidate
+    } else {
+        current
+    }
+}

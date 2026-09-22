@@ -91,14 +91,16 @@ fun NewVersionDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.new_version_available_title)) },
         text = {
-            SelectionContainer {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                SelectionContainer {
                     Text(stringResource(Res.string.new_version_available_message, primaryInfo.version))
-                    secondaryInfos.forEach { info ->
+                }
+                secondaryInfos.forEach { info ->
+                    SelectionContainer {
                         Text(stringResource(Res.string.new_version_available_message, info.version))
-                        TextButton(onClick = { openReleasePage(info.releasePageUrl) }) {
-                            Text(stringResource(Res.string.new_version_go_to_releases_with_version, info.version))
-                        }
+                    }
+                    TextButton(onClick = { openReleasePage(info.releasePageUrl) }) {
+                        Text(stringResource(Res.string.new_version_go_to_releases_with_version, info.version))
                     }
                 }
             }
