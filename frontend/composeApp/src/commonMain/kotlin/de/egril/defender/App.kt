@@ -384,9 +384,9 @@ fun App() {
                 )
 
                 // New version available dialog (shown once at start-up)
-                newVersionAvailable?.let { info ->
+                if (newVersionAvailable.isNotEmpty()) {
                     NewVersionDialog(
-                        info = info,
+                        infos = newVersionAvailable,
                         onDismiss = { viewModel.dismissNewVersionNotification() },
                     )
                 }

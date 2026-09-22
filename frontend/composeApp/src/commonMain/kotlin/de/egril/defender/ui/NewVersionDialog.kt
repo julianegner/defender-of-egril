@@ -1,6 +1,7 @@
 package de.egril.defender.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.*
@@ -30,15 +31,16 @@ import kotlinx.coroutines.yield
  */
 @Composable
 fun NewVersionDialog(
-    info: NewVersionInfo,
+    infos: List<NewVersionInfo>,
     onDismiss: () -> Unit,
 ) {
     val uriHandler = LocalUriHandler.current
     val focusRequester = remember { FocusRequester() }
+    val primaryInfo = infos.first()
     val openReleasePage =
-        remember(info.releasePageUrl, uriHandler, onDismiss) {
-            {
-                uriHandler.openUri(info.releasePageUrl)
+        remember(uriHandler, onDismiss) {
+            { releasePageUrl: String ->
+                uriHandler.openUri(releasePageUrl)
                 onDismiss()
             }
         }
@@ -65,7 +67,7 @@ fun NewVersionDialog(
                         when (event.key) {
                             Key.Enter, Key.NumPadEnter -> {
                                 if (!event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed) {
-                                    openReleasePage()
+                                    openReleasePage(primaryInfo.releasePageUrl)
                                     true
                                 } else {
                                     false
@@ -85,20 +87,30 @@ fun NewVersionDialog(
         title = { Text(stringResource(Res.string.new_version_available_title)) },
         text = {
             SelectionContainer {
-                Text(stringResource(Res.string.new_version_available_message, info.version))
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    infos.forEach { info ->
+                        Text(stringResource(Res.string.new_version_available_message, info.version))
+                    }
+                }
             }
         },
         confirmButton = {
-            Button(onClick = openReleasePage) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Text(stringResource(Res.string.new_version_go_to_releases))
-                    ShortcutKeyChip(
-                        text = "Enter",
-                        color = LocalContentColor.current.copy(alpha = 0.75f),
-                    )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                infos.forEachIndexed { index, info ->
+                    Button(onClick = { openReleasePage(info.releasePageUrl) }) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            Text("${stringResource(Res.string.new_version_go_to_releases)} ${info.version}")
+                            if (index == 0) {
+                                ShortcutKeyChip(
+                                    text = "Enter",
+                                    color = LocalContentColor.current.copy(alpha = 0.75f),
+                                )
+                            }
+                        }
+                    }
                 }
             }
         },

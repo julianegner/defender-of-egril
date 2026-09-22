@@ -25,14 +25,16 @@ name: Deploy AAB to Google Play Store
 on:
   workflow_dispatch:
     inputs:
+      release_tag:
+        description: "GitHub release tag to deploy (e.g. v1.0.3 or v1.0.3-beta). Leave empty to use the latest matching release."
+        required: false
+        type: string
       track:
         description: "Google Play track to upload to"
         required: true
-        default: "internal"
+        default: "production"
         type: choice
         options:
-          - internal
-          - alpha
           - beta
           - production
 
@@ -58,7 +60,23 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RELEASE_JSON=$(gh api repos/${{ github.repository }}/releases/latest)
+          RELEASE_TAG_INPUT="${{ github.event.inputs.release_tag }}"
+          TRACK="${{ github.event.inputs.track }}"
+
+          if [ -n "$RELEASE_TAG_INPUT" ]; then
+            echo "Using explicit release tag: $RELEASE_TAG_INPUT"
+            RELEASE_JSON=$(gh api repos/${{ github.repository }}/releases/tags/$RELEASE_TAG_INPUT)
+          elif [ "$TRACK" = "production" ]; then
+            echo "Using latest stable release for production deployment."
+            RELEASE_JSON=$(gh api repos/${{ github.repository }}/releases/latest)
+          else
+            echo "Using latest prerelease for beta deployment."
+            RELEASE_JSON=$(gh api repos/${{ github.repository }}/releases?per_page=100 | jq 'map(select(.prerelease == true)) | .[0]')
+            if [ "$RELEASE_JSON" = "null" ] || [ -z "$RELEASE_JSON" ]; then
+              echo "::error::No prerelease found for beta deployment."
+              exit 1
+            fi
+          fi
 
           VERSION=$(echo "$RELEASE_JSON" | jq -r '.tag_name')
           RELEASE_NAME=$(echo "$RELEASE_JSON" | jq -r '.name')
@@ -88,6 +106,7 @@ jobs:
             echo "| Release | $RELEASE_NAME |"
             echo "| Release page | [$RELEASE_URL]($RELEASE_URL) |"
             echo "| AAB file | \`$AAB_NAME\` |"
+            echo "| Requested release tag | \`${RELEASE_TAG_INPUT:-auto}\` |"
             echo "| Target track | \`${{ github.event.inputs.track }}\` |"
             echo ""
             echo "> **If this is not the release you want to deploy, cancel this workflow run now.**"

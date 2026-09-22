@@ -11,6 +11,7 @@ import de.egril.defender.AppBuildInfo
 data class NewVersionInfo(
     val version: String,
     val releasePageUrl: String,
+    val isBetaRelease: Boolean,
 )
 
 /**
@@ -28,27 +29,64 @@ internal expect fun platformAssetExtensions(): List<String>?
  * first release that (a) is newer and (b) contains an asset for the current platform, or
  * null when no such release exists or the API is unavailable.
  */
-suspend fun checkForNewerVersion(): NewVersionInfo? {
-    val extensions = platformAssetExtensions() ?: return null
+suspend fun checkForNewerVersion(): NewVersionInfo? = checkForNewerVersions().firstOrNull()
+
+suspend fun checkForNewerVersions(): List<NewVersionInfo> {
+    val extensions = platformAssetExtensions() ?: return emptyList()
     val currentVersion = AppBuildInfo.VERSION_NAME
-    val releases = fetchGithubReleases() ?: return null
+    val releases = fetchGithubReleases() ?: return emptyList()
+    return findNewerVersions(currentVersion, releases, extensions)
+}
+
+internal fun findNewerVersions(
+    currentVersion: String,
+    releases: List<GithubRelease>,
+    extensions: List<String>,
+): List<NewVersionInfo> {
+    val currentIsBeta = isBetaVersion(currentVersion)
+    var newerStable: NewVersionInfo? = null
+    var newerBeta: NewVersionInfo? = null
 
     for (release in releases) {
         val releaseVersion = release.tagName.removePrefix("v")
-        if (compareVersions(releaseVersion, currentVersion) <= 0) break
+        if (compareVersions(releaseVersion, currentVersion) <= 0) {
+            continue
+        }
 
         val hasPlatformAsset =
             release.assets.any { asset ->
                 extensions.any { ext -> asset.name.endsWith(ext, ignoreCase = true) }
             }
-        if (hasPlatformAsset) {
-            return NewVersionInfo(
+        if (!hasPlatformAsset) {
+            continue
+        }
+
+        val isBetaRelease = release.prerelease || isBetaVersion(releaseVersion)
+        val info =
+            NewVersionInfo(
                 version = releaseVersion,
                 releasePageUrl = "https://github.com/julianegner/defender-of-egril/releases/tag/${release.tagName}",
+                isBetaRelease = isBetaRelease,
             )
+
+        if (currentIsBeta) {
+            if (isBetaRelease) {
+                if (newerBeta == null) {
+                    newerBeta = info
+                }
+            } else if (newerStable == null) {
+                newerStable = info
+            }
+
+            if (newerBeta != null && newerStable != null) {
+                break
+            }
+        } else if (!isBetaRelease) {
+            return listOf(info)
         }
     }
-    return null
+
+    return listOfNotNull(newerBeta, newerStable)
 }
 
 /**
@@ -59,11 +97,17 @@ internal fun compareVersions(
     v1: String,
     v2: String,
 ): Int {
-    val parts1 = v1.split(".").map { it.toIntOrNull() ?: 0 }
-    val parts2 = v2.split(".").map { it.toIntOrNull() ?: 0 }
+    val parts1 = v1.substringBefore("-").split(".").map { it.toIntOrNull() ?: 0 }
+    val parts2 = v2.substringBefore("-").split(".").map { it.toIntOrNull() ?: 0 }
     for (i in 0..2) {
         val diff = (parts1.getOrElse(i) { 0 }) - (parts2.getOrElse(i) { 0 })
         if (diff != 0) return diff
     }
-    return 0
+    return when {
+        isBetaVersion(v1) && !isBetaVersion(v2) -> -1
+        !isBetaVersion(v1) && isBetaVersion(v2) -> 1
+        else -> 0
+    }
 }
+
+internal fun isBetaVersion(version: String): Boolean = version.contains("-beta")

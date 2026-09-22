@@ -6,6 +6,19 @@ on:
   #  branches:
   #    - main  # Trigger the workflow on pushes to the main branch
   workflow_dispatch:  # Allow manual triggering
+    inputs:
+      release_channel:
+        description: "Which web release to deploy"
+        required: false
+        default: "stable"
+        type: choice
+        options:
+          - stable
+          - beta
+      beta_version:
+        description: "Beta app version to publish under /beta (for example 1.2.3-beta). Required when release_channel=beta."
+        required: false
+        type: string
 
 permissions:
   contents: read        # Required to fetch the repository content
@@ -24,6 +37,7 @@ jobs:
       - name: "✅ Checkout code"
         uses: actions/checkout@v7
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       # 2. Set up JDK 24
@@ -39,14 +53,55 @@ jobs:
 
       # 4. Build the WasmJS App
       - name: "🛠️ Build WasmJS App"
-        run: ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          STAGING_DIR="$RUNNER_TEMP/pages-site"
+          RELEASE_CHANNEL="${{ github.event.inputs.release_channel }}"
+          if [ -z "$RELEASE_CHANNEL" ]; then
+            RELEASE_CHANNEL="stable"
+          fi
+          rm -rf "$STAGING_DIR"
+          mkdir -p "$STAGING_DIR"
+
+          if [ "$RELEASE_CHANNEL" = "beta" ]; then
+            BETA_VERSION="${{ github.event.inputs.beta_version }}"
+            if [ -z "$BETA_VERSION" ]; then
+              echo "::error::beta_version is required when release_channel=beta."
+              exit 1
+            fi
+
+            STABLE_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')
+            if [ -z "$STABLE_TAG" ]; then
+              echo "::error::No stable release found. Cannot preserve the production web deployment while publishing beta."
+              exit 1
+            fi
+
+            echo "Building stable site from $STABLE_TAG for production root."
+            git worktree add "$RUNNER_TEMP/stable-site-src" "$STABLE_TAG"
+            (
+              cd "$RUNNER_TEMP/stable-site-src" &&
+                ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
+            )
+            cp -R "$RUNNER_TEMP/stable-site-src/frontend/composeApp/build/dist/wasmJs/productionExecutable/." "$STAGING_DIR/"
+            git worktree remove "$RUNNER_TEMP/stable-site-src" --force
+
+            echo "Building beta site for /beta using version $BETA_VERSION."
+            ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true -PappVersion="$BETA_VERSION"
+            mkdir -p "$STAGING_DIR/beta"
+            cp -R ./frontend/composeApp/build/dist/wasmJs/productionExecutable/. "$STAGING_DIR/beta/"
+          else
+            echo "Building stable site for production root."
+            ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
+            cp -R ./frontend/composeApp/build/dist/wasmJs/productionExecutable/. "$STAGING_DIR/"
+          fi
 
       # 5. Include APT repository content (served at /apt/ alongside the web app)
       - name: "📦 Include APT repository content"
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          WASM_OUTPUT=./frontend/composeApp/build/dist/wasmJs/productionExecutable
+          WASM_OUTPUT="$RUNNER_TEMP/pages-site"
           APT_DEST="$WASM_OUTPUT/apt"
 
           if git ls-remote --heads origin apt-repo 2>/dev/null | grep -q "apt-repo"; then
@@ -101,7 +156,7 @@ jobs:
       - name: "📤 Upload GitHub Pages artifact"
         uses: actions/upload-pages-artifact@v5
         with:
-          path: ./frontend/composeApp/build/dist/wasmJs/productionExecutable
+          path: ${{ runner.temp }}/pages-site
 
       # 8. Deploy to GitHub Pages
       - name: "🚀 Deploy to GitHub Pages"

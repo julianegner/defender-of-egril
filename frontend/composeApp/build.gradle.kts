@@ -46,11 +46,13 @@ val appVersion: String = project.findProperty("appVersion")?.toString()
     ?: rootProject.file("VERSION").takeIf { it.exists() }?.readText()?.trim()?.ifBlank { null }
     ?: "0.0.0"
 
+val appVersionCore = appVersion.substringBefore("-")
+
 // Derive Android versionCode from version string (major * 10000 + minor * 100 + patch).
 // Constraints: minor and patch must be 0–99; major must be 0–21474.
 // These limits are validated by the release.yml workflow before passing the version here.
 val appVersionCode: Int = run {
-    val parts = appVersion.split(".").map { it.toIntOrNull() ?: 0 }
+    val parts = appVersionCore.split(".").map { it.toIntOrNull() ?: 0 }
     val major = parts.getOrElse(0) { 0 }
     val minor = parts.getOrElse(1) { 0 }
     val patch = parts.getOrElse(2) { 0 }
@@ -61,7 +63,7 @@ val appVersionCode: Int = run {
 // override the macOS-specific package version by bumping MAJOR to 1 so that only the
 // DMG format validation is satisfied without affecting other platform builds.
 val macOsPackageVersion: String = run {
-    val parts = appVersion.split(".").map { it.toIntOrNull() ?: 0 }
+    val parts = appVersionCore.split(".").map { it.toIntOrNull() ?: 0 }
     val major = parts.getOrElse(0) { 0 }
     if (major == 0) {
         "1.${parts.getOrElse(1) { 0 }}.${parts.getOrElse(2) { 0 }}"
@@ -129,6 +131,7 @@ val generateBuildConfig = tasks.register("generateBuildConfig") {
         }
         
         val versionName = appVersion
+        val isBeta = versionName.contains("-beta")
         
         val buildConfigContent = """
             |package de.egril.defender
@@ -141,6 +144,7 @@ val generateBuildConfig = tasks.register("generateBuildConfig") {
             | */
             |object AppBuildInfo {
             |    const val VERSION_NAME = "$versionName"
+            |    const val IS_BETA = $isBeta
             |    const val COMMIT_HASH = "$commitHash"
             |    const val COMMIT_DATE = "$commitDate"
             |    const val COMMIT_MESSAGE = "$commitMessage"
