@@ -41,6 +41,7 @@ fun NewVersionDialog(
     val uriHandler = LocalUriHandler.current
     val focusRequester = remember { FocusRequester() }
     val primaryInfo = infos.first()
+    val secondaryInfos = infos.drop(1)
     val openReleasePage =
         remember(uriHandler, onDismiss) {
             { releasePageUrl: String ->
@@ -92,29 +93,27 @@ fun NewVersionDialog(
         text = {
             SelectionContainer {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    infos.forEach { info ->
+                    Text(stringResource(Res.string.new_version_available_message, primaryInfo.version))
+                    secondaryInfos.forEach { info ->
                         Text(stringResource(Res.string.new_version_available_message, info.version))
+                        TextButton(onClick = { openReleasePage(info.releasePageUrl) }) {
+                            Text(stringResource(Res.string.new_version_go_to_releases_with_version, info.version))
+                        }
                     }
                 }
             }
         },
         confirmButton = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                infos.forEachIndexed { index, info ->
-                    Button(onClick = { openReleasePage(info.releasePageUrl) }) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            Text(stringResource(Res.string.new_version_go_to_releases_with_version, info.version))
-                            if (index == 0) {
-                                ShortcutKeyChip(
-                                    text = "Enter",
-                                    color = LocalContentColor.current.copy(alpha = 0.75f),
-                                )
-                            }
-                        }
-                    }
+            Button(onClick = { openReleasePage(primaryInfo.releasePageUrl) }) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(stringResource(Res.string.new_version_go_to_releases_with_version, primaryInfo.version))
+                    ShortcutKeyChip(
+                        text = "Enter",
+                        color = LocalContentColor.current.copy(alpha = 0.75f),
+                    )
                 }
             }
         },
