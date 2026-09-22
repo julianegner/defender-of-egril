@@ -49,6 +49,7 @@ class VersionCheckerTest {
         assertTrue(compareVersions("1.0.0", "1.0.0-beta") > 0)
         assertTrue(compareVersions("1.0.0-beta", "1.0.0") < 0)
         assertEquals(0, compareVersions("1.0.0-beta", "1.0.0-beta"))
+        assertTrue(compareVersions("1.0.0-beta.2", "1.0.0-beta.1") > 0)
     }
 
     @Test

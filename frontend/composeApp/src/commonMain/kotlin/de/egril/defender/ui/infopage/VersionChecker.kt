@@ -104,6 +104,7 @@ internal fun compareVersions(
     return when {
         isBetaVersion(v1) && !isBetaVersion(v2) -> -1
         !isBetaVersion(v1) && isBetaVersion(v2) -> 1
+        isBetaVersion(v1) && isBetaVersion(v2) -> compareBetaSuffixes(v1, v2)
         else -> 0
     }
 }
@@ -124,5 +125,39 @@ private fun selectNewerVersionInfo(
         candidate
     } else {
         current
+    }
+}
+
+private fun compareBetaSuffixes(
+    v1: String,
+    v2: String,
+): Int {
+    val tokens1 = betaSuffixTokens(v1)
+    val tokens2 = betaSuffixTokens(v2)
+    val maxSize = maxOf(tokens1.size, tokens2.size)
+    for (index in 0 until maxSize) {
+        val token1 = tokens1.getOrNull(index) ?: return -1
+        val token2 = tokens2.getOrNull(index) ?: return 1
+        val numeric1 = token1.toIntOrNull()
+        val numeric2 = token2.toIntOrNull()
+        val diff =
+            if (numeric1 != null && numeric2 != null) {
+                numeric1 - numeric2
+            } else {
+                token1.compareTo(token2, ignoreCase = true)
+            }
+        if (diff != 0) {
+            return diff
+        }
+    }
+    return 0
+}
+
+private fun betaSuffixTokens(version: String): List<String> {
+    val suffix = version.substringAfter("-beta", "").trimStart('.', '-')
+    return if (suffix.isEmpty()) {
+        emptyList()
+    } else {
+        suffix.split('.', '-').filter { it.isNotEmpty() }
     }
 }
