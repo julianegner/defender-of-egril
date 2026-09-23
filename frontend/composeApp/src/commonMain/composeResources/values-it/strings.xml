@@ -1910,7 +1910,12 @@
     <string name="play_store_qr_code_content_description">Codice QR per il Google Play Store</string>
     <string name="new_version_available_title">Nuova versione disponibile</string>
     <string name="new_version_available_message">La versione %1$s è disponibile per il download.</string>
+    <string name="new_version_available_message_with_channel">La versione %1$s (%2$s) è disponibile per il download.</string>
     <string name="new_version_go_to_releases">Vai al download</string>
+    <string name="new_version_go_to_releases_with_version">Vai al download %1$s</string>
+    <string name="new_version_go_to_releases_with_version_and_channel">Vai al download %1$s (%2$s)</string>
+    <string name="new_version_release_type_beta">beta</string>
+    <string name="new_version_release_type_stable">stabile</string>
     <string name="check_for_updates">Verifica aggiornamenti</string>
     <string name="check_for_updates_description">Verifica all\'avvio la presenza di una versione più recente per la stessa piattaforma (non per il web, né per Android se installato dal Play Store).</string>
 

@@ -10,7 +10,7 @@ on:
       snap_channel:
         description: "Snap Store channel to publish to"
         required: false
-        default: edge
+        default: stable
         type: string
     secrets:
       SNAPCRAFT_STORE_CREDENTIALS:
@@ -27,10 +27,8 @@ on:
         type: choice
         default: stable
         options:
-          - edge
-          - beta
-          - candidate
           - stable
+          - beta
 
 permissions:
   contents: read
@@ -50,10 +48,10 @@ jobs:
           fi
 
           case "${{ inputs.snap_channel }}" in
-            edge|beta|candidate|stable)
+            stable|beta)
               ;;
             *)
-              echo "::error::Unsupported snap_channel '${{ inputs.snap_channel }}'. Use one of: edge, beta, candidate, stable."
+            echo "::error::Unsupported snap_channel '${{ inputs.snap_channel }}'. Use one of: stable, beta."
               exit 1
               ;;
           esac

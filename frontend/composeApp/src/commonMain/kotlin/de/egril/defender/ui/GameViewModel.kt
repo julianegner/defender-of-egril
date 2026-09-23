@@ -14,7 +14,7 @@ import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
 import de.egril.defender.ui.animations.SKY_IS_FALLING_DURATION_MS
 import de.egril.defender.ui.infopage.NewVersionInfo
-import de.egril.defender.ui.infopage.checkForNewerVersion
+import de.egril.defender.ui.infopage.checkForNewerVersions
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.CheatCodeHandler
 import de.egril.defender.utils.DeepLink
@@ -259,8 +259,8 @@ class GameViewModel {
     val demoSelectedTargetPosition: StateFlow<Position?> = _demoSelectedTargetPosition.asStateFlow()
 
     // New version availability check
-    private val _newVersionAvailable = MutableStateFlow<NewVersionInfo?>(null)
-    val newVersionAvailable: StateFlow<NewVersionInfo?> = _newVersionAvailable.asStateFlow()
+    private val _newVersionAvailable = MutableStateFlow<List<NewVersionInfo>>(emptyList())
+    val newVersionAvailable: StateFlow<List<NewVersionInfo>> = _newVersionAvailable.asStateFlow()
 
     // Remote community level metadata (levels available on the server, may or may not be downloaded locally)
     private val _remoteCommunityLevelsMeta = MutableStateFlow<List<de.egril.defender.save.CommunityFileInfo>>(emptyList())
@@ -3679,16 +3679,16 @@ class GameViewModel {
      */
     fun checkForUpdates() {
         viewModelScope.launch {
-            val info = checkForNewerVersion()
-            if (info != null) {
-                _newVersionAvailable.value = info
+            val infos = checkForNewerVersions()
+            if (infos.isNotEmpty()) {
+                _newVersionAvailable.value = infos
             }
         }
     }
 
     /** Dismisses the new-version notification banner/dialog. */
     fun dismissNewVersionNotification() {
-        _newVersionAvailable.value = null
+        _newVersionAvailable.value = emptyList()
     }
 
     fun startTimeTracking() {

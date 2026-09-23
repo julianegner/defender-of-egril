@@ -22,6 +22,7 @@ data class GithubReleaseAsset(
 data class GithubRelease(
     val tagName: String,
     val assets: List<GithubReleaseAsset>,
+    val prerelease: Boolean = false,
 )
 
 /**
@@ -47,6 +48,7 @@ internal fun parseGithubReleasesJson(json: String): List<GithubRelease>? {
         Json.parseToJsonElement(json).jsonArray.mapNotNull { element ->
             val obj = element.jsonObject
             val tagName = obj["tag_name"]?.jsonPrimitive?.content ?: return@mapNotNull null
+            val prerelease = obj["prerelease"]?.jsonPrimitive?.content == "true"
             val assets =
                 obj["assets"]?.jsonArray?.mapNotNull { assetElement ->
                     val assetObj = assetElement.jsonObject
@@ -56,7 +58,7 @@ internal fun parseGithubReleasesJson(json: String): List<GithubRelease>? {
                             ?: return@mapNotNull null
                     GithubReleaseAsset(name, url)
                 } ?: emptyList()
-            GithubRelease(tagName, assets)
+            GithubRelease(tagName, assets, prerelease)
         }
     } catch (_: Exception) {
         null

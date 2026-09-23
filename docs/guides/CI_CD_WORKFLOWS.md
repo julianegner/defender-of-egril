@@ -163,7 +163,7 @@ Rotation / revocation:
 
 ### 3. Publish Linux Snap (`publish_linux_snap.yml`)
 
-**Trigger:** Manual dispatch with an optional `release_tag` input, or reusable `workflow_call` from the `Release` workflow
+**Trigger:** Manual dispatch with optional `release_tag` and `apt_channel` inputs, or reusable `workflow_call` from the `Release` workflow
 
 **Purpose:** Publish a Linux Snap from a GitHub Release to the Snap Store without rerunning the full release pipeline
 
@@ -186,7 +186,8 @@ Rotation / revocation:
 
 **Inputs:**
 
-- `release_tag` (optional): Release tag to download the `.deb` from (e.g. `v1.0.3`). Defaults to the latest release when not provided.
+- `release_tag` (optional): Release tag to download the `.deb` from (e.g. `v1.0.3` or `v1.0.3-beta`). Defaults to the latest matching release when not provided.
+- `apt_channel` (optional): APT suite/channel to publish (`stable` or `beta`). Defaults to `stable`.
 
 **Secrets (optional – signing is skipped when absent):**
 
@@ -196,17 +197,19 @@ Rotation / revocation:
 
 **Behavior:**
 
-1. Downloads the `.deb` asset from the specified (or latest) GitHub Release
+1. Downloads the `.deb` asset from the specified GitHub Release, the latest stable release, or the highest beta prerelease depending on `apt_channel`
 2. Checks out (or creates) an orphan `apt-repo` branch
 3. Copies the `.deb` to `pool/main/d/defender-of-egril/` *locally* (not committed to git)
-4. Regenerates `dists/stable/main/binary-amd64/Packages` and `Packages.gz` using `dpkg-scanpackages`
+4. Regenerates `dists/<apt_channel>/main/binary-amd64/Packages` and `Packages.gz` using `dpkg-scanpackages`
 5. **Removes the `.deb` from the local pool** – the binary is never committed to git (it exceeds GitHub's 100 MB per-file limit)
-6. Regenerates `dists/stable/Release` with fresh MD5/SHA-256 checksums
+6. Regenerates `dists/<apt_channel>/Release` with fresh MD5/SHA-256 checksums
 7. If GPG credentials are configured: signs `Release` → `Release.gpg` (detached) and `InRelease` (inline), then exports the public key to `KEY.gpg`
 8. Force-pushes `apt-repo` to GitHub (metadata only – no `.deb` binary)
-9. The subsequent `deploy_github_pages` step in `release.yml` triggers `deploy_wasm_to_github_pages.yml`, which downloads the `.deb` from the GitHub Release and places it in the pool directory of the Pages artifact
+9. The subsequent `deploy_github_pages` step in `release.yml` triggers `deploy_wasm_to_github_pages.yml`, which downloads the `.deb` for every published suite from the matching GitHub Release and places each binary in the pool directory of the Pages artifact
 
 The `deploy_wasm_to_github_pages.yml` workflow always checks for the `apt-repo` branch, merges its metadata into `apt/`, and then downloads the `.deb` referenced in the `Packages` index directly from the GitHub Release.  This way the binary is served from GitHub Pages without ever being stored in git.
+
+For beta APT users, replace `stable` with `beta` in the `deb` entry.
 
 **APT Repository URL:** `https://julianegner.github.io/defender-of-egril/apt/`
 
