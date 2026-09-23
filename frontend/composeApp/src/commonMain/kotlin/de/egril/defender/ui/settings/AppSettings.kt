@@ -1496,22 +1496,13 @@ object AppSettings {
             }
             map[KEY_SHOW_BUTTON_SHORTCUT_HINTS]?.toBooleanStrictOrNull()?.let { saveShowButtonShortcutHints(it) }
             map[KEY_MOUSE_POINTER_SOURCE]?.let { name ->
-                try {
-                    saveMousePointerSource(MousePointerSource.valueOf(name))
-                } catch (_: Exception) {
-                }
+                parseMousePointerSource(name)?.let { saveMousePointerSource(it) }
             }
             map[KEY_MOUSE_POINTER_SIZE]?.let { name ->
-                try {
-                    saveMousePointerSize(MousePointerSize.valueOf(name))
-                } catch (_: Exception) {
-                }
+                parseMousePointerSize(name)?.let { saveMousePointerSize(it) }
             }
             map[KEY_MOUSE_POINTER_DIRECTION]?.let { name ->
-                try {
-                    saveMousePointerDirection(MousePointerDirection.valueOf(name))
-                } catch (_: Exception) {
-                }
+                parseMousePointerDirection(name)?.let { saveMousePointerDirection(it) }
             }
             map[KEY_MOUSE_POINTER_SKIN_BRIGHTNESS]?.toFloatOrNull()?.let { saveMousePointerSkinBrightness(it) }
             map[KEY_SHORTCUT_ATTACK_SELECTED_TARGET]?.let { saveShortcutAttackSelectedTarget(it) }
@@ -1537,6 +1528,24 @@ object AppSettings {
             onPersist = savedCallback
         }
     }
+
+    private fun parseMousePointerSource(name: String): MousePointerSource? =
+        when (name) {
+            "DEFAULT" -> MousePointerSource.GAME
+            else -> MousePointerSource.entries.firstOrNull { it.name == name }
+        }
+
+    private fun parseMousePointerSize(name: String): MousePointerSize? =
+        when (name) {
+            "DEFAULT" -> MousePointerSize.DEFAULT
+            else -> MousePointerSize.entries.firstOrNull { it.name == name }
+        }
+
+    private fun parseMousePointerDirection(name: String): MousePointerDirection? =
+        when (name) {
+            "DEFAULT" -> MousePointerDirection.DEFAULT
+            else -> MousePointerDirection.entries.firstOrNull { it.name == name }
+        }
 
     /**
      * Reset all settings to defaults

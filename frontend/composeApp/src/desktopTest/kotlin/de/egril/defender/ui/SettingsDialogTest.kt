@@ -303,6 +303,18 @@ class SettingsDialogTest {
                 pressKey(Key.Minus)
             }
             assert(AppSettings.mousePointerSkinBrightness.value < 0f)
+
+            val brightnessAfterGameShortcut = AppSettings.mousePointerSkinBrightness.value
+            composeTestRule
+                .onNodeWithTag("mousePointerSourceSystem")
+                .performClick()
+            composeTestRule.onNodeWithTag("mousePointerSourceSystem").performKeyInput {
+                pressKey(Key.Four)
+            }
+            composeTestRule.onNodeWithTag("mousePointerSourceSystem").performKeyInput {
+                pressKey(Key.Equals)
+            }
+            assertEquals(brightnessAfterGameShortcut, AppSettings.mousePointerSkinBrightness.value)
         } finally {
             AppSettings.resetToDefaults()
         }

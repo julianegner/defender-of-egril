@@ -63,4 +63,24 @@ class AppSettingsMousePointerTest {
             AppSettings.resetToDefaults()
         }
     }
+
+    @Test
+    fun applyFromSettingsMap_migratesLegacyMousePointerValues() {
+        AppSettings.resetToDefaults()
+        try {
+            AppSettings.applyFromSettingsMap(
+                mapOf(
+                    "mouse_pointer_source" to "DEFAULT",
+                    "mouse_pointer_size" to "DEFAULT",
+                    "mouse_pointer_direction" to "DEFAULT",
+                ),
+            )
+
+            assertEquals(MousePointerSource.GAME, AppSettings.mousePointerSource.value)
+            assertEquals(MousePointerSize.DEFAULT, AppSettings.mousePointerSize.value)
+            assertEquals(MousePointerDirection.DEFAULT, AppSettings.mousePointerDirection.value)
+        } finally {
+            AppSettings.resetToDefaults()
+        }
+    }
 }

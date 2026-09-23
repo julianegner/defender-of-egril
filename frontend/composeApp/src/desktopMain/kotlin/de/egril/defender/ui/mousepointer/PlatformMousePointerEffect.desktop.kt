@@ -135,11 +135,19 @@ private object DesktopMousePointerController {
             return
         }
 
-        val role =
-            when {
-                currentCursor.type == Cursor.CUSTOM_CURSOR -> appliedRole
-                else -> ManagedPointerRole.fromCursorType(currentCursor.type)
-            } ?: return
+        if (currentCursor.type == Cursor.CUSTOM_CURSOR) {
+            if (appliedRole != null) {
+                restoreManagedComponent(component)
+            }
+            return
+        }
+
+        val role = ManagedPointerRole.fromCursorType(currentCursor.type) ?: run {
+            if (appliedRole != null) {
+                restoreManagedComponent(component)
+            }
+            return
+        }
 
         val desired = cursorFor(role) ?: return
         if (currentCursor !== desired || appliedRole != role) {
@@ -156,6 +164,17 @@ private object DesktopMousePointerController {
         }
     }
 
+    private fun restoreManagedComponent(component: Component) {
+        val originalCursor = originalCursors.remove(component)
+        appliedRoles.remove(component)
+        applying = true
+        try {
+            component.cursor = originalCursor
+        } finally {
+            applying = false
+        }
+    }
+
     private fun restoreWindowTree(window: Window) {
         restoreComponent(window)
         window.components.forEach { restoreComponentTree(it) }
@@ -169,14 +188,8 @@ private object DesktopMousePointerController {
     }
 
     private fun restoreComponent(component: Component) {
-        if (appliedRoles.remove(component) == null) return
-        val originalCursor = originalCursors.remove(component)
-        applying = true
-        try {
-            component.cursor = originalCursor
-        } finally {
-            applying = false
-        }
+        if (appliedRoles[component] == null) return
+        restoreManagedComponent(component)
     }
 
     private fun cursorFor(role: ManagedPointerRole): Cursor? =
