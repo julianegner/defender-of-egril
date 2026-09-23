@@ -223,7 +223,7 @@ class SettingsDialogTest {
                 }
 
             composeTestRule.waitForIdle()
-            assertEquals(0.2f, AppSettings.mousePointerSkinBrightness.value)
+            assertEquals(0.2f, AppSettings.mousePointerSkinBrightness.value, 0.0001f)
 
             composeTestRule
                 .onNodeWithTag("mousePointerBrightnessSlider")
@@ -232,7 +232,42 @@ class SettingsDialogTest {
                 }
 
             composeTestRule.waitForIdle()
-            assertEquals(-0.2f, AppSettings.mousePointerSkinBrightness.value)
+            assertEquals(-0.2f, AppSettings.mousePointerSkinBrightness.value, 0.0001f)
+        } finally {
+            AppSettings.resetToDefaults()
+        }
+    }
+
+    @Test
+    fun testSettingsDialogMousePointerBrightnessSliderClampsToSupportedRange() {
+        AppSettings.resetToDefaults()
+        currentLanguage.value = AppLocale.DEFAULT
+        try {
+            composeTestRule.setContent {
+                SettingsDialog(
+                    onDismiss = {},
+                    initialTab = de.egril.defender.ui.settings.SettingsTab.MOUSE_POINTERS,
+                )
+            }
+
+            composeTestRule.waitForIdle()
+            composeTestRule
+                .onNodeWithTag("mousePointerBrightnessSlider")
+                .performSemanticsAction(SemanticsActions.SetProgress) { setProgress ->
+                    setProgress(1.0f)
+                }
+
+            composeTestRule.waitForIdle()
+            assertEquals(AppSettings.MOUSE_POINTER_SKIN_BRIGHTNESS_MAX, AppSettings.mousePointerSkinBrightness.value, 0.0001f)
+
+            composeTestRule
+                .onNodeWithTag("mousePointerBrightnessSlider")
+                .performSemanticsAction(SemanticsActions.SetProgress) { setProgress ->
+                    setProgress(-1.0f)
+                }
+
+            composeTestRule.waitForIdle()
+            assertEquals(AppSettings.MOUSE_POINTER_SKIN_BRIGHTNESS_MIN, AppSettings.mousePointerSkinBrightness.value, 0.0001f)
         } finally {
             AppSettings.resetToDefaults()
         }

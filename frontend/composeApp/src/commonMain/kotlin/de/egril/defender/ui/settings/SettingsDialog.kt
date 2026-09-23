@@ -948,6 +948,7 @@ private fun MousePointerTabContent(
                 onValueChange = { AppSettings.saveMousePointerSkinBrightness(it) },
                 modifier = Modifier.fillMaxWidth().testTag("mousePointerBrightnessSlider"),
                 valueRange = AppSettings.MOUSE_POINTER_SKIN_BRIGHTNESS_MIN..AppSettings.MOUSE_POINTER_SKIN_BRIGHTNESS_MAX,
+                steps = ((AppSettings.MOUSE_POINTER_SKIN_BRIGHTNESS_MAX - AppSettings.MOUSE_POINTER_SKIN_BRIGHTNESS_MIN) / 0.05f).toInt() - 1,
                 enabled = useGamePointers,
             )
             Row(

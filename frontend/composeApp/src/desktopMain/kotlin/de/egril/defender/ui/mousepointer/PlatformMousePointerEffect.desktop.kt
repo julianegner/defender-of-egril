@@ -20,6 +20,7 @@ import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.util.WeakHashMap
 import javax.imageio.ImageIO
+import javax.swing.SwingUtilities
 import javax.swing.Timer
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 
@@ -52,11 +53,14 @@ private object DesktopMousePointerController {
     private var applying = false
 
     fun setCursorBytes(bytes: Map<ManagedPointerRole, ByteArray>) {
-        cursorBytes = bytes
-        cursorCache.clear()
+        runOnEdt {
+            cursorBytes = bytes
+            cursorCache.clear()
+        }
     }
 
     fun ensureStarted() {
+        check(SwingUtilities.isEventDispatchThread())
         if (timer != null) return
         timer =
             Timer(120) {
@@ -70,11 +74,13 @@ private object DesktopMousePointerController {
     }
 
     fun stop() {
-        timer?.stop()
-        timer = null
-        Window.getWindows()
-            .filter { it.isShowing }
-            .forEach { restoreWindowTree(it) }
+        runOnEdt {
+            timer?.stop()
+            timer = null
+            Window.getWindows()
+                .filter { it.isShowing }
+                .forEach { restoreWindowTree(it) }
+        }
     }
 
     fun updateSettings(
@@ -83,26 +89,40 @@ private object DesktopMousePointerController {
         direction: MousePointerDirection,
         brightness: Float,
     ) {
-        val changed =
-            source != currentSource ||
-                size != currentSize ||
-                direction != currentDirection ||
-                brightness != currentBrightness
-        currentSource = source
-        currentSize = size
-        currentDirection = direction
-        currentBrightness = brightness
-        if (changed) {
-            cursorCache.clear()
+        runOnEdt {
+            val changed =
+                source != currentSource ||
+                    size != currentSize ||
+                    direction != currentDirection ||
+                    brightness != currentBrightness
+            currentSource = source
+            currentSize = size
+            currentDirection = direction
+            currentBrightness = brightness
+            if (changed) {
+                cursorCache.clear()
+            }
+            if (source == MousePointerSource.GAME) {
+                ensureStarted()
+            } else {
+                timer?.stop()
+                timer = null
+                Window.getWindows()
+                    .filter { it.isShowing }
+                    .forEach { restoreWindowTree(it) }
+            }
+            Window.getWindows()
+                .filter { it.isShowing }
+                .forEach { updateWindowTree(it) }
         }
-        if (source == MousePointerSource.GAME) {
-            ensureStarted()
+    }
+
+    private fun runOnEdt(action: () -> Unit) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            action()
         } else {
-            stop()
+            SwingUtilities.invokeAndWait(action)
         }
-        Window.getWindows()
-            .filter { it.isShowing }
-            .forEach { updateWindowTree(it) }
     }
 
     private fun updateWindowTree(window: Window) {
