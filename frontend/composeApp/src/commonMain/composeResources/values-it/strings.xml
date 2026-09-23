@@ -2487,4 +2487,21 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="level_generator_water_level">Livello dell'acqua</string>
     <string name="level_generator_require_path">Richiedi percorso dagli spawn agli obiettivi</string>
     <string name="level_generator_roster_wilds">Terre selvagge</string>
+    <string name="settings_tab_mouse_pointers">Puntatori del mouse</string>
+    <string name="mouse_pointer_accessibility_info">Usa il puntatore di sistema se preferisci le opzioni di accessibilità integrate della piattaforma. I puntatori del gioco offrono uno stile a tema con dimensione, direzione e luminosità della pelle regolabili.</string>
+    <string name="mouse_pointer_source">Origine del puntatore</string>
+    <string name="mouse_pointer_source_game">Puntatori del gioco</string>
+    <string name="mouse_pointer_source_game_info">Usa puntatori a mano in stile gioco.</string>
+    <string name="mouse_pointer_source_system">Predefinito del sistema</string>
+    <string name="mouse_pointer_source_system_info">Usa i puntatori standard del tuo sistema operativo.</string>
+    <string name="mouse_pointer_direction">Direzione della mano indicatrice</string>
+    <string name="mouse_pointer_direction_left">Sinistra</string>
+    <string name="mouse_pointer_direction_right">Destra</string>
+    <string name="mouse_pointer_size">Dimensione del puntatore</string>
+    <string name="mouse_pointer_size_small">Piccolo</string>
+    <string name="mouse_pointer_size_large">Grande</string>
+    <string name="mouse_pointer_skin_brightness">Luminosità della pelle</string>
+    <string name="mouse_pointer_skin_darker">Più scuro</string>
+    <string name="mouse_pointer_skin_brighter">Più chiaro</string>
+    <string name="mouse_pointer_info">Il puntatore standard usa una mano indicatrice. La modifica e la selezione del testo continuano a usare uno stile di puntatore per il testo quando la piattaforma lo supporta.</string>
 </resources>

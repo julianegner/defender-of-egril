@@ -2485,4 +2485,21 @@
     <string name="level_generator_water_level">Nivel de agua</string>
     <string name="level_generator_require_path">Requerir camino desde apariciones a objetivos</string>
     <string name="level_generator_roster_wilds">Naturaleza salvaje</string>
+    <string name="settings_tab_mouse_pointers">Punteros del ratón</string>
+    <string name="mouse_pointer_accessibility_info">Usa el puntero del sistema si prefieres las opciones de accesibilidad integradas de tu plataforma. Los punteros del juego ofrecen un estilo temático con tamaño, dirección y brillo de piel ajustables.</string>
+    <string name="mouse_pointer_source">Origen del puntero</string>
+    <string name="mouse_pointer_source_game">Punteros del juego</string>
+    <string name="mouse_pointer_source_game_info">Usa punteros de mano con el estilo del juego.</string>
+    <string name="mouse_pointer_source_system">Predeterminado del sistema</string>
+    <string name="mouse_pointer_source_system_info">Usa los punteros estándar de tu sistema operativo.</string>
+    <string name="mouse_pointer_direction">Dirección de la mano señaladora</string>
+    <string name="mouse_pointer_direction_left">Izquierda</string>
+    <string name="mouse_pointer_direction_right">Derecha</string>
+    <string name="mouse_pointer_size">Tamaño del puntero</string>
+    <string name="mouse_pointer_size_small">Pequeño</string>
+    <string name="mouse_pointer_size_large">Grande</string>
+    <string name="mouse_pointer_skin_brightness">Brillo de la piel</string>
+    <string name="mouse_pointer_skin_darker">Más oscuro</string>
+    <string name="mouse_pointer_skin_brighter">Más claro</string>
+    <string name="mouse_pointer_info">El puntero estándar usa una mano señaladora. La edición y selección de texto siguen usando un estilo de puntero para marcar texto cuando la plataforma lo permite.</string>
 </resources>

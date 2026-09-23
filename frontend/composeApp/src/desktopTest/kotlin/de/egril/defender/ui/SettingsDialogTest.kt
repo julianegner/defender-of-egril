@@ -176,4 +176,24 @@ class SettingsDialogTest {
             println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
         }
     }
+
+    @Test
+    fun testSettingsDialogMousePointersTab() {
+        currentLanguage.value = AppLocale.DEFAULT
+        composeTestRule.setContent {
+            SettingsDialog(
+                onDismiss = {},
+                initialTab = de.egril.defender.ui.settings.SettingsTab.MOUSE_POINTERS,
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithText("Pointer Source", substring = true, ignoreCase = true)
+            .assertExists()
+        composeTestRule
+            .onNodeWithText("Pointer Size", substring = true, ignoreCase = true)
+            .assertExists()
+    }
 }

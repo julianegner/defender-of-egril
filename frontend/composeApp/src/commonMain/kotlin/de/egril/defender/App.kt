@@ -15,6 +15,7 @@ import de.egril.defender.ui.gameplay.GamePlayScreen
 import de.egril.defender.ui.gameplay.LevelLoadingScreen
 import de.egril.defender.ui.infopage.InfoPageScreen
 import de.egril.defender.ui.loadgame.LoadGameScreen
+import de.egril.defender.ui.mousepointer.PlatformMousePointerEffect
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsTab
 import de.egril.defender.ui.worldmap.WorldMapScreen
@@ -68,6 +69,7 @@ fun App() {
         val colorScheme = AppTheme.applyColorBlindPalette(baseColorScheme, colorBlindPalette)
 
         MaterialTheme(colorScheme = colorScheme) {
+            PlatformMousePointerEffect()
             // Apply accessibility font size scaling via LocalDensity
             val fontSizeScale by AppSettings.fontSize
             val currentDensity = LocalDensity.current

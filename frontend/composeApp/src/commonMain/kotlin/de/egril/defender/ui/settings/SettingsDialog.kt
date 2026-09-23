@@ -43,7 +43,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Settings dialog that provides access to app settings like language selection and dark mode.
- * Settings are organized into tabs: General, Worldmap, Level, Sound, Accessibility, Shortcuts.
+ * Settings are organized into tabs: General, Worldmap, Level, Sound, Accessibility, Mouse Pointers, Shortcuts.
  */
 enum class SettingsTab {
     GENERAL,
@@ -51,6 +51,7 @@ enum class SettingsTab {
     LEVEL,
     SOUND,
     ACCESSIBILITY,
+    MOUSE_POINTERS,
     SHORTCUTS,
 }
 
@@ -62,13 +63,14 @@ fun SettingsDialog(
     initialTab: SettingsTab = SettingsTab.GENERAL,
     pageBackgroundMusic: de.egril.defender.audio.BackgroundMusic? = null,
 ) {
-    val tabCount = 6 // GENERAL, WORLD_MAP, LEVEL, SOUND, ACCESSIBILITY, SHORTCUTS
+    val tabCount = SettingsTab.entries.size
     var selectedTabIndex by remember(initialTab) {
         mutableStateOf(
             SettingsTab.entries.indexOf(initialTab).coerceAtLeast(0),
         )
     }
     var shouldRestoreBackgroundMusicOnDismiss by remember { mutableStateOf(false) }
+    var selectedMousePointerSliderIndex by remember { mutableStateOf(0) }
 
     fun dismissSettingsDialog() {
         if (shouldRestoreBackgroundMusicOnDismiss) {
@@ -245,6 +247,22 @@ fun SettingsDialog(
                                                 adjustA11ySlider(selectedA11ySliderIndex, increase = false)
                                                 true
                                             }
+                                            currentTab == SettingsTab.MOUSE_POINTERS && event.key == Key.S -> {
+                                                selectedMousePointerSliderIndex = 0
+                                                true
+                                            }
+                                            currentTab == SettingsTab.MOUSE_POINTERS && event.key == Key.B -> {
+                                                selectedMousePointerSliderIndex = 1
+                                                true
+                                            }
+                                            currentTab == SettingsTab.MOUSE_POINTERS && (event.key == Key.Plus || event.key == Key.Equals) -> {
+                                                adjustMousePointerSlider(selectedMousePointerSliderIndex, increase = true)
+                                                true
+                                            }
+                                            currentTab == SettingsTab.MOUSE_POINTERS && event.key == Key.Minus -> {
+                                                adjustMousePointerSlider(selectedMousePointerSliderIndex, increase = false)
+                                                true
+                                            }
                                             else -> handleSettingsLetterKey(currentTab, event.key)
                                         }
                                     } else {
@@ -309,6 +327,7 @@ fun SettingsDialog(
                         SettingsTab.LEVEL to stringResource(Res.string.settings_tab_level),
                         SettingsTab.SOUND to stringResource(Res.string.sound),
                         SettingsTab.ACCESSIBILITY to stringResource(Res.string.accessibility),
+                        SettingsTab.MOUSE_POINTERS to stringResource(Res.string.settings_tab_mouse_pointers),
                         SettingsTab.SHORTCUTS to stringResource(Res.string.settings_tab_shortcuts),
                     )
 
@@ -401,6 +420,13 @@ fun SettingsDialog(
                                     selectedA11ySliderIndex =
                                         it
                                 })
+                            }
+                        SettingsTab.MOUSE_POINTERS ->
+                            ScrollableSettingsTabContent(settingsScrollState) {
+                                MousePointerTabContent(
+                                    selectedSliderIndex = selectedMousePointerSliderIndex,
+                                    onSliderIndexChanged = { selectedMousePointerSliderIndex = it },
+                                )
                             }
                         SettingsTab.SHORTCUTS -> ShortcutBindingsTabContent(settingsScrollState, keybindFocusManager)
                     }
@@ -714,6 +740,212 @@ private fun AccessibilityInfoText(text: String) {
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
+}
+
+@Composable
+private fun MousePointerTabContent(
+    selectedSliderIndex: Int = 0,
+    onSliderIndexChanged: (Int) -> Unit = {},
+) {
+    val useGamePointers = AppSettings.mousePointerSource.value == MousePointerSource.GAME
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SelectableText(
+            text = stringResource(Res.string.settings_tab_mouse_pointers),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        AccessibilityInfoText(stringResource(Res.string.mouse_pointer_accessibility_info))
+
+        NumberedSetting(1) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                SelectableText(
+                    text = stringResource(Res.string.mouse_pointer_source),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    RadioButton(
+                        selected = AppSettings.mousePointerSource.value == MousePointerSource.GAME,
+                        onClick = { AppSettings.saveMousePointerSource(MousePointerSource.GAME) },
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        SelectableText(
+                            text = stringResource(Res.string.mouse_pointer_source_game),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        SelectableText(
+                            text = stringResource(Res.string.mouse_pointer_source_game_info),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    RadioButton(
+                        selected = AppSettings.mousePointerSource.value == MousePointerSource.SYSTEM,
+                        onClick = { AppSettings.saveMousePointerSource(MousePointerSource.SYSTEM) },
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        SelectableText(
+                            text = stringResource(Res.string.mouse_pointer_source_system),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        SelectableText(
+                            text = stringResource(Res.string.mouse_pointer_source_system_info),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+        }
+
+        NumberedSetting(2) {
+            val rightHandSelected = AppSettings.mousePointerDirection.value == MousePointerDirection.RIGHT
+            val directionState = remember(rightHandSelected) { mutableStateOf(rightHandSelected) }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                SelectableText(
+                    text = stringResource(Res.string.mouse_pointer_direction),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                DualLabelSwitch(
+                    state = directionState,
+                    leftText = stringResource(Res.string.mouse_pointer_direction_left),
+                    rightText = stringResource(Res.string.mouse_pointer_direction_right),
+                    onCheckedChange = { checked ->
+                        AppSettings.saveMousePointerDirection(
+                            if (checked) {
+                                MousePointerDirection.RIGHT
+                            } else {
+                                MousePointerDirection.LEFT
+                            },
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (selectedSliderIndex == 0) {
+                            Modifier
+                                .border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary), RoundedCornerShape(8.dp))
+                                .padding(4.dp)
+                        } else {
+                            Modifier
+                        },
+                    ).clickable { onSliderIndexChanged(0) },
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                SelectableText(
+                    text = stringResource(Res.string.mouse_pointer_size),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                if (AppSettings.showButtonShortcutHints.value && selectedSliderIndex == 0) {
+                    Text(
+                        text = "S +/-",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+            val sizeEntries = MousePointerSize.entries
+            Slider(
+                value = AppSettings.mousePointerSize.value.ordinal.toFloat(),
+                onValueChange = { value ->
+                    val next = sizeEntries[value.toInt().coerceIn(0, sizeEntries.lastIndex)]
+                    AppSettings.saveMousePointerSize(next)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                valueRange = 0f..(sizeEntries.lastIndex).toFloat(),
+                steps = sizeEntries.size - 2,
+                enabled = useGamePointers,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                SelectableText(stringResource(Res.string.mouse_pointer_size_small), style = MaterialTheme.typography.bodySmall)
+                SelectableText(stringResource(Res.string.mouse_pointer_size_large), style = MaterialTheme.typography.bodySmall)
+            }
+        }
+
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (selectedSliderIndex == 1) {
+                            Modifier
+                                .border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary), RoundedCornerShape(8.dp))
+                                .padding(4.dp)
+                        } else {
+                            Modifier
+                        },
+                    ).clickable { onSliderIndexChanged(1) },
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                SelectableText(
+                    text = stringResource(Res.string.mouse_pointer_skin_brightness),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                if (AppSettings.showButtonShortcutHints.value && selectedSliderIndex == 1) {
+                    Text(
+                        text = "B +/-",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+            Slider(
+                value = AppSettings.mousePointerSkinBrightness.value,
+                onValueChange = { AppSettings.saveMousePointerSkinBrightness(it) },
+                modifier = Modifier.fillMaxWidth(),
+                valueRange = -0.35f..0.35f,
+                enabled = useGamePointers,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                SelectableText(stringResource(Res.string.mouse_pointer_skin_darker), style = MaterialTheme.typography.bodySmall)
+                SelectableText(stringResource(Res.string.mouse_pointer_skin_brighter), style = MaterialTheme.typography.bodySmall)
+            }
+        }
+
+        AccessibilityInfoText(stringResource(Res.string.mouse_pointer_info))
+    }
 }
 
 @Composable
@@ -2127,6 +2359,30 @@ private fun handleSettingsNumberKey(
                 }
                 else -> false
             }
+        SettingsTab.MOUSE_POINTERS ->
+            when (number) {
+                1 -> {
+                    val next =
+                        if (AppSettings.mousePointerSource.value == MousePointerSource.GAME) {
+                            MousePointerSource.SYSTEM
+                        } else {
+                            MousePointerSource.GAME
+                        }
+                    AppSettings.saveMousePointerSource(next)
+                    true
+                }
+                2 -> {
+                    val next =
+                        if (AppSettings.mousePointerDirection.value == MousePointerDirection.RIGHT) {
+                            MousePointerDirection.LEFT
+                        } else {
+                            MousePointerDirection.RIGHT
+                        }
+                    AppSettings.saveMousePointerDirection(next)
+                    true
+                }
+                else -> false
+            }
         SettingsTab.SHORTCUTS ->
             when (number) {
                 1 -> {
@@ -2169,6 +2425,7 @@ private fun handleSettingsLetterKey(
                 }
                 else -> false
             }
+        SettingsTab.MOUSE_POINTERS -> false
         SettingsTab.ACCESSIBILITY -> false
         SettingsTab.SHORTCUTS ->
             when (key) {
@@ -2292,5 +2549,38 @@ private fun adjustA11ySlider(
     when (selectedIndex) {
         0 -> adjustFontSize(increase)
         1 -> adjustHeaderTextSize(increase)
+    }
+}
+
+private fun adjustMousePointerSize(increase: Boolean) {
+    val entries = MousePointerSize.entries
+    val currentIndex = entries.indexOf(AppSettings.mousePointerSize.value)
+    val nextIndex =
+        if (increase) {
+            (currentIndex + 1).coerceAtMost(entries.lastIndex)
+        } else {
+            (currentIndex - 1).coerceAtLeast(0)
+        }
+    AppSettings.saveMousePointerSize(entries[nextIndex])
+}
+
+private fun adjustMousePointerSkinBrightness(increase: Boolean) {
+    val step = 0.05f
+    val next =
+        if (increase) {
+            AppSettings.mousePointerSkinBrightness.value + step
+        } else {
+            AppSettings.mousePointerSkinBrightness.value - step
+        }
+    AppSettings.saveMousePointerSkinBrightness(next)
+}
+
+private fun adjustMousePointerSlider(
+    selectedIndex: Int,
+    increase: Boolean,
+) {
+    when (selectedIndex) {
+        0 -> adjustMousePointerSize(increase)
+        1 -> adjustMousePointerSkinBrightness(increase)
     }
 }
