@@ -40,6 +40,9 @@ private enum class ManagedPointerRole(
     }
 }
 
+private const val GAME_POINTER_BASE_WIDTH = 160
+private const val TEXT_POINTER_BASE_WIDTH = GAME_POINTER_BASE_WIDTH * 0.8f
+
 private object DesktopMousePointerController {
     private val appliedRoles = WeakHashMap<Component, ManagedPointerRole>()
     private val originalCursors = WeakHashMap<Component, Cursor?>()
@@ -156,9 +159,6 @@ private object DesktopMousePointerController {
         }
 
         if (currentCursor.type == Cursor.CUSTOM_CURSOR) {
-            if (appliedRole != null) {
-                restoreManagedComponent(component)
-            }
             return
         }
 
@@ -220,23 +220,35 @@ private object DesktopMousePointerController {
     private fun createCursor(role: ManagedPointerRole): Cursor? {
         val bytes = cursorBytes[role] ?: return null
         val image = ImageIO.read(ByteArrayInputStream(bytes)) ?: return null
-        val transformed = transformCursorImage(image)
+        val transformed = transformCursorImage(image, role)
         val toolkit = Toolkit.getDefaultToolkit()
         val bestSize = toolkit.getBestCursorSize(transformed.width, transformed.height)
         if (bestSize.width == 0 || bestSize.height == 0) return null
         val hotspotScaleX = transformed.width.toFloat() / image.width.toFloat()
         val hotspotScaleY = transformed.height.toFloat() / image.height.toFloat()
-        val hotspotX =
-            if (currentDirection == MousePointerDirection.LEFT) {
-                transformed.width - 1 - (role.hotspotX * hotspotScaleX).toInt()
-            } else {
-                (role.hotspotX * hotspotScaleX).toInt()
-            }.coerceIn(0, transformed.width - 1)
-        val hotspotY = (role.hotspotY * hotspotScaleY).toInt().coerceIn(0, transformed.height - 1)
+        val sourceHotspotX =
+            when (role) {
+                ManagedPointerRole.DEFAULT,
+                ManagedPointerRole.HAND,
+                -> if (currentDirection == MousePointerDirection.RIGHT) 306 else 771
+                ManagedPointerRole.TEXT -> 540
+            }
+        val sourceHotspotY =
+            when (role) {
+                ManagedPointerRole.DEFAULT,
+                ManagedPointerRole.HAND,
+                -> 140
+                ManagedPointerRole.TEXT -> 294
+            }
+        val hotspotX = (sourceHotspotX * hotspotScaleX).toInt().coerceIn(0, transformed.width - 1)
+        val hotspotY = (sourceHotspotY * hotspotScaleY).toInt().coerceIn(0, transformed.height - 1)
         return toolkit.createCustomCursor(transformed, java.awt.Point(hotspotX, hotspotY), "defender-${role.name.lowercase()}")
     }
 
-    private fun transformCursorImage(image: BufferedImage): BufferedImage {
+    private fun transformCursorImage(
+        image: BufferedImage,
+        role: ManagedPointerRole,
+    ): BufferedImage {
         val brightnessAdjusted = BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_ARGB)
         for (y in 0 until image.height) {
             for (x in 0 until image.width) {
@@ -244,32 +256,21 @@ private object DesktopMousePointerController {
             }
         }
 
-        val mirrored =
-            if (currentDirection == MousePointerDirection.LEFT) {
-                val output = BufferedImage(brightnessAdjusted.width, brightnessAdjusted.height, BufferedImage.TYPE_INT_ARGB)
-                val g = output.createGraphics()
-                g.drawImage(
-                    brightnessAdjusted,
-                    brightnessAdjusted.width,
-                    0,
-                    -brightnessAdjusted.width,
-                    brightnessAdjusted.height,
-                    null,
-                )
-                g.dispose()
-                output
+        val baseWidth =
+            if (role == ManagedPointerRole.TEXT) {
+                TEXT_POINTER_BASE_WIDTH
             } else {
-                brightnessAdjusted
+                GAME_POINTER_BASE_WIDTH.toFloat()
             }
-
-        val scaledWidth = (mirrored.width * currentSize.scale).toInt().coerceAtLeast(16)
-        val scaledHeight = (mirrored.height * currentSize.scale).toInt().coerceAtLeast(16)
+        val baseScale = baseWidth / brightnessAdjusted.width
+        val scaledWidth = (brightnessAdjusted.width * baseScale * currentSize.scale).toInt().coerceAtLeast(16)
+        val scaledHeight = (brightnessAdjusted.height * baseScale * currentSize.scale).toInt().coerceAtLeast(16)
         val scaled = BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_ARGB)
         val graphics: Graphics2D = scaled.createGraphics()
         graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC)
         graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-        graphics.drawImage(mirrored, 0, 0, scaledWidth, scaledHeight, null)
+        graphics.drawImage(brightnessAdjusted, 0, 0, scaledWidth, scaledHeight, null)
         graphics.dispose()
         return scaled
     }
@@ -298,8 +299,15 @@ actual fun PlatformMousePointerEffect() {
     val size by AppSettings.mousePointerSize
     val direction by AppSettings.mousePointerDirection
     val brightness by AppSettings.mousePointerSkinBrightness
-    val pointerBytes by produceState<Map<ManagedPointerRole, ByteArray>?>(null) {
-        val handBytes = Res.readBytes("drawable/mouse_pointer_hand.png")
+    val pointerBytes by produceState<Map<ManagedPointerRole, ByteArray>?>(null, direction) {
+        val handBytes =
+            Res.readBytes(
+                if (direction == MousePointerDirection.RIGHT) {
+                    "drawable/mouse_pointer_hand_right.png"
+                } else {
+                    "drawable/mouse_pointer_hand_left.png"
+                },
+            )
         val textBytes = Res.readBytes("drawable/mouse_pointer_text.png")
         value =
             mapOf(
