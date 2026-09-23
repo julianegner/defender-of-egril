@@ -45,4 +45,22 @@ class AppSettingsMousePointerTest {
             AppSettings.resetToDefaults()
         }
     }
+
+    @Test
+    fun mousePointerSkinBrightness_isClampedToSupportedRange() {
+        AppSettings.resetToDefaults()
+        try {
+            AppSettings.saveMousePointerSkinBrightness(1.0f)
+            assertEquals(0.35f, AppSettings.mousePointerSkinBrightness.value)
+
+            AppSettings.applyFromSettingsMap(
+                mapOf(
+                    "mouse_pointer_skin_brightness" to "-1.0",
+                ),
+            )
+            assertEquals(-0.35f, AppSettings.mousePointerSkinBrightness.value)
+        } finally {
+            AppSettings.resetToDefaults()
+        }
+    }
 }

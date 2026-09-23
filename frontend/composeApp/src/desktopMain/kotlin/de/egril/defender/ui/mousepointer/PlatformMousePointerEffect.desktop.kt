@@ -2,34 +2,35 @@ package de.egril.defender.ui.mousepointer
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.MousePointerDirection
 import de.egril.defender.ui.settings.MousePointerSize
 import de.egril.defender.ui.settings.MousePointerSource
+import defender_of_egril.composeapp.generated.resources.Res
 import java.awt.Component
 import java.awt.Cursor
 import java.awt.Graphics2D
 import java.awt.RenderingHints
 import java.awt.Toolkit
 import java.awt.Window
-import java.awt.geom.AffineTransform
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.util.WeakHashMap
 import javax.imageio.ImageIO
-import javax.swing.SwingUtilities
 import javax.swing.Timer
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 private enum class ManagedPointerRole(
     val awtType: Int,
-    val resourcePath: String,
     val hotspotX: Int,
     val hotspotY: Int,
 ) {
-    DEFAULT(Cursor.DEFAULT_CURSOR, "drawable/mouse_pointer_hand.png", 148, 12),
-    TEXT(Cursor.TEXT_CURSOR, "drawable/mouse_pointer_text.png", 132, 52),
-    HAND(Cursor.HAND_CURSOR, "drawable/mouse_pointer_hand.png", 148, 12),
+    DEFAULT(Cursor.DEFAULT_CURSOR, 148, 12),
+    TEXT(Cursor.TEXT_CURSOR, 132, 52),
+    HAND(Cursor.HAND_CURSOR, 148, 12),
     ;
 
     companion object {
@@ -40,13 +41,20 @@ private enum class ManagedPointerRole(
 
 private object DesktopMousePointerController {
     private val appliedRoles = WeakHashMap<Component, ManagedPointerRole>()
+    private val originalCursors = WeakHashMap<Component, Cursor?>()
     private var currentSource: MousePointerSource = MousePointerSource.DEFAULT
     private var currentSize: MousePointerSize = MousePointerSize.DEFAULT
     private var currentDirection: MousePointerDirection = MousePointerDirection.DEFAULT
     private var currentBrightness: Float = 0f
     private val cursorCache = mutableMapOf<ManagedPointerRole, Cursor>()
+    private var cursorBytes = emptyMap<ManagedPointerRole, ByteArray>()
     private var timer: Timer? = null
     private var applying = false
+
+    fun setCursorBytes(bytes: Map<ManagedPointerRole, ByteArray>) {
+        cursorBytes = bytes
+        cursorCache.clear()
+    }
 
     fun ensureStarted() {
         if (timer != null) return
@@ -59,6 +67,14 @@ private object DesktopMousePointerController {
                 it.isRepeats = true
                 it.start()
             }
+    }
+
+    fun stop() {
+        timer?.stop()
+        timer = null
+        Window.getWindows()
+            .filter { it.isShowing }
+            .forEach { restoreWindowTree(it) }
     }
 
     fun updateSettings(
@@ -79,6 +95,11 @@ private object DesktopMousePointerController {
         if (changed) {
             cursorCache.clear()
         }
+        if (source == MousePointerSource.GAME) {
+            ensureStarted()
+        } else {
+            stop()
+        }
         Window.getWindows()
             .filter { it.isShowing }
             .forEach { updateWindowTree(it) }
@@ -86,9 +107,7 @@ private object DesktopMousePointerController {
 
     private fun updateWindowTree(window: Window) {
         applyComponent(window)
-        if (window is java.awt.Container) {
-            window.components.forEach { updateComponentTree(it) }
-        }
+        window.components.forEach { updateComponentTree(it) }
     }
 
     private fun updateComponentTree(component: Component) {
@@ -104,9 +123,10 @@ private object DesktopMousePointerController {
         val currentCursor = component.cursor ?: Cursor.getDefaultCursor()
         if (currentSource == MousePointerSource.SYSTEM) {
             if (appliedRole != null) {
+                val originalCursor = originalCursors.remove(component)
                 applying = true
                 try {
-                    component.cursor = Cursor.getPredefinedCursor(appliedRole.awtType)
+                    component.cursor = originalCursor
                 } finally {
                     applying = false
                 }
@@ -123,6 +143,9 @@ private object DesktopMousePointerController {
 
         val desired = cursorFor(role) ?: return
         if (currentCursor !== desired || appliedRole != role) {
+            if (appliedRole == null && !originalCursors.containsKey(component)) {
+                originalCursors[component] = component.cursor
+            }
             applying = true
             try {
                 component.cursor = desired
@@ -133,17 +156,36 @@ private object DesktopMousePointerController {
         }
     }
 
+    private fun restoreWindowTree(window: Window) {
+        restoreComponent(window)
+        window.components.forEach { restoreComponentTree(it) }
+    }
+
+    private fun restoreComponentTree(component: Component) {
+        restoreComponent(component)
+        if (component is java.awt.Container) {
+            component.components.forEach { restoreComponentTree(it) }
+        }
+    }
+
+    private fun restoreComponent(component: Component) {
+        if (appliedRoles.remove(component) == null) return
+        val originalCursor = originalCursors.remove(component)
+        applying = true
+        try {
+            component.cursor = originalCursor
+        } finally {
+            applying = false
+        }
+    }
+
     private fun cursorFor(role: ManagedPointerRole): Cursor? =
         cursorCache.getOrPut(role) {
             createCursor(role) ?: Cursor.getPredefinedCursor(role.awtType)
         }
 
     private fun createCursor(role: ManagedPointerRole): Cursor? {
-        val bytes =
-            javaClass.classLoader
-                ?.getResourceAsStream(role.resourcePath)
-                ?.use { it.readBytes() }
-                ?: return null
+        val bytes = cursorBytes[role] ?: return null
         val image = ImageIO.read(ByteArrayInputStream(bytes)) ?: return null
         val transformed = transformCursorImage(image)
         val toolkit = Toolkit.getDefaultToolkit()
@@ -216,17 +258,32 @@ private object DesktopMousePointerController {
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 actual fun PlatformMousePointerEffect() {
     val source by AppSettings.mousePointerSource
     val size by AppSettings.mousePointerSize
     val direction by AppSettings.mousePointerDirection
     val brightness by AppSettings.mousePointerSkinBrightness
+    val pointerBytes by produceState<Map<ManagedPointerRole, ByteArray>?>(null) {
+        val handBytes = Res.readBytes("drawable/mouse_pointer_hand.png")
+        val textBytes = Res.readBytes("drawable/mouse_pointer_text.png")
+        value =
+            mapOf(
+                ManagedPointerRole.DEFAULT to handBytes,
+                ManagedPointerRole.HAND to handBytes,
+                ManagedPointerRole.TEXT to textBytes,
+            )
+    }
 
-    DisposableEffect(source, size, direction, brightness) {
-        DesktopMousePointerController.ensureStarted()
+    LaunchedEffect(pointerBytes, source, size, direction, brightness) {
+        pointerBytes?.let { DesktopMousePointerController.setCursorBytes(it) }
         DesktopMousePointerController.updateSettings(source, size, direction, brightness)
+    }
+
+    DisposableEffect(Unit) {
         onDispose {
+            DesktopMousePointerController.stop()
         }
     }
 }

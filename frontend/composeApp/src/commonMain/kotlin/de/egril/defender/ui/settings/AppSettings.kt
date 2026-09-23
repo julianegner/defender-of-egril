@@ -110,6 +110,9 @@ enum class MousePointerDirection {
  * Persists dark mode preference, language selection, sound settings, control pad visibility, difficulty level, and world map style
  */
 object AppSettings {
+    const val MOUSE_POINTER_SKIN_BRIGHTNESS_MIN = -0.35f
+    const val MOUSE_POINTER_SKIN_BRIGHTNESS_MAX = 0.35f
+
     private const val KEY_DARK_MODE = "dark_mode"
     private const val KEY_LANGUAGE = "language"
     private const val KEY_LANGUAGE_CHOSEN = "language_chosen"
@@ -532,7 +535,7 @@ object AppSettings {
      */
     val mousePointerSkinBrightness: MutableState<Float> =
         mutableStateOf(
-            settings.getFloat(KEY_MOUSE_POINTER_SKIN_BRIGHTNESS, 0f).coerceIn(-0.35f, 0.35f),
+            settings.getFloat(KEY_MOUSE_POINTER_SKIN_BRIGHTNESS, 0f).coerceIn(MOUSE_POINTER_SKIN_BRIGHTNESS_MIN, MOUSE_POINTER_SKIN_BRIGHTNESS_MAX),
         )
 
     /**
@@ -1146,7 +1149,7 @@ object AppSettings {
     }
 
     fun saveMousePointerSkinBrightness(brightness: Float) {
-        val clamped = brightness.coerceIn(-0.35f, 0.35f)
+        val clamped = brightness.coerceIn(MOUSE_POINTER_SKIN_BRIGHTNESS_MIN, MOUSE_POINTER_SKIN_BRIGHTNESS_MAX)
         mousePointerSkinBrightness.value = clamped
         settings.putFloat(KEY_MOUSE_POINTER_SKIN_BRIGHTNESS, clamped)
         onPersist?.invoke()

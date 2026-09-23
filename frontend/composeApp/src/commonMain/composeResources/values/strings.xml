@@ -2337,8 +2337,10 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="mouse_pointer_size_small">Small</string>
     <string name="mouse_pointer_size_large">Large</string>
     <string name="mouse_pointer_skin_brightness">Skin Brightness</string>
+    <string name="mouse_pointer_skin_brightness_shortcut_hint">+/-</string>
     <string name="mouse_pointer_skin_darker">Darker</string>
     <string name="mouse_pointer_skin_brighter">Brighter</string>
+    <string name="mouse_pointer_size_shortcut_hint">+/-</string>
     <string name="mouse_pointer_info">The standard pointer uses a pointing hand. Text editing and text selection continue to use a text-marking pointer style when supported by the platform.</string>
     <string name="zombie_description">Shambling undead reanimated by dark magic. Slower than skeletons but still dangerous in numbers, especially when healed by Green Witches.</string>
     <string name="evil_wizard_description">A magic user who channels destructive spells from the air. Defeat them quickly before they rain fire upon your defenses.</string>

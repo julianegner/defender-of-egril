@@ -7,6 +7,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -19,6 +20,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -196,6 +198,12 @@ fun SettingsDialog(
                                         } else if (currentTab == SettingsTab.SOUND && number in 7..9) {
                                             selectedVolumeIndex = number - 6 // 7->1(effects), 8->2(worldmap), 9->3(gameplay)
                                             true
+                                        } else if (currentTab == SettingsTab.MOUSE_POINTERS && number == 3) {
+                                            selectedMousePointerSliderIndex = 0
+                                            true
+                                        } else if (currentTab == SettingsTab.MOUSE_POINTERS && number == 4) {
+                                            selectedMousePointerSliderIndex = 1
+                                            true
                                         } else {
                                             handleSettingsNumberKey(currentTab, number)
                                         }
@@ -247,19 +255,11 @@ fun SettingsDialog(
                                                 adjustA11ySlider(selectedA11ySliderIndex, increase = false)
                                                 true
                                             }
-                                            currentTab == SettingsTab.MOUSE_POINTERS && event.key == Key.S -> {
-                                                selectedMousePointerSliderIndex = 0
-                                                true
-                                            }
-                                            currentTab == SettingsTab.MOUSE_POINTERS && event.key == Key.B -> {
-                                                selectedMousePointerSliderIndex = 1
-                                                true
-                                            }
-                                            currentTab == SettingsTab.MOUSE_POINTERS && (event.key == Key.Plus || event.key == Key.Equals) -> {
+                                            currentTab == SettingsTab.MOUSE_POINTERS && AppSettings.showButtonShortcutHints.value && (event.key == Key.Plus || event.key == Key.Equals) -> {
                                                 adjustMousePointerSlider(selectedMousePointerSliderIndex, increase = true)
                                                 true
                                             }
-                                            currentTab == SettingsTab.MOUSE_POINTERS && event.key == Key.Minus -> {
+                                            currentTab == SettingsTab.MOUSE_POINTERS && AppSettings.showButtonShortcutHints.value && event.key == Key.Minus -> {
                                                 adjustMousePointerSlider(selectedMousePointerSliderIndex, increase = false)
                                                 true
                                             }
@@ -767,13 +767,20 @@ private fun MousePointerTabContent(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = AppSettings.mousePointerSource.value == MousePointerSource.GAME,
+                                role = Role.RadioButton,
+                                onClick = { AppSettings.saveMousePointerSource(MousePointerSource.GAME) },
+                            ).testTag("mousePointerSourceGame"),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.Top,
                 ) {
                     RadioButton(
                         selected = AppSettings.mousePointerSource.value == MousePointerSource.GAME,
-                        onClick = { AppSettings.saveMousePointerSource(MousePointerSource.GAME) },
+                        onClick = null,
                     )
                     Column(modifier = Modifier.weight(1f)) {
                         SelectableText(
@@ -789,13 +796,20 @@ private fun MousePointerTabContent(
                     }
                 }
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = AppSettings.mousePointerSource.value == MousePointerSource.SYSTEM,
+                                role = Role.RadioButton,
+                                onClick = { AppSettings.saveMousePointerSource(MousePointerSource.SYSTEM) },
+                            ).testTag("mousePointerSourceSystem"),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.Top,
                 ) {
                     RadioButton(
                         selected = AppSettings.mousePointerSource.value == MousePointerSource.SYSTEM,
-                        onClick = { AppSettings.saveMousePointerSource(MousePointerSource.SYSTEM) },
+                        onClick = null,
                     )
                     Column(modifier = Modifier.weight(1f)) {
                         SelectableText(
@@ -814,8 +828,6 @@ private fun MousePointerTabContent(
         }
 
         NumberedSetting(2) {
-            val rightHandSelected = AppSettings.mousePointerDirection.value == MousePointerDirection.RIGHT
-            val directionState = remember(rightHandSelected) { mutableStateOf(rightHandSelected) }
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -826,7 +838,7 @@ private fun MousePointerTabContent(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 DualLabelSwitch(
-                    state = directionState,
+                    checked = AppSettings.mousePointerDirection.value == MousePointerDirection.RIGHT,
                     leftText = stringResource(Res.string.mouse_pointer_direction_left),
                     rightText = stringResource(Res.string.mouse_pointer_direction_right),
                     onCheckedChange = { checked ->
@@ -838,6 +850,7 @@ private fun MousePointerTabContent(
                             },
                         )
                     },
+                    enabled = useGamePointers,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -855,7 +868,8 @@ private fun MousePointerTabContent(
                         } else {
                             Modifier
                         },
-                    ).clickable { onSliderIndexChanged(0) },
+                    ).clickable { onSliderIndexChanged(0) }
+                    .testTag("mousePointerSizeControl"),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(
@@ -869,7 +883,7 @@ private fun MousePointerTabContent(
                 )
                 if (AppSettings.showButtonShortcutHints.value && selectedSliderIndex == 0) {
                     Text(
-                        text = "S +/-",
+                        text = stringResource(Res.string.mouse_pointer_size_shortcut_hint),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -882,7 +896,7 @@ private fun MousePointerTabContent(
                     val next = sizeEntries[value.toInt().coerceIn(0, sizeEntries.lastIndex)]
                     AppSettings.saveMousePointerSize(next)
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("mousePointerSizeSlider"),
                 valueRange = 0f..(sizeEntries.lastIndex).toFloat(),
                 steps = sizeEntries.size - 2,
                 enabled = useGamePointers,
@@ -908,7 +922,8 @@ private fun MousePointerTabContent(
                         } else {
                             Modifier
                         },
-                    ).clickable { onSliderIndexChanged(1) },
+                    ).clickable { onSliderIndexChanged(1) }
+                    .testTag("mousePointerBrightnessControl"),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(
@@ -922,7 +937,7 @@ private fun MousePointerTabContent(
                 )
                 if (AppSettings.showButtonShortcutHints.value && selectedSliderIndex == 1) {
                     Text(
-                        text = "B +/-",
+                        text = stringResource(Res.string.mouse_pointer_skin_brightness_shortcut_hint),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -931,8 +946,8 @@ private fun MousePointerTabContent(
             Slider(
                 value = AppSettings.mousePointerSkinBrightness.value,
                 onValueChange = { AppSettings.saveMousePointerSkinBrightness(it) },
-                modifier = Modifier.fillMaxWidth(),
-                valueRange = -0.35f..0.35f,
+                modifier = Modifier.fillMaxWidth().testTag("mousePointerBrightnessSlider"),
+                valueRange = AppSettings.MOUSE_POINTER_SKIN_BRIGHTNESS_MIN..AppSettings.MOUSE_POINTER_SKIN_BRIGHTNESS_MAX,
                 enabled = useGamePointers,
             )
             Row(
@@ -2372,13 +2387,15 @@ private fun handleSettingsNumberKey(
                     true
                 }
                 2 -> {
-                    val next =
-                        if (AppSettings.mousePointerDirection.value == MousePointerDirection.RIGHT) {
-                            MousePointerDirection.LEFT
-                        } else {
-                            MousePointerDirection.RIGHT
-                        }
-                    AppSettings.saveMousePointerDirection(next)
+                    if (AppSettings.mousePointerSource.value == MousePointerSource.GAME) {
+                        val next =
+                            if (AppSettings.mousePointerDirection.value == MousePointerDirection.RIGHT) {
+                                MousePointerDirection.LEFT
+                            } else {
+                                MousePointerDirection.RIGHT
+                            }
+                        AppSettings.saveMousePointerDirection(next)
+                    }
                     true
                 }
                 else -> false
@@ -2579,6 +2596,7 @@ private fun adjustMousePointerSlider(
     selectedIndex: Int,
     increase: Boolean,
 ) {
+    if (AppSettings.mousePointerSource.value != MousePointerSource.GAME) return
     when (selectedIndex) {
         0 -> adjustMousePointerSize(increase)
         1 -> adjustMousePointerSkinBrightness(increase)

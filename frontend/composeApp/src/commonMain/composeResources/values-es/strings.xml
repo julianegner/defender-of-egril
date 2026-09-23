@@ -2499,7 +2499,9 @@
     <string name="mouse_pointer_size_small">Pequeño</string>
     <string name="mouse_pointer_size_large">Grande</string>
     <string name="mouse_pointer_skin_brightness">Brillo de la piel</string>
+    <string name="mouse_pointer_skin_brightness_shortcut_hint">+/-</string>
     <string name="mouse_pointer_skin_darker">Más oscuro</string>
     <string name="mouse_pointer_skin_brighter">Más claro</string>
+    <string name="mouse_pointer_size_shortcut_hint">+/-</string>
     <string name="mouse_pointer_info">El puntero estándar usa una mano señaladora. La edición y selección de texto siguen usando un estilo de puntero para marcar texto cuando la plataforma lo permite.</string>
 </resources>

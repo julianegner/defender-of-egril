@@ -2498,7 +2498,9 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="mouse_pointer_size_small">Klein</string>
     <string name="mouse_pointer_size_large">Groß</string>
     <string name="mouse_pointer_skin_brightness">Hauthelligkeit</string>
+    <string name="mouse_pointer_skin_brightness_shortcut_hint">+/-</string>
     <string name="mouse_pointer_skin_darker">Dunkler</string>
     <string name="mouse_pointer_skin_brighter">Heller</string>
+    <string name="mouse_pointer_size_shortcut_hint">+/-</string>
     <string name="mouse_pointer_info">Der Standardzeiger nutzt eine zeigende Hand. Textbearbeitung und Textauswahl verwenden weiterhin einen Textmarkierungszeiger, wenn die Plattform dies unterstützt.</string>
 </resources>

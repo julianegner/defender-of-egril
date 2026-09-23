@@ -2,11 +2,17 @@ package de.egril.defender.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.input.key.Key
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.ui.settings.SettingsDialog
+import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.MousePointerDirection
+import de.egril.defender.ui.settings.MousePointerSize
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertEquals
 
 /**
  * UI tests for the Settings Dialog.
@@ -195,5 +201,110 @@ class SettingsDialogTest {
         composeTestRule
             .onNodeWithText("Pointer Size", substring = true, ignoreCase = true)
             .assertExists()
+    }
+
+    @Test
+    fun testSettingsDialogMousePointerBrightnessSliderUpdatesSetting() {
+        AppSettings.resetToDefaults()
+        currentLanguage.value = AppLocale.DEFAULT
+        try {
+            composeTestRule.setContent {
+                SettingsDialog(
+                    onDismiss = {},
+                    initialTab = de.egril.defender.ui.settings.SettingsTab.MOUSE_POINTERS,
+                )
+            }
+
+            composeTestRule.waitForIdle()
+            composeTestRule
+                .onNodeWithTag("mousePointerBrightnessSlider")
+                .performSemanticsAction(SemanticsActions.SetProgress) { setProgress ->
+                    setProgress(0.2f)
+                }
+
+            composeTestRule.waitForIdle()
+            assertEquals(0.2f, AppSettings.mousePointerSkinBrightness.value)
+
+            composeTestRule
+                .onNodeWithTag("mousePointerBrightnessSlider")
+                .performSemanticsAction(SemanticsActions.SetProgress) { setProgress ->
+                    setProgress(-0.2f)
+                }
+
+            composeTestRule.waitForIdle()
+            assertEquals(-0.2f, AppSettings.mousePointerSkinBrightness.value)
+        } finally {
+            AppSettings.resetToDefaults()
+        }
+    }
+
+    @Test
+    fun testSettingsDialogMousePointerSlidersDisableForSystemPointers() {
+        AppSettings.resetToDefaults()
+        currentLanguage.value = AppLocale.DEFAULT
+        try {
+            composeTestRule.setContent {
+                SettingsDialog(
+                    onDismiss = {},
+                    initialTab = de.egril.defender.ui.settings.SettingsTab.MOUSE_POINTERS,
+                )
+            }
+
+            composeTestRule.waitForIdle()
+            composeTestRule
+                .onNodeWithTag("mousePointerSourceSystem")
+                .performClick()
+
+            composeTestRule
+                .onNodeWithTag("mousePointerSizeSlider")
+                .assertIsNotEnabled()
+            composeTestRule
+                .onNodeWithTag("mousePointerBrightnessSlider")
+                .assertIsNotEnabled()
+
+            assert(AppSettings.mousePointerSize.value == de.egril.defender.ui.settings.MousePointerSize.DEFAULT)
+            assert(AppSettings.mousePointerSkinBrightness.value == 0f)
+        } finally {
+            AppSettings.resetToDefaults()
+        }
+    }
+
+    @Test
+    fun testSettingsDialogMousePointerKeyboardShortcuts() {
+        AppSettings.resetToDefaults()
+        AppSettings.saveShowButtonShortcutHints(true)
+        currentLanguage.value = AppLocale.DEFAULT
+        try {
+            composeTestRule.setContent {
+                SettingsDialog(
+                    onDismiss = {},
+                    initialTab = de.egril.defender.ui.settings.SettingsTab.MOUSE_POINTERS,
+                )
+            }
+
+            composeTestRule.waitForIdle()
+            composeTestRule
+                .onNodeWithTag("mousePointerSourceGame")
+                .performClick()
+            composeTestRule
+                .onNodeWithTag("mousePointerSourceGame")
+                .performKeyInput { pressKey(Key.Two) }
+            assert(AppSettings.mousePointerDirection.value == MousePointerDirection.LEFT)
+
+            composeTestRule.onNodeWithTag("mousePointerSourceGame").performKeyInput {
+                pressKey(Key.Equals)
+            }
+            assert(AppSettings.mousePointerSize.value == MousePointerSize.LARGE)
+
+            composeTestRule.onNodeWithTag("mousePointerSourceGame").performKeyInput {
+                pressKey(Key.Four)
+            }
+            composeTestRule.onNodeWithTag("mousePointerSourceGame").performKeyInput {
+                pressKey(Key.Minus)
+            }
+            assert(AppSettings.mousePointerSkinBrightness.value < 0f)
+        } finally {
+            AppSettings.resetToDefaults()
+        }
     }
 }
