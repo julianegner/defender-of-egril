@@ -1,6 +1,7 @@
 package de.egril.defender.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.*
@@ -30,15 +31,22 @@ import kotlinx.coroutines.yield
  */
 @Composable
 fun NewVersionDialog(
-    info: NewVersionInfo,
+    infos: List<NewVersionInfo>,
     onDismiss: () -> Unit,
 ) {
+    if (infos.isEmpty()) {
+        return
+    }
+
     val uriHandler = LocalUriHandler.current
     val focusRequester = remember { FocusRequester() }
+    val primaryInfo = infos.first()
+    val secondaryInfos = infos.drop(1)
+    val showChannelLabels = infos.size > 1
     val openReleasePage =
-        remember(info.releasePageUrl, uriHandler, onDismiss) {
-            {
-                uriHandler.openUri(info.releasePageUrl)
+        remember(uriHandler, onDismiss) {
+            { releasePageUrl: String ->
+                uriHandler.openUri(releasePageUrl)
                 onDismiss()
             }
         }
@@ -65,7 +73,7 @@ fun NewVersionDialog(
                         when (event.key) {
                             Key.Enter, Key.NumPadEnter -> {
                                 if (!event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed) {
-                                    openReleasePage()
+                                    openReleasePage(primaryInfo.releasePageUrl)
                                     true
                                 } else {
                                     false
@@ -84,17 +92,27 @@ fun NewVersionDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.new_version_available_title)) },
         text = {
-            SelectionContainer {
-                Text(stringResource(Res.string.new_version_available_message, info.version))
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                SelectionContainer {
+                    Text(updateMessage(primaryInfo, showChannelLabels))
+                }
+                secondaryInfos.forEach { info ->
+                    SelectionContainer {
+                        Text(updateMessage(info, showChannelLabels))
+                    }
+                    TextButton(onClick = { openReleasePage(info.releasePageUrl) }) {
+                        Text(updateButtonLabel(info, showChannelLabels))
+                    }
+                }
             }
         },
         confirmButton = {
-            Button(onClick = openReleasePage) {
+            Button(onClick = { openReleasePage(primaryInfo.releasePageUrl) }) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    Text(stringResource(Res.string.new_version_go_to_releases))
+                    Text(updateButtonLabel(primaryInfo, showChannelLabels))
                     ShortcutKeyChip(
                         text = "Enter",
                         color = LocalContentColor.current.copy(alpha = 0.75f),
@@ -118,3 +136,41 @@ fun NewVersionDialog(
         },
     )
 }
+
+@Composable
+private fun updateMessage(
+    info: NewVersionInfo,
+    showChannelLabels: Boolean,
+): String =
+    if (showChannelLabels) {
+        stringResource(
+            Res.string.new_version_available_message_with_channel,
+            info.version,
+            channelLabel(info),
+        )
+    } else {
+        stringResource(Res.string.new_version_available_message, info.version)
+    }
+
+@Composable
+private fun updateButtonLabel(
+    info: NewVersionInfo,
+    showChannelLabels: Boolean,
+): String =
+    if (showChannelLabels) {
+        stringResource(
+            Res.string.new_version_go_to_releases_with_version_and_channel,
+            info.version,
+            channelLabel(info),
+        )
+    } else {
+        stringResource(Res.string.new_version_go_to_releases_with_version, info.version)
+    }
+
+@Composable
+private fun channelLabel(info: NewVersionInfo): String =
+    if (info.isBetaRelease) {
+        stringResource(Res.string.new_version_release_type_beta)
+    } else {
+        stringResource(Res.string.new_version_release_type_stable)
+    }

@@ -26,7 +26,14 @@ class NewVersionDialogTest {
             currentLanguage.value = AppLocale.DEFAULT
             composeTestRule.setContent {
                 NewVersionDialog(
-                    info = NewVersionInfo(version = "9.9.9", releasePageUrl = "https://example.invalid/releases"),
+                    infos =
+                        listOf(
+                            NewVersionInfo(
+                                version = "9.9.9",
+                                releasePageUrl = "https://example.invalid/releases",
+                                isBetaRelease = false,
+                            ),
+                        ),
                     onDismiss = {},
                 )
             }
@@ -62,6 +69,7 @@ class NewVersionDialogTest {
                 NewVersionInfo(
                     version = "9.9.9",
                     releasePageUrl = "https://example.invalid/releases",
+                    isBetaRelease = false,
                 )
 
             composeTestRule.setContent {
@@ -74,7 +82,7 @@ class NewVersionDialogTest {
                         },
                 ) {
                     NewVersionDialog(
-                        info = releaseInfo,
+                        infos = listOf(releaseInfo),
                         onDismiss = { dismissCount++ },
                     )
                 }
@@ -102,7 +110,7 @@ class NewVersionDialogTest {
                         },
                 ) {
                     NewVersionDialog(
-                        info = releaseInfo,
+                        infos = listOf(releaseInfo),
                         onDismiss = { dismissCount++ },
                     )
                 }
@@ -117,6 +125,38 @@ class NewVersionDialogTest {
 
             assertEquals(null, openedUrl)
             assertEquals(1, dismissCount)
+        } finally {
+            AppSettings.resetToDefaults()
+        }
+    }
+
+    @Test
+    fun newVersionDialogShowsBothBetaAndStableUpdates() {
+        AppSettings.resetToDefaults()
+        try {
+            currentLanguage.value = AppLocale.DEFAULT
+            composeTestRule.setContent {
+                NewVersionDialog(
+                    infos =
+                        listOf(
+                            NewVersionInfo(
+                                version = "1.0.10-beta",
+                                releasePageUrl = "https://example.invalid/releases/beta",
+                                isBetaRelease = true,
+                            ),
+                            NewVersionInfo(
+                                version = "1.0.9",
+                                releasePageUrl = "https://example.invalid/releases/stable",
+                                isBetaRelease = false,
+                            ),
+                        ),
+                    onDismiss = {},
+                )
+            }
+
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText("Go to Download 1.0.10-beta", substring = true, ignoreCase = true).assertExists()
+            composeTestRule.onNodeWithText("Go to Download 1.0.9", substring = true, ignoreCase = true).assertExists()
         } finally {
             AppSettings.resetToDefaults()
         }

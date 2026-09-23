@@ -2088,7 +2088,12 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="play_store_qr_code_content_description">QR code for the Google Play Store</string>
     <string name="new_version_available_title">New Version Available</string>
     <string name="new_version_available_message">Version %1$s is available for download.</string>
+    <string name="new_version_available_message_with_channel">Version %1$s (%2$s) is available for download.</string>
     <string name="new_version_go_to_releases">Go to Download</string>
+    <string name="new_version_go_to_releases_with_version">Go to Download %1$s</string>
+    <string name="new_version_go_to_releases_with_version_and_channel">Go to Download %1$s (%2$s)</string>
+    <string name="new_version_release_type_beta">beta</string>
+    <string name="new_version_release_type_stable">stable</string>
     <string name="check_for_updates">Check for updates</string>
     <string name="check_for_updates_description">Checks for a newer version on the same platform on startup (not for web, not for Android if installed from the Play Store).</string>
 

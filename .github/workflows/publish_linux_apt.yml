@@ -29,7 +29,7 @@ name: Publish Linux APT Repository
 #   5. If the key has a passphrase, add it as secret APT_GPG_PASSPHRASE.
 #   6. Ensure GitHub Pages is enabled for this repository (Settings → Pages).
 #
-# Users install the game with:
+# Users install the stable game with:
 #   curl -fsSL https://julianegner.github.io/defender-of-egril/apt/KEY.gpg \
 #     | sudo gpg --dearmor \
 #     -o /usr/share/keyrings/defenderofegril-archive-keyring.gpg
@@ -37,6 +37,7 @@ name: Publish Linux APT Repository
 #     https://julianegner.github.io/defender-of-egril/apt stable main" \
 #     | sudo tee /etc/apt/sources.list.d/defenderofegril.list
 #   sudo apt update && sudo apt install defender-of-egril
+# Replace `stable` with `beta` in the `deb` line to use the beta channel.
 
 on:
   workflow_call:
@@ -44,6 +45,11 @@ on:
       release_tag:
         description: "Release tag to publish (e.g. v1.0.3). Defaults to latest release."
         required: false
+        type: string
+      apt_channel:
+        description: "APT suite/channel to publish (stable or beta)."
+        required: false
+        default: stable
         type: string
     secrets:
       APT_GPG_PRIVATE_KEY:
@@ -58,6 +64,14 @@ on:
         description: "Release tag to publish (e.g. v1.0.3). Leave empty to use the latest release."
         required: false
         type: string
+      apt_channel:
+        description: "APT suite/channel to publish."
+        required: false
+        default: stable
+        type: choice
+        options:
+          - stable
+          - beta
 
 permissions:
   contents: write
@@ -71,10 +85,98 @@ jobs:
       - name: Validate workflow inputs
         run: |
           RELEASE_TAG="${{ inputs.release_tag }}"
-          if [ -n "$RELEASE_TAG" ] && ! echo "$RELEASE_TAG" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "::error::release_tag must match v<major>.<minor>.<patch> (got '$RELEASE_TAG')."
+          APT_CHANNEL="${{ inputs.apt_channel }}"
+          if [ "$APT_CHANNEL" != "stable" ] && [ "$APT_CHANNEL" != "beta" ]; then
+            echo "::error::apt_channel must be either 'stable' or 'beta' (got '$APT_CHANNEL')."
             exit 1
           fi
+          if [ -n "$RELEASE_TAG" ] && ! echo "$RELEASE_TAG" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-beta([.-][0-9A-Za-z.-]+)?)?$'; then
+            echo "::error::release_tag must match v<major>.<minor>.<patch> or v<major>.<minor>.<patch>-beta (got '$RELEASE_TAG')."
+            exit 1
+          fi
+          if [ "$APT_CHANNEL" = "stable" ] && echo "$RELEASE_TAG" | grep -q -- '-beta'; then
+            echo "::error::Stable APT publishes require a stable release tag."
+            exit 1
+          fi
+          if [ "$APT_CHANNEL" = "beta" ] && [ -n "$RELEASE_TAG" ] && ! echo "$RELEASE_TAG" | grep -q -- '-beta'; then
+            echo "::error::Beta APT publishes require a beta release tag."
+            exit 1
+          fi
+
+      - name: Resolve release tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RELEASE_TAG="${{ inputs.release_tag }}"
+          APT_CHANNEL="${{ inputs.apt_channel }}"
+
+          if [ -n "$RELEASE_TAG" ]; then
+            RESOLVED_RELEASE_TAG="$RELEASE_TAG"
+          elif [ "$APT_CHANNEL" = "beta" ]; then
+            echo "Selecting highest beta prerelease for beta APT publishing."
+            RESOLVED_RELEASE_TAG=$(
+              gh api repos/${{ github.repository }}/releases?per_page=100 | python -c '
+                import json
+                import re
+                import sys
+
+                beta_pattern = re.compile(r"^v?(\\d+)\\.(\\d+)\\.(\\d+)-beta(?:[.-](.*))?$", re.IGNORECASE)
+
+                def beta_suffix_key(tag_suffix):
+                    if not tag_suffix:
+                        return ()
+                    return tuple(
+                        (0, int(token)) if token.isdigit() else (1, token.lower())
+                        for token in re.split(r"[.-]", tag_suffix)
+                        if token
+                    )
+
+                best_key = None
+                best_tag = ""
+
+                for release in json.load(sys.stdin):
+                    if not release.get("prerelease"):
+                        continue
+                    tag = release.get("tag_name", "")
+                    match = beta_pattern.match(tag)
+                    if not match:
+                        continue
+                    key = (
+                        int(match.group(1)),
+                        int(match.group(2)),
+                        int(match.group(3)),
+                        beta_suffix_key(match.group(4)),
+                    )
+                    if best_key is None or key > best_key:
+                        best_key = key
+                        best_tag = tag
+
+                print(best_tag)
+                '
+            )
+          else
+            RESOLVED_RELEASE_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')
+          fi
+
+          if [ -z "$RESOLVED_RELEASE_TAG" ]; then
+            echo "::error::Could not resolve a release tag for apt_channel=$APT_CHANNEL."
+            exit 1
+          fi
+
+          if [ "$APT_CHANNEL" = "stable" ] && echo "$RESOLVED_RELEASE_TAG" | grep -q -- '-beta'; then
+            echo "::error::Resolved stable release tag '$RESOLVED_RELEASE_TAG' is a beta tag."
+            exit 1
+          fi
+          if [ "$APT_CHANNEL" = "beta" ] && ! echo "$RESOLVED_RELEASE_TAG" | grep -q -- '-beta'; then
+            echo "::error::Resolved beta release tag '$RESOLVED_RELEASE_TAG' is not a beta tag."
+            exit 1
+          fi
+
+          {
+            echo "APT_CHANNEL=$APT_CHANNEL"
+            echo "RESOLVED_RELEASE_TAG=$RESOLVED_RELEASE_TAG"
+          } >> "$GITHUB_ENV"
+          echo "Resolved release tag: $RESOLVED_RELEASE_TAG"
 
       - name: Check GPG signing key
         id: check_gpg
@@ -93,20 +195,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p /tmp/deb-artifact
-          RELEASE_TAG="${{ inputs.release_tag }}"
-          if [ -z "$RELEASE_TAG" ]; then
-            echo "No release_tag provided; downloading .deb from the latest release."
-            gh release download \
-              --repo "${{ github.repository }}" \
-              --pattern "defender-of-egril_*_amd64.deb" \
-              --dir /tmp/deb-artifact
-          else
-            echo "Downloading .deb from release $RELEASE_TAG."
-            gh release download "$RELEASE_TAG" \
-              --repo "${{ github.repository }}" \
-              --pattern "defender-of-egril_*_amd64.deb" \
-              --dir /tmp/deb-artifact
-          fi
+          echo "Downloading .deb from release $RESOLVED_RELEASE_TAG for APT channel $APT_CHANNEL."
+          gh release download "$RESOLVED_RELEASE_TAG" \
+            --repo "${{ github.repository }}" \
+            --pattern "defender-of-egril_*_amd64.deb" \
+            --dir /tmp/deb-artifact
 
           DEB_FILE=$(find /tmp/deb-artifact -name "*.deb" -print -quit)
           if [ -z "$DEB_FILE" ]; then
@@ -151,7 +244,7 @@ jobs:
 
           # Ensure directory structure exists
           mkdir -p pool/main/d/defender-of-egril
-          mkdir -p dists/stable/main/binary-amd64
+          mkdir -p "dists/$APT_CHANNEL/main/binary-amd64"
 
           # Add the new .deb to the pool
           cp "$DEB_FILE" "pool/main/d/defender-of-egril/$DEB_BASENAME"
@@ -164,9 +257,9 @@ jobs:
 
       - name: Generate Packages index
         run: |
-          dpkg-scanpackages --arch amd64 pool/ > dists/stable/main/binary-amd64/Packages
+          dpkg-scanpackages --arch amd64 pool/ > "dists/$APT_CHANNEL/main/binary-amd64/Packages"
           # Overwrite the tracked Packages.gz so repeated publish runs stay idempotent.
-          gzip -9 -f -k dists/stable/main/binary-amd64/Packages
+          gzip -9 -f -k "dists/$APT_CHANNEL/main/binary-amd64/Packages"
           echo "Packages index generated."
 
       - name: Remove .deb from pool (not stored in git)
@@ -181,7 +274,7 @@ jobs:
 
       - name: Generate Release file
         run: |
-          cd dists/stable
+          cd "dists/$APT_CHANNEL"
 
           PKG_FILE=main/binary-amd64/Packages
           PKG_GZ_FILE=main/binary-amd64/Packages.gz
@@ -197,8 +290,8 @@ jobs:
           cat > Release <<EOF
           Origin: Defender of Egril
           Label: Defender of Egril
-          Suite: stable
-          Codename: stable
+          Suite: $APT_CHANNEL
+          Codename: $APT_CHANNEL
           Architectures: amd64
           Components: main
           Description: Official APT repository for Defender of Egril
@@ -238,15 +331,15 @@ jobs:
             echo "${APT_GPG_PASSPHRASE}" | gpg --batch --yes --pinentry-mode loopback \
               $DEFAULT_KEY_OPT --passphrase-fd 0 \
               --armor --detach-sign \
-              -o dists/stable/Release.gpg \
-              dists/stable/Release
+              -o "dists/$APT_CHANNEL/Release.gpg" \
+              "dists/$APT_CHANNEL/Release"
           else
             # shellcheck disable=SC2086
             gpg --batch --yes --pinentry-mode loopback \
               $DEFAULT_KEY_OPT \
               --armor --detach-sign \
-              -o dists/stable/Release.gpg \
-              dists/stable/Release
+            -o "dists/$APT_CHANNEL/Release.gpg" \
+            "dists/$APT_CHANNEL/Release"
           fi
 
           # Inline clear-signed file (InRelease – preferred by modern apt)
@@ -255,15 +348,15 @@ jobs:
             echo "${APT_GPG_PASSPHRASE}" | gpg --batch --yes --pinentry-mode loopback \
               $DEFAULT_KEY_OPT --passphrase-fd 0 \
               --clearsign \
-              -o dists/stable/InRelease \
-              dists/stable/Release
+            -o "dists/$APT_CHANNEL/InRelease" \
+            "dists/$APT_CHANNEL/Release"
           else
             # shellcheck disable=SC2086
             gpg --batch --yes --pinentry-mode loopback \
               $DEFAULT_KEY_OPT \
               --clearsign \
-              -o dists/stable/InRelease \
-              dists/stable/Release
+            -o "dists/$APT_CHANNEL/InRelease" \
+            "dists/$APT_CHANNEL/Release"
           fi
 
           echo "Release file signed."
@@ -286,7 +379,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to the APT repository; nothing to commit."
           else
-            git commit -m "chore: update APT repository to ${{ env.DEB_BASENAME }}"
+            git commit -m "chore: update APT ${APT_CHANNEL} repository to ${{ env.DEB_BASENAME }}"
           fi
           git push origin apt-repo --force
           echo "apt-repo branch pushed."

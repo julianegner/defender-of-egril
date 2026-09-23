@@ -42,7 +42,7 @@
 
 ---
 name: Release
-run-name: Release ${{ inputs.version }}
+run-name: Release ${{ inputs.version }} (${{ inputs.release_channel }})
 
 on:
   workflow_dispatch:
@@ -51,17 +51,14 @@ on:
         description: "Release version (major.minor.patch, e.g. 1.2.3)"
         required: true
         type: string
-      snap_channel:
-        description: "Snap Store channel to publish to. Choose 'skip' to opt out for this release. Publishing is also skipped when the SNAPCRAFT_STORE_CREDENTIALS secret is not configured."
-        required: false
+      release_channel:
+        description: "Release channel"
+        required: true
         type: choice
-        default: edge
+        default: stable
         options:
-          - edge
-          - beta
-          - candidate
           - stable
-          - skip
+          - beta
 
 permissions:
   contents: write
@@ -78,6 +75,9 @@ jobs:
       version: ${{ steps.parse.outputs.version }}
       version_tag: ${{ steps.parse.outputs.version_tag }}
       version_code: ${{ steps.parse.outputs.version_code }}
+      is_beta: ${{ steps.parse.outputs.is_beta }}
+      play_store_track: ${{ steps.parse.outputs.play_store_track }}
+      snap_channel: ${{ steps.parse.outputs.snap_channel }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -86,11 +86,12 @@ jobs:
       - name: Parse and validate version
         id: parse
         run: |
-          VERSION="${{ github.event.inputs.version }}"
+          BASE_VERSION="${{ github.event.inputs.version }}"
+          RELEASE_CHANNEL="${{ github.event.inputs.release_channel }}"
 
           # Validate format: digits.digits.digits
-          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "::error::Version '$VERSION' does not match the required format major.minor.patch (e.g. 1.2.3)"
+          if ! echo "$BASE_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Version '$BASE_VERSION' does not match the required format major.minor.patch (e.g. 1.2.3)"
             exit 1
           fi
 
@@ -98,14 +99,14 @@ jobs:
           # macOS compatibility remapping of 0.8.x and 0.9.x releases (macOS requires
           # a minimum major version of 1, so 0.8.x was published as 1.8.x on that
           # platform).  Allowing new releases in this range would cause version conflicts.
-          if echo "$VERSION" | grep -qE '^1\.[89]\.'; then
-            echo "::error::Version '$VERSION' is in reserved 1.8.x/1.9.x range used for macOS remapping of 0.8.x/0.9.x releases. Use a different version."
+          if echo "$BASE_VERSION" | grep -qE '^1\.[89]\.'; then
+            echo "::error::Version '$BASE_VERSION' is in reserved 1.8.x/1.9.x range used for macOS remapping of 0.8.x/0.9.x releases. Use a different version."
             exit 1
           fi
 
-          MAJOR=$(echo "$VERSION" | cut -d. -f1)
-          MINOR=$(echo "$VERSION" | cut -d. -f2)
-          PATCH=$(echo "$VERSION" | cut -d. -f3)
+          MAJOR=$(echo "$BASE_VERSION" | cut -d. -f1)
+          MINOR=$(echo "$BASE_VERSION" | cut -d. -f2)
+          PATCH=$(echo "$BASE_VERSION" | cut -d. -f3)
 
           # Validate component ranges for Android versionCode safety.
           # versionCode = major*10000 + minor*100 + patch
@@ -122,10 +123,25 @@ jobs:
           # Android versionCode: major*10000 + minor*100 + patch
           VERSION_CODE=$(( MAJOR * 10000 + MINOR * 100 + PATCH ))
 
+          if [ "$RELEASE_CHANNEL" = "beta" ]; then
+            VERSION="${BASE_VERSION}-beta"
+            IS_BETA=true
+            PLAY_STORE_TRACK=beta
+            SNAP_CHANNEL=beta
+          else
+            VERSION="$BASE_VERSION"
+            IS_BETA=false
+            PLAY_STORE_TRACK=production
+            SNAP_CHANNEL=stable
+          fi
+
           {
             echo "version=$VERSION"
             echo "version_tag=v$VERSION"
             echo "version_code=$VERSION_CODE"
+            echo "is_beta=$IS_BETA"
+            echo "play_store_track=$PLAY_STORE_TRACK"
+            echo "snap_channel=$SNAP_CHANNEL"
           } >> "$GITHUB_OUTPUT"
 
           echo "Version:      $VERSION"
@@ -137,10 +153,54 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_VERSION="${{ github.event.inputs.version }}"
+          RELEASE_CHANNEL="${{ github.event.inputs.release_channel }}"
 
-          # Fetch the latest release tag via the GitHub API.
-          # If there is no release yet, skip the comparison.
-          LATEST_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name' 2>/dev/null || true)
+          if [ "$RELEASE_CHANNEL" = "beta" ]; then
+            LATEST_TAG=$(
+              gh api repos/${{ github.repository }}/releases?per_page=100 2>/dev/null | python -c '
+                import json
+                import re
+                import sys
+
+                beta_pattern = re.compile(r"^v?(\\d+)\\.(\\d+)\\.(\\d+)-beta(?:[.-](.*))?$", re.IGNORECASE)
+
+                def beta_suffix_key(tag_suffix):
+                    if not tag_suffix:
+                        return ()
+                    return tuple(
+                        (0, int(token)) if token.isdigit() else (1, token.lower())
+                        for token in re.split(r"[.-]", tag_suffix)
+                        if token
+                    )
+
+                best_key = None
+                best_tag = ""
+
+                for release in json.load(sys.stdin):
+                    if not release.get("prerelease"):
+                        continue
+                    tag = release.get("tag_name", "")
+                    match = beta_pattern.match(tag)
+                    if not match:
+                        continue
+                    key = (
+                        int(match.group(1)),
+                        int(match.group(2)),
+                        int(match.group(3)),
+                        beta_suffix_key(match.group(4)),
+                    )
+                    if best_key is None or key > best_key:
+                        best_key = key
+                        best_tag = tag
+
+                print(best_tag)
+                '
+            )
+          else
+            # Fetch the latest stable release tag via the GitHub API.
+            # If there is no stable release yet, skip the comparison.
+            LATEST_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name' 2>/dev/null || true)
+          fi
 
           if [ -z "$LATEST_TAG" ]; then
             echo "No previous release found – skipping version comparison."
@@ -149,9 +209,10 @@ jobs:
 
           # Strip the leading 'v' if present.
           LATEST_VERSION="${LATEST_TAG#v}"
+          LATEST_BASE_VERSION="${LATEST_VERSION%%-beta*}"
 
           # Validate that the latest tag follows major.minor.patch.
-          if ! echo "$LATEST_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+          if ! echo "$LATEST_BASE_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "Latest release tag '$LATEST_TAG' does not follow major.minor.patch format – skipping comparison."
             exit 0
           fi
@@ -164,9 +225,9 @@ jobs:
           NEW_MINOR=$(echo "$NEW_VERSION" | cut -d. -f2)
           NEW_PATCH=$(echo "$NEW_VERSION" | cut -d. -f3)
 
-          LAT_MAJOR=$(echo "$LATEST_VERSION" | cut -d. -f1)
-          LAT_MINOR=$(echo "$LATEST_VERSION" | cut -d. -f2)
-          LAT_PATCH=$(echo "$LATEST_VERSION" | cut -d. -f3)
+          LAT_MAJOR=$(echo "$LATEST_BASE_VERSION" | cut -d. -f1)
+          LAT_MINOR=$(echo "$LATEST_BASE_VERSION" | cut -d. -f2)
+          LAT_PATCH=$(echo "$LATEST_BASE_VERSION" | cut -d. -f3)
 
           if [ "$NEW_MAJOR" -gt "$LAT_MAJOR" ]; then
             echo "Version check passed (major increased)."
@@ -973,7 +1034,7 @@ jobs:
           tag_name: ${{ needs.prepare.outputs.version_tag }}
           name: "Defender of Egril ${{ needs.prepare.outputs.version }}"
           draft: false
-          prerelease: false
+          prerelease: ${{ needs.prepare.outputs.is_beta == 'true' }}
           generate_release_notes: true
           files: |
             release-assets/**/*
@@ -1031,6 +1092,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Write VERSION file
+        if: needs.prepare.outputs.is_beta != 'true'
         run: |
           VERSION="${{ needs.prepare.outputs.version }}"
           printf '%s' "$VERSION" > VERSION
@@ -1043,6 +1105,7 @@ jobs:
           fi
 
       - name: Update Flatpak metainfo release history
+        if: needs.prepare.outputs.is_beta != 'true'
         run: |
           VERSION="${{ needs.prepare.outputs.version }}"
           RELEASE_DATE=$(date -u +%Y-%m-%d)
@@ -1097,7 +1160,9 @@ jobs:
           gh api \
             repos/${{ github.repository }}/actions/workflows/deploy_wasm_to_github_pages.yml/dispatches \
             -X POST \
-            -f ref="main"
+            -f ref="main" \
+            -F "inputs[release_channel]=${{ needs.prepare.outputs.is_beta == 'true' && 'beta' || 'stable' }}" \
+            -F "inputs[beta_version]=${{ needs.prepare.outputs.version }}"
 
   # ---------------------------------------------------------------------------
   # Publish the .deb package to the self-hosted APT repository on GitHub Pages.
@@ -1129,6 +1194,7 @@ jobs:
   # ---------------------------------------------------------------------------
   publish_linux_apt:
     needs:
+      - prepare
       - build_linux_deb
       - release
     if: |
@@ -1139,7 +1205,8 @@ jobs:
       contents: write
     uses: ./.github/workflows/publish_linux_apt.yml
     with:
-      release_tag: v${{ inputs.version }}
+      release_tag: ${{ needs.prepare.outputs.version_tag }}
+      apt_channel: ${{ needs.prepare.outputs.is_beta == 'true' && 'beta' || 'stable' }}
     secrets: inherit
 
   # ---------------------------------------------------------------------------
@@ -1166,19 +1233,20 @@ jobs:
   # ---------------------------------------------------------------------------
   publish_linux_snap:
     needs:
+      - prepare
       - build_linux_snap
       - release
     if: |
       always() &&
       needs.release.result == 'success' &&
       needs.build_linux_snap.result == 'success' &&
-      inputs.snap_channel != 'skip'
+      needs.prepare.outputs.snap_channel != ''
     permissions:
       contents: read
     uses: ./.github/workflows/publish_linux_snap.yml
     with:
-      release_tag: v${{ inputs.version }}
-      snap_channel: ${{ inputs.snap_channel }}
+      release_tag: ${{ needs.prepare.outputs.version_tag }}
+      snap_channel: ${{ needs.prepare.outputs.snap_channel }}
     secrets: inherit
 
   # ---------------------------------------------------------------------------
@@ -1204,4 +1272,5 @@ jobs:
             repos/${{ github.repository }}/actions/workflows/deploy-play-store-aab.yml/dispatches \
             -X POST \
             -f ref="main" \
-            -F inputs[track]=production
+            -F "inputs[release_tag]=${{ needs.prepare.outputs.version_tag }}" \
+            -F "inputs[track]=${{ needs.prepare.outputs.play_store_track }}"
