@@ -2484,4 +2484,25 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="level_generator_water_level">Wasserstand</string>
     <string name="level_generator_require_path">Pfad von Spawns zu Zielen erzwingen</string>
     <string name="level_generator_roster_wilds">Wildnis</string>
+    <string name="settings_tab_mouse_pointers">Mauszeiger</string>
+    <string name="mouse_pointer_accessibility_info">Nutze den Systemzeiger, wenn du die eingebauten Barrierefreiheitsoptionen deiner Plattform bevorzugst. Die Spielzeiger bieten thematische Grafiken mit anpassbarer Größe, Richtung und Hauthelligkeit.</string>
+    <string name="mouse_pointer_source">Zeigerquelle</string>
+    <string name="mouse_pointer_source_game">Hand</string>
+    <string name="mouse_pointer_source_game_info">Verwendet die thematischen Handzeiger des Spiels.</string>
+    <string name="mouse_pointer_source_gauntlet">Panzerhandschuh</string>
+    <string name="mouse_pointer_source_gauntlet_info">Verwendet die thematischen Panzerhandschuh-Zeiger des Spiels.</string>
+    <string name="mouse_pointer_source_system">Systemstandard</string>
+    <string name="mouse_pointer_source_system_info">Verwendet die Standard-Mauszeiger deines Betriebssystems.</string>
+    <string name="mouse_pointer_direction">Richtung der Zeigehand</string>
+    <string name="mouse_pointer_direction_left">Links</string>
+    <string name="mouse_pointer_direction_right">Rechts</string>
+    <string name="mouse_pointer_size">Zeigergröße</string>
+    <string name="mouse_pointer_size_small">Klein</string>
+    <string name="mouse_pointer_size_large">Groß</string>
+    <string name="mouse_pointer_skin_brightness">Hauthelligkeit</string>
+    <string name="mouse_pointer_skin_brightness_shortcut_hint">+/-</string>
+    <string name="mouse_pointer_skin_darker">Dunkler</string>
+    <string name="mouse_pointer_skin_brighter">Heller</string>
+    <string name="mouse_pointer_size_shortcut_hint">+/-</string>
+    <string name="mouse_pointer_info">Der Standardzeiger nutzt eine zeigende Hand. Textbearbeitung und Textauswahl verwenden weiterhin einen Textmarkierungszeiger, wenn die Plattform dies unterstützt.</string>
 </resources>

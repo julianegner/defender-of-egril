@@ -2486,4 +2486,25 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="level_generator_water_level">Niveau d'eau</string>
     <string name="level_generator_require_path">Exiger un chemin des apparitions vers les objectifs</string>
     <string name="level_generator_roster_wilds">Nature sauvage</string>
+    <string name="settings_tab_mouse_pointers">Pointeurs de souris</string>
+    <string name="mouse_pointer_accessibility_info">Utilisez le pointeur système si vous préférez les options d'accessibilité intégrées de votre plateforme. Les pointeurs du jeu offrent un style thématique avec taille, direction et luminosité de peau ajustables.</string>
+    <string name="mouse_pointer_source">Source du pointeur</string>
+    <string name="mouse_pointer_source_game">Main</string>
+    <string name="mouse_pointer_source_game_info">Utilise les pointeurs de main thématiques du jeu.</string>
+    <string name="mouse_pointer_source_gauntlet">Gantelet</string>
+    <string name="mouse_pointer_source_gauntlet_info">Utilise les pointeurs de gantelet thématiques du jeu.</string>
+    <string name="mouse_pointer_source_system">Valeur par défaut du système</string>
+    <string name="mouse_pointer_source_system_info">Utilise les pointeurs standard de votre système d'exploitation.</string>
+    <string name="mouse_pointer_direction">Direction de la main pointée</string>
+    <string name="mouse_pointer_direction_left">Gauche</string>
+    <string name="mouse_pointer_direction_right">Droite</string>
+    <string name="mouse_pointer_size">Taille du pointeur</string>
+    <string name="mouse_pointer_size_small">Petit</string>
+    <string name="mouse_pointer_size_large">Grand</string>
+    <string name="mouse_pointer_skin_brightness">Luminosité de la peau</string>
+    <string name="mouse_pointer_skin_brightness_shortcut_hint">+/-</string>
+    <string name="mouse_pointer_skin_darker">Plus sombre</string>
+    <string name="mouse_pointer_skin_brighter">Plus clair</string>
+    <string name="mouse_pointer_size_shortcut_hint">+/-</string>
+    <string name="mouse_pointer_info">Le pointeur standard utilise une main pointée. L'édition et la sélection de texte continuent d'utiliser un pointeur de marquage de texte lorsque la plateforme le permet.</string>
 </resources>

@@ -20,10 +20,11 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun DualLabelSwitch(
-    state: MutableState<Boolean>,
+    checked: Boolean,
     leftText: String,
     rightText: String,
     onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -34,18 +35,23 @@ fun DualLabelSwitch(
         Text(
             text = leftText,
             style = MaterialTheme.typography.bodyLarge,
-            color = if (!state.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            color =
+                if (!enabled) {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                } else if (!checked) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
             modifier =
                 Modifier
                     .weight(1f)
                     .padding(end = 12.dp),
         )
         Switch(
-            checked = state.value,
-            onCheckedChange = { newValue ->
-                state.value = newValue
-                onCheckedChange(newValue)
-            },
+            checked = checked,
+            enabled = enabled,
+            onCheckedChange = onCheckedChange,
             colors =
                 SwitchDefaults.colors(
                     checkedThumbColor = MaterialTheme.colorScheme.primary,
@@ -57,7 +63,14 @@ fun DualLabelSwitch(
         Text(
             text = rightText,
             style = MaterialTheme.typography.bodyLarge,
-            color = if (state.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            color =
+                if (!enabled) {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                } else if (checked) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
             modifier =
                 Modifier
                     .weight(1f)
@@ -65,3 +78,23 @@ fun DualLabelSwitch(
         )
     }
 }
+
+@Composable
+fun DualLabelSwitch(
+    state: MutableState<Boolean>,
+    leftText: String,
+    rightText: String,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier,
+) = DualLabelSwitch(
+    checked = state.value,
+    leftText = leftText,
+    rightText = rightText,
+    enabled = enabled,
+    onCheckedChange = { newValue ->
+        state.value = newValue
+        onCheckedChange(newValue)
+    },
+    modifier = modifier,
+)
