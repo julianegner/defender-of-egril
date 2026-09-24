@@ -104,6 +104,9 @@ private object DesktopMousePointerController {
             currentBrightness = brightness
             if (changed) {
                 cursorCache.clear()
+                Window.getWindows()
+                    .filter { it.isShowing }
+                    .forEach { restoreWindowTree(it) }
             }
             if (source == MousePointerSource.GAME) {
                 ensureStarted()
