@@ -42,7 +42,7 @@ private enum class ManagedPointerRole(
 
 private const val GAME_POINTER_BASE_WIDTH = 160
 private const val TEXT_POINTER_BASE_WIDTH = GAME_POINTER_BASE_WIDTH * 0.8f
-private const val GAUNTLET_BRIGHTNESS_FACTOR = 1.35f
+private const val GAUNTLET_BRIGHTNESS_FACTOR = 1.3f
 
 private object DesktopMousePointerController {
     private val appliedRoles = WeakHashMap<Component, ManagedPointerRole>()
@@ -372,9 +372,9 @@ actual fun PlatformMousePointerEffect() {
                 when (source) {
                     MousePointerSource.GAUNTLET ->
                         if (direction == MousePointerDirection.RIGHT) {
-                            "drawable/mouse_right_pointing_gauntlet.png"
+                            "drawable/mouse_pointer_gauntlet_right.png"
                         } else {
-                            "drawable/mouse_left_pointing_gauntlet.png"
+                            "drawable/mouse_pointer_gauntlet_left.png"
                         }
                     else ->
                         if (direction == MousePointerDirection.RIGHT) {
