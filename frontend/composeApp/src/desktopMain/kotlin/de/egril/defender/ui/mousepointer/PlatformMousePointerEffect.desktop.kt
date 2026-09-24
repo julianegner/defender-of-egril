@@ -42,6 +42,7 @@ private enum class ManagedPointerRole(
 
 private const val GAME_POINTER_BASE_WIDTH = 160
 private const val TEXT_POINTER_BASE_WIDTH = GAME_POINTER_BASE_WIDTH * 0.8f
+private const val GAUNTLET_BRIGHTNESS_FACTOR = 1.35f
 
 private object DesktopMousePointerController {
     private val appliedRoles = WeakHashMap<Component, ManagedPointerRole>()
@@ -104,12 +105,14 @@ private object DesktopMousePointerController {
             currentBrightness = brightness
             if (changed) {
                 cursorCache.clear()
-                Window.getWindows()
-                    .filter { it.isShowing }
-                    .forEach { restoreWindowTree(it) }
             }
-            if (source == MousePointerSource.GAME) {
+            if (source != MousePointerSource.SYSTEM) {
                 ensureStarted()
+                if (changed) {
+                    Window.getWindows()
+                        .filter { it.isShowing }
+                        .forEach { refreshManagedWindowTree(it) }
+                }
             } else {
                 timer?.stop()
                 timer = null
@@ -140,6 +143,29 @@ private object DesktopMousePointerController {
         applyComponent(component)
         if (component is java.awt.Container) {
             component.components.forEach { updateComponentTree(it) }
+        }
+    }
+
+    private fun refreshManagedWindowTree(window: Window) {
+        refreshManagedComponent(window)
+        window.components.forEach { refreshManagedComponentTree(it) }
+    }
+
+    private fun refreshManagedComponentTree(component: Component) {
+        refreshManagedComponent(component)
+        if (component is java.awt.Container) {
+            component.components.forEach { refreshManagedComponentTree(it) }
+        }
+    }
+
+    private fun refreshManagedComponent(component: Component) {
+        val role = appliedRoles[component] ?: return
+        val desired = cursorFor(role) ?: return
+        applying = true
+        try {
+            component.cursor = desired
+        } finally {
+            applying = false
         }
     }
 
@@ -233,7 +259,12 @@ private object DesktopMousePointerController {
             when (role) {
                 ManagedPointerRole.DEFAULT,
                 ManagedPointerRole.HAND,
-                -> if (currentDirection == MousePointerDirection.RIGHT) 306 else 771
+                -> when (currentSource) {
+                    MousePointerSource.GAUNTLET ->
+                        if (currentDirection == MousePointerDirection.RIGHT) 307 else 772
+                    else ->
+                        if (currentDirection == MousePointerDirection.RIGHT) 306 else 771
+                }
                 ManagedPointerRole.TEXT -> 540
             }
         val sourceHotspotY =
@@ -252,12 +283,27 @@ private object DesktopMousePointerController {
         image: BufferedImage,
         role: ManagedPointerRole,
     ): BufferedImage {
-        val brightnessAdjusted = BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_ARGB)
-        for (y in 0 until image.height) {
-            for (x in 0 until image.width) {
-                brightnessAdjusted.setRGB(x, y, adjustPixel(image.getRGB(x, y)))
+        val colorAdjusted =
+            if (currentSource != MousePointerSource.SYSTEM) {
+                BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_ARGB).also { output ->
+                    for (y in 0 until image.height) {
+                        for (x in 0 until image.width) {
+                            val pixel = image.getRGB(x, y)
+                            output.setRGB(
+                                x,
+                                y,
+                                if (currentSource == MousePointerSource.GAUNTLET) {
+                                    brightenGauntletPixel(pixel)
+                                } else {
+                                    adjustPixel(pixel)
+                                },
+                            )
+                        }
+                    }
+                }
+            } else {
+                image
             }
-        }
 
         val baseWidth =
             if (role == ManagedPointerRole.TEXT) {
@@ -265,20 +311,39 @@ private object DesktopMousePointerController {
             } else {
                 GAME_POINTER_BASE_WIDTH.toFloat()
             }
-        val baseScale = baseWidth / brightnessAdjusted.width
-        val scaledWidth = (brightnessAdjusted.width * baseScale * currentSize.scale).toInt().coerceAtLeast(16)
-        val scaledHeight = (brightnessAdjusted.height * baseScale * currentSize.scale).toInt().coerceAtLeast(16)
+        val baseScale = baseWidth / colorAdjusted.width
+        val scaledWidth = (colorAdjusted.width * baseScale * currentSize.scale).toInt().coerceAtLeast(16)
+        val scaledHeight = (colorAdjusted.height * baseScale * currentSize.scale).toInt().coerceAtLeast(16)
         val scaled = BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_ARGB)
         val graphics: Graphics2D = scaled.createGraphics()
         graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC)
         graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-        graphics.drawImage(brightnessAdjusted, 0, 0, scaledWidth, scaledHeight, null)
+        graphics.drawImage(colorAdjusted, 0, 0, scaledWidth, scaledHeight, null)
         graphics.dispose()
         return scaled
     }
 
     private fun adjustPixel(argb: Int): Int {
+        return adjustPixelBrightness(argb, 1f + currentBrightness)
+    }
+
+    private fun brightenGauntletPixel(argb: Int): Int {
+        val alpha = argb ushr 24 and 0xFF
+        if (alpha == 0) return argb
+        val red = argb ushr 16 and 0xFF
+        val green = argb ushr 8 and 0xFF
+        val blue = argb and 0xFF
+        val adjustedRed = (red * GAUNTLET_BRIGHTNESS_FACTOR).toInt().coerceIn(0, 255)
+        val adjustedGreen = (green * GAUNTLET_BRIGHTNESS_FACTOR).toInt().coerceIn(0, 255)
+        val adjustedBlue = (blue * GAUNTLET_BRIGHTNESS_FACTOR).toInt().coerceIn(0, 255)
+        return (alpha shl 24) or (adjustedRed shl 16) or (adjustedGreen shl 8) or adjustedBlue
+    }
+
+    private fun adjustPixelBrightness(
+        argb: Int,
+        factor: Float,
+    ): Int {
         val alpha = argb ushr 24 and 0xFF
         if (alpha == 0) return argb
         val red = argb ushr 16 and 0xFF
@@ -287,7 +352,6 @@ private object DesktopMousePointerController {
         if (red < 120 || green < 70 || blue < 50 || red < green || green < blue) {
             return argb
         }
-        val factor = 1f + currentBrightness
         val adjustedRed = (red * factor).toInt().coerceIn(0, 255)
         val adjustedGreen = (green * factor).toInt().coerceIn(0, 255)
         val adjustedBlue = (blue * factor).toInt().coerceIn(0, 255)
@@ -302,13 +366,22 @@ actual fun PlatformMousePointerEffect() {
     val size by AppSettings.mousePointerSize
     val direction by AppSettings.mousePointerDirection
     val brightness by AppSettings.mousePointerSkinBrightness
-    val pointerBytes by produceState<Map<ManagedPointerRole, ByteArray>?>(null, direction) {
+    val pointerBytes by produceState<Map<ManagedPointerRole, ByteArray>?>(null, source, direction) {
         val handBytes =
             Res.readBytes(
-                if (direction == MousePointerDirection.RIGHT) {
-                    "drawable/mouse_pointer_hand_right.png"
-                } else {
-                    "drawable/mouse_pointer_hand_left.png"
+                when (source) {
+                    MousePointerSource.GAUNTLET ->
+                        if (direction == MousePointerDirection.RIGHT) {
+                            "drawable/mouse_right_pointing_gauntlet.png"
+                        } else {
+                            "drawable/mouse_left_pointing_gauntlet.png"
+                        }
+                    else ->
+                        if (direction == MousePointerDirection.RIGHT) {
+                            "drawable/mouse_pointer_hand_right.png"
+                        } else {
+                            "drawable/mouse_pointer_hand_left.png"
+                        }
                 },
             )
         val textBytes = Res.readBytes("drawable/mouse_pointer_text.png")

@@ -66,6 +66,7 @@ enum class FontSize(
  */
 enum class MousePointerSource {
     GAME,
+    GAUNTLET,
     SYSTEM,
     ;
 

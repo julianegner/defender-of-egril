@@ -47,6 +47,23 @@ class AppSettingsMousePointerTest {
     }
 
     @Test
+    fun mousePointerGauntletSource_isPersistedAndRestored() {
+        AppSettings.resetToDefaults()
+        try {
+            AppSettings.saveMousePointerSource(MousePointerSource.GAUNTLET)
+
+            assertEquals("GAUNTLET", AppSettings.toSettingsMap()["mouse_pointer_source"])
+
+            AppSettings.resetToDefaults()
+            AppSettings.applyFromSettingsMap(mapOf("mouse_pointer_source" to "GAUNTLET"))
+
+            assertEquals(MousePointerSource.GAUNTLET, AppSettings.mousePointerSource.value)
+        } finally {
+            AppSettings.resetToDefaults()
+        }
+    }
+
+    @Test
     fun mousePointerSkinBrightness_isClampedToSupportedRange() {
         AppSettings.resetToDefaults()
         try {

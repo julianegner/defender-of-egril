@@ -2326,8 +2326,10 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="settings_tab_mouse_pointers">Mouse Pointers</string>
     <string name="mouse_pointer_accessibility_info">Use the system pointer if you prefer your platform's built-in accessibility options. Game pointers offer themed visuals with adjustable size, direction, and skin brightness.</string>
     <string name="mouse_pointer_source">Pointer Source</string>
-    <string name="mouse_pointer_source_game">Game mouse pointers</string>
-    <string name="mouse_pointer_source_game_info">Use themed hand pointers from the game.</string>
+    <string name="mouse_pointer_source_game">Hand</string>
+    <string name="mouse_pointer_source_game_info">Use the game's themed hand pointers.</string>
+    <string name="mouse_pointer_source_gauntlet">Gauntlet</string>
+    <string name="mouse_pointer_source_gauntlet_info">Use the game's themed gauntlet pointers.</string>
     <string name="mouse_pointer_source_system">System default</string>
     <string name="mouse_pointer_source_system_info">Use your operating system's standard mouse pointers.</string>
     <string name="mouse_pointer_direction">Pointing Hand Direction</string>

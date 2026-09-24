@@ -2489,8 +2489,10 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="settings_tab_mouse_pointers">Pointeurs de souris</string>
     <string name="mouse_pointer_accessibility_info">Utilisez le pointeur système si vous préférez les options d'accessibilité intégrées de votre plateforme. Les pointeurs du jeu offrent un style thématique avec taille, direction et luminosité de peau ajustables.</string>
     <string name="mouse_pointer_source">Source du pointeur</string>
-    <string name="mouse_pointer_source_game">Pointeurs du jeu</string>
-    <string name="mouse_pointer_source_game_info">Utilise des pointeurs de main assortis au thème du jeu.</string>
+    <string name="mouse_pointer_source_game">Main</string>
+    <string name="mouse_pointer_source_game_info">Utilise les pointeurs de main thématiques du jeu.</string>
+    <string name="mouse_pointer_source_gauntlet">Gantelet</string>
+    <string name="mouse_pointer_source_gauntlet_info">Utilise les pointeurs de gantelet thématiques du jeu.</string>
     <string name="mouse_pointer_source_system">Valeur par défaut du système</string>
     <string name="mouse_pointer_source_system_info">Utilise les pointeurs standard de votre système d'exploitation.</string>
     <string name="mouse_pointer_direction">Direction de la main pointée</string>

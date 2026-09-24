@@ -2488,8 +2488,10 @@
     <string name="settings_tab_mouse_pointers">Punteros del ratón</string>
     <string name="mouse_pointer_accessibility_info">Usa el puntero del sistema si prefieres las opciones de accesibilidad integradas de tu plataforma. Los punteros del juego ofrecen un estilo temático con tamaño, dirección y brillo de piel ajustables.</string>
     <string name="mouse_pointer_source">Origen del puntero</string>
-    <string name="mouse_pointer_source_game">Punteros del juego</string>
-    <string name="mouse_pointer_source_game_info">Usa punteros de mano con el estilo del juego.</string>
+    <string name="mouse_pointer_source_game">Mano</string>
+    <string name="mouse_pointer_source_game_info">Usa los punteros de mano temáticos del juego.</string>
+    <string name="mouse_pointer_source_gauntlet">Guantelete</string>
+    <string name="mouse_pointer_source_gauntlet_info">Usa los punteros de guantelete temáticos del juego.</string>
     <string name="mouse_pointer_source_system">Predeterminado del sistema</string>
     <string name="mouse_pointer_source_system_info">Usa los punteros estándar de tu sistema operativo.</string>
     <string name="mouse_pointer_direction">Dirección de la mano señaladora</string>

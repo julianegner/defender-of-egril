@@ -2490,8 +2490,10 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="settings_tab_mouse_pointers">Puntatori del mouse</string>
     <string name="mouse_pointer_accessibility_info">Usa il puntatore di sistema se preferisci le opzioni di accessibilità integrate della piattaforma. I puntatori del gioco offrono uno stile a tema con dimensione, direzione e luminosità della pelle regolabili.</string>
     <string name="mouse_pointer_source">Origine del puntatore</string>
-    <string name="mouse_pointer_source_game">Puntatori del gioco</string>
-    <string name="mouse_pointer_source_game_info">Usa puntatori a mano in stile gioco.</string>
+    <string name="mouse_pointer_source_game">Mano</string>
+    <string name="mouse_pointer_source_game_info">Usa i puntatori a mano a tema del gioco.</string>
+    <string name="mouse_pointer_source_gauntlet">Guanto d'arme</string>
+    <string name="mouse_pointer_source_gauntlet_info">Usa i puntatori a guanto d'arme a tema del gioco.</string>
     <string name="mouse_pointer_source_system">Predefinito del sistema</string>
     <string name="mouse_pointer_source_system_info">Usa i puntatori standard del tuo sistema operativo.</string>
     <string name="mouse_pointer_direction">Direzione della mano indicatrice</string>

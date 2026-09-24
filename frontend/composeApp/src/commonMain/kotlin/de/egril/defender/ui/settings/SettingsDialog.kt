@@ -202,7 +202,9 @@ fun SettingsDialog(
                                             selectedMousePointerSliderIndex = 0
                                             true
                                         } else if (currentTab == SettingsTab.MOUSE_POINTERS && number == 4) {
-                                            selectedMousePointerSliderIndex = 1
+                                            if (AppSettings.mousePointerSource.value == MousePointerSource.GAME) {
+                                                selectedMousePointerSliderIndex = 1
+                                            }
                                             true
                                         } else {
                                             handleSettingsNumberKey(currentTab, number)
@@ -747,9 +749,10 @@ private fun MousePointerTabContent(
     selectedSliderIndex: Int = 0,
     onSliderIndexChanged: (Int) -> Unit = {},
 ) {
-    val useGamePointers = AppSettings.mousePointerSource.value == MousePointerSource.GAME
+    val useCustomPointers = AppSettings.mousePointerSource.value != MousePointerSource.SYSTEM
+    val useHandPointer = AppSettings.mousePointerSource.value == MousePointerSource.GAME
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SelectableText(
+        Text(
             text = stringResource(Res.string.settings_tab_mouse_pointers),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
@@ -761,7 +764,7 @@ private fun MousePointerTabContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                SelectableText(
+                Text(
                     text = stringResource(Res.string.mouse_pointer_source),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -783,13 +786,42 @@ private fun MousePointerTabContent(
                         onClick = null,
                     )
                     Column(modifier = Modifier.weight(1f)) {
-                        SelectableText(
+                        Text(
                             text = stringResource(Res.string.mouse_pointer_source_game),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
-                        SelectableText(
+                        Text(
                             text = stringResource(Res.string.mouse_pointer_source_game_info),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = AppSettings.mousePointerSource.value == MousePointerSource.GAUNTLET,
+                                role = Role.RadioButton,
+                                onClick = { AppSettings.saveMousePointerSource(MousePointerSource.GAUNTLET) },
+                            ).testTag("mousePointerSourceGauntlet"),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    RadioButton(
+                        selected = AppSettings.mousePointerSource.value == MousePointerSource.GAUNTLET,
+                        onClick = null,
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(Res.string.mouse_pointer_source_gauntlet),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Text(
+                            text = stringResource(Res.string.mouse_pointer_source_gauntlet_info),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -812,12 +844,12 @@ private fun MousePointerTabContent(
                         onClick = null,
                     )
                     Column(modifier = Modifier.weight(1f)) {
-                        SelectableText(
+                        Text(
                             text = stringResource(Res.string.mouse_pointer_source_system),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
-                        SelectableText(
+                        Text(
                             text = stringResource(Res.string.mouse_pointer_source_system_info),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -832,7 +864,7 @@ private fun MousePointerTabContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                SelectableText(
+                Text(
                     text = stringResource(Res.string.mouse_pointer_direction),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -850,7 +882,7 @@ private fun MousePointerTabContent(
                             },
                         )
                     },
-                    enabled = useGamePointers,
+                    enabled = useCustomPointers,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -876,7 +908,7 @@ private fun MousePointerTabContent(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                SelectableText(
+                Text(
                     text = stringResource(Res.string.mouse_pointer_size),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -899,14 +931,14 @@ private fun MousePointerTabContent(
                 modifier = Modifier.fillMaxWidth().testTag("mousePointerSizeSlider"),
                 valueRange = 0f..(sizeEntries.lastIndex).toFloat(),
                 steps = sizeEntries.size - 2,
-                enabled = useGamePointers,
+                enabled = useCustomPointers,
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                SelectableText(stringResource(Res.string.mouse_pointer_size_small), style = MaterialTheme.typography.bodySmall)
-                SelectableText(stringResource(Res.string.mouse_pointer_size_large), style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.mouse_pointer_size_small), style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.mouse_pointer_size_large), style = MaterialTheme.typography.bodySmall)
             }
         }
 
@@ -915,14 +947,20 @@ private fun MousePointerTabContent(
                 Modifier
                     .fillMaxWidth()
                     .then(
-                        if (selectedSliderIndex == 1) {
+                        if (useHandPointer && selectedSliderIndex == 1) {
                             Modifier
                                 .border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary), RoundedCornerShape(8.dp))
                                 .padding(4.dp)
                         } else {
                             Modifier
                         },
-                    ).clickable { onSliderIndexChanged(1) }
+                    ).then(
+                        if (useHandPointer) {
+                            Modifier.clickable { onSliderIndexChanged(1) }
+                        } else {
+                            Modifier
+                        },
+                    )
                     .testTag("mousePointerBrightnessControl"),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
@@ -930,12 +968,17 @@ private fun MousePointerTabContent(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                SelectableText(
+                Text(
                     text = stringResource(Res.string.mouse_pointer_skin_brightness),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color =
+                        if (useHandPointer) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        },
                 )
-                if (AppSettings.showButtonShortcutHints.value && selectedSliderIndex == 1) {
+                if (useHandPointer && AppSettings.showButtonShortcutHints.value && selectedSliderIndex == 1) {
                     Text(
                         text = stringResource(Res.string.mouse_pointer_skin_brightness_shortcut_hint),
                         style = MaterialTheme.typography.labelSmall,
@@ -949,14 +992,32 @@ private fun MousePointerTabContent(
                 modifier = Modifier.fillMaxWidth().testTag("mousePointerBrightnessSlider"),
                 valueRange = AppSettings.MOUSE_POINTER_SKIN_BRIGHTNESS_MIN..AppSettings.MOUSE_POINTER_SKIN_BRIGHTNESS_MAX,
                 steps = ((AppSettings.MOUSE_POINTER_SKIN_BRIGHTNESS_MAX - AppSettings.MOUSE_POINTER_SKIN_BRIGHTNESS_MIN) / 0.05f).toInt() - 1,
-                enabled = useGamePointers,
+                enabled = useHandPointer,
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                SelectableText(stringResource(Res.string.mouse_pointer_skin_darker), style = MaterialTheme.typography.bodySmall)
-                SelectableText(stringResource(Res.string.mouse_pointer_skin_brighter), style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = stringResource(Res.string.mouse_pointer_skin_darker),
+                    style = MaterialTheme.typography.bodySmall,
+                    color =
+                        if (useHandPointer) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        },
+                )
+                Text(
+                    text = stringResource(Res.string.mouse_pointer_skin_brighter),
+                    style = MaterialTheme.typography.bodySmall,
+                    color =
+                        if (useHandPointer) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        },
+                )
             }
         }
 
@@ -2379,16 +2440,16 @@ private fun handleSettingsNumberKey(
             when (number) {
                 1 -> {
                     val next =
-                        if (AppSettings.mousePointerSource.value == MousePointerSource.GAME) {
-                            MousePointerSource.SYSTEM
-                        } else {
-                            MousePointerSource.GAME
+                        when (AppSettings.mousePointerSource.value) {
+                            MousePointerSource.GAME -> MousePointerSource.GAUNTLET
+                            MousePointerSource.GAUNTLET -> MousePointerSource.SYSTEM
+                            MousePointerSource.SYSTEM -> MousePointerSource.GAME
                         }
                     AppSettings.saveMousePointerSource(next)
                     true
                 }
                 2 -> {
-                    if (AppSettings.mousePointerSource.value == MousePointerSource.GAME) {
+                    if (AppSettings.mousePointerSource.value != MousePointerSource.SYSTEM) {
                         val next =
                             if (AppSettings.mousePointerDirection.value == MousePointerDirection.RIGHT) {
                                 MousePointerDirection.LEFT

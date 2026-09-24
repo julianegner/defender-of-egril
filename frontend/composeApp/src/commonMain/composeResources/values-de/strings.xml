@@ -2487,8 +2487,10 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="settings_tab_mouse_pointers">Mauszeiger</string>
     <string name="mouse_pointer_accessibility_info">Nutze den Systemzeiger, wenn du die eingebauten Barrierefreiheitsoptionen deiner Plattform bevorzugst. Die Spielzeiger bieten thematische Grafiken mit anpassbarer Größe, Richtung und Hauthelligkeit.</string>
     <string name="mouse_pointer_source">Zeigerquelle</string>
-    <string name="mouse_pointer_source_game">Spiel-Mauszeiger</string>
-    <string name="mouse_pointer_source_game_info">Verwendet thematische Handzeiger aus dem Spiel.</string>
+    <string name="mouse_pointer_source_game">Hand</string>
+    <string name="mouse_pointer_source_game_info">Verwendet die thematischen Handzeiger des Spiels.</string>
+    <string name="mouse_pointer_source_gauntlet">Panzerhandschuh</string>
+    <string name="mouse_pointer_source_gauntlet_info">Verwendet die thematischen Panzerhandschuh-Zeiger des Spiels.</string>
     <string name="mouse_pointer_source_system">Systemstandard</string>
     <string name="mouse_pointer_source_system_info">Verwendet die Standard-Mauszeiger deines Betriebssystems.</string>
     <string name="mouse_pointer_direction">Richtung der Zeigehand</string>
