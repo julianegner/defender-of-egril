@@ -86,12 +86,14 @@ internal fun LevelEditorScreen(
                                     onBack()
                                     true
                                 }
-                                event.key == Key.DirectionLeft && !event.isCtrlPressed && !event.isAltPressed -> {
+                                // Requires Alt so bare arrow keys remain free for text field cursor
+                                // movement and map panning instead of being hijacked for tab switching.
+                                event.key == Key.DirectionLeft && event.isAltPressed && !event.isCtrlPressed -> {
                                     val idx = tabs.indexOf(currentTab)
                                     if (idx > 0) currentTab = tabs[idx - 1]
                                     true
                                 }
-                                event.key == Key.DirectionRight && !event.isCtrlPressed && !event.isAltPressed -> {
+                                event.key == Key.DirectionRight && event.isAltPressed && !event.isCtrlPressed -> {
                                     val idx = tabs.indexOf(currentTab)
                                     if (idx < tabs.size - 1) currentTab = tabs[idx + 1]
                                     true
@@ -129,6 +131,14 @@ internal fun LevelEditorScreen(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        ShortcutKeyChip(text = "Alt")
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = "+",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
                         ShortcutKeyChip(text = "\u2190")
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
@@ -137,6 +147,14 @@ internal fun LevelEditorScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "Alt")
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = "+",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
                         ShortcutKeyChip(text = "\u2192")
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
