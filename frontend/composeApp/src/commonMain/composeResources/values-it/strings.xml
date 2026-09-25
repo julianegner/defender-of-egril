@@ -1492,6 +1492,7 @@
     <string name="info_tab_keyboard_shortcuts">Scorciatoie da Tastiera</string>
     <string name="info_tab_backend">Account e Privacy</string>
     <string name="info_tab_feedback">Feedback</string>
+    <string name="info_tab_streamer_info">Info per streamer</string>
 
     <!-- Backend Info -->
     <string name="backend_info_title">Account e Privacy</string>
@@ -1582,6 +1583,7 @@
     <string name="audio_dark_castle_name">The Dark Castle</string>
     <string name="audio_beautiful_memories_name">Beautiful Memories</string>
     <string name="audio_fesliyan_license">Musica esente da royalty da Fesliyan Studios. Utilizzo nei videogiochi consentito.</string>
+    <string name="audio_background_music_streamer_notice_intro">Il seguente avviso si applica ai brani di musica di sottofondo di Fesliyan Studios usati nel gioco:</string>
     <string name="audio_fantasy_orchestral_name">Mystic Fantasy Orchestral Music</string>
     <string name="audio_pixabay_license">Licenza Contenuti Pixabay - Utilizzo gratuito, nessuna attribuzione richiesta</string>
 
@@ -1615,6 +1617,12 @@
     <string name="audio_source_label">Fonte: %s</string>
     <string name="audio_license_label">Licenza: %s</string>
     <string name="audio_attribution_note">Tutti i file audio sono utilizzati sotto le rispettive licenze. L\'attribuzione è fornita quando richiesta.</string>
+    <string name="streamer_info_title">Info per streamer</string>
+    <string name="streamer_info_scope">Avviso sulla musica di sottofondo di Fesliyan Studios</string>
+    <string name="streamer_info_no_content_id_notice">Si prega di NON aggiungere questo contenuto audio al sistema Content ID di YouTube. Ho utilizzato musica di sottofondo di proprietà di FesliyanStudios.</string>
+    <string name="streamer_info_notice_link_text">Policy di Fesliyan Studios: https://www.fesliyanstudios.com/policy</string>
+    <string name="streamer_info_notice_text">L'utilizzo nei videogiochi è consentito. Tuttavia, se video di gameplay contenenti questa musica vengono caricati su YouTube, chi li carica potrebbe ricevere temporaneamente un avviso di restrizione della monetizzazione finché non clicca sul pulsante di contestazione e sceglie filmati di gameplay in \"fair use\".</string>
+    <string name="streamer_info_mute_music_hint">Un modo semplice per evitare del tutto questo problema è disattivare la musica di sottofondo prima di trasmettere in streaming o registrare.</string>
 
     <string name="towers">Torri</string>
     <string name="traps">Trappole</string>

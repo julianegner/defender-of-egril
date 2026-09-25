@@ -1489,6 +1489,7 @@
     <string name="info_tab_keyboard_shortcuts">Tastenkürzel</string>
     <string name="info_tab_backend">Konto &amp; Datenschutz</string>
     <string name="info_tab_feedback">Feedback</string>
+    <string name="info_tab_streamer_info">Infos für Streamer</string>
 
     <!-- Backend Info -->
     <string name="backend_info_title">Konto &amp; Datenschutz</string>
@@ -1579,6 +1580,7 @@
     <string name="audio_dark_castle_name">The Dark Castle</string>
     <string name="audio_beautiful_memories_name">Beautiful Memories</string>
     <string name="audio_fesliyan_license">Lizenzfreie Musik von Fesliyan Studios. Verwendung in Videospielen erlaubt.</string>
+    <string name="audio_background_music_streamer_notice_intro">Der folgende Hinweis gilt für die im Spiel verwendeten Hintergrundmusik-Titel von Fesliyan Studios:</string>
     <string name="audio_fantasy_orchestral_name">Mystic Fantasy Orchestral Music</string>
     <string name="audio_pixabay_license">Pixabay-Inhaltslizenz - Kostenlos verwendbar, keine Namensnennung erforderlich</string>
 
@@ -1612,6 +1614,12 @@
     <string name="audio_source_label">Quelle: %s</string>
     <string name="audio_license_label">Lizenz: %s</string>
     <string name="audio_attribution_note">Alle Audiodateien werden unter ihren jeweiligen Lizenzen verwendet. Die Namensnennung wird ggf. bereitgestellt.</string>
+    <string name="streamer_info_title">Infos für Streamer</string>
+    <string name="streamer_info_scope">Hinweis zu Hintergrundmusik von Fesliyan Studios</string>
+    <string name="streamer_info_no_content_id_notice">Bitte fügen Sie diesen Audioinhalt NICHT dem YouTube Content-ID-System hinzu. Ich habe Hintergrundmusik verwendet, die FesliyanStudios gehört.</string>
+    <string name="streamer_info_notice_link_text">Fesliyan-Studios-Richtlinie: https://www.fesliyanstudios.com/policy</string>
+    <string name="streamer_info_notice_text">Die Verwendung in Videospielen ist erlaubt. Wenn jedoch Gaming-Videos mit dieser Musik auf YouTube hochgeladen werden, kann der Uploader vorübergehend einen Hinweis auf eine Monetarisierungsbeschränkung erhalten, bis er auf die Schaltfläche zum Anfechten klickt und \"Fair Use\" für Gameplay-Material auswählt.</string>
+    <string name="streamer_info_mute_music_hint">Eine einfache Möglichkeit, dies von vornherein zu vermeiden, besteht darin, die Hintergrundmusik vor dem Streamen oder Aufnehmen einfach auszuschalten.</string>
 
     <string name="towers">Türme</string>
     <string name="traps">Fallen</string>

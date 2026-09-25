@@ -80,6 +80,7 @@ fun InfoTab.toUrlSlug(): String =
         InfoTab.FEEDBACK -> "feedback"
         InfoTab.EDITOR_HOWTO -> "editor-howto"
         InfoTab.DOWNLOAD -> "download"
+        InfoTab.STREAMER_INFO -> "streamer-info"
     }
 
 /**
@@ -97,6 +98,7 @@ fun infoTabFromSlug(slug: String): InfoTab? =
         "feedback" -> InfoTab.FEEDBACK
         "editor-howto" -> InfoTab.EDITOR_HOWTO
         "download" -> InfoTab.DOWNLOAD
+        "streamer-info" -> InfoTab.STREAMER_INFO
         else -> null
     }
 
