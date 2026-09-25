@@ -11,8 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -66,12 +67,28 @@ fun StreamerInfo(scrollState: androidx.compose.foundation.ScrollState = remember
 
 @Composable
 internal fun StreamerNoticeField() {
-    OutlinedTextField(
-        value = stringResource(Res.string.streamer_info_copyable_notice_text),
-        onValueChange = {},
-        label = { Text(stringResource(Res.string.streamer_info_copyable_notice_label)) },
-        readOnly = true,
-        minLines = 4,
+    Column(
         modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-    )
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Text(
+            text = stringResource(Res.string.streamer_info_copyable_notice_label),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.small,
+            color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        ) {
+            Text(
+                text = stringResource(Res.string.streamer_info_copyable_notice_text),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+    }
 }
