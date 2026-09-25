@@ -19,6 +19,19 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Install a process-wide uncaught-exception handler so any throwable
+        // bubbling out of background threads is funnelled into the global
+        // CrashReporter (and surfaced via the error boundary dialog) rather
+        // than crashing the app.
+        Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
+            try {
+                de.egril.defender.utils.CrashReporter
+                    .report(throwable)
+            } catch (_: Throwable) {
+                // Last-resort: swallow so we never recurse on a handler failure.
+            }
+        }
+
         // Inject the backend URL baked in at build time so that the shared
         // jvmMain BackendSaveHttpHelper can read it via System.getProperty().
         // This must happen before any backend call is made.

@@ -1,5 +1,6 @@
 package de.egril.defender.model
 
+import androidx.compose.runtime.Immutable
 import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 
 /**
@@ -22,6 +23,16 @@ enum class TargetType {
 }
 
 /**
+ * Type of a spawn point: determines which enemy units may use it.
+ * LAND: standard spawn point on dry ground — only land-capable enemies may spawn here.
+ * WATER: spawn point in a river or other water area — only water-capable enemies may spawn here.
+ */
+enum class SpawnPointType {
+    LAND,
+    WATER,
+}
+
+/**
  * Optional metadata attached to a target tile.
  */
 data class TargetInfo(
@@ -29,6 +40,11 @@ data class TargetInfo(
     val type: TargetType = TargetType.STANDARD,
 )
 
+// Marked @Immutable: every property is a `val` set once at construction and never mutated
+// afterwards — Level is a fixed level definition. This lets Compose trust equality/stability on
+// Level (and, transitively, on GameState which holds it), restoring recomposition-skip
+// optimizations for composables like GridCell that read Level data per map tile.
+@Immutable
 data class Level(
     val id: Int,
     val name: String,
@@ -56,11 +72,12 @@ data class Level(
     val mapId: String? = null, // ID of the map this level uses
     val isCommunity: Boolean = false, // True if this level was loaded from the community directory
     val riverTiles: Map<Position, RiverTile> = emptyMap(), // River tiles with flow direction and speed (not walkable in gameplay, but treated as walkable during map validation for levels with ORK, EVIL_WIZARD, or EWHAD enemies)
-    val allowAutoAttack: Boolean = false, // If true, shows auto-attack button in end turn confirmation dialog
+    val allowAutoAttack: Boolean = true, // If true, shows auto-attack button in end turn confirmation dialog
     val connectedToPreviousLevel: Boolean = false, // If true, player can carry over towers/coins from the previous level
-    val splitBuildTowerButton: Boolean = true, // If true, use split build-tower button in compact controls to free info area space
     val isSandbox: Boolean = false, // If true, level is a Sandbox: free building/spawning, no scripted events, cannot be won, no XP
+    val waaghEnabled: Boolean = false, // If true, Waaagh! horde mechanics are active for this level
     val targetInfoMap: Map<Position, TargetInfo> = emptyMap(), // Optional metadata (name, type) per target position
+    val spawnPointTypeMap: Map<Position, SpawnPointType> = emptyMap(), // Spawn point type per position (LAND or WATER); defaults to LAND if absent
     val supports: LevelSupports = LevelSupports(), // Player-usable supports (placable objects + spell tokens) for this level
     val events: LevelEvents = LevelEvents(), // Scripted events (conditions + actions + predefined story messages) for this level
     // Initial placements (optional) - new nested structure
@@ -118,11 +135,54 @@ data class Level(
 
     fun isSpawnPoint(position: Position): Boolean = startPositions.contains(position)
 
+    /**
+     * Returns true when this spawn point is explicitly marked as WATER.
+     */
+    fun isWaterSpawnPoint(position: Position): Boolean = isSpawnPoint(position) && getSpawnPointType(position) == SpawnPointType.WATER
+
+    /**
+     * Returns the type of the given spawn point (LAND or WATER).
+     * Defaults to LAND if the position has no explicit type entry.
+     */
+    fun getSpawnPointType(position: Position): SpawnPointType = spawnPointTypeMap[position] ?: SpawnPointType.LAND
+
+    /**
+     * Returns all spawn points compatible with the given attacker type based on its
+     * [AttackerType.canSpawnOnWater] and [AttackerType.canSpawnOnLand] flags.
+     * Falls back to all start positions if no compatible point exists.
+     */
+    fun getCompatibleSpawnPoints(
+        attackerType: de.egril.defender.model.AttackerType,
+    ): List<Position> {
+        val compatible =
+            startPositions.filter { pos ->
+                when (getSpawnPointType(pos)) {
+                    SpawnPointType.WATER -> attackerType.canSpawnOnWater
+                    SpawnPointType.LAND -> attackerType.canSpawnOnLand
+                }
+            }
+        return compatible.ifEmpty { startPositions }
+    }
+
     fun isWaypoint(position: Position): Boolean = waypoints.any { it.position == position }
 
     fun getWaypointAt(position: Position): Waypoint? = waypoints.firstOrNull { it.position == position }
 
-    fun isRiverTile(position: Position): Boolean = riverTiles.containsKey(position)
+    fun isRiverTile(position: Position): Boolean = riverTiles.containsKey(position) || isWaterSpawnPoint(position)
+
+    /**
+     * Returns true if at least one in-bounds neighboring tile is water.
+     *
+     * Water includes river tiles and water spawn points (via [isRiverTile]).
+     */
+    fun hasAdjacentWaterTile(position: Position): Boolean =
+        position
+            .getHexNeighbors()
+            .any { neighbor ->
+                neighbor.x in 0 until gridWidth &&
+                    neighbor.y in 0 until gridHeight &&
+                    isRiverTile(neighbor)
+            }
 
     fun getRiverTile(position: Position): RiverTile? = riverTiles[position]
 

@@ -55,6 +55,7 @@ class CommunityLevelPipelineTest {
             isOfficial = isOfficial,
             isCommunity = isCommunity,
             author = author,
+            allowNoBuildableTiles = true,
         )
 
     /**
@@ -116,6 +117,7 @@ class CommunityLevelPipelineTest {
   "height": 1,
   "readyToUse": true,
   "isOfficial": $isOfficial$authorJson,
+  "allowNoBuildableTiles": true,
   "tiles": {
 $tileEntries
   }
@@ -972,6 +974,7 @@ $tileEntries
                         "3,0" to TileType.PATH,
                         "4,0" to TileType.TARGET,
                     ),
+                allowNoBuildableTiles = true,
             )
         // With rivers as walkable → should pass
         assertTrue(map.validateReadyToUse(includeRiversAsWalkable = true), "Should pass with rivers as walkable")
@@ -1097,6 +1100,7 @@ $tileEntries
                         "1,0" to TileType.PATH,
                         "3,0" to TileType.PATH,
                     ),
+                allowNoBuildableTiles = true,
             )
         assertTrue(map1.validateReadyToUse(), "Tile insertion order should not matter for validation")
     }

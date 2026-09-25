@@ -17,6 +17,7 @@ class CanWinLevelNowTest {
         healthPoints: Int = 10,
         spawnPlan: List<PlannedEnemySpawn> = emptyList(),
         targetInfoMap: Map<Position, TargetInfo> = emptyMap(),
+        targetPositions: List<Position> = listOf(Position(9, 2)),
     ): Level =
         Level(
             id = 1,
@@ -24,7 +25,7 @@ class CanWinLevelNowTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 2)),
-            targetPositions = listOf(Position(9, 2)),
+            targetPositions = targetPositions,
             pathCells = (0..9).map { Position(it, 2) }.toSet(),
             attackerWaves = emptyList(),
             directSpawnPlan = spawnPlan,
@@ -104,6 +105,23 @@ class CanWinLevelNowTest {
     }
 
     @Test
+    fun noWinWhenVillainAlive() {
+        // A villain reaching a target loses the level outright, so no guaranteed win can be offered
+        // while one is on the battlefield, regardless of how much health remains.
+        val state = playerTurnState(buildLevel(healthPoints = 1000))
+        addAttacker(state, AttackerType.GAROKK, level = 1)
+        assertFalse(state.canWinLevelNow())
+    }
+
+    @Test
+    fun noWinWhenVillainYetToSpawn() {
+        val spawnPlan = listOf(PlannedEnemySpawn(AttackerType.GAROKK, spawnTurn = 30))
+        val state = playerTurnState(buildLevel(healthPoints = 1000, spawnPlan = spawnPlan))
+        addAttacker(state, AttackerType.GOBLIN)
+        assertFalse(state.canWinLevelNow())
+    }
+
+    @Test
     fun noWinDuringBuildingPhase() {
         val level = buildLevel(healthPoints = 10)
         val state = GameState(level)
@@ -125,6 +143,78 @@ class CanWinLevelNowTest {
     fun noWinWhenNoEnemiesRemain() {
         val state = playerTurnState(buildLevel(healthPoints = 10))
         // No alive attackers and no pending spawns -> level already effectively won, no offer
+        assertFalse(state.canWinLevelNow())
+    }
+
+    @Test
+    fun winWithSingleHitTargetsWhenFewerEnemiesThanTargets() {
+        // Two SINGLE_HIT targets remain untaken, but only one enemy is left, so at least one
+        // target can never be taken -> guaranteed win, same as the HP-based case.
+        val targetPositions = listOf(Position(9, 2), Position(9, 3))
+        val targetInfoMap =
+            mapOf(
+                Position(9, 2) to TargetInfo(name = "Gate 1", type = TargetType.SINGLE_HIT),
+                Position(9, 3) to TargetInfo(name = "Gate 2", type = TargetType.SINGLE_HIT),
+            )
+        val state =
+            playerTurnState(
+                buildLevel(healthPoints = 10, targetInfoMap = targetInfoMap, targetPositions = targetPositions),
+            )
+        addAttacker(state, AttackerType.GOBLIN)
+        assertTrue(state.canWinLevelNow())
+    }
+
+    @Test
+    fun noWinWithSingleHitTargetsWhenEnoughEnemiesToTakeAll() {
+        // Two SINGLE_HIT targets remain untaken, and two enemies remain, so both targets could
+        // still be taken -> no guaranteed win.
+        val targetPositions = listOf(Position(9, 2), Position(9, 3))
+        val targetInfoMap =
+            mapOf(
+                Position(9, 2) to TargetInfo(name = "Gate 1", type = TargetType.SINGLE_HIT),
+                Position(9, 3) to TargetInfo(name = "Gate 2", type = TargetType.SINGLE_HIT),
+            )
+        val state =
+            playerTurnState(
+                buildLevel(healthPoints = 10, targetInfoMap = targetInfoMap, targetPositions = targetPositions),
+            )
+        addAttacker(state, AttackerType.GOBLIN)
+        addAttacker(state, AttackerType.GOBLIN)
+        assertFalse(state.canWinLevelNow())
+    }
+
+    @Test
+    fun winWithMixedSingleHitAndStandardTargetsWhenThreatBelowHealth() {
+        // Mixed SINGLE_HIT/STANDARD levels fall back to the HP-based calculation, since the
+        // STANDARD target always remains reachable regardless of SINGLE_HIT targets being taken.
+        val targetPositions = listOf(Position(9, 2), Position(9, 3))
+        val targetInfoMap =
+            mapOf(
+                Position(9, 2) to TargetInfo(name = "Gate", type = TargetType.SINGLE_HIT),
+                Position(9, 3) to TargetInfo(name = "Standard", type = TargetType.STANDARD),
+            )
+        val state =
+            playerTurnState(
+                buildLevel(healthPoints = 10, targetInfoMap = targetInfoMap, targetPositions = targetPositions),
+            )
+        addAttacker(state, AttackerType.GOBLIN)
+        assertTrue(state.canWinLevelNow())
+    }
+
+    @Test
+    fun noWinWithMixedSingleHitAndStandardTargetsWhenThreatMeetsHealth() {
+        val targetPositions = listOf(Position(9, 2), Position(9, 3))
+        val targetInfoMap =
+            mapOf(
+                Position(9, 2) to TargetInfo(name = "Gate", type = TargetType.SINGLE_HIT),
+                Position(9, 3) to TargetInfo(name = "Standard", type = TargetType.STANDARD),
+            )
+        val state =
+            playerTurnState(
+                buildLevel(healthPoints = 2, targetInfoMap = targetInfoMap, targetPositions = targetPositions),
+            )
+        addAttacker(state, AttackerType.GOBLIN)
+        addAttacker(state, AttackerType.GOBLIN)
         assertFalse(state.canWinLevelNow())
     }
 }

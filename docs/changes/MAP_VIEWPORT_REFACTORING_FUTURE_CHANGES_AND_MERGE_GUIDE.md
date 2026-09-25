@@ -49,4 +49,3 @@ If another branch was created before this refactor and also edits map rendering:
 - `HexagonalMapView`: tile loops, visible-range checks, spacer fallback
 - `GameMap`: precomputed maps/sets passed to grid cells, control callbacks, offset clamping
 - `MapViewportUtils`: coordinate conversion assumptions between content space and viewport space
-

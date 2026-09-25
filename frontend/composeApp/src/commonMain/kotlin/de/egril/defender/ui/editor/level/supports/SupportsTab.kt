@@ -1,5 +1,6 @@
 package de.egril.defender.ui.editor.level.supports
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,9 +24,11 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.CooldownPower
 import de.egril.defender.model.CooldownPowerType
+import de.egril.defender.model.FiefType
 import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.SpellType
+import de.egril.defender.model.SupportFief
 import de.egril.defender.model.SupportObject
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.SupportSpell
@@ -33,6 +36,7 @@ import de.egril.defender.model.isIndefiniteSupportCount
 import de.egril.defender.model.supportCountDisplayText
 import de.egril.defender.ui.gameplay.SpellTargetIcon
 import de.egril.defender.ui.gameplay.localizedCooldownPowerName
+import de.egril.defender.ui.gameplay.localizedFiefName
 import de.egril.defender.ui.gameplay.localizedSupportName
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.ExplosionIcon
@@ -44,13 +48,19 @@ import de.egril.defender.ui.icon.WoodIcon
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.cooldown_turns_label
 import defender_of_egril.composeapp.generated.resources.damage_label
+import defender_of_egril.composeapp.generated.resources.fief_fisher_hut
+import defender_of_egril.composeapp.generated.resources.fief_marketplace
+import defender_of_egril.composeapp.generated.resources.fief_quarry
+import defender_of_egril.composeapp.generated.resources.fief_woodcutter
 import defender_of_egril.composeapp.generated.resources.health_points
 import defender_of_egril.composeapp.generated.resources.start_active_label
 import defender_of_egril.composeapp.generated.resources.supports_cooldown_powers_section
 import defender_of_egril.composeapp.generated.resources.supports_count_indefinitely
+import defender_of_egril.composeapp.generated.resources.supports_fiefs_section
 import defender_of_egril.composeapp.generated.resources.supports_intro
 import defender_of_egril.composeapp.generated.resources.supports_objects_section
 import defender_of_egril.composeapp.generated.resources.supports_spells_section
+import org.jetbrains.compose.resources.painterResource
 
 private const val MAX_SUPPORT_COUNT = 99
 
@@ -181,6 +191,34 @@ fun SupportsTab(
                             if (it.type == type) it.copy(startActive = startActive) else it
                         }
                     onSupportsChange(supports.copy(cooldownPowers = newPowers))
+                },
+            )
+        }
+
+        // Fiefs section
+        item {
+            SectionHeader(stringResource(Res.string.supports_fiefs_section))
+        }
+        items(FiefType.entries) { type ->
+            val existing = supports.fiefs.firstOrNull { it.type == type }
+            SupportFiefRow(
+                type = type,
+                supportFief = existing,
+                onToggle = { checked ->
+                    val newFiefs =
+                        if (checked) {
+                            supports.fiefs + SupportFief(type = type)
+                        } else {
+                            supports.fiefs.filterNot { it.type == type }
+                        }
+                    onSupportsChange(supports.copy(fiefs = newFiefs))
+                },
+                onCountChange = { newCount ->
+                    val newFiefs =
+                        supports.fiefs.map {
+                            if (it.type == type) it.copy(count = newCount) else it
+                        }
+                    onSupportsChange(supports.copy(fiefs = newFiefs))
                 },
             )
         }
@@ -423,6 +461,63 @@ private fun ValueStepper(
             modifier = Modifier.size(32.dp),
         ) {
             Text("+")
+        }
+    }
+}
+
+@Composable
+private fun SupportFiefRow(
+    type: FiefType,
+    supportFief: de.egril.defender.model.SupportFief?,
+    onToggle: (Boolean) -> Unit,
+    onCountChange: (Int) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Checkbox(
+            checked = supportFief != null,
+            onCheckedChange = onToggle,
+        )
+        Box(modifier = Modifier.size(28.dp), contentAlignment = Alignment.Center) {
+            when (type) {
+                FiefType.FISHER ->
+                    Image(
+                        painter = painterResource(Res.drawable.fief_fisher_hut),
+                        contentDescription = type.localizedFiefName(),
+                        modifier = Modifier.size(24.dp),
+                    )
+                FiefType.WOODCUTTER ->
+                    Image(
+                        painter = painterResource(Res.drawable.fief_woodcutter),
+                        contentDescription = type.localizedFiefName(),
+                        modifier = Modifier.size(24.dp),
+                    )
+                FiefType.QUARRY ->
+                    Image(
+                        painter = painterResource(Res.drawable.fief_quarry),
+                        contentDescription = type.localizedFiefName(),
+                        modifier = Modifier.size(24.dp),
+                    )
+                FiefType.MARKETPLACE ->
+                    Image(
+                        painter = painterResource(Res.drawable.fief_marketplace),
+                        contentDescription = type.localizedFiefName(),
+                        modifier = Modifier.size(24.dp),
+                    )
+            }
+        }
+        Text(
+            text = type.localizedFiefName(),
+            modifier = Modifier.width(120.dp),
+        )
+        if (supportFief != null) {
+            CountStepper(
+                count = supportFief.count,
+                onCountChange = onCountChange,
+            )
         }
     }
 }

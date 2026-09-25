@@ -1,5 +1,6 @@
 package de.egril.defender.ui.common
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
@@ -7,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
@@ -19,6 +21,7 @@ import defender_of_egril.composeapp.generated.resources.scroll_hint_more_tabs_le
 import defender_of_egril.composeapp.generated.resources.scroll_hint_more_tabs_right
 import dev.vicart.compose.material.symbols.FilledSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
+import kotlinx.coroutines.launch
 
 /**
  * A [PrimaryScrollableTabRow] with left/right chevron hints that appear when
@@ -27,6 +30,9 @@ import dev.vicart.compose.material.symbols.MaterialSymbols
  * The hints are driven by the tab row's actual scroll state:
  * - Left (‹) shown when the row has been scrolled right (tabs exist to the left)
  * - Right (›) shown when more tabs are still reachable by scrolling right
+ *
+ * Both chevrons are clickable: clicking the left chevron scrolls the tab row
+ * to the left, and clicking the right chevron scrolls it to the right.
  *
  * A fixed 20dp box is always reserved on each side so the tab row width stays
  * stable as hints appear and disappear during tab navigation.
@@ -44,6 +50,8 @@ fun ScrollableTabRowWithHints(
     tabs: @Composable () -> Unit,
 ) {
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+    val scrollStepPx = 150
 
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         // Left hint – visible once the row has been scrolled past its start
@@ -54,7 +62,13 @@ fun ScrollableTabRowWithHints(
                     icon = MaterialSymbols.KEYBOARD_ARROW_LEFT,
                     size = 20.dp,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.semantics { contentDescription = label },
+                    modifier = Modifier
+                        .clickable {
+                            coroutineScope.launch {
+                                scrollState.animateScrollTo((scrollState.value - scrollStepPx).coerceAtLeast(0))
+                            }
+                        }
+                        .semantics { contentDescription = label },
                 )
             }
         }
@@ -76,7 +90,15 @@ fun ScrollableTabRowWithHints(
                     icon = MaterialSymbols.KEYBOARD_ARROW_RIGHT,
                     size = 20.dp,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.semantics { contentDescription = label },
+                    modifier = Modifier
+                        .clickable {
+                            coroutineScope.launch {
+                                scrollState.animateScrollTo(
+                                    (scrollState.value + scrollStepPx).coerceAtMost(scrollState.maxValue),
+                                )
+                            }
+                        }
+                        .semantics { contentDescription = label },
                 )
             }
         }

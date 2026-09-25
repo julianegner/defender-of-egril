@@ -157,6 +157,8 @@ class CheatCodeHandlerTest {
         val testCases =
             listOf(
                 Triple("spawn goblin", AttackerType.GOBLIN, 1),
+                Triple("spawn goblinrunner", AttackerType.GOBLIN_RUNNER, 1),
+                Triple("spawn runner", AttackerType.GOBLIN_RUNNER, 1),
                 Triple("spawn ork", AttackerType.ORK, 1),
                 Triple("spawn orc", AttackerType.ORK, 1),
                 Triple("spawn ogre", AttackerType.OGRE, 1),
@@ -166,6 +168,11 @@ class CheatCodeHandlerTest {
                 Triple("spawn evilwizard", AttackerType.EVIL_WIZARD, 1),
                 Triple("spawn greenwitch", AttackerType.GREEN_WITCH, 1),
                 Triple("spawn redwitch", AttackerType.RED_WITCH, 1),
+                Triple("spawn spiderling", AttackerType.SPIDERLING, 1),
+                Triple("spawn roboticgoblin", AttackerType.ROBOTIC_GOBLIN, 1),
+                Triple("spawn araxxa", AttackerType.ARAXXA, 1),
+                Triple("spawn baron", AttackerType.BARON_RATTERZAHN, 1),
+                Triple("spawn freya", AttackerType.FALLEN_SHIELDMAIDEN_FREYA, 1),
                 Triple("spawn goblin 5", AttackerType.GOBLIN, 5),
                 Triple("spawn ork 10", AttackerType.ORK, 10),
             )

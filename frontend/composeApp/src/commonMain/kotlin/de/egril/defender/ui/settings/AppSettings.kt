@@ -62,10 +62,58 @@ enum class FontSize(
 }
 
 /**
+ * Mouse pointer source.
+ */
+enum class MousePointerSource {
+    GAME,
+    GAUNTLET,
+    SYSTEM,
+    ;
+
+    companion object {
+        val DEFAULT = GAME
+    }
+}
+
+/**
+ * Mouse pointer size presets.
+ */
+enum class MousePointerSize(
+    val scale: Float,
+) {
+    SMALL(0.85f),
+    MEDIUM(1.0f),
+    LARGE(1.2f),
+    EXTRA_LARGE(1.45f),
+    HUGE(1.7f),
+    ;
+
+    companion object {
+        val DEFAULT = MEDIUM
+    }
+}
+
+/**
+ * Mouse pointer hand direction.
+ */
+enum class MousePointerDirection {
+    LEFT,
+    RIGHT,
+    ;
+
+    companion object {
+        val DEFAULT = RIGHT
+    }
+}
+
+/**
  * Manages application settings using multiplatform-settings library
  * Persists dark mode preference, language selection, sound settings, control pad visibility, difficulty level, and world map style
  */
 object AppSettings {
+    const val MOUSE_POINTER_SKIN_BRIGHTNESS_MIN = -0.35f
+    const val MOUSE_POINTER_SKIN_BRIGHTNESS_MAX = 0.35f
+
     private const val KEY_DARK_MODE = "dark_mode"
     private const val KEY_LANGUAGE = "language"
     private const val KEY_LANGUAGE_CHOSEN = "language_chosen"
@@ -97,12 +145,17 @@ object AppSettings {
     private const val KEY_CHECK_FOR_UPDATES = "check_for_updates"
     private const val KEY_AUTO_JUMP_TO_NEXT_TOWER = "auto_jump_to_next_tower"
     private const val KEY_SHOW_UNIT_TOWER_BACKGROUND = "show_unit_tower_background"
+    private const val KEY_SPLIT_BUILD_TOWER_BUTTON = "split_build_tower_button"
     private const val KEY_HIGH_CONTRAST = "high_contrast"
     private const val KEY_COLOR_BLIND_PALETTE = "color_blind_palette"
     private const val KEY_CAPTIONS_ENABLED = "captions_enabled"
     private const val KEY_HOLD_TO_CONFIRM = "hold_to_confirm"
     private const val KEY_FONT_SIZE = "font_size"
     private const val KEY_SHOW_BUTTON_SHORTCUT_HINTS = "show_button_shortcut_hints"
+    private const val KEY_MOUSE_POINTER_SOURCE = "mouse_pointer_source"
+    private const val KEY_MOUSE_POINTER_SIZE = "mouse_pointer_size"
+    private const val KEY_MOUSE_POINTER_DIRECTION = "mouse_pointer_direction"
+    private const val KEY_MOUSE_POINTER_SKIN_BRIGHTNESS = "mouse_pointer_skin_brightness"
     private const val KEY_SHORTCUT_ATTACK_SELECTED_TARGET = "shortcut_attack_selected_target"
     private const val KEY_SHORTCUT_SELECT_NEXT_TOWER = "shortcut_select_next_tower"
     private const val KEY_SHORTCUT_SELECT_PREVIOUS_TOWER = "shortcut_select_previous_tower"
@@ -378,6 +431,14 @@ object AppSettings {
         )
 
     /**
+     * If true, use split build-tower button in compact controls to free info area space.
+     */
+    val splitBuildTowerButton: MutableState<Boolean> =
+        mutableStateOf(
+            settings.getBoolean(KEY_SPLIT_BUILD_TOWER_BUTTON, true),
+        )
+
+    /**
      * Accessibility: high contrast color mode.
      */
     val highContrastEnabled: MutableState<Boolean> =
@@ -431,6 +492,51 @@ object AppSettings {
     val showButtonShortcutHints: MutableState<Boolean> =
         mutableStateOf(
             settings.getBoolean(KEY_SHOW_BUTTON_SHORTCUT_HINTS, false),
+        )
+
+    /**
+     * Mouse pointer source.
+     */
+    val mousePointerSource: MutableState<MousePointerSource> =
+        mutableStateOf(
+            try {
+                MousePointerSource.valueOf(settings[KEY_MOUSE_POINTER_SOURCE, MousePointerSource.DEFAULT.name])
+            } catch (_: Exception) {
+                MousePointerSource.DEFAULT
+            },
+        )
+
+    /**
+     * Mouse pointer size preset.
+     */
+    val mousePointerSize: MutableState<MousePointerSize> =
+        mutableStateOf(
+            try {
+                MousePointerSize.valueOf(settings[KEY_MOUSE_POINTER_SIZE, MousePointerSize.DEFAULT.name])
+            } catch (_: Exception) {
+                MousePointerSize.DEFAULT
+            },
+        )
+
+    /**
+     * Mouse pointer direction.
+     */
+    val mousePointerDirection: MutableState<MousePointerDirection> =
+        mutableStateOf(
+            try {
+                MousePointerDirection.valueOf(settings[KEY_MOUSE_POINTER_DIRECTION, MousePointerDirection.DEFAULT.name])
+            } catch (_: Exception) {
+                MousePointerDirection.DEFAULT
+            },
+        )
+
+    /**
+     * Mouse pointer skin brightness shift.
+     * 0f is neutral, negative values darken the skin areas, positive values brighten them.
+     */
+    val mousePointerSkinBrightness: MutableState<Float> =
+        mutableStateOf(
+            settings.getFloat(KEY_MOUSE_POINTER_SKIN_BRIGHTNESS, 0f).coerceIn(MOUSE_POINTER_SKIN_BRIGHTNESS_MIN, MOUSE_POINTER_SKIN_BRIGHTNESS_MAX),
         )
 
     /**
@@ -629,6 +735,7 @@ object AppSettings {
     val showTileBorders: MutableState<Boolean> = mutableStateOf(false)
     val showTilePositions: MutableState<Boolean> = mutableStateOf(false)
     val showMapSizeOverlay: MutableState<Boolean> = mutableStateOf(false)
+    val showEnemyPathfinding: MutableState<Boolean> = mutableStateOf(false)
 
     /**
      * Level header text size - controls the size of text and icons in the game header
@@ -979,6 +1086,15 @@ object AppSettings {
         onPersist?.invoke()
     }
 
+    /**
+     * Save split build-tower button preference
+     */
+    fun saveSplitBuildTowerButton(enabled: Boolean) {
+        splitBuildTowerButton.value = enabled
+        settings.putBoolean(KEY_SPLIT_BUILD_TOWER_BUTTON, enabled)
+        onPersist?.invoke()
+    }
+
     fun saveHighContrastEnabled(enabled: Boolean) {
         highContrastEnabled.value = enabled
         settings.putBoolean(KEY_HIGH_CONTRAST, enabled)
@@ -1012,6 +1128,31 @@ object AppSettings {
     fun saveShowButtonShortcutHints(enabled: Boolean) {
         showButtonShortcutHints.value = enabled
         settings.putBoolean(KEY_SHOW_BUTTON_SHORTCUT_HINTS, enabled)
+        onPersist?.invoke()
+    }
+
+    fun saveMousePointerSource(source: MousePointerSource) {
+        mousePointerSource.value = source
+        settings[KEY_MOUSE_POINTER_SOURCE] = source.name
+        onPersist?.invoke()
+    }
+
+    fun saveMousePointerSize(size: MousePointerSize) {
+        mousePointerSize.value = size
+        settings[KEY_MOUSE_POINTER_SIZE] = size.name
+        onPersist?.invoke()
+    }
+
+    fun saveMousePointerDirection(direction: MousePointerDirection) {
+        mousePointerDirection.value = direction
+        settings[KEY_MOUSE_POINTER_DIRECTION] = direction.name
+        onPersist?.invoke()
+    }
+
+    fun saveMousePointerSkinBrightness(brightness: Float) {
+        val clamped = brightness.coerceIn(MOUSE_POINTER_SKIN_BRIGHTNESS_MIN, MOUSE_POINTER_SKIN_BRIGHTNESS_MAX)
+        mousePointerSkinBrightness.value = clamped
+        settings.putFloat(KEY_MOUSE_POINTER_SKIN_BRIGHTNESS, clamped)
         onPersist?.invoke()
     }
 
@@ -1257,12 +1398,17 @@ object AppSettings {
             put(KEY_CHECK_FOR_UPDATES, checkForUpdates.value.toString())
             put(KEY_AUTO_JUMP_TO_NEXT_TOWER, autoJumpToNextTower.value.toString())
             put(KEY_SHOW_UNIT_TOWER_BACKGROUND, showUnitTowerBackground.value.toString())
+            put(KEY_SPLIT_BUILD_TOWER_BUTTON, splitBuildTowerButton.value.toString())
             put(KEY_HIGH_CONTRAST, highContrastEnabled.value.toString())
             put(KEY_COLOR_BLIND_PALETTE, colorBlindPalette.value.name)
             put(KEY_CAPTIONS_ENABLED, captionsEnabled.value.toString())
             put(KEY_HOLD_TO_CONFIRM, holdToConfirmEnabled.value.toString())
             put(KEY_FONT_SIZE, fontSize.value.name)
             put(KEY_SHOW_BUTTON_SHORTCUT_HINTS, showButtonShortcutHints.value.toString())
+            put(KEY_MOUSE_POINTER_SOURCE, mousePointerSource.value.name)
+            put(KEY_MOUSE_POINTER_SIZE, mousePointerSize.value.name)
+            put(KEY_MOUSE_POINTER_DIRECTION, mousePointerDirection.value.name)
+            put(KEY_MOUSE_POINTER_SKIN_BRIGHTNESS, mousePointerSkinBrightness.value.toString())
             put(KEY_SHORTCUT_ATTACK_SELECTED_TARGET, shortcutAttackSelectedTarget.value)
             put(KEY_SHORTCUT_SELECT_NEXT_TOWER, shortcutSelectNextTower.value)
             put(KEY_SHORTCUT_SELECT_PREVIOUS_TOWER, shortcutSelectPreviousTower.value)
@@ -1333,6 +1479,7 @@ object AppSettings {
             map[KEY_CHECK_FOR_UPDATES]?.toBooleanStrictOrNull()?.let { saveCheckForUpdates(it) }
             map[KEY_AUTO_JUMP_TO_NEXT_TOWER]?.toBooleanStrictOrNull()?.let { saveAutoJumpToNextTower(it) }
             map[KEY_SHOW_UNIT_TOWER_BACKGROUND]?.toBooleanStrictOrNull()?.let { saveShowUnitTowerBackground(it) }
+            map[KEY_SPLIT_BUILD_TOWER_BUTTON]?.toBooleanStrictOrNull()?.let { saveSplitBuildTowerButton(it) }
             map[KEY_HIGH_CONTRAST]?.toBooleanStrictOrNull()?.let { saveHighContrastEnabled(it) }
             map[KEY_COLOR_BLIND_PALETTE]?.let { name ->
                 try {
@@ -1349,6 +1496,16 @@ object AppSettings {
                 }
             }
             map[KEY_SHOW_BUTTON_SHORTCUT_HINTS]?.toBooleanStrictOrNull()?.let { saveShowButtonShortcutHints(it) }
+            map[KEY_MOUSE_POINTER_SOURCE]?.let { name ->
+                parseMousePointerSource(name)?.let { saveMousePointerSource(it) }
+            }
+            map[KEY_MOUSE_POINTER_SIZE]?.let { name ->
+                parseMousePointerSize(name)?.let { saveMousePointerSize(it) }
+            }
+            map[KEY_MOUSE_POINTER_DIRECTION]?.let { name ->
+                parseMousePointerDirection(name)?.let { saveMousePointerDirection(it) }
+            }
+            map[KEY_MOUSE_POINTER_SKIN_BRIGHTNESS]?.toFloatOrNull()?.let { saveMousePointerSkinBrightness(it) }
             map[KEY_SHORTCUT_ATTACK_SELECTED_TARGET]?.let { saveShortcutAttackSelectedTarget(it) }
             map[KEY_SHORTCUT_SELECT_NEXT_TOWER]?.let { saveShortcutSelectNextTower(it) }
             map[KEY_SHORTCUT_SELECT_PREVIOUS_TOWER]?.let { saveShortcutSelectPreviousTower(it) }
@@ -1372,6 +1529,24 @@ object AppSettings {
             onPersist = savedCallback
         }
     }
+
+    private fun parseMousePointerSource(name: String): MousePointerSource? =
+        when (name) {
+            "DEFAULT" -> MousePointerSource.GAME
+            else -> MousePointerSource.entries.firstOrNull { it.name == name }
+        }
+
+    private fun parseMousePointerSize(name: String): MousePointerSize? =
+        when (name) {
+            "DEFAULT" -> MousePointerSize.DEFAULT
+            else -> MousePointerSize.entries.firstOrNull { it.name == name }
+        }
+
+    private fun parseMousePointerDirection(name: String): MousePointerDirection? =
+        when (name) {
+            "DEFAULT" -> MousePointerDirection.DEFAULT
+            else -> MousePointerDirection.entries.firstOrNull { it.name == name }
+        }
 
     /**
      * Reset all settings to defaults
@@ -1433,6 +1608,10 @@ object AppSettings {
         saveHoldToConfirmEnabled(false)
         saveFontSize(FontSize.DEFAULT)
         saveShowButtonShortcutHints(false)
+        saveMousePointerSource(MousePointerSource.DEFAULT)
+        saveMousePointerSize(MousePointerSize.DEFAULT)
+        saveMousePointerDirection(MousePointerDirection.DEFAULT)
+        saveMousePointerSkinBrightness(0f)
         resetShortcutBindings()
 
         // Note: Don't reset settings hint shown state when resetting settings

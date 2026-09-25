@@ -1,0 +1,88 @@
+package de.egril.defender.ui.gameplay
+
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import com.hyperether.resources.AppLocale
+import com.hyperether.resources.currentLanguage
+import de.egril.defender.model.Attacker
+import de.egril.defender.model.AttackerType
+import de.egril.defender.model.Position
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+
+class AttackerInfoUiTest {
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    @Before
+    fun setDefaultLanguage() {
+        currentLanguage.value = AppLocale.DEFAULT
+    }
+
+    @Test
+    fun ewhadShowsVillainDescription() {
+        val attacker =
+            Attacker(
+                id = 1,
+                type = AttackerType.EWHAD,
+                position = mutableStateOf(Position(0, 0)),
+            )
+
+        composeTestRule.setContent {
+            MaterialTheme {
+                AttackerInfo(attacker = attacker)
+            }
+        }
+
+        composeTestRule
+            .onNodeWithText("He summons increasingly powerful Demons", substring = true)
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun ghostShowsMagicalAttacksOnlyInfo() {
+        val attacker =
+            Attacker(
+                id = 1,
+                type = AttackerType.GHOST,
+                position = mutableStateOf(Position(0, 0)),
+            )
+
+        composeTestRule.setContent {
+            MaterialTheme {
+                AttackerInfo(attacker = attacker)
+            }
+        }
+
+        composeTestRule
+            .onNodeWithText("Can only be harmed by magical attacks")
+            .assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText("Ethereal: moves through barricades, but must end on an empty tile")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun waaghBoostLineShowsForActiveFrenzyUnits() {
+        val attacker =
+            Attacker(
+                id = 1,
+                type = AttackerType.ORK,
+                position = mutableStateOf(Position(0, 0)),
+            )
+
+        composeTestRule.setContent {
+            MaterialTheme {
+                AttackerInfo(attacker = attacker, waaghActive = true)
+            }
+        }
+
+        composeTestRule
+            .onNodeWithText("Waaagh! boost: stronger combat pressure and double speed")
+            .assertIsDisplayed()
+    }
+}

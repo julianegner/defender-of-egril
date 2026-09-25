@@ -65,7 +65,7 @@ class GreenWitchHealingTest {
         assertEquals(10, healthBeforeHealing, "Goblin should have 10 HP before healing")
 
         // Process enemy abilities (this simulates the enemy turn phase where green witch healing occurs)
-        val enemyAbilities = EnemyAbilitySystem(state)
+        val enemyAbilities = EnemyAbilitySystem(state, PathfindingSystem(state))
         enemyAbilities.processEnemyAbilities()
 
         // Check that the goblin was healed
@@ -110,7 +110,7 @@ class GreenWitchHealingTest {
         state.attackers.add(slightlyDamagedGoblin)
 
         // Process enemy abilities
-        val enemyAbilities = EnemyAbilitySystem(state)
+        val enemyAbilities = EnemyAbilitySystem(state, PathfindingSystem(state))
         enemyAbilities.processEnemyAbilities()
 
         // Healing should be capped at missing health (2 HP), not witch heal amount (25 HP)
@@ -142,7 +142,7 @@ class GreenWitchHealingTest {
         val healthBefore = greenWitch.currentHealth.value
 
         // Process enemy abilities
-        val enemyAbilities = EnemyAbilitySystem(state)
+        val enemyAbilities = EnemyAbilitySystem(state, PathfindingSystem(state))
         enemyAbilities.processEnemyAbilities()
 
         // Green witch should NOT heal itself
@@ -187,7 +187,7 @@ class GreenWitchHealingTest {
         }
 
         // Process enemy abilities
-        val enemyAbilities = EnemyAbilitySystem(state)
+        val enemyAbilities = EnemyAbilitySystem(state, PathfindingSystem(state))
         enemyAbilities.processEnemyAbilities()
 
         // All damaged adjacent enemies should be healed
@@ -233,7 +233,7 @@ class GreenWitchHealingTest {
         val healthBefore = distantGoblin.currentHealth.value
 
         // Process enemy abilities
-        val enemyAbilities = EnemyAbilitySystem(state)
+        val enemyAbilities = EnemyAbilitySystem(state, PathfindingSystem(state))
         enemyAbilities.processEnemyAbilities()
 
         // Distant goblin should NOT be healed
@@ -272,7 +272,7 @@ class GreenWitchHealingTest {
         state.attackers.add(defeatedGoblin)
 
         // Process enemy abilities
-        val enemyAbilities = EnemyAbilitySystem(state)
+        val enemyAbilities = EnemyAbilitySystem(state, PathfindingSystem(state))
         enemyAbilities.processEnemyAbilities()
 
         // Defeated goblin should NOT be healed (stays at 0 HP)

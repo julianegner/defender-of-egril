@@ -105,6 +105,7 @@ fun EventsTab(
     events: LevelEvents,
     onEventsChange: (LevelEvents) -> Unit,
     minePositions: Set<Position>,
+    issueDescription: String? = null,
 ) {
     fun updateEvent(
         index: Int,
@@ -126,6 +127,15 @@ fun EventsTab(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+        if (issueDescription != null) {
+            item {
+                Text(
+                    text = issueDescription,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
         }
         item {
             Button(
@@ -662,7 +672,7 @@ private fun AttackerTypeDropdown(
                     },
                 )
             }
-            AttackerType.entries.forEach { type ->
+            AttackerType.entries.filterNot { it.isMirrorImage }.forEach { type ->
                 DropdownMenuItem(
                     text = { Text(type.getLocalizedName()) },
                     onClick = {

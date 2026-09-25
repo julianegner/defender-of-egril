@@ -15,6 +15,7 @@ import de.egril.defender.ui.gameplay.GamePlayScreen
 import de.egril.defender.ui.gameplay.LevelLoadingScreen
 import de.egril.defender.ui.infopage.InfoPageScreen
 import de.egril.defender.ui.loadgame.LoadGameScreen
+import de.egril.defender.ui.mousepointer.PlatformMousePointerEffect
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsTab
 import de.egril.defender.ui.worldmap.WorldMapScreen
@@ -68,6 +69,7 @@ fun App() {
         val colorScheme = AppTheme.applyColorBlindPalette(baseColorScheme, colorBlindPalette)
 
         MaterialTheme(colorScheme = colorScheme) {
+            PlatformMousePointerEffect()
             // Apply accessibility font size scaling via LocalDensity
             val fontSizeScale by AppSettings.fontSize
             val currentDensity = LocalDensity.current
@@ -409,6 +411,7 @@ fun App() {
                             onContinueGame = { viewModel.continueFromAutosave() },
                             hasAutosave = viewModel.hasAutosave(),
                             onShowRules = { viewModel.navigateToRules() },
+                            onOpenEditor = { viewModel.navigateToLevelEditor() },
                             onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
                             onShowDownloadInfo = { viewModel.navigateToDownloadInfo() },
                             onShowBackendInfo = { viewModel.navigateToBackendInfo() },
@@ -547,6 +550,8 @@ fun App() {
                     is Screen.LevelEditor -> {
                         LevelEditorScreen(
                             onBack = { viewModel.navigateToWorldMap() },
+                            initialEditingLevelId = screen.openLevelId,
+                            onStartPlaytest = { level, _ -> viewModel.startEditorPlaytest(level) },
                             remoteCommunityMaps = remoteCommunityMapsMeta,
                             downloadingMapId = downloadingMapId,
                             onDownloadRemoteMap = { fileInfo ->
@@ -596,7 +601,7 @@ fun App() {
                                 onAutoAttackAndEndTurn = { viewModel.autoAttackAndEndTurn() },
                                 onWinLevelNow = { viewModel.winLevelNow() },
                                 onGetAutoAttackTarget = { id -> viewModel.getAutoAttackTargetPosition(id) },
-                                onBackToMap = { viewModel.navigateToWorldMap() },
+                                onBackToMap = { viewModel.navigateBackFromGameplay() },
                                 onSaveGame = { comment -> viewModel.saveCurrentGame(comment) },
                                 onCheatCode = { code -> viewModel.applyCheatCode(code) },
                                 onMineDig = { mineId -> viewModel.performMineDig(mineId) },
@@ -657,6 +662,7 @@ fun App() {
                                 demoSelectedDefenderId = demoSelectedDefenderId,
                                 demoSelectedTargetPosition = demoSelectedTargetPosition,
                                 onPlaceSupportObject = { type, pos -> viewModel.placeSupportObject(type, pos) },
+                                onPlaceSupportFief = { type, pos -> viewModel.placeSupportFief(type, pos) },
                                 onCastSupportSpellToken = { spell -> viewModel.onSupportSpellTokenClicked(spell) },
                                 activeSpellToken = pendingTokenSpell,
                                 onActivateCooldownPower = { power -> viewModel.activateCooldownPower(power) },
@@ -679,7 +685,7 @@ fun App() {
                             playerLevelGained = screen.playerLevelGained,
                             abilityPointsGained = screen.abilityPointsGained,
                             onRestart = { viewModel.restartLevel() },
-                            onBackToMap = { viewModel.navigateToWorldMap() },
+                            onBackToMap = { viewModel.navigateBackFromGameplay() },
                             onNextLevel =
                                 if (screen.nextLevelId != null && screen.nextLevelName != null) {
                                     { viewModel.navigateToNextLevel(screen.nextLevelId, screen.nextLevelName) }

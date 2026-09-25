@@ -210,8 +210,10 @@ fun HexagonalMapView(
                     val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, currentScale)
                     onOffsetChange(constrainedX, constrainedY)
                     focusRequester.requestFocus()
+                    true
+                } else {
+                    false
                 }
-                true
             }
         } else {
             false
@@ -380,6 +382,7 @@ fun HexagonalMapView(
                     verticalSpacing = verticalSpacingPx,
                     gridWidth = gridWidth,
                     gridHeight = gridHeight,
+                    buffer = 6,
                 )
             val visibleMinX = visibleRange[0]
             val visibleMaxX = visibleRange[1]

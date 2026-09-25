@@ -22,7 +22,7 @@ enum class RaftLossReason {
  * - Flow speed determines how many tiles to move (1 or 2)
  * - Rafts are destroyed if moved to a maelstrom
  * - Rafts are destroyed if moved out of map bounds
- * - Bridges prevent raft movement through them
+ * - Bridges do not block rafts; rafts pass over them and continue with river flow
  * - Other rafts prevent movement (cannot pass through)
  * - When multiple rafts in a row, move the one that can move first
  */
@@ -125,11 +125,21 @@ class RaftSystem(
             val riverTile = state.level.getRiverTile(currentPos) ?: return currentPos
 
             // Get the next position based on THIS tile's flow direction
-            val nextStep = getNextPositionInDirection(currentPos, riverTile.flowDirection)
+            var nextStep = getNextPositionInDirection(currentPos, riverTile.flowDirection)
 
-            // Check if there's a bridge blocking the way
-            if (state.isBridgeAt(nextStep)) {
-                return currentPos // Return current position if blocked
+            // Move across bridge tiles immediately so rafts never remain on bridge fields.
+            // While crossing, the underlying river flow direction of each bridge tile is used.
+            var bridgeCrossings = 0
+            while (state.isBridgeAt(nextStep)) {
+                val bridgeRiverTile = state.level.getRiverTile(nextStep) ?: return currentPos
+                if (bridgeRiverTile.flowDirection == RiverFlow.NONE || bridgeRiverTile.flowDirection == RiverFlow.MAELSTROM) {
+                    return currentPos
+                }
+                nextStep = getNextPositionInDirection(nextStep, bridgeRiverTile.flowDirection)
+                bridgeCrossings++
+                if (bridgeCrossings > state.level.gridWidth * state.level.gridHeight) {
+                    return currentPos
+                }
             }
 
             // Check if the next position is a river tile
@@ -188,7 +198,7 @@ class RaftSystem(
             }
 
             // Get the next position based on THIS tile's flow direction
-            val nextStep = getNextPositionInDirection(currentPos, riverTile.flowDirection)
+            var nextStep = getNextPositionInDirection(currentPos, riverTile.flowDirection)
 
             // Check if next position is out of bounds
             if (!isPositionInBounds(nextStep)) {
@@ -197,13 +207,29 @@ class RaftSystem(
                 return
             }
 
-            // Check if there's a bridge blocking the way
-            if (state.isBridgeAt(nextStep)) {
-                // Blocked by bridge, cannot move further
-                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                    println("Raft ${raft.id} blocked by bridge at $nextStep")
+            // Move across bridge tiles immediately so rafts never remain on bridge fields.
+            // While crossing, follow the underlying river flow direction on each crossed bridge tile.
+            var bridgeCrossings = 0
+            while (state.isBridgeAt(nextStep)) {
+                val bridgeRiverTile = state.level.getRiverTile(nextStep)
+                if (bridgeRiverTile == null || bridgeRiverTile.flowDirection == RiverFlow.NONE) {
+                    break
                 }
-                break
+                if (bridgeRiverTile.flowDirection == RiverFlow.MAELSTROM) {
+                    println("Raft ${raft.id} destroyed by maelstrom at $nextStep")
+                    destroyRaftAndTower(raft, defender, RaftLossReason.MAELSTROM)
+                    return
+                }
+                nextStep = getNextPositionInDirection(nextStep, bridgeRiverTile.flowDirection)
+                bridgeCrossings++
+                if (bridgeCrossings > state.level.gridWidth * state.level.gridHeight) {
+                    break
+                }
+                if (!isPositionInBounds(nextStep)) {
+                    println("Raft ${raft.id} moved out of bounds at $nextStep")
+                    destroyRaftAndTower(raft, defender, RaftLossReason.MAP_EDGE)
+                    return
+                }
             }
 
             // Check if the next position is a river tile

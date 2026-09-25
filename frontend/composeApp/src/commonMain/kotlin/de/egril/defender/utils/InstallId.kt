@@ -1,20 +1,25 @@
 package de.egril.defender.utils
 
-import com.russhwolf.settings.Settings
-import com.russhwolf.settings.get
-import com.russhwolf.settings.set
 import kotlin.random.Random
 
-private const val KEY_INSTALL_UUID = "install_uuid"
-private val installIdSettings = Settings()
+/**
+ * Reads the previously persisted install UUID, if any exists.
+ * Returns null (or blank) when no id has been stored yet.
+ */
+expect fun readPersistedInstallUuid(): String?
+
+/**
+ * Persists the given install UUID so it can be read back on subsequent app launches.
+ */
+expect fun persistInstallUuid(uuid: String)
 
 fun getOrCreateInstallUuid(): String {
-    val existing = installIdSettings[KEY_INSTALL_UUID, ""]
-    if (existing.isNotBlank()) {
+    val existing = readPersistedInstallUuid()
+    if (!existing.isNullOrBlank()) {
         return existing
     }
     val created = generateUuidV4()
-    installIdSettings[KEY_INSTALL_UUID] = created
+    persistInstallUuid(created)
     return created
 }
 

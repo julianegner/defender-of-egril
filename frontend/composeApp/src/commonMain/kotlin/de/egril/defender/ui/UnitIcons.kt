@@ -418,7 +418,7 @@ private fun DrawScope.drawTowerBasePlatform(
     )
 }
 
-private fun DrawScope.drawRaftBase(
+internal fun DrawScope.drawRaftBase(
     centerX: Float,
     centerY: Float,
     size: Float,

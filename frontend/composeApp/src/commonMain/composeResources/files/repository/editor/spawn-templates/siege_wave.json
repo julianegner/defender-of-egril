@@ -1,0 +1,57 @@
+{
+  "metadata": {"program": "Defender of Egril", "type": "spawn-turn-template"},
+  "data": {
+    "id": "siege_wave",
+    "name": "Siege wave",
+    "description": "A heavier wave meant to test anti-tank coverage.",
+    "variants": [
+      {
+        "kind": "MIXED",
+        "entries": [
+          {"attackerType": "OGRE", "turnOffset": 0, "amount": 1, "levelOffset": 1},
+          {"attackerType": "TROLL", "turnOffset": 1, "amount": 1},
+          {"attackerType": "EVIL_WIZARD", "turnOffset": 1, "amount": 1, "levelOffset": 1}
+        ]
+      },
+      {
+        "kind": "HORDE",
+        "entries": [
+          {"attackerType": "OGRE", "turnOffset": 0, "amount": 1, "levelOffset": 1},
+          {"attackerType": "TROLL", "turnOffset": 1, "amount": 1},
+          {"attackerType": "ORK", "turnOffset": 1, "amount": 2}
+        ]
+      },
+      {
+        "kind": "UNDEAD",
+        "entries": [
+          {"attackerType": "ZOMBIE", "turnOffset": 0, "amount": 2},
+          {"attackerType": "SKELETON", "turnOffset": 1, "amount": 2},
+          {"attackerType": "MORGUK_BONEWHISPER", "turnOffset": 1, "amount": 1, "levelOffset": 1}
+        ]
+      },
+      {
+        "kind": "DARK_MAGIC",
+        "entries": [
+          {"attackerType": "EVIL_WIZARD", "turnOffset": 0, "amount": 1, "levelOffset": 1},
+          {"attackerType": "GREEN_WITCH", "turnOffset": 1, "amount": 1},
+          {"attackerType": "RED_WITCH", "turnOffset": 1, "amount": 1}
+        ]
+      },
+      {
+        "kind": "DEMONIC",
+        "entries": [
+          {"attackerType": "RED_DEMON", "turnOffset": 0, "amount": 1, "levelOffset": 1},
+          {"attackerType": "BLUE_DEMON", "turnOffset": 1, "amount": 2},
+          {"attackerType": "DRAGON", "turnOffset": 2, "amount": 1}
+        ]
+      },
+      {
+        "kind": "VILLAINS",
+        "entries": [
+          {"attackerType": "GAROKK", "turnOffset": 0, "amount": 1, "levelOffset": 1},
+          {"attackerType": "CAPTAIN_RODERICH", "turnOffset": 1, "amount": 1, "levelOffset": 1}
+        ]
+      }
+    ]
+  }
+}

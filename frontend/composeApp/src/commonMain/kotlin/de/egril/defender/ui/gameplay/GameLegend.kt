@@ -241,6 +241,45 @@ fun LegendItemHex(
 // Extension function to calculate color luminance
 private fun Color.luminance(): Float = (0.299f * red + 0.587f * green + 0.114f * blue)
 
+private fun Attacker.isSilasOrMirror(): Boolean = type == AttackerType.SILAS_THE_MASKMASTER || type == AttackerType.SILAS_MIRROR_IMAGE
+
+private fun mixedSilasOrderKey(
+    attackerId: Int,
+    turn: Int,
+): UInt {
+    var x = attackerId xor (turn * 0x9E3779B9.toInt())
+    x = x xor (x ushr 16)
+    x *= 0x7FEB352D
+    x = x xor (x ushr 15)
+    x *= 0x846CA68B.toInt()
+    x = x xor (x ushr 16)
+    return x.toUInt()
+}
+
+private fun reorderActiveEnemiesForDisplay(
+    enemiesById: List<Attacker>,
+    turn: Int,
+): List<Attacker> {
+    val silasGroup = enemiesById.filter { it.isSilasOrMirror() }
+    if (silasGroup.size < 2) return enemiesById
+
+    val mixedSilasGroup = silasGroup.sortedBy { mixedSilasOrderKey(attackerId = it.id, turn = turn) }
+    var insertedSilasGroup = false
+
+    return buildList(enemiesById.size) {
+        enemiesById.forEach { attacker ->
+            if (attacker.isSilasOrMirror()) {
+                if (!insertedSilasGroup) {
+                    addAll(mixedSilasGroup)
+                    insertedSilasGroup = true
+                }
+            } else {
+                add(attacker)
+            }
+        }
+    }
+}
+
 @Composable
 fun EnemyListPanel(
     gameState: GameState,
@@ -264,14 +303,19 @@ fun EnemyListPanel(
     }
 
     // Compute values directly - parent GamePlayScreen's key() will trigger recomposition
-    val activeEnemies = gameState.attackers.filter { !it.isDefeated.value }.sortedBy { it.id }
+    val activeEnemies =
+        reorderActiveEnemiesForDisplay(
+            enemiesById = gameState.attackers.filter { !it.isDefeated.value }.sortedBy { it.id },
+            turn = currentTurn,
+        )
+    val shadowFogPositions =
+        gameState.fieldEffects
+            .filter { it.type == FieldEffectType.SHADOW_FOG }
+            .mapTo(mutableSetOf()) { it.position }
 
-    // Calculate how many enemies have spawned from the spawn plan
-    // nextAttackerId starts at 1, so (nextAttackerId - 1) gives us the count of spawned enemies
-    val totalSpawned = gameState.nextAttackerId.value - 1
-
-    // Get the remaining planned spawns (those that haven't spawned yet)
-    val plannedSpawns = gameState.spawnPlan.drop(totalSpawned) // .take(15)
+    // Planned spawns are determined by the schedule, not by attacker IDs, because Valerius and
+    // other abilities can create extra units that should not consume future planned entries.
+    val plannedSpawns = gameState.getRemainingPlannedEnemySpawns()
 
     ExpandableCard(
         title = stringResource(Res.string.enemies),
@@ -312,7 +356,11 @@ fun EnemyListPanel(
                     attacker.position.value.y,
                     attacker.currentHealth.value,
                 ) {
-                    EnemyItemDetailed(attacker, showPosition = true)
+                    EnemyItemDetailed(
+                        attacker = attacker,
+                        showPosition = true,
+                        isInShadowFog = attacker.position.value in shadowFogPositions,
+                    )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
             }
@@ -347,6 +395,7 @@ fun EnemyListPanel(
 fun EnemyItemDetailed(
     attacker: Attacker,
     showPosition: Boolean,
+    isInShadowFog: Boolean = false,
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     Card(
@@ -383,9 +432,9 @@ fun EnemyItemDetailed(
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Bold,
                     )
-                    if (attacker.level.value > 1) {
+                    if (attacker.displayLevel > 1) {
                         Text(
-                            "Lvl ${attacker.level.value}",
+                            if (attacker.hasMushroomBuff) "Lvl ${attacker.displayLevel} (x2)" else "Lvl ${attacker.displayLevel}",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
@@ -396,7 +445,7 @@ fun EnemyItemDetailed(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    if (attacker.type != AttackerType.EWHAD) {
+                    if (!attacker.type.hidesHealthBar) {
                         Text(
                             "${stringResource(Res.string.hp_short)}: ${attacker.currentHealth.value}/${attacker.maxHealth}",
                             style = MaterialTheme.typography.bodySmall,
@@ -405,10 +454,23 @@ fun EnemyItemDetailed(
                     }
                     if (showPosition) {
                         Text(
-                            "Pos: (${attacker.position.value.x},${attacker.position.value.y})",
+                            if (isInShadowFog) {
+                                stringResource(Res.string.enemy_in_fog)
+                            } else {
+                                "Pos: (${attacker.position.value.x},${attacker.position.value.y})"
+                            },
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
-                            color = if (isDarkMode) GamePlayColors.InfoLight else GamePlayColors.InfoDark,
+                            color =
+                                if (isInShadowFog) {
+                                    if (isDarkMode) {
+                                        Color(0xFFD1A3FF)
+                                    } else {
+                                        Color(0xFF6A1B9A)
+                                    }
+                                } else {
+                                    if (isDarkMode) GamePlayColors.InfoLight else GamePlayColors.InfoDark
+                                },
                         )
                     }
                 }
@@ -466,11 +528,13 @@ fun PlannedEnemyItem(
                         )
                     }
                 }
-                Text(
-                    "${stringResource(Res.string.hp_short)}: ${plannedSpawn.healthPoints}",
-                    style = MaterialTheme.typography.bodySmall,
-                    fontSize = 10.sp,
-                )
+                if (!plannedSpawn.attackerType.hidesHealthBar) {
+                    Text(
+                        "${stringResource(Res.string.hp_short)}: ${plannedSpawn.healthPoints}",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 10.sp,
+                    )
+                }
             }
 
             // Spawn turn
