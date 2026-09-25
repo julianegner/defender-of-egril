@@ -62,13 +62,15 @@ class InfoPageLayoutDecisionTest {
 
     @Test
     fun streamerInfoTabIsAlwaysLast() {
-        val tabs =
-            buildVisibleInfoTabs(
-                showDownloadTab = true,
-                showInstallationTab = true,
-                showEditorHowToTab = true,
+        val tabConfigurations =
+            listOf(
+                buildVisibleInfoTabs(showDownloadTab = true, showInstallationTab = true, showEditorHowToTab = true),
+                buildVisibleInfoTabs(showDownloadTab = true, showInstallationTab = false, showEditorHowToTab = false),
+                buildVisibleInfoTabs(showDownloadTab = false, showInstallationTab = true, showEditorHowToTab = false),
             )
 
-        assertEquals(InfoTab.STREAMER_INFO, tabs.last())
+        tabConfigurations.forEach { tabs ->
+            assertEquals(InfoTab.STREAMER_INFO, tabs.last())
+        }
     }
 }

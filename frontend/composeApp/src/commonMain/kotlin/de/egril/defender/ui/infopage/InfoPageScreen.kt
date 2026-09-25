@@ -57,8 +57,7 @@ internal fun buildVisibleInfoTabs(
         add(InfoTab.BACKEND)
         add(InfoTab.FEEDBACK)
         if (showEditorHowToTab) add(InfoTab.EDITOR_HOWTO)
-        add(InfoTab.STREAMER_INFO)
-    }
+    } + InfoTab.STREAMER_INFO
 
 internal sealed interface InfoPageBrowserNavigation {
     data class SelectTab(
