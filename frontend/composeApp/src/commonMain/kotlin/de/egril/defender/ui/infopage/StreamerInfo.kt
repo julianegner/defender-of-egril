@@ -83,12 +83,14 @@ internal fun StreamerNoticeField() {
             color = MaterialTheme.colorScheme.surface,
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         ) {
-            Text(
-                text = stringResource(Res.string.streamer_info_copyable_notice_text),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            SelectionContainer {
+                Text(
+                    text = stringResource(Res.string.streamer_info_copyable_notice_text),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
         }
     }
 }
