@@ -48,7 +48,7 @@ class InfoPageScreenTest {
         }
         composeTestRule.waitForIdle()
         composeTestRule.onAllNodesWithText(tabLabel).assertCountEquals(2)
-        composeTestRule.onAllNodesWithText(tabLabel).assertCountEquals(2)
+        composeTestRule.onNode(hasText(tabLabel) and hasClickAction()).assertIsSelected()
         composeTestRule.onNodeWithText(noticeText).assertExists()
     }
 }
