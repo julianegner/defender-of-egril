@@ -30,38 +30,40 @@ import defender_of_egril.composeapp.generated.resources.streamer_info_title
 
 @Composable
 fun StreamerInfo(scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
-    SelectionContainer {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = stringResource(Res.string.streamer_info_title),
-                style = MaterialTheme.typography.headlineLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onBackground,
-            )
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        SelectionContainer {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(
+                    text = stringResource(Res.string.streamer_info_title),
+                    style = MaterialTheme.typography.headlineLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
 
-            Text(
-                text = stringResource(Res.string.streamer_info_intro),
-                style = MaterialTheme.typography.bodyLarge,
-            )
+                Text(
+                    text = stringResource(Res.string.streamer_info_intro),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
 
-            Text(
-                text = stringResource(Res.string.streamer_info_scope),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary,
-            )
-
-            StreamerNoticeField()
-
-            Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(Res.string.streamer_info_scope),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
         }
+
+        StreamerNoticeField()
+
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
