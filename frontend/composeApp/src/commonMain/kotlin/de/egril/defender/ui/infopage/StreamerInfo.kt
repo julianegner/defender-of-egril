@@ -67,6 +67,11 @@ fun StreamerInfo(scrollState: androidx.compose.foundation.ScrollState = remember
     }
 }
 
+/**
+ * Shared, copyable notice for the Fesliyan Studios background music policy.
+ * Reused in the audio licenses page and the dedicated streamer info page so both
+ * locations present the same text and copy behavior.
+ */
 @Composable
 internal fun StreamerNoticeField() {
     Column(

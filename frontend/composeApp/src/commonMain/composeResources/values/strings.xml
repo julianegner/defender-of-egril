@@ -1496,7 +1496,7 @@
     <string name="info_tab_keyboard_shortcuts">Keyboard Shortcuts</string>
     <string name="info_tab_backend">Account &amp; Privacy</string>
     <string name="info_tab_feedback">Feedback</string>
-    <string name="info_tab_streamer_info">Infos for Streamers</string>
+    <string name="info_tab_streamer_info">Info for Streamers</string>
 
     <!-- Backend Info -->
     <string name="backend_info_title">Account &amp; Privacy</string>
@@ -1621,7 +1621,7 @@
     <string name="audio_source_label">Source: %s</string>
     <string name="audio_license_label">License: %s</string>
     <string name="audio_attribution_note">All audio files are used under their respective licenses. Attribution is provided where required.</string>
-    <string name="streamer_info_title">Infos for Streamers</string>
+    <string name="streamer_info_title">Info for Streamers</string>
     <string name="streamer_info_intro">This section summarizes the YouTube monetization note from the Fesliyan Studios license policy for the background music used in Defender of Egril.</string>
     <string name="streamer_info_scope">Fesliyan Studios background music notice</string>
     <string name="streamer_info_copyable_notice_label">Copyable notice</string>
