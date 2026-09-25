@@ -1492,6 +1492,7 @@
     <string name="info_tab_keyboard_shortcuts">Raccourcis Clavier</string>
     <string name="info_tab_backend">Compte et Confidentialité</string>
     <string name="info_tab_feedback">Commentaires</string>
+    <string name="info_tab_streamer_info">Infos pour les streamers</string>
 
     <!-- Backend Info -->
     <string name="backend_info_title">Compte et Confidentialité</string>
@@ -1582,6 +1583,7 @@
     <string name="audio_dark_castle_name">The Dark Castle</string>
     <string name="audio_beautiful_memories_name">Beautiful Memories</string>
     <string name="audio_fesliyan_license">Musique libre de droits de Fesliyan Studios. Utilisation dans les jeux vidéo autorisée.</string>
+    <string name="audio_background_music_streamer_notice_intro">L'avis suivant s'applique aux pistes de musique de fond de Fesliyan Studios utilisées dans le jeu :</string>
     <string name="audio_fantasy_orchestral_name">Mystic Fantasy Orchestral Music</string>
     <string name="audio_pixabay_license">Licence de Contenu Pixabay - Utilisation gratuite, aucune attribution requise</string>
 
@@ -1615,6 +1617,11 @@
     <string name="audio_source_label">Source: %s</string>
     <string name="audio_license_label">Licence: %s</string>
     <string name="audio_attribution_note">Tous les fichiers audio sont utilisés sous leurs licences respectives. L\'attribution est fournie lorsque requise.</string>
+    <string name="streamer_info_title">Infos pour les streamers</string>
+    <string name="streamer_info_intro">Cette section résume la note de monétisation YouTube de la politique de licence de Fesliyan Studios pour la musique de fond utilisée dans Defender of Egril.</string>
+    <string name="streamer_info_scope">Avis concernant la musique de fond de Fesliyan Studios</string>
+    <string name="streamer_info_copyable_notice_label">Avis copiable</string>
+    <string name="streamer_info_copyable_notice_text">Politique de Fesliyan Studios : https://www.fesliyanstudios.com/policy\n\nL'utilisation dans les jeux vidéo est autorisée. Cependant, si des vidéos de jeu contenant cette musique sont mises en ligne sur YouTube, l'uploader peut temporairement recevoir un avis de restriction de monétisation jusqu'à ce qu'il clique sur le bouton de contestation et choisisse des séquences de gameplay en \"fair use\".</string>
     <string name="towers">Tours</string>
     <string name="traps">Pièges</string>
     <string name="barricades">Barricades</string>

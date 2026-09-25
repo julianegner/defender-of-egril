@@ -45,6 +45,17 @@ fun AudioLicensesInfo(scrollState: androidx.compose.foundation.ScrollState = rem
                 AudioSection(
                     title = stringResource(Res.string.audio_background_music_title),
                 ) {
+                    Text(
+                        text = stringResource(Res.string.audio_background_music_streamer_notice_intro),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+
+                    StreamerNoticeField()
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
                     // Fantasy Ambience
                     AudioItem(
                         name = stringResource(Res.string.audio_fantasy_ambience_name),

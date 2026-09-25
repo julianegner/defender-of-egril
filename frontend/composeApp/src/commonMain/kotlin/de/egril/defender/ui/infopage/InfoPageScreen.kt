@@ -57,6 +57,7 @@ internal fun buildVisibleInfoTabs(
         add(InfoTab.BACKEND)
         add(InfoTab.FEEDBACK)
         if (showEditorHowToTab) add(InfoTab.EDITOR_HOWTO)
+        add(InfoTab.STREAMER_INFO)
     }
 
 internal sealed interface InfoPageBrowserNavigation {
@@ -289,6 +290,7 @@ fun InfoPageScreen(
                                         InfoTab.FEEDBACK -> stringResource(Res.string.info_tab_feedback)
                                         InfoTab.EDITOR_HOWTO -> stringResource(Res.string.info_tab_editor_howto)
                                         InfoTab.DOWNLOAD -> stringResource(Res.string.info_tab_download)
+                                        InfoTab.STREAMER_INFO -> stringResource(Res.string.info_tab_streamer_info)
                                     },
                                 )
                             },
@@ -317,6 +319,7 @@ fun InfoPageScreen(
                         InfoTab.BACKEND -> BackendInfo(scrollState = contentScrollState)
                         InfoTab.FEEDBACK -> FeedbackInfo(scrollState = contentScrollState)
                         InfoTab.EDITOR_HOWTO -> EditorHowToContent(scrollState = contentScrollState)
+                        InfoTab.STREAMER_INFO -> StreamerInfo(scrollState = contentScrollState)
                         InfoTab.DOWNLOAD ->
                             DownloadInfo(
                                 onNavigateToInstallation = {
@@ -398,6 +401,7 @@ enum class InfoTab {
     FEEDBACK,
     EDITOR_HOWTO,
     DOWNLOAD,
+    STREAMER_INFO,
 }
 
 /**

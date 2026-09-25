@@ -1492,6 +1492,7 @@
     <string name="info_tab_keyboard_shortcuts">Atajos de Teclado</string>
     <string name="info_tab_backend">Cuenta y Privacidad</string>
     <string name="info_tab_feedback">Comentarios</string>
+    <string name="info_tab_streamer_info">Infos para streamers</string>
 
     <!-- Backend Info -->
     <string name="backend_info_title">Cuenta y Privacidad</string>
@@ -1582,6 +1583,7 @@
     <string name="audio_dark_castle_name">The Dark Castle</string>
     <string name="audio_beautiful_memories_name">Beautiful Memories</string>
     <string name="audio_fesliyan_license">Música libre de regalías de Fesliyan Studios. Uso en videojuegos permitido.</string>
+    <string name="audio_background_music_streamer_notice_intro">El siguiente aviso se aplica a las pistas de música de fondo de Fesliyan Studios usadas en el juego:</string>
     <string name="audio_fantasy_orchestral_name">Mystic Fantasy Orchestral Music</string>
     <string name="audio_pixabay_license">Licencia de Contenido Pixabay - Uso gratuito, no requiere atribución</string>
 
@@ -1615,6 +1617,11 @@
     <string name="audio_source_label">Fuente: %s</string>
     <string name="audio_license_label">Licencia: %s</string>
     <string name="audio_attribution_note">Todos los archivos de audio se utilizan bajo sus respectivas licencias. Se proporciona atribución cuando es requerida.</string>
+    <string name="streamer_info_title">Infos para streamers</string>
+    <string name="streamer_info_intro">Esta sección resume la nota de monetización de YouTube de la política de licencias de Fesliyan Studios para la música de fondo usada en Defender of Egril.</string>
+    <string name="streamer_info_scope">Aviso sobre la música de fondo de Fesliyan Studios</string>
+    <string name="streamer_info_copyable_notice_label">Aviso copiable</string>
+    <string name="streamer_info_copyable_notice_text">Política de Fesliyan Studios: https://www.fesliyanstudios.com/policy\n\nSe permite el uso en videojuegos. Sin embargo, si se suben a YouTube videos de juego que contengan esta música, el autor puede recibir temporalmente un aviso de restricción de monetización hasta que pulse el botón de disputa y elija metraje de juego de \"uso justo\".</string>
     <string name="towers">Torres</string>
     <string name="traps">Trampas</string>
     <string name="barricades">Barricadas</string>
