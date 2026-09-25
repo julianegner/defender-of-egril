@@ -1615,10 +1615,11 @@
     <string name="audio_license_label">Lizenz: %s</string>
     <string name="audio_attribution_note">Alle Audiodateien werden unter ihren jeweiligen Lizenzen verwendet. Die Namensnennung wird ggf. bereitgestellt.</string>
     <string name="streamer_info_title">Infos für Streamer</string>
-    <string name="streamer_info_intro">Dieser Abschnitt fasst den YouTube-Monetarisierungshinweis aus den Lizenzrichtlinien von Fesliyan Studios für die in Defender of Egril verwendete Hintergrundmusik zusammen.</string>
     <string name="streamer_info_scope">Hinweis zu Hintergrundmusik von Fesliyan Studios</string>
-    <string name="streamer_info_copyable_notice_label">Kopierbarer Hinweis</string>
-    <string name="streamer_info_copyable_notice_text">Fesliyan-Studios-Richtlinie: https://www.fesliyanstudios.com/policy\n\nDie Verwendung in Videospielen ist erlaubt. Wenn jedoch Gaming-Videos mit dieser Musik auf YouTube hochgeladen werden, kann der Uploader vorübergehend einen Hinweis auf eine Monetarisierungsbeschränkung erhalten, bis er auf die Schaltfläche zum Anfechten klickt und \"Fair Use\" für Gameplay-Material auswählt.</string>
+    <string name="streamer_info_no_content_id_notice">Bitte fügen Sie diesen Audioinhalt NICHT dem YouTube Content-ID-System hinzu. Ich habe Hintergrundmusik verwendet, die FesliyanStudios gehört.</string>
+    <string name="streamer_info_notice_link_text">Fesliyan-Studios-Richtlinie: https://www.fesliyanstudios.com/policy</string>
+    <string name="streamer_info_notice_text">Die Verwendung in Videospielen ist erlaubt. Wenn jedoch Gaming-Videos mit dieser Musik auf YouTube hochgeladen werden, kann der Uploader vorübergehend einen Hinweis auf eine Monetarisierungsbeschränkung erhalten, bis er auf die Schaltfläche zum Anfechten klickt und \"Fair Use\" für Gameplay-Material auswählt.</string>
+    <string name="streamer_info_mute_music_hint">Eine einfache Möglichkeit, dies von vornherein zu vermeiden, besteht darin, die Hintergrundmusik vor dem Streamen oder Aufnehmen einfach auszuschalten.</string>
 
     <string name="towers">Türme</string>
     <string name="traps">Fallen</string>

@@ -1622,10 +1622,11 @@
     <string name="audio_license_label">License: %s</string>
     <string name="audio_attribution_note">All audio files are used under their respective licenses. Attribution is provided where required.</string>
     <string name="streamer_info_title">Info for Streamers</string>
-    <string name="streamer_info_intro">This section summarizes the YouTube monetization note from the Fesliyan Studios license policy for the background music used in Defender of Egril.</string>
     <string name="streamer_info_scope">Fesliyan Studios background music notice</string>
-    <string name="streamer_info_copyable_notice_label">Copyable notice</string>
-    <string name="streamer_info_copyable_notice_text">Fesliyan Studios policy: https://www.fesliyanstudios.com/policy\n\nVideo game use is permitted. However, if gaming videos containing this music are uploaded to YouTube, the uploader may temporarily receive a monetization restriction notice until they click the dispute button and choose \"fair use\" gameplay footage.</string>
+    <string name="streamer_info_no_content_id_notice">Please DO NOT add this audio content to the YouTube Content ID System. I have used background music which is owned by FesliyanStudios.</string>
+    <string name="streamer_info_notice_link_text">Fesliyan Studios policy: https://www.fesliyanstudios.com/policy</string>
+    <string name="streamer_info_notice_text">Video game use is permitted. However, if gaming videos containing this music are uploaded to YouTube, the uploader may temporarily receive a monetization restriction notice until they click the dispute button and choose \"fair use\" gameplay footage.</string>
+    <string name="streamer_info_mute_music_hint">A simple way to avoid this altogether is to just turn off the background music before streaming or recording.</string>
     <string name="towers">Towers</string>
     <string name="traps">Traps</string>
     <string name="barricades">Barricades</string>

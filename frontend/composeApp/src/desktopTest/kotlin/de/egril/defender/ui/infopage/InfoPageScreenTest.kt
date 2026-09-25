@@ -6,7 +6,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.ui.ScreenshotTestUtils
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.info_tab_streamer_info
-import defender_of_egril.composeapp.generated.resources.streamer_info_copyable_notice_text
+import defender_of_egril.composeapp.generated.resources.streamer_info_notice_text
 import org.junit.Rule
 import org.junit.Test
 
@@ -39,7 +39,7 @@ class InfoPageScreenTest {
 
         composeTestRule.setContent {
             tabLabel = stringResource(Res.string.info_tab_streamer_info)
-            noticeText = stringResource(Res.string.streamer_info_copyable_notice_text)
+            noticeText = stringResource(Res.string.streamer_info_notice_text)
 
             InfoPageScreen(
                 onBack = {},

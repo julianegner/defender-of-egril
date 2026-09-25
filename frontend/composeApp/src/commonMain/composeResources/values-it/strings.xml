@@ -1618,10 +1618,11 @@
     <string name="audio_license_label">Licenza: %s</string>
     <string name="audio_attribution_note">Tutti i file audio sono utilizzati sotto le rispettive licenze. L\'attribuzione è fornita quando richiesta.</string>
     <string name="streamer_info_title">Info per streamer</string>
-    <string name="streamer_info_intro">Questa sezione riassume la nota sulla monetizzazione di YouTube presente nella policy di licenza di Fesliyan Studios per la musica di sottofondo usata in Defender of Egril.</string>
     <string name="streamer_info_scope">Avviso sulla musica di sottofondo di Fesliyan Studios</string>
-    <string name="streamer_info_copyable_notice_label">Avviso copiabile</string>
-    <string name="streamer_info_copyable_notice_text">Policy di Fesliyan Studios: https://www.fesliyanstudios.com/policy\n\nL'utilizzo nei videogiochi è consentito. Tuttavia, se video di gameplay contenenti questa musica vengono caricati su YouTube, chi li carica potrebbe ricevere temporaneamente un avviso di restrizione della monetizzazione finché non clicca sul pulsante di contestazione e sceglie filmati di gameplay in \"fair use\".</string>
+    <string name="streamer_info_no_content_id_notice">Si prega di NON aggiungere questo contenuto audio al sistema Content ID di YouTube. Ho utilizzato musica di sottofondo di proprietà di FesliyanStudios.</string>
+    <string name="streamer_info_notice_link_text">Policy di Fesliyan Studios: https://www.fesliyanstudios.com/policy</string>
+    <string name="streamer_info_notice_text">L'utilizzo nei videogiochi è consentito. Tuttavia, se video di gameplay contenenti questa musica vengono caricati su YouTube, chi li carica potrebbe ricevere temporaneamente un avviso di restrizione della monetizzazione finché non clicca sul pulsante di contestazione e sceglie filmati di gameplay in \"fair use\".</string>
+    <string name="streamer_info_mute_music_hint">Un modo semplice per evitare del tutto questo problema è disattivare la musica di sottofondo prima di trasmettere in streaming o registrare.</string>
 
     <string name="towers">Torri</string>
     <string name="traps">Trappole</string>

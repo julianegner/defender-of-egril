@@ -1618,10 +1618,11 @@
     <string name="audio_license_label">Licence: %s</string>
     <string name="audio_attribution_note">Tous les fichiers audio sont utilisés sous leurs licences respectives. L\'attribution est fournie lorsque requise.</string>
     <string name="streamer_info_title">Infos pour les streamers</string>
-    <string name="streamer_info_intro">Cette section résume la note de monétisation YouTube de la politique de licence de Fesliyan Studios pour la musique de fond utilisée dans Defender of Egril.</string>
     <string name="streamer_info_scope">Avis concernant la musique de fond de Fesliyan Studios</string>
-    <string name="streamer_info_copyable_notice_label">Avis copiable</string>
-    <string name="streamer_info_copyable_notice_text">Politique de Fesliyan Studios : https://www.fesliyanstudios.com/policy\n\nL'utilisation dans les jeux vidéo est autorisée. Cependant, si des vidéos de jeu contenant cette musique sont mises en ligne sur YouTube, l'uploader peut temporairement recevoir un avis de restriction de monétisation jusqu'à ce qu'il clique sur le bouton de contestation et choisisse des séquences de gameplay en \"fair use\".</string>
+    <string name="streamer_info_no_content_id_notice">Veuillez NE PAS ajouter ce contenu audio au système Content ID de YouTube. J'ai utilisé de la musique de fond appartenant à FesliyanStudios.</string>
+    <string name="streamer_info_notice_link_text">Politique de Fesliyan Studios : https://www.fesliyanstudios.com/policy</string>
+    <string name="streamer_info_notice_text">L'utilisation dans les jeux vidéo est autorisée. Cependant, si des vidéos de jeu contenant cette musique sont mises en ligne sur YouTube, l'uploader peut temporairement recevoir un avis de restriction de monétisation jusqu'à ce qu'il clique sur le bouton de contestation et choisisse des séquences de gameplay en \"fair use\".</string>
+    <string name="streamer_info_mute_music_hint">Un moyen simple d'éviter complètement ce problème est de simplement désactiver la musique de fond avant de streamer ou d'enregistrer.</string>
     <string name="towers">Tours</string>
     <string name="traps">Pièges</string>
     <string name="barricades">Barricades</string>

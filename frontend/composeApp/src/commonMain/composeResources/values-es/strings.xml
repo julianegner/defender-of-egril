@@ -1618,10 +1618,11 @@
     <string name="audio_license_label">Licencia: %s</string>
     <string name="audio_attribution_note">Todos los archivos de audio se utilizan bajo sus respectivas licencias. Se proporciona atribución cuando es requerida.</string>
     <string name="streamer_info_title">Infos para streamers</string>
-    <string name="streamer_info_intro">Esta sección resume la nota de monetización de YouTube de la política de licencias de Fesliyan Studios para la música de fondo usada en Defender of Egril.</string>
     <string name="streamer_info_scope">Aviso sobre la música de fondo de Fesliyan Studios</string>
-    <string name="streamer_info_copyable_notice_label">Aviso copiable</string>
-    <string name="streamer_info_copyable_notice_text">Política de Fesliyan Studios: https://www.fesliyanstudios.com/policy\n\nSe permite el uso en videojuegos. Sin embargo, si se suben a YouTube videos de juego que contengan esta música, el autor puede recibir temporalmente un aviso de restricción de monetización hasta que pulse el botón de disputa y elija metraje de juego de \"uso justo\".</string>
+    <string name="streamer_info_no_content_id_notice">Por favor, NO añada este contenido de audio al sistema Content ID de YouTube. He utilizado música de fondo que es propiedad de FesliyanStudios.</string>
+    <string name="streamer_info_notice_link_text">Política de Fesliyan Studios: https://www.fesliyanstudios.com/policy</string>
+    <string name="streamer_info_notice_text">Se permite el uso en videojuegos. Sin embargo, si se suben a YouTube videos de juego que contengan esta música, el autor puede recibir temporalmente un aviso de restricción de monetización hasta que pulse el botón de disputa y elija metraje de juego de \"uso justo\".</string>
+    <string name="streamer_info_mute_music_hint">Una forma sencilla de evitar esto por completo es simplemente desactivar la música de fondo antes de transmitir o grabar.</string>
     <string name="towers">Torres</string>
     <string name="traps">Trampas</string>
     <string name="barricades">Barricadas</string>
