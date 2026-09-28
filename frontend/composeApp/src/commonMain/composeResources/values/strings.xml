@@ -1848,6 +1848,11 @@
     <string name="target_type_label">Target Type</string>
     <string name="target_type_standard">Standard</string>
     <string name="target_type_single_hit">Single Hit</string>
+    <string name="single_hit_target_order">Single-hit target order</string>
+    <string name="single_hit_target_order_hint">Enemies attack these targets one at a time, in the order shown.</string>
+    <string name="enforce_single_hit_target_order">Enforce this order</string>
+    <string name="move_up">Up</string>
+    <string name="move_down">Down</string>
     <string name="target_name_label">Target Name (optional)</string>
     <string name="barricade_name_label">Barricade Name (optional)</string>
     <string name="is_gate_label">Is Gate</string>

@@ -87,6 +87,7 @@ data class Level(
     @Deprecated("Use initialData.attackers instead") val initialAttackers: List<de.egril.defender.editor.InitialAttacker> = emptyList(),
     @Deprecated("Use initialData.traps instead") val initialTraps: List<de.egril.defender.editor.InitialTrap> = emptyList(),
     @Deprecated("Use initialData.barricades instead") val initialBarricades: List<de.egril.defender.editor.InitialBarricade> = emptyList(),
+    val singleHitTargetOrder: List<Position> = emptyList(), // Ordered SINGLE_HIT targets; empty preserves the default routing
 ) {
     /**
      * Get effective initial data, handling both new and legacy formats

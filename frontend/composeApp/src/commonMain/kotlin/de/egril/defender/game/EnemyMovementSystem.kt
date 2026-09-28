@@ -70,10 +70,10 @@ class EnemyMovementSystem(
 
     /**
      * Gets the initial target for a newly spawned attacker based on preferred spawn point.
-     * Checks if the spawn point has a waypoint entry and uses the waypoint's nextTarget.
-     * If no waypoints exist, uses the first target position.
+     * An ordered SINGLE_HIT target takes precedence; otherwise, waypoint routing is used.
      */
     fun getInitialTarget(preferredSpawnPoint: Position): Position {
+        state.getNextSingleHitTargetPosition()?.let { return it }
         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
             println("=== GET INITIAL TARGET ===")
         }

@@ -571,6 +571,7 @@ data class EditorLevel(
     @Deprecated("Use initialData.attackers instead") val initialAttackers: List<InitialAttacker> = emptyList(),
     @Deprecated("Use initialData.traps instead") val initialTraps: List<InitialTrap> = emptyList(),
     @Deprecated("Use initialData.barricades instead") val initialBarricades: List<InitialBarricade> = emptyList(),
+    val singleHitTargetOrder: List<Position> = emptyList(), // Ordered SINGLE_HIT targets; empty disables sequencing
 ) {
     /**
      * Get effective initial data, handling both new and legacy formats

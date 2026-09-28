@@ -1841,6 +1841,11 @@
     <string name="target_type_label">Tipo de objetivo</string>
     <string name="target_type_standard">Estándar</string>
     <string name="target_type_single_hit">Golpe único</string>
+    <string name="single_hit_target_order">Orden de objetivos de un solo golpe</string>
+    <string name="single_hit_target_order_hint">Los enemigos atacan estos objetivos de uno en uno, en el orden indicado.</string>
+    <string name="enforce_single_hit_target_order">Aplicar este orden</string>
+    <string name="move_up">Subir</string>
+    <string name="move_down">Bajar</string>
     <string name="target_name_label">Nombre del objetivo (opcional)</string>
     <string name="barricade_name_label">Nombre de la barricada (opcional)</string>
     <string name="is_gate_label">Es puerta</string>

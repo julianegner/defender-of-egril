@@ -531,6 +531,7 @@ internal fun LevelEditorView(
     var enemySpawns by remember { mutableStateOf(level.enemySpawns.toMutableList()) }
     var availableTowersState by remember { mutableStateOf(level.availableTowers.toSet()) }
     var waypointsState by remember { mutableStateOf(level.waypoints.toMutableList()) }
+    var singleHitTargetOrder by remember { mutableStateOf(level.singleHitTargetOrder) }
     var initialDataState by remember { mutableStateOf(level.getEffectiveInitialData()) }
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
@@ -557,6 +558,7 @@ internal fun LevelEditorView(
         }
 
         initialDataState = level.getEffectiveInitialData()
+        singleHitTargetOrder = level.singleHitTargetOrder
     }
     var showEnemyDialog by remember { mutableStateOf(false) }
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
@@ -680,6 +682,7 @@ internal fun LevelEditorView(
             enemySpawns,
             availableTowersState,
             waypointsState,
+            singleHitTargetOrder,
             testingOnly,
             allowAutoAttack,
             connectedToPreviousLevel,
@@ -699,6 +702,7 @@ internal fun LevelEditorView(
                 enemySpawns = if (isSandbox) emptyList() else enemySpawns.toList(),
                 availableTowers = availableTowersState,
                 waypoints = waypointsState.toList(),
+                singleHitTargetOrder = singleHitTargetOrder,
                 testingOnly = testingOnly,
                 allowAutoAttack = allowAutoAttack,
                 connectedToPreviousLevel = connectedToPreviousLevel,
@@ -922,7 +926,12 @@ internal fun LevelEditorView(
                         communityDescription = communityDescription,
                         onCommunityDescriptionChange = { communityDescription = it },
                         selectedMapId = selectedMapId,
-                        onMapChange = { selectedMapId = it },
+                        onMapChange = {
+                            if (selectedMapId != it) {
+                                selectedMapId = it
+                                singleHitTargetOrder = emptyList()
+                            }
+                        },
                         maps = maps,
                         startCoins = startCoins,
                         onStartCoinsChange = { startCoins = it },
@@ -1010,6 +1019,8 @@ internal fun LevelEditorView(
                     WaypointsTab(
                         waypoints = waypointsState.toList(),
                         onWaypointsChange = { waypointsState = it.toMutableList() },
+                        singleHitTargetOrder = singleHitTargetOrder,
+                        onSingleHitTargetOrderChange = { singleHitTargetOrder = it },
                         map = currentMap,
                         isValid = isWaypointsValid,
                     )
@@ -1076,6 +1087,7 @@ internal fun LevelEditorView(
                                 enemySpawns = if (isSandbox) emptyList() else enemySpawns.toList(),
                                 availableTowers = availableTowersState,
                                 waypoints = waypointsState.toList(),
+                                singleHitTargetOrder = singleHitTargetOrder,
                                 testingOnly = testingOnly,
                                 allowAutoAttack = allowAutoAttack,
                                 connectedToPreviousLevel = connectedToPreviousLevel,
@@ -1341,6 +1353,7 @@ internal fun LevelEditorView(
                         enemySpawns = if (isSandbox) emptyList() else enemySpawns.toList(),
                         availableTowers = availableTowersState,
                         waypoints = waypointsState.toList(),
+                        singleHitTargetOrder = singleHitTargetOrder,
                         testingOnly = testingOnly,
                         allowAutoAttack = allowAutoAttack,
                         connectedToPreviousLevel = connectedToPreviousLevel,

@@ -281,6 +281,11 @@ object SaveJsonSerializer {
     }"""
             }
 
+        val takenTargetsJson =
+            savedGame.takenTargets.joinToString(", ") { position ->
+                """{"x": ${position.x}, "y": ${position.y}}"""
+            }
+
         val data = """{
   "id": "${savedGame.id}",
   "timestamp": ${savedGame.timestamp},
@@ -351,6 +356,7 @@ object SaveJsonSerializer {
     $activePortalsJson
   ],
   "nextPortalId": ${savedGame.nextPortalId},
+  "takenTargets": [$takenTargetsJson],
   "bridges": [
    $bridgesJson
   ],
@@ -768,6 +774,20 @@ object SaveJsonSerializer {
                     1
                 }
 
+            val takenTargets =
+                JsonUtils
+                    .splitJsonArray(JsonUtils.extractJsonArrayForKey(dataJson, "takenTargets"))
+                    .mapNotNull { entry ->
+                        try {
+                            Position(
+                                JsonUtils.extractValue(entry, "x").toInt(),
+                                JsonUtils.extractValue(entry, "y").toInt(),
+                            )
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
+
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -826,6 +846,7 @@ object SaveJsonSerializer {
                 nextBridgeId = nextBridgeId,
                 activePortals = activePortals,
                 nextPortalId = nextPortalId,
+                takenTargets = takenTargets,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {

@@ -2097,6 +2097,7 @@ fun GridCell(
 
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = gameState.level.isTargetPosition(position)
+    val isNextOrderedTarget = gameState.getNextSingleHitTargetPosition() == position
     val isOnPath = gameState.level.isOnPath(position)
     val isBuildArea = gameState.level.isBuildArea(position)
     val isRiverTile = gameState.level.isRiverTile(position)
@@ -2640,6 +2641,7 @@ fun GridCell(
             isDangerous -> GamePlayColors.Error
 
             isSpawnPoint -> GamePlayColors.WarningDark // Darker orange border for spawn in dark mode
+            isNextOrderedTarget -> Color(0xFFFFC107)
             isTarget -> GamePlayColors.Success // Green border for target (adapts to dark mode automatically)
             attacker != null && !enemyBgSuppressed -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.ErrorDark else Color.Transparent // Darker red border for enemies (only when background enabled)
             defender != null ->
@@ -2684,6 +2686,7 @@ fun GridCell(
                 spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
                 spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> 4.dp // Thick purple border for valid spell targets
             isDangerous -> 4.dp
+            isNextOrderedTarget -> 5.dp
             isSpawnPoint || isTarget -> 3.dp
             (attacker != null || defender != null) && AppSettings.showUnitTowerBackground.value -> 3.dp
             effectiveFieldEffect != null -> 3.dp // Thick border for field effects
@@ -3643,6 +3646,7 @@ private fun BoxScope.GridCellContent(
             // Taken targets (SINGLE_HIT) show with a red cross overlay
             val locale = com.hyperether.resources.currentLanguage.value
             val isTaken = gameState.takenTargets.contains(position)
+            val isNextOrderedTarget = gameState.getNextSingleHitTargetPosition() == position
             val rawName =
                 gameState.level.targetInfoMap[position]
                     ?.name
@@ -3653,26 +3657,56 @@ private fun BoxScope.GridCellContent(
                 } else {
                     stringResource(Res.string.target)
                 }
-            if (isTaken) {
-                // Show dimmed name with a red X cross on top
-                Box(contentAlignment = Alignment.Center) {
+            Box(
+                modifier =
+                    if (isNextOrderedTarget) {
+                        Modifier
+                            .border(BorderStroke(2.dp, Color(0xFFFFC107)), RoundedCornerShape(8.dp))
+                            .background(Color(0x66400000), RoundedCornerShape(8.dp))
+                            .padding(horizontal = 3.dp, vertical = 2.dp)
+                    } else {
+                        Modifier
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                if (isTaken) {
+                    // Show dimmed name with a red X cross on top
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = targetName,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = GamePlayColors.Success.copy(alpha = 0.3f),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.widthIn(max = 50.dp),
+                        )
+                        CrossIcon(size = 20.dp, tint = Color.Red)
+                    }
+                } else {
                     Text(
                         text = targetName,
                         style = MaterialTheme.typography.labelSmall,
-                        color = GamePlayColors.Success.copy(alpha = 0.3f),
+                        color = if (isNextOrderedTarget) Color(0xFFFFD54F) else GamePlayColors.Success,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.widthIn(max = 50.dp),
+                        fontWeight = if (isNextOrderedTarget) FontWeight.Bold else FontWeight.Normal,
                     )
-                    CrossIcon(size = 20.dp, tint = Color.Red)
                 }
-            } else {
-                Text(
-                    text = targetName,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = GamePlayColors.Success,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.widthIn(max = 50.dp),
-                )
+                if (isNextOrderedTarget) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .align(Alignment.TopEnd)
+                                .background(Color(0xFFFFC107), androidx.compose.foundation.shape.CircleShape)
+                                .padding(horizontal = 3.dp),
+                    ) {
+                        Text(
+                            text = "1",
+                            color = Color(0xFF202020),
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
             }
         }
 

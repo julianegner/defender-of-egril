@@ -464,6 +464,7 @@ object SaveFileStorage {
             nextBridgeId = gameState.nextBridgeId.value,
             activePortals = activePortals,
             nextPortalId = gameState.nextPortalId.value,
+            takenTargets = gameState.takenTargets.toList(),
         )
     }
 
@@ -504,6 +505,8 @@ object SaveFileStorage {
         gameState.nextRaftId.value = savedGame.nextRaftId
         gameState.nextBridgeId.value = savedGame.nextBridgeId
         gameState.nextPortalId.value = savedGame.nextPortalId
+        gameState.takenTargets.clear()
+        gameState.takenTargets.addAll(savedGame.takenTargets)
 
         // Restore bridges
         gameState.bridges.clear()

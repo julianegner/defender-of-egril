@@ -88,6 +88,7 @@ data class SavedGame(
     val nextBridgeId: Int = 1, // Next bridge ID to use
     val activePortals: List<SavedPortal> = emptyList(), // Active portal entry/exit pairs (including rune selection)
     val nextPortalId: Int = 1, // Next portal ID to use
+    val takenTargets: List<Position> = emptyList(), // SINGLE_HIT targets already captured by enemies
 )
 
 /**

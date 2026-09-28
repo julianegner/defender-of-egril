@@ -1843,6 +1843,11 @@
     <string name="target_type_label">Tipo obiettivo</string>
     <string name="target_type_standard">Standard</string>
     <string name="target_type_single_hit">Colpo singolo</string>
+    <string name="single_hit_target_order">Ordine degli obiettivi a colpo singolo</string>
+    <string name="single_hit_target_order_hint">I nemici attaccano questi obiettivi uno alla volta, nell’ordine mostrato.</string>
+    <string name="enforce_single_hit_target_order">Applica questo ordine</string>
+    <string name="move_up">Sposta su</string>
+    <string name="move_down">Sposta giù</string>
     <string name="target_name_label">Nome obiettivo (opzionale)</string>
     <string name="barricade_name_label">Nome barricata (opzionale)</string>
     <string name="is_gate_label">È un cancello</string>

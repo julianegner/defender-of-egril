@@ -629,27 +629,55 @@ data class GameState(
      * Returns true if [position] is a target that can still be reached by enemies.
      * Taken SINGLE_HIT targets are excluded.
      */
-    fun isActiveTargetPosition(position: Position): Boolean = level.isTargetPosition(position) && !takenTargets.contains(position)
+    fun isActiveTargetPosition(position: Position): Boolean {
+        if (!level.isTargetPosition(position) || takenTargets.contains(position)) return false
+        val nextOrderedTarget = getNextSingleHitTargetPosition()
+        return nextOrderedTarget == null || position == nextOrderedTarget
+    }
 
     /**
-     * Returns the active (non-taken) target positions.
+     * Returns the next unclaimed SINGLE_HIT target in the configured order, or null when ordering
+     * is disabled or every ordered target has been claimed.
      */
-    fun getActiveTargetPositions(): List<Position> = level.targetPositions.filter { !takenTargets.contains(it) }
+    fun getNextSingleHitTargetPosition(): Position? =
+        level.singleHitTargetOrder.firstOrNull { target ->
+            level.isTargetPosition(target) &&
+                level.targetInfoMap[target]?.type == TargetType.SINGLE_HIT &&
+                !takenTargets.contains(target)
+        }
 
     /**
-     * When a SINGLE_HIT target at [takenPosition] is taken, redirect all enemies
-     * whose currentTarget points to that position towards the nearest remaining active target.
+     * Returns the target positions enemies may currently attack.
+     * While an ordered SINGLE_HIT target remains, it is the only available enemy destination.
+     */
+    fun getActiveTargetPositions(): List<Position> {
+        val nextOrderedTarget = getNextSingleHitTargetPosition()
+        return if (nextOrderedTarget != null) {
+            listOf(nextOrderedTarget)
+        } else {
+            level.targetPositions.filter { !takenTargets.contains(it) }
+        }
+    }
+
+    /**
+     * When a SINGLE_HIT target at [takenPosition] is taken, redirect enemies to the next
+     * ordered target when sequencing is enabled, otherwise to their nearest remaining target.
      */
     fun retargetEnemiesFromTakenTarget(takenPosition: Position) {
         val remaining = getActiveTargetPositions()
         if (remaining.isEmpty()) return // No active targets left – level will be lost
+        val nextOrderedTarget = getNextSingleHitTargetPosition()
         for (enemy in attackers) {
             if (enemy.isDefeated.value) continue
-            if (enemy.currentTarget?.value == takenPosition) {
-                val newTarget = remaining.minByOrNull { enemy.position.value.distanceTo(it) } ?: remaining.first()
-                enemy.currentTarget.value = newTarget
-                println("Enemy ${enemy.id} (${enemy.type}) retargeted from $takenPosition to $newTarget")
-            }
+            val newTarget =
+                nextOrderedTarget
+                    ?: if (enemy.currentTarget?.value == takenPosition) {
+                        remaining.minByOrNull { enemy.position.value.distanceTo(it) } ?: continue
+                    } else {
+                        continue
+                    }
+            enemy.currentTarget?.value = newTarget
+            println("Enemy ${enemy.id} (${enemy.type}) retargeted from $takenPosition to $newTarget")
         }
     }
 
@@ -660,12 +688,15 @@ data class GameState(
     fun resolveWaypointNextTarget(
         waypointNextTarget: Position,
         from: Position,
-    ): Position =
-        if (takenTargets.contains(waypointNextTarget)) {
+    ): Position {
+        val nextOrderedTarget = getNextSingleHitTargetPosition()
+        if (nextOrderedTarget != null && level.isTargetPosition(waypointNextTarget)) return nextOrderedTarget
+        return if (takenTargets.contains(waypointNextTarget)) {
             getActiveTargetPositions().minByOrNull { from.distanceTo(it) } ?: waypointNextTarget
         } else {
             waypointNextTarget
         }
+    }
 
     fun canPlaceDefender(type: DefenderType): Boolean = (level.isSandbox || coins.value >= type.baseCost) && level.availableTowers.contains(type)
 

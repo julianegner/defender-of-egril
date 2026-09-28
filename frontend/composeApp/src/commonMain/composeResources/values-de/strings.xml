@@ -1840,6 +1840,11 @@
     <string name="target_type_label">Zieltyp</string>
     <string name="target_type_standard">Standard</string>
     <string name="target_type_single_hit">Einmalig</string>
+    <string name="single_hit_target_order">Reihenfolge der Einmalziele</string>
+    <string name="single_hit_target_order_hint">Gegner greifen diese Ziele nacheinander in der angezeigten Reihenfolge an.</string>
+    <string name="enforce_single_hit_target_order">Reihenfolge erzwingen</string>
+    <string name="move_up">Nach oben</string>
+    <string name="move_down">Nach unten</string>
     <string name="target_name_label">Zielname (optional)</string>
     <string name="barricade_name_label">Barrikadenname (optional)</string>
     <string name="is_gate_label">Ist Tor</string>

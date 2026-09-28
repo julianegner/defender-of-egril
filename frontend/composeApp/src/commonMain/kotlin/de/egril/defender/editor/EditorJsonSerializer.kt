@@ -508,6 +508,13 @@ object EditorJsonSerializer {
                 """{"position": {"x": ${waypoint.position.x}, "y": ${waypoint.position.y}}, "nextTargetPosition": {"x": ${waypoint.nextTargetPosition.x}, "y": ${waypoint.nextTargetPosition.y}}}"""
             }
 
+        val singleHitTargetOrderJson =
+            if (level.singleHitTargetOrder.isNotEmpty()) {
+                ",\n  \"singleHitTargetOrder\": [${level.singleHitTargetOrder.joinToString(", ") { position -> """{"x": ${position.x}, "y": ${position.y}}""" }}]"
+            } else {
+                ""
+            }
+
         val prerequisitesJson = level.prerequisites.joinToString(", ") { "\"$it\"" }
 
         val titleKeyJson =
@@ -851,7 +858,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isSandboxJson$waaghEnabledJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$singleHitTargetOrderJson$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isSandboxJson$waaghEnabledJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
 }"""
         return """{
   "metadata": {
@@ -1036,6 +1043,23 @@ object EditorJsonSerializer {
                     // Continue without prerequisites for backward compatibility
                 }
             }
+
+            val singleHitTargetOrder =
+                try {
+                    splitJsonArrayObjects(extractJsonArray(dataJson, "singleHitTargetOrder"))
+                        .mapNotNull { entry ->
+                            if (!entry.contains("\"x\"") || !entry.contains("\"y\"")) return@mapNotNull null
+                            Position(
+                                JsonUtils.extractValue(entry, "x").toInt(),
+                                JsonUtils.extractValue(entry, "y").toInt(),
+                            )
+                        }
+                } catch (e: Exception) {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                        println("Error parsing single-hit target order (continuing without it): ${e.message}")
+                    }
+                    emptyList()
+                }
 
             // Parse requiredPrerequisiteCount (optional)
             val requiredPrerequisiteCount: Int? =
@@ -1826,6 +1850,7 @@ object EditorJsonSerializer {
                 enemySpawns = spawns,
                 availableTowers = towers,
                 waypoints = waypoints,
+                singleHitTargetOrder = singleHitTargetOrder,
                 prerequisites = prerequisites,
                 requiredPrerequisiteCount = requiredPrerequisiteCount,
                 testingOnly = testingOnly,
