@@ -136,4 +136,40 @@ class SnotlingCannonTest {
         assertEquals(150, snotling.currentHealth.value, "Snotling should not throw when landing tile is occupied by a non-snotling")
         assertTrue(state.snotlingCannonThrowEffects.isEmpty())
     }
+
+    @Test
+    fun snotlingCannonCanThrowAcrossNoPlayTileToPath() {
+        val pathCells = (0..2).map { x -> Position(x, 0) }.toSet() + (4..8).map { x -> Position(x, 0) }
+        val level =
+            Level(
+                id = 1,
+                name = "Snotling Cannon No-Play Test",
+                gridWidth = 9,
+                gridHeight = 4,
+                startPositions = listOf(Position(0, 0)),
+                targetPositions = listOf(Position(8, 0)),
+                pathCells = pathCells,
+                attackerWaves = emptyList(),
+                initialCoins = 100,
+                healthPoints = 10,
+            )
+        val state = GameState(level)
+        val abilities = EnemyAbilitySystem(state, PathfindingSystem(state))
+        val snotling =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING,
+                position = mutableStateOf(Position(2, 0)),
+                level = mutableStateOf(1),
+                currentTarget = mutableStateOf(Position(8, 0)),
+            )
+        snotling.currentHealth.value = 150
+        state.attackers.add(snotling)
+        state.enemyTurnStartPositions[snotling.id] = Position(1, 0)
+
+        abilities.processEnemyAbilities()
+
+        val throwEffect = state.snotlingCannonThrowEffects.single()
+        assertEquals(Position(6, 0), throwEffect.targetPosition)
+    }
 }

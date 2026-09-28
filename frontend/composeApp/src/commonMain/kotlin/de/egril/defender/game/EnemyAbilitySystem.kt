@@ -23,7 +23,6 @@ class EnemyAbilitySystem(
         private const val MAX_SWARM_SPAWN_SEARCH_RINGS = 5
         private const val BARON_SCRAP_BOT_COUNT = 2
         private const val MAX_SNOTLINGS_PER_TILE = 250
-        private const val SNOTLING_CANNON_MIN_STACK_HEALTH = 120
         private const val SNOTLING_CANNON_BASE_HEALTH = 100
         private const val SNOTLING_CANNON_MAX_THROW = 50
         private const val SNOTLING_CANNON_THROW_DISTANCE = 3
@@ -323,7 +322,7 @@ class EnemyAbilitySystem(
     private fun handleSnotlingCannon(snotling: Attacker) {
         val startPosition = state.enemyTurnStartPositions[snotling.id] ?: return
         if (startPosition == snotling.position.value) return
-        if (snotling.currentHealth.value < SNOTLING_CANNON_MIN_STACK_HEALTH) return
+        if (snotling.currentHealth.value < SnotlingCannonRules.MIN_STACK_HEALTH) return
 
         val thrownCount =
             minOf(

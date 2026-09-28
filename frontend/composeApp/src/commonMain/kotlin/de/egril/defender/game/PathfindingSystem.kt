@@ -24,9 +24,10 @@ class PathfindingSystem(
      * distance heuristic non-admissible, which can cause the search to exceed that cap before ever
      * reaching a distant goal — silently falling back to a single-step path.
      *
-     * For UI purposes (e.g. the enemy path preview overlay) we only need the true shortest walkable
-     * route, so a BFS over unweighted edges is both simpler and immune to that failure mode: it is
-     * guaranteed to find the shortest path to any reachable goal, exploring at most once per tile.
+     * For UI purposes (e.g. the enemy path preview overlay) we only need the true shortest
+     * available route, including cannon jumps for eligible snotling stacks, so a BFS over
+     * unweighted edges is both simpler and immune to that failure mode: it is guaranteed to find
+     * the shortest path to any reachable goal, exploring at most once per tile.
      *
      * [ignoreBarricades] lets callers preview the *intended* route even when barricades currently
      * block it (barricades are temporary obstacles enemies eventually destroy or route around), so
@@ -193,16 +194,17 @@ class PathfindingSystem(
         if (start == goal) return listOf(start)
 
         val search = SearchCache(attacker)
+        val startHeuristic = heuristicDistance(start, goal, attacker)
         val openMembers = mutableSetOf(start)
         val openQueue = OpenList()
         val cameFrom = mutableMapOf<Position, Position>()
         val gScore = mutableMapOf(start to 0)
-        val fScore = mutableMapOf(start to start.distanceTo(goal))
+        val fScore = mutableMapOf(start to startHeuristic)
         // Insertion sequence per position. It reproduces the tie-breaking of the previous
         // implementation, which picked the first minimum in the insertion-ordered open set.
         val sequences = mutableMapOf(start to 0)
         var nextSequence = 1
-        openQueue.push(OpenEntry(start, fScore.getValue(start), start.distanceTo(goal), 0))
+        openQueue.push(OpenEntry(start, fScore.getValue(start), startHeuristic, 0))
 
         var iterations = 0
         val maxIterations = 1000 // Prevent infinite loops
@@ -227,7 +229,7 @@ class PathfindingSystem(
                 val tentativeGScore = (gScore[current] ?: Int.MAX_VALUE) + moveCost
 
                 if (tentativeGScore < (gScore[neighbor] ?: Int.MAX_VALUE)) {
-                    val distanceToGoal = neighbor.distanceTo(goal)
+                    val distanceToGoal = heuristicDistance(neighbor, goal, attacker)
                     cameFrom[neighbor] = current
                     gScore[neighbor] = tentativeGScore
                     val neighborFScore = tentativeGScore + distanceToGoal
@@ -303,13 +305,17 @@ class PathfindingSystem(
             // Check for dead-end potential by counting available exit paths
             // This helps avoid getting stuck in branches that don't lead to the goal
             val exitCount =
-                position.getHexNeighbors().count { neighbor ->
-                    neighbor.x >= 0 &&
-                        neighbor.x < state.level.gridWidth &&
-                        neighbor.y >= 0 &&
-                        neighbor.y < state.level.gridHeight &&
-                        (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor) || state.isBridgeAt(neighbor))
-                }
+                (position.getHexNeighbors() + getSnotlingCannonJumpNeighbors(position, currentAttacker))
+                    .distinct()
+                    .count { neighbor ->
+                        neighbor.x >= 0 &&
+                            neighbor.x < state.level.gridWidth &&
+                            neighbor.y >= 0 &&
+                            neighbor.y < state.level.gridHeight &&
+                            (state.level.isOnPath(neighbor) ||
+                                state.level.isTargetPosition(neighbor) ||
+                                state.isBridgeAt(neighbor))
+                    }
 
             // Penalize positions with few exits (potential dead ends)
             // 1 exit = dead end (100 penalty), 2 exits = corridor (20 penalty), 3+ exits = normal
@@ -359,6 +365,19 @@ class PathfindingSystem(
             return cost
         }
     }
+
+    private fun heuristicDistance(
+        position: Position,
+        goal: Position,
+        attacker: Attacker?,
+    ): Int {
+        val distance = position.distanceTo(goal)
+        return if (canUseSnotlingCannon(attacker)) (distance + 1) / 2 else distance
+    }
+
+    private fun canUseSnotlingCannon(attacker: Attacker?): Boolean =
+        attacker?.type == AttackerType.SNOTLING &&
+            attacker.currentHealth.value >= SnotlingCannonRules.MIN_STACK_HEALTH
 
     private data class TowerThreat(
         val position: Position,
@@ -525,8 +544,51 @@ class PathfindingSystem(
                 emptyList()
             }
 
-        return hexNeighbors + portalNeighbors
+        val cannonNeighbors =
+            getSnotlingCannonJumpNeighbors(pos, attacker).filter { landing ->
+                !isBlocked(landing, attacker, ignoreBarricades, search) &&
+                    !excludedPositions.contains(landing)
+            }
+
+        return hexNeighbors + cannonNeighbors + portalNeighbors
     }
+
+    private fun getSnotlingCannonJumpNeighbors(
+        pos: Position,
+        attacker: Attacker?,
+    ): List<Position> {
+        if (!canUseSnotlingCannon(attacker)) return emptyList()
+
+        return (0 until 6).mapNotNull { direction ->
+            val noPlayTile = pos.getHexNeighbor(direction)
+            val landingTile = noPlayTile.getHexNeighbor(direction)
+            if (
+                isWithinBounds(noPlayTile) &&
+                isNoPlayTile(noPlayTile) &&
+                isWithinBounds(landingTile) &&
+                state.level.isOnPath(landingTile)
+            ) {
+                landingTile
+            } else {
+                null
+            }
+        }
+    }
+
+    private fun isNoPlayTile(position: Position): Boolean =
+        !state.level.isOnPath(position) &&
+            !state.level.isTargetPosition(position) &&
+            !state.level.isSpawnPoint(position) &&
+            !state.level.isBuildArea(position) &&
+            !state.level.isRiverTile(position) &&
+            !state.isBridgeAt(position) &&
+            !isDestroyedMinePosition(position)
+
+    private fun isWithinBounds(position: Position): Boolean =
+        position.x >= 0 &&
+            position.x < state.level.gridWidth &&
+            position.y >= 0 &&
+            position.y < state.level.gridHeight
 
     /**
      * Check if the position is the goal and it's a mine being targeted by a dragon.
@@ -614,7 +676,8 @@ class PathfindingSystem(
                     ) &&
                     // Bridges are walkable for enemies
                     !excludedPositions.contains(neighbor) // Exclude specified positions
-            }
+            } +
+                getSnotlingCannonJumpNeighbors(from, attacker).filter { !excludedPositions.contains(it) }
 
         // Filter to non-blocked neighbors
         val validNeighbors = pathNeighbors.filter { !isBlocked(it, attacker) }

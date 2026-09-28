@@ -29,13 +29,21 @@ class EnemyMovementSystem(
         var position = attacker.position.value
         var remainingSpeed = effectiveSpeed(attacker, position)
 
-        // Cheap lower-bound check before running the (expensive) pathfinding: an enemy moves one
-        // hex per step, so it can never enter a target that is further away than its speed.
+        // Cheap lower-bound check before running the (expensive) pathfinding. A cannon-capable
+        // snotling can cover up to two hexes per movement step when jumping a NO_PLAY tile.
         // On large maps almost every enemy is filtered out here, which keeps the danger hints
         // cheap even with many enemies on the map (issue #791).
         val activeTargets = state.getActiveTargetPositions()
         val shortestTargetDistance = activeTargets.minOfOrNull { position.distanceTo(it) } ?: return false
-        if (shortestTargetDistance > remainingSpeed) return false
+        val maximumDistancePerStep =
+            if (attacker.type == AttackerType.SNOTLING &&
+                attacker.currentHealth.value >= SnotlingCannonRules.MIN_STACK_HEALTH
+            ) {
+                2
+            } else {
+                1
+            }
+        if (shortestTargetDistance > remainingSpeed * maximumDistancePerStep) return false
 
         var target =
             attacker.currentTarget?.value
