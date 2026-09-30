@@ -68,6 +68,7 @@ data class EditorMap(
     val mapToolingInfo: String = DEFAULT_MAP_TOOLING_INFO, // Free-form map tooling text; known standard values are localized at runtime
     val allowNoBuildableTiles: Boolean = false, // True if a map may be ready without any BUILD_AREA tiles
     val allowNoDirectPath: Boolean = false, // True if this map may have no direct spawn-to-target path (portals added in level editor will bridge the gap)
+    val tileZones: List<de.egril.defender.model.TileZone> = emptyList(), // Alternative terrain states (tides, shifting rivers) switched by level events
     val isValid: Boolean = true,
 ) {
     fun hasSupportedSize(): Boolean = MapSizeLimits.isWithinLimits(width, height)

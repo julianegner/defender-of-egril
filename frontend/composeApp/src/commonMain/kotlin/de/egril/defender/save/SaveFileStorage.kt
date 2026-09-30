@@ -291,7 +291,7 @@ object SaveFileStorage {
             }
 
         val attackers =
-            gameState.attackers.map { attacker ->
+            (gameState.attackers + gameState.submergedAttackers).map { attacker ->
                 SavedAttacker(
                     id = attacker.id,
                     type = attacker.type,
@@ -308,6 +308,7 @@ object SaveFileStorage {
                     goblinRunnerTookDamageSinceLastTurn = attacker.goblinRunnerTookDamageSinceLastTurn.value,
                     goblinRunnerSpawnTurnNumber = attacker.goblinRunnerSpawnTurnNumber.value,
                     goblinRunnerMomentumReady = attacker.goblinRunnerMomentumReady.value,
+                    isSubmerged = gameState.submergedAttackers.contains(attacker),
                 )
             }
 
@@ -339,6 +340,7 @@ object SaveFileStorage {
                     id = raft.id,
                     defenderId = raft.defenderId,
                     position = raft.currentPosition.value,
+                    healthPoints = raft.healthPoints.value,
                 )
             }
 
@@ -465,6 +467,8 @@ object SaveFileStorage {
             activePortals = activePortals,
             nextPortalId = gameState.nextPortalId.value,
             takenTargets = gameState.takenTargets.toList(),
+            activeTileZoneIds = gameState.activeTileZoneIds.toList(),
+            activeEventLoops = gameState.activeEventLoops.toList(),
         )
     }
 
@@ -492,6 +496,15 @@ object SaveFileStorage {
                 }
             }
         }
+
+        // Restore the tiles of active tile zones. The saved objects already reflect the zone state,
+        // so only the map tiles are re-applied (no drowning/stranding consequences).
+        val knownZoneIds = level.tileZones.map { it.id }.toSet()
+        gameState.activeTileZoneIds.clear()
+        gameState.activeTileZoneIds.addAll(savedGame.activeTileZoneIds.filter { it in knownZoneIds })
+        de.egril.defender.game.TileZoneSystem(gameState).restoreActiveZones()
+        gameState.activeEventLoops.clear()
+        gameState.activeEventLoops.addAll(savedGame.activeEventLoops)
 
         // Restore basic state
         gameState.phase.value = savedGame.phase
@@ -581,6 +594,7 @@ object SaveFileStorage {
                     id = savedRaft.id,
                     defenderId = savedRaft.defenderId,
                     currentPosition = mutableStateOf(savedRaft.position),
+                    healthPoints = mutableStateOf(savedRaft.healthPoints),
                 )
             gameState.rafts.add(raft)
         }
@@ -607,6 +621,7 @@ object SaveFileStorage {
 
         // Restore attackers
         gameState.attackers.clear()
+        gameState.submergedAttackers.clear()
         for (savedAttacker in savedGame.attackers) {
             val attacker =
                 Attacker(
@@ -626,7 +641,11 @@ object SaveFileStorage {
             attacker.goblinRunnerTookDamageSinceLastTurn.value = savedAttacker.goblinRunnerTookDamageSinceLastTurn
             attacker.goblinRunnerSpawnTurnNumber.value = savedAttacker.goblinRunnerSpawnTurnNumber
             attacker.goblinRunnerMomentumReady.value = savedAttacker.goblinRunnerMomentumReady
-            gameState.attackers.add(attacker)
+            if (savedAttacker.isSubmerged) {
+                gameState.submergedAttackers.add(attacker)
+            } else {
+                gameState.attackers.add(attacker)
+            }
         }
 
         // Restore attackers to spawn

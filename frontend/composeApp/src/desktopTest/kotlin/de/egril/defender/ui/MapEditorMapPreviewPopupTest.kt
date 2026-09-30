@@ -5,6 +5,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.TileType
 import de.egril.defender.ui.editor.map.MapEditorView
+import de.egril.defender.ui.editor.map.ImageGenerationProgress
+import de.egril.defender.ui.editor.map.ImageStep
+import de.egril.defender.ui.editor.map.MapImageProgressRows
 import org.junit.Rule
 import org.junit.Test
 import java.awt.image.BufferedImage
@@ -60,10 +63,31 @@ class MapEditorMapPreviewPopupTest {
             }
 
             composeTestRule.onNodeWithText("Map image preview", substring = true, ignoreCase = true).assertExists()
+            composeTestRule
+                .onNodeWithText("pre-rendered transparent PNG", substring = true)
+                .assertDoesNotExist()
         } finally {
             System.setProperty("user.home", originalUserHome)
             tempHome.deleteRecursively()
         }
+    }
+
+    @Test
+    fun progressListsEachImageWithGenerationAndOptimizationOnOneRow() {
+        composeTestRule.setContent {
+            MapImageProgressRows(
+                listOf(
+                    ImageGenerationProgress("map.png", ImageStep.DONE, ImageStep.DONE),
+                    ImageGenerationProgress("map.zone-0.png", ImageStep.SKIPPED, ImageStep.SKIPPED),
+                ),
+            )
+        }
+
+        composeTestRule.onNodeWithText("map.png").assertExists()
+        composeTestRule.onNodeWithText("map.zone-0.png").assertExists()
+        composeTestRule.onAllNodesWithText("Generate").assertCountEquals(2)
+        composeTestRule.onAllNodesWithText("Optimize").assertCountEquals(2)
+        composeTestRule.onAllNodesWithText("Skipped").assertCountEquals(2)
     }
 
     private fun createTestPngBytes(): ByteArray {

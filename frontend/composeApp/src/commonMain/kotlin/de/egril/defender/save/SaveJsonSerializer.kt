@@ -101,7 +101,8 @@ object SaveJsonSerializer {
       "goblinRunnerUndamagedRounds": ${attacker.goblinRunnerUndamagedRounds},
       "goblinRunnerTookDamageSinceLastTurn": ${attacker.goblinRunnerTookDamageSinceLastTurn},
       "goblinRunnerSpawnTurnNumber": ${attacker.goblinRunnerSpawnTurnNumber},
-      "goblinRunnerMomentumReady": ${attacker.goblinRunnerMomentumReady}
+      "goblinRunnerMomentumReady": ${attacker.goblinRunnerMomentumReady},
+      "isSubmerged": ${attacker.isSubmerged}
     }"""
             }
 
@@ -135,7 +136,8 @@ object SaveJsonSerializer {
                 """{
       "id": ${raft.id},
       "defenderId": ${raft.defenderId},
-      "position": {"x": ${raft.position.x}, "y": ${raft.position.y}}
+      "position": {"x": ${raft.position.x}, "y": ${raft.position.y}},
+      "healthPoints": ${raft.healthPoints}
     }"""
             }
 
@@ -286,6 +288,18 @@ object SaveJsonSerializer {
                 """{"x": ${position.x}, "y": ${position.y}}"""
             }
 
+        val activeTileZoneIdsJson = savedGame.activeTileZoneIds.joinToString(", ") { "\"$it\"" }
+
+        // Each frame is written as [stepIndex, turnsRemaining, iterationsDone, stepExecuted (0/1)].
+        val activeEventLoopsJson =
+            savedGame.activeEventLoops.joinToString(", ") { loop ->
+                val framesJson =
+                    loop.frames.joinToString(", ") { frame ->
+                        "[${frame.stepIndex}, ${frame.turnsRemaining}, ${frame.iterationsDone}, ${if (frame.stepExecuted) 1 else 0}]"
+                    }
+                """{"eventId": "${loop.eventId}", "frames": [$framesJson]}"""
+            }
+
         val data = """{
   "id": "${savedGame.id}",
   "timestamp": ${savedGame.timestamp},
@@ -357,6 +371,8 @@ object SaveJsonSerializer {
   ],
   "nextPortalId": ${savedGame.nextPortalId},
   "takenTargets": [$takenTargetsJson],
+  "activeTileZoneIds": [$activeTileZoneIdsJson],
+  "activeEventLoops": [$activeEventLoopsJson],
   "bridges": [
    $bridgesJson
   ],
@@ -788,6 +804,9 @@ object SaveJsonSerializer {
                         }
                     }
 
+            val activeTileZoneIds = parseStringArray(dataJson, "activeTileZoneIds")
+            val activeEventLoops = parseActiveEventLoops(dataJson)
+
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -847,6 +866,8 @@ object SaveJsonSerializer {
                 activePortals = activePortals,
                 nextPortalId = nextPortalId,
                 takenTargets = takenTargets,
+                activeTileZoneIds = activeTileZoneIds,
+                activeEventLoops = activeEventLoops,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
@@ -888,6 +909,31 @@ object SaveJsonSerializer {
             }
         }
         return result
+    }
+
+    /** Parse the running scripted-event loops (see [SavedGame.activeEventLoops]); malformed entries are skipped. */
+    private fun parseActiveEventLoops(dataJson: String): List<ActiveEventLoop> {
+        val section = JsonUtils.extractJsonArrayForKey(dataJson, "activeEventLoops")
+        if (section.isBlank()) return emptyList()
+        return JsonUtils.splitJsonArray(section).mapNotNull { entry ->
+            val eventId = JsonUtils.extractStringValue(entry, "eventId")
+            if (eventId.isBlank()) return@mapNotNull null
+            val frames =
+                JsonUtils.splitJsonArray(JsonUtils.extractJsonArrayForKey(entry, "frames")).mapNotNull { frameJson ->
+                    val values = frameJson.trim().removePrefix("[").removeSuffix("]").split(",").mapNotNull { it.trim().toIntOrNull() }
+                    if (values.size < 4) {
+                        null
+                    } else {
+                        EventLoopFrame(
+                            stepIndex = values[0],
+                            turnsRemaining = values[1],
+                            iterationsDone = values[2],
+                            stepExecuted = values[3] != 0,
+                        )
+                    }
+                }
+            if (frames.isEmpty()) null else ActiveEventLoop(eventId = eventId, frames = frames)
+        }
     }
 
     private fun parseStringArray(
@@ -965,7 +1011,8 @@ object SaveJsonSerializer {
         val id = JsonUtils.extractValue(json, "id").toInt()
         val defenderId = JsonUtils.extractValue(json, "defenderId").toInt()
         val position = parsePosition(json)
-        return SavedRaft(id, defenderId, position)
+        val healthPoints = JsonUtils.extractNumericValue(json, "healthPoints").toIntOrNull() ?: Raft.RAFT_MAX_HEALTH
+        return SavedRaft(id, defenderId, position, healthPoints)
     }
 
     private fun parseSavedBarricade(json: String): SavedBarricade {
@@ -1123,6 +1170,7 @@ object SaveJsonSerializer {
             } catch (e: Exception) {
                 false
             }
+        val isSubmerged = JsonUtils.extractBooleanValue(json, "isSubmerged")
 
         return SavedAttacker(
             id = id,
@@ -1140,6 +1188,7 @@ object SaveJsonSerializer {
             goblinRunnerTookDamageSinceLastTurn = goblinRunnerTookDamageSinceLastTurn,
             goblinRunnerSpawnTurnNumber = goblinRunnerSpawnTurnNumber,
             goblinRunnerMomentumReady = goblinRunnerMomentumReady,
+            isSubmerged = isSubmerged,
         )
     }
 
@@ -1357,7 +1406,8 @@ object SaveJsonSerializer {
                 """{
       "id": ${raft.id},
       "defenderId": ${raft.defenderId},
-      "position": {"x": ${raft.position.x}, "y": ${raft.position.y}}
+      "position": {"x": ${raft.position.x}, "y": ${raft.position.y}},
+      "healthPoints": ${raft.healthPoints}
     }"""
             }
 

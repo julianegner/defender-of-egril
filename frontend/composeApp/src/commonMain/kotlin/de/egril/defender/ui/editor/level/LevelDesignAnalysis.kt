@@ -755,7 +755,7 @@ private fun countInvalidEventPositions(
 ): Int =
     level.events.events.count { event ->
         val conditionInvalid = event.condition.position?.let { position -> map == null || !position.isInside(map.width, map.height) } == true
-        val actionInvalid = event.actions.any { action -> action.position?.let { position -> map == null || !position.isInside(map.width, map.height) } == true }
+        val actionInvalid = event.allActions().any { action -> action.position?.let { position -> map == null || !position.isInside(map.width, map.height) } == true }
         conditionInvalid || actionInvalid
     }
 

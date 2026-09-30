@@ -308,6 +308,8 @@ fun EnemyListPanel(
             enemiesById = gameState.attackers.filter { !it.isDefeated.value }.sortedBy { it.id },
             turn = currentTurn,
         )
+    // Units waiting on the bed of a flooded tile: listed, but not attackable and not counted for winning.
+    val submergedEnemies = gameState.submergedAttackers.filter { !it.isDefeated.value }.sortedBy { it.id }
     val shadowFogPositions =
         gameState.fieldEffects
             .filter { it.type == FieldEffectType.SHADOW_FOG }
@@ -365,10 +367,35 @@ fun EnemyListPanel(
                 Spacer(modifier = Modifier.height(4.dp))
             }
 
+            if (submergedEnemies.isNotEmpty()) {
+                item(key = "header-submerged") {
+                    if (activeEnemies.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    Text(
+                        "${stringResource(Res.string.submerged_enemies)}:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = GamePlayColors.Info,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+                items(
+                    items = submergedEnemies,
+                    key = { attacker -> "submerged-${attacker.id}" },
+                ) { attacker ->
+                    EnemyItemDetailed(
+                        attacker = attacker,
+                        showPosition = true,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+            }
+
             // Planned enemy spawns (show what's left to spawn with turn information)
             if (plannedSpawns.isNotEmpty()) {
                 item(key = "header-planned") {
-                    if (activeEnemies.isNotEmpty()) {
+                    if (activeEnemies.isNotEmpty() || submergedEnemies.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                     Text(

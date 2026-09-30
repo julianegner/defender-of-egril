@@ -6,6 +6,8 @@ import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
 import de.egril.defender.model.EventCondition
 import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.EventLoop
+import de.egril.defender.model.EventLoopStep
 import de.egril.defender.model.LevelEvent
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.Position
@@ -14,6 +16,7 @@ import de.egril.defender.model.SupportObjectType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class EventsSerializationTest {
@@ -155,5 +158,65 @@ class EventsSerializationTest {
 
         assertNotNull(level, "Level should be deserialized for backward compatibility")
         assertTrue(level.events.isEmpty(), "Level should have no events")
+    }
+
+    @Test
+    fun testMessageFrameRoundTrip() {
+        val events =
+            LevelEvents(
+                listOf(
+                    LevelEvent(
+                        id = "tide",
+                        condition = EventCondition(type = EventConditionType.TURN_START, fromTurn = 3),
+                        messageKey = "event_msg_high_tide",
+                        messageFrame = "kraken",
+                        loop =
+                            EventLoop(
+                                repeatCount = 0,
+                                steps =
+                                    listOf(
+                                        EventLoopStep(
+                                            waitTurns = 3,
+                                            messageKey = "event_msg_low_tide",
+                                            messageFrame = "sylvanas",
+                                        ),
+                                    ),
+                            ),
+                    ),
+                ),
+            )
+
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(events))
+        assertTrue(json.contains("\"messageFrame\": \"kraken\""), "JSON should contain the event frame")
+        assertTrue(json.contains("\"messageFrame\": \"sylvanas\""), "JSON should contain the loop step frame")
+
+        val level = assertNotNull(EditorJsonSerializer.deserializeLevel(json))
+        val event = level.events.events.first { it.id == "tide" }
+        assertEquals("kraken", event.messageFrame)
+        assertEquals("sylvanas", assertNotNull(event.loop).steps.first().messageFrame)
+    }
+
+    @Test
+    fun testStandardMessageFrameIsNotSerializedAndParsesAsNull() {
+        val events =
+            LevelEvents(
+                listOf(
+                    LevelEvent(
+                        id = "plain",
+                        condition = EventCondition(type = EventConditionType.TURN_START),
+                        messageKey = "event_msg_reinforcements",
+                        loop = EventLoop(repeatCount = 1, steps = listOf(EventLoopStep(waitTurns = 1))),
+                    ),
+                ),
+            )
+
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(events))
+        assertTrue(!json.contains("messageFrame"), "The standard frame is omitted to keep level files unchanged")
+
+        // Levels authored before frames were selectable parse as the standard frame (null).
+        val level = assertNotNull(EditorJsonSerializer.deserializeLevel(json))
+        val event = level.events.events.first { it.id == "plain" }
+        assertNull(event.messageFrame)
+        assertNull(assertNotNull(event.loop).steps.first().messageFrame)
     }
 }

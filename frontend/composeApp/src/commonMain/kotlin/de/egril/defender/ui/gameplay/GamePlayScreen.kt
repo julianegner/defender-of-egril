@@ -3693,20 +3693,27 @@ private fun GamePlayScreenContent(
                             }
                             GameMessageType.EVENT_MESSAGE -> {
                                 val messageKey = msg.name
-                                val eventText =
-                                    if (messageKey != null) {
+                                if (messageKey == null) {
+                                    // Events configured with "No message" never show a popup; this
+                                    // only guards messages queued by older versions/saves.
+                                    LaunchedEffect(msg) { onDismissGameMessage?.invoke() }
+                                } else {
+                                    val eventText =
                                         com.hyperether.resources.LocalizedStrings
                                             .get(messageKey, com.hyperether.resources.currentLanguage.value)
-                                    } else {
-                                        ""
-                                    }
-                                NarrativeMessageDialog(
-                                    type = NarrativeMessageType.STORY,
-                                    title = stringResource(Res.string.event_message_title),
-                                    text = eventText,
-                                    onDismiss = { onDismissGameMessage?.invoke() },
-                                    eventGains = msg.eventActions,
-                                )
+                                    val frame = msg.eventMessageFrame
+                                    NarrativeMessageDialog(
+                                        type = EventMessageFrames.narrativeType(frame),
+                                        title = stringResource(Res.string.event_message_title),
+                                        text = eventText,
+                                        onDismiss = { onDismissGameMessage?.invoke() },
+                                        eventGains = msg.eventActions,
+                                        backgroundOverride = EventMessageFrames.background(frame),
+                                        accentColorOverride = EventMessageFrames.accentColor(frame),
+                                        iconAttackerTypeOverride = EventMessageFrames.styleAttackerType(frame),
+                                        showTopIcon = false,
+                                    )
+                                }
                             }
                             else ->
                                 GameEventMessageDialog(
@@ -3894,7 +3901,7 @@ private fun villainMessageBackground(name: String?): org.jetbrains.compose.resou
  * The color should be distinct, fitting to the villain's character, and maintain good
  * contrast with white text on the button.
  */
-private fun villainMessageButtonColor(name: String?): Color? {
+internal fun villainMessageButtonColor(name: String?): Color? {
     val attackerType = attackerTypeFromMessageName(name) ?: return null
     if (!attackerType.isVillain) return null
 

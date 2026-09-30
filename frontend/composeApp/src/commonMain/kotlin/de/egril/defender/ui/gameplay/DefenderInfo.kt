@@ -213,6 +213,24 @@ fun DefenderInfo(
                             )
                         }
                     }
+                    // Show raft health: a raft that strands becomes a barricade with this health
+                    // minus the stranding damage, and needs 100 health left to keep carrying the tower.
+                    val raft = defender.raftId.value?.let { raftId -> gameState.rafts.find { it.id == raftId } }
+                    if (raft != null) {
+                        val strandedHealth = raft.healthPoints.value - de.egril.defender.model.Raft.STRANDING_DAMAGE
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(top = 4.dp),
+                        ) {
+                            WoodIcon(size = 12.dp)
+                            Text(
+                                stringResource(Res.string.raft_hp_label, raft.healthPoints.value),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (strandedHealth < 100) GamePlayColors.Warning else GamePlayColors.Success,
+                            )
+                        }
+                    }
                     Row {
                         DefenderActionsInfo(defender)
                         dwarvenMineInfoButtonArea(defender)
