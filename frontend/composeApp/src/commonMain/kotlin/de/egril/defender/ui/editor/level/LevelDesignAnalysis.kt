@@ -322,7 +322,7 @@ internal fun analyzeLevelMapConsistency(
         level.enemySpawns.filter { spawn ->
             val spawnPoint = spawn.spawnPoint ?: return@filter false
             val compatiblePoints = map.getCompatibleSpawnPoints(spawn.attackerType)
-            spawnPoint !in mapSpawnPoints || compatiblePoints.isNotEmpty() && spawnPoint !in compatiblePoints
+            spawnPoint !in mapSpawnPoints || spawnPoint !in compatiblePoints
         }
     val missingCompatibleSpawnTypes =
         level.enemySpawns

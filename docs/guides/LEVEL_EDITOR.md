@@ -39,6 +39,9 @@ All editor data is stored in JSON format on your local filesystem:
 
 - View existing maps
 - Maps define the grid layout, spawn points, paths, and build areas
+- In spawn turns, enemy types without a compatible land/water spawn point are disabled, even
+  when the map has only one spawn point. Changing an enemy type in table mode keeps its assigned
+  spawn point only when that point remains compatible.
 - Each map is saved as a separate JSON file in the `maps/` directory
 
 #### Collapsible Header

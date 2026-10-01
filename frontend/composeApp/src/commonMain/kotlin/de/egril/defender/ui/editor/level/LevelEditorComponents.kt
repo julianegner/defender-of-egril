@@ -54,7 +54,15 @@ fun AddEnemyDialog(
     initialAmount: String = "1",
     initialSpawnPoint: Position? = null,
 ) {
-    var selectedType by remember { mutableStateOf(initialType) }
+    var selectedType by remember(map, initialType) {
+        mutableStateOf(
+            initialType.takeIf { map?.getCompatibleSpawnPoints(it)?.isNotEmpty() == true }
+                ?: AttackerType.entries.firstOrNull {
+                    !it.isMirrorImage && !it.isRealVillain && !it.isSpecialEnemy() &&
+                        map?.getCompatibleSpawnPoints(it)?.isNotEmpty() == true
+                } ?: initialType,
+        )
+    }
     var level by remember { mutableStateOf(initialLevel) }
     var amount by remember { mutableStateOf(initialAmount) }
 
@@ -92,7 +100,7 @@ fun AddEnemyDialog(
 
     // A villain can only be added if one of the same type is not already in the level.
     val villainAlreadyInLevel = isVillainSelected && selectedType in presentVillainTypes
-    val canAdd = !villainAlreadyInLevel
+    val canAdd = !villainAlreadyInLevel && selectedSpawnPoint in compatibleSpawnPoints
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -126,7 +134,7 @@ fun AddEnemyDialog(
                                 EnemyTypeSelectableRow(
                                     type = type,
                                     selected = selectedType == type,
-                                    enabled = true,
+                                    enabled = map?.getCompatibleSpawnPoints(type)?.isNotEmpty() == true,
                                     onSelect = { selectedType = type },
                                 )
                             }
@@ -137,7 +145,7 @@ fun AddEnemyDialog(
                                 EnemyTypeSelectableRow(
                                     type = type,
                                     selected = selectedType == type,
-                                    enabled = true,
+                                    enabled = map?.getCompatibleSpawnPoints(type)?.isNotEmpty() == true,
                                     onSelect = { selectedType = type },
                                 )
                             }
@@ -149,7 +157,7 @@ fun AddEnemyDialog(
                                 EnemyTypeSelectableRow(
                                     type = type,
                                     selected = selectedType == type,
-                                    enabled = !alreadyPresent,
+                                    enabled = !alreadyPresent && map?.getCompatibleSpawnPoints(type)?.isNotEmpty() == true,
                                     onSelect = { selectedType = type },
                                 )
                             }

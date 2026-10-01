@@ -96,18 +96,15 @@ data class EditorMap(
 
     /**
      * Returns spawn points compatible with [attackerType] based on LAND/WATER flags.
-     * Falls back to all spawn points if none are compatible.
      */
     fun getCompatibleSpawnPoints(attackerType: AttackerType): List<Position> {
         val spawnPoints = getSpawnPoints()
-        val compatible =
-            spawnPoints.filter { pos ->
-                when (getSpawnPointType(pos)) {
-                    SpawnPointType.WATER -> attackerType.canSpawnOnWater
-                    SpawnPointType.LAND -> attackerType.canSpawnOnLand
-                }
+        return spawnPoints.filter { pos ->
+            when (getSpawnPointType(pos)) {
+                SpawnPointType.WATER -> attackerType.canSpawnOnWater
+                SpawnPointType.LAND -> attackerType.canSpawnOnLand
             }
-        return compatible.ifEmpty { spawnPoints }
+        }
     }
 
     fun getTarget(): Position? = getTargets().firstOrNull()

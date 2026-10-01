@@ -615,10 +615,17 @@ private fun EnemySpawnTableRow(
                 )
                 ExposedDropdownMenu(expanded = typeExpanded, onDismissRequest = { typeExpanded = false }) {
                     AttackerType.entries.forEach { attackerType ->
+                        val points = map?.getCompatibleSpawnPoints(attackerType).orEmpty()
                         DropdownMenuItem(
                             text = { Text(attackerType.displayName) },
+                            enabled = points.isNotEmpty(),
                             onClick = {
-                                onChange(spawn.copy(attackerType = attackerType))
+                                onChange(
+                                    spawn.copy(
+                                        attackerType = attackerType,
+                                        spawnPoint = spawn.spawnPoint?.let { it.takeIf { point -> point in points } ?: points.first() },
+                                    ),
+                                )
                                 typeExpanded = false
                             },
                         )
