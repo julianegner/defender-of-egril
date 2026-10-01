@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
@@ -288,7 +289,9 @@ fun ConfirmationDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     extraContent: (@Composable () -> Unit)? = null,
+    requireLicenseAgreement: Boolean = false,
 ) {
+    var licenseAgreed by remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
@@ -296,10 +299,27 @@ fun ConfirmationDialog(
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Text(message)
                 extraContent?.invoke()
+                if (requireLicenseAgreement) {
+                    Row(
+                        modifier = Modifier.padding(top = 12.dp),
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = licenseAgreed,
+                            onCheckedChange = { licenseAgreed = it },
+                        )
+                        Text(
+                            text = stringResource(Res.string.upload_community_license_agreement),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.clickable { licenseAgreed = !licenseAgreed },
+                        )
+                    }
+                }
             }
         },
         confirmButton = {
-            Button(onClick = onConfirm) {
+            Button(onClick = onConfirm, enabled = !requireLicenseAgreement || licenseAgreed) {
                 Text(stringResource(Res.string.yes))
             }
         },

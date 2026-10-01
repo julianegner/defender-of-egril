@@ -2013,6 +2013,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="upload_community_map_confirm_message">Cette carte sera visible publiquement par tous les joueurs. Votre nom d\'utilisateur Keycloak (%s) sera affiché aux autres utilisateurs. Êtes-vous sûr de vouloir la publier ?</string>
     <string name="upload_community_also_uploads_map">La carte utilisée par ce niveau sera également publiée comme contenu communautaire.</string>
     <string name="upload_community_license_notice">En publiant, vous placez les cartes et niveaux téléversés sous la GNU Affero General Public License v3.0 (AGPL-3.0). D\'autres peuvent les partager et les modifier sous la même licence. Cette licence ne peut pas être révoquée pour les copies déjà publiées.</string>
+    <string name="upload_community_license_agreement">J\'accepte de publier sous cette licence</string>
     <string name="upload_community_agpl_summary">L\'AGPL est une licence libre de type copyleft conçue pour garantir que le logiciel reste libre et ouvert pour tous les utilisateurs, même lorsqu\'il est utilisé sur un réseau.</string>
     <string name="community_badge">Communauté</string>
     <string name="community_downloading_level">Téléchargement du niveau…</string>

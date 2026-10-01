@@ -2019,6 +2019,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="upload_community_map_confirm_message">This map will be publicly visible to all players. Your Keycloak username (%s) will be shown to other users. Are you sure you want to upload it?</string>
     <string name="upload_community_also_uploads_map">The map used by this level will also be uploaded as community content.</string>
     <string name="upload_community_license_notice">By publishing, you license the uploaded maps and levels under the GNU Affero General Public License v3.0 (AGPL-3.0). Others may share and modify them under the same license. This license cannot be revoked for copies already published.</string>
+    <string name="upload_community_license_agreement">I agree to publish under this license</string>
     <string name="upload_community_agpl_summary">The AGPL is a free, copyleft license designed to ensure that software remains free and open for all users, even when used over a network.</string>
     <string name="community_badge">Community</string>
     <string name="community_downloading_level">Downloading level…</string>
