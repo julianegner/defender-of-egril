@@ -97,6 +97,8 @@ private val EWHAD_DIALOG_DESKTOP_WIDTH = 700.dp
  *   narrative dialogs (including villain messages that reuse this frame). When null, Ewhad is
  *   shown as before.
  * @param topImageOverride Optional drawable shown in the top image slot of Ewhad-style dialogs.
+ * @param showTopIcon When false, Ewhad-style dialogs render no top icon. Used by scripted-event
+ *   messages that reuse a villain frame purely for its look, without showing that villain.
  */
 @Composable
 fun NarrativeMessageDialog(
@@ -115,6 +117,7 @@ fun NarrativeMessageDialog(
     topImageOverride: org.jetbrains.compose.resources.DrawableResource? = null,
     topImageFillWidth: Boolean = false,
     contentTopOffset: Dp = 0.dp,
+    showTopIcon: Boolean = true,
 ) {
     val isMobile = isPlatformMobile
     val useWideStoryLayout = type == NarrativeMessageType.STORY && !isMobile
@@ -285,7 +288,7 @@ fun NarrativeMessageDialog(
                     }
 
                     // For Ewhad type: show Ewhad icon at top center
-                    if (type == NarrativeMessageType.EWHAD && !topImageFillWidth) {
+                    if (type == NarrativeMessageType.EWHAD && !topImageFillWidth && showTopIcon) {
                         Box(
                             modifier = Modifier.size(iconSize),
                             contentAlignment = Alignment.Center,
@@ -516,6 +519,12 @@ private fun EventGainsSummary(actions: List<EventAction>) {
                     EventGainRow(label = stringResource(Res.string.event_act_destroy_mine)) {
                         ExplosionIcon(size = 24.dp)
                     }
+                // Map changes and loop control are not gains; the event's own message describes them.
+                EventActionType.APPLY_TILE_ZONE,
+                EventActionType.REVERT_TILE_ZONE,
+                EventActionType.TOGGLE_TILE_ZONE,
+                EventActionType.STOP_EVENT_LOOP,
+                -> Unit
             }
         }
     }

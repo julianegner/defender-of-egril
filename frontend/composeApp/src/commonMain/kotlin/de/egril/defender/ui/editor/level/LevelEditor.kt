@@ -1059,6 +1059,7 @@ internal fun LevelEditorView(
                             } else {
                                 null
                             },
+                        tileZones = currentMap?.tileZones ?: emptyList(),
                     )
             }
         }

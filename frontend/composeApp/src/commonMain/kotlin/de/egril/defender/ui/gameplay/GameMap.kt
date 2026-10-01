@@ -109,6 +109,7 @@ import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.icon.enemy.enemyAttackPreview
 import de.egril.defender.ui.icon.enemy.shouldShowSeafaringPirateBarge
 import de.egril.defender.ui.rememberMapImageState
+import de.egril.defender.ui.rememberMapTileZoneImageState
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -1258,10 +1259,11 @@ fun GameGrid(
 
     val mapId = gameState.level.mapId
     val mapImageState = rememberMapImageState(mapId)
+    val tileZoneImageState = rememberMapTileZoneImageState(mapId, gameState.level.tileZones)
     val mapImagePainter = mapImageState.painter
     val useLevelMapImage = AppSettings.useLevelMapImage.value
     val hasMapImage = mapImagePainter != null && useLevelMapImage
-    val isLoadingMapImage = mapImageState.isLoading
+    val isLoadingMapImage = mapImageState.isLoading || tileZoneImageState.isLoading
     val hexMapSizePx =
         remember(gameState.level.gridWidth, gameState.level.gridHeight, hexSize) {
             val hexSizePx = hexSize.value
@@ -1535,6 +1537,16 @@ fun GameGrid(
     //   By using rememberUpdatedState we get a stable State<> reference that can be captured
     //   once (inside remember(position)) and read at call-time without becoming stale.
     val onCellClickState = rememberUpdatedState(onCellClick)
+    val activeZoneIds = gameState.activeTileZoneIds.toList()
+    val visibleZoneIdsByPosition = remember(gameState.level.tileZones, activeZoneIds) {
+        buildMap {
+            activeZoneIds.forEach { id ->
+                gameState.level.tileZones.firstOrNull { it.id == id }?.tiles?.keys?.forEach { position ->
+                    put(position, id)
+                }
+            }
+        }
+    }
 
     Box(
         modifier =
@@ -1578,15 +1590,25 @@ fun GameGrid(
                             val targetWidthPx = maxOf(hexMapSizePx.first, measuredContentSize.width)
                             val targetHeightPx = maxOf(hexMapSizePx.second, measuredContentSize.height)
                             with(density) {
-                                androidx.compose.foundation.Image(
-                                    painter = mapImagePainter,
-                                    contentDescription = null,
-                                    modifier =
-                                        Modifier
-                                            .requiredWidth(targetWidthPx.toDp())
-                                            .requiredHeight(targetHeightPx.toDp()),
-                                    contentScale = androidx.compose.ui.layout.ContentScale.FillBounds,
-                                )
+                                val imageModifier = Modifier.requiredWidth(targetWidthPx.toDp()).requiredHeight(targetHeightPx.toDp())
+                                androidx.compose.foundation.layout.Box {
+                                    androidx.compose.foundation.Image(
+                                        painter = mapImagePainter,
+                                        contentDescription = null,
+                                        modifier = imageModifier,
+                                        contentScale = androidx.compose.ui.layout.ContentScale.FillBounds,
+                                    )
+                                    gameState.activeTileZoneIds.forEach { zoneId ->
+                                        tileZoneImageState.painters[zoneId]?.let { painter ->
+                                            androidx.compose.foundation.Image(
+                                                painter = painter,
+                                                contentDescription = null,
+                                                modifier = imageModifier,
+                                                contentScale = androidx.compose.ui.layout.ContentScale.FillBounds,
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     } else {
@@ -1818,13 +1840,14 @@ fun GameGrid(
                         }
                     }
 
-                // Sandbox: a tile repainted at runtime must show its new tile image even when the
-                // original map is rendered from a single pre-rendered image. For such tiles we force a
-                // non-transparent (opaque tile-image) background so the new type overlays the old map.
-                val sandboxPaintedType =
-                    if (gameState.level.isSandbox) gameState.sandboxPaintedTiles[position] else null
-                val sandboxPaintedRiverTile =
-                    if (gameState.level.isSandbox) gameState.sandboxPaintedRiverTiles[position] else null
+                // A tile repainted at runtime (sandbox painting or an active tile zone, e.g. a tide) must
+                // show its new tile image even when the original map is rendered from a single
+                // pre-rendered image. For such tiles we force a non-transparent (opaque tile-image)
+                // background so the new type overlays the old map.
+                val sandboxPaintedType = gameState.paintedTileTypeAt(position)
+                val sandboxPaintedRiverTile = gameState.paintedRiverTileAt(position)
+                val visibleZoneId = visibleZoneIdsByPosition[position]
+                val zoneImageCoversTile = visibleZoneId != null && visibleZoneId in tileZoneImageState.painters
 
                 GridCell(
                     position = position,
@@ -1890,7 +1913,10 @@ fun GameGrid(
                     isAlchemyTargetTile = alchemyAttackTargetPositions.contains(position),
                     isInWizardAttackArea = wizardAttackAreaPositions.contains(position),
                     isInAlchemyAttackArea = alchemyAttackAreaPositions.contains(position),
-                    useTransparentBackground = hasMapImage && sandboxPaintedType == null,
+                    useTransparentBackground =
+                        hasMapImage &&
+                            (sandboxPaintedType == null ||
+                                (zoneImageCoversTile && !(gameState.level.isSandbox && position in gameState.sandboxPaintedTiles))),
                     sandboxPaintedType = sandboxPaintedType,
                     sandboxPaintedRiverTile = sandboxPaintedRiverTile,
                 )

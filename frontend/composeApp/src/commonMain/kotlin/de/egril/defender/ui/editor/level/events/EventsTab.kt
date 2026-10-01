@@ -41,11 +41,14 @@ import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
 import de.egril.defender.model.EventCondition
 import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.EventMessageFrameId
 import de.egril.defender.model.LevelEvent
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.Position
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObjectType
+import de.egril.defender.model.TileZone
+import de.egril.defender.ui.gameplay.EventMessageFrames
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleUpIcon
@@ -54,11 +57,15 @@ import defender_of_egril.composeapp.generated.resources.add_action
 import defender_of_egril.composeapp.generated.resources.add_event
 import defender_of_egril.composeapp.generated.resources.delete_action
 import defender_of_egril.composeapp.generated.resources.delete_event
+import defender_of_egril.composeapp.generated.resources.event_act_apply_tile_zone
 import defender_of_egril.composeapp.generated.resources.event_act_destroy_mine
 import defender_of_egril.composeapp.generated.resources.event_act_give_coins
 import defender_of_egril.composeapp.generated.resources.event_act_give_mana
 import defender_of_egril.composeapp.generated.resources.event_act_give_support_object
 import defender_of_egril.composeapp.generated.resources.event_act_give_support_spell
+import defender_of_egril.composeapp.generated.resources.event_act_revert_tile_zone
+import defender_of_egril.composeapp.generated.resources.event_act_stop_event_loop
+import defender_of_egril.composeapp.generated.resources.event_act_toggle_tile_zone
 import defender_of_egril.composeapp.generated.resources.event_actions_count
 import defender_of_egril.composeapp.generated.resources.event_actions_label
 import defender_of_egril.composeapp.generated.resources.event_amount_label
@@ -75,6 +82,8 @@ import defender_of_egril.composeapp.generated.resources.event_condition_label
 import defender_of_egril.composeapp.generated.resources.event_destroy_mine_no_mine_warning
 import defender_of_egril.composeapp.generated.resources.event_enemy_type_label
 import defender_of_egril.composeapp.generated.resources.event_from_turn_label
+import defender_of_egril.composeapp.generated.resources.event_message_frame_label
+import defender_of_egril.composeapp.generated.resources.event_message_frame_standard
 import defender_of_egril.composeapp.generated.resources.event_message_label
 import defender_of_egril.composeapp.generated.resources.event_message_none
 import defender_of_egril.composeapp.generated.resources.event_no_actions
@@ -85,13 +94,18 @@ import defender_of_egril.composeapp.generated.resources.event_summary_coins
 import defender_of_egril.composeapp.generated.resources.event_summary_enemy_turn
 import defender_of_egril.composeapp.generated.resources.event_summary_killed
 import defender_of_egril.composeapp.generated.resources.event_summary_label
+import defender_of_egril.composeapp.generated.resources.event_summary_loop
 import defender_of_egril.composeapp.generated.resources.event_summary_mana
 import defender_of_egril.composeapp.generated.resources.event_summary_support_object
 import defender_of_egril.composeapp.generated.resources.event_summary_support_spell
 import defender_of_egril.composeapp.generated.resources.event_summary_turn
 import defender_of_egril.composeapp.generated.resources.event_support_object_label
 import defender_of_egril.composeapp.generated.resources.event_support_spell_label
+import defender_of_egril.composeapp.generated.resources.event_target_event_label
+import defender_of_egril.composeapp.generated.resources.event_target_event_missing_warning
 import defender_of_egril.composeapp.generated.resources.event_threshold_label
+import defender_of_egril.composeapp.generated.resources.event_zone_label
+import defender_of_egril.composeapp.generated.resources.event_zone_missing_warning
 import defender_of_egril.composeapp.generated.resources.events_intro
 import defender_of_egril.composeapp.generated.resources.x_coordinate
 import defender_of_egril.composeapp.generated.resources.y_coordinate
@@ -106,7 +120,18 @@ fun EventsTab(
     onEventsChange: (LevelEvents) -> Unit,
     minePositions: Set<Position>,
     issueDescription: String? = null,
+    tileZones: List<TileZone> = emptyList(),
 ) {
+    val context =
+        EventEditorContext(
+            minePositions = minePositions,
+            tileZones = tileZones,
+            loopEvents =
+                events.events.mapIndexedNotNull { index, event ->
+                    if (event.loop != null) event.id to index else null
+                },
+        )
+
     fun updateEvent(
         index: Int,
         newEvent: LevelEvent,
@@ -156,7 +181,7 @@ fun EventsTab(
                 index = index,
                 event = event,
                 onEventChange = { updateEvent(index, it) },
-                minePositions = minePositions,
+                context = context,
                 onDelete = {
                     val updated = events.events.toMutableList()
                     updated.removeAt(index)
@@ -180,7 +205,7 @@ private fun EventCard(
     event: LevelEvent,
     onEventChange: (LevelEvent) -> Unit,
     onDelete: () -> Unit,
-    minePositions: Set<Position>,
+    context: EventEditorContext,
 ) {
     var expanded by remember(event.id) { mutableStateOf(false) }
 
@@ -250,7 +275,7 @@ private fun EventCard(
             event.actions.forEachIndexed { actionIndex, action ->
                 ActionEditor(
                     action = action,
-                    minePositions = minePositions,
+                    context = context,
                     onActionChange = { newAction ->
                         val updated = event.actions.toMutableList()
                         updated[actionIndex] = newAction
@@ -279,6 +304,8 @@ private fun EventCard(
             MessageDropdown(
                 selectedKey = event.messageKey,
                 onKeyChange = { onEventChange(event.copy(messageKey = it)) },
+                selectedFrame = event.messageFrame,
+                onFrameChange = { onEventChange(event.copy(messageFrame = it)) },
             )
 
             // Repeatable toggle
@@ -297,9 +324,29 @@ private fun EventCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+
+            HorizontalDivider()
+
+            EventLoopSection(
+                loop = event.loop,
+                onLoopChange = { onEventChange(event.copy(loop = it)) },
+                context = context,
+            )
         }
     }
 }
+
+/**
+ * Data the action editors need to offer valid choices: the level's mines, the tile zones of the
+ * level's map and the events that own a loop (targets for [EventActionType.STOP_EVENT_LOOP]).
+ *
+ * @param loopEvents Pairs of event id and its index in the event list (used for the display label).
+ */
+internal data class EventEditorContext(
+    val minePositions: Set<Position>,
+    val tileZones: List<TileZone>,
+    val loopEvents: List<Pair<String, Int>>,
+)
 
 /**
  * Short human-readable summary of an event shown in the collapsed card state:
@@ -322,7 +369,8 @@ private fun eventSummary(event: LevelEvent): String {
                 "${stringResource(Res.string.event_actions_count, event.actions.size)}: $preview"
             }
         }
-    return "$condition • $actions"
+    val loop = if (event.loop != null) " • ${stringResource(Res.string.event_summary_loop)}" else ""
+    return "$condition • $actions$loop"
 }
 
 /**
@@ -362,7 +410,7 @@ private fun conditionSummary(condition: EventCondition): String =
  * Compact action description including the relevant amount/type where applicable.
  */
 @Composable
-private fun actionSummary(action: EventAction): String =
+internal fun actionSummary(action: EventAction): String =
     when (action.type) {
         EventActionType.GIVE_COINS -> stringResource(Res.string.event_summary_coins, action.amount)
         EventActionType.GIVE_MANA -> stringResource(Res.string.event_summary_mana, action.amount)
@@ -377,6 +425,14 @@ private fun actionSummary(action: EventAction): String =
         }
 
         EventActionType.DESTROY_MINE -> action.type.localizedName()
+
+        EventActionType.APPLY_TILE_ZONE,
+        EventActionType.REVERT_TILE_ZONE,
+        EventActionType.TOGGLE_TILE_ZONE,
+        -> action.zoneId?.let { "${action.type.localizedName()}: $it" } ?: action.type.localizedName()
+
+        EventActionType.STOP_EVENT_LOOP ->
+            action.targetEventId?.let { "${action.type.localizedName()}: $it" } ?: action.type.localizedName()
     }
 
 @Composable
@@ -447,11 +503,11 @@ private fun ConditionEditor(
 }
 
 @Composable
-private fun ActionEditor(
+internal fun ActionEditor(
     action: EventAction,
     onActionChange: (EventAction) -> Unit,
     onDelete: () -> Unit,
-    minePositions: Set<Position>,
+    context: EventEditorContext,
 ) {
     Column(
         modifier =
@@ -544,9 +600,45 @@ private fun ActionEditor(
                     onPositionChange = { onActionChange(action.copy(position = it)) },
                 )
                 val position = action.position
-                if (position == null || !minePositions.contains(position)) {
+                if (position == null || !context.minePositions.contains(position)) {
                     Text(
                         text = stringResource(Res.string.event_destroy_mine_no_mine_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+
+            EventActionType.APPLY_TILE_ZONE,
+            EventActionType.REVERT_TILE_ZONE,
+            EventActionType.TOGGLE_TILE_ZONE,
+            -> {
+                IdDropdown(
+                    label = stringResource(Res.string.event_zone_label),
+                    options = context.tileZones.map { it.id to it.displayName },
+                    selectedId = action.zoneId,
+                    onSelected = { onActionChange(action.copy(zoneId = it)) },
+                )
+                if (context.tileZones.none { it.id == action.zoneId }) {
+                    Text(
+                        text = stringResource(Res.string.event_zone_missing_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+
+            EventActionType.STOP_EVENT_LOOP -> {
+                val eventLabel = stringResource(Res.string.event_summary_label)
+                IdDropdown(
+                    label = stringResource(Res.string.event_target_event_label),
+                    options = context.loopEvents.map { (id, index) -> id to "$eventLabel ${index + 1}" },
+                    selectedId = action.targetEventId,
+                    onSelected = { onActionChange(action.copy(targetEventId = it)) },
+                )
+                if (context.loopEvents.none { it.first == action.targetEventId }) {
+                    Text(
+                        text = stringResource(Res.string.event_target_event_missing_warning),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                     )
@@ -556,9 +648,111 @@ private fun ActionEditor(
     }
 }
 
+/** Dropdown over (id, label) pairs; shows the raw id when the stored id is not among the options. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MessageDropdown(
+private fun IdDropdown(
+    label: String,
+    options: List<Pair<String, String>>,
+    selectedId: String?,
+    onSelected: (String) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val selectedLabel = options.firstOrNull { it.first == selectedId }?.second ?: selectedId.orEmpty()
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+    ) {
+        OutlinedTextField(
+            value = selectedLabel,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            options.forEach { (id, optionLabel) ->
+                DropdownMenuItem(
+                    text = { Text(optionLabel) },
+                    onClick = {
+                        onSelected(id)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Message selection for an event or loop step: the predefined story text and – when a text is
+ * selected – the visual frame its popup uses. "No message" means no popup is shown at all.
+ */
+@Composable
+internal fun MessageDropdown(
+    selectedKey: String?,
+    onKeyChange: (String?) -> Unit,
+    selectedFrame: EventMessageFrameId? = null,
+    onFrameChange: ((EventMessageFrameId?) -> Unit)? = null,
+) {
+    MessageKeyDropdown(selectedKey = selectedKey, onKeyChange = onKeyChange)
+    if (selectedKey != null && onFrameChange != null) {
+        MessageFrameDropdown(selectedFrame = selectedFrame, onFrameChange = onFrameChange)
+    }
+}
+
+/**
+ * Label of a message frame: the standard story frame gets a localized name, all other frames are
+ * named after the villain (or artwork) they belong to.
+ */
+@Composable
+internal fun eventMessageFrameLabel(frameId: EventMessageFrameId?): String =
+    if (EventMessageFrames.isStandard(frameId)) {
+        stringResource(Res.string.event_message_frame_standard)
+    } else {
+        EventMessageFrames.label(frameId)
+    }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MessageFrameDropdown(
+    selectedFrame: EventMessageFrameId?,
+    onFrameChange: (EventMessageFrameId?) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+    ) {
+        OutlinedTextField(
+            value = eventMessageFrameLabel(selectedFrame),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(Res.string.event_message_frame_label)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            EventMessageFrames.frameIds.forEach { frameId ->
+                DropdownMenuItem(
+                    text = { Text(eventMessageFrameLabel(frameId)) },
+                    onClick = {
+                        // The standard frame is stored as "no frame" so level files stay unchanged.
+                        onFrameChange(frameId.takeUnless { EventMessageFrames.isStandard(it) })
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MessageKeyDropdown(
     selectedKey: String?,
     onKeyChange: (String?) -> Unit,
 ) {
@@ -686,7 +880,7 @@ private fun AttackerTypeDropdown(
 }
 
 @Composable
-private fun NumberField(
+internal fun NumberField(
     label: String,
     value: Int,
     onValueChange: (Int) -> Unit,
@@ -762,4 +956,8 @@ private fun EventActionType.localizedName(): String =
         EventActionType.GIVE_SUPPORT_OBJECT -> stringResource(Res.string.event_act_give_support_object)
         EventActionType.GIVE_SUPPORT_SPELL -> stringResource(Res.string.event_act_give_support_spell)
         EventActionType.DESTROY_MINE -> stringResource(Res.string.event_act_destroy_mine)
+        EventActionType.APPLY_TILE_ZONE -> stringResource(Res.string.event_act_apply_tile_zone)
+        EventActionType.REVERT_TILE_ZONE -> stringResource(Res.string.event_act_revert_tile_zone)
+        EventActionType.TOGGLE_TILE_ZONE -> stringResource(Res.string.event_act_toggle_tile_zone)
+        EventActionType.STOP_EVENT_LOOP -> stringResource(Res.string.event_act_stop_event_loop)
     }

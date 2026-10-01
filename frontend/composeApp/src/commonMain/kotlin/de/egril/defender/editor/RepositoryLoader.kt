@@ -41,6 +41,18 @@ object RepositoryLoader {
             null
         }
 
+    private suspend fun copyBundledTileZoneImages(
+        storage: FileStorage,
+        map: EditorMap,
+    ) {
+        map.tileZones.indices.forEach { index ->
+            val name = de.egril.defender.ui.MapImageProvider.tileZoneImageFileName(map.id, index)
+            readRepositoryBytesOrNull("maps/$name")?.let { image ->
+                storage.writeBinaryFile("gamedata/official/maps/$name", image)
+            }
+        }
+    }
+
     private suspend fun loadRepositoryTemplateIds(path: String): List<String> {
         val bytes = readRepositoryBytesOrNull(path) ?: return emptyList()
         return EditorTemplateJsonSerializer.deserializeTemplateIndex(bytes.decodeToString())
@@ -154,6 +166,11 @@ object RepositoryLoader {
                 val mapBytes = readRepositoryBytes(mapPath)
                 builder.addFile(mapPath, mapBytes)
                 readRepositoryBytesOrNull("maps/$mapId.png")?.let { builder.addFile("maps/$mapId.png", it) }
+                val bundledMap = EditorJsonSerializer.deserializeMap(mapBytes.decodeToString())
+                bundledMap?.tileZones?.indices?.forEach { index ->
+                    val file = de.egril.defender.ui.MapImageProvider.tileZoneImageFileName(mapId, index)
+                    readRepositoryBytesOrNull("maps/$file")?.let { builder.addFile("maps/$file", it) }
+                }
             }
 
             for (templateId in loadRepositoryTemplateIds("editor/map_templates_index.json").sorted()) {
@@ -482,6 +499,7 @@ object RepositoryLoader {
                     } catch (e: Exception) {
                         // PNG might not exist, that's OK
                     }
+                    copyBundledTileZoneImages(storage, officialMap)
                     mapCount++
                 } else {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -671,6 +689,7 @@ object RepositoryLoader {
                     } catch (_: Exception) {
                         // PNG might not exist, that's OK
                     }
+                    copyBundledTileZoneImages(storage, officialMap)
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Loaded and saved priority map: $priorityMapId")
                     }
@@ -735,6 +754,7 @@ object RepositoryLoader {
                     } catch (_: Exception) {
                         // PNG might not exist, that's OK
                     }
+                    copyBundledTileZoneImages(storage, officialMap)
                     mapCount++
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Loaded and saved official map: $mapId")

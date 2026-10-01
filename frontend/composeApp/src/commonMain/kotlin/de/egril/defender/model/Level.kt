@@ -80,6 +80,7 @@ data class Level(
     val spawnPointTypeMap: Map<Position, SpawnPointType> = emptyMap(), // Spawn point type per position (LAND or WATER); defaults to LAND if absent
     val supports: LevelSupports = LevelSupports(), // Player-usable supports (placable objects + spell tokens) for this level
     val events: LevelEvents = LevelEvents(), // Scripted events (conditions + actions + predefined story messages) for this level
+    val tileZones: List<TileZone> = emptyList(), // Alternative terrain states of map areas, switched by scripted events
     // Initial placements (optional) - new nested structure
     val initialData: de.egril.defender.editor.InitialData? = null,
     // Legacy fields for backward compatibility (deprecated - use initialData instead)

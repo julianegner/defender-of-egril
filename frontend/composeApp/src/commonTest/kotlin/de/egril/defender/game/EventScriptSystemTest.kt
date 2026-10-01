@@ -9,6 +9,8 @@ import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
 import de.egril.defender.model.EventCondition
 import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.EventLoop
+import de.egril.defender.model.EventLoopStep
 import de.egril.defender.model.GameMessageType
 import de.egril.defender.model.GameState
 import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
@@ -371,7 +373,7 @@ class EventScriptSystemTest {
     }
 
     @Test
-    fun testMessageIsQueuedEvenWithoutMessageKey() {
+    fun testNoMessageIsQueuedWithoutMessageKey() {
         val event =
             LevelEvent(
                 id = "no_msg",
@@ -384,11 +386,88 @@ class EventScriptSystemTest {
         val system = EventScriptSystem(state)
 
         system.evaluate(EventTrigger.PLAYER_TURN_START)
-        assertEquals(1, state.pendingMessages.size, "A message should be queued even without a message key")
+        assertTrue(state.pendingMessages.isEmpty(), "'No message' events must not show a popup")
+        assertEquals(150, state.coins.value, "The actions are still applied")
+    }
+
+    @Test
+    fun testMessageFrameIsCarriedOnMessage() {
+        val event =
+            LevelEvent(
+                id = "framed",
+                condition = EventCondition(type = EventConditionType.TURN_START),
+                messageKey = "event_msg_high_tide",
+                messageFrame = "kraken",
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals("kraken", state.pendingMessages.first().eventMessageFrame)
+    }
+
+    @Test
+    fun testLoopStepWithoutMessageKeyShowsNoPopup() {
+        val event =
+            LevelEvent(
+                id = "loop_no_msg",
+                condition = EventCondition(type = EventConditionType.TURN_START),
+                messageKey = null,
+                loop =
+                    EventLoop(
+                        repeatCount = 1,
+                        steps =
+                            listOf(
+                                EventLoopStep(
+                                    waitTurns = 0,
+                                    actions = listOf(EventAction(type = EventActionType.GIVE_COINS, amount = 10)),
+                                    messageKey = null,
+                                ),
+                                // A loop needs at least one waiting step per pass to be valid.
+                                EventLoopStep(waitTurns = 3),
+                            ),
+                    ),
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.pendingMessages.isEmpty(), "Silent loop steps must not show a popup")
+        assertEquals(110, state.coins.value, "The loop step actions are still applied")
+    }
+
+    @Test
+    fun testLoopStepMessageUsesItsFrame() {
+        val event =
+            LevelEvent(
+                id = "loop_msg",
+                condition = EventCondition(type = EventConditionType.TURN_START),
+                messageKey = null,
+                loop =
+                    EventLoop(
+                        repeatCount = 1,
+                        steps =
+                            listOf(
+                                EventLoopStep(
+                                    waitTurns = 0,
+                                    messageKey = "event_msg_low_tide",
+                                    messageFrame = "sylvanas",
+                                ),
+                                EventLoopStep(waitTurns = 3),
+                            ),
+                    ),
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(1, state.pendingMessages.size)
         val message = state.pendingMessages.first()
-        assertEquals(GameMessageType.EVENT_MESSAGE, message.type)
-        assertEquals(null, message.name)
-        assertEquals(event.actions, message.eventActions, "The applied actions are carried on the message")
+        assertEquals("event_msg_low_tide", message.name)
+        assertEquals("sylvanas", message.eventMessageFrame)
     }
 
     @Test

@@ -242,8 +242,8 @@ class RaftSystem(
                 break
             }
 
-            // Check if another raft is at the destination
-            if (state.isRaftAt(nextStep)) {
+            // Check if another raft (or a unit submerged on the river bed) is at the destination
+            if (state.isRaftAt(nextStep) || state.submergedAttackers.any { it.position.value == nextStep }) {
                 // Blocked by another raft, cannot move further
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("Raft ${raft.id} blocked by another raft at $nextStep")

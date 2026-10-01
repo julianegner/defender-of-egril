@@ -10,6 +10,8 @@ import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
 import de.egril.defender.model.EventCondition
 import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.EventLoop
+import de.egril.defender.model.EventLoopStep
 import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
 import de.egril.defender.model.LevelEvent
 import de.egril.defender.model.LevelEvents
@@ -115,6 +117,30 @@ object EditorJsonSerializer {
                 ""
             }
 
+        val tileZonesJson =
+            if (map.tileZones.isNotEmpty()) {
+                val zonesData =
+                    map.tileZones.joinToString(",\n    ") { zone ->
+                        val zoneTilesData =
+                            zone.tiles.entries
+                                .sortedWith(compareBy({ it.key.y }, { it.key.x }))
+                                .joinToString(",\n        ") { (pos, type) ->
+                                    val river = zone.riverTiles[pos]
+                                    val riverPart =
+                                        if (type == TileType.RIVER && river != null) {
+                                            ", \"flowDirection\": \"${river.flowDirection.name}\", \"flowSpeed\": ${river.flowSpeed}"
+                                        } else {
+                                            ""
+                                        }
+                                    "\"${pos.x},${pos.y}\": {\"type\": \"${type.name}\"$riverPart}"
+                                }
+                        "{\n      \"id\": \"${zone.id}\",\n      \"name\": \"${zone.name}\",\n      \"zoneTiles\": {\n        $zoneTilesData\n      }\n    }"
+                    }
+                ",\n  \"tileZones\": [\n    $zonesData\n  ]"
+            } else {
+                ""
+            }
+
         val data = """{
   "id": "${map.id}",
   "name": "${map.name}"$nameKeyJson,
@@ -124,7 +150,7 @@ object EditorJsonSerializer {
   "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson$mapToolingInfoJson$allowNoBuildableTilesJson$allowNoDirectPathJson,
   "tiles": {
     $tilesJson
-  }$riverTilesJson$targetInfoJson$spawnPointInfoJson
+  }$riverTilesJson$targetInfoJson$spawnPointInfoJson$tileZonesJson
 }"""
         return """{
   "metadata": {
@@ -387,6 +413,8 @@ object EditorJsonSerializer {
                 // spawnPointInfo is optional, continue without it
             }
 
+            val tileZones = parseTileZones(dataJson, width, height)
+
             return EditorMap(
                 id = id,
                 name = name,
@@ -404,6 +432,7 @@ object EditorJsonSerializer {
                 mapToolingInfo = mapToolingInfo,
                 allowNoBuildableTiles = allowNoBuildableTiles,
                 allowNoDirectPath = allowNoDirectPath,
+                tileZones = tileZones,
                 isValid = true,
             )
         } catch (e: Exception) {
@@ -412,6 +441,45 @@ object EditorJsonSerializer {
             }
             return null
         }
+    }
+
+    /**
+     * Parse the optional "tileZones" section of a map (alternative terrain states switched by
+     * level events). Entries outside the map bounds or with unsupported tile types are skipped.
+     */
+    private fun parseTileZones(
+        dataJson: String,
+        width: Int,
+        height: Int,
+    ): List<de.egril.defender.model.TileZone> {
+        val zonesSection = JsonUtils.extractJsonArrayForKey(dataJson, "tileZones")
+        if (zonesSection.isBlank()) return emptyList()
+        val zones = mutableListOf<de.egril.defender.model.TileZone>()
+        val entryRegex = Regex(""""(\d+),(\d+)":\s*\{([^}]*)\}""")
+        for (zoneJson in JsonUtils.splitJsonArray(zonesSection)) {
+            val id = JsonUtils.extractStringValue(zoneJson, "id")
+            if (id.isBlank()) continue
+            val name = JsonUtils.extractStringValue(zoneJson, "name")
+            val tilesSection = JsonUtils.extractJsonObjectForKey(zoneJson, "zoneTiles")
+            val tiles = mutableMapOf<Position, TileType>()
+            val riverTiles = mutableMapOf<Position, de.egril.defender.model.RiverTile>()
+            for (match in entryRegex.findAll(tilesSection)) {
+                val position = Position(match.groupValues[1].toInt(), match.groupValues[2].toInt())
+                if (position.x !in 0 until width || position.y !in 0 until height) continue
+                val body = "{${match.groupValues[3]}}"
+                val type = runCatching { TileType.valueOf(JsonUtils.extractStringValue(body, "type")) }.getOrNull() ?: continue
+                tiles[position] = type
+                if (type == TileType.RIVER) {
+                    val flow =
+                        runCatching { de.egril.defender.model.RiverFlow.valueOf(JsonUtils.extractStringValue(body, "flowDirection")) }
+                            .getOrDefault(de.egril.defender.model.RiverFlow.NONE)
+                    val speed = JsonUtils.extractNumericValue(body, "flowSpeed").toIntOrNull()?.coerceIn(1, 2) ?: 1
+                    riverTiles[position] = de.egril.defender.model.RiverTile(position, flow, speed)
+                }
+            }
+            zones.add(de.egril.defender.model.TileZone(id = id, name = name, tiles = tiles, riverTiles = riverTiles))
+        }
+        return zones
     }
 
     private fun parseTiles(
@@ -2313,21 +2381,108 @@ object EditorJsonSerializer {
         if (c.position != null) conditionParts.add("\"position\": {\"x\": ${c.position.x}, \"y\": ${c.position.y}}")
         val conditionJson = "{${conditionParts.joinToString(", ")}}"
 
-        val actionsJson =
-            event.actions.joinToString(", ") { action ->
-                val parts = mutableListOf<String>()
-                parts.add("\"type\": \"${action.type.name}\"")
-                parts.add("\"amount\": ${action.amount}")
-                if (action.supportObjectType != null) parts.add("\"supportObjectType\": \"${action.supportObjectType.name}\"")
-                if (action.spellType != null) parts.add("\"spellType\": \"${action.spellType.name}\"")
-                if (action.position != null) parts.add("\"position\": {\"x\": ${action.position.x}, \"y\": ${action.position.y}}")
-                "{${parts.joinToString(", ")}}"
-            }
+        val actionsJson = serializeActions(event.actions)
 
         val messageJson =
             if (event.messageKey != null) ", \"messageKey\": \"${event.messageKey}\"" else ""
+        // Only non-standard frames are written so existing level files stay unchanged.
+        val messageFrameJson =
+            if (event.messageFrame != null) ", \"messageFrame\": \"${event.messageFrame}\"" else ""
+        // The loop is written last so the event's own fields can be parsed from the text before it.
+        val loopJson = event.loop?.let { ", \"loop\": ${serializeLoop(it)}" } ?: ""
         return "{\"id\": \"${event.id}\", \"condition\": $conditionJson, " +
-            "\"actions\": [$actionsJson]$messageJson, \"repeatable\": ${event.repeatable}}"
+            "\"actions\": [$actionsJson]$messageJson$messageFrameJson, \"repeatable\": ${event.repeatable}$loopJson}"
+    }
+
+    private fun serializeActions(actions: List<EventAction>): String =
+        actions.joinToString(", ") { action ->
+            val parts = mutableListOf<String>()
+            parts.add("\"type\": \"${action.type.name}\"")
+            parts.add("\"amount\": ${action.amount}")
+            if (action.supportObjectType != null) parts.add("\"supportObjectType\": \"${action.supportObjectType.name}\"")
+            if (action.spellType != null) parts.add("\"spellType\": \"${action.spellType.name}\"")
+            if (action.position != null) parts.add("\"position\": {\"x\": ${action.position.x}, \"y\": ${action.position.y}}")
+            if (action.zoneId != null) parts.add("\"zoneId\": \"${action.zoneId}\"")
+            if (action.targetEventId != null) parts.add("\"targetEventId\": \"${action.targetEventId}\"")
+            "{${parts.joinToString(", ")}}"
+        }
+
+    /** Serialize an [EventLoop]; each step's nested loop is written last within the step. */
+    private fun serializeLoop(loop: EventLoop): String {
+        val stepsJson =
+            loop.steps.joinToString(", ") { step ->
+                val messageJson = if (step.messageKey != null) ", \"messageKey\": \"${step.messageKey}\"" else ""
+                val messageFrameJson =
+                    if (step.messageFrame != null) ", \"messageFrame\": \"${step.messageFrame}\"" else ""
+                val nestedJson = step.nestedLoop?.let { ", \"nestedLoop\": ${serializeLoop(it)}" } ?: ""
+                "{\"waitTurns\": ${step.waitTurns}, \"actions\": [${serializeActions(step.actions)}]" +
+                    "$messageJson$messageFrameJson$nestedJson}"
+            }
+        return "{\"repeatCount\": ${loop.repeatCount}, \"steps\": [$stepsJson]}"
+    }
+
+    private fun parseActions(actionsSection: String): List<EventAction> {
+        val actions = mutableListOf<EventAction>()
+        if (actionsSection.isBlank()) return actions
+        for (actionEntry in splitJsonArrayObjects(actionsSection)) {
+            val actionTypeName = runCatching { JsonUtils.extractValue(actionEntry, "type") }.getOrNull() ?: continue
+            val actionType = runCatching { EventActionType.valueOf(actionTypeName) }.getOrNull() ?: continue
+            val amount = runCatching { JsonUtils.extractValue(actionEntry, "amount").toInt() }.getOrDefault(0)
+            val supportObjectType =
+                if (actionEntry.contains("\"supportObjectType\"")) {
+                    runCatching { SupportObjectType.valueOf(JsonUtils.extractValue(actionEntry, "supportObjectType")) }.getOrNull()
+                } else {
+                    null
+                }
+            val spellType =
+                if (actionEntry.contains("\"spellType\"")) {
+                    runCatching { SpellType.valueOf(JsonUtils.extractValue(actionEntry, "spellType")) }.getOrNull()
+                } else {
+                    null
+                }
+            val zoneId = JsonUtils.extractStringValue(actionEntry, "zoneId").takeIf { it.isNotBlank() }
+            val targetEventId = JsonUtils.extractStringValue(actionEntry, "targetEventId").takeIf { it.isNotBlank() }
+            actions.add(
+                EventAction(
+                    type = actionType,
+                    amount = amount,
+                    supportObjectType = supportObjectType,
+                    spellType = spellType,
+                    position = parsePositionField(actionEntry, "position"),
+                    zoneId = zoneId,
+                    targetEventId = targetEventId,
+                ),
+            )
+        }
+        return actions
+    }
+
+    /** Parse the body (without outer braces) of a serialized [EventLoop]. */
+    private fun parseLoop(loopBody: String): EventLoop {
+        val head = loopBody.substringBefore("\"steps\"")
+        val repeatCount = JsonUtils.extractNumericValue(head, "repeatCount").toIntOrNull() ?: 0
+        val stepsSection = JsonUtils.extractJsonArrayForKey(loopBody, "steps")
+        val steps =
+            JsonUtils.splitJsonArray(stepsSection).map { stepJson ->
+                // Only look at the step's own fields, not those of its nested loop (written last).
+                val stepHead = stepJson.substringBefore("\"nestedLoop\"")
+                val waitTurns = JsonUtils.extractNumericValue(stepHead, "waitTurns").toIntOrNull()?.coerceAtLeast(0) ?: 1
+                val messageKey = JsonUtils.extractStringValue(stepHead, "messageKey").takeIf { it.isNotBlank() }
+                val nestedLoop =
+                    if (stepJson.contains("\"nestedLoop\"")) {
+                        parseLoop(JsonUtils.extractJsonObjectForKey(stepJson, "nestedLoop"))
+                    } else {
+                        null
+                    }
+                EventLoopStep(
+                    waitTurns = waitTurns,
+                    actions = parseActions(extractArraySection(stepHead, "actions")),
+                    messageKey = messageKey,
+                    messageFrame = JsonUtils.extractStringValue(stepHead, "messageFrame").takeIf { it.isNotBlank() },
+                    nestedLoop = nestedLoop,
+                )
+            }
+        return EventLoop(steps = steps, repeatCount = repeatCount.coerceAtLeast(0))
     }
 
     /**
@@ -2356,7 +2511,9 @@ object EditorJsonSerializer {
         }
 
         val events = mutableListOf<LevelEvent>()
-        for (entry in splitJsonArrayObjects(eventsSection)) {
+        for (fullEntry in splitJsonArrayObjects(eventsSection)) {
+            // The loop is serialized last; parse the event's own fields only from the text before it.
+            val entry = fullEntry.substringBefore("\"loop\"")
             val id = runCatching { JsonUtils.extractValue(entry, "id") }.getOrNull() ?: continue
 
             val conditionSection = extractObjectSection(entry, "condition")
@@ -2384,42 +2541,7 @@ object EditorJsonSerializer {
                     position = condPosition,
                 )
 
-            val actions = mutableListOf<EventAction>()
-            val actionsSection = extractArraySection(entry, "actions")
-            if (actionsSection.isNotBlank()) {
-                for (actionEntry in splitJsonArrayObjects(actionsSection)) {
-                    val actionTypeName = runCatching { JsonUtils.extractValue(actionEntry, "type") }.getOrNull() ?: continue
-                    val actionType =
-                        runCatching {
-                            EventActionType
-                                .valueOf(actionTypeName)
-                        }.getOrNull() ?: continue
-                    val amount = runCatching { JsonUtils.extractValue(actionEntry, "amount").toInt() }.getOrDefault(0)
-                    val supportObjectType =
-                        if (actionEntry.contains("\"supportObjectType\"")) {
-                            runCatching { SupportObjectType.valueOf(JsonUtils.extractValue(actionEntry, "supportObjectType")) }
-                                .getOrNull()
-                        } else {
-                            null
-                        }
-                    val spellType =
-                        if (actionEntry.contains("\"spellType\"")) {
-                            runCatching { SpellType.valueOf(JsonUtils.extractValue(actionEntry, "spellType")) }.getOrNull()
-                        } else {
-                            null
-                        }
-                    val actionPosition = parsePositionField(actionEntry, "position")
-                    actions.add(
-                        EventAction(
-                            type = actionType,
-                            amount = amount,
-                            supportObjectType = supportObjectType,
-                            spellType = spellType,
-                            position = actionPosition,
-                        ),
-                    )
-                }
-            }
+            val actions = parseActions(extractArraySection(entry, "actions"))
 
             val messageKey =
                 if (entry.contains("\"messageKey\"")) {
@@ -2427,7 +2549,15 @@ object EditorJsonSerializer {
                 } else {
                     null
                 }
+            // Absent frame (levels authored before frames were selectable) means the standard frame.
+            val messageFrame = JsonUtils.extractStringValue(entry, "messageFrame").takeIf { it.isNotBlank() }
             val repeatable = runCatching { JsonUtils.extractValue(entry, "repeatable").toBoolean() }.getOrDefault(false)
+            val loop =
+                if (fullEntry.contains("\"loop\"")) {
+                    runCatching { parseLoop(JsonUtils.extractJsonObjectForKey(fullEntry, "loop")) }.getOrNull()
+                } else {
+                    null
+                }
 
             events.add(
                 LevelEvent(
@@ -2435,7 +2565,9 @@ object EditorJsonSerializer {
                     condition = condition,
                     actions = actions,
                     messageKey = messageKey,
+                    messageFrame = messageFrame,
                     repeatable = repeatable,
+                    loop = loop,
                 ),
             )
         }

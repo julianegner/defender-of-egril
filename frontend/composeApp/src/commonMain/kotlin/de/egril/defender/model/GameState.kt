@@ -218,12 +218,15 @@ enum class GameMessageType {
  *                      it is the optional string-resource key of the predefined text (may be null).
  * @param eventActions  For [GameMessageType.EVENT_MESSAGE]: the actions the event applied, so the
  *                      granted elements (coins, mana, supports, …) can be shown to the player.
+ * @param eventMessageFrame For [GameMessageType.EVENT_MESSAGE]: the visual frame configured for the
+ *                      message in the level editor (see [EventMessageFrameId]); null = standard frame.
 * @param highlightPositions  Optional pair of positions to highlight (e.g., old and new position for coven swap).
 */
 data class GameMessage(
     val type: GameMessageType,
     val name: String? = null,
     val eventActions: List<EventAction>? = null,
+    val eventMessageFrame: EventMessageFrameId? = null,
     val highlightPositions: Pair<Position, Position>? = null,
 )
 
@@ -396,7 +399,25 @@ data class GameState(
     // Sandbox: flow direction/speed chosen for river tiles painted at runtime, so the chosen
     // water direction survives save/load. Only populated for positions painted as RIVER.
     val sandboxPaintedRiverTiles: SnapshotStateMap<Position, RiverTile> = mutableStateMapOf(),
+    // Tile zones (see [TileZone]) currently active, in activation order. Switched by scripted events.
+    val activeTileZoneIds: SnapshotStateList<String> = mutableStateListOf(),
+    // Tiles whose type currently differs from the original map because of an active tile zone
+    // (position -> current type). Used to overlay the new tile image over a pre-rendered map.
+    val zonePaintedTiles: SnapshotStateMap<Position, de.egril.defender.editor.TileType> = mutableStateMapOf(),
+    // River flow of zone-painted river tiles (only populated for positions currently RIVER due to a zone).
+    val zonePaintedRiverTiles: SnapshotStateMap<Position, RiverTile> = mutableStateMapOf(),
+    // Units that sank to the river bed when their tile was flooded (see [AttackerType.survivesSubmersion]).
+    // They are kept out of [attackers] so they can neither act nor be targeted, and do not count
+    // towards winning the level. They re-surface once their tile is dry again.
+    val submergedAttackers: SnapshotStateList<Attacker> = mutableStateListOf(),
+    // Running loops of scripted events (see [EventLoop]).
+    val activeEventLoops: SnapshotStateList<ActiveEventLoop> = mutableStateListOf(),
 ) {
+    // The original map tile type / river flow for every position, captured once from the level as
+    // it was first loaded (before any runtime edits). Absent positions are NO_PLAY.
+    private val originalTileTypes: Map<Position, de.egril.defender.editor.TileType> by lazy { buildTileTypeMap(originalLevel) }
+    private val originalRiverTiles: Map<Position, RiverTile> by lazy { originalLevel.riverTiles.toMap() }
+    private val originalLevel: Level = level
     // Sandbox: the original map tile type for every position, captured once from the level as it was
     // first loaded (before any runtime edits). Used so runtime paints can be compared against the
     // original map and only genuine differences are tracked, persisted, and overlaid.
@@ -430,47 +451,8 @@ data class GameState(
         if (defenders.any { it.position.value == position }) return
         if (barricades.any { it.position == position }) return
 
-        val pathCells = level.pathCells.toMutableSet()
-        val buildAreas = level.buildAreas.toMutableSet()
-        val startPositions = level.startPositions.toMutableList()
-        val targetPositions = level.targetPositions.toMutableList()
-        val riverTiles = level.riverTiles.toMutableMap()
-        val targetInfoMap = level.targetInfoMap.toMutableMap()
-
-        // Clear the tile from every collection first so the new type fully replaces the old one.
-        pathCells.remove(position)
-        buildAreas.remove(position)
-        startPositions.remove(position)
-        targetPositions.remove(position)
-        riverTiles.remove(position)
-        targetInfoMap.remove(position)
-
-        when (tileType) {
-            de.egril.defender.editor.TileType.PATH -> pathCells.add(position)
-            de.egril.defender.editor.TileType.BUILD_AREA -> buildAreas.add(position)
-            de.egril.defender.editor.TileType.SPAWN_POINT -> if (!startPositions.contains(position)) startPositions.add(position)
-            de.egril.defender.editor.TileType.TARGET -> {
-                if (!targetPositions.contains(position)) {
-                    targetPositions.add(position)
-                }
-                originalSandboxTargetInfoMap[position]?.let { originalTargetInfo ->
-                    targetInfoMap[position] = originalTargetInfo
-                }
-            }
-            de.egril.defender.editor.TileType.RIVER ->
-                riverTiles[position] = RiverTile(position = position, flowDirection = riverFlow, flowSpeed = riverSpeed)
-            de.egril.defender.editor.TileType.NO_PLAY -> {} // Already cleared from all collections.
-        }
-
-        level =
-            level.copy(
-                pathCells = pathCells.toSet(),
-                buildAreas = buildAreas.toSet(),
-                startPositions = startPositions.toList(),
-                targetPositions = targetPositions.toList(),
-                riverTiles = riverTiles.toMap(),
-                targetInfoMap = targetInfoMap.toMap(),
-            )
+        replaceTiles(mapOf(position to (tileType to RiverTile(position = position, flowDirection = riverFlow, flowSpeed = riverSpeed))))
+        val targetInfoMap = level.targetInfoMap
         // Record the repaint so the map can overlay the new tile image over the original map
         // background — but only when it genuinely differs from the original map. Repainting a tile
         // back to its original type removes it from the tracked differences.
@@ -504,6 +486,133 @@ data class GameState(
             sandboxPaintedRiverTiles.remove(position)
         }
         mapEditVersion.value++
+    }
+
+    /**
+     * Replace the type of several map tiles at once with a single rebuild of the level's tile
+     * collections. Each entry maps a position to its new type and, for
+     * [de.egril.defender.editor.TileType.RIVER], the river flow to use (ignored for other types).
+     * Target tiles regain their original target metadata. Does not bump [mapEditVersion].
+     */
+    fun replaceTiles(changes: Map<Position, Pair<de.egril.defender.editor.TileType, RiverTile?>>) {
+        if (changes.isEmpty()) return
+        val pathCells = level.pathCells.toMutableSet()
+        val buildAreas = level.buildAreas.toMutableSet()
+        val startPositions = level.startPositions.toMutableList()
+        val targetPositions = level.targetPositions.toMutableList()
+        val riverTiles = level.riverTiles.toMutableMap()
+        val targetInfoMap = level.targetInfoMap.toMutableMap()
+
+        for ((position, change) in changes) {
+            val (tileType, riverTile) = change
+            // Clear the tile from every collection first so the new type fully replaces the old one.
+            pathCells.remove(position)
+            buildAreas.remove(position)
+            startPositions.remove(position)
+            targetPositions.remove(position)
+            riverTiles.remove(position)
+            targetInfoMap.remove(position)
+
+            when (tileType) {
+                de.egril.defender.editor.TileType.PATH -> pathCells.add(position)
+                de.egril.defender.editor.TileType.BUILD_AREA -> buildAreas.add(position)
+                de.egril.defender.editor.TileType.SPAWN_POINT -> if (!startPositions.contains(position)) startPositions.add(position)
+                de.egril.defender.editor.TileType.TARGET -> {
+                    if (!targetPositions.contains(position)) {
+                        targetPositions.add(position)
+                    }
+                    originalLevel.targetInfoMap[position]?.let { originalTargetInfo ->
+                        targetInfoMap[position] = originalTargetInfo
+                    }
+                }
+                de.egril.defender.editor.TileType.RIVER ->
+                    riverTiles[position] = (riverTile ?: RiverTile(position = position)).copy(position = position)
+                de.egril.defender.editor.TileType.NO_PLAY -> {} // Already cleared from all collections.
+            }
+        }
+
+        level =
+            level.copy(
+                pathCells = pathCells.toSet(),
+                buildAreas = buildAreas.toSet(),
+                startPositions = startPositions.toList(),
+                targetPositions = targetPositions.toList(),
+                riverTiles = riverTiles.toMap(),
+                targetInfoMap = targetInfoMap.toMap(),
+            )
+    }
+
+    /** The tile type [position] has on the original (unmodified) map. */
+    fun originalTileTypeAt(position: Position): de.egril.defender.editor.TileType =
+        originalTileTypes[position] ?: de.egril.defender.editor.TileType.NO_PLAY
+
+    /** The river flow [position] has on the original (unmodified) map, if it is a river tile there. */
+    fun originalRiverTileAt(position: Position): RiverTile? = originalRiverTiles[position]
+
+    /** The tile type [position] currently has (reflecting runtime edits). */
+    fun currentTileTypeAt(position: Position): de.egril.defender.editor.TileType =
+        when {
+            level.riverTiles.containsKey(position) -> de.egril.defender.editor.TileType.RIVER
+            level.startPositions.contains(position) -> de.egril.defender.editor.TileType.SPAWN_POINT
+            level.targetPositions.contains(position) -> de.egril.defender.editor.TileType.TARGET
+            level.pathCells.contains(position) -> de.egril.defender.editor.TileType.PATH
+            level.buildAreas.contains(position) -> de.egril.defender.editor.TileType.BUILD_AREA
+            else -> de.egril.defender.editor.TileType.NO_PLAY
+        }
+
+    /**
+     * The tile type a runtime edit shows on [position] instead of the original map (sandbox paint or
+     * active tile zone), or null when the tile looks like the original map.
+     */
+    fun paintedTileTypeAt(position: Position): de.egril.defender.editor.TileType? =
+        (if (level.isSandbox) sandboxPaintedTiles[position] else null) ?: zonePaintedTiles[position]
+
+    /** River flow of a runtime-painted river tile at [position] (see [paintedTileTypeAt]). */
+    fun paintedRiverTileAt(position: Position): RiverTile? =
+        (if (level.isSandbox) sandboxPaintedRiverTiles[position] else null) ?: zonePaintedRiverTiles[position]
+
+    /**
+     * Recompute the tile types resulting from the currently active tile zones for [positions] and
+     * write them into the level. Later-activated zones take precedence over earlier ones; tiles not
+     * covered by any active zone return to the original map. Updates [zonePaintedTiles] /
+     * [zonePaintedRiverTiles] and bumps [mapEditVersion].
+     *
+     * @return the positions whose tile type actually changed, mapped to (old type, new type).
+     */
+    fun refreshZoneTiles(
+        positions: Collection<Position>,
+    ): Map<Position, Pair<de.egril.defender.editor.TileType, de.egril.defender.editor.TileType>> {
+        val activeZones = activeTileZoneIds.mapNotNull { id -> level.tileZones.firstOrNull { it.id == id } }
+        val changes = mutableMapOf<Position, Pair<de.egril.defender.editor.TileType, RiverTile?>>()
+        val typeChanges = mutableMapOf<Position, Pair<de.egril.defender.editor.TileType, de.egril.defender.editor.TileType>>()
+        for (position in positions.toSet()) {
+            val zone = activeZones.lastOrNull { it.tiles.containsKey(position) }
+            val newType = zone?.tiles?.get(position) ?: originalTileTypeAt(position)
+            val newRiver =
+                if (newType == de.egril.defender.editor.TileType.RIVER) {
+                    zone?.riverTiles?.get(position) ?: originalRiverTileAt(position) ?: RiverTile(position = position)
+                } else {
+                    null
+                }
+            val oldType = currentTileTypeAt(position)
+            val oldRiver = level.riverTiles[position]
+            if (oldType != newType || oldRiver != newRiver?.copy(position = position)) {
+                changes[position] = newType to newRiver
+            }
+            if (oldType != newType) {
+                typeChanges[position] = oldType to newType
+            }
+            if (zone != null && (newType != originalTileTypeAt(position) || newRiver != originalRiverTileAt(position))) {
+                zonePaintedTiles[position] = newType
+                if (newRiver != null) zonePaintedRiverTiles[position] = newRiver.copy(position = position) else zonePaintedRiverTiles.remove(position)
+            } else {
+                zonePaintedTiles.remove(position)
+                zonePaintedRiverTiles.remove(position)
+            }
+        }
+        replaceTiles(changes)
+        if (changes.isNotEmpty()) mapEditVersion.value++
+        return typeChanges
     }
 
     /**

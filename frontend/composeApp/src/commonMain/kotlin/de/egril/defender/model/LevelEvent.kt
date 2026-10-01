@@ -83,6 +83,18 @@ enum class EventActionType {
 
     /** Destroy the dwarven mine located at [EventAction.position] (e.g. a dragon destroys a mine). */
     DESTROY_MINE,
+
+    /** Activate the tile zone [EventAction.zoneId] (e.g. flood the lowlands at high tide). */
+    APPLY_TILE_ZONE,
+
+    /** Deactivate the tile zone [EventAction.zoneId], restoring the base map tiles. */
+    REVERT_TILE_ZONE,
+
+    /** Activate the tile zone [EventAction.zoneId] when inactive, otherwise deactivate it. */
+    TOGGLE_TILE_ZONE,
+
+    /** Stop the running loop of the event [EventAction.targetEventId]. */
+    STOP_EVENT_LOOP,
 }
 
 /**
@@ -93,6 +105,8 @@ enum class EventActionType {
  * @param supportObjectType Support object granted for [EventActionType.GIVE_SUPPORT_OBJECT].
  * @param spellType         Spell granted for [EventActionType.GIVE_SUPPORT_SPELL].
  * @param position          Mine tile for [EventActionType.DESTROY_MINE].
+ * @param zoneId            Tile zone for the tile-zone actions.
+ * @param targetEventId     Event whose loop is stopped by [EventActionType.STOP_EVENT_LOOP].
  */
 data class EventAction(
     val type: EventActionType,
@@ -100,7 +114,71 @@ data class EventAction(
     val supportObjectType: SupportObjectType? = null,
     val spellType: SpellType? = null,
     val position: Position? = null,
+    val zoneId: String? = null,
+    val targetEventId: String? = null,
 )
+
+/**
+ * Identifier of the visual frame used for an event message popup.
+ *
+ * A frame id is the suffix of one of the game's `message_background_<id>` drawables (for example
+ * `kraken` or `waaagh`), so every existing message frame — the story frame, the villain frames and
+ * any frame added later — can be selected for a scripted-event message. `null` means the standard
+ * story frame, which is what event messages used before frames became selectable.
+ *
+ * Frame ids are kept as plain strings so newly added frame artwork is offered automatically without
+ * a code change, and so unknown ids in old or hand-written level files simply fall back to the
+ * standard frame instead of breaking the level.
+ */
+typealias EventMessageFrameId = String
+
+/**
+ * One step of an [EventLoop].
+ *
+ * When the step becomes current, it waits [waitTurns] player turns, then applies [actions] (and
+ * shows [messageKey], if set). Afterwards the optional [nestedLoop] runs completely before the
+ * enclosing loop continues with its next step.
+ *
+ * No message popup is shown when [messageKey] is null. [messageFrame] selects the popup's visual
+ * frame and is only relevant when a message is shown.
+ */
+data class EventLoopStep(
+    val waitTurns: Int = 1,
+    val actions: List<EventAction> = emptyList(),
+    val messageKey: String? = null,
+    val messageFrame: EventMessageFrameId? = null,
+    val nestedLoop: EventLoop? = null,
+)
+
+/**
+ * A sequence of [steps] that is repeated [repeatCount] times, or endlessly when [repeatCount] is 0.
+ * Loops can be nested via [EventLoopStep.nestedLoop].
+ */
+data class EventLoop(
+    val steps: List<EventLoopStep> = emptyList(),
+    val repeatCount: Int = 0,
+) {
+    val isEndless: Boolean get() = repeatCount <= 0
+
+    /**
+     * True when a single pass through this loop (including nested loops) waits at least one turn.
+     * A loop without any waiting would run forever within a single turn and is therefore invalid.
+     */
+    fun waitsAtLeastOneTurnPerPass(): Boolean = steps.any { it.waitTurns > 0 || it.nestedLoop?.waitsAtLeastOneTurnPerPass() == true }
+
+    /** True when this loop and all nested loops wait at least one turn per pass. */
+    fun isValid(): Boolean = steps.isNotEmpty() && waitsAtLeastOneTurnPerPass() && steps.all { it.nestedLoop?.isValid() ?: true }
+
+    /** True when an endless nested loop prevents later steps of an enclosing loop from ever running. */
+    fun hasUnreachableSteps(): Boolean =
+        steps.withIndex().any { (index, step) ->
+            val nested = step.nestedLoop
+            nested != null && ((nested.isEndless && index < steps.lastIndex) || nested.hasUnreachableSteps())
+        }
+
+    /** All actions used anywhere in this loop, including nested loops. */
+    fun allActions(): List<EventAction> = steps.flatMap { it.actions + (it.nestedLoop?.allActions() ?: emptyList()) }
+}
 
 /**
  * A scripted event: a condition, the effects it applies, and an optional predefined story message.
@@ -109,17 +187,26 @@ data class EventAction(
  * @param condition   Condition that triggers the event.
  * @param actions     Effects applied when the event fires.
  * @param messageKey  Optional string-resource key of a predefined story text to display when the
- *                   event fires (selected via dropdown in the level editor).
+ *                   event fires (selected via dropdown in the level editor). When null ("No
+ *                   message" in the editor) no message popup is shown at all.
+ * @param messageFrame Visual frame of the message popup (see [EventMessageFrameId]); only relevant
+ *                    when [messageKey] is set. Null uses the standard story frame.
  * @param repeatable  When true the event can fire again on every future evaluation; when false
  *                   (default) it fires only once.
+ * @param loop        Optional loop started when the event fires (e.g. alternating tides).
  */
 data class LevelEvent(
     val id: String,
     val condition: EventCondition,
     val actions: List<EventAction> = emptyList(),
     val messageKey: String? = null,
+    val messageFrame: EventMessageFrameId? = null,
     val repeatable: Boolean = false,
-)
+    val loop: EventLoop? = null,
+) {
+    /** All actions of this event, including those inside its loop. */
+    fun allActions(): List<EventAction> = actions + (loop?.allActions() ?: emptyList())
+}
 
 /**
  * All scripted events defined for a level.

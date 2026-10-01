@@ -191,4 +191,19 @@ class SpawnPointTest {
         assertEquals(listOf(Position(0, 1)), krakenPoints)
         assertEquals(listOf(Position(0, 0)), goblinPoints)
     }
+
+    @Test
+    fun onlyWaterSpawnPointDoesNotAcceptLandOnlyEnemies() {
+        val map =
+            EditorMap(
+                id = "water_only",
+                width = 2,
+                height = 2,
+                tiles = mapOf("0,0" to TileType.SPAWN_POINT),
+                spawnPointInfoMap = mapOf("0,0" to SpawnPointType.WATER),
+            )
+
+        assertTrue(map.getCompatibleSpawnPoints(AttackerType.GOBLIN).isEmpty())
+        assertEquals(listOf(Position(0, 0)), map.getCompatibleSpawnPoints(AttackerType.PIRATE))
+    }
 }

@@ -68,6 +68,7 @@ data class EditorMap(
     val mapToolingInfo: String = DEFAULT_MAP_TOOLING_INFO, // Free-form map tooling text; known standard values are localized at runtime
     val allowNoBuildableTiles: Boolean = false, // True if a map may be ready without any BUILD_AREA tiles
     val allowNoDirectPath: Boolean = false, // True if this map may have no direct spawn-to-target path (portals added in level editor will bridge the gap)
+    val tileZones: List<de.egril.defender.model.TileZone> = emptyList(), // Alternative terrain states (tides, shifting rivers) switched by level events
     val isValid: Boolean = true,
 ) {
     fun hasSupportedSize(): Boolean = MapSizeLimits.isWithinLimits(width, height)
@@ -95,18 +96,15 @@ data class EditorMap(
 
     /**
      * Returns spawn points compatible with [attackerType] based on LAND/WATER flags.
-     * Falls back to all spawn points if none are compatible.
      */
     fun getCompatibleSpawnPoints(attackerType: AttackerType): List<Position> {
         val spawnPoints = getSpawnPoints()
-        val compatible =
-            spawnPoints.filter { pos ->
-                when (getSpawnPointType(pos)) {
-                    SpawnPointType.WATER -> attackerType.canSpawnOnWater
-                    SpawnPointType.LAND -> attackerType.canSpawnOnLand
-                }
+        return spawnPoints.filter { pos ->
+            when (getSpawnPointType(pos)) {
+                SpawnPointType.WATER -> attackerType.canSpawnOnWater
+                SpawnPointType.LAND -> attackerType.canSpawnOnLand
             }
-        return compatible.ifEmpty { spawnPoints }
+        }
     }
 
     fun getTarget(): Position? = getTargets().firstOrNull()

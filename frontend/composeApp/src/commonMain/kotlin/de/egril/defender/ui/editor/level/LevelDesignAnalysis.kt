@@ -322,7 +322,7 @@ internal fun analyzeLevelMapConsistency(
         level.enemySpawns.filter { spawn ->
             val spawnPoint = spawn.spawnPoint ?: return@filter false
             val compatiblePoints = map.getCompatibleSpawnPoints(spawn.attackerType)
-            spawnPoint !in mapSpawnPoints || compatiblePoints.isNotEmpty() && spawnPoint !in compatiblePoints
+            spawnPoint !in mapSpawnPoints || spawnPoint !in compatiblePoints
         }
     val missingCompatibleSpawnTypes =
         level.enemySpawns
@@ -755,7 +755,7 @@ private fun countInvalidEventPositions(
 ): Int =
     level.events.events.count { event ->
         val conditionInvalid = event.condition.position?.let { position -> map == null || !position.isInside(map.width, map.height) } == true
-        val actionInvalid = event.actions.any { action -> action.position?.let { position -> map == null || !position.isInside(map.width, map.height) } == true }
+        val actionInvalid = event.allActions().any { action -> action.position?.let { position -> map == null || !position.isInside(map.width, map.height) } == true }
         conditionInvalid || actionInvalid
     }
 

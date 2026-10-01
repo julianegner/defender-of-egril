@@ -155,6 +155,9 @@ enum class AttackerType(
     val canTrampleSmallerEnemies: Boolean = false,
     // Barricade damage multiplier: multiplies damage dealt to barricades. 1 = normal. Used by Troll (10×).
     val barricadeDamageMultiplier: Int = 1,
+    // Submersion survival: when the unit's tile is flooded by a scripted tile-zone change it does not
+    // drown but sinks to the river bed, and re-surfaces once the water recedes. Used by Troll.
+    val survivesSubmersion: Boolean = false,
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3, faction = EnemyFaction.HORDE, unitSize = 2),
     GOBLIN_RUNNER("Goblin Runner", health = 15, speed = 3, reward = 7, xp = 4, faction = EnemyFaction.HORDE, unitSize = 1),
@@ -177,6 +180,7 @@ enum class AttackerType(
         movesEveryOtherTurn = true,
         canTrampleSmallerEnemies = true,
         barricadeDamageMultiplier = 10,
+        survivesSubmersion = true,
     ),
     SKELETON("Skeleton", health = 15, speed = 5, reward = 7, xp = 4, faction = EnemyFaction.UNDEAD),
     ZOMBIE("Zombie", health = 25, speed = 1, reward = 6, xp = 4, faction = EnemyFaction.UNDEAD),

@@ -1379,6 +1379,7 @@ class GameViewModel {
                         id = savedRaft.id,
                         defenderId = savedRaft.defenderId,
                         currentPosition = mutableStateOf(savedRaft.position),
+                        healthPoints = mutableStateOf(savedRaft.healthPoints),
                     )
                 newGameState.rafts.add(raft)
             }
@@ -2304,6 +2305,7 @@ class GameViewModel {
                     id = r.id,
                     defenderId = r.defenderId,
                     position = r.currentPosition.value,
+                    healthPoints = r.healthPoints.value,
                 )
             }
 

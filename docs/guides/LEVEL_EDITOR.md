@@ -39,6 +39,9 @@ All editor data is stored in JSON format on your local filesystem:
 
 - View existing maps
 - Maps define the grid layout, spawn points, paths, and build areas
+- In spawn turns, enemy types without a compatible land/water spawn point are disabled, even
+  when the map has only one spawn point. Changing an enemy type in table mode keeps its assigned
+  spawn point only when that point remains compatible.
 - Each map is saved as a separate JSON file in the `maps/` directory
 
 #### Collapsible Header
@@ -59,6 +62,28 @@ The Map Editor header can be collapsed to provide more screen space for editing 
   - River properties dialog (opens when RIVER is selected)
 
 To toggle between states, click the collapse/expand button in the header.
+
+#### Tile Zones
+
+Tile zones store an alternative terrain state for part of a map, e.g. *high tide* or a *new river
+bed*. Level events switch them on and off at runtime (see the Events tab below and
+[Tile Zone Events](../features/TILE_ZONE_EVENTS.md)).
+
+- Click **Tile zones** in the collapsed header (next to the tile type selector) to open the zone panel.
+- **Add zone** creates a zone; click a zone to select it (click again to deselect) and rename it.
+- While a zone is selected, clicking or brushing on the map edits the zone instead of the base map:
+  choose **Paint path**, **Paint river** or **Remove tiles from zone**. River tiles use the flow
+  direction and speed selected for river painting.
+- Only tiles that are PATH or RIVER on the base map can belong to a zone. Zone tiles are shown with
+  their alternative type and a magenta border while the zone is selected.
+- Zones are shifted along when the map is resized and are part of undo/redo.
+- When editing a zone, the editor warns that changes cannot automatically match the visual style
+  of an uploaded map background; changed areas may stand out.
+- The zone panel shows where the background PNG and map JSON (including tile zones) are stored.
+  On save, each zone also gets a pre-rendered transparent PNG alongside the base image
+  (`<map-id>.zone-<index>.png`). The image-generation dialog shows generation and optimization
+  for each image on one line; unchanged images are skipped individually. All files are in app
+  storage (`~/.defender-of-egril/` on desktop); gameplay loads them without generating new ones.
 
 ### Level Editor Tab
 
@@ -108,15 +133,24 @@ more *actions* and an optional predefined story message:
   killed, a number of enemies of a specific type killed, a unit (any or of a specific type)
   reaching a defined tile, or the player having health/mana/coins at or below a threshold. Every
   condition can be gated with a "from turn N onwards" value so it is only checked from a given turn.
-- **Actions**: give coins, give mana, grant a support object, grant a support spell, or destroy a
-  dwarven mine at a specified tile. When a *destroy mine* action targets a tile that has no
-  pre-placed dwarven mine, the editor shows a warning below the tile field.
+- **Actions**: give coins, give mana, grant a support object, grant a support spell, destroy a
+  dwarven mine at a specified tile, activate/deactivate/toggle a tile zone of the level's map, or
+  stop the loop of another event. When a *destroy mine* action targets a tile that has no
+  pre-placed dwarven mine, or a zone/loop action references a missing zone/event, the editor shows
+  a warning below the field.
 - **Message**: optionally display a predefined story message (selected via dropdown) when the event
   fires. A message dialog is always shown when an event fires — even if no story message is selected —
   and lists the granted elements (coins, mana, support objects/spells) with their symbols, names and
   amounts so the player knows what they gained.
 - **Repeatable**: by default an event fires only once; enable *repeatable* to let it fire on every
   future evaluation whenever its condition is met.
+- **Loop**: optionally start a loop when the event fires. A loop is a list of steps; each step waits
+  a number of player turns and then applies its actions (and optionally shows a message). A loop
+  repeats a given number of times or endlessly, and a step can contain a nested loop that runs
+  completely before the next step. Every loop pass must wait at least one turn; otherwise the editor
+  shows an error and the loop is not started. An endless nested loop is allowed but the steps after
+  it are never reached (the editor shows a hint). Typical use: an endless loop that toggles a
+  *high tide* zone every few turns.
 
 Events are evaluated at the start of each player and enemy turn, and also immediately during the
 player's turn when a relevant state change happens (an enemy is killed or coins are spent), so

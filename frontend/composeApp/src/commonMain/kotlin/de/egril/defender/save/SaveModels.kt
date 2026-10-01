@@ -89,6 +89,8 @@ data class SavedGame(
     val activePortals: List<SavedPortal> = emptyList(), // Active portal entry/exit pairs (including rune selection)
     val nextPortalId: Int = 1, // Next portal ID to use
     val takenTargets: List<Position> = emptyList(), // SINGLE_HIT targets already captured by enemies
+    val activeTileZoneIds: List<String> = emptyList(), // Tile zones switched on by scripted events, in activation order
+    val activeEventLoops: List<ActiveEventLoop> = emptyList(), // Running scripted-event loops with their progress
 )
 
 /**
@@ -130,6 +132,7 @@ data class SavedAttacker(
     val goblinRunnerTookDamageSinceLastTurn: Boolean = false, // Pending Goblin Runner speed reset state
     val goblinRunnerSpawnTurnNumber: Int = -1, // Enemy turn number on which a Goblin Runner spawned
     val goblinRunnerMomentumReady: Boolean = false, // Whether the Goblin Runner has already completed its initial move turn
+    val isSubmerged: Boolean = false, // True while the unit waits on the river bed of a flooded tile
 )
 
 data class SavedFieldEffect(
@@ -161,6 +164,7 @@ data class SavedRaft(
     val id: Int,
     val defenderId: Int, // The tower on this raft
     val position: Position,
+    val healthPoints: Int = Raft.RAFT_MAX_HEALTH, // Raft health (full health for old saves)
 )
 
 data class SavedBarricade(

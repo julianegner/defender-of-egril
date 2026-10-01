@@ -264,7 +264,8 @@ class TowerManager(
 
     private fun isPositionOccupied(position: Position): Boolean =
         state.defenders.any { it.position.value == position } ||
-            state.attackers.any { it.position.value == position }
+            state.attackers.any { it.position.value == position } ||
+            state.submergedAttackers.any { it.position.value == position }
 
     /**
      * Create a raft for a defender placed on a river tile.

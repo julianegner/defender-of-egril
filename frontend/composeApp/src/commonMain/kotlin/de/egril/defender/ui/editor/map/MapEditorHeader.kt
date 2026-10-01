@@ -94,6 +94,8 @@ fun MapEditorHeader(
     onToggleMapPathPreviewOverlay: () -> Unit = {},
     showCrosshair: Boolean = false,
     onToggleCrosshair: () -> Unit = {},
+    showTileZones: Boolean = false,
+    onToggleTileZones: () -> Unit = {},
     onUndo: () -> Unit = {},
     canUndo: Boolean = false,
     onRedo: () -> Unit = {},
@@ -197,6 +199,8 @@ fun MapEditorHeader(
             onToggleMapPathPreviewOverlay = onToggleMapPathPreviewOverlay,
             showCrosshair = showCrosshair,
             onToggleCrosshair = onToggleCrosshair,
+            showTileZones = showTileZones,
+            onToggleTileZones = onToggleTileZones,
             onUndo = onUndo,
             canUndo = canUndo,
             onRedo = onRedo,
@@ -740,6 +744,8 @@ private fun CollapsedMapEditorHeader(
     onToggleMapPathPreviewOverlay: () -> Unit = {},
     showCrosshair: Boolean = false,
     onToggleCrosshair: () -> Unit = {},
+    showTileZones: Boolean = false,
+    onToggleTileZones: () -> Unit = {},
     onUndo: () -> Unit = {},
     canUndo: Boolean = false,
     onRedo: () -> Unit = {},
@@ -865,6 +871,15 @@ private fun CollapsedMapEditorHeader(
                         )
                     }
                 }
+            }
+
+            val tileZonesLabel = stringResource(Res.string.tile_zones)
+            TooltipWrapper(text = tileZonesLabel) {
+                OverlayToggleButton(
+                    label = tileZonesLabel,
+                    isActive = showTileZones,
+                    onClick = onToggleTileZones,
+                )
             }
 
             if (selectedTileType == TileType.TARGET || selectedTileType == TileType.SPAWN_POINT) {
