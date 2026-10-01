@@ -3,9 +3,14 @@
 package de.egril.defender.ui.editor
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.MapSizeLimits
@@ -282,11 +287,17 @@ fun ConfirmationDialog(
     message: String,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
+    extraContent: (@Composable () -> Unit)? = null,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
-        text = { Text(message) },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text(message)
+                extraContent?.invoke()
+            }
+        },
         confirmButton = {
             Button(onClick = onConfirm) {
                 Text(stringResource(Res.string.yes))
@@ -298,4 +309,26 @@ fun ConfirmationDialog(
             }
         },
     )
+}
+
+@Composable
+fun CommunityUploadLicenseNotice() {
+    val uriHandler = LocalUriHandler.current
+    Column(modifier = Modifier.padding(top = 12.dp)) {
+        Text(stringResource(Res.string.upload_community_license_notice))
+        Text(
+            text = stringResource(Res.string.license_agpl_freedom_redistribute) +
+                ". " + stringResource(Res.string.license_agpl_freedom_modify) + ".",
+            modifier = Modifier.padding(top = 8.dp),
+        )
+        Text(
+            text = stringResource(Res.string.license_agpl_full_text_label) +
+                " https://www.gnu.org/licenses/agpl-3.0.txt",
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.bodyMedium.copy(textDecoration = TextDecoration.Underline),
+            modifier = Modifier.padding(top = 8.dp).clickable {
+                uriHandler.openUri("https://www.gnu.org/licenses/agpl-3.0.txt")
+            },
+        )
+    }
 }

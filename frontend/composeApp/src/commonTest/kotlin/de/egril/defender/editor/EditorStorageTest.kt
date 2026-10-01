@@ -18,6 +18,28 @@ import kotlin.test.assertTrue
  */
 class EditorStorageTest {
     @Test
+    fun testMapAndLevelLicenseMetadata() {
+        val map = EditorMap(id = "map", name = "Map", width = 1, height = 1, tiles = emptyMap())
+        val level =
+            EditorLevel(
+                id = "level",
+                mapId = "map",
+                title = "Level",
+                startCoins = 100,
+                enemySpawns = emptyList(),
+                availableTowers = emptySet(),
+            )
+        val license = "\"license\": \"GNU Affero General Public License v3.0 (AGPL-3.0)\""
+
+        val mapJson = EditorJsonSerializer.serializeMap(map)
+        val levelJson = EditorJsonSerializer.serializeLevel(level)
+        assertTrue(mapJson.substringBefore("\"data\"").contains(license))
+        assertTrue(levelJson.substringBefore("\"data\"").contains(license))
+        assertNotNull(EditorJsonSerializer.deserializeMap(mapJson))
+        assertNotNull(EditorJsonSerializer.deserializeLevel(levelJson))
+    }
+
+    @Test
     fun testEditorMapStructure() {
         // Test creating an editor map
         val tiles =

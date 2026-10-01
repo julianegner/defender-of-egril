@@ -155,7 +155,8 @@ object EditorJsonSerializer {
         return """{
   "metadata": {
     "program": "$PROGRAM_NAME",
-    "type": "map"
+    "type": "map",
+    "license": "GNU Affero General Public License v3.0 (AGPL-3.0)"
   },
   "data": $data
 }"""
@@ -931,7 +932,8 @@ object EditorJsonSerializer {
         return """{
   "metadata": {
     "program": "$PROGRAM_NAME",
-    "type": "level"
+    "type": "level",
+    "license": "GNU Affero General Public License v3.0 (AGPL-3.0)"
   },
   "data": $data
 }"""
