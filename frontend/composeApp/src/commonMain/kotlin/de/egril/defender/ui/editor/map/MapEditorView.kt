@@ -1523,6 +1523,8 @@ fun MapEditorView(
                     de.egril.defender.ui.editor.ConfirmationDialog(
                         title = stringResource(Res.string.upload_community_confirm_title),
                         message = stringResource(Res.string.upload_community_map_confirm_message, iamState.username ?: ""),
+                        extraContent = { de.egril.defender.ui.editor.CommunityUploadLicenseNotice() },
+                        requireLicenseAgreement = true,
                         onDismiss = { showCommunityUploadConfirm = false },
                         onConfirm = {
                             showCommunityUploadConfirm = false

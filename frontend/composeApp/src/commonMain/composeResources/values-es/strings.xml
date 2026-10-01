@@ -2011,6 +2011,9 @@
     <string name="upload_community_level_confirm_message">Este nivel será visible públicamente para todos los jugadores. Tu nombre de usuario de Keycloak (%s) será visible para otros usuarios. ¿Estás seguro de que quieres subirlo?</string>
     <string name="upload_community_map_confirm_message">Este mapa será visible públicamente para todos los jugadores. Tu nombre de usuario de Keycloak (%s) será visible para otros usuarios. ¿Estás seguro de que quieres subirlo?</string>
     <string name="upload_community_also_uploads_map">El mapa usado por este nivel también se subirá como contenido de comunidad.</string>
+    <string name="upload_community_license_notice">Al publicar, concedes una licencia para los mapas y niveles subidos bajo la Licencia Pública General Affero de GNU v3.0 (AGPL-3.0). Otros pueden compartirlos y modificarlos bajo la misma licencia. Esta licencia no se puede revocar para las copias ya publicadas.</string>
+    <string name="upload_community_license_agreement">Acepto publicar bajo esta licencia</string>
+    <string name="upload_community_agpl_summary">La AGPL es una licencia libre de copyleft diseñada para garantizar que el software permanezca libre y abierto para todos los usuarios, incluso cuando se utiliza a través de una red.</string>
     <string name="community_badge">Comunidad</string>
     <string name="community_downloading_level">Descargando nivel…</string>
     <string name="community_author">por %1$s</string>
