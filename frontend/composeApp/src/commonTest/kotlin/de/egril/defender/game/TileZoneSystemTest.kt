@@ -223,6 +223,68 @@ class TileZoneSystemTest {
         assertTrue(state.rafts.isEmpty())
     }
 
+    @Test
+    fun noPlayDestroysEverythingExceptFlyingOrHoveringEnemies() {
+        val buildArea = Position(1, 2)
+        val noPlayZone =
+            TileZone(
+                id = "void",
+                tiles =
+                    mapOf(
+                        floodA to TileType.NO_PLAY,
+                        buildArea to TileType.NO_PLAY,
+                        riverA to TileType.NO_PLAY,
+                    ),
+            )
+        val level = createLevel()
+        val state = GameState(level.copy(tileZones = level.tileZones + noPlayZone))
+        val flyingEnemyType = AttackerType.entries.first { it.canFlyOverTerrain }
+        val flyingVillainType = AttackerType.entries.first { it.isVillain && it.canFlyOverTerrain }
+        val dragon = attacker(1, AttackerType.DRAGON, floodA)
+        val flyingEnemy = attacker(2, flyingEnemyType, buildArea)
+        val flyingVillain = attacker(6, flyingVillainType, riverA)
+        state.attackers.add(attacker(3, AttackerType.GOBLIN, floodA))
+        state.attackers.add(attacker(4, AttackerType.EWHAD, buildArea))
+        state.attackers.add(dragon)
+        state.attackers.add(flyingEnemy)
+        state.attackers.add(flyingVillain)
+        state.submergedAttackers.add(attacker(5, AttackerType.TROLL, riverA))
+
+        val towerOnBarricade = Defender(id = 1, type = DefenderType.BOW_TOWER, position = mutableStateOf(floodA))
+        val towerBase = Barricade(id = 1, position = floodA, healthPoints = mutableStateOf(120), defenderId = towerOnBarricade.id)
+        towerBase.supportedTowerId.value = towerOnBarricade.id
+        towerOnBarricade.towerBaseBarricadeId.value = towerBase.id
+        val bargeTower = Defender(id = 2, type = DefenderType.SPEAR_TOWER, position = mutableStateOf(riverA))
+        val raft = Raft(id = 1, defenderId = bargeTower.id, currentPosition = mutableStateOf(riverA))
+        bargeTower.raftId.value = raft.id
+        state.defenders.addAll(listOf(towerOnBarricade, bargeTower))
+        state.barricades.add(towerBase)
+        state.barricades.add(Barricade(id = 2, position = buildArea, healthPoints = mutableStateOf(80), defenderId = 99))
+        state.rafts.add(raft)
+        state.traps.add(Trap(position = floodA, damage = 10, defenderId = 1))
+        state.fiefs.add(Fief(position = buildArea, type = FiefType.MARKETPLACE))
+        state.mushrooms.add(Mushroom(position = floodA))
+        state.bridges.add(Bridge(id = 1, type = BridgeType.WOODEN, positions = listOf(riverA), createdByAttackerId = 99, createdOnTurn = 1))
+
+        TileZoneSystem(state).applyZone("void")
+
+        assertEquals(setOf(dragon, flyingEnemy, flyingVillain), state.attackers.toSet())
+        assertTrue(state.submergedAttackers.isEmpty())
+        assertTrue(state.defenders.isEmpty())
+        assertTrue(state.barricades.isEmpty())
+        assertTrue(state.rafts.isEmpty())
+        assertTrue(raft.isDestroyed.value)
+        assertTrue(state.traps.isEmpty())
+        assertTrue(state.fiefs.isEmpty())
+        assertTrue(state.mushrooms.isEmpty())
+        assertTrue(state.bridges.isEmpty())
+        assertEquals(100, state.coins.value, "Destroyed enemies grant no coins")
+        assertEquals(0, state.enemiesKilledTotal.value, "Destroyed enemies are not counted as kills")
+        assertEquals(TileType.NO_PLAY, state.currentTileTypeAt(floodA))
+        assertEquals(TileType.NO_PLAY, state.currentTileTypeAt(buildArea))
+        assertEquals(TileType.NO_PLAY, state.currentTileTypeAt(riverA))
+    }
+
     private fun stateWithRaft(raftHealth: Int): Pair<GameState, Defender> {
         val state = GameState(createLevel())
         val tower = Defender(id = 1, type = DefenderType.BOW_TOWER, position = mutableStateOf(riverA))

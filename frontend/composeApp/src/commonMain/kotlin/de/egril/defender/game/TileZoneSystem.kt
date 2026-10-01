@@ -16,6 +16,9 @@ import de.egril.defender.model.getHexNeighbors
  * Switches [de.egril.defender.model.TileZone]s on and off at runtime and resolves the consequences
  * for everything standing on the changed tiles.
  *
+ * When a path, build area, or river becomes NO_PLAY, everything on it is destroyed except enemies
+ * that can fly or hover.
+ *
  * Flooding (tile becomes river):
  * - Units that can neither swim, fly nor hover drown (removed without reward, not counted as kills),
  *   except units that [survive submersion][de.egril.defender.model.AttackerType.survivesSubmersion],
@@ -71,11 +74,60 @@ class TileZoneSystem(
 
     private fun resolveChanges(changes: Map<Position, Pair<TileType, TileType>>) {
         if (changes.isEmpty()) return
-        val flooded = changes.filter { (_, change) -> change.first != TileType.RIVER && change.second == TileType.RIVER }.keys
-        val dried = changes.filter { (_, change) -> change.first == TileType.RIVER && change.second != TileType.RIVER }.keys
+        val noPlay =
+            changes
+                .filter { (_, change) ->
+                    (change.first == TileType.RIVER ||
+                        change.first == TileType.BUILD_AREA ||
+                        change.first == TileType.PATH) &&
+                        change.second == TileType.NO_PLAY
+                }.keys
+        if (noPlay.isNotEmpty()) destroyOnNoPlay(noPlay)
+
+        val remainingChanges = changes.filterKeys { it !in noPlay }
+        val flooded = remainingChanges.filter { (_, change) -> change.first != TileType.RIVER && change.second == TileType.RIVER }.keys
+        val dried = remainingChanges.filter { (_, change) -> change.first == TileType.RIVER && change.second != TileType.RIVER }.keys
         if (flooded.isNotEmpty()) flood(flooded)
         if (dried.isNotEmpty()) dry(dried)
         resurfaceSubmergedUnits()
+    }
+
+    private fun destroyOnNoPlay(positions: Set<Position>) {
+        for (attacker in state.attackers.toList()) {
+            if (attacker.isDefeated.value || attacker.position.value !in positions || attacker.canFlyOrHover()) continue
+            removeWithoutReward(attacker, "destroyed by terrain")
+        }
+        for (attacker in state.submergedAttackers.toList()) {
+            if (attacker.position.value !in positions || attacker.canFlyOrHover()) continue
+            state.submergedAttackers.remove(attacker)
+            GameLogBuffer.log("EVENT", "${attacker.type.name} #${attacker.id} destroyed by terrain at ${attacker.position.value}")
+        }
+
+        state.traps.removeAll { it.position in positions }
+        state.fiefs.removeAll { it.position in positions }
+        state.mushrooms.removeAll { it.position in positions }
+        state.bridges.removeAll { bridge -> bridge.positions.any { it in positions } }
+        state.scrapPiles.removeAll { it.position in positions }
+        state.activePortals.removeAll { it.entryPosition in positions || it.exitPosition in positions }
+        state.fieldEffects.removeAll { it.position in positions }
+        state.activeSpellEffects.removeAll { it.position != null && it.position in positions }
+
+        val destroyedBarricades = state.barricades.filter { it.position in positions }
+        val supportedTowerIds = destroyedBarricades.mapNotNull { it.supportedTowerId.value }.toSet()
+        state.barricades.removeAll(destroyedBarricades.toSet())
+
+        val destroyedRafts =
+            state.rafts
+                .filter { it.currentPosition.value in positions }
+        for (raft in destroyedRafts) {
+            raft.isDestroyed.value = true
+            releaseKrakenGrip(raft.id)
+        }
+        state.rafts.removeAll(destroyedRafts.toSet())
+        state.defenders.removeAll { it.position.value in positions || it.id in supportedTowerIds }
+        destroyedRafts.forEach { raft ->
+            state.defenders.removeAll { it.id == raft.defenderId }
+        }
     }
 
     private fun flood(positions: Set<Position>) {
@@ -233,4 +285,6 @@ class TileZoneSystem(
 
     private fun Attacker.canStayOnWater(): Boolean =
         type.canTraverseRiver || type.canOnlyMoveOnWater || type.canFlyOverTerrain || type.isDragon
+
+    private fun Attacker.canFlyOrHover(): Boolean = type.canFlyOverTerrain || type.isDragon
 }
