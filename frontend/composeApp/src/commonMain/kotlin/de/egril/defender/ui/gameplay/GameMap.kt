@@ -2029,6 +2029,10 @@ fun GameGrid(
 }
 
 @Composable
+internal fun rememberDisplayedEnemyHealth(attacker: Attacker?): MutableState<Int> =
+    remember(attacker?.id) { mutableStateOf(attacker?.currentHealth?.value ?: 0) }
+
+@Composable
 fun GridCell(
     position: Position,
     gameState: GameState,
@@ -3043,7 +3047,7 @@ private fun BoxScope.GridCellContent(
     // suppressEnemyBackground already covers all cases (targeted, AoE, and non-targeted tiles).
     val enemyBgSuppressed = suppressEnemyBackground
     val animationsEnabled = AppSettings.enableAnimations.value
-    var displayedHealth by remember { mutableStateOf(attacker?.currentHealth?.value ?: 0) }
+    var displayedHealth by rememberDisplayedEnemyHealth(attacker)
     if (attacker != null) {
         LaunchedEffect(
             attacker.id,
