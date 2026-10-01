@@ -6,8 +6,8 @@ import de.egril.defender.model.AttackerType
 import de.egril.defender.model.GameMessage
 import de.egril.defender.model.GameMessageType
 import de.egril.defender.model.GameState
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -40,7 +40,11 @@ class GameViewModelDemoModeTest {
         assertTrue(setup.initialTowers.all { it.onTowerBase })
         assertTrue(initialData.defenders.isEmpty(), "Demo runtime level should start without pre-placed defenders")
         assertTrue(initialData.barricades.count { it.supportsTower } >= 20, "Demo level should provide many tower-base barricades")
-        val spawnTypes = level.directSpawnPlan.orEmpty().map { it.attackerType }.toSet()
+        val spawnTypes =
+            level.directSpawnPlan
+                .orEmpty()
+                .map { it.attackerType }
+                .toSet()
         assertEquals(
             setOf(
                 AttackerType.GOBLIN,

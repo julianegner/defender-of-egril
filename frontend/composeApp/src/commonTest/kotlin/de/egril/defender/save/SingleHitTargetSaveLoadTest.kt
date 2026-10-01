@@ -59,7 +59,7 @@ class SingleHitTargetSaveLoadTest {
 
         val restoredGame = SaveFileStorage.convertSavedGameToGameState(loadedSave, level)
 
-        assertEquals(listOf(capturedTarget), restoredGame.takenTargets)
+        assertEquals(listOf(capturedTarget), restoredGame.takenTargets.toList())
         assertEquals(nextTarget, restoredGame.getNextSingleHitTargetPosition())
         assertEquals(listOf(nextTarget), restoredGame.getActiveTargetPositions())
     }

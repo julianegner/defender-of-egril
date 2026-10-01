@@ -34,10 +34,10 @@ import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.map_background_storage_info
 import defender_of_egril.composeapp.generated.resources.tile_zone_add
+import defender_of_egril.composeapp.generated.resources.tile_zone_custom_background_warning
 import defender_of_egril.composeapp.generated.resources.tile_zone_delete
 import defender_of_egril.composeapp.generated.resources.tile_zone_help
 import defender_of_egril.composeapp.generated.resources.tile_zone_name_label
-import defender_of_egril.composeapp.generated.resources.tile_zone_custom_background_warning
 import defender_of_egril.composeapp.generated.resources.tile_zone_paint_erase
 import defender_of_egril.composeapp.generated.resources.tile_zone_paint_path
 import defender_of_egril.composeapp.generated.resources.tile_zone_paint_river
@@ -102,8 +102,7 @@ internal fun shiftTileZones(
     newWidth: Int,
     newHeight: Int,
 ): List<TileZone> {
-    fun shifted(position: Position): Position? =
-        Position(position.x + leftDelta, position.y + topDelta).takeIf { it.x in 0 until newWidth && it.y in 0 until newHeight }
+    fun shifted(position: Position): Position? = Position(position.x + leftDelta, position.y + topDelta).takeIf { it.x in 0 until newWidth && it.y in 0 until newHeight }
     return zones.map { zone ->
         zone.copy(
             tiles = zone.tiles.mapNotNull { (position, type) -> shifted(position)?.let { it to type } }.toMap(),

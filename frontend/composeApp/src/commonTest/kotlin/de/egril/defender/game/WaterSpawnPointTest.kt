@@ -316,33 +316,38 @@ class WaterSpawnPointTest {
 
     @Test
     fun pirateMovementCanEnterWaterAfterLandSpawn() {
-            val landSpawn = Position(0, 0)
-            val waterTile = Position(1, 0)
-            val target = Position(3, 0)
-            val level =
-                Level(
-                    id = 6,
-                    name = "Pirate Land To Water",
-                    gridWidth = 4,
-                    gridHeight = 2,
-                    startPositions = listOf(landSpawn),
-                    targetPositions = listOf(target),
-                    pathCells = setOf(landSpawn, target),
-                    attackerWaves = emptyList(),
-                    riverTiles = mapOf(waterTile to de.egril.defender.model.RiverTile(waterTile)),
-                )
-            val state = GameState(level = level)
-            val pathfinding = PathfindingSystem(state)
-            val pirate =
-                Attacker(
-                    id = 2,
-                    type = AttackerType.PIRATE,
-                    position = mutableStateOf(landSpawn),
-                )
+        val landSpawn = Position(0, 0)
+        val waterTile = Position(1, 0)
+        val target = Position(3, 0)
+        val level =
+            Level(
+                id = 6,
+                name = "Pirate Land To Water",
+                gridWidth = 4,
+                gridHeight = 2,
+                startPositions = listOf(landSpawn),
+                targetPositions = listOf(target),
+                pathCells = setOf(landSpawn, target),
+                attackerWaves = emptyList(),
+                riverTiles =
+                    mapOf(
+                        waterTile to
+                            de.egril.defender.model
+                                .RiverTile(waterTile),
+                    ),
+            )
+        val state = GameState(level = level)
+        val pathfinding = PathfindingSystem(state)
+        val pirate =
+            Attacker(
+                id = 2,
+                type = AttackerType.PIRATE,
+                position = mutableStateOf(landSpawn),
+            )
 
-            val next = pathfinding.moveTowards(landSpawn, target, pirate)
+        val next = pathfinding.moveTowards(landSpawn, target, pirate)
 
-            assertEquals(waterTile, next, "Pirate spawned on land should still be able to move onto water")
+        assertEquals(waterTile, next, "Pirate spawned on land should still be able to move onto water")
     }
 
     @Test
@@ -357,9 +362,13 @@ class WaterSpawnPointTest {
         val landSpawn = Position(3, 3)
         val target = Position(9, 3)
         val waterTiles =
-            (0..9).flatMap { x -> (0..9).map { y -> Position(x, y) } }
+            (0..9)
+                .flatMap { x -> (0..9).map { y -> Position(x, y) } }
                 .filter { it != landSpawn }
-                .associateWith { de.egril.defender.model.RiverTile(it) }
+                .associateWith {
+                    de.egril.defender.model
+                        .RiverTile(it)
+                }
         val level =
             Level(
                 id = 7,

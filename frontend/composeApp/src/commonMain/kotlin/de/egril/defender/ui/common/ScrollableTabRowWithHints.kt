@@ -62,13 +62,13 @@ fun ScrollableTabRowWithHints(
                     icon = MaterialSymbols.KEYBOARD_ARROW_LEFT,
                     size = 20.dp,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .clickable {
-                            coroutineScope.launch {
-                                scrollState.animateScrollTo((scrollState.value - scrollStepPx).coerceAtLeast(0))
-                            }
-                        }
-                        .semantics { contentDescription = label },
+                    modifier =
+                        Modifier
+                            .clickable {
+                                coroutineScope.launch {
+                                    scrollState.animateScrollTo((scrollState.value - scrollStepPx).coerceAtLeast(0))
+                                }
+                            }.semantics { contentDescription = label },
                 )
             }
         }
@@ -90,15 +90,15 @@ fun ScrollableTabRowWithHints(
                     icon = MaterialSymbols.KEYBOARD_ARROW_RIGHT,
                     size = 20.dp,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .clickable {
-                            coroutineScope.launch {
-                                scrollState.animateScrollTo(
-                                    (scrollState.value + scrollStepPx).coerceAtMost(scrollState.maxValue),
-                                )
-                            }
-                        }
-                        .semantics { contentDescription = label },
+                    modifier =
+                        Modifier
+                            .clickable {
+                                coroutineScope.launch {
+                                    scrollState.animateScrollTo(
+                                        (scrollState.value + scrollStepPx).coerceAtMost(scrollState.maxValue),
+                                    )
+                                }
+                            }.semantics { contentDescription = label },
                 )
             }
         }

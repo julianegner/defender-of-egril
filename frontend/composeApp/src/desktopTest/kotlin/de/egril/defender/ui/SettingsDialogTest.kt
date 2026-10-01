@@ -1,15 +1,15 @@
 package de.egril.defender.ui
 
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.input.key.Key
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
-import de.egril.defender.ui.settings.SettingsDialog
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.MousePointerDirection
 import de.egril.defender.ui.settings.MousePointerSize
+import de.egril.defender.ui.settings.SettingsDialog
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals

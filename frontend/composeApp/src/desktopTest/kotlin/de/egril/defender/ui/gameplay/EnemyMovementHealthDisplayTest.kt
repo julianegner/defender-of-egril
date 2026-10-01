@@ -16,11 +16,12 @@ class EnemyMovementHealthDisplayTest {
 
     @Test
     fun enteringAnEmptyTileShowsActualHealthImmediately() {
-        val attacker = Attacker(
-            id = 1,
-            type = AttackerType.GOBLIN,
-            position = mutableStateOf(Position(0, 0)),
-        )
+        val attacker =
+            Attacker(
+                id = 1,
+                type = AttackerType.GOBLIN,
+                position = mutableStateOf(Position(0, 0)),
+            )
         val occupant = mutableStateOf<Attacker?>(null)
         composeTestRule.setContent {
             Text(rememberDisplayedEnemyHealth(occupant.value).value.toString())

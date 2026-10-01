@@ -49,11 +49,17 @@ internal suspend fun processMapImages(
     val map = result.validatedMap
     var progress = initialImageProgress(result)
     onProgress(progress)
-    fun update(index: Int, generation: ImageStep? = null, optimization: ImageStep? = null) {
-        progress = progress.toMutableList().apply {
-            val current = get(index)
-            set(index, current.copy(generation = generation ?: current.generation, optimization = optimization ?: current.optimization))
-        }
+
+    fun update(
+        index: Int,
+        generation: ImageStep? = null,
+        optimization: ImageStep? = null,
+    ) {
+        progress =
+            progress.toMutableList().apply {
+                val current = get(index)
+                set(index, current.copy(generation = generation ?: current.generation, optimization = optimization ?: current.optimization))
+            }
         onProgress(progress)
     }
 
@@ -100,7 +106,10 @@ internal fun MapImageProgressRows(progress: List<ImageGenerationProgress>) {
 }
 
 @Composable
-private fun ImageProgressStep(label: String, step: ImageStep) {
+private fun ImageProgressStep(
+    label: String,
+    step: ImageStep,
+) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
         when (step) {
             ImageStep.RUNNING -> CircularProgressIndicator(modifier = Modifier.size(14.dp), strokeWidth = 2.dp)

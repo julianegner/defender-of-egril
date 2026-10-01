@@ -68,7 +68,10 @@ class TileZoneSystem(
      * loading a save game, whose objects already reflect the zone state.
      */
     fun restoreActiveZones() {
-        val positions = state.level.tileZones.filter { isZoneActive(it.id) }.flatMap { it.tiles.keys }
+        val positions =
+            state.level.tileZones
+                .filter { isZoneActive(it.id) }
+                .flatMap { it.tiles.keys }
         state.refreshZoneTiles(positions)
     }
 
@@ -77,9 +80,11 @@ class TileZoneSystem(
         val noPlay =
             changes
                 .filter { (_, change) ->
-                    (change.first == TileType.RIVER ||
-                        change.first == TileType.BUILD_AREA ||
-                        change.first == TileType.PATH) &&
+                    (
+                        change.first == TileType.RIVER ||
+                            change.first == TileType.BUILD_AREA ||
+                            change.first == TileType.PATH
+                    ) &&
                         change.second == TileType.NO_PLAY
                 }.keys
         if (noPlay.isNotEmpty()) destroyOnNoPlay(noPlay)
@@ -283,8 +288,7 @@ class TileZoneSystem(
         GameLogBuffer.log("EVENT", "${attacker.type.name} #${attacker.id} $reason at ${attacker.position.value}")
     }
 
-    private fun Attacker.canStayOnWater(): Boolean =
-        type.canTraverseRiver || type.canOnlyMoveOnWater || type.canFlyOverTerrain || type.isDragon
+    private fun Attacker.canStayOnWater(): Boolean = type.canTraverseRiver || type.canOnlyMoveOnWater || type.canFlyOverTerrain || type.isDragon
 
     private fun Attacker.canFlyOrHover(): Boolean = type.canFlyOverTerrain || type.isDragon
 }

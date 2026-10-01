@@ -418,6 +418,7 @@ data class GameState(
     private val originalTileTypes: Map<Position, de.egril.defender.editor.TileType> by lazy { buildTileTypeMap(originalLevel) }
     private val originalRiverTiles: Map<Position, RiverTile> by lazy { originalLevel.riverTiles.toMap() }
     private val originalLevel: Level = level
+
     // Sandbox: the original map tile type for every position, captured once from the level as it was
     // first loaded (before any runtime edits). Used so runtime paints can be compared against the
     // original map and only genuine differences are tracked, persisted, and overlaid.
@@ -543,8 +544,7 @@ data class GameState(
     }
 
     /** The tile type [position] has on the original (unmodified) map. */
-    fun originalTileTypeAt(position: Position): de.egril.defender.editor.TileType =
-        originalTileTypes[position] ?: de.egril.defender.editor.TileType.NO_PLAY
+    fun originalTileTypeAt(position: Position): de.egril.defender.editor.TileType = originalTileTypes[position] ?: de.egril.defender.editor.TileType.NO_PLAY
 
     /** The river flow [position] has on the original (unmodified) map, if it is a river tile there. */
     fun originalRiverTileAt(position: Position): RiverTile? = originalRiverTiles[position]
@@ -564,12 +564,10 @@ data class GameState(
      * The tile type a runtime edit shows on [position] instead of the original map (sandbox paint or
      * active tile zone), or null when the tile looks like the original map.
      */
-    fun paintedTileTypeAt(position: Position): de.egril.defender.editor.TileType? =
-        (if (level.isSandbox) sandboxPaintedTiles[position] else null) ?: zonePaintedTiles[position]
+    fun paintedTileTypeAt(position: Position): de.egril.defender.editor.TileType? = (if (level.isSandbox) sandboxPaintedTiles[position] else null) ?: zonePaintedTiles[position]
 
     /** River flow of a runtime-painted river tile at [position] (see [paintedTileTypeAt]). */
-    fun paintedRiverTileAt(position: Position): RiverTile? =
-        (if (level.isSandbox) sandboxPaintedRiverTiles[position] else null) ?: zonePaintedRiverTiles[position]
+    fun paintedRiverTileAt(position: Position): RiverTile? = (if (level.isSandbox) sandboxPaintedRiverTiles[position] else null) ?: zonePaintedRiverTiles[position]
 
     /**
      * Recompute the tile types resulting from the currently active tile zones for [positions] and

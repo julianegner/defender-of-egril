@@ -502,7 +502,9 @@ object SaveFileStorage {
         val knownZoneIds = level.tileZones.map { it.id }.toSet()
         gameState.activeTileZoneIds.clear()
         gameState.activeTileZoneIds.addAll(savedGame.activeTileZoneIds.filter { it in knownZoneIds })
-        de.egril.defender.game.TileZoneSystem(gameState).restoreActiveZones()
+        de.egril.defender.game
+            .TileZoneSystem(gameState)
+            .restoreActiveZones()
         gameState.activeEventLoops.clear()
         gameState.activeEventLoops.addAll(savedGame.activeEventLoops)
 

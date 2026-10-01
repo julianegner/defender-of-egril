@@ -163,7 +163,10 @@ class EventScriptSystem(
      * advancing/finishing loops as needed, until the loop waits again or has finished.
      */
     private fun runLoop(eventId: String) {
-        val rootLoop = state.level.events.events.firstOrNull { it.id == eventId }?.loop
+        val rootLoop =
+            state.level.events.events
+                .firstOrNull { it.id == eventId }
+                ?.loop
         var guard = 0
         while (true) {
             val index = state.activeEventLoops.indexOfFirst { it.eventId == eventId }

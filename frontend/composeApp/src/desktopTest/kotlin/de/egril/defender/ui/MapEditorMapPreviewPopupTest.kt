@@ -4,9 +4,9 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.TileType
-import de.egril.defender.ui.editor.map.MapEditorView
 import de.egril.defender.ui.editor.map.ImageGenerationProgress
 import de.egril.defender.ui.editor.map.ImageStep
+import de.egril.defender.ui.editor.map.MapEditorView
 import de.egril.defender.ui.editor.map.MapImageProgressRows
 import org.junit.Rule
 import org.junit.Test

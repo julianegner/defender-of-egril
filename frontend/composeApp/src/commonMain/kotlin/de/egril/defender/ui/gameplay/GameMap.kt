@@ -1538,15 +1538,16 @@ fun GameGrid(
     //   once (inside remember(position)) and read at call-time without becoming stale.
     val onCellClickState = rememberUpdatedState(onCellClick)
     val activeZoneIds = gameState.activeTileZoneIds.toList()
-    val visibleZoneIdsByPosition = remember(gameState.level.tileZones, activeZoneIds) {
-        buildMap {
-            activeZoneIds.forEach { id ->
-                gameState.level.tileZones.firstOrNull { it.id == id }?.tiles?.keys?.forEach { position ->
-                    put(position, id)
+    val visibleZoneIdsByPosition =
+        remember(gameState.level.tileZones, activeZoneIds) {
+            buildMap {
+                activeZoneIds.forEach { id ->
+                    gameState.level.tileZones.firstOrNull { it.id == id }?.tiles?.keys?.forEach { position ->
+                        put(position, id)
+                    }
                 }
             }
         }
-    }
 
     Box(
         modifier =
@@ -1915,8 +1916,10 @@ fun GameGrid(
                     isInAlchemyAttackArea = alchemyAttackAreaPositions.contains(position),
                     useTransparentBackground =
                         hasMapImage &&
-                            (sandboxPaintedType == null ||
-                                (zoneImageCoversTile && !(gameState.level.isSandbox && position in gameState.sandboxPaintedTiles))),
+                            (
+                                sandboxPaintedType == null ||
+                                    (zoneImageCoversTile && !(gameState.level.isSandbox && position in gameState.sandboxPaintedTiles))
+                            ),
                     sandboxPaintedType = sandboxPaintedType,
                     sandboxPaintedRiverTile = sandboxPaintedRiverTile,
                 )
@@ -2029,8 +2032,7 @@ fun GameGrid(
 }
 
 @Composable
-internal fun rememberDisplayedEnemyHealth(attacker: Attacker?): MutableState<Int> =
-    remember(attacker?.id) { mutableStateOf(attacker?.currentHealth?.value ?: 0) }
+internal fun rememberDisplayedEnemyHealth(attacker: Attacker?): MutableState<Int> = remember(attacker?.id) { mutableStateOf(attacker?.currentHealth?.value ?: 0) }
 
 @Composable
 fun GridCell(

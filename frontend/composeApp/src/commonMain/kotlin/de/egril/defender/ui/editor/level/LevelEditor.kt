@@ -1273,7 +1273,10 @@ internal fun LevelEditorView(
                     de.egril.defender.ui.editor.ConfirmationDialog(
                         title = stringResource(Res.string.upload_community_confirm_title),
                         message = confirmMessage,
-                        extraContent = { de.egril.defender.ui.editor.CommunityUploadLicenseNotice() },
+                        extraContent = {
+                            de.egril.defender.ui.editor
+                                .CommunityUploadLicenseNotice()
+                        },
                         requireLicenseAgreement = true,
                         onDismiss = { showCommunityUploadConfirm = false },
                         onConfirm = {

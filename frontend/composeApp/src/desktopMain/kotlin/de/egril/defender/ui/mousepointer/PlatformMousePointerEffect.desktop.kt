@@ -10,6 +10,7 @@ import de.egril.defender.ui.settings.MousePointerDirection
 import de.egril.defender.ui.settings.MousePointerSize
 import de.egril.defender.ui.settings.MousePointerSource
 import defender_of_egril.composeapp.generated.resources.Res
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import java.awt.Component
 import java.awt.Cursor
 import java.awt.Graphics2D
@@ -22,7 +23,6 @@ import java.util.WeakHashMap
 import javax.imageio.ImageIO
 import javax.swing.SwingUtilities
 import javax.swing.Timer
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 private enum class ManagedPointerRole(
     val awtType: Int,
@@ -35,8 +35,7 @@ private enum class ManagedPointerRole(
     ;
 
     companion object {
-        fun fromCursorType(type: Int): ManagedPointerRole? =
-            entries.firstOrNull { it.awtType == type }
+        fun fromCursorType(type: Int): ManagedPointerRole? = entries.firstOrNull { it.awtType == type }
     }
 }
 
@@ -68,7 +67,8 @@ private object DesktopMousePointerController {
         if (timer != null) return
         timer =
             Timer(120) {
-                Window.getWindows()
+                Window
+                    .getWindows()
                     .filter { it.isShowing }
                     .forEach { updateWindowTree(it) }
             }.also {
@@ -81,7 +81,8 @@ private object DesktopMousePointerController {
         runOnEdt {
             timer?.stop()
             timer = null
-            Window.getWindows()
+            Window
+                .getWindows()
                 .filter { it.isShowing }
                 .forEach { restoreWindowTree(it) }
         }
@@ -109,18 +110,21 @@ private object DesktopMousePointerController {
             if (source != MousePointerSource.SYSTEM) {
                 ensureStarted()
                 if (changed) {
-                    Window.getWindows()
+                    Window
+                        .getWindows()
                         .filter { it.isShowing }
                         .forEach { refreshManagedWindowTree(it) }
                 }
             } else {
                 timer?.stop()
                 timer = null
-                Window.getWindows()
+                Window
+                    .getWindows()
                     .filter { it.isShowing }
                     .forEach { restoreWindowTree(it) }
             }
-            Window.getWindows()
+            Window
+                .getWindows()
                 .filter { it.isShowing }
                 .forEach { updateWindowTree(it) }
         }
@@ -191,12 +195,13 @@ private object DesktopMousePointerController {
             return
         }
 
-        val role = ManagedPointerRole.fromCursorType(currentCursor.type) ?: run {
-            if (appliedRole != null) {
-                restoreManagedComponent(component)
+        val role =
+            ManagedPointerRole.fromCursorType(currentCursor.type) ?: run {
+                if (appliedRole != null) {
+                    restoreManagedComponent(component)
+                }
+                return
             }
-            return
-        }
 
         val desired = cursorFor(role) ?: return
         if (currentCursor !== desired || appliedRole != role) {
@@ -259,12 +264,13 @@ private object DesktopMousePointerController {
             when (role) {
                 ManagedPointerRole.DEFAULT,
                 ManagedPointerRole.HAND,
-                -> when (currentSource) {
-                    MousePointerSource.GAUNTLET ->
-                        if (currentDirection == MousePointerDirection.RIGHT) 307 else 772
-                    else ->
-                        if (currentDirection == MousePointerDirection.RIGHT) 306 else 771
-                }
+                ->
+                    when (currentSource) {
+                        MousePointerSource.GAUNTLET ->
+                            if (currentDirection == MousePointerDirection.RIGHT) 307 else 772
+                        else ->
+                            if (currentDirection == MousePointerDirection.RIGHT) 306 else 771
+                    }
                 ManagedPointerRole.TEXT -> 540
             }
         val sourceHotspotY =
@@ -324,9 +330,7 @@ private object DesktopMousePointerController {
         return scaled
     }
 
-    private fun adjustPixel(argb: Int): Int {
-        return adjustPixelBrightness(argb, 1f + currentBrightness)
-    }
+    private fun adjustPixel(argb: Int): Int = adjustPixelBrightness(argb, 1f + currentBrightness)
 
     private fun brightenGauntletPixel(argb: Int): Int {
         val alpha = argb ushr 24 and 0xFF

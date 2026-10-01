@@ -1,13 +1,13 @@
 package de.egril.defender.editor
 
 import de.egril.defender.config.LogConfig
+import de.egril.defender.mapgen.MapImageEncoder
+import de.egril.defender.mapgen.TileZoneImageGenerator
 import de.egril.defender.model.AttackerWave
 import de.egril.defender.model.Level
 import de.egril.defender.model.PlannedEnemySpawn
 import de.egril.defender.model.Position
 import de.egril.defender.model.Waypoint
-import de.egril.defender.mapgen.MapImageEncoder
-import de.egril.defender.mapgen.TileZoneImageGenerator
 import de.egril.defender.ui.MapImageProvider
 import de.egril.defender.utils.runBlockingCompat
 
@@ -283,9 +283,9 @@ object EditorStorage {
             if (validatedMap.canRenderMinimap()) {
                 validatedMap.tileZones.indices.filter { index ->
                     tilesChanged ||
-                    index in pendingZoneImages[validatedMap.id].orEmpty() ||
-                    existingMap?.tileZones?.getOrNull(index)?.tiles != validatedMap.tileZones[index].tiles ||
-                    !storage.fileExists("$targetDir/${MapImageProvider.tileZoneImageFileName(validatedMap.id, index)}")
+                        index in pendingZoneImages[validatedMap.id].orEmpty() ||
+                        existingMap?.tileZones?.getOrNull(index)?.tiles != validatedMap.tileZones[index].tiles ||
+                        !storage.fileExists("$targetDir/${MapImageProvider.tileZoneImageFileName(validatedMap.id, index)}")
                 }
             } else {
                 emptyList()
@@ -321,7 +321,8 @@ object EditorStorage {
         storage: FileStorage = fileStorage,
     ) {
         val expected = (0 until count).map { MapImageProvider.tileZoneImageFileName(mapId, it) }.toSet()
-        storage.listFiles(directory)
+        storage
+            .listFiles(directory)
             .filter { it.startsWith("$mapId.zone-") && it.endsWith(".png") && it !in expected }
             .forEach { storage.deleteFile("$directory/$it") }
     }
@@ -336,7 +337,14 @@ object EditorStorage {
         map.tileZones.indices.forEach { index ->
             totalBytes += generateAndSaveTileZoneImage(map, index, storage).toLong()
         }
-        val directory = if (map.isCommunity) COMMUNITY_MAPS_DIR else if (map.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
+        val directory =
+            if (map.isCommunity) {
+                COMMUNITY_MAPS_DIR
+            } else if (map.isOfficial) {
+                OFFICIAL_MAPS_DIR
+            } else {
+                USER_MAPS_DIR
+            }
         removeStaleTileZoneImages(directory, map.id, map.tileZones.size, storage)
         return totalBytes
     }
@@ -351,8 +359,10 @@ object EditorStorage {
         return compressAndSaveTileZoneImage(map, index, pixels, width, height, storage)
     }
 
-    fun generateTileZonePixels(map: EditorMap, index: Int): Triple<IntArray, Int, Int> =
-        TileZoneImageGenerator.generateOverlayPixels(map, map.tileZones[index])
+    fun generateTileZonePixels(
+        map: EditorMap,
+        index: Int,
+    ): Triple<IntArray, Int, Int> = TileZoneImageGenerator.generateOverlayPixels(map, map.tileZones[index])
 
     fun compressAndSaveTileZoneImage(
         map: EditorMap,
@@ -368,8 +378,9 @@ object EditorStorage {
                 map.isOfficial -> OFFICIAL_MAPS_DIR
                 else -> USER_MAPS_DIR
             }
-        val png = MapImageEncoder.encodeToPng(pixels, width, height)
-            ?: error("Could not encode tile zone image for ${map.id}, zone ${map.tileZones[index].id}")
+        val png =
+            MapImageEncoder.encodeToPng(pixels, width, height)
+                ?: error("Could not encode tile zone image for ${map.id}, zone ${map.tileZones[index].id}")
         storage.writeBinaryFile("$directory/${MapImageProvider.tileZoneImageFileName(map.id, index)}", png)
         pendingZoneImages[map.id] = pendingZoneImages[map.id].orEmpty() - index
         return png.size
@@ -446,11 +457,12 @@ object EditorStorage {
         copiedMap: EditorMap,
         storage: FileStorage = fileStorage,
     ) {
-        val validatedMap = copiedMap.copy(
-            isOfficial = false,
-            isCommunity = false,
-            readyToUse = if (copiedMap.isValid) copiedMap.validateReadyToUse() else false,
-        )
+        val validatedMap =
+            copiedMap.copy(
+                isOfficial = false,
+                isCommunity = false,
+                readyToUse = if (copiedMap.isValid) copiedMap.validateReadyToUse() else false,
+            )
         mapsCache[validatedMap.id] = validatedMap
         val json = EditorJsonSerializer.serializeMap(validatedMap)
         storage.writeFile("$USER_MAPS_DIR/${validatedMap.id}.json", json)
@@ -521,7 +533,10 @@ object EditorStorage {
             }
         }
 
-    private fun generateAndSaveMapImage(map: EditorMap, storage: FileStorage = fileStorage) {
+    private fun generateAndSaveMapImage(
+        map: EditorMap,
+        storage: FileStorage = fileStorage,
+    ) {
         if (!map.canRenderMinimap()) {
             return
         }
@@ -543,7 +558,10 @@ object EditorStorage {
         }
     }
 
-    private fun generateAndSaveCommunityMapImage(map: EditorMap, storage: FileStorage = fileStorage) {
+    private fun generateAndSaveCommunityMapImage(
+        map: EditorMap,
+        storage: FileStorage = fileStorage,
+    ) {
         if (!map.canRenderMinimap()) {
             return
         }

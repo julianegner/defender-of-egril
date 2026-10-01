@@ -2,8 +2,8 @@
 
 package de.egril.defender.ui.editor
 
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -354,13 +354,15 @@ fun CommunityUploadLicenseNotice() {
         )
         Text(stringResource(Res.string.license_agpl_network_clause_description))
         Text(
-            text = stringResource(Res.string.license_agpl_full_text_label) +
-                " https://www.gnu.org/licenses/agpl-3.0.txt",
+            text =
+                stringResource(Res.string.license_agpl_full_text_label) +
+                    " https://www.gnu.org/licenses/agpl-3.0.txt",
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.bodyMedium.copy(textDecoration = TextDecoration.Underline),
-            modifier = Modifier.padding(top = 8.dp).clickable {
-                uriHandler.openUri("https://www.gnu.org/licenses/agpl-3.0.txt")
-            },
+            modifier =
+                Modifier.padding(top = 8.dp).clickable {
+                    uriHandler.openUri("https://www.gnu.org/licenses/agpl-3.0.txt")
+                },
         )
     }
 }

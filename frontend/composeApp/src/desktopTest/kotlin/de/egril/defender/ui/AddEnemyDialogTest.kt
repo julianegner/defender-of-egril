@@ -53,13 +53,14 @@ class AddEnemyDialogTest {
     @Test
     fun singleWaterSpawnDisablesGoblinAndDefaultsToCompatibleEnemy() {
         val water = Position(0, 0)
-        val map = EditorMap(
-            id = "water_spawn_dialog",
-            width = 2,
-            height = 2,
-            tiles = mapOf("0,0" to TileType.SPAWN_POINT),
-            spawnPointInfoMap = mapOf("0,0" to SpawnPointType.WATER),
-        )
+        val map =
+            EditorMap(
+                id = "water_spawn_dialog",
+                width = 2,
+                height = 2,
+                tiles = mapOf("0,0" to TileType.SPAWN_POINT),
+                spawnPointInfoMap = mapOf("0,0" to SpawnPointType.WATER),
+            )
         var added: Pair<AttackerType, Position?>? = null
         composeTestRule.setContent {
             AddEnemyDialog(

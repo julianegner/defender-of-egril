@@ -316,6 +316,9 @@ kotlin {
         val jvmMain = create("jvmMain") {
             dependsOn(commonMain.get())
         }
+        jvmMain.dependencies {
+            implementation(project(":png-encoder"))
+        }
         
         // Configure desktopMain to depend on jvmMain
         desktopMain.dependsOn(jvmMain)
@@ -366,7 +369,6 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.jlayer)
-            implementation(project(":png-encoder"))
         }
         desktopTest.dependencies {
             implementation(libs.compose.ui.test.junit4)

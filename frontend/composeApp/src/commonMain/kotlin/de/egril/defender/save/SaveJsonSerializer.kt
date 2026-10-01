@@ -920,7 +920,13 @@ object SaveJsonSerializer {
             if (eventId.isBlank()) return@mapNotNull null
             val frames =
                 JsonUtils.splitJsonArray(JsonUtils.extractJsonArrayForKey(entry, "frames")).mapNotNull { frameJson ->
-                    val values = frameJson.trim().removePrefix("[").removeSuffix("]").split(",").mapNotNull { it.trim().toIntOrNull() }
+                    val values =
+                        frameJson
+                            .trim()
+                            .removePrefix("[")
+                            .removeSuffix("]")
+                            .split(",")
+                            .mapNotNull { it.trim().toIntOrNull() }
                     if (values.size < 4) {
                         null
                     } else {

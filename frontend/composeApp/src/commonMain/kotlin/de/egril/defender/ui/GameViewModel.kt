@@ -6,9 +6,9 @@ import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
-import de.egril.defender.editor.InitialDefender
 import de.egril.defender.editor.EditorJsonSerializer
 import de.egril.defender.editor.EditorLevel
+import de.egril.defender.editor.InitialDefender
 import de.egril.defender.editor.OfficialContent
 import de.egril.defender.game.GameEngine
 import de.egril.defender.game.LevelData
@@ -27,10 +27,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -2154,7 +2154,8 @@ class GameViewModel {
                 if (_isDemoMode.value) {
                     demoLevelIndex =
                         (demoLevelIndex + 1) %
-                            de.egril.defender.game.DemoMode.getLevelCount(demoScenario)
+                        de.egril.defender.game.DemoMode
+                            .getLevelCount(demoScenario)
                     loadDemoLevel(demoLevelIndex)
                 }
             }

@@ -472,13 +472,20 @@ object EditorJsonSerializer {
                 tiles[position] = type
                 if (type == TileType.RIVER) {
                     val flow =
-                        runCatching { de.egril.defender.model.RiverFlow.valueOf(JsonUtils.extractStringValue(body, "flowDirection")) }
-                            .getOrDefault(de.egril.defender.model.RiverFlow.NONE)
+                        runCatching {
+                            de.egril.defender.model.RiverFlow
+                                .valueOf(JsonUtils.extractStringValue(body, "flowDirection"))
+                        }.getOrDefault(de.egril.defender.model.RiverFlow.NONE)
                     val speed = JsonUtils.extractNumericValue(body, "flowSpeed").toIntOrNull()?.coerceIn(1, 2) ?: 1
-                    riverTiles[position] = de.egril.defender.model.RiverTile(position, flow, speed)
+                    riverTiles[position] =
+                        de.egril.defender.model
+                            .RiverTile(position, flow, speed)
                 }
             }
-            zones.add(de.egril.defender.model.TileZone(id = id, name = name, tiles = tiles, riverTiles = riverTiles))
+            zones.add(
+                de.egril.defender.model
+                    .TileZone(id = id, name = name, tiles = tiles, riverTiles = riverTiles),
+            )
         }
         return zones
     }

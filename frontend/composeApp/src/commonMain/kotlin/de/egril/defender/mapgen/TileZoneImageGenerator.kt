@@ -22,11 +22,12 @@ object TileZoneImageGenerator {
         zone: TileZone,
     ): Triple<IntArray, Int, Int> {
         val tiles = map.tiles.toMutableMap()
-        val zoneTiles = zone.tiles.filter { (position, type) ->
-            position.x in 0 until map.width &&
-                position.y in 0 until map.height &&
-                type in TileZone.SUPPORTED_TILE_TYPES
-        }
+        val zoneTiles =
+            zone.tiles.filter { (position, type) ->
+                position.x in 0 until map.width &&
+                    position.y in 0 until map.height &&
+                    type in TileZone.SUPPORTED_TILE_TYPES
+            }
         zoneTiles.forEach { (position, type) -> tiles["${position.x},${position.y}"] = type }
         val (width, height) = MapImageGenerator.imageSize(map.width, map.height)
         if (zoneTiles.isEmpty()) return Triple(IntArray(width * height), width, height)

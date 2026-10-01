@@ -103,12 +103,13 @@ class SingleHitTargetOrderTest {
 
         for (turn in 0 until 10) {
             if (state.takenTargets.isNotEmpty()) break
-            engine.calculateEnemyTurnMovements()
+            engine
+                .calculateEnemyTurnMovements()
                 .allMovementSteps
                 .flatten()
                 .forEach { (attackerId, position) -> engine.applyMovement(attackerId, position) }
         }
 
-        assertEquals(listOf(secondTarget), state.takenTargets)
+        assertEquals(listOf(secondTarget), state.takenTargets.toList())
     }
 }

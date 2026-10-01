@@ -28,10 +28,10 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.utils.safeRun
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.audio_background_music_streamer_notice_intro
-import defender_of_egril.composeapp.generated.resources.streamer_info_notice_link_text
-import defender_of_egril.composeapp.generated.resources.streamer_info_notice_text
 import defender_of_egril.composeapp.generated.resources.streamer_info_mute_music_hint
 import defender_of_egril.composeapp.generated.resources.streamer_info_no_content_id_notice
+import defender_of_egril.composeapp.generated.resources.streamer_info_notice_link_text
+import defender_of_egril.composeapp.generated.resources.streamer_info_notice_text
 import defender_of_egril.composeapp.generated.resources.streamer_info_scope
 import defender_of_egril.composeapp.generated.resources.streamer_info_title
 

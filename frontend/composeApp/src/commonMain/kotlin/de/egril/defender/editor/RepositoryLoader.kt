@@ -12,8 +12,7 @@ import defender_of_egril.composeapp.generated.resources.Res
 object RepositoryLoader {
     private val EXTRA_REPOSITORY_LEVEL_IDS = listOf(DemoMode.DEMO_DEMO_LEVEL_ID)
 
-    private fun getRepositoryLevelIds(sequence: LevelSequence): List<String> =
-        (sequence.sequence + EXTRA_REPOSITORY_LEVEL_IDS).distinct()
+    private fun getRepositoryLevelIds(sequence: LevelSequence): List<String> = (sequence.sequence + EXTRA_REPOSITORY_LEVEL_IDS).distinct()
 
     private const val STORED_FINGERPRINT_FILE = "gamedata/repository_fingerprint.txt"
     private const val FNV1A_64_OFFSET_BASIS = 1469598103934665603UL
@@ -46,7 +45,9 @@ object RepositoryLoader {
         map: EditorMap,
     ) {
         map.tileZones.indices.forEach { index ->
-            val name = de.egril.defender.ui.MapImageProvider.tileZoneImageFileName(map.id, index)
+            val name =
+                de.egril.defender.ui.MapImageProvider
+                    .tileZoneImageFileName(map.id, index)
             readRepositoryBytesOrNull("maps/$name")?.let { image ->
                 storage.writeBinaryFile("gamedata/official/maps/$name", image)
             }
@@ -168,7 +169,9 @@ object RepositoryLoader {
                 readRepositoryBytesOrNull("maps/$mapId.png")?.let { builder.addFile("maps/$mapId.png", it) }
                 val bundledMap = EditorJsonSerializer.deserializeMap(mapBytes.decodeToString())
                 bundledMap?.tileZones?.indices?.forEach { index ->
-                    val file = de.egril.defender.ui.MapImageProvider.tileZoneImageFileName(mapId, index)
+                    val file =
+                        de.egril.defender.ui.MapImageProvider
+                            .tileZoneImageFileName(mapId, index)
                     readRepositoryBytesOrNull("maps/$file")?.let { builder.addFile("maps/$file", it) }
                 }
             }

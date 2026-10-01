@@ -46,20 +46,20 @@ import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.circular_dependency_detected
 import defender_of_egril.composeapp.generated.resources.confirm_remove_all_waypoints
+import defender_of_egril.composeapp.generated.resources.enforce_single_hit_target_order
+import defender_of_egril.composeapp.generated.resources.move_down
+import defender_of_egril.composeapp.generated.resources.move_up
 import defender_of_egril.composeapp.generated.resources.no_waypoints_configured
 import defender_of_egril.composeapp.generated.resources.remove_all_waypoints
+import defender_of_egril.composeapp.generated.resources.single_hit_target_order
+import defender_of_egril.composeapp.generated.resources.single_hit_target_order_hint
+import defender_of_egril.composeapp.generated.resources.target
 import defender_of_egril.composeapp.generated.resources.unconnected_waypoint_warning
 import defender_of_egril.composeapp.generated.resources.waypoint_list_view
 import defender_of_egril.composeapp.generated.resources.waypoint_tree_view
 import defender_of_egril.composeapp.generated.resources.waypoint_validation_error
 import defender_of_egril.composeapp.generated.resources.waypoint_validation_success
-import defender_of_egril.composeapp.generated.resources.target
 import defender_of_egril.composeapp.generated.resources.waypoints_description
-import defender_of_egril.composeapp.generated.resources.single_hit_target_order
-import defender_of_egril.composeapp.generated.resources.single_hit_target_order_hint
-import defender_of_egril.composeapp.generated.resources.enforce_single_hit_target_order
-import defender_of_egril.composeapp.generated.resources.move_up
-import defender_of_egril.composeapp.generated.resources.move_down
 
 /**
  * Tab 4: Waypoints Configuration
@@ -91,7 +91,8 @@ fun WaypointsTab(
     val targets = remember(map) { map?.getTargets() ?: emptyList() }
     val singleHitTargets =
         remember(map) {
-            map?.tiles
+            map
+                ?.tiles
                 ?.filter { (key, tileType) ->
                     tileType == TileType.TARGET && map.targetInfoMap[key]?.type == TargetType.SINGLE_HIT
                 }?.keys
@@ -368,7 +369,10 @@ fun WaypointsTab(
                         orderedTargets.forEachIndexed { index, position ->
                             val targetKey = "${position.x},${position.y}"
                             val targetName =
-                                map?.targetInfoMap?.get(targetKey)?.name
+                                map
+                                    ?.targetInfoMap
+                                    ?.get(targetKey)
+                                    ?.name
                                     ?.takeIf { it.isNotBlank() }
                                     ?: stringResource(Res.string.target)
                             Row(

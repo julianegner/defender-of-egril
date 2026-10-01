@@ -21,7 +21,10 @@ import kotlinx.coroutines.withContext
  */
 object MapImageProvider {
     /** Stable asset name for the zone at [zoneIndex] in the map's saved zone list. */
-    fun tileZoneImageFileName(mapId: String, zoneIndex: Int): String = "$mapId.zone-$zoneIndex.png"
+    fun tileZoneImageFileName(
+        mapId: String,
+        zoneIndex: Int,
+    ): String = "$mapId.zone-$zoneIndex.png"
 
     /**
      * Try to load map image bytes for the given map ID.
@@ -30,8 +33,10 @@ object MapImageProvider {
      */
     suspend fun loadMapImageBytes(mapId: String): ByteArray? = loadImageBytes("$mapId.png")
 
-    suspend fun loadTileZoneImageBytes(mapId: String, zoneIndex: Int): ByteArray? =
-        loadImageBytes(tileZoneImageFileName(mapId, zoneIndex))
+    suspend fun loadTileZoneImageBytes(
+        mapId: String,
+        zoneIndex: Int,
+    ): ByteArray? = loadImageBytes(tileZoneImageFileName(mapId, zoneIndex))
 
     private suspend fun loadImageBytes(fileName: String): ByteArray? {
         val storage =
@@ -57,7 +62,6 @@ object MapImageProvider {
         } catch (e: Exception) {
             null
         }
-
     }
 
     /**
@@ -98,11 +102,12 @@ fun rememberMapTileZoneImageState(
         isLoading = true
         painters =
             withContext(Dispatchers.Default) {
-                zones.mapIndexedNotNull { index, zone ->
-                    MapImageProvider.loadTileZoneImageBytes(mapId, index)?.let { bytes ->
-                        MapImageProvider.decodeImageBitmap(bytes)?.let { zone.id to BitmapPainter(it) }
-                    }
-                }.toMap()
+                zones
+                    .mapIndexedNotNull { index, zone ->
+                        MapImageProvider.loadTileZoneImageBytes(mapId, index)?.let { bytes ->
+                            MapImageProvider.decodeImageBitmap(bytes)?.let { zone.id to BitmapPainter(it) }
+                        }
+                    }.toMap()
             }
         isLoading = false
     }

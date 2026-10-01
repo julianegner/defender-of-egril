@@ -7,8 +7,8 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
@@ -923,7 +923,9 @@ private fun MousePointerTabContent(
             }
             val sizeEntries = MousePointerSize.entries
             Slider(
-                value = AppSettings.mousePointerSize.value.ordinal.toFloat(),
+                value =
+                    AppSettings.mousePointerSize.value.ordinal
+                        .toFloat(),
                 onValueChange = { value ->
                     val next = sizeEntries[value.toInt().coerceIn(0, sizeEntries.lastIndex)]
                     AppSettings.saveMousePointerSize(next)
@@ -960,8 +962,7 @@ private fun MousePointerTabContent(
                         } else {
                             Modifier
                         },
-                    )
-                    .testTag("mousePointerBrightnessControl"),
+                    ).testTag("mousePointerBrightnessControl"),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(

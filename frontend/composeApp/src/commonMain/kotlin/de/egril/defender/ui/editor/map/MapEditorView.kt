@@ -2,9 +2,9 @@ package de.egril.defender.ui.editor.map
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -1523,7 +1523,10 @@ fun MapEditorView(
                     de.egril.defender.ui.editor.ConfirmationDialog(
                         title = stringResource(Res.string.upload_community_confirm_title),
                         message = stringResource(Res.string.upload_community_map_confirm_message, iamState.username ?: ""),
-                        extraContent = { de.egril.defender.ui.editor.CommunityUploadLicenseNotice() },
+                        extraContent = {
+                            de.egril.defender.ui.editor
+                                .CommunityUploadLicenseNotice()
+                        },
                         requireLicenseAgreement = true,
                         onDismiss = { showCommunityUploadConfirm = false },
                         onConfirm = {

@@ -50,10 +50,11 @@ object GenerateMapImages {
                 failed++
                 continue
             }
-            val zonesUpToDate = map.tileZones.indices.all { index ->
-                val image = File(mapsDir, MapImageProvider.tileZoneImageFileName(map.id, index))
-                image.exists() && image.lastModified() >= jsonFile.lastModified()
-            }
+            val zonesUpToDate =
+                map.tileZones.indices.all { index ->
+                    val image = File(mapsDir, MapImageProvider.tileZoneImageFileName(map.id, index))
+                    image.exists() && image.lastModified() >= jsonFile.lastModified()
+                }
             if (!forceRegenerate && pngFile.exists() && pngFile.lastModified() >= jsonFile.lastModified() && zonesUpToDate) {
                 println("  Skipping (up-to-date): ${pngFile.name}")
                 skipped++
@@ -96,11 +97,13 @@ object GenerateMapImages {
             pngFile.writeBytes(pngBytes)
             map.tileZones.forEachIndexed { index, zone ->
                 val (zonePixels, zoneWidth, zoneHeight) = TileZoneImageGenerator.generateOverlayPixels(map, zone)
-                val zonePng = MapImageEncoder.encodeToPng(zonePixels, zoneWidth, zoneHeight)
-                    ?: error("Could not encode zone ${zone.id}")
+                val zonePng =
+                    MapImageEncoder.encodeToPng(zonePixels, zoneWidth, zoneHeight)
+                        ?: error("Could not encode zone ${zone.id}")
                 File(pngFile.parentFile, MapImageProvider.tileZoneImageFileName(map.id, index)).writeBytes(zonePng)
             }
-            pngFile.parentFile.listFiles()
+            pngFile.parentFile
+                .listFiles()
                 ?.filter { file ->
                     file.name.startsWith("${map.id}.zone-") &&
                         file.name.endsWith(".png") &&

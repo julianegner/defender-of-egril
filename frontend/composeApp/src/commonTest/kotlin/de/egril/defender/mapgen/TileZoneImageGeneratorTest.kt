@@ -48,9 +48,10 @@ class TileZoneImageGeneratorTest {
         val zone = TileZone(id = "flood", tiles = mapOf(Position(4, 4) to TileType.RIVER))
         val map = map(zone)
         val (overlay, width, _) = TileZoneImageGenerator.generateOverlayPixels(map, zone)
-        val (variant, _, _) = MapImageGenerator.generatePixels(
-            map.copy(tiles = map.tiles + ("4,4" to TileType.RIVER)),
-        )
+        val (variant, _, _) =
+            MapImageGenerator.generatePixels(
+                map.copy(tiles = map.tiles + ("4,4" to TileType.RIVER)),
+            )
         val (cx, cy) = MapImageGenerator.hexCenter(4, 4)
         val center = cy.toInt() * width + cx.toInt()
         assertEquals(variant[center], overlay[center])

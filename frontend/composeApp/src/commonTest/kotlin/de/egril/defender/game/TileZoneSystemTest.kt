@@ -39,7 +39,7 @@ class TileZoneSystemTest {
 
     /**
      * Row 0: spawn, path x5, target. Row 1: path, river x2, path.
-     * Zone "tide" floods (2,0),(3,0); zone "drought" dries (2,1),(3,1).
+     * Zone "tide" floods (2,0), (3,0); zone "drought" dries (2,1), (3,1).
      */
     private fun createLevel(): Level {
         val riverTiles =
