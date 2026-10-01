@@ -317,10 +317,22 @@ fun CommunityUploadLicenseNotice() {
     Column(modifier = Modifier.padding(top = 12.dp)) {
         Text(stringResource(Res.string.upload_community_license_notice))
         Text(
-            text = stringResource(Res.string.license_agpl_freedom_redistribute) +
-                ". " + stringResource(Res.string.license_agpl_freedom_modify) + ".",
+            text = stringResource(Res.string.upload_community_agpl_summary),
             modifier = Modifier.padding(top = 8.dp),
         )
+        Text(
+            text = stringResource(Res.string.license_agpl_freedoms_title),
+            modifier = Modifier.padding(top = 8.dp),
+        )
+        Text("• " + stringResource(Res.string.license_agpl_freedom_run))
+        Text("• " + stringResource(Res.string.license_agpl_freedom_study))
+        Text("• " + stringResource(Res.string.license_agpl_freedom_redistribute))
+        Text("• " + stringResource(Res.string.license_agpl_freedom_modify))
+        Text(
+            text = stringResource(Res.string.license_agpl_network_clause_title),
+            modifier = Modifier.padding(top = 8.dp),
+        )
+        Text(stringResource(Res.string.license_agpl_network_clause_description))
         Text(
             text = stringResource(Res.string.license_agpl_full_text_label) +
                 " https://www.gnu.org/licenses/agpl-3.0.txt",
