@@ -1,16 +1,18 @@
 # Tile Zone Events (Tides and Shifting Rivers)
 
-Level events can switch parts of a map between **PATH** and **RIVER** at runtime. This is used to
-depict tides, floods or rivers that change their course during a level.
+Level events can switch any map tile to any tile type at runtime. This can depict tides, floods,
+blocked paths or other terrain changes during a level.
 
 ## Concepts
 
 ### Tile zones (map)
 
 A tile zone (`model/TileZone.kt`) is defined on a map in the map editor. It stores, per position, the
-tile type the tile takes while the zone is active (PATH or RIVER, including river flow direction and
-speed). The base map describes the normal state. Only tiles that are PATH or RIVER on the base map can
-be part of a zone.
+tile type the tile takes while the zone is active (including river flow direction and speed when
+the alternative type is RIVER). The base map describes the normal state. Any tile, including an
+implicit NO_PLAY tile, can be part of a zone. In the map editor, select a zone and explicitly start
+zone drawing; while that mode is active, both clicks and drags edit only the zone until zone drawing
+is finished. The normal tile type selector determines the zone's painted type.
 
 Map JSON (`tileZones` is optional; `zoneTiles` is used instead of `tiles` so the manual parser cannot
 confuse zone tiles with the base map):

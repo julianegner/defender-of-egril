@@ -71,11 +71,13 @@ bed*. Level events switch them on and off at runtime (see the Events tab below a
 
 - Click **Tile zones** in the collapsed header (next to the tile type selector) to open the zone panel.
 - **Add zone** creates a zone; click a zone to select it (click again to deselect) and rename it.
-- While a zone is selected, clicking or brushing on the map edits the zone instead of the base map:
-  choose **Paint path**, **Paint river** or **Remove tiles from zone**. River tiles use the flow
-  direction and speed selected for river painting.
-- Only tiles that are PATH or RIVER on the base map can belong to a zone. Zone tiles are shown with
-  their alternative type and a magenta border while the zone is selected.
+- Select a zone and click **Start zone drawing** to switch from normal map drawing to zone drawing.
+  While this mode is active, both clicks and drags edit only the selected zone; the regular tile
+  type selector chooses what to paint. Use **Remove tiles from zone** to erase zone overrides and
+  **Finish zone drawing** to return to normal map editing. River tiles use the selected flow
+  direction and speed.
+- Every base tile type, including implicit NO_PLAY tiles, can belong to a zone and change to any
+  tile type. Zone tiles are shown with their alternative type and a magenta border while selected.
 - Zones are shifted along when the map is resized and are part of undo/redo.
 - When editing a zone, the editor warns that changes cannot automatically match the visual style
   of an uploaded map background; changed areas may stand out.

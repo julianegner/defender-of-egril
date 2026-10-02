@@ -111,7 +111,7 @@ The project is split into a few main areas:
 - `frontend/composeApp/` — the main Kotlin Multiplatform game app, including shared game logic and UI plus platform-specific integrations for desktop, Android, iOS, and WASM.
 - `frontend/composeApp/src/commonMain/` — core game domain, systems, and UI code shared by all platforms.
 - `frontend/composeApp/src/desktopMain/`, `androidMain/`, `iosMain/`, and `wasmJsMain/` — platform-specific implementations and entry points.
-- `servers/` — backend, database and IAM.
+- `servers/` — backend, database and IAMes.
 - `docs/` — project documentation, architecture notes, gameplay guides, and reference material.
 - `deploy/` — deployment and environment configuration.
 - `scripts/` — utility scripts and automation helpers.

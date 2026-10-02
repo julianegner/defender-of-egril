@@ -12,8 +12,7 @@ import de.egril.defender.editor.TileType
  *
  * @param id         Unique identifier within the map (referenced by events).
  * @param name       Display name shown in the editors.
- * @param tiles      Alternative tile type per position. Only [TileType.PATH] and [TileType.RIVER]
- *                   are offered in the editor.
+ * @param tiles      Alternative tile type per position.
  * @param riverTiles Flow direction/speed for every position in [tiles] that becomes [TileType.RIVER].
  */
 data class TileZone(
@@ -27,6 +26,6 @@ data class TileZone(
 
     companion object {
         /** Tile types a zone may switch a tile to. */
-        val SUPPORTED_TILE_TYPES: List<TileType> = listOf(TileType.PATH, TileType.RIVER)
+        val SUPPORTED_TILE_TYPES: List<TileType> = TileType.entries
     }
 }

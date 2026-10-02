@@ -559,7 +559,8 @@ fun MapEditorView(
     var tileZones by remember { mutableStateOf(map.tileZones) }
     var showTileZonePanel by remember { mutableStateOf(false) }
     var selectedZoneId by remember { mutableStateOf<String?>(null) }
-    var zonePaintType by remember { mutableStateOf<TileType?>(TileType.RIVER) }
+    var isZoneDrawingMode by remember { mutableStateOf(false) }
+    var isErasingZoneTiles by remember { mutableStateOf(false) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var showSaveTemplateDialog by remember { mutableStateOf(false) }
     var showTileReplacementDialog by remember { mutableStateOf(false) }
@@ -818,16 +819,23 @@ fun MapEditorView(
     // Calculate header height based on expanded/collapsed state
     val headerHeight = if (isHeaderExpanded) 430.dp else 72.dp
 
-    val activeZoneId = selectedZoneId?.takeIf { showTileZonePanel && tileZones.any { it.id == selectedZoneId } }
+    val activeZoneId = selectedZoneId?.takeIf { isZoneDrawingMode && tileZones.any { it.id == selectedZoneId } }
 
-    // While a tile zone is selected, painting edits the zone's alternative tiles, not the base map.
+    // In zone drawing mode, painting edits only the selected zone and never falls back to the base map.
     fun paintZoneTile(position: Position) {
         val zoneId = activeZoneId ?: return
         val baseType = tiles["${position.x},${position.y}"]
         val updated =
             tileZones.map { zone ->
                 if (zone.id == zoneId) {
-                    paintTileZone(zone, position, baseType, zonePaintType, selectedRiverFlow, selectedRiverSpeed)
+                    paintTileZone(
+                        zone,
+                        position,
+                        baseType,
+                        if (isErasingZoneTiles) null else selectedTileType,
+                        selectedRiverFlow,
+                        selectedRiverSpeed,
+                    )
                 } else {
                     zone
                 }
@@ -841,9 +849,9 @@ fun MapEditorView(
     // Brush paint callback - called when user drags in brush mode
     val onBrushPaint: (position: Position) -> Unit = { position ->
 
-        if (activeZoneId != null) {
+        if (isZoneDrawingMode) {
             if (lastPaintedPos != position) {
-                paintZoneTile(position)
+                if (activeZoneId != null) paintZoneTile(position)
                 lastPaintedPos = position
             }
         } else if (lastPaintedPos == null || lastPaintedPos != position) {
@@ -902,6 +910,7 @@ fun MapEditorView(
             lastPaintedPos = position
         }
     }
+    val latestOnBrushPaint by rememberUpdatedState(onBrushPaint)
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -985,7 +994,7 @@ fun MapEditorView(
                                             verticalSpacingAdjustmentPx,
                                         )
                                     if (tilePos != null) {
-                                        onBrushPaint(tilePos)
+                                        latestOnBrushPaint(tilePos)
                                     }
                                 }
                             },
@@ -1028,8 +1037,8 @@ fun MapEditorView(
                                 else -> 1.5.dp
                             },
                         onClick = {
-                            if (activeZoneId != null) {
-                                paintZoneTile(position)
+                            if (isZoneDrawingMode) {
+                                if (activeZoneId != null) paintZoneTile(position)
                             } else if (selectedTileType == TileType.TARGET && tileType == TileType.TARGET) {
                                 // Clicking an already-TARGET tile while in TARGET mode opens edit dialog
                                 editTargetKey = key
@@ -1227,13 +1236,24 @@ fun MapEditorView(
                         map = currentMap,
                         zones = tileZones,
                         selectedZoneId = selectedZoneId,
-                        paintType = zonePaintType,
+                        isZoneDrawingMode = isZoneDrawingMode,
+                        isErasingZoneTiles = isErasingZoneTiles,
                         onZonesChange = {
                             rememberForUndo()
                             tileZones = it
                         },
-                        onSelectZone = { selectedZoneId = it },
-                        onPaintTypeChange = { zonePaintType = it },
+                        onSelectZone = {
+                            selectedZoneId = it
+                            if (it == null) {
+                                isZoneDrawingMode = false
+                                isErasingZoneTiles = false
+                            }
+                        },
+                        onToggleZoneDrawingMode = {
+                            isZoneDrawingMode = !isZoneDrawingMode
+                            isErasingZoneTiles = false
+                        },
+                        onToggleEraseZoneTiles = { isErasingZoneTiles = !isErasingZoneTiles },
                         modifier =
                             Modifier
                                 .align(Alignment.TopEnd)
@@ -1601,7 +1621,10 @@ fun MapEditorView(
             showUnsafeResizeWarning = showUnsafeResizeWarning,
             mapUsageLevelNames = levelsUsingMap.map { it.title.ifBlank { it.id } },
             selectedTileType = selectedTileType,
-            onTileTypeChange = { selectedTileType = it },
+            onTileTypeChange = {
+                selectedTileType = it
+                isErasingZoneTiles = false
+            },
             selectedRiverFlow = selectedRiverFlow,
             onRiverFlowChange = { selectedRiverFlow = it },
             selectedRiverSpeed = selectedRiverSpeed,
@@ -1673,7 +1696,13 @@ fun MapEditorView(
             showCrosshair = showCrosshair,
             onToggleCrosshair = { showCrosshair = !showCrosshair },
             showTileZones = showTileZonePanel,
-            onToggleTileZones = { showTileZonePanel = !showTileZonePanel },
+            onToggleTileZones = {
+                if (showTileZonePanel) {
+                    isZoneDrawingMode = false
+                    isErasingZoneTiles = false
+                }
+                showTileZonePanel = !showTileZonePanel
+            },
             onUndo = {
                 undoHistory.lastOrNull()?.let { snapshot ->
                     undoHistory = undoHistory.dropLast(1)

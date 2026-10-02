@@ -36,12 +36,12 @@ import defender_of_egril.composeapp.generated.resources.map_background_storage_i
 import defender_of_egril.composeapp.generated.resources.tile_zone_add
 import defender_of_egril.composeapp.generated.resources.tile_zone_custom_background_warning
 import defender_of_egril.composeapp.generated.resources.tile_zone_delete
+import defender_of_egril.composeapp.generated.resources.tile_zone_finish_drawing
 import defender_of_egril.composeapp.generated.resources.tile_zone_help
 import defender_of_egril.composeapp.generated.resources.tile_zone_name_label
 import defender_of_egril.composeapp.generated.resources.tile_zone_paint_erase
-import defender_of_egril.composeapp.generated.resources.tile_zone_paint_path
-import defender_of_egril.composeapp.generated.resources.tile_zone_paint_river
 import defender_of_egril.composeapp.generated.resources.tile_zone_river_flow_hint
+import defender_of_egril.composeapp.generated.resources.tile_zone_start_drawing
 import defender_of_egril.composeapp.generated.resources.tile_zone_tile_count
 import defender_of_egril.composeapp.generated.resources.tile_zones
 
@@ -53,9 +53,6 @@ internal fun mapBackgroundPaths(map: EditorMap): Pair<String, String> {
     return "$directory.png" to "$directory.json"
 }
 
-/** Base tile types that a tile zone may change (only land paths and rivers can swap). */
-private val ZONE_EDITABLE_BASE_TYPES = setOf(TileType.PATH, TileType.RIVER)
-
 /** Create a new zone with an id that is unique among [existing]. */
 internal fun createTileZone(existing: List<TileZone>): TileZone {
     val ids = existing.map { it.id }.toSet()
@@ -66,7 +63,7 @@ internal fun createTileZone(existing: List<TileZone>): TileZone {
 
 /**
  * Paint [paintType] into [zone] at [position]. A null [paintType] removes the tile from the zone.
- * Only tiles whose base type ([baseType]) is PATH or RIVER can be part of a zone; others are ignored.
+ * Any tile type can be part of a zone; an unset base tile is treated as [TileType.NO_PLAY].
  * Painting the base type itself removes the tile from the zone (it would not change anything).
  */
 internal fun paintTileZone(
@@ -77,10 +74,10 @@ internal fun paintTileZone(
     riverFlow: RiverFlow,
     riverSpeed: Int,
 ): TileZone {
-    if (baseType !in ZONE_EDITABLE_BASE_TYPES) return zone
+    val effectiveBaseType = baseType ?: TileType.NO_PLAY
     val tiles = zone.tiles.toMutableMap()
     val rivers = zone.riverTiles.toMutableMap()
-    if (paintType == null || (paintType == baseType && paintType != TileType.RIVER)) {
+    if (paintType == null || (paintType == effectiveBaseType && paintType != TileType.RIVER)) {
         tiles.remove(position)
         rivers.remove(position)
     } else {
@@ -116,19 +113,19 @@ internal fun shiftTileZones(
 
 /**
  * Floating panel for managing the map's tile zones: create, rename, select and delete zones and
- * choose what the brush paints into the selected zone.
- *
- * @param paintType PATH or RIVER to paint, null to erase tiles from the zone.
+ * switch between drawing on the map and drawing into the selected zone.
  */
 @Composable
 internal fun TileZonePanel(
     map: EditorMap,
     zones: List<TileZone>,
     selectedZoneId: String?,
-    paintType: TileType?,
+    isZoneDrawingMode: Boolean,
+    isErasingZoneTiles: Boolean,
     onZonesChange: (List<TileZone>) -> Unit,
     onSelectZone: (String?) -> Unit,
-    onPaintTypeChange: (TileType?) -> Unit,
+    onToggleZoneDrawingMode: () -> Unit,
+    onToggleEraseZoneTiles: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier = modifier.width(300.dp)) {
@@ -219,14 +216,19 @@ internal fun TileZonePanel(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                PaintTypeOption(stringResource(Res.string.tile_zone_paint_path), paintType == TileType.PATH) {
-                    onPaintTypeChange(TileType.PATH)
+                Button(onClick = onToggleZoneDrawingMode) {
+                    Text(
+                        stringResource(
+                            if (isZoneDrawingMode) Res.string.tile_zone_finish_drawing else Res.string.tile_zone_start_drawing,
+                        ),
+                    )
                 }
-                PaintTypeOption(stringResource(Res.string.tile_zone_paint_river), paintType == TileType.RIVER) {
-                    onPaintTypeChange(TileType.RIVER)
-                }
-                PaintTypeOption(stringResource(Res.string.tile_zone_paint_erase), paintType == null) {
-                    onPaintTypeChange(null)
+                if (isZoneDrawingMode) {
+                    PaintTypeOption(
+                        stringResource(Res.string.tile_zone_paint_erase),
+                        isErasingZoneTiles,
+                        onToggleEraseZoneTiles,
+                    )
                 }
                 Text(
                     text = stringResource(Res.string.tile_zone_river_flow_hint),
