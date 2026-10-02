@@ -939,6 +939,7 @@
     <string name="event_msg_mine_destroyed">¡Un dragón ha destruido una de tus minas!</string>
     <string name="event_msg_high_tide">¡Sube la marea, llega la pleamar!</string>
     <string name="event_msg_low_tide">¡Baja la marea, el agua se retira!</string>
+    <string name="event_msg_volcano_erupted">¡Un volcán ha entrado en erupción! Ha destruido el camino principal, pero se han abierto otros pasos.</string>
     <string name="event_message_frame_label">Marco del mensaje</string>
     <string name="event_message_frame_standard">Estándar</string>
     <string name="magical_trap_cooldown">Enfriamiento: %d turnos</string>

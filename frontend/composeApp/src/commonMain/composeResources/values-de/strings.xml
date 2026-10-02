@@ -939,6 +939,7 @@
     <string name="event_msg_mine_destroyed">Ein Drache hat eine deiner Minen zerstört!</string>
     <string name="event_msg_high_tide">Es ist Flut - das Wasser steigt!</string>
     <string name="event_msg_low_tide">Es ist Ebbe - das Wasser zieht sich zurück!</string>
+    <string name="event_msg_volcano_erupted">Ein Vulkan ist ausgebrochen! Er hat den Hauptweg zerstört, aber andere Durchgänge sind aufgebrochen.</string>
     <string name="event_message_frame_label">Nachrichtenrahmen</string>
     <string name="event_message_frame_standard">Standard</string>
     <string name="magical_trap_cooldown">Abklingzeit: %d Runden</string>

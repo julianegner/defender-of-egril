@@ -939,6 +939,7 @@
     <string name="event_msg_mine_destroyed">Un dragon a détruit l'une de vos mines !</string>
     <string name="event_msg_high_tide">C'est la marée haute - l'eau monte !</string>
     <string name="event_msg_low_tide">C'est la marée basse - l'eau se retire !</string>
+    <string name="event_msg_volcano_erupted">Un volcan est entré en éruption ! Il a détruit le chemin principal, mais d'autres passages se sont ouverts.</string>
     <string name="event_message_frame_label">Cadre du message</string>
     <string name="event_message_frame_standard">Standard</string>
     <string name="magical_trap_cooldown">Temps de recharge : %d tours</string>

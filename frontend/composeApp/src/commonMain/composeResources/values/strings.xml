@@ -944,6 +944,7 @@
     <string name="event_msg_mine_destroyed">A dragon has destroyed one of your mines!</string>
     <string name="event_msg_high_tide">The tide is rising - the flood is coming in!</string>
     <string name="event_msg_low_tide">The tide is falling - the water is going out!</string>
+    <string name="event_msg_volcano_erupted">A volcano erupted! It destroyed the main path, but other passages broke open.</string>
     <string name="event_message_frame_label">Message frame</string>
     <string name="event_message_frame_standard">Standard</string>
     <string name="magical_trap_cooldown">Cooldown: %d turns</string>

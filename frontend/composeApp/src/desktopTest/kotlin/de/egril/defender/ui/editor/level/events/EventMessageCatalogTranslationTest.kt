@@ -39,6 +39,17 @@ class EventMessageCatalogTranslationTest {
     }
 
     @Test
+    fun testVolcanoPresetIsOffered() {
+        val key = "event_msg_volcano_erupted"
+        assertTrue(key in EventMessageCatalog.keys, "Volcano eruption preset should be selectable")
+        assertTrue(
+            EventMessageCatalog.preview(key, com.hyperether.resources.AppLocale.DEFAULT) ==
+                "A volcano erupted! It destroyed the main path, but other passages broke open.",
+            "The volcano preset should resolve to the requested English message",
+        )
+    }
+
+    @Test
     fun testTidePresetsAreOffered() {
         assertTrue("event_msg_high_tide" in EventMessageCatalog.keys, "High tide preset should be selectable")
         assertTrue("event_msg_low_tide" in EventMessageCatalog.keys, "Low tide preset should be selectable")

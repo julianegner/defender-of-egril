@@ -24,6 +24,7 @@ object EventMessageCatalog {
             "event_msg_mine_destroyed",
             "event_msg_high_tide",
             "event_msg_low_tide",
+            "event_msg_volcano_erupted",
         )
 
     /**
