@@ -340,4 +340,48 @@ class SpawnPointAttackTest {
             "Message type should be EWHAD_DEFEATED on final stand level",
         )
     }
+
+    @Test
+    fun testVillainDefeatedMessageQueuedForNonEwhadVillain() {
+        val spawnPoint = Position(0, 3)
+        val villainLevel =
+            Level(
+                id = 1,
+                name = "Villain Level",
+                gridWidth = 10,
+                gridHeight = 6,
+                startPositions = listOf(spawnPoint),
+                targetPositions = listOf(Position(9, 3)),
+                pathCells = (1..8).map { Position(it, 3) }.toSet(),
+                buildAreas = setOf(Position(2, 1), Position(2, 2)),
+                attackerWaves = emptyList(),
+                initialCoins = 1000,
+                healthPoints = 10,
+            )
+        val state = GameState(villainLevel)
+        val engine = GameEngine(state)
+
+        engine.placeDefender(DefenderType.BOW_TOWER, Position(2, 2))
+        val tower = state.defenders.first()
+        tower.buildTimeRemaining.value = 0
+        engine.startFirstPlayerTurn()
+        tower.resetActions()
+
+        val villain =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.GAROKK,
+                position = mutableStateOf(spawnPoint),
+                level = mutableStateOf(1),
+                currentHealth = mutableStateOf(1),
+            )
+        state.attackers.add(villain)
+
+        engine.defenderAttack(tower.id, villain.id)
+
+        assertEquals(1, state.pendingMessages.size, "VILLAIN_DEFEATED message should be queued immediately")
+        val message = state.pendingMessages.first()
+        assertEquals(GameMessageType.VILLAIN_DEFEATED, message.type, "Message type should be VILLAIN_DEFEATED")
+        assertEquals(AttackerType.GAROKK.name, message.name, "Villain message should carry the defeated villain type name")
+    }
 }

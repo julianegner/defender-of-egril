@@ -1,0 +1,8 @@
+{
+  "metadata": {"program": "Defender of Egril", "type": "map-template"},
+  "data": {
+    "id": "spiral_siege",
+    "name": "Spiral siege",
+    "layoutKind": "SPIRAL_SIEGE"
+  }
+}

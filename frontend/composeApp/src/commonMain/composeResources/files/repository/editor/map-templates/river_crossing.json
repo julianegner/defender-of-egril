@@ -1,0 +1,8 @@
+{
+  "metadata": {"program": "Defender of Egril", "type": "map-template"},
+  "data": {
+    "id": "river_crossing",
+    "name": "River crossing",
+    "layoutKind": "RIVER_CROSSING"
+  }
+}

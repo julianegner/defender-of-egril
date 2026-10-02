@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -81,6 +80,7 @@ fun ColumnScope.SplitTowerBuildControls(
     onPrimaryAction: () -> Unit,
     highlightEndTurnButton: Boolean,
     autoAttackAvailable: Boolean,
+    autoAttackManaOnly: Boolean,
     toggleSelectorKey: Int = 0,
     onSelectorExpandedChanged: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier,
@@ -92,6 +92,7 @@ fun ColumnScope.SplitTowerBuildControls(
             onPrimaryAction = onPrimaryAction,
             highlighted = highlightEndTurnButton,
             autoAttackAvailable = autoAttackAvailable,
+            autoAttackManaOnly = autoAttackManaOnly,
         )
         return
     }
@@ -230,6 +231,7 @@ fun ColumnScope.SplitTowerBuildControls(
             onPrimaryAction = onPrimaryAction,
             highlighted = highlightEndTurnButton,
             autoAttackAvailable = autoAttackAvailable,
+            autoAttackManaOnly = autoAttackManaOnly,
         )
     }
 }

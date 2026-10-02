@@ -9,6 +9,9 @@ import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
 import de.egril.defender.model.EventCondition
 import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.EventLoop
+import de.egril.defender.model.EventLoopStep
+import de.egril.defender.model.EventMapImage
 import de.egril.defender.model.GameMessageType
 import de.egril.defender.model.GameState
 import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
@@ -30,6 +33,135 @@ import kotlin.test.assertTrue
  * Tests for [EventScriptSystem]: scripted level events (conditions, actions, story messages).
  */
 class EventScriptSystemTest {
+    @Test
+    fun mapImagesAppearOnlyWhenTriggeredAndRemainUntilHidden() {
+        val image = EventMapImage("kraken", "kraken.png", 2.5f, 3f, 4f, 2f)
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "show",
+                                condition = EventCondition(EventConditionType.TURN_START, fromTurn = 2),
+                                actions = listOf(EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = image)),
+                            ),
+                            LevelEvent(
+                                id = "hide",
+                                condition = EventCondition(EventConditionType.TURN_START, fromTurn = 4),
+                                actions = listOf(EventAction(EventActionType.HIDE_MAP_IMAGE, imageId = image.id)),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        val system = EventScriptSystem(state)
+        state.turnNumber.value = 1
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeEventMapImages.isEmpty())
+        state.turnNumber.value = 2
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(listOf(image), state.activeEventMapImages.toList())
+        state.turnNumber.value = 3
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(listOf(image), state.activeEventMapImages.toList())
+        state.turnNumber.value = 4
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeEventMapImages.isEmpty())
+    }
+
+    @Test
+    fun showingSameImageIdReplacesGeometryAndHideLeavesOtherImagesVisible() {
+        val first = EventMapImage("first", "first.png")
+        val second = EventMapImage("second", "second.png")
+        val replaced = first.copy(x = -1.5f, width = 3.5f)
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "images",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                actions =
+                                    listOf(
+                                        EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = first),
+                                        EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = second),
+                                        EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = replaced),
+                                        EventAction(EventActionType.HIDE_MAP_IMAGE, imageId = "second"),
+                                        EventAction(EventActionType.HIDE_MAP_IMAGE, imageId = "absent"),
+                                    ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        EventScriptSystem(state).evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(listOf(replaced), state.activeEventMapImages.toList())
+    }
+
+    @Test
+    fun invalidMapImagesAreNotActivated() {
+        val invalid =
+            listOf(
+                EventMapImage("", "test.png"),
+                EventMapImage("test", "../test.png"),
+                EventMapImage("test", "test.png", width = 0f),
+                EventMapImage("test", "test.png", height = -1f),
+                EventMapImage("test", "test.png", x = Float.NaN),
+                EventMapImage("test", "test.png", width = Float.POSITIVE_INFINITY),
+            )
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "invalid",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                actions = invalid.map { EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = it) },
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        EventScriptSystem(state).evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeEventMapImages.isEmpty())
+    }
+
+    @Test
+    fun eventLoopCanShowAndHideMapImages() {
+        val image = EventMapImage("loop_image", "image.png")
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "loop",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                loop =
+                                    EventLoop(
+                                        repeatCount = 1,
+                                        steps =
+                                            listOf(
+                                                EventLoopStep(waitTurns = 0, actions = listOf(EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = image))),
+                                                EventLoopStep(waitTurns = 1, actions = listOf(EventAction(EventActionType.HIDE_MAP_IMAGE, imageId = image.id))),
+                                            ),
+                                    ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        val system = EventScriptSystem(state)
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(listOf(image), state.activeEventMapImages.toList())
+        state.turnNumber.value++
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeEventMapImages.isEmpty())
+    }
+
     private fun createLevel(events: LevelEvents): Level =
         Level(
             id = 1,
@@ -371,7 +503,7 @@ class EventScriptSystemTest {
     }
 
     @Test
-    fun testMessageIsQueuedEvenWithoutMessageKey() {
+    fun testNoMessageIsQueuedWithoutMessageKey() {
         val event =
             LevelEvent(
                 id = "no_msg",
@@ -384,11 +516,88 @@ class EventScriptSystemTest {
         val system = EventScriptSystem(state)
 
         system.evaluate(EventTrigger.PLAYER_TURN_START)
-        assertEquals(1, state.pendingMessages.size, "A message should be queued even without a message key")
+        assertTrue(state.pendingMessages.isEmpty(), "'No message' events must not show a popup")
+        assertEquals(150, state.coins.value, "The actions are still applied")
+    }
+
+    @Test
+    fun testMessageFrameIsCarriedOnMessage() {
+        val event =
+            LevelEvent(
+                id = "framed",
+                condition = EventCondition(type = EventConditionType.TURN_START),
+                messageKey = "event_msg_high_tide",
+                messageFrame = "kraken",
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals("kraken", state.pendingMessages.first().eventMessageFrame)
+    }
+
+    @Test
+    fun testLoopStepWithoutMessageKeyShowsNoPopup() {
+        val event =
+            LevelEvent(
+                id = "loop_no_msg",
+                condition = EventCondition(type = EventConditionType.TURN_START),
+                messageKey = null,
+                loop =
+                    EventLoop(
+                        repeatCount = 1,
+                        steps =
+                            listOf(
+                                EventLoopStep(
+                                    waitTurns = 0,
+                                    actions = listOf(EventAction(type = EventActionType.GIVE_COINS, amount = 10)),
+                                    messageKey = null,
+                                ),
+                                // A loop needs at least one waiting step per pass to be valid.
+                                EventLoopStep(waitTurns = 3),
+                            ),
+                    ),
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.pendingMessages.isEmpty(), "Silent loop steps must not show a popup")
+        assertEquals(110, state.coins.value, "The loop step actions are still applied")
+    }
+
+    @Test
+    fun testLoopStepMessageUsesItsFrame() {
+        val event =
+            LevelEvent(
+                id = "loop_msg",
+                condition = EventCondition(type = EventConditionType.TURN_START),
+                messageKey = null,
+                loop =
+                    EventLoop(
+                        repeatCount = 1,
+                        steps =
+                            listOf(
+                                EventLoopStep(
+                                    waitTurns = 0,
+                                    messageKey = "event_msg_low_tide",
+                                    messageFrame = "sylvanas",
+                                ),
+                                EventLoopStep(waitTurns = 3),
+                            ),
+                    ),
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(1, state.pendingMessages.size)
         val message = state.pendingMessages.first()
-        assertEquals(GameMessageType.EVENT_MESSAGE, message.type)
-        assertEquals(null, message.name)
-        assertEquals(event.actions, message.eventActions, "The applied actions are carried on the message")
+        assertEquals("event_msg_low_tide", message.name)
+        assertEquals("sylvanas", message.eventMessageFrame)
     }
 
     @Test

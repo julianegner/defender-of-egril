@@ -50,7 +50,7 @@ fun SandboxToolsDialog(
 ) {
     // Dragons are boss units with special spawn mechanics; keep the sandbox test roster to the
     // regular enemies so testing a stronghold is predictable.
-    val spawnableTypes = remember { AttackerType.entries.filter { !it.isDragon } }
+    val spawnableTypes = remember { AttackerType.entries.filter { !it.isDragon && !it.isMirrorImage } }
     var selectedType by remember { mutableStateOf(spawnableTypes.first()) }
     var enemyLevel by remember { mutableStateOf(1) }
     var typeMenuExpanded by remember { mutableStateOf(false) }

@@ -247,4 +247,38 @@ class HexUtilsTest {
             )
         assertEquals(Position(0, 0), result, "Should map to Position(0, 0) with zoom and centering")
     }
+
+    @Test
+    fun testScreenToHexGridPosition_withPixelScaledSpacing() {
+        val density = 2f
+        val hexSizePx = 40f * density
+        val horizontalSpacingPx = -10f * density
+        val verticalSpacingAdjustmentPx = -7f * density
+
+        val sqrt3 = kotlin.math.sqrt(3f)
+        val hexWidth = hexSizePx * sqrt3
+        val halfHexWidth = hexWidth / 2f
+        val hexHeight = hexSizePx * 2f
+        val verticalSpacing = hexHeight * 0.75f
+        val rowStep = verticalSpacing + verticalSpacingAdjustmentPx - 1f
+        val colStep = hexWidth + horizontalSpacingPx
+        val oddRowOffset = hexWidth * 0.42f
+
+        val result =
+            screenToHexGridPosition(
+                pointerPos =
+                    Offset(
+                        x = oddRowOffset + colStep + halfHexWidth,
+                        y = 1f + rowStep + hexHeight / 2f,
+                    ),
+                offsetX = 0f,
+                offsetY = 0f,
+                zoomLevel = 1f,
+                hexSize = hexSizePx,
+                horizontalSpacing = horizontalSpacingPx,
+                verticalSpacingAdjustment = verticalSpacingAdjustmentPx,
+            )
+
+        assertEquals(Position(1, 1), result, "Pixel-based spacing should map drag painting to the correct tile")
+    }
 }

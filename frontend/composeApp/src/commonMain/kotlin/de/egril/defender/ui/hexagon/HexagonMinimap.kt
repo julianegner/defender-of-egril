@@ -45,6 +45,12 @@ data class MinimapConfig(
     val minimapSizeDp: Float = 120f, // Size in dp for viewport calculations
 )
 
+internal fun resolveMinimapTileType(
+    baseTileType: TileType,
+    position: Position,
+    gameState: GameState?,
+): TileType = gameState?.paintedTileTypeAt(position) ?: baseTileType
+
 /**
  * Unified hexagon-based minimap composable
  * Can be used for:
@@ -102,6 +108,17 @@ fun HexagonMinimap(
         return ""
     }
 
+    if (!map.canRenderMinimap()) {
+        Box(
+            modifier =
+                modifier
+                    .background(config.backgroundColor)
+                    .border(2.dp, config.borderColor)
+                    .padding(4.dp),
+        )
+        return ""
+    }
+
     Box(
         modifier =
             modifier
@@ -155,6 +172,17 @@ fun HexagonMinimapFromEditorMap(
                 attackerWaves = emptyList(),
             )
         }
+
+    if (!map.canRenderMinimap()) {
+        Box(
+            modifier =
+                modifier
+                    .background(config.backgroundColor)
+                    .border(2.dp, config.borderColor)
+                    .padding(4.dp),
+        )
+        return
+    }
 
     Box(
         modifier =
@@ -234,7 +262,9 @@ private fun HexagonMinimapContent(
             // Draw hexagon map tiles
             for (row in 0 until map.height) {
                 for (col in 0 until map.width) {
-                    val tileType = map.tiles.getOrElse("$col,$row") { TileType.NO_PLAY }
+                    val position = Position(col, row)
+                    val baseTileType = map.tiles.getOrElse("$col,$row") { TileType.NO_PLAY }
+                    val tileType = resolveMinimapTileType(baseTileType, position, gameState)
 
                     // Calculate hex center position
                     val offsetXHex = if (row % 2 == 1) hexWidth / 2 else 0.0f

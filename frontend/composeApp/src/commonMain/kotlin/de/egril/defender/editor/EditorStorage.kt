@@ -1,11 +1,14 @@
 package de.egril.defender.editor
 
 import de.egril.defender.config.LogConfig
+import de.egril.defender.mapgen.MapImageEncoder
+import de.egril.defender.mapgen.TileZoneImageGenerator
 import de.egril.defender.model.AttackerWave
 import de.egril.defender.model.Level
 import de.egril.defender.model.PlannedEnemySpawn
 import de.egril.defender.model.Position
 import de.egril.defender.model.Waypoint
+import de.egril.defender.ui.MapImageProvider
 import de.egril.defender.utils.runBlockingCompat
 
 /**
@@ -15,6 +18,8 @@ import de.egril.defender.utils.runBlockingCompat
 object EditorStorage {
     private val fileStorage = getFileStorage()
     private val mapsCache = mutableMapOf<String, EditorMap>()
+    private val pendingMapImages = mutableSetOf<String>()
+    private val pendingZoneImages = mutableMapOf<String, Set<Int>>()
     private val levelsCache = mutableMapOf<String, EditorLevel>()
     private val communityMapsCache = mutableMapOf<String, EditorMap>()
     private val communityLevelsCache = mutableMapOf<String, EditorLevel>()
@@ -26,11 +31,15 @@ object EditorStorage {
     private val OFFICIAL_LEVELS_DIR = "gamedata/official/levels"
     private val OFFICIAL_SEQUENCE_FILE = "gamedata/official/sequence.json"
     private val OFFICIAL_WORLDMAP_FILE = "gamedata/official/worldmap.json"
+    private val OFFICIAL_MAP_TEMPLATES_DIR = "gamedata/official/editor/map-templates"
+    private val OFFICIAL_SPAWN_TEMPLATES_DIR = "gamedata/official/editor/spawn-templates"
 
     // User content directories (created by users in editor)
     private val USER_MAPS_DIR = "gamedata/user/maps"
     private val USER_LEVELS_DIR = "gamedata/user/levels"
     private val USER_SEQUENCE_FILE = "gamedata/user/sequence.json"
+    private val USER_MAP_TEMPLATES_DIR = "gamedata/user/editor/map-templates"
+    private val USER_SPAWN_TEMPLATES_DIR = "gamedata/user/editor/spawn-templates"
 
     // Community content directories (downloaded from backend)
     private val COMMUNITY_MAPS_DIR = "gamedata/community/maps"
@@ -233,7 +242,10 @@ object EditorStorage {
     data class MapSaveResult(
         val imageNeedsRegeneration: Boolean,
         val validatedMap: EditorMap,
-    )
+        val zoneIndicesToRegenerate: List<Int>,
+    ) {
+        val zoneImagesNeedRegeneration: Boolean get() = zoneIndicesToRegenerate.isNotEmpty()
+    }
 
     /**
      * Save the map JSON data and determine whether the map image needs regeneration.
@@ -245,22 +257,41 @@ object EditorStorage {
     fun saveMapData(
         map: EditorMap,
         oldId: String? = null,
+        storage: FileStorage = fileStorage,
     ): MapSaveResult {
-        val validatedMap = map.copy(readyToUse = map.validateReadyToUse())
+        val validatedMap = map.copy(readyToUse = if (map.isValid) map.validateReadyToUse() else false)
         val existingMap = mapsCache[validatedMap.id]
 
         mapsCache[validatedMap.id] = validatedMap
         val json = EditorJsonSerializer.serializeMap(validatedMap)
 
         val targetDir = if (validatedMap.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
-        fileStorage.writeFile("$targetDir/${validatedMap.id}.json", json)
+        storage.writeFile("$targetDir/${validatedMap.id}.json", json)
 
         val pngPath = "$targetDir/${validatedMap.id}.png"
-        val pngExists = fileStorage.fileExists(pngPath)
+        val pngExists = storage.fileExists(pngPath)
         val tilesChanged =
             existingMap == null ||
-                normalizeForImageComparison(existingMap.tiles) != normalizeForImageComparison(validatedMap.tiles)
-        val imageNeedsRegeneration = !pngExists || tilesChanged
+                existingMap.width != validatedMap.width ||
+                existingMap.height != validatedMap.height ||
+                normalizeForImageComparison(existingMap) != normalizeForImageComparison(validatedMap)
+        val imageNeedsRegeneration =
+            validatedMap.canRenderMinimap() &&
+                (!pngExists || tilesChanged || validatedMap.id in pendingMapImages)
+        if (imageNeedsRegeneration && pngExists) pendingMapImages.add(validatedMap.id)
+        val zoneIndicesToRegenerate =
+            if (validatedMap.canRenderMinimap()) {
+                validatedMap.tileZones.indices.filter { index ->
+                    tilesChanged ||
+                        index in pendingZoneImages[validatedMap.id].orEmpty() ||
+                        existingMap?.tileZones?.getOrNull(index)?.tiles != validatedMap.tileZones[index].tiles ||
+                        !storage.fileExists("$targetDir/${MapImageProvider.tileZoneImageFileName(validatedMap.id, index)}")
+                }
+            } else {
+                emptyList()
+            }
+        pendingZoneImages[validatedMap.id] = zoneIndicesToRegenerate.toSet()
+        removeStaleTileZoneImages(targetDir, validatedMap.id, validatedMap.tileZones.size, storage)
 
         if (!imageNeedsRegeneration) {
             println("Skipping map image regeneration for ${validatedMap.id} (no tile type changes)")
@@ -268,8 +299,11 @@ object EditorStorage {
 
         if (oldId != null && oldId != validatedMap.id) {
             mapsCache.remove(oldId)
-            fileStorage.deleteFile("$USER_MAPS_DIR/$oldId.json")
-            fileStorage.deleteFile("$USER_MAPS_DIR/$oldId.png")
+            pendingMapImages.remove(oldId)
+            pendingZoneImages.remove(oldId)
+            storage.deleteFile("$USER_MAPS_DIR/$oldId.json")
+            storage.deleteFile("$USER_MAPS_DIR/$oldId.png")
+            removeStaleTileZoneImages(USER_MAPS_DIR, oldId, 0, storage)
             println("Deleted old map files for renamed map: $oldId -> ${validatedMap.id}")
         }
 
@@ -277,7 +311,79 @@ object EditorStorage {
             OfficialDataChangeTracker.trackMapModified(validatedMap.id)
         }
 
-        return MapSaveResult(imageNeedsRegeneration, validatedMap)
+        return MapSaveResult(imageNeedsRegeneration, validatedMap, zoneIndicesToRegenerate)
+    }
+
+    private fun removeStaleTileZoneImages(
+        directory: String,
+        mapId: String,
+        count: Int,
+        storage: FileStorage = fileStorage,
+    ) {
+        val expected = (0 until count).map { MapImageProvider.tileZoneImageFileName(mapId, it) }.toSet()
+        storage
+            .listFiles(directory)
+            .filter { it.startsWith("$mapId.zone-") && it.endsWith(".png") && it !in expected }
+            .forEach { storage.deleteFile("$directory/$it") }
+    }
+
+    /** Generate and persist each zone's feathered PNG alongside the map PNG, before gameplay. */
+    fun generateAndSaveTileZoneImages(
+        map: EditorMap,
+        storage: FileStorage = fileStorage,
+    ): Long {
+        if (!map.canRenderMinimap()) return 0
+        var totalBytes = 0L
+        map.tileZones.indices.forEach { index ->
+            totalBytes += generateAndSaveTileZoneImage(map, index, storage).toLong()
+        }
+        val directory =
+            if (map.isCommunity) {
+                COMMUNITY_MAPS_DIR
+            } else if (map.isOfficial) {
+                OFFICIAL_MAPS_DIR
+            } else {
+                USER_MAPS_DIR
+            }
+        removeStaleTileZoneImages(directory, map.id, map.tileZones.size, storage)
+        return totalBytes
+    }
+
+    fun generateAndSaveTileZoneImage(
+        map: EditorMap,
+        index: Int,
+        storage: FileStorage = fileStorage,
+    ): Int {
+        require(map.canRenderMinimap()) { "Map ${map.id} cannot render an image" }
+        val (pixels, width, height) = generateTileZonePixels(map, index)
+        return compressAndSaveTileZoneImage(map, index, pixels, width, height, storage)
+    }
+
+    fun generateTileZonePixels(
+        map: EditorMap,
+        index: Int,
+    ): Triple<IntArray, Int, Int> = TileZoneImageGenerator.generateOverlayPixels(map, map.tileZones[index])
+
+    fun compressAndSaveTileZoneImage(
+        map: EditorMap,
+        index: Int,
+        pixels: IntArray,
+        width: Int,
+        height: Int,
+        storage: FileStorage = fileStorage,
+    ): Int {
+        val directory =
+            when {
+                map.isCommunity -> COMMUNITY_MAPS_DIR
+                map.isOfficial -> OFFICIAL_MAPS_DIR
+                else -> USER_MAPS_DIR
+            }
+        val png =
+            MapImageEncoder.encodeToPng(pixels, width, height)
+                ?: error("Could not encode tile zone image for ${map.id}, zone ${map.tileZones[index].id}")
+        storage.writeBinaryFile("$directory/${MapImageProvider.tileZoneImageFileName(map.id, index)}", png)
+        pendingZoneImages[map.id] = pendingZoneImages[map.id].orEmpty() - index
+        return png.size
     }
 
     /**
@@ -304,10 +410,26 @@ object EditorStorage {
         if (pngBytes != null) {
             val targetDir = if (map.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
             fileStorage.writeBinaryFile("$targetDir/${map.id}.png", pngBytes)
+            pendingMapImages.remove(map.id)
             println("Generated map image: ${map.id}.png (${pngBytes.size / 1024} KB)")
             return pngBytes.size.toLong()
         }
         return -1
+    }
+
+    /**
+     * Save a provided map image (PNG bytes) directly without generation or encoding.
+     * Used when a user provides a background image to use as the map image.
+     */
+    fun saveProvidedMapImage(
+        map: EditorMap,
+        imageBytes: ByteArray,
+    ): Long {
+        val targetDir = if (map.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
+        fileStorage.writeBinaryFile("$targetDir/${map.id}.png", imageBytes)
+        pendingMapImages.remove(map.id)
+        println("Saved provided map image: ${map.id}.png (${imageBytes.size / 1024} KB)")
+        return imageBytes.size.toLong()
     }
 
     /**
@@ -322,7 +444,8 @@ object EditorStorage {
         if (result.imageNeedsRegeneration) {
             generateAndSaveMapImage(result.validatedMap)
         }
-        return result.imageNeedsRegeneration
+        result.zoneIndicesToRegenerate.forEach { generateAndSaveTileZoneImage(result.validatedMap, it) }
+        return result.imageNeedsRegeneration || result.zoneImagesNeedRegeneration
     }
 
     /**
@@ -332,20 +455,43 @@ object EditorStorage {
     fun copyMap(
         sourceMap: EditorMap,
         copiedMap: EditorMap,
+        storage: FileStorage = fileStorage,
     ) {
-        val validatedMap = copiedMap.copy(readyToUse = copiedMap.validateReadyToUse())
+        val validatedMap =
+            copiedMap.copy(
+                isOfficial = false,
+                isCommunity = false,
+                readyToUse = if (copiedMap.isValid) copiedMap.validateReadyToUse() else false,
+            )
         mapsCache[validatedMap.id] = validatedMap
         val json = EditorJsonSerializer.serializeMap(validatedMap)
-        fileStorage.writeFile("$USER_MAPS_DIR/${validatedMap.id}.json", json)
+        storage.writeFile("$USER_MAPS_DIR/${validatedMap.id}.json", json)
+
+        if (!validatedMap.canRenderMinimap()) {
+            return
+        }
 
         // Copy the PNG from the source map rather than regenerating it
-        val sourcePng = readMapImageBytes(sourceMap.id, sourceMap.isOfficial)
+        val sourcePng = readMapImageBytes(sourceMap.id, sourceMap.isOfficial, sourceMap.isCommunity, storage)
         if (sourcePng != null) {
-            fileStorage.writeBinaryFile("$USER_MAPS_DIR/${validatedMap.id}.png", sourcePng)
+            storage.writeBinaryFile("$USER_MAPS_DIR/${validatedMap.id}.png", sourcePng)
             println("Copied map image from ${sourceMap.id} to ${validatedMap.id}")
         } else {
             println("No source image found for ${sourceMap.id}, generating new image")
-            generateAndSaveMapImage(validatedMap)
+            generateAndSaveMapImage(validatedMap, storage)
+        }
+        validatedMap.tileZones.forEachIndexed { index, _ ->
+            val name = MapImageProvider.tileZoneImageFileName(sourceMap.id, index)
+            val image = readMapImageBytes(name.removeSuffix(".png"), sourceMap.isOfficial, sourceMap.isCommunity, storage)
+            if (sourceMap.tileZones == validatedMap.tileZones && image != null) {
+                storage.writeBinaryFile(
+                    "$USER_MAPS_DIR/${MapImageProvider.tileZoneImageFileName(validatedMap.id, index)}",
+                    image,
+                )
+            } else {
+                generateAndSaveTileZoneImages(validatedMap, storage)
+                return
+            }
         }
     }
 
@@ -356,30 +502,44 @@ object EditorStorage {
     private fun readMapImageBytes(
         mapId: String,
         isOfficial: Boolean,
+        isCommunity: Boolean = false,
+        storage: FileStorage = fileStorage,
     ): ByteArray? =
-        if (isOfficial) {
-            fileStorage.readBinaryFile("$OFFICIAL_MAPS_DIR/$mapId.png")
-                ?: fileStorage.readBinaryFile("$USER_MAPS_DIR/$mapId.png")
+        if (isCommunity) {
+            storage.readBinaryFile("$COMMUNITY_MAPS_DIR/$mapId.png")
+        } else if (isOfficial) {
+            storage.readBinaryFile("$OFFICIAL_MAPS_DIR/$mapId.png")
+                ?: storage.readBinaryFile("$USER_MAPS_DIR/$mapId.png")
         } else {
-            fileStorage.readBinaryFile("$USER_MAPS_DIR/$mapId.png")
-                ?: fileStorage.readBinaryFile("$OFFICIAL_MAPS_DIR/$mapId.png")
-        } ?: fileStorage.readBinaryFile("$LEGACY_MAPS_DIR/$mapId.png")
+            storage.readBinaryFile("$USER_MAPS_DIR/$mapId.png")
+                ?: storage.readBinaryFile("$OFFICIAL_MAPS_DIR/$mapId.png")
+        } ?: storage.readBinaryFile("$LEGACY_MAPS_DIR/$mapId.png")
 
     /**
-     * Normalizes tile types for the purpose of deciding whether the map image needs to be
-     * regenerated. SPAWN_POINT and TARGET use the same visual biome as PATH in the image
-     * generator, so they are mapped to PATH so that changes between these types do not
-     * trigger an unnecessary repaint.
+     * Normalizes tile types for deciding whether map image regeneration is needed.
+     * TARGET always uses PATH visuals. SPAWN_POINT uses PATH when LAND and RIVER when WATER.
      */
-    internal fun normalizeForImageComparison(tiles: Map<String, TileType>): Map<String, TileType> =
-        tiles.mapValues { (_, tileType) ->
+    internal fun normalizeForImageComparison(map: EditorMap): Map<String, TileType> =
+        map.tiles.mapValues { (pos, tileType) ->
             when (tileType) {
-                TileType.SPAWN_POINT, TileType.TARGET -> TileType.PATH
+                TileType.SPAWN_POINT ->
+                    if (map.spawnPointInfoMap[pos] == de.egril.defender.model.SpawnPointType.WATER) {
+                        TileType.RIVER
+                    } else {
+                        TileType.PATH
+                    }
+                TileType.TARGET -> TileType.PATH
                 else -> tileType
             }
         }
 
-    private fun generateAndSaveMapImage(map: EditorMap) {
+    private fun generateAndSaveMapImage(
+        map: EditorMap,
+        storage: FileStorage = fileStorage,
+    ) {
+        if (!map.canRenderMinimap()) {
+            return
+        }
         try {
             val (pixels, width, height) =
                 de.egril.defender.mapgen.MapImageGenerator
@@ -389,7 +549,8 @@ object EditorStorage {
                     .encodeToPng(pixels, width, height)
             if (pngBytes != null) {
                 val targetDir = if (map.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
-                fileStorage.writeBinaryFile("$targetDir/${map.id}.png", pngBytes)
+                storage.writeBinaryFile("$targetDir/${map.id}.png", pngBytes)
+                pendingMapImages.remove(map.id)
                 println("Generated map image: ${map.id}.png (${pngBytes.size / 1024} KB)")
             }
         } catch (e: Exception) {
@@ -397,7 +558,13 @@ object EditorStorage {
         }
     }
 
-    private fun generateAndSaveCommunityMapImage(map: EditorMap) {
+    private fun generateAndSaveCommunityMapImage(
+        map: EditorMap,
+        storage: FileStorage = fileStorage,
+    ) {
+        if (!map.canRenderMinimap()) {
+            return
+        }
         try {
             val (pixels, width, height) =
                 de.egril.defender.mapgen.MapImageGenerator
@@ -406,7 +573,7 @@ object EditorStorage {
                 de.egril.defender.mapgen.MapImageEncoder
                     .encodeToPng(pixels, width, height)
             if (pngBytes != null) {
-                fileStorage.writeBinaryFile("$COMMUNITY_MAPS_DIR/${map.id}.png", pngBytes)
+                storage.writeBinaryFile("$COMMUNITY_MAPS_DIR/${map.id}.png", pngBytes)
                 println("Generated community map image: ${map.id}.png")
             }
         } catch (e: Exception) {
@@ -467,7 +634,7 @@ object EditorStorage {
                 // Set isOfficial and isCommunity flags based on which directory it was found in
                 val validatedMap =
                     map.copy(
-                        readyToUse = map.validateReadyToUse(),
+                        readyToUse = if (map.isValid) map.validateReadyToUse() else false,
                         isOfficial = map.isOfficial || isOfficial,
                         isCommunity = isCommunity,
                     )
@@ -511,6 +678,68 @@ object EditorStorage {
 
         return mapsCache.values.toList()
     }
+
+    fun getMapTemplates(): List<MapTemplateDefinition> {
+        ensureInitialized()
+        fileStorage.createDirectory(OFFICIAL_MAP_TEMPLATES_DIR)
+        fileStorage.createDirectory(USER_MAP_TEMPLATES_DIR)
+
+        val templatesById = linkedMapOf<String, MapTemplateDefinition>()
+        loadMapTemplatesFromDirectory(OFFICIAL_MAP_TEMPLATES_DIR).forEach { template ->
+            templatesById[template.id] = template
+        }
+        loadMapTemplatesFromDirectory(USER_MAP_TEMPLATES_DIR).forEach { template ->
+            templatesById[template.id] = template
+        }
+        return templatesById.values.sortedBy { it.name.lowercase() }
+    }
+
+    fun getSpawnTurnTemplates(): List<SpawnTurnTemplateDefinition> {
+        ensureInitialized()
+        fileStorage.createDirectory(OFFICIAL_SPAWN_TEMPLATES_DIR)
+        fileStorage.createDirectory(USER_SPAWN_TEMPLATES_DIR)
+
+        val templatesById = linkedMapOf<String, SpawnTurnTemplateDefinition>()
+        loadSpawnTurnTemplatesFromDirectory(OFFICIAL_SPAWN_TEMPLATES_DIR).forEach { template ->
+            templatesById[template.id] = template
+        }
+        loadSpawnTurnTemplatesFromDirectory(USER_SPAWN_TEMPLATES_DIR).forEach { template ->
+            templatesById[template.id] = template
+        }
+        return templatesById.values.sortedBy { it.name.lowercase() }
+    }
+
+    fun saveMapTemplate(template: MapTemplateDefinition) {
+        ensureInitialized()
+        fileStorage.createDirectory(USER_MAP_TEMPLATES_DIR)
+        val json = EditorTemplateJsonSerializer.serializeMapTemplate(template)
+        fileStorage.writeFile("$USER_MAP_TEMPLATES_DIR/${template.id}.json", json)
+    }
+
+    fun saveSpawnTurnTemplate(template: SpawnTurnTemplateDefinition) {
+        ensureInitialized()
+        fileStorage.createDirectory(USER_SPAWN_TEMPLATES_DIR)
+        val json = EditorTemplateJsonSerializer.serializeSpawnTurnTemplate(template)
+        fileStorage.writeFile("$USER_SPAWN_TEMPLATES_DIR/${template.id}.json", json)
+    }
+
+    private fun loadMapTemplatesFromDirectory(directory: String): List<MapTemplateDefinition> =
+        fileStorage
+            .listFiles(directory)
+            .filter { it.endsWith(".json") }
+            .mapNotNull { filename ->
+                val json = fileStorage.readFile("$directory/$filename") ?: return@mapNotNull null
+                EditorTemplateJsonSerializer.deserializeMapTemplate(json)
+            }
+
+    private fun loadSpawnTurnTemplatesFromDirectory(directory: String): List<SpawnTurnTemplateDefinition> =
+        fileStorage
+            .listFiles(directory)
+            .filter { it.endsWith(".json") }
+            .mapNotNull { filename ->
+                val json = fileStorage.readFile("$directory/$filename") ?: return@mapNotNull null
+                EditorTemplateJsonSerializer.deserializeSpawnTurnTemplate(json)
+            }
 
     /**
      * Helper function to ensure all enemy spawns have spawn points assigned.
@@ -622,8 +851,7 @@ object EditorStorage {
                 println("EditorStorage: Deserialized level $id: $level")
             }
             if (level != null) {
-                // Set isOfficial flag based on which directory it was found in
-                val levelWithFlag = level.copy(isOfficial = level.isOfficial || isOfficial)
+                val levelWithFlag = applyOfficialFlags(level, isOfficial)
                 levelsCache[id] = levelWithFlag
                 return levelWithFlag
             }
@@ -631,6 +859,11 @@ object EditorStorage {
 
         return null
     }
+
+    private fun applyOfficialFlags(
+        level: EditorLevel,
+        isOfficial: Boolean,
+    ): EditorLevel = level.copy(isOfficial = level.isOfficial || isOfficial)
 
     fun getAllLevels(): List<EditorLevel> {
         // Load all levels from both official and user directories
@@ -658,7 +891,23 @@ object EditorStorage {
             }
         }
 
-        return levelsCache.values.toList()
+        val officialSequence = getLevelSequence().sequence
+        val userSequence = getUserLevelSequence().sequence
+
+        return levelsCache.values
+            .toList()
+            .sortedWith(
+                compareBy<EditorLevel> { if (it.isOfficial) 0 else 1 }
+                    .thenBy { level ->
+                        val index =
+                            if (level.isOfficial) {
+                                officialSequence.indexOf(level.id)
+                            } else {
+                                userSequence.indexOf(level.id)
+                            }
+                        if (index >= 0) index else Int.MAX_VALUE
+                    }.thenBy { it.title.lowercase() },
+            )
     }
 
     // ---------------------------------------------------------------------------
@@ -689,21 +938,28 @@ object EditorStorage {
         map: EditorMap,
         authorUsername: String,
         requestedId: String? = null,
+        storage: FileStorage = fileStorage,
     ) {
-        fileStorage.createDirectory(COMMUNITY_MAPS_DIR)
+        storage.createDirectory(COMMUNITY_MAPS_DIR)
         val communityMap = map.copy(isCommunity = true, communityAuthorUsername = authorUsername)
         val json = EditorJsonSerializer.serializeMap(communityMap)
-        fileStorage.writeFile("$COMMUNITY_MAPS_DIR/${map.id}.json", json)
+        storage.writeFile("$COMMUNITY_MAPS_DIR/${map.id}.json", json)
         communityMapsCache[map.id] = communityMap
         // If the caller knows the map was requested under a different ID (e.g. the level's mapId
         // differs from the map's internal id field), persist it under that alias too so that
         // getMap(level.mapId) can always find the map.
         if (requestedId != null && requestedId != map.id) {
-            fileStorage.writeFile("$COMMUNITY_MAPS_DIR/$requestedId.json", json)
+            storage.writeFile("$COMMUNITY_MAPS_DIR/$requestedId.json", json)
             communityMapsCache[requestedId] = communityMap
         }
         // Generate PNG image so it is available during gameplay
-        generateAndSaveCommunityMapImage(communityMap)
+        generateAndSaveCommunityMapImage(communityMap, storage)
+        generateAndSaveTileZoneImages(communityMap, storage)
+        if (requestedId != null && requestedId != map.id) {
+            val aliasMap = communityMap.copy(id = requestedId)
+            generateAndSaveCommunityMapImage(aliasMap, storage)
+            generateAndSaveTileZoneImages(aliasMap, storage)
+        }
     }
 
     /**
@@ -1189,6 +1445,18 @@ object EditorStorage {
             return false
         }
 
+        // When the map allows no direct path, the level's portals must bridge the gap.
+        if (map.allowNoDirectPath) {
+            val portals = level.getEffectiveInitialData().portals
+            if (!map.validateReadyToUseWithPortals(portals, includeRiversAsWalkable = true)) {
+                return false
+            }
+        }
+
+        if (map.allowNoBuildableTiles && !map.hasBuildablePlacementTiles() && !level.hasNoBuildableTileFallback()) {
+            return false
+        }
+
         // check if the waypoints of the level are valid
         val targets = map.getTargets()
         if (targets.isEmpty()) {
@@ -1397,6 +1665,7 @@ object EditorStorage {
         // Delete JSON and PNG files from user directory
         fileStorage.deleteFile("$USER_MAPS_DIR/$mapId.json")
         fileStorage.deleteFile("$USER_MAPS_DIR/$mapId.png")
+        removeStaleTileZoneImages(USER_MAPS_DIR, mapId, 0)
         return true
     }
 
@@ -1521,6 +1790,15 @@ object EditorStorage {
                         )
                 }.toMap()
 
+        // Convert editor spawn point info map to model SpawnPointType map
+        val gameSpawnPointTypeMap: Map<Position, de.egril.defender.model.SpawnPointType> =
+            map.spawnPointInfoMap.entries
+                .mapNotNull { (key, spawnType) ->
+                    val parts = key.split(",")
+                    val pos = Position(parts[0].toInt(), parts[1].toInt())
+                    pos to spawnType
+                }.toMap()
+
         val level =
             Level(
                 id = numericId,
@@ -1546,11 +1824,14 @@ object EditorStorage {
                 riverTiles = map.getRiverTilesMap(), // Add river tiles with flow direction and speed
                 allowAutoAttack = editorLevel.allowAutoAttack, // Allow auto-attack option
                 connectedToPreviousLevel = editorLevel.connectedToPreviousLevel, // Connected level flag
-                splitBuildTowerButton = editorLevel.splitBuildTowerButton, // Split build-tower button option
                 isSandbox = editorLevel.isSandbox, // Sandbox mode flag (free building, no win, no XP, no events)
+                waaghEnabled = editorLevel.waaghEnabled, // Waaagh! horde mechanics flag
                 targetInfoMap = gameTargetInfoMap, // Named / SINGLE_HIT target metadata
+                singleHitTargetOrder = editorLevel.singleHitTargetOrder,
+                spawnPointTypeMap = gameSpawnPointTypeMap, // LAND/WATER classification per spawn point
                 supports = editorLevel.supports, // Player-usable supports (objects + spell tokens)
                 events = editorLevel.events, // Scripted level events (conditions + actions + messages)
+                tileZones = map.tileZones, // Alternative terrain states switched by scripted events
                 initialData = editorLevel.getEffectiveInitialData(), // Pre-placed elements using new structure
             )
 

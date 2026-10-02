@@ -6,6 +6,9 @@ import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
 import de.egril.defender.model.EventCondition
 import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.EventLoop
+import de.egril.defender.model.EventLoopStep
+import de.egril.defender.model.EventMapImage
 import de.egril.defender.model.LevelEvent
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.Position
@@ -14,9 +17,141 @@ import de.egril.defender.model.SupportObjectType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class EventsSerializationTest {
+    @Test
+    fun mapImageActionsRoundTripThroughEventsAndNestedLoops() {
+        val image = EventMapImage("image \"one\", {sea}[0]\\", "tide \"high\", {sea}[0].png", -1.25f, -0.5f, 2.75f, 1.5f)
+        val actions =
+            listOf(
+                EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = image),
+                EventAction(EventActionType.HIDE_MAP_IMAGE, imageId = image.id),
+            )
+        val events =
+            LevelEvents(
+                listOf(
+                    LevelEvent(
+                        id = "tide",
+                        condition = EventCondition(EventConditionType.TURN_START),
+                        actions = actions,
+                        loop =
+                            EventLoop(
+                                repeatCount = 2,
+                                steps =
+                                    listOf(
+                                        EventLoopStep(
+                                            waitTurns = 3,
+                                            actions = actions,
+                                            nestedLoop = EventLoop(steps = listOf(EventLoopStep(actions = actions))),
+                                        ),
+                                    ),
+                            ),
+                    ),
+                ),
+            )
+
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(events))
+        assertTrue(json.contains("\"mapImage\": {"))
+        assertTrue(json.contains("\"imageId\":"))
+        val loaded = assertNotNull(EditorJsonSerializer.deserializeLevel(json))
+        assertEquals(events, loaded.events)
+    }
+
+    @Test
+    fun oldActionsHaveNoMapImageFields() {
+        val events =
+            LevelEvents(
+                listOf(
+                    LevelEvent(
+                        id = "coins",
+                        condition = EventCondition(EventConditionType.TURN_START),
+                        actions = listOf(EventAction(EventActionType.GIVE_COINS, amount = 50)),
+                    ),
+                ),
+            )
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(events))
+        assertTrue(!json.contains("\"mapImage\""))
+        assertTrue(!json.contains("\"imageId\""))
+        val action =
+            assertNotNull(EditorJsonSerializer.deserializeLevel(json))
+                .events.events
+                .single()
+                .actions
+                .single()
+        assertNull(action.mapImage)
+        assertNull(action.imageId)
+        assertEquals(50, action.amount)
+    }
+
+    @Test
+    fun imageGeometryDefaultsAndScientificNotationAreSupported() {
+        val level =
+            baseLevel(
+                LevelEvents(
+                    listOf(
+                        LevelEvent(
+                            id = "image",
+                            condition = EventCondition(EventConditionType.TURN_START),
+                            actions = listOf(EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = EventMapImage("sea", "sea.png"))),
+                        ),
+                    ),
+                ),
+            )
+        val json =
+            EditorJsonSerializer
+                .serializeLevel(level)
+                .replace("\"x\": 0.0, \"y\": 0.0, \"width\": 1.0, \"height\": 1.0", "\"x\": -1.25e1, \"width\": 2.5e-1")
+        val image =
+            assertNotNull(
+                assertNotNull(EditorJsonSerializer.deserializeLevel(json))
+                    .events.events
+                    .single()
+                    .actions
+                    .single()
+                    .mapImage,
+            )
+        assertEquals(EventMapImage("sea", "sea.png", -12.5f, 0f, 0.25f, 1f), image)
+    }
+
+    @Test
+    fun invalidMapImageGeometryIsIgnoredWithoutDroppingOtherActions() {
+        val events =
+            LevelEvents(
+                listOf(
+                    LevelEvent(
+                        id = "image",
+                        condition = EventCondition(EventConditionType.TURN_START),
+                        actions =
+                            listOf(
+                                EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = EventMapImage("sea", "sea.png")),
+                                EventAction(EventActionType.GIVE_COINS, amount = 10),
+                            ),
+                    ),
+                ),
+            )
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(events))
+        for (invalid in listOf("0", "-2.5", "NaN", "1e100")) {
+            val loaded = assertNotNull(EditorJsonSerializer.deserializeLevel(json.replace("\"width\": 1.0", "\"width\": $invalid")))
+            assertNull(
+                loaded.events.events
+                    .single()
+                    .actions
+                    .first()
+                    .mapImage,
+            )
+            assertEquals(
+                10,
+                loaded.events.events
+                    .single()
+                    .actions
+                    .last()
+                    .amount,
+            )
+        }
+    }
+
     private fun baseLevel(events: LevelEvents): EditorLevel =
         EditorLevel(
             id = "test_level",
@@ -155,5 +290,65 @@ class EventsSerializationTest {
 
         assertNotNull(level, "Level should be deserialized for backward compatibility")
         assertTrue(level.events.isEmpty(), "Level should have no events")
+    }
+
+    @Test
+    fun testMessageFrameRoundTrip() {
+        val events =
+            LevelEvents(
+                listOf(
+                    LevelEvent(
+                        id = "tide",
+                        condition = EventCondition(type = EventConditionType.TURN_START, fromTurn = 3),
+                        messageKey = "event_msg_high_tide",
+                        messageFrame = "kraken",
+                        loop =
+                            EventLoop(
+                                repeatCount = 0,
+                                steps =
+                                    listOf(
+                                        EventLoopStep(
+                                            waitTurns = 3,
+                                            messageKey = "event_msg_low_tide",
+                                            messageFrame = "sylvanas",
+                                        ),
+                                    ),
+                            ),
+                    ),
+                ),
+            )
+
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(events))
+        assertTrue(json.contains("\"messageFrame\": \"kraken\""), "JSON should contain the event frame")
+        assertTrue(json.contains("\"messageFrame\": \"sylvanas\""), "JSON should contain the loop step frame")
+
+        val level = assertNotNull(EditorJsonSerializer.deserializeLevel(json))
+        val event = level.events.events.first { it.id == "tide" }
+        assertEquals("kraken", event.messageFrame)
+        assertEquals("sylvanas", assertNotNull(event.loop).steps.first().messageFrame)
+    }
+
+    @Test
+    fun testStandardMessageFrameIsNotSerializedAndParsesAsNull() {
+        val events =
+            LevelEvents(
+                listOf(
+                    LevelEvent(
+                        id = "plain",
+                        condition = EventCondition(type = EventConditionType.TURN_START),
+                        messageKey = "event_msg_reinforcements",
+                        loop = EventLoop(repeatCount = 1, steps = listOf(EventLoopStep(waitTurns = 1))),
+                    ),
+                ),
+            )
+
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(events))
+        assertTrue(!json.contains("messageFrame"), "The standard frame is omitted to keep level files unchanged")
+
+        // Levels authored before frames were selectable parse as the standard frame (null).
+        val level = assertNotNull(EditorJsonSerializer.deserializeLevel(json))
+        val event = level.events.events.first { it.id == "plain" }
+        assertNull(event.messageFrame)
+        assertNull(assertNotNull(event.loop).steps.first().messageFrame)
     }
 }

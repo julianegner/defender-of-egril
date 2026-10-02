@@ -10,7 +10,9 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.*
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.BridgeType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.FiefType
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.hexagon.TowerIconOnHexagon
 import de.egril.defender.ui.icon.PentagramIcon
@@ -53,12 +55,24 @@ fun InitialSetupSidebar(
     onBarricadeNameChange: (String) -> Unit,
     barricadeIsGate: Boolean,
     onBarricadeIsGateChange: (Boolean) -> Unit,
+    selectedBridgeType: BridgeType,
+    onSelectedBridgeTypeChange: (BridgeType) -> Unit,
+    bridgeHealthPoints: Int,
+    onBridgeHealthPointsChange: (Int) -> Unit,
+    bridgeIsIndestructible: Boolean,
+    onBridgeIsIndestructibleChange: (Boolean) -> Unit,
+    selectedFiefType: FiefType,
+    onSelectedFiefTypeChange: (FiefType) -> Unit,
     availableTowers: Set<DefenderType>,
     initialData: InitialData,
     onRemoveDefender: (Int) -> Unit,
     onRemoveAttacker: (Int) -> Unit,
     onRemoveTrap: (Int) -> Unit,
     onRemoveBarricade: (Int) -> Unit,
+    onRemoveBridge: (Int) -> Unit,
+    onRemoveFief: (Int) -> Unit,
+    onRemoveMushroom: (Int) -> Unit,
+    onRemovePortal: (Int) -> Unit,
     selectedElement: SelectedElement?,
     onSelectedElementChange: (SelectedElement?) -> Unit,
 ) {
@@ -185,6 +199,74 @@ fun InitialSetupSidebar(
                     ) {
                         Text(stringResource(Res.string.barricades))
                     }
+                    Button(
+                        onClick = { onPlacementModeChange(PlacementMode.BRIDGE) },
+                        modifier = Modifier.weight(1f),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor =
+                                    if (placementMode == PlacementMode.BRIDGE) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.secondary
+                                    },
+                            ),
+                    ) {
+                        Text(stringResource(Res.string.bridges))
+                    }
+                }
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Button(
+                        onClick = { onPlacementModeChange(PlacementMode.FIEF) },
+                        modifier = Modifier.weight(1f),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor =
+                                    if (placementMode == PlacementMode.FIEF) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.secondary
+                                    },
+                            ),
+                    ) {
+                        Text(stringResource(Res.string.initial_setup_fiefs))
+                    }
+                    Button(
+                        onClick = { onPlacementModeChange(PlacementMode.MUSHROOM) },
+                        modifier = Modifier.weight(1f),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor =
+                                    if (placementMode == PlacementMode.MUSHROOM) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.secondary
+                                    },
+                            ),
+                    ) {
+                        Text(stringResource(Res.string.initial_setup_mushrooms))
+                    }
+                    Button(
+                        onClick = { onPlacementModeChange(PlacementMode.PORTAL) },
+                        modifier = Modifier.weight(1f),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor =
+                                    if (placementMode == PlacementMode.PORTAL) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.secondary
+                                    },
+                            ),
+                    ) {
+                        Text(stringResource(Res.string.initial_setup_portals))
+                    }
                 }
             }
 
@@ -264,6 +346,45 @@ fun InitialSetupSidebar(
                         )
                     }
                 }
+                PlacementMode.BRIDGE -> {
+                    item {
+                        BridgeConfigPanel(
+                            selectedType = selectedBridgeType,
+                            onTypeChange = onSelectedBridgeTypeChange,
+                            healthPoints = bridgeHealthPoints,
+                            onHealthPointsChange = onBridgeHealthPointsChange,
+                            isIndestructible = bridgeIsIndestructible,
+                            onIsIndestructibleChange = onBridgeIsIndestructibleChange,
+                        )
+                    }
+                }
+                PlacementMode.FIEF -> {
+                    item {
+                        FiefConfigPanel(
+                            selectedType = selectedFiefType,
+                            onTypeChange = onSelectedFiefTypeChange,
+                        )
+                    }
+                }
+                PlacementMode.MUSHROOM -> {
+                    // No configuration needed for mushrooms - they are simply placed on path tiles
+                }
+                PlacementMode.PORTAL -> {
+                    item {
+                        Card(
+                            colors =
+                                CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                ),
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.initial_setup_portal_hint),
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(12.dp),
+                            )
+                        }
+                    }
+                }
                 null -> {
                     // Selection mode - show selected element details
                     if (selectedElement != null) {
@@ -276,6 +397,10 @@ fun InitialSetupSidebar(
                                         is SelectedElement.Attacker -> onRemoveAttacker(selectedElement.index)
                                         is SelectedElement.Trap -> onRemoveTrap(selectedElement.index)
                                         is SelectedElement.Barricade -> onRemoveBarricade(selectedElement.index)
+                                        is SelectedElement.Bridge -> onRemoveBridge(selectedElement.index)
+                                        is SelectedElement.Fief -> onRemoveFief(selectedElement.index)
+                                        is SelectedElement.Mushroom -> onRemoveMushroom(selectedElement.index)
+                                        is SelectedElement.Portal -> onRemovePortal(selectedElement.index)
                                     }
                                 },
                                 onDeselect = { onSelectedElementChange(null) },
@@ -318,6 +443,9 @@ fun InitialSetupSidebar(
                     attackers = initialData.attackers,
                     traps = initialData.traps,
                     barricades = initialData.barricades,
+                    bridges = initialData.bridges,
+                    fiefs = initialData.fiefs,
+                    portals = initialData.portals,
                 )
             }
         }
@@ -480,7 +608,7 @@ fun AttackerConfigPanel(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
             ) {
-                AttackerType.entries.forEach { type ->
+                AttackerType.entries.filterNot { it.isMirrorImage }.forEach { type ->
                     DropdownMenuItem(
                         text = {
                             Row(
@@ -677,6 +805,127 @@ fun BarricadeConfigPanel(
 }
 
 @Composable
+fun BridgeConfigPanel(
+    selectedType: BridgeType,
+    onTypeChange: (BridgeType) -> Unit,
+    healthPoints: Int,
+    onHealthPointsChange: (Int) -> Unit,
+    isIndestructible: Boolean,
+    onIsIndestructibleChange: (Boolean) -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = stringResource(Res.string.bridge_configuration),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            RadioButton(
+                selected = selectedType == BridgeType.WOODEN,
+                onClick = { onTypeChange(BridgeType.WOODEN) },
+            )
+            Text(stringResource(Res.string.wooden_bridge))
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            RadioButton(
+                selected = selectedType == BridgeType.STONE,
+                onClick = { onTypeChange(BridgeType.STONE) },
+            )
+            Text(stringResource(Res.string.stone_bridge))
+        }
+        OutlinedTextField(
+            value = healthPoints.toString(),
+            onValueChange = {
+                val newHP = it.toIntOrNull()
+                if (newHP != null && newHP > 0 && newHP <= 9999) {
+                    onHealthPointsChange(newHP)
+                }
+            },
+            label = { Text(stringResource(Res.string.health_points)) },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isIndestructible,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = stringResource(Res.string.indestructible),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Switch(
+                checked = isIndestructible,
+                onCheckedChange = onIsIndestructibleChange,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FiefConfigPanel(
+    selectedType: FiefType,
+    onTypeChange: (FiefType) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = stringResource(Res.string.fief_configuration),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it },
+        ) {
+            OutlinedTextField(
+                value = selectedType.getLocalizedName(),
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(Res.string.element_type)) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                FiefType.entries.forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text(type.getLocalizedName()) },
+                        onClick = {
+                            onTypeChange(type)
+                            expanded = false
+                        },
+                    )
+                }
+            }
+        }
+
+        Text(
+            text = "${stringResource(Res.string.stat_income)}: +${selectedType.incomePerTurn}",
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
+}
+
+@Composable
 fun SelectedElementPanel(
     selectedElement: SelectedElement,
     onRemove: () -> Unit,
@@ -810,6 +1059,86 @@ fun SelectedElementPanel(
                         }
                     }
                 }
+                is SelectedElement.Bridge -> {
+                    Column {
+                        Text(
+                            text =
+                                when (selectedElement.bridge.type) {
+                                    BridgeType.WOODEN -> stringResource(Res.string.wooden_bridge)
+                                    BridgeType.STONE -> stringResource(Res.string.stone_bridge)
+                                    BridgeType.MAGICAL -> stringResource(Res.string.bridges)
+                                },
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        if (!selectedElement.bridge.isIndestructible) {
+                            Text(
+                                text = "${stringResource(Res.string.health_points)}: ${selectedElement.bridge.healthPoints}",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(Res.string.indestructible),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                        Text(
+                            text = "${stringResource(
+                                Res.string.position_label,
+                            )}: (${selectedElement.bridge.position.x}, ${selectedElement.bridge.position.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
+                is SelectedElement.Fief -> {
+                    Column {
+                        Text(
+                            text = selectedElement.fief.type.getLocalizedName(),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            text =
+                                "${stringResource(Res.string.stat_income)}: " +
+                                    "+${selectedElement.fief.type.incomePerTurn}",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Text(
+                            text = "${stringResource(
+                                Res.string.position_label,
+                            )}: (${selectedElement.fief.position.x}, ${selectedElement.fief.position.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
+                is SelectedElement.Mushroom -> {
+                    Column {
+                        Text(
+                            text = stringResource(Res.string.mushroom),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            text = "${stringResource(
+                                Res.string.position_label,
+                            )}: (${selectedElement.mushroom.position.x}, ${selectedElement.mushroom.position.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
+                is SelectedElement.Portal -> {
+                    Column {
+                        Text(
+                            text = stringResource(Res.string.initial_setup_portals),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            text = "${stringResource(Res.string.initial_setup_portal_entry)}: (${selectedElement.portal.entryPosition.x}, ${selectedElement.portal.entryPosition.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Text(
+                            text = "${stringResource(Res.string.initial_setup_portal_exit)}: (${selectedElement.portal.exitPosition.x}, ${selectedElement.portal.exitPosition.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
             }
 
             Row(
@@ -843,6 +1172,9 @@ fun PlacedElementsSummary(
     attackers: List<InitialAttacker>,
     traps: List<InitialTrap>,
     barricades: List<InitialBarricade>,
+    bridges: List<InitialBridge>,
+    fiefs: List<InitialFief>,
+    portals: List<InitialPortal> = emptyList(),
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -863,5 +1195,28 @@ fun PlacedElementsSummary(
             text = "${stringResource(Res.string.barricades)}: ${barricades.size}",
             style = MaterialTheme.typography.bodySmall,
         )
+        Text(
+            text = "${stringResource(Res.string.bridges)}: ${bridges.size}",
+            style = MaterialTheme.typography.bodySmall,
+        )
+        Text(
+            text = "${stringResource(Res.string.initial_setup_fiefs)}: ${fiefs.size}",
+            style = MaterialTheme.typography.bodySmall,
+        )
+        if (portals.isNotEmpty()) {
+            Text(
+                text = "${stringResource(Res.string.initial_setup_portals)}: ${portals.size}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
 }
+
+@Composable
+private fun FiefType.getLocalizedName(): String =
+    when (this) {
+        FiefType.FISHER -> stringResource(Res.string.fief_type_fisher)
+        FiefType.WOODCUTTER -> stringResource(Res.string.fief_type_woodcutter)
+        FiefType.QUARRY -> stringResource(Res.string.fief_type_quarry)
+        FiefType.MARKETPLACE -> stringResource(Res.string.fief_type_marketplace)
+    }
