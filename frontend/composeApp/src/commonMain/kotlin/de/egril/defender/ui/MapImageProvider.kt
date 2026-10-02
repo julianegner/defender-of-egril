@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import de.egril.defender.editor.getFileStorage
+import de.egril.defender.editor.readPlatformRepositoryBytes
+import de.egril.defender.model.EventMapImage
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +40,16 @@ object MapImageProvider {
         zoneIndex: Int,
     ): ByteArray? = loadImageBytes(tileZoneImageFileName(mapId, zoneIndex))
 
-    private suspend fun loadImageBytes(fileName: String): ByteArray? {
+    /** Load an event image from the level directories, separately from map and zone backgrounds. */
+    suspend fun loadEventMapImageBytes(fileName: String): ByteArray? {
+        require(EventMapImage.isValidFileName(fileName)) { "Invalid repository image file name: $fileName" }
+        return loadImageBytes(fileName, "levels") ?: readPlatformRepositoryBytes("levels/$fileName")
+    }
+
+    private suspend fun loadImageBytes(
+        fileName: String,
+        directory: String = "maps",
+    ): ByteArray? {
         val storage =
             try {
                 getFileStorage()
@@ -47,18 +58,18 @@ object MapImageProvider {
             }
 
         if (storage != null) {
-            val officialBytes = storage.readBinaryFile("gamedata/official/maps/$fileName")
+            val officialBytes = storage.readBinaryFile("gamedata/official/$directory/$fileName")
             if (officialBytes != null) return officialBytes
 
-            val userBytes = storage.readBinaryFile("gamedata/user/maps/$fileName")
+            val userBytes = storage.readBinaryFile("gamedata/user/$directory/$fileName")
             if (userBytes != null) return userBytes
 
-            val communityBytes = storage.readBinaryFile("gamedata/community/maps/$fileName")
+            val communityBytes = storage.readBinaryFile("gamedata/community/$directory/$fileName")
             if (communityBytes != null) return communityBytes
         }
 
         return try {
-            Res.readBytes("files/repository/maps/$fileName")
+            Res.readBytes("files/repository/$directory/$fileName")
         } catch (e: Exception) {
             null
         }

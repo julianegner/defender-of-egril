@@ -95,6 +95,12 @@ enum class EventActionType {
 
     /** Stop the running loop of the event [EventAction.targetEventId]. */
     STOP_EVENT_LOOP,
+
+    /** Show or replace [EventAction.mapImage] below all gameplay objects. */
+    SHOW_MAP_IMAGE,
+
+    /** Hide the image identified by [EventAction.imageId]. */
+    HIDE_MAP_IMAGE,
 }
 
 /**
@@ -107,6 +113,8 @@ enum class EventActionType {
  * @param position          Mine tile for [EventActionType.DESTROY_MINE].
  * @param zoneId            Tile zone for the tile-zone actions.
  * @param targetEventId     Event whose loop is stopped by [EventActionType.STOP_EVENT_LOOP].
+ * @param mapImage          Image and geometry used by [EventActionType.SHOW_MAP_IMAGE].
+ * @param imageId           Image hidden by [EventActionType.HIDE_MAP_IMAGE].
  */
 data class EventAction(
     val type: EventActionType,
@@ -116,7 +124,39 @@ data class EventAction(
     val position: Position? = null,
     val zoneId: String? = null,
     val targetEventId: String? = null,
+    val mapImage: EventMapImage? = null,
+    val imageId: String? = null,
 )
+
+/**
+ * An event-controlled image from the repository's levels directory.
+ *
+ * [id] identifies an independently hideable image. [fileName] is a plain image file name, not a
+ * path. [x]/[y] locate the top-left corner in continuous grid coordinates (without odd-row offsets);
+ * [width]/[height] are measured in full tile widths/heights. Images scale and pan with the map.
+ */
+data class EventMapImage(
+    val id: String,
+    val fileName: String,
+    val x: Float = 0f,
+    val y: Float = 0f,
+    val width: Float = 1f,
+    val height: Float = 1f,
+) {
+    fun isValid(): Boolean =
+        id.isNotBlank() &&
+            isValidFileName(fileName) &&
+            x.isFinite() && y.isFinite() &&
+            width.isFinite() && height.isFinite() &&
+            width > 0f && height > 0f
+
+    companion object {
+        fun isValidFileName(fileName: String): Boolean =
+            fileName.isNotBlank() &&
+                '/' !in fileName && '\\' !in fileName &&
+                fileName.substringAfterLast('.').lowercase() in setOf("png", "jpg", "jpeg", "webp")
+    }
+}
 
 /**
  * Identifier of the visual frame used for an event message popup.

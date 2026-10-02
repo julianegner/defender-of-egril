@@ -148,6 +148,7 @@ object RepositoryLoader {
 
             val levelIds = getRepositoryLevelIds(sequence)
             val mapIds = linkedSetOf<String>()
+            val eventImageFiles = linkedSetOf<String>()
             for (levelId in levelIds) {
                 val levelPath = "levels/$levelId.json"
                 val levelBytes = readRepositoryBytes(levelPath)
@@ -160,8 +161,17 @@ object RepositoryLoader {
                         return null
                     }
                 mapIds.add(level.mapId)
+                level.events.events
+                    .flatMap { it.allActions() }
+                    .filter { it.type == de.egril.defender.model.EventActionType.SHOW_MAP_IMAGE }
+                    .mapNotNull { it.mapImage }
+                    .filter { it.isValid() }
+                    .forEach { eventImageFiles.add(it.fileName) }
             }
 
+            for (fileName in eventImageFiles.sorted()) {
+                readRepositoryBytesOrNull("levels/$fileName")?.let { builder.addFile("levels/$fileName", it) }
+            }
             for (mapId in mapIds.sorted()) { // Sorting keeps the fingerprint stable across launches.
                 val mapPath = "maps/$mapId.json"
                 val mapBytes = readRepositoryBytes(mapPath)

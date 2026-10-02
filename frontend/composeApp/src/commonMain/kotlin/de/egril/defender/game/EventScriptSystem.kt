@@ -307,6 +307,27 @@ class EventScriptSystem(
                 val target = action.targetEventId ?: return
                 state.activeEventLoops.removeAll { it.eventId == target }
             }
+            EventActionType.SHOW_MAP_IMAGE -> {
+                val image = action.mapImage
+                if (image == null || !image.isValid()) {
+                    GameLogBuffer.log("EVENT", "Invalid map image in SHOW_MAP_IMAGE action")
+                    return
+                }
+                val index = state.activeEventMapImages.indexOfFirst { it.id == image.id }
+                if (index >= 0) {
+                    state.activeEventMapImages[index] = image
+                } else {
+                    state.activeEventMapImages.add(image)
+                }
+            }
+            EventActionType.HIDE_MAP_IMAGE -> {
+                val id = action.imageId
+                if (id.isNullOrBlank()) {
+                    GameLogBuffer.log("EVENT", "Missing image id in HIDE_MAP_IMAGE action")
+                    return
+                }
+                state.activeEventMapImages.removeAll { it.id == id }
+            }
         }
     }
 

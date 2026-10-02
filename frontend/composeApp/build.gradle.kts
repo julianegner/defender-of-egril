@@ -32,6 +32,34 @@ if (configureAndroid) {
 // Build configuration output directory
 val buildConfigOutputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin")
 
+val repositoryImageCatalogDir = layout.buildDirectory.dir("generated/source/repositoryImages/commonMain/kotlin")
+val generateRepositoryImageCatalog = tasks.register("generateRepositoryImageCatalog") {
+    val images = fileTree("src/commonMain/composeResources/files/repository/levels") {
+        include("*.png", "*.jpg", "*.jpeg", "*.webp", "*.PNG", "*.JPG", "*.JPEG", "*.WEBP")
+    }
+    inputs.files(images)
+    outputs.dir(repositoryImageCatalogDir)
+    doLast {
+        val names = images.files.map { it.name }.sorted().joinToString(",\n") {
+            "        \"" + it.replace("\\", "\\\\").replace("\"", "\\\"").replace("$", "\\$") + "\""
+        }
+        val output = repositoryImageCatalogDir.get().file("de/egril/defender/editor/RepositoryImageCatalog.kt").asFile
+        output.parentFile.mkdirs()
+        output.writeText(
+            """
+            |package de.egril.defender.editor
+            |
+            |/** Event image files bundled from the repository levels directory. */
+            |object RepositoryImageCatalog {
+            |    val fileNames: List<String> = listOf(
+            |$names
+            |    )
+            |}
+            """.trimMargin(),
+        )
+    }
+}
+
 // Impressum flag - can be set via gradle.properties or command line: -PwithImpressum=true
 val withImpressum: Boolean = project.findProperty("withImpressum")?.toString()?.toBoolean() ?: false
 
@@ -304,6 +332,7 @@ kotlin {
         // Add generated source directory to commonMain
         commonMain {
             kotlin.srcDir(buildConfigOutputDir)
+            kotlin.srcDir(repositoryImageCatalogDir)
             kotlin.srcDirs(
                 File(
                     layout.buildDirectory.get().asFile.path,
@@ -388,6 +417,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
     dependsOn(generateBuildConfig)
     dependsOn(generateWithImpressumConstant)
     dependsOn(generateOfficialEditModeConstant)
+    dependsOn(generateRepositoryImageCatalog)
 }
 
 // The compose-multiplatform-localize plugin's GenerateTranslationsTask only declares resourcesDir and

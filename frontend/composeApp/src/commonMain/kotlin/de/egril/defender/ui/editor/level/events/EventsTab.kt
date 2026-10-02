@@ -41,6 +41,7 @@ import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
 import de.egril.defender.model.EventCondition
 import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.EventMapImage
 import de.egril.defender.model.EventMessageFrameId
 import de.egril.defender.model.LevelEvent
 import de.egril.defender.model.LevelEvents
@@ -63,7 +64,9 @@ import defender_of_egril.composeapp.generated.resources.event_act_give_coins
 import defender_of_egril.composeapp.generated.resources.event_act_give_mana
 import defender_of_egril.composeapp.generated.resources.event_act_give_support_object
 import defender_of_egril.composeapp.generated.resources.event_act_give_support_spell
+import defender_of_egril.composeapp.generated.resources.event_act_hide_map_image
 import defender_of_egril.composeapp.generated.resources.event_act_revert_tile_zone
+import defender_of_egril.composeapp.generated.resources.event_act_show_map_image
 import defender_of_egril.composeapp.generated.resources.event_act_stop_event_loop
 import defender_of_egril.composeapp.generated.resources.event_act_toggle_tile_zone
 import defender_of_egril.composeapp.generated.resources.event_actions_count
@@ -130,6 +133,13 @@ fun EventsTab(
                 events.events.mapIndexedNotNull { index, event ->
                     if (event.loop != null) event.id to index else null
                 },
+            imageFiles = rememberEventMapImageFiles(),
+            imageIds =
+                events.events
+                    .flatMap { it.allActions() }
+                    .filter { it.type == EventActionType.SHOW_MAP_IMAGE }
+                    .mapNotNull { it.mapImage?.id }
+                    .distinct(),
         )
 
     fun updateEvent(
@@ -346,6 +356,8 @@ internal data class EventEditorContext(
     val minePositions: Set<Position>,
     val tileZones: List<TileZone>,
     val loopEvents: List<Pair<String, Int>>,
+    val imageFiles: List<String> = emptyList(),
+    val imageIds: List<String> = emptyList(),
 )
 
 /**
@@ -433,6 +445,10 @@ internal fun actionSummary(action: EventAction): String =
 
         EventActionType.STOP_EVENT_LOOP ->
             action.targetEventId?.let { "${action.type.localizedName()}: $it" } ?: action.type.localizedName()
+        EventActionType.SHOW_MAP_IMAGE ->
+            action.mapImage?.let { "${action.type.localizedName()}: ${it.id} (${it.fileName})" } ?: action.type.localizedName()
+        EventActionType.HIDE_MAP_IMAGE ->
+            action.imageId?.let { "${action.type.localizedName()}: $it" } ?: action.type.localizedName()
     }
 
 @Composable
@@ -545,6 +561,23 @@ internal fun ActionEditor(
                                         spellType = action.spellType ?: SpellType.entries.first(),
                                     )
 
+                                EventActionType.SHOW_MAP_IMAGE ->
+                                    action.copy(
+                                        type = newType,
+                                        mapImage =
+                                            action.mapImage ?: EventMapImage(
+                                                id =
+                                                    generateSequence(1) { it + 1 }
+                                                        .map { "map_image_$it" }
+                                                        .first { it !in context.imageIds },
+                                                fileName = context.imageFiles.firstOrNull().orEmpty(),
+                                            ),
+                                    )
+                                EventActionType.HIDE_MAP_IMAGE ->
+                                    action.copy(
+                                        type = newType,
+                                        imageId = action.imageId ?: action.mapImage?.id ?: context.imageIds.firstOrNull(),
+                                    )
                                 else -> action.copy(type = newType)
                             }
                         onActionChange(updated)
@@ -557,6 +590,8 @@ internal fun ActionEditor(
         }
 
         when (action.type) {
+            EventActionType.SHOW_MAP_IMAGE, EventActionType.HIDE_MAP_IMAGE ->
+                EventMapImageEditor(action, onActionChange, context)
             EventActionType.GIVE_COINS, EventActionType.GIVE_MANA ->
                 NumberField(
                     label = stringResource(Res.string.event_amount_label),
@@ -651,7 +686,7 @@ internal fun ActionEditor(
 /** Dropdown over (id, label) pairs; shows the raw id when the stored id is not among the options. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun IdDropdown(
+internal fun IdDropdown(
     label: String,
     options: List<Pair<String, String>>,
     selectedId: String?,
@@ -960,4 +995,6 @@ private fun EventActionType.localizedName(): String =
         EventActionType.REVERT_TILE_ZONE -> stringResource(Res.string.event_act_revert_tile_zone)
         EventActionType.TOGGLE_TILE_ZONE -> stringResource(Res.string.event_act_toggle_tile_zone)
         EventActionType.STOP_EVENT_LOOP -> stringResource(Res.string.event_act_stop_event_loop)
+        EventActionType.SHOW_MAP_IMAGE -> stringResource(Res.string.event_act_show_map_image)
+        EventActionType.HIDE_MAP_IMAGE -> stringResource(Res.string.event_act_hide_map_image)
     }

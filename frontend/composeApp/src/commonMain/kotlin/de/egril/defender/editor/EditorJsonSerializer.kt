@@ -23,6 +23,7 @@ import de.egril.defender.model.SupportObject
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.SupportSpell
 import de.egril.defender.model.isIndefiniteSupportCount
+import de.egril.defender.utils.EventMapImageJson
 import de.egril.defender.utils.JsonUtils
 
 /**
@@ -2413,6 +2414,8 @@ object EditorJsonSerializer {
             if (action.position != null) parts.add("\"position\": {\"x\": ${action.position.x}, \"y\": ${action.position.y}}")
             if (action.zoneId != null) parts.add("\"zoneId\": \"${action.zoneId}\"")
             if (action.targetEventId != null) parts.add("\"targetEventId\": \"${action.targetEventId}\"")
+            if (action.mapImage != null) parts.add("\"mapImage\": ${EventMapImageJson.serialize(action.mapImage)}")
+            if (action.imageId != null) parts.add("\"imageId\": ${EventMapImageJson.quote(action.imageId)}")
             "{${parts.joinToString(", ")}}"
         }
 
@@ -2433,7 +2436,7 @@ object EditorJsonSerializer {
     private fun parseActions(actionsSection: String): List<EventAction> {
         val actions = mutableListOf<EventAction>()
         if (actionsSection.isBlank()) return actions
-        for (actionEntry in splitJsonArrayObjects(actionsSection)) {
+        for (actionEntry in EventMapImageJson.splitArray(actionsSection)) {
             val actionTypeName = runCatching { JsonUtils.extractValue(actionEntry, "type") }.getOrNull() ?: continue
             val actionType = runCatching { EventActionType.valueOf(actionTypeName) }.getOrNull() ?: continue
             val amount = runCatching { JsonUtils.extractValue(actionEntry, "amount").toInt() }.getOrDefault(0)
@@ -2460,6 +2463,8 @@ object EditorJsonSerializer {
                     position = parsePositionField(actionEntry, "position"),
                     zoneId = zoneId,
                     targetEventId = targetEventId,
+                    mapImage = EventMapImageJson.deserialize(JsonUtils.extractJsonObjectForKey(actionEntry, "mapImage")),
+                    imageId = EventMapImageJson.stringValue(actionEntry, "imageId")?.takeIf { it.isNotBlank() },
                 ),
             )
         }
@@ -2472,7 +2477,7 @@ object EditorJsonSerializer {
         val repeatCount = JsonUtils.extractNumericValue(head, "repeatCount").toIntOrNull() ?: 0
         val stepsSection = JsonUtils.extractJsonArrayForKey(loopBody, "steps")
         val steps =
-            JsonUtils.splitJsonArray(stepsSection).map { stepJson ->
+            EventMapImageJson.splitArray(stepsSection).map { stepJson ->
                 // Only look at the step's own fields, not those of its nested loop (written last).
                 val stepHead = stepJson.substringBefore("\"nestedLoop\"")
                 val waitTurns = JsonUtils.extractNumericValue(stepHead, "waitTurns").toIntOrNull()?.coerceAtLeast(0) ?: 1
@@ -2485,7 +2490,7 @@ object EditorJsonSerializer {
                     }
                 EventLoopStep(
                     waitTurns = waitTurns,
-                    actions = parseActions(extractArraySection(stepHead, "actions")),
+                    actions = parseActions(JsonUtils.extractJsonArrayForKey(stepHead, "actions")),
                     messageKey = messageKey,
                     messageFrame = JsonUtils.extractStringValue(stepHead, "messageFrame").takeIf { it.isNotBlank() },
                     nestedLoop = nestedLoop,
@@ -2514,13 +2519,13 @@ object EditorJsonSerializer {
      * Parse the optional "events" section (scripted level events) from a level's data JSON.
      */
     private fun parseEvents(dataJson: String): LevelEvents {
-        val eventsSection = extractArraySection(dataJson, "events")
+        val eventsSection = JsonUtils.extractJsonArrayForKey(dataJson, "events")
         if (eventsSection.isBlank()) {
             return LevelEvents()
         }
 
         val events = mutableListOf<LevelEvent>()
-        for (fullEntry in splitJsonArrayObjects(eventsSection)) {
+        for (fullEntry in EventMapImageJson.splitArray(eventsSection)) {
             // The loop is serialized last; parse the event's own fields only from the text before it.
             val entry = fullEntry.substringBefore("\"loop\"")
             val id = runCatching { JsonUtils.extractValue(entry, "id") }.getOrNull() ?: continue
@@ -2550,7 +2555,7 @@ object EditorJsonSerializer {
                     position = condPosition,
                 )
 
-            val actions = parseActions(extractArraySection(entry, "actions"))
+            val actions = parseActions(JsonUtils.extractJsonArrayForKey(entry, "actions"))
 
             val messageKey =
                 if (entry.contains("\"messageKey\"")) {

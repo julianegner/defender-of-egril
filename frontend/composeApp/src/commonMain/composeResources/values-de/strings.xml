@@ -920,6 +920,15 @@
     <string name="event_act_give_support_object">Unterstützungsobjekt geben</string>
     <string name="event_act_give_support_spell">Unterstützungszauber geben</string>
     <string name="event_act_destroy_mine">Mine zerstören</string>
+    <string name="event_act_show_map_image">Kartenbild anzeigen</string>
+    <string name="event_act_hide_map_image">Kartenbild ausblenden</string>
+    <string name="event_map_image_id">Bild-ID</string>
+    <string name="event_map_image_file">Bilddatei im Repository</string>
+    <string name="event_map_image_width">Breite in Feldern</string>
+    <string name="event_map_image_height">Höhe in Feldern</string>
+    <string name="event_map_image_help">Bilder werden aus dem Level-Verzeichnis des Repositorys ausgewählt, zusammen mit den Level-Dateien. X/Y legen die obere linke Ecke in durchgehenden Rasterkoordinaten fest (ohne Versatz für ungerade Reihen); Breite/Höhe verwenden die vollen Feldmaße. Dezimalwerte sind erlaubt. Das Bild bleibt sichtbar, bis eine Aktion „Kartenbild ausblenden“ dieselbe Bild-ID verwendet.</string>
+    <string name="event_map_image_missing">Wähle eine Bild-ID aus, die in einer Aktion „Kartenbild anzeigen“ definiert ist.</string>
+    <string name="event_map_image_invalid">Wähle eine vorhandene Bilddatei aus und gib eine nicht leere ID sowie eine positive Breite und Höhe ein.</string>
     <string name="event_message_title">Nachricht</string>
     <string name="event_msg_reinforcements">Verstärkung ist eingetroffen! Setze sie mit Bedacht ein.</string>
     <string name="event_msg_coins_received">Eine Ladung Gold hat deine Schatzkammer erreicht.</string>

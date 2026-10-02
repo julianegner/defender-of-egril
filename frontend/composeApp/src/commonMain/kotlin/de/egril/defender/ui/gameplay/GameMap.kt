@@ -1263,6 +1263,7 @@ fun GameGrid(
     val mapImagePainter = mapImageState.painter
     val useLevelMapImage = AppSettings.useLevelMapImage.value
     val hasMapImage = mapImagePainter != null && useLevelMapImage
+    val hasEventMapImages = gameState.activeEventMapImages.isNotEmpty()
     val isLoadingMapImage = mapImageState.isLoading || tileZoneImageState.isLoading
     val hexMapSizePx =
         remember(gameState.level.gridWidth, gameState.level.gridHeight, hexSize) {
@@ -1585,30 +1586,46 @@ fun GameGrid(
                 focusTrigger = Pair(gameState.phase.value, extraFocusTrigger), // Request focus when game phase changes or after dialogs close
                 modifier = Modifier.fillMaxSize(),
                 backgroundContent =
-                    if (hasMapImage) {
+                    if (hasMapImage || hasEventMapImages) {
                         { measuredContentSize ->
                             val density = androidx.compose.ui.platform.LocalDensity.current
                             val targetWidthPx = maxOf(hexMapSizePx.first, measuredContentSize.width)
                             val targetHeightPx = maxOf(hexMapSizePx.second, measuredContentSize.height)
                             with(density) {
                                 val imageModifier = Modifier.requiredWidth(targetWidthPx.toDp()).requiredHeight(targetHeightPx.toDp())
-                                androidx.compose.foundation.layout.Box {
-                                    androidx.compose.foundation.Image(
-                                        painter = mapImagePainter,
-                                        contentDescription = null,
-                                        modifier = imageModifier,
-                                        contentScale = androidx.compose.ui.layout.ContentScale.FillBounds,
-                                    )
+                                androidx.compose.foundation.layout.Box(modifier = imageModifier) {
+                                    if (hasMapImage && mapImagePainter != null) {
+                                        androidx.compose.foundation.Image(
+                                            painter = mapImagePainter,
+                                            contentDescription = null,
+                                            modifier = Modifier.matchParentSize(),
+                                            contentScale = androidx.compose.ui.layout.ContentScale.FillBounds,
+                                        )
+                                    }
                                     gameState.activeTileZoneIds.forEach { zoneId ->
                                         tileZoneImageState.painters[zoneId]?.let { painter ->
                                             androidx.compose.foundation.Image(
                                                 painter = painter,
                                                 contentDescription = null,
-                                                modifier = imageModifier,
+                                                modifier = Modifier.matchParentSize(),
                                                 contentScale = androidx.compose.ui.layout.ContentScale.FillBounds,
                                             )
                                         }
                                     }
+                                    if (hasEventMapImages) {
+                                        EventMapTerrain(
+                                            state = gameState,
+                                            hexSize = hexSize.value,
+                                            hasMapImage = hasMapImage,
+                                            visibleZoneIdsByPosition = visibleZoneIdsByPosition,
+                                            zoneImageIds = tileZoneImageState.painters.keys,
+                                        )
+                                    }
+                                    EventMapImages(
+                                        images = gameState.activeEventMapImages.toList(),
+                                        hexSize = hexSize.value,
+                                        modifier = Modifier.matchParentSize(),
+                                    )
                                 }
                             }
                         }
@@ -1915,11 +1932,14 @@ fun GameGrid(
                     isInWizardAttackArea = wizardAttackAreaPositions.contains(position),
                     isInAlchemyAttackArea = alchemyAttackAreaPositions.contains(position),
                     useTransparentBackground =
-                        hasMapImage &&
-                            (
-                                sandboxPaintedType == null ||
-                                    (zoneImageCoversTile && !(gameState.level.isSandbox && position in gameState.sandboxPaintedTiles))
-                            ),
+                        hasEventMapImages || (
+                            hasMapImage &&
+                                (
+                                    sandboxPaintedType == null ||
+                                        (zoneImageCoversTile && !(gameState.level.isSandbox && position in gameState.sandboxPaintedTiles))
+                                )
+                        ),
+                    terrainIsSeparateLayer = hasEventMapImages,
                     sandboxPaintedType = sandboxPaintedType,
                     sandboxPaintedRiverTile = sandboxPaintedRiverTile,
                 )
@@ -2089,6 +2109,7 @@ fun GridCell(
     hexSize: androidx.compose.ui.unit.Dp = 48.dp,
     onHoverChange: ((Boolean) -> Unit)? = null,
     useTransparentBackground: Boolean = false,
+    terrainIsSeparateLayer: Boolean = false,
     // Sandbox runtime map edits mutate the non-observable `level` field in place, so Compose cannot
     // detect them by reading gameState.level. These two parameters carry the repainted tile type and
     // river flow for this exact cell; when either changes (e.g. river -> different river flow, or
@@ -2171,7 +2192,7 @@ fun GridCell(
                 (attacker != null || (defender != null && defender.isReady && isBuildArea))
         )
     val tilePainter =
-        if (shouldShowTileImage && (!useTransparentBackground || isMaelstrom)) {
+        if (shouldShowTileImage && (!useTransparentBackground || (isMaelstrom && !terrainIsSeparateLayer))) {
             TileImageProvider.getTilePainter(tileType, isMaelstrom = isMaelstrom)
         } else {
             null
@@ -2418,13 +2439,7 @@ fun GridCell(
 
     // Base background color based on area type - ALWAYS visible
     // Build areas adjacent to path allow tower placement
-    val baseBackgroundColor =
-        when {
-            isBuildArea -> GamePlayColors.BuildStrip // Medium green for strips adjacent to path
-            isOnPath -> GamePlayColors.Path // Cream/beige for enemy path
-            isRiverTile -> GamePlayColors.River // Blue for river tiles
-            else -> GamePlayColors.NonPlayable // Light gray for off-path areas (non-playable)
-        }
+    val baseBackgroundColor = terrainBackgroundColor(gameState.level, position)
 
     // Check if attacker on this tile is frozen (freeze spell)
     val attackerIsFrozen =

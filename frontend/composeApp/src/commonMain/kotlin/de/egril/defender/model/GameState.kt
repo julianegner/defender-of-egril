@@ -412,6 +412,7 @@ data class GameState(
     val submergedAttackers: SnapshotStateList<Attacker> = mutableStateListOf(),
     // Running loops of scripted events (see [EventLoop]).
     val activeEventLoops: SnapshotStateList<ActiveEventLoop> = mutableStateListOf(),
+    val activeEventMapImages: SnapshotStateList<EventMapImage> = mutableStateListOf(),
 ) {
     // The original map tile type / river flow for every position, captured once from the level as
     // it was first loaded (before any runtime edits). Absent positions are NO_PLAY.

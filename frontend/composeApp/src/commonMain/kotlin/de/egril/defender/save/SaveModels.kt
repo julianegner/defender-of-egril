@@ -91,6 +91,7 @@ data class SavedGame(
     val takenTargets: List<Position> = emptyList(), // SINGLE_HIT targets already captured by enemies
     val activeTileZoneIds: List<String> = emptyList(), // Tile zones switched on by scripted events, in activation order
     val activeEventLoops: List<ActiveEventLoop> = emptyList(), // Running scripted-event loops with their progress
+    val activeEventMapImages: List<EventMapImage> = emptyList(),
 )
 
 /**

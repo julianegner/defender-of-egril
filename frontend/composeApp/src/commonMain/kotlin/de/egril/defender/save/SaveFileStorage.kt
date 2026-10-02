@@ -268,7 +268,7 @@ object SaveFileStorage {
     /**
      * Convert GameState to SavedGame
      */
-    private fun convertGameStateToSavedGame(
+    internal fun convertGameStateToSavedGame(
         gameState: GameState,
         saveId: String,
         comment: String? = null,
@@ -469,6 +469,7 @@ object SaveFileStorage {
             takenTargets = gameState.takenTargets.toList(),
             activeTileZoneIds = gameState.activeTileZoneIds.toList(),
             activeEventLoops = gameState.activeEventLoops.toList(),
+            activeEventMapImages = gameState.activeEventMapImages.toList(),
         )
     }
 
@@ -507,6 +508,8 @@ object SaveFileStorage {
             .restoreActiveZones()
         gameState.activeEventLoops.clear()
         gameState.activeEventLoops.addAll(savedGame.activeEventLoops)
+        gameState.activeEventMapImages.clear()
+        gameState.activeEventMapImages.addAll(savedGame.activeEventMapImages.filter { it.isValid() })
 
         // Restore basic state
         gameState.phase.value = savedGame.phase

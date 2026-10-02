@@ -38,8 +38,26 @@ confuse zone tiles with the base map):
 | `REVERT_TILE_ZONE` | Deactivate the zone `zoneId` (tiles fall back to earlier active zones or the base map) |
 | `TOGGLE_TILE_ZONE` | Activate the zone when inactive, otherwise deactivate it |
 | `STOP_EVENT_LOOP` | Stop the running loop of the event `targetEventId` |
+| `SHOW_MAP_IMAGE` | Show or replace the configured map image by its image ID |
+| `HIDE_MAP_IMAGE` | Hide the map image with the matching `imageId` |
 
 When several active zones cover the same tile, the zone activated last wins.
+
+### Event map images
+
+The `SHOW_MAP_IMAGE` action displays an image from
+`frontend/composeApp/src/commonMain/composeResources/files/repository/levels/`. Event images belong
+alongside level files; map backgrounds and zone images remain in `repository/maps/`. PNG, JPG, JPEG and
+WEBP files are automatically listed at build time. X/Y place the image's top-left corner in
+continuous grid coordinates; width and height are full tile dimensions. Decimal values are allowed.
+The image ID identifies the image for hiding or replacing it. Images render above the map and zone
+backgrounds, below game objects, and their visibility is saved with the game. Show and hide actions
+can also be used in event loops.
+
+X/Y follow column/row spacing without the odd-row offset. The image moves and scales with map
+pan/zoom, remains visible until explicitly hidden, and never blocks tile interactions. Different IDs
+allow several images to stay visible together; showing the same ID again replaces its file and
+geometry. Images also work when map background images are disabled.
 
 Events and loop steps with "No message" apply their actions without opening a popup. The editor
 offers "high tide" and "low tide" text presets and every `message_background_*` resource as a

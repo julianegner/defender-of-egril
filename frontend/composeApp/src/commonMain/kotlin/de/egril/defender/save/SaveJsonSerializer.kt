@@ -2,6 +2,7 @@ package de.egril.defender.save
 
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
+import de.egril.defender.utils.EventMapImageJson
 import de.egril.defender.utils.JsonUtils
 import de.egril.defender.utils.currentTimeMillis
 
@@ -289,6 +290,7 @@ object SaveJsonSerializer {
             }
 
         val activeTileZoneIdsJson = savedGame.activeTileZoneIds.joinToString(", ") { "\"$it\"" }
+        val activeEventMapImagesJson = savedGame.activeEventMapImages.joinToString(", ") { EventMapImageJson.serialize(it) }
 
         // Each frame is written as [stepIndex, turnsRemaining, iterationsDone, stepExecuted (0/1)].
         val activeEventLoopsJson =
@@ -373,6 +375,7 @@ object SaveJsonSerializer {
   "takenTargets": [$takenTargetsJson],
   "activeTileZoneIds": [$activeTileZoneIdsJson],
   "activeEventLoops": [$activeEventLoopsJson],
+  "activeEventMapImages": [$activeEventMapImagesJson],
   "bridges": [
    $bridgesJson
   ],
@@ -806,6 +809,10 @@ object SaveJsonSerializer {
 
             val activeTileZoneIds = parseStringArray(dataJson, "activeTileZoneIds")
             val activeEventLoops = parseActiveEventLoops(dataJson)
+            val activeEventMapImages =
+                EventMapImageJson
+                    .splitArray(JsonUtils.extractJsonArrayForKey(dataJson, "activeEventMapImages"))
+                    .mapNotNull { EventMapImageJson.deserialize(it) }
 
             return SavedGame(
                 id = id,
@@ -868,6 +875,7 @@ object SaveJsonSerializer {
                 takenTargets = takenTargets,
                 activeTileZoneIds = activeTileZoneIds,
                 activeEventLoops = activeEventLoops,
+                activeEventMapImages = activeEventMapImages,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {

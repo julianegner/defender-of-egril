@@ -920,6 +920,15 @@
     <string name="event_act_give_support_object">Dai oggetto di supporto</string>
     <string name="event_act_give_support_spell">Dai incantesimo di supporto</string>
     <string name="event_act_destroy_mine">Distruggi miniera</string>
+    <string name="event_act_show_map_image">Mostra immagine della mappa</string>
+    <string name="event_act_hide_map_image">Nascondi immagine della mappa</string>
+    <string name="event_map_image_id">ID immagine</string>
+    <string name="event_map_image_file">File immagine del repository</string>
+    <string name="event_map_image_width">Larghezza in caselle</string>
+    <string name="event_map_image_height">Altezza in caselle</string>
+    <string name="event_map_image_help">Le immagini si scelgono dalla cartella dei livelli del repository, insieme ai file di livello. X/Y posizionano l'angolo superiore sinistro in coordinate continue della griglia (senza offset per le righe dispari); larghezza/altezza usano le dimensioni complete delle caselle. Sono ammessi valori decimali. L'immagine resta visibile finché un'azione «Nascondi immagine della mappa» non usa lo stesso ID immagine.</string>
+    <string name="event_map_image_missing">Seleziona un ID immagine definito da un'azione «Mostra immagine della mappa».</string>
+    <string name="event_map_image_invalid">Seleziona un file immagine esistente e inserisci un ID non vuoto e larghezza e altezza positive.</string>
     <string name="event_message_title">Messaggio</string>
     <string name="event_msg_reinforcements">Sono arrivati i rinforzi! Usali con saggezza.</string>
     <string name="event_msg_coins_received">Un carico d'oro ha raggiunto le tue casse.</string>
