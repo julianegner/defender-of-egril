@@ -558,6 +558,7 @@ fun MapEditorView(
     var allowNoDirectPath by remember { mutableStateOf(map.allowNoDirectPath) }
     var tileZones by remember { mutableStateOf(map.tileZones) }
     var showTileZonePanel by remember { mutableStateOf(false) }
+    var showOtherZones by remember { mutableStateOf(false) }
     var selectedZoneId by remember { mutableStateOf<String?>(null) }
     var isZoneDrawingMode by remember { mutableStateOf(false) }
     var isErasingZoneTiles by remember { mutableStateOf(false) }
@@ -1007,6 +1008,12 @@ fun MapEditorView(
                     val key = "${position.x},${position.y}"
                     val activeZone = activeZoneId?.let { id -> tileZones.firstOrNull { it.id == id } }
                     val zoneTileType = activeZone?.tiles?.get(position)
+                    val otherZoneIndex =
+                        if (showOtherZones) {
+                            tileZones.indexOfFirst { it.id != selectedZoneId && position in it.tiles }
+                        } else {
+                            -1
+                        }
                     // Show the zone's alternative tile while the zone is being edited.
                     val tileType = zoneTileType ?: tiles[key] ?: TileType.NO_PLAY
                     val riverTile = if (zoneTileType != null) activeZone.riverTiles[position] else riverTiles[key]
@@ -1025,6 +1032,7 @@ fun MapEditorView(
                         borderColor =
                             when {
                                 zoneTileType != null -> TILE_ZONE_HIGHLIGHT_COLOR
+                                otherZoneIndex >= 0 -> tileZoneColor(otherZoneIndex)
                                 position in unreachableSpawns -> Color.Red
                                 position in ambiguousPreviewCells -> Color(0xFFFFC107)
                                 position in previewCells -> Color(0xFF00BCD4)
@@ -1033,6 +1041,7 @@ fun MapEditorView(
                         borderWidth =
                             when {
                                 zoneTileType != null -> 3.dp
+                                otherZoneIndex >= 0 -> 3.dp
                                 position in previewCells || position in unreachableSpawns -> 2.5.dp
                                 else -> 1.5.dp
                             },
@@ -1236,6 +1245,7 @@ fun MapEditorView(
                         map = currentMap,
                         zones = tileZones,
                         selectedZoneId = selectedZoneId,
+                        showOtherZones = showOtherZones,
                         isZoneDrawingMode = isZoneDrawingMode,
                         isErasingZoneTiles = isErasingZoneTiles,
                         onZonesChange = {
@@ -1249,6 +1259,13 @@ fun MapEditorView(
                                 isErasingZoneTiles = false
                             }
                         },
+                        onCopyZone = { source ->
+                            val copied = copyTileZone(tileZones, source)
+                            rememberForUndo()
+                            tileZones = tileZones + copied
+                            selectedZoneId = copied.id
+                        },
+                        onShowOtherZonesChange = { showOtherZones = it },
                         onToggleZoneDrawingMode = {
                             isZoneDrawingMode = !isZoneDrawingMode
                             isErasingZoneTiles = false

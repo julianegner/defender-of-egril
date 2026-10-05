@@ -2557,7 +2557,9 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="event_loop_wait_label">Runden warten</string>
     <string name="tile_zones">Kachelzonen</string>
     <string name="tile_zone_add">Zone hinzufügen</string>
+    <string name="tile_zone_copy">Kopieren</string>
     <string name="tile_zone_delete">Löschen</string>
+    <string name="tile_zone_show_other">Andere Zonen anzeigen</string>
     <string name="tile_zone_help">Eine Kachelzone speichert alternative Kacheltypen für Kartenkacheln. Wähle eine Zone und starte das Zonenzeichnen, um sie zu bearbeiten. Der Kacheltyp-Wähler oben bestimmt, was gemalt wird. Beende das Zonenzeichnen, um wieder die Karte normal zu bearbeiten.</string>
     <string name="tile_zone_custom_background_warning">Hinweis: Bei einem selbst hochgeladenen Kartenhintergrund können Änderungen an Kachelzonen nicht automatisch im Stil des Bildes dargestellt werden. Die geänderten Bereiche können sich optisch vom Hintergrund abheben.</string>
     <string name="map_background_storage_info">Der Kartenhintergrund wird als PNG (%1$s) gespeichert; die Kartendaten samt Kachelzonen separat als JSON (%2$s). Für jede Zone wird beim Speichern zusätzlich ein vorgerendertes transparentes PNG neben dem Kartenbild abgelegt. Diese Dateien liegen im App-Speicher (auf dem Desktop unter ~/.defender-of-egril/); im Spiel werden sie nur geladen.</string>

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -34,6 +35,7 @@ import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.map_background_storage_info
 import defender_of_egril.composeapp.generated.resources.tile_zone_add
+import defender_of_egril.composeapp.generated.resources.tile_zone_copy
 import defender_of_egril.composeapp.generated.resources.tile_zone_custom_background_warning
 import defender_of_egril.composeapp.generated.resources.tile_zone_delete
 import defender_of_egril.composeapp.generated.resources.tile_zone_finish_drawing
@@ -43,10 +45,24 @@ import defender_of_egril.composeapp.generated.resources.tile_zone_paint_erase
 import defender_of_egril.composeapp.generated.resources.tile_zone_river_flow_hint
 import defender_of_egril.composeapp.generated.resources.tile_zone_start_drawing
 import defender_of_egril.composeapp.generated.resources.tile_zone_tile_count
+import defender_of_egril.composeapp.generated.resources.tile_zone_show_other
 import defender_of_egril.composeapp.generated.resources.tile_zones
 
 /** Border color that marks tiles belonging to the selected tile zone in the map editor. */
 internal val TILE_ZONE_HIGHLIGHT_COLOR = Color(0xFFE040FB)
+
+/** Distinct colors used to outline non-selected zones when their overlay is enabled. */
+internal val TILE_ZONE_COLORS =
+    listOf(
+        Color(0xFF2196F3),
+        Color(0xFF4CAF50),
+        Color(0xFFFF9800),
+        Color(0xFF00BCD4),
+        Color(0xFFFF5722),
+        Color(0xFF8BC34A),
+    )
+
+internal fun tileZoneColor(index: Int): Color = TILE_ZONE_COLORS[index % TILE_ZONE_COLORS.size]
 
 internal fun mapBackgroundPaths(map: EditorMap): Pair<String, String> {
     val directory = "gamedata/${if (map.isOfficial) "official" else "user"}/maps/${map.id}"
@@ -59,6 +75,15 @@ internal fun createTileZone(existing: List<TileZone>): TileZone {
     var counter = existing.size + 1
     while ("zone_$counter" in ids) counter++
     return TileZone(id = "zone_$counter")
+}
+
+/** Copy a zone's terrain data into a new, independently identified zone. */
+internal fun copyTileZone(
+    existing: List<TileZone>,
+    source: TileZone,
+): TileZone {
+    val newZone = createTileZone(existing)
+    return newZone.copy(tiles = source.tiles.toMap(), riverTiles = source.riverTiles.toMap())
 }
 
 /**
@@ -120,10 +145,13 @@ internal fun TileZonePanel(
     map: EditorMap,
     zones: List<TileZone>,
     selectedZoneId: String?,
+    showOtherZones: Boolean,
     isZoneDrawingMode: Boolean,
     isErasingZoneTiles: Boolean,
     onZonesChange: (List<TileZone>) -> Unit,
     onSelectZone: (String?) -> Unit,
+    onCopyZone: (TileZone) -> Unit,
+    onShowOtherZonesChange: (Boolean) -> Unit,
     onToggleZoneDrawingMode: () -> Unit,
     onToggleEraseZoneTiles: () -> Unit,
     modifier: Modifier = Modifier,
@@ -157,7 +185,17 @@ internal fun TileZonePanel(
                 )
             }
 
-            zones.forEach { zone ->
+            if (zones.size > 1) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().clickable { onShowOtherZonesChange(!showOtherZones) },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(checked = showOtherZones, onCheckedChange = null)
+                    Text(stringResource(Res.string.tile_zone_show_other))
+                }
+            }
+
+            zones.forEachIndexed { index, zone ->
                 val isSelected = zone.id == selectedZoneId
                 Row(
                     modifier =
@@ -165,7 +203,7 @@ internal fun TileZonePanel(
                             .fillMaxWidth()
                             .border(
                                 width = if (isSelected) 2.dp else 1.dp,
-                                color = if (isSelected) TILE_ZONE_HIGHLIGHT_COLOR else MaterialTheme.colorScheme.outlineVariant,
+                                color = if (isSelected) TILE_ZONE_HIGHLIGHT_COLOR else tileZoneColor(index),
                                 shape = RoundedCornerShape(6.dp),
                             ).background(
                                 if (isSelected) TILE_ZONE_HIGHLIGHT_COLOR.copy(alpha = 0.12f) else Color.Transparent,
@@ -182,13 +220,18 @@ internal fun TileZonePanel(
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
-                    OutlinedButton(
-                        onClick = {
-                            onZonesChange(zones.filterNot { it.id == zone.id })
-                            if (isSelected) onSelectZone(null)
-                        },
-                    ) {
-                        Text(stringResource(Res.string.tile_zone_delete))
+                    Row {
+                        OutlinedButton(onClick = { onCopyZone(zone) }) {
+                            Text(stringResource(Res.string.tile_zone_copy))
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                onZonesChange(zones.filterNot { it.id == zone.id })
+                                if (isSelected) onSelectZone(null)
+                            },
+                        ) {
+                            Text(stringResource(Res.string.tile_zone_delete))
+                        }
                     }
                 }
             }

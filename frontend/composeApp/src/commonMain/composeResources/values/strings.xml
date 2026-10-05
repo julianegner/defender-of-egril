@@ -2567,7 +2567,9 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="event_loop_wait_label">Wait turns</string>
     <string name="tile_zones">Tile zones</string>
     <string name="tile_zone_add">Add zone</string>
+    <string name="tile_zone_copy">Copy</string>
     <string name="tile_zone_delete">Delete</string>
+    <string name="tile_zone_show_other">Show other zones</string>
     <string name="tile_zone_help">A tile zone stores alternative tile types for map tiles. Select a zone and start zone drawing to edit it; the tile type selector above chooses what to paint. Finish zone drawing to return to normal map editing.</string>
     <string name="tile_zone_custom_background_warning">Note: With an uploaded map background, tile zone changes cannot automatically match the image's visual style. Changed areas may stand out from the background.</string>
     <string name="map_background_storage_info">The map background is saved as a PNG (%1$s); map data, including tile zones, is saved separately as JSON (%2$s). Each zone also gets a pre-rendered transparent PNG alongside the map image when the map is saved. These files are in app storage (on desktop under ~/.defender-of-egril/); gameplay only loads them.</string>

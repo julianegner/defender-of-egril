@@ -2558,7 +2558,9 @@
     <string name="event_loop_wait_label">Turnos de espera</string>
     <string name="tile_zones">Zonas de casillas</string>
     <string name="tile_zone_add">Añadir zona</string>
+    <string name="tile_zone_copy">Copiar</string>
     <string name="tile_zone_delete">Eliminar</string>
+    <string name="tile_zone_show_other">Mostrar otras zonas</string>
     <string name="tile_zone_help">Una zona guarda tipos de casilla alternativos para el mapa. Selecciona una zona e inicia el dibujo de zona para editarla; el selector de casillas de arriba elige qué pintar. Termina el dibujo de zona para volver a editar el mapa normalmente.</string>
     <string name="tile_zone_custom_background_warning">Nota: con un fondo de mapa subido por el usuario, los cambios de las zonas no pueden adaptarse automáticamente al estilo visual de la imagen. Las áreas modificadas pueden destacar sobre el fondo.</string>
     <string name="map_background_storage_info">El fondo del mapa se guarda como PNG (%1$s); los datos del mapa, incluidas las zonas de casillas, se guardan por separado como JSON (%2$s). Al guardar el mapa también se crea un PNG transparente prerenderizado para cada zona junto a la imagen del mapa. Los archivos están en el almacenamiento de la aplicación (en escritorio, en ~/.defender-of-egril/); durante el juego solo se cargan.</string>
