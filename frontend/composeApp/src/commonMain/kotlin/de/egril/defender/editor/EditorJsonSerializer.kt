@@ -928,7 +928,7 @@ object EditorJsonSerializer {
 
         // Serialize spawn groups (issue #694), one group per line with compact spawn entries.
         val spawnGroupsJson =
-            if (!level.spawnGroups.isNullOrEmpty()) {
+            if (level.spawnGroups != null) {
                 val groupsData =
                     level.spawnGroups.joinToString(",\n    ") { group ->
                         serializeSpawnGroup(group)
@@ -2429,13 +2429,13 @@ object EditorJsonSerializer {
 
     private fun serializeSpawnGroup(group: SpawnGroup): String {
         val parts = mutableListOf<String>()
-        parts.add("\"groupId\": \"${group.groupId}\"")
+        parts.add("\"groupId\": ${EventMapImageJson.quote(group.groupId)}")
         parts.add("\"repeatMode\": \"${group.repeatMode.name}\"")
         if (group.repeatMode == SpawnRepeatMode.COUNT) {
             parts.add("\"repeatCount\": ${group.repeatCount}")
         }
         if (group.condition != null) parts.add("\"condition\": \"${group.condition.name}\"")
-        if (group.targetUnitId != null) parts.add("\"targetUnitId\": \"${group.targetUnitId}\"")
+        if (group.targetUnitId != null) parts.add("\"targetUnitId\": ${EventMapImageJson.quote(group.targetUnitId)}")
         val turnsJson =
             group.turns.joinToString(", ") { turn ->
                 val spawnsJson =
@@ -2447,7 +2447,7 @@ object EditorJsonSerializer {
                         if (spawn.spawnPoint != null) {
                             spawnParts.add("\"spawnPoint\": {\"x\": ${spawn.spawnPoint.x}, \"y\": ${spawn.spawnPoint.y}}")
                         }
-                        if (spawn.unitId != null) spawnParts.add("\"unitId\": \"${spawn.unitId}\"")
+                        if (spawn.unitId != null) spawnParts.add("\"unitId\": ${EventMapImageJson.quote(spawn.unitId)}")
                         if (spawn.firstIterationOnly) spawnParts.add("\"firstIterationOnly\": true")
                         "{${spawnParts.joinToString(", ")}}"
                     }
@@ -2458,77 +2458,187 @@ object EditorJsonSerializer {
     }
 
     private fun parseSpawnGroups(dataJson: String): List<SpawnGroup>? {
-        if (!dataJson.contains("\"spawnGroups\"")) return null
-        val groupsSection = JsonUtils.extractJsonArrayForKey(dataJson, "spawnGroups")
-        if (groupsSection.isBlank()) return null
-        val groupEntries = JsonUtils.splitJsonArray(groupsSection)
+        val arrayKey = Regex("\"spawnGroups\"\\s*:\\s*")
+        val arrayStart = arrayKey.find(dataJson) ?: return null
+        require(dataJson.getOrNull(arrayStart.range.last + 1) == '[') { "spawnGroups must be a JSON array" }
+        val groupsSection = extractSpawnGroupSection(dataJson, arrayStart.range.last + 2, '[', ']')
+        val groupEntries = EventMapImageJson.splitArray(groupsSection)
         val groups = mutableListOf<SpawnGroup>()
+        val groupIds = mutableSetOf<String>()
         for (entry in groupEntries) {
-            if (!entry.contains("groupId")) continue
-            val groupId = JsonUtils.extractStringValue(entry, "groupId")
+            require(entry.startsWith("{") && entry.endsWith("}")) { "Invalid spawn group entry" }
+            val groupId = requiredSpawnGroupString(entry, "groupId")
+            require(groupIds.add(groupId)) { "Duplicate spawn group id '$groupId'" }
             val repeatMode =
-                try {
-                    SpawnRepeatMode.valueOf(JsonUtils.extractStringValue(entry, "repeatMode"))
-                } catch (e: IllegalArgumentException) {
-                    continue
+                requiredSpawnGroupString(entry, "repeatMode").let { value ->
+                    runCatching { SpawnRepeatMode.valueOf(value) }
+                        .getOrElse { throw IllegalArgumentException("Unknown spawn repeat mode '$value'") }
                 }
-            val repeatCount = JsonUtils.extractNumericValue(entry, "repeatCount").toIntOrNull() ?: 1
+            val repeatCount =
+                optionalSpawnGroupInt(entry, "repeatCount", 1)
+                    .also { require(it > 0) { "repeatCount must be positive" } }
             val condition =
-                if (entry.contains("\"condition\"")) {
-                    try {
-                        SpawnCondition.valueOf(JsonUtils.extractStringValue(entry, "condition"))
-                    } catch (e: IllegalArgumentException) {
-                        null
-                    }
-                } else {
-                    null
+                optionalSpawnGroupString(entry, "condition")?.let { value ->
+                    runCatching { SpawnCondition.valueOf(value) }
+                        .getOrElse { throw IllegalArgumentException("Unknown spawn condition '$value'") }
                 }
-            val targetUnitId = JsonUtils.extractStringValue(entry, "targetUnitId").takeIf { it.isNotEmpty() }
-
-            val turnsSection = JsonUtils.extractJsonArrayForKey(entry, "turns")
-            val turns = mutableListOf<SpawnGroupTurn>()
-            if (turnsSection.isNotBlank()) {
-                for (turnEntry in JsonUtils.splitJsonArray(turnsSection)) {
-                    if (!turnEntry.contains("turnOffset")) continue
-                    val turnOffset = JsonUtils.extractNumericValue(turnEntry, "turnOffset").toIntOrNull() ?: continue
-                    val spawnsSection = JsonUtils.extractJsonArrayForKey(turnEntry, "spawns")
-                    val spawns = mutableListOf<SpawnGroupSpawn>()
-                    if (spawnsSection.isNotBlank()) {
-                        for (spawnEntry in JsonUtils.splitJsonArray(spawnsSection)) {
-                            if (!spawnEntry.contains("attackerType")) continue
-                            val attackerType =
-                                try {
-                                    AttackerType.valueOf(JsonUtils.extractStringValue(spawnEntry, "attackerType"))
-                                } catch (e: IllegalArgumentException) {
-                                    continue
-                                }
-                            val count = JsonUtils.extractNumericValue(spawnEntry, "count").toIntOrNull() ?: 1
-                            val level = JsonUtils.extractNumericValue(spawnEntry, "level").toIntOrNull() ?: 1
-                            val spawnPoint =
-                                if (spawnEntry.contains("\"spawnPoint\"")) {
-                                    try {
-                                        val section = JsonUtils.extractJsonObjectForKey(spawnEntry, "spawnPoint")
-                                        val x = JsonUtils.extractNumericValue(section, "x").toInt()
-                                        val y = JsonUtils.extractNumericValue(section, "y").toInt()
-                                        Position(x, y)
-                                    } catch (e: Exception) {
-                                        null
-                                    }
-                                } else {
-                                    null
-                                }
-                            val unitId = JsonUtils.extractStringValue(spawnEntry, "unitId").takeIf { it.isNotEmpty() }
-                            val firstIterationOnly = JsonUtils.extractBooleanValue(spawnEntry, "firstIterationOnly")
-                            spawns.add(SpawnGroupSpawn(attackerType, count, level, spawnPoint, unitId, firstIterationOnly))
-                        }
-                    }
-                    turns.add(SpawnGroupTurn(turnOffset, spawns))
+            val targetUnitId = optionalSpawnGroupString(entry, "targetUnitId")
+            if (repeatMode == SpawnRepeatMode.CONDITION) {
+                require(condition != null && !targetUnitId.isNullOrBlank()) {
+                    "CONDITION spawn groups require a condition and targetUnitId"
                 }
             }
+
+            val turnsSection = requiredSpawnGroupArray(entry, "turns")
+            val turns = mutableListOf<SpawnGroupTurn>()
+            val turnOffsets = mutableSetOf<Int>()
+            for (turnEntry in EventMapImageJson.splitArray(turnsSection)) {
+                require(turnEntry.startsWith("{") && turnEntry.endsWith("}")) { "Invalid spawn group turn" }
+                val turnOffset =
+                    requiredSpawnGroupInt(turnEntry, "turnOffset")
+                        .also {
+                            require(it > 0) { "turnOffset must be positive" }
+                            require(turnOffsets.add(it)) { "Duplicate turnOffset '$it'" }
+                        }
+                val spawnsSection = requiredSpawnGroupArray(turnEntry, "spawns")
+                val spawns = mutableListOf<SpawnGroupSpawn>()
+                for (spawnEntry in EventMapImageJson.splitArray(spawnsSection)) {
+                    require(spawnEntry.startsWith("{") && spawnEntry.endsWith("}")) { "Invalid spawn entry" }
+                    val attackerTypeName = requiredSpawnGroupString(spawnEntry, "attackerType")
+                    val attackerType =
+                        runCatching { AttackerType.valueOf(attackerTypeName) }
+                            .getOrElse { throw IllegalArgumentException("Unknown attacker type '$attackerTypeName'") }
+                    val count = optionalSpawnGroupInt(spawnEntry, "count", 1)
+                    val level = optionalSpawnGroupInt(spawnEntry, "level", 1)
+                    require(count > 0) { "Spawn count must be positive" }
+                    require(level > 0) { "Spawn level must be positive" }
+                    val spawnPoint =
+                        if (hasSpawnGroupKey(spawnEntry, "spawnPoint")) {
+                            val section = requiredSpawnGroupObject(spawnEntry, "spawnPoint")
+                            val x = requiredSpawnGroupInt(section, "x")
+                            val y = requiredSpawnGroupInt(section, "y")
+                            require(x >= 0 && y >= 0) { "Spawn point coordinates must be non-negative" }
+                            Position(x, y)
+                        } else {
+                            null
+                        }
+                    val unitId = optionalSpawnGroupString(spawnEntry, "unitId")
+                    val firstIterationOnly =
+                        if (hasSpawnGroupKey(spawnEntry, "firstIterationOnly")) {
+                            Regex("\"firstIterationOnly\"\\s*:\\s*(true|false)(?=\\s*[,}])")
+                                .find(spawnEntry)
+                                ?.groupValues
+                                ?.get(1)
+                                ?.toBoolean()
+                                ?: throw IllegalArgumentException("firstIterationOnly must be a boolean")
+                        } else {
+                            false
+                        }
+                    spawns.add(SpawnGroupSpawn(attackerType, count, level, spawnPoint, unitId, firstIterationOnly))
+                }
+                turns.add(SpawnGroupTurn(turnOffset, spawns))
+            }
+            require(turns.isNotEmpty()) { "Spawn groups must contain at least one turn" }
             groups.add(SpawnGroup(groupId, repeatMode, repeatCount, condition, targetUnitId, turns))
         }
-        return groups.ifEmpty { null }
+        return groups
     }
+
+    private fun extractSpawnGroupSection(
+        json: String,
+        contentStart: Int,
+        open: Char,
+        close: Char,
+    ): String {
+        var depth = 1
+        var inString = false
+        var escaped = false
+        var index = contentStart
+        while (index < json.length) {
+            val char = json[index]
+            if (inString) {
+                if (escaped) {
+                    escaped = false
+                } else if (char == '\\') {
+                    escaped = true
+                } else if (char == '"') {
+                    inString = false
+                }
+            } else {
+                when (char) {
+                    '"' -> inString = true
+                    open -> depth++
+                    close -> {
+                        depth--
+                        if (depth == 0) return json.substring(contentStart, index)
+                    }
+                }
+            }
+            index++
+        }
+        throw IllegalArgumentException("Unterminated JSON section")
+    }
+
+    private fun requiredSpawnGroupArray(
+        json: String,
+        key: String,
+    ): String {
+        val keyMatch = Regex("\"${Regex.escape(key)}\"\\s*:\\s*\\[").find(json)
+            ?: throw IllegalArgumentException("$key must be a JSON array")
+        return extractSpawnGroupSection(json, keyMatch.range.last + 1, '[', ']')
+    }
+
+    private fun requiredSpawnGroupObject(
+        json: String,
+        key: String,
+    ): String {
+        val keyMatch = Regex("\"${Regex.escape(key)}\"\\s*:\\s*\\{").find(json)
+            ?: throw IllegalArgumentException("$key must be a JSON object")
+        val contentStart = keyMatch.range.last + 1
+        return extractSpawnGroupSection(json, contentStart, '{', '}')
+    }
+
+    private fun requiredSpawnGroupString(
+        json: String,
+        key: String,
+    ): String =
+        optionalSpawnGroupString(json, key)
+            ?.takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException("$key must be a non-blank string")
+
+    private fun optionalSpawnGroupString(
+        json: String,
+        key: String,
+    ): String? {
+        if (!hasSpawnGroupKey(json, key)) return null
+        return EventMapImageJson.stringValue(json, key)
+            ?.takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException("$key must be a non-blank string")
+    }
+
+    private fun requiredSpawnGroupInt(
+        json: String,
+        key: String,
+    ): Int =
+        JsonUtils.extractNumericValue(json, key)
+            .toIntOrNull()
+            ?: throw IllegalArgumentException("$key must be an integer")
+
+    private fun optionalSpawnGroupInt(
+        json: String,
+        key: String,
+        default: Int,
+    ): Int =
+        if (hasSpawnGroupKey(json, key)) {
+            requiredSpawnGroupInt(json, key)
+        } else {
+            default
+        }
+
+    private fun hasSpawnGroupKey(
+        json: String,
+        key: String,
+    ): Boolean = Regex("\"${Regex.escape(key)}\"\\s*:").containsMatchIn(json)
 
     private fun serializeActions(actions: List<EventAction>): String =
         actions.joinToString(", ") { action ->

@@ -607,8 +607,7 @@ data class EditorLevel(
      * Checks if this level is ready to play (level-specific checks only).
      * A level is ready if:
      * - It has at least one available tower
-     * - It has at least one enemy spawn configured, unless it is a sandbox level
-     *   (each EditorEnemySpawn represents one enemy unit)
+     * - It has at least one enemy spawn configured through a flat plan or spawn group, unless it is a sandbox level
      * - Start coins are greater than zero
      * - Start health points are greater than zero
      *
@@ -618,9 +617,40 @@ data class EditorLevel(
      */
     fun isReadyToPlay(): Boolean =
         hasTowerSelectionOptions() &&
-            (isSandbox || enemySpawns.isNotEmpty()) &&
+            (isSandbox || hasConfiguredSpawns()) &&
             startCoins > 0 &&
             startHealthPoints > 0
+
+    fun hasConfiguredSpawns(): Boolean =
+        if (spawnGroups != null) {
+            spawnGroups.any { group -> group.turns.any { turn -> turn.spawns.any { it.count > 0 } } }
+        } else {
+            enemySpawns.isNotEmpty()
+        }
+
+    fun configuredSpawnCount(): Long =
+        if (spawnGroups == null) {
+            enemySpawns.size.toLong()
+        } else {
+            spawnGroups
+                .flatMap { group -> group.turns }
+                .flatMap { turn -> turn.spawns }
+                .sumOf { it.count.coerceAtLeast(0).toLong() }
+        }
+
+    fun configuredSpawnEntries(): List<EditorEnemySpawn> =
+        spawnGroups?.flatMap { group ->
+            group.turns.flatMap { turn ->
+                turn.spawns.map { spawn ->
+                    EditorEnemySpawn(
+                        attackerType = spawn.attackerType,
+                        level = spawn.level,
+                        spawnTurn = turn.turnOffset,
+                        spawnPoint = spawn.spawnPoint,
+                    )
+                }
+            }
+        } ?: enemySpawns
 
     /**
      * Returns true when the level has at least one tower choice or enough initial setup to
@@ -809,14 +839,19 @@ data class EditorLevel(
     }
 
     fun toLevelInfoEnemiesLevelData(index: Int): LevelInfoEnemiesLevelData {
-        val enemyCountMap: Map<AttackerType, Int> = mutableMapOf()
-
-        enemySpawns
-            .groupingBy { it.attackerType }
-            .eachCount()
-            .entries
-            .forEach { (attackerType, count) ->
-                (enemyCountMap as MutableMap)[attackerType] = count
+            val enemyCountMap = mutableMapOf<AttackerType, Int>()
+            if (spawnGroups == null) {
+                enemySpawns.groupingBy { it.attackerType }.eachCount().forEach { (attackerType, count) ->
+                    enemyCountMap[attackerType] = count
+                }
+            } else {
+                spawnGroups
+                    .flatMap { it.turns }
+                    .flatMap { it.spawns }
+                    .forEach { spawn ->
+                        enemyCountMap[spawn.attackerType] =
+                            (enemyCountMap[spawn.attackerType] ?: 0) + spawn.count.coerceAtLeast(0)
+                    }
             }
 
         return LevelInfoEnemiesLevelData(

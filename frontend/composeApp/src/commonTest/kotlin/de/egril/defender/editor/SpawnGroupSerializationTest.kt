@@ -112,4 +112,107 @@ class SpawnGroupSerializationTest {
         assertNull(restored.spawnGroups)
         assertEquals(1, restored.enemySpawns.size)
     }
+
+    @Test
+    fun groupOnlyLevelsAreReadyAndReportConfiguredSpawnCount() {
+        val level =
+            baseLevel(
+                listOf(
+                    SpawnGroup(
+                        groupId = "wave",
+                        repeatMode = SpawnRepeatMode.COUNT,
+                        repeatCount = 3,
+                        turns =
+                            listOf(
+                                SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN, count = 2))),
+                                SpawnGroupTurn(2, listOf(SpawnGroupSpawn(AttackerType.ORK))),
+                            ),
+                    ),
+                ),
+            ).copy(enemySpawns = emptyList())
+
+        assertTrue(level.hasConfiguredSpawns())
+        assertTrue(level.isReadyToPlay())
+        assertEquals(3L, level.configuredSpawnCount())
+        assertEquals(2, level.toLevelInfoEnemiesLevelData(0).enemyTypeCounts[AttackerType.GOBLIN])
+    }
+
+    @Test
+    fun emptySpawnGroupsArePreservedAndOverrideFlatSpawns() {
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(groups = emptyList()))
+
+        assertTrue(json.contains("\"spawnGroups\": ["))
+        val restored = EditorJsonSerializer.deserializeLevel(json)
+
+        assertNotNull(restored)
+        assertEquals(emptyList(), restored.spawnGroups)
+        assertFalse(restored.hasConfiguredSpawns())
+        assertEquals(0L, restored.configuredSpawnCount())
+    }
+
+    @Test
+    fun spawnGroupIdentifiersRoundTripEscapedJsonCharacters() {
+        val unitId = "boss\\phase\"one"
+        val groups =
+            listOf(
+                SpawnGroup(
+                    groupId = "phase\\\"one",
+                    repeatMode = SpawnRepeatMode.CONDITION,
+                    condition = SpawnCondition.UNIT_ALIVE,
+                    targetUnitId = unitId,
+                    turns =
+                        listOf(
+                            SpawnGroupTurn(
+                                1,
+                                listOf(
+                                    SpawnGroupSpawn(
+                                        AttackerType.EWHAD,
+                                        unitId = unitId,
+                                        firstIterationOnly = true,
+                                    ),
+                                ),
+                            ),
+                        ),
+                ),
+            )
+
+        val restored = EditorJsonSerializer.deserializeLevel(EditorJsonSerializer.serializeLevel(baseLevel(groups)))
+
+        assertNotNull(restored)
+        assertEquals(groups, restored.spawnGroups)
+    }
+
+    @Test
+    fun malformedSpawnGroupBoundariesRejectTheLevel() {
+        val invalidGroups =
+            listOf(
+                SpawnGroup(
+                    groupId = "zero-repeat",
+                    repeatMode = SpawnRepeatMode.COUNT,
+                    repeatCount = 0,
+                    turns = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))),
+                ),
+                SpawnGroup(
+                    groupId = "zero-offset",
+                    repeatMode = SpawnRepeatMode.COUNT,
+                    turns = listOf(SpawnGroupTurn(0, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))),
+                ),
+                SpawnGroup(
+                    groupId = "zero-count",
+                    repeatMode = SpawnRepeatMode.COUNT,
+                    turns = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN, count = 0)))),
+                ),
+                SpawnGroup(
+                    groupId = "condition-without-target",
+                    repeatMode = SpawnRepeatMode.CONDITION,
+                    condition = SpawnCondition.UNIT_ALIVE,
+                    turns = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))),
+                ),
+            )
+
+        invalidGroups.forEach { group ->
+            val json = EditorJsonSerializer.serializeLevel(baseLevel(listOf(group)))
+            assertNull(EditorJsonSerializer.deserializeLevel(json), group.groupId)
+        }
+    }
 }

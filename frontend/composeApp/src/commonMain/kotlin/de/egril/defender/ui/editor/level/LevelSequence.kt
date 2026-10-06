@@ -539,8 +539,9 @@ fun LevelTreeCard(
     modifier: Modifier = Modifier,
 ) {
     val isReady = EditorStorage.isLevelReadyToPlay(level)
-    val villainTypes = remember(level.enemySpawns) { level.enemySpawns.presentVillainTypes() }
-    val villainSummary = remember(level.enemySpawns) { level.enemySpawns.presentVillainSummary { it.villainName ?: it.displayName } }
+    val spawnEntries = remember(level.enemySpawns, level.spawnGroups) { level.configuredSpawnEntries() }
+    val villainTypes = remember(spawnEntries) { spawnEntries.presentVillainTypes() }
+    val villainSummary = remember(spawnEntries) { spawnEntries.presentVillainSummary { it.villainName ?: it.displayName } }
 
     Card(
         modifier = modifier.clickable { onClick() },
@@ -593,7 +594,7 @@ fun LevelTreeCard(
 
                 // Stats
                 Text(
-                    text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
+                    text = "${stringResource(Res.string.enemies)}: ${level.configuredSpawnCount()}",
                     style = MaterialTheme.typography.bodySmall,
                 )
                 if (villainSummary.isNotEmpty()) {

@@ -327,12 +327,13 @@ private fun LevelCard(
 ) {
     // Check if any enemies are spawned outside valid spawn points
     val map = remember(level.mapId) { EditorStorage.getMap(level.mapId) }
-    val villainTypes = remember(level.enemySpawns) { level.enemySpawns.presentVillainTypes() }
-    val villainSummary = remember(level.enemySpawns) { level.enemySpawns.presentVillainSummary { it.villainName ?: it.displayName } }
+    val spawnEntries = remember(level.enemySpawns, level.spawnGroups) { level.configuredSpawnEntries() }
+    val villainTypes = remember(spawnEntries) { spawnEntries.presentVillainTypes() }
+    val villainSummary = remember(spawnEntries) { spawnEntries.presentVillainSummary { it.villainName ?: it.displayName } }
     val hasEnemiesOutsideSpawnPoints =
-        remember(level.enemySpawns, map) {
+        remember(spawnEntries, map) {
             val mapSpawnPoints = map?.getSpawnPoints()?.toSet() ?: emptySet()
-            level.enemySpawns.any { spawn ->
+            spawnEntries.any { spawn ->
                 spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
             }
         }
@@ -396,7 +397,7 @@ private fun LevelCard(
                         style = MaterialTheme.typography.bodySmall,
                     )
                     Text(
-                        text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
+                        text = "${stringResource(Res.string.enemies)}: ${level.configuredSpawnCount()}",
                         style = MaterialTheme.typography.bodySmall,
                     )
                     if (villainSummary.isNotEmpty()) {
@@ -649,9 +650,13 @@ internal fun LevelEditorView(
 
     // Check if any enemies are spawned outside valid spawn points
     val mapSpawnPoints = remember(currentMap) { currentMap?.getSpawnPoints()?.toSet() ?: emptySet() }
+    val configuredSpawnEntries =
+        remember(enemySpawns, level.spawnGroups) {
+            level.copy(enemySpawns = enemySpawns).configuredSpawnEntries()
+        }
     val hasEnemiesOutsideSpawnPoints =
-        remember(enemySpawns, mapSpawnPoints) {
-            enemySpawns.any { spawn ->
+        remember(enemySpawns, level.spawnGroups, mapSpawnPoints) {
+            configuredSpawnEntries.any { spawn ->
                 spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
             }
         }
@@ -660,7 +665,7 @@ internal fun LevelEditorView(
     val coinsInt = startCoins.toIntOrNull() ?: 0
     val hpInt = startHP.toIntOrNull() ?: 0
     val isLevelInfoReady = coinsInt > 0 && hpInt > 0
-    val isEnemySpawnsReady = isSandbox || enemySpawns.isNotEmpty()
+    val isEnemySpawnsReady = isSandbox || level.copy(enemySpawns = enemySpawns).hasConfiguredSpawns()
     val hasInitialSetupTowerSupport = supportsState.isNotEmpty() || initialDataState.defenders.isNotEmpty()
     val hasInitialTowerBases = initialDataState.barricades.any { it.supportsTower }
     val mapNeedsNoBuildFallback = currentMap?.allowNoBuildableTiles == true && !currentMap.hasBuildablePlacementTiles()
@@ -969,7 +974,7 @@ internal fun LevelEditorView(
                             onSave(draftLevel)
                             onStartPlaytest(createFocusedPlaytestLevel(draftLevel, levelDesignSummary, type), type)
                         },
-                        playtestEnabled = currentMap != null && (isSandbox || enemySpawns.isNotEmpty()),
+                        playtestEnabled = currentMap != null && (isSandbox || draftLevel.hasConfiguredSpawns()),
                         onOpenEnemySpawnTurn = { turn ->
                             requestedEnemySpawnTurn = turn
                             enemySpawnTurnRequestNonce++
