@@ -29,6 +29,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.WorldMapData
 import de.egril.defender.editor.WorldMapLocationData
+import de.egril.defender.editor.WorldMapPoint
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
 import de.egril.defender.ui.a11y.a11ySemantics
@@ -682,6 +683,9 @@ private fun BoxScope.LocationMarkersOverlay(
 private fun generateWorldMapLocationsAndRoads(worldLevels: List<WorldLevel>): Pair<List<WorldMapLocation>, List<WorldMapRoad>> {
     if (worldLevels.isEmpty()) return emptyList<WorldMapLocation>() to emptyList()
 
+    val sandboxLevelIds = worldLevels.filter { it.level.isSandbox }.mapNotNull { it.level.editorLevelId }.toSet()
+    val regularWorldLevels = worldLevels.filterNot { it.level.isSandbox }
+
     // Get all editor levels for prerequisite info
     val editorLevels = EditorStorage.getAllLevels().associateBy { it.id }
     val allMaps = EditorStorage.getAllMaps()
@@ -689,13 +693,48 @@ private fun generateWorldMapLocationsAndRoads(worldLevels: List<WorldLevel>): Pa
     // Try to use WorldMapData first
     val worldMapData = EditorStorage.getWorldMapData()
 
-    if (worldMapData.locations.isNotEmpty()) {
-        // Use locations from worldmap.json
-        return generateFromWorldMapData(worldMapData, worldLevels, editorLevels, allMaps)
-    }
+    val (locations, roads) =
+        if (regularWorldLevels.isEmpty()) {
+            emptyList<WorldMapLocation>() to emptyList()
+        } else if (worldMapData.locations.isNotEmpty()) {
+            // Use locations from worldmap.json
+            generateFromWorldMapData(worldMapData, regularWorldLevels, editorLevels, allMaps)
+        } else {
+            // Fall back to auto-generation
+            generateAutoLocationsAndRoads(regularWorldLevels, editorLevels, allMaps)
+        }
 
-    // Fall back to auto-generation
-    return generateAutoLocationsAndRoads(worldLevels, editorLevels, allMaps)
+    val regularLocations =
+        locations.map { location ->
+            location.copy(levelIds = location.levelIds.filterNot { it in sandboxLevelIds })
+        }
+    val sandboxLocation = createSandboxWorldMapLocation(worldLevels)
+
+    return (regularLocations + listOfNotNull(sandboxLocation)) to roads
+}
+
+internal fun createSandboxWorldMapLocation(worldLevels: List<WorldLevel>): WorldMapLocation? {
+    val levelIds = worldLevels.filter { it.level.isSandbox }.mapNotNull { it.level.editorLevelId }
+    if (levelIds.isEmpty()) return null
+
+    val locationData =
+        WorldMapLocationData(
+            id = "sandbox_levels",
+            name = "Sandbox",
+            nameKey = "sandbox",
+            position = WorldMapPoint(930, 920),
+            levelIds = levelIds,
+            iconResourceName = "sandbox",
+        )
+    val (x, y) = locationData.position.toNormalized()
+    return WorldMapLocation(
+        id = locationData.id,
+        x = x,
+        y = y,
+        levelIds = locationData.levelIds,
+        name = locationData.name,
+        locationData = locationData,
+    )
 }
 
 /**
