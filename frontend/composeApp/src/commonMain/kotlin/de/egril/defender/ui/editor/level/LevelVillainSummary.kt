@@ -21,7 +21,10 @@ internal fun List<EditorEnemySpawn>.presentVillainSummary(nameProvider: (Attacke
 
 internal fun List<EditorLevel>.levelsUsingVillain(villainType: AttackerType): List<EditorLevel> = filter { level -> villainType in level.enemySpawns.presentVillainTypes() }
 
-internal fun villainUsageEntries(levels: List<EditorLevel>): List<VillainUsageEntry> =
+internal fun villainUsageEntries(
+    levels: List<EditorLevel>,
+    onlyUnusedVillains: Boolean = false,
+): List<VillainUsageEntry> =
     AttackerType.entries
         .filter { it.isRealVillain }
         .map { villainType ->
@@ -30,3 +33,4 @@ internal fun villainUsageEntries(levels: List<EditorLevel>): List<VillainUsageEn
                 levels = levels.levelsUsingVillain(villainType),
             )
         }
+        .filter { entry -> !onlyUnusedVillains || entry.levels.isEmpty() }

@@ -979,6 +979,7 @@
     <string name="used_in_levels">Verwendet in Leveln</string>
     <string name="back_to_levels">Zurück zu den Leveln</string>
     <string name="not_used_in_any_level">In keinem Level verwendet</string>
+    <string name="only_show_unused_villains">Nur ungenutzte Schurken anzeigen</string>
 
     <!-- World Map Locations -->
     <string name="levels_at_location">%s Level an diesem Ort</string>

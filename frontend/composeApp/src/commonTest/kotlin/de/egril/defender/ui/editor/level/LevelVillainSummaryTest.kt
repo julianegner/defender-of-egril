@@ -4,6 +4,7 @@ import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.isRealVillain
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -82,6 +83,26 @@ class LevelVillainSummaryTest {
 
         assertEquals(listOf("ewhad_level"), entries.first { it.villainType == AttackerType.EWHAD }.levels.map { it.id })
         assertEquals(emptyList(), entries.first { it.villainType == AttackerType.THE_KRAKEN }.levels)
+    }
+
+    @Test
+    fun villainUsageEntriesCanFilterToUnusedVillains() {
+        val levels =
+            listOf(
+                testLevel(
+                    id = "ewhad_level",
+                    title = "Ewhad Level",
+                    spawns = listOf(EditorEnemySpawn(attackerType = AttackerType.EWHAD, spawnTurn = 1)),
+                ),
+            )
+
+        val entries = villainUsageEntries(levels, onlyUnusedVillains = true)
+
+        assertEquals(
+            AttackerType.entries.filter { it.isRealVillain && it != AttackerType.EWHAD },
+            entries.map { it.villainType },
+        )
+        assertEquals(true, entries.all { it.levels.isEmpty() })
     }
 
     private fun testLevel(

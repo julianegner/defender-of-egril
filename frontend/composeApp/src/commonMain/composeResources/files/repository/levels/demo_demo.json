@@ -54,6 +54,7 @@
     "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER"],
     "waypoints": [],
     "prerequisites": [],
+    "testingOnly": true,
     "allowAutoAttack": true,
     "isOfficial": true,
     "author": "Julian Egner",

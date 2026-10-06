@@ -979,6 +979,7 @@
     <string name="used_in_levels">Usato nei livelli</string>
     <string name="back_to_levels">Torna ai livelli</string>
     <string name="not_used_in_any_level">Non usato in alcun livello</string>
+    <string name="only_show_unused_villains">Mostra solo i cattivi non utilizzati</string>
 
     <!-- World Map Locations -->
     <string name="levels_at_location">%s livello/i in questa posizione</string>
