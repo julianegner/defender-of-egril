@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.egril.defender.game.isProtectedByObsidianProtector
 import de.egril.defender.game.isShieldWallAttackBlocked
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.Defender
@@ -58,7 +59,8 @@ fun enemyAttackPreview(
 ): EnemyAttackPreview {
     val isImmune =
         attacker.isImmuneToAttackFrom(defender.type) ||
-            (gameState?.isShieldWallAttackBlocked(defender, attacker) == true)
+            (gameState?.isShieldWallAttackBlocked(defender, attacker) == true) ||
+            (gameState?.isProtectedByObsidianProtector(attacker) == true)
     val damage = defender.previewAttackDamage(hasDoubleLevelBuff)
     return EnemyAttackPreview(
         damage = damage,
