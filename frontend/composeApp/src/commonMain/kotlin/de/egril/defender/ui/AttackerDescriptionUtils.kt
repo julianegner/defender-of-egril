@@ -34,6 +34,7 @@ import defender_of_egril.composeapp.generated.resources.villain_kraken_descripti
 import defender_of_egril.composeapp.generated.resources.villain_malakor_description
 import defender_of_egril.composeapp.generated.resources.villain_morguk_description
 import defender_of_egril.composeapp.generated.resources.villain_morvath_description
+import defender_of_egril.composeapp.generated.resources.villain_obsidian_protector_description
 import defender_of_egril.composeapp.generated.resources.villain_ratterzahn_description
 import defender_of_egril.composeapp.generated.resources.villain_roderich_description
 import defender_of_egril.composeapp.generated.resources.villain_silas_description
@@ -76,6 +77,7 @@ fun AttackerType.getLocalizedDescription(): String {
             AttackerType.ARAXXA -> Res.string.villain_araxxa_description
             AttackerType.BARON_RATTERZAHN -> Res.string.villain_ratterzahn_description
             AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> Res.string.villain_freya_description
+            AttackerType.OBSIDIAN_PROTECTOR -> Res.string.villain_obsidian_protector_description
             AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> Res.string.villain_valerius_description
             AttackerType.SILAS_THE_MASKMASTER,
             AttackerType.SILAS_MIRROR_IMAGE,

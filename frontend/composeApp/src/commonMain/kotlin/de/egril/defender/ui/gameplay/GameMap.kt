@@ -44,6 +44,8 @@ import de.egril.defender.game.EnemyMovementSystem
 import de.egril.defender.game.FreyaShieldWallArc
 import de.egril.defender.game.PathfindingSystem
 import de.egril.defender.game.freyaShieldWallArcs
+import de.egril.defender.game.isProtectedByObsidianProtector
+import de.egril.defender.game.obsidianProtectorAuraPositions
 import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
@@ -910,6 +912,7 @@ fun GameGrid(
     val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
     val selectedDefenderActions = selectedDefender?.actionsRemaining?.value
     val freyaShieldWallArcs = gameState.freyaShieldWallArcs()
+    val obsidianProtectorAuraPositions = gameState.obsidianProtectorAuraPositions()
 
     val selectedEnemyPathPositions: Set<Position> by remember(
         selectedAttackerId,
@@ -1896,6 +1899,7 @@ fun GameGrid(
                         selectedTargetId != null &&
                             activeAttackersByPosition[position]?.id == selectedTargetId,
                     isInSelectedEnemyPath = selectedEnemyPathPositions.contains(position),
+                    isInObsidianProtectorAura = position in obsidianProtectorAuraPositions,
                     selectedDefenderId = selectedDefenderId,
                     selectedMineAction = selectedMineAction,
                     selectedWizardAction = selectedWizardAction,
@@ -2096,6 +2100,7 @@ fun GridCell(
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     isInSelectedEnemyPath: Boolean = false,
+    isInObsidianProtectorAura: Boolean = false,
     selectedDefenderId: Int?,
     selectedMineAction: MineAction?,
     selectedWizardAction: WizardAction? = null,
@@ -2354,7 +2359,7 @@ fun GridCell(
                     gameState.activeSpellEffects.any {
                         it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == sel.id
                     }
-                enemyAttackPreview(attacker, sel, hasDoubleLevelBuff)
+                enemyAttackPreview(attacker, sel, hasDoubleLevelBuff, gameState)
             }
         }
 
@@ -2542,6 +2547,7 @@ fun GridCell(
             isKeyboardPlacementCursor -> Color(0xFF00E5FF).copy(alpha = 0.45f)
             isInSelectedEnemyPath -> Color(0xFF00E5FF).copy(alpha = 0.28f)
             attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f) // Turquoise background for frozen/cooled-to-zero enemies
+            isInObsidianProtectorAura -> Color(0xFF6D3B91).copy(alpha = 0.34f)
             attacker != null && enemyBgSuppressed -> if (useTransparentBackground) Color.Transparent else baseBackgroundColor
             attacker != null ->
                 if (AppSettings.showUnitTowerBackground.value) {
@@ -3161,6 +3167,7 @@ private fun BoxScope.GridCellContent(
                         healthOverride = displayedHealth,
                         showWaaghGlow = gameState.waaghFrenzyActive.value && attacker.type in setOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.SNOTLING),
                         showSeafaringPirateBarge = shouldShowSeafaringPirateBarge(attacker.type, isRiverTile),
+                        protectedByObsidianAura = gameState.isProtectedByObsidianProtector(attacker),
                     )
                     if (isDangerous) {
                         Text(

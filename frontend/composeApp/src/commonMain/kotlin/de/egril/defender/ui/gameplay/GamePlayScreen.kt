@@ -23,6 +23,7 @@ import androidx.compose.ui.zIndex
 import com.hyperether.resources.stringResource
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
+import de.egril.defender.game.canManuallyTargetAttacker
 import de.egril.defender.model.*
 import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.ReminderMessage
@@ -1984,7 +1985,11 @@ private fun GamePlayScreenContent(
                                 // Check if there's an attacker at this position (only if no defender is being placed)
                                 val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                 val positionInShadowFog = gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == position }
-                                if (attacker != null && selectedDefenderId == null && !positionInShadowFog) {
+                                if (attacker != null &&
+                                    selectedDefenderId == null &&
+                                    !positionInShadowFog &&
+                                    gameState.canManuallyTargetAttacker(attacker)
+                                ) {
                                     if (previousSelectedAttackerId == attacker.id) {
                                         // Deselect if clicking the same attacker
                                         selectedAttackerId = null
@@ -2121,7 +2126,15 @@ private fun GamePlayScreenContent(
                                                 // Set targetId only if there's a visible enemy (not hidden in shadow fog)
                                                 val hasFog = gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == position }
                                                 val enemyAtPosition =
-                                                    if (hasFog) null else gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                                                    if (hasFog) {
+                                                        null
+                                                    } else {
+                                                        gameState.attackers.find {
+                                                            it.position.value == position &&
+                                                                !it.isDefeated.value &&
+                                                                gameState.canManuallyTargetAttacker(it)
+                                                        }
+                                                    }
                                                 selectedTargetId = enemyAtPosition?.id
                                             }
                                         } else {
@@ -2134,7 +2147,10 @@ private fun GamePlayScreenContent(
                                                 gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == position }
 
                                             if (distance >= selectedDefender.type.minRange && distance <= effectiveRange) {
-                                                if (attackerForTargeting != null && !hasShadowFog) {
+                                                if (attackerForTargeting != null &&
+                                                    !hasShadowFog &&
+                                                    gameState.canManuallyTargetAttacker(attackerForTargeting)
+                                                ) {
                                                     selectedTargetId = attackerForTargeting.id
                                                     selectedTargetPosition = position // to be able to show the 3 circles to highlight the target
                                                 } else if (bridgeAtPosition != null && bridgeAtPosition.isActive) {
@@ -3397,6 +3413,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.FALLEN_SHIELDMAIDEN_FREYA.name ->
                                             stringResource(Res.string.villain_freya_title) to
                                                 (stringResource(Res.string.villain_freya_backstory) + "\n" + stringResource(Res.string.villain_freya_description))
+                                        AttackerType.OBSIDIAN_PROTECTOR.name ->
+                                            stringResource(Res.string.villain_obsidian_protector_title) to
+                                                (stringResource(Res.string.villain_obsidian_protector_backstory) + "\n" + stringResource(Res.string.villain_obsidian_protector_description))
                                         AttackerType.PRINCE_VALERIUS_THE_SOULREAPER.name ->
                                             stringResource(Res.string.villain_valerius_title) to
                                                 (stringResource(Res.string.villain_valerius_backstory) + "\n" + stringResource(Res.string.villain_valerius_description))
@@ -3922,6 +3941,7 @@ internal fun villainMessageButtonColor(name: String?): Color? {
         AttackerType.SILAS_MIRROR_IMAGE -> Color(0xFF5D3A8C)
         // Undead shieldmaiden – dark armor blue
         AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> Color(0xFF2A2F3A)
+        AttackerType.OBSIDIAN_PROTECTOR -> Color(0xFF30144D)
         // Undead prince – soul-reaper purple
         AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> Color(0xFF28304D)
         // Witch coven leader – magical purple

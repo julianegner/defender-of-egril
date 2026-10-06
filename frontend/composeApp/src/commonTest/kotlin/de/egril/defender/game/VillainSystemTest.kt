@@ -52,6 +52,17 @@ class VillainSystemTest {
     }
 
     @Test
+    fun obsidianProtectorIsAConfiguredVillain() {
+        val type = AttackerType.OBSIDIAN_PROTECTOR
+        assertTrue(type.isVillain)
+        assertTrue(type.hidesHealthBar)
+        assertTrue(type.isBoss)
+        assertEquals(1, type.speed)
+        assertEquals("Obsidian Protector", type.villainName)
+        assertTrue(type.useLightNarrativeText)
+    }
+
+    @Test
     fun ewhadIsAVillainWithLanguageIndependentName() {
         val type = AttackerType.EWHAD
         assertTrue(type.isVillain, "Ewhad should be a villain")

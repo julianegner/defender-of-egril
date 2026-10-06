@@ -131,4 +131,34 @@ class AttackDamagePreviewTest {
         assertTrue(preview.isImmune, "Frontal attacks blocked by Freya's Shield Wall should preview as immune")
         assertFalse(preview.isLethal)
     }
+
+    @Test
+    fun previewMarksObsidianProtectedUnitsAsImmune() {
+        val level =
+            Level(
+                id = 1,
+                name = "Preview Test",
+                gridWidth = 10,
+                gridHeight = 6,
+                startPositions = listOf(Position(0, 3)),
+                targetPositions = listOf(Position(9, 3)),
+                pathCells = (0..9).map { Position(it, 3) }.toSet(),
+                attackerWaves = emptyList(),
+                initialCoins = 100,
+                healthPoints = 10,
+            )
+        val state = GameState(level)
+        val protector = Attacker(1, AttackerType.OBSIDIAN_PROTECTOR, mutableStateOf(Position(4, 3)), mutableStateOf(1))
+        val protectedGoblin = Attacker(2, AttackerType.GOBLIN, mutableStateOf(Position(5, 3)), mutableStateOf(1))
+        val wizard = Defender(1, DefenderType.WIZARD_TOWER, mutableStateOf(Position(3, 3)), mutableStateOf(1))
+        state.attackers.addAll(listOf(protector, protectedGoblin))
+        state.defenders.add(wizard)
+
+        val preview = enemyAttackPreview(protectedGoblin, wizard, hasDoubleLevelBuff = false, gameState = state)
+        val protectorPreview = enemyAttackPreview(protector, wizard, hasDoubleLevelBuff = false, gameState = state)
+
+        assertTrue(preview.isImmune, "Protected units should show the shield instead of the damage preview")
+        assertFalse(preview.isLethal)
+        assertFalse(protectorPreview.isImmune, "The Obsidian Protector itself remains vulnerable")
+    }
 }

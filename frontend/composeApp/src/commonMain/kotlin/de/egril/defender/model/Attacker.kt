@@ -358,6 +358,17 @@ enum class AttackerType(
         villainName = "Freya",
         shieldWallFormationWidth = 3,
     ),
+    OBSIDIAN_PROTECTOR(
+        "Obsidian Protector",
+        health = 600,
+        speed = 1,
+        reward = 250,
+        xp = 100,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Obsidian Protector",
+        useLightNarrativeText = true,
+    ),
     PRINCE_VALERIUS_THE_SOULREAPER(
         "Prince Valerius the Soulreaper",
         health = 180,

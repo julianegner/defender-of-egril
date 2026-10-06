@@ -50,6 +50,7 @@ internal fun VillainUsagePage(
     onBack: () -> Unit,
 ) {
     var showTestingLevels by remember { mutableStateOf(AppSettings.showTestingLevels.value) }
+    var onlyUnusedVillains by remember { mutableStateOf(false) }
     val visibleLevels =
         remember(levels, showTestingLevels) {
             if (showTestingLevels) {
@@ -58,7 +59,9 @@ internal fun VillainUsagePage(
                 levels.filterNot { it.testingOnly }
             }
         }
-    val usageEntries = remember(visibleLevels) { villainUsageEntries(visibleLevels) }
+    val usageEntries = remember(visibleLevels, onlyUnusedVillains) {
+        villainUsageEntries(visibleLevels, onlyUnusedVillains)
+    }
     val locale = currentLanguage.value
 
     Column(
@@ -88,6 +91,14 @@ internal fun VillainUsagePage(
                         showTestingLevels = it
                         AppSettings.showTestingLevels.value = it
                     },
+                )
+                Text(
+                    text = stringResource(Res.string.only_show_unused_villains),
+                    style = MaterialTheme.typography.labelMedium,
+                )
+                Switch(
+                    checked = onlyUnusedVillains,
+                    onCheckedChange = { onlyUnusedVillains = it },
                 )
             }
             Button(onClick = onBack) {

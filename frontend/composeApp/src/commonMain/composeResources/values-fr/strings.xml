@@ -276,6 +276,7 @@
     <string name="undead_dragon_name">Dragon mort-vivant</string>
     <string name="baron_ratterzahn_name">Baron Ratterzahn</string>
     <string name="fallen_shieldmaiden_freya_name">Freya la Porte-bouclier Déchue</string>
+    <string name="obsidian_protector_name">Protecteur d&apos;Obsidienne</string>
     <string name="prince_valerius_the_soulreaper_name">Prince Valerius le Faucheur d&apos;Âmes</string>
     <string name="grand_coven_mother_sybilla_name">Grande Mère du Coven Sybilla</string>
     <string name="haga_name">Haga</string>
@@ -978,6 +979,7 @@
     <string name="used_in_levels">Utilisé dans les niveaux</string>
     <string name="back_to_levels">Retour aux niveaux</string>
     <string name="not_used_in_any_level">Utilisé dans aucun niveau</string>
+    <string name="only_show_unused_villains">Afficher uniquement les méchants inutilisés</string>
 
     <!-- World Map Locations -->
     <string name="levels_at_location">%s niveau(x) à cet emplacement</string>
@@ -1916,6 +1918,9 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_freya_title">Freya la Porte-bouclier Déchue entre sur le champ de bataille</string>
     <string name="villain_freya_backstory">Autrefois héroïque porte-bouclier, Freya est tombée au combat avant de se relever en chevalier de la mort implacable drapée d'acier noir et de magie funéraire.</string>
     <string name="villain_freya_description">Son Mur de Boucliers bloque toutes les attaques frontales non tirées par une baliste pour sa propre case et pour les cases à sa gauche et à sa droite pendant qu'elle avance. Attaquez-la de côté ou de dos, ou tirez au-dessus du bouclier avec une Ballista, avant que la championne morte-vivante n'écrase votre ligne.</string>
+    <string name="villain_obsidian_protector_title">Le Protecteur d&apos;Obsidienne entre sur le champ de bataille</string>
+    <string name="villain_obsidian_protector_backstory">Un immense monolithe d&apos;obsidienne noire flotte au-dessus d&apos;un cercle de runes ardentes et protège les créatures qui avancent dans son ombre.</string>
+    <string name="villain_obsidian_protector_description">Son aura protège de toute attaque les ennemis proches dans un rayon de deux cases hexagonales et les rend impossibles à cibler. Le Protecteur reste vulnérable. Détruisez-le ou éloignez ses alliés de son aura.</string>
     <string name="villain_valerius_title">Prince Valerius le Faucheur d&apos;Âmes entre sur le champ de bataille</string>
 <string name="villain_valerius_backstory">Prince Valerius le Faucheur d&apos;Âmes, une liche ancestrale et souverain des armées de squelettes, s&apos;avance sur le champ de bataille dans une vague de froid sépulcral.</string>
 <string name="villain_valerius_description">Son Appel des Âmes relève les alliés tombés à proximité au début du tour suivant. Les vivants reviennent en zombies, les morts-vivants se relèvent en squelettes, et même les dragons peuvent revenir comme dragons morts-vivants. Détruisez-le vite avant que chaque perte ne renforce son ost.</string>

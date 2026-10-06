@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
+import de.egril.defender.game.isProtectedByObsidianProtector
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
 import de.egril.defender.editor.EditorJsonSerializer
@@ -4946,6 +4947,7 @@ class GameViewModel {
         attacker: Attacker,
         damage: Int,
     ) {
+        if (_gameState.value?.isProtectedByObsidianProtector(attacker) == true) return
         attacker.recordDamageTaken(minOf(attacker.currentHealth.value, damage))
         attacker.currentHealth.value = (attacker.currentHealth.value - damage).coerceAtLeast(0)
         if (attacker.currentHealth.value <= 0) {
