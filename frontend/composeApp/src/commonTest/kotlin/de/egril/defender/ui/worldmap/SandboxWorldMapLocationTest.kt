@@ -24,7 +24,7 @@ class SandboxWorldMapLocationTest {
         assertEquals(0.93f, location?.x)
         assertEquals(0.92f, location?.y)
         assertEquals("sandbox", location?.locationData?.nameKey)
-        assertEquals("scroll", location?.locationData?.iconResourceName)
+        assertEquals("sandbox", location?.locationData?.iconResourceName)
     }
 
     @Test

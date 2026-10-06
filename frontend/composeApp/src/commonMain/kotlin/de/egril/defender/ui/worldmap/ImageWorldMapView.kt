@@ -724,7 +724,7 @@ internal fun createSandboxWorldMapLocation(worldLevels: List<WorldLevel>): World
             nameKey = "sandbox",
             position = WorldMapPoint(930, 920),
             levelIds = levelIds,
-            iconResourceName = "scroll",
+            iconResourceName = "sandbox",
         )
     val (x, y) = locationData.position.toNormalized()
     return WorldMapLocation(
