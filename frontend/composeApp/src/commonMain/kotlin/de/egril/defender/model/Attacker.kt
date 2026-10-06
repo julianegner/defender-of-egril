@@ -871,14 +871,20 @@ fun attackerTargetDamage(
     }
 
 /**
+ * True for the Evil Wizard, Runemaster, and Ewhad wizard enemy types.
+ */
+fun AttackerType.isWizard(): Boolean =
+    this == AttackerType.EVIL_WIZARD ||
+        this == AttackerType.RUNEMASTER ||
+        this == AttackerType.EWHAD
+
+/**
  * True for enemy types that can summon additional enemies during the enemy turn.
  * Such enemies can create an unbounded number of extra units, so the maximum threat they
  * pose to the player's health points cannot be reliably bounded ahead of time.
  */
 fun AttackerType.isSummoner(): Boolean =
-    this == AttackerType.EVIL_WIZARD ||
-        this == AttackerType.RUNEMASTER ||
-        this == AttackerType.EWHAD ||
+    isWizard() ||
         this == AttackerType.SNOTLING_BOSS ||
         this == AttackerType.MORGUK_BONEWHISPER ||
         this == AttackerType.ARAXXA ||

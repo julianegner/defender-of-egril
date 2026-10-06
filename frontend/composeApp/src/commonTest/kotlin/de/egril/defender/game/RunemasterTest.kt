@@ -12,6 +12,7 @@ import de.egril.defender.model.Position
 import de.egril.defender.model.attackerTargetDamage
 import de.egril.defender.model.hexDistanceTo
 import de.egril.defender.model.isSummoner
+import de.egril.defender.model.isWizard
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -38,6 +39,9 @@ class RunemasterTest {
 
     @Test
     fun runemasterSharesMageMovementAndThreatBehavior() {
+        assertTrue(AttackerType.EVIL_WIZARD.isWizard())
+        assertTrue(AttackerType.RUNEMASTER.isWizard())
+        assertTrue(AttackerType.EWHAD.isWizard())
         assertEquals(2, AttackerType.RUNEMASTER.speed)
         assertEquals(true, AttackerType.RUNEMASTER.isSummoner())
         assertEquals(true, AttackerType.RUNEMASTER.canBuildBridge)

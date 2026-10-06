@@ -10,7 +10,7 @@ import de.egril.defender.model.*
  * Bridge building rules:
  * - Ork → Wooden bridge (1 river tile, HP = ork HP)
  * - Ogre → Stone bridge (1-2 river tiles, HP = ogre HP)
- * - Evil Wizard/Ewhad → Magical bridge (1 river tile, no HP, 3 turns duration, costs 1 level, must have level 2+)
+ * - Wizards → Magical bridge (1 river tile, no HP, 3 turns duration, costs 1 level, must have level 2+)
  *
  * Bridge-building units are destroyed (or lose level) when creating bridge.
  * Bridges don't count toward enemy count for winning.
@@ -32,21 +32,13 @@ class BridgeSystem(
         if (!attacker.type.canBuildBridge) return false
         if (attacker.isDefeated.value || attacker.isBuildingBridge.value) return false
 
-        // For Evil Wizard/Ewhad, must have level 2+
-        if ((attacker.type == AttackerType.EVIL_WIZARD ||
-                attacker.type == AttackerType.RUNEMASTER ||
-                attacker.type == AttackerType.EWHAD
-            ) &&
-            attacker.level.value < 2
-        ) {
+        // Wizards must have level 2+
+        if (attacker.type.isWizard() && attacker.level.value < 2) {
             return false
         }
 
         // Wizards always build bridges when at a river
-        if (attacker.type == AttackerType.EVIL_WIZARD ||
-            attacker.type == AttackerType.RUNEMASTER ||
-            attacker.type == AttackerType.EWHAD
-        ) {
+        if (attacker.type.isWizard()) {
             return canBuildBridge(attacker).isNotEmpty()
         }
 
@@ -138,13 +130,8 @@ class BridgeSystem(
         if (!attacker.type.canBuildBridge) return emptyList()
         if (attacker.isDefeated.value || attacker.isBuildingBridge.value) return emptyList()
 
-        // For Evil Wizard/Ewhad, must have level 2+ to sacrifice a level
-        if ((attacker.type == AttackerType.EVIL_WIZARD ||
-                attacker.type == AttackerType.RUNEMASTER ||
-                attacker.type == AttackerType.EWHAD
-            ) &&
-            attacker.level.value < 2
-        ) {
+        // Wizards must have level 2+ to sacrifice a level
+        if (attacker.type.isWizard() && attacker.level.value < 2) {
             return emptyList()
         }
 
@@ -159,10 +146,7 @@ class BridgeSystem(
         if (adjacentRivers.isEmpty()) return emptyList()
 
         // For Wizards, select best river if multiple adjacent
-        if (attacker.type == AttackerType.EVIL_WIZARD ||
-            attacker.type == AttackerType.RUNEMASTER ||
-            attacker.type == AttackerType.EWHAD
-        ) {
+        if (attacker.type.isWizard()) {
             return selectBestRiverForWizard(attacker, adjacentRivers)
         }
 
@@ -235,8 +219,8 @@ class BridgeSystem(
         }
 
         // Determine bridge type and create bridge
-        when (attacker.type) {
-            AttackerType.ORK -> {
+        when {
+            attacker.type == AttackerType.ORK -> {
                 // Wooden bridge: 1 tile, HP = ork HP
                 if (positions.size != 1) return false
 
@@ -261,7 +245,7 @@ class BridgeSystem(
                 return true
             }
 
-            AttackerType.OGRE -> {
+            attacker.type == AttackerType.OGRE -> {
                 // Stone bridge: 1-2 tiles, HP = ogre HP
                 if (positions.size !in 1..2) return false
 
@@ -286,7 +270,7 @@ class BridgeSystem(
                 return true
             }
 
-            AttackerType.EVIL_WIZARD, AttackerType.RUNEMASTER, AttackerType.EWHAD -> {
+            attacker.type.isWizard() -> {
                 // Magical bridge: 1 tile, no HP, 3 turns, costs 1 level
                 if (positions.size != 1) return false
                 if (attacker.level.value < 2) return false // Must have level 2+ to sacrifice
