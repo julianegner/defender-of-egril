@@ -185,6 +185,19 @@ enum class AttackerType(
     SKELETON("Skeleton", health = 15, speed = 5, reward = 7, xp = 4, faction = EnemyFaction.UNDEAD),
     ZOMBIE("Zombie", health = 25, speed = 1, reward = 6, xp = 4, faction = EnemyFaction.UNDEAD),
     EVIL_WIZARD("Evil Wizard", health = 30, speed = 2, reward = 15, xp = 9, canBuildBridge = true),
+    RUNEMASTER(
+        "Runemaster",
+        health = 30,
+        speed = 2,
+        reward = 15,
+        xp = 9,
+        canSummon = true,
+        canDisableTowers = true,
+        canBuildBridge = true,
+        towerDisableRangeBase = 3,
+        towerDisableCooldown = 2,
+        towerDisableDurationTurns = 1,
+    ),
     BLUE_DEMON("Blue Demon", health = 15, speed = 6, reward = 10, xp = 6, immuneToAcid = true),
     RED_DEMON("Red Demon", health = 60, speed = 1, reward = 15, xp = 9, immuneToFireball = true),
     GHOST(
@@ -827,6 +840,7 @@ fun attackerTargetDamage(
 ): Int =
     when (type) {
         AttackerType.EVIL_WIZARD,
+        AttackerType.RUNEMASTER,
         AttackerType.RED_WITCH,
         AttackerType.GREEN_WITCH,
         AttackerType.BLUE_DEMON,
@@ -857,13 +871,20 @@ fun attackerTargetDamage(
     }
 
 /**
+ * True for the Evil Wizard, Runemaster, and Ewhad wizard enemy types.
+ */
+fun AttackerType.isWizard(): Boolean =
+    this == AttackerType.EVIL_WIZARD ||
+        this == AttackerType.RUNEMASTER ||
+        this == AttackerType.EWHAD
+
+/**
  * True for enemy types that can summon additional enemies during the enemy turn.
  * Such enemies can create an unbounded number of extra units, so the maximum threat they
  * pose to the player's health points cannot be reliably bounded ahead of time.
  */
 fun AttackerType.isSummoner(): Boolean =
-    this == AttackerType.EVIL_WIZARD ||
-        this == AttackerType.EWHAD ||
+    isWizard() ||
         this == AttackerType.SNOTLING_BOSS ||
         this == AttackerType.MORGUK_BONEWHISPER ||
         this == AttackerType.ARAXXA ||

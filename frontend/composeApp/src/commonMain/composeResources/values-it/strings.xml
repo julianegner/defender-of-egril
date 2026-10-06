@@ -89,6 +89,7 @@
 
     <!-- Game Play -->
     <string name="coins">Monete</string>
+    <string name="runes_label">Rune</string>
     <string name="health">Salute</string>
     <string name="turn">Turno</string>
     <string name="level">Livello</string>
@@ -188,6 +189,7 @@
     <string name="ogre">Ogre: Molto resistente</string>
     <string name="skeleton">Scheletro: Non-morto veloce</string>
     <string name="evil_wizard">Mago malvagio: Attaccante magico</string>
+    <string name="runemaster">Runemaster: Mago runico d’élite</string>
     <string name="witch">Strega: Magia oscura</string>
     <string name="blue_demon">Demone blu: Veloce, immune all'acido</string>
     <string name="red_demon">Demone rosso: Resistente, immune alla palla di fuoco</string>
@@ -261,6 +263,7 @@
     <string name="skeleton_name">Scheletro</string>
     <string name="zombie_name">Zombie</string>
     <string name="evil_wizard_name">Mago malvagio</string>
+    <string name="runemaster_name">Runemaster</string>
     <string name="witch_name">Strega</string>
     <string name="blue_demon_name">Demone blu</string>
     <string name="red_demon_name">Demone rosso</string>
@@ -2353,6 +2356,7 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="skeleton_description">Non-morti veloci, gli scheletri sono guerrieri agili che riducono rapidamente la distanza. La loro natura di non-morte li rende resistenti a certi attacchi.</string>
     <string name="zombie_description">Non-morti che si trascinano rianimati dalla magia oscura. Più lenti degli scheletri ma ancora pericolosi in numero, soprattutto quando guariti dalle Streghe Verdi.</string>
     <string name="evil_wizard_description">Un utilizzatore di magia che canalizza incantesimi distruttivi dall\'aria. Sconfiggilo rapidamente prima che facciano piovere fuoco sulle tue difese.</string>
+    <string name="runemaster_description">Un Mago malvagio d’élite che evoca demoni e colpisce da lontano barricate e torri vicine con magia arcana. Sconfiggilo per recuperare la runa primordiale prima che possa riportarla a Ewhad.</string>
     <string name="blue_demon_description">Un demone veloce che prospera negli ambienti acidi — è immune ai danni acidi. Eliminalo con fuoco, attacchi fisici o incantesimi magici.</string>
     <string name="red_demon_description">Un demone potente avvolto dalle fiamme che resiste alle palle di fuoco e agli attacchi di area. Usa acido, attacchi perforanti o forza fisica per superare la sua resistenza.</string>
     <string name="ghost_description">Uno spirito etereo non-morto che vola sopra gli ostacoli del terreno. Resiste agli attacchi non-magici — solo gli attacchi magici dalle torri come le palle di fuoco possono ferirlo direttamente.</string>

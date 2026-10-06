@@ -118,6 +118,7 @@ object CheatCodeHandler {
                         "troll" -> AttackerType.TROLL
                         "skeleton" -> AttackerType.SKELETON
                         "wizard", "evil_wizard", "evilwizard" -> AttackerType.EVIL_WIZARD
+                        "runemaster", "rune_master" -> AttackerType.RUNEMASTER
                         "greenwitch" -> AttackerType.GREEN_WITCH
                         "redwitch" -> AttackerType.RED_WITCH
                         "snotling" -> AttackerType.SNOTLING

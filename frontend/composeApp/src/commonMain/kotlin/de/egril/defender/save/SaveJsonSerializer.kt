@@ -349,6 +349,7 @@ object SaveJsonSerializer {
   "worldMapSave": $worldMapSaveJson,
   "currentMana": ${savedGame.currentMana},
   "maxMana": ${savedGame.maxMana},
+  "runes": ${savedGame.runes},
   "supportObjectsRemaining": {$supportObjectsJson},
   "supportSpellsRemaining": {$supportSpellsJson},
   "supportFiefRemaining": {$supportFiefsJson},
@@ -849,6 +850,12 @@ object SaveJsonSerializer {
                 maxMana =
                     try {
                         JsonUtils.extractValue(dataJson, "maxMana").toInt()
+                    } catch (e: Exception) {
+                        0
+                    },
+                runes =
+                    try {
+                        JsonUtils.extractValue(dataJson, "runes").toInt()
                     } catch (e: Exception) {
                         0
                     },

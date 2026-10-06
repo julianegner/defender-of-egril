@@ -767,6 +767,13 @@ private fun Position.isInside(
 private fun AttackerType.calculateTargetDamage(level: Int): Int =
     when {
         this == AttackerType.EWHAD -> 99
-        this.isRealVillain || this.isDragon || canDisableTowers || canHeal || this == AttackerType.EVIL_WIZARD || this == AttackerType.BLUE_DEMON || this == AttackerType.RED_DEMON -> level
+        this.isRealVillain ||
+            this.isDragon ||
+            canDisableTowers ||
+            canHeal ||
+            this == AttackerType.EVIL_WIZARD ||
+            this == AttackerType.RUNEMASTER ||
+            this == AttackerType.BLUE_DEMON ||
+            this == AttackerType.RED_DEMON -> level
         else -> 1
     }

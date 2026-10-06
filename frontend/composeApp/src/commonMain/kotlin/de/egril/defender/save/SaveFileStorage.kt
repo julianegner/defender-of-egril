@@ -436,6 +436,7 @@ object SaveFileStorage {
             worldMapSave = null, // Don't automatically include world map - only on explicit export
             currentMana = gameState.currentMana.value,
             maxMana = gameState.maxMana.value,
+            runes = gameState.runes.value,
             spellEffects = spellEffects,
             supportObjectsRemaining = gameState.supportObjectsRemaining.toMap(),
             supportSpellsRemaining = gameState.supportSpellsRemaining.toMap(),
@@ -561,6 +562,7 @@ object SaveFileStorage {
         // Restore mana
         gameState.currentMana.value = savedGame.currentMana
         gameState.maxMana.value = savedGame.maxMana
+        gameState.runes.value = savedGame.runes
 
         // Restore player-usable support state (placeable objects, spell tokens, cooldown powers).
         // These are normally initialized from the level definition, but the player consumes objects

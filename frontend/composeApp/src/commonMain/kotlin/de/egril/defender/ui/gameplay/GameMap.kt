@@ -104,6 +104,7 @@ import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WebIcon
 import de.egril.defender.ui.icon.WoodIcon
+import de.egril.defender.ui.icon.wunjoRunePath
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreview
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
@@ -473,7 +474,7 @@ private fun RiftPortalOverlay(
 
     /**
      * Builds the Path for rune [index] centred at ([cx], [cy]) with half-height [r].
-     * Each index maps to a distinct Elder Futhark rune shape (all 24 runes, path-approximated).
+     * Each index maps to a distinct Elder Futhark rune shape, path-approximated.
      *
      * Elder Futhark order used here:
      *   0=ᚠ Fehu    1=ᚢ Uruz    2=ᚦ Thurisaz  3=ᚨ Ansuz    4=ᚱ Raido    5=ᚲ Kenaz
@@ -489,7 +490,7 @@ private fun RiftPortalOverlay(
         r: Float,
     ): androidx.compose.ui.graphics.Path =
         androidx.compose.ui.graphics.Path().apply {
-            when (index % de.egril.defender.model.Portal.RUNE_POOL_SIZE) {
+            when (index % de.egril.defender.model.Portal.FUTHARK_RUNE_COUNT) {
                 0 -> { // ᚠ Fehu – staff + two rightward branches
                     moveTo(cx, cy - r)
                     lineTo(cx, cy + r)
@@ -541,13 +542,7 @@ private fun RiftPortalOverlay(
                     moveTo(cx + r * 0.6f, cy - r)
                     lineTo(cx - r * 0.6f, cy + r)
                 }
-                7 -> { // ᚹ Wunjo – staff + rightward flag at the top
-                    moveTo(cx, cy - r)
-                    lineTo(cx, cy + r)
-                    moveTo(cx, cy - r)
-                    lineTo(cx + r * 0.7f, cy - r * 0.4f)
-                    lineTo(cx, cy - r * 0.2f)
-                }
+                7 -> addPath(wunjoRunePath(cx, cy, r)) // ᚹ Wunjo – staff + rightward flag at the top
                 8 -> { // ᚺ Hagalaz – two diagonals crossing + short horizontal bar
                     moveTo(cx - r * 0.5f, cy - r)
                     lineTo(cx - r * 0.5f, cy + r)
@@ -711,7 +706,11 @@ private fun RiftPortalOverlay(
                     androidx.compose.ui.graphics.drawscope
                         .Stroke(width = 3f),
             )
-            drawPath(runePathFor(portal.runeIndex, ec.x, ec.y, runeR), color = entryColor, style = runeStroke)
+            drawPath(
+                runePathFor(de.egril.defender.model.Portal.runeGlyphIndex(portal.runeIndex), ec.x, ec.y, runeR),
+                color = entryColor,
+                style = runeStroke,
+            )
 
             // Exit circle (orange) — same rune shape, different colour
             val xc = tileCenterPx(portal.exitPosition)
@@ -724,7 +723,11 @@ private fun RiftPortalOverlay(
                     androidx.compose.ui.graphics.drawscope
                         .Stroke(width = 3f),
             )
-            drawPath(runePathFor(portal.runeIndex, xc.x, xc.y, runeR), color = exitColor, style = runeStroke)
+            drawPath(
+                runePathFor(de.egril.defender.model.Portal.runeGlyphIndex(portal.runeIndex), xc.x, xc.y, runeR),
+                color = exitColor,
+                style = runeStroke,
+            )
         }
     }
 }

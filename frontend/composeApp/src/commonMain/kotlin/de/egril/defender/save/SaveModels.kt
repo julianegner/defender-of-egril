@@ -62,6 +62,7 @@ data class SavedGame(
     val playerProfileData: PlayerProfileData? = null, // Player profile data (achievements, XP, stats) when game data transfer is ON
     val currentMana: Int = 0, // Current mana at the time of saving
     val maxMana: Int = 0, // Maximum mana at the time of saving
+    val runes: Int = 0, // Runemaster runes in the player's inventory
     val spellEffects: List<SavedSpellEffect> = emptyList(), // Active spell effects (e.g. placed bombs)
     // Player-usable supports remaining/recharging this level. Persisted so they survive save/load.
     val supportObjectsRemaining: Map<SupportObjectType, Int> = emptyMap(), // Placeable objects left to deploy
