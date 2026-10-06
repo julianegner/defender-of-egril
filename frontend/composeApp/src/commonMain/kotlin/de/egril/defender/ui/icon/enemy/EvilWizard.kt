@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
+import de.egril.defender.ui.icon.wunjoRunePath
 
 /**
  * Draw evil wizard symbol (pointed hat with mystical energy)
@@ -121,20 +122,11 @@ fun DrawScope.drawRunemasterSymbol(
 ) {
     drawEvilWizardSymbol(centerX, centerY, size, headScale = headScale)
 
-    val runeCenter = Offset(centerX + size * 0.39f, centerY - size * 0.24f)
-    val runeColor = Color(0xFFFFB52E)
-    drawCircle(color = runeColor.copy(alpha = 0.25f), radius = size * 0.22f, center = runeCenter)
-    drawCircle(color = runeColor, radius = size * 0.16f, center = runeCenter, style = Stroke(width = size * 0.025f))
-    drawLine(
-        color = runeColor,
-        start = Offset(runeCenter.x, runeCenter.y - size * 0.11f),
-        end = Offset(runeCenter.x, runeCenter.y + size * 0.11f),
-        strokeWidth = size * 0.025f,
-    )
-    drawLine(
-        color = runeColor,
-        start = Offset(runeCenter.x - size * 0.08f, runeCenter.y - size * 0.03f),
-        end = Offset(runeCenter.x + size * 0.08f, runeCenter.y - size * 0.03f),
-        strokeWidth = size * 0.025f,
-    )
+    withTransform({ scale(headScale, headScale, Offset(centerX, centerY + size * 0.15f)) }) {
+        drawPath(
+            path = wunjoRunePath(centerX - size * 0.03f, centerY - size * 0.18f, size * 0.085f),
+            color = Color(0xFFFFB52E),
+            style = Stroke(width = size * 0.025f, cap = StrokeCap.Round),
+        )
+    }
 }

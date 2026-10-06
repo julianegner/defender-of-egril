@@ -202,16 +202,6 @@ fun GameStatsDisplay(
         }
     }
 
-    if (runes > 0) {
-        TooltipWrapper(text = stringResource(Res.string.runes_label)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(Res.string.runes_label), style = textStyle)
-                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-                Text("$runes", style = textStyle)
-            }
-        }
-    }
-
     // Mana (only show if mana values are provided)
     if (currentMana != null && maxMana != null && maxMana > 0) {
         TooltipWrapper(text = stringResource(Res.string.spells)) {
@@ -268,6 +258,16 @@ fun GameStatsDisplay(
                 ShortcutKeyChip(
                     text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleEnemyList.value),
                 )
+            }
+        }
+    }
+
+    if (runes > 0) {
+        TooltipWrapper(text = stringResource(Res.string.runes_label)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RuneCountIcon(size = iconSize, color = LocalContentColor.current)
+                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+                Text("$runes", style = textStyle)
             }
         }
     }
