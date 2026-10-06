@@ -280,6 +280,7 @@
     <string name="baron_ratterzahn_name">Baron Ratterzahn</string>
     <string name="silas_name">Silas the Maskmaster</string>
     <string name="fallen_shieldmaiden_freya_name">Fallen Shieldmaiden Freya</string>
+    <string name="obsidian_protector_name">Obsidian Protector</string>
     <string name="prince_valerius_the_soulreaper_name">Prince Valerius the Soulreaper</string>
     <string name="grand_coven_mother_sybilla_name">Grand Coven-Mother Sybilla</string>
     <string name="haga_name">Haga</string>
@@ -1921,6 +1922,9 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_freya_title">Fallen Shieldmaiden Freya enters the battlefield</string>
     <string name="villain_freya_backstory">Once a heroic shieldmaiden, Freya fell in battle and rose again as an unstoppable death knight wrapped in black steel and grave magic.</string>
     <string name="villain_freya_description">Her Shield Wall blocks all non-ballista attacks from the front for her own tile and the tiles to her left and right as she advances. Strike from the side or rear, or shoot over the shield with a Ballista, before the undead champion crushes your line.</string>
+    <string name="villain_obsidian_protector_title">The Obsidian Protector enters the battlefield</string>
+    <string name="villain_obsidian_protector_backstory">A massive monolith of black obsidian floats over a burning rune circle, shielding the creatures that march in its shadow.</string>
+    <string name="villain_obsidian_protector_description">Its aura protects all nearby enemies within two hexes from every attack and prevents them from being targeted. The Protector itself remains vulnerable. Destroy it or draw its allies beyond the aura to expose them.</string>
     <string name="villain_valerius_title">Prince Valerius the Soulreaper enters the battlefield</string>
     <string name="villain_valerius_backstory">Prince Valerius the Soulreaper, an ancient lich and ruler of the skeleton armies, steps onto the battlefield in a wave of icy grave-cold.</string>
     <string name="villain_valerius_description">His Soul Call raises nearby fallen allies at the start of the next round. The living return as zombies, the undead rise again as skeletons, and even dragons can return as undead dragons. Destroy him quickly before every casualty strengthens his host.</string>

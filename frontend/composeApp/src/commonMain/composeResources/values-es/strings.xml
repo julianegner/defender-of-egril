@@ -276,6 +276,7 @@
     <string name="undead_dragon_name">Dragón no muerto</string>
     <string name="baron_ratterzahn_name">Barón Ratterzahn</string>
     <string name="fallen_shieldmaiden_freya_name">Freya, la Doncella del Escudo Caída</string>
+    <string name="obsidian_protector_name">Protector de Obsidiana</string>
     <string name="prince_valerius_the_soulreaper_name">Príncipe Valerius el Segador de Almas</string>
     <string name="grand_coven_mother_sybilla_name">Gran Madre del Aquelarre Sybilla</string>
     <string name="haga_name">Haga</string>
@@ -1915,6 +1916,9 @@
     <string name="villain_freya_title">Freya, la Doncella del Escudo Caída, entra al campo de batalla</string>
     <string name="villain_freya_backstory">Freya fue una heroica doncella del escudo, pero cayó en combate y se alzó de nuevo como una imparable caballera de la muerte envuelta en acero negro y magia funeraria.</string>
     <string name="villain_freya_description">Su Muro de Escudos bloquea todos los ataques frontales que no sean de ballista para su propia casilla y para las casillas a su izquierda y a su derecha mientras avanza. Ataca desde el flanco o la retaguardia, o dispara por encima del escudo con una Ballista, antes de que la campeona no muerta destroce tu línea.</string>
+    <string name="villain_obsidian_protector_title">El Protector de Obsidiana entra en el campo de batalla</string>
+    <string name="villain_obsidian_protector_backstory">Un enorme monolito de obsidiana negra flota sobre un círculo de runas ardientes y protege a las criaturas que marchan bajo su sombra.</string>
+    <string name="villain_obsidian_protector_description">Su aura protege de cualquier ataque a todos los enemigos cercanos dentro de dos hexágonos e impide que sean seleccionados. El Protector sigue siendo vulnerable. Destrúyelo o aleja a sus aliados del aura.</string>
     <string name="villain_valerius_title">Príncipe Valerius el Segador de Almas entra en el campo de batalla</string>
 <string name="villain_valerius_backstory">Príncipe Valerius el Segador de Almas, un antiguo lich y soberano de los ejércitos esqueléticos, pisa el campo de batalla envuelto en una ola de frío sepulcral.</string>
 <string name="villain_valerius_description">Su Llamado de las Almas hace que los aliados caídos cercanos se alcen al inicio de la siguiente ronda. Los vivos regresan como zombis, los no muertos vuelven a levantarse como esqueletos, e incluso los dragones pueden regresar como dragones no muertos. Destrúyelo rápido antes de que cada baja fortalezca a su hueste.</string>

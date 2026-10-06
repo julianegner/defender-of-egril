@@ -487,7 +487,7 @@ class CombatSystem(
         defender: Defender,
         target: Attacker,
     ) {
-        if (state.isShieldWallAttackBlocked(defender, target)) {
+        if (state.isShieldWallAttackBlocked(defender, target) || state.isProtectedByObsidianProtector(target)) {
             return
         }
         if (target.type.isMirrorImage) {
@@ -567,12 +567,20 @@ class CombatSystem(
             state.attackers.filter {
                 !it.isDefeated.value && affectedPositions.contains(it.position.value)
             }
-        val unblockedTargets = targets.filterNot { state.isShieldWallAttackBlocked(defender, it) }
+        val unblockedTargets =
+            targets.filterNot {
+                state.isShieldWallAttackBlocked(defender, it) || state.isProtectedByObsidianProtector(it)
+            }
         removeHitMirrorImages(defender, unblockedTargets)
 
         val blockedPositions =
             affectedPositions.filterTo(mutableSetOf()) { position ->
-                state.isShieldWallAttackBlocked(defender, position)
+                state.isShieldWallAttackBlocked(defender, position) ||
+                    state.attackers.any {
+                        !it.isDefeated.value &&
+                            it.position.value == position &&
+                            state.isProtectedByObsidianProtector(it)
+                    }
             }
 
         for (target in unblockedTargets) {
@@ -688,12 +696,20 @@ class CombatSystem(
             state.attackers.filter {
                 !it.isDefeated.value && affectedPositions.contains(it.position.value)
             }
-        val unblockedTargets = targets.filterNot { state.isShieldWallAttackBlocked(defender, it) }
+        val unblockedTargets =
+            targets.filterNot {
+                state.isShieldWallAttackBlocked(defender, it) || state.isProtectedByObsidianProtector(it)
+            }
         removeHitMirrorImages(defender, unblockedTargets)
 
         val blockedPositions =
             affectedPositions.filterTo(mutableSetOf()) { position ->
-                state.isShieldWallAttackBlocked(defender, position)
+                state.isShieldWallAttackBlocked(defender, position) ||
+                    state.attackers.any {
+                        !it.isDefeated.value &&
+                            it.position.value == position &&
+                            state.isProtectedByObsidianProtector(it)
+                    }
             }
 
         for (target in unblockedTargets) {
@@ -808,6 +824,7 @@ class CombatSystem(
 
             for (attacker in enemiesInAcid) {
                 if (attacker.type.isMirrorImage) continue
+                if (state.isProtectedByObsidianProtector(attacker)) continue
                 // Check immunity to acid (Blue Demons)
                 if (attacker.canBeDamagedByAcid()) {
                     val actualDamage = minOf(attacker.currentHealth.value, effect.damage)

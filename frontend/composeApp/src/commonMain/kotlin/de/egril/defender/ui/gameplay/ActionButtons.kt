@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
+import de.egril.defender.game.canManuallyTargetAttacker
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.SellTowerIcon
 import de.egril.defender.ui.icon.SwordIcon
@@ -50,7 +51,10 @@ fun AttackButton(
             // If there's an enemy at the position, show enemy info
             if (selectedTargetId != null) {
                 val target = gameState.attackers.find { it.id == selectedTargetId }
-                if (target != null && defender.canAttack(target, gameState.effectiveRange(defender))) {
+                if (target != null &&
+                    defender.canAttack(target, gameState.effectiveRange(defender)) &&
+                    gameState.canManuallyTargetAttacker(target)
+                ) {
                     Button(
                         onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
                         modifier = modifier,
@@ -151,7 +155,10 @@ fun AttackButton(
         } else if (selectedTargetId != null) {
             // For all towers, allow attacking enemies
             val target = gameState.attackers.find { it.id == selectedTargetId }
-            if (target != null && defender.canAttack(target, gameState.effectiveRange(defender))) {
+            if (target != null &&
+                defender.canAttack(target, gameState.effectiveRange(defender)) &&
+                gameState.canManuallyTargetAttacker(target)
+            ) {
                 val isTargetInShadowFog =
                     gameState.fieldEffects.any {
                         it.type == FieldEffectType.SHADOW_FOG && it.position == target.position.value

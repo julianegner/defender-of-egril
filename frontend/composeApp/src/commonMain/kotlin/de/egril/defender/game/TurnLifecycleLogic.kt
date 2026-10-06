@@ -267,7 +267,10 @@ class TurnLifecycleLogic(
         state.attackers.forEach { attacker ->
             if (!attacker.isDefeated.value) {
                 val distance = attacker.position.value.hexDistanceTo(position)
-                if (distance <= explosionRange && !attacker.type.isMirrorImage) {
+                if (distance <= explosionRange &&
+                    !attacker.type.isMirrorImage &&
+                    !state.isProtectedByObsidianProtector(attacker)
+                ) {
                     val dmg = damageAt(distance)
                     attacker.recordDamageTaken(minOf(attacker.currentHealth.value, dmg))
                     attacker.currentHealth.value = (attacker.currentHealth.value - dmg).coerceAtLeast(0)

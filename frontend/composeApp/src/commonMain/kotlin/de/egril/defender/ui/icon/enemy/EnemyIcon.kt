@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -98,6 +99,7 @@ fun EnemyIcon(
     moveVillainNameUp: Boolean = false,
     showSeafaringPirateBarge: Boolean = false,
     showWaaghGlow: Boolean = false,
+    protectedByObsidianAura: Boolean = false,
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
@@ -201,6 +203,7 @@ fun EnemyIcon(
                 AttackerType.ARAXXA -> drawAraxxaSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
                 AttackerType.BARON_RATTERZAHN -> drawBaronRatterzahnSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
                 AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> drawFallenShieldmaidenFreyaSymbol(centerX, centerY, iconSize * 0.82f, headScale = headScale)
+                AttackerType.OBSIDIAN_PROTECTOR -> drawObsidianProtectorSymbol(centerX, centerY, iconSize * 0.86f)
                 AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> drawPrinceValeriusSymbol(centerX, centerY, iconSize * 0.8f, contrastOutlineColor, headScale)
                 AttackerType.SILAS_THE_MASKMASTER,
                 AttackerType.SILAS_MIRROR_IMAGE,
@@ -217,6 +220,21 @@ fun EnemyIcon(
                 AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, pirateCenterY, pirateIconSize, outlineColor = pirateClassOutlineColor, headScale = headScale, showBarge = showSeafaringPirateBarge)
                 AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
                 AttackerType.ZYTHAR_THE_RIFTCALLER -> drawZytharTheRiftcallerSymbol(centerX, centerY, iconSize * 0.80f, headScale = headScale)
+            }
+        }
+        if (protectedByObsidianAura) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val shieldColor = Color(0xFF9B59D0)
+                val shieldRadius = minOf(size.width, size.height) * 0.47f
+                drawCircle(
+                    color = shieldColor.copy(alpha = 0.18f),
+                    radius = shieldRadius,
+                )
+                drawCircle(
+                    color = shieldColor.copy(alpha = 0.9f),
+                    radius = shieldRadius,
+                    style = Stroke(width = minOf(size.width, size.height) * 0.035f),
+                )
             }
         }
 
@@ -375,6 +393,7 @@ fun EnemyTypeIcon(
                 AttackerType.ARAXXA -> drawAraxxaSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
                 AttackerType.BARON_RATTERZAHN -> drawBaronRatterzahnSymbol(centerX, centerY, iconSize * 0.78f, headScale = headScale)
                 AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> drawFallenShieldmaidenFreyaSymbol(centerX, centerY, iconSize * 0.82f, headScale = headScale)
+                AttackerType.OBSIDIAN_PROTECTOR -> drawObsidianProtectorSymbol(centerX, centerY, iconSize * 0.86f)
                 AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> drawPrinceValeriusSymbol(centerX, centerY, iconSize * 0.8f, contrastOutlineColor, headScale)
                 AttackerType.SILAS_THE_MASKMASTER,
                 AttackerType.SILAS_MIRROR_IMAGE,

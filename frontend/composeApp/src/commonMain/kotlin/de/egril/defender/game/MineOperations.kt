@@ -310,7 +310,7 @@ class MineOperations(
                 when (trap.type) {
                     TrapType.DWARVEN -> {
                         // Deal damage to enemy
-                        if (!enemyAtPosition.type.isMirrorImage) {
+                        if (!enemyAtPosition.type.isMirrorImage && !state.isProtectedByObsidianProtector(enemyAtPosition)) {
                             enemyAtPosition.recordDamageTaken(minOf(enemyAtPosition.currentHealth.value, trap.damage))
                             enemyAtPosition.currentHealth.value -= trap.damage
                         }
@@ -450,7 +450,7 @@ class MineOperations(
                 TrapType.DWARVEN -> {
                     val attackerWasUninjured = attacker.currentHealth.value == attacker.maxHealth
                     // Deal damage to enemy
-                    if (!attacker.type.isMirrorImage) {
+                    if (!attacker.type.isMirrorImage && !state.isProtectedByObsidianProtector(attacker)) {
                         attacker.recordDamageTaken(minOf(attacker.currentHealth.value, trapAtPosition.damage))
                         attacker.currentHealth.value -= trapAtPosition.damage
                     }

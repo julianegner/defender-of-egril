@@ -346,6 +346,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.ARAXXA -> drawAraxxaSymbol(centerX, centerY, s * 1.0f, outlineColor)
                             AttackerType.BARON_RATTERZAHN -> drawBaronRatterzahnSymbol(centerX, centerY, s * 1.1f)
                             AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> drawFallenShieldmaidenFreyaSymbol(centerX, centerY, s * 1.05f, outlineColor)
+                            AttackerType.OBSIDIAN_PROTECTOR -> drawObsidianProtectorSymbol(centerX, centerY, s * 1.05f)
                             AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> drawPrinceValeriusSymbol(centerX, centerY, s * 1.05f, outlineColor)
                             AttackerType.SILAS_THE_MASKMASTER,
                             AttackerType.SILAS_MIRROR_IMAGE,
@@ -480,6 +481,7 @@ private fun DrawScope.drawVillainSymbol(
         AttackerType.SILAS_MIRROR_IMAGE,
         -> drawSilasSymbol(cx, cy, s * 1.05f, outlineColor)
         AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> drawFallenShieldmaidenFreyaSymbol(cx, cy, s * 1.05f, outlineColor)
+        AttackerType.OBSIDIAN_PROTECTOR -> drawObsidianProtectorSymbol(cx, cy, s * 1.05f)
         AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> drawPrinceValeriusSymbol(cx, cy, s * 1.05f, outlineColor)
         AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> drawSybillaSymbol(cx, cy, s * 1.05f, outlineColor)
         AttackerType.HAGA -> drawHagaSymbol(cx, cy, s, outlineColor)

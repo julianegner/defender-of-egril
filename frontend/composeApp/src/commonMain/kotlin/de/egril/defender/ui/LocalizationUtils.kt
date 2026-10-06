@@ -119,6 +119,7 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
             AttackerType.SILAS_MIRROR_IMAGE,
             -> "silas_name"
             AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> "fallen_shieldmaiden_freya_name"
+            AttackerType.OBSIDIAN_PROTECTOR -> "obsidian_protector_name"
             AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> "prince_valerius_the_soulreaper_name"
             AttackerType.GRAND_COVEN_MOTHER_SYBILLA -> "grand_coven_mother_sybilla_name"
             AttackerType.HAGA -> "haga_name"
