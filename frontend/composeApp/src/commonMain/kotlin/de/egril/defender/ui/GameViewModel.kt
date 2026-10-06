@@ -982,6 +982,7 @@ class GameViewModel {
                 coins = mutableStateOf(totalCoins),
                 healthPoints = mutableStateOf(totalHealth),
                 spawnPlan = modifiedSpawnPlan,
+                spawnGroups = level.spawnGroups?.let { DifficultyModifiers.applySpawnGroupsModifier(it, difficulty) },
                 maxMana = mutableStateOf(maxMana),
                 currentMana = mutableStateOf(maxMana),
                 incomeMultiplier = playerStats.getIncomeMultiplier(),
@@ -1215,6 +1216,7 @@ class GameViewModel {
                     coins = mutableStateOf(totalCoins),
                     healthPoints = mutableStateOf(totalHealth),
                     spawnPlan = modifiedSpawnPlan,
+                    spawnGroups = level.spawnGroups?.let { DifficultyModifiers.applySpawnGroupsModifier(it, difficulty) },
                     maxMana = mutableStateOf(maxMana),
                     currentMana = mutableStateOf(maxMana), // Start with full mana
                     incomeMultiplier = incomeMultiplier,
@@ -1347,6 +1349,7 @@ class GameViewModel {
                     coins = mutableStateOf(startCoins),
                     healthPoints = mutableStateOf(totalHealth),
                     spawnPlan = modifiedSpawnPlan,
+                    spawnGroups = level.spawnGroups?.let { DifficultyModifiers.applySpawnGroupsModifier(it, difficulty) },
                     maxMana = mutableStateOf(maxMana),
                     currentMana = mutableStateOf(startMana),
                     incomeMultiplier = incomeMultiplier,

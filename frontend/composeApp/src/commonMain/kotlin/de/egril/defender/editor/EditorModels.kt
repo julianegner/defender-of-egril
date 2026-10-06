@@ -6,6 +6,7 @@ import de.egril.defender.model.DefenderType
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnGroup
 import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.TargetType
 import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
@@ -570,6 +571,7 @@ data class EditorLevel(
     @Deprecated("Use initialData.traps instead") val initialTraps: List<InitialTrap> = emptyList(),
     @Deprecated("Use initialData.barricades instead") val initialBarricades: List<InitialBarricade> = emptyList(),
     val singleHitTargetOrder: List<Position> = emptyList(), // Ordered SINGLE_HIT targets; empty disables sequencing
+    val spawnGroups: List<SpawnGroup>? = null, // Optional ordered spawn loops (issue #694); when non-null, replaces the flat enemySpawns at runtime
 ) {
     /**
      * Get effective initial data, handling both new and legacy formats

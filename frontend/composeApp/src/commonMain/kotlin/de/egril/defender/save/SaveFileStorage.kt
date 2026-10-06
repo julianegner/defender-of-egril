@@ -471,6 +471,20 @@ object SaveFileStorage {
             activeTileZoneIds = gameState.activeTileZoneIds.toList(),
             activeEventLoops = gameState.activeEventLoops.toList(),
             activeEventMapImages = gameState.activeEventMapImages.toList(),
+            spawnGroupCursor =
+                if (gameState.spawnGroups != null) {
+                    val cursor = gameState.spawnGroupCursor.value
+                    SavedSpawnGroupCursor(
+                        groupIndex = cursor.groupIndex,
+                        repetition = cursor.repetition,
+                        iterationStartTurn = cursor.iterationStartTurn,
+                        finished = cursor.finished,
+                        lastProcessedTurn = cursor.lastProcessedTurn,
+                    )
+                } else {
+                    null
+                },
+            spawnGroupBindings = gameState.spawnGroupBindings.toMap(),
         )
     }
 
@@ -526,6 +540,21 @@ object SaveFileStorage {
         gameState.nextPortalId.value = savedGame.nextPortalId
         gameState.takenTargets.clear()
         gameState.takenTargets.addAll(savedGame.takenTargets)
+
+        // Restore spawn-loop runtime cursor and unit bindings (issue #694) so a mid-cycle save
+        // resumes the exact group/iteration and keeps named-unit identity for UNIT_ALIVE loops.
+        if (gameState.spawnGroups != null && savedGame.spawnGroupCursor != null) {
+            gameState.spawnGroupCursor.value =
+                de.egril.defender.model.SpawnGroupCursor(
+                    groupIndex = savedGame.spawnGroupCursor.groupIndex,
+                    repetition = savedGame.spawnGroupCursor.repetition,
+                    iterationStartTurn = savedGame.spawnGroupCursor.iterationStartTurn,
+                    finished = savedGame.spawnGroupCursor.finished,
+                    lastProcessedTurn = savedGame.spawnGroupCursor.lastProcessedTurn,
+                )
+        }
+        gameState.spawnGroupBindings.clear()
+        gameState.spawnGroupBindings.putAll(savedGame.spawnGroupBindings)
 
         // Restore bridges
         gameState.bridges.clear()

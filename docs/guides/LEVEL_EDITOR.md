@@ -248,6 +248,38 @@ next group:
 Saving a game preserves loop progress and named-unit references, so loading resumes the current
 cycle rather than restarting the wave.
 
+Spawn entries use the existing `attackerType`, `level`, and optional `spawnPoint` fields, plus
+`count` (default 1). A `unitId` names the actual spawned unit for conditions. Set
+`firstIterationOnly` on a boss entry so it spawns once while its reinforcements keep repeating.
+For example, add this field to a level:
+
+```json
+{
+  "spawnGroups": [
+    {
+      "groupId": "opening",
+      "repeatMode": "COUNT",
+      "repeatCount": 3,
+      "turns": [
+        {"turnOffset": 1, "spawns": [{"attackerType": "GOBLIN", "count": 2, "level": 1}]},
+        {"turnOffset": 2, "spawns": [{"attackerType": "ORK", "level": 1}]}
+      ]
+    },
+    {
+      "groupId": "boss_phase",
+      "repeatMode": "CONDITION",
+      "condition": "UNIT_ALIVE",
+      "targetUnitId": "ewhad_boss",
+      "turns": [
+        {"turnOffset": 1, "spawns": [{"attackerType": "EWHAD", "unitId": "ewhad_boss", "firstIterationOnly": true}]},
+        {"turnOffset": 2, "spawns": []},
+        {"turnOffset": 3, "spawns": [{"attackerType": "SKELETON", "count": 3}]}
+      ]
+    }
+  ]
+}
+```
+
 ### Level Sequence Format
 
 ```json

@@ -89,4 +89,60 @@ object DifficultyModifiers {
             }
             else -> basePlan
         }
+
+    /**
+     * Apply difficulty modifier to spawn groups (issue #694), mirroring [applySpawnPlanModifier]
+     * while preserving loop and named-unit semantics:
+     *  - HARD: every spawn's level is doubled.
+     *  - NIGHTMARE: regular enemies are tripled with 3x/2x/1x levels (as in the flat plan); named,
+     *    first-iteration-only, and Ewhad spawns stay a single entry (5x level for Ewhad, 3x
+     *    otherwise) so a boss keeps a stable, single identity and UNIT_ALIVE bindings are not broken
+     *    by duplicate spawns.
+     *  - Others: unchanged.
+     */
+    fun applySpawnGroupsModifier(
+        groups: List<SpawnGroup>,
+        difficulty: DifficultyLevel,
+    ): List<SpawnGroup> =
+        when (difficulty) {
+            DifficultyLevel.HARD ->
+                groups.map { group ->
+                    group.copy(
+                        turns =
+                            group.turns.map { turn ->
+                                turn.copy(spawns = turn.spawns.map { it.copy(level = it.level * 2) })
+                            },
+                    )
+                }
+            DifficultyLevel.NIGHTMARE ->
+                groups.map { group ->
+                    group.copy(
+                        turns =
+                            group.turns.map { turn ->
+                                turn.copy(spawns = turn.spawns.flatMap { expandSpawnForNightmare(it) })
+                            },
+                    )
+                }
+            else -> groups
+        }
+
+    /**
+     * Expand a single spawn-group spawn for NIGHTMARE difficulty. Units that must keep a single,
+     * stable identity (named via [SpawnGroupSpawn.unitId], [SpawnGroupSpawn.firstIterationOnly], or
+     * Ewhad) are scaled in level but not duplicated; all other enemies are tripled with 3x/2x/1x
+     * levels, matching the flat-plan behavior.
+     */
+    private fun expandSpawnForNightmare(spawn: SpawnGroupSpawn): List<SpawnGroupSpawn> {
+        val spawnsOnce = spawn.firstIterationOnly || spawn.unitId != null || spawn.attackerType == AttackerType.EWHAD
+        return if (spawnsOnce) {
+            val multiplier = if (spawn.attackerType == AttackerType.EWHAD) 5 else 3
+            listOf(spawn.copy(level = spawn.level * multiplier))
+        } else {
+            listOf(
+                spawn.copy(level = spawn.level * 3),
+                spawn.copy(level = spawn.level * 2),
+                spawn.copy(level = spawn.level),
+            )
+        }
+    }
 }

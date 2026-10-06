@@ -387,9 +387,19 @@ class MineOperations(
                 it.attackerType == enemy.type &&
                     it.spawnPoint != null
             }
+        // Spawn-loop levels (issue #694) drive spawning from spawnGroups rather than the flat
+        // spawnPlan, so fall back to the groups to honor any per-spawn custom spawn point.
+        val groupSpawnPoint =
+            spawnEntry?.spawnPoint
+                ?: state.spawnGroups
+                    ?.asSequence()
+                    ?.flatMap { group -> group.turns.asSequence() }
+                    ?.flatMap { turn -> turn.spawns.asSequence() }
+                    ?.firstOrNull { it.attackerType == enemy.type && it.spawnPoint != null }
+                    ?.spawnPoint
 
         val targetSpawnPoint =
-            spawnEntry?.spawnPoint ?: run {
+            groupSpawnPoint ?: run {
                 // If no specific spawn point in plan, use first available spawn point from level
                 if (state.level.startPositions.isNotEmpty()) {
                     state.level.startPositions.first()

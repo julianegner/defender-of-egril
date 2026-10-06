@@ -1816,6 +1816,7 @@ object EditorStorage {
                 initialCoins = editorLevel.startCoins,
                 healthPoints = editorLevel.startHealthPoints,
                 directSpawnPlan = directSpawnPlan,
+                spawnGroups = editorLevel.spawnGroups, // Spawn loops (issue #694), override the flat plan when present
                 availableTowers = editorLevel.availableTowers,
                 waypoints = gameWaypoints,
                 editorLevelId = editorLevel.id, // Store editor level ID for minimap lookup
