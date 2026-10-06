@@ -228,6 +228,26 @@ These levels are automatically created and saved to disk the first time you run 
 }
 ```
 
+### Spawn Groups
+
+Levels can define an ordered `spawnGroups` array instead of the linear `enemySpawns` list.
+When groups are present, they control spawning; levels without groups retain their existing
+turn-by-turn behavior. Groups are configured in the level JSON.
+
+Each group has a `groupId`, a `repeatMode`, and a `turns` sequence. Turn offsets are relative to
+the beginning of each repetition and start at 1. Empty spawn turns and gaps between offsets
+represent pauses. After a cycle finishes, the engine either repeats the group or starts the
+next group:
+
+- `COUNT`: runs the entire sequence `repeatCount` times.
+- `CONDITION`: repeats while its condition is true at the cycle boundary.
+  `UNIT_ALIVE` checks the particular unit identified by `targetUnitId`, not every enemy of its type.
+- `INFINITE`: repeats indefinitely. Clearing the current enemies does not automatically win
+  the level while this group remains active; the level needs an external completion mechanism.
+
+Saving a game preserves loop progress and named-unit references, so loading resumes the current
+cycle rather than restarting the wave.
+
 ### Level Sequence Format
 
 ```json

@@ -66,6 +66,7 @@ data class Level(
     val initialCoins: Int = 100,
     val healthPoints: Int = 10,
     val directSpawnPlan: List<PlannedEnemySpawn>? = null, // Direct spawn plan from editor
+    val spawnGroups: List<SpawnGroup>? = null, // Optional ordered spawn loops; when non-null, replaces the flat spawn plan at runtime (issue #694)
     val availableTowers: Set<DefenderType> = DefenderType.entries.toSet(), // Towers available in this level
     val waypoints: List<Waypoint> = emptyList(), // Waypoints for complex pathing
     val editorLevelId: String? = null, // ID of the editor level this was created from
@@ -248,6 +249,7 @@ data class PlannedEnemySpawn(
     val spawnTurn: Int,
     val level: Int = 1,
     val spawnPoint: Position? = null, // Fixed spawn point for this enemy (null for backward compatibility)
+    val unitId: String? = null, // Logical id from a spawn group; binds the spawned unit for UNIT_ALIVE conditions (null for flat plans)
 ) {
     val healthPoints: Int get() = attackerType.health * level
 }
