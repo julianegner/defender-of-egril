@@ -353,6 +353,7 @@ data class GameState(
     val xpEarnedThisLevel: MutableState<Int> = mutableStateOf(0), // XP earned during this level (awarded on completion; 20% on loss)
     val currentMana: MutableState<Int> = mutableStateOf(0), // Current mana (for spellcasting)
     val maxMana: MutableState<Int> = mutableStateOf(0), // Maximum mana (based on player stats)
+    val runes: MutableState<Int> = mutableStateOf(0), // Runes recovered from defeated Runemasters
     val activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = mutableStateListOf(), // Active spell effects
     val incomeMultiplier: Double = 1.0, // Income multiplier from player stats (default 1.0, e.g. 1.2 for 20% bonus)
     val constructionLevel: Int = 0, // Construction level from player stats (0-3+, gates tower abilities)

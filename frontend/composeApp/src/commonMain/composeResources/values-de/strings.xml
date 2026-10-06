@@ -89,6 +89,7 @@
 
     <!-- Game Play -->
     <string name="coins">Münzen</string>
+    <string name="runes_label">Runen</string>
     <string name="health">Gesundheit</string>
     <string name="turn">Runde</string>
     <string name="level">Stufe</string>
@@ -188,6 +189,7 @@
     <string name="ogre">Oger: Sehr zäh</string>
     <string name="skeleton">Skelett: Schnell untot</string>
     <string name="evil_wizard">Böser Zauberer: Magischer Angreifer</string>
+    <string name="runemaster">Runenmeister: Elite-Runenmagier</string>
     <string name="witch">Hexe: Dunkle Magie</string>
     <string name="blue_demon">Blauer Dämon: Schnell, säureimmun</string>
     <string name="red_demon">Roter Dämon: Zäh, feuerballimmun</string>
@@ -261,6 +263,7 @@
     <string name="skeleton_name">Skelett</string>
     <string name="zombie_name">Zombie</string>
     <string name="evil_wizard_name">Böser Zauberer</string>
+    <string name="runemaster_name">Runenmeister</string>
     <string name="witch_name">Hexe</string>
     <string name="blue_demon_name">Blauer Dämon</string>
     <string name="red_demon_name">Roter Dämon</string>
@@ -2350,6 +2353,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="skeleton_description">Untot und schnell beweglich, Skelette sind flinke Krieger, die schnell die Distanz überbrücken. Ihre untote Natur macht sie resistent gegen bestimmte Angriffe.</string>
     <string name="zombie_description">Schlurfende Untote, die durch dunkle Magie wiederbelebt wurden. Langsamer als Skelette, aber immer noch gefährlich in Gruppen, besonders wenn sie von Grünen Hexen geheilt werden.</string>
     <string name="evil_wizard_description">Ein Magier, der destruktive Zauber von oben kanalisiert. Besiege ihn schnell, bevor er Feuer auf deine Verteidigungen regnen lässt.</string>
+    <string name="runemaster_description">Ein Elite-Zauberer, der Dämonen beschwört und nahe Barrikaden und Türme mit arkaner Magie angreift. Besiege ihn, um die uralte Rune zu sichern, bevor er sie zu Ewhad zurückbringt.</string>
     <string name="blue_demon_description">Ein schneller Dämon, der in saurer Umgebung gedeiht — er ist gegen Säureschaden immun. Beseitige ihn mit Feuer, physischen Angriffen oder magischen Zaubersprüchen.</string>
     <string name="red_demon_description">Ein mächtiger Dämon, der von Flammen umhüllt ist und Feuerball- und Flächenattacken abwehrt. Verwende Säure, durchbohrende Angriffe oder körperliche Kraft, um seine Resistenz zu überwinden.</string>
     <string name="ghost_description">Ein ätherischer Geist der Untoten, der über Geländeobstanden schwebt. Er widersetzt sich nichtmagischen Angriffen — nur magische Turmangriffe wie Feuerbälle können ihn direkt verletzen.</string>

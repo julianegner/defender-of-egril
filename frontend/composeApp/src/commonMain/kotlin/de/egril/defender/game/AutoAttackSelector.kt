@@ -167,6 +167,7 @@ class AutoAttackSelector(
             AttackerType.GREEN_WITCH -> 80
             AttackerType.RED_WITCH -> 75
             AttackerType.EVIL_WIZARD -> 65
+            AttackerType.RUNEMASTER -> 85
             AttackerType.RED_DEMON -> 60
             AttackerType.BLUE_DEMON -> 55
             AttackerType.SILAS_THE_MASKMASTER,

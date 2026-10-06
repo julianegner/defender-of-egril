@@ -89,6 +89,7 @@
 
     <!-- Game Play -->
     <string name="coins">Pièces</string>
+    <string name="runes_label">Runes</string>
     <string name="health">Santé</string>
     <string name="turn">Tour</string>
     <string name="level">Niveau</string>
@@ -188,6 +189,7 @@
     <string name="ogre">Ogre : Très résistant</string>
     <string name="skeleton">Squelette : Mort-vivant rapide</string>
     <string name="evil_wizard">Sorcier maléfique : Attaquant magique</string>
+    <string name="runemaster">Maître des runes : Mage runique d’élite</string>
     <string name="witch">Sorcière : Magie noire</string>
     <string name="blue_demon">Démon bleu : Rapide, immunisé contre l'acide</string>
     <string name="red_demon">Démon rouge : Résistant, immunisé contre la boule de feu</string>
@@ -261,6 +263,7 @@
     <string name="skeleton_name">Squelette</string>
     <string name="zombie_name">Zombie</string>
     <string name="evil_wizard_name">Sorcier maléfique</string>
+    <string name="runemaster_name">Maître des runes</string>
     <string name="witch_name">Sorcière</string>
     <string name="blue_demon_name">Démon bleu</string>
     <string name="red_demon_name">Démon rouge</string>
@@ -2352,6 +2355,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="skeleton_description">Morts-vivants rapides, les squelettes sont des guerriers agiles qui ferment rapidement la distance. Leur nature de mort-vivant les rend résistants à certaines attaques.</string>
     <string name="zombie_description">Des morts-vivants traînants réanimés par la magie noire. Plus lents que les squelettes mais toujours dangereux en nombre, surtout lorsqu\'ils sont guéris par les Sorcières Vertes.</string>
     <string name="evil_wizard_description">Un utilisateur de magie qui canalise des sortilèges destructeurs depuis les airs. Vaincue-le rapidement avant qu\'il ne pleuve du feu sur tes défenses.</string>
+    <string name="runemaster_description">Un sorcier maléfique d’élite qui invoque des démons et attaque à distance les barricades et les tours proches par magie arcanique. Vainquez-le pour récupérer la rune primordiale avant qu’il ne la rapporte à Ewhad.</string>
     <string name="blue_demon_description">Un démon rapide qui prospère dans les environnements acides — il est immunisé aux dégâts d\'acide. Éliminez-le avec du feu, des attaques physiques ou des sortilèges magiques.</string>
     <string name="red_demon_description">Un démon puissant enveloppé de flammes qui résiste aux boules de feu et aux attaques de zone. Utilisez l\'acide, les attaques perçantes ou la force physique pour surmonter sa résistance.</string>
     <string name="ghost_description">Un esprit éthéré mort-vivant qui flotte sur les obstacles du terrain. Il résiste aux attaques non-magiques — seules les attaques magiques des tours comme les boules de feu peuvent le blesser directement.</string>

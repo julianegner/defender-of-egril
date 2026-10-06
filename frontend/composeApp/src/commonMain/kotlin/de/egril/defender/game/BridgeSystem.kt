@@ -33,14 +33,20 @@ class BridgeSystem(
         if (attacker.isDefeated.value || attacker.isBuildingBridge.value) return false
 
         // For Evil Wizard/Ewhad, must have level 2+
-        if ((attacker.type == AttackerType.EVIL_WIZARD || attacker.type == AttackerType.EWHAD) &&
+        if ((attacker.type == AttackerType.EVIL_WIZARD ||
+                attacker.type == AttackerType.RUNEMASTER ||
+                attacker.type == AttackerType.EWHAD
+            ) &&
             attacker.level.value < 2
         ) {
             return false
         }
 
         // Wizards always build bridges when at a river
-        if (attacker.type == AttackerType.EVIL_WIZARD || attacker.type == AttackerType.EWHAD) {
+        if (attacker.type == AttackerType.EVIL_WIZARD ||
+            attacker.type == AttackerType.RUNEMASTER ||
+            attacker.type == AttackerType.EWHAD
+        ) {
             return canBuildBridge(attacker).isNotEmpty()
         }
 
@@ -133,7 +139,10 @@ class BridgeSystem(
         if (attacker.isDefeated.value || attacker.isBuildingBridge.value) return emptyList()
 
         // For Evil Wizard/Ewhad, must have level 2+ to sacrifice a level
-        if ((attacker.type == AttackerType.EVIL_WIZARD || attacker.type == AttackerType.EWHAD) &&
+        if ((attacker.type == AttackerType.EVIL_WIZARD ||
+                attacker.type == AttackerType.RUNEMASTER ||
+                attacker.type == AttackerType.EWHAD
+            ) &&
             attacker.level.value < 2
         ) {
             return emptyList()
@@ -150,7 +159,10 @@ class BridgeSystem(
         if (adjacentRivers.isEmpty()) return emptyList()
 
         // For Wizards, select best river if multiple adjacent
-        if (attacker.type == AttackerType.EVIL_WIZARD || attacker.type == AttackerType.EWHAD) {
+        if (attacker.type == AttackerType.EVIL_WIZARD ||
+            attacker.type == AttackerType.RUNEMASTER ||
+            attacker.type == AttackerType.EWHAD
+        ) {
             return selectBestRiverForWizard(attacker, adjacentRivers)
         }
 
@@ -274,7 +286,7 @@ class BridgeSystem(
                 return true
             }
 
-            AttackerType.EVIL_WIZARD, AttackerType.EWHAD -> {
+            AttackerType.EVIL_WIZARD, AttackerType.RUNEMASTER, AttackerType.EWHAD -> {
                 // Magical bridge: 1 tile, no HP, 3 turns, costs 1 level
                 if (positions.size != 1) return false
                 if (attacker.level.value < 2) return false // Must have level 2+ to sacrifice

@@ -784,6 +784,7 @@ private fun GameStats(
         remainingEnemyCount = gameState.getRemainingEnemyCount(),
         currentMana = if (gameState.maxMana.value > 0) gameState.currentMana.value else null,
         maxMana = if (gameState.maxMana.value > 0) gameState.maxMana.value else null,
+        runes = gameState.runes.value,
         iconSize = iconSize,
         textStyle = textStyle,
         onCoinsClick = onCheatCode,

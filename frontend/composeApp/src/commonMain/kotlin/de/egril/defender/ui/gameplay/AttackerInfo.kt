@@ -716,6 +716,7 @@ fun AttackerInfo(
                     val isMightyUnit =
                         when (attacker.type) {
                             AttackerType.EVIL_WIZARD,
+                            AttackerType.RUNEMASTER,
                             AttackerType.RED_WITCH,
                             AttackerType.GREEN_WITCH,
                             AttackerType.BLUE_DEMON,

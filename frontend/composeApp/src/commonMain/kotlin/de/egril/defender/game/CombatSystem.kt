@@ -885,6 +885,9 @@ class CombatSystem(
         // Calculate XP and coins for defeated enemies (merged swarm units are excluded)
         for (attacker in actualKills) {
             queueSoulCallResurrection(attacker)
+            if (attacker.type == AttackerType.RUNEMASTER) {
+                state.runes.value++
+            }
 
             // Coin reward is calculated here and stored in CoinGainEffect.amount; the actual
             // state.coins.value increment is performed by the UI (GameMap) when the coin gain
