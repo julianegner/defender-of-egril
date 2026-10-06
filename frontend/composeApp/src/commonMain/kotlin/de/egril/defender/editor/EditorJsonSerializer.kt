@@ -2583,8 +2583,10 @@ object EditorJsonSerializer {
         json: String,
         key: String,
     ): String {
-        val keyMatch = Regex("\"${Regex.escape(key)}\"\\s*:\\s*\\[").find(json)
-            ?: throw IllegalArgumentException("$key must be a JSON array")
+        val keyMatch =
+            Regex("\"${Regex.escape(key)}\"\\s*:\\s*\\[")
+                .find(json)
+                ?: throw IllegalArgumentException("$key must be a JSON array")
         return extractSpawnGroupSection(json, keyMatch.range.last + 1, '[', ']')
     }
 
@@ -2592,8 +2594,10 @@ object EditorJsonSerializer {
         json: String,
         key: String,
     ): String {
-        val keyMatch = Regex("\"${Regex.escape(key)}\"\\s*:\\s*\\{").find(json)
-            ?: throw IllegalArgumentException("$key must be a JSON object")
+        val keyMatch =
+            Regex("\"${Regex.escape(key)}\"\\s*:\\s*\\{")
+                .find(json)
+                ?: throw IllegalArgumentException("$key must be a JSON object")
         val contentStart = keyMatch.range.last + 1
         return extractSpawnGroupSection(json, contentStart, '{', '}')
     }
@@ -2611,7 +2615,8 @@ object EditorJsonSerializer {
         key: String,
     ): String? {
         if (!hasSpawnGroupKey(json, key)) return null
-        return EventMapImageJson.stringValue(json, key)
+        return EventMapImageJson
+            .stringValue(json, key)
             ?.takeIf { it.isNotBlank() }
             ?: throw IllegalArgumentException("$key must be a non-blank string")
     }
@@ -2620,7 +2625,8 @@ object EditorJsonSerializer {
         json: String,
         key: String,
     ): Int =
-        JsonUtils.extractNumericValue(json, key)
+        JsonUtils
+            .extractNumericValue(json, key)
             .toIntOrNull()
             ?: throw IllegalArgumentException("$key must be an integer")
 

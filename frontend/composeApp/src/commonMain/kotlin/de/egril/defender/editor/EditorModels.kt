@@ -839,20 +839,20 @@ data class EditorLevel(
     }
 
     fun toLevelInfoEnemiesLevelData(index: Int): LevelInfoEnemiesLevelData {
-            val enemyCountMap = mutableMapOf<AttackerType, Int>()
-            if (spawnGroups == null) {
-                enemySpawns.groupingBy { it.attackerType }.eachCount().forEach { (attackerType, count) ->
-                    enemyCountMap[attackerType] = count
-                }
-            } else {
-                spawnGroups
-                    .flatMap { it.turns }
-                    .flatMap { it.spawns }
-                    .forEach { spawn ->
-                        enemyCountMap[spawn.attackerType] =
-                            (enemyCountMap[spawn.attackerType] ?: 0) + spawn.count.coerceAtLeast(0)
-                    }
+        val enemyCountMap = mutableMapOf<AttackerType, Int>()
+        if (spawnGroups == null) {
+            enemySpawns.groupingBy { it.attackerType }.eachCount().forEach { (attackerType, count) ->
+                enemyCountMap[attackerType] = count
             }
+        } else {
+            spawnGroups
+                .flatMap { it.turns }
+                .flatMap { it.spawns }
+                .forEach { spawn ->
+                    enemyCountMap[spawn.attackerType] =
+                        (enemyCountMap[spawn.attackerType] ?: 0) + spawn.count.coerceAtLeast(0)
+                }
+        }
 
         return LevelInfoEnemiesLevelData(
             id = "" + index,

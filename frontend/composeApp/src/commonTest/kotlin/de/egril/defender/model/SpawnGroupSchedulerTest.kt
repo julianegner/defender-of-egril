@@ -191,7 +191,9 @@ class SpawnGroupSchedulerTest {
         val bossId = state.spawnGroupBindings["boss"]
         assertTrue(bossId != null)
         // Boss dies after turn 1's spawn but before turn 2's advance (as it would during combat).
-        state.attackers.first { it.id == bossId }.isDefeated.value = true
+        state.attackers
+            .first { it.id == bossId }
+            .isDefeated.value = true
 
         // With an eager end-of-subturn check this would have already looped and spawned another
         // goblin; with the deferred check the dead boss ends the loop and nothing more spawns.

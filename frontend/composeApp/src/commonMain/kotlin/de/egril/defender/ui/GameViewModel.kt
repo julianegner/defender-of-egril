@@ -4,7 +4,6 @@ import androidx.compose.runtime.mutableStateOf
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
-import de.egril.defender.game.isProtectedByObsidianProtector
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
 import de.egril.defender.editor.EditorJsonSerializer
@@ -13,8 +12,8 @@ import de.egril.defender.editor.InitialDefender
 import de.egril.defender.editor.OfficialContent
 import de.egril.defender.game.GameEngine
 import de.egril.defender.game.LevelData
+import de.egril.defender.game.isProtectedByObsidianProtector
 import de.egril.defender.model.*
-import de.egril.defender.model.DifficultyModifiers
 import de.egril.defender.ui.animations.SKY_IS_FALLING_DURATION_MS
 import de.egril.defender.ui.gameplay.GamePlayConstants
 import de.egril.defender.ui.infopage.NewVersionInfo
