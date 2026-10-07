@@ -336,7 +336,7 @@ fun DefenderInfo(
                             Button(
                                 onClick = { onActivateAltar(defender.id) },
                                 enabled = gameState.canActivateAltar(defender),
-                                modifier = Modifier.height(buttonHeight),
+                                modifier = Modifier.width(220.dp).height(buttonHeight),
                             ) {
                                 Text(stringResource(Res.string.activate_altar))
                             }
@@ -347,7 +347,7 @@ fun DefenderInfo(
                                 defender = defender,
                                 onWizardAction = onWizardAction,
                                 selectedWizardAction = selectedWizardAction,
-                                modifier = Modifier.height(buttonHeight),
+                                modifier = Modifier.width(220.dp).height(buttonHeight),
                             )
                         }
                         Spacer(modifier = Modifier.width(horizontalSpacing))
@@ -356,7 +356,7 @@ fun DefenderInfo(
                             gameState = gameState,
                             onUndoTower = onUndoTower,
                             onSellTower = onSellTower,
-                            modifier = Modifier.height(buttonHeight),
+                            modifier = Modifier.width(220.dp).height(buttonHeight),
                         )
                     } else {
                         // Normal tower stats and buttons
@@ -445,7 +445,13 @@ fun DefenderInfo(
                                     enabled = gameState.canSanctifyDefender(defender),
                                     modifier = Modifier.height(buttonHeight),
                                 ) {
-                                    Text(stringResource(Res.string.sanctify))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    ) {
+                                        RuneCountIcon(size = 20.dp, color = LocalContentColor.current)
+                                        Text(stringResource(Res.string.sanctify))
+                                    }
                                 }
                             }
                             Spacer(modifier = Modifier.width(horizontalSpacing))
@@ -902,21 +908,23 @@ fun MagicalTrapButton(
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 de.egril.defender.ui.icon
                     .PentagramIcon(size = 24.dp)
                 Spacer(modifier = Modifier.width(8.dp))
-                Column(modifier = Modifier.weight(3f)) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         stringResource(Res.string.magical_trap),
                         fontSize = if (isOnCooldown) 14.sp else 16.sp,
                         fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     ShortcutKeyChip(text = "2")
                 }
                 if (isOnCooldown) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Spacer(modifier = Modifier.width(2.dp))
+                    Column {
                         Text(
                             defender.trapCooldownRemaining.value.toString(),
                             fontSize = 14.sp,

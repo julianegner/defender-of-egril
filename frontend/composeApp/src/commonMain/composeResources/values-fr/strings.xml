@@ -2635,7 +2635,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="event_cond_altars_activated">Autels activés simultanément</string>
     <string name="tower_altar">Autel</string>
     <string name="tower_altar_short">Autel</string>
-    <string name="sanctify">Consacrer (1 rune)</string>
+    <string name="sanctify">Consacrer</string>
     <string name="activate_altar">Activer l’autel</string>
     <string name="altar_channeling">Canalisation</string>
     <string name="altar_conversion_info">Consacrez une Tour de Magicien de niveau 10 ou supérieur sur une case de construction en dépensant une rune. Les autels ne peuvent ni attaquer ni être améliorés, mais conservent les pièges magiques.\n\nActivez un autel une fois par tour pour canaliser sa puissance pendant le tour actuel. L’activation consomme une action, et la canalisation prend fin au début du prochain tour du joueur. Activez simultanément le nombre d’autels requis pour prendre le contrôle du Réseau Runique dans les niveaux à événements programmés.</string>

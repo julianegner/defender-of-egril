@@ -2634,7 +2634,7 @@
     <string name="event_cond_altars_activated">Altares activados simultáneamente</string>
     <string name="tower_altar">Altar</string>
     <string name="tower_altar_short">Altar</string>
-    <string name="sanctify">Consagrar (1 runa)</string>
+    <string name="sanctify">Consagrar</string>
     <string name="activate_altar">Activar altar</string>
     <string name="altar_channeling">Canalizando</string>
     <string name="altar_conversion_info">Consagra una Torre de Mago de nivel 10 o superior en una casilla de construcción gastando una runa. Los altares no pueden atacar ni mejorarse, pero conservan las trampas mágicas.\n\nActiva un altar una vez por turno para canalizar su poder durante el turno actual. La activación consume una acción y la canalización termina al inicio del siguiente turno del jugador. Activa simultáneamente el número requerido de altares para tomar el control de la Red de Runas en los niveles con eventos programados.</string>
