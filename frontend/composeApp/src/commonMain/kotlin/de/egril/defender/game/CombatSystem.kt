@@ -144,11 +144,18 @@ class CombatSystem(
         target: Attacker,
     ): Int {
         val raw = getEffectiveDamage(defender)
-        val reduction = target.type.seaworthyDamageReduction
-        if (reduction <= 0f) return raw
-        // Seaworthy: only reduce when the attacker is on a barge (raft-mounted).
+        val seaworthyReduction = target.type.seaworthyDamageReduction
         val isOnBarge = defender.raftId.value != null
-        return if (isOnBarge) (raw * (1f - reduction)).toInt().coerceAtLeast(1) else raw
+        var damage =
+            if (seaworthyReduction > 0f && isOnBarge) {
+                (raw * (1f - seaworthyReduction)).toInt().coerceAtLeast(1)
+            } else {
+                raw
+            }
+        if (defender.type == DefenderType.WIZARD_TOWER && target.type.wizardTowerDamageReduction > 0f) {
+            damage = (damage * (1f - target.type.wizardTowerDamageReduction)).toInt().coerceAtLeast(1)
+        }
+        return (damage - state.runeGlyphWardArmor(target)).coerceAtLeast(0)
     }
 
     private fun queueBridgeDamage(
@@ -522,7 +529,8 @@ class CombatSystem(
         // Apply spike barbs effect (level 10+ with Construction level 1+)
         if (defender.type == DefenderType.SPIKE_TOWER &&
             defender.level.value >= 10 &&
-            state.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
+            state.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1 &&
+            !state.isProtectedByRuneGlyphWard(target)
         ) {
             target.movementPenalty.value += 1
         }
@@ -827,9 +835,10 @@ class CombatSystem(
                 if (state.isProtectedByObsidianProtector(attacker)) continue
                 // Check immunity to acid (Blue Demons)
                 if (attacker.canBeDamagedByAcid()) {
-                    val actualDamage = minOf(attacker.currentHealth.value, effect.damage)
+                    val damage = (effect.damage - state.runeGlyphWardArmor(attacker)).coerceAtLeast(0)
+                    val actualDamage = minOf(attacker.currentHealth.value, damage)
                     attacker.recordDamageTaken(actualDamage)
-                    attacker.currentHealth.value -= effect.damage
+                    attacker.currentHealth.value -= damage
                     trackWaaghChargeFromHit(attacker, actualDamage)
                     if (attacker.currentHealth.value <= 0) {
                         attacker.isDefeated.value = true

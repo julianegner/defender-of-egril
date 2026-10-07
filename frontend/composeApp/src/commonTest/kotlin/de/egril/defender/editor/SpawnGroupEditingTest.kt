@@ -325,6 +325,10 @@ class SpawnGroupEditingTest {
     @Test
     fun villainsUseTheirNameAsLoopUnitId() {
         assertEquals("Ewhad", EditorEnemySpawn(AttackerType.EWHAD, spawnTurn = 1, unitId = "boss").loopUnitId)
+        assertEquals(
+            "Grand Runemaster Vaelen",
+            EditorEnemySpawn(AttackerType.GRAND_RUNEMASTER_VAELEN, spawnTurn = 1, unitId = "boss").loopUnitId,
+        )
         assertEquals("scout", EditorEnemySpawn(AttackerType.GOBLIN, spawnTurn = 1, unitId = "scout").loopUnitId)
 
         // Older data with a custom villain id is migrated, and conditions follow the rename.

@@ -311,8 +311,9 @@ class MineOperations(
                     TrapType.DWARVEN -> {
                         // Deal damage to enemy
                         if (!enemyAtPosition.type.isMirrorImage && !state.isProtectedByObsidianProtector(enemyAtPosition)) {
-                            enemyAtPosition.recordDamageTaken(minOf(enemyAtPosition.currentHealth.value, trap.damage))
-                            enemyAtPosition.currentHealth.value -= trap.damage
+                            val damage = (trap.damage - state.runeGlyphWardArmor(enemyAtPosition)).coerceAtLeast(0)
+                            enemyAtPosition.recordDamageTaken(minOf(enemyAtPosition.currentHealth.value, damage))
+                            enemyAtPosition.currentHealth.value -= damage
                         }
 
                         // Check if defeated
@@ -322,9 +323,11 @@ class MineOperations(
                     }
                     TrapType.MAGICAL -> {
                         // Teleport enemy back to spawn point
-                        val spawnPoint = findSpawnPointForEnemy(enemyAtPosition)
-                        if (spawnPoint != null) {
-                            enemyAtPosition.position.value = spawnPoint
+                        if (!enemyAtPosition.type.immuneToMagicalTraps) {
+                            val spawnPoint = findSpawnPointForEnemy(enemyAtPosition)
+                            if (spawnPoint != null) {
+                                enemyAtPosition.position.value = spawnPoint
+                            }
                         }
                     }
                 }

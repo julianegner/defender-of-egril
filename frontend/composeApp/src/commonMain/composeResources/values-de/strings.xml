@@ -2342,6 +2342,10 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_zythar_title">Zythar der Riftrufer betritt das Schlachtfeld</string>
     <string name="villain_zythar_backstory">Zythar der Riftrufer reißt Löcher in die Realität selbst.</string>
     <string name="villain_zythar_description">Er beschwört Dämonen und Dämonlinge, die er als Späher vorausschickt, um Rift-Portale zu öffnen.</string>
+    <string name="vaelen_name">Großrunenmeister Vaelen</string>
+    <string name="villain_vaelen_title">Großrunenmeister Vaelen betritt das Schlachtfeld</string>
+    <string name="villain_vaelen_backstory">Ewhad webt die dunklen Leylinien nicht selbst – das überlässt er Vaelen. Solange Vaelen atmet, wird die Verderbnis unaufhörlich weiterfließen.</string>
+    <string name="villain_vaelen_description">Vaelen ist immun gegen magische Fallen und erleidet 50 % weniger Schaden durch Zaubertürme. Alle 3 Runden bringt Runische Woge bis zu 2 nahe Türme für 1 Runde zum Schweigen. Feinde im Umkreis von 2 Feldern erhalten +2 Rüstung und können nicht verlangsamt werden.</string>
     <string name="villain_zythar_portal_short">Rift-Portale: Dämonlinge opfern sich, um blau-Eingang / orange-Ausgang Portale zu öffnen, die jeden Feind darauf zum Ausgang teleportieren</string>
 
     <!-- Beschreibungen der Feindeseinheiten -->

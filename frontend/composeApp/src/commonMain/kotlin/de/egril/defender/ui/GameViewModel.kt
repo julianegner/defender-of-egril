@@ -13,6 +13,8 @@ import de.egril.defender.editor.OfficialContent
 import de.egril.defender.game.GameEngine
 import de.egril.defender.game.LevelData
 import de.egril.defender.game.isProtectedByObsidianProtector
+import de.egril.defender.game.isProtectedByRuneGlyphWard
+import de.egril.defender.game.runeGlyphWardArmor
 import de.egril.defender.model.*
 import de.egril.defender.ui.animations.SKY_IS_FALLING_DURATION_MS
 import de.egril.defender.ui.gameplay.GamePlayConstants
@@ -4264,7 +4266,7 @@ class GameViewModel {
 
         // Check for freeze immunity
         if (spell == SpellType.FREEZE_SPELL && target is Attacker) {
-            if (isImmuneToFreeze(target.type)) {
+            if (isImmuneToFreeze(target.type) || gameState.isProtectedByRuneGlyphWard(target)) {
                 _showFreezeImmuneWarning.value = target
                 if (LogConfig.ENABLE_SPELL_LOGGING) {
                     println("=== SPELL: ${target.type.displayName} is immune to Freeze!")
@@ -4560,7 +4562,8 @@ class GameViewModel {
                         attacker.type.isDragon ||
                             attacker.type == AttackerType.BLUE_DEMON ||
                             attacker.type == AttackerType.RED_DEMON ||
-                            attacker.type == AttackerType.EWHAD
+                            attacker.type == AttackerType.EWHAD ||
+                            gameState.isProtectedByRuneGlyphWard(attacker)
 
                     if (isImmune) {
                         println("Freeze Spell: ${attacker.type.displayName} is immune to freeze!")
@@ -4949,9 +4952,11 @@ class GameViewModel {
         attacker: Attacker,
         damage: Int,
     ) {
-        if (_gameState.value?.isProtectedByObsidianProtector(attacker) == true) return
-        attacker.recordDamageTaken(minOf(attacker.currentHealth.value, damage))
-        attacker.currentHealth.value = (attacker.currentHealth.value - damage).coerceAtLeast(0)
+        val gameState = _gameState.value
+        if (gameState?.isProtectedByObsidianProtector(attacker) == true) return
+        val effectiveDamage = (damage - (gameState?.runeGlyphWardArmor(attacker) ?: 0)).coerceAtLeast(0)
+        attacker.recordDamageTaken(minOf(attacker.currentHealth.value, effectiveDamage))
+        attacker.currentHealth.value = (attacker.currentHealth.value - effectiveDamage).coerceAtLeast(0)
         if (attacker.currentHealth.value <= 0) {
             attacker.isDefeated.value = true
         }

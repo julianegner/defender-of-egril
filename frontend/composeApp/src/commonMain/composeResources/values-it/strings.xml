@@ -2345,6 +2345,10 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_zythar_title">Zythar il Chiamatore di Varchi entra nel campo di battaglia</string>
     <string name="villain_zythar_backstory">Zythar il Chiamatore di Varchi strappa buchi nella realtà stessa.</string>
     <string name="villain_zythar_description">Evoca demoni e demonetti, che invia avanti come esploratori per aprire portali di varco.</string>
+    <string name="vaelen_name">Gran Runomante Vaelen</string>
+    <string name="villain_vaelen_title">Il Gran Runomante Vaelen entra nel campo di battaglia</string>
+    <string name="villain_vaelen_backstory">Ewhad non tesse personalmente le linee oscure: lascia questo compito a Vaelen. Finché Vaelen respira, la corruzione non smetterà mai di fluire.</string>
+    <string name="villain_vaelen_description">Vaelen è immune alle trappole magiche e subisce il 50% di danni in meno dalle Torri del Mago. Ogni 3 turni, l&apos;Impulso Runico silenzia fino a 2 torri vicine per 1 turno. I nemici entro 2 celle ottengono +2 armatura e non possono essere rallentati.</string>
     <string name="villain_zythar_portal_short">Portali di varco: i demonetti si sacrificano per aprire portali ingresso blu / uscita arancione che teletrasportano ogni nemico all&apos;uscita</string>
 
     <!-- Descrizioni delle Unità Nemiche -->
