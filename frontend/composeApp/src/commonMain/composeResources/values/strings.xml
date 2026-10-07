@@ -2352,6 +2352,10 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_zythar_title">Zythar the Riftcaller enters the battlefield</string>
     <string name="villain_zythar_backstory">Zythar the Riftcaller tears holes in reality itself.</string>
     <string name="villain_zythar_description">He summons demons and demonlings, which he sends ahead as scouts to open rift portals.</string>
+    <string name="vaelen_name">Grand Runemaster Vaelen</string>
+    <string name="villain_vaelen_title">Grand Runemaster Vaelen enters the battlefield</string>
+    <string name="villain_vaelen_backstory">Ewhad does not weave the dark ley-lines himself—he leaves that to Vaelen. As long as Vaelen draws breath, the corruption will never cease to flow.</string>
+    <string name="villain_vaelen_description">Vaelen is immune to magical traps and takes 50% less damage from Wizard Towers. Every 3 turns, Runic Surge silences up to 2 nearby towers for 1 turn. Enemies within 2 tiles gain +2 armor and cannot be slowed.</string>
     <string name="villain_zythar_portal_short">Rift Portals: demonlings sacrifice themselves to open blue-entry / orange-exit portals that teleport any enemy stepping on them to the exit</string>
 
     <!-- Enemy Unit Descriptions -->

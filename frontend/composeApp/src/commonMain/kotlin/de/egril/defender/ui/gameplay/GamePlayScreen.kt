@@ -1859,6 +1859,10 @@ private fun GamePlayScreenContent(
                         onExternalShowSettingsHandled = { triggerShowSettings = false },
                     )
 
+                    gameState.attackers
+                        .firstOrNull { it.type.showBossHealthBar && !it.isDefeated.value }
+                        ?.let { BossHealthBar(it) }
+
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // Game Grid with toggle button and overlay
@@ -3449,6 +3453,9 @@ private fun GamePlayScreenContent(
                                         AttackerType.ZYTHAR_THE_RIFTCALLER.name ->
                                             stringResource(Res.string.villain_zythar_title) to
                                                 (stringResource(Res.string.villain_zythar_backstory) + "\n" + stringResource(Res.string.villain_zythar_description))
+                                        AttackerType.GRAND_RUNEMASTER_VAELEN.name ->
+                                            stringResource(Res.string.villain_vaelen_title) to
+                                                (stringResource(Res.string.villain_vaelen_backstory) + "\n" + stringResource(Res.string.villain_vaelen_description))
                                         else ->
                                             stringResource(Res.string.villain_enters_title) to
                                                 stringResource(Res.string.villain_enters_text)
@@ -3966,6 +3973,7 @@ internal fun villainMessageButtonColor(name: String?): Color? {
         AttackerType.THE_KRAKEN -> Color(0xFF0A3D4A)
         // Riftcaller dark sorcerer – deep void indigo
         AttackerType.ZYTHAR_THE_RIFTCALLER -> Color(0xFF0A001E)
+        AttackerType.GRAND_RUNEMASTER_VAELEN -> Color(0xFF74152B)
         // Default for EWHAD and other villains (if any added in future)
         else -> null
     }

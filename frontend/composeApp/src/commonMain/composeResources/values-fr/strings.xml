@@ -2344,6 +2344,10 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_zythar_title">Zythar le Convocateur de Failles entre sur le champ de bataille</string>
     <string name="villain_zythar_backstory">Zythar le Convocateur de Failles déchire des trous dans la réalité elle-même.</string>
     <string name="villain_zythar_description">Il invoque des démons et des démonelings, qu&apos;il envoie en éclaireurs pour ouvrir des portails de faille.</string>
+    <string name="vaelen_name">Grand Maître des Runes Vaelen</string>
+    <string name="villain_vaelen_title">Le Grand Maître des Runes Vaelen entre sur le champ de bataille</string>
+    <string name="villain_vaelen_backstory">Ewhad ne tisse pas lui-même les lignes telluriques obscures : il laisse cette tâche à Vaelen. Tant que Vaelen respire, la corruption ne cessera jamais de se répandre.</string>
+    <string name="villain_vaelen_description">Vaelen est immunisé contre les pièges magiques et subit 50 % de dégâts en moins des tours de sorcier. Tous les 3 tours, la Surtension runique réduit au silence jusqu&apos;à 2 tours proches pendant 1 tour. Les ennemis à 2 cases gagnent +2 d&apos;armure et ne peuvent pas être ralentis.</string>
     <string name="villain_zythar_portal_short">Portails de faille : les démonelings se sacrifient pour ouvrir des portails entrée bleue / sortie orange qui téléportent tout ennemi vers la sortie</string>
 
     <!-- Descriptions des Unités Ennemies -->

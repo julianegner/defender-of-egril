@@ -28,6 +28,7 @@ class NarrativeMessageDialogLogicTest {
         val silasColors = narrativeTextColors(AttackerType.SILAS_THE_MASKMASTER)
         val malakorColors = narrativeTextColors(AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE)
         val morvathColors = narrativeTextColors(AttackerType.MORVATH_THE_SHADOWMASTER)
+        val vaelenColors = narrativeTextColors(AttackerType.GRAND_RUNEMASTER_VAELEN)
         val defaultColors = narrativeTextColors(AttackerType.GAROKK)
 
         assertEquals(Color(0xFFF7F1E8), silasColors.title)
@@ -36,12 +37,16 @@ class NarrativeMessageDialogLogicTest {
         assertEquals(Color(0xFFE9DFD2), malakorColors.body)
         assertEquals(Color(0xFFF7F1E8), morvathColors.title)
         assertEquals(Color(0xFFE9DFD2), morvathColors.body)
+        assertEquals(Color(0xFFF7F1E8), vaelenColors.title)
+        assertEquals(Color(0xFFE9DFD2), vaelenColors.body)
         assertTrue(silasColors.title != defaultColors.title)
         assertTrue(silasColors.body != defaultColors.body)
         assertTrue(malakorColors.title != defaultColors.title)
         assertTrue(malakorColors.body != defaultColors.body)
         assertTrue(morvathColors.title != defaultColors.title)
         assertTrue(morvathColors.body != defaultColors.body)
+        assertTrue(vaelenColors.title != defaultColors.title)
+        assertTrue(vaelenColors.body != defaultColors.body)
     }
 
     @Test

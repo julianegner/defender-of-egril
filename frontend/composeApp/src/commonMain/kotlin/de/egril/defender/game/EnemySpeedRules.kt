@@ -17,7 +17,13 @@ internal fun calculateEffectiveEnemySpeed(
         if (goblinWaaghActive) {
             attacker.type.speed * 2
         } else {
-            var speed = maxOf(1, attacker.currentBaseMovementSpeed - attacker.movementPenalty.value)
+            val movementPenalty =
+                if (state.isProtectedByRuneGlyphWard(attacker, currentPos)) {
+                    0
+                } else {
+                    attacker.movementPenalty.value
+                }
+            var speed = maxOf(1, attacker.currentBaseMovementSpeed - movementPenalty)
             if (attacker.type == AttackerType.ORK &&
                 (state.level.waaghEnabled && state.waaghFrenzyActive.value || attacker.bloodlustRoundsLeft.value > 0)
             ) {
@@ -33,11 +39,12 @@ internal fun calculateEffectiveEnemySpeed(
     }
     if (!goblinWaaghActive) {
         val isInCoolingArea =
-            state.activeSpellEffects.any { effect ->
-                effect.spell == SpellType.COOLING_SPELL &&
-                    effect.position != null &&
-                    currentPos.hexDistanceTo(effect.position) <= 2
-            }
+            !state.isProtectedByRuneGlyphWard(attacker, currentPos) &&
+                state.activeSpellEffects.any { effect ->
+                    effect.spell == SpellType.COOLING_SPELL &&
+                        effect.position != null &&
+                        currentPos.hexDistanceTo(effect.position) <= 2
+                }
         if (isInCoolingArea) {
             effectiveSpeed = maxOf(0, effectiveSpeed - 1)
         }

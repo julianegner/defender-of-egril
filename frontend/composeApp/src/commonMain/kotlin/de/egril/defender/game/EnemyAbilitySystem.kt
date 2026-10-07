@@ -196,6 +196,7 @@ class EnemyAbilitySystem(
                         undead = 3,
                     )
                 }
+                AttackerType.GRAND_RUNEMASTER_VAELEN -> handleVaelenRunicSurge(attacker)
                 AttackerType.GREEN_WITCH -> {
                     val abilityUses = if (attacker.mushroomTurnsRemaining.value > 0) 2 else 1
                     repeat(abilityUses) {
@@ -926,8 +927,31 @@ class EnemyAbilitySystem(
                         applyCovenDisableBoost(villain, ability)
                     }
                 }
+                VillainAuraEffect.RUNE_GLYPH_WARD -> Unit // Evaluated dynamically by RuneGlyphWard.
             }
         }
+    }
+
+    private fun handleVaelenRunicSurge(vaelen: Attacker) {
+        if (vaelen.summonCooldown.value > 0) return
+
+        val range = vaelen.type.towerDisableRangeBase ?: return
+        val cooldown = vaelen.type.towerDisableCooldown ?: return
+        val duration = vaelen.type.towerDisableDurationTurns ?: return
+        state.defenders
+            .asSequence()
+            .filter { tower ->
+                tower.isReady &&
+                    !tower.isDisabled.value &&
+                    vaelen.position.value.hexDistanceTo(tower.position.value) <= range
+            }.sortedBy { tower -> vaelen.position.value.hexDistanceTo(tower.position.value) }
+            .take(2)
+            .forEach { tower ->
+                tower.isDisabled.value = true
+                tower.disabledTurnsRemaining.value = duration + 1
+            }
+
+        vaelen.summonCooldown.value = cooldown
     }
 
     private fun applySpeedAura(

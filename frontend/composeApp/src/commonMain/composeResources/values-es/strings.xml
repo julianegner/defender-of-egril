@@ -2343,6 +2343,10 @@
     <string name="villain_zythar_title">Zythar el Convocador de Rifts entra al campo de batalla</string>
     <string name="villain_zythar_backstory">Zythar el Convocador de Rifts rasga agujeros en la realidad misma.</string>
     <string name="villain_zythar_description">Invoca demonios y demonines, que envía por delante como exploradores para abrir portales de rift.</string>
+    <string name="vaelen_name">Gran Maestro de Runas Vaelen</string>
+    <string name="villain_vaelen_title">El Gran Maestro de Runas Vaelen entra al campo de batalla</string>
+    <string name="villain_vaelen_backstory">Ewhad no teje las líneas ley oscuras; deja esa tarea a Vaelen. Mientras Vaelen respire, la corrupción nunca dejará de fluir.</string>
+    <string name="villain_vaelen_description">Vaelen es inmune a las trampas mágicas y recibe un 50 % menos de daño de las Torres de Mago. Cada 3 turnos, Oleada Rúnica silencia hasta 2 torres cercanas durante 1 turno. Los enemigos a 2 casillas obtienen +2 de armadura y no pueden ralentizarse.</string>
     <string name="villain_zythar_portal_short">Portales de Rift: los demonínes se sacrifican para abrir portales de entrada azul / salida naranja que teletransportan a cualquier enemigo a la salida</string>
 
     <!-- Descripciones de Unidades Enemigas -->
