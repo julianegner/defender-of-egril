@@ -221,6 +221,7 @@ enum class GameMessageType {
  * @param eventMessageFrame For [GameMessageType.EVENT_MESSAGE]: the visual frame configured for the
  *                      message in the level editor (see [EventMessageFrameId]); null = standard frame.
 * @param highlightPositions  Optional pair of positions to highlight (e.g., old and new position for coven swap).
+* @param eventMessageAmount  Optional numeric story argument captured when the event fires.
 */
 data class GameMessage(
     val type: GameMessageType,
@@ -228,6 +229,7 @@ data class GameMessage(
     val eventActions: List<EventAction>? = null,
     val eventMessageFrame: EventMessageFrameId? = null,
     val highlightPositions: Pair<Position, Position>? = null,
+    val eventMessageAmount: Int? = null, // Numeric story argument captured when the event fired
 )
 
 data class PendingSoulCall(

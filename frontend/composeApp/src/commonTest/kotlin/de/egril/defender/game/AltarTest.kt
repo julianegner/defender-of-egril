@@ -175,8 +175,12 @@ class AltarTest {
         assertEquals(0, altar.actionsRemaining.value)
         assertFalse(engine.activateAltar(altar.id))
         altar.resetActions()
+        altar.trapCooldownRemaining.value = 0
         assertTrue(engine.activateAltar(altar.id))
         assertFalse(engine.performWizardPlaceMagicalTrap(altar.id, Position(3, 3)))
+        state.phase.value = GamePhase.ENEMY_TURN
+        engine.completeEnemyTurn()
+        assertTrue(engine.performWizardPlaceMagicalTrap(altar.id, Position(3, 3)))
     }
 
     @Test

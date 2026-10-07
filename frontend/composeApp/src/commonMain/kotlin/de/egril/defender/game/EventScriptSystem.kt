@@ -109,8 +109,7 @@ class EventScriptSystem(
             it.type == DefenderType.ALTAR && it.isChanneling.value && it.isReady && !it.isDisabled.value
         }
 
-    private fun messageAmount(messageKey: String?): Int? =
-        if (messageKey == "event_msg_rune_network_taken_over") activatedAltarCount() else null
+    private fun messageAmount(messageKey: String?): Int? = if (messageKey == "event_msg_rune_network_taken_over") activatedAltarCount() else null
 
     private fun fireEvent(event: LevelEvent) {
         val eventMessageAmount = messageAmount(event.messageKey)

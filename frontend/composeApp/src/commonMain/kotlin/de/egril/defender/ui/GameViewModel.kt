@@ -1807,6 +1807,10 @@ class GameViewModel {
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
         val engine = gameEngine ?: return
+        if (state.scriptedVictory.value) {
+            surfaceNextPendingMessageIfIdle()
+            return
+        }
 
         // NOTE: Auto-attacks are NOT triggered here when clicking "End Turn".
         // They only happen when clicking "Auto-Attack and End Turn" button (see autoAttackAndEndTurn()).
@@ -1825,6 +1829,7 @@ class GameViewModel {
             // The UI immediately shows "ENEMY TURN" indicator when phase changes
             engine.startEnemyTurn()
             surfaceNextPendingMessageIfIdle()
+            if (state.scriptedVictory.value) return@launch
             waitForBlockingNarrativeMessageDismissal()
 
             // Calculate all movement steps for existing units
@@ -1838,6 +1843,10 @@ class GameViewModel {
                 // Apply all movements in this step simultaneously
                 for ((attackerId, newPosition) in stepMovements) {
                     engine.applyMovement(attackerId, newPosition)
+                    if (state.scriptedVictory.value) {
+                        surfaceNextPendingMessageIfIdle()
+                        return@launch
+                    }
                 }
                 // Delay between movement steps so user can see the animation (reduced from 400ms to 200ms)
                 delay(200)
@@ -1867,6 +1876,10 @@ class GameViewModel {
 
             // Now spawn new units (spawn points should be clear after movements)
             engine.spawnEnemyTurnAttackers()
+            if (state.scriptedVictory.value) {
+                surfaceNextPendingMessageIfIdle()
+                return@launch
+            }
 
             // Show spawned units briefly (reduced from 400ms to 200ms)
             delay(200)
@@ -1882,6 +1895,10 @@ class GameViewModel {
                 val trapCountBefore = _gameState.value?.trapTriggerEffects?.size ?: 0
                 for ((attackerId, newPosition) in stepMovements) {
                     engine.applyMovement(attackerId, newPosition)
+                    if (state.scriptedVictory.value) {
+                        surfaceNextPendingMessageIfIdle()
+                        return@launch
+                    }
                 }
                 // Delay between movement steps (reduced from 400ms to 200ms)
                 delay(200)
@@ -2003,6 +2020,7 @@ class GameViewModel {
             // Surface any messages queued by scripted events fired by the auto-attacks (kills), so they
             // are shown even when the turn does not end immediately (special actions remaining below).
             surfaceNextPendingMessageIfIdle()
+            if (currentState.scriptedVictory.value) return@launch
 
             // Check if there are special actions remaining (mines, alchemy, wizard traps)
             val specialActionTypes = currentState.getDefenderTypesWithSpecialActions()
@@ -2039,6 +2057,14 @@ class GameViewModel {
         levelId: Int,
         won: Boolean,
     ) {
+        if (won && _gameState.value?.scriptedVictory?.value == true) {
+            if (_currentScreen.value !is Screen.GamePlay) return
+            if (_pendingGameMessage.value != null) return
+            if (_gameState.value?.pendingMessages?.isNotEmpty() == true) {
+                surfaceNextPendingMessageIfIdle()
+                return
+            }
+        }
         val activeEditorPlaytest = editorPlaytestSession
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
         val rawXpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
@@ -4064,6 +4090,12 @@ class GameViewModel {
             _pendingGameMessage.value = next
         } else {
             _pendingGameMessage.value = null
+            if (_currentScreen.value is Screen.GamePlay &&
+                state != null && state.scriptedVictory.value &&
+                !state.isLevelLost() && state.isLevelWon()
+            ) {
+                completeLevel(state.level.id, won = true)
+            }
         }
     }
 
@@ -4090,6 +4122,9 @@ class GameViewModel {
         if (state.pendingMessages.isNotEmpty() && _pendingGameMessage.value == null) {
             val nextMessage = state.pendingMessages.removeAt(0)
             _pendingGameMessage.value = nextMessage
+        }
+        if (state.scriptedVictory.value && !state.isLevelLost() && state.isLevelWon()) {
+            completeLevel(state.level.id, won = true)
         }
     }
 

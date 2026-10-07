@@ -2633,7 +2633,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="event_cond_altars_activated">Gleichzeitig aktivierte Altäre</string>
     <string name="tower_altar">Altar</string>
     <string name="tower_altar_short">Altar</string>
-    <string name="sanctify">Weihen</string>
+    <string name="sanctify">Weihen (1 Rune)</string>
     <string name="activate_altar">Altar aktivieren</string>
     <string name="altar_channeling">Kanalisiert</string>
     <string name="altar_conversion_info">Weihe einen Zauberturm ab Stufe 10 auf einem Bauplatz für eine Rune. Altäre können weder angreifen noch verbessert werden, behalten aber ihre magischen Fallen.\n\nAktiviere einen Altar einmal pro Zug, um seine Kraft für den aktuellen Zug zu kanalisieren. Die Aktivierung verbraucht eine Aktion, und die Kanalisierung endet zu Beginn des nächsten Spielerzugs. Aktiviere die benötigte Anzahl Altäre gleichzeitig, um in geskripteten Leveln das Runennetzwerk zu übernehmen.</string>

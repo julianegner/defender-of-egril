@@ -2643,7 +2643,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="event_cond_altars_activated">Altars activated simultaneously</string>
     <string name="tower_altar">Altar</string>
     <string name="tower_altar_short">Altar</string>
-    <string name="sanctify">Sanctify</string>
+    <string name="sanctify">Sanctify (1 rune)</string>
     <string name="activate_altar">Activate Altar</string>
     <string name="altar_channeling">Channeling</string>
     <string name="altar_conversion_info">Sanctify a level 10 or higher Wizard Tower on a build tile by spending one rune. Altars cannot attack or be upgraded, but retain magical traps.\n\nActivate an Altar once per turn to channel its power for the current turn. Activation consumes an action, and channeling resets at the start of the next player turn. Activate the required number of Altars simultaneously to take over the Rune Network in scripted levels.</string>
