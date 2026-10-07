@@ -305,9 +305,11 @@ data class GameState(
     // Spawn loops (issue #694). When [spawnGroups] is non-null it drives spawning instead of
     // [spawnPlan]; [spawnGroupCursor] tracks the active group/iteration and [spawnGroupBindings]
     // maps a group's logical unit ids to the actual spawned attacker ids (for UNIT_ALIVE loops).
-    val spawnGroups: List<SpawnGroup>? = level.spawnGroups,
+    val spawnGroups: List<SpawnSequenceEntry>? = level.spawnGroups,
     val spawnGroupCursor: MutableState<SpawnGroupCursor> = mutableStateOf(SpawnGroupCursor()),
     val spawnGroupBindings: SnapshotStateMap<String, Int> = mutableStateMapOf(),
+    // Spawn loops ended by a STOP_SPAWN_LOOP event action; they are skipped and never repeat again.
+    val stoppedSpawnLoops: SnapshotStateList<String> = mutableStateListOf(),
     val fieldEffects: SnapshotStateList<FieldEffect> = mutableStateListOf(), // Track active field effects
     val healingEffects: SnapshotStateList<HealingEffect> = mutableStateListOf(), // Track active healing effects
     val damageEffects: SnapshotStateList<DamageEffect> = mutableStateListOf(), // Track barricade damage effects
@@ -640,7 +642,7 @@ data class GameState(
     val hasHordeUnitsInLevel: Boolean
         get() =
             spawnPlan.any { it.attackerType.countsAsHordeForWaagh() } ||
-                (spawnGroups?.any { group -> group.turns.any { t -> t.spawns.any { it.attackerType.countsAsHordeForWaagh() } } } ?: false) ||
+                (spawnGroups?.allSpawnEntries()?.any { it.attackerType.countsAsHordeForWaagh() } ?: false) ||
                 level.getEffectiveInitialData().attackers.any { it.type.countsAsHordeForWaagh() } ||
                 attackers.any { !it.isDefeated.value && it.type.countsAsHordeForWaagh() }
 
@@ -876,9 +878,12 @@ data class GameState(
      * turn returns no spawns, guarding against accidental double-spawning.
      */
     fun plannedSpawnsForTurn(turn: Int): List<PlannedEnemySpawn> {
-        val groups = spawnGroups ?: return spawnPlan.filter { it.spawnTurn == turn }
-        return advanceSpawnGroups(groups, turn)
+        val root = spawnSequenceRootGroup ?: return spawnPlan.filter { it.spawnTurn == turn }
+        return advanceSpawnGroups(root, turn)
     }
+
+    /** The level's top-level spawn sequence wrapped in the implicit, non-repeating root group. */
+    private val spawnSequenceRootGroup: SpawnGroup? by lazy { spawnGroups?.let { spawnSequenceRoot(it) } }
 
     /**
      * Binds a spawn group's logical [unitId] to the actually-spawned [attackerId]. The binding is
@@ -901,7 +906,7 @@ data class GameState(
     }
 
     private fun advanceSpawnGroups(
-        groups: List<SpawnGroup>,
+        root: SpawnGroup,
         turn: Int,
     ): List<PlannedEnemySpawn> {
         val startCursor = spawnGroupCursor.value
@@ -913,106 +918,29 @@ data class GameState(
         // the start of the turn so a loop predicate (e.g. CONDITION/UNIT_ALIVE) is evaluated only
         // after the previous iteration's final subturn — including that turn's resolved combat,
         // lasting (acid) damage, traps, and defeated-attacker processing — has fully played out.
-        val cursor = resolveIterationForTurn(groups, startCursor, turn)
-        if (cursor.finished || cursor.groupIndex >= groups.size) {
-            spawnGroupCursor.value = cursor.copy(finished = true, lastProcessedTurn = turn)
-            return emptyList()
-        }
-
-        val group = groups[cursor.groupIndex]
-        val maxOffset = group.maxTurnOffset
-        val relativeOffset = turn - cursor.iterationStartTurn + 1
-
-        val spawns = mutableListOf<PlannedEnemySpawn>()
-        if (relativeOffset in 1..maxOffset) {
-            group.turns
-                .filter { it.turnOffset == relativeOffset }
-                .forEach { turnEntry ->
-                    turnEntry.spawns
-                        .filter { !(it.firstIterationOnly && cursor.repetition > 0) }
-                        .forEach { entry ->
-                            repeat(entry.count.coerceAtLeast(1)) {
-                                spawns.add(
-                                    PlannedEnemySpawn(
-                                        attackerType = entry.attackerType,
-                                        spawnTurn = turn,
-                                        level = entry.level,
-                                        spawnPoint = entry.spawnPoint,
-                                        unitId = entry.unitId,
-                                    ),
-                                )
-                            }
-                        }
-                }
-        }
-
+        val cursor = SpawnSequenceRunner.resolve(root, startCursor, turn, stoppedSpawnLoops.toSet(), ::shouldLoop)
         spawnGroupCursor.value = cursor.copy(lastProcessedTurn = turn)
-        return spawns
+        return SpawnSequenceRunner.spawnsAt(root, cursor, turn)
     }
 
     /**
-     * Advances the cursor past every iteration whose span ends before [turn], deciding loop vs.
-     * advance for each completed iteration. Because this runs at the start of processing [turn],
-     * each decision reflects the state left by the previous turn (the completed iteration's final
-     * subturn and its resolved combat). Does not mutate [spawnGroupCursor]; returns the resolved
-     * cursor for [turn]. An iteration occupies turns `[iterationStartTurn, iterationStartTurn +
-     * maxTurnOffset - 1]`, so it is complete once `relativeOffset > maxTurnOffset`.
+     * Permanently ends the spawn loop [groupId] (event action STOP_SPAWN_LOOP). A running loop stops
+     * right away and spawning continues after it from the next unprocessed turn; a loop that has not
+     * started yet is skipped when reached.
      */
-    private fun resolveIterationForTurn(
-        groups: List<SpawnGroup>,
-        cursorIn: SpawnGroupCursor,
-        turn: Int,
-    ): SpawnGroupCursor {
-        var cursor = cursorIn
-        while (!cursor.finished && cursor.groupIndex < groups.size) {
-            val group = groups[cursor.groupIndex]
-            val maxOffset = group.maxTurnOffset
-            // Empty group (no playable subturns): advance past it immediately.
-            if (maxOffset <= 0) {
-                cursor = advanceToNextGroup(cursor, groups, turn)
-                continue
-            }
-            val relativeOffset = turn - cursor.iterationStartTurn + 1
-            // Still within the current iteration (including exactly its final subturn).
-            if (relativeOffset <= maxOffset) return cursor
-            // The current iteration is complete; decide based on the now fully-resolved state.
-            cursor =
-                if (shouldLoop(group, cursor)) {
-                    cursor.copy(
-                        repetition = cursor.repetition + 1,
-                        iterationStartTurn = cursor.iterationStartTurn + maxOffset,
-                    )
-                } else {
-                    advanceToNextGroup(cursor, groups, turn)
-                }
-        }
-        return cursor
-    }
-
-    private fun advanceToNextGroup(
-        cursor: SpawnGroupCursor,
-        groups: List<SpawnGroup>,
-        turn: Int,
-    ): SpawnGroupCursor {
-        val currentMaxOffset = groups[cursor.groupIndex].maxTurnOffset
-        val nextGroupIndex = cursor.groupIndex + 1
-        // Continue right after the current iteration's span. For an empty group (no span) the next
-        // group simply starts on this turn.
-        val nextStart = if (currentMaxOffset > 0) cursor.iterationStartTurn + currentMaxOffset else turn
-        return cursor.copy(
-            groupIndex = nextGroupIndex,
-            repetition = 0,
-            iterationStartTurn = nextStart,
-            finished = nextGroupIndex >= groups.size,
-        )
+    fun stopSpawnLoop(groupId: String) {
+        if (groupId !in stoppedSpawnLoops) stoppedSpawnLoops.add(groupId)
+        val root = spawnSequenceRootGroup ?: return
+        val cursor = spawnGroupCursor.value
+        spawnGroupCursor.value = SpawnSequenceRunner.stop(root, cursor, groupId, cursor.lastProcessedTurn + 1)
     }
 
     private fun shouldLoop(
         group: SpawnGroup,
-        cursor: SpawnGroupCursor,
+        repetition: Int,
     ): Boolean =
         when (group.repeatMode) {
-            SpawnRepeatMode.COUNT -> cursor.repetition < group.repeatCount - 1
+            SpawnRepeatMode.COUNT -> repetition < group.repeatCount - 1
             SpawnRepeatMode.CONDITION ->
                 group.condition == SpawnCondition.UNIT_ALIVE &&
                     group.targetUnitId != null &&
@@ -1023,63 +951,14 @@ data class GameState(
     /**
      * Best-effort forecast of all remaining scripted spawns for spawn-loop levels, used for UI
      * previews and guaranteed-win detection. Returns `null` when the remaining schedule is unbounded
-     * (an active [SpawnRepeatMode.INFINITE] group, or a [SpawnRepeatMode.CONDITION] group whose loop
-     * cannot be statically resolved). Does not mutate the cursor.
+     * (an [SpawnRepeatMode.INFINITE] group, or a [SpawnRepeatMode.CONDITION] group whose loop
+     * decision depends on future game state). Does not mutate the cursor.
      */
     fun forecastRemainingGroupSpawns(): List<PlannedEnemySpawn>? {
-        val groups = spawnGroups ?: return emptyList()
+        val root = spawnSequenceRootGroup ?: return emptyList()
         val cursor = spawnGroupCursor.value
-        if (cursor.finished || cursor.groupIndex >= groups.size) return emptyList()
-
-        val result = mutableListOf<PlannedEnemySpawn>()
-        var groupIndex = cursor.groupIndex
-        var repetition = cursor.repetition
-        var iterationStart = cursor.iterationStartTurn
-
-        while (groupIndex < groups.size) {
-            val group = groups[groupIndex]
-            val maxOffset = group.maxTurnOffset
-            if (maxOffset <= 0) {
-                groupIndex++
-                repetition = 0
-                continue
-            }
-            // Unbounded remaining schedule cannot be forecast.
-            if (group.repeatMode == SpawnRepeatMode.INFINITE) return null
-            if (group.repeatMode == SpawnRepeatMode.CONDITION) return null
-
-            val remainingIterations = group.repeatCount - repetition
-            for (iteration in 0 until remainingIterations) {
-                val isFirstIteration = (repetition + iteration) == 0
-                for (offset in 1..maxOffset) {
-                    val forecastTurn = iterationStart + offset - 1
-                    if (forecastTurn <= turnNumber.value) continue
-                    group.turns
-                        .filter { it.turnOffset == offset }
-                        .forEach { turnEntry ->
-                            turnEntry.spawns
-                                .filter { !(it.firstIterationOnly && !isFirstIteration) }
-                                .forEach { entry ->
-                                    repeat(entry.count.coerceAtLeast(1)) {
-                                        result.add(
-                                            PlannedEnemySpawn(
-                                                attackerType = entry.attackerType,
-                                                spawnTurn = forecastTurn,
-                                                level = entry.level,
-                                                spawnPoint = entry.spawnPoint,
-                                                unitId = entry.unitId,
-                                            ),
-                                        )
-                                    }
-                                }
-                        }
-                }
-                iterationStart += maxOffset
-            }
-            groupIndex++
-            repetition = 0
-        }
-        return result
+        if (cursor.finished) return emptyList()
+        return SpawnSequenceRunner.forecast(root, cursor, turnNumber.value, stoppedSpawnLoops.toSet())
     }
 
     fun getActiveEnemyCount(): Int {

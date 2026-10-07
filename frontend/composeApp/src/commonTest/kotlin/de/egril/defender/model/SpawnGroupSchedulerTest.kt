@@ -12,7 +12,7 @@ import kotlin.test.assertTrue
  * [GameState.forecastRemainingGroupSpawns] and the completion integration in [GameState.isLevelWon].
  */
 class SpawnGroupSchedulerTest {
-    private fun buildLevel(groups: List<SpawnGroup>?): Level =
+    private fun buildLevel(groups: List<SpawnSequenceEntry>?): Level =
         Level(
             id = 1,
             name = "Spawn Loop Test",
@@ -57,7 +57,7 @@ class SpawnGroupSchedulerTest {
                 groupId = "wave",
                 repeatMode = SpawnRepeatMode.COUNT,
                 repeatCount = 3,
-                turns =
+                entries =
                     listOf(
                         SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN, count = 2))),
                         SpawnGroupTurn(2, listOf(SpawnGroupSpawn(AttackerType.ORK, count = 1))),
@@ -89,7 +89,7 @@ class SpawnGroupSchedulerTest {
                 groupId = "gappy",
                 repeatMode = SpawnRepeatMode.COUNT,
                 repeatCount = 1,
-                turns =
+                entries =
                     listOf(
                         SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN))),
                         // offset 2 intentionally omitted (a gap)
@@ -116,7 +116,7 @@ class SpawnGroupSchedulerTest {
                 repeatMode = SpawnRepeatMode.CONDITION,
                 condition = SpawnCondition.UNIT_ALIVE,
                 targetUnitId = "boss",
-                turns =
+                entries =
                     listOf(
                         SpawnGroupTurn(
                             1,
@@ -133,7 +133,7 @@ class SpawnGroupSchedulerTest {
                 groupId = "after",
                 repeatMode = SpawnRepeatMode.COUNT,
                 repeatCount = 1,
-                turns = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.ORK)))),
+                entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.ORK)))),
             )
         val state = GameState(buildLevel(listOf(group, nextGroup)))
 
@@ -152,11 +152,11 @@ class SpawnGroupSchedulerTest {
         assertEquals(listOf(AttackerType.SKELETON), simulateTurn(state, 4).map { it.attackerType })
         // Decision is deferred: iteration 1's end is only evaluated on turn 5, so the cursor is
         // still on the first group right after turn 4.
-        assertEquals(0, state.spawnGroupCursor.value.groupIndex)
+        assertEquals(0, state.spawnGroupCursor.value.frames.first().entryIndex)
 
         // Boss dead at end of iteration 1 → turn 5 advances to the next group and spawns its ork.
         assertEquals(listOf(AttackerType.ORK), simulateTurn(state, 5).map { it.attackerType })
-        assertEquals(1, state.spawnGroupCursor.value.groupIndex)
+        assertEquals(1, state.spawnGroupCursor.value.frames.first().entryIndex)
         assertFalse(state.spawnGroupCursor.value.finished)
         assertTrue(simulateTurn(state, 6).isEmpty())
         assertTrue(state.spawnGroupCursor.value.finished)
@@ -174,7 +174,7 @@ class SpawnGroupSchedulerTest {
                 repeatMode = SpawnRepeatMode.CONDITION,
                 condition = SpawnCondition.UNIT_ALIVE,
                 targetUnitId = "boss",
-                turns =
+                entries =
                     listOf(
                         SpawnGroupTurn(
                             1,
@@ -209,7 +209,7 @@ class SpawnGroupSchedulerTest {
                 repeatMode = SpawnRepeatMode.CONDITION,
                 condition = SpawnCondition.UNIT_ALIVE,
                 targetUnitId = "never_spawned",
-                turns =
+                entries =
                     listOf(
                         SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN))),
                         SpawnGroupTurn(2, listOf(SpawnGroupSpawn(AttackerType.SKELETON))),
@@ -230,7 +230,7 @@ class SpawnGroupSchedulerTest {
             SpawnGroup(
                 groupId = "endless",
                 repeatMode = SpawnRepeatMode.INFINITE,
-                turns = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.RED_WITCH)))),
+                entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.RED_WITCH)))),
             )
         val state = GameState(buildLevel(listOf(group)))
 
@@ -252,7 +252,7 @@ class SpawnGroupSchedulerTest {
                 groupId = "wave",
                 repeatMode = SpawnRepeatMode.COUNT,
                 repeatCount = 1,
-                turns = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))),
+                entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))),
             )
         val state = GameState(buildLevel(listOf(group)))
 
@@ -286,5 +286,247 @@ class SpawnGroupSchedulerTest {
         state.turnNumber.value = 5
         state.phase.value = GamePhase.PLAYER_TURN
         assertTrue(state.isLevelWon()) // all legacy spawns past, no attackers
+    }
+
+    @Test
+    fun nestedLoopsAndNormalTurnsSpawnInSequence() {
+        val sequence =
+            listOf(
+                SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN))),
+                SpawnGroup(
+                    groupId = "outer",
+                    repeatMode = SpawnRepeatMode.COUNT,
+                    repeatCount = 2,
+                    entries =
+                        listOf(
+                            SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.ORK))),
+                            SpawnGroup(
+                                groupId = "inner",
+                                repeatMode = SpawnRepeatMode.COUNT,
+                                repeatCount = 2,
+                                entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.SKELETON)))),
+                            ),
+                        ),
+                ),
+                SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.OGRE))),
+            )
+        val state = GameState(buildLevel(sequence))
+        assertEquals(8, state.forecastRemainingGroupSpawns()?.size)
+
+        val expected =
+            listOf(
+                AttackerType.GOBLIN,
+                AttackerType.ORK,
+                AttackerType.SKELETON,
+                AttackerType.SKELETON,
+                AttackerType.ORK,
+                AttackerType.SKELETON,
+                AttackerType.SKELETON,
+                AttackerType.OGRE,
+            )
+        expected.forEachIndexed { index, type ->
+            assertEquals(listOf(type), simulateTurn(state, index + 1).map { it.attackerType }, "turn ${index + 1}")
+        }
+        assertFalse(state.spawnGroupCursor.value.finished)
+        assertTrue(simulateTurn(state, 9).isEmpty())
+        assertTrue(state.spawnGroupCursor.value.finished)
+    }
+
+    @Test
+    fun firstIterationOnlyAppliesToTheDirectlyEnclosingLoop() {
+        val sequence =
+            listOf(
+                SpawnGroup(
+                    groupId = "outer",
+                    repeatMode = SpawnRepeatMode.COUNT,
+                    repeatCount = 2,
+                    entries =
+                        listOf(
+                            SpawnGroup(
+                                groupId = "inner",
+                                repeatMode = SpawnRepeatMode.COUNT,
+                                repeatCount = 2,
+                                entries =
+                                    listOf(
+                                        SpawnGroupTurn(
+                                            1,
+                                            listOf(
+                                                SpawnGroupSpawn(AttackerType.ORK, firstIterationOnly = true),
+                                                SpawnGroupSpawn(AttackerType.GOBLIN),
+                                            ),
+                                        ),
+                                    ),
+                            ),
+                        ),
+                ),
+            )
+        val state = GameState(buildLevel(sequence))
+        val orks = (1..4).map { turn -> simulateTurn(state, turn).count { it.attackerType == AttackerType.ORK } }
+        // The inner loop restarts in every outer iteration, so its first iteration spawns the ork again.
+        assertEquals(listOf(1, 0, 1, 0), orks)
+    }
+
+    @Test
+    fun levelInfoCountsFixedLoopsExactly() {
+        val sequence =
+            listOf(
+                SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN))),
+                SpawnGroup(
+                    groupId = "outer",
+                    repeatMode = SpawnRepeatMode.COUNT,
+                    repeatCount = 2,
+                    entries =
+                        listOf(
+                            SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.ORK, count = 2))),
+                            SpawnGroup(
+                                groupId = "inner",
+                                repeatMode = SpawnRepeatMode.COUNT,
+                                repeatCount = 3,
+                                entries =
+                                    listOf(
+                                        SpawnGroupTurn(
+                                            1,
+                                            listOf(
+                                                SpawnGroupSpawn(AttackerType.SKELETON),
+                                                SpawnGroupSpawn(AttackerType.OGRE, firstIterationOnly = true),
+                                            ),
+                                        ),
+                                    ),
+                            ),
+                        ),
+                ),
+            )
+        val info = buildLevel(sequence).toLevelInfoEnemiesLevelData()
+        assertEquals(
+            mapOf(AttackerType.GOBLIN to 1, AttackerType.ORK to 4, AttackerType.SKELETON to 6, AttackerType.OGRE to 2),
+            info.enemyTypeCounts,
+        )
+        assertFalse(info.endlessLoop)
+    }
+
+    @Test
+    fun levelInfoCountsOneIterationOfDynamicLoopsAndMarksThemEndless() {
+        val sequence =
+            listOf(
+                SpawnGroup(
+                    groupId = "fixed",
+                    repeatMode = SpawnRepeatMode.COUNT,
+                    repeatCount = 2,
+                    entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))),
+                ),
+                SpawnGroup(
+                    groupId = "boss",
+                    repeatMode = SpawnRepeatMode.CONDITION,
+                    condition = SpawnCondition.UNIT_ALIVE,
+                    targetUnitId = "boss",
+                    entries =
+                        listOf(
+                            SpawnGroupTurn(
+                                1,
+                                listOf(
+                                    SpawnGroupSpawn(AttackerType.EWHAD, unitId = "boss", firstIterationOnly = true),
+                                    SpawnGroupSpawn(AttackerType.SKELETON, count = 3),
+                                ),
+                            ),
+                        ),
+                ),
+            )
+        val info = buildLevel(sequence).toLevelInfoEnemiesLevelData()
+        assertEquals(mapOf(AttackerType.GOBLIN to 2, AttackerType.EWHAD to 1, AttackerType.SKELETON to 3), info.enemyTypeCounts)
+        assertTrue(info.endlessLoop)
+
+        val infinite = listOf(SpawnGroup("endless", SpawnRepeatMode.INFINITE, entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.ORK))))))
+        val endlessInfo = buildLevel(infinite).toLevelInfoEnemiesLevelData(de.egril.defender.ui.settings.DifficultyLevel.MEDIUM)
+        assertEquals(mapOf(AttackerType.ORK to 1), endlessInfo.enemyTypeCounts)
+        assertTrue(endlessInfo.endlessLoop)
+        assertFalse(buildLevel(null).toLevelInfoEnemiesLevelData().endlessLoop)
+    }
+
+    @Test
+    fun villainsSpawnOnlyInFirstIterationEvenWithoutTheFlag() {
+        val sequence =
+            listOf(
+                SpawnGroup(
+                    groupId = "loop",
+                    repeatMode = SpawnRepeatMode.COUNT,
+                    repeatCount = 3,
+                    entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.EWHAD, firstIterationOnly = false), SpawnGroupSpawn(AttackerType.GOBLIN)))),
+                ),
+            )
+        val level = buildLevel(sequence)
+        assertEquals(mapOf(AttackerType.EWHAD to 1, AttackerType.GOBLIN to 3), level.toLevelInfoEnemiesLevelData().enemyTypeCounts)
+        val state = GameState(level)
+        val villains = (1..3).map { turn -> simulateTurn(state, turn).count { it.attackerType == AttackerType.EWHAD } }
+        assertEquals(listOf(1, 0, 0), villains)
+    }
+
+    @Test
+    fun stopSpawnLoopEventEndsInfiniteLoopAndContinuesAfterIt() {
+        val sequence =
+            listOf(
+                SpawnGroup(
+                    groupId = "endless",
+                    repeatMode = SpawnRepeatMode.INFINITE,
+                    entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN))), SpawnGroupTurn(2, emptyList())),
+                ),
+            )
+        val stopper =
+            LevelEvent(
+                id = "stop",
+                condition = EventCondition(type = EventConditionType.TURN_START, fromTurn = 4),
+                actions = listOf(EventAction(type = EventActionType.STOP_SPAWN_LOOP, spawnLoopId = "endless")),
+            )
+        val state = GameState(buildLevel(sequence).copy(events = LevelEvents(listOf(stopper))))
+        val events = de.egril.defender.game.EventScriptSystem(state)
+        val goblins =
+            (1..6).map { turn ->
+                state.turnNumber.value = turn
+                events.evaluate(de.egril.defender.game.EventTrigger.PLAYER_TURN_START)
+                simulateTurn(state, turn).size
+            }
+        // Turn 3 starts the second iteration; the event at turn 4 ends the loop mid-iteration.
+        assertEquals(listOf(1, 0, 1, 0, 0, 0), goblins)
+        assertTrue(state.spawnGroupCursor.value.finished)
+        assertEquals(listOf("endless"), state.stoppedSpawnLoops.toList())
+        state.attackers.forEach { it.isDefeated.value = true }
+        assertTrue(state.isLevelWon())
+    }
+
+    @Test
+    fun stoppedLoopThatHasNotStartedIsSkipped() {
+        val sequence =
+            listOf(
+                SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.ORK))),
+                SpawnGroup(
+                    groupId = "later",
+                    repeatMode = SpawnRepeatMode.COUNT,
+                    repeatCount = 3,
+                    entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))),
+                ),
+                SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.OGRE))),
+            )
+        val state = GameState(buildLevel(sequence))
+        assertEquals(listOf(AttackerType.ORK), simulateTurn(state, 1).map { it.attackerType })
+        state.stopSpawnLoop("later")
+        assertEquals(listOf(AttackerType.OGRE), state.forecastRemainingGroupSpawns()?.map { it.attackerType })
+        assertEquals(listOf(AttackerType.OGRE), simulateTurn(state, 2).map { it.attackerType })
+    }
+
+    @Test
+    fun turnsAfterAStoppedInfiniteLoopAreSpawned() {
+        val sequence =
+            listOf(
+                SpawnGroup("endless", SpawnRepeatMode.INFINITE, entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN))))),
+                SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.OGRE))),
+            )
+        val state = GameState(buildLevel(sequence))
+        assertEquals(listOf(AttackerType.GOBLIN), simulateTurn(state, 1).map { it.attackerType })
+        assertEquals(listOf(AttackerType.GOBLIN), simulateTurn(state, 2).map { it.attackerType })
+        assertNull(state.forecastRemainingGroupSpawns())
+        state.stopSpawnLoop("endless")
+        assertEquals(listOf(AttackerType.OGRE), state.forecastRemainingGroupSpawns()?.map { it.attackerType })
+        assertEquals(listOf(AttackerType.OGRE), simulateTurn(state, 3).map { it.attackerType })
+        assertTrue(simulateTurn(state, 4).isEmpty())
+        assertTrue(state.spawnGroupCursor.value.finished)
     }
 }

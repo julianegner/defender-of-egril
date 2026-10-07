@@ -475,9 +475,8 @@ object SaveFileStorage {
                 if (gameState.spawnGroups != null) {
                     val cursor = gameState.spawnGroupCursor.value
                     SavedSpawnGroupCursor(
-                        groupIndex = cursor.groupIndex,
-                        repetition = cursor.repetition,
-                        iterationStartTurn = cursor.iterationStartTurn,
+                        frames = cursor.frames.map { SavedSpawnGroupFrame(it.entryIndex, it.repetition, it.iterationStartTurn) },
+                        segmentStartTurn = cursor.segmentStartTurn,
                         finished = cursor.finished,
                         lastProcessedTurn = cursor.lastProcessedTurn,
                     )
@@ -485,6 +484,7 @@ object SaveFileStorage {
                     null
                 },
             spawnGroupBindings = gameState.spawnGroupBindings.toMap(),
+            stoppedSpawnLoops = gameState.stoppedSpawnLoops.toList(),
         )
     }
 
@@ -544,17 +544,33 @@ object SaveFileStorage {
         // Restore spawn-loop runtime cursor and unit bindings (issue #694) so a mid-cycle save
         // resumes the exact group/iteration and keeps named-unit identity for UNIT_ALIVE loops.
         if (gameState.spawnGroups != null && savedGame.spawnGroupCursor != null) {
+            val saved = savedGame.spawnGroupCursor
             gameState.spawnGroupCursor.value =
-                de.egril.defender.model.SpawnGroupCursor(
-                    groupIndex = savedGame.spawnGroupCursor.groupIndex,
-                    repetition = savedGame.spawnGroupCursor.repetition,
-                    iterationStartTurn = savedGame.spawnGroupCursor.iterationStartTurn,
-                    finished = savedGame.spawnGroupCursor.finished,
-                    lastProcessedTurn = savedGame.spawnGroupCursor.lastProcessedTurn,
-                )
+                if (saved.frames != null) {
+                    de.egril.defender.model.SpawnGroupCursor(
+                        frames =
+                            saved.frames.map {
+                                de.egril.defender.model.SpawnGroupFrame(it.entryIndex, it.repetition, it.iterationStartTurn)
+                            },
+                        segmentStartTurn = saved.segmentStartTurn,
+                        finished = saved.finished,
+                        lastProcessedTurn = saved.lastProcessedTurn,
+                    )
+                } else {
+                    de.egril.defender.model.SpawnGroupCursor.fromLegacy(
+                        topLevelEntryCount = gameState.spawnGroups.size,
+                        groupIndex = saved.legacyGroupIndex,
+                        repetition = saved.legacyRepetition,
+                        iterationStartTurn = saved.segmentStartTurn,
+                        finished = saved.finished,
+                        lastProcessedTurn = saved.lastProcessedTurn,
+                    )
+                }
         }
         gameState.spawnGroupBindings.clear()
         gameState.spawnGroupBindings.putAll(savedGame.spawnGroupBindings)
+        gameState.stoppedSpawnLoops.clear()
+        gameState.stoppedSpawnLoops.addAll(savedGame.stoppedSpawnLoops)
 
         // Restore bridges
         gameState.bridges.clear()

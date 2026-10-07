@@ -64,7 +64,7 @@ class SpawnGroupSaveLoadTest {
             repeatMode = SpawnRepeatMode.CONDITION,
             condition = SpawnCondition.UNIT_ALIVE,
             targetUnitId = "boss",
-            turns =
+            entries =
                 listOf(
                     SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.EWHAD, unitId = "boss", firstIterationOnly = true))),
                     SpawnGroupTurn(2, listOf(SpawnGroupSpawn(AttackerType.GOBLIN))),
@@ -81,9 +81,9 @@ class SpawnGroupSaveLoadTest {
         simulateTurn(state, 3) // deferred decision: boss alive → loop to repetition 1; boss skipped
 
         val cursorBefore = state.spawnGroupCursor.value
-        assertEquals(0, cursorBefore.groupIndex)
-        assertEquals(1, cursorBefore.repetition)
-        assertEquals(3, cursorBefore.iterationStartTurn)
+        assertEquals(0, cursorBefore.frames.first().entryIndex)
+        assertEquals(1, cursorBefore.frames.last().repetition)
+        assertEquals(3, cursorBefore.frames.last().iterationStartTurn)
         assertFalse(cursorBefore.finished)
         val bossId = state.spawnGroupBindings["boss"]
         assertNotNull(bossId)
@@ -96,9 +96,8 @@ class SpawnGroupSaveLoadTest {
 
         val restored = SaveFileStorage.convertSavedGameToGameState(reloaded, level)
         val rc = restored.spawnGroupCursor.value
-        assertEquals(cursorBefore.groupIndex, rc.groupIndex)
-        assertEquals(cursorBefore.repetition, rc.repetition)
-        assertEquals(cursorBefore.iterationStartTurn, rc.iterationStartTurn)
+        assertEquals(cursorBefore.frames, rc.frames)
+        assertEquals(cursorBefore.segmentStartTurn, rc.segmentStartTurn)
         assertEquals(cursorBefore.lastProcessedTurn, rc.lastProcessedTurn)
         assertEquals(bossId, restored.spawnGroupBindings["boss"])
         // The boss attacker must have survived the round-trip so UNIT_ALIVE still evaluates true.
@@ -108,9 +107,9 @@ class SpawnGroupSaveLoadTest {
         // subturn (spawns the goblin); turn 5 then makes the deferred decision and loops again
         // (boss still alive → repetition 2).
         assertEquals(listOf(AttackerType.GOBLIN), simulateTurn(restored, 4).map { it.attackerType })
-        assertEquals(1, restored.spawnGroupCursor.value.repetition)
+        assertEquals(1, restored.spawnGroupCursor.value.frames.last().repetition)
         assertTrue(simulateTurn(restored, 5).isEmpty())
-        assertEquals(2, restored.spawnGroupCursor.value.repetition)
+        assertEquals(2, restored.spawnGroupCursor.value.frames.last().repetition)
         assertFalse(restored.spawnGroupCursor.value.finished)
     }
 
@@ -143,10 +142,56 @@ class SpawnGroupSaveLoadTest {
         val restored = SaveFileStorage.convertSavedGameToGameState(reloaded, level)
 
         // No cursor persisted → fresh cursor, and the loop runs from the beginning.
-        assertEquals(0, restored.spawnGroupCursor.value.groupIndex)
-        assertEquals(0, restored.spawnGroupCursor.value.repetition)
+        assertEquals(0, restored.spawnGroupCursor.value.frames.first().entryIndex)
+        assertEquals(0, restored.spawnGroupCursor.value.frames.last().repetition)
         assertFalse(restored.spawnGroupCursor.value.finished)
         assertTrue(restored.spawnGroupBindings.isEmpty())
         assertEquals(listOf(AttackerType.EWHAD), simulateTurn(restored, 1).map { it.attackerType })
+    }
+
+    @Test
+    fun legacyFlatCursorFormatContinuesTheLoop() {
+        val level = groupLevel(listOf(conditionGroup))
+        val state = GameState(level)
+        simulateTurn(state, 1)
+        simulateTurn(state, 2)
+        simulateTurn(state, 3)
+
+        val json = SaveJsonSerializer.serializeSavedGame(SaveFileStorage.convertGameStateToSavedGame(state, saveId = "legacy-cursor"))
+        val keyIndex = json.indexOf("\"spawnGroupCursor\"")
+        val start = json.indexOf('{', keyIndex)
+        var depth = 0
+        var end = start
+        while (true) {
+            when (json[end]) {
+                '{' -> depth++
+                '}' -> depth--
+            }
+            if (depth == 0) break
+            end++
+        }
+        val legacyCursor = """{"groupIndex": 0, "repetition": 1, "iterationStartTurn": 3, "finished": false, "lastProcessedTurn": 3}"""
+        val legacyJson = json.substring(0, start) + legacyCursor + json.substring(end + 1)
+
+        val reloaded = assertNotNull(SaveJsonSerializer.deserializeSavedGame(legacyJson))
+        val restored = SaveFileStorage.convertSavedGameToGameState(reloaded, level)
+        assertEquals(state.spawnGroupCursor.value.frames, restored.spawnGroupCursor.value.frames)
+        assertEquals(listOf(AttackerType.GOBLIN), simulateTurn(restored, 4).map { it.attackerType })
+        assertTrue(simulateTurn(restored, 5).isEmpty())
+        assertEquals(2, restored.spawnGroupCursor.value.frames.last().repetition)
+    }
+
+    @Test
+    fun stoppedSpawnLoopsSurviveSaveAndLoad() {
+        val level = groupLevel(listOf(conditionGroup))
+        val state = GameState(level)
+        simulateTurn(state, 1)
+        state.stopSpawnLoop("boss_loop")
+        val saved = SaveFileStorage.convertGameStateToSavedGame(state, saveId = "stopped")
+        val reloaded = assertNotNull(SaveJsonSerializer.deserializeSavedGame(SaveJsonSerializer.serializeSavedGame(saved)))
+        assertEquals(listOf("boss_loop"), reloaded.stoppedSpawnLoops)
+        val restored = SaveFileStorage.convertSavedGameToGameState(reloaded, level)
+        assertEquals(listOf("boss_loop"), restored.stoppedSpawnLoops.toList())
+        assertTrue(restored.spawnGroupCursor.value.frames.size == 1)
     }
 }

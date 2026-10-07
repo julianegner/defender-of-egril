@@ -392,9 +392,7 @@ class MineOperations(
         val groupSpawnPoint =
             spawnEntry?.spawnPoint
                 ?: state.spawnGroups
-                    ?.asSequence()
-                    ?.flatMap { group -> group.turns.asSequence() }
-                    ?.flatMap { turn -> turn.spawns.asSequence() }
+                    ?.allSpawnEntries()
                     ?.firstOrNull { it.attackerType == enemy.type && it.spawnPoint != null }
                     ?.spawnPoint
 

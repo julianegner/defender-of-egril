@@ -1436,6 +1436,10 @@ object EditorStorage {
             return false
         }
 
+        if (!level.isSandbox && level.spawnGroups?.let { spawnGroupIssues(it, map, level.events.stoppedSpawnLoopIds()).isNotEmpty() } == true) {
+            return false
+        }
+
         // Validate that the map has a structurally valid path.
         // Always include rivers as walkable here (matching the editor's default), so that
         // community maps whose path crosses river tiles are not incorrectly rejected.

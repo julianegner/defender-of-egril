@@ -97,17 +97,28 @@ data class SavedGame(
     // logical-unit-id → spawned-attacker-id bindings, persisted so a mid-cycle save resumes exactly.
     val spawnGroupCursor: SavedSpawnGroupCursor? = null,
     val spawnGroupBindings: Map<String, Int> = emptyMap(),
+    val stoppedSpawnLoops: List<String> = emptyList(), // Spawn loops ended by a STOP_SPAWN_LOOP event action
 )
 
 /**
  * Persisted form of the spawn-loop runtime cursor (see [de.egril.defender.model.SpawnGroupCursor]).
  */
 data class SavedSpawnGroupCursor(
-    val groupIndex: Int,
-    val repetition: Int,
-    val iterationStartTurn: Int,
+    // Nesting chain from the root sequence to the innermost active group; null for saves written
+    // before nested spawn loops, which only stored [legacyGroupIndex]/[legacyRepetition].
+    val frames: List<SavedSpawnGroupFrame>?,
+    val segmentStartTurn: Int,
     val finished: Boolean,
     val lastProcessedTurn: Int,
+    val legacyGroupIndex: Int = 0,
+    val legacyRepetition: Int = 0,
+)
+
+/** Persisted form of [de.egril.defender.model.SpawnGroupFrame]. */
+data class SavedSpawnGroupFrame(
+    val entryIndex: Int,
+    val repetition: Int,
+    val iterationStartTurn: Int,
 )
 
 /**

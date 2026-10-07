@@ -38,6 +38,7 @@ confuse zone tiles with the base map):
 | `REVERT_TILE_ZONE` | Deactivate the zone `zoneId` (tiles fall back to earlier active zones or the base map) |
 | `TOGGLE_TILE_ZONE` | Activate the zone when inactive, otherwise deactivate it |
 | `STOP_EVENT_LOOP` | Stop the running loop of the event `targetEventId` |
+| `STOP_SPAWN_LOOP` | Permanently end the spawn loop `spawnLoopId` (stops it immediately when running, skips it otherwise) |
 | `SHOW_MAP_IMAGE` | Show or replace the configured map image by its image ID |
 | `HIDE_MAP_IMAGE` | Hide the map image with the matching `imageId` |
 

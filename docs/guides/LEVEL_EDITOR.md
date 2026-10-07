@@ -35,6 +35,56 @@ All editor data is stored in JSON format on your local filesystem:
 
 ## Editor Features
 
+### Spawn Loops in the Enemy Spawns Tab
+
+Loops are edited directly in the normal turn list, so normal turns and loops can
+be mixed freely. Click **Create loop** on a turn to wrap it in a new loop.
+
+- Turns inside a loop are indented and marked by a colored line on the left.
+  Loops can be nested; every nesting level uses its own color.
+- Each loop has its own header above its first turn. It is collapsed by default
+  and shows the loop ID, the repeat mode, and the turn range. Expand it to edit:
+  - the unique **Loop ID**,
+  - the repeat mode: **Fixed count** (total iterations, including the first),
+    **While unit alive**, or **Infinite**,
+  - the first and last turn of the loop (a boundary can only move if the loops
+    still nest completely, without partial overlaps),
+  - **Add turn to loop**, **Remove loop (keep turns)**, and **Delete loop with turns**.
+- **Copy loop** (in the header) inserts a copy of the whole loop, including its
+  turns, enemies, and nested loops, directly after it. Copied loops get new IDs;
+  copied unit IDs are renamed, and conditions inside the copy refer to the copies.
+- When loops exist, each enemy has a **Loop options** button to set a unique
+  **Unit ID** and **First iteration only**. For a boss loop, select **While unit
+  alive** and choose the unit from the **Target unit ID** dropdown, which lists
+  all units with an ID. The unit must appear before or inside the loop. The
+  condition is checked at the end of each cycle.
+- **First iteration only** refers to the loop that directly contains the enemy;
+  when an outer loop repeats, the inner loop starts again with its first iteration.
+  Villains remain unique and must not respawn, so loops around a villain's loop
+  must not repeat.
+- Villains (e.g. Ewhad) always have **First iteration only** enabled and always use
+  their name as unit ID (both are locked), because a villain may exist only once
+  per level. They therefore always appear in the **Target unit ID** dropdown.
+- An event must end every **Infinite** loop with a **Stop spawn loop** action
+  (Events tab); otherwise the level is invalid and cannot be saved. Turns and
+  loops after an infinite loop are allowed and start once it has been stopped.
+- **Stop spawn loop** can end any spawn loop, including counted or
+  "while unit alive" loops. A running loop stops immediately and spawning
+  continues after it; a loop that has not started yet is skipped. The dropdown
+  lists all spawn loops of the level.
+- Spawn-loop problems are marked with a red dot on the **Enemy Spawns** and
+  **Events** tab headers; click the dot to see the explanation.
+
+Turn numbers in the editor are positions in the list; during the game a loop
+repeats its turns before the following turns start. All loop edits support
+**Undo/Redo**. Invalid settings are listed at the top of the tab and block saving
+and playtesting. Levels without loops are still saved as the classic linear
+`enemySpawns` list; levels with loops are saved as nested `spawnGroups`, where a
+group contains `entries` (turns and nested groups). The design preview expands
+finite loops up to 10,000 turns and 100,000 enemies, otherwise one cycle per loop
+is shown when possible. Dynamic loop duration is not predictable, and loop
+playtests always run the complete plan.
+
 ### Map Editor Tab
 
 - View existing maps

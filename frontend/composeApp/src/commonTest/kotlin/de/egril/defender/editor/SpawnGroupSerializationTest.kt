@@ -2,12 +2,19 @@ package de.egril.defender.editor
 
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.EventAction
+import de.egril.defender.model.EventActionType
+import de.egril.defender.model.EventCondition
+import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.LevelEvent
+import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.Position
 import de.egril.defender.model.SpawnCondition
 import de.egril.defender.model.SpawnGroup
 import de.egril.defender.model.SpawnGroupSpawn
 import de.egril.defender.model.SpawnGroupTurn
 import de.egril.defender.model.SpawnRepeatMode
+import de.egril.defender.model.SpawnSequenceEntry
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -20,7 +27,7 @@ import kotlin.test.assertTrue
  * compatibility with level files that predate spawn groups.
  */
 class SpawnGroupSerializationTest {
-    private fun baseLevel(groups: List<SpawnGroup>?): EditorLevel =
+    private fun baseLevel(groups: List<SpawnSequenceEntry>?): EditorLevel =
         EditorLevel(
             id = "spawn_group_level",
             mapId = "test_map",
@@ -40,7 +47,7 @@ class SpawnGroupSerializationTest {
                     groupId = "wave_1_basic",
                     repeatMode = SpawnRepeatMode.COUNT,
                     repeatCount = 3,
-                    turns =
+                    entries =
                         listOf(
                             SpawnGroupTurn(
                                 1,
@@ -54,7 +61,7 @@ class SpawnGroupSerializationTest {
                     repeatMode = SpawnRepeatMode.CONDITION,
                     condition = SpawnCondition.UNIT_ALIVE,
                     targetUnitId = "ewhad_boss",
-                    turns =
+                    entries =
                         listOf(
                             SpawnGroupTurn(
                                 1,
@@ -67,7 +74,7 @@ class SpawnGroupSerializationTest {
                 SpawnGroup(
                     groupId = "endless_onslaught",
                     repeatMode = SpawnRepeatMode.INFINITE,
-                    turns = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.RED_WITCH)))),
+                    entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.RED_WITCH)))),
                 ),
             )
 
@@ -75,7 +82,7 @@ class SpawnGroupSerializationTest {
         val restored = EditorJsonSerializer.deserializeLevel(json)
 
         assertNotNull(restored)
-        val restoredGroups = restored.spawnGroups
+        val restoredGroups = restored.spawnGroups?.filterIsInstance<SpawnGroup>()
         assertNotNull(restoredGroups)
         assertEquals(3, restoredGroups.size)
 
@@ -83,21 +90,21 @@ class SpawnGroupSerializationTest {
         assertEquals("wave_1_basic", first.groupId)
         assertEquals(SpawnRepeatMode.COUNT, first.repeatMode)
         assertEquals(3, first.repeatCount)
-        assertEquals(2, first.turns.size)
-        assertEquals(1, first.turns[0].turnOffset)
-        assertEquals(AttackerType.GOBLIN, first.turns[0].spawns[0].attackerType)
-        assertEquals(2, first.turns[0].spawns[0].count)
-        assertEquals(Position(0, 2), first.turns[0].spawns[0].spawnPoint)
-        assertEquals(2, first.turns[1].spawns[0].level)
+        assertEquals(2, first.directTurns.size)
+        assertEquals(1, first.directTurns[0].turnOffset)
+        assertEquals(AttackerType.GOBLIN, first.directTurns[0].spawns[0].attackerType)
+        assertEquals(2, first.directTurns[0].spawns[0].count)
+        assertEquals(Position(0, 2), first.directTurns[0].spawns[0].spawnPoint)
+        assertEquals(2, first.directTurns[1].spawns[0].level)
 
         val boss = restoredGroups[1]
         assertEquals(SpawnRepeatMode.CONDITION, boss.repeatMode)
         assertEquals(SpawnCondition.UNIT_ALIVE, boss.condition)
         assertEquals("ewhad_boss", boss.targetUnitId)
-        assertEquals("ewhad_boss", boss.turns[0].spawns[0].unitId)
-        assertTrue(boss.turns[0].spawns[0].firstIterationOnly)
-        assertTrue(boss.turns[1].spawns.isEmpty())
-        assertEquals(3, boss.turns[2].spawns[0].count)
+        assertEquals("ewhad_boss", boss.directTurns[0].spawns[0].unitId)
+        assertTrue(boss.directTurns[0].spawns[0].firstIterationOnly)
+        assertTrue(boss.directTurns[1].spawns.isEmpty())
+        assertEquals(3, boss.directTurns[2].spawns[0].count)
 
         val endless = restoredGroups[2]
         assertEquals(SpawnRepeatMode.INFINITE, endless.repeatMode)
@@ -122,7 +129,7 @@ class SpawnGroupSerializationTest {
                         groupId = "wave",
                         repeatMode = SpawnRepeatMode.COUNT,
                         repeatCount = 3,
-                        turns =
+                        entries =
                             listOf(
                                 SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN, count = 2))),
                                 SpawnGroupTurn(2, listOf(SpawnGroupSpawn(AttackerType.ORK))),
@@ -134,7 +141,8 @@ class SpawnGroupSerializationTest {
         assertTrue(level.hasConfiguredSpawns())
         assertTrue(level.isReadyToPlay())
         assertEquals(3L, level.configuredSpawnCount())
-        assertEquals(2, level.toLevelInfoEnemiesLevelData(0).enemyTypeCounts[AttackerType.GOBLIN])
+        assertEquals(6, level.toLevelInfoEnemiesLevelData(0).enemyTypeCounts[AttackerType.GOBLIN])
+        assertEquals(3, level.toLevelInfoEnemiesLevelData(0).enemyTypeCounts[AttackerType.ORK])
     }
 
     @Test
@@ -160,7 +168,7 @@ class SpawnGroupSerializationTest {
                     repeatMode = SpawnRepeatMode.CONDITION,
                     condition = SpawnCondition.UNIT_ALIVE,
                     targetUnitId = unitId,
-                    turns =
+                    entries =
                         listOf(
                             SpawnGroupTurn(
                                 1,
@@ -190,23 +198,23 @@ class SpawnGroupSerializationTest {
                     groupId = "zero-repeat",
                     repeatMode = SpawnRepeatMode.COUNT,
                     repeatCount = 0,
-                    turns = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))),
+                    entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))),
                 ),
                 SpawnGroup(
                     groupId = "zero-offset",
                     repeatMode = SpawnRepeatMode.COUNT,
-                    turns = listOf(SpawnGroupTurn(0, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))),
+                    entries = listOf(SpawnGroupTurn(0, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))),
                 ),
                 SpawnGroup(
                     groupId = "zero-count",
                     repeatMode = SpawnRepeatMode.COUNT,
-                    turns = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN, count = 0)))),
+                    entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN, count = 0)))),
                 ),
                 SpawnGroup(
                     groupId = "condition-without-target",
                     repeatMode = SpawnRepeatMode.CONDITION,
                     condition = SpawnCondition.UNIT_ALIVE,
-                    turns = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))),
+                    entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))),
                 ),
             )
 
@@ -214,5 +222,65 @@ class SpawnGroupSerializationTest {
             val json = EditorJsonSerializer.serializeLevel(baseLevel(listOf(group)))
             assertNull(EditorJsonSerializer.deserializeLevel(json), group.groupId)
         }
+    }
+
+    @Test
+    fun nestedLoopsAndMixedTopLevelEntriesRoundTrip() {
+        val sequence: List<SpawnSequenceEntry> =
+            listOf(
+                SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN))),
+                SpawnGroup(
+                    groupId = "outer",
+                    repeatMode = SpawnRepeatMode.COUNT,
+                    repeatCount = 2,
+                    entries =
+                        listOf(
+                            SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.ORK, unitId = "captain", firstIterationOnly = true))),
+                            SpawnGroup(
+                                groupId = "inner",
+                                repeatMode = SpawnRepeatMode.CONDITION,
+                                condition = SpawnCondition.UNIT_ALIVE,
+                                targetUnitId = "captain",
+                                entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.SKELETON, count = 2)))),
+                            ),
+                            SpawnGroupTurn(1, emptyList()),
+                        ),
+                ),
+                SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.OGRE))),
+            )
+
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(sequence).copy(enemySpawns = emptyList()))
+        val restored = EditorJsonSerializer.deserializeLevel(json)
+
+        assertNotNull(restored)
+        assertEquals(sequence, restored.spawnGroups)
+    }
+
+    @Test
+    fun legacyGroupsWithTurnsArrayStillLoad() {
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(null))
+        val legacyGroups =
+            """"spawnGroups": [{"groupId": "legacy", "repeatMode": "COUNT", "repeatCount": 2, "turns": [{"turnOffset": 1, "spawns": [{"attackerType": "GOBLIN", "count": 1, "level": 1}]}]}],"""
+        val legacyJson = json.replaceFirst("\"enemySpawns\"", "$legacyGroups\n  \"enemySpawns\"")
+        val restored = EditorJsonSerializer.deserializeLevel(legacyJson)
+
+        assertNotNull(restored)
+        val group = restored.spawnGroups?.single() as SpawnGroup
+        assertEquals("legacy", group.groupId)
+        assertEquals(2, group.repeatCount)
+        assertEquals(AttackerType.GOBLIN, group.directTurns.single().spawns.single().attackerType)
+    }
+
+    @Test
+    fun stopSpawnLoopActionRoundTrips() {
+        val stop = EventAction(type = EventActionType.STOP_SPAWN_LOOP, spawnLoopId = "endless")
+        val events = LevelEvents(listOf(LevelEvent("stop", EventCondition(EventConditionType.TURN_START, fromTurn = 5), actions = listOf(stop))))
+        val level =
+            baseLevel(listOf(SpawnGroup("endless", SpawnRepeatMode.INFINITE, entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.GOBLIN)))))))
+                .copy(enemySpawns = emptyList(), events = events)
+        val loaded = assertNotNull(EditorJsonSerializer.deserializeLevel(EditorJsonSerializer.serializeLevel(level)))
+        assertEquals(events, loaded.events)
+        assertTrue(loaded.isReadyToPlay())
+        assertFalse(loaded.copy(events = LevelEvents()).isReadyToPlay())
     }
 }

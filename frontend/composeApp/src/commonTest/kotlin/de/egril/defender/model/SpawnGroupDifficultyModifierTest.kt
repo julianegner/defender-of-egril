@@ -16,7 +16,7 @@ class SpawnGroupDifficultyModifierTest {
             repeatMode = SpawnRepeatMode.CONDITION,
             condition = SpawnCondition.UNIT_ALIVE,
             targetUnitId = "boss",
-            turns =
+            entries =
                 listOf(
                     SpawnGroupTurn(
                         1,
@@ -36,24 +36,24 @@ class SpawnGroupDifficultyModifierTest {
 
     @Test
     fun hardDoublesEveryLevelWithoutChangingStructure() {
-        val result = DifficultyModifiers.applySpawnGroupsModifier(listOf(group), DifficultyLevel.HARD).single()
+        val result = DifficultyModifiers.applySpawnGroupsModifier(listOf(group), DifficultyLevel.HARD).single() as SpawnGroup
 
         // Same turn/spawn structure, only levels doubled.
-        assertEquals(2, result.turns.size)
-        assertEquals(2, result.turns[0].spawns.size)
-        val boss = result.turns[0].spawns[0]
+        assertEquals(2, result.directTurns.size)
+        assertEquals(2, result.directTurns[0].spawns.size)
+        val boss = result.directTurns[0].spawns[0]
         assertEquals(AttackerType.EWHAD, boss.attackerType)
         assertEquals(2, boss.level)
         assertEquals("boss", boss.unitId) // identity preserved
-        assertEquals(2, result.turns[0].spawns[1].level)
-        assertEquals(6, result.turns[1].spawns[0].level)
+        assertEquals(2, result.directTurns[0].spawns[1].level)
+        assertEquals(6, result.directTurns[1].spawns[0].level)
     }
 
     @Test
     fun nightmareTriplesRegularEnemiesButKeepsNamedBossSingle() {
-        val result = DifficultyModifiers.applySpawnGroupsModifier(listOf(group), DifficultyLevel.NIGHTMARE).single()
+        val result = DifficultyModifiers.applySpawnGroupsModifier(listOf(group), DifficultyLevel.NIGHTMARE).single() as SpawnGroup
 
-        val turn1 = result.turns[0].spawns
+        val turn1 = result.directTurns[0].spawns
         // Boss (named + firstIterationOnly + Ewhad) stays a single entry at 5x level.
         val bossEntries = turn1.filter { it.attackerType == AttackerType.EWHAD }
         assertEquals(1, bossEntries.size)
@@ -66,7 +66,7 @@ class SpawnGroupDifficultyModifierTest {
         goblins.forEach { assertEquals(2, it.count) }
 
         // Skeleton on turn 2 (base level 3) tripled to 9/6/3.
-        val skeletons = result.turns[1].spawns.filter { it.attackerType == AttackerType.SKELETON }
+        val skeletons = result.directTurns[1].spawns.filter { it.attackerType == AttackerType.SKELETON }
         assertEquals(listOf(9, 6, 3), skeletons.map { it.level })
     }
 
@@ -77,10 +77,10 @@ class SpawnGroupDifficultyModifierTest {
                 groupId = "mini",
                 repeatMode = SpawnRepeatMode.COUNT,
                 repeatCount = 2,
-                turns = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.ORK, level = 2, firstIterationOnly = true)))),
+                entries = listOf(SpawnGroupTurn(1, listOf(SpawnGroupSpawn(AttackerType.ORK, level = 2, firstIterationOnly = true)))),
             )
-        val result = DifficultyModifiers.applySpawnGroupsModifier(listOf(minibossGroup), DifficultyLevel.NIGHTMARE).single()
-        val entries = result.turns[0].spawns
+        val result = DifficultyModifiers.applySpawnGroupsModifier(listOf(minibossGroup), DifficultyLevel.NIGHTMARE).single() as SpawnGroup
+        val entries = result.directTurns[0].spawns
         assertEquals(1, entries.size) // firstIterationOnly → not duplicated
         assertEquals(6, entries[0].level) // non-Ewhad once-spawn → 3x
     }

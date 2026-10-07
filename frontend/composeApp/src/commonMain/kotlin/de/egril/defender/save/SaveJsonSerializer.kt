@@ -296,7 +296,11 @@ object SaveJsonSerializer {
         // logical-unit-id → attacker-id bindings.
         val spawnGroupCursorJson =
             savedGame.spawnGroupCursor?.let { cursor ->
-                """{"groupIndex": ${cursor.groupIndex}, "repetition": ${cursor.repetition}, "iterationStartTurn": ${cursor.iterationStartTurn}, "finished": ${cursor.finished}, "lastProcessedTurn": ${cursor.lastProcessedTurn}}"""
+                val framesJson =
+                    cursor.frames.orEmpty().joinToString(", ") { frame ->
+                        """{"entryIndex": ${frame.entryIndex}, "repetition": ${frame.repetition}, "iterationStartTurn": ${frame.iterationStartTurn}}"""
+                    }
+                """{"frames": [$framesJson], "segmentStartTurn": ${cursor.segmentStartTurn}, "finished": ${cursor.finished}, "lastProcessedTurn": ${cursor.lastProcessedTurn}}"""
             } ?: "null"
         val spawnGroupBindingsJson =
             savedGame.spawnGroupBindings.entries.joinToString(", ") { (unitId, attackerId) ->
@@ -390,6 +394,7 @@ object SaveJsonSerializer {
   "activeEventMapImages": [$activeEventMapImagesJson],
   "spawnGroupCursor": $spawnGroupCursorJson,
   "spawnGroupBindings": {$spawnGroupBindingsJson},
+  "stoppedSpawnLoops": [${savedGame.stoppedSpawnLoops.joinToString(", ") { EventMapImageJson.quote(it) }}],
   "bridges": [
    $bridgesJson
   ],
@@ -832,6 +837,7 @@ object SaveJsonSerializer {
             // and the logical-unit-id → attacker-id bindings.
             val spawnGroupCursor = parseSpawnGroupCursor(dataJson)
             val spawnGroupBindings = parseEnumIntMap(dataJson, "spawnGroupBindings") { it }
+            val stoppedSpawnLoops = parseStringArray(dataJson, "stoppedSpawnLoops")
 
             return SavedGame(
                 id = id,
@@ -903,6 +909,7 @@ object SaveJsonSerializer {
                 activeEventMapImages = activeEventMapImages,
                 spawnGroupCursor = spawnGroupCursor,
                 spawnGroupBindings = spawnGroupBindings,
+                stoppedSpawnLoops = stoppedSpawnLoops,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
@@ -955,13 +962,34 @@ object SaveJsonSerializer {
         val section = JsonUtils.extractJsonObjectForKey(dataJson, "spawnGroupCursor")
         if (section.isBlank()) return null
         return try {
-            SavedSpawnGroupCursor(
-                groupIndex = JsonUtils.extractNumericValue(section, "groupIndex").toInt(),
-                repetition = JsonUtils.extractNumericValue(section, "repetition").toInt(),
-                iterationStartTurn = JsonUtils.extractNumericValue(section, "iterationStartTurn").toInt(),
-                finished = JsonUtils.extractBooleanValue(section, "finished"),
-                lastProcessedTurn = JsonUtils.extractNumericValue(section, "lastProcessedTurn").toInt(),
-            )
+            if (section.contains("\"frames\"")) {
+                val frames =
+                    JsonUtils.splitJsonArray(JsonUtils.extractJsonArrayForKey(section, "frames")).map { frame ->
+                        SavedSpawnGroupFrame(
+                            entryIndex = JsonUtils.extractNumericValue(frame, "entryIndex").toInt(),
+                            repetition = JsonUtils.extractNumericValue(frame, "repetition").toInt(),
+                            iterationStartTurn = JsonUtils.extractNumericValue(frame, "iterationStartTurn").toInt(),
+                        )
+                    }
+                // Only read the cursor's own fields, which are written after the frames array.
+                val tail = section.substringAfterLast("]")
+                SavedSpawnGroupCursor(
+                    frames = frames,
+                    segmentStartTurn = JsonUtils.extractNumericValue(tail, "segmentStartTurn").toInt(),
+                    finished = JsonUtils.extractBooleanValue(tail, "finished"),
+                    lastProcessedTurn = JsonUtils.extractNumericValue(tail, "lastProcessedTurn").toInt(),
+                )
+            } else {
+                // Saves from before nested spawn loops: one top-level group index plus its iteration.
+                SavedSpawnGroupCursor(
+                    frames = null,
+                    segmentStartTurn = JsonUtils.extractNumericValue(section, "iterationStartTurn").toInt(),
+                    finished = JsonUtils.extractBooleanValue(section, "finished"),
+                    lastProcessedTurn = JsonUtils.extractNumericValue(section, "lastProcessedTurn").toInt(),
+                    legacyGroupIndex = JsonUtils.extractNumericValue(section, "groupIndex").toInt(),
+                    legacyRepetition = JsonUtils.extractNumericValue(section, "repetition").toInt(),
+                )
+            }
         } catch (e: Exception) {
             null
         }

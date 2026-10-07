@@ -727,6 +727,8 @@ fun SpawnTurnSection(
     onChangeLevel: (EditorEnemySpawn) -> Unit,
     onChangeTurnLevel: () -> Unit,
     onSaveAsTemplate: () -> Unit,
+    onCreateLoop: (() -> Unit)? = null,
+    onEditLoopOptions: ((EditorEnemySpawn) -> Unit)? = null,
 ) {
     var expanded by remember(turn) { mutableStateOf(initiallyExpanded) }
     val villainSummary = remember(spawns) { spawns.presentVillainSummary { it.villainName ?: it.displayName } }
@@ -836,6 +838,18 @@ fun SpawnTurnSection(
                             modifier = Modifier.align(Alignment.CenterVertically),
                         )
                     }
+                    if (onCreateLoop != null) {
+                        Button(
+                            onClick = onCreateLoop,
+                            modifier = Modifier.height(32.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.spawn_create_loop),
+                                fontSize = 12.sp,
+                            )
+                        }
+                    }
                     Button(
                         onClick = onSaveAsTemplate,
                         enabled = spawns.isNotEmpty(),
@@ -911,6 +925,7 @@ fun SpawnTurnSection(
                                 onRemoveEnemy = { onRemoveEnemy(spawn) },
                                 onChangeSpawnPoint = onChangeSpawnPoint,
                                 onChangeLevel = onChangeLevel,
+                                onEditLoopOptions = onEditLoopOptions,
                             )
                         }
                     }
@@ -929,6 +944,7 @@ private fun EnemySpawnRow(
     onRemoveEnemy: () -> Unit,
     onChangeSpawnPoint: (EditorEnemySpawn) -> Unit,
     onChangeLevel: (EditorEnemySpawn) -> Unit,
+    onEditLoopOptions: ((EditorEnemySpawn) -> Unit)? = null,
 ) {
     Row(
         modifier =
@@ -991,6 +1007,31 @@ private fun EnemySpawnRow(
                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
             ) {
                 Text(stringResource(Res.string.level), fontSize = 10.sp)
+            }
+
+            if (onEditLoopOptions != null) {
+                Button(
+                    onClick = { onEditLoopOptions(spawn) },
+                    modifier = Modifier.height(28.dp),
+                    contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
+                ) {
+                    Text(stringResource(Res.string.spawn_loop_options), fontSize = 10.sp)
+                }
+            }
+            spawn.loopUnitId?.takeIf { onEditLoopOptions != null }?.let { unitId ->
+                Text(
+                    text = "${stringResource(Res.string.spawn_unit_id_short)}: $unitId",
+                    fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+            if (onEditLoopOptions != null && spawn.spawnsInFirstIterationOnly) {
+                Text(
+                    text = stringResource(Res.string.spawn_first_only),
+                    fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.tertiary,
+                )
             }
         }
 

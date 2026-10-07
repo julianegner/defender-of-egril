@@ -96,6 +96,12 @@ enum class EventActionType {
     /** Stop the running loop of the event [EventAction.targetEventId]. */
     STOP_EVENT_LOOP,
 
+    /**
+     * Permanently end the spawn loop [EventAction.spawnLoopId]: a running loop stops immediately
+     * (the spawn plan continues after it) and a loop that has not started yet is skipped.
+     */
+    STOP_SPAWN_LOOP,
+
     /** Show or replace [EventAction.mapImage] below all gameplay objects. */
     SHOW_MAP_IMAGE,
 
@@ -115,6 +121,7 @@ enum class EventActionType {
  * @param targetEventId     Event whose loop is stopped by [EventActionType.STOP_EVENT_LOOP].
  * @param mapImage          Image and geometry used by [EventActionType.SHOW_MAP_IMAGE].
  * @param imageId           Image hidden by [EventActionType.HIDE_MAP_IMAGE].
+ * @param spawnLoopId       Spawn loop ended by [EventActionType.STOP_SPAWN_LOOP].
  */
 data class EventAction(
     val type: EventActionType,
@@ -126,6 +133,7 @@ data class EventAction(
     val targetEventId: String? = null,
     val mapImage: EventMapImage? = null,
     val imageId: String? = null,
+    val spawnLoopId: String? = null,
 )
 
 /**
@@ -257,4 +265,12 @@ data class LevelEvents(
     fun isEmpty(): Boolean = events.isEmpty()
 
     fun isNotEmpty(): Boolean = !isEmpty()
+
+    /** Ids of all spawn loops that some event (or event loop step) stops. */
+    fun stoppedSpawnLoopIds(): Set<String> =
+        events
+            .flatMap { it.allActions() }
+            .filter { it.type == EventActionType.STOP_SPAWN_LOOP }
+            .mapNotNull { it.spawnLoopId }
+            .toSet()
 }

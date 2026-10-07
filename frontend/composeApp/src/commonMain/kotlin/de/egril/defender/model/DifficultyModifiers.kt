@@ -101,28 +101,12 @@ object DifficultyModifiers {
      *  - Others: unchanged.
      */
     fun applySpawnGroupsModifier(
-        groups: List<SpawnGroup>,
+        groups: List<SpawnSequenceEntry>,
         difficulty: DifficultyLevel,
-    ): List<SpawnGroup> =
+    ): List<SpawnSequenceEntry> =
         when (difficulty) {
-            DifficultyLevel.HARD ->
-                groups.map { group ->
-                    group.copy(
-                        turns =
-                            group.turns.map { turn ->
-                                turn.copy(spawns = turn.spawns.map { it.copy(level = it.level * 2) })
-                            },
-                    )
-                }
-            DifficultyLevel.NIGHTMARE ->
-                groups.map { group ->
-                    group.copy(
-                        turns =
-                            group.turns.map { turn ->
-                                turn.copy(spawns = turn.spawns.flatMap { expandSpawnForNightmare(it) })
-                            },
-                    )
-                }
+            DifficultyLevel.HARD -> groups.mapSpawnEntries { it.copy(level = it.level * 2) }
+            DifficultyLevel.NIGHTMARE -> groups.flatMapSpawnEntries { expandSpawnForNightmare(it) }
             else -> groups
         }
 
@@ -133,7 +117,7 @@ object DifficultyModifiers {
      * levels, matching the flat-plan behavior.
      */
     private fun expandSpawnForNightmare(spawn: SpawnGroupSpawn): List<SpawnGroupSpawn> {
-        val spawnsOnce = spawn.firstIterationOnly || spawn.unitId != null || spawn.attackerType == AttackerType.EWHAD
+        val spawnsOnce = spawn.spawnsInFirstIterationOnly || spawn.unitId != null || spawn.attackerType == AttackerType.EWHAD
         return if (spawnsOnce) {
             val multiplier = if (spawn.attackerType == AttackerType.EWHAD) 5 else 3
             listOf(spawn.copy(level = spawn.level * multiplier))
