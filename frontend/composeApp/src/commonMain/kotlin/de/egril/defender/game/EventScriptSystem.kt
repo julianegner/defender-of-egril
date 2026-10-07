@@ -307,6 +307,7 @@ class EventScriptSystem(
                 val target = action.targetEventId ?: return
                 state.activeEventLoops.removeAll { it.eventId == target }
             }
+            EventActionType.STOP_SPAWN_LOOP -> action.spawnLoopId?.let { state.stopSpawnLoop(it) }
             EventActionType.SHOW_MAP_IMAGE -> {
                 val image = action.mapImage
                 if (image == null || !image.isValid()) {

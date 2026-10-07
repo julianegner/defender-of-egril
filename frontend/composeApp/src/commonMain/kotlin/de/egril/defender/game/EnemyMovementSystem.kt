@@ -120,9 +120,9 @@ class EnemyMovementSystem(
     }
 
     fun spawnAttackers() {
-        // Use the spawn plan to determine which enemies spawn this turn
+        // Use the spawn plan (or active spawn group) to determine which enemies spawn this turn
         val currentTurn = state.turnNumber.value
-        val enemiesToSpawnThisTurn = state.spawnPlan.filter { it.spawnTurn == currentTurn }
+        val enemiesToSpawnThisTurn = state.plannedSpawnsForTurn(currentTurn)
 
         if (enemiesToSpawnThisTurn.isEmpty()) return
 
@@ -171,6 +171,7 @@ class EnemyMovementSystem(
                 )
             state.attackers.add(attacker)
             state.enemyTurnStartPositions[attacker.id] = spawnPos
+            plannedSpawn.unitId?.let { state.bindSpawnGroupUnit(it, attacker.id) }
             GameLogBuffer.log("SPAWN", "${attacker.type} Lv${attacker.level.value} spawned at $spawnPos (turn $currentTurn)")
 
             // Record enemy spawn visual effect for animation.

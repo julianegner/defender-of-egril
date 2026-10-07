@@ -6,6 +6,10 @@ import de.egril.defender.model.DefenderType
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnSequenceEntry
+import de.egril.defender.model.allSpawnEntries
+import de.egril.defender.model.enemyCounts
+import de.egril.defender.model.isRealVillain
 import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.TargetType
 import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
@@ -385,9 +389,21 @@ data class EditorEnemySpawn(
     val level: Int = 1,
     val spawnTurn: Int,
     val spawnPoint: Position? = null, // Fixed spawn point for this enemy (null for backward compatibility)
+    val unitId: String? = null, // Spawn loops only: logical id bound to the spawned unit (for "while unit alive" loops)
+    // Spawn loops only: spawn only in the first iteration of the enclosing loop. Always on for villains.
+    val firstIterationOnly: Boolean = attackerType.isRealVillain,
 ) {
     val healthPoints: Int get() = attackerType.health * level
+
+    /** Villains exist only once per level, so they always spawn only in the first iteration. */
+    val spawnsInFirstIterationOnly: Boolean get() = firstIterationOnly || attackerType.isRealVillain
+
+    /** Unit id used by spawn loops: villains are always identified by their name. */
+    val loopUnitId: String? get() = if (attackerType.isRealVillain) attackerType.villainUnitId else unitId
 }
+
+/** Fixed spawn-loop unit id of a villain (its name), so "while unit alive" loops can always refer to it. */
+val AttackerType.villainUnitId: String get() = displayName
 
 /**
  * Initial defender (tower) placement for level start
@@ -570,6 +586,7 @@ data class EditorLevel(
     @Deprecated("Use initialData.traps instead") val initialTraps: List<InitialTrap> = emptyList(),
     @Deprecated("Use initialData.barricades instead") val initialBarricades: List<InitialBarricade> = emptyList(),
     val singleHitTargetOrder: List<Position> = emptyList(), // Ordered SINGLE_HIT targets; empty disables sequencing
+    val spawnGroups: List<SpawnSequenceEntry>? = null, // Optional spawn sequence of turns and nested loops (issue #694); when non-null, replaces the flat enemySpawns at runtime
 ) {
     /**
      * Get effective initial data, handling both new and legacy formats
@@ -605,8 +622,7 @@ data class EditorLevel(
      * Checks if this level is ready to play (level-specific checks only).
      * A level is ready if:
      * - It has at least one available tower
-     * - It has at least one enemy spawn configured, unless it is a sandbox level
-     *   (each EditorEnemySpawn represents one enemy unit)
+     * - It has at least one enemy spawn configured through a flat plan or spawn group, unless it is a sandbox level
      * - Start coins are greater than zero
      * - Start health points are greater than zero
      *
@@ -616,9 +632,27 @@ data class EditorLevel(
      */
     fun isReadyToPlay(): Boolean =
         hasTowerSelectionOptions() &&
-            (isSandbox || enemySpawns.isNotEmpty()) &&
+            (isSandbox || hasConfiguredSpawns()) &&
+            (isSandbox || spawnGroups?.let { spawnGroupIssues(it, stoppedLoopIds = events.stoppedSpawnLoopIds()).isEmpty() } != false) &&
             startCoins > 0 &&
             startHealthPoints > 0
+
+    fun hasConfiguredSpawns(): Boolean =
+        if (spawnGroups != null) {
+            spawnGroups.allSpawnEntries().any { it.count > 0 }
+        } else {
+            enemySpawns.isNotEmpty()
+        }
+
+    fun configuredSpawnCount(): Long =
+        if (spawnGroups == null) {
+            enemySpawns.size.toLong()
+        } else {
+            spawnGroups.allSpawnEntries().sumOf { it.count.coerceAtLeast(0).toLong() }
+        }
+
+    /** All configured spawn entries; for spawn loops each entry once, at its position in the editor timeline. */
+    fun configuredSpawnEntries(): List<EditorEnemySpawn> = spawnGroups?.let { spawnTimelineFromSequence(it).spawns } ?: enemySpawns
 
     /**
      * Returns true when the level has at least one tower choice or enough initial setup to
@@ -807,15 +841,8 @@ data class EditorLevel(
     }
 
     fun toLevelInfoEnemiesLevelData(index: Int): LevelInfoEnemiesLevelData {
-        val enemyCountMap: Map<AttackerType, Int> = mutableMapOf()
-
-        enemySpawns
-            .groupingBy { it.attackerType }
-            .eachCount()
-            .entries
-            .forEach { (attackerType, count) ->
-                (enemyCountMap as MutableMap)[attackerType] = count
-            }
+        val sequenceCounts = spawnGroups?.enemyCounts()
+        val enemyCountMap = sequenceCounts?.counts ?: enemySpawns.groupingBy { it.attackerType }.eachCount()
 
         return LevelInfoEnemiesLevelData(
             id = "" + index,
@@ -826,6 +853,7 @@ data class EditorLevel(
             initialCoins = startCoins,
             healthPoints = startHealthPoints,
             enemyTypeCounts = enemyCountMap,
+            endlessLoop = sequenceCounts?.endless == true,
         )
     }
 }

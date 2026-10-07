@@ -93,6 +93,32 @@ data class SavedGame(
     val activeTileZoneIds: List<String> = emptyList(), // Tile zones switched on by scripted events, in activation order
     val activeEventLoops: List<ActiveEventLoop> = emptyList(), // Running scripted-event loops with their progress
     val activeEventMapImages: List<EventMapImage> = emptyList(),
+    // Spawn loops (issue #694): the runtime cursor through the level's spawn groups and the
+    // logical-unit-id → spawned-attacker-id bindings, persisted so a mid-cycle save resumes exactly.
+    val spawnGroupCursor: SavedSpawnGroupCursor? = null,
+    val spawnGroupBindings: Map<String, Int> = emptyMap(),
+    val stoppedSpawnLoops: List<String> = emptyList(), // Spawn loops ended by a STOP_SPAWN_LOOP event action
+)
+
+/**
+ * Persisted form of the spawn-loop runtime cursor (see [de.egril.defender.model.SpawnGroupCursor]).
+ */
+data class SavedSpawnGroupCursor(
+    // Nesting chain from the root sequence to the innermost active group; null for saves written
+    // before nested spawn loops, which only stored [legacyGroupIndex]/[legacyRepetition].
+    val frames: List<SavedSpawnGroupFrame>?,
+    val segmentStartTurn: Int,
+    val finished: Boolean,
+    val lastProcessedTurn: Int,
+    val legacyGroupIndex: Int = 0,
+    val legacyRepetition: Int = 0,
+)
+
+/** Persisted form of [de.egril.defender.model.SpawnGroupFrame]. */
+data class SavedSpawnGroupFrame(
+    val entryIndex: Int,
+    val repetition: Int,
+    val iterationStartTurn: Int,
 )
 
 /**

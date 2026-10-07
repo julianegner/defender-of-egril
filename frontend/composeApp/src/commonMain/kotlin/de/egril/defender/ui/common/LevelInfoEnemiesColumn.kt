@@ -29,6 +29,7 @@ import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.level_info_endless_loop
 import defender_of_egril.composeapp.generated.resources.villain
 import defender_of_egril.composeapp.generated.resources.villains
 import kotlin.collections.component1
@@ -43,6 +44,8 @@ data class LevelInfoEnemiesLevelData(
     val initialCoins: Int,
     val healthPoints: Int,
     val enemyTypeCounts: Map<AttackerType, Int>,
+    // True if a spawn loop has no fixed iteration count; the counts then cover a single iteration.
+    val endlessLoop: Boolean = false,
 )
 
 @Composable
@@ -133,7 +136,7 @@ fun RowScope.LevelInfoEnemiesColumn(
                 ) {
                     normalEnemyList.forEachIndexed { index, (attackerType, count) ->
                         if (index % 2 == 0) {
-                            EnemyUnitEntry(attackerType, count, textColor)
+                            EnemyUnitEntry(attackerType, count, textColor, endless = level.endlessLoop)
                         }
                     }
                 }
@@ -143,7 +146,7 @@ fun RowScope.LevelInfoEnemiesColumn(
                 ) {
                     normalEnemyList.forEachIndexed { index, (attackerType, count) ->
                         if (index % 2 == 1) {
-                            EnemyUnitEntry(attackerType, count, textColor)
+                            EnemyUnitEntry(attackerType, count, textColor, endless = level.endlessLoop)
                         }
                     }
                 }
@@ -176,6 +179,16 @@ fun RowScope.LevelInfoEnemiesColumn(
                 }
             }
         }
+
+        if (level.endlessLoop && enemyList.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "* ${stringResource(Res.string.level_info_endless_loop)}",
+                style = MaterialTheme.typography.bodySmall,
+                color = textColor,
+                fontSize = 11.sp,
+            )
+        }
     }
 }
 
@@ -185,6 +198,7 @@ private fun EnemyUnitEntry(
     count: Int,
     textColor: Color,
     showCount: Boolean = true,
+    endless: Boolean = false,
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
     Row(
@@ -202,7 +216,7 @@ private fun EnemyUnitEntry(
         Text(
             text =
                 if (showCount) {
-                    "${attackerType.getLocalizedName(locale)}: $count"
+                    "${attackerType.getLocalizedName(locale)}: $count${if (endless) "*" else ""}"
                 } else {
                     attackerType.getLocalizedName(locale)
                 },
