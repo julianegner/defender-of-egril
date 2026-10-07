@@ -20,6 +20,7 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.a11y.a11ySemantics
 import de.egril.defender.ui.animations.SpellDoubleLevelColor
 import de.egril.defender.ui.animations.SpellDoubleReachColor
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.gameplay.defenderButtons.TowerStats
 import de.egril.defender.ui.icon.HammerIcon
 import de.egril.defender.ui.icon.InfoIcon
@@ -53,6 +54,8 @@ fun DefenderInfo(
     onDefenderAttackPosition: ((Int, Position) -> Boolean)? = null,
     isPlayerTurn: Boolean = false,
     hasUnlockedSpells: Boolean = false, // Whether player has unlocked any spells
+    onSanctifyDefender: ((Int) -> Boolean)? = null,
+    onActivateAltar: ((Int) -> Boolean)? = null,
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
     val buttonHeight = if (isMobile) 100.dp else 60.dp
@@ -325,6 +328,36 @@ fun DefenderInfo(
                             color = Color.Gray,
                             fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
                         )
+                    } else if (defender.type == DefenderType.ALTAR) {
+                        if (defender.isChanneling.value) {
+                            SelectableText(stringResource(Res.string.altar_channeling))
+                        }
+                        if (isPlayerTurn && onActivateAltar != null) {
+                            Button(
+                                onClick = { onActivateAltar(defender.id) },
+                                enabled = gameState.canActivateAltar(defender),
+                                modifier = Modifier.height(buttonHeight),
+                            ) {
+                                Text(stringResource(Res.string.activate_altar))
+                            }
+                        }
+                        if (isPlayerTurn && onWizardAction != null) {
+                            Spacer(modifier = Modifier.width(horizontalSpacing))
+                            MagicalTrapButton(
+                                defender = defender,
+                                onWizardAction = onWizardAction,
+                                selectedWizardAction = selectedWizardAction,
+                                modifier = Modifier.height(buttonHeight),
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(horizontalSpacing))
+                        UndoOrSellButton(
+                            defender = defender,
+                            gameState = gameState,
+                            onUndoTower = onUndoTower,
+                            onSellTower = onSellTower,
+                            modifier = Modifier.height(buttonHeight),
+                        )
                     } else {
                         // Normal tower stats and buttons
                         // Calculate next level stats using helper functions
@@ -399,7 +432,24 @@ fun DefenderInfo(
                             hasAttackColumn ||
                                 hasManaColumn ||
                                 hasTrapColumn ||
-                                hasBarricadeColumn
+                                hasBarricadeColumn ||
+                                (defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 && onSanctifyDefender != null)
+
+                        if (defender.type == DefenderType.WIZARD_TOWER &&
+                            defender.level.value >= 10 &&
+                            onSanctifyDefender != null
+                        ) {
+                            TooltipWrapper(text = stringResource(Res.string.altar_conversion_info)) {
+                                Button(
+                                    onClick = { onSanctifyDefender(defender.id) },
+                                    enabled = gameState.canSanctifyDefender(defender),
+                                    modifier = Modifier.height(buttonHeight),
+                                ) {
+                                    Text(stringResource(Res.string.sanctify))
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(horizontalSpacing))
+                        }
 
                         // Current stats column
                         Column(modifier = Modifier.weight(0.5f)) {
@@ -833,7 +883,7 @@ fun MagicalTrapButton(
         // Button to enter magical trap placement mode - enabled when trap is ready and has actions
         Button(
             onClick = { onWizardAction(defender.id, WizardAction.PLACE_MAGICAL_TRAP) },
-            enabled = !isOnCooldown && defender.actionsRemaining.value > 0,
+            enabled = !isOnCooldown && defender.isReady && !defender.isDisabled.value && defender.actionsRemaining.value > 0,
             modifier = modifier,
             colors =
                 ButtonDefaults.buttonColors(
@@ -1055,6 +1105,21 @@ private fun getTowerInfoMessages(
 
     // Add first-use info message for the tower type
     when (defender.type) {
+        DefenderType.ALTAR -> {
+            messages.add(
+                TowerInfoMessage(
+                    title = stringResource(Res.string.tower_altar),
+                    message = stringResource(Res.string.altar_conversion_info),
+                    icon = {
+                        de.egril.defender.ui.TowerTypeIcon(
+                            defenderType = DefenderType.ALTAR,
+                            modifier = Modifier.size(56.dp),
+                        )
+                    },
+                    color = Color(0xFFFFD700),
+                ),
+            )
+        }
         DefenderType.WIZARD_TOWER -> {
             messages.add(
                 TowerInfoMessage(
@@ -1234,7 +1299,7 @@ private fun getTowerInfoMessages(
     }
 
     // Magical trap info (wizard tower level 10+)
-    if (defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10) {
+    if (defender.hasMagicalTraps && defender.level.value >= 10) {
         messages.add(
             TowerInfoMessage(
                 title = stringResource(Res.string.magical_trap_tutorial_title),

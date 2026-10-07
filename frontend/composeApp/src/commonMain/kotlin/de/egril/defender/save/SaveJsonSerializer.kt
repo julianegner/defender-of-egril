@@ -80,7 +80,12 @@ object SaveJsonSerializer {
       "actionsRemaining": ${defender.actionsRemaining},
       "dragonName": $dragonNameStr,
       "raftId": $raftIdStr,
-      "towerBaseBarricadeId": $towerBaseBarricadeIdStr
+      "towerBaseBarricadeId": $towerBaseBarricadeIdStr,
+      "isChanneling": ${defender.isChanneling},
+      "trapCooldownRemaining": ${defender.trapCooldownRemaining},
+      "hasBeenUsed": ${defender.hasBeenUsed},
+      "isDisabled": ${defender.isDisabled},
+      "disabledTurnsRemaining": ${defender.disabledTurnsRemaining}
     }"""
             }
 
@@ -365,6 +370,7 @@ object SaveJsonSerializer {
   "currentMana": ${savedGame.currentMana},
   "maxMana": ${savedGame.maxMana},
   "runes": ${savedGame.runes},
+  "scriptedVictory": ${savedGame.scriptedVictory},
   "supportObjectsRemaining": {$supportObjectsJson},
   "supportSpellsRemaining": {$supportSpellsJson},
   "supportFiefRemaining": {$supportFiefsJson},
@@ -877,6 +883,7 @@ object SaveJsonSerializer {
                     } catch (e: Exception) {
                         0
                     },
+                scriptedVictory = JsonUtils.extractValue(dataJson, "scriptedVictory") == "true",
                 runes =
                     try {
                         JsonUtils.extractValue(dataJson, "runes").toInt()
@@ -1094,6 +1101,11 @@ object SaveJsonSerializer {
             dragonName,
             raftId,
             towerBaseBarricadeId,
+            isChanneling = JsonUtils.extractValue(json, "isChanneling") == "true",
+            trapCooldownRemaining = JsonUtils.extractValue(json, "trapCooldownRemaining").toIntOrNull() ?: 0,
+            hasBeenUsed = JsonUtils.extractValue(json, "hasBeenUsed") == "true",
+            isDisabled = JsonUtils.extractValue(json, "isDisabled") == "true",
+            disabledTurnsRemaining = JsonUtils.extractValue(json, "disabledTurnsRemaining").toIntOrNull() ?: 0,
         )
     }
 
@@ -1465,7 +1477,12 @@ object SaveJsonSerializer {
       "actionsRemaining": ${defender.actionsRemaining},
       "dragonName": $dragonNameStr,
       "raftId": $raftIdStr,
-      "towerBaseBarricadeId": $towerBaseBarricadeIdStr
+      "towerBaseBarricadeId": $towerBaseBarricadeIdStr,
+      "isChanneling": ${defender.isChanneling},
+      "trapCooldownRemaining": ${defender.trapCooldownRemaining},
+      "hasBeenUsed": ${defender.hasBeenUsed},
+      "isDisabled": ${defender.isDisabled},
+      "disabledTurnsRemaining": ${defender.disabledTurnsRemaining}
     }"""
             }
 

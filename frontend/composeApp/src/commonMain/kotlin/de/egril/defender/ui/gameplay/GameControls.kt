@@ -163,6 +163,8 @@ fun GameControlsPanel(
     highlightEndTurnButton: Boolean = false, // Visually highlight the End Turn button (keyboard focus)
     splitSelectorToggle: Int = 0, // Counter incremented to toggle the split selector dropdown via keyboard
     onSplitSelectorExpandedChanged: (Boolean) -> Unit = {},
+    onSanctifyDefender: ((Int) -> Boolean)? = null,
+    onActivateAltar: ((Int) -> Boolean)? = null,
 ) {
     de.egril.defender.ui.a11y.FontSizeUnscaled {
         // Automatically fold buy panel when a defender, attacker, or barricade is selected
@@ -266,6 +268,8 @@ fun GameControlsPanel(
                                             onDefenderAttack = onDefenderAttack,
                                             onDefenderAttackPosition = onDefenderAttackPosition,
                                             isPlayerTurn = isPlayerTurn,
+                                            onSanctifyDefender = onSanctifyDefender,
+                                            onActivateAltar = onActivateAltar,
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -328,7 +332,7 @@ fun GameControlsPanel(
                                 if (AppSettings.splitBuildTowerButton.value) {
                                     val types =
                                         gameState.level.availableTowers
-                                            .filter { it != DefenderType.DRAGONS_LAIR }
+                                            .filter { it != DefenderType.DRAGONS_LAIR && it != DefenderType.ALTAR }
                                     SplitTowerBuildControls(
                                         availableTypes = types,
                                         selectedDefenderType = selectedDefenderType,
@@ -353,6 +357,7 @@ fun GameControlsPanel(
                                     ) {
                                         val types =
                                             gameState.level.availableTowers
+                                                .filter { it != DefenderType.ALTAR }
                                                 // hack: we need an additional entry
                                                 // that is overridden by the start game/end turn button
                                                 // in the compact view
@@ -394,7 +399,7 @@ fun GameControlsPanel(
                         // Expanded view: Flexible layout — all buttons in one row, same width, centered when max width is reached.
                         val types =
                             gameState.level.availableTowers
-                                .filter { it != DefenderType.DRAGONS_LAIR }
+                                .filter { it != DefenderType.DRAGONS_LAIR && it != DefenderType.ALTAR }
                         val numButtons = types.size
                         if (numButtons > 0) {
                             val buttonSpacing = 4.dp
@@ -456,6 +461,8 @@ fun GameControlsPanel(
                                     onDefenderAttack = onDefenderAttack,
                                     onDefenderAttackPosition = onDefenderAttackPosition,
                                     isPlayerTurn = isPlayerTurn,
+                                    onSanctifyDefender = onSanctifyDefender,
+                                    onActivateAltar = onActivateAltar,
                                 )
                             }
                         }

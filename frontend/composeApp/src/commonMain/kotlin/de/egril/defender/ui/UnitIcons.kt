@@ -99,6 +99,7 @@ fun DrawScope.drawTower(
         DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY + iconSize * 0.15f, iconSize * 0.5f, lineColor) // Move down 30% for better positioning
         DefenderType.BOW_TOWER -> drawBowSymbol(centerX, centerY, iconSize * 0.45f)
         DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
+        DefenderType.ALTAR -> drawAltarSymbol(centerX, centerY, iconSize)
         DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
         DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
         DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
@@ -117,7 +118,7 @@ fun DrawScope.drawTower(
  */
 fun towerGraphicAlpha(defender: Defender): Float {
     val canEverAct = defender.actionsPerTurnCalculated > 0
-    val isActive = defender.isReady && defender.actionsRemaining.value > 0
+    val isActive = defender.isReady && (defender.actionsRemaining.value > 0 || defender.isChanneling.value)
     return if (canEverAct && !isActive) GamePlayConstants.Opacity.InactiveTower else 1f
 }
 
@@ -308,11 +309,26 @@ fun DrawScope.drawDefenderSymbol(
         DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY + iconSize * 0.15f, iconSize * 0.5f) // Move down for better positioning
         DefenderType.BOW_TOWER -> drawBowSymbol(centerX, centerY, iconSize * 0.45f)
         DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
+        DefenderType.ALTAR -> drawAltarSymbol(centerX, centerY, iconSize)
         DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
         DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
         DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
         DefenderType.DRAGONS_LAIR -> drawDragonLairSymbol(centerX, centerY, iconSize * 0.6f, dragonAlive)
     }
+}
+
+private fun DrawScope.drawAltarSymbol(
+    centerX: Float,
+    centerY: Float,
+    iconSize: Float,
+) {
+    drawWizardSymbol(centerX, centerY, iconSize * 0.3f)
+    drawCircle(
+        color = Color(0xFFFFD700),
+        radius = iconSize * 0.27f,
+        center = Offset(centerX, centerY),
+        style = Stroke(width = iconSize * 0.04f),
+    )
 }
 
 /**

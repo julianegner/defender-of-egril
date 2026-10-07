@@ -54,4 +54,19 @@ class EventMessageCatalogTranslationTest {
         assertTrue("event_msg_high_tide" in EventMessageCatalog.keys, "High tide preset should be selectable")
         assertTrue("event_msg_low_tide" in EventMessageCatalog.keys, "Low tide preset should be selectable")
     }
+
+    @Test
+    fun testRuneNetworkVictoryPresetIsOfferedWithDynamicAltarCount() {
+        val key = "event_msg_rune_network_taken_over"
+        assertTrue(key in EventMessageCatalog.keys)
+        assertTrue(EventMessageCatalog.preview(key, com.hyperether.resources.AppLocale.DEFAULT).contains("X altars"))
+        assertTrue(
+            com.hyperether.resources.LocalizedStrings
+                .getFormatted(
+                    key,
+                    4,
+                    locale = com.hyperether.resources.AppLocale.DEFAULT,
+                ).contains("4 altars"),
+        )
+    }
 }

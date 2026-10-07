@@ -2640,4 +2640,13 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="spawn_unit_id_short">ID</string>
     <string name="spawn_error_structure">Loops must lie within the existing turns and may only be nested completely inside each other, without partial overlaps.</string>
     <string name="level_info_endless_loop">Endless loop</string>
+    <string name="event_cond_altars_activated">Altars activated simultaneously</string>
+    <string name="tower_altar">Altar</string>
+    <string name="tower_altar_short">Altar</string>
+    <string name="sanctify">Sanctify</string>
+    <string name="activate_altar">Activate Altar</string>
+    <string name="altar_channeling">Channeling</string>
+    <string name="altar_conversion_info">Sanctify a level 10 or higher Wizard Tower on a build tile by spending one rune. Altars cannot attack or be upgraded, but retain magical traps.\n\nActivate an Altar once per turn to channel its power for the current turn. Activation consumes an action, and channeling resets at the start of the next player turn. Activate the required number of Altars simultaneously to take over the Rune Network in scripted levels.</string>
+    <string name="event_act_win_level">Win level</string>
+    <string name="event_msg_rune_network_taken_over">%1$d altars have been activated! Their united power has taken over the Rune Network. The enemy can no longer command its magic. Victory is ours!</string>
 </resources>

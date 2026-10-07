@@ -67,7 +67,7 @@ data class Level(
     val healthPoints: Int = 10,
     val directSpawnPlan: List<PlannedEnemySpawn>? = null, // Direct spawn plan from editor
     val spawnGroups: List<SpawnSequenceEntry>? = null, // Optional top-level spawn sequence of turns and (nested) loops; when non-null, replaces the flat spawn plan at runtime (issue #694)
-    val availableTowers: Set<DefenderType> = DefenderType.entries.toSet(), // Towers available in this level
+    val availableTowers: Set<DefenderType> = DefenderType.entries.filter { it != DefenderType.ALTAR }.toSet(), // Towers available in this level
     val waypoints: List<Waypoint> = emptyList(), // Waypoints for complex pathing
     val editorLevelId: String? = null, // ID of the editor level this was created from
     val mapId: String? = null, // ID of the map this level uses

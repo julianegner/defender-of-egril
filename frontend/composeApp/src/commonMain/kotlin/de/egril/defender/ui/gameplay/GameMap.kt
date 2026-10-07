@@ -3323,8 +3323,8 @@ private fun BoxScope.GridCellContent(
                     if (defender.buildTimeRemaining.value == 0) {
                         when (defender.type) {
                             // Wizard idle glows only while the tower still has actions this turn
-                            DefenderType.WIZARD_TOWER ->
-                                if (defender.actionsRemaining.value > 0) {
+                            DefenderType.WIZARD_TOWER, DefenderType.ALTAR ->
+                                if (defender.actionsRemaining.value > 0 || defender.isChanneling.value) {
                                     WizardIdleAnimation(
                                         animate = AppSettings.enableAnimations.value,
                                         modifier = Modifier.fillMaxSize(),

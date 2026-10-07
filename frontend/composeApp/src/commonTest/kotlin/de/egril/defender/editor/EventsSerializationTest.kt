@@ -22,6 +22,25 @@ import kotlin.test.assertTrue
 
 class EventsSerializationTest {
     @Test
+    fun altarVictoryEventRoundTripsWithoutAdditionalSerializerFields() {
+        val events =
+            LevelEvents(
+                listOf(
+                    LevelEvent(
+                        id = "rune-network",
+                        condition = EventCondition(EventConditionType.ALTARS_ACTIVATED, fromTurn = 2, threshold = 4),
+                        actions = listOf(EventAction(EventActionType.WIN_LEVEL)),
+                        messageKey = "event_msg_rune_network_taken_over",
+                    ),
+                ),
+            )
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(events))
+        assertTrue(json.contains("\"type\": \"ALTARS_ACTIVATED\""))
+        assertTrue(json.contains("\"type\": \"WIN_LEVEL\""))
+        assertEquals(events, assertNotNull(EditorJsonSerializer.deserializeLevel(json)).events)
+    }
+
+    @Test
     fun mapImageActionsRoundTripThroughEventsAndNestedLoops() {
         val image = EventMapImage("image \"one\", {sea}[0]\\", "tide \"high\", {sea}[0].png", -1.25f, -0.5f, 2.75f, 1.5f)
         val actions =

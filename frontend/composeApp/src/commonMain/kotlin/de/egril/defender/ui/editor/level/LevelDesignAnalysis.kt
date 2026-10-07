@@ -387,7 +387,7 @@ internal fun applyLevelTemplate(
                 )
             EditorLevelTemplate.RIVER_PRESSURE,
             EditorLevelTemplate.ENDURANCE,
-            -> DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }.toSet()
+            -> DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR && it != DefenderType.ALTAR }.toSet()
         }
     val (coins, hp) =
         when (template) {

@@ -315,7 +315,7 @@ internal fun LevelEditorContent(
                         availableTowers =
                             DefenderType.entries
                                 .filter {
-                                    it != DefenderType.DRAGONS_LAIR
+                                    it != DefenderType.DRAGONS_LAIR && it != DefenderType.ALTAR
                                 }.toSet(),
                         author = author,
                     )

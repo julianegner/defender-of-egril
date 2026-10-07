@@ -194,7 +194,7 @@ class TurnLifecycleLogic(
                     )
                 }
             }
-            if (defender.type == DefenderType.WIZARD_TOWER && defender.trapCooldownRemaining.value > 0) {
+            if (defender.hasMagicalTraps && defender.trapCooldownRemaining.value > 0) {
                 defender.trapCooldownRemaining.value--
             }
         }

@@ -1374,6 +1374,7 @@ class GameViewModel {
                 defender.actionsRemaining.value = savedDefender.type.actionsPerTurn
                 defender.raftId.value = savedDefender.raftId
                 defender.towerBaseBarricadeId.value = savedDefender.towerBaseBarricadeId
+                defender.trapCooldownRemaining.value = savedDefender.trapCooldownRemaining
                 newGameState.defenders.add(defender)
             }
 
@@ -1563,6 +1564,23 @@ class GameViewModel {
             }
         }
         return result
+    }
+
+    fun sanctifyDefender(defenderId: Int): Boolean = performAltarAction { it.sanctifyDefender(defenderId) }
+
+    fun activateAltar(defenderId: Int): Boolean = performAltarAction { it.activateAltar(defenderId) }
+
+    private fun performAltarAction(action: (GameEngine) -> Boolean): Boolean {
+        val engine = gameEngine ?: return false
+        if (!action(engine)) return false
+        surfaceNextPendingMessageIfIdle()
+        val state = _gameState.value ?: return true
+        if (state.isLevelLost()) {
+            completeLevel(state.level.id, won = false)
+        } else if (state.isLevelWon()) {
+            completeLevel(state.level.id, won = true)
+        }
+        return true
     }
 
     fun sellTower(defenderId: Int): Boolean {
@@ -2284,6 +2302,7 @@ class GameViewModel {
                     dragonName = d.dragonName,
                     raftId = d.raftId.value,
                     towerBaseBarricadeId = d.towerBaseBarricadeId.value,
+                    trapCooldownRemaining = d.trapCooldownRemaining.value,
                 )
             }
         val handoffBarricades =

@@ -527,6 +527,7 @@ private fun EventGainsSummary(actions: List<EventAction>) {
                 EventActionType.STOP_SPAWN_LOOP,
                 EventActionType.SHOW_MAP_IMAGE,
                 EventActionType.HIDE_MAP_IMAGE,
+                EventActionType.WIN_LEVEL,
                 -> Unit
             }
         }

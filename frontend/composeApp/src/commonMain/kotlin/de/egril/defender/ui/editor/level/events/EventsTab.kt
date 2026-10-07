@@ -4,8 +4,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.lazy.items
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -35,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
@@ -71,13 +71,13 @@ import defender_of_egril.composeapp.generated.resources.event_act_revert_tile_zo
 import defender_of_egril.composeapp.generated.resources.event_act_show_map_image
 import defender_of_egril.composeapp.generated.resources.event_act_stop_event_loop
 import defender_of_egril.composeapp.generated.resources.event_act_stop_spawn_loop
-import defender_of_egril.composeapp.generated.resources.event_spawn_loop_label
-import defender_of_egril.composeapp.generated.resources.event_spawn_loop_missing_warning
 import defender_of_egril.composeapp.generated.resources.event_act_toggle_tile_zone
+import defender_of_egril.composeapp.generated.resources.event_act_win_level
 import defender_of_egril.composeapp.generated.resources.event_actions_count
 import defender_of_egril.composeapp.generated.resources.event_actions_label
 import defender_of_egril.composeapp.generated.resources.event_amount_label
 import defender_of_egril.composeapp.generated.resources.event_any_enemy
+import defender_of_egril.composeapp.generated.resources.event_cond_altars_activated
 import defender_of_egril.composeapp.generated.resources.event_cond_coins_at_or_below
 import defender_of_egril.composeapp.generated.resources.event_cond_enemies_killed
 import defender_of_egril.composeapp.generated.resources.event_cond_enemy_turn_start
@@ -98,6 +98,8 @@ import defender_of_egril.composeapp.generated.resources.event_no_actions
 import defender_of_egril.composeapp.generated.resources.event_position_label
 import defender_of_egril.composeapp.generated.resources.event_repeatable_help
 import defender_of_egril.composeapp.generated.resources.event_repeatable_label
+import defender_of_egril.composeapp.generated.resources.event_spawn_loop_label
+import defender_of_egril.composeapp.generated.resources.event_spawn_loop_missing_warning
 import defender_of_egril.composeapp.generated.resources.event_summary_coins
 import defender_of_egril.composeapp.generated.resources.event_summary_enemy_turn
 import defender_of_egril.composeapp.generated.resources.event_summary_killed
@@ -408,7 +410,9 @@ private fun conditionSummary(condition: EventCondition): String =
         EventConditionType.ENEMY_TURN_START ->
             stringResource(Res.string.event_summary_enemy_turn, condition.fromTurn)
 
-        EventConditionType.ENEMIES_KILLED ->
+        EventConditionType.ENEMIES_KILLED,
+        EventConditionType.ALTARS_ACTIVATED,
+        ->
             "${condition.threshold} ${condition.type.localizedName()}"
 
         EventConditionType.ENEMY_TYPE_KILLED -> {
@@ -447,7 +451,9 @@ internal fun actionSummary(action: EventAction): String =
             action.spellType?.let { "$base: ${it.getLocalizedName()}" } ?: base
         }
 
-        EventActionType.DESTROY_MINE -> action.type.localizedName()
+        EventActionType.DESTROY_MINE,
+        EventActionType.WIN_LEVEL,
+        -> action.type.localizedName()
 
         EventActionType.APPLY_TILE_ZONE,
         EventActionType.REVERT_TILE_ZONE,
@@ -487,6 +493,7 @@ private fun ConditionEditor(
 
         when (condition.type) {
             EventConditionType.ENEMIES_KILLED,
+            EventConditionType.ALTARS_ACTIVATED,
             EventConditionType.HEALTH_AT_OR_BELOW,
             EventConditionType.MANA_AT_OR_BELOW,
             EventConditionType.COINS_AT_OR_BELOW,
@@ -605,6 +612,7 @@ internal fun ActionEditor(
         }
 
         when (action.type) {
+            EventActionType.WIN_LEVEL -> Unit
             EventActionType.SHOW_MAP_IMAGE, EventActionType.HIDE_MAP_IMAGE ->
                 EventMapImageEditor(action, onActionChange, context)
             EventActionType.GIVE_COINS, EventActionType.GIVE_MANA ->
@@ -1014,6 +1022,7 @@ private fun EventConditionType.localizedName(): String =
         EventConditionType.HEALTH_AT_OR_BELOW -> stringResource(Res.string.event_cond_health_at_or_below)
         EventConditionType.MANA_AT_OR_BELOW -> stringResource(Res.string.event_cond_mana_at_or_below)
         EventConditionType.COINS_AT_OR_BELOW -> stringResource(Res.string.event_cond_coins_at_or_below)
+        EventConditionType.ALTARS_ACTIVATED -> stringResource(Res.string.event_cond_altars_activated)
     }
 
 @Composable
@@ -1031,4 +1040,5 @@ private fun EventActionType.localizedName(): String =
         EventActionType.STOP_SPAWN_LOOP -> stringResource(Res.string.event_act_stop_spawn_loop)
         EventActionType.SHOW_MAP_IMAGE -> stringResource(Res.string.event_act_show_map_image)
         EventActionType.HIDE_MAP_IMAGE -> stringResource(Res.string.event_act_hide_map_image)
+        EventActionType.WIN_LEVEL -> stringResource(Res.string.event_act_win_level)
     }

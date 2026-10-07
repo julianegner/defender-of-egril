@@ -25,6 +25,7 @@ object EventMessageCatalog {
             "event_msg_high_tide",
             "event_msg_low_tide",
             "event_msg_volcano_erupted",
+            "event_msg_rune_network_taken_over",
         )
 
     /**
@@ -33,5 +34,10 @@ object EventMessageCatalog {
     fun preview(
         key: String,
         locale: AppLocale = currentLanguage.value,
-    ): String = LocalizedStrings.get(key, locale)
+    ): String =
+        if (key == "event_msg_rune_network_taken_over") {
+            LocalizedStrings.getFormatted(key, "X", locale = locale)
+        } else {
+            LocalizedStrings.get(key, locale)
+        }
 }

@@ -42,6 +42,9 @@ enum class EventConditionType {
 
     /** Fires when the player's coins are at or below [EventCondition.threshold]. */
     COINS_AT_OR_BELOW,
+
+    /** Fires when at least [EventCondition.threshold] ready, enabled altars channel simultaneously. */
+    ALTARS_ACTIVATED,
 }
 
 /**
@@ -49,7 +52,7 @@ enum class EventConditionType {
  *
  * @param type          The kind of condition.
  * @param fromTurn      The event is only evaluated from this turn onwards (0 = from the start).
- * @param threshold     Numeric threshold (kill count / health / mana / coins) depending on [type].
+ * @param threshold     Numeric threshold (kill count / health / mana / coins / active altars) depending on [type].
  * @param attackerType  Optional enemy type for [EventConditionType.ENEMY_TYPE_KILLED] and
  *                      [EventConditionType.UNIT_REACHED].
  * @param position      Target tile for [EventConditionType.UNIT_REACHED].
@@ -107,6 +110,9 @@ enum class EventActionType {
 
     /** Hide the image identified by [EventAction.imageId]. */
     HIDE_MAP_IMAGE,
+
+    /** Win the level immediately, regardless of remaining enemies or planned spawns. */
+    WIN_LEVEL,
 }
 
 /**
