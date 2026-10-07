@@ -287,6 +287,11 @@ object SaveFileStorage {
                     raftId = defender.raftId.value,
                     towerBaseBarricadeId = defender.towerBaseBarricadeId.value,
                     hasRootGripAnimation = defender.hasRootGripAnimation.value,
+                    isChanneling = defender.isChanneling.value,
+                    trapCooldownRemaining = defender.trapCooldownRemaining.value,
+                    hasBeenUsed = defender.hasBeenUsed.value,
+                    isDisabled = defender.isDisabled.value,
+                    disabledTurnsRemaining = defender.disabledTurnsRemaining.value,
                 )
             }
 
@@ -437,6 +442,7 @@ object SaveFileStorage {
             currentMana = gameState.currentMana.value,
             maxMana = gameState.maxMana.value,
             runes = gameState.runes.value,
+            scriptedVictory = gameState.scriptedVictory.value,
             spellEffects = spellEffects,
             supportObjectsRemaining = gameState.supportObjectsRemaining.toMap(),
             supportSpellsRemaining = gameState.supportSpellsRemaining.toMap(),
@@ -608,6 +614,7 @@ object SaveFileStorage {
         gameState.currentMana.value = savedGame.currentMana
         gameState.maxMana.value = savedGame.maxMana
         gameState.runes.value = savedGame.runes
+        gameState.scriptedVictory.value = savedGame.scriptedVictory
 
         // Restore player-usable support state (placeable objects, spell tokens, cooldown powers).
         // These are normally initialized from the level definition, but the player consumes objects
@@ -668,6 +675,11 @@ object SaveFileStorage {
             defender.raftId.value = savedDefender.raftId // Restore raft linkage
             defender.towerBaseBarricadeId.value = savedDefender.towerBaseBarricadeId // Restore tower base linkage
             defender.hasRootGripAnimation.value = savedDefender.hasRootGripAnimation // Restore Sylvanas vine animation
+            defender.isChanneling.value = savedDefender.isChanneling
+            defender.trapCooldownRemaining.value = savedDefender.trapCooldownRemaining
+            defender.hasBeenUsed.value = savedDefender.hasBeenUsed
+            defender.isDisabled.value = savedDefender.isDisabled
+            defender.disabledTurnsRemaining.value = savedDefender.disabledTurnsRemaining
             gameState.defenders.add(defender)
         }
 

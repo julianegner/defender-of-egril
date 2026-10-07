@@ -2633,4 +2633,13 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="spawn_unit_id_short">ID</string>
     <string name="spawn_error_structure">I cicli devono trovarsi all’interno dei turni esistenti e possono essere annidati solo completamente l’uno nell’altro, senza sovrapposizioni parziali.</string>
     <string name="level_info_endless_loop">Ciclo infinito</string>
+    <string name="event_cond_altars_activated">Altari attivati simultaneamente</string>
+    <string name="tower_altar">Altare</string>
+    <string name="tower_altar_short">Altare</string>
+    <string name="sanctify">Consacra</string>
+    <string name="activate_altar">Attiva altare</string>
+    <string name="altar_channeling">Canalizzazione</string>
+    <string name="altar_conversion_info">Consacra una Torre del Mago di livello 10 o superiore su una casella edificabile spendendo una runa. Gli altari non possono attaccare né essere potenziati, ma mantengono le trappole magiche.\n\nAttiva un altare una volta per turno per canalizzare il suo potere durante il turno attuale. L’attivazione consuma un’azione e la canalizzazione termina all’inizio del turno successivo del giocatore. Attiva simultaneamente il numero richiesto di altari per prendere il controllo della Rete Runica nei livelli con eventi programmati.</string>
+    <string name="event_act_win_level">Vinci il livello</string>
+    <string name="event_msg_rune_network_taken_over">%1$d altari sono stati attivati! Il loro potere unito ha preso il controllo della Rete Runica. Il nemico non può più dominare la sua magia. La vittoria è nostra!</string>
 </resources>

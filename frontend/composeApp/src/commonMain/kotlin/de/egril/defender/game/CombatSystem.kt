@@ -316,6 +316,7 @@ class CombatSystem(
         processDefeated: () -> Unit,
     ): Boolean {
         val defender = state.defenders.find { it.id == defenderId } ?: return false
+        if (defender.type.attackType == AttackType.NONE) return false
 
         // Check if defender can reach the target position
         val distance = defender.position.value.distanceTo(targetPosition)

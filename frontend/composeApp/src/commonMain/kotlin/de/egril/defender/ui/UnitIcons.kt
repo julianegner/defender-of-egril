@@ -1,6 +1,7 @@
 package de.egril.defender.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -9,16 +10,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.altar_active
+import defender_of_egril.composeapp.generated.resources.altar_inactive
 import de.egril.defender.model.*
 import de.egril.defender.ui.animations.SpellDoubleLevelColor
 import de.egril.defender.ui.gameplay.GamePlayColors
@@ -26,6 +32,7 @@ import de.egril.defender.ui.gameplay.GamePlayConstants
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.icon.defender.*
+import org.jetbrains.compose.resources.painterResource
 
 /**
  * Composable that draws a tower type icon without defender-specific info.
@@ -99,6 +106,7 @@ fun DrawScope.drawTower(
         DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY + iconSize * 0.15f, iconSize * 0.5f, lineColor) // Move down 30% for better positioning
         DefenderType.BOW_TOWER -> drawBowSymbol(centerX, centerY, iconSize * 0.45f)
         DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
+        DefenderType.ALTAR -> drawAltarSymbol(centerX, centerY, iconSize)
         DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
         DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
         DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
@@ -117,7 +125,7 @@ fun DrawScope.drawTower(
  */
 fun towerGraphicAlpha(defender: Defender): Float {
     val canEverAct = defender.actionsPerTurnCalculated > 0
-    val isActive = defender.isReady && defender.actionsRemaining.value > 0
+    val isActive = defender.isReady && (defender.actionsRemaining.value > 0 || defender.isChanneling.value)
     return if (canEverAct && !isActive) GamePlayConstants.Opacity.InactiveTower else 1f
 }
 
@@ -129,6 +137,7 @@ fun TowerIcon(
     defender: Defender,
     modifier: Modifier = Modifier,
     gameState: GameState? = null,
+    altarScale: Float = 1f,
 ) {
     // Check if tower is on a tower base
     val towerBase = gameState?.barricades?.find { it.id == defender.towerBaseBarricadeId.value }
@@ -160,37 +169,49 @@ fun TowerIcon(
                     centerY
                 }
 
-            // Draw raft base OR tower base (not both)
-            if (defender.raftId.value != null) {
-                // If on a raft, draw only the raft base
-                drawRaftBase(centerX, adjustedCenterY, iconSize * 0.9f)
-            } else if (defender.type != DefenderType.DRAGONS_LAIR && defender.type != DefenderType.DWARVEN_MINE) {
-                // If not on a raft, draw tower base (trapezoid shape) - except for dragon's lair and dwarven mine
-                drawTowerBase(centerX, adjustedCenterY, iconSize * 0.8f)
-            }
+            if (defender.type != DefenderType.ALTAR) {
+                // Draw raft base OR tower base (not both)
+                if (defender.raftId.value != null) {
+                    drawRaftBase(centerX, adjustedCenterY, iconSize * 0.9f)
+                } else if (defender.type != DefenderType.DRAGONS_LAIR && defender.type != DefenderType.DWARVEN_MINE) {
+                    drawTowerBase(centerX, adjustedCenterY, iconSize * 0.8f)
+                }
 
-            // Draw tower type symbol inside
-            drawDefenderSymbol(
-                defender.type,
-                centerX,
-                adjustedCenterY,
-                iconSize,
-                dragonAlive =
-                    if (defender.type == DefenderType.DRAGONS_LAIR) {
-                        // Check if the specific dragon from this lair is still alive
-                        defender.dragonId.value?.let { dragonId ->
-                            gameState?.attackers?.any {
-                                it.id == dragonId && !it.isDefeated.value
-                            } ?: false
-                        } ?: true
-                    } else {
-                        true
-                    },
-            )
-            // Draw tower base wood platform if on tower base
-            if (isOnTowerBase) {
-                drawTowerBasePlatform(centerX, centerY, iconSize * 0.9f)
+                drawDefenderSymbol(
+                    defender.type,
+                    centerX,
+                    adjustedCenterY,
+                    iconSize,
+                    dragonAlive =
+                        if (defender.type == DefenderType.DRAGONS_LAIR) {
+                            defender.dragonId.value?.let { dragonId ->
+                                gameState?.attackers?.any {
+                                    it.id == dragonId && !it.isDefeated.value
+                                } ?: false
+                            } ?: true
+                        } else {
+                            true
+                        },
+                )
+                if (isOnTowerBase) {
+                    drawTowerBasePlatform(centerX, centerY, iconSize * 0.9f)
+                }
             }
+        }
+
+        if (defender.type == DefenderType.ALTAR) {
+            Image(
+                painter = painterResource(if (defender.isChanneling.value) Res.drawable.altar_active else Res.drawable.altar_inactive),
+                contentDescription = null,
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            scaleX = altarScale
+                            scaleY = altarScale
+                        }.alpha(graphicAlpha),
+                contentScale = ContentScale.Fit,
+            )
         }
 
         // Actions indicator at center left (lightning bolts for remaining actions)
@@ -308,11 +329,26 @@ fun DrawScope.drawDefenderSymbol(
         DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY + iconSize * 0.15f, iconSize * 0.5f) // Move down for better positioning
         DefenderType.BOW_TOWER -> drawBowSymbol(centerX, centerY, iconSize * 0.45f)
         DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
+        DefenderType.ALTAR -> drawAltarSymbol(centerX, centerY, iconSize)
         DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
         DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
         DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
         DefenderType.DRAGONS_LAIR -> drawDragonLairSymbol(centerX, centerY, iconSize * 0.6f, dragonAlive)
     }
+}
+
+private fun DrawScope.drawAltarSymbol(
+    centerX: Float,
+    centerY: Float,
+    iconSize: Float,
+) {
+    drawWizardSymbol(centerX, centerY, iconSize * 0.3f)
+    drawCircle(
+        color = Color(0xFFFFD700),
+        radius = iconSize * 0.27f,
+        center = Offset(centerX, centerY),
+        style = Stroke(width = iconSize * 0.04f),
+    )
 }
 
 /**

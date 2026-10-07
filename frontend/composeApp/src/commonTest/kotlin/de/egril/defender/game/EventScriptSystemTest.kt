@@ -34,6 +34,169 @@ import kotlin.test.assertTrue
  */
 class EventScriptSystemTest {
     @Test
+    fun altarThresholdCountsOnlySimultaneouslyChannelingReadyEnabledAltars() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "altars",
+                                condition = EventCondition(EventConditionType.ALTARS_ACTIVATED, threshold = 2),
+                                actions = listOf(EventAction(EventActionType.GIVE_COINS, amount = 25)),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        val first = Defender(id = 1, type = DefenderType.ALTAR, position = mutableStateOf(Position(2, 2)))
+        val second = Defender(id = 2, type = DefenderType.ALTAR, position = mutableStateOf(Position(3, 2)))
+        val inactive = Defender(id = 3, type = DefenderType.ALTAR, position = mutableStateOf(Position(4, 2)))
+        val building = Defender(id = 4, type = DefenderType.ALTAR, position = mutableStateOf(Position(5, 2)))
+        val disabled = Defender(id = 5, type = DefenderType.ALTAR, position = mutableStateOf(Position(6, 2)))
+        val otherTower = Defender(id = 6, type = DefenderType.SPIKE_TOWER, position = mutableStateOf(Position(7, 2)))
+        state.defenders.addAll(listOf(first, second, inactive, building, disabled, otherTower))
+        first.isChanneling.value = true
+        building.isChanneling.value = true
+        building.buildTimeRemaining.value = 1
+        disabled.isChanneling.value = true
+        disabled.isDisabled.value = true
+        otherTower.isChanneling.value = true
+        val system = EventScriptSystem(state)
+        val coins = state.coins.value
+        system.evaluate(EventTrigger.IMMEDIATE)
+        assertEquals(coins, state.coins.value)
+
+        // Activations on different turns do not accumulate.
+        first.isChanneling.value = false
+        second.isChanneling.value = true
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(coins, state.coins.value)
+
+        first.isChanneling.value = true
+        system.evaluate(EventTrigger.IMMEDIATE)
+        assertEquals(coins + 25, state.coins.value)
+        assertTrue("altars" in state.triggeredEventIds)
+        system.evaluate(EventTrigger.ENEMY_TURN_START)
+        assertEquals(coins + 25, state.coins.value)
+    }
+
+    @Test
+    fun altarVictoryFiresImmediatelyButRespectsFromTurn() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "victory",
+                                condition = EventCondition(EventConditionType.ALTARS_ACTIVATED, fromTurn = 3, threshold = 1),
+                                actions = listOf(EventAction(EventActionType.WIN_LEVEL)),
+                                messageKey = "event_msg_rune_network_taken_over",
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        val altar = Defender(id = 1, type = DefenderType.ALTAR, position = mutableStateOf(Position(2, 2)))
+        altar.isChanneling.value = true
+        state.defenders.add(altar)
+        state.attackers.add(Attacker(id = 1, type = AttackerType.GOBLIN, position = mutableStateOf(Position(0, 0))))
+        val system = EventScriptSystem(state)
+        state.turnNumber.value = 2
+        system.evaluate(EventTrigger.IMMEDIATE)
+        assertFalse(state.scriptedVictory.value)
+        assertFalse(state.isLevelWon())
+        assertTrue(state.pendingMessages.isEmpty())
+        state.turnNumber.value = 3
+        system.evaluate(EventTrigger.IMMEDIATE)
+        assertTrue(state.scriptedVictory.value)
+        assertTrue(state.isLevelWon())
+        assertEquals("event_msg_rune_network_taken_over", state.pendingMessages.single().name)
+        altar.isChanneling.value = false
+        assertEquals(1, state.pendingMessages.single().eventMessageAmount)
+        system.evaluate(EventTrigger.IMMEDIATE)
+        assertEquals(1, state.pendingMessages.size)
+    }
+
+    @Test
+    fun winLevelActionWorksSilentlyFromLoopSteps() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "victory-loop",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                loop =
+                                    EventLoop(
+                                        repeatCount = 1,
+                                        steps =
+                                            listOf(
+                                                EventLoopStep(
+                                                    waitTurns = 1,
+                                                    actions = listOf(EventAction(EventActionType.WIN_LEVEL)),
+                                                ),
+                                            ),
+                                    ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        state.attackers.add(Attacker(id = 1, type = AttackerType.GOBLIN, position = mutableStateOf(Position(0, 0))))
+        val system = EventScriptSystem(state)
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertFalse(state.isLevelWon())
+        state.turnNumber.value++
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.scriptedVictory.value)
+        assertTrue(state.isLevelWon())
+        assertTrue(state.pendingMessages.isEmpty())
+    }
+
+    @Test
+    fun runeNetworkLoopMessageCapturesActivatedCountBeforeLaterReset() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "rune-message-loop",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                loop =
+                                    EventLoop(
+                                        repeatCount = 1,
+                                        steps =
+                                            listOf(
+                                                EventLoopStep(
+                                                    waitTurns = 0,
+                                                    messageKey = "event_msg_rune_network_taken_over",
+                                                ),
+                                                EventLoopStep(waitTurns = 1),
+                                            ),
+                                    ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        val altar =
+            Defender(
+                id = 1,
+                type = DefenderType.ALTAR,
+                position = mutableStateOf(Position(2, 2)),
+                isChanneling = mutableStateOf(true),
+            )
+        state.defenders.add(altar)
+        EventScriptSystem(state).evaluate(EventTrigger.PLAYER_TURN_START)
+        altar.isChanneling.value = false
+        assertEquals(1, state.pendingMessages.single().eventMessageAmount)
+    }
+
+    @Test
     fun mapImagesAppearOnlyWhenTriggeredAndRemainUntilHidden() {
         val image = EventMapImage("kraken", "kraken.png", 2.5f, 3f, 4f, 2f)
         val state =

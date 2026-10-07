@@ -221,6 +221,7 @@ enum class GameMessageType {
  * @param eventMessageFrame For [GameMessageType.EVENT_MESSAGE]: the visual frame configured for the
  *                      message in the level editor (see [EventMessageFrameId]); null = standard frame.
 * @param highlightPositions  Optional pair of positions to highlight (e.g., old and new position for coven swap).
+* @param eventMessageAmount  Optional numeric story argument captured when the event fires.
 */
 data class GameMessage(
     val type: GameMessageType,
@@ -228,6 +229,7 @@ data class GameMessage(
     val eventActions: List<EventAction>? = null,
     val eventMessageFrame: EventMessageFrameId? = null,
     val highlightPositions: Pair<Position, Position>? = null,
+    val eventMessageAmount: Int? = null, // Numeric story argument captured when the event fired
 )
 
 data class PendingSoulCall(
@@ -362,6 +364,7 @@ data class GameState(
     val currentMana: MutableState<Int> = mutableStateOf(0), // Current mana (for spellcasting)
     val maxMana: MutableState<Int> = mutableStateOf(0), // Maximum mana (based on player stats)
     val runes: MutableState<Int> = mutableStateOf(0), // Runes recovered from defeated Runemasters
+    val scriptedVictory: MutableState<Boolean> = mutableStateOf(false),
     val activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = mutableStateListOf(), // Active spell effects
     val incomeMultiplier: Double = 1.0, // Income multiplier from player stats (default 1.0, e.g. 1.2 for 20% bonus)
     val constructionLevel: Int = 0, // Construction level from player stats (0-3+, gates tower abilities)
@@ -654,6 +657,7 @@ data class GameState(
     fun isLevelWon(): Boolean {
         // Sandbox levels can never be won, even when all enemies are gone.
         if (level.isSandbox) return false
+        if (scriptedVictory.value) return true
         // Check if all planned spawns have occurred and all enemies are defeated.
         // Spawn-loop levels (issue #694) are "all spawned" once the group cursor has finished, or
         // once the remaining scripted schedule is statically exhausted (every future spawn is in the
@@ -849,9 +853,31 @@ data class GameState(
         }
     }
 
-    fun canPlaceDefender(type: DefenderType): Boolean = (level.isSandbox || coins.value >= type.baseCost) && level.availableTowers.contains(type)
+    fun canPlaceDefender(type: DefenderType): Boolean = type != DefenderType.ALTAR && (level.isSandbox || coins.value >= type.baseCost) && level.availableTowers.contains(type)
 
-    fun canUpgradeDefender(defender: Defender): Boolean = (level.isSandbox || coins.value >= defender.upgradeCost) && !defender.isGrippedByKraken.value
+    fun canUpgradeDefender(defender: Defender): Boolean = defender.type != DefenderType.ALTAR && (level.isSandbox || coins.value >= defender.upgradeCost) && !defender.isGrippedByKraken.value
+
+    fun canSanctifyDefender(defender: Defender): Boolean =
+        defender in defenders &&
+            defender.type == DefenderType.WIZARD_TOWER &&
+            defender.level.value >= 10 &&
+            defender.isReady &&
+            !defender.isDisabled.value &&
+            defender.raftId.value == null &&
+            currentTileTypeAt(defender.position.value) == de.egril.defender.editor.TileType.BUILD_AREA &&
+            level.isBuildArea(defender.position.value) &&
+            !level.isRiverTile(defender.position.value) &&
+            runes.value >= 1 &&
+            (phase.value == GamePhase.PLAYER_TURN || phase.value == GamePhase.INITIAL_BUILDING)
+
+    fun canActivateAltar(defender: Defender): Boolean =
+        defender in defenders &&
+            defender.type == DefenderType.ALTAR &&
+            phase.value == GamePhase.PLAYER_TURN &&
+            defender.isReady &&
+            !defender.isDisabled.value &&
+            defender.actionsRemaining.value > 0 &&
+            !defender.isChanneling.value
 
     fun hasActionsRemaining(): Boolean = actionsRemainingThisTurn.value > 0
 
@@ -1049,6 +1075,7 @@ data class GameState(
                     // Mines always count as having unused actions (digging)
                     true
                 }
+                DefenderType.ALTAR -> canActivateAltar(defender) || canWizardPlaceAnyMagicalTrap(defender)
                 DefenderType.WIZARD_TOWER -> {
                     if (hasEnemiesInRange) {
                         true
@@ -1085,6 +1112,7 @@ data class GameState(
                 }
                 when (defender.type) {
                     DefenderType.DWARVEN_MINE -> true
+                    DefenderType.ALTAR -> canActivateAltar(defender) || canWizardPlaceAnyMagicalTrap(defender)
                     else -> {
                         if (defender.type.attackType == AttackType.NONE) {
                             false
@@ -1158,6 +1186,11 @@ data class GameState(
             }
 
             when {
+                defender.type == DefenderType.ALTAR -> {
+                    if (canActivateAltar(defender) || canWizardPlaceAnyMagicalTrap(defender)) {
+                        typesWithActions.add(DefenderType.ALTAR)
+                    }
+                }
                 // Dwarven mines with digging actions
                 defender.type == DefenderType.DWARVEN_MINE -> {
                     typesWithActions.add(DefenderType.DWARVEN_MINE)
@@ -1186,9 +1219,9 @@ data class GameState(
         wizard: Defender,
         trapPosition: Position,
     ): Boolean {
-        if (wizard.type != DefenderType.WIZARD_TOWER) return false
+        if (!wizard.hasMagicalTraps) return false
         if (wizard.level.value < 10) return false
-        if (!wizard.isReady || wizard.actionsRemaining.value <= 0) return false
+        if (!wizard.isReady || wizard.actionsRemaining.value <= 0 || wizard.isDisabled.value) return false
         if (wizard.trapCooldownRemaining.value > 0) return false
 
         val distance = wizard.position.value.distanceTo(trapPosition)

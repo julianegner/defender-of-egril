@@ -60,6 +60,8 @@ fun GamePlayScreen(
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null, // Add mine build trap callback
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null, // Add wizard magical trap callback
     onWizardGenerateMana: ((Int) -> Boolean)? = null, // Add wizard mana generation callback
+    onSanctifyDefender: ((Int) -> Boolean)? = null,
+    onActivateAltar: ((Int) -> Boolean)? = null,
     onBuildBarricade: ((Int, Position) -> Boolean)? = null, // Add barricade building callback
     onRemoveBarricade: ((Position) -> Int)? = null, // Add barricade removal callback - returns coin refund
     cheatDigOutcome: DigOutcome? = null, // Dig outcome from cheat code
@@ -131,6 +133,8 @@ fun GamePlayScreen(
         onMineBuildTrap = onMineBuildTrap,
         onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
         onWizardGenerateMana = onWizardGenerateMana,
+        onSanctifyDefender = onSanctifyDefender,
+        onActivateAltar = onActivateAltar,
         onBuildBarricade = onBuildBarricade,
         onRemoveBarricade = onRemoveBarricade,
         cheatDigOutcome = cheatDigOutcome,
@@ -203,6 +207,8 @@ private fun GamePlayScreenContent(
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null, // Add wizard magical trap callback
     onWizardGenerateMana: ((Int) -> Boolean)? = null, // Add wizard mana generation callback
+    onSanctifyDefender: ((Int) -> Boolean)? = null,
+    onActivateAltar: ((Int) -> Boolean)? = null,
     onBuildBarricade: ((Int, Position) -> Boolean)? = null, // Add barricade building callback
     onRemoveBarricade: ((Position) -> Int)? = null, // Add barricade removal callback - returns coin refund
     cheatDigOutcome: DigOutcome? = null, // Dig outcome from cheat code
@@ -660,7 +666,7 @@ private fun GamePlayScreenContent(
 
     val keyboardSelectableTowers =
         remember(gameState.level.availableTowers) {
-            gameState.level.availableTowers.filter { it != DefenderType.DRAGONS_LAIR }
+            gameState.level.availableTowers.filter { it != DefenderType.DRAGONS_LAIR && it != DefenderType.ALTAR }
         }
 
     val cycleTowerBuySelection: (Boolean) -> Unit = cycleTowerBuySelection@{ reversed ->
@@ -1535,6 +1541,7 @@ private fun GamePlayScreenContent(
                                         false
                                     }
                                 }
+                                DefenderType.ALTAR -> onActivateAltar?.invoke(defender.id) == true
                                 DefenderType.SPIKE_TOWER -> {
                                     val canBuild =
                                         defender.level.value >= 20 &&
@@ -1578,7 +1585,7 @@ private fun GamePlayScreenContent(
                                     handleMineAction(defender.id, MineAction.BUILD_TRAP)
                                     true
                                 }
-                                DefenderType.WIZARD_TOWER -> {
+                                DefenderType.WIZARD_TOWER, DefenderType.ALTAR -> {
                                     if (defender.level.value >= 10) {
                                         handleWizardAction(defender.id, WizardAction.PLACE_MAGICAL_TRAP)
                                         true
@@ -2067,7 +2074,7 @@ private fun GamePlayScreenContent(
                                         }
 
                                         // Handle magical trap placement for wizard towers (level 10+)
-                                        if (selectedDefender.type == DefenderType.WIZARD_TOWER &&
+                                        if (selectedDefender.hasMagicalTraps &&
                                             selectedDefender.level.value >= 10 &&
                                             selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
                                         ) {
@@ -2547,7 +2554,7 @@ private fun GamePlayScreenContent(
                                         if (selectedDefenderForHints != null) {
                                             val showKey1 =
                                                 when (selectedDefenderForHints.type) {
-                                                    DefenderType.WIZARD_TOWER, DefenderType.DWARVEN_MINE -> true
+                                                    DefenderType.WIZARD_TOWER, DefenderType.DWARVEN_MINE, DefenderType.ALTAR -> true
                                                     DefenderType.SPIKE_TOWER -> selectedDefenderForHints.level.value >= 20
                                                     DefenderType.SPEAR_TOWER -> selectedDefenderForHints.level.value >= 10
                                                     else -> false
@@ -2555,6 +2562,7 @@ private fun GamePlayScreenContent(
                                             val key1Label =
                                                 when (selectedDefenderForHints.type) {
                                                     DefenderType.WIZARD_TOWER -> stringResource(Res.string.generate_mana)
+                                                    DefenderType.ALTAR -> stringResource(Res.string.activate_altar)
                                                     DefenderType.DWARVEN_MINE -> stringResource(Res.string.dig)
                                                     DefenderType.SPIKE_TOWER, DefenderType.SPEAR_TOWER ->
                                                         stringResource(
@@ -2564,13 +2572,13 @@ private fun GamePlayScreenContent(
                                                 }
                                             val showKey2 =
                                                 when (selectedDefenderForHints.type) {
-                                                    DefenderType.WIZARD_TOWER -> selectedDefenderForHints.level.value >= 10
+                                                    DefenderType.WIZARD_TOWER, DefenderType.ALTAR -> selectedDefenderForHints.level.value >= 10
                                                     DefenderType.DWARVEN_MINE -> true
                                                     else -> false
                                                 }
                                             val key2Label =
                                                 when (selectedDefenderForHints.type) {
-                                                    DefenderType.WIZARD_TOWER -> stringResource(Res.string.magical_trap)
+                                                    DefenderType.WIZARD_TOWER, DefenderType.ALTAR -> stringResource(Res.string.magical_trap)
                                                     DefenderType.DWARVEN_MINE -> stringResource(Res.string.trap)
                                                     else -> ""
                                                 }
@@ -2851,6 +2859,8 @@ private fun GamePlayScreenContent(
                                                 selectedSupportObject = null
                                             },
                                             onUpgradeDefender = { onUpgradeDefender(it) },
+                                            onSanctifyDefender = onSanctifyDefender,
+                                            onActivateAltar = onActivateAltar,
                                             onUndoTower = { defenderId ->
                                                 if (onUndoTower(defenderId)) {
                                                     selectedDefenderType = null
@@ -2924,6 +2934,8 @@ private fun GamePlayScreenContent(
                                                 selectedSupportObject = null
                                             },
                                             onUpgradeDefender = { onUpgradeDefender(it) },
+                                            onSanctifyDefender = onSanctifyDefender,
+                                            onActivateAltar = onActivateAltar,
                                             onUndoTower = { defenderId ->
                                                 if (onUndoTower(defenderId)) {
                                                     selectedDefenderType = null
@@ -3725,8 +3737,17 @@ private fun GamePlayScreenContent(
                                     LaunchedEffect(msg) { onDismissGameMessage?.invoke() }
                                 } else {
                                     val eventText =
-                                        com.hyperether.resources.LocalizedStrings
-                                            .get(messageKey, com.hyperether.resources.currentLanguage.value)
+                                        if (messageKey == "event_msg_rune_network_taken_over") {
+                                            com.hyperether.resources.LocalizedStrings
+                                                .getFormatted(
+                                                    messageKey,
+                                                    msg.eventMessageAmount ?: 0,
+                                                    locale = com.hyperether.resources.currentLanguage.value,
+                                                )
+                                        } else {
+                                            com.hyperether.resources.LocalizedStrings
+                                                .get(messageKey, com.hyperether.resources.currentLanguage.value)
+                                        }
                                     val frame = msg.eventMessageFrame
                                     NarrativeMessageDialog(
                                         type = EventMessageFrames.narrativeType(frame),

@@ -3297,7 +3297,7 @@ private fun BoxScope.GridCellContent(
                 doubleLevelActive,
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    TowerIcon(defender = defender, gameState = gameState)
+                    TowerIcon(defender = defender, gameState = gameState, altarScale = 2f)
                     // Show pulsing blue glow when tower is ready to act
                     if (defender.isReady && defender.actionsRemaining.value > 0) {
                         TowerReadyPulseAnimation(
@@ -3324,7 +3324,7 @@ private fun BoxScope.GridCellContent(
                         when (defender.type) {
                             // Wizard idle glows only while the tower still has actions this turn
                             DefenderType.WIZARD_TOWER ->
-                                if (defender.actionsRemaining.value > 0) {
+                                if (defender.actionsRemaining.value > 0 || defender.isChanneling.value) {
                                     WizardIdleAnimation(
                                         animate = AppSettings.enableAnimations.value,
                                         modifier = Modifier.fillMaxSize(),

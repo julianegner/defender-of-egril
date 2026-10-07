@@ -2631,4 +2631,13 @@
     <string name="spawn_unit_id_short">ID</string>
     <string name="spawn_error_structure">Los bucles deben estar dentro de los turnos existentes y solo pueden anidarse por completo unos dentro de otros, sin solapamientos parciales.</string>
     <string name="level_info_endless_loop">Bucle infinito</string>
+    <string name="event_cond_altars_activated">Altares activados simultáneamente</string>
+    <string name="tower_altar">Altar</string>
+    <string name="tower_altar_short">Altar</string>
+    <string name="sanctify">Consagrar</string>
+    <string name="activate_altar">Activar altar</string>
+    <string name="altar_channeling">Canalizando</string>
+    <string name="altar_conversion_info">Consagra una Torre de Mago de nivel 10 o superior en una casilla de construcción gastando una runa. Los altares no pueden atacar ni mejorarse, pero conservan las trampas mágicas.\n\nActiva un altar una vez por turno para canalizar su poder durante el turno actual. La activación consume una acción y la canalización termina al inicio del siguiente turno del jugador. Activa simultáneamente el número requerido de altares para tomar el control de la Red de Runas en los niveles con eventos programados.</string>
+    <string name="event_act_win_level">Ganar el nivel</string>
+    <string name="event_msg_rune_network_taken_over">¡Se han activado %1$d altares! Su poder unido ha tomado el control de la Red de Runas. El enemigo ya no puede dominar su magia. ¡La victoria es nuestra!</string>
 </resources>

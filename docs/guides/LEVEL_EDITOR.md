@@ -183,11 +183,12 @@ more *actions* and an optional predefined story message:
 
 - **Conditions**: beginning of a player turn, beginning of an enemy turn, a number of enemies
   killed, a number of enemies of a specific type killed, a unit (any or of a specific type)
-  reaching a defined tile, or the player having health/mana/coins at or below a threshold. Every
+  reaching a defined tile, the player having health/mana/coins at or below a threshold, or a required
+  number of Altars activated simultaneously. Every
   condition can be gated with a "from turn N onwards" value so it is only checked from a given turn.
 - **Actions**: give coins, give mana, grant a support object, grant a support spell, destroy a
   dwarven mine at a specified tile, activate/deactivate/toggle a tile zone of the level's map, or
-  stop the loop of another event. When a *destroy mine* action targets a tile that has no
+  stop the loop of another event, or win the level. When a *destroy mine* action targets a tile that has no
   pre-placed dwarven mine, or a zone/loop action references a missing zone/event, the editor shows
   a warning below the field.
 - **Message**: optionally display a predefined story message (selected via dropdown) when the event
@@ -207,6 +208,9 @@ more *actions* and an optional predefined story message:
 Events are evaluated at the start of each player and enemy turn, and also immediately during the
 player's turn when a relevant state change happens (an enemy is killed or coins are spent), so
 threshold-based events fire as soon as their condition is met rather than waiting for the next turn.
+For a Rune Network objective, choose the activated-Altars condition, set its threshold, add the
+win-level action, and select the Rune Network victory message. Altars must be activated in the same
+player turn; their channeling resets at the start of the next player turn.
 
 Each event is shown as a collapsible card. Collapsed cards display a short summary (the condition and
 the number of actions) and a delete button; click the card header to expand it and edit its details.

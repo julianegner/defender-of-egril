@@ -63,6 +63,7 @@ data class SavedGame(
     val currentMana: Int = 0, // Current mana at the time of saving
     val maxMana: Int = 0, // Maximum mana at the time of saving
     val runes: Int = 0, // Runemaster runes in the player's inventory
+    val scriptedVictory: Boolean = false,
     val spellEffects: List<SavedSpellEffect> = emptyList(), // Active spell effects (e.g. placed bombs)
     // Player-usable supports remaining/recharging this level. Persisted so they survive save/load.
     val supportObjectsRemaining: Map<SupportObjectType, Int> = emptyMap(), // Placeable objects left to deploy
@@ -142,6 +143,11 @@ data class SavedDefender(
     val raftId: Int? = null, // ID of the raft this tower is on (null if not on raft)
     val towerBaseBarricadeId: Int? = null, // ID of barricade this tower is on (null if not on tower base)
     val hasRootGripAnimation: Boolean = false, // Tower is being engulfed by Sylvanas vines (default false for backward compatibility)
+    val isChanneling: Boolean = false,
+    val trapCooldownRemaining: Int = 0,
+    val hasBeenUsed: Boolean = false,
+    val isDisabled: Boolean = false,
+    val disabledTurnsRemaining: Int = 0,
 )
 
 data class SavedAttacker(

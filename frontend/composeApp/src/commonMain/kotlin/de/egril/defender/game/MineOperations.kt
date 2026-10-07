@@ -351,7 +351,7 @@ class MineOperations(
         wizardId: Int,
         trapPosition: Position,
     ): Boolean {
-        val wizard = state.defenders.find { it.id == wizardId && it.type == DefenderType.WIZARD_TOWER } ?: return false
+        val wizard = state.defenders.find { it.id == wizardId && it.hasMagicalTraps } ?: return false
 
         if (!state.canWizardPlaceMagicalTrapAt(wizard, trapPosition)) return false
 
