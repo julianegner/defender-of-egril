@@ -89,6 +89,7 @@
 
     <!-- Game Play -->
     <string name="coins">Münzen</string>
+    <string name="runes_label">Runen</string>
     <string name="health">Gesundheit</string>
     <string name="turn">Runde</string>
     <string name="level">Stufe</string>
@@ -188,6 +189,7 @@
     <string name="ogre">Oger: Sehr zäh</string>
     <string name="skeleton">Skelett: Schnell untot</string>
     <string name="evil_wizard">Böser Zauberer: Magischer Angreifer</string>
+    <string name="runemaster">Runenmeister: Elite-Runenmagier</string>
     <string name="witch">Hexe: Dunkle Magie</string>
     <string name="blue_demon">Blauer Dämon: Schnell, säureimmun</string>
     <string name="red_demon">Roter Dämon: Zäh, feuerballimmun</string>
@@ -261,6 +263,7 @@
     <string name="skeleton_name">Skelett</string>
     <string name="zombie_name">Zombie</string>
     <string name="evil_wizard_name">Böser Zauberer</string>
+    <string name="runemaster_name">Runenmeister</string>
     <string name="witch_name">Hexe</string>
     <string name="blue_demon_name">Blauer Dämon</string>
     <string name="red_demon_name">Roter Dämon</string>
@@ -2339,6 +2342,10 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_zythar_title">Zythar der Riftrufer betritt das Schlachtfeld</string>
     <string name="villain_zythar_backstory">Zythar der Riftrufer reißt Löcher in die Realität selbst.</string>
     <string name="villain_zythar_description">Er beschwört Dämonen und Dämonlinge, die er als Späher vorausschickt, um Rift-Portale zu öffnen.</string>
+    <string name="vaelen_name">Großrunenmeister Vaelen</string>
+    <string name="villain_vaelen_title">Großrunenmeister Vaelen betritt das Schlachtfeld</string>
+    <string name="villain_vaelen_backstory">Ewhad webt die dunklen Leylinien nicht selbst – das überlässt er Vaelen. Solange Vaelen atmet, wird die Verderbnis unaufhörlich weiterfließen.</string>
+    <string name="villain_vaelen_description">Vaelen ist immun gegen magische Fallen und erleidet 50 % weniger Schaden durch Zaubertürme. Alle 3 Runden bringt Runische Woge bis zu 2 nahe Türme für 1 Runde zum Schweigen. Feinde im Umkreis von 2 Feldern erhalten +2 Rüstung und können nicht verlangsamt werden.</string>
     <string name="villain_zythar_portal_short">Rift-Portale: Dämonlinge opfern sich, um blau-Eingang / orange-Ausgang Portale zu öffnen, die jeden Feind darauf zum Ausgang teleportieren</string>
 
     <!-- Beschreibungen der Feindeseinheiten -->
@@ -2350,6 +2357,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="skeleton_description">Untot und schnell beweglich, Skelette sind flinke Krieger, die schnell die Distanz überbrücken. Ihre untote Natur macht sie resistent gegen bestimmte Angriffe.</string>
     <string name="zombie_description">Schlurfende Untote, die durch dunkle Magie wiederbelebt wurden. Langsamer als Skelette, aber immer noch gefährlich in Gruppen, besonders wenn sie von Grünen Hexen geheilt werden.</string>
     <string name="evil_wizard_description">Ein Magier, der destruktive Zauber von oben kanalisiert. Besiege ihn schnell, bevor er Feuer auf deine Verteidigungen regnen lässt.</string>
+    <string name="runemaster_description">Ein Elite-Zauberer, der Dämonen beschwört und nahe Barrikaden und Türme mit arkaner Magie angreift. Besiege ihn, um die uralte Rune zu sichern, bevor er sie zu Ewhad zurückbringt.</string>
     <string name="blue_demon_description">Ein schneller Dämon, der in saurer Umgebung gedeiht — er ist gegen Säureschaden immun. Beseitige ihn mit Feuer, physischen Angriffen oder magischen Zaubersprüchen.</string>
     <string name="red_demon_description">Ein mächtiger Dämon, der von Flammen umhüllt ist und Feuerball- und Flächenattacken abwehrt. Verwende Säure, durchbohrende Angriffe oder körperliche Kraft, um seine Resistenz zu überwinden.</string>
     <string name="ghost_description">Ein ätherischer Geist der Untoten, der über Geländeobstanden schwebt. Er widersetzt sich nichtmagischen Angriffen — nur magische Turmangriffe wie Feuerbälle können ihn direkt verletzen.</string>
@@ -2544,6 +2552,11 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="event_act_revert_tile_zone">Kachelzone deaktivieren</string>
     <string name="event_act_toggle_tile_zone">Kachelzone umschalten</string>
     <string name="event_act_stop_event_loop">Ereignisschleife beenden</string>
+    <string name="events_invalid_spawn_loop_stops">%1$d Aktion(en) Spawn-Loop beenden verweisen auf einen nicht vorhandenen Spawn-Loop.</string>
+    <string name="events_infinite_loops_not_stopped">Diese endlosen Spawn-Loops werden nie beendet: %1$s. Füge für jeden eine Aktion Spawn-Loop beenden hinzu.</string>
+    <string name="event_spawn_loop_missing_warning">Wähle einen vorhandenen Spawn-Loop.</string>
+    <string name="event_spawn_loop_label">Spawn-Loop</string>
+    <string name="event_act_stop_spawn_loop">Spawn-Loop beenden</string>
     <string name="event_summary_loop">Schleife</string>
     <string name="event_target_event_label">Ereignis mit Schleife</string>
     <string name="event_target_event_missing_warning">Wähle ein Ereignis, das eine Schleife hat.</string>
@@ -2579,4 +2592,51 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="map_image_generate_step">Erzeugen</string>
     <string name="map_image_optimize_step">Optimieren</string>
     <string name="map_image_step_skipped">Übersprungen</string>
+    <string name="spawn_loops_help">Mit Loop erstellen wird ein Zug wiederholt. Klappe einen Loop-Kopf auf, um festzulegen, wie oft er wiederholt wird, und um seinen ersten und letzten Zug zu ändern. Loops lassen sich mit normalen Zügen mischen und verschachteln; jede Verschachtelungsebene hat eine eigene Farbe.</string>
+    <string name="spawn_error_villain">Jeder Schurkentyp darf nur einmal mit Anzahl 1 vorkommen. In einem sich wiederholenden Loop muss für Schurken Nur erster Durchlauf aktiviert sein; Loops um diesen Loop dürfen sich nicht wiederholen.</string>
+    <string name="spawn_error_infinite_not_stopped">Jede Endlosschleife muss durch ein Ereignis beendet werden. Füge dafür im Tab Ereignisse eine Aktion Spawn-Loop beenden hinzu.</string>
+    <string name="spawn_repeat_count">Feste Anzahl</string>
+    <string name="spawn_repeat_condition">Solange Einheit lebt</string>
+    <string name="spawn_repeat_infinite">Unendlich</string>
+    <string name="spawn_iterations">Durchläufe insgesamt (mindestens 1)</string>
+    <string name="spawn_condition_help">Wiederholt sich, solange die ausgewählte Einheit lebt; geprüft am Ende jedes Durchlaufs. Villains stehen immer unter ihrem Namen zur Auswahl; andere Gegner brauchen eine eindeutige Einheiten-ID über Loop-Optionen. Die Einheit muss vor oder in diesem Loop erscheinen.</string>
+    <string name="spawn_target_unit">Ziel-Einheiten-ID</string>
+    <string name="spawn_no_unit_ids">Noch keine Einheiten mit ID. Weise einem Gegner über Loop-Optionen eine Einheiten-ID zu oder füge einen Villain hinzu.</string>
+    <string name="spawn_infinite_help">Wiederholt sich, bis ein Ereignis ihn mit der Aktion Spawn-Loop beenden stoppt (erforderlich). Danach geht der Spawn-Plan mit den Zügen nach dem Loop weiter.</string>
+    <string name="spawn_unit_id">Einheiten-ID (optional, eindeutig)</string>
+    <string name="spawn_first_only">Nur im ersten Durchlauf</string>
+    <string name="spawn_error_group_id">Loop-IDs dürfen nicht leer sein und müssen eindeutig sein.</string>
+    <string name="spawn_error_turns">Jeder Loop benötigt mindestens einen Zug.</string>
+    <string name="spawn_error_repeat">Die Anzahl der Durchläufe muss eine positive ganze Zahl sein.</string>
+    <string name="spawn_error_values">Anzahl und Level der Gegner müssen positive ganze Zahlen sein. Spiegelbilder können nicht gespawnt werden.</string>
+    <string name="spawn_error_unit_id">Einheiten-IDs müssen eindeutig, nicht leer und ohne Leerzeichen am Anfang oder Ende sein. Ein benannter Eintrag muss die Anzahl 1 haben.</string>
+    <string name="spawn_error_target">Wähle für Solange Einheit lebt eine Einheiten-ID, die vor oder in diesem Loop erscheint.</string>
+    <string name="spawn_error_point">Wähle einen zum Gegnertyp passenden Spawn-Punkt oder eine kompatible Karte.</string>
+    <string name="spawn_fix_errors">Behebe vor dem Speichern oder Testspielen die Spawn-Loop-Fehler im Tab Gegner-Spawns.</string>
+    <string name="spawn_preview_help">Endliche Loops werden für die Vorschau ausgerollt, sofern sie innerhalb von 10.000 Zügen und 100.000 Gegnern bleiben; sonst wird nach Möglichkeit ein Durchlauf pro Loop gezeigt. Die Dauer dynamischer Loops ist nicht vorhersagbar. Loop-Testspiele verwenden immer den vollständigen Plan.</string>
+    <string name="spawn_create_loop">Loop erstellen</string>
+    <string name="spawn_loop_title">Loop %1$s</string>
+    <string name="spawn_loop_turn_range">Züge %1$d - %2$d</string>
+    <string name="spawn_loop_summary_count">%1$d Durchläufe</string>
+    <string name="spawn_loop_summary_condition">Solange %1$s lebt</string>
+    <string name="spawn_loop_id">Loop-ID (eindeutig)</string>
+    <string name="spawn_loop_start">Erster Zug: %1$d</string>
+    <string name="spawn_loop_end">Letzter Zug: %1$d</string>
+    <string name="spawn_loop_add_turn">Zug zum Loop hinzufügen</string>
+    <string name="spawn_loop_copy">Loop kopieren</string>
+    <string name="spawn_loop_unwrap">Loop entfernen (Züge behalten)</string>
+    <string name="spawn_loop_delete">Loop mit Zügen löschen</string>
+    <string name="spawn_loop_options">Loop-Optionen</string>
+    <string name="spawn_unit_id_short">ID</string>
+    <string name="spawn_error_structure">Loops müssen innerhalb der vorhandenen Züge liegen und dürfen nur vollständig ineinander verschachtelt sein, ohne teilweise Überlappung.</string>
+    <string name="level_info_endless_loop">Endlosschleife</string>
+    <string name="event_cond_altars_activated">Gleichzeitig aktivierte Altäre</string>
+    <string name="tower_altar">Altar</string>
+    <string name="tower_altar_short">Altar</string>
+    <string name="sanctify">Weihen</string>
+    <string name="activate_altar">Altar aktivieren</string>
+    <string name="altar_channeling">Kanalisiert</string>
+    <string name="altar_conversion_info">Weihe einen Zauberturm ab Stufe 10 auf einem Bauplatz für eine Rune. Altäre können weder angreifen noch verbessert werden, behalten aber ihre magischen Fallen.\n\nAktiviere einen Altar einmal pro Zug, um seine Kraft für den aktuellen Zug zu kanalisieren. Die Aktivierung verbraucht eine Aktion, und die Kanalisierung endet zu Beginn des nächsten Spielerzugs. Aktiviere die benötigte Anzahl Altäre gleichzeitig, um in geskripteten Leveln das Runennetzwerk zu übernehmen.</string>
+    <string name="event_act_win_level">Level gewinnen</string>
+    <string name="event_msg_rune_network_taken_over">%1$d Altäre wurden aktiviert! Ihre vereinte Kraft hat das Runennetzwerk übernommen. Der Feind kann seine Magie nicht länger beherrschen. Der Sieg gehört uns!</string>
 </resources>

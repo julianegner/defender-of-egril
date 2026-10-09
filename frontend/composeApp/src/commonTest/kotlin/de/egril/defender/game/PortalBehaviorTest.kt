@@ -12,10 +12,20 @@ import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.model.hexDistanceTo
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class PortalBehaviorTest {
+    @Test
+    fun portalRunePoolUsesDistinctFutharkGlyphsWithoutGebo() {
+        val glyphs = (0 until Portal.RUNE_POOL_SIZE).map { Portal.runeGlyphIndex(it) }
+
+        assertEquals(Portal.RUNE_POOL_SIZE, glyphs.toSet().size)
+        assertFalse(6 in glyphs, "The cross-shaped Gebo rune should not be used for portals")
+        assertEquals((0 until Portal.FUTHARK_RUNE_COUNT).filter { it != 6 }, glyphs)
+    }
+
     @Test
     fun zytharWithinTenTilesMovesTowardTargetEvenWithoutPortal() {
         val start = Position(20, 5)

@@ -202,6 +202,25 @@ class TowerManager(
         return true
     }
 
+    fun sanctifyDefender(defenderId: Int): Boolean {
+        val index = state.defenders.indexOfFirst { it.id == defenderId }
+        if (index < 0) return false
+        val defender = state.defenders[index]
+        if (!state.canSanctifyDefender(defender)) return false
+        state.defenders[index] = defender.copy(type = DefenderType.ALTAR)
+        state.runes.value--
+        return true
+    }
+
+    fun activateAltar(defenderId: Int): Boolean {
+        val defender = state.defenders.find { it.id == defenderId } ?: return false
+        if (!state.canActivateAltar(defender)) return false
+        defender.actionsRemaining.value--
+        defender.hasBeenUsed.value = true
+        defender.isChanneling.value = true
+        return true
+    }
+
     fun undoTower(defenderId: Int): Boolean {
         val defender = state.defenders.find { it.id == defenderId } ?: return false
 

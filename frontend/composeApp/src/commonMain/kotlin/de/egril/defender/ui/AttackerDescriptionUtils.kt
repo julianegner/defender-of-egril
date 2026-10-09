@@ -18,6 +18,7 @@ import defender_of_egril.composeapp.generated.resources.pirate_description
 import defender_of_egril.composeapp.generated.resources.red_demon_description
 import defender_of_egril.composeapp.generated.resources.red_witch_description
 import defender_of_egril.composeapp.generated.resources.robotic_goblin_description
+import defender_of_egril.composeapp.generated.resources.runemaster_description
 import defender_of_egril.composeapp.generated.resources.skeleton_description
 import defender_of_egril.composeapp.generated.resources.snotling_description
 import defender_of_egril.composeapp.generated.resources.spiderling_description
@@ -40,6 +41,7 @@ import defender_of_egril.composeapp.generated.resources.villain_roderich_descrip
 import defender_of_egril.composeapp.generated.resources.villain_silas_description
 import defender_of_egril.composeapp.generated.resources.villain_sybilla_description
 import defender_of_egril.composeapp.generated.resources.villain_sylvanas_description
+import defender_of_egril.composeapp.generated.resources.villain_vaelen_description
 import defender_of_egril.composeapp.generated.resources.villain_valerius_description
 import defender_of_egril.composeapp.generated.resources.villain_xarithon_description
 import defender_of_egril.composeapp.generated.resources.villain_zussa_description
@@ -58,6 +60,7 @@ fun AttackerType.getLocalizedDescription(): String {
             AttackerType.SKELETON -> Res.string.skeleton_description
             AttackerType.ZOMBIE -> Res.string.zombie_description
             AttackerType.EVIL_WIZARD -> Res.string.evil_wizard_description
+            AttackerType.RUNEMASTER -> Res.string.runemaster_description
             AttackerType.BLUE_DEMON -> Res.string.blue_demon_description
             AttackerType.RED_DEMON -> Res.string.red_demon_description
             AttackerType.GHOST -> Res.string.ghost_description
@@ -79,6 +82,7 @@ fun AttackerType.getLocalizedDescription(): String {
             AttackerType.FALLEN_SHIELDMAIDEN_FREYA -> Res.string.villain_freya_description
             AttackerType.OBSIDIAN_PROTECTOR -> Res.string.villain_obsidian_protector_description
             AttackerType.PRINCE_VALERIUS_THE_SOULREAPER -> Res.string.villain_valerius_description
+            AttackerType.GRAND_RUNEMASTER_VAELEN -> Res.string.villain_vaelen_description
             AttackerType.SILAS_THE_MASKMASTER,
             AttackerType.SILAS_MIRROR_IMAGE,
             -> Res.string.villain_silas_description

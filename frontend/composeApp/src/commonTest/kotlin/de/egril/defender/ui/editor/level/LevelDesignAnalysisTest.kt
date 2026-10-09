@@ -4,6 +4,9 @@ import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorEnemyTemplateKind
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.EditorSpawnLoop
+import de.egril.defender.editor.EditorSpawnTimeline
+import de.egril.defender.editor.withSpawnTimeline
 import de.egril.defender.editor.SpawnTurnTemplateDefinition
 import de.egril.defender.editor.SpawnTurnTemplateEntry
 import de.egril.defender.editor.SpawnTurnTemplateVariant
@@ -22,6 +25,24 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class LevelDesignAnalysisTest {
+    @Test
+    fun previewsAndTemplatesUseActiveLoopPlanAndPlaytestsKeepConditions() {
+        val level =
+            testLevel(listOf(EditorEnemySpawn(AttackerType.GOBLIN, spawnTurn = 1))).withSpawnTimeline(
+                EditorSpawnTimeline(
+                    spawns = listOf(EditorEnemySpawn(AttackerType.ORK, spawnTurn = 2)),
+                    maxTurn = 3,
+                    loops = listOf(EditorSpawnLoop("loop_1", startTurn = 1, endTurn = 3, repeatCount = 2)),
+                ),
+            )
+        val summary = analyzeLevelDesign(level, straightTestMap())
+        assertEquals(2 * AttackerType.ORK.health, summary.totalHealth)
+        assertEquals(level, createFocusedPlaytestLevel(level, summary, FocusedPlaytestType.CLIMAX))
+        val templated = applyLevelTemplate(level, straightTestMap(), EditorLevelTemplate.TUTORIAL)
+        assertEquals(null, templated.spawnGroups)
+        assertTrue(templated.enemySpawns.isNotEmpty())
+    }
+
     @Test
     fun analyzeLevelDesignFlagsCountersArrivalsAndVillainTiming() {
         val map = straightTestMap()

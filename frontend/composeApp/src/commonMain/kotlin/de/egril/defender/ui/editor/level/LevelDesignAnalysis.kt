@@ -7,6 +7,7 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorWaypoint
 import de.egril.defender.editor.SpawnTurnTemplateDefinition
 import de.egril.defender.editor.SpawnTurnTemplateEntry
+import de.egril.defender.editor.flattenSpawnSequence
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.Position
@@ -141,6 +142,7 @@ internal fun analyzeLevelDesign(
     level: EditorLevel,
     map: EditorMap?,
 ): LevelDesignSummary {
+    if (level.spawnGroups != null) return analyzeLevelDesign(spawnPreviewLevel(level), map)
     val maxTurn = level.enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0
     if (maxTurn == 0) {
         return LevelDesignSummary(
@@ -281,6 +283,7 @@ internal fun buildWaveArrivalBuckets(
     level: EditorLevel,
     map: EditorMap?,
 ): List<WaveArrivalBucket> {
+    if (level.spawnGroups != null) return buildWaveArrivalBuckets(spawnPreviewLevel(level), map)
     val routeContext = map?.buildRouteContext(level)
     return level.enemySpawns
         .mapNotNull { spawn ->
@@ -304,6 +307,9 @@ internal fun analyzeLevelMapConsistency(
     level: EditorLevel,
     map: EditorMap?,
 ): LevelConsistencySummary {
+    if (level.spawnGroups != null) {
+        return analyzeLevelMapConsistency(level.copy(enemySpawns = level.configuredSpawnEntries(), spawnGroups = null), map)
+    }
     if (map == null) {
         return LevelConsistencySummary(
             invalidSpawnAssignments = level.enemySpawns.filter { it.spawnPoint != null },
@@ -381,7 +387,7 @@ internal fun applyLevelTemplate(
                 )
             EditorLevelTemplate.RIVER_PRESSURE,
             EditorLevelTemplate.ENDURANCE,
-            -> DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }.toSet()
+            -> DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR && it != DefenderType.ALTAR }.toSet()
         }
     val (coins, hp) =
         when (template) {
@@ -396,6 +402,8 @@ internal fun applyLevelTemplate(
         startCoins = coins,
         startHealthPoints = hp,
         enemySpawns = generatedSpawns,
+        // A level template generates a complete new linear plan, replacing any spawn loops.
+        spawnGroups = null,
         availableTowers = towers,
     )
 }
@@ -425,7 +433,7 @@ internal fun createFocusedPlaytestLevel(
     summary: LevelDesignSummary,
     type: FocusedPlaytestType,
 ): EditorLevel {
-    if (type == FocusedPlaytestType.FULL || level.enemySpawns.isEmpty()) {
+    if (type == FocusedPlaytestType.FULL || level.spawnGroups != null || level.enemySpawns.isEmpty()) {
         return level
     }
     val maxTurn = level.enemySpawns.maxOf { it.spawnTurn }
@@ -461,6 +469,13 @@ internal fun createFocusedPlaytestLevel(
         enemySpawns = trimmedSpawns,
         startCoins = level.startCoins + bonusCoins,
     )
+}
+
+private fun spawnPreviewLevel(level: EditorLevel): EditorLevel {
+    val sequence = requireNotNull(level.spawnGroups)
+    // A dynamic loop has no known duration: preview one iteration of it without inventing an end condition.
+    val preview = flattenSpawnSequence(sequence) ?: flattenSpawnSequence(sequence, sampleDynamicLoops = true)
+    return level.copy(enemySpawns = preview?.spawns.orEmpty(), spawnGroups = null)
 }
 
 private fun buildTemplateSpawns(
@@ -767,6 +782,13 @@ private fun Position.isInside(
 private fun AttackerType.calculateTargetDamage(level: Int): Int =
     when {
         this == AttackerType.EWHAD -> 99
-        this.isRealVillain || this.isDragon || canDisableTowers || canHeal || this == AttackerType.EVIL_WIZARD || this == AttackerType.BLUE_DEMON || this == AttackerType.RED_DEMON -> level
+        this.isRealVillain ||
+            this.isDragon ||
+            canDisableTowers ||
+            canHeal ||
+            this == AttackerType.EVIL_WIZARD ||
+            this == AttackerType.RUNEMASTER ||
+            this == AttackerType.BLUE_DEMON ||
+            this == AttackerType.RED_DEMON -> level
         else -> 1
     }

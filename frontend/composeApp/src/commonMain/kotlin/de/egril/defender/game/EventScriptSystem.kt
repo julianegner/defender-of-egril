@@ -101,9 +101,18 @@ class EventScriptSystem(
             EventConditionType.HEALTH_AT_OR_BELOW -> state.healthPoints.value <= condition.threshold
             EventConditionType.MANA_AT_OR_BELOW -> state.currentMana.value <= condition.threshold
             EventConditionType.COINS_AT_OR_BELOW -> state.coins.value <= condition.threshold
+            EventConditionType.ALTARS_ACTIVATED -> activatedAltarCount() >= condition.threshold
         }
 
+    private fun activatedAltarCount(): Int =
+        state.defenders.count {
+            it.type == DefenderType.ALTAR && it.isChanneling.value && it.isReady && !it.isDisabled.value
+        }
+
+    private fun messageAmount(messageKey: String?): Int? = if (messageKey == "event_msg_rune_network_taken_over") activatedAltarCount() else null
+
     private fun fireEvent(event: LevelEvent) {
+        val eventMessageAmount = messageAmount(event.messageKey)
         GameLogBuffer.log(
             "EVENT",
             "Scripted event '${event.id}' fired on turn ${state.turnNumber.value} " +
@@ -124,6 +133,7 @@ class EventScriptSystem(
                     name = messageKey,
                     eventActions = event.actions,
                     eventMessageFrame = event.messageFrame,
+                    eventMessageAmount = eventMessageAmount,
                 ),
             )
         }
@@ -240,6 +250,7 @@ class EventScriptSystem(
         eventId: String,
         step: EventLoopStep,
     ) {
+        val eventMessageAmount = messageAmount(step.messageKey)
         GameLogBuffer.log(
             "EVENT",
             "Loop step of event '$eventId' executed on turn ${state.turnNumber.value} (${step.actions.size} action(s))",
@@ -256,6 +267,7 @@ class EventScriptSystem(
                     name = messageKey,
                     eventActions = step.actions,
                     eventMessageFrame = step.messageFrame,
+                    eventMessageAmount = eventMessageAmount,
                 ),
             )
         }
@@ -307,6 +319,7 @@ class EventScriptSystem(
                 val target = action.targetEventId ?: return
                 state.activeEventLoops.removeAll { it.eventId == target }
             }
+            EventActionType.STOP_SPAWN_LOOP -> action.spawnLoopId?.let { state.stopSpawnLoop(it) }
             EventActionType.SHOW_MAP_IMAGE -> {
                 val image = action.mapImage
                 if (image == null || !image.isValid()) {
@@ -328,6 +341,7 @@ class EventScriptSystem(
                 }
                 state.activeEventMapImages.removeAll { it.id == id }
             }
+            EventActionType.WIN_LEVEL -> state.scriptedVictory.value = true
         }
     }
 

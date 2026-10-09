@@ -89,6 +89,7 @@
 
     <!-- Game Play -->
     <string name="coins">Coins</string>
+    <string name="runes_label">Runes</string>
     <string name="health">Health</string>
     <string name="health_points">Health Points</string>
     <string name="turn">Turn</string>
@@ -191,6 +192,7 @@
     <string name="ogre">Ogre: Very tough</string>
     <string name="skeleton">Skeleton: Fast undead</string>
     <string name="evil_wizard">Evil Wizard: Magic attacker</string>
+    <string name="runemaster">Runemaster: Elite rune-bound mage</string>
     <string name="witch">Witch: Dark magic</string>
     <string name="blue_demon">Blue Demon: Fast, acid immune</string>
     <string name="red_demon">Red Demon: Tough, fireball immune</string>
@@ -264,6 +266,7 @@
     <string name="skeleton_name">Skeleton</string>
     <string name="zombie_name">Zombie</string>
     <string name="evil_wizard_name">Evil Wizard</string>
+    <string name="runemaster_name">Runemaster</string>
     <string name="witch_name">Witch</string>
     <string name="blue_demon_name">Blue Demon</string>
     <string name="red_demon_name">Red Demon</string>
@@ -2349,6 +2352,10 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_zythar_title">Zythar the Riftcaller enters the battlefield</string>
     <string name="villain_zythar_backstory">Zythar the Riftcaller tears holes in reality itself.</string>
     <string name="villain_zythar_description">He summons demons and demonlings, which he sends ahead as scouts to open rift portals.</string>
+    <string name="vaelen_name">Grand Runemaster Vaelen</string>
+    <string name="villain_vaelen_title">Grand Runemaster Vaelen enters the battlefield</string>
+    <string name="villain_vaelen_backstory">Ewhad does not weave the dark ley-lines himself—he leaves that to Vaelen. As long as Vaelen draws breath, the corruption will never cease to flow.</string>
+    <string name="villain_vaelen_description">Vaelen is immune to magical traps and takes 50% less damage from Wizard Towers. Every 3 turns, Runic Surge silences up to 2 nearby towers for 1 turn. Enemies within 2 tiles gain +2 armor and cannot be slowed.</string>
     <string name="villain_zythar_portal_short">Rift Portals: demonlings sacrifice themselves to open blue-entry / orange-exit portals that teleport any enemy stepping on them to the exit</string>
 
     <!-- Enemy Unit Descriptions -->
@@ -2381,6 +2388,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="mouse_pointer_info">The standard pointer uses a pointing hand. Text editing and text selection continue to use a text-marking pointer style when supported by the platform.</string>
     <string name="zombie_description">Shambling undead reanimated by dark magic. Slower than skeletons but still dangerous in numbers, especially when healed by Green Witches.</string>
     <string name="evil_wizard_description">A magic user who channels destructive spells from the air. Defeat them quickly before they rain fire upon your defenses.</string>
+    <string name="runemaster_description">An elite Evil Wizard who summons demons and blasts nearby barricades and towers with arcane magic. Defeat them to claim the primordial rune before it can be carried back to Ewhad.</string>
     <string name="blue_demon_description">A fast demon that thrives in acidic environments — it is immune to acid damage. Dispose of it with fire, physical attacks, or magical spells.</string>
     <string name="red_demon_description">A powerful demon wreathed in flames that shrugs off fireballs and area attacks. Use acid, piercing attacks, or physical force to overcome its resistance.</string>
     <string name="ghost_description">An ethereal undead spirit that floats over terrain obstacles. It resists non-magical attacks — only magical tower attacks like fireballs can harm it directly.</string>
@@ -2554,6 +2562,11 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="event_act_revert_tile_zone">Deactivate tile zone</string>
     <string name="event_act_toggle_tile_zone">Toggle tile zone</string>
     <string name="event_act_stop_event_loop">Stop event loop</string>
+    <string name="events_invalid_spawn_loop_stops">%1$d Stop spawn loop action(s) refer to a missing spawn loop.</string>
+    <string name="events_infinite_loops_not_stopped">These infinite spawn loops are never stopped: %1$s. Add a Stop spawn loop action for each of them.</string>
+    <string name="event_spawn_loop_missing_warning">Select an existing spawn loop.</string>
+    <string name="event_spawn_loop_label">Spawn loop</string>
+    <string name="event_act_stop_spawn_loop">Stop spawn loop</string>
     <string name="event_summary_loop">Loop</string>
     <string name="event_target_event_label">Event with loop</string>
     <string name="event_target_event_missing_warning">Select an event that has a loop.</string>
@@ -2589,4 +2602,51 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="map_image_generate_step">Generate</string>
     <string name="map_image_optimize_step">Optimize</string>
     <string name="map_image_step_skipped">Skipped</string>
+    <string name="spawn_loops_help">Use Create loop on a turn to repeat it. Expand a loop header to set how often it repeats and to change its first and last turn. Loops can be mixed with normal turns and nested; each nesting level has its own color.</string>
+    <string name="spawn_error_villain">Each villain type may appear only once, with count 1. Inside a repeating loop, enable First iteration only for villains; loops around that loop must not repeat.</string>
+    <string name="spawn_error_infinite_not_stopped">Every infinite loop must be stopped by an event. Add a Stop spawn loop action for it in the Events tab.</string>
+    <string name="spawn_repeat_count">Fixed count</string>
+    <string name="spawn_repeat_condition">While unit alive</string>
+    <string name="spawn_repeat_infinite">Infinite</string>
+    <string name="spawn_iterations">Total iterations (at least 1)</string>
+    <string name="spawn_condition_help">Repeats while the selected unit is alive, checked at the end of each cycle. Villains are always available under their name; other enemies need a unique unit ID set via Loop options. The unit must spawn before or inside this loop.</string>
+    <string name="spawn_target_unit">Target unit ID</string>
+    <string name="spawn_no_unit_ids">No units with an ID yet. Assign a unit ID to an enemy via Loop options or add a villain.</string>
+    <string name="spawn_infinite_help">Repeats until an event stops it with a Stop spawn loop action (required). The spawn plan then continues with the turns after the loop.</string>
+    <string name="spawn_unit_id">Unit ID (optional, unique)</string>
+    <string name="spawn_first_only">First iteration only</string>
+    <string name="spawn_error_group_id">Loop IDs must be non-empty and unique.</string>
+    <string name="spawn_error_turns">Each loop needs at least one turn.</string>
+    <string name="spawn_error_repeat">The total iteration count must be a positive whole number.</string>
+    <string name="spawn_error_values">Enemy count and level must be positive whole numbers. Mirror images cannot be spawned.</string>
+    <string name="spawn_error_unit_id">Unit IDs must be unique, non-blank and have no leading/trailing spaces. A named entry must have count 1.</string>
+    <string name="spawn_error_target">Choose a unit ID spawned before or inside this loop for the While unit alive condition.</string>
+    <string name="spawn_error_point">Select a spawn point compatible with the enemy type, or use a compatible map.</string>
+    <string name="spawn_fix_errors">Fix the spawn loop errors in the Enemy Spawns tab before saving or playtesting.</string>
+    <string name="spawn_preview_help">Finite loops are expanded for the preview when within the limits of 10,000 turns and 100,000 enemies; otherwise one cycle per loop is shown where possible. Dynamic loop duration cannot be predicted. Loop playtests always run the full plan.</string>
+    <string name="spawn_create_loop">Create loop</string>
+    <string name="spawn_loop_title">Loop %1$s</string>
+    <string name="spawn_loop_turn_range">Turns %1$d - %2$d</string>
+    <string name="spawn_loop_summary_count">%1$d iterations</string>
+    <string name="spawn_loop_summary_condition">While %1$s is alive</string>
+    <string name="spawn_loop_id">Loop ID (unique)</string>
+    <string name="spawn_loop_start">First turn: %1$d</string>
+    <string name="spawn_loop_end">Last turn: %1$d</string>
+    <string name="spawn_loop_add_turn">Add turn to loop</string>
+    <string name="spawn_loop_copy">Copy loop</string>
+    <string name="spawn_loop_unwrap">Remove loop (keep turns)</string>
+    <string name="spawn_loop_delete">Delete loop with turns</string>
+    <string name="spawn_loop_options">Loop options</string>
+    <string name="spawn_unit_id_short">ID</string>
+    <string name="spawn_error_structure">Loops must lie within the existing turns and may only be nested completely inside each other, without partial overlaps.</string>
+    <string name="level_info_endless_loop">Endless loop</string>
+    <string name="event_cond_altars_activated">Altars activated simultaneously</string>
+    <string name="tower_altar">Altar</string>
+    <string name="tower_altar_short">Altar</string>
+    <string name="sanctify">Sanctify</string>
+    <string name="activate_altar">Activate Altar</string>
+    <string name="altar_channeling">Channeling</string>
+    <string name="altar_conversion_info">Sanctify a level 10 or higher Wizard Tower on a build tile by spending one rune. Altars cannot attack or be upgraded, but retain magical traps.\n\nActivate an Altar once per turn to channel its power for the current turn. Activation consumes an action, and channeling resets at the start of the next player turn. Activate the required number of Altars simultaneously to take over the Rune Network in scripted levels.</string>
+    <string name="event_act_win_level">Win level</string>
+    <string name="event_msg_rune_network_taken_over">%1$d altars have been activated! Their united power has taken over the Rune Network. The enemy can no longer command its magic. Victory is ours!</string>
 </resources>

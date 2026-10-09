@@ -119,9 +119,10 @@ class Movement(
                 val currentPos = currentPositions[attacker.id] ?: continue
 
                 val isFrozen =
-                    state.activeSpellEffects.any {
-                        it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
-                    }
+                    !state.isProtectedByRuneGlyphWard(attacker, currentPos) &&
+                        state.activeSpellEffects.any {
+                            it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
+                        }
                 if (isFrozen) continue
 
                 if (attackersStoppedByBarricade.map { it.first }.map { it.id }.contains(attacker.id)) continue

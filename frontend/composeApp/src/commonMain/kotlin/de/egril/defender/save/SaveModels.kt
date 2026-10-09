@@ -62,6 +62,8 @@ data class SavedGame(
     val playerProfileData: PlayerProfileData? = null, // Player profile data (achievements, XP, stats) when game data transfer is ON
     val currentMana: Int = 0, // Current mana at the time of saving
     val maxMana: Int = 0, // Maximum mana at the time of saving
+    val runes: Int = 0, // Runemaster runes in the player's inventory
+    val scriptedVictory: Boolean = false,
     val spellEffects: List<SavedSpellEffect> = emptyList(), // Active spell effects (e.g. placed bombs)
     // Player-usable supports remaining/recharging this level. Persisted so they survive save/load.
     val supportObjectsRemaining: Map<SupportObjectType, Int> = emptyMap(), // Placeable objects left to deploy
@@ -92,6 +94,32 @@ data class SavedGame(
     val activeTileZoneIds: List<String> = emptyList(), // Tile zones switched on by scripted events, in activation order
     val activeEventLoops: List<ActiveEventLoop> = emptyList(), // Running scripted-event loops with their progress
     val activeEventMapImages: List<EventMapImage> = emptyList(),
+    // Spawn loops (issue #694): the runtime cursor through the level's spawn groups and the
+    // logical-unit-id → spawned-attacker-id bindings, persisted so a mid-cycle save resumes exactly.
+    val spawnGroupCursor: SavedSpawnGroupCursor? = null,
+    val spawnGroupBindings: Map<String, Int> = emptyMap(),
+    val stoppedSpawnLoops: List<String> = emptyList(), // Spawn loops ended by a STOP_SPAWN_LOOP event action
+)
+
+/**
+ * Persisted form of the spawn-loop runtime cursor (see [de.egril.defender.model.SpawnGroupCursor]).
+ */
+data class SavedSpawnGroupCursor(
+    // Nesting chain from the root sequence to the innermost active group; null for saves written
+    // before nested spawn loops, which only stored [legacyGroupIndex]/[legacyRepetition].
+    val frames: List<SavedSpawnGroupFrame>?,
+    val segmentStartTurn: Int,
+    val finished: Boolean,
+    val lastProcessedTurn: Int,
+    val legacyGroupIndex: Int = 0,
+    val legacyRepetition: Int = 0,
+)
+
+/** Persisted form of [de.egril.defender.model.SpawnGroupFrame]. */
+data class SavedSpawnGroupFrame(
+    val entryIndex: Int,
+    val repetition: Int,
+    val iterationStartTurn: Int,
 )
 
 /**
@@ -115,6 +143,11 @@ data class SavedDefender(
     val raftId: Int? = null, // ID of the raft this tower is on (null if not on raft)
     val towerBaseBarricadeId: Int? = null, // ID of barricade this tower is on (null if not on tower base)
     val hasRootGripAnimation: Boolean = false, // Tower is being engulfed by Sylvanas vines (default false for backward compatibility)
+    val isChanneling: Boolean = false,
+    val trapCooldownRemaining: Int = 0,
+    val hasBeenUsed: Boolean = false,
+    val isDisabled: Boolean = false,
+    val disabledTurnsRemaining: Int = 0,
 )
 
 data class SavedAttacker(

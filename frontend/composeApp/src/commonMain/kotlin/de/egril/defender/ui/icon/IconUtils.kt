@@ -56,7 +56,7 @@ import defender_of_egril.composeapp.generated.resources.emoji_unlock
 import defender_of_egril.composeapp.generated.resources.emoji_warning
 import defender_of_egril.composeapp.generated.resources.gate
 import defender_of_egril.composeapp.generated.resources.trap
-import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.PI
@@ -120,7 +120,7 @@ fun HeartIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.FAVORITE,
         size = size,
         tint = Color.Red,
@@ -312,7 +312,7 @@ fun TriangleUpIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_DROP_UP,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -329,7 +329,7 @@ fun TriangleRightIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_RIGHT,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -346,7 +346,7 @@ fun TriangleLeftIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_LEFT,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -363,7 +363,7 @@ fun TriangleDownIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_DROP_DOWN,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -379,7 +379,7 @@ fun TrashIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.DELETE,
         size = size,
         modifier = modifier,
@@ -427,7 +427,7 @@ fun LeftArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_BACK,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -444,7 +444,7 @@ fun UpArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_UPWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -461,7 +461,7 @@ fun DownArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_DOWNWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -478,7 +478,7 @@ fun CheckmarkIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.CHECK,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -495,7 +495,7 @@ fun ResizeIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.RESIZE,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -560,7 +560,7 @@ fun MagnifyingGlassIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.SEARCH,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -707,7 +707,7 @@ fun RightArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_FORWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -723,7 +723,7 @@ fun RedCircleIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 12.dp,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.CIRCLE,
         size = size,
         tint = Color.Red,
@@ -799,7 +799,7 @@ fun DownloadIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_DOWNWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -816,7 +816,7 @@ fun UploadIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_UPWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -832,7 +832,7 @@ fun SpeakerLowIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.VOLUME_DOWN,
         size = size,
         modifier = modifier,
@@ -847,7 +847,7 @@ fun SpeakerHighIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.VOLUME_UP,
         size = size,
         modifier = modifier,
@@ -895,7 +895,7 @@ fun PlusIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ADD,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -912,7 +912,7 @@ fun CrossIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.CLOSE,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -928,7 +928,7 @@ fun PencilIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.EDIT,
         size = size,
         modifier = modifier,
@@ -944,7 +944,7 @@ fun TrophyIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.WORKSPACE_PREMIUM,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -1381,7 +1381,7 @@ fun HelpIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.HELP,
         size = size,
         tint = tint ?: LocalContentColor.current,

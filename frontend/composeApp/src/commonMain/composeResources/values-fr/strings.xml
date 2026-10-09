@@ -89,6 +89,7 @@
 
     <!-- Game Play -->
     <string name="coins">Pièces</string>
+    <string name="runes_label">Runes</string>
     <string name="health">Santé</string>
     <string name="turn">Tour</string>
     <string name="level">Niveau</string>
@@ -188,6 +189,7 @@
     <string name="ogre">Ogre : Très résistant</string>
     <string name="skeleton">Squelette : Mort-vivant rapide</string>
     <string name="evil_wizard">Sorcier maléfique : Attaquant magique</string>
+    <string name="runemaster">Maître des runes : Mage runique d’élite</string>
     <string name="witch">Sorcière : Magie noire</string>
     <string name="blue_demon">Démon bleu : Rapide, immunisé contre l'acide</string>
     <string name="red_demon">Démon rouge : Résistant, immunisé contre la boule de feu</string>
@@ -261,6 +263,7 @@
     <string name="skeleton_name">Squelette</string>
     <string name="zombie_name">Zombie</string>
     <string name="evil_wizard_name">Sorcier maléfique</string>
+    <string name="runemaster_name">Maître des runes</string>
     <string name="witch_name">Sorcière</string>
     <string name="blue_demon_name">Démon bleu</string>
     <string name="red_demon_name">Démon rouge</string>
@@ -2341,6 +2344,10 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_zythar_title">Zythar le Convocateur de Failles entre sur le champ de bataille</string>
     <string name="villain_zythar_backstory">Zythar le Convocateur de Failles déchire des trous dans la réalité elle-même.</string>
     <string name="villain_zythar_description">Il invoque des démons et des démonelings, qu&apos;il envoie en éclaireurs pour ouvrir des portails de faille.</string>
+    <string name="vaelen_name">Grand Maître des Runes Vaelen</string>
+    <string name="villain_vaelen_title">Le Grand Maître des Runes Vaelen entre sur le champ de bataille</string>
+    <string name="villain_vaelen_backstory">Ewhad ne tisse pas lui-même les lignes telluriques obscures : il laisse cette tâche à Vaelen. Tant que Vaelen respire, la corruption ne cessera jamais de se répandre.</string>
+    <string name="villain_vaelen_description">Vaelen est immunisé contre les pièges magiques et subit 50 % de dégâts en moins des tours de sorcier. Tous les 3 tours, la Surtension runique réduit au silence jusqu&apos;à 2 tours proches pendant 1 tour. Les ennemis à 2 cases gagnent +2 d&apos;armure et ne peuvent pas être ralentis.</string>
     <string name="villain_zythar_portal_short">Portails de faille : les démonelings se sacrifient pour ouvrir des portails entrée bleue / sortie orange qui téléportent tout ennemi vers la sortie</string>
 
     <!-- Descriptions des Unités Ennemies -->
@@ -2352,6 +2359,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="skeleton_description">Morts-vivants rapides, les squelettes sont des guerriers agiles qui ferment rapidement la distance. Leur nature de mort-vivant les rend résistants à certaines attaques.</string>
     <string name="zombie_description">Des morts-vivants traînants réanimés par la magie noire. Plus lents que les squelettes mais toujours dangereux en nombre, surtout lorsqu\'ils sont guéris par les Sorcières Vertes.</string>
     <string name="evil_wizard_description">Un utilisateur de magie qui canalise des sortilèges destructeurs depuis les airs. Vaincue-le rapidement avant qu\'il ne pleuve du feu sur tes défenses.</string>
+    <string name="runemaster_description">Un sorcier maléfique d’élite qui invoque des démons et attaque à distance les barricades et les tours proches par magie arcanique. Vainquez-le pour récupérer la rune primordiale avant qu’il ne la rapporte à Ewhad.</string>
     <string name="blue_demon_description">Un démon rapide qui prospère dans les environnements acides — il est immunisé aux dégâts d\'acide. Éliminez-le avec du feu, des attaques physiques ou des sortilèges magiques.</string>
     <string name="red_demon_description">Un démon puissant enveloppé de flammes qui résiste aux boules de feu et aux attaques de zone. Utilisez l\'acide, les attaques perçantes ou la force physique pour surmonter sa résistance.</string>
     <string name="ghost_description">Un esprit éthéré mort-vivant qui flotte sur les obstacles du terrain. Il résiste aux attaques non-magiques — seules les attaques magiques des tours comme les boules de feu peuvent le blesser directement.</string>
@@ -2546,6 +2554,11 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="event_act_revert_tile_zone">Désactiver la zone de cases</string>
     <string name="event_act_toggle_tile_zone">Basculer la zone de cases</string>
     <string name="event_act_stop_event_loop">Arrêter la boucle d\'événement</string>
+    <string name="events_invalid_spawn_loop_stops">%1$d action(s) Arrêter la boucle d\'apparition font référence à une boucle inexistante.</string>
+    <string name="events_infinite_loops_not_stopped">Ces boucles d\'apparition infinies ne sont jamais arrêtées : %1$s. Ajoutez une action Arrêter la boucle d\'apparition pour chacune.</string>
+    <string name="event_spawn_loop_missing_warning">Sélectionnez une boucle d\'apparition existante.</string>
+    <string name="event_spawn_loop_label">Boucle d\'apparition</string>
+    <string name="event_act_stop_spawn_loop">Arrêter la boucle d\'apparition</string>
     <string name="event_summary_loop">Boucle</string>
     <string name="event_target_event_label">Événement avec boucle</string>
     <string name="event_target_event_missing_warning">Choisissez un événement qui possède une boucle.</string>
@@ -2581,4 +2594,51 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="map_image_generate_step">Générer</string>
     <string name="map_image_optimize_step">Optimiser</string>
     <string name="map_image_step_skipped">Ignoré</string>
+    <string name="spawn_loops_help">Utilisez Créer une boucle sur un tour pour le répéter. Dépliez l’en-tête d’une boucle pour définir le nombre de répétitions et modifier son premier et son dernier tour. Les boucles peuvent être mélangées avec des tours normaux et imbriquées ; chaque niveau d’imbrication a sa propre couleur.</string>
+    <string name="spawn_error_villain">Chaque type de méchant ne peut apparaître qu’une fois, avec une quantité de 1. Dans une boucle qui se répète, activez Premier cycle uniquement pour les méchants ; les boucles qui l’entourent ne doivent pas se répéter.</string>
+    <string name="spawn_error_infinite_not_stopped">Chaque boucle infinie doit être arrêtée par un événement. Ajoutez une action Arrêter la boucle d\'apparition dans l\'onglet Événements.</string>
+    <string name="spawn_repeat_count">Nombre fixe</string>
+    <string name="spawn_repeat_condition">Tant que l’unité vit</string>
+    <string name="spawn_repeat_infinite">Infini</string>
+    <string name="spawn_iterations">Nombre total de cycles (minimum 1)</string>
+    <string name="spawn_condition_help">Se répète tant que l’unité sélectionnée est vivante, vérifié à la fin de chaque cycle. Les méchants sont toujours disponibles sous leur nom ; les autres ennemis ont besoin d’un identifiant unique défini via Options de boucle. L’unité doit apparaître avant ou dans cette boucle.</string>
+    <string name="spawn_target_unit">Identifiant de l’unité cible</string>
+    <string name="spawn_no_unit_ids">Aucune unité avec identifiant pour l’instant. Attribuez un identifiant à un ennemi via Options de boucle ou ajoutez un méchant.</string>
+    <string name="spawn_infinite_help">Se répète jusqu\'à ce qu\'un événement l\'arrête avec l\'action Arrêter la boucle d\'apparition (obligatoire). Le plan d’apparition continue ensuite avec les tours qui suivent la boucle.</string>
+    <string name="spawn_unit_id">Identifiant d’unité (facultatif, unique)</string>
+    <string name="spawn_first_only">Premier cycle uniquement</string>
+    <string name="spawn_error_group_id">Les ID de boucle doivent être non vides et uniques.</string>
+    <string name="spawn_error_turns">Chaque boucle doit contenir au moins un tour.</string>
+    <string name="spawn_error_repeat">Le nombre total de cycles doit être un entier positif.</string>
+    <string name="spawn_error_values">Le nombre et le niveau des ennemis doivent être des entiers positifs. Les images miroir ne peuvent pas apparaître.</string>
+    <string name="spawn_error_unit_id">Les identifiants d’unité doivent être uniques, non vides et sans espaces au début ou à la fin. Une entrée nommée doit avoir un nombre de 1.</string>
+    <string name="spawn_error_target">Choisissez pour Tant que l’unité vit un identifiant apparaissant avant ou dans cette boucle.</string>
+    <string name="spawn_error_point">Sélectionnez un point d’apparition compatible avec le type d’ennemi ou utilisez une carte compatible.</string>
+    <string name="spawn_fix_errors">Corrigez les erreurs de boucles d’apparition dans l’onglet Apparitions d’ennemis avant d’enregistrer ou de tester.</string>
+    <string name="spawn_preview_help">Les boucles finies sont développées pour l’aperçu si elles restent sous 10 000 tours et 100 000 ennemis ; sinon, un cycle par boucle est affiché si possible. La durée des boucles dynamiques ne peut pas être prévue. Les tests avec boucles exécutent toujours le plan complet.</string>
+    <string name="spawn_create_loop">Créer une boucle</string>
+    <string name="spawn_loop_title">Boucle %1$s</string>
+    <string name="spawn_loop_turn_range">Tours %1$d - %2$d</string>
+    <string name="spawn_loop_summary_count">%1$d itérations</string>
+    <string name="spawn_loop_summary_condition">Tant que %1$s est vivant</string>
+    <string name="spawn_loop_id">ID de la boucle (unique)</string>
+    <string name="spawn_loop_start">Premier tour : %1$d</string>
+    <string name="spawn_loop_end">Dernier tour : %1$d</string>
+    <string name="spawn_loop_add_turn">Ajouter un tour à la boucle</string>
+    <string name="spawn_loop_copy">Copier la boucle</string>
+    <string name="spawn_loop_unwrap">Retirer la boucle (garder les tours)</string>
+    <string name="spawn_loop_delete">Supprimer la boucle et ses tours</string>
+    <string name="spawn_loop_options">Options de boucle</string>
+    <string name="spawn_unit_id_short">ID</string>
+    <string name="spawn_error_structure">Les boucles doivent se trouver dans les tours existants et ne peuvent être imbriquées qu’entièrement les unes dans les autres, sans chevauchement partiel.</string>
+    <string name="level_info_endless_loop">Boucle infinie</string>
+    <string name="event_cond_altars_activated">Autels activés simultanément</string>
+    <string name="tower_altar">Autel</string>
+    <string name="tower_altar_short">Autel</string>
+    <string name="sanctify">Consacrer</string>
+    <string name="activate_altar">Activer l’autel</string>
+    <string name="altar_channeling">Canalisation</string>
+    <string name="altar_conversion_info">Consacrez une Tour de Magicien de niveau 10 ou supérieur sur une case de construction en dépensant une rune. Les autels ne peuvent ni attaquer ni être améliorés, mais conservent les pièges magiques.\n\nActivez un autel une fois par tour pour canaliser sa puissance pendant le tour actuel. L’activation consomme une action, et la canalisation prend fin au début du prochain tour du joueur. Activez simultanément le nombre d’autels requis pour prendre le contrôle du Réseau Runique dans les niveaux à événements programmés.</string>
+    <string name="event_act_win_level">Gagner le niveau</string>
+    <string name="event_msg_rune_network_taken_over">%1$d autels ont été activés ! Leur puissance unie a pris le contrôle du Réseau Runique. L’ennemi ne peut plus commander sa magie. La victoire est à nous !</string>
 </resources>

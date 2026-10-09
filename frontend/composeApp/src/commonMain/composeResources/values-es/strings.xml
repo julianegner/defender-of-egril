@@ -89,6 +89,7 @@
 
     <!-- Game Play -->
     <string name="coins">Monedas</string>
+    <string name="runes_label">Runas</string>
     <string name="health">Salud</string>
     <string name="turn">Turno</string>
     <string name="level">Nivel</string>
@@ -188,6 +189,7 @@
     <string name="ogre">Ogro: Muy resistente</string>
     <string name="skeleton">Esqueleto: No-muerto rápido</string>
     <string name="evil_wizard">Mago malvado: Atacante mágico</string>
+    <string name="runemaster">Maestro rúnico: Mago rúnico de élite</string>
     <string name="witch">Bruja: Magia oscura</string>
     <string name="blue_demon">Demonio azul: Rápido, inmune al ácido</string>
     <string name="red_demon">Demonio rojo: Resistente, inmune a la bola de fuego</string>
@@ -261,6 +263,7 @@
     <string name="skeleton_name">Esqueleto</string>
     <string name="zombie_name">Zombi</string>
     <string name="evil_wizard_name">Mago malvado</string>
+    <string name="runemaster_name">Maestro rúnico</string>
     <string name="witch_name">Bruja</string>
     <string name="blue_demon_name">Demonio azul</string>
     <string name="red_demon_name">Demonio rojo</string>
@@ -2340,6 +2343,10 @@
     <string name="villain_zythar_title">Zythar el Convocador de Rifts entra al campo de batalla</string>
     <string name="villain_zythar_backstory">Zythar el Convocador de Rifts rasga agujeros en la realidad misma.</string>
     <string name="villain_zythar_description">Invoca demonios y demonines, que envía por delante como exploradores para abrir portales de rift.</string>
+    <string name="vaelen_name">Gran Maestro de Runas Vaelen</string>
+    <string name="villain_vaelen_title">El Gran Maestro de Runas Vaelen entra al campo de batalla</string>
+    <string name="villain_vaelen_backstory">Ewhad no teje las líneas ley oscuras; deja esa tarea a Vaelen. Mientras Vaelen respire, la corrupción nunca dejará de fluir.</string>
+    <string name="villain_vaelen_description">Vaelen es inmune a las trampas mágicas y recibe un 50 % menos de daño de las Torres de Mago. Cada 3 turnos, Oleada Rúnica silencia hasta 2 torres cercanas durante 1 turno. Los enemigos a 2 casillas obtienen +2 de armadura y no pueden ralentizarse.</string>
     <string name="villain_zythar_portal_short">Portales de Rift: los demonínes se sacrifican para abrir portales de entrada azul / salida naranja que teletransportan a cualquier enemigo a la salida</string>
 
     <!-- Descripciones de Unidades Enemigas -->
@@ -2351,6 +2358,7 @@
     <string name="skeleton_description">Muerto viviente y rápido, los esqueletos son guerreros ágiles que cierran rápidamente la distancia. Su naturaleza muerta viviente los hace resistentes a ciertos ataques.</string>
     <string name="zombie_description">Muertos vivientes arrastrándose reanimados por magia oscura. Más lentos que los esqueletos pero aún peligrosos en números, especialmente cuando son curados por Brujas Verdes.</string>
     <string name="evil_wizard_description">Un usuario de magia que canaliza hechizos destructivos desde el aire. Derrótalo rápidamente antes de que llueva fuego sobre tus defensas.</string>
+    <string name="runemaster_description">Un Mago malvado de élite que invoca demonios y ataca barricadas y torres cercanas con magia arcana. Derrótalo para reclamar la runa primordial antes de que pueda llevársela a Ewhad.</string>
     <string name="blue_demon_description">Un demonio rápido que prospera en ambientes ácidos — es inmune al daño ácido. Deshazte de él con fuego, ataques físicos o hechizos mágicos.</string>
     <string name="red_demon_description">Un demonio poderoso envuelto en llamas que se burla de bolas de fuego y ataques de área. Usa ácido, ataques penetrantes o fuerza física para superar su resistencia.</string>
     <string name="ghost_description">Un espíritu etéreo no-muerto que flota sobre obstáculos del terreno. Resiste ataques no mágicos — solo los ataques mágicos de torres como bolas de fuego pueden dañarlo directamente.</string>
@@ -2545,6 +2553,11 @@
     <string name="event_act_revert_tile_zone">Desactivar zona de casillas</string>
     <string name="event_act_toggle_tile_zone">Alternar zona de casillas</string>
     <string name="event_act_stop_event_loop">Detener bucle de evento</string>
+    <string name="events_invalid_spawn_loop_stops">%1$d acción(es) Detener bucle de aparición hacen referencia a un bucle inexistente.</string>
+    <string name="events_infinite_loops_not_stopped">Estos bucles de aparición infinitos nunca se detienen: %1$s. Añade una acción Detener bucle de aparición para cada uno.</string>
+    <string name="event_spawn_loop_missing_warning">Selecciona un bucle de aparición existente.</string>
+    <string name="event_spawn_loop_label">Bucle de aparición</string>
+    <string name="event_act_stop_spawn_loop">Detener bucle de aparición</string>
     <string name="event_summary_loop">Bucle</string>
     <string name="event_target_event_label">Evento con bucle</string>
     <string name="event_target_event_missing_warning">Selecciona un evento que tenga un bucle.</string>
@@ -2580,4 +2593,51 @@
     <string name="map_image_generate_step">Generar</string>
     <string name="map_image_optimize_step">Optimizar</string>
     <string name="map_image_step_skipped">Omitido</string>
+    <string name="spawn_loops_help">Usa Crear bucle en un turno para repetirlo. Despliega la cabecera de un bucle para definir cuántas veces se repite y cambiar su primer y último turno. Los bucles se pueden mezclar con turnos normales y anidar; cada nivel de anidación tiene su propio color.</string>
+    <string name="spawn_error_villain">Cada tipo de villano solo puede aparecer una vez, con cantidad 1. Dentro de un bucle que se repite, activa Solo primera iteración para los villanos; los bucles que lo rodean no deben repetirse.</string>
+    <string name="spawn_error_infinite_not_stopped">Todo bucle infinito debe detenerse mediante un evento. Añade una acción Detener bucle de aparición en la pestaña Eventos.</string>
+    <string name="spawn_repeat_count">Cantidad fija</string>
+    <string name="spawn_repeat_condition">Mientras viva la unidad</string>
+    <string name="spawn_repeat_infinite">Infinito</string>
+    <string name="spawn_iterations">Iteraciones totales (mínimo 1)</string>
+    <string name="spawn_condition_help">Se repite mientras la unidad seleccionada siga viva; se comprueba al final de cada ciclo. Los villanos siempre están disponibles con su nombre; los demás enemigos necesitan una ID de unidad única asignada en Opciones de bucle. La unidad debe aparecer antes o dentro de este bucle.</string>
+    <string name="spawn_target_unit">ID de la unidad objetivo</string>
+    <string name="spawn_no_unit_ids">Aún no hay unidades con ID. Asigna una ID de unidad a un enemigo en Opciones de bucle o añade un villano.</string>
+    <string name="spawn_infinite_help">Se repite hasta que un evento lo detiene con la acción Detener bucle de aparición (obligatorio). Después, el plan de aparición continúa con los turnos posteriores al bucle.</string>
+    <string name="spawn_unit_id">ID de unidad (opcional, único)</string>
+    <string name="spawn_first_only">Solo primera iteración</string>
+    <string name="spawn_error_group_id">Las ID de bucle no pueden estar vacías y deben ser únicas.</string>
+    <string name="spawn_error_turns">Cada bucle necesita al menos un turno.</string>
+    <string name="spawn_error_repeat">El número total de iteraciones debe ser un entero positivo.</string>
+    <string name="spawn_error_values">La cantidad y el nivel deben ser enteros positivos. No se pueden crear imágenes especulares.</string>
+    <string name="spawn_error_unit_id">Los ID de unidad deben ser únicos, no vacíos y sin espacios al principio o al final. Una entrada con ID debe tener cantidad 1.</string>
+    <string name="spawn_error_target">Para Mientras la unidad viva, elige una ID de unidad que aparezca antes o dentro de este bucle.</string>
+    <string name="spawn_error_point">Selecciona un punto de aparición compatible con el enemigo o utiliza un mapa compatible.</string>
+    <string name="spawn_fix_errors">Corrige los errores de bucles de aparición en la pestaña Apariciones de enemigos antes de guardar o probar.</string>
+    <string name="spawn_preview_help">Los bucles finitos se expanden para la vista previa si no superan 10.000 turnos y 100.000 enemigos; si no, se muestra un ciclo por bucle cuando es posible. La duración de los bucles dinámicos no se puede predecir. Las pruebas con bucles siempre ejecutan el plan completo.</string>
+    <string name="spawn_create_loop">Crear bucle</string>
+    <string name="spawn_loop_title">Bucle %1$s</string>
+    <string name="spawn_loop_turn_range">Turnos %1$d - %2$d</string>
+    <string name="spawn_loop_summary_count">%1$d iteraciones</string>
+    <string name="spawn_loop_summary_condition">Mientras %1$s esté vivo</string>
+    <string name="spawn_loop_id">ID del bucle (única)</string>
+    <string name="spawn_loop_start">Primer turno: %1$d</string>
+    <string name="spawn_loop_end">Último turno: %1$d</string>
+    <string name="spawn_loop_add_turn">Añadir turno al bucle</string>
+    <string name="spawn_loop_copy">Copiar bucle</string>
+    <string name="spawn_loop_unwrap">Quitar bucle (mantener turnos)</string>
+    <string name="spawn_loop_delete">Eliminar bucle con turnos</string>
+    <string name="spawn_loop_options">Opciones de bucle</string>
+    <string name="spawn_unit_id_short">ID</string>
+    <string name="spawn_error_structure">Los bucles deben estar dentro de los turnos existentes y solo pueden anidarse por completo unos dentro de otros, sin solapamientos parciales.</string>
+    <string name="level_info_endless_loop">Bucle infinito</string>
+    <string name="event_cond_altars_activated">Altares activados simultáneamente</string>
+    <string name="tower_altar">Altar</string>
+    <string name="tower_altar_short">Altar</string>
+    <string name="sanctify">Consagrar</string>
+    <string name="activate_altar">Activar altar</string>
+    <string name="altar_channeling">Canalizando</string>
+    <string name="altar_conversion_info">Consagra una Torre de Mago de nivel 10 o superior en una casilla de construcción gastando una runa. Los altares no pueden atacar ni mejorarse, pero conservan las trampas mágicas.\n\nActiva un altar una vez por turno para canalizar su poder durante el turno actual. La activación consume una acción y la canalización termina al inicio del siguiente turno del jugador. Activa simultáneamente el número requerido de altares para tomar el control de la Red de Runas en los niveles con eventos programados.</string>
+    <string name="event_act_win_level">Ganar el nivel</string>
+    <string name="event_msg_rune_network_taken_over">¡Se han activado %1$d altares! Su poder unido ha tomado el control de la Red de Runas. El enemigo ya no puede dominar su magia. ¡La victoria es nuestra!</string>
 </resources>

@@ -51,6 +51,7 @@ class TurnLifecycleLogic(
     }
 
     fun startEnemyTurn() {
+        if (state.scriptedVictory.value) return
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("GameEngine.startEnemyTurn: phase=${state.phase.value}")
         }
@@ -76,6 +77,7 @@ class TurnLifecycleLogic(
         state.activePortals.forEach { it.usedThisTurn.value = false }
 
         eventScriptSystem.evaluate(EventTrigger.ENEMY_TURN_START)
+        if (state.scriptedVictory.value) return
 
         GameLogBuffer.log(
             "TURN",
@@ -194,7 +196,7 @@ class TurnLifecycleLogic(
                     )
                 }
             }
-            if (defender.type == DefenderType.WIZARD_TOWER && defender.trapCooldownRemaining.value > 0) {
+            if (defender.hasMagicalTraps && defender.trapCooldownRemaining.value > 0) {
                 defender.trapCooldownRemaining.value--
             }
         }

@@ -311,8 +311,9 @@ class MineOperations(
                     TrapType.DWARVEN -> {
                         // Deal damage to enemy
                         if (!enemyAtPosition.type.isMirrorImage && !state.isProtectedByObsidianProtector(enemyAtPosition)) {
-                            enemyAtPosition.recordDamageTaken(minOf(enemyAtPosition.currentHealth.value, trap.damage))
-                            enemyAtPosition.currentHealth.value -= trap.damage
+                            val damage = (trap.damage - state.runeGlyphWardArmor(enemyAtPosition)).coerceAtLeast(0)
+                            enemyAtPosition.recordDamageTaken(minOf(enemyAtPosition.currentHealth.value, damage))
+                            enemyAtPosition.currentHealth.value -= damage
                         }
 
                         // Check if defeated
@@ -322,9 +323,11 @@ class MineOperations(
                     }
                     TrapType.MAGICAL -> {
                         // Teleport enemy back to spawn point
-                        val spawnPoint = findSpawnPointForEnemy(enemyAtPosition)
-                        if (spawnPoint != null) {
-                            enemyAtPosition.position.value = spawnPoint
+                        if (!enemyAtPosition.type.immuneToMagicalTraps) {
+                            val spawnPoint = findSpawnPointForEnemy(enemyAtPosition)
+                            if (spawnPoint != null) {
+                                enemyAtPosition.position.value = spawnPoint
+                            }
                         }
                     }
                 }
@@ -348,7 +351,7 @@ class MineOperations(
         wizardId: Int,
         trapPosition: Position,
     ): Boolean {
-        val wizard = state.defenders.find { it.id == wizardId && it.type == DefenderType.WIZARD_TOWER } ?: return false
+        val wizard = state.defenders.find { it.id == wizardId && it.hasMagicalTraps } ?: return false
 
         if (!state.canWizardPlaceMagicalTrapAt(wizard, trapPosition)) return false
 
@@ -387,9 +390,17 @@ class MineOperations(
                 it.attackerType == enemy.type &&
                     it.spawnPoint != null
             }
+        // Spawn-loop levels (issue #694) drive spawning from spawnGroups rather than the flat
+        // spawnPlan, so fall back to the groups to honor any per-spawn custom spawn point.
+        val groupSpawnPoint =
+            spawnEntry?.spawnPoint
+                ?: state.spawnGroups
+                    ?.allSpawnEntries()
+                    ?.firstOrNull { it.attackerType == enemy.type && it.spawnPoint != null }
+                    ?.spawnPoint
 
         val targetSpawnPoint =
-            spawnEntry?.spawnPoint ?: run {
+            groupSpawnPoint ?: run {
                 // If no specific spawn point in plan, use first available spawn point from level
                 if (state.level.startPositions.isNotEmpty()) {
                     state.level.startPositions.first()

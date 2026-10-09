@@ -221,6 +221,7 @@ enum class GameMessageType {
  * @param eventMessageFrame For [GameMessageType.EVENT_MESSAGE]: the visual frame configured for the
  *                      message in the level editor (see [EventMessageFrameId]); null = standard frame.
 * @param highlightPositions  Optional pair of positions to highlight (e.g., old and new position for coven swap).
+* @param eventMessageAmount  Optional numeric story argument captured when the event fires.
 */
 data class GameMessage(
     val type: GameMessageType,
@@ -228,6 +229,7 @@ data class GameMessage(
     val eventActions: List<EventAction>? = null,
     val eventMessageFrame: EventMessageFrameId? = null,
     val highlightPositions: Pair<Position, Position>? = null,
+    val eventMessageAmount: Int? = null, // Numeric story argument captured when the event fired
 )
 
 data class PendingSoulCall(
@@ -302,6 +304,14 @@ data class GameState(
     val turnNumber: MutableState<Int> = mutableStateOf(0),
     val actionsRemainingThisTurn: MutableState<Int> = mutableStateOf(0),
     val spawnPlan: List<PlannedEnemySpawn> = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves),
+    // Spawn loops (issue #694). When [spawnGroups] is non-null it drives spawning instead of
+    // [spawnPlan]; [spawnGroupCursor] tracks the active group/iteration and [spawnGroupBindings]
+    // maps a group's logical unit ids to the actual spawned attacker ids (for UNIT_ALIVE loops).
+    val spawnGroups: List<SpawnSequenceEntry>? = level.spawnGroups,
+    val spawnGroupCursor: MutableState<SpawnGroupCursor> = mutableStateOf(SpawnGroupCursor()),
+    val spawnGroupBindings: SnapshotStateMap<String, Int> = mutableStateMapOf(),
+    // Spawn loops ended by a STOP_SPAWN_LOOP event action; they are skipped and never repeat again.
+    val stoppedSpawnLoops: SnapshotStateList<String> = mutableStateListOf(),
     val fieldEffects: SnapshotStateList<FieldEffect> = mutableStateListOf(), // Track active field effects
     val healingEffects: SnapshotStateList<HealingEffect> = mutableStateListOf(), // Track active healing effects
     val damageEffects: SnapshotStateList<DamageEffect> = mutableStateListOf(), // Track barricade damage effects
@@ -353,6 +363,8 @@ data class GameState(
     val xpEarnedThisLevel: MutableState<Int> = mutableStateOf(0), // XP earned during this level (awarded on completion; 20% on loss)
     val currentMana: MutableState<Int> = mutableStateOf(0), // Current mana (for spellcasting)
     val maxMana: MutableState<Int> = mutableStateOf(0), // Maximum mana (based on player stats)
+    val runes: MutableState<Int> = mutableStateOf(0), // Runes recovered from defeated Runemasters
+    val scriptedVictory: MutableState<Boolean> = mutableStateOf(false),
     val activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = mutableStateListOf(), // Active spell effects
     val incomeMultiplier: Double = 1.0, // Income multiplier from player stats (default 1.0, e.g. 1.2 for 20% bonus)
     val constructionLevel: Int = 0, // Construction level from player stats (0-3+, gates tower abilities)
@@ -633,6 +645,7 @@ data class GameState(
     val hasHordeUnitsInLevel: Boolean
         get() =
             spawnPlan.any { it.attackerType.countsAsHordeForWaagh() } ||
+                (spawnGroups?.allSpawnEntries()?.any { it.attackerType.countsAsHordeForWaagh() } ?: false) ||
                 level.getEffectiveInitialData().attackers.any { it.type.countsAsHordeForWaagh() } ||
                 attackers.any { !it.isDefeated.value && it.type.countsAsHordeForWaagh() }
 
@@ -644,8 +657,20 @@ data class GameState(
     fun isLevelWon(): Boolean {
         // Sandbox levels can never be won, even when all enemies are gone.
         if (level.isSandbox) return false
-        // Check if all planned spawns have occurred and all enemies are defeated
-        val allSpawned = spawnPlan.all { it.spawnTurn <= turnNumber.value }
+        if (scriptedVictory.value) return true
+        // Check if all planned spawns have occurred and all enemies are defeated.
+        // Spawn-loop levels (issue #694) are "all spawned" once the group cursor has finished, or
+        // once the remaining scripted schedule is statically exhausted (every future spawn is in the
+        // past). The latter keeps victory prompt even though the cursor advances lazily (the loop
+        // decision is deferred one turn so CONDITION checks see fully-resolved combat). A forecast of
+        // null means the schedule is unbounded (an active CONDITION/INFINITE group), so such levels
+        // cannot be won by clearing the field.
+        val allSpawned =
+            if (spawnGroups != null) {
+                spawnGroupCursor.value.finished || forecastRemainingGroupSpawns()?.isEmpty() == true
+            } else {
+                spawnPlan.all { it.spawnTurn <= turnNumber.value }
+            }
         return allSpawned &&
             attackers
                 .filter { it.type != AttackerType.THE_KRAKEN }
@@ -678,6 +703,18 @@ data class GameState(
                 total += attackerTargetDamage(spawn.attackerType, spawn.level).toLong()
             }
         }
+        // Spawn-loop levels: add the worst-case threat of all remaining scripted spawns. When the
+        // remaining spawns are unbounded (an active CONDITION/INFINITE group), the threat is treated
+        // as unbounded so no guaranteed win is ever offered.
+        if (spawnGroups != null && !spawnGroupCursor.value.finished) {
+            val forecast = forecastRemainingGroupSpawns()
+            if (forecast == null) {
+                return Long.MAX_VALUE
+            }
+            for (spawn in forecast) {
+                total += attackerTargetDamage(spawn.attackerType, spawn.level).toLong()
+            }
+        }
         return total
     }
 
@@ -705,7 +742,17 @@ data class GameState(
         if (isLevelLost() || isLevelWon()) return false
 
         val aliveEnemies = attackers.filter { !it.isDefeated.value }
-        val enemiesToSpawn = spawnPlan.filter { it.spawnTurn > turnNumber.value }
+        // A spawn-loop level with an unbounded remaining schedule (active CONDITION/INFINITE group)
+        // can never offer a guaranteed win, since the number of future enemies is not bounded.
+        if (spawnGroups != null && !spawnGroupCursor.value.finished && forecastRemainingGroupSpawns() == null) {
+            return false
+        }
+        val enemiesToSpawn =
+            if (spawnGroups != null) {
+                forecastRemainingGroupSpawns() ?: return false
+            } else {
+                spawnPlan.filter { it.spawnTurn > turnNumber.value }
+            }
         // There must be at least one remaining enemy (otherwise the level is already won).
         if (aliveEnemies.isEmpty() && enemiesToSpawn.isEmpty()) return false
         // Summoners can create additional enemies, so the total threat cannot be bounded.
@@ -806,15 +853,139 @@ data class GameState(
         }
     }
 
-    fun canPlaceDefender(type: DefenderType): Boolean = (level.isSandbox || coins.value >= type.baseCost) && level.availableTowers.contains(type)
+    fun canPlaceDefender(type: DefenderType): Boolean = type != DefenderType.ALTAR && (level.isSandbox || coins.value >= type.baseCost) && level.availableTowers.contains(type)
 
-    fun canUpgradeDefender(defender: Defender): Boolean = (level.isSandbox || coins.value >= defender.upgradeCost) && !defender.isGrippedByKraken.value
+    fun canUpgradeDefender(defender: Defender): Boolean = defender.type != DefenderType.ALTAR && (level.isSandbox || coins.value >= defender.upgradeCost) && !defender.isGrippedByKraken.value
+
+    fun canSanctifyDefender(defender: Defender): Boolean =
+        defender in defenders &&
+            defender.type == DefenderType.WIZARD_TOWER &&
+            defender.level.value >= 10 &&
+            defender.isReady &&
+            !defender.isDisabled.value &&
+            defender.raftId.value == null &&
+            currentTileTypeAt(defender.position.value) == de.egril.defender.editor.TileType.BUILD_AREA &&
+            level.isBuildArea(defender.position.value) &&
+            !level.isRiverTile(defender.position.value) &&
+            runes.value >= 1 &&
+            (phase.value == GamePhase.PLAYER_TURN || phase.value == GamePhase.INITIAL_BUILDING)
+
+    fun canActivateAltar(defender: Defender): Boolean =
+        defender in defenders &&
+            defender.type == DefenderType.ALTAR &&
+            phase.value == GamePhase.PLAYER_TURN &&
+            defender.isReady &&
+            !defender.isDisabled.value &&
+            defender.actionsRemaining.value > 0 &&
+            !defender.isChanneling.value
 
     fun hasActionsRemaining(): Boolean = actionsRemainingThisTurn.value > 0
 
-    fun getRemainingPlannedEnemySpawns(): List<PlannedEnemySpawn> = spawnPlan.filter { it.spawnTurn > turnNumber.value }
+    fun getRemainingPlannedEnemySpawns(): List<PlannedEnemySpawn> =
+        if (spawnGroups != null) {
+            forecastRemainingGroupSpawns() ?: emptyList()
+        } else {
+            spawnPlan.filter { it.spawnTurn > turnNumber.value }
+        }
 
     fun getRemainingEnemyCount(): Int = getRemainingPlannedEnemySpawns().size
+
+    // ---------------------------------------------------------------------------------------------
+    // Spawn loops (issue #694)
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Returns the planned spawns for the given absolute [turn].
+     *
+     * For legacy levels (no [spawnGroups]) this simply filters the flat [spawnPlan]. For spawn-loop
+     * levels it advances the [spawnGroupCursor] exactly once per turn and materializes the spawns of
+     * the active group's current turn offset. Called once per turn by the spawn code paths (turn 1
+     * via initial spawning, later turns via the enemy-turn spawner). Re-querying an already-processed
+     * turn returns no spawns, guarding against accidental double-spawning.
+     */
+    fun plannedSpawnsForTurn(turn: Int): List<PlannedEnemySpawn> {
+        val root = spawnSequenceRootGroup ?: return spawnPlan.filter { it.spawnTurn == turn }
+        return advanceSpawnGroups(root, turn)
+    }
+
+    /** The level's top-level spawn sequence wrapped in the implicit, non-repeating root group. */
+    private val spawnSequenceRootGroup: SpawnGroup? by lazy { spawnGroups?.let { spawnSequenceRoot(it) } }
+
+    /**
+     * Binds a spawn group's logical [unitId] to the actually-spawned [attackerId]. The binding is
+     * only set once (first spawned unit wins) so a named boss keeps a stable identity across loop
+     * iterations and save/load.
+     */
+    fun bindSpawnGroupUnit(
+        unitId: String,
+        attackerId: Int,
+    ) {
+        if (!spawnGroupBindings.containsKey(unitId)) {
+            spawnGroupBindings[unitId] = attackerId
+        }
+    }
+
+    /** True if the unit bound to [unitId] exists and is not defeated. Missing bindings count as dead. */
+    fun isSpawnGroupUnitAlive(unitId: String): Boolean {
+        val boundId = spawnGroupBindings[unitId] ?: return false
+        return attackers.any { it.id == boundId && !it.isDefeated.value }
+    }
+
+    private fun advanceSpawnGroups(
+        root: SpawnGroup,
+        turn: Int,
+    ): List<PlannedEnemySpawn> {
+        val startCursor = spawnGroupCursor.value
+        if (startCursor.finished) return emptyList()
+        // Only resolve each absolute turn once, in increasing order.
+        if (turn <= startCursor.lastProcessedTurn) return emptyList()
+
+        // Resolve any pending end-of-iteration decisions *before* spawning. This is done lazily at
+        // the start of the turn so a loop predicate (e.g. CONDITION/UNIT_ALIVE) is evaluated only
+        // after the previous iteration's final subturn — including that turn's resolved combat,
+        // lasting (acid) damage, traps, and defeated-attacker processing — has fully played out.
+        val cursor = SpawnSequenceRunner.resolve(root, startCursor, turn, stoppedSpawnLoops.toSet(), ::shouldLoop)
+        spawnGroupCursor.value = cursor.copy(lastProcessedTurn = turn)
+        return SpawnSequenceRunner.spawnsAt(root, cursor, turn)
+    }
+
+    /**
+     * Permanently ends the spawn loop [groupId] (event action STOP_SPAWN_LOOP). A running loop stops
+     * right away and spawning continues after it from the next unprocessed turn; a loop that has not
+     * started yet is skipped when reached.
+     */
+    fun stopSpawnLoop(groupId: String) {
+        if (groupId !in stoppedSpawnLoops) stoppedSpawnLoops.add(groupId)
+        val root = spawnSequenceRootGroup ?: return
+        val cursor = spawnGroupCursor.value
+        spawnGroupCursor.value = SpawnSequenceRunner.stop(root, cursor, groupId, cursor.lastProcessedTurn + 1)
+    }
+
+    private fun shouldLoop(
+        group: SpawnGroup,
+        repetition: Int,
+    ): Boolean =
+        when (group.repeatMode) {
+            SpawnRepeatMode.COUNT -> repetition < group.repeatCount - 1
+            SpawnRepeatMode.CONDITION ->
+                group.condition == SpawnCondition.UNIT_ALIVE &&
+                    group.targetUnitId != null &&
+                    isSpawnGroupUnitAlive(group.targetUnitId)
+            SpawnRepeatMode.INFINITE -> true
+        }
+
+    /**
+     * Best-effort forecast of all remaining scripted spawns for spawn-loop levels, used for UI
+     * previews and guaranteed-win detection. Returns `null` when the remaining schedule is unbounded
+     * (an [SpawnRepeatMode.INFINITE] group, or a [SpawnRepeatMode.CONDITION] group whose loop
+     * decision depends on future game state). Does not mutate the cursor.
+     */
+    fun forecastRemainingGroupSpawns(): List<PlannedEnemySpawn>? {
+        val root = spawnSequenceRootGroup ?: return emptyList()
+        val cursor = spawnGroupCursor.value
+        if (cursor.finished) return emptyList()
+        return SpawnSequenceRunner.forecast(root, cursor, turnNumber.value, stoppedSpawnLoops.toSet())
+    }
 
     fun getActiveEnemyCount(): Int {
         // Count only non-defeated enemies that are NOT building bridges
@@ -904,6 +1075,7 @@ data class GameState(
                     // Mines always count as having unused actions (digging)
                     true
                 }
+                DefenderType.ALTAR -> canActivateAltar(defender) || canWizardPlaceAnyMagicalTrap(defender)
                 DefenderType.WIZARD_TOWER -> {
                     if (hasEnemiesInRange) {
                         true
@@ -940,6 +1112,7 @@ data class GameState(
                 }
                 when (defender.type) {
                     DefenderType.DWARVEN_MINE -> true
+                    DefenderType.ALTAR -> canActivateAltar(defender) || canWizardPlaceAnyMagicalTrap(defender)
                     else -> {
                         if (defender.type.attackType == AttackType.NONE) {
                             false
@@ -1013,6 +1186,11 @@ data class GameState(
             }
 
             when {
+                defender.type == DefenderType.ALTAR -> {
+                    if (canActivateAltar(defender) || canWizardPlaceAnyMagicalTrap(defender)) {
+                        typesWithActions.add(DefenderType.ALTAR)
+                    }
+                }
                 // Dwarven mines with digging actions
                 defender.type == DefenderType.DWARVEN_MINE -> {
                     typesWithActions.add(DefenderType.DWARVEN_MINE)
@@ -1041,9 +1219,9 @@ data class GameState(
         wizard: Defender,
         trapPosition: Position,
     ): Boolean {
-        if (wizard.type != DefenderType.WIZARD_TOWER) return false
+        if (!wizard.hasMagicalTraps) return false
         if (wizard.level.value < 10) return false
-        if (!wizard.isReady || wizard.actionsRemaining.value <= 0) return false
+        if (!wizard.isReady || wizard.actionsRemaining.value <= 0 || wizard.isDisabled.value) return false
         if (wizard.trapCooldownRemaining.value > 0) return false
 
         val distance = wizard.position.value.distanceTo(trapPosition)

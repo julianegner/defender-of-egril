@@ -80,7 +80,12 @@ object SaveJsonSerializer {
       "actionsRemaining": ${defender.actionsRemaining},
       "dragonName": $dragonNameStr,
       "raftId": $raftIdStr,
-      "towerBaseBarricadeId": $towerBaseBarricadeIdStr
+      "towerBaseBarricadeId": $towerBaseBarricadeIdStr,
+      "isChanneling": ${defender.isChanneling},
+      "trapCooldownRemaining": ${defender.trapCooldownRemaining},
+      "hasBeenUsed": ${defender.hasBeenUsed},
+      "isDisabled": ${defender.isDisabled},
+      "disabledTurnsRemaining": ${defender.disabledTurnsRemaining}
     }"""
             }
 
@@ -292,6 +297,21 @@ object SaveJsonSerializer {
         val activeTileZoneIdsJson = savedGame.activeTileZoneIds.joinToString(", ") { "\"$it\"" }
         val activeEventMapImagesJson = savedGame.activeEventMapImages.joinToString(", ") { EventMapImageJson.serialize(it) }
 
+        // Spawn loops (issue #694): serialize the runtime cursor (null for non-group levels) and the
+        // logical-unit-id → attacker-id bindings.
+        val spawnGroupCursorJson =
+            savedGame.spawnGroupCursor?.let { cursor ->
+                val framesJson =
+                    cursor.frames.orEmpty().joinToString(", ") { frame ->
+                        """{"entryIndex": ${frame.entryIndex}, "repetition": ${frame.repetition}, "iterationStartTurn": ${frame.iterationStartTurn}}"""
+                    }
+                """{"frames": [$framesJson], "segmentStartTurn": ${cursor.segmentStartTurn}, "finished": ${cursor.finished}, "lastProcessedTurn": ${cursor.lastProcessedTurn}}"""
+            } ?: "null"
+        val spawnGroupBindingsJson =
+            savedGame.spawnGroupBindings.entries.joinToString(", ") { (unitId, attackerId) ->
+                "\"$unitId\": $attackerId"
+            }
+
         // Each frame is written as [stepIndex, turnsRemaining, iterationsDone, stepExecuted (0/1)].
         val activeEventLoopsJson =
             savedGame.activeEventLoops.joinToString(", ") { loop ->
@@ -349,6 +369,8 @@ object SaveJsonSerializer {
   "worldMapSave": $worldMapSaveJson,
   "currentMana": ${savedGame.currentMana},
   "maxMana": ${savedGame.maxMana},
+  "runes": ${savedGame.runes},
+  "scriptedVictory": ${savedGame.scriptedVictory},
   "supportObjectsRemaining": {$supportObjectsJson},
   "supportSpellsRemaining": {$supportSpellsJson},
   "supportFiefRemaining": {$supportFiefsJson},
@@ -376,6 +398,9 @@ object SaveJsonSerializer {
   "activeTileZoneIds": [$activeTileZoneIdsJson],
   "activeEventLoops": [$activeEventLoopsJson],
   "activeEventMapImages": [$activeEventMapImagesJson],
+  "spawnGroupCursor": $spawnGroupCursorJson,
+  "spawnGroupBindings": {$spawnGroupBindingsJson},
+  "stoppedSpawnLoops": [${savedGame.stoppedSpawnLoops.joinToString(", ") { EventMapImageJson.quote(it) }}],
   "bridges": [
    $bridgesJson
   ],
@@ -814,6 +839,12 @@ object SaveJsonSerializer {
                     .splitArray(JsonUtils.extractJsonArrayForKey(dataJson, "activeEventMapImages"))
                     .mapNotNull { EventMapImageJson.deserialize(it) }
 
+            // Spawn loops (issue #694): parse the runtime cursor (absent/null for non-group saves)
+            // and the logical-unit-id → attacker-id bindings.
+            val spawnGroupCursor = parseSpawnGroupCursor(dataJson)
+            val spawnGroupBindings = parseEnumIntMap(dataJson, "spawnGroupBindings") { it }
+            val stoppedSpawnLoops = parseStringArray(dataJson, "stoppedSpawnLoops")
+
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -852,6 +883,13 @@ object SaveJsonSerializer {
                     } catch (e: Exception) {
                         0
                     },
+                scriptedVictory = JsonUtils.extractValue(dataJson, "scriptedVictory") == "true",
+                runes =
+                    try {
+                        JsonUtils.extractValue(dataJson, "runes").toInt()
+                    } catch (e: Exception) {
+                        0
+                    },
                 spellEffects = spellEffects,
                 supportObjectsRemaining = supportObjectsRemaining,
                 supportSpellsRemaining = supportSpellsRemaining,
@@ -876,6 +914,9 @@ object SaveJsonSerializer {
                 activeTileZoneIds = activeTileZoneIds,
                 activeEventLoops = activeEventLoops,
                 activeEventMapImages = activeEventMapImages,
+                spawnGroupCursor = spawnGroupCursor,
+                spawnGroupBindings = spawnGroupBindings,
+                stoppedSpawnLoops = stoppedSpawnLoops,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
@@ -917,6 +958,48 @@ object SaveJsonSerializer {
             }
         }
         return result
+    }
+
+    /**
+     * Parse the spawn-loop runtime cursor (issue #694) from [dataJson]. Returns null when absent or
+     * explicitly serialized as `null` (non-group saves and old saves).
+     */
+    private fun parseSpawnGroupCursor(dataJson: String): SavedSpawnGroupCursor? {
+        if (!dataJson.contains("\"spawnGroupCursor\"")) return null
+        val section = JsonUtils.extractJsonObjectForKey(dataJson, "spawnGroupCursor")
+        if (section.isBlank()) return null
+        return try {
+            if (section.contains("\"frames\"")) {
+                val frames =
+                    JsonUtils.splitJsonArray(JsonUtils.extractJsonArrayForKey(section, "frames")).map { frame ->
+                        SavedSpawnGroupFrame(
+                            entryIndex = JsonUtils.extractNumericValue(frame, "entryIndex").toInt(),
+                            repetition = JsonUtils.extractNumericValue(frame, "repetition").toInt(),
+                            iterationStartTurn = JsonUtils.extractNumericValue(frame, "iterationStartTurn").toInt(),
+                        )
+                    }
+                // Only read the cursor's own fields, which are written after the frames array.
+                val tail = section.substringAfterLast("]")
+                SavedSpawnGroupCursor(
+                    frames = frames,
+                    segmentStartTurn = JsonUtils.extractNumericValue(tail, "segmentStartTurn").toInt(),
+                    finished = JsonUtils.extractBooleanValue(tail, "finished"),
+                    lastProcessedTurn = JsonUtils.extractNumericValue(tail, "lastProcessedTurn").toInt(),
+                )
+            } else {
+                // Saves from before nested spawn loops: one top-level group index plus its iteration.
+                SavedSpawnGroupCursor(
+                    frames = null,
+                    segmentStartTurn = JsonUtils.extractNumericValue(section, "iterationStartTurn").toInt(),
+                    finished = JsonUtils.extractBooleanValue(section, "finished"),
+                    lastProcessedTurn = JsonUtils.extractNumericValue(section, "lastProcessedTurn").toInt(),
+                    legacyGroupIndex = JsonUtils.extractNumericValue(section, "groupIndex").toInt(),
+                    legacyRepetition = JsonUtils.extractNumericValue(section, "repetition").toInt(),
+                )
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     /** Parse the running scripted-event loops (see [SavedGame.activeEventLoops]); malformed entries are skipped. */
@@ -1018,6 +1101,11 @@ object SaveJsonSerializer {
             dragonName,
             raftId,
             towerBaseBarricadeId,
+            isChanneling = JsonUtils.extractValue(json, "isChanneling") == "true",
+            trapCooldownRemaining = JsonUtils.extractValue(json, "trapCooldownRemaining").toIntOrNull() ?: 0,
+            hasBeenUsed = JsonUtils.extractValue(json, "hasBeenUsed") == "true",
+            isDisabled = JsonUtils.extractValue(json, "isDisabled") == "true",
+            disabledTurnsRemaining = JsonUtils.extractValue(json, "disabledTurnsRemaining").toIntOrNull() ?: 0,
         )
     }
 
@@ -1389,7 +1477,12 @@ object SaveJsonSerializer {
       "actionsRemaining": ${defender.actionsRemaining},
       "dragonName": $dragonNameStr,
       "raftId": $raftIdStr,
-      "towerBaseBarricadeId": $towerBaseBarricadeIdStr
+      "towerBaseBarricadeId": $towerBaseBarricadeIdStr,
+      "isChanneling": ${defender.isChanneling},
+      "trapCooldownRemaining": ${defender.trapCooldownRemaining},
+      "hasBeenUsed": ${defender.hasBeenUsed},
+      "isDisabled": ${defender.isDisabled},
+      "disabledTurnsRemaining": ${defender.disabledTurnsRemaining}
     }"""
             }
 

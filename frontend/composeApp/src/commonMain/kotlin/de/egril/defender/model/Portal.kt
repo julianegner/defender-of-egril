@@ -56,7 +56,17 @@ data class Portal(
         const val PORTAL_ADVANCE_THRESHOLD_INITIAL = 20
         const val PORTAL_ADVANCE_THRESHOLD_WHEN_PORTAL_EXISTS = 10
 
-        /** Number of distinct Futhark rune shapes in the portal drawing pool. */
-        const val RUNE_POOL_SIZE = 24
+        /** Number of distinct portal rune shapes, excluding the cross-shaped Gebo rune. */
+        const val RUNE_POOL_SIZE = 23
+        const val FUTHARK_RUNE_COUNT = 24
+
+        /**
+         * Maps a portal's pool index to the corresponding Elder Futhark rune, skipping Gebo.
+         * This keeps portal runes distinct while avoiding the cross-shaped glyph.
+         */
+        fun runeGlyphIndex(portalRuneIndex: Int): Int {
+            val normalizedIndex = portalRuneIndex % RUNE_POOL_SIZE
+            return if (normalizedIndex < 6) normalizedIndex else normalizedIndex + 1
+        }
     }
 }

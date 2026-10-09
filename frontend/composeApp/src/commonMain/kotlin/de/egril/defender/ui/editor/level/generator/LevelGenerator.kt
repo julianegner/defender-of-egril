@@ -60,7 +60,7 @@ internal enum class GeneratorEnemyRoster(
 ) {
     HORDE(listOf(AttackerType.GOBLIN, AttackerType.ORK, AttackerType.OGRE, AttackerType.TROLL, AttackerType.ROBOTIC_GOBLIN)),
     UNDEAD(listOf(AttackerType.SKELETON, AttackerType.ZOMBIE, AttackerType.GHOST)),
-    DEMONS(listOf(AttackerType.BLUE_DEMON, AttackerType.RED_DEMON, AttackerType.EVIL_WIZARD)),
+    DEMONS(listOf(AttackerType.BLUE_DEMON, AttackerType.RED_DEMON, AttackerType.EVIL_WIZARD, AttackerType.RUNEMASTER)),
     WITCHES(listOf(AttackerType.RED_WITCH, AttackerType.GREEN_WITCH)),
     PIRATES(listOf(AttackerType.PIRATE)),
     SPIDERS(listOf(AttackerType.SPIDERLING)),

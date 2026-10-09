@@ -328,6 +328,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.ZOMBIE -> drawZombieSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, s, outlineColor)
+                            AttackerType.RUNEMASTER -> drawRunemasterSymbol(centerX, centerY, s)
                             AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, s * 1.05f, outlineColor)
                             AttackerType.GHOST -> drawGhostSymbol(centerX, centerY, s, outlineColor)
@@ -339,6 +340,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             AttackerType.ROBOTIC_GOBLIN -> drawRoboticGoblinSymbol(centerX, centerY, s * 0.55f)
                             AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, s * 1.1f, outlineColor)
+                            AttackerType.GRAND_RUNEMASTER_VAELEN -> drawVaelenSymbol(centerX, centerY, s)
                             AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, s * 1.2f, outlineColor)
                             AttackerType.UNDEAD_DRAGON -> drawUndeadDragonSymbol(centerX, centerY, s * 1.2f, outlineColor)
                             AttackerType.GAROKK -> drawGarokkSymbol(centerX, centerY, s * 1.1f, outlineColor)
@@ -472,6 +474,7 @@ private fun DrawScope.drawVillainSymbol(
     val adjustedOutlineColor = attackerOutlineColor(type, outlineColor)
     when (type) {
         AttackerType.EWHAD -> drawEwhadSymbol(cx, cy, s * 1.1f, outlineColor)
+        AttackerType.GRAND_RUNEMASTER_VAELEN -> drawVaelenSymbol(cx, cy, s)
         AttackerType.SNOTLING_BOSS -> drawSnotlingBossSymbol(cx, cy, s, outlineColor)
         AttackerType.GAROKK -> drawGarokkSymbol(cx, cy, s * 1.1f, outlineColor)
         AttackerType.MORGUK_BONEWHISPER -> drawMorgukBonewhisperSymbol(cx, cy, s, outlineColor)

@@ -21,6 +21,9 @@ enum class VillainAuraEffect {
 
     /** Combined coven synergy: both COVEN_HEAL_BOOST and COVEN_DISABLE_BOOST simultaneously. */
     COVEN_SYNERGY,
+
+    /** Nearby enemies gain armor and immunity to movement slows. */
+    RUNE_GLYPH_WARD,
 }
 
 /**
@@ -56,10 +59,13 @@ enum class AttackerType(
     val xp: Int, // XP when defeated (multiplied by level for non-dragons)
     val immuneToAcid: Boolean = false,
     val immuneToFireball: Boolean = false,
+    val immuneToMagicalTraps: Boolean = false,
+    val wizardTowerDamageReduction: Float = 0f,
     val canSummon: Boolean = false,
     val canDisableTowers: Boolean = false,
     val canHeal: Boolean = false,
     val isBoss: Boolean = false,
+    val showBossHealthBar: Boolean = false,
     val isDragon: Boolean = false,
     val canBuildBridge: Boolean = false, // Can build bridges (Ork, Troll, Evil Wizard, Ewhad)
     val isRobotic: Boolean = false,
@@ -185,6 +191,19 @@ enum class AttackerType(
     SKELETON("Skeleton", health = 15, speed = 5, reward = 7, xp = 4, faction = EnemyFaction.UNDEAD),
     ZOMBIE("Zombie", health = 25, speed = 1, reward = 6, xp = 4, faction = EnemyFaction.UNDEAD),
     EVIL_WIZARD("Evil Wizard", health = 30, speed = 2, reward = 15, xp = 9, canBuildBridge = true),
+    RUNEMASTER(
+        "Runemaster",
+        health = 30,
+        speed = 2,
+        reward = 15,
+        xp = 9,
+        canSummon = true,
+        canDisableTowers = true,
+        canBuildBridge = true,
+        towerDisableRangeBase = 3,
+        towerDisableCooldown = 2,
+        towerDisableDurationTurns = 1,
+    ),
     BLUE_DEMON("Blue Demon", health = 15, speed = 6, reward = 10, xp = 6, immuneToAcid = true),
     RED_DEMON("Red Demon", health = 60, speed = 1, reward = 15, xp = 9, immuneToFireball = true),
     GHOST(
@@ -381,6 +400,26 @@ enum class AttackerType(
         villainAbility = VillainAbility(effect = VillainAuraEffect.SOUL_CALL, range = 3, cooldown = 1),
         villainName = "Valerius",
         soulCallRange = 3,
+    ),
+    GRAND_RUNEMASTER_VAELEN(
+        "Grand Runemaster Vaelen",
+        health = 300,
+        speed = 1,
+        reward = 300,
+        xp = 100,
+        canSummon = true,
+        canDisableTowers = true,
+        isBoss = true,
+        showBossHealthBar = true,
+        isVillain = true,
+        villainName = "Vaelen",
+        useLightNarrativeText = true,
+        immuneToMagicalTraps = true,
+        wizardTowerDamageReduction = 0.5f,
+        villainAbility = VillainAbility(effect = VillainAuraEffect.RUNE_GLYPH_WARD, range = 2, cooldown = 1, magnitude = 2),
+        towerDisableRangeBase = 2,
+        towerDisableCooldown = 3,
+        towerDisableDurationTurns = 1,
     ),
 
     // Grand Coven-Mother Sybilla: powerful witch coven leader who coordinates red and green witches.
@@ -827,6 +866,7 @@ fun attackerTargetDamage(
 ): Int =
     when (type) {
         AttackerType.EVIL_WIZARD,
+        AttackerType.RUNEMASTER,
         AttackerType.RED_WITCH,
         AttackerType.GREEN_WITCH,
         AttackerType.BLUE_DEMON,
@@ -853,8 +893,18 @@ fun attackerTargetDamage(
         AttackerType.DRAGON_TERROR -> level // Summoned flying dragon-terror: level damage on reach
         AttackerType.XARITHON_THE_SHADOW_DRAGON -> level // Shadow dragon finale boss: level damage on reach
         AttackerType.ZYTHAR_THE_RIFTCALLER -> level // Riftcaller villain: 1 HP per level
+        AttackerType.GRAND_RUNEMASTER_VAELEN -> level // Runemaster villain: 1 HP per level
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
+
+/**
+ * True for the Evil Wizard, Runemaster, and Ewhad wizard enemy types.
+ */
+fun AttackerType.isWizard(): Boolean =
+    this == AttackerType.EVIL_WIZARD ||
+        this == AttackerType.RUNEMASTER ||
+        this == AttackerType.EWHAD ||
+        this == AttackerType.GRAND_RUNEMASTER_VAELEN
 
 /**
  * True for enemy types that can summon additional enemies during the enemy turn.
@@ -862,8 +912,7 @@ fun attackerTargetDamage(
  * pose to the player's health points cannot be reliably bounded ahead of time.
  */
 fun AttackerType.isSummoner(): Boolean =
-    this == AttackerType.EVIL_WIZARD ||
-        this == AttackerType.EWHAD ||
+    isWizard() ||
         this == AttackerType.SNOTLING_BOSS ||
         this == AttackerType.MORGUK_BONEWHISPER ||
         this == AttackerType.ARAXXA ||

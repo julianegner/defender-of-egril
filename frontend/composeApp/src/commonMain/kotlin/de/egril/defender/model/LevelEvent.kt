@@ -42,6 +42,9 @@ enum class EventConditionType {
 
     /** Fires when the player's coins are at or below [EventCondition.threshold]. */
     COINS_AT_OR_BELOW,
+
+    /** Fires when at least [EventCondition.threshold] ready, enabled altars channel simultaneously. */
+    ALTARS_ACTIVATED,
 }
 
 /**
@@ -49,7 +52,7 @@ enum class EventConditionType {
  *
  * @param type          The kind of condition.
  * @param fromTurn      The event is only evaluated from this turn onwards (0 = from the start).
- * @param threshold     Numeric threshold (kill count / health / mana / coins) depending on [type].
+ * @param threshold     Numeric threshold (kill count / health / mana / coins / active altars) depending on [type].
  * @param attackerType  Optional enemy type for [EventConditionType.ENEMY_TYPE_KILLED] and
  *                      [EventConditionType.UNIT_REACHED].
  * @param position      Target tile for [EventConditionType.UNIT_REACHED].
@@ -96,11 +99,20 @@ enum class EventActionType {
     /** Stop the running loop of the event [EventAction.targetEventId]. */
     STOP_EVENT_LOOP,
 
+    /**
+     * Permanently end the spawn loop [EventAction.spawnLoopId]: a running loop stops immediately
+     * (the spawn plan continues after it) and a loop that has not started yet is skipped.
+     */
+    STOP_SPAWN_LOOP,
+
     /** Show or replace [EventAction.mapImage] below all gameplay objects. */
     SHOW_MAP_IMAGE,
 
     /** Hide the image identified by [EventAction.imageId]. */
     HIDE_MAP_IMAGE,
+
+    /** Win the level immediately, regardless of remaining enemies or planned spawns. */
+    WIN_LEVEL,
 }
 
 /**
@@ -115,6 +127,7 @@ enum class EventActionType {
  * @param targetEventId     Event whose loop is stopped by [EventActionType.STOP_EVENT_LOOP].
  * @param mapImage          Image and geometry used by [EventActionType.SHOW_MAP_IMAGE].
  * @param imageId           Image hidden by [EventActionType.HIDE_MAP_IMAGE].
+ * @param spawnLoopId       Spawn loop ended by [EventActionType.STOP_SPAWN_LOOP].
  */
 data class EventAction(
     val type: EventActionType,
@@ -126,6 +139,7 @@ data class EventAction(
     val targetEventId: String? = null,
     val mapImage: EventMapImage? = null,
     val imageId: String? = null,
+    val spawnLoopId: String? = null,
 )
 
 /**
@@ -257,4 +271,12 @@ data class LevelEvents(
     fun isEmpty(): Boolean = events.isEmpty()
 
     fun isNotEmpty(): Boolean = !isEmpty()
+
+    /** Ids of all spawn loops that some event (or event loop step) stops. */
+    fun stoppedSpawnLoopIds(): Set<String> =
+        events
+            .flatMap { it.allActions() }
+            .filter { it.type == EventActionType.STOP_SPAWN_LOOP }
+            .mapNotNull { it.spawnLoopId }
+            .toSet()
 }

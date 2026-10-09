@@ -479,6 +479,7 @@ fun SpecialActionsRemainingDialog(
                                 DefenderType.DWARVEN_MINE -> stringResource(Res.string.dwarven_mine_actions)
                                 DefenderType.ALCHEMY_TOWER -> stringResource(Res.string.alchemy_tower_actions)
                                 DefenderType.WIZARD_TOWER -> stringResource(Res.string.wizard_tower_actions)
+                                DefenderType.ALTAR -> stringResource(Res.string.activate_altar)
                                 else -> ""
                             }
                         if (message.isNotEmpty()) {

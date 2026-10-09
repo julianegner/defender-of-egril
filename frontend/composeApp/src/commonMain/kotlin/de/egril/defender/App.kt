@@ -613,6 +613,8 @@ fun App() {
                                     viewModel.performWizardPlaceMagicalTrap(wizardId, trapPos)
                                 },
                                 onWizardGenerateMana = { wizardId -> viewModel.performWizardGenerateMana(wizardId) },
+                                onSanctifyDefender = { wizardId -> viewModel.sanctifyDefender(wizardId) },
+                                onActivateAltar = { altarId -> viewModel.activateAltar(altarId) },
                                 onBuildBarricade = { towerId, barricadePos -> viewModel.performBuildBarricade(towerId, barricadePos) },
                                 onRemoveBarricade = { barricadePos -> viewModel.performRemoveBarricade(barricadePos) },
                                 cheatDigOutcome = cheatDigOutcome,

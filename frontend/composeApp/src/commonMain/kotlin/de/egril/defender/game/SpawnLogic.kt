@@ -70,7 +70,7 @@ class SpawnLogic(
     }
 
     fun spawnInitialEnemies() {
-        val turn1Spawns = state.spawnPlan.filter { it.spawnTurn == 1 }
+        val turn1Spawns = state.plannedSpawnsForTurn(1)
 
         turn1Spawns.forEachIndexed { index, plannedSpawn ->
             val preferredSpawnPoint =
@@ -105,6 +105,7 @@ class SpawnLogic(
                     currentTarget = mutableStateOf(initialTarget),
                 )
             state.attackers.add(attacker)
+            plannedSpawn.unitId?.let { state.bindSpawnGroupUnit(it, attacker.id) }
             GameLogBuffer.log("SPAWN", "${attacker.type} Lv${attacker.level.value} spawned at $spawnPos")
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println(

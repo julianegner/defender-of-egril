@@ -139,6 +139,18 @@ class GameEngine(
 
     fun undoTower(defenderId: Int): Boolean = towerManager.undoTower(defenderId)
 
+    fun sanctifyDefender(defenderId: Int): Boolean {
+        val result = towerManager.sanctifyDefender(defenderId)
+        if (result) evaluateImmediateEvents()
+        return result
+    }
+
+    fun activateAltar(defenderId: Int): Boolean {
+        val result = towerManager.activateAltar(defenderId)
+        if (result) evaluateImmediateEvents()
+        return result
+    }
+
     fun sellTower(defenderId: Int): Boolean = towerManager.sellTower(defenderId)
 
     /**

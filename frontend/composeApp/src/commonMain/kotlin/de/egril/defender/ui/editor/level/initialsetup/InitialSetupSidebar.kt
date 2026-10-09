@@ -496,7 +496,7 @@ fun DefenderConfigPanel(
         // Tower type dropdown
         val towersToShow =
             if (showAllTowers) {
-                DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }
+                DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR && it != DefenderType.ALTAR }
             } else {
                 availableTowers
                     .filter {

@@ -38,7 +38,7 @@ fun TowersTab(
     availableTowers: Set<DefenderType>,
     onAvailableTowersChange: (Set<DefenderType>) -> Unit,
 ) {
-    val allTowers = DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }
+    val allTowers = DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR && it != DefenderType.ALTAR }
     val hasUnselectedTowers = allTowers.any { !availableTowers.contains(it) }
     val hasSelectedTowers = availableTowers.isNotEmpty()
 

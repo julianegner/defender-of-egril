@@ -4,7 +4,6 @@ import androidx.compose.runtime.mutableStateOf
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
-import de.egril.defender.game.isProtectedByObsidianProtector
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
 import de.egril.defender.editor.EditorJsonSerializer
@@ -13,8 +12,10 @@ import de.egril.defender.editor.InitialDefender
 import de.egril.defender.editor.OfficialContent
 import de.egril.defender.game.GameEngine
 import de.egril.defender.game.LevelData
+import de.egril.defender.game.isProtectedByObsidianProtector
+import de.egril.defender.game.isProtectedByRuneGlyphWard
+import de.egril.defender.game.runeGlyphWardArmor
 import de.egril.defender.model.*
-import de.egril.defender.model.DifficultyModifiers
 import de.egril.defender.ui.animations.SKY_IS_FALLING_DURATION_MS
 import de.egril.defender.ui.gameplay.GamePlayConstants
 import de.egril.defender.ui.infopage.NewVersionInfo
@@ -982,6 +983,7 @@ class GameViewModel {
                 coins = mutableStateOf(totalCoins),
                 healthPoints = mutableStateOf(totalHealth),
                 spawnPlan = modifiedSpawnPlan,
+                spawnGroups = level.spawnGroups?.let { DifficultyModifiers.applySpawnGroupsModifier(it, difficulty) },
                 maxMana = mutableStateOf(maxMana),
                 currentMana = mutableStateOf(maxMana),
                 incomeMultiplier = playerStats.getIncomeMultiplier(),
@@ -1215,6 +1217,7 @@ class GameViewModel {
                     coins = mutableStateOf(totalCoins),
                     healthPoints = mutableStateOf(totalHealth),
                     spawnPlan = modifiedSpawnPlan,
+                    spawnGroups = level.spawnGroups?.let { DifficultyModifiers.applySpawnGroupsModifier(it, difficulty) },
                     maxMana = mutableStateOf(maxMana),
                     currentMana = mutableStateOf(maxMana), // Start with full mana
                     incomeMultiplier = incomeMultiplier,
@@ -1347,6 +1350,7 @@ class GameViewModel {
                     coins = mutableStateOf(startCoins),
                     healthPoints = mutableStateOf(totalHealth),
                     spawnPlan = modifiedSpawnPlan,
+                    spawnGroups = level.spawnGroups?.let { DifficultyModifiers.applySpawnGroupsModifier(it, difficulty) },
                     maxMana = mutableStateOf(maxMana),
                     currentMana = mutableStateOf(startMana),
                     incomeMultiplier = incomeMultiplier,
@@ -1370,6 +1374,7 @@ class GameViewModel {
                 defender.actionsRemaining.value = savedDefender.type.actionsPerTurn
                 defender.raftId.value = savedDefender.raftId
                 defender.towerBaseBarricadeId.value = savedDefender.towerBaseBarricadeId
+                defender.trapCooldownRemaining.value = savedDefender.trapCooldownRemaining
                 newGameState.defenders.add(defender)
             }
 
@@ -1559,6 +1564,23 @@ class GameViewModel {
             }
         }
         return result
+    }
+
+    fun sanctifyDefender(defenderId: Int): Boolean = performAltarAction { it.sanctifyDefender(defenderId) }
+
+    fun activateAltar(defenderId: Int): Boolean = performAltarAction { it.activateAltar(defenderId) }
+
+    private fun performAltarAction(action: (GameEngine) -> Boolean): Boolean {
+        val engine = gameEngine ?: return false
+        if (!action(engine)) return false
+        surfaceNextPendingMessageIfIdle()
+        val state = _gameState.value ?: return true
+        if (state.isLevelLost()) {
+            completeLevel(state.level.id, won = false)
+        } else if (state.isLevelWon()) {
+            completeLevel(state.level.id, won = true)
+        }
+        return true
     }
 
     fun sellTower(defenderId: Int): Boolean {
@@ -1785,6 +1807,10 @@ class GameViewModel {
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
         val engine = gameEngine ?: return
+        if (state.scriptedVictory.value) {
+            surfaceNextPendingMessageIfIdle()
+            return
+        }
 
         // NOTE: Auto-attacks are NOT triggered here when clicking "End Turn".
         // They only happen when clicking "Auto-Attack and End Turn" button (see autoAttackAndEndTurn()).
@@ -1803,6 +1829,7 @@ class GameViewModel {
             // The UI immediately shows "ENEMY TURN" indicator when phase changes
             engine.startEnemyTurn()
             surfaceNextPendingMessageIfIdle()
+            if (state.scriptedVictory.value) return@launch
             waitForBlockingNarrativeMessageDismissal()
 
             // Calculate all movement steps for existing units
@@ -1816,6 +1843,10 @@ class GameViewModel {
                 // Apply all movements in this step simultaneously
                 for ((attackerId, newPosition) in stepMovements) {
                     engine.applyMovement(attackerId, newPosition)
+                    if (state.scriptedVictory.value) {
+                        surfaceNextPendingMessageIfIdle()
+                        return@launch
+                    }
                 }
                 // Delay between movement steps so user can see the animation (reduced from 400ms to 200ms)
                 delay(200)
@@ -1845,6 +1876,10 @@ class GameViewModel {
 
             // Now spawn new units (spawn points should be clear after movements)
             engine.spawnEnemyTurnAttackers()
+            if (state.scriptedVictory.value) {
+                surfaceNextPendingMessageIfIdle()
+                return@launch
+            }
 
             // Show spawned units briefly (reduced from 400ms to 200ms)
             delay(200)
@@ -1860,6 +1895,10 @@ class GameViewModel {
                 val trapCountBefore = _gameState.value?.trapTriggerEffects?.size ?: 0
                 for ((attackerId, newPosition) in stepMovements) {
                     engine.applyMovement(attackerId, newPosition)
+                    if (state.scriptedVictory.value) {
+                        surfaceNextPendingMessageIfIdle()
+                        return@launch
+                    }
                 }
                 // Delay between movement steps (reduced from 400ms to 200ms)
                 delay(200)
@@ -1981,6 +2020,7 @@ class GameViewModel {
             // Surface any messages queued by scripted events fired by the auto-attacks (kills), so they
             // are shown even when the turn does not end immediately (special actions remaining below).
             surfaceNextPendingMessageIfIdle()
+            if (currentState.scriptedVictory.value) return@launch
 
             // Check if there are special actions remaining (mines, alchemy, wizard traps)
             val specialActionTypes = currentState.getDefenderTypesWithSpecialActions()
@@ -2017,6 +2057,14 @@ class GameViewModel {
         levelId: Int,
         won: Boolean,
     ) {
+        if (won && _gameState.value?.scriptedVictory?.value == true) {
+            if (_currentScreen.value !is Screen.GamePlay) return
+            if (_pendingGameMessage.value != null) return
+            if (_gameState.value?.pendingMessages?.isNotEmpty() == true) {
+                surfaceNextPendingMessageIfIdle()
+                return
+            }
+        }
         val activeEditorPlaytest = editorPlaytestSession
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
         val rawXpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
@@ -2280,6 +2328,7 @@ class GameViewModel {
                     dragonName = d.dragonName,
                     raftId = d.raftId.value,
                     towerBaseBarricadeId = d.towerBaseBarricadeId.value,
+                    trapCooldownRemaining = d.trapCooldownRemaining.value,
                 )
             }
         val handoffBarricades =
@@ -4041,6 +4090,12 @@ class GameViewModel {
             _pendingGameMessage.value = next
         } else {
             _pendingGameMessage.value = null
+            if (_currentScreen.value is Screen.GamePlay &&
+                state != null && state.scriptedVictory.value &&
+                !state.isLevelLost() && state.isLevelWon()
+            ) {
+                completeLevel(state.level.id, won = true)
+            }
         }
     }
 
@@ -4067,6 +4122,9 @@ class GameViewModel {
         if (state.pendingMessages.isNotEmpty() && _pendingGameMessage.value == null) {
             val nextMessage = state.pendingMessages.removeAt(0)
             _pendingGameMessage.value = nextMessage
+        }
+        if (state.scriptedVictory.value && !state.isLevelLost() && state.isLevelWon()) {
+            completeLevel(state.level.id, won = true)
         }
     }
 
@@ -4262,7 +4320,7 @@ class GameViewModel {
 
         // Check for freeze immunity
         if (spell == SpellType.FREEZE_SPELL && target is Attacker) {
-            if (isImmuneToFreeze(target.type)) {
+            if (isImmuneToFreeze(target.type) || gameState.isProtectedByRuneGlyphWard(target)) {
                 _showFreezeImmuneWarning.value = target
                 if (LogConfig.ENABLE_SPELL_LOGGING) {
                     println("=== SPELL: ${target.type.displayName} is immune to Freeze!")
@@ -4558,7 +4616,8 @@ class GameViewModel {
                         attacker.type.isDragon ||
                             attacker.type == AttackerType.BLUE_DEMON ||
                             attacker.type == AttackerType.RED_DEMON ||
-                            attacker.type == AttackerType.EWHAD
+                            attacker.type == AttackerType.EWHAD ||
+                            gameState.isProtectedByRuneGlyphWard(attacker)
 
                     if (isImmune) {
                         println("Freeze Spell: ${attacker.type.displayName} is immune to freeze!")
@@ -4947,9 +5006,11 @@ class GameViewModel {
         attacker: Attacker,
         damage: Int,
     ) {
-        if (_gameState.value?.isProtectedByObsidianProtector(attacker) == true) return
-        attacker.recordDamageTaken(minOf(attacker.currentHealth.value, damage))
-        attacker.currentHealth.value = (attacker.currentHealth.value - damage).coerceAtLeast(0)
+        val gameState = _gameState.value
+        if (gameState?.isProtectedByObsidianProtector(attacker) == true) return
+        val effectiveDamage = (damage - (gameState?.runeGlyphWardArmor(attacker) ?: 0)).coerceAtLeast(0)
+        attacker.recordDamageTaken(minOf(attacker.currentHealth.value, effectiveDamage))
+        attacker.currentHealth.value = (attacker.currentHealth.value - effectiveDamage).coerceAtLeast(0)
         if (attacker.currentHealth.value <= 0) {
             attacker.isDefeated.value = true
         }

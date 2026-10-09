@@ -26,12 +26,18 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorEnemyTemplateKind
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.EditorSpawnTimeline
 import de.egril.defender.editor.EditorStorage
+import de.egril.defender.editor.SpawnGroupIssue
+import de.egril.defender.editor.createLoop
+import de.egril.defender.editor.deleteTurn
+import de.egril.defender.editor.resolveLoopNesting
 import de.egril.defender.editor.SpawnPointUtils
 import de.egril.defender.editor.SpawnTurnTemplateDefinition
 import de.egril.defender.editor.SpawnTurnTemplateEntry
 import de.egril.defender.editor.SpawnTurnTemplateVariant
 import de.egril.defender.model.AttackerType
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.editor.level.ChangeAllSpawnPointsDialog
 import de.egril.defender.ui.editor.level.ChangeLevelDialog
 import de.egril.defender.ui.editor.level.ChangeSpawnPointDialog
@@ -46,10 +52,9 @@ import defender_of_egril.composeapp.generated.resources.*
  */
 @Composable
 internal fun EnemySpawnsTab(
-    enemySpawns: MutableList<EditorEnemySpawn>,
-    maxTurnNumber: Int,
-    onMaxTurnNumberChange: (Int) -> Unit,
-    onEnemySpawnsChange: (MutableList<EditorEnemySpawn>) -> Unit,
+    timeline: EditorSpawnTimeline,
+    issues: Set<SpawnGroupIssue>,
+    onTimelineChange: (EditorSpawnTimeline) -> Unit,
     onShowEnemyDialog: (Int) -> Unit,
     onShowRemoveAllTurnsDialog: () -> Unit,
     map: EditorMap?,
@@ -61,6 +66,17 @@ internal fun EnemySpawnsTab(
     requestedTurnToOpen: Int?,
     turnOpenRequestNonce: Int,
 ) {
+    val enemySpawns = timeline.spawns.toMutableList()
+    val maxTurnNumber = timeline.maxTurn
+
+    fun onEnemySpawnsChange(newSpawns: MutableList<EditorEnemySpawn>) = onTimelineChange(timeline.copy(spawns = newSpawns))
+
+    // Loop headers are collapsed by default; expanding one shows the loop's own settings.
+    var expandedLoops by remember { mutableStateOf(setOf<String>()) }
+    var spawnForLoopOptions by remember { mutableStateOf<EditorEnemySpawn?>(null) }
+    val loopNodes = remember(timeline.loops) { resolveLoopNesting(timeline.loops) }
+    val rows = remember(loopNodes, maxTurnNumber) { buildSpawnEditorRows(loopNodes, maxTurnNumber) }
+
     // Track the last added turn to keep it expanded
     var lastAddedTurn by remember { mutableStateOf<Int?>(null) }
     val listState = rememberLazyListState()
@@ -100,21 +116,21 @@ internal fun EnemySpawnsTab(
 
     LaunchedEffect(turnOpenRequestNonce) {
         val targetTurn = requestedTurnToOpen ?: return@LaunchedEffect
-        val warningItems = if (hasEnemiesOutsideSpawnPoints) 1 else 0
-        val turnIndex = (targetTurn - 1).coerceAtLeast(0)
-        listState.scrollToItem(2 + warningItems + turnIndex)
+        val leadingItems = 3 + (if (hasEnemiesOutsideSpawnPoints) 1 else 0)
+        val rowIndex = rows.indexOfFirst { it is SpawnEditorRow.Turn && it.turn == targetTurn }
+        if (rowIndex >= 0) listState.scrollToItem(leadingItems + rowIndex)
     }
 
+    // Items are not spaced by the list itself so the loop lines on the left stay continuous.
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         // Add turn and remove all turns buttons
         item {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -128,7 +144,7 @@ internal fun EnemySpawnsTab(
                     Button(onClick = {
                         // Add a new empty turn without opening dialog
                         val newTurn = maxTurnNumber + 1
-                        onMaxTurnNumberChange(newTurn)
+                        onTimelineChange(timeline.copy(maxTurn = newTurn))
                         lastAddedTurn = newTurn
                     }) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -158,7 +174,7 @@ internal fun EnemySpawnsTab(
 
         item {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
@@ -252,7 +268,7 @@ internal fun EnemySpawnsTab(
         if (hasEnemiesOutsideSpawnPoints) {
             item {
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     colors =
                         CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -289,106 +305,131 @@ internal fun EnemySpawnsTab(
             }
         }
 
-        // Group enemies by spawn turn and create list including empty turns
-        val turnGroups = enemySpawns.groupBy { it.spawnTurn }.entries.sortedBy { it.key }
-
-        // Create list of all turns from 1 to maxTurnNumber (including empty ones)
-        val allTurns =
-            (1..maxTurnNumber).map { turn ->
-                turn to (turnGroups.find { it.key == turn }?.value ?: emptyList())
+        item {
+            Column(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                SelectableText(stringResource(Res.string.spawn_loops_help))
+                SpawnLoopIssues(issues)
             }
+        }
 
-        allTurns.forEachIndexed { index, (turn, spawnsInTurn) ->
-            if (tableMode && index == 0) {
-                item {
-                    EnemySpawnTableEditor(
-                        enemySpawns = enemySpawns,
-                        map = map,
-                        onEnemySpawnsChange = onEnemySpawnsChange,
-                    )
-                }
-            } else if (!tableMode) {
-                item {
-                    SpawnTurnSection(
-                        turn = turn,
-                        spawns = spawnsInTurn,
-                        initiallyExpanded = turn == lastAddedTurn,
-                        expandRequestKey = if (requestedTurnToOpen == turn) turnOpenRequestNonce else null,
-                        onRemoveEnemy = { spawn ->
-                            val newSpawns = enemySpawns.toMutableList().apply { remove(spawn) }
-                            onEnemySpawnsChange(newSpawns)
-                        },
-                        onDeleteTurn = {
-                            if (turn == maxTurnNumber) {
-                                onEnemySpawnsChange(enemySpawns.filter { it.spawnTurn != turn }.toMutableList())
-                                onMaxTurnNumberChange(maxTurnNumber - 1)
-                            }
-                        },
-                        onClearTurn = {
-                            onEnemySpawnsChange(enemySpawns.filter { it.spawnTurn != turn }.toMutableList())
-                        },
-                        canDeleteTurn = turn == maxTurnNumber,
-                        onCopyTurn = {
-                            onEnemySpawnsChange(
-                                enemySpawns.toMutableList().apply {
-                                    spawnsInTurn.forEach { spawn ->
-                                        add(spawn.copy(spawnTurn = maxTurnNumber + 1))
-                                    }
-                                },
-                            )
-                            onMaxTurnNumberChange(maxTurnNumber + 1)
-                        },
-                        onAddEnemy = { onShowEnemyDialog(turn) },
-                        onMoveTurnUp = {
-                            if (index > 0) {
-                                val prevTurn = allTurns[index - 1].first
-                                onEnemySpawnsChange(
-                                    enemySpawns
-                                        .map { spawn ->
-                                            when (spawn.spawnTurn) {
-                                                turn -> spawn.copy(spawnTurn = prevTurn)
-                                                prevTurn -> spawn.copy(spawnTurn = turn)
-                                                else -> spawn
-                                            }
-                                        }.toMutableList(),
+        // Group enemies by spawn turn
+        val turnGroups = enemySpawns.groupBy { it.spawnTurn }
+
+        if (tableMode) {
+            item {
+                EnemySpawnTableEditor(
+                    enemySpawns = enemySpawns,
+                    map = map,
+                    onEnemySpawnsChange = { onEnemySpawnsChange(it) },
+                )
+            }
+        } else {
+            rows.forEach { row ->
+                when (row) {
+                    is SpawnEditorRow.LoopHeader ->
+                        item(key = "loop_${row.node.loop.id}") {
+                            SpawnLoopLines(depth = row.node.depth + 1, ownLineStartsHere = true) {
+                                SpawnLoopHeader(
+                                    node = row.node,
+                                    timeline = timeline,
+                                    expanded = row.node.loop.id in expandedLoops,
+                                    onToggle = {
+                                        val id = row.node.loop.id
+                                        expandedLoops = if (id in expandedLoops) expandedLoops - id else expandedLoops + id
+                                    },
+                                    onTimelineChange = onTimelineChange,
+                                    onLoopRenamed = { oldId, newId ->
+                                        if (oldId in expandedLoops) expandedLoops = expandedLoops - oldId + newId
+                                    },
                                 )
                             }
-                        },
-                        onMoveTurnDown = {
-                            if (index < allTurns.size - 1) {
-                                val nextTurn = allTurns[index + 1].first
-                                onEnemySpawnsChange(
-                                    enemySpawns
-                                        .map { spawn ->
-                                            when (spawn.spawnTurn) {
-                                                turn -> spawn.copy(spawnTurn = nextTurn)
-                                                nextTurn -> spawn.copy(spawnTurn = turn)
-                                                else -> spawn
-                                            }
-                                        }.toMutableList(),
+                        }
+                    is SpawnEditorRow.Turn -> {
+                        val turn = row.turn
+                        val spawnsInTurn = turnGroups[turn].orEmpty()
+                        item(key = "turn_$turn") {
+                            SpawnLoopLines(depth = row.depth) {
+                                SpawnTurnSection(
+                                    turn = turn,
+                                    spawns = spawnsInTurn,
+                                    initiallyExpanded = turn == lastAddedTurn,
+                                    expandRequestKey = if (requestedTurnToOpen == turn) turnOpenRequestNonce else null,
+                                    onRemoveEnemy = { spawn ->
+                                        val newSpawns = enemySpawns.toMutableList().apply { remove(spawn) }
+                                        onEnemySpawnsChange(newSpawns)
+                                    },
+                                    onDeleteTurn = {
+                                        if (turn == maxTurnNumber) {
+                                            onTimelineChange(timeline.deleteTurn(turn))
+                                        }
+                                    },
+                                    onClearTurn = {
+                                        onEnemySpawnsChange(enemySpawns.filter { it.spawnTurn != turn }.toMutableList())
+                                    },
+                                    canDeleteTurn = turn == maxTurnNumber,
+                                    onCopyTurn = {
+                                        // Unit ids must stay unique, so the copy does not take them over.
+                                        onTimelineChange(
+                                            timeline.copy(
+                                                spawns = enemySpawns + spawnsInTurn.map { it.copy(spawnTurn = maxTurnNumber + 1, unitId = null) },
+                                                maxTurn = maxTurnNumber + 1,
+                                            ),
+                                        )
+                                    },
+                                    onAddEnemy = { onShowEnemyDialog(turn) },
+                                    onMoveTurnUp = {
+                                        if (turn > 1) onEnemySpawnsChange(swapTurns(enemySpawns, turn, turn - 1))
+                                    },
+                                    onMoveTurnDown = {
+                                        if (turn < maxTurnNumber) onEnemySpawnsChange(swapTurns(enemySpawns, turn, turn + 1))
+                                    },
+                                    canMoveUp = turn > 1,
+                                    canMoveDown = turn < maxTurnNumber,
+                                    onChangeSpawnPoint = { spawn ->
+                                        spawnToChange = spawn
+                                    },
+                                    onChangeLevel = { spawn ->
+                                        spawnToChangeLevel = spawn
+                                    },
+                                    onChangeTurnLevel = {
+                                        turnToChangeLevel = turn
+                                    },
+                                    onSaveAsTemplate = {
+                                        turnToSaveTemplate = turn
+                                        templateName = "Turn $turn"
+                                        templateDescription = ""
+                                    },
+                                    onCreateLoop = { onTimelineChange(timeline.createLoop(turn)) },
+                                    onEditLoopOptions =
+                                        if (timeline.loops.isNotEmpty()) {
+                                            { spawn -> spawnForLoopOptions = spawn }
+                                        } else {
+                                            null
+                                        },
                                 )
                             }
-                        },
-                        canMoveUp = index > 0,
-                        canMoveDown = index < allTurns.size - 1,
-                        onChangeSpawnPoint = { spawn ->
-                            spawnToChange = spawn
-                        },
-                        onChangeLevel = { spawn ->
-                            spawnToChangeLevel = spawn
-                        },
-                        onChangeTurnLevel = {
-                            turnToChangeLevel = turn
-                        },
-                        onSaveAsTemplate = {
-                            turnToSaveTemplate = turn
-                            templateName = "Turn $turn"
-                            templateDescription = ""
-                        },
-                    )
+                        }
+                    }
                 }
             }
         }
+    }
+
+    spawnForLoopOptions?.let { spawn ->
+        SpawnLoopOptionsDialog(
+            spawn = spawn,
+            otherUnitIds = enemySpawns.filter { it !== spawn }.mapNotNull { it.loopUnitId }.toSet(),
+            onDismiss = { spawnForLoopOptions = null },
+            onApply = { unitId, firstIterationOnly ->
+                onEnemySpawnsChange(
+                    enemySpawns
+                        .map {
+                            if (it === spawn) it.copy(unitId = unitId, firstIterationOnly = firstIterationOnly) else it
+                        }.toMutableList(),
+                )
+                spawnForLoopOptions = null
+            },
+        )
     }
 
     // Change spawn point dialog
@@ -692,3 +733,18 @@ private fun EditorEnemyTemplateKind.localizedLabel(): String =
         EditorEnemyTemplateKind.PIRATES -> stringResource(Res.string.pirates)
         EditorEnemyTemplateKind.VILLAINS -> stringResource(Res.string.villains)
     }
+
+/** Swaps the enemies of two turns. */
+private fun swapTurns(
+    spawns: List<EditorEnemySpawn>,
+    first: Int,
+    second: Int,
+): MutableList<EditorEnemySpawn> =
+    spawns
+        .map { spawn ->
+            when (spawn.spawnTurn) {
+                first -> spawn.copy(spawnTurn = second)
+                second -> spawn.copy(spawnTurn = first)
+                else -> spawn
+            }
+        }.toMutableList()

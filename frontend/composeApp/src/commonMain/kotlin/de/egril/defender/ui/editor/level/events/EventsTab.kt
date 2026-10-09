@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -33,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
@@ -68,11 +70,14 @@ import defender_of_egril.composeapp.generated.resources.event_act_hide_map_image
 import defender_of_egril.composeapp.generated.resources.event_act_revert_tile_zone
 import defender_of_egril.composeapp.generated.resources.event_act_show_map_image
 import defender_of_egril.composeapp.generated.resources.event_act_stop_event_loop
+import defender_of_egril.composeapp.generated.resources.event_act_stop_spawn_loop
 import defender_of_egril.composeapp.generated.resources.event_act_toggle_tile_zone
+import defender_of_egril.composeapp.generated.resources.event_act_win_level
 import defender_of_egril.composeapp.generated.resources.event_actions_count
 import defender_of_egril.composeapp.generated.resources.event_actions_label
 import defender_of_egril.composeapp.generated.resources.event_amount_label
 import defender_of_egril.composeapp.generated.resources.event_any_enemy
+import defender_of_egril.composeapp.generated.resources.event_cond_altars_activated
 import defender_of_egril.composeapp.generated.resources.event_cond_coins_at_or_below
 import defender_of_egril.composeapp.generated.resources.event_cond_enemies_killed
 import defender_of_egril.composeapp.generated.resources.event_cond_enemy_turn_start
@@ -93,6 +98,8 @@ import defender_of_egril.composeapp.generated.resources.event_no_actions
 import defender_of_egril.composeapp.generated.resources.event_position_label
 import defender_of_egril.composeapp.generated.resources.event_repeatable_help
 import defender_of_egril.composeapp.generated.resources.event_repeatable_label
+import defender_of_egril.composeapp.generated.resources.event_spawn_loop_label
+import defender_of_egril.composeapp.generated.resources.event_spawn_loop_missing_warning
 import defender_of_egril.composeapp.generated.resources.event_summary_coins
 import defender_of_egril.composeapp.generated.resources.event_summary_enemy_turn
 import defender_of_egril.composeapp.generated.resources.event_summary_killed
@@ -124,11 +131,14 @@ fun EventsTab(
     minePositions: Set<Position>,
     issueDescription: String? = null,
     tileZones: List<TileZone> = emptyList(),
+    spawnLoops: List<Pair<String, String>> = emptyList(),
+    issues: List<String> = emptyList(),
 ) {
     val context =
         EventEditorContext(
             minePositions = minePositions,
             tileZones = tileZones,
+            spawnLoops = spawnLoops,
             loopEvents =
                 events.events.mapIndexedNotNull { index, event ->
                     if (event.loop != null) event.id to index else null
@@ -163,10 +173,11 @@ fun EventsTab(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        if (issueDescription != null) {
-            item {
+        val allIssues = listOfNotNull(issueDescription) + issues
+        if (allIssues.isNotEmpty()) {
+            items(allIssues) { issue ->
                 Text(
-                    text = issueDescription,
+                    text = issue,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                 )
@@ -351,11 +362,13 @@ private fun EventCard(
  * level's map and the events that own a loop (targets for [EventActionType.STOP_EVENT_LOOP]).
  *
  * @param loopEvents Pairs of event id and its index in the event list (used for the display label).
+ * @param spawnLoops Pairs of spawn loop id and display label (targets for [EventActionType.STOP_SPAWN_LOOP]).
  */
 internal data class EventEditorContext(
     val minePositions: Set<Position>,
     val tileZones: List<TileZone>,
     val loopEvents: List<Pair<String, Int>>,
+    val spawnLoops: List<Pair<String, String>> = emptyList(),
     val imageFiles: List<String> = emptyList(),
     val imageIds: List<String> = emptyList(),
 )
@@ -397,7 +410,9 @@ private fun conditionSummary(condition: EventCondition): String =
         EventConditionType.ENEMY_TURN_START ->
             stringResource(Res.string.event_summary_enemy_turn, condition.fromTurn)
 
-        EventConditionType.ENEMIES_KILLED ->
+        EventConditionType.ENEMIES_KILLED,
+        EventConditionType.ALTARS_ACTIVATED,
+        ->
             "${condition.threshold} ${condition.type.localizedName()}"
 
         EventConditionType.ENEMY_TYPE_KILLED -> {
@@ -436,7 +451,9 @@ internal fun actionSummary(action: EventAction): String =
             action.spellType?.let { "$base: ${it.getLocalizedName()}" } ?: base
         }
 
-        EventActionType.DESTROY_MINE -> action.type.localizedName()
+        EventActionType.DESTROY_MINE,
+        EventActionType.WIN_LEVEL,
+        -> action.type.localizedName()
 
         EventActionType.APPLY_TILE_ZONE,
         EventActionType.REVERT_TILE_ZONE,
@@ -445,6 +462,8 @@ internal fun actionSummary(action: EventAction): String =
 
         EventActionType.STOP_EVENT_LOOP ->
             action.targetEventId?.let { "${action.type.localizedName()}: $it" } ?: action.type.localizedName()
+        EventActionType.STOP_SPAWN_LOOP ->
+            action.spawnLoopId?.let { "${action.type.localizedName()}: $it" } ?: action.type.localizedName()
         EventActionType.SHOW_MAP_IMAGE ->
             action.mapImage?.let { "${action.type.localizedName()}: ${it.id} (${it.fileName})" } ?: action.type.localizedName()
         EventActionType.HIDE_MAP_IMAGE ->
@@ -474,6 +493,7 @@ private fun ConditionEditor(
 
         when (condition.type) {
             EventConditionType.ENEMIES_KILLED,
+            EventConditionType.ALTARS_ACTIVATED,
             EventConditionType.HEALTH_AT_OR_BELOW,
             EventConditionType.MANA_AT_OR_BELOW,
             EventConditionType.COINS_AT_OR_BELOW,
@@ -578,6 +598,8 @@ internal fun ActionEditor(
                                         type = newType,
                                         imageId = action.imageId ?: action.mapImage?.id ?: context.imageIds.firstOrNull(),
                                     )
+                                EventActionType.STOP_SPAWN_LOOP ->
+                                    action.copy(type = newType, spawnLoopId = action.spawnLoopId ?: context.spawnLoops.firstOrNull()?.first)
                                 else -> action.copy(type = newType)
                             }
                         onActionChange(updated)
@@ -590,6 +612,7 @@ internal fun ActionEditor(
         }
 
         when (action.type) {
+            EventActionType.WIN_LEVEL -> Unit
             EventActionType.SHOW_MAP_IMAGE, EventActionType.HIDE_MAP_IMAGE ->
                 EventMapImageEditor(action, onActionChange, context)
             EventActionType.GIVE_COINS, EventActionType.GIVE_MANA ->
@@ -674,6 +697,24 @@ internal fun ActionEditor(
                 if (context.loopEvents.none { it.first == action.targetEventId }) {
                     Text(
                         text = stringResource(Res.string.event_target_event_missing_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+
+            EventActionType.STOP_SPAWN_LOOP -> {
+                Box(modifier = Modifier.testTag("event_spawn_loop_dropdown")) {
+                    IdDropdown(
+                        label = stringResource(Res.string.event_spawn_loop_label),
+                        options = context.spawnLoops,
+                        selectedId = action.spawnLoopId,
+                        onSelected = { onActionChange(action.copy(spawnLoopId = it)) },
+                    )
+                }
+                if (context.spawnLoops.none { it.first == action.spawnLoopId }) {
+                    Text(
+                        text = stringResource(Res.string.event_spawn_loop_missing_warning),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                     )
@@ -981,6 +1022,7 @@ private fun EventConditionType.localizedName(): String =
         EventConditionType.HEALTH_AT_OR_BELOW -> stringResource(Res.string.event_cond_health_at_or_below)
         EventConditionType.MANA_AT_OR_BELOW -> stringResource(Res.string.event_cond_mana_at_or_below)
         EventConditionType.COINS_AT_OR_BELOW -> stringResource(Res.string.event_cond_coins_at_or_below)
+        EventConditionType.ALTARS_ACTIVATED -> stringResource(Res.string.event_cond_altars_activated)
     }
 
 @Composable
@@ -995,6 +1037,8 @@ private fun EventActionType.localizedName(): String =
         EventActionType.REVERT_TILE_ZONE -> stringResource(Res.string.event_act_revert_tile_zone)
         EventActionType.TOGGLE_TILE_ZONE -> stringResource(Res.string.event_act_toggle_tile_zone)
         EventActionType.STOP_EVENT_LOOP -> stringResource(Res.string.event_act_stop_event_loop)
+        EventActionType.STOP_SPAWN_LOOP -> stringResource(Res.string.event_act_stop_spawn_loop)
         EventActionType.SHOW_MAP_IMAGE -> stringResource(Res.string.event_act_show_map_image)
         EventActionType.HIDE_MAP_IMAGE -> stringResource(Res.string.event_act_hide_map_image)
+        EventActionType.WIN_LEVEL -> stringResource(Res.string.event_act_win_level)
     }

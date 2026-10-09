@@ -89,6 +89,7 @@
 
     <!-- Game Play -->
     <string name="coins">Monete</string>
+    <string name="runes_label">Rune</string>
     <string name="health">Salute</string>
     <string name="turn">Turno</string>
     <string name="level">Livello</string>
@@ -188,6 +189,7 @@
     <string name="ogre">Ogre: Molto resistente</string>
     <string name="skeleton">Scheletro: Non-morto veloce</string>
     <string name="evil_wizard">Mago malvagio: Attaccante magico</string>
+    <string name="runemaster">Runemaster: Mago runico d’élite</string>
     <string name="witch">Strega: Magia oscura</string>
     <string name="blue_demon">Demone blu: Veloce, immune all'acido</string>
     <string name="red_demon">Demone rosso: Resistente, immune alla palla di fuoco</string>
@@ -261,6 +263,7 @@
     <string name="skeleton_name">Scheletro</string>
     <string name="zombie_name">Zombie</string>
     <string name="evil_wizard_name">Mago malvagio</string>
+    <string name="runemaster_name">Runemaster</string>
     <string name="witch_name">Strega</string>
     <string name="blue_demon_name">Demone blu</string>
     <string name="red_demon_name">Demone rosso</string>
@@ -2342,6 +2345,10 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_zythar_title">Zythar il Chiamatore di Varchi entra nel campo di battaglia</string>
     <string name="villain_zythar_backstory">Zythar il Chiamatore di Varchi strappa buchi nella realtà stessa.</string>
     <string name="villain_zythar_description">Evoca demoni e demonetti, che invia avanti come esploratori per aprire portali di varco.</string>
+    <string name="vaelen_name">Gran Runomante Vaelen</string>
+    <string name="villain_vaelen_title">Il Gran Runomante Vaelen entra nel campo di battaglia</string>
+    <string name="villain_vaelen_backstory">Ewhad non tesse personalmente le linee oscure: lascia questo compito a Vaelen. Finché Vaelen respira, la corruzione non smetterà mai di fluire.</string>
+    <string name="villain_vaelen_description">Vaelen è immune alle trappole magiche e subisce il 50% di danni in meno dalle Torri del Mago. Ogni 3 turni, l&apos;Impulso Runico silenzia fino a 2 torri vicine per 1 turno. I nemici entro 2 celle ottengono +2 armatura e non possono essere rallentati.</string>
     <string name="villain_zythar_portal_short">Portali di varco: i demonetti si sacrificano per aprire portali ingresso blu / uscita arancione che teletrasportano ogni nemico all&apos;uscita</string>
 
     <!-- Descrizioni delle Unità Nemiche -->
@@ -2353,6 +2360,7 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="skeleton_description">Non-morti veloci, gli scheletri sono guerrieri agili che riducono rapidamente la distanza. La loro natura di non-morte li rende resistenti a certi attacchi.</string>
     <string name="zombie_description">Non-morti che si trascinano rianimati dalla magia oscura. Più lenti degli scheletri ma ancora pericolosi in numero, soprattutto quando guariti dalle Streghe Verdi.</string>
     <string name="evil_wizard_description">Un utilizzatore di magia che canalizza incantesimi distruttivi dall\'aria. Sconfiggilo rapidamente prima che facciano piovere fuoco sulle tue difese.</string>
+    <string name="runemaster_description">Un Mago malvagio d’élite che evoca demoni e colpisce da lontano barricate e torri vicine con magia arcana. Sconfiggilo per recuperare la runa primordiale prima che possa riportarla a Ewhad.</string>
     <string name="blue_demon_description">Un demone veloce che prospera negli ambienti acidi — è immune ai danni acidi. Eliminalo con fuoco, attacchi fisici o incantesimi magici.</string>
     <string name="red_demon_description">Un demone potente avvolto dalle fiamme che resiste alle palle di fuoco e agli attacchi di area. Usa acido, attacchi perforanti o forza fisica per superare la sua resistenza.</string>
     <string name="ghost_description">Uno spirito etereo non-morto che vola sopra gli ostacoli del terreno. Resiste agli attacchi non-magici — solo gli attacchi magici dalle torri come le palle di fuoco possono ferirlo direttamente.</string>
@@ -2547,6 +2555,11 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="event_act_revert_tile_zone">Disattiva zona di caselle</string>
     <string name="event_act_toggle_tile_zone">Alterna zona di caselle</string>
     <string name="event_act_stop_event_loop">Ferma ciclo dell\'evento</string>
+    <string name="events_invalid_spawn_loop_stops">%1$d azione/i Ferma ciclo di comparsa fanno riferimento a un ciclo inesistente.</string>
+    <string name="events_infinite_loops_not_stopped">Questi cicli di comparsa infiniti non vengono mai fermati: %1$s. Aggiungi un\'azione Ferma ciclo di comparsa per ciascuno.</string>
+    <string name="event_spawn_loop_missing_warning">Seleziona un ciclo di comparsa esistente.</string>
+    <string name="event_spawn_loop_label">Ciclo di comparsa</string>
+    <string name="event_act_stop_spawn_loop">Ferma ciclo di comparsa</string>
     <string name="event_summary_loop">Ciclo</string>
     <string name="event_target_event_label">Evento con ciclo</string>
     <string name="event_target_event_missing_warning">Seleziona un evento che abbia un ciclo.</string>
@@ -2582,4 +2595,51 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="map_image_generate_step">Genera</string>
     <string name="map_image_optimize_step">Ottimizza</string>
     <string name="map_image_step_skipped">Saltato</string>
+    <string name="spawn_loops_help">Usa Crea ciclo su un turno per ripeterlo. Espandi l’intestazione di un ciclo per impostare quante volte si ripete e per modificarne il primo e l’ultimo turno. I cicli possono essere mescolati con turni normali e annidati; ogni livello di annidamento ha un proprio colore.</string>
+    <string name="spawn_error_villain">Ogni tipo di cattivo può comparire una sola volta, con quantità 1. In un ciclo che si ripete, attiva Solo prima iterazione per i cattivi; i cicli che lo contengono non devono ripetersi.</string>
+    <string name="spawn_error_infinite_not_stopped">Ogni ciclo infinito deve essere fermato da un evento. Aggiungi un\'azione Ferma ciclo di comparsa nella scheda Eventi.</string>
+    <string name="spawn_repeat_count">Numero fisso</string>
+    <string name="spawn_repeat_condition">Finché l’unità è viva</string>
+    <string name="spawn_repeat_infinite">Infinito</string>
+    <string name="spawn_iterations">Iterazioni totali (minimo 1)</string>
+    <string name="spawn_condition_help">Si ripete finché l’unità selezionata è viva, verificandolo alla fine di ogni ciclo. I cattivi sono sempre disponibili con il loro nome; gli altri nemici necessitano di un ID univoco assegnato tramite Opzioni ciclo. L’unità deve comparire prima o all’interno di questo ciclo.</string>
+    <string name="spawn_target_unit">ID dell’unità bersaglio</string>
+    <string name="spawn_no_unit_ids">Nessuna unità con ID. Assegna un ID a un nemico tramite Opzioni ciclo oppure aggiungi un cattivo.</string>
+    <string name="spawn_infinite_help">Si ripete finché un evento non lo ferma con l\'azione Ferma ciclo di comparsa (obbligatorio). Il piano di comparsa prosegue poi con i turni successivi al ciclo.</string>
+    <string name="spawn_unit_id">ID unità (facoltativo, univoco)</string>
+    <string name="spawn_first_only">Solo prima iterazione</string>
+    <string name="spawn_error_group_id">Gli ID dei cicli non devono essere vuoti e devono essere univoci.</string>
+    <string name="spawn_error_turns">Ogni ciclo richiede almeno un turno.</string>
+    <string name="spawn_error_repeat">Il numero totale di iterazioni deve essere un intero positivo.</string>
+    <string name="spawn_error_values">Numero e livello dei nemici devono essere interi positivi. Le immagini speculari non possono comparire.</string>
+    <string name="spawn_error_unit_id">Gli ID unità devono essere univoci, non vuoti e senza spazi iniziali o finali. Una voce con ID deve avere quantità 1.</string>
+    <string name="spawn_error_target">Scegli per Finché l’unità è viva un ID che compare prima o all’interno di questo ciclo.</string>
+    <string name="spawn_error_point">Seleziona un punto di comparsa compatibile con il nemico o usa una mappa compatibile.</string>
+    <string name="spawn_fix_errors">Correggi gli errori dei cicli di comparsa nella scheda Comparse nemici prima di salvare o testare.</string>
+    <string name="spawn_preview_help">I cicli finiti vengono espansi per l’anteprima se restano entro 10.000 turni e 100.000 nemici; altrimenti, se possibile, viene mostrato un ciclo per ogni ciclo definito. La durata dei cicli dinamici non è prevedibile. I test con cicli eseguono sempre il piano completo.</string>
+    <string name="spawn_create_loop">Crea ciclo</string>
+    <string name="spawn_loop_title">Ciclo %1$s</string>
+    <string name="spawn_loop_turn_range">Turni %1$d - %2$d</string>
+    <string name="spawn_loop_summary_count">%1$d iterazioni</string>
+    <string name="spawn_loop_summary_condition">Finché %1$s è vivo</string>
+    <string name="spawn_loop_id">ID del ciclo (univoco)</string>
+    <string name="spawn_loop_start">Primo turno: %1$d</string>
+    <string name="spawn_loop_end">Ultimo turno: %1$d</string>
+    <string name="spawn_loop_add_turn">Aggiungi turno al ciclo</string>
+    <string name="spawn_loop_copy">Copia ciclo</string>
+    <string name="spawn_loop_unwrap">Rimuovi ciclo (mantieni turni)</string>
+    <string name="spawn_loop_delete">Elimina ciclo con i turni</string>
+    <string name="spawn_loop_options">Opzioni ciclo</string>
+    <string name="spawn_unit_id_short">ID</string>
+    <string name="spawn_error_structure">I cicli devono trovarsi all’interno dei turni esistenti e possono essere annidati solo completamente l’uno nell’altro, senza sovrapposizioni parziali.</string>
+    <string name="level_info_endless_loop">Ciclo infinito</string>
+    <string name="event_cond_altars_activated">Altari attivati simultaneamente</string>
+    <string name="tower_altar">Altare</string>
+    <string name="tower_altar_short">Altare</string>
+    <string name="sanctify">Consacra</string>
+    <string name="activate_altar">Attiva altare</string>
+    <string name="altar_channeling">Canalizzazione</string>
+    <string name="altar_conversion_info">Consacra una Torre del Mago di livello 10 o superiore su una casella edificabile spendendo una runa. Gli altari non possono attaccare né essere potenziati, ma mantengono le trappole magiche.\n\nAttiva un altare una volta per turno per canalizzare il suo potere durante il turno attuale. L’attivazione consuma un’azione e la canalizzazione termina all’inizio del turno successivo del giocatore. Attiva simultaneamente il numero richiesto di altari per prendere il controllo della Rete Runica nei livelli con eventi programmati.</string>
+    <string name="event_act_win_level">Vinci il livello</string>
+    <string name="event_msg_rune_network_taken_over">%1$d altari sono stati attivati! Il loro potere unito ha preso il controllo della Rete Runica. Il nemico non può più dominare la sua magia. La vittoria è nostra!</string>
 </resources>

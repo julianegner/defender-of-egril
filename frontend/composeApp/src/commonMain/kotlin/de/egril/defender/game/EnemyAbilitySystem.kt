@@ -14,6 +14,7 @@ class EnemyAbilitySystem(
     private val pathfinding: PathfindingSystem,
 ) {
     private val bridgeSystem = BridgeSystem(state)
+    private val barricadeSystem = BarricadeSystem(state)
 
     companion object {
         private const val WEB_DURATION_TURNS = 10
@@ -174,7 +175,7 @@ class EnemyAbilitySystem(
             }
 
             when (attacker.type) {
-                AttackerType.EVIL_WIZARD -> {
+                AttackerType.EVIL_WIZARD, AttackerType.RUNEMASTER -> {
                     handleSummon(
                         attacker,
                         state,
@@ -182,6 +183,9 @@ class EnemyAbilitySystem(
                         redDemons = attacker.level.value / 2,
                         fixedLevel = attacker.level.value, // demons spawn at same level as wizard for more consistent scaling
                     )
+                    if (attacker.type == AttackerType.RUNEMASTER) {
+                        handleRunemasterArcaneBlast(attacker)
+                    }
                 }
                 AttackerType.EWHAD -> {
                     handleSummon(
@@ -192,12 +196,14 @@ class EnemyAbilitySystem(
                         undead = 3,
                     )
                 }
+                AttackerType.GRAND_RUNEMASTER_VAELEN -> handleVaelenRunicSurge(attacker)
                 AttackerType.GREEN_WITCH -> {
                     val abilityUses = if (attacker.mushroomTurnsRemaining.value > 0) 2 else 1
                     repeat(abilityUses) {
                         applyGreenWitchHealing(attacker, enhanced = attacker.id in covenEnhancedHealWitchIds)
                     }
                 }
+
                 AttackerType.RED_WITCH -> {
                     val abilityUses = if (attacker.mushroomTurnsRemaining.value > 0) 2 else 1
                     repeat(abilityUses) {
@@ -317,6 +323,51 @@ class EnemyAbilitySystem(
         }
 
         applySpiderWebBonuses()
+    }
+
+    private fun handleRunemasterArcaneBlast(runemaster: Attacker) {
+        val cooldown = runemaster.type.towerDisableCooldown ?: return
+        if (runemaster.villainCooldown.value > 0) {
+            runemaster.villainCooldown.value--
+            return
+        }
+
+        val range = runemaster.type.towerDisableRangeBase ?: return
+        val nearestBarricade =
+            state.barricades
+                .filter { !it.isDestroyed() }
+                .filter { runemaster.position.value.hexDistanceTo(it.position) <= range }
+                .minByOrNull { runemaster.position.value.hexDistanceTo(it.position) }
+        val nearestTower =
+            state.defenders
+                .filter { it.isReady && !it.isDisabled.value && it.level.value <= runemaster.effectiveLevel }
+                .filter { runemaster.position.value.hexDistanceTo(it.position.value) <= range }
+                .minByOrNull { runemaster.position.value.hexDistanceTo(it.position.value) }
+
+        if (nearestBarricade == null && nearestTower == null) return
+
+        val attackBarricade =
+            nearestBarricade != null &&
+                (
+                    nearestTower == null ||
+                        runemaster.position.value.hexDistanceTo(nearestBarricade.position) <=
+                        runemaster.position.value.hexDistanceTo(nearestTower.position.value)
+                )
+        if (attackBarricade) {
+            barricadeSystem.handleEnemyAttackBarricade(runemaster, nearestBarricade, runemaster.effectiveLevel)
+        } else if (nearestTower != null) {
+            nearestTower.isDisabled.value = true
+            nearestTower.disabledTurnsRemaining.value = (runemaster.type.towerDisableDurationTurns ?: 1) + 1
+            state.damageEffects.add(
+                DamageEffect(
+                    position = nearestTower.position.value,
+                    damageAmount = runemaster.effectiveLevel,
+                    turnNumber = state.turnNumber.value,
+                ),
+            )
+        }
+
+        runemaster.villainCooldown.value = cooldown
     }
 
     private fun handleSnotlingCannon(snotling: Attacker) {
@@ -874,8 +925,31 @@ class EnemyAbilitySystem(
                         applyCovenDisableBoost(villain, ability)
                     }
                 }
+                VillainAuraEffect.RUNE_GLYPH_WARD -> Unit // Evaluated dynamically by RuneGlyphWard.
             }
         }
+    }
+
+    private fun handleVaelenRunicSurge(vaelen: Attacker) {
+        if (vaelen.summonCooldown.value > 0) return
+
+        val range = vaelen.type.towerDisableRangeBase ?: return
+        val cooldown = vaelen.type.towerDisableCooldown ?: return
+        val duration = vaelen.type.towerDisableDurationTurns ?: return
+        state.defenders
+            .asSequence()
+            .filter { tower ->
+                tower.isReady &&
+                    !tower.isDisabled.value &&
+                    vaelen.position.value.hexDistanceTo(tower.position.value) <= range
+            }.sortedBy { tower -> vaelen.position.value.hexDistanceTo(tower.position.value) }
+            .take(2)
+            .forEach { tower ->
+                tower.isDisabled.value = true
+                tower.disabledTurnsRemaining.value = duration + 1
+            }
+
+        vaelen.summonCooldown.value = cooldown
     }
 
     private fun applySpeedAura(
