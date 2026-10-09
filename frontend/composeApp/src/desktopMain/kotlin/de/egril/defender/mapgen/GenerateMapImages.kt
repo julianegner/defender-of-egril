@@ -1,6 +1,7 @@
 package de.egril.defender.mapgen
 
 import de.egril.defender.editor.EditorJsonSerializer
+import de.egril.defender.ui.MapImageProvider
 import java.io.File
 
 /**
@@ -43,7 +44,18 @@ object GenerateMapImages {
         for (jsonFile in jsonFiles.sortedBy { it.name }) {
             val pngFile = File(jsonFile.parentFile, jsonFile.nameWithoutExtension + ".png")
 
-            if (!forceRegenerate && pngFile.exists() && pngFile.lastModified() >= jsonFile.lastModified()) {
+            val map = EditorJsonSerializer.deserializeMap(jsonFile.readText())
+            if (map == null) {
+                println("  ERROR: Could not parse map JSON: ${jsonFile.name}")
+                failed++
+                continue
+            }
+            val zonesUpToDate =
+                map.tileZones.indices.all { index ->
+                    val image = File(mapsDir, MapImageProvider.tileZoneImageFileName(map.id, index))
+                    image.exists() && image.lastModified() >= jsonFile.lastModified()
+                }
+            if (!forceRegenerate && pngFile.exists() && pngFile.lastModified() >= jsonFile.lastModified() && zonesUpToDate) {
                 println("  Skipping (up-to-date): ${pngFile.name}")
                 skipped++
                 continue
@@ -83,6 +95,20 @@ object GenerateMapImages {
             }
 
             pngFile.writeBytes(pngBytes)
+            map.tileZones.forEachIndexed { index, zone ->
+                val (zonePixels, zoneWidth, zoneHeight) = TileZoneImageGenerator.generateOverlayPixels(map, zone)
+                val zonePng =
+                    MapImageEncoder.encodeToPng(zonePixels, zoneWidth, zoneHeight)
+                        ?: error("Could not encode zone ${zone.id}")
+                File(pngFile.parentFile, MapImageProvider.tileZoneImageFileName(map.id, index)).writeBytes(zonePng)
+            }
+            pngFile.parentFile
+                .listFiles()
+                ?.filter { file ->
+                    file.name.startsWith("${map.id}.zone-") &&
+                        file.name.endsWith(".png") &&
+                        file.name !in map.tileZones.indices.map { MapImageProvider.tileZoneImageFileName(map.id, it) }
+                }?.forEach { it.delete() }
             println(" OK (${pngBytes.size / 1024}KB, ${width}x${height}px)")
             true
         } catch (e: Exception) {

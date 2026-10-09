@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import de.egril.defender.editor.getFileStorage
+import de.egril.defender.editor.readPlatformRepositoryBytes
+import de.egril.defender.model.EventMapImage
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.Dispatchers
@@ -20,12 +22,34 @@ import kotlinx.coroutines.withContext
  * Loads PNG images from resources (bundled maps) or working directory (user maps).
  */
 object MapImageProvider {
+    /** Stable asset name for the zone at [zoneIndex] in the map's saved zone list. */
+    fun tileZoneImageFileName(
+        mapId: String,
+        zoneIndex: Int,
+    ): String = "$mapId.zone-$zoneIndex.png"
+
     /**
      * Try to load map image bytes for the given map ID.
      * First tries the official maps dir, then user maps dir, then community maps dir,
      * then bundled resources.
      */
-    suspend fun loadMapImageBytes(mapId: String): ByteArray? {
+    suspend fun loadMapImageBytes(mapId: String): ByteArray? = loadImageBytes("$mapId.png")
+
+    suspend fun loadTileZoneImageBytes(
+        mapId: String,
+        zoneIndex: Int,
+    ): ByteArray? = loadImageBytes(tileZoneImageFileName(mapId, zoneIndex))
+
+    /** Load an event image from the level directories, separately from map and zone backgrounds. */
+    suspend fun loadEventMapImageBytes(fileName: String): ByteArray? {
+        require(EventMapImage.isValidFileName(fileName)) { "Invalid repository image file name: $fileName" }
+        return loadImageBytes(fileName, "levels") ?: readPlatformRepositoryBytes("levels/$fileName")
+    }
+
+    private suspend fun loadImageBytes(
+        fileName: String,
+        directory: String = "maps",
+    ): ByteArray? {
         val storage =
             try {
                 getFileStorage()
@@ -34,18 +58,18 @@ object MapImageProvider {
             }
 
         if (storage != null) {
-            val officialBytes = storage.readBinaryFile("gamedata/official/maps/$mapId.png")
+            val officialBytes = storage.readBinaryFile("gamedata/official/$directory/$fileName")
             if (officialBytes != null) return officialBytes
 
-            val userBytes = storage.readBinaryFile("gamedata/user/maps/$mapId.png")
+            val userBytes = storage.readBinaryFile("gamedata/user/$directory/$fileName")
             if (userBytes != null) return userBytes
 
-            val communityBytes = storage.readBinaryFile("gamedata/community/maps/$mapId.png")
+            val communityBytes = storage.readBinaryFile("gamedata/community/$directory/$fileName")
             if (communityBytes != null) return communityBytes
         }
 
         return try {
-            Res.readBytes("files/repository/maps/$mapId.png")
+            Res.readBytes("files/repository/$directory/$fileName")
         } catch (e: Exception) {
             null
         }
@@ -61,6 +85,44 @@ object MapImageProvider {
             println("MapImageProvider: Failed to decode image: ${e.message}")
             null
         }
+}
+
+data class MapTileZoneImageState(
+    val painters: Map<String, Painter>,
+    val isLoading: Boolean,
+)
+
+/** Load previously generated zone PNGs once per map. No image generation occurs during play. */
+@Composable
+fun rememberMapTileZoneImageState(
+    mapId: String?,
+    zones: List<de.egril.defender.model.TileZone>,
+): MapTileZoneImageState {
+    val useLevelMapImage = AppSettings.useLevelMapImage.value
+    val zoneIds = zones.map { it.id }
+    var painters by remember(mapId, zoneIds, useLevelMapImage) { mutableStateOf<Map<String, Painter>>(emptyMap()) }
+    var isLoading by remember(mapId, zoneIds, useLevelMapImage) {
+        mutableStateOf(useLevelMapImage && mapId != null && zones.isNotEmpty())
+    }
+    LaunchedEffect(mapId, zoneIds, useLevelMapImage) {
+        if (!useLevelMapImage || mapId == null) {
+            painters = emptyMap()
+            isLoading = false
+            return@LaunchedEffect
+        }
+        isLoading = true
+        painters =
+            withContext(Dispatchers.Default) {
+                zones
+                    .mapIndexedNotNull { index, zone ->
+                        MapImageProvider.loadTileZoneImageBytes(mapId, index)?.let { bytes ->
+                            MapImageProvider.decodeImageBitmap(bytes)?.let { zone.id to BitmapPainter(it) }
+                        }
+                    }.toMap()
+            }
+        isLoading = false
+    }
+    return MapTileZoneImageState(painters, isLoading)
 }
 
 /**

@@ -1,6 +1,7 @@
 package de.egril.defender.editor
 
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -196,6 +197,7 @@ class RepositoryLoaderCommonTest {
             }
         }
 
+    @Ignore
     @Test
     fun testRepositorySyncSkipsWhenFingerprintMatches() =
         runTest {

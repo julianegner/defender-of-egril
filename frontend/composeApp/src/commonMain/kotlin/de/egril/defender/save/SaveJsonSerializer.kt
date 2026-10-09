@@ -2,6 +2,7 @@ package de.egril.defender.save
 
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
+import de.egril.defender.utils.EventMapImageJson
 import de.egril.defender.utils.JsonUtils
 import de.egril.defender.utils.currentTimeMillis
 
@@ -79,7 +80,12 @@ object SaveJsonSerializer {
       "actionsRemaining": ${defender.actionsRemaining},
       "dragonName": $dragonNameStr,
       "raftId": $raftIdStr,
-      "towerBaseBarricadeId": $towerBaseBarricadeIdStr
+      "towerBaseBarricadeId": $towerBaseBarricadeIdStr,
+      "isChanneling": ${defender.isChanneling},
+      "trapCooldownRemaining": ${defender.trapCooldownRemaining},
+      "hasBeenUsed": ${defender.hasBeenUsed},
+      "isDisabled": ${defender.isDisabled},
+      "disabledTurnsRemaining": ${defender.disabledTurnsRemaining}
     }"""
             }
 
@@ -94,7 +100,15 @@ object SaveJsonSerializer {
       "currentHealth": ${attacker.currentHealth},
       "isDefeated": ${attacker.isDefeated},
       "dragonName": $dragonNameStr,
-      "movementPenalty": ${attacker.movementPenalty}
+      "movementPenalty": ${attacker.movementPenalty},
+      "bloodlustRoundsLeft": ${attacker.bloodlustRoundsLeft},
+      "mushroomTurnsRemaining": ${attacker.mushroomTurnsRemaining},
+      "mushroomLevelBonus": ${attacker.mushroomLevelBonus},
+      "goblinRunnerUndamagedRounds": ${attacker.goblinRunnerUndamagedRounds},
+      "goblinRunnerTookDamageSinceLastTurn": ${attacker.goblinRunnerTookDamageSinceLastTurn},
+      "goblinRunnerSpawnTurnNumber": ${attacker.goblinRunnerSpawnTurnNumber},
+      "goblinRunnerMomentumReady": ${attacker.goblinRunnerMomentumReady},
+      "isSubmerged": ${attacker.isSubmerged}
     }"""
             }
 
@@ -128,7 +142,8 @@ object SaveJsonSerializer {
                 """{
       "id": ${raft.id},
       "defenderId": ${raft.defenderId},
-      "position": {"x": ${raft.position.x}, "y": ${raft.position.y}}
+      "position": {"x": ${raft.position.x}, "y": ${raft.position.y}},
+      "healthPoints": ${raft.healthPoints}
     }"""
             }
 
@@ -142,6 +157,16 @@ object SaveJsonSerializer {
       "id": ${barricade.id},
       "supportedTowerId": $supportedTowerIdStr
     }"""
+            }
+
+        val fiefsJson =
+            savedGame.fiefs.joinToString(",\n    ") { fief ->
+                """{"position": {"x": ${fief.position.x}, "y": ${fief.position.y}}, "type": "${fief.type}"}"""
+            }
+
+        val mushroomsJson =
+            savedGame.mushrooms.joinToString(",\n    ") { mushroom ->
+                """{"position": {"x": ${mushroom.position.x}, "y": ${mushroom.position.y}}}"""
             }
 
         val spellEffectsJson =
@@ -194,10 +219,16 @@ object SaveJsonSerializer {
             savedGame.supportSpellsRemaining.entries.joinToString(", ") { (spell, count) ->
                 "\"${spell.name}\": $count"
             }
+        val supportFiefsJson =
+            savedGame.supportFiefRemaining.entries.joinToString(", ") { (type, count) ->
+                "\"${type.name}\": $count"
+            }
         val cooldownPowersJson =
             savedGame.cooldownPowerReadyIn.entries.joinToString(", ") { (type, readyIn) ->
                 "\"${type.name}\": $readyIn"
             }
+        val playedTileAnimationKeysJson =
+            savedGame.playedTileAnimationKeys.joinToString(", ") { "\"$it\"" }
 
         // Scripted-event tracking
         val triggeredEventIdsJson =
@@ -227,6 +258,70 @@ object SaveJsonSerializer {
                     }
                 "[$entries]"
             } ?: "null"
+
+        val bridgesJson =
+            savedGame.bridges.joinToString(",\n    ") { bridge ->
+                val positionsJson =
+                    bridge.positions.joinToString(", ") { position ->
+                        """{"x": ${position.x}, "y": ${position.y}}"""
+                    }
+                """{
+      "id": ${bridge.id},
+      "type": "${bridge.type.name}",
+      "positions": [$positionsJson],
+      "currentHealth": ${bridge.currentHealth},
+      "turnsRemaining": ${bridge.turnsRemaining},
+      "createdByAttackerId": ${bridge.createdByAttackerId},
+      "createdOnTurn": ${bridge.createdOnTurn},
+      "isIndestructible": ${bridge.isIndestructible}
+    }"""
+            }
+
+        val activePortalsJson =
+            savedGame.activePortals.joinToString(",\n    ") { portal ->
+                """{
+      "id": ${portal.id},
+      "entryPosition": {"x": ${portal.entryPosition.x}, "y": ${portal.entryPosition.y}},
+      "exitPosition": {"x": ${portal.exitPosition.x}, "y": ${portal.exitPosition.y}},
+      "villainId": ${portal.villainId},
+      "runeIndex": ${portal.runeIndex},
+      "usedThisTurn": ${portal.usedThisTurn}
+    }"""
+            }
+
+        val takenTargetsJson =
+            savedGame.takenTargets.joinToString(", ") { position ->
+                """{"x": ${position.x}, "y": ${position.y}}"""
+            }
+
+        val activeTileZoneIdsJson = savedGame.activeTileZoneIds.joinToString(", ") { "\"$it\"" }
+        val activeEventMapImagesJson = savedGame.activeEventMapImages.joinToString(", ") { EventMapImageJson.serialize(it) }
+        val activeAltarLinksJson = savedGame.activeAltarLinks.joinToString(", ") { EventMapImageJson.serializeAltarLink(it) }
+
+        // Spawn loops (issue #694): serialize the runtime cursor (null for non-group levels) and the
+        // logical-unit-id → attacker-id bindings.
+        val spawnGroupCursorJson =
+            savedGame.spawnGroupCursor?.let { cursor ->
+                val framesJson =
+                    cursor.frames.orEmpty().joinToString(", ") { frame ->
+                        """{"entryIndex": ${frame.entryIndex}, "repetition": ${frame.repetition}, "iterationStartTurn": ${frame.iterationStartTurn}}"""
+                    }
+                """{"frames": [$framesJson], "segmentStartTurn": ${cursor.segmentStartTurn}, "finished": ${cursor.finished}, "lastProcessedTurn": ${cursor.lastProcessedTurn}}"""
+            } ?: "null"
+        val spawnGroupBindingsJson =
+            savedGame.spawnGroupBindings.entries.joinToString(", ") { (unitId, attackerId) ->
+                "\"$unitId\": $attackerId"
+            }
+
+        // Each frame is written as [stepIndex, turnsRemaining, iterationsDone, stepExecuted (0/1)].
+        val activeEventLoopsJson =
+            savedGame.activeEventLoops.joinToString(", ") { loop ->
+                val framesJson =
+                    loop.frames.joinToString(", ") { frame ->
+                        "[${frame.stepIndex}, ${frame.turnsRemaining}, ${frame.iterationsDone}, ${if (frame.stepExecuted) 1 else 0}]"
+                    }
+                """{"eventId": "${loop.eventId}", "frames": [$framesJson]}"""
+            }
 
         val data = """{
   "id": "${savedGame.id}",
@@ -261,6 +356,12 @@ object SaveJsonSerializer {
   "barricades": [
     $barricadesJson
   ],
+  "fiefs": [
+    $fiefsJson
+  ],
+  "mushrooms": [
+    $mushroomsJson
+  ],
   "spellEffects": [
     $spellEffectsJson
   ],
@@ -269,15 +370,43 @@ object SaveJsonSerializer {
   "worldMapSave": $worldMapSaveJson,
   "currentMana": ${savedGame.currentMana},
   "maxMana": ${savedGame.maxMana},
+  "runes": ${savedGame.runes},
+  "scriptedVictory": ${savedGame.scriptedVictory},
   "supportObjectsRemaining": {$supportObjectsJson},
   "supportSpellsRemaining": {$supportSpellsJson},
+  "supportFiefRemaining": {$supportFiefsJson},
   "cooldownPowerReadyIn": {$cooldownPowersJson},
   "coinSurgeActive": ${savedGame.coinSurgeActive},
+  "playedTileAnimationKeys": [$playedTileAnimationKeysJson],
   "triggeredEventIds": [$triggeredEventIdsJson],
   "enemiesKilledTotal": ${savedGame.enemiesKilledTotal},
   "enemiesKilledByType": {$enemiesKilledByTypeJson},
+  "waaghPoints": ${savedGame.waaghPoints},
+  "waaghFrenzyActive": ${savedGame.waaghFrenzyActive},
+  "waaghFrenzyRoundsLeft": ${savedGame.waaghFrenzyRoundsLeft},
+  "hasShownWaaghFrenzyMessage": ${savedGame.hasShownWaaghFrenzyMessage},
   "sandboxMapTiles": $sandboxMapTilesJson,
-  "sandboxRiverTiles": $sandboxRiverTilesJson
+  "sandboxRiverTiles": $sandboxRiverTilesJson,
+  "bridges": [
+   $bridgesJson
+  ],
+  "nextBridgeId": ${savedGame.nextBridgeId},
+  "activePortals": [
+    $activePortalsJson
+  ],
+  "nextPortalId": ${savedGame.nextPortalId},
+  "takenTargets": [$takenTargetsJson],
+  "activeTileZoneIds": [$activeTileZoneIdsJson],
+  "activeEventLoops": [$activeEventLoopsJson],
+  "activeEventMapImages": [$activeEventMapImagesJson],
+  "activeAltarLinks": [$activeAltarLinksJson],
+  "spawnGroupCursor": $spawnGroupCursorJson,
+  "spawnGroupBindings": {$spawnGroupBindingsJson},
+  "stoppedSpawnLoops": [${savedGame.stoppedSpawnLoops.joinToString(", ") { EventMapImageJson.quote(it) }}],
+  "bridges": [
+   $bridgesJson
+  ],
+  "nextBridgeId": ${savedGame.nextBridgeId}
 }"""
         return """{
   "metadata": {
@@ -419,6 +548,47 @@ object SaveJsonSerializer {
                 }
             }
 
+            // Parse fiefs (optional field for backward compatibility with old saves)
+            val fiefs = mutableListOf<SavedFief>()
+            if (dataJson.contains("\"fiefs\":")) {
+                val fiefsSection =
+                    try {
+                        dataJson.substringAfter("\"fiefs\": [").substringBefore("],")
+                    } catch (e: Exception) {
+                        ""
+                    }
+                if (fiefsSection.isNotBlank()) {
+                    val fiefEntries = JsonUtils.splitJsonArray(fiefsSection)
+                    for (entry in fiefEntries) {
+                        val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                        val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                        val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                        val type = JsonUtils.extractValue(entry, "type")
+                        fiefs.add(SavedFief(Position(x, y), type))
+                    }
+                }
+            }
+
+            // Parse mushrooms (optional field for backward compatibility with old saves)
+            val mushrooms = mutableListOf<SavedMushroom>()
+            if (dataJson.contains("\"mushrooms\":")) {
+                val mushroomsSection =
+                    try {
+                        dataJson.substringAfter("\"mushrooms\": [").substringBefore("],")
+                    } catch (e: Exception) {
+                        ""
+                    }
+                if (mushroomsSection.isNotBlank()) {
+                    val mushroomEntries = JsonUtils.splitJsonArray(mushroomsSection)
+                    for (entry in mushroomEntries) {
+                        val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                        val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                        val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                        mushrooms.add(SavedMushroom(Position(x, y)))
+                    }
+                }
+            }
+
             // Parse spell effects (optional field for backward compatibility with old saves)
             val spellEffects = mutableListOf<SavedSpellEffect>()
             if (dataJson.contains("\"spellEffects\":")) {
@@ -490,6 +660,11 @@ object SaveJsonSerializer {
                 parseEnumIntMap(dataJson, "supportObjectsRemaining") { SupportObjectType.valueOf(it) }
             val supportSpellsRemaining =
                 parseEnumIntMap(dataJson, "supportSpellsRemaining") { SpellType.valueOf(it) }
+            val supportFiefRemaining =
+                parseEnumIntMap(dataJson, "supportFiefRemaining") {
+                    de.egril.defender.model.FiefType
+                        .valueOf(it)
+                }
             val cooldownPowerReadyIn =
                 parseEnumIntMap(dataJson, "cooldownPowerReadyIn") { CooldownPowerType.valueOf(it) }
             val coinSurgeActive =
@@ -498,23 +673,10 @@ object SaveJsonSerializer {
                 } catch (e: Exception) {
                     false
                 }
+            val playedTileAnimationKeys = parseStringArray(dataJson, "playedTileAnimationKeys")
 
             // Parse scripted-event tracking (optional for backward compatibility)
-            val triggeredEventIds = mutableListOf<String>()
-            if (dataJson.contains("\"triggeredEventIds\":")) {
-                val section =
-                    try {
-                        dataJson.substringAfter("\"triggeredEventIds\": [").substringBefore("]")
-                    } catch (e: Exception) {
-                        ""
-                    }
-                if (section.isNotBlank()) {
-                    for (item in section.split(",")) {
-                        val trimmed = item.trim().removeSurrounding("\"")
-                        if (trimmed.isNotBlank()) triggeredEventIds.add(trimmed)
-                    }
-                }
-            }
+            val triggeredEventIds = parseStringArray(dataJson, "triggeredEventIds")
             val enemiesKilledTotal =
                 try {
                     JsonUtils.extractValue(dataJson, "enemiesKilledTotal").toInt()
@@ -523,6 +685,30 @@ object SaveJsonSerializer {
                 }
             val enemiesKilledByType =
                 parseEnumIntMap(dataJson, "enemiesKilledByType") { AttackerType.valueOf(it) }
+            val waaghPoints =
+                try {
+                    JsonUtils.extractValue(dataJson, "waaghPoints").toInt()
+                } catch (e: Exception) {
+                    0
+                }
+            val waaghFrenzyActive =
+                try {
+                    JsonUtils.extractBooleanValue(dataJson, "waaghFrenzyActive")
+                } catch (e: Exception) {
+                    false
+                }
+            val waaghFrenzyRoundsLeft =
+                try {
+                    JsonUtils.extractValue(dataJson, "waaghFrenzyRoundsLeft").toInt()
+                } catch (e: Exception) {
+                    0
+                }
+            val hasShownWaaghFrenzyMessage =
+                try {
+                    JsonUtils.extractBooleanValue(dataJson, "hasShownWaaghFrenzyMessage")
+                } catch (e: Exception) {
+                    false
+                }
 
             // Parse sandbox map tiles (optional; only present for sandbox saves). Null when absent.
             val sandboxMapTiles: Map<Position, de.egril.defender.editor.TileType>? =
@@ -588,6 +774,83 @@ object SaveJsonSerializer {
                     null
                 }
 
+            // Parse bridges (optional field for backward compatibility with old saves)
+            val bridges = mutableListOf<SavedBridge>()
+            if (dataJson.contains("\"bridges\":")) {
+                val bridgesSection = JsonUtils.extractJsonArrayForKey(dataJson, "bridges")
+                if (bridgesSection.isNotBlank()) {
+                    val bridgeEntries = JsonUtils.splitJsonArray(bridgesSection)
+                    for (entry in bridgeEntries) {
+                        try {
+                            bridges.add(parseSavedBridge(entry))
+                        } catch (e: Exception) {
+                            // Skip malformed bridge entries.
+                        }
+                    }
+                }
+            }
+
+            val nextBridgeId =
+                try {
+                    JsonUtils.extractValue(dataJson, "nextBridgeId").toInt()
+                } catch (e: Exception) {
+                    1
+                }
+
+            // Parse active portals (optional for backward compatibility with old saves)
+            val activePortals = mutableListOf<SavedPortal>()
+            if (dataJson.contains("\"activePortals\":")) {
+                val portalsSection = JsonUtils.extractJsonArrayForKey(dataJson, "activePortals")
+                if (portalsSection.isNotBlank()) {
+                    val portalEntries = JsonUtils.splitJsonArray(portalsSection)
+                    for (entry in portalEntries) {
+                        try {
+                            activePortals.add(parseSavedPortal(entry))
+                        } catch (e: Exception) {
+                            // Skip malformed portal entries.
+                        }
+                    }
+                }
+            }
+
+            val nextPortalId =
+                try {
+                    JsonUtils.extractValue(dataJson, "nextPortalId").toInt()
+                } catch (e: Exception) {
+                    1
+                }
+
+            val takenTargets =
+                JsonUtils
+                    .splitJsonArray(JsonUtils.extractJsonArrayForKey(dataJson, "takenTargets"))
+                    .mapNotNull { entry ->
+                        try {
+                            Position(
+                                JsonUtils.extractValue(entry, "x").toInt(),
+                                JsonUtils.extractValue(entry, "y").toInt(),
+                            )
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
+
+            val activeTileZoneIds = parseStringArray(dataJson, "activeTileZoneIds")
+            val activeEventLoops = parseActiveEventLoops(dataJson)
+            val activeEventMapImages =
+                EventMapImageJson
+                    .splitArray(JsonUtils.extractJsonArrayForKey(dataJson, "activeEventMapImages"))
+                    .mapNotNull { EventMapImageJson.deserialize(it) }
+            val activeAltarLinks =
+                EventMapImageJson
+                    .splitArray(JsonUtils.extractJsonArrayForKey(dataJson, "activeAltarLinks"))
+                    .mapNotNull { EventMapImageJson.deserializeAltarLink(it) }
+
+            // Spawn loops (issue #694): parse the runtime cursor (absent/null for non-group saves)
+            // and the logical-unit-id → attacker-id bindings.
+            val spawnGroupCursor = parseSpawnGroupCursor(dataJson)
+            val spawnGroupBindings = parseEnumIntMap(dataJson, "spawnGroupBindings") { it }
+            val stoppedSpawnLoops = parseStringArray(dataJson, "stoppedSpawnLoops")
+
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -611,6 +874,8 @@ object SaveJsonSerializer {
                 rafts = rafts,
                 nextRaftId = nextRaftId,
                 barricades = barricades,
+                fiefs = fiefs,
+                mushrooms = mushrooms,
                 worldMapSave = worldMapSave,
                 currentMana =
                     try {
@@ -624,16 +889,41 @@ object SaveJsonSerializer {
                     } catch (e: Exception) {
                         0
                     },
+                scriptedVictory = JsonUtils.extractValue(dataJson, "scriptedVictory") == "true",
+                runes =
+                    try {
+                        JsonUtils.extractValue(dataJson, "runes").toInt()
+                    } catch (e: Exception) {
+                        0
+                    },
                 spellEffects = spellEffects,
                 supportObjectsRemaining = supportObjectsRemaining,
                 supportSpellsRemaining = supportSpellsRemaining,
+                supportFiefRemaining = supportFiefRemaining,
                 cooldownPowerReadyIn = cooldownPowerReadyIn,
                 coinSurgeActive = coinSurgeActive,
+                playedTileAnimationKeys = playedTileAnimationKeys,
                 triggeredEventIds = triggeredEventIds,
                 enemiesKilledTotal = enemiesKilledTotal,
                 enemiesKilledByType = enemiesKilledByType,
+                waaghPoints = waaghPoints,
+                waaghFrenzyActive = waaghFrenzyActive,
+                waaghFrenzyRoundsLeft = waaghFrenzyRoundsLeft,
+                hasShownWaaghFrenzyMessage = hasShownWaaghFrenzyMessage,
                 sandboxMapTiles = sandboxMapTiles,
                 sandboxRiverTiles = sandboxRiverTiles,
+                bridges = bridges,
+                nextBridgeId = nextBridgeId,
+                activePortals = activePortals,
+                nextPortalId = nextPortalId,
+                takenTargets = takenTargets,
+                activeTileZoneIds = activeTileZoneIds,
+                activeEventLoops = activeEventLoops,
+                activeEventMapImages = activeEventMapImages,
+                activeAltarLinks = activeAltarLinks,
+                spawnGroupCursor = spawnGroupCursor,
+                spawnGroupBindings = spawnGroupBindings,
+                stoppedSpawnLoops = stoppedSpawnLoops,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
@@ -675,6 +965,95 @@ object SaveJsonSerializer {
             }
         }
         return result
+    }
+
+    /**
+     * Parse the spawn-loop runtime cursor (issue #694) from [dataJson]. Returns null when absent or
+     * explicitly serialized as `null` (non-group saves and old saves).
+     */
+    private fun parseSpawnGroupCursor(dataJson: String): SavedSpawnGroupCursor? {
+        if (!dataJson.contains("\"spawnGroupCursor\"")) return null
+        val section = JsonUtils.extractJsonObjectForKey(dataJson, "spawnGroupCursor")
+        if (section.isBlank()) return null
+        return try {
+            if (section.contains("\"frames\"")) {
+                val frames =
+                    JsonUtils.splitJsonArray(JsonUtils.extractJsonArrayForKey(section, "frames")).map { frame ->
+                        SavedSpawnGroupFrame(
+                            entryIndex = JsonUtils.extractNumericValue(frame, "entryIndex").toInt(),
+                            repetition = JsonUtils.extractNumericValue(frame, "repetition").toInt(),
+                            iterationStartTurn = JsonUtils.extractNumericValue(frame, "iterationStartTurn").toInt(),
+                        )
+                    }
+                // Only read the cursor's own fields, which are written after the frames array.
+                val tail = section.substringAfterLast("]")
+                SavedSpawnGroupCursor(
+                    frames = frames,
+                    segmentStartTurn = JsonUtils.extractNumericValue(tail, "segmentStartTurn").toInt(),
+                    finished = JsonUtils.extractBooleanValue(tail, "finished"),
+                    lastProcessedTurn = JsonUtils.extractNumericValue(tail, "lastProcessedTurn").toInt(),
+                )
+            } else {
+                // Saves from before nested spawn loops: one top-level group index plus its iteration.
+                SavedSpawnGroupCursor(
+                    frames = null,
+                    segmentStartTurn = JsonUtils.extractNumericValue(section, "iterationStartTurn").toInt(),
+                    finished = JsonUtils.extractBooleanValue(section, "finished"),
+                    lastProcessedTurn = JsonUtils.extractNumericValue(section, "lastProcessedTurn").toInt(),
+                    legacyGroupIndex = JsonUtils.extractNumericValue(section, "groupIndex").toInt(),
+                    legacyRepetition = JsonUtils.extractNumericValue(section, "repetition").toInt(),
+                )
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /** Parse the running scripted-event loops (see [SavedGame.activeEventLoops]); malformed entries are skipped. */
+    private fun parseActiveEventLoops(dataJson: String): List<ActiveEventLoop> {
+        val section = JsonUtils.extractJsonArrayForKey(dataJson, "activeEventLoops")
+        if (section.isBlank()) return emptyList()
+        return JsonUtils.splitJsonArray(section).mapNotNull { entry ->
+            val eventId = JsonUtils.extractStringValue(entry, "eventId")
+            if (eventId.isBlank()) return@mapNotNull null
+            val frames =
+                JsonUtils.splitJsonArray(JsonUtils.extractJsonArrayForKey(entry, "frames")).mapNotNull { frameJson ->
+                    val values =
+                        frameJson
+                            .trim()
+                            .removePrefix("[")
+                            .removeSuffix("]")
+                            .split(",")
+                            .mapNotNull { it.trim().toIntOrNull() }
+                    if (values.size < 4) {
+                        null
+                    } else {
+                        EventLoopFrame(
+                            stepIndex = values[0],
+                            turnsRemaining = values[1],
+                            iterationsDone = values[2],
+                            stepExecuted = values[3] != 0,
+                        )
+                    }
+                }
+            if (frames.isEmpty()) null else ActiveEventLoop(eventId = eventId, frames = frames)
+        }
+    }
+
+    private fun parseStringArray(
+        dataJson: String,
+        key: String,
+    ): MutableList<String> {
+        val section = JsonUtils.extractJsonArrayForKey(dataJson, key)
+        if (section.isBlank()) {
+            return mutableListOf()
+        }
+
+        return JsonUtils
+            .splitJsonArray(section)
+            .map { it.trim().removeSurrounding("\"") }
+            .filter { it.isNotBlank() }
+            .toMutableList()
     }
 
     private fun parseSavedDefender(json: String): SavedDefender {
@@ -729,6 +1108,11 @@ object SaveJsonSerializer {
             dragonName,
             raftId,
             towerBaseBarricadeId,
+            isChanneling = JsonUtils.extractValue(json, "isChanneling") == "true",
+            trapCooldownRemaining = JsonUtils.extractValue(json, "trapCooldownRemaining").toIntOrNull() ?: 0,
+            hasBeenUsed = JsonUtils.extractValue(json, "hasBeenUsed") == "true",
+            isDisabled = JsonUtils.extractValue(json, "isDisabled") == "true",
+            disabledTurnsRemaining = JsonUtils.extractValue(json, "disabledTurnsRemaining").toIntOrNull() ?: 0,
         )
     }
 
@@ -736,7 +1120,8 @@ object SaveJsonSerializer {
         val id = JsonUtils.extractValue(json, "id").toInt()
         val defenderId = JsonUtils.extractValue(json, "defenderId").toInt()
         val position = parsePosition(json)
-        return SavedRaft(id, defenderId, position)
+        val healthPoints = JsonUtils.extractNumericValue(json, "healthPoints").toIntOrNull() ?: Raft.RAFT_MAX_HEALTH
+        return SavedRaft(id, defenderId, position, healthPoints)
     }
 
     private fun parseSavedBarricade(json: String): SavedBarricade {
@@ -764,6 +1149,72 @@ object SaveJsonSerializer {
         return SavedBarricade(position, healthPoints, defenderId, id, supportedTowerId)
     }
 
+    private fun parseSavedBridge(json: String): SavedBridge {
+        val id = JsonUtils.extractValue(json, "id").toInt()
+        val type = BridgeType.valueOf(JsonUtils.extractValue(json, "type"))
+        val currentHealth = JsonUtils.extractValue(json, "currentHealth").toInt()
+        val turnsRemaining = JsonUtils.extractValue(json, "turnsRemaining").toInt()
+        val createdByAttackerId = JsonUtils.extractValue(json, "createdByAttackerId").toInt()
+        val createdOnTurn = JsonUtils.extractValue(json, "createdOnTurn").toInt()
+        val isIndestructible =
+            try {
+                JsonUtils.extractBooleanValue(json, "isIndestructible")
+            } catch (e: Exception) {
+                false
+            }
+
+        val positions = mutableListOf<Position>()
+        val positionsSection = JsonUtils.extractJsonArrayForKey(json, "positions")
+        if (positionsSection.isNotBlank()) {
+            val positionEntries = JsonUtils.splitJsonArray(positionsSection)
+            for (entry in positionEntries) {
+                val x = JsonUtils.extractValue(entry, "x").toInt()
+                val y = JsonUtils.extractValue(entry, "y").toInt()
+                val position = Position(x, y)
+                positions.add(position)
+            }
+        }
+
+        return SavedBridge(
+            id = id,
+            type = type,
+            positions = positions,
+            currentHealth = currentHealth,
+            turnsRemaining = turnsRemaining,
+            createdByAttackerId = createdByAttackerId,
+            createdOnTurn = createdOnTurn,
+            isIndestructible = isIndestructible,
+        )
+    }
+
+    private fun parseSavedPortal(json: String): SavedPortal {
+        val id = JsonUtils.extractValue(json, "id").toInt()
+        val villainId = JsonUtils.extractValue(json, "villainId").toInt()
+        val runeIndex = JsonUtils.extractValue(json, "runeIndex").toInt()
+        val usedThisTurn =
+            try {
+                JsonUtils.extractBooleanValue(json, "usedThisTurn")
+            } catch (e: Exception) {
+                false
+            }
+
+        val entryJson = JsonUtils.extractJsonObjectForKey(json, "entryPosition")
+        val entryX = JsonUtils.extractValue(entryJson, "x").toInt()
+        val entryY = JsonUtils.extractValue(entryJson, "y").toInt()
+        val exitJson = JsonUtils.extractJsonObjectForKey(json, "exitPosition")
+        val exitX = JsonUtils.extractValue(exitJson, "x").toInt()
+        val exitY = JsonUtils.extractValue(exitJson, "y").toInt()
+
+        return SavedPortal(
+            id = id,
+            entryPosition = Position(entryX, entryY),
+            exitPosition = Position(exitX, exitY),
+            villainId = villainId,
+            runeIndex = runeIndex,
+            usedThisTurn = usedThisTurn,
+        )
+    }
+
     private fun parseSavedAttacker(json: String): SavedAttacker {
         val id = JsonUtils.extractValue(json, "id").toInt()
         val type = AttackerType.valueOf(JsonUtils.extractValue(json, "type"))
@@ -786,8 +1237,68 @@ object SaveJsonSerializer {
             } catch (e: Exception) {
                 0
             }
+        val bloodlustRoundsLeft =
+            try {
+                JsonUtils.extractValue(json, "bloodlustRoundsLeft").toInt()
+            } catch (e: Exception) {
+                0
+            }
+        val mushroomTurnsRemaining =
+            try {
+                JsonUtils.extractValue(json, "mushroomTurnsRemaining").toInt()
+            } catch (e: Exception) {
+                0
+            }
+        val mushroomLevelBonus =
+            try {
+                JsonUtils.extractValue(json, "mushroomLevelBonus").toInt()
+            } catch (e: Exception) {
+                0
+            }
+        val goblinRunnerUndamagedRounds =
+            try {
+                JsonUtils.extractValue(json, "goblinRunnerUndamagedRounds").toInt()
+            } catch (e: Exception) {
+                0
+            }
+        val goblinRunnerTookDamageSinceLastTurn =
+            try {
+                JsonUtils.extractValue(json, "goblinRunnerTookDamageSinceLastTurn").toBoolean()
+            } catch (e: Exception) {
+                false
+            }
+        val goblinRunnerSpawnTurnNumber =
+            try {
+                JsonUtils.extractValue(json, "goblinRunnerSpawnTurnNumber").toInt()
+            } catch (e: Exception) {
+                -1
+            }
+        val goblinRunnerMomentumReady =
+            try {
+                JsonUtils.extractValue(json, "goblinRunnerMomentumReady").toBoolean()
+            } catch (e: Exception) {
+                false
+            }
+        val isSubmerged = JsonUtils.extractBooleanValue(json, "isSubmerged")
 
-        return SavedAttacker(id, type, position, level, currentHealth, isDefeated, dragonName, movementPenalty)
+        return SavedAttacker(
+            id = id,
+            type = type,
+            position = position,
+            level = level,
+            currentHealth = currentHealth,
+            isDefeated = isDefeated,
+            dragonName = dragonName,
+            movementPenalty = movementPenalty,
+            bloodlustRoundsLeft = bloodlustRoundsLeft,
+            mushroomTurnsRemaining = mushroomTurnsRemaining,
+            mushroomLevelBonus = mushroomLevelBonus,
+            goblinRunnerUndamagedRounds = goblinRunnerUndamagedRounds,
+            goblinRunnerTookDamageSinceLastTurn = goblinRunnerTookDamageSinceLastTurn,
+            goblinRunnerSpawnTurnNumber = goblinRunnerSpawnTurnNumber,
+            goblinRunnerMomentumReady = goblinRunnerMomentumReady,
+            isSubmerged = isSubmerged,
+        )
     }
 
     private fun parseSavedFieldEffect(json: String): SavedFieldEffect {
@@ -973,7 +1484,12 @@ object SaveJsonSerializer {
       "actionsRemaining": ${defender.actionsRemaining},
       "dragonName": $dragonNameStr,
       "raftId": $raftIdStr,
-      "towerBaseBarricadeId": $towerBaseBarricadeIdStr
+      "towerBaseBarricadeId": $towerBaseBarricadeIdStr,
+      "isChanneling": ${defender.isChanneling},
+      "trapCooldownRemaining": ${defender.trapCooldownRemaining},
+      "hasBeenUsed": ${defender.hasBeenUsed},
+      "isDisabled": ${defender.isDisabled},
+      "disabledTurnsRemaining": ${defender.disabledTurnsRemaining}
     }"""
             }
 
@@ -1004,7 +1520,8 @@ object SaveJsonSerializer {
                 """{
       "id": ${raft.id},
       "defenderId": ${raft.defenderId},
-      "position": {"x": ${raft.position.x}, "y": ${raft.position.y}}
+      "position": {"x": ${raft.position.x}, "y": ${raft.position.y}},
+      "healthPoints": ${raft.healthPoints}
     }"""
             }
 

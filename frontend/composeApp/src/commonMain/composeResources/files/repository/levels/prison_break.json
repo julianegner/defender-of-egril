@@ -17,9 +17,9 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
   "waypoints": [
-    
+
   ],
-  "prerequisites": ["dark_magic_rises"],
+  "prerequisites": ["gribnaks_ambush"],
   "allowAutoAttack": true,
   "isOfficial": true,
   "author": "Julian Egner",

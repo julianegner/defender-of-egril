@@ -102,7 +102,7 @@ fun HowToPlayContent(scrollState: androidx.compose.foundation.ScrollState = reme
             // Enemies
             HowToPlaySectionTitle(stringResource(Res.string.enemy_types))
             // Filter out DRAGON as it's a boss/special enemy
-            AttackerType.entries.filter { it != AttackerType.DRAGON }.forEach { attackerType ->
+            AttackerType.entries.filter { it != AttackerType.DRAGON && !it.isMirrorImage }.forEach { attackerType ->
                 HowToPlayEnemyInfo(attackerType)
             }
 

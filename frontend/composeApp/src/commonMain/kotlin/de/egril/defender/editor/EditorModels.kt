@@ -1,10 +1,16 @@
 package de.egril.defender.editor
 
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.BridgeType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnSequenceEntry
+import de.egril.defender.model.allSpawnEntries
+import de.egril.defender.model.enemyCounts
+import de.egril.defender.model.isRealVillain
+import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.TargetType
 import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 
@@ -20,6 +26,19 @@ enum class TileType {
     SPAWN_POINT, // Enemy spawn points
     TARGET, // Target position
     RIVER, // River tile (movable with bridges)
+}
+
+/**
+ * Reasons why [EditorMap.validateReadyToUse] can fail, used to explain to the user in the UI why a
+ * map is currently shown as "not ready" (see [EditorMap.getValidationIssues]).
+ */
+enum class MapValidationIssue {
+    INVALID_MAP_DATA, // The map file could not be parsed correctly (e.g. corrupted/legacy data)
+    UNSUPPORTED_SIZE, // Map dimensions exceed MapSizeLimits
+    NO_SPAWN_POINT,
+    NO_TARGET,
+    NO_BUILDABLE_TILES, // No BUILD_AREA/river tiles and allowNoBuildableTiles is not set
+    NO_PATH_FROM_SPAWN_TO_TARGET,
 }
 
 /**
@@ -49,8 +68,17 @@ data class EditorMap(
     val isCommunity: Boolean = false, // True if map is a community-shared map from the backend
     val communityAuthorUsername: String = "", // Username of the community author (only set if isCommunity == true)
     val targetInfoMap: Map<String, EditorTargetInfo> = emptyMap(), // "x,y" -> EditorTargetInfo for TARGET tiles
+    val spawnPointInfoMap: Map<String, SpawnPointType> = emptyMap(), // "x,y" -> SpawnPointType for SPAWN_POINT tiles (LAND or WATER)
     val mapToolingInfo: String = DEFAULT_MAP_TOOLING_INFO, // Free-form map tooling text; known standard values are localized at runtime
+    val allowNoBuildableTiles: Boolean = false, // True if a map may be ready without any BUILD_AREA tiles
+    val allowNoDirectPath: Boolean = false, // True if this map may have no direct spawn-to-target path (portals added in level editor will bridge the gap)
+    val tileZones: List<de.egril.defender.model.TileZone> = emptyList(), // Alternative terrain states (tides, shifting rivers) switched by level events
+    val isValid: Boolean = true,
 ) {
+    fun hasSupportedSize(): Boolean = MapSizeLimits.isWithinLimits(width, height)
+
+    fun canRenderMinimap(): Boolean = isValid && hasSupportedSize()
+
     fun getTileType(
         x: Int,
         y: Int,
@@ -63,6 +91,25 @@ data class EditorMap(
                 val parts = it.key.split(",")
                 Position(parts[0].toInt(), parts[1].toInt())
             }
+
+    /**
+     * Returns the type of a spawn point at [position].
+     * Defaults to LAND when no explicit metadata exists (backward compatible).
+     */
+    fun getSpawnPointType(position: Position): SpawnPointType = spawnPointInfoMap["${position.x},${position.y}"] ?: SpawnPointType.LAND
+
+    /**
+     * Returns spawn points compatible with [attackerType] based on LAND/WATER flags.
+     */
+    fun getCompatibleSpawnPoints(attackerType: AttackerType): List<Position> {
+        val spawnPoints = getSpawnPoints()
+        return spawnPoints.filter { pos ->
+            when (getSpawnPointType(pos)) {
+                SpawnPointType.WATER -> attackerType.canSpawnOnWater
+                SpawnPointType.LAND -> attackerType.canSpawnOnLand
+            }
+        }
+    }
 
     fun getTarget(): Position? = getTargets().firstOrNull()
 
@@ -90,6 +137,10 @@ data class EditorMap(
                 Position(parts[0].toInt(), parts[1].toInt())
             }.toSet()
 
+    fun hasBuildAreas(): Boolean = getBuildAreas().isNotEmpty()
+
+    fun hasBuildablePlacementTiles(): Boolean = hasBuildAreas() || getRiverCells().isNotEmpty()
+
     fun getRiverCells(): Set<Position> =
         tiles
             .filter { it.value == TileType.RIVER }
@@ -113,21 +164,68 @@ data class EditorMap(
         }
 
     /**
+     * Returns every reason [validateReadyToUse] would currently fail for, so the UI can explain to
+     * the user why a map is not ready instead of just showing a plain "not ready" flag.
+     * An empty result is equivalent to `validateReadyToUse(includeRiversAsWalkable) == true`.
+     */
+    fun getValidationIssues(includeRiversAsWalkable: Boolean = true): List<MapValidationIssue> {
+        val issues = mutableListOf<MapValidationIssue>()
+        if (!isValid) issues += MapValidationIssue.INVALID_MAP_DATA
+        if (!hasSupportedSize()) issues += MapValidationIssue.UNSUPPORTED_SIZE
+        if (!canRenderMinimap()) return issues
+
+        val spawnPoints = getSpawnPoints()
+        val targets = getTargets()
+        val hasSpawnPoint = spawnPoints.isNotEmpty()
+        val hasTarget = targets.isNotEmpty()
+        if (!hasSpawnPoint) issues += MapValidationIssue.NO_SPAWN_POINT
+        if (!hasTarget) issues += MapValidationIssue.NO_TARGET
+        if (!hasBuildablePlacementTiles() && !allowNoBuildableTiles) issues += MapValidationIssue.NO_BUILDABLE_TILES
+
+        if (!hasSpawnPoint || !hasTarget || allowNoDirectPath) return issues
+
+        val requiredSpawns = spawnPoints.filter { getSpawnPointType(it) != SpawnPointType.WATER }
+        if (requiredSpawns.isEmpty()) return issues
+
+        val traversableCells = getPathCells().toMutableSet()
+        if (includeRiversAsWalkable) traversableCells.addAll(getRiverCells())
+        traversableCells.addAll(spawnPoints)
+        traversableCells.addAll(targets)
+
+        val allConnected = requiredSpawns.all { spawn -> targets.any { target -> hasPathBFS(spawn, target, traversableCells) } }
+        if (!allConnected) issues += MapValidationIssue.NO_PATH_FROM_SPAWN_TO_TARGET
+
+        return issues
+    }
+
+    /**
      * Validates if map is ready to use:
      * - Has at least one spawn point
      * - Has at least one target
-     * - ALL spawn points have a continuous path at least one target
+     * - All LAND spawn points have a continuous path to at least one target.
+     *   WATER spawn points are allowed to be disconnected.
      *
      * @param includeRiversAsWalkable If true, river cells are considered walkable for validation
      */
     fun validateReadyToUse(includeRiversAsWalkable: Boolean = true): Boolean {
+        if (!canRenderMinimap()) return false
+
         val spawnPoints = getSpawnPoints()
         val targets = getTargets()
         val pathCells = getPathCells()
         val riverCells = getRiverCells()
+        val hasBuildablePlacementTiles = hasBuildablePlacementTiles()
 
         if (spawnPoints.isEmpty()) return false
         if (targets.isEmpty()) return false
+        if (!hasBuildablePlacementTiles && !allowNoBuildableTiles) return false
+
+        // When allowNoDirectPath is set, skip the spawn-to-target connectivity check.
+        // The level editor is responsible for verifying that portals bridge the gap.
+        if (allowNoDirectPath) return true
+
+        val requiredSpawns = spawnPoints.filter { getSpawnPointType(it) != SpawnPointType.WATER }
+        if (requiredSpawns.isEmpty()) return true
 
         // Build set of traversable cells (spawn points + path cells + all targets)
         val traversableCells = pathCells.toMutableSet()
@@ -141,11 +239,108 @@ data class EditorMap(
         traversableCells.addAll(targets)
 
         // Check if there's a path from all spawn points to any target using BFS
-        return spawnPoints.all { spawn ->
+        return requiredSpawns.all { spawn ->
             targets.any { target ->
                 hasPathBFS(spawn, target, traversableCells)
             }
         }
+    }
+
+    /**
+     * Validates that portals bridge the gap when [allowNoDirectPath] is true.
+     * Returns true if, when portals teleport enemies from their exit positions to tiles adjacent
+     * to their entry positions (note: entry = where enemies step in, exit = where they appear),
+     * every spawn point can still reach at least one target.
+     *
+     * @param portals The initial portals defined by the level.
+     * @param includeRiversAsWalkable If true, river cells are included as walkable.
+     */
+    fun validateReadyToUseWithPortals(
+        portals: List<InitialPortal>,
+        includeRiversAsWalkable: Boolean = true,
+    ): Boolean {
+        if (!canRenderMinimap()) return false
+
+        val spawnPoints = getSpawnPoints()
+        val targets = getTargets()
+        val pathCells = getPathCells()
+        val riverCells = getRiverCells()
+        val hasBuildablePlacementTiles = hasBuildablePlacementTiles()
+
+        if (spawnPoints.isEmpty()) return false
+        if (targets.isEmpty()) return false
+        if (!hasBuildablePlacementTiles && !allowNoBuildableTiles) return false
+        val requiredSpawns = spawnPoints.filter { getSpawnPointType(it) != SpawnPointType.WATER }
+        if (requiredSpawns.isEmpty()) return true
+        if (portals.isEmpty()) return false
+
+        val traversableCells = pathCells.toMutableSet()
+        if (includeRiversAsWalkable) {
+            traversableCells.addAll(riverCells)
+        }
+        traversableCells.addAll(spawnPoints)
+        traversableCells.addAll(targets)
+        // Portal tiles themselves are traversable
+        for (portal in portals) {
+            traversableCells.add(portal.entryPosition)
+            traversableCells.add(portal.exitPosition)
+        }
+
+        return requiredSpawns.all { spawn ->
+            targets.any { target ->
+                hasPathBFSWithPortals(spawn, target, traversableCells, portals)
+            }
+        }
+    }
+
+    private fun hasPathBFSWithPortals(
+        start: Position,
+        end: Position,
+        validCells: Set<Position>,
+        portals: List<InitialPortal>,
+    ): Boolean {
+        if (start == end) return true
+
+        val queue = ArrayDeque<Position>()
+        queue.add(start)
+        val visited = mutableSetOf(start)
+        val usedPortals = mutableSetOf<InitialPortal>()
+
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+
+            // Check if current position is a portal entry – if so, also enqueue the exit
+            for (portal in portals) {
+                if (portal.entryPosition == current && portal !in usedPortals) {
+                    usedPortals.add(portal)
+                    if (portal.exitPosition == end) return true
+                    if (portal.exitPosition !in visited) {
+                        visited.add(portal.exitPosition)
+                        queue.add(portal.exitPosition)
+                    }
+                }
+            }
+
+            val neighbors =
+                listOf(
+                    Position(current.x + 1, current.y),
+                    Position(current.x - 1, current.y),
+                    Position(current.x, current.y + 1),
+                    Position(current.x, current.y - 1),
+                    Position(current.x + if (current.y % 2 == 0) -1 else 1, current.y + 1),
+                    Position(current.x + if (current.y % 2 == 0) -1 else 1, current.y - 1),
+                )
+
+            for (neighbor in neighbors) {
+                if (neighbor == end) return true
+                if (neighbor !in visited && neighbor in validCells) {
+                    visited.add(neighbor)
+                    queue.add(neighbor)
+                }
+            }
+        }
+
+        return false
     }
 
     private fun hasPathBFS(
@@ -194,9 +389,21 @@ data class EditorEnemySpawn(
     val level: Int = 1,
     val spawnTurn: Int,
     val spawnPoint: Position? = null, // Fixed spawn point for this enemy (null for backward compatibility)
+    val unitId: String? = null, // Spawn loops only: logical id bound to the spawned unit (for "while unit alive" loops)
+    // Spawn loops only: spawn only in the first iteration of the enclosing loop. Always on for villains.
+    val firstIterationOnly: Boolean = attackerType.isRealVillain,
 ) {
     val healthPoints: Int get() = attackerType.health * level
+
+    /** Villains exist only once per level, so they always spawn only in the first iteration. */
+    val spawnsInFirstIterationOnly: Boolean get() = firstIterationOnly || attackerType.isRealVillain
+
+    /** Unit id used by spawn loops: villains are always identified by their name. */
+    val loopUnitId: String? get() = if (attackerType.isRealVillain) attackerType.villainUnitId else unitId
 }
+
+/** Fixed spawn-loop unit id of a villain (its name), so "while unit alive" loops can always refer to it. */
+val AttackerType.villainUnitId: String get() = displayName
 
 /**
  * Initial defender (tower) placement for level start
@@ -249,14 +456,62 @@ data class InitialBarricade(
 }
 
 /**
+ * Initial bridge placement for level start.
+ */
+data class InitialBridge(
+    val position: Position,
+    val type: BridgeType,
+    val healthPoints: Int,
+    val isIndestructible: Boolean = false,
+) {
+    companion object {
+        const val DEFAULT_WOODEN_HEALTH = 50
+        const val DEFAULT_STONE_HEALTH = 100
+    }
+}
+
+/**
+ * Initial fief placement for level start
+ */
+data class InitialFief(
+    val position: Position,
+    val type: de.egril.defender.model.FiefType,
+)
+
+/**
+ * Initial mushroom placement for level start.
+ * Mushrooms boost horde units (goblins, orks, ogres, snotlings) and witches:
+ * - 2x walking range for 2 turns
+ * - 2x level for 2 turns (witches can use their ability twice for 2 turns)
+ * Only horde units and witches eat the mushroom; other units leave it in place.
+ */
+data class InitialMushroom(
+    val position: Position,
+)
+
+/**
+ * Pre-placed portal pair for level start.
+ * Any enemy that steps onto [entryPosition] is instantly teleported to the best free tile
+ * adjacent to [exitPosition].  Portals persist for the whole level and are reset between turns.
+ */
+data class InitialPortal(
+    val entryPosition: Position,
+    val exitPosition: Position,
+)
+
+/**
  * Wrapper for all initial placement data
- * This groups defenders, attackers, traps, and barricades in a single object
+ * This groups defenders, attackers, traps, barricades, fiefs, mushrooms, and portals in a single object
  */
 data class InitialData(
     val defenders: List<InitialDefender> = emptyList(),
     val attackers: List<InitialAttacker> = emptyList(),
     val traps: List<InitialTrap> = emptyList(),
     val barricades: List<InitialBarricade> = emptyList(),
+    val bridges: List<InitialBridge> = emptyList(),
+    val fiefs: List<InitialFief> = emptyList(),
+    val mushrooms: List<InitialMushroom> = emptyList(),
+    val portals: List<InitialPortal> = emptyList(),
 ) {
     companion object {
         val EMPTY = InitialData()
@@ -310,10 +565,10 @@ data class EditorLevel(
     val prerequisites: Set<String> = emptySet(), // Level IDs that must be won to unlock this level
     val requiredPrerequisiteCount: Int? = null, // Number of prerequisites needed (null = all required)
     val testingOnly: Boolean = false, // If true, level is only shown when "show testing levels" setting is enabled
-    val allowAutoAttack: Boolean = false, // If true, shows auto-attack button in end turn confirmation dialog
+    val allowAutoAttack: Boolean = true, // If true, shows auto-attack button in end turn confirmation dialog
     val connectedToPreviousLevel: Boolean = false, // If true, player can carry over towers/coins from the previous level (must be on the same map)
-    val splitBuildTowerButton: Boolean = true, // If true, use split build-tower button in compact controls to free info area space
     val isSandbox: Boolean = false, // If true, level is a Sandbox: free building/spawning, no scripted events, cannot be won, no XP
+    val waaghEnabled: Boolean = false, // If true, Waaagh! horde mechanics are active for this level
     val isOfficial: Boolean = false, // True if level is from official repository (read-only in editor)
     val author: String = "", // Optional author name
     val isCommunity: Boolean = false, // True if level is a community-shared level from the backend
@@ -330,6 +585,8 @@ data class EditorLevel(
     @Deprecated("Use initialData.attackers instead") val initialAttackers: List<InitialAttacker> = emptyList(),
     @Deprecated("Use initialData.traps instead") val initialTraps: List<InitialTrap> = emptyList(),
     @Deprecated("Use initialData.barricades instead") val initialBarricades: List<InitialBarricade> = emptyList(),
+    val singleHitTargetOrder: List<Position> = emptyList(), // Ordered SINGLE_HIT targets; empty disables sequencing
+    val spawnGroups: List<SpawnSequenceEntry>? = null, // Optional spawn sequence of turns and nested loops (issue #694); when non-null, replaces the flat enemySpawns at runtime
 ) {
     /**
      * Get effective initial data, handling both new and legacy formats
@@ -365,8 +622,7 @@ data class EditorLevel(
      * Checks if this level is ready to play (level-specific checks only).
      * A level is ready if:
      * - It has at least one available tower
-     * - It has at least one enemy spawn configured, unless it is a sandbox level
-     *   (each EditorEnemySpawn represents one enemy unit)
+     * - It has at least one enemy spawn configured through a flat plan or spawn group, unless it is a sandbox level
      * - Start coins are greater than zero
      * - Start health points are greater than zero
      *
@@ -375,10 +631,48 @@ data class EditorLevel(
      * - All waypoints eventually lead to the final target (checked separately with map context)
      */
     fun isReadyToPlay(): Boolean =
-        availableTowers.isNotEmpty() &&
-            (isSandbox || enemySpawns.isNotEmpty()) &&
+        hasTowerSelectionOptions() &&
+            (isSandbox || hasConfiguredSpawns()) &&
+            (isSandbox || spawnGroups?.let { spawnGroupIssues(it, stoppedLoopIds = events.stoppedSpawnLoopIds()).isEmpty() } != false) &&
             startCoins > 0 &&
             startHealthPoints > 0
+
+    fun hasConfiguredSpawns(): Boolean =
+        if (spawnGroups != null) {
+            spawnGroups.allSpawnEntries().any { it.count > 0 }
+        } else {
+            enemySpawns.isNotEmpty()
+        }
+
+    fun configuredSpawnCount(): Long =
+        if (spawnGroups == null) {
+            enemySpawns.size.toLong()
+        } else {
+            spawnGroups.allSpawnEntries().sumOf { it.count.coerceAtLeast(0).toLong() }
+        }
+
+    /** All configured spawn entries; for spawn loops each entry once, at its position in the editor timeline. */
+    fun configuredSpawnEntries(): List<EditorEnemySpawn> = spawnGroups?.let { spawnTimelineFromSequence(it).spawns } ?: enemySpawns
+
+    /**
+     * Returns true when the level has at least one tower choice or enough initial setup to
+     * compensate for an empty tower selection.
+     */
+    fun hasTowerSelectionOptions(): Boolean =
+        availableTowers.isNotEmpty() ||
+            getEffectiveInitialData().defenders.isNotEmpty() ||
+            supports.isNotEmpty()
+
+    /**
+     * Returns true when the initial setup already includes a tower base (a barricade that can
+     * support a tower).
+     */
+    fun hasInitialTowerBases(): Boolean = getEffectiveInitialData().barricades.any { it.supportsTower }
+
+    /**
+     * Returns true when a level can satisfy a no-buildable-tile map by using supports or tower bases.
+     */
+    fun hasNoBuildableTileFallback(): Boolean = supports.isNotEmpty() || hasInitialTowerBases()
 
     /**
      * Validates that all waypoints form valid chains that eventually lead to a target.
@@ -547,15 +841,8 @@ data class EditorLevel(
     }
 
     fun toLevelInfoEnemiesLevelData(index: Int): LevelInfoEnemiesLevelData {
-        val enemyCountMap: Map<AttackerType, Int> = mutableMapOf()
-
-        enemySpawns
-            .groupingBy { it.attackerType }
-            .eachCount()
-            .entries
-            .forEach { (attackerType, count) ->
-                (enemyCountMap as MutableMap)[attackerType] = count
-            }
+        val sequenceCounts = spawnGroups?.enemyCounts()
+        val enemyCountMap = sequenceCounts?.counts ?: enemySpawns.groupingBy { it.attackerType }.eachCount()
 
         return LevelInfoEnemiesLevelData(
             id = "" + index,
@@ -566,6 +853,7 @@ data class EditorLevel(
             initialCoins = startCoins,
             healthPoints = startHealthPoints,
             enemyTypeCounts = enemyCountMap,
+            endlessLoop = sequenceCounts?.endless == true,
         )
     }
 }

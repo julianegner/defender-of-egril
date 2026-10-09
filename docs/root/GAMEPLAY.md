@@ -169,6 +169,14 @@ The Spike Tower has unique upgrade characteristics:
 
 ---
 
+### Runes and Altars
+
+- Sacrifice a level 10 or higher Wizard Tower to create an Altar, spending one rune.
+- The tower must stand on a real build tile, not on a raft or barge.
+- Altars cannot attack, but retain the Wizard Tower's magical trap ability.
+- Activating an Altar consumes its action and channels it for the current turn. Channeling resets at the start of the next player turn.
+- Scripted levels can require several Altars to be active simultaneously to take over the Rune Network and win the level.
+
 ## Enemy Types
 
 | Enemy | HP | Speed | Base Reward |
@@ -203,6 +211,7 @@ The Spike Tower has unique upgrade characteristics:
 
 - Defeat all enemies in all waves
 - At least 1 health point remaining
+- A scripted event can also grant victory, for example by activating the required number of Altars in one turn.
 
 ### Defeat Conditions
 

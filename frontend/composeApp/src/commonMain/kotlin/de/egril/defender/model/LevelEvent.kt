@@ -42,6 +42,9 @@ enum class EventConditionType {
 
     /** Fires when the player's coins are at or below [EventCondition.threshold]. */
     COINS_AT_OR_BELOW,
+
+    /** Fires when at least [EventCondition.threshold] ready, enabled altars channel simultaneously. */
+    ALTARS_ACTIVATED,
 }
 
 /**
@@ -49,7 +52,7 @@ enum class EventConditionType {
  *
  * @param type          The kind of condition.
  * @param fromTurn      The event is only evaluated from this turn onwards (0 = from the start).
- * @param threshold     Numeric threshold (kill count / health / mana / coins) depending on [type].
+ * @param threshold     Numeric threshold (kill count / health / mana / coins / active altars) depending on [type].
  * @param attackerType  Optional enemy type for [EventConditionType.ENEMY_TYPE_KILLED] and
  *                      [EventConditionType.UNIT_REACHED].
  * @param position      Target tile for [EventConditionType.UNIT_REACHED].
@@ -83,6 +86,44 @@ enum class EventActionType {
 
     /** Destroy the dwarven mine located at [EventAction.position] (e.g. a dragon destroys a mine). */
     DESTROY_MINE,
+
+    /** Activate the tile zone [EventAction.zoneId] (e.g. flood the lowlands at high tide). */
+    APPLY_TILE_ZONE,
+
+    /** Deactivate the tile zone [EventAction.zoneId], restoring the base map tiles. */
+    REVERT_TILE_ZONE,
+
+    /** Activate the tile zone [EventAction.zoneId] when inactive, otherwise deactivate it. */
+    TOGGLE_TILE_ZONE,
+
+    /** Stop the running loop of the event [EventAction.targetEventId]. */
+    STOP_EVENT_LOOP,
+
+    /**
+     * Permanently end the spawn loop [EventAction.spawnLoopId]: a running loop stops immediately
+     * (the spawn plan continues after it) and a loop that has not started yet is skipped.
+     */
+    STOP_SPAWN_LOOP,
+
+    /** Show or replace [EventAction.mapImage] below all gameplay objects. */
+    SHOW_MAP_IMAGE,
+
+    /** Hide the image identified by [EventAction.imageId]. */
+    HIDE_MAP_IMAGE,
+
+    /**
+     * Draw a line between the green heads of the altars at [EventAction.altarFrom] and
+     * [EventAction.altarTo], identified by [EventAction.linkId]. The line is only drawn when both
+     * altars are activated at that moment. Showing the same id and altar pair again replaces the
+     * existing line; the same id with other altars adds a further line.
+     */
+    SHOW_ALTAR_LINK,
+
+    /** Remove the altar line identified by [EventAction.linkId]. */
+    HIDE_ALTAR_LINK,
+
+    /** Win the level immediately, regardless of remaining enemies or planned spawns. */
+    WIN_LEVEL,
 }
 
 /**
@@ -93,6 +134,15 @@ enum class EventActionType {
  * @param supportObjectType Support object granted for [EventActionType.GIVE_SUPPORT_OBJECT].
  * @param spellType         Spell granted for [EventActionType.GIVE_SUPPORT_SPELL].
  * @param position          Mine tile for [EventActionType.DESTROY_MINE].
+ * @param zoneId            Tile zone for the tile-zone actions.
+ * @param targetEventId     Event whose loop is stopped by [EventActionType.STOP_EVENT_LOOP].
+ * @param mapImage          Image and geometry used by [EventActionType.SHOW_MAP_IMAGE].
+ * @param imageId           Image hidden by [EventActionType.HIDE_MAP_IMAGE].
+ * @param spawnLoopId       Spawn loop ended by [EventActionType.STOP_SPAWN_LOOP].
+ * @param linkId            Altar line drawn or removed by [EventActionType.SHOW_ALTAR_LINK] and
+ *                          [EventActionType.HIDE_ALTAR_LINK].
+ * @param altarFrom         Tile of the first altar connected by [EventActionType.SHOW_ALTAR_LINK].
+ * @param altarTo           Tile of the second altar connected by [EventActionType.SHOW_ALTAR_LINK].
  */
 data class EventAction(
     val type: EventActionType,
@@ -100,7 +150,122 @@ data class EventAction(
     val supportObjectType: SupportObjectType? = null,
     val spellType: SpellType? = null,
     val position: Position? = null,
+    val zoneId: String? = null,
+    val targetEventId: String? = null,
+    val mapImage: EventMapImage? = null,
+    val imageId: String? = null,
+    val spawnLoopId: String? = null,
+    val linkId: String? = null,
+    val altarFrom: Position? = null,
+    val altarTo: Position? = null,
 )
+
+/**
+ * An event-controlled image from the repository's levels directory.
+ *
+ * [id] identifies an independently hideable image. [fileName] is a plain image file name, not a
+ * path. [x]/[y] locate the top-left corner in continuous grid coordinates (without odd-row offsets);
+ * [width]/[height] are measured in full tile widths/heights. Images scale and pan with the map.
+ */
+data class EventMapImage(
+    val id: String,
+    val fileName: String,
+    val x: Float = 0f,
+    val y: Float = 0f,
+    val width: Float = 1f,
+    val height: Float = 1f,
+) {
+    fun isValid(): Boolean =
+        id.isNotBlank() &&
+            isValidFileName(fileName) &&
+            x.isFinite() && y.isFinite() &&
+            width.isFinite() && height.isFinite() &&
+            width > 0f && height > 0f
+
+    companion object {
+        fun isValidFileName(fileName: String): Boolean =
+            fileName.isNotBlank() &&
+                '/' !in fileName && '\\' !in fileName &&
+                fileName.substringAfterLast('.').lowercase() in setOf("png", "jpg", "jpeg", "webp")
+    }
+}
+
+/**
+ * A line between the heads of two altars, shown by [EventActionType.SHOW_ALTAR_LINK].
+ *
+ * The altar positions are captured when the line is shown, so the line stays in place even if the
+ * altars later become inactive.
+ */
+data class AltarLink(
+    val id: String,
+    val from: Position,
+    val to: Position,
+) {
+    /** True if this line connects the two given altar tiles, in either order. */
+    fun connects(a: Position, b: Position): Boolean = (from == a && to == b) || (from == b && to == a)
+}
+
+/**
+ * Identifier of the visual frame used for an event message popup.
+ *
+ * A frame id is the suffix of one of the game's `message_background_<id>` drawables (for example
+ * `kraken` or `waaagh`), so every existing message frame — the story frame, the villain frames and
+ * any frame added later — can be selected for a scripted-event message. `null` means the standard
+ * story frame, which is what event messages used before frames became selectable.
+ *
+ * Frame ids are kept as plain strings so newly added frame artwork is offered automatically without
+ * a code change, and so unknown ids in old or hand-written level files simply fall back to the
+ * standard frame instead of breaking the level.
+ */
+typealias EventMessageFrameId = String
+
+/**
+ * One step of an [EventLoop].
+ *
+ * When the step becomes current, it waits [waitTurns] player turns, then applies [actions] (and
+ * shows [messageKey], if set). Afterwards the optional [nestedLoop] runs completely before the
+ * enclosing loop continues with its next step.
+ *
+ * No message popup is shown when [messageKey] is null. [messageFrame] selects the popup's visual
+ * frame and is only relevant when a message is shown.
+ */
+data class EventLoopStep(
+    val waitTurns: Int = 1,
+    val actions: List<EventAction> = emptyList(),
+    val messageKey: String? = null,
+    val messageFrame: EventMessageFrameId? = null,
+    val nestedLoop: EventLoop? = null,
+)
+
+/**
+ * A sequence of [steps] that is repeated [repeatCount] times, or endlessly when [repeatCount] is 0.
+ * Loops can be nested via [EventLoopStep.nestedLoop].
+ */
+data class EventLoop(
+    val steps: List<EventLoopStep> = emptyList(),
+    val repeatCount: Int = 0,
+) {
+    val isEndless: Boolean get() = repeatCount <= 0
+
+    /**
+     * True when a single pass through this loop (including nested loops) waits at least one turn.
+     * A loop without any waiting would run forever within a single turn and is therefore invalid.
+     */
+    fun waitsAtLeastOneTurnPerPass(): Boolean = steps.any { it.waitTurns > 0 || it.nestedLoop?.waitsAtLeastOneTurnPerPass() == true }
+
+    /** True when this loop and all nested loops wait at least one turn per pass. */
+    fun isValid(): Boolean = steps.isNotEmpty() && waitsAtLeastOneTurnPerPass() && steps.all { it.nestedLoop?.isValid() ?: true }
+
+    /** True when an endless nested loop prevents later steps of an enclosing loop from ever running. */
+    fun hasUnreachableSteps(): Boolean =
+        steps.withIndex().any { (index, step) ->
+            val nested = step.nestedLoop
+            nested != null && ((nested.isEndless && index < steps.lastIndex) || nested.hasUnreachableSteps())
+        }
+
+    /** All actions used anywhere in this loop, including nested loops. */
+    fun allActions(): List<EventAction> = steps.flatMap { it.actions + (it.nestedLoop?.allActions() ?: emptyList()) }
+}
 
 /**
  * A scripted event: a condition, the effects it applies, and an optional predefined story message.
@@ -109,17 +274,26 @@ data class EventAction(
  * @param condition   Condition that triggers the event.
  * @param actions     Effects applied when the event fires.
  * @param messageKey  Optional string-resource key of a predefined story text to display when the
- *                   event fires (selected via dropdown in the level editor).
+ *                   event fires (selected via dropdown in the level editor). When null ("No
+ *                   message" in the editor) no message popup is shown at all.
+ * @param messageFrame Visual frame of the message popup (see [EventMessageFrameId]); only relevant
+ *                    when [messageKey] is set. Null uses the standard story frame.
  * @param repeatable  When true the event can fire again on every future evaluation; when false
  *                   (default) it fires only once.
+ * @param loop        Optional loop started when the event fires (e.g. alternating tides).
  */
 data class LevelEvent(
     val id: String,
     val condition: EventCondition,
     val actions: List<EventAction> = emptyList(),
     val messageKey: String? = null,
+    val messageFrame: EventMessageFrameId? = null,
     val repeatable: Boolean = false,
-)
+    val loop: EventLoop? = null,
+) {
+    /** All actions of this event, including those inside its loop. */
+    fun allActions(): List<EventAction> = actions + (loop?.allActions() ?: emptyList())
+}
 
 /**
  * All scripted events defined for a level.
@@ -130,4 +304,12 @@ data class LevelEvents(
     fun isEmpty(): Boolean = events.isEmpty()
 
     fun isNotEmpty(): Boolean = !isEmpty()
+
+    /** Ids of all spawn loops that some event (or event loop step) stops. */
+    fun stoppedSpawnLoopIds(): Set<String> =
+        events
+            .flatMap { it.allActions() }
+            .filter { it.type == EventActionType.STOP_SPAWN_LOOP }
+            .mapNotNull { it.spawnLoopId }
+            .toSet()
 }

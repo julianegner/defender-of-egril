@@ -3,12 +3,12 @@ package de.egril.defender.editor
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class SplitBuildTowerButtonSerializationTest {
-    private fun sampleLevel(splitBuildTowerButton: Boolean): EditorLevel =
+    private fun sampleLevel(): EditorLevel =
         EditorLevel(
             id = "split_button_test",
             mapId = "test_map",
@@ -19,26 +19,26 @@ class SplitBuildTowerButtonSerializationTest {
                     EditorEnemySpawn(attackerType = AttackerType.GOBLIN, level = 1, spawnTurn = 1),
                 ),
             availableTowers = setOf(DefenderType.SPIKE_TOWER),
-            splitBuildTowerButton = splitBuildTowerButton,
         )
 
     @Test
-    fun splitBuildTowerButtonDefaultsToTrueWhenAbsent() {
-        val json = EditorJsonSerializer.serializeLevel(sampleLevel(splitBuildTowerButton = true))
+    fun splitBuildTowerButtonNotSerializedInLevelJson() {
+        val json = EditorJsonSerializer.serializeLevel(sampleLevel())
         assertFalse(json.contains("splitBuildTowerButton"))
-
-        val parsed = EditorJsonSerializer.deserializeLevel(json)
-        assertNotNull(parsed)
-        assertTrue(parsed.splitBuildTowerButton)
     }
 
     @Test
-    fun splitBuildTowerButtonRoundTripsWhenFalse() {
-        val json = EditorJsonSerializer.serializeLevel(sampleLevel(splitBuildTowerButton = false))
-        assertTrue(json.contains("\"splitBuildTowerButton\": false"))
-
+    fun levelWithLegacySplitBuildTowerButtonFieldDeserializesCorrectly() {
+        // Verify that a JSON with legacy splitBuildTowerButton field can still be parsed (backward compat)
+        val json =
+            EditorJsonSerializer
+                .serializeLevel(sampleLevel())
+                .replace(
+                    "\"prerequisites\": []",
+                    "\"prerequisites\": [],\n  \"splitBuildTowerButton\": false",
+                )
         val parsed = EditorJsonSerializer.deserializeLevel(json)
         assertNotNull(parsed)
-        assertFalse(parsed.splitBuildTowerButton)
+        assertEquals("split_button_test", parsed.id)
     }
 }

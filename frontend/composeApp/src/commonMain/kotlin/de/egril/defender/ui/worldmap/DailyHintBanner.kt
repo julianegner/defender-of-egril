@@ -30,7 +30,7 @@ import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.close
 import defender_of_egril.composeapp.generated.resources.daily_hint_title
-import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import org.jetbrains.compose.resources.StringResource
 
@@ -95,7 +95,7 @@ fun DailyHintBanner(
                             .semantics { contentDescription = closeDescription },
                 ) {
                     Box(modifier = Modifier.clearAndSetSemantics { }) {
-                        FilledSymbol(
+                        MaterialSymbol.Filled(
                             icon = MaterialSymbols.CLOSE,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

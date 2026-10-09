@@ -13,7 +13,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -101,7 +101,7 @@ private fun DirectionalButton(
         repeatDelay = 50,
         modifier = modifier.size(60.dp, 60.dp),
     ) {
-        FilledSymbol(
+        MaterialSymbol.Filled(
             icon = iconName,
             size = 32.dp,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -173,7 +173,7 @@ private fun ZoomButton(
                 .fillMaxWidth()
                 .height(60.dp),
     ) {
-        FilledSymbol(
+        MaterialSymbol.Filled(
             icon = iconName,
             size = 32.dp,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,

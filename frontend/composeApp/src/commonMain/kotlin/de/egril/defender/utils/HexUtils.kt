@@ -15,6 +15,8 @@ import kotlin.math.sqrt
  * @param offsetY Current pan offset Y
  * @param zoomLevel Current zoom level
  * @param hexSize Size of hexagon (in dp or px, must match rendering)
+ * @param horizontalSpacing Horizontal spacing between hexagons, in the same unit as [hexSize]
+ * @param verticalSpacingAdjustment Extra vertical spacing adjustment, in the same unit as [hexSize]
  * @return Position? - null if out of bounds
  */
 fun screenToHexGridPosition(
@@ -23,6 +25,8 @@ fun screenToHexGridPosition(
     offsetY: Float,
     zoomLevel: Float,
     hexSize: Float,
+    horizontalSpacing: Float = HexagonalGridConstants.HORIZONTAL_SPACING,
+    verticalSpacingAdjustment: Float = HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT,
 ): Position? {
     // Adjust for pan and zoom to get content-space coordinates
     val px = (pointerPos.x - offsetX) / zoomLevel
@@ -35,8 +39,8 @@ fun screenToHexGridPosition(
     val verticalSpacing = hexHeight * 0.75f
 
     // Layout spacing (using HexagonalGridConstants to match HexagonalMapView.kt)
-    val rowSpacing = -hexHeight + verticalSpacing + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT // -27.0 for hexSize=40
-    val colSpacing = HexagonalGridConstants.HORIZONTAL_SPACING
+    val rowSpacing = -hexHeight + verticalSpacing + verticalSpacingAdjustment
+    val colSpacing = horizontalSpacing
     val oddRowOffset = hexWidth * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
 
     // Calculate row (y) from vertical position

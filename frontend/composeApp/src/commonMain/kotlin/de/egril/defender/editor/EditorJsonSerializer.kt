@@ -2,6 +2,7 @@ package de.egril.defender.editor
 
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.BridgeType
 import de.egril.defender.model.CooldownPower
 import de.egril.defender.model.CooldownPowerType
 import de.egril.defender.model.DefenderType
@@ -9,16 +10,26 @@ import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
 import de.egril.defender.model.EventCondition
 import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.EventLoop
+import de.egril.defender.model.EventLoopStep
 import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
 import de.egril.defender.model.LevelEvent
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnCondition
+import de.egril.defender.model.SpawnGroup
+import de.egril.defender.model.SpawnGroupSpawn
+import de.egril.defender.model.SpawnGroupTurn
+import de.egril.defender.model.SpawnPointType
+import de.egril.defender.model.SpawnRepeatMode
+import de.egril.defender.model.SpawnSequenceEntry
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObject
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.SupportSpell
 import de.egril.defender.model.isIndefiniteSupportCount
+import de.egril.defender.utils.EventMapImageJson
 import de.egril.defender.utils.JsonUtils
 
 /**
@@ -77,6 +88,20 @@ object EditorJsonSerializer {
 
         val mapToolingInfoJson = ",\n  \"mapToolingInfo\": \"${map.mapToolingInfo}\""
 
+        val allowNoBuildableTilesJson =
+            if (map.allowNoBuildableTiles) {
+                ",\n  \"allowNoBuildableTiles\": true"
+            } else {
+                ""
+            }
+
+        val allowNoDirectPathJson =
+            if (map.allowNoDirectPath) {
+                ",\n  \"allowNoDirectPath\": true"
+            } else {
+                ""
+            }
+
         val targetInfoJson =
             if (map.targetInfoMap.isNotEmpty()) {
                 val targetData =
@@ -88,21 +113,57 @@ object EditorJsonSerializer {
                 ""
             }
 
+        val spawnPointInfoJson =
+            if (map.spawnPointInfoMap.isNotEmpty()) {
+                val spawnData =
+                    map.spawnPointInfoMap.entries.joinToString(",\n    ") { (pos, type) ->
+                        "\"$pos\": \"${type.name}\""
+                    }
+                ",\n  \"spawnPointInfo\": {\n    $spawnData\n  }"
+            } else {
+                ""
+            }
+
+        val tileZonesJson =
+            if (map.tileZones.isNotEmpty()) {
+                val zonesData =
+                    map.tileZones.joinToString(",\n    ") { zone ->
+                        val zoneTilesData =
+                            zone.tiles.entries
+                                .sortedWith(compareBy({ it.key.y }, { it.key.x }))
+                                .joinToString(",\n        ") { (pos, type) ->
+                                    val river = zone.riverTiles[pos]
+                                    val riverPart =
+                                        if (type == TileType.RIVER && river != null) {
+                                            ", \"flowDirection\": \"${river.flowDirection.name}\", \"flowSpeed\": ${river.flowSpeed}"
+                                        } else {
+                                            ""
+                                        }
+                                    "\"${pos.x},${pos.y}\": {\"type\": \"${type.name}\"$riverPart}"
+                                }
+                        "{\n      \"id\": \"${zone.id}\",\n      \"name\": \"${zone.name}\",\n      \"zoneTiles\": {\n        $zoneTilesData\n      }\n    }"
+                    }
+                ",\n  \"tileZones\": [\n    $zonesData\n  ]"
+            } else {
+                ""
+            }
+
         val data = """{
   "id": "${map.id}",
   "name": "${map.name}"$nameKeyJson,
   "width": ${map.width},
   "height": ${map.height},
   "readyToUse": ${map.readyToUse},
-  "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson$mapToolingInfoJson,
+  "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson$mapToolingInfoJson$allowNoBuildableTilesJson$allowNoDirectPathJson,
   "tiles": {
     $tilesJson
-  }$riverTilesJson$targetInfoJson
+  }$riverTilesJson$targetInfoJson$spawnPointInfoJson$tileZonesJson
 }"""
         return """{
   "metadata": {
     "program": "$PROGRAM_NAME",
-    "type": "map"
+    "type": "map",
+    "license": "GNU Affero General Public License v3.0 (AGPL-3.0)"
   },
   "data": $data
 }"""
@@ -145,6 +206,18 @@ object EditorJsonSerializer {
                 } catch (e: Exception) {
                     DEFAULT_MAP_TOOLING_INFO // Optional field with default for backward compatibility
                 }
+            val allowNoBuildableTiles =
+                try {
+                    JsonUtils.extractBooleanValue(dataJson, "allowNoBuildableTiles")
+                } catch (e: Exception) {
+                    false
+                }
+            val allowNoDirectPath =
+                try {
+                    JsonUtils.extractBooleanValue(dataJson, "allowNoDirectPath")
+                } catch (e: Exception) {
+                    false
+                }
 
             // Parse optional world map position
             val worldMapPosition =
@@ -162,34 +235,41 @@ object EditorJsonSerializer {
                     null // Optional field - null if not present
                 }
 
-            val tiles = mutableMapOf<String, TileType>()
-            val tilesSection =
-                dataJson
-                    .substringAfter("\"tiles\": {")
-                    .substringBefore("}")
-                    .replace("\",", "\";")
-            val tileEntries = tilesSection.split(";").map { it.trim() }
+            fun invalidMap(
+                tiles: Map<String, TileType> = emptyMap(),
+                riverTiles: Map<String, de.egril.defender.model.RiverTile> = emptyMap(),
+                targetInfoMap: Map<String, EditorTargetInfo> = emptyMap(),
+                spawnPointInfoMap: Map<String, SpawnPointType> = emptyMap(),
+            ): EditorMap =
+                EditorMap(
+                    id = id,
+                    name = name,
+                    nameKey = nameKey,
+                    width = width,
+                    height = height,
+                    tiles = tiles,
+                    readyToUse = false,
+                    worldMapPosition = worldMapPosition,
+                    riverTiles = riverTiles,
+                    isOfficial = isOfficial,
+                    author = author,
+                    targetInfoMap = targetInfoMap,
+                    spawnPointInfoMap = spawnPointInfoMap,
+                    mapToolingInfo = mapToolingInfo,
+                    allowNoBuildableTiles = allowNoBuildableTiles,
+                    allowNoDirectPath = allowNoDirectPath,
+                    isValid = false,
+                )
 
-            for (entry in tileEntries) {
-                if (entry.isBlank()) continue
-                val parts = entry.split(":")
-                if (parts.size != 2) continue
-
-                val pos = parts[0].trim().removeSurrounding("\"")
-                val typeStr = parts[1].trim().removeSurrounding("\"")
-                // Backward compatibility: map legacy/unknown tile type names to current types
-                val tileType =
-                    when (typeStr) {
-                        "ISLAND" -> TileType.BUILD_AREA
-                        else ->
-                            try {
-                                TileType.valueOf(typeStr)
-                            } catch (e: IllegalArgumentException) {
-                                null
-                            }
-                    }
-                if (tileType != null) tiles[pos] = tileType
+            if (!MapSizeLimits.isWithinLimits(width, height)) {
+                return invalidMap()
             }
+
+            // Individual tile/river entries that fall outside the map's declared width/height are
+            // silently skipped rather than invalidating the whole map: legacy authoring artifacts
+            // (e.g. a single stray tile left over from a resize) shouldn't make an otherwise valid,
+            // hand-crafted map unusable.
+            val tiles = parseTiles(dataJson, width, height)?.toMutableMap() ?: return null
 
             // Parse optional river tiles
             val riverTiles = mutableMapOf<String, de.egril.defender.model.RiverTile>()
@@ -232,6 +312,9 @@ object EditorJsonSerializer {
 
                                     val parts = pos.split(",")
                                     val position = Position(parts[0].toInt(), parts[1].toInt())
+                                    if (position.x !in 0 until width || position.y !in 0 until height) {
+                                        continue // Skip this stray river tile entry, keep the rest of the map
+                                    }
                                     riverTiles[pos] =
                                         de.egril.defender.model
                                             .RiverTile(position, flowDirection, flowSpeed)
@@ -299,6 +382,47 @@ object EditorJsonSerializer {
                 // targetInfo is optional, continue without it
             }
 
+            // Parse optional spawnPointInfo section
+            val spawnPointInfoMap = mutableMapOf<String, SpawnPointType>()
+            try {
+                if (dataJson.contains("\"spawnPointInfo\"")) {
+                    val startMarker = "\"spawnPointInfo\": {"
+                    val startIdx = dataJson.indexOf(startMarker)
+                    if (startIdx != -1) {
+                        val contentStart = startIdx + startMarker.length
+                        var braceCount = 1
+                        var endIdx = contentStart
+                        while (endIdx < dataJson.length && braceCount > 0) {
+                            when (dataJson[endIdx]) {
+                                '{' -> braceCount++
+                                '}' -> braceCount--
+                            }
+                            endIdx++
+                        }
+                        if (braceCount == 0) {
+                            val spawnSection = dataJson.substring(contentStart, endIdx - 1)
+                            // Each entry looks like: "x,y": "LAND" or "x,y": "WATER"
+                            val entryRegex = Regex(""""(\d+,\d+)":\s*"([A-Z_]+)"""")
+                            for (match in entryRegex.findAll(spawnSection)) {
+                                val pos = match.groupValues[1]
+                                val typeStr = match.groupValues[2]
+                                try {
+                                    spawnPointInfoMap[pos] = SpawnPointType.valueOf(typeStr)
+                                } catch (e: Exception) {
+                                    println("Unknown SpawnPointType '$typeStr' for pos '$pos', defaulting to LAND")
+                                    spawnPointInfoMap[pos] = SpawnPointType.LAND
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                println("Error deserializing spawnPointInfo: ${e.message}")
+                // spawnPointInfo is optional, continue without it
+            }
+
+            val tileZones = parseTileZones(dataJson, width, height)
+
             return EditorMap(
                 id = id,
                 name = name,
@@ -312,7 +436,12 @@ object EditorJsonSerializer {
                 isOfficial = isOfficial,
                 author = author,
                 targetInfoMap = targetInfoMap,
+                spawnPointInfoMap = spawnPointInfoMap,
                 mapToolingInfo = mapToolingInfo,
+                allowNoBuildableTiles = allowNoBuildableTiles,
+                allowNoDirectPath = allowNoDirectPath,
+                tileZones = tileZones,
+                isValid = true,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -320,6 +449,127 @@ object EditorJsonSerializer {
             }
             return null
         }
+    }
+
+    /**
+     * Parse the optional "tileZones" section of a map (alternative terrain states switched by
+     * level events). Entries outside the map bounds or with unsupported tile types are skipped.
+     */
+    private fun parseTileZones(
+        dataJson: String,
+        width: Int,
+        height: Int,
+    ): List<de.egril.defender.model.TileZone> {
+        val zonesSection = JsonUtils.extractJsonArrayForKey(dataJson, "tileZones")
+        if (zonesSection.isBlank()) return emptyList()
+        val zones = mutableListOf<de.egril.defender.model.TileZone>()
+        val entryRegex = Regex(""""(\d+),(\d+)":\s*\{([^}]*)\}""")
+        for (zoneJson in JsonUtils.splitJsonArray(zonesSection)) {
+            val id = JsonUtils.extractStringValue(zoneJson, "id")
+            if (id.isBlank()) continue
+            val name = JsonUtils.extractStringValue(zoneJson, "name")
+            val tilesSection = JsonUtils.extractJsonObjectForKey(zoneJson, "zoneTiles")
+            val tiles = mutableMapOf<Position, TileType>()
+            val riverTiles = mutableMapOf<Position, de.egril.defender.model.RiverTile>()
+            for (match in entryRegex.findAll(tilesSection)) {
+                val position = Position(match.groupValues[1].toInt(), match.groupValues[2].toInt())
+                if (position.x !in 0 until width || position.y !in 0 until height) continue
+                val body = "{${match.groupValues[3]}}"
+                val type = runCatching { TileType.valueOf(JsonUtils.extractStringValue(body, "type")) }.getOrNull() ?: continue
+                tiles[position] = type
+                if (type == TileType.RIVER) {
+                    val flow =
+                        runCatching {
+                            de.egril.defender.model.RiverFlow
+                                .valueOf(JsonUtils.extractStringValue(body, "flowDirection"))
+                        }.getOrDefault(de.egril.defender.model.RiverFlow.NONE)
+                    val speed = JsonUtils.extractNumericValue(body, "flowSpeed").toIntOrNull()?.coerceIn(1, 2) ?: 1
+                    riverTiles[position] =
+                        de.egril.defender.model
+                            .RiverTile(position, flow, speed)
+                }
+            }
+            zones.add(
+                de.egril.defender.model
+                    .TileZone(id = id, name = name, tiles = tiles, riverTiles = riverTiles),
+            )
+        }
+        return zones
+    }
+
+    private fun parseTiles(
+        dataJson: String,
+        width: Int,
+        height: Int,
+    ): Map<String, TileType>? {
+        val tiles = mutableMapOf<String, TileType>()
+        val tilesKeyIndex = dataJson.indexOf("\"tiles\"")
+        if (tilesKeyIndex == -1) {
+            return emptyMap()
+        }
+
+        val colonIndex = dataJson.indexOf(':', tilesKeyIndex)
+        if (colonIndex == -1) return null
+
+        var index = colonIndex + 1
+        while (index < dataJson.length && dataJson[index].isWhitespace()) {
+            index++
+        }
+        if (index >= dataJson.length || dataJson[index] != '{') return null
+        index++
+
+        while (index < dataJson.length) {
+            while (index < dataJson.length && (dataJson[index].isWhitespace() || dataJson[index] == ',')) {
+                index++
+            }
+            if (index >= dataJson.length) return null
+            if (dataJson[index] == '}') {
+                return tiles
+            }
+            if (dataJson[index] != '"') return null
+
+            val posEnd = dataJson.indexOf('"', startIndex = index + 1)
+            if (posEnd == -1) return null
+            val pos = dataJson.substring(index + 1, posEnd)
+            val parts = pos.split(",")
+            val x = parts.getOrNull(0)?.toIntOrNull()
+            val y = parts.getOrNull(1)?.toIntOrNull()
+            // Skip - rather than reject the whole map for - a single malformed/out-of-bounds tile
+            // entry. Legacy maps sometimes carry a handful of stray positions (e.g. left over from
+            // a resize) that shouldn't make an otherwise valid, hand-crafted map unusable.
+            val isWithinBounds = parts.size == 2 && x != null && y != null && x in 0 until width && y in 0 until height
+
+            index = posEnd + 1
+            while (index < dataJson.length && dataJson[index].isWhitespace()) {
+                index++
+            }
+            if (index >= dataJson.length || dataJson[index] != ':') return null
+            index++
+            while (index < dataJson.length && dataJson[index].isWhitespace()) {
+                index++
+            }
+            if (index >= dataJson.length || dataJson[index] != '"') return null
+
+            val typeEnd = dataJson.indexOf('"', startIndex = index + 1)
+            if (typeEnd == -1) return null
+            val typeStr = dataJson.substring(index + 1, typeEnd)
+            val tileType =
+                when (typeStr) {
+                    "ISLAND" -> TileType.BUILD_AREA
+                    else ->
+                        try {
+                            TileType.valueOf(typeStr)
+                        } catch (e: IllegalArgumentException) {
+                            null
+                        }
+                }
+            if (tileType != null && isWithinBounds) {
+                tiles[pos] = tileType
+            }
+            index = typeEnd + 1
+        }
+
+        return null
     }
 
     fun serializeLevel(level: EditorLevel): String {
@@ -339,6 +589,13 @@ object EditorJsonSerializer {
         val waypointsJson =
             level.waypoints.joinToString(",\n    ") { waypoint ->
                 """{"position": {"x": ${waypoint.position.x}, "y": ${waypoint.position.y}}, "nextTargetPosition": {"x": ${waypoint.nextTargetPosition.x}, "y": ${waypoint.nextTargetPosition.y}}}"""
+            }
+
+        val singleHitTargetOrderJson =
+            if (level.singleHitTargetOrder.isNotEmpty()) {
+                ",\n  \"singleHitTargetOrder\": [${level.singleHitTargetOrder.joinToString(", ") { position -> """{"x": ${position.x}, "y": ${position.y}}""" }}]"
+            } else {
+                ""
             }
 
         val prerequisitesJson = level.prerequisites.joinToString(", ") { "\"$it\"" }
@@ -372,15 +629,8 @@ object EditorJsonSerializer {
             }
 
         val allowAutoAttackJson =
-            if (level.allowAutoAttack) {
-                ",\n  \"allowAutoAttack\": true"
-            } else {
-                ""
-            }
-
-        val splitBuildTowerButtonJson =
-            if (!level.splitBuildTowerButton) {
-                ",\n  \"splitBuildTowerButton\": false"
+            if (!level.allowAutoAttack) {
+                ",\n  \"allowAutoAttack\": false"
             } else {
                 ""
             }
@@ -395,6 +645,13 @@ object EditorJsonSerializer {
         val isSandboxJson =
             if (level.isSandbox) {
                 ",\n  \"isSandbox\": true"
+            } else {
+                ""
+            }
+
+        val waaghEnabledJson =
+            if (level.waaghEnabled) {
+                ",\n  \"waaghEnabled\": true"
             } else {
                 ""
             }
@@ -464,6 +721,17 @@ object EditorJsonSerializer {
     ]""",
                     )
                 }
+                if (level.supports.fiefs.isNotEmpty()) {
+                    val fiefsData =
+                        level.supports.fiefs.joinToString(",\n      ") { supportFief ->
+                            """{"type": "${supportFief.type.name}", "count": ${serializeSupportCount(supportFief.count)}}"""
+                        }
+                    parts.add(
+                        """"fiefs": [
+      $fiefsData
+    ]""",
+                    )
+                }
                 val allParts = parts.joinToString(",\n    ")
                 ",\n  \"supports\": {\n    $allParts\n  }"
             } else {
@@ -488,7 +756,11 @@ object EditorJsonSerializer {
             if (initialData.defenders.isNotEmpty() ||
                 initialData.attackers.isNotEmpty() ||
                 initialData.traps.isNotEmpty() ||
-                initialData.barricades.isNotEmpty()
+                initialData.barricades.isNotEmpty() ||
+                initialData.bridges.isNotEmpty() ||
+                initialData.fiefs.isNotEmpty() ||
+                initialData.mushrooms.isNotEmpty() ||
+                initialData.portals.isNotEmpty()
             ) {
                 val parts = mutableListOf<String>()
 
@@ -559,6 +831,12 @@ object EditorJsonSerializer {
                 if (initialData.barricades.isNotEmpty()) {
                     val barricadesData =
                         initialData.barricades.joinToString(",\n      ") { barricade ->
+                            val supportsTowerJson =
+                                if (barricade.supportsTower) {
+                                    """, "supportsTower": true"""
+                                } else {
+                                    ""
+                                }
                             val nameJson =
                                 if (!barricade.name.isNullOrBlank()) {
                                     """, "name": "${barricade.name}""""
@@ -571,7 +849,7 @@ object EditorJsonSerializer {
                                 } else {
                                     ""
                                 }
-                            """{"position": {"x": ${barricade.position.x}, "y": ${barricade.position.y}}, "healthPoints": ${barricade.healthPoints}$nameJson$isGateJson}"""
+                            """{"position": {"x": ${barricade.position.x}, "y": ${barricade.position.y}}, "healthPoints": ${barricade.healthPoints}$supportsTowerJson$nameJson$isGateJson}"""
                         }
                     parts.add(
                         """"barricades": [
@@ -580,8 +858,83 @@ object EditorJsonSerializer {
                     )
                 }
 
+                // Bridges
+                if (initialData.bridges.isNotEmpty()) {
+                    val bridgesData =
+                        initialData.bridges.joinToString(",\n      ") { bridge ->
+                            val isIndestructibleJson =
+                                if (bridge.isIndestructible) {
+                                    """, "isIndestructible": true"""
+                                } else {
+                                    ""
+                                }
+                            """{"position": {"x": ${bridge.position.x}, "y": ${bridge.position.y}}, "type": "${bridge.type.name}", "healthPoints": ${bridge.healthPoints}$isIndestructibleJson}"""
+                        }
+                    parts.add(
+                        """"bridges": [
+      $bridgesData
+    ]""",
+                    )
+                }
+
+                // Fiefs
+                if (initialData.fiefs.isNotEmpty()) {
+                    val fiefsData =
+                        initialData.fiefs.joinToString(",\n      ") { fief ->
+                            val x = fief.position.x
+                            val y = fief.position.y
+                            val type = fief.type.name
+                            """{"position": {"x": $x, "y": $y}, "type": "$type"}"""
+                        }
+                    parts.add(
+                        """"fiefs": [
+      $fiefsData
+    ]""",
+                    )
+                }
+
+                // Mushrooms
+                if (initialData.mushrooms.isNotEmpty()) {
+                    val mushroomsData =
+                        initialData.mushrooms.joinToString(",\n      ") { mushroom ->
+                            val x = mushroom.position.x
+                            val y = mushroom.position.y
+                            """{"position": {"x": $x, "y": $y}}"""
+                        }
+                    parts.add(
+                        """"mushrooms": [
+      $mushroomsData
+    ]""",
+                    )
+                }
+
+                // Portals
+                if (initialData.portals.isNotEmpty()) {
+                    val portalsData =
+                        initialData.portals.joinToString(",\n      ") { portal ->
+                            """{"entryPosition": {"x": ${portal.entryPosition.x}, "y": ${portal.entryPosition.y}}, "exitPosition": {"x": ${portal.exitPosition.x}, "y": ${portal.exitPosition.y}}}"""
+                        }
+                    parts.add(
+                        """"portals": [
+      $portalsData
+    ]""",
+                    )
+                }
+
                 val allParts = parts.joinToString(",\n    ")
                 ",\n  \"initialData\": {\n    $allParts\n  }"
+            } else {
+                ""
+            }
+
+        // Serialize spawn groups (issue #694), one group per line with compact spawn entries.
+        val spawnGroupsJson =
+            if (level.spawnGroups != null) {
+                val groupsData =
+                    level.spawnGroups.joinToString(",\n    ") { entry ->
+                        serializeSpawnSequenceEntry(entry)
+                    }
+                ",\n  \"spawnGroups\": [\n    $groupsData\n  ]"
             } else {
                 ""
             }
@@ -600,12 +953,13 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$splitBuildTowerButtonJson$connectedToPreviousLevelJson$isSandboxJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$singleHitTargetOrderJson$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isSandboxJson$waaghEnabledJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson$spawnGroupsJson
 }"""
         return """{
   "metadata": {
     "program": "$PROGRAM_NAME",
-    "type": "level"
+    "type": "level",
+    "license": "GNU Affero General Public License v3.0 (AGPL-3.0)"
   },
   "data": $data
 }"""
@@ -786,6 +1140,23 @@ object EditorJsonSerializer {
                 }
             }
 
+            val singleHitTargetOrder =
+                try {
+                    splitJsonArrayObjects(extractJsonArray(dataJson, "singleHitTargetOrder"))
+                        .mapNotNull { entry ->
+                            if (!entry.contains("\"x\"") || !entry.contains("\"y\"")) return@mapNotNull null
+                            Position(
+                                JsonUtils.extractValue(entry, "x").toInt(),
+                                JsonUtils.extractValue(entry, "y").toInt(),
+                            )
+                        }
+                } catch (e: Exception) {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                        println("Error parsing single-hit target order (continuing without it): ${e.message}")
+                    }
+                    emptyList()
+                }
+
             // Parse requiredPrerequisiteCount (optional)
             val requiredPrerequisiteCount: Int? =
                 if (dataJson.contains("\"requiredPrerequisiteCount\"")) {
@@ -810,23 +1181,11 @@ object EditorJsonSerializer {
                     false
                 }
 
-            // Parse allowAutoAttack (optional, defaults to false)
+            // Parse allowAutoAttack (optional, defaults to true)
             val allowAutoAttack =
                 if (dataJson.contains("\"allowAutoAttack\"")) {
                     try {
                         JsonUtils.extractValue(dataJson, "allowAutoAttack").toBoolean()
-                    } catch (e: Exception) {
-                        false
-                    }
-                } else {
-                    false
-                }
-
-            // Parse splitBuildTowerButton (optional, defaults to true)
-            val splitBuildTowerButton =
-                if (dataJson.contains("\"splitBuildTowerButton\"")) {
-                    try {
-                        JsonUtils.extractValue(dataJson, "splitBuildTowerButton").toBoolean()
                     } catch (e: Exception) {
                         true
                     }
@@ -851,6 +1210,18 @@ object EditorJsonSerializer {
                 if (dataJson.contains("\"isSandbox\"")) {
                     try {
                         JsonUtils.extractValue(dataJson, "isSandbox").toBoolean()
+                    } catch (e: Exception) {
+                        false
+                    }
+                } else {
+                    false
+                }
+
+            // Parse waaghEnabled (optional, defaults to false)
+            val waaghEnabled =
+                if (dataJson.contains("\"waaghEnabled\"")) {
+                    try {
+                        JsonUtils.extractValue(dataJson, "waaghEnabled").toBoolean()
                     } catch (e: Exception) {
                         false
                     }
@@ -887,6 +1258,10 @@ object EditorJsonSerializer {
             var initialAttackers = mutableListOf<InitialAttacker>()
             var initialTraps = mutableListOf<InitialTrap>()
             var initialBarricades = mutableListOf<InitialBarricade>()
+            var initialBridges = mutableListOf<InitialBridge>()
+            var initialFiefs = mutableListOf<InitialFief>()
+            var initialMushrooms = mutableListOf<InitialMushroom>()
+            var initialPortals = mutableListOf<InitialPortal>()
 
             if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING && id == "t3") {
                 println("")
@@ -1175,19 +1550,168 @@ object EditorJsonSerializer {
                                     } catch (e: Exception) {
                                         null
                                     }
+                                val supportsTower =
+                                    try {
+                                        JsonUtils.extractBooleanValue(entry, "supportsTower")
+                                    } catch (e: Exception) {
+                                        false
+                                    }
                                 val isGate =
                                     try {
                                         JsonUtils.extractBooleanValue(entry, "isGate")
                                     } catch (e: Exception) {
                                         false
                                     }
-                                initialBarricades.add(InitialBarricade(position, healthPoints, name = barricadeName, isGate = isGate))
+                                initialBarricades.add(
+                                    InitialBarricade(
+                                        position,
+                                        healthPoints,
+                                        supportsTower = supportsTower,
+                                        name = barricadeName,
+                                        isGate = isGate,
+                                    ),
+                                )
                             }
                             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                                 println("EditorJsonSerializer: Parsed ${initialBarricades.size} initial barricades")
                             }
                             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                                 println("EditorJsonSerializer: initialBarricades = $initialBarricades")
+                            }
+                        }
+                    }
+
+                    // Parse bridges from new format
+                    if (initialDataSection.contains("\"bridges\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"bridges\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val afterBracket = afterKey.substring(openBracketIndex + 1)
+                            val bridgesSection =
+                                if (afterBracket.contains("],")) {
+                                    afterBracket.substringBefore("],")
+                                } else {
+                                    afterBracket.substringBefore("]")
+                                }
+                            if (bridgesSection.isNotBlank()) {
+                                val bridgeEntries = splitJsonArrayObjects(bridgesSection)
+                                for (entry in bridgeEntries) {
+                                    if (!entry.contains("position")) continue
+                                    val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                    val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                    val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                    val position = Position(x, y)
+                                    val type =
+                                        try {
+                                            BridgeType.valueOf(JsonUtils.extractValue(entry, "type"))
+                                        } catch (e: Exception) {
+                                            BridgeType.WOODEN
+                                        }
+                                    val healthPoints =
+                                        JsonUtils
+                                            .extractValue(entry, "healthPoints")
+                                            .toIntOrNull()
+                                            ?: if (type == BridgeType.STONE) InitialBridge.DEFAULT_STONE_HEALTH else InitialBridge.DEFAULT_WOODEN_HEALTH
+                                    val isIndestructible =
+                                        try {
+                                            JsonUtils.extractBooleanValue(entry, "isIndestructible")
+                                        } catch (e: Exception) {
+                                            false
+                                        }
+                                    initialBridges.add(
+                                        InitialBridge(
+                                            position = position,
+                                            type = type,
+                                            healthPoints = healthPoints,
+                                            isIndestructible = isIndestructible,
+                                        ),
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Parse fiefs from new format
+                    if (initialDataSection.contains("\"fiefs\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"fiefs\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val afterBracket = afterKey.substring(openBracketIndex + 1)
+                            val fiefsSection =
+                                if (afterBracket.contains("],")) {
+                                    afterBracket.substringBefore("],")
+                                } else {
+                                    afterBracket.substringBefore("]")
+                                }
+                            if (fiefsSection.isNotBlank()) {
+                                val fiefEntries = splitJsonArrayObjects(fiefsSection)
+                                for (entry in fiefEntries) {
+                                    if (!entry.contains("position")) continue
+                                    val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                    val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                    val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                    val position = Position(x, y)
+                                    val type =
+                                        try {
+                                            val typeStr = JsonUtils.extractValue(entry, "type")
+                                            de.egril.defender.model.FiefType
+                                                .valueOf(typeStr)
+                                        } catch (e: Exception) {
+                                            de.egril.defender.model.FiefType.FISHER
+                                        }
+                                    initialFiefs.add(InitialFief(position, type))
+                                }
+                            }
+                        }
+                    }
+                    // Parse mushrooms from new format
+                    if (initialDataSection.contains("\"mushrooms\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"mushrooms\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val afterBracket = afterKey.substring(openBracketIndex + 1)
+                            val mushroomsSection =
+                                if (afterBracket.contains("],")) {
+                                    afterBracket.substringBefore("],")
+                                } else {
+                                    afterBracket.substringBefore("]")
+                                }
+                            if (mushroomsSection.isNotBlank()) {
+                                val mushroomEntries = splitJsonArrayObjects(mushroomsSection)
+                                for (entry in mushroomEntries) {
+                                    if (!entry.contains("position")) continue
+                                    val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                    val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                    val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                    initialMushrooms.add(InitialMushroom(Position(x, y)))
+                                }
+                            }
+                        }
+                    }
+                    // Parse portals from new format
+                    if (initialDataSection.contains("\"portals\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"portals\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val afterBracket = afterKey.substring(openBracketIndex + 1)
+                            val portalsSection =
+                                if (afterBracket.contains("],")) {
+                                    afterBracket.substringBefore("],")
+                                } else {
+                                    afterBracket.substringBefore("]")
+                                }
+                            if (portalsSection.isNotBlank()) {
+                                val portalEntries = splitJsonArrayObjects(portalsSection)
+                                for (entry in portalEntries) {
+                                    if (!entry.contains("entryPosition") || !entry.contains("exitPosition")) continue
+                                    val entrySection = entry.substringAfter("\"entryPosition\": {").substringBefore("}")
+                                    val exitSection = entry.substringAfter("\"exitPosition\": {").substringBefore("}")
+                                    val entryX = JsonUtils.extractValue("{$entrySection}", "x").toInt()
+                                    val entryY = JsonUtils.extractValue("{$entrySection}", "y").toInt()
+                                    val exitX = JsonUtils.extractValue("{$exitSection}", "x").toInt()
+                                    val exitY = JsonUtils.extractValue("{$exitSection}", "y").toInt()
+                                    initialPortals.add(InitialPortal(Position(entryX, entryY), Position(exitX, exitY)))
+                                }
                             }
                         }
                     }
@@ -1202,7 +1726,9 @@ object EditorJsonSerializer {
             if (initialDefenders.isEmpty() &&
                 initialAttackers.isEmpty() &&
                 initialTraps.isEmpty() &&
-                initialBarricades.isEmpty()
+                initialBarricades.isEmpty() &&
+                initialBridges.isEmpty() &&
+                initialFiefs.isEmpty()
             ) {
                 // Parse initial defenders (legacy flat format)
                 if (dataJson.contains("\"initialDefenders\"")) {
@@ -1346,7 +1872,13 @@ object EditorJsonSerializer {
                                 val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
                                 val position = Position(x, y)
                                 val healthPoints = JsonUtils.extractValue(entry, "healthPoints").toInt()
-                                initialBarricades.add(InitialBarricade(position, healthPoints))
+                                val supportsTower =
+                                    try {
+                                        JsonUtils.extractBooleanValue(entry, "supportsTower")
+                                    } catch (e: Exception) {
+                                        false
+                                    }
+                                initialBarricades.add(InitialBarricade(position, healthPoints, supportsTower = supportsTower))
                             }
                         }
                     } catch (e: Exception) {
@@ -1358,8 +1890,16 @@ object EditorJsonSerializer {
             } // End of legacy format fallback
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                val defenderCount = initialDefenders.size
+                val attackerCount = initialAttackers.size
+                val trapCount = initialTraps.size
+                val barricadeCount = initialBarricades.size
+                val bridgeCount = initialBridges.size
+                val fiefCount = initialFiefs.size
                 println(
-                    "EditorJsonSerializer.deserializeLevel: Parsed level $id with ${initialDefenders.size} defenders, ${initialAttackers.size} attackers, ${initialTraps.size} traps, ${initialBarricades.size} barricades",
+                    "EditorJsonSerializer.deserializeLevel: Parsed level $id " +
+                        "with $defenderCount defenders, $attackerCount attackers, " +
+                        "$trapCount traps, $barricadeCount barricades, $bridgeCount bridges, $fiefCount fiefs",
                 )
             }
 
@@ -1368,9 +1908,22 @@ object EditorJsonSerializer {
                 if (initialDefenders.isNotEmpty() ||
                     initialAttackers.isNotEmpty() ||
                     initialTraps.isNotEmpty() ||
-                    initialBarricades.isNotEmpty()
+                    initialBarricades.isNotEmpty() ||
+                    initialBridges.isNotEmpty() ||
+                    initialFiefs.isNotEmpty() ||
+                    initialMushrooms.isNotEmpty() ||
+                    initialPortals.isNotEmpty()
                 ) {
-                    InitialData(initialDefenders, initialAttackers, initialTraps, initialBarricades)
+                    InitialData(
+                        defenders = initialDefenders,
+                        attackers = initialAttackers,
+                        traps = initialTraps,
+                        barricades = initialBarricades,
+                        bridges = initialBridges,
+                        fiefs = initialFiefs,
+                        mushrooms = initialMushrooms,
+                        portals = initialPortals,
+                    )
                 } else {
                     null
                 }
@@ -1380,6 +1933,9 @@ object EditorJsonSerializer {
 
             // Parse optional scripted level events
             val events = parseEvents(dataJson)
+
+            // Parse optional spawn groups (issue #694)
+            val spawnGroups = parseSpawnGroups(dataJson)
 
             return EditorLevel(
                 id = id,
@@ -1393,19 +1949,21 @@ object EditorJsonSerializer {
                 enemySpawns = spawns,
                 availableTowers = towers,
                 waypoints = waypoints,
+                singleHitTargetOrder = singleHitTargetOrder,
                 prerequisites = prerequisites,
                 requiredPrerequisiteCount = requiredPrerequisiteCount,
                 testingOnly = testingOnly,
                 allowAutoAttack = allowAutoAttack,
                 connectedToPreviousLevel = connectedToPreviousLevel,
-                splitBuildTowerButton = splitBuildTowerButton,
                 isSandbox = isSandbox,
+                waaghEnabled = waaghEnabled,
                 isOfficial = isOfficial,
                 author = author,
                 communityDescription = communityDescription,
                 supports = supports,
                 events = events,
                 initialData = initialData,
+                spawnGroups = spawnGroups,
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -1807,7 +2365,25 @@ object EditorJsonSerializer {
             }
         }
 
-        return LevelSupports(objects = objects, spells = spells, cooldownPowers = cooldownPowers)
+        val fiefs = mutableListOf<de.egril.defender.model.SupportFief>()
+        val fiefsSection = extractArraySection(supportsSection, "fiefs")
+        if (fiefsSection.isNotBlank()) {
+            for (entry in splitJsonArrayObjects(fiefsSection)) {
+                val typeName = runCatching { JsonUtils.extractValue(entry, "type") }.getOrNull() ?: continue
+                val type =
+                    runCatching {
+                        de.egril.defender.model.FiefType
+                            .valueOf(typeName)
+                    }.getOrNull() ?: continue
+                val count = parseSupportCount(runCatching { JsonUtils.extractValue(entry, "count") }.getOrDefault(""))
+                fiefs.add(
+                    de.egril.defender.model
+                        .SupportFief(type = type, count = count),
+                )
+            }
+        }
+
+        return LevelSupports(objects = objects, spells = spells, cooldownPowers = cooldownPowers, fiefs = fiefs)
     }
 
     private fun serializeSupportCount(count: Int): String =
@@ -1837,21 +2413,414 @@ object EditorJsonSerializer {
         if (c.position != null) conditionParts.add("\"position\": {\"x\": ${c.position.x}, \"y\": ${c.position.y}}")
         val conditionJson = "{${conditionParts.joinToString(", ")}}"
 
-        val actionsJson =
-            event.actions.joinToString(", ") { action ->
-                val parts = mutableListOf<String>()
-                parts.add("\"type\": \"${action.type.name}\"")
-                parts.add("\"amount\": ${action.amount}")
-                if (action.supportObjectType != null) parts.add("\"supportObjectType\": \"${action.supportObjectType.name}\"")
-                if (action.spellType != null) parts.add("\"spellType\": \"${action.spellType.name}\"")
-                if (action.position != null) parts.add("\"position\": {\"x\": ${action.position.x}, \"y\": ${action.position.y}}")
-                "{${parts.joinToString(", ")}}"
-            }
+        val actionsJson = serializeActions(event.actions)
 
         val messageJson =
             if (event.messageKey != null) ", \"messageKey\": \"${event.messageKey}\"" else ""
+        // Only non-standard frames are written so existing level files stay unchanged.
+        val messageFrameJson =
+            if (event.messageFrame != null) ", \"messageFrame\": \"${event.messageFrame}\"" else ""
+        // The loop is written last so the event's own fields can be parsed from the text before it.
+        val loopJson = event.loop?.let { ", \"loop\": ${serializeLoop(it)}" } ?: ""
         return "{\"id\": \"${event.id}\", \"condition\": $conditionJson, " +
-            "\"actions\": [$actionsJson]$messageJson, \"repeatable\": ${event.repeatable}}"
+            "\"actions\": [$actionsJson]$messageJson$messageFrameJson, \"repeatable\": ${event.repeatable}$loopJson}"
+    }
+
+    // --- Spawn groups (issue #694) ---------------------------------------------------------------
+
+    private fun serializeSpawnSequenceEntry(entry: SpawnSequenceEntry): String =
+        when (entry) {
+            is SpawnGroupTurn -> serializeSpawnGroupTurn(entry)
+            is SpawnGroup -> serializeSpawnGroup(entry)
+        }
+
+    private fun serializeSpawnGroupTurn(turn: SpawnGroupTurn): String {
+        val spawnsJson =
+            turn.spawns.joinToString(", ") { spawn ->
+                val spawnParts = mutableListOf<String>()
+                spawnParts.add("\"attackerType\": \"${spawn.attackerType.name}\"")
+                spawnParts.add("\"count\": ${spawn.count}")
+                spawnParts.add("\"level\": ${spawn.level}")
+                if (spawn.spawnPoint != null) {
+                    spawnParts.add("\"spawnPoint\": {\"x\": ${spawn.spawnPoint.x}, \"y\": ${spawn.spawnPoint.y}}")
+                }
+                if (spawn.unitId != null) spawnParts.add("\"unitId\": ${EventMapImageJson.quote(spawn.unitId)}")
+                if (spawn.firstIterationOnly) spawnParts.add("\"firstIterationOnly\": true")
+                "{${spawnParts.joinToString(", ")}}"
+            }
+        return "{\"turnOffset\": ${turn.turnOffset}, \"spawns\": [$spawnsJson]}"
+    }
+
+    /** Groups write their own fields first and the (possibly nested) entries last. */
+    private fun serializeSpawnGroup(group: SpawnGroup): String {
+        val parts = mutableListOf<String>()
+        parts.add("\"groupId\": ${EventMapImageJson.quote(group.groupId)}")
+        parts.add("\"repeatMode\": \"${group.repeatMode.name}\"")
+        if (group.repeatMode == SpawnRepeatMode.COUNT) {
+            parts.add("\"repeatCount\": ${group.repeatCount}")
+        }
+        if (group.condition != null) parts.add("\"condition\": \"${group.condition.name}\"")
+        if (group.targetUnitId != null) parts.add("\"targetUnitId\": ${EventMapImageJson.quote(group.targetUnitId)}")
+        parts.add("\"entries\": [${group.entries.joinToString(", ") { serializeSpawnSequenceEntry(it) }}]")
+        return "{${parts.joinToString(", ")}}"
+    }
+
+    /**
+     * Parses the top-level spawn sequence. Elements are groups (with `repeatMode`) or plain turns
+     * (with `turnOffset`). Groups store their content in `entries`; files written before nested
+     * loops use `turns` (turns only), which is still accepted.
+     */
+    private fun parseSpawnGroups(dataJson: String): List<SpawnSequenceEntry>? {
+        val arrayKey = Regex("\"spawnGroups\"\\s*:\\s*")
+        val arrayStart = arrayKey.find(dataJson) ?: return null
+        require(dataJson.getOrNull(arrayStart.range.last + 1) == '[') { "spawnGroups must be a JSON array" }
+        val groupsSection = extractSpawnGroupSection(dataJson, arrayStart.range.last + 2, '[', ']')
+        val groupIds = mutableSetOf<String>()
+        return parseSpawnSequence(groupsSection, groupIds)
+    }
+
+    private fun parseSpawnSequence(
+        arrayContent: String,
+        groupIds: MutableSet<String>,
+    ): List<SpawnSequenceEntry> {
+        val entries = mutableListOf<SpawnSequenceEntry>()
+        val segmentOffsets = mutableSetOf<Int>()
+        for (entry in EventMapImageJson.splitArray(arrayContent)) {
+            require(entry.startsWith("{") && entry.endsWith("}")) { "Invalid spawn sequence entry" }
+            val head = spawnObjectHead(entry)
+            if (hasSpawnGroupKey(head, "repeatMode")) {
+                segmentOffsets.clear()
+                entries.add(parseSpawnGroup(entry, head, groupIds))
+            } else {
+                val turn = parseSpawnGroupTurn(entry, head)
+                require(segmentOffsets.add(turn.turnOffset)) { "Duplicate turnOffset '${turn.turnOffset}'" }
+                entries.add(turn)
+            }
+        }
+        return entries
+    }
+
+    private fun parseSpawnGroup(
+        entry: String,
+        head: String,
+        groupIds: MutableSet<String>,
+    ): SpawnGroup {
+        val groupId = requiredSpawnGroupString(head, "groupId")
+        require(groupIds.add(groupId)) { "Duplicate spawn group id '$groupId'" }
+        val repeatMode =
+            requiredSpawnGroupString(head, "repeatMode").let { value ->
+                runCatching { SpawnRepeatMode.valueOf(value) }
+                    .getOrElse { throw IllegalArgumentException("Unknown spawn repeat mode '$value'") }
+            }
+        val repeatCount =
+            optionalSpawnGroupInt(head, "repeatCount", 1)
+                .also { require(it > 0) { "repeatCount must be positive" } }
+        val condition =
+            optionalSpawnGroupString(head, "condition")?.let { value ->
+                runCatching { SpawnCondition.valueOf(value) }
+                    .getOrElse { throw IllegalArgumentException("Unknown spawn condition '$value'") }
+            }
+        val targetUnitId = optionalSpawnGroupString(head, "targetUnitId")
+        if (repeatMode == SpawnRepeatMode.CONDITION) {
+            require(condition != null && !targetUnitId.isNullOrBlank()) {
+                "CONDITION spawn groups require a condition and targetUnitId"
+            }
+        }
+        val contentKey = if (hasSpawnGroupKey(head, "entries")) "entries" else "turns"
+        val entries = parseSpawnSequence(requiredSpawnGroupArray(entry, contentKey), groupIds)
+        require(entries.isNotEmpty()) { "Spawn groups must contain at least one entry" }
+        return SpawnGroup(groupId, repeatMode, repeatCount, condition, targetUnitId, entries)
+    }
+
+    private fun parseSpawnGroupTurn(
+        turnEntry: String,
+        head: String,
+    ): SpawnGroupTurn {
+        val turnOffset =
+            requiredSpawnGroupInt(head, "turnOffset")
+                .also { require(it > 0) { "turnOffset must be positive" } }
+        val spawnsSection = requiredSpawnGroupArray(turnEntry, "spawns")
+        val spawns = mutableListOf<SpawnGroupSpawn>()
+        for (spawnEntry in EventMapImageJson.splitArray(spawnsSection)) {
+            require(spawnEntry.startsWith("{") && spawnEntry.endsWith("}")) { "Invalid spawn entry" }
+            val attackerTypeName = requiredSpawnGroupString(spawnEntry, "attackerType")
+            val attackerType =
+                runCatching { AttackerType.valueOf(attackerTypeName) }
+                    .getOrElse { throw IllegalArgumentException("Unknown attacker type '$attackerTypeName'") }
+            val count = optionalSpawnGroupInt(spawnEntry, "count", 1)
+            val level = optionalSpawnGroupInt(spawnEntry, "level", 1)
+            require(count > 0) { "Spawn count must be positive" }
+            require(level > 0) { "Spawn level must be positive" }
+            val spawnPoint =
+                if (hasSpawnGroupKey(spawnEntry, "spawnPoint")) {
+                    val section = requiredSpawnGroupObject(spawnEntry, "spawnPoint")
+                    val x = requiredSpawnGroupInt(section, "x")
+                    val y = requiredSpawnGroupInt(section, "y")
+                    require(x >= 0 && y >= 0) { "Spawn point coordinates must be non-negative" }
+                    Position(x, y)
+                } else {
+                    null
+                }
+            val unitId = optionalSpawnGroupString(spawnEntry, "unitId")
+            val firstIterationOnly =
+                if (hasSpawnGroupKey(spawnEntry, "firstIterationOnly")) {
+                    Regex("\"firstIterationOnly\"\\s*:\\s*(true|false)(?=\\s*[,}])")
+                        .find(spawnEntry)
+                        ?.groupValues
+                        ?.get(1)
+                        ?.toBoolean()
+                        ?: throw IllegalArgumentException("firstIterationOnly must be a boolean")
+                } else {
+                    false
+                }
+            spawns.add(SpawnGroupSpawn(attackerType, count, level, spawnPoint, unitId, firstIterationOnly))
+        }
+        return SpawnGroupTurn(turnOffset, spawns)
+    }
+
+    /**
+     * Returns [json] (a single object) with the contents of all nested arrays/objects removed, so
+     * key lookups only see the object's own fields and never those of nested entries.
+     */
+    private fun spawnObjectHead(json: String): String {
+        val result = StringBuilder()
+        var depth = 0
+        var inString = false
+        var escaped = false
+        for (char in json) {
+            if (inString) {
+                if (depth <= 1) result.append(char)
+                if (escaped) {
+                    escaped = false
+                } else if (char == '\\') {
+                    escaped = true
+                } else if (char == '"') {
+                    inString = false
+                }
+                continue
+            }
+            when (char) {
+                '"' -> {
+                    inString = true
+                    if (depth <= 1) result.append(char)
+                }
+                '{', '[' -> {
+                    depth++
+                    if (depth <= 2) result.append(char)
+                }
+                '}', ']' -> {
+                    if (depth <= 2) result.append(char)
+                    depth--
+                }
+                else -> if (depth <= 1) result.append(char)
+            }
+        }
+        return result.toString()
+    }
+
+    private fun extractSpawnGroupSection(
+        json: String,
+        contentStart: Int,
+        open: Char,
+        close: Char,
+    ): String {
+        var depth = 1
+        var inString = false
+        var escaped = false
+        var index = contentStart
+        while (index < json.length) {
+            val char = json[index]
+            if (inString) {
+                if (escaped) {
+                    escaped = false
+                } else if (char == '\\') {
+                    escaped = true
+                } else if (char == '"') {
+                    inString = false
+                }
+            } else {
+                when (char) {
+                    '"' -> inString = true
+                    open -> depth++
+                    close -> {
+                        depth--
+                        if (depth == 0) return json.substring(contentStart, index)
+                    }
+                }
+            }
+            index++
+        }
+        throw IllegalArgumentException("Unterminated JSON section")
+    }
+
+    private fun requiredSpawnGroupArray(
+        json: String,
+        key: String,
+    ): String {
+        val keyMatch =
+            Regex("\"${Regex.escape(key)}\"\\s*:\\s*\\[")
+                .find(json)
+                ?: throw IllegalArgumentException("$key must be a JSON array")
+        return extractSpawnGroupSection(json, keyMatch.range.last + 1, '[', ']')
+    }
+
+    private fun requiredSpawnGroupObject(
+        json: String,
+        key: String,
+    ): String {
+        val keyMatch =
+            Regex("\"${Regex.escape(key)}\"\\s*:\\s*\\{")
+                .find(json)
+                ?: throw IllegalArgumentException("$key must be a JSON object")
+        val contentStart = keyMatch.range.last + 1
+        return extractSpawnGroupSection(json, contentStart, '{', '}')
+    }
+
+    private fun requiredSpawnGroupString(
+        json: String,
+        key: String,
+    ): String =
+        optionalSpawnGroupString(json, key)
+            ?.takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException("$key must be a non-blank string")
+
+    private fun optionalSpawnGroupString(
+        json: String,
+        key: String,
+    ): String? {
+        if (!hasSpawnGroupKey(json, key)) return null
+        return EventMapImageJson
+            .stringValue(json, key)
+            ?.takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException("$key must be a non-blank string")
+    }
+
+    private fun requiredSpawnGroupInt(
+        json: String,
+        key: String,
+    ): Int =
+        JsonUtils
+            .extractNumericValue(json, key)
+            .toIntOrNull()
+            ?: throw IllegalArgumentException("$key must be an integer")
+
+    private fun optionalSpawnGroupInt(
+        json: String,
+        key: String,
+        default: Int,
+    ): Int =
+        if (hasSpawnGroupKey(json, key)) {
+            requiredSpawnGroupInt(json, key)
+        } else {
+            default
+        }
+
+    private fun hasSpawnGroupKey(
+        json: String,
+        key: String,
+    ): Boolean = Regex("\"${Regex.escape(key)}\"\\s*:").containsMatchIn(json)
+
+    private fun serializeActions(actions: List<EventAction>): String =
+        actions.joinToString(", ") { action ->
+            val parts = mutableListOf<String>()
+            parts.add("\"type\": \"${action.type.name}\"")
+            parts.add("\"amount\": ${action.amount}")
+            if (action.supportObjectType != null) parts.add("\"supportObjectType\": \"${action.supportObjectType.name}\"")
+            if (action.spellType != null) parts.add("\"spellType\": \"${action.spellType.name}\"")
+            if (action.position != null) parts.add("\"position\": {\"x\": ${action.position.x}, \"y\": ${action.position.y}}")
+            if (action.zoneId != null) parts.add("\"zoneId\": \"${action.zoneId}\"")
+            if (action.targetEventId != null) parts.add("\"targetEventId\": \"${action.targetEventId}\"")
+            if (action.mapImage != null) parts.add("\"mapImage\": ${EventMapImageJson.serialize(action.mapImage)}")
+            if (action.imageId != null) parts.add("\"imageId\": ${EventMapImageJson.quote(action.imageId)}")
+            if (action.spawnLoopId != null) parts.add("\"spawnLoopId\": ${EventMapImageJson.quote(action.spawnLoopId)}")
+            if (action.linkId != null) parts.add("\"linkId\": ${EventMapImageJson.quote(action.linkId)}")
+            if (action.altarFrom != null) parts.add("\"altarFrom\": {\"x\": ${action.altarFrom.x}, \"y\": ${action.altarFrom.y}}")
+            if (action.altarTo != null) parts.add("\"altarTo\": {\"x\": ${action.altarTo.x}, \"y\": ${action.altarTo.y}}")
+            "{${parts.joinToString(", ")}}"
+        }
+
+    /** Serialize an [EventLoop]; each step's nested loop is written last within the step. */
+    private fun serializeLoop(loop: EventLoop): String {
+        val stepsJson =
+            loop.steps.joinToString(", ") { step ->
+                val messageJson = if (step.messageKey != null) ", \"messageKey\": \"${step.messageKey}\"" else ""
+                val messageFrameJson =
+                    if (step.messageFrame != null) ", \"messageFrame\": \"${step.messageFrame}\"" else ""
+                val nestedJson = step.nestedLoop?.let { ", \"nestedLoop\": ${serializeLoop(it)}" } ?: ""
+                "{\"waitTurns\": ${step.waitTurns}, \"actions\": [${serializeActions(step.actions)}]" +
+                    "$messageJson$messageFrameJson$nestedJson}"
+            }
+        return "{\"repeatCount\": ${loop.repeatCount}, \"steps\": [$stepsJson]}"
+    }
+
+    private fun parseActions(actionsSection: String): List<EventAction> {
+        val actions = mutableListOf<EventAction>()
+        if (actionsSection.isBlank()) return actions
+        for (actionEntry in EventMapImageJson.splitArray(actionsSection)) {
+            val actionTypeName = runCatching { JsonUtils.extractValue(actionEntry, "type") }.getOrNull() ?: continue
+            val actionType = runCatching { EventActionType.valueOf(actionTypeName) }.getOrNull() ?: continue
+            val amount = runCatching { JsonUtils.extractValue(actionEntry, "amount").toInt() }.getOrDefault(0)
+            val supportObjectType =
+                if (actionEntry.contains("\"supportObjectType\"")) {
+                    runCatching { SupportObjectType.valueOf(JsonUtils.extractValue(actionEntry, "supportObjectType")) }.getOrNull()
+                } else {
+                    null
+                }
+            val spellType =
+                if (actionEntry.contains("\"spellType\"")) {
+                    runCatching { SpellType.valueOf(JsonUtils.extractValue(actionEntry, "spellType")) }.getOrNull()
+                } else {
+                    null
+                }
+            val zoneId = JsonUtils.extractStringValue(actionEntry, "zoneId").takeIf { it.isNotBlank() }
+            val targetEventId = JsonUtils.extractStringValue(actionEntry, "targetEventId").takeIf { it.isNotBlank() }
+            actions.add(
+                EventAction(
+                    type = actionType,
+                    amount = amount,
+                    supportObjectType = supportObjectType,
+                    spellType = spellType,
+                    position = parsePositionField(actionEntry, "position"),
+                    zoneId = zoneId,
+                    targetEventId = targetEventId,
+                    mapImage = EventMapImageJson.deserialize(JsonUtils.extractJsonObjectForKey(actionEntry, "mapImage")),
+                    imageId = EventMapImageJson.stringValue(actionEntry, "imageId")?.takeIf { it.isNotBlank() },
+                    spawnLoopId = EventMapImageJson.stringValue(actionEntry, "spawnLoopId")?.takeIf { it.isNotBlank() },
+                    linkId = EventMapImageJson.stringValue(actionEntry, "linkId")?.takeIf { it.isNotBlank() },
+                    altarFrom = parsePositionField(actionEntry, "altarFrom"),
+                    altarTo = parsePositionField(actionEntry, "altarTo"),
+                ),
+            )
+        }
+        return actions
+    }
+
+    /** Parse the body (without outer braces) of a serialized [EventLoop]. */
+    private fun parseLoop(loopBody: String): EventLoop {
+        val head = loopBody.substringBefore("\"steps\"")
+        val repeatCount = JsonUtils.extractNumericValue(head, "repeatCount").toIntOrNull() ?: 0
+        val stepsSection = JsonUtils.extractJsonArrayForKey(loopBody, "steps")
+        val steps =
+            EventMapImageJson.splitArray(stepsSection).map { stepJson ->
+                // Only look at the step's own fields, not those of its nested loop (written last).
+                val stepHead = stepJson.substringBefore("\"nestedLoop\"")
+                val waitTurns = JsonUtils.extractNumericValue(stepHead, "waitTurns").toIntOrNull()?.coerceAtLeast(0) ?: 1
+                val messageKey = JsonUtils.extractStringValue(stepHead, "messageKey").takeIf { it.isNotBlank() }
+                val nestedLoop =
+                    if (stepJson.contains("\"nestedLoop\"")) {
+                        parseLoop(JsonUtils.extractJsonObjectForKey(stepJson, "nestedLoop"))
+                    } else {
+                        null
+                    }
+                EventLoopStep(
+                    waitTurns = waitTurns,
+                    actions = parseActions(JsonUtils.extractJsonArrayForKey(stepHead, "actions")),
+                    messageKey = messageKey,
+                    messageFrame = JsonUtils.extractStringValue(stepHead, "messageFrame").takeIf { it.isNotBlank() },
+                    nestedLoop = nestedLoop,
+                )
+            }
+        return EventLoop(steps = steps, repeatCount = repeatCount.coerceAtLeast(0))
     }
 
     /**
@@ -1874,13 +2843,15 @@ object EditorJsonSerializer {
      * Parse the optional "events" section (scripted level events) from a level's data JSON.
      */
     private fun parseEvents(dataJson: String): LevelEvents {
-        val eventsSection = extractArraySection(dataJson, "events")
+        val eventsSection = JsonUtils.extractJsonArrayForKey(dataJson, "events")
         if (eventsSection.isBlank()) {
             return LevelEvents()
         }
 
         val events = mutableListOf<LevelEvent>()
-        for (entry in splitJsonArrayObjects(eventsSection)) {
+        for (fullEntry in EventMapImageJson.splitArray(eventsSection)) {
+            // The loop is serialized last; parse the event's own fields only from the text before it.
+            val entry = fullEntry.substringBefore("\"loop\"")
             val id = runCatching { JsonUtils.extractValue(entry, "id") }.getOrNull() ?: continue
 
             val conditionSection = extractObjectSection(entry, "condition")
@@ -1908,42 +2879,7 @@ object EditorJsonSerializer {
                     position = condPosition,
                 )
 
-            val actions = mutableListOf<EventAction>()
-            val actionsSection = extractArraySection(entry, "actions")
-            if (actionsSection.isNotBlank()) {
-                for (actionEntry in splitJsonArrayObjects(actionsSection)) {
-                    val actionTypeName = runCatching { JsonUtils.extractValue(actionEntry, "type") }.getOrNull() ?: continue
-                    val actionType =
-                        runCatching {
-                            EventActionType
-                                .valueOf(actionTypeName)
-                        }.getOrNull() ?: continue
-                    val amount = runCatching { JsonUtils.extractValue(actionEntry, "amount").toInt() }.getOrDefault(0)
-                    val supportObjectType =
-                        if (actionEntry.contains("\"supportObjectType\"")) {
-                            runCatching { SupportObjectType.valueOf(JsonUtils.extractValue(actionEntry, "supportObjectType")) }
-                                .getOrNull()
-                        } else {
-                            null
-                        }
-                    val spellType =
-                        if (actionEntry.contains("\"spellType\"")) {
-                            runCatching { SpellType.valueOf(JsonUtils.extractValue(actionEntry, "spellType")) }.getOrNull()
-                        } else {
-                            null
-                        }
-                    val actionPosition = parsePositionField(actionEntry, "position")
-                    actions.add(
-                        EventAction(
-                            type = actionType,
-                            amount = amount,
-                            supportObjectType = supportObjectType,
-                            spellType = spellType,
-                            position = actionPosition,
-                        ),
-                    )
-                }
-            }
+            val actions = parseActions(JsonUtils.extractJsonArrayForKey(entry, "actions"))
 
             val messageKey =
                 if (entry.contains("\"messageKey\"")) {
@@ -1951,7 +2887,15 @@ object EditorJsonSerializer {
                 } else {
                     null
                 }
+            // Absent frame (levels authored before frames were selectable) means the standard frame.
+            val messageFrame = JsonUtils.extractStringValue(entry, "messageFrame").takeIf { it.isNotBlank() }
             val repeatable = runCatching { JsonUtils.extractValue(entry, "repeatable").toBoolean() }.getOrDefault(false)
+            val loop =
+                if (fullEntry.contains("\"loop\"")) {
+                    runCatching { parseLoop(JsonUtils.extractJsonObjectForKey(fullEntry, "loop")) }.getOrNull()
+                } else {
+                    null
+                }
 
             events.add(
                 LevelEvent(
@@ -1959,7 +2903,9 @@ object EditorJsonSerializer {
                     condition = condition,
                     actions = actions,
                     messageKey = messageKey,
+                    messageFrame = messageFrame,
                     repeatable = repeatable,
+                    loop = loop,
                 ),
             )
         }

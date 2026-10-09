@@ -1,6 +1,7 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -33,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.CooldownPowerType
 import de.egril.defender.model.Defender
+import de.egril.defender.model.FiefType
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Position
@@ -43,12 +46,19 @@ import de.egril.defender.model.isIndefiniteSupportCount
 import de.egril.defender.model.supportCountDisplayText
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.hexagon.HexagonShape
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.HammerIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.fief_fisher_hut
+import defender_of_egril.composeapp.generated.resources.fief_marketplace
+import defender_of_egril.composeapp.generated.resources.fief_quarry
+import defender_of_egril.composeapp.generated.resources.fief_woodcutter
+import org.jetbrains.compose.resources.painterResource
 
 /** Colors used for the support boxes (objects vs spell tokens vs cooldown powers). */
 private object SupportBarColors {
@@ -85,6 +95,10 @@ sealed interface SupportSlot {
     data class PowerSlot(
         val type: CooldownPowerType,
     ) : SupportSlot
+
+    data class FiefSlot(
+        val type: FiefType,
+    ) : SupportSlot
 }
 
 /**
@@ -95,6 +109,7 @@ fun visibleSupportSlots(gameState: GameState): List<SupportSlot> {
     val slots = mutableListOf<SupportSlot>()
     displayedSupportObjectTypes(gameState).forEach { slots.add(SupportSlot.ObjectSlot(it)) }
     displayedSupportSpellTypes(gameState).forEach { slots.add(SupportSlot.SpellSlot(it)) }
+    displayedSupportFiefTypes(gameState).forEach { slots.add(SupportSlot.FiefSlot(it)) }
     gameState.level.supports.cooldownPowers.forEach { power ->
         slots.add(SupportSlot.PowerSlot(power.type))
     }
@@ -133,6 +148,17 @@ fun displayedSupportSpellTypes(gameState: GameState): List<SpellType> {
 }
 
 /**
+ * Ordered fief types to show as support tokens: those declared for the level that still have
+ * at least one placement remaining.
+ */
+fun displayedSupportFiefTypes(gameState: GameState): List<de.egril.defender.model.FiefType> {
+    val declared =
+        gameState.level.supports.fiefs
+            .map { it.type }
+    return declared.filter { (gameState.supportFiefRemaining[it] ?: 0) > 0 }
+}
+
+/**
  * Whether the support box for [slot] can currently be used. Mirrors the per-box enable logic used
  * when rendering the [SupportBar] so that keyboard navigation behaves exactly like clicking the box.
  *
@@ -149,6 +175,7 @@ fun isSupportSlotEnabled(
     val manaAtMax = gameState.currentMana.value >= gameState.maxMana.value
     return when (slot) {
         is SupportSlot.ObjectSlot -> barEnabled
+        is SupportSlot.FiefSlot -> barEnabled
         is SupportSlot.SpellSlot -> {
             val atMaxEffect = slot.spell == SpellType.HEAL && healthAtMax
             powersEnabled && !atMaxEffect
@@ -224,6 +251,38 @@ fun supportObjectPlacementTiles(
                         pos !in defenderNotOnTowerBasePositions
                 }
             if (valid) tiles.add(pos)
+        }
+    }
+    return tiles
+}
+
+/**
+ * The ordered list of tiles on which a fief support token may currently be placed. Fiefs require
+ * an empty path tile (no attacker, trap, barricade, or existing fief). Fisher fiefs additionally
+ * require at least one adjacent water tile. Ordered top-to-bottom, left-to-right so keyboard
+ * placement moves predictably.
+ */
+fun supportFiefPlacementTiles(
+    gameState: GameState,
+    type: FiefType,
+): List<Position> {
+    val attackerPositions =
+        gameState.attackers
+            .filter { !it.isDefeated.value }
+            .map { it.position.value }
+            .toHashSet()
+    val trapPositions = gameState.traps.map { it.position }.toHashSet()
+    val barricadePositions = gameState.barricades.map { it.position }.toHashSet()
+    val fiefPositions = gameState.fiefs.map { it.position }.toHashSet()
+
+    val tiles = mutableListOf<Position>()
+    for (y in 0 until gameState.level.gridHeight) {
+        for (x in 0 until gameState.level.gridWidth) {
+            val pos = Position(x, y)
+            if (!gameState.level.isOnPath(pos)) continue
+            if (pos in attackerPositions || pos in trapPositions || pos in barricadePositions || pos in fiefPositions) continue
+            if (type == FiefType.FISHER && !gameState.level.hasAdjacentWaterTile(pos)) continue
+            tiles.add(pos)
         }
     }
     return tiles
@@ -310,12 +369,15 @@ fun SupportBar(
     onSpellClick: (SpellType) -> Unit,
     modifier: Modifier = Modifier,
     onCooldownPowerClick: (CooldownPowerType) -> Unit = {},
+    selectedSupportFief: de.egril.defender.model.FiefType? = null,
+    onFiefClick: (de.egril.defender.model.FiefType) -> Unit = {},
     focusedSlotIndex: Int? = null,
 ) {
     val supports = gameState.level.supports
     val objectTypes = displayedSupportObjectTypes(gameState)
     val spellTypes = displayedSupportSpellTypes(gameState)
-    if (objectTypes.isEmpty() && spellTypes.isEmpty() && supports.cooldownPowers.isEmpty()) return
+    val fiefTypes = displayedSupportFiefTypes(gameState)
+    if (objectTypes.isEmpty() && spellTypes.isEmpty() && fiefTypes.isEmpty() && supports.cooldownPowers.isEmpty()) return
 
     // Spell tokens and cooldown powers are unusable during the initial building phase — only
     // placeable objects can be placed before the first enemy turn. Reflect this by disabling
@@ -374,6 +436,22 @@ fun SupportBar(
             ) {
                 SpellTargetIcon(spell = spell, size = SUPPORT_ICON_SIZE)
             }
+        }
+
+        // Fief support tokens (hexagon-shaped buttons with path color background)
+        fiefTypes.forEach { type ->
+            val remaining = gameState.supportFiefRemaining[type] ?: 0
+            val isFocused = slotIndex == focusedSlotIndex
+            slotIndex++
+            FiefSupportBox(
+                type = type,
+                remaining = remaining,
+                isSelected = selectedSupportFief == type,
+                isFocused = isFocused,
+                enabled = enabled,
+                tooltip = supportTooltip("support_type_object", type.localizedFiefName()),
+                onClick = { onFiefClick(type) },
+            )
         }
 
         // Cooldown-based powers (always shown, even while on cooldown)
@@ -788,4 +866,95 @@ fun CooldownPowerType.localizedCooldownPowerName(
         }
     return com.hyperether.resources.LocalizedStrings
         .get(key, locale)
+}
+
+/** Localized display name for a fief type. */
+fun FiefType.localizedFiefName(
+    locale: com.hyperether.resources.AppLocale = com.hyperether.resources.currentLanguage.value,
+): String =
+    com.hyperether.resources.LocalizedStrings
+        .get(this.nameKey, locale)
+
+/**
+ * A hexagon-shaped support button for a fief token. Uses the path tile background color to signal
+ * that fiefs are placed on path tiles. Clicking enters fief placement mode.
+ */
+@Composable
+private fun FiefSupportBox(
+    type: FiefType,
+    remaining: Int,
+    isSelected: Boolean,
+    isFocused: Boolean,
+    enabled: Boolean,
+    tooltip: String,
+    onClick: () -> Unit,
+) {
+    val backgroundColor = GamePlayColors.Trap
+    val borderColor = if (isSelected) SupportBarColors.Selected else backgroundColor
+    val alpha = if (enabled) 1f else 0.4f
+    val hexShape = HexagonShape()
+
+    TooltipWrapper(text = tooltip, preferAbove = true) {
+        SupportFocusRing(isFocused = isFocused, shape = hexShape) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(SUPPORT_BOX_SIZE)
+                        .clip(hexShape)
+                        .background(backgroundColor.copy(alpha = 0.85f * alpha))
+                        .border(
+                            width = if (isSelected) 3.dp else 2.dp,
+                            color = borderColor.copy(alpha = alpha),
+                            shape = hexShape,
+                        ).clickable(enabled = enabled, onClick = onClick),
+                contentAlignment = Alignment.Center,
+            ) {
+                Box(
+                    modifier = Modifier.alpha(alpha),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    val iconSize = (SUPPORT_BOX_SIZE.value * 0.55f).dp
+                    when (type) {
+                        FiefType.FISHER ->
+                            Image(
+                                painter = painterResource(Res.drawable.fief_fisher_hut),
+                                contentDescription = type.localizedFiefName(),
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.size(iconSize),
+                            )
+                        FiefType.WOODCUTTER ->
+                            Image(
+                                painter = painterResource(Res.drawable.fief_woodcutter),
+                                contentDescription = type.localizedFiefName(),
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.size(iconSize),
+                            )
+                        FiefType.QUARRY ->
+                            Image(
+                                painter = painterResource(Res.drawable.fief_quarry),
+                                contentDescription = type.localizedFiefName(),
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.size(iconSize),
+                            )
+                        FiefType.MARKETPLACE ->
+                            Image(
+                                painter = painterResource(Res.drawable.fief_marketplace),
+                                contentDescription = type.localizedFiefName(),
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.size(iconSize),
+                            )
+                    }
+                }
+
+                if (remaining > 1) {
+                    SupportCountBadge(
+                        count = remaining,
+                        color = SupportBarColors.ObjectBorder,
+                        alpha = alpha,
+                        modifier = Modifier.align(Alignment.TopEnd),
+                    )
+                }
+            }
+        }
+    }
 }

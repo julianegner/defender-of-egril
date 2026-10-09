@@ -1,11 +1,17 @@
 package de.egril.defender.game
 
 import de.egril.defender.config.GameLogBuffer
+import de.egril.defender.model.ActiveEventLoop
+import de.egril.defender.model.AltarLink
+import de.egril.defender.model.Defender
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
 import de.egril.defender.model.EventCondition
 import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.EventLoop
+import de.egril.defender.model.EventLoopFrame
+import de.egril.defender.model.EventLoopStep
 import de.egril.defender.model.GameMessage
 import de.egril.defender.model.GameMessageType
 import de.egril.defender.model.GameState
@@ -43,12 +49,19 @@ enum class EventTrigger {
  */
 class EventScriptSystem(
     private val state: GameState,
+    private val tileZoneSystem: TileZoneSystem = TileZoneSystem(state),
 ) {
     fun evaluate(trigger: EventTrigger) {
         // Sandbox levels have no scripted events.
         if (state.level.isSandbox) return
         val events = state.level.events.events
         if (events.isEmpty()) return
+
+        // Loops advance once per player turn. Loops started during this evaluation begin waiting
+        // from the next player turn on.
+        if (trigger == EventTrigger.PLAYER_TURN_START) {
+            advanceLoops()
+        }
 
         for (event in events) {
             if (!event.repeatable && state.triggeredEventIds.contains(event.id)) continue
@@ -59,6 +72,10 @@ class EventScriptSystem(
             if (!event.repeatable) {
                 state.triggeredEventIds.add(event.id)
             }
+        }
+
+        if (trigger == EventTrigger.PLAYER_TURN_START) {
+            tileZoneSystem.resurfaceSubmergedUnits()
         }
     }
 
@@ -86,9 +103,20 @@ class EventScriptSystem(
             EventConditionType.HEALTH_AT_OR_BELOW -> state.healthPoints.value <= condition.threshold
             EventConditionType.MANA_AT_OR_BELOW -> state.currentMana.value <= condition.threshold
             EventConditionType.COINS_AT_OR_BELOW -> state.coins.value <= condition.threshold
+            EventConditionType.ALTARS_ACTIVATED -> activatedAltarCount() >= condition.threshold
         }
 
+    private fun activatedAltars(): List<Defender> =
+        state.defenders.filter {
+            it.type == DefenderType.ALTAR && it.isChanneling.value && it.isReady && !it.isDisabled.value
+        }
+
+    private fun activatedAltarCount(): Int = activatedAltars().size
+
+    private fun messageAmount(messageKey: String?): Int? = if (messageKey == "event_msg_rune_network_taken_over") activatedAltarCount() else null
+
     private fun fireEvent(event: LevelEvent) {
+        val eventMessageAmount = messageAmount(event.messageKey)
         GameLogBuffer.log(
             "EVENT",
             "Scripted event '${event.id}' fired on turn ${state.turnNumber.value} " +
@@ -97,17 +125,156 @@ class EventScriptSystem(
         for (action in event.actions) {
             applyAction(action)
         }
-        // Always queue a message so the player is informed of the event's effects, even when no
-        // predefined story text was selected. The applied actions are carried on the message so the
-        // granted elements (coins, mana, supports, …) can be displayed with symbols, names and
-        // amounts.
-        state.pendingMessages.add(
-            GameMessage(
-                type = GameMessageType.EVENT_MESSAGE,
-                name = event.messageKey,
-                eventActions = event.actions,
-            ),
+        // A message popup is only shown when a predefined story text was selected. Events
+        // configured with "No message" apply their effects silently. The applied actions are
+        // carried on the message so the granted elements (coins, mana, supports, …) can be
+        // displayed with symbols, names and amounts.
+        val messageKey = event.messageKey
+        if (messageKey != null) {
+            state.pendingMessages.add(
+                GameMessage(
+                    type = GameMessageType.EVENT_MESSAGE,
+                    name = messageKey,
+                    eventActions = event.actions,
+                    eventMessageFrame = event.messageFrame,
+                    eventMessageAmount = eventMessageAmount,
+                ),
+            )
+        }
+
+        val loop = event.loop
+        if (loop != null && loop.steps.isNotEmpty() && state.activeEventLoops.none { it.eventId == event.id }) {
+            if (!loop.isValid()) {
+                GameLogBuffer.log("EVENT", "Loop of event '${event.id}' is invalid (no waiting turn per pass) and was not started")
+                return
+            }
+            state.activeEventLoops.add(
+                ActiveEventLoop(
+                    eventId = event.id,
+                    frames = listOf(EventLoopFrame(stepIndex = 0, turnsRemaining = loop.steps.first().waitTurns)),
+                ),
+            )
+            runLoop(event.id)
+        }
+    }
+
+    /** Count down the waiting step of every running loop and execute the steps that became due. */
+    private fun advanceLoops() {
+        for (active in state.activeEventLoops.toList()) {
+            val index = state.activeEventLoops.indexOfFirst { it.eventId == active.eventId }
+            if (index < 0) continue
+            val frames = active.frames
+            if (frames.isEmpty()) continue
+            val top = frames.last()
+            state.activeEventLoops[index] =
+                active.copy(frames = frames.dropLast(1) + top.copy(turnsRemaining = top.turnsRemaining - 1))
+            runLoop(active.eventId)
+        }
+    }
+
+    /**
+     * Execute all steps of the loop of [eventId] that are due, descending into nested loops and
+     * advancing/finishing loops as needed, until the loop waits again or has finished.
+     */
+    private fun runLoop(eventId: String) {
+        val rootLoop =
+            state.level.events.events
+                .firstOrNull { it.id == eventId }
+                ?.loop
+        var guard = 0
+        while (true) {
+            val index = state.activeEventLoops.indexOfFirst { it.eventId == eventId }
+            if (index < 0) return
+            val frames = state.activeEventLoops[index].frames.toMutableList()
+            val loops = rootLoop?.let { resolveLoops(it, frames) }
+            if (frames.isEmpty() || loops == null) {
+                state.activeEventLoops.removeAt(index)
+                return
+            }
+            if (++guard > MAX_LOOP_STEPS_PER_TURN) {
+                GameLogBuffer.log("EVENT", "Loop of event '$eventId' exceeded $MAX_LOOP_STEPS_PER_TURN steps in one turn and was stopped")
+                state.activeEventLoops.removeAt(index)
+                return
+            }
+
+            val depth = frames.lastIndex
+            val loop = loops[depth]
+            val frame = frames[depth]
+            val step = loop.steps[frame.stepIndex]
+
+            if (!frame.stepExecuted) {
+                if (frame.turnsRemaining > 0) return
+                frames[depth] = frame.copy(stepExecuted = true)
+                val nested = step.nestedLoop
+                if (nested != null && nested.steps.isNotEmpty()) {
+                    frames.add(EventLoopFrame(stepIndex = 0, turnsRemaining = nested.steps.first().waitTurns))
+                }
+                state.activeEventLoops[index] = ActiveEventLoop(eventId, frames.toList())
+                executeLoopStep(eventId, step)
+                continue
+            }
+
+            // The current step (including its nested loop) is complete: advance.
+            var nextIndex = frame.stepIndex + 1
+            var iterations = frame.iterationsDone
+            if (nextIndex >= loop.steps.size) {
+                iterations++
+                if (!loop.isEndless && iterations >= loop.repeatCount) {
+                    frames.removeAt(depth)
+                    state.activeEventLoops[index] = ActiveEventLoop(eventId, frames.toList())
+                    continue
+                }
+                nextIndex = 0
+            }
+            frames[depth] = EventLoopFrame(stepIndex = nextIndex, turnsRemaining = loop.steps[nextIndex].waitTurns, iterationsDone = iterations)
+            state.activeEventLoops[index] = ActiveEventLoop(eventId, frames.toList())
+        }
+    }
+
+    /**
+     * The loop definition for every frame of [frames] (index 0 = [root]). Returns null when the
+     * frames no longer match the level's loop definition (e.g. an outdated save game).
+     */
+    private fun resolveLoops(
+        root: EventLoop,
+        frames: List<EventLoopFrame>,
+    ): List<EventLoop>? {
+        val loops = mutableListOf<EventLoop>()
+        var current: EventLoop? = root
+        for ((depth, frame) in frames.withIndex()) {
+            val loop = current ?: return null
+            if (frame.stepIndex !in loop.steps.indices) return null
+            loops.add(loop)
+            current = if (depth < frames.lastIndex) loop.steps[frame.stepIndex].nestedLoop else null
+        }
+        return loops
+    }
+
+    private fun executeLoopStep(
+        eventId: String,
+        step: EventLoopStep,
+    ) {
+        val eventMessageAmount = messageAmount(step.messageKey)
+        GameLogBuffer.log(
+            "EVENT",
+            "Loop step of event '$eventId' executed on turn ${state.turnNumber.value} (${step.actions.size} action(s))",
         )
+        for (action in step.actions) {
+            applyAction(action)
+        }
+        // As for events themselves: loop steps without a selected message stay silent.
+        val messageKey = step.messageKey
+        if (messageKey != null) {
+            state.pendingMessages.add(
+                GameMessage(
+                    type = GameMessageType.EVENT_MESSAGE,
+                    name = messageKey,
+                    eventActions = step.actions,
+                    eventMessageFrame = step.messageFrame,
+                    eventMessageAmount = eventMessageAmount,
+                ),
+            )
+        }
     }
 
     private fun applyAction(action: EventAction) {
@@ -149,6 +316,71 @@ class EventScriptSystem(
                 state.destroyedMinePositions.add(position)
                 state.defenders.remove(mine)
             }
+            EventActionType.APPLY_TILE_ZONE -> action.zoneId?.let { tileZoneSystem.applyZone(it) }
+            EventActionType.REVERT_TILE_ZONE -> action.zoneId?.let { tileZoneSystem.revertZone(it) }
+            EventActionType.TOGGLE_TILE_ZONE -> action.zoneId?.let { tileZoneSystem.toggleZone(it) }
+            EventActionType.STOP_EVENT_LOOP -> {
+                val target = action.targetEventId ?: return
+                state.activeEventLoops.removeAll { it.eventId == target }
+            }
+            EventActionType.STOP_SPAWN_LOOP -> action.spawnLoopId?.let { state.stopSpawnLoop(it) }
+            EventActionType.SHOW_MAP_IMAGE -> {
+                val image = action.mapImage
+                if (image == null || !image.isValid()) {
+                    GameLogBuffer.log("EVENT", "Invalid map image in SHOW_MAP_IMAGE action")
+                    return
+                }
+                val index = state.activeEventMapImages.indexOfFirst { it.id == image.id }
+                if (index >= 0) {
+                    state.activeEventMapImages[index] = image
+                } else {
+                    state.activeEventMapImages.add(image)
+                }
+            }
+            EventActionType.HIDE_MAP_IMAGE -> {
+                val id = action.imageId
+                if (id.isNullOrBlank()) {
+                    GameLogBuffer.log("EVENT", "Missing image id in HIDE_MAP_IMAGE action")
+                    return
+                }
+                state.activeEventMapImages.removeAll { it.id == id }
+            }
+            EventActionType.SHOW_ALTAR_LINK -> {
+                val id = action.linkId
+                val from = action.altarFrom
+                val to = action.altarTo
+                if (id.isNullOrBlank() || from == null || to == null || from == to) {
+                    GameLogBuffer.log("EVENT", "Invalid SHOW_ALTAR_LINK action '$id': two different altar tiles are required")
+                    return
+                }
+                val activePositions = activatedAltars().map { it.position.value }
+                if (from !in activePositions || to !in activePositions) {
+                    GameLogBuffer.log("EVENT", "SHOW_ALTAR_LINK '$id' skipped: both altars are not activated")
+                    return
+                }
+                val link = AltarLink(id, from, to)
+                // Several lines may share a link id as long as they connect different altar pairs.
+                val index = state.activeAltarLinks.indexOfFirst { it.id == id && it.connects(from, to) }
+                if (index >= 0) {
+                    state.activeAltarLinks[index] = link
+                } else {
+                    state.activeAltarLinks.add(link)
+                }
+            }
+            EventActionType.HIDE_ALTAR_LINK -> {
+                val id = action.linkId
+                if (id.isNullOrBlank()) {
+                    GameLogBuffer.log("EVENT", "Missing link id in HIDE_ALTAR_LINK action")
+                    return
+                }
+                state.activeAltarLinks.removeAll { it.id == id }
+            }
+            EventActionType.WIN_LEVEL -> state.scriptedVictory.value = true
         }
+    }
+
+    companion object {
+        /** Safety net against loops that would run forever within a single turn. */
+        const val MAX_LOOP_STEPS_PER_TURN = 1000
     }
 }
