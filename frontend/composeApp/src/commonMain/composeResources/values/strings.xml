@@ -931,11 +931,17 @@
     <string name="event_act_destroy_mine">Destroy mine</string>
     <string name="event_act_show_map_image">Show map image</string>
     <string name="event_act_hide_map_image">Hide map image</string>
+    <string name="event_act_show_altar_link">Show altar link</string>
+    <string name="event_act_hide_altar_link">Hide altar link</string>
     <string name="event_map_image_id">Image ID</string>
     <string name="event_map_image_file">Repository image file</string>
     <string name="event_map_image_width">Width in tiles</string>
     <string name="event_map_image_height">Height in tiles</string>
     <string name="event_map_image_help">Images are selected from the repository levels directory, alongside level files. X/Y place the top-left corner in continuous grid coordinates (no odd-row offsets); width/height use full tile dimensions. Decimals are allowed. Images stay visible until a Hide map image action uses the same image ID.</string>
+    <string name="event_altar_link_id">Link ID</string>
+    <string name="event_altar_link_help">Enter the tiles (X, Y) of the two altars to connect. The line between their green heads is only drawn while both altars are activated. Use the same link ID in a Hide altar link action to remove it. Several links can share an altar. For a pair that may be activated later, make the event repeatable.</string>
+    <string name="event_altar_first">First altar</string>
+    <string name="event_altar_second">Second altar</string>
     <string name="event_map_image_missing">Select an image ID defined by a Show map image action.</string>
     <string name="event_map_image_invalid">Select an existing image file and enter a non-empty ID and positive width/height.</string>
     <string name="event_message_title">Message</string>

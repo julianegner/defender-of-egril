@@ -296,6 +296,7 @@ object SaveJsonSerializer {
 
         val activeTileZoneIdsJson = savedGame.activeTileZoneIds.joinToString(", ") { "\"$it\"" }
         val activeEventMapImagesJson = savedGame.activeEventMapImages.joinToString(", ") { EventMapImageJson.serialize(it) }
+        val activeAltarLinksJson = savedGame.activeAltarLinks.joinToString(", ") { EventMapImageJson.serializeAltarLink(it) }
 
         // Spawn loops (issue #694): serialize the runtime cursor (null for non-group levels) and the
         // logical-unit-id → attacker-id bindings.
@@ -398,6 +399,7 @@ object SaveJsonSerializer {
   "activeTileZoneIds": [$activeTileZoneIdsJson],
   "activeEventLoops": [$activeEventLoopsJson],
   "activeEventMapImages": [$activeEventMapImagesJson],
+  "activeAltarLinks": [$activeAltarLinksJson],
   "spawnGroupCursor": $spawnGroupCursorJson,
   "spawnGroupBindings": {$spawnGroupBindingsJson},
   "stoppedSpawnLoops": [${savedGame.stoppedSpawnLoops.joinToString(", ") { EventMapImageJson.quote(it) }}],
@@ -838,6 +840,10 @@ object SaveJsonSerializer {
                 EventMapImageJson
                     .splitArray(JsonUtils.extractJsonArrayForKey(dataJson, "activeEventMapImages"))
                     .mapNotNull { EventMapImageJson.deserialize(it) }
+            val activeAltarLinks =
+                EventMapImageJson
+                    .splitArray(JsonUtils.extractJsonArrayForKey(dataJson, "activeAltarLinks"))
+                    .mapNotNull { EventMapImageJson.deserializeAltarLink(it) }
 
             // Spawn loops (issue #694): parse the runtime cursor (absent/null for non-group saves)
             // and the logical-unit-id → attacker-id bindings.
@@ -914,6 +920,7 @@ object SaveJsonSerializer {
                 activeTileZoneIds = activeTileZoneIds,
                 activeEventLoops = activeEventLoops,
                 activeEventMapImages = activeEventMapImages,
+                activeAltarLinks = activeAltarLinks,
                 spawnGroupCursor = spawnGroupCursor,
                 spawnGroupBindings = spawnGroupBindings,
                 stoppedSpawnLoops = stoppedSpawnLoops,

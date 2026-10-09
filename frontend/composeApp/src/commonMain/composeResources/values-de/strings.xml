@@ -926,11 +926,17 @@
     <string name="event_act_destroy_mine">Mine zerstören</string>
     <string name="event_act_show_map_image">Kartenbild anzeigen</string>
     <string name="event_act_hide_map_image">Kartenbild ausblenden</string>
+    <string name="event_act_show_altar_link">Altar-Verbindung anzeigen</string>
+    <string name="event_act_hide_altar_link">Altar-Verbindung ausblenden</string>
     <string name="event_map_image_id">Bild-ID</string>
     <string name="event_map_image_file">Bilddatei im Repository</string>
     <string name="event_map_image_width">Breite in Feldern</string>
     <string name="event_map_image_height">Höhe in Feldern</string>
     <string name="event_map_image_help">Bilder werden aus dem Level-Verzeichnis des Repositorys ausgewählt, zusammen mit den Level-Dateien. X/Y legen die obere linke Ecke in durchgehenden Rasterkoordinaten fest (ohne Versatz für ungerade Reihen); Breite/Höhe verwenden die vollen Feldmaße. Dezimalwerte sind erlaubt. Das Bild bleibt sichtbar, bis eine Aktion „Kartenbild ausblenden“ dieselbe Bild-ID verwendet.</string>
+    <string name="event_altar_link_id">Verbindungs-ID</string>
+    <string name="event_altar_link_help">Gib die Felder (X, Y) der beiden Altäre an, die verbunden werden sollen. Die Linie zwischen ihren grünen Köpfen wird nur gezeichnet, solange beide Altäre aktiviert sind. Mit einer Aktion „Altar-Verbindung ausblenden“ mit derselben Verbindungs-ID wird sie entfernt. Mehrere Verbindungen können denselben Altar nutzen. Soll ein Paar später aktiviert werden, muss das Event wiederholbar sein.</string>
+    <string name="event_altar_first">Erster Altar</string>
+    <string name="event_altar_second">Zweiter Altar</string>
     <string name="event_map_image_missing">Wähle eine Bild-ID aus, die in einer Aktion „Kartenbild anzeigen“ definiert ist.</string>
     <string name="event_map_image_invalid">Wähle eine vorhandene Bilddatei aus und gib eine nicht leere ID sowie eine positive Breite und Höhe ein.</string>
     <string name="event_message_title">Nachricht</string>

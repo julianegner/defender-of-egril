@@ -1735,6 +1735,12 @@ fun GameGrid(
                             contentSize = measuredContentSize,
                         )
                     }
+                    // Lines between activated altars shown by level events (green orb to green orb).
+                    AltarLinkMapOverlay(
+                        links = gameState.activeAltarLinks.toList(),
+                        hexSizeDp = hexSize.value,
+                        contentSize = measuredContentSize,
+                    )
                     // Rift portals: blue entry rune and orange exit rune for each active portal.
                     val activePortals = gameState.activePortals.toList()
                     if (activePortals.isNotEmpty()) {

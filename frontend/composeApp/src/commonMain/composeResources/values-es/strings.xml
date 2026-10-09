@@ -926,11 +926,17 @@
     <string name="event_act_destroy_mine">Destruir mina</string>
     <string name="event_act_show_map_image">Mostrar imagen del mapa</string>
     <string name="event_act_hide_map_image">Ocultar imagen del mapa</string>
+    <string name="event_act_show_altar_link">Mostrar enlace de altar</string>
+    <string name="event_act_hide_altar_link">Ocultar enlace de altar</string>
     <string name="event_map_image_id">ID de imagen</string>
     <string name="event_map_image_file">Archivo de imagen del repositorio</string>
     <string name="event_map_image_width">Ancho en casillas</string>
     <string name="event_map_image_height">Alto en casillas</string>
     <string name="event_map_image_help">Las imágenes se eligen del directorio de niveles del repositorio, junto con los archivos de nivel. X/Y sitúan la esquina superior izquierda en coordenadas continuas de la cuadrícula (sin desplazamiento de filas impares); ancho/alto usan dimensiones completas de casilla. Se permiten decimales. La imagen permanece visible hasta que una acción «Ocultar imagen del mapa» usa el mismo ID de imagen.</string>
+    <string name="event_altar_link_id">ID del enlace</string>
+    <string name="event_altar_link_help">Introduce las casillas (X, Y) de los dos altares que deben conectarse. La línea entre sus cabezas verdes solo se dibuja mientras ambos altares estén activados. Usa el mismo ID de enlace en una acción «Ocultar enlace de altar» para eliminarla. Varios enlaces pueden usar el mismo altar. Si el par se activa más tarde, haz el evento repetible.</string>
+    <string name="event_altar_first">Primer altar</string>
+    <string name="event_altar_second">Segundo altar</string>
     <string name="event_map_image_missing">Selecciona un ID de imagen definido por una acción «Mostrar imagen del mapa».</string>
     <string name="event_map_image_invalid">Selecciona un archivo de imagen existente e introduce un ID no vacío y un ancho y alto positivos.</string>
     <string name="event_message_title">Mensaje</string>

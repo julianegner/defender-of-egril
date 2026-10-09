@@ -477,6 +477,7 @@ object SaveFileStorage {
             activeTileZoneIds = gameState.activeTileZoneIds.toList(),
             activeEventLoops = gameState.activeEventLoops.toList(),
             activeEventMapImages = gameState.activeEventMapImages.toList(),
+            activeAltarLinks = gameState.activeAltarLinks.toList(),
             spawnGroupCursor =
                 if (gameState.spawnGroups != null) {
                     val cursor = gameState.spawnGroupCursor.value
@@ -531,6 +532,8 @@ object SaveFileStorage {
         gameState.activeEventLoops.addAll(savedGame.activeEventLoops)
         gameState.activeEventMapImages.clear()
         gameState.activeEventMapImages.addAll(savedGame.activeEventMapImages.filter { it.isValid() })
+        gameState.activeAltarLinks.clear()
+        gameState.activeAltarLinks.addAll(savedGame.activeAltarLinks)
 
         // Restore basic state
         gameState.phase.value = savedGame.phase

@@ -111,6 +111,17 @@ enum class EventActionType {
     /** Hide the image identified by [EventAction.imageId]. */
     HIDE_MAP_IMAGE,
 
+    /**
+     * Draw a line between the green heads of the altars at [EventAction.altarFrom] and
+     * [EventAction.altarTo], identified by [EventAction.linkId]. The line is only drawn when both
+     * altars are activated at that moment. Showing the same id and altar pair again replaces the
+     * existing line; the same id with other altars adds a further line.
+     */
+    SHOW_ALTAR_LINK,
+
+    /** Remove the altar line identified by [EventAction.linkId]. */
+    HIDE_ALTAR_LINK,
+
     /** Win the level immediately, regardless of remaining enemies or planned spawns. */
     WIN_LEVEL,
 }
@@ -128,6 +139,10 @@ enum class EventActionType {
  * @param mapImage          Image and geometry used by [EventActionType.SHOW_MAP_IMAGE].
  * @param imageId           Image hidden by [EventActionType.HIDE_MAP_IMAGE].
  * @param spawnLoopId       Spawn loop ended by [EventActionType.STOP_SPAWN_LOOP].
+ * @param linkId            Altar line drawn or removed by [EventActionType.SHOW_ALTAR_LINK] and
+ *                          [EventActionType.HIDE_ALTAR_LINK].
+ * @param altarFrom         Tile of the first altar connected by [EventActionType.SHOW_ALTAR_LINK].
+ * @param altarTo           Tile of the second altar connected by [EventActionType.SHOW_ALTAR_LINK].
  */
 data class EventAction(
     val type: EventActionType,
@@ -140,6 +155,9 @@ data class EventAction(
     val mapImage: EventMapImage? = null,
     val imageId: String? = null,
     val spawnLoopId: String? = null,
+    val linkId: String? = null,
+    val altarFrom: Position? = null,
+    val altarTo: Position? = null,
 )
 
 /**
@@ -170,6 +188,21 @@ data class EventMapImage(
                 '/' !in fileName && '\\' !in fileName &&
                 fileName.substringAfterLast('.').lowercase() in setOf("png", "jpg", "jpeg", "webp")
     }
+}
+
+/**
+ * A line between the heads of two altars, shown by [EventActionType.SHOW_ALTAR_LINK].
+ *
+ * The altar positions are captured when the line is shown, so the line stays in place even if the
+ * altars later become inactive.
+ */
+data class AltarLink(
+    val id: String,
+    val from: Position,
+    val to: Position,
+) {
+    /** True if this line connects the two given altar tiles, in either order. */
+    fun connects(a: Position, b: Position): Boolean = (from == a && to == b) || (from == b && to == a)
 }
 
 /**

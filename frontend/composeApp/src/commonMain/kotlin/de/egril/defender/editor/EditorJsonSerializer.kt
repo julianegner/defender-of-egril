@@ -2733,6 +2733,9 @@ object EditorJsonSerializer {
             if (action.mapImage != null) parts.add("\"mapImage\": ${EventMapImageJson.serialize(action.mapImage)}")
             if (action.imageId != null) parts.add("\"imageId\": ${EventMapImageJson.quote(action.imageId)}")
             if (action.spawnLoopId != null) parts.add("\"spawnLoopId\": ${EventMapImageJson.quote(action.spawnLoopId)}")
+            if (action.linkId != null) parts.add("\"linkId\": ${EventMapImageJson.quote(action.linkId)}")
+            if (action.altarFrom != null) parts.add("\"altarFrom\": {\"x\": ${action.altarFrom.x}, \"y\": ${action.altarFrom.y}}")
+            if (action.altarTo != null) parts.add("\"altarTo\": {\"x\": ${action.altarTo.x}, \"y\": ${action.altarTo.y}}")
             "{${parts.joinToString(", ")}}"
         }
 
@@ -2783,6 +2786,9 @@ object EditorJsonSerializer {
                     mapImage = EventMapImageJson.deserialize(JsonUtils.extractJsonObjectForKey(actionEntry, "mapImage")),
                     imageId = EventMapImageJson.stringValue(actionEntry, "imageId")?.takeIf { it.isNotBlank() },
                     spawnLoopId = EventMapImageJson.stringValue(actionEntry, "spawnLoopId")?.takeIf { it.isNotBlank() },
+                    linkId = EventMapImageJson.stringValue(actionEntry, "linkId")?.takeIf { it.isNotBlank() },
+                    altarFrom = parsePositionField(actionEntry, "altarFrom"),
+                    altarTo = parsePositionField(actionEntry, "altarTo"),
                 ),
             )
         }

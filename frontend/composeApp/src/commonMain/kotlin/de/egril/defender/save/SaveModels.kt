@@ -94,6 +94,7 @@ data class SavedGame(
     val activeTileZoneIds: List<String> = emptyList(), // Tile zones switched on by scripted events, in activation order
     val activeEventLoops: List<ActiveEventLoop> = emptyList(), // Running scripted-event loops with their progress
     val activeEventMapImages: List<EventMapImage> = emptyList(),
+    val activeAltarLinks: List<AltarLink> = emptyList(), // Lines between activated altars shown by events
     // Spawn loops (issue #694): the runtime cursor through the level's spawn groups and the
     // logical-unit-id → spawned-attacker-id bindings, persisted so a mid-cycle save resumes exactly.
     val spawnGroupCursor: SavedSpawnGroupCursor? = null,

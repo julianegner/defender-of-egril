@@ -926,11 +926,17 @@
     <string name="event_act_destroy_mine">Détruire la mine</string>
     <string name="event_act_show_map_image">Afficher l'image de la carte</string>
     <string name="event_act_hide_map_image">Masquer l'image de la carte</string>
+    <string name="event_act_show_altar_link">Afficher le lien d'autel</string>
+    <string name="event_act_hide_altar_link">Masquer le lien d'autel</string>
     <string name="event_map_image_id">ID de l'image</string>
     <string name="event_map_image_file">Fichier image du dépôt</string>
     <string name="event_map_image_width">Largeur en cases</string>
     <string name="event_map_image_height">Hauteur en cases</string>
     <string name="event_map_image_help">Les images sont choisies dans le dossier des niveaux du dépôt, avec les fichiers de niveau. X/Y placent le coin supérieur gauche dans des coordonnées continues de la grille (sans décalage des lignes impaires) ; largeur/hauteur utilisent les dimensions complètes des cases. Les décimales sont acceptées. L'image reste visible jusqu'à ce qu'une action « Masquer l'image de la carte » utilise le même ID d'image.</string>
+    <string name="event_altar_link_id">ID du lien</string>
+    <string name="event_altar_link_help">Saisissez les cases (X, Y) des deux autels à relier. La ligne entre leurs têtes vertes n'est tracée que lorsque les deux autels sont activés. Utilisez le même ID de lien dans une action « Masquer le lien d'autel » pour la supprimer. Plusieurs liens peuvent partager un autel. Si la paire est activée plus tard, rendez l'événement répétable.</string>
+    <string name="event_altar_first">Premier autel</string>
+    <string name="event_altar_second">Second autel</string>
     <string name="event_map_image_missing">Sélectionnez un ID d'image défini par une action « Afficher l'image de la carte ».</string>
     <string name="event_map_image_invalid">Sélectionnez un fichier image existant et saisissez un ID non vide ainsi qu'une largeur et une hauteur positives.</string>
     <string name="event_message_title">Message</string>

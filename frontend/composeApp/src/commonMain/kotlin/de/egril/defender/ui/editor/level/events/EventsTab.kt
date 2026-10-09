@@ -28,6 +28,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +52,7 @@ import de.egril.defender.model.Position
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.TileZone
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.gameplay.EventMessageFrames
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.TriangleDownIcon
@@ -62,6 +64,12 @@ import defender_of_egril.composeapp.generated.resources.delete_action
 import defender_of_egril.composeapp.generated.resources.delete_event
 import defender_of_egril.composeapp.generated.resources.event_act_apply_tile_zone
 import defender_of_egril.composeapp.generated.resources.event_act_destroy_mine
+import defender_of_egril.composeapp.generated.resources.event_act_hide_altar_link
+import defender_of_egril.composeapp.generated.resources.event_act_show_altar_link
+import defender_of_egril.composeapp.generated.resources.event_altar_link_help
+import defender_of_egril.composeapp.generated.resources.event_altar_first
+import defender_of_egril.composeapp.generated.resources.event_altar_link_id
+import defender_of_egril.composeapp.generated.resources.event_altar_second
 import defender_of_egril.composeapp.generated.resources.event_act_give_coins
 import defender_of_egril.composeapp.generated.resources.event_act_give_mana
 import defender_of_egril.composeapp.generated.resources.event_act_give_support_object
@@ -468,6 +476,8 @@ internal fun actionSummary(action: EventAction): String =
             action.mapImage?.let { "${action.type.localizedName()}: ${it.id} (${it.fileName})" } ?: action.type.localizedName()
         EventActionType.HIDE_MAP_IMAGE ->
             action.imageId?.let { "${action.type.localizedName()}: $it" } ?: action.type.localizedName()
+        EventActionType.SHOW_ALTAR_LINK, EventActionType.HIDE_ALTAR_LINK ->
+            action.linkId?.let { "${action.type.localizedName()}: $it" } ?: action.type.localizedName()
     }
 
 @Composable
@@ -600,6 +610,8 @@ internal fun ActionEditor(
                                     )
                                 EventActionType.STOP_SPAWN_LOOP ->
                                     action.copy(type = newType, spawnLoopId = action.spawnLoopId ?: context.spawnLoops.firstOrNull()?.first)
+                                EventActionType.SHOW_ALTAR_LINK, EventActionType.HIDE_ALTAR_LINK ->
+                                    action.copy(type = newType, linkId = action.linkId ?: DEFAULT_ALTAR_LINK_ID)
                                 else -> action.copy(type = newType)
                             }
                         onActionChange(updated)
@@ -615,6 +627,8 @@ internal fun ActionEditor(
             EventActionType.WIN_LEVEL -> Unit
             EventActionType.SHOW_MAP_IMAGE, EventActionType.HIDE_MAP_IMAGE ->
                 EventMapImageEditor(action, onActionChange, context)
+            EventActionType.SHOW_ALTAR_LINK, EventActionType.HIDE_ALTAR_LINK ->
+                AltarLinkEditor(action, onActionChange)
             EventActionType.GIVE_COINS, EventActionType.GIVE_MANA ->
                 NumberField(
                     label = stringResource(Res.string.event_amount_label),
@@ -722,6 +736,82 @@ internal fun ActionEditor(
             }
         }
     }
+}
+
+/** Link id used when a new altar-line action is created; any non-blank id works. */
+private const val DEFAULT_ALTAR_LINK_ID = "altar_link"
+
+/**
+ * Editor for [EventActionType.SHOW_ALTAR_LINK] / [EventActionType.HIDE_ALTAR_LINK].
+ * The id identifies the line; the two altar tiles define which altars are connected.
+ */
+@Composable
+private fun AltarLinkEditor(
+    action: EventAction,
+    onActionChange: (EventAction) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedTextField(
+            value = action.linkId.orEmpty(),
+            onValueChange = { onActionChange(action.copy(linkId = it)) },
+            label = { Text(stringResource(Res.string.event_altar_link_id)) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        if (action.type == EventActionType.SHOW_ALTAR_LINK) {
+            AltarTileFields(stringResource(Res.string.event_altar_first), action.altarFrom) {
+                onActionChange(action.copy(altarFrom = it))
+            }
+            AltarTileFields(stringResource(Res.string.event_altar_second), action.altarTo) {
+                onActionChange(action.copy(altarTo = it))
+            }
+        }
+        SelectableText(
+            stringResource(Res.string.event_altar_link_help),
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
+}
+
+/** X and Y tile inputs for one altar; [onChange] is called with a complete position once both are set. */
+@Composable
+private fun AltarTileFields(
+    label: String,
+    position: Position?,
+    onChange: (Position) -> Unit,
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, modifier = Modifier.weight(1f))
+        AltarCoordinateField(stringResource(Res.string.x_coordinate), position?.x) {
+            onChange(Position(it, position?.y ?: 0))
+        }
+        AltarCoordinateField(stringResource(Res.string.y_coordinate), position?.y) {
+            onChange(Position(position?.x ?: 0, it))
+        }
+    }
+}
+
+@Composable
+private fun AltarCoordinateField(
+    label: String,
+    value: Int?,
+    onChange: (Int) -> Unit,
+) {
+    var text by remember { mutableStateOf(value?.toString().orEmpty()) }
+    LaunchedEffect(value) {
+        if (text.toIntOrNull() != value) text = value?.toString().orEmpty()
+    }
+    OutlinedTextField(
+        value = text,
+        onValueChange = {
+            text = it
+            it.toIntOrNull()?.takeIf { n -> n >= 0 }?.let(onChange)
+        },
+        label = { Text(label) },
+        isError = text.toIntOrNull() == null,
+        singleLine = true,
+        modifier = Modifier.width(96.dp),
+    )
 }
 
 /** Dropdown over (id, label) pairs; shows the raw id when the stored id is not among the options. */
@@ -1040,5 +1130,7 @@ private fun EventActionType.localizedName(): String =
         EventActionType.STOP_SPAWN_LOOP -> stringResource(Res.string.event_act_stop_spawn_loop)
         EventActionType.SHOW_MAP_IMAGE -> stringResource(Res.string.event_act_show_map_image)
         EventActionType.HIDE_MAP_IMAGE -> stringResource(Res.string.event_act_hide_map_image)
+        EventActionType.SHOW_ALTAR_LINK -> stringResource(Res.string.event_act_show_altar_link)
+        EventActionType.HIDE_ALTAR_LINK -> stringResource(Res.string.event_act_hide_altar_link)
         EventActionType.WIN_LEVEL -> stringResource(Res.string.event_act_win_level)
     }

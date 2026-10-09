@@ -2,6 +2,8 @@ package de.egril.defender.game
 
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.model.ActiveEventLoop
+import de.egril.defender.model.AltarLink
+import de.egril.defender.model.Defender
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
@@ -104,10 +106,12 @@ class EventScriptSystem(
             EventConditionType.ALTARS_ACTIVATED -> activatedAltarCount() >= condition.threshold
         }
 
-    private fun activatedAltarCount(): Int =
-        state.defenders.count {
+    private fun activatedAltars(): List<Defender> =
+        state.defenders.filter {
             it.type == DefenderType.ALTAR && it.isChanneling.value && it.isReady && !it.isDisabled.value
         }
+
+    private fun activatedAltarCount(): Int = activatedAltars().size
 
     private fun messageAmount(messageKey: String?): Int? = if (messageKey == "event_msg_rune_network_taken_over") activatedAltarCount() else null
 
@@ -340,6 +344,36 @@ class EventScriptSystem(
                     return
                 }
                 state.activeEventMapImages.removeAll { it.id == id }
+            }
+            EventActionType.SHOW_ALTAR_LINK -> {
+                val id = action.linkId
+                val from = action.altarFrom
+                val to = action.altarTo
+                if (id.isNullOrBlank() || from == null || to == null || from == to) {
+                    GameLogBuffer.log("EVENT", "Invalid SHOW_ALTAR_LINK action '$id': two different altar tiles are required")
+                    return
+                }
+                val activePositions = activatedAltars().map { it.position.value }
+                if (from !in activePositions || to !in activePositions) {
+                    GameLogBuffer.log("EVENT", "SHOW_ALTAR_LINK '$id' skipped: both altars are not activated")
+                    return
+                }
+                val link = AltarLink(id, from, to)
+                // Several lines may share a link id as long as they connect different altar pairs.
+                val index = state.activeAltarLinks.indexOfFirst { it.id == id && it.connects(from, to) }
+                if (index >= 0) {
+                    state.activeAltarLinks[index] = link
+                } else {
+                    state.activeAltarLinks.add(link)
+                }
+            }
+            EventActionType.HIDE_ALTAR_LINK -> {
+                val id = action.linkId
+                if (id.isNullOrBlank()) {
+                    GameLogBuffer.log("EVENT", "Missing link id in HIDE_ALTAR_LINK action")
+                    return
+                }
+                state.activeAltarLinks.removeAll { it.id == id }
             }
             EventActionType.WIN_LEVEL -> state.scriptedVictory.value = true
         }

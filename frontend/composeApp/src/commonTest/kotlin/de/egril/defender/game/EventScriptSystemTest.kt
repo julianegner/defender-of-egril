@@ -1,6 +1,7 @@
 package de.egril.defender.game
 
 import androidx.compose.runtime.mutableStateOf
+import de.egril.defender.model.AltarLink
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.Defender
@@ -323,6 +324,168 @@ class EventScriptSystemTest {
         state.turnNumber.value++
         system.evaluate(EventTrigger.PLAYER_TURN_START)
         assertTrue(state.activeEventMapImages.isEmpty())
+    }
+
+    @Test
+    fun altarLinkConnectsDesignatedAltarsOnlyWhenBothAreActivated() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "show",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                repeatable = true,
+                                actions =
+                                    listOf(
+                                        EventAction(
+                                            EventActionType.SHOW_ALTAR_LINK,
+                                            linkId = "ab",
+                                            altarFrom = Position(2, 2),
+                                            altarTo = Position(3, 2),
+                                        ),
+                                    ),
+                            ),
+                            LevelEvent(
+                                id = "hide",
+                                condition = EventCondition(EventConditionType.TURN_START, fromTurn = 3),
+                                actions = listOf(EventAction(EventActionType.HIDE_ALTAR_LINK, linkId = "ab")),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        val first = Defender(id = 1, type = DefenderType.ALTAR, position = mutableStateOf(Position(2, 2)))
+        val second = Defender(id = 2, type = DefenderType.ALTAR, position = mutableStateOf(Position(3, 2)))
+        val other = Defender(id = 3, type = DefenderType.ALTAR, position = mutableStateOf(Position(5, 5)))
+        state.defenders.addAll(listOf(first, second, other))
+        val system = EventScriptSystem(state)
+
+        // Only the designated first altar is active: no line.
+        first.isChanneling.value = true
+        state.turnNumber.value = 1
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeAltarLinks.isEmpty())
+
+        // An unrelated altar does not complete the designated pair.
+        other.isChanneling.value = true
+        state.turnNumber.value = 1
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeAltarLinks.isEmpty())
+
+        second.isChanneling.value = true
+        state.turnNumber.value = 2
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(listOf(AltarLink("ab", Position(2, 2), Position(3, 2))), state.activeAltarLinks.toList())
+
+        // Showing the same id again replaces the existing line instead of adding a second one.
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(1, state.activeAltarLinks.size)
+
+        state.turnNumber.value = 3
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeAltarLinks.isEmpty())
+    }
+
+    @Test
+    fun altarLinkInvalidWithoutTwoDistinctTiles() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "show",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                actions =
+                                    listOf(
+                                        EventAction(EventActionType.SHOW_ALTAR_LINK, linkId = "same", altarFrom = Position(2, 2), altarTo = Position(2, 2)),
+                                        EventAction(EventActionType.SHOW_ALTAR_LINK, linkId = "missing", altarFrom = Position(2, 2)),
+                                    ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        state.defenders.add(Defender(id = 1, type = DefenderType.ALTAR, position = mutableStateOf(Position(2, 2))).also { it.isChanneling.value = true })
+        EventScriptSystem(state).evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeAltarLinks.isEmpty())
+    }
+
+    @Test
+    fun sameLinkIdWithDifferentPairsShowsSeveralLinesAtOnce() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "links",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                repeatable = true,
+                                actions =
+                                    listOf(
+                                        EventAction(EventActionType.SHOW_ALTAR_LINK, linkId = "altar_link", altarFrom = Position(2, 2), altarTo = Position(3, 2)),
+                                        EventAction(EventActionType.SHOW_ALTAR_LINK, linkId = "altar_link", altarFrom = Position(3, 2), altarTo = Position(2, 4)),
+                                    ),
+                            ),
+                            LevelEvent(
+                                id = "hide",
+                                condition = EventCondition(EventConditionType.TURN_START, fromTurn = 2),
+                                actions = listOf(EventAction(EventActionType.HIDE_ALTAR_LINK, linkId = "altar_link")),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        listOf(Position(2, 2), Position(3, 2), Position(2, 4)).forEachIndexed { i, pos ->
+            state.defenders.add(Defender(id = i + 1, type = DefenderType.ALTAR, position = mutableStateOf(pos)).also { it.isChanneling.value = true })
+        }
+        val system = EventScriptSystem(state)
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(2, state.activeAltarLinks.size)
+
+        // Showing the same pair again (in either order) does not add a duplicate line.
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(2, state.activeAltarLinks.size)
+
+        state.turnNumber.value = 2
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeAltarLinks.isEmpty())
+    }
+
+    @Test
+    fun oneAltarCanBeLinkedToSeveralAltars() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "links",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                actions =
+                                    listOf(
+                                        EventAction(EventActionType.SHOW_ALTAR_LINK, linkId = "ab", altarFrom = Position(2, 2), altarTo = Position(3, 2)),
+                                        EventAction(EventActionType.SHOW_ALTAR_LINK, linkId = "ac", altarFrom = Position(2, 2), altarTo = Position(2, 4)),
+                                    ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        listOf(Position(2, 2), Position(3, 2), Position(2, 4)).forEachIndexed { i, pos ->
+            state.defenders.add(Defender(id = i + 1, type = DefenderType.ALTAR, position = mutableStateOf(pos)).also { it.isChanneling.value = true })
+        }
+        EventScriptSystem(state).evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(
+            listOf(
+                AltarLink("ab", Position(2, 2), Position(3, 2)),
+                AltarLink("ac", Position(2, 2), Position(2, 4)),
+            ),
+            state.activeAltarLinks.toList(),
+        )
     }
 
     private fun createLevel(events: LevelEvents): Level =

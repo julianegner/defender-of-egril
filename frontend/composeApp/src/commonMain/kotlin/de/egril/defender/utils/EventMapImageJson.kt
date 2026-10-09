@@ -1,7 +1,9 @@
 package de.egril.defender.utils
 
 import de.egril.defender.config.GameLogBuffer
+import de.egril.defender.model.AltarLink
 import de.egril.defender.model.EventMapImage
+import de.egril.defender.model.Position
 
 /** Shared manual JSON representation for scripted images in levels and saves. */
 internal object EventMapImageJson {
@@ -66,6 +68,27 @@ internal object EventMapImageJson {
             return null
         }
         return image
+    }
+
+    fun serializeAltarLink(link: AltarLink): String =
+        "{\"id\": ${quote(link.id)}, \"from\": {\"x\": ${link.from.x}, \"y\": ${link.from.y}}, " +
+            "\"to\": {\"x\": ${link.to.x}, \"y\": ${link.to.y}}}"
+
+    fun deserializeAltarLink(json: String): AltarLink? {
+        val id = stringValue(json, "id")?.takeIf { it.isNotBlank() } ?: return null
+        val from = positionValue(json, "from") ?: return null
+        val to = positionValue(json, "to") ?: return null
+        return AltarLink(id, from, to)
+    }
+
+    private fun positionValue(
+        json: String,
+        key: String,
+    ): Position? {
+        val section = Regex("\"$key\"\\s*:\\s*\\{([^}]*)\\}").find(json)?.groupValues?.get(1) ?: return null
+        val x = Regex("\"x\"\\s*:\\s*(-?\\d+)").find(section)?.groupValues?.get(1)?.toIntOrNull() ?: return null
+        val y = Regex("\"y\"\\s*:\\s*(-?\\d+)").find(section)?.groupValues?.get(1)?.toIntOrNull() ?: return null
+        return Position(x, y)
     }
 
     fun quote(value: String): String =

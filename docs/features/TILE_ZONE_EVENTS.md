@@ -41,8 +41,12 @@ confuse zone tiles with the base map):
 | `STOP_SPAWN_LOOP` | Permanently end the spawn loop `spawnLoopId` (stops it immediately when running, skips it otherwise) |
 | `SHOW_MAP_IMAGE` | Show or replace the configured map image by its image ID |
 | `HIDE_MAP_IMAGE` | Hide the map image with the matching `imageId` |
+| `SHOW_ALTAR_LINK` | Draw a green line between the green heads of the altars at `altarFrom` and `altarTo` (X/Y tiles), identified by `linkId`. Only drawn while both altars are activated (use with the `ALTARS_ACTIVATED` trigger) |
+| `HIDE_ALTAR_LINK` | Remove the altar line with the matching `linkId` |
 
 When several active zones cover the same tile, the zone activated last wins.
+
+Altar lines stay visible until a `HIDE_ALTAR_LINK` action with the same `linkId` runs. Several lines can share one `linkId` as long as they connect different altar pairs; showing the same `linkId` and pair again replaces that line. Each action names its own pair of altar tiles, so one altar can be linked to several others. If the designated pair is not activated when the event fires, the line is not drawn; make such an event repeatable so it is retried on later turns.
 
 ### Event map images
 

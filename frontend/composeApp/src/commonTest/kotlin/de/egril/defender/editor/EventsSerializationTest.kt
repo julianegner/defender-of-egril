@@ -171,6 +171,32 @@ class EventsSerializationTest {
         }
     }
 
+    @Test
+    fun altarLinkActionsRoundTripAndOldActionsHaveNoLinkId() {
+        val actions =
+            listOf(
+                EventAction(EventActionType.SHOW_ALTAR_LINK, linkId = "link \"one\"", altarFrom = Position(2, 3), altarTo = Position(4, 5)),
+                EventAction(EventActionType.HIDE_ALTAR_LINK, linkId = "link \"one\""),
+            )
+        val events =
+            LevelEvents(
+                listOf(
+                    LevelEvent(
+                        id = "altars",
+                        condition = EventCondition(EventConditionType.ALTARS_ACTIVATED, threshold = 2),
+                        actions = actions,
+                    ),
+                ),
+            )
+
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(events))
+        assertTrue(json.contains("\"linkId\""))
+        assertTrue(json.contains("\"altarFrom\": {\"x\": 2, \"y\": 3}"))
+        val loaded = assertNotNull(EditorJsonSerializer.deserializeLevel(json))
+        assertEquals(events, loaded.events)
+        assertEquals(null, EventAction(EventActionType.GIVE_COINS, amount = 5).linkId)
+    }
+
     private fun baseLevel(events: LevelEvents): EditorLevel =
         EditorLevel(
             id = "test_level",
