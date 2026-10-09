@@ -1600,7 +1600,7 @@ fun GameGrid(
                             with(density) {
                                 val imageModifier = Modifier.requiredWidth(targetWidthPx.toDp()).requiredHeight(targetHeightPx.toDp())
                                 androidx.compose.foundation.layout.Box(modifier = imageModifier) {
-                                    if (hasMapImage && mapImagePainter != null) {
+                                    if (hasMapImage) {
                                         androidx.compose.foundation.Image(
                                             painter = mapImagePainter,
                                             contentDescription = null,

@@ -19,7 +19,7 @@ import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.scroll_hint_more_tabs_left
 import defender_of_egril.composeapp.generated.resources.scroll_hint_more_tabs_right
-import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import kotlinx.coroutines.launch
 
@@ -58,7 +58,7 @@ fun ScrollableTabRowWithHints(
         Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
             if (scrollState.canScrollBackward) {
                 val label = stringResource(Res.string.scroll_hint_more_tabs_left)
-                FilledSymbol(
+                MaterialSymbol.Filled(
                     icon = MaterialSymbols.KEYBOARD_ARROW_LEFT,
                     size = 20.dp,
                     tint = MaterialTheme.colorScheme.primary,
@@ -86,7 +86,7 @@ fun ScrollableTabRowWithHints(
         Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
             if (scrollState.canScrollForward) {
                 val label = stringResource(Res.string.scroll_hint_more_tabs_right)
-                FilledSymbol(
+                MaterialSymbol.Filled(
                     icon = MaterialSymbols.KEYBOARD_ARROW_RIGHT,
                     size = 20.dp,
                     tint = MaterialTheme.colorScheme.primary,

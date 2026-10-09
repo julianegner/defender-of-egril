@@ -354,9 +354,7 @@ class EnemyAbilitySystem(
                         runemaster.position.value.hexDistanceTo(nearestTower.position.value)
                 )
         if (attackBarricade) {
-            nearestBarricade?.let {
-                barricadeSystem.handleEnemyAttackBarricade(runemaster, it, runemaster.effectiveLevel)
-            }
+            barricadeSystem.handleEnemyAttackBarricade(runemaster, nearestBarricade, runemaster.effectiveLevel)
         } else if (nearestTower != null) {
             nearestTower.isDisabled.value = true
             nearestTower.disabledTurnsRemaining.value = (runemaster.type.towerDisableDurationTurns ?: 1) + 1

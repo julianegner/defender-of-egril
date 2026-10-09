@@ -17,7 +17,7 @@ import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.settings
-import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 
 /**
@@ -76,7 +76,7 @@ fun SettingsButton(
                 },
                 modifier = modifier.semantics { contentDescription = settingsLabel },
             ) {
-                FilledSymbol(
+                MaterialSymbol.Filled(
                     icon = MaterialSymbols.SETTINGS,
                     size = 32.dp,
                     tint = MaterialTheme.colorScheme.onSurface,

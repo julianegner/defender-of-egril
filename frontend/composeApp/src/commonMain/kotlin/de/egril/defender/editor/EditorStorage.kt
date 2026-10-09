@@ -284,7 +284,7 @@ object EditorStorage {
                 validatedMap.tileZones.indices.filter { index ->
                     tilesChanged ||
                         index in pendingZoneImages[validatedMap.id].orEmpty() ||
-                        existingMap?.tileZones?.getOrNull(index)?.tiles != validatedMap.tileZones[index].tiles ||
+                        existingMap.tileZones.getOrNull(index)?.tiles != validatedMap.tileZones[index].tiles ||
                         !storage.fileExists("$targetDir/${MapImageProvider.tileZoneImageFileName(validatedMap.id, index)}")
                 }
             } else {

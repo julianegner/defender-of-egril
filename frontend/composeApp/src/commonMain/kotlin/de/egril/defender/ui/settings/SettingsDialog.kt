@@ -39,7 +39,7 @@ import de.egril.defender.utils.isPlatformWasm
 import de.egril.defender.utils.reloadApp
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
-import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import kotlinx.coroutines.launch
 
@@ -313,7 +313,7 @@ fun SettingsDialog(
                                     label = closeLabel,
                                 ),
                         ) {
-                            FilledSymbol(
+                            MaterialSymbol.Filled(
                                 icon = MaterialSymbols.CLOSE,
                                 tint = MaterialTheme.colorScheme.onSurface,
                             )
@@ -1752,7 +1752,7 @@ private fun SoundTabContent(
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.primary,
                             )
-                            dev.vicart.compose.material.symbols.FilledSymbol(
+                            dev.vicart.compose.material.symbols.MaterialSymbol.Filled(
                                 icon = dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_BACK,
                                 size = 12.dp,
                                 tint = MaterialTheme.colorScheme.primary,

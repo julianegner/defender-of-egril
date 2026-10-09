@@ -55,7 +55,7 @@ import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.emoji_skull
 import defender_of_egril.composeapp.generated.resources.emoji_sword
-import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import org.jetbrains.compose.resources.painterResource
 
@@ -589,7 +589,7 @@ fun MainMenuScreen(
                                             onClick = onShowInstallationInfo,
                                             modifier = Modifier.size(40.dp).semantics { contentDescription = installationInfoLabel },
                                         ) {
-                                            FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
+                                            MaterialSymbol.Filled(icon = MaterialSymbols.INFO, size = 28.dp)
                                         }
                                         if (AppSettings.showButtonShortcutHints.value) {
                                             Spacer(modifier = Modifier.width(4.dp))
@@ -745,7 +745,7 @@ fun MainMenuScreen(
                                             onClick = onShowInstallationInfo,
                                             modifier = Modifier.size(40.dp).semantics { contentDescription = installationInfoLabel },
                                         ) {
-                                            FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
+                                            MaterialSymbol.Filled(icon = MaterialSymbols.INFO, size = 28.dp)
                                         }
                                         if (AppSettings.showButtonShortcutHints.value) {
                                             Spacer(modifier = Modifier.width(4.dp))
@@ -879,7 +879,7 @@ fun MainMenuScreen(
                                 onClick = onShowInstallationInfo,
                                 modifier = Modifier.size(48.dp).semantics { contentDescription = installationInfoLabel },
                             ) {
-                                FilledSymbol(icon = MaterialSymbols.INFO, size = 32.dp)
+                                MaterialSymbol.Filled(icon = MaterialSymbols.INFO, size = 32.dp)
                             }
                             if (AppSettings.showButtonShortcutHints.value) {
                                 Spacer(modifier = Modifier.width(4.dp))

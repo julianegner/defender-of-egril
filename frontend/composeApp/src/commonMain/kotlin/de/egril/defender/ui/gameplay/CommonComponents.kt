@@ -337,7 +337,7 @@ private fun ArrowChipContent(
         for (char in text) {
             val arrowIcon = charToArrowIcon(char)
             if (arrowIcon != null) {
-                dev.vicart.compose.material.symbols.FilledSymbol(
+                dev.vicart.compose.material.symbols.MaterialSymbol.Filled(
                     icon = arrowIcon,
                     size = iconSize,
                     tint = color,
