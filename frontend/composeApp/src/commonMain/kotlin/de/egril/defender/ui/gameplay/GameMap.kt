@@ -2281,6 +2281,9 @@ private fun BoxScope.GridCellContent(
                         backgroundColor = attackerTileBackground,
                         healthTextColor = healthTextColor,
                         healthOverride = displayedHealth,
+                        spriteScale = GamePlayConstants.TileIconSizes.EnemySpriteScale,
+                        spriteOffsetX = GamePlayConstants.TileIconSizes.EnemySpriteOffsetX,
+                        spriteOffsetY = GamePlayConstants.TileIconSizes.EnemySpriteOffsetY,
                     )
                     if (isDangerous) {
                         Text(

@@ -91,7 +91,12 @@ fun AttackerInfo(
                     modifier = Modifier.size(iconSize),
                     contentAlignment = Alignment.Center,
                 ) {
-                    EnemyIcon(attacker = attacker, modifier = Modifier.size(iconInnerSize))
+                    // Info portrait always shows the unit in the default facing (SW).
+                    EnemyIcon(
+                        attacker = attacker,
+                        modifier = Modifier.size(iconInnerSize),
+                        direction = HexDirection.DEFAULT,
+                    )
                 }
 
                 val horizontalSpacing = if (isMobile) 4.dp else 8.dp

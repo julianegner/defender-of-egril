@@ -1108,6 +1108,20 @@ private fun LevelTabContent() {
                 )
             }
 
+            // Enemy sprites switch (Level → Appearance): renders enemy units from their
+            // directional spritesheet instead of the drawn vector icon, when available.
+            NumberedSetting(6) {
+                DualLabelSwitch(
+                    state = AppSettings.useSprites,
+                    leftText = stringResource(Res.string.enemy_sprites_off),
+                    rightText = stringResource(Res.string.enemy_sprites_on),
+                    onCheckedChange = { enabled ->
+                        AppSettings.saveUseSprites(enabled)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
             HeaderTextSizeSetting()
         }
 
@@ -1122,7 +1136,7 @@ private fun LevelTabContent() {
             )
 
             // Control pad switch
-            NumberedSetting(6) {
+            NumberedSetting(7) {
                 GenericSwitch(
                     state = AppSettings.showControlPad,
                     checkedText = stringResource(Res.string.control_pad_enabled),
@@ -1135,7 +1149,7 @@ private fun LevelTabContent() {
             }
 
             // Auto-jump to next actionable tower switch
-            NumberedSetting(7) {
+            NumberedSetting(8) {
                 GenericSwitch(
                     state = AppSettings.autoJumpToNextTower,
                     checkedText = stringResource(Res.string.auto_jump_to_next_tower),
@@ -1969,10 +1983,14 @@ private fun handleSettingsNumberKey(
                     true
                 }
                 6 -> {
-                    AppSettings.saveShowControlPad(!AppSettings.showControlPad.value)
+                    AppSettings.saveUseSprites(!AppSettings.useSprites.value)
                     true
                 }
                 7 -> {
+                    AppSettings.saveShowControlPad(!AppSettings.showControlPad.value)
+                    true
+                }
+                8 -> {
                     AppSettings.saveAutoJumpToNextTower(!AppSettings.autoJumpToNextTower.value)
                     true
                 }
