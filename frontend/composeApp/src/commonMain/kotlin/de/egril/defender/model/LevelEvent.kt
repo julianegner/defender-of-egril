@@ -96,6 +96,14 @@ enum class EventActionType {
     /** Activate the tile zone [EventAction.zoneId] when inactive, otherwise deactivate it. */
     TOGGLE_TILE_ZONE,
 
+    /**
+     * Move the movable tile zone [EventAction.zoneId] with everything on it by
+     * [EventAction.rotationSteps] * 60 degrees around its centre and then by
+     * ([EventAction.moveDx], [EventAction.moveDy]). The move is skipped when a tile would leave the map,
+     * land on a spawn point or overlap another movable region.
+     */
+    MOVE_TILE_ZONE,
+
     /** Stop the running loop of the event [EventAction.targetEventId]. */
     STOP_EVENT_LOOP,
 
@@ -143,6 +151,9 @@ enum class EventActionType {
  *                          [EventActionType.HIDE_ALTAR_LINK].
  * @param altarFrom         Tile of the first altar connected by [EventActionType.SHOW_ALTAR_LINK].
  * @param altarTo           Tile of the second altar connected by [EventActionType.SHOW_ALTAR_LINK].
+ * @param moveDx            Horizontal shift in grid cells for [EventActionType.MOVE_TILE_ZONE].
+ * @param moveDy            Vertical shift in grid cells for [EventActionType.MOVE_TILE_ZONE].
+ * @param rotationSteps     Rotation in 60 degree steps (0..5) for [EventActionType.MOVE_TILE_ZONE].
  */
 data class EventAction(
     val type: EventActionType,
@@ -158,6 +169,9 @@ data class EventAction(
     val linkId: String? = null,
     val altarFrom: Position? = null,
     val altarTo: Position? = null,
+    val moveDx: Int = 0,
+    val moveDy: Int = 0,
+    val rotationSteps: Int = 0,
 )
 
 /**

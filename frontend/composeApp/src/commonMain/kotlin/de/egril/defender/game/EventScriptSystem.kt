@@ -2,6 +2,7 @@ package de.egril.defender.game
 
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.model.ActiveEventLoop
+import de.egril.defender.model.RegionMove
 import de.egril.defender.model.AltarLink
 import de.egril.defender.model.Defender
 import de.egril.defender.model.DefenderType
@@ -319,6 +320,8 @@ class EventScriptSystem(
             EventActionType.APPLY_TILE_ZONE -> action.zoneId?.let { tileZoneSystem.applyZone(it) }
             EventActionType.REVERT_TILE_ZONE -> action.zoneId?.let { tileZoneSystem.revertZone(it) }
             EventActionType.TOGGLE_TILE_ZONE -> action.zoneId?.let { tileZoneSystem.toggleZone(it) }
+            EventActionType.MOVE_TILE_ZONE ->
+                action.zoneId?.let { tileZoneSystem.moveZone(it, RegionMove(action.rotationSteps, action.moveDx, action.moveDy)) }
             EventActionType.STOP_EVENT_LOOP -> {
                 val target = action.targetEventId ?: return
                 state.activeEventLoops.removeAll { it.eventId == target }

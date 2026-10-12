@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.model.MIN_ROTATABLE_REGION_TILES
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
@@ -79,6 +80,7 @@ import defender_of_egril.composeapp.generated.resources.event_act_revert_tile_zo
 import defender_of_egril.composeapp.generated.resources.event_act_show_map_image
 import defender_of_egril.composeapp.generated.resources.event_act_stop_event_loop
 import defender_of_egril.composeapp.generated.resources.event_act_stop_spawn_loop
+import defender_of_egril.composeapp.generated.resources.event_act_move_tile_zone
 import defender_of_egril.composeapp.generated.resources.event_act_toggle_tile_zone
 import defender_of_egril.composeapp.generated.resources.event_act_win_level
 import defender_of_egril.composeapp.generated.resources.event_actions_count
@@ -122,6 +124,10 @@ import defender_of_egril.composeapp.generated.resources.event_support_spell_labe
 import defender_of_egril.composeapp.generated.resources.event_target_event_label
 import defender_of_egril.composeapp.generated.resources.event_target_event_missing_warning
 import defender_of_egril.composeapp.generated.resources.event_threshold_label
+import defender_of_egril.composeapp.generated.resources.event_move_dx_label
+import defender_of_egril.composeapp.generated.resources.event_move_dy_label
+import defender_of_egril.composeapp.generated.resources.event_move_rotation_label
+import defender_of_egril.composeapp.generated.resources.event_move_rotation_min_size_warning
 import defender_of_egril.composeapp.generated.resources.event_zone_label
 import defender_of_egril.composeapp.generated.resources.event_zone_missing_warning
 import defender_of_egril.composeapp.generated.resources.events_intro
@@ -466,6 +472,7 @@ internal fun actionSummary(action: EventAction): String =
         EventActionType.APPLY_TILE_ZONE,
         EventActionType.REVERT_TILE_ZONE,
         EventActionType.TOGGLE_TILE_ZONE,
+        EventActionType.MOVE_TILE_ZONE,
         -> action.zoneId?.let { "${action.type.localizedName()}: $it" } ?: action.type.localizedName()
 
         EventActionType.STOP_EVENT_LOOP ->
@@ -698,6 +705,45 @@ internal fun ActionEditor(
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
+            }
+
+            EventActionType.MOVE_TILE_ZONE -> {
+                val movableZones = context.tileZones.filter { it.movable }
+                IdDropdown(
+                    label = stringResource(Res.string.event_zone_label),
+                    options = movableZones.map { it.id to it.displayName },
+                    selectedId = action.zoneId,
+                    onSelected = { onActionChange(action.copy(zoneId = it)) },
+                )
+                if (movableZones.none { it.id == action.zoneId }) {
+                    Text(
+                        text = stringResource(Res.string.event_zone_missing_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                NumberField(
+                    label = stringResource(Res.string.event_move_rotation_label),
+                    value = action.rotationSteps,
+                    onValueChange = { onActionChange(action.copy(rotationSteps = ((it % 6) + 6) % 6)) },
+                )
+                if (action.rotationSteps != 0 && (movableZones.firstOrNull { it.id == action.zoneId }?.tiles?.size ?: 0) < MIN_ROTATABLE_REGION_TILES) {
+                    Text(
+                        text = stringResource(Res.string.event_move_rotation_min_size_warning, MIN_ROTATABLE_REGION_TILES),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                NumberField(
+                    label = stringResource(Res.string.event_move_dx_label),
+                    value = action.moveDx,
+                    onValueChange = { onActionChange(action.copy(moveDx = it)) },
+                )
+                NumberField(
+                    label = stringResource(Res.string.event_move_dy_label),
+                    value = action.moveDy,
+                    onValueChange = { onActionChange(action.copy(moveDy = it)) },
+                )
             }
 
             EventActionType.STOP_EVENT_LOOP -> {
@@ -1126,6 +1172,7 @@ private fun EventActionType.localizedName(): String =
         EventActionType.APPLY_TILE_ZONE -> stringResource(Res.string.event_act_apply_tile_zone)
         EventActionType.REVERT_TILE_ZONE -> stringResource(Res.string.event_act_revert_tile_zone)
         EventActionType.TOGGLE_TILE_ZONE -> stringResource(Res.string.event_act_toggle_tile_zone)
+        EventActionType.MOVE_TILE_ZONE -> stringResource(Res.string.event_act_move_tile_zone)
         EventActionType.STOP_EVENT_LOOP -> stringResource(Res.string.event_act_stop_event_loop)
         EventActionType.STOP_SPAWN_LOOP -> stringResource(Res.string.event_act_stop_spawn_loop)
         EventActionType.SHOW_MAP_IMAGE -> stringResource(Res.string.event_act_show_map_image)

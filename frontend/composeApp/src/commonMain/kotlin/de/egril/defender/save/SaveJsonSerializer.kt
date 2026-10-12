@@ -295,6 +295,25 @@ object SaveJsonSerializer {
             }
 
         val activeTileZoneIdsJson = savedGame.activeTileZoneIds.joinToString(", ") { "\"$it\"" }
+        val movedTileRegionsJson =
+            savedGame.movedTileRegions.entries.joinToString(",\n    ") { (zoneId, tiles) ->
+                val tilesJson =
+                    tiles.entries
+                        .sortedWith(compareBy({ it.key.y }, { it.key.x }))
+                        .joinToString(", ") { (position, tile) ->
+                            val river = tile.riverTile
+                            val riverPart =
+                                if (river != null) {
+                                    ", \"flowDirection\": \"${river.flowDirection.name}\", \"flowSpeed\": ${river.flowSpeed}"
+                                } else {
+                                    ""
+                                }
+                            "{\"position\": {\"x\": ${position.x}, \"y\": ${position.y}}, " +
+                                "\"home\": {\"x\": ${tile.homePosition.x}, \"y\": ${tile.homePosition.y}}, " +
+                                "\"type\": \"${tile.type.name}\"$riverPart}"
+                        }
+                "{\"zoneId\": \"$zoneId\", \"tiles\": [$tilesJson]}"
+            }
         val activeEventMapImagesJson = savedGame.activeEventMapImages.joinToString(", ") { EventMapImageJson.serialize(it) }
         val activeAltarLinksJson = savedGame.activeAltarLinks.joinToString(", ") { EventMapImageJson.serializeAltarLink(it) }
 
@@ -397,6 +416,9 @@ object SaveJsonSerializer {
   "nextPortalId": ${savedGame.nextPortalId},
   "takenTargets": [$takenTargetsJson],
   "activeTileZoneIds": [$activeTileZoneIdsJson],
+  "movedTileRegions": [
+    $movedTileRegionsJson
+  ],
   "activeEventLoops": [$activeEventLoopsJson],
   "activeEventMapImages": [$activeEventMapImagesJson],
   "activeAltarLinks": [$activeAltarLinksJson],
@@ -835,6 +857,11 @@ object SaveJsonSerializer {
                     }
 
             val activeTileZoneIds = parseStringArray(dataJson, "activeTileZoneIds")
+            val movedTileRegions =
+                JsonUtils
+                    .splitJsonArray(JsonUtils.extractJsonArrayForKey(dataJson, "movedTileRegions"))
+                    .mapNotNull { regionJson -> runCatching { parseMovedTileRegion(regionJson) }.getOrNull() }
+                    .toMap()
             val activeEventLoops = parseActiveEventLoops(dataJson)
             val activeEventMapImages =
                 EventMapImageJson
@@ -918,6 +945,7 @@ object SaveJsonSerializer {
                 nextPortalId = nextPortalId,
                 takenTargets = takenTargets,
                 activeTileZoneIds = activeTileZoneIds,
+                movedTileRegions = movedTileRegions,
                 activeEventLoops = activeEventLoops,
                 activeEventMapImages = activeEventMapImages,
                 activeAltarLinks = activeAltarLinks,
@@ -1375,6 +1403,37 @@ object SaveJsonSerializer {
                 0
             }
         return SavedSpellEffect(spell, posSection, defenderId, attackerId, turnsRemaining, castTurn)
+    }
+
+    /** Parse one entry of "movedTileRegions": the zone id and the tiles it covers with their terrain. */
+    private fun parseMovedTileRegion(json: String): Pair<String, Map<Position, de.egril.defender.model.RegionTile>> {
+        val zoneId = JsonUtils.extractStringValue(json, "zoneId")
+        val tiles =
+            JsonUtils
+                .splitJsonArray(JsonUtils.extractJsonArrayForKey(json, "tiles"))
+                .associate { tileJson ->
+                    fun pointIn(key: String): Position {
+                        val section = JsonUtils.extractJsonObjectForKey(tileJson, key)
+                        return Position(JsonUtils.extractValue(section, "x").toInt(), JsonUtils.extractValue(section, "y").toInt())
+                    }
+                    val position = pointIn("position")
+                    val type = de.egril.defender.editor.TileType.valueOf(JsonUtils.extractStringValue(tileJson, "type"))
+                    val river =
+                        if (type == de.egril.defender.editor.TileType.RIVER) {
+                            de.egril.defender.model.RiverTile(
+                                position = position,
+                                flowDirection =
+                                    runCatching {
+                                        de.egril.defender.model.RiverFlow.valueOf(JsonUtils.extractStringValue(tileJson, "flowDirection"))
+                                    }.getOrDefault(de.egril.defender.model.RiverFlow.NONE),
+                                flowSpeed = JsonUtils.extractNumericValue(tileJson, "flowSpeed").toIntOrNull()?.coerceIn(1, 2) ?: 1,
+                            )
+                        } else {
+                            null
+                        }
+                    position to de.egril.defender.model.RegionTile(type, river, pointIn("home"))
+                }
+        return zoneId to tiles
     }
 
     private fun parsePosition(json: String): Position {

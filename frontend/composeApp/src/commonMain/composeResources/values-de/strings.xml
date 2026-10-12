@@ -2557,6 +2557,11 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="event_act_apply_tile_zone">Kachelzone aktivieren</string>
     <string name="event_act_revert_tile_zone">Kachelzone deaktivieren</string>
     <string name="event_act_toggle_tile_zone">Kachelzone umschalten</string>
+    <string name="event_act_move_tile_zone">Kachelzone verschieben</string>
+    <string name="event_move_rotation_label">Drehung (x 60°, 0-5)</string>
+    <string name="event_move_rotation_min_size_warning">Drehen braucht mindestens %1$d Felder in der Region. Kleinere Regionen können nur verschoben werden.</string>
+    <string name="event_move_dx_label">Verschiebung X (Felder)</string>
+    <string name="event_move_dy_label">Verschiebung Y (Felder)</string>
     <string name="event_act_stop_event_loop">Ereignisschleife beenden</string>
     <string name="events_invalid_spawn_loop_stops">%1$d Aktion(en) Spawn-Loop beenden verweisen auf einen nicht vorhandenen Spawn-Loop.</string>
     <string name="events_infinite_loops_not_stopped">Diese endlosen Spawn-Loops werden nie beendet: %1$s. Füge für jeden eine Aktion Spawn-Loop beenden hinzu.</string>
@@ -2592,6 +2597,14 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="tile_zone_start_drawing">Zonenzeichnen starten</string>
     <string name="tile_zone_finish_drawing">Zonenzeichnen beenden</string>
     <string name="tile_zone_river_flow_hint">Flusskacheln verwenden die im Karteneditor gewählte Fließrichtung und -geschwindigkeit.</string>
+    <string name="tile_zone_movable">Bewegliche Region</string>
+    <string name="tile_zone_movable_help">Kann durch Level-Ereignisse zusammen mit allen Einheiten und Gebäuden darauf verschoben oder gedreht werden. Regionen dürfen keine Spawn-Punkte enthalten. Drehen braucht mindestens 7 Felder.</string>
+    <string name="tile_zone_movable_spawn_warning">Spawn-Punkte können nicht Teil einer beweglichen Region sein.</string>
+    <string name="tile_zone_rotatable">Drehbar (mindestens %1$d Felder)</string>
+    <string name="tile_zone_rotatable_help">Drehbare Zonen brauchen mindestens %1$d Felder, sonst ist die Karte ungültig.</string>
+    <string name="tile_zone_rotatable_size_warning">Diese Zone hat weniger als %1$d Felder. Die Karte ist ungültig, bis die Zone vergrößert oder das Drehbar-Flag entfernt wird.</string>
+    <string name="tile_zone_overlap_warning">Diese Zone überschneidet sich mit einer anderen beweglichen Zone. Bewegungen auf die gemeinsamen Felder werden abgelehnt.</string>
+    <string name="map_validation_rotatable_zone_too_small">Eine drehbare Kachelzone hat weniger als %1$d Felder.</string>
     <string name="tile_zone_tile_count">%1$d Kacheln</string>
     <string name="submerged_enemies">Untergetaucht (zählen nicht für den Sieg)</string>
     <string name="raft_hp_label">Floß: %d TP</string>

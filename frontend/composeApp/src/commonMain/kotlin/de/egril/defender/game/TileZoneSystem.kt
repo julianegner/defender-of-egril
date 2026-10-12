@@ -10,6 +10,11 @@ import de.egril.defender.model.EnemyDeathEffect
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Position
 import de.egril.defender.model.Raft
+import de.egril.defender.model.MIN_ROTATABLE_REGION_TILES
+import de.egril.defender.model.RegionMove
+import de.egril.defender.model.Bridge
+import de.egril.defender.model.Portal
+import de.egril.defender.model.Waypoint
 import de.egril.defender.model.getHexNeighbors
 
 /**
@@ -41,10 +46,13 @@ class TileZoneSystem(
 ) {
     fun isZoneActive(zoneId: String): Boolean = state.activeTileZoneIds.contains(zoneId)
 
-    /** Activate [zoneId]. Returns false when the zone does not exist or is already active. */
+    /**
+     * Activate [zoneId]. Returns false when the zone does not exist, is already active, or is a
+     * movable region (those are moved with [moveZone] instead).
+     */
     fun applyZone(zoneId: String): Boolean {
         val zone = state.level.tileZones.firstOrNull { it.id == zoneId } ?: return false
-        if (isZoneActive(zoneId)) return false
+        if (zone.movable || isZoneActive(zoneId)) return false
         state.activeTileZoneIds.add(zoneId)
         GameLogBuffer.log("EVENT", "Tile zone '$zoneId' applied (${zone.tiles.size} tiles)")
         resolveChanges(state.refreshZoneTiles(zone.tiles.keys))
@@ -72,7 +80,136 @@ class TileZoneSystem(
             state.level.tileZones
                 .filter { isZoneActive(it.id) }
                 .flatMap { it.tiles.keys }
-        state.refreshZoneTiles(positions)
+        val movedRegions = state.movedTileRegions.values
+        state.refreshZoneTiles(positions + movedRegions.flatMap { it.keys })
+        // A save stores moved regions at their current tiles while the level still describes the home tiles.
+        relocateLevelData(movedRegions.flatMap { region -> region.entries.map { (position, tile) -> tile.homePosition to position } }.toMap())
+    }
+
+    /**
+     * Move the movable region [zoneId] by [move], carrying its terrain and everything standing on it
+     * to the new tiles. Objects that do not belong to the region on the destination tiles are
+     * destroyed. The vacated tiles fall back to the base map. Flooding, drying and no-play rules then
+     * apply to the moved objects as they would to a zone switch.
+     *
+     * Returns false and changes nothing when the zone is not movable, the move is a no-op, or the
+     * destination leaves the map, lands on a spawn point or overlaps another movable region.
+     */
+    fun moveZone(
+        zoneId: String,
+        move: RegionMove,
+    ): Boolean {
+        val zone = state.level.tileZones.firstOrNull { it.id == zoneId && it.movable } ?: return false
+        if (move.isIdentity) return false
+        val region = state.regionTilesOf(zone)
+        if (region.isEmpty()) return false
+
+        val oldPositions = region.keys
+        val mapper = move.mapperFor(oldPositions)
+        val moved = oldPositions.associateWith(mapper)
+        val destination = moved.values.toSet()
+        val rejection =
+            when {
+                move.rotationSteps.mod(6) != 0 && region.size < MIN_ROTATABLE_REGION_TILES ->
+                    "rotation needs at least $MIN_ROTATABLE_REGION_TILES tiles"
+                destination.any { !isOnMap(it) } -> "leaves the map"
+                destination.any { it in state.level.startPositions } -> "lands on a spawn point"
+                state.level.tileZones.any { other ->
+                    other.movable && other.id != zoneId && state.regionTilesOf(other).keys.any { it in destination }
+                } -> "overlaps another movable region"
+                else -> null
+            }
+        if (rejection != null) {
+            GameLogBuffer.log("EVENT", "Tile zone '$zoneId' not moved: destination $rejection")
+            return false
+        }
+
+        destroyAt(destination - oldPositions, spareFliers = false)
+        moveObjects(oldPositions, mapper)
+
+        state.movedTileRegions[zoneId] = moved.entries.associate { (from, to) -> to to region.getValue(from) }
+        val changes = state.refreshZoneTiles(oldPositions + destination)
+        relocateLevelData(moved)
+        GameLogBuffer.log("EVENT", "Tile zone '$zoneId' moved (${zone.tiles.size} tiles, ${move.rotationSteps * 60} deg, dx=${move.dx}, dy=${move.dy})")
+        resolveChanges(changes)
+        return true
+    }
+
+    private fun isOnMap(position: Position): Boolean =
+        position.x in 0 until state.level.gridWidth && position.y in 0 until state.level.gridHeight
+
+    /**
+     * Re-map the level data that refers to tile positions — waypoints, the SINGLE_HIT order and target
+     * info — for the tiles in [relocation] (old position -> new position). Must run after the tiles
+     * were refreshed, since [GameState.replaceTiles] resets target info of changed tiles.
+     */
+    private fun relocateLevelData(relocation: Map<Position, Position>) {
+        if (relocation.isEmpty()) return
+        fun Position.relocated(): Position = relocation[this] ?: this
+
+        val targetInfo =
+            state.level.targetInfoMap
+                .filterKeys { it in relocation }
+                .mapKeys { relocation.getValue(it.key) }
+        state.level =
+            state.level.copy(
+                waypoints =
+                    state.level.waypoints.map { waypoint: Waypoint ->
+                        Waypoint(waypoint.position.relocated(), waypoint.nextTarget.relocated())
+                    },
+                singleHitTargetOrder = state.level.singleHitTargetOrder.map { it.relocated() },
+                targetInfoMap =
+                    state.level.targetInfoMap.filterKeys { it !in relocation && it !in relocation.values } + targetInfo,
+            )
+    }
+
+    /** Carry every object standing on the region [region] to its mapped position. */
+    private fun moveObjects(
+        region: Set<Position>,
+        mapper: (Position) -> Position,
+    ) {
+        fun Position.moved(): Position = if (this in region) mapper(this) else this
+        fun Position?.isInRegion(): Boolean = this != null && this in region
+
+        for (attacker in state.attackers + state.submergedAttackers) {
+            if (attacker.position.value in region) attacker.position.value = mapper(attacker.position.value)
+            attacker.currentTarget?.let { target -> if (target.value in region) target.value = mapper(target.value) }
+        }
+        for (defender in state.defenders) {
+            if (defender.position.value in region) defender.position.value = mapper(defender.position.value)
+        }
+        for (raft in state.rafts) {
+            if (raft.currentPosition.value in region) raft.currentPosition.value = mapper(raft.currentPosition.value)
+        }
+        relocateEach(state.barricades, { it.position in region }) { it.copy(position = mapper(it.position)) }
+        relocateEach(state.traps, { it.position in region }) { it.copy(position = mapper(it.position)) }
+        relocateEach(state.fiefs, { it.position in region }) { it.copy(position = mapper(it.position)) }
+        relocateEach(state.mushrooms, { it.position in region }) { it.copy(position = mapper(it.position)) }
+        relocateEach(state.scrapPiles, { it.position in region }) { it.copy(position = mapper(it.position)) }
+        relocateEach(state.fieldEffects, { it.position in region }) { it.copy(position = mapper(it.position)) }
+        relocateEach(state.activeSpellEffects, { it.position.isInRegion() }) { it.copy(position = it.position?.let(mapper)) }
+        relocateEach(state.bridges, { bridge -> bridge.positions.any { it in region } }) { bridge: Bridge ->
+            bridge.copy(positions = bridge.positions.map { it.moved() })
+        }
+        relocateEach(state.activePortals, { it.entryPosition in region || it.exitPosition in region }) { portal: Portal ->
+            portal.copy(entryPosition = portal.entryPosition.moved(), exitPosition = portal.exitPosition.moved())
+        }
+        relocateEach(state.takenTargets, { it in region }) { mapper(it) }
+        relocateEach(state.destroyedMinePositions, { it in region }) { mapper(it) }
+        relocateEach(state.activeAltarLinks, { it.from in region || it.to in region }) { link ->
+            link.copy(from = link.from.moved(), to = link.to.moved())
+        }
+    }
+
+    private fun <T> relocateEach(
+        list: MutableList<T>,
+        isInRegion: (T) -> Boolean,
+        move: (T) -> T,
+    ) {
+        for (index in list.indices) {
+            val item = list[index]
+            if (isInRegion(item)) list[index] = move(item)
+        }
     }
 
     private fun resolveChanges(changes: Map<Position, Pair<TileType, TileType>>) {
@@ -87,7 +224,7 @@ class TileZoneSystem(
                     ) &&
                         change.second == TileType.NO_PLAY
                 }.keys
-        if (noPlay.isNotEmpty()) destroyOnNoPlay(noPlay)
+        if (noPlay.isNotEmpty()) destroyAt(noPlay, spareFliers = true)
 
         val remainingChanges = changes.filterKeys { it !in noPlay }
         val flooded = remainingChanges.filter { (_, change) -> change.first != TileType.RIVER && change.second == TileType.RIVER }.keys
@@ -97,13 +234,22 @@ class TileZoneSystem(
         resurfaceSubmergedUnits()
     }
 
-    private fun destroyOnNoPlay(positions: Set<Position>) {
+    /**
+     * Destroy everything standing on [positions]. Flying and hovering enemies survive unless
+     * [spareFliers] is false.
+     */
+    private fun destroyAt(
+        positions: Set<Position>,
+        spareFliers: Boolean,
+    ) {
+        fun Attacker.survives(): Boolean = spareFliers && canFlyOrHover()
+
         for (attacker in state.attackers.toList()) {
-            if (attacker.isDefeated.value || attacker.position.value !in positions || attacker.canFlyOrHover()) continue
+            if (attacker.isDefeated.value || attacker.position.value !in positions || attacker.survives()) continue
             removeWithoutReward(attacker, "destroyed by terrain")
         }
         for (attacker in state.submergedAttackers.toList()) {
-            if (attacker.position.value !in positions || attacker.canFlyOrHover()) continue
+            if (attacker.position.value !in positions || attacker.survives()) continue
             state.submergedAttackers.remove(attacker)
             GameLogBuffer.log("EVENT", "${attacker.type.name} #${attacker.id} destroyed by terrain at ${attacker.position.value}")
         }

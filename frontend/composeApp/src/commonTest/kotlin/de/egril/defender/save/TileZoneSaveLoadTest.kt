@@ -1,10 +1,12 @@
 package de.egril.defender.save
 
+import de.egril.defender.editor.TileType
 import de.egril.defender.model.ActiveEventLoop
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.EventLoopFrame
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.Position
+import de.egril.defender.model.RegionTile
 import de.egril.defender.model.Raft
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -76,6 +78,17 @@ class TileZoneSaveLoadTest {
         assertTrue(loaded.attackers.first { it.id == 1 }.isSubmerged)
         assertFalse(loaded.attackers.first { it.id == 2 }.isSubmerged)
         assertEquals(7, loaded.healthPoints, "Raft health must not be confused with the player's health")
+    }
+
+    @Test
+    fun movedTileRegionsRoundTrip() {
+        val moved = mapOf(Position(5, 2) to RegionTile(TileType.PATH, null, Position(1, 2)), Position(6, 2) to RegionTile(TileType.PATH, null, Position(2, 2)))
+        val original = savedGame().copy(movedTileRegions = mapOf("island" to moved))
+
+        val loaded = SaveJsonSerializer.deserializeSavedGame(SaveJsonSerializer.serializeSavedGame(original))
+
+        assertNotNull(loaded)
+        assertEquals(original.movedTileRegions, loaded.movedTileRegions)
     }
 
     @Test

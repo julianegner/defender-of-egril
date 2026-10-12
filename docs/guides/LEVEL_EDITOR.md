@@ -212,6 +212,12 @@ For a Rune Network objective, choose the activated-Altars condition, set its thr
 win-level action, and select the Rune Network victory message. Altars must be activated in the same
 player turn; their channeling resets at the start of the next player turn.
 
+**Move tile zone**: moves a movable tile zone (set in the map editor) with all its terrain, units and
+objects. Set a shift in grid cells (*dx*, *dy*) and a rotation (0-5 steps of 60 degrees). Rotation
+needs at least 7 tiles in the zone; the editor warns when a smaller zone is set to rotate. In the map editor, zones marked "Rotatable" with fewer than 7 tiles make the map invalid (red dot on the tab). Moves that
+leave the map, land on a spawn point or overlap another moved region are skipped. See
+`docs/features/MOVABLE_TILE_REGIONS.md`.
+
 Each event is shown as a collapsible card. Collapsed cards display a short summary (the condition and
 the number of actions) and a delete button; click the card header to expand it and edit its details.
 

@@ -7,6 +7,8 @@ import de.egril.defender.model.RiverTile
 import de.egril.defender.model.TileZone
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class TileZoneEditingTest {
     @Test
@@ -62,5 +64,18 @@ class TileZoneEditingTest {
         assertEquals("", copy.name)
         assertEquals(source.tiles, copy.tiles)
         assertEquals(source.riverTiles, copy.riverTiles)
+    }
+
+    @Test
+    fun overlapOnlyCountsOtherMovableZones() {
+        val shared = Position(1, 1)
+        val movable = TileZone(id = "a", tiles = mapOf(shared to TileType.PATH), movable = true)
+        val otherMovable = TileZone(id = "b", tiles = mapOf(shared to TileType.PATH), movable = true)
+        val fixed = TileZone(id = "c", tiles = mapOf(shared to TileType.PATH), movable = false)
+
+        assertTrue(overlapsOtherMovableZone(listOf(movable, otherMovable), movable))
+        assertFalse(overlapsOtherMovableZone(listOf(movable, fixed), movable), "Fixed zones may overlap freely")
+        assertFalse(overlapsOtherMovableZone(listOf(movable, otherMovable), fixed), "Only movable zones are checked")
+        assertFalse(overlapsOtherMovableZone(listOf(movable, TileZone(id = "d", tiles = mapOf(Position(5, 5) to TileType.PATH), movable = true)), movable))
     }
 }

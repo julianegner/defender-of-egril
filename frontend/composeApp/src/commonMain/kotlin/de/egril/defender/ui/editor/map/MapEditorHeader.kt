@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.MapValidationIssue
+import de.egril.defender.model.MIN_ROTATABLE_REGION_TILES
 import de.egril.defender.editor.TileType
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.editor.RiverFlowIndicator
@@ -1285,6 +1286,8 @@ private fun CollapsedMapEditorHeader(
                                 MapValidationIssue.NO_BUILDABLE_TILES -> stringResource(Res.string.map_validation_no_buildable_tiles)
                                 MapValidationIssue.NO_PATH_FROM_SPAWN_TO_TARGET ->
                                     stringResource(Res.string.map_validation_no_path_from_spawn_to_target)
+                                MapValidationIssue.ROTATABLE_ZONE_TOO_SMALL ->
+                                    stringResource(Res.string.map_validation_rotatable_zone_too_small, MIN_ROTATABLE_REGION_TILES)
                             }
                         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text("•")

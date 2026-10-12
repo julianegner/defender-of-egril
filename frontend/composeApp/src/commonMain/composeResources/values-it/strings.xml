@@ -2560,6 +2560,11 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="event_act_apply_tile_zone">Attiva zona di caselle</string>
     <string name="event_act_revert_tile_zone">Disattiva zona di caselle</string>
     <string name="event_act_toggle_tile_zone">Alterna zona di caselle</string>
+    <string name="event_act_move_tile_zone">Sposta zona di caselle</string>
+    <string name="event_move_rotation_label">Rotazione (x 60°, 0-5)</string>
+    <string name="event_move_rotation_min_size_warning">La rotazione richiede almeno %1$d caselle nella regione. Le regioni più piccole possono solo essere spostate.</string>
+    <string name="event_move_dx_label">Spostamento X (caselle)</string>
+    <string name="event_move_dy_label">Spostamento Y (caselle)</string>
     <string name="event_act_stop_event_loop">Ferma ciclo dell\'evento</string>
     <string name="events_invalid_spawn_loop_stops">%1$d azione/i Ferma ciclo di comparsa fanno riferimento a un ciclo inesistente.</string>
     <string name="events_infinite_loops_not_stopped">Questi cicli di comparsa infiniti non vengono mai fermati: %1$s. Aggiungi un\'azione Ferma ciclo di comparsa per ciascuno.</string>
@@ -2595,6 +2600,14 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="tile_zone_start_drawing">Avvia disegno zona</string>
     <string name="tile_zone_finish_drawing">Termina disegno zona</string>
     <string name="tile_zone_river_flow_hint">Le caselle di fiume usano la direzione e la velocità della corrente selezionate nell'editor della mappa.</string>
+    <string name="tile_zone_movable">Regione mobile</string>
+    <string name="tile_zone_movable_help">Può essere spostata o ruotata dagli eventi del livello insieme a tutte le unità e gli edifici presenti. Le regioni non possono contenere punti di comparsa. La rotazione richiede almeno 7 caselle.</string>
+    <string name="tile_zone_movable_spawn_warning">I punti di comparsa non possono far parte di una regione mobile.</string>
+    <string name="tile_zone_rotatable">Ruotabile (almeno %1$d caselle)</string>
+    <string name="tile_zone_rotatable_help">Le zone ruotabili richiedono almeno %1$d caselle, altrimenti la mappa non è valida.</string>
+    <string name="tile_zone_rotatable_size_warning">Questa zona ha meno di %1$d caselle. La mappa non è valida finché la zona non viene ingrandita o il flag ruotabile non viene rimosso.</string>
+    <string name="tile_zone_overlap_warning">Questa zona si sovrappone a un\'altra zona mobile. Gli spostamenti sulle caselle condivise vengono rifiutati.</string>
+    <string name="map_validation_rotatable_zone_too_small">Una zona ruotabile ha meno di %1$d caselle.</string>
     <string name="tile_zone_tile_count">%1$d caselle</string>
     <string name="submerged_enemies">Sommersi (non contano per la vittoria)</string>
     <string name="raft_hp_label">Zattera: %d PV</string>

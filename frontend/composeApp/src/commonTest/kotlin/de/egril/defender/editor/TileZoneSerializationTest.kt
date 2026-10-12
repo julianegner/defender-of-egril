@@ -105,4 +105,48 @@ class TileZoneSerializationTest {
         assertNotNull(loaded)
         assertEquals(events, loaded.events)
     }
+
+    @Test
+    fun rotatableFlagRoundTrip() {
+        val zone = TileZone(id = "raft", tiles = mapOf(Position(1, 2) to TileType.PATH), movable = true, rotatable = true)
+        val map = EditorMap(id = "raft_map", width = 4, height = 4, tiles = mapOf("0,0" to TileType.SPAWN_POINT), tileZones = listOf(zone))
+
+        assertEquals(listOf(zone), EditorJsonSerializer.deserializeMap(EditorJsonSerializer.serializeMap(map))?.tileZones)
+    }
+
+    @Test
+    fun movableZonesAndMoveActionsRoundTrip() {
+        val island = TileZone(id = "island", name = "Island", tiles = mapOf(Position(1, 2) to TileType.PATH), movable = true)
+        val map =
+            EditorMap(
+                id = "island_map",
+                name = "Island Map",
+                width = 4,
+                height = 4,
+                tiles = mapOf("0,0" to TileType.SPAWN_POINT),
+                tileZones = listOf(island),
+            )
+        assertEquals(listOf(island), EditorJsonSerializer.deserializeMap(EditorJsonSerializer.serializeMap(map))?.tileZones)
+
+        val moveActions =
+            listOf(
+                EventAction(type = EventActionType.MOVE_TILE_ZONE, zoneId = "island", moveDx = 3, moveDy = -2, rotationSteps = 2),
+                EventAction(type = EventActionType.MOVE_TILE_ZONE, zoneId = "island", rotationSteps = 1),
+            )
+        val level =
+            EditorLevel(
+                id = "move_level",
+                mapId = "island_map",
+                title = "Move Level",
+                startCoins = 100,
+                enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+                availableTowers = setOf(DefenderType.SPIKE_TOWER),
+                events = LevelEvents(listOf(LevelEvent(id = "drift", condition = EventCondition(type = EventConditionType.TURN_START, fromTurn = 2), actions = moveActions))),
+            )
+
+        val loaded = EditorJsonSerializer.deserializeLevel(EditorJsonSerializer.serializeLevel(level))
+
+        assertNotNull(loaded)
+        assertEquals(level.events, loaded.events)
+    }
 }

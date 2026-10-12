@@ -39,6 +39,7 @@ enum class MapValidationIssue {
     NO_TARGET,
     NO_BUILDABLE_TILES, // No BUILD_AREA/river tiles and allowNoBuildableTiles is not set
     NO_PATH_FROM_SPAWN_TO_TARGET,
+    ROTATABLE_ZONE_TOO_SMALL, // A movable zone flagged rotatable has fewer than MIN_ROTATABLE_REGION_TILES tiles
 }
 
 /**
@@ -76,6 +77,10 @@ data class EditorMap(
     val isValid: Boolean = true,
 ) {
     fun hasSupportedSize(): Boolean = MapSizeLimits.isWithinLimits(width, height)
+
+    /** Movable zones flagged rotatable that are too small to rotate without drifting. */
+    fun rotatableZonesTooSmall(): List<de.egril.defender.model.TileZone> =
+        tileZones.filter { it.movable && it.rotatable && it.tiles.size < de.egril.defender.model.MIN_ROTATABLE_REGION_TILES }
 
     fun canRenderMinimap(): Boolean = isValid && hasSupportedSize()
 
@@ -172,6 +177,7 @@ data class EditorMap(
         val issues = mutableListOf<MapValidationIssue>()
         if (!isValid) issues += MapValidationIssue.INVALID_MAP_DATA
         if (!hasSupportedSize()) issues += MapValidationIssue.UNSUPPORTED_SIZE
+        if (rotatableZonesTooSmall().isNotEmpty()) issues += MapValidationIssue.ROTATABLE_ZONE_TOO_SMALL
         if (!canRenderMinimap()) return issues
 
         val spawnPoints = getSpawnPoints()
@@ -209,6 +215,7 @@ data class EditorMap(
      */
     fun validateReadyToUse(includeRiversAsWalkable: Boolean = true): Boolean {
         if (!canRenderMinimap()) return false
+        if (rotatableZonesTooSmall().isNotEmpty()) return false
 
         val spawnPoints = getSpawnPoints()
         val targets = getTargets()

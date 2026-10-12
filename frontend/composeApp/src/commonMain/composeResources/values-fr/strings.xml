@@ -2559,6 +2559,11 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="event_act_apply_tile_zone">Activer la zone de cases</string>
     <string name="event_act_revert_tile_zone">Désactiver la zone de cases</string>
     <string name="event_act_toggle_tile_zone">Basculer la zone de cases</string>
+    <string name="event_act_move_tile_zone">Déplacer la zone de cases</string>
+    <string name="event_move_rotation_label">Rotation (x 60°, 0-5)</string>
+    <string name="event_move_rotation_min_size_warning">La rotation nécessite au moins %1$d cases dans la région. Les régions plus petites ne peuvent être que déplacées.</string>
+    <string name="event_move_dx_label">Décalage X (cases)</string>
+    <string name="event_move_dy_label">Décalage Y (cases)</string>
     <string name="event_act_stop_event_loop">Arrêter la boucle d\'événement</string>
     <string name="events_invalid_spawn_loop_stops">%1$d action(s) Arrêter la boucle d\'apparition font référence à une boucle inexistante.</string>
     <string name="events_infinite_loops_not_stopped">Ces boucles d\'apparition infinies ne sont jamais arrêtées : %1$s. Ajoutez une action Arrêter la boucle d\'apparition pour chacune.</string>
@@ -2594,6 +2599,14 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="tile_zone_start_drawing">Démarrer le dessin de zone</string>
     <string name="tile_zone_finish_drawing">Terminer le dessin de zone</string>
     <string name="tile_zone_river_flow_hint">Les cases de rivière utilisent la direction et la vitesse du courant sélectionnées dans l'éditeur de carte.</string>
+    <string name="tile_zone_movable">Région mobile</string>
+    <string name="tile_zone_movable_help">Peut être déplacée ou pivotée par les événements du niveau avec toutes les unités et bâtiments dessus. Les régions ne peuvent pas contenir de points d\'apparition. La rotation nécessite au moins 7 cases.</string>
+    <string name="tile_zone_movable_spawn_warning">Les points d\'apparition ne peuvent pas faire partie d\'une région mobile.</string>
+    <string name="tile_zone_rotatable">Rotative (au moins %1$d cases)</string>
+    <string name="tile_zone_rotatable_help">Les zones rotatives ont besoin d\'au moins %1$d cases, sinon la carte est invalide.</string>
+    <string name="tile_zone_rotatable_size_warning">Cette zone compte moins de %1$d cases. La carte est invalide tant que la zone n\'est pas agrandie ou que l\'option rotative n\'est pas retirée.</string>
+    <string name="tile_zone_overlap_warning">Cette zone chevauche une autre zone mobile. Les déplacements vers les cases communes sont refusés.</string>
+    <string name="map_validation_rotatable_zone_too_small">Une zone rotative compte moins de %1$d cases.</string>
     <string name="tile_zone_tile_count">%1$d cases</string>
     <string name="submerged_enemies">Submergés (ne comptent pas pour la victoire)</string>
     <string name="raft_hp_label">Radeau : %d PV</string>

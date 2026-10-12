@@ -523,6 +523,7 @@ private fun EventGainsSummary(actions: List<EventAction>) {
                 EventActionType.APPLY_TILE_ZONE,
                 EventActionType.REVERT_TILE_ZONE,
                 EventActionType.TOGGLE_TILE_ZONE,
+                EventActionType.MOVE_TILE_ZONE,
                 EventActionType.STOP_EVENT_LOOP,
                 EventActionType.STOP_SPAWN_LOOP,
                 EventActionType.SHOW_MAP_IMAGE,

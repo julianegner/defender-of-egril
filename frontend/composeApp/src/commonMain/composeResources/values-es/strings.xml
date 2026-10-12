@@ -2558,6 +2558,11 @@
     <string name="event_act_apply_tile_zone">Activar zona de casillas</string>
     <string name="event_act_revert_tile_zone">Desactivar zona de casillas</string>
     <string name="event_act_toggle_tile_zone">Alternar zona de casillas</string>
+    <string name="event_act_move_tile_zone">Mover zona de casillas</string>
+    <string name="event_move_rotation_label">Rotación (x 60°, 0-5)</string>
+    <string name="event_move_rotation_min_size_warning">Girar requiere al menos %1$d casillas en la región. Las regiones más pequeñas solo se pueden desplazar.</string>
+    <string name="event_move_dx_label">Desplazamiento X (casillas)</string>
+    <string name="event_move_dy_label">Desplazamiento Y (casillas)</string>
     <string name="event_act_stop_event_loop">Detener bucle de evento</string>
     <string name="events_invalid_spawn_loop_stops">%1$d acción(es) Detener bucle de aparición hacen referencia a un bucle inexistente.</string>
     <string name="events_infinite_loops_not_stopped">Estos bucles de aparición infinitos nunca se detienen: %1$s. Añade una acción Detener bucle de aparición para cada uno.</string>
@@ -2593,6 +2598,14 @@
     <string name="tile_zone_start_drawing">Iniciar dibujo de zona</string>
     <string name="tile_zone_finish_drawing">Terminar dibujo de zona</string>
     <string name="tile_zone_river_flow_hint">Las casillas de río usan la dirección y velocidad de corriente seleccionadas en el editor del mapa.</string>
+    <string name="tile_zone_movable">Región móvil</string>
+    <string name="tile_zone_movable_help">Puede ser movida o rotada por eventos del nivel junto con todas las unidades y edificios que hay en ella. Las regiones no pueden contener puntos de aparición. Girar requiere al menos 7 casillas.</string>
+    <string name="tile_zone_movable_spawn_warning">Los puntos de aparición no pueden formar parte de una región móvil.</string>
+    <string name="tile_zone_rotatable">Giratoria (al menos %1$d casillas)</string>
+    <string name="tile_zone_rotatable_help">Las zonas giratorias necesitan al menos %1$d casillas, si no el mapa no es válido.</string>
+    <string name="tile_zone_rotatable_size_warning">Esta zona tiene menos de %1$d casillas. El mapa no es válido hasta ampliarla o quitar la marca de giratoria.</string>
+    <string name="tile_zone_overlap_warning">Esta zona se solapa con otra zona móvil. Los movimientos hacia las casillas compartidas se rechazan.</string>
+    <string name="map_validation_rotatable_zone_too_small">Una zona giratoria tiene menos de %1$d casillas.</string>
     <string name="tile_zone_tile_count">%1$d casillas</string>
     <string name="submerged_enemies">Sumergidos (no cuentan para la victoria)</string>
     <string name="raft_hp_label">Balsa: %d PV</string>
