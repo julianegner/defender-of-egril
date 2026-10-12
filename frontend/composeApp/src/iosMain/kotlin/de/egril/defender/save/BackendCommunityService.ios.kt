@@ -105,4 +105,9 @@ actual object BackendCommunityService {
         // Image generation falls back to local generation on iOS
         return null
     }
+
+    actual suspend fun fetchCommunityMapZoneImage(
+        mapId: String,
+        zoneIndex: Int,
+    ): ByteArray? = null
 }

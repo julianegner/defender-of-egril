@@ -375,6 +375,7 @@ kotlin {
             }
         }
         commonMain.dependencies {
+            implementation(project(":mapgen"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)

@@ -2,6 +2,11 @@
 
 This package generates background map images for Defender of Egril game maps.
 
+The rendering code lives in the shared module `shared/mapgen` (`de.egril.defender.mapgen.core`),
+which is used by both the frontend and the backend (community map uploads generate the map image
+and one overlay per tile zone on the server). The classes in this package are thin facades that
+convert `EditorMap`/`TileZone` into the shared input model (`MapImageInputs.kt`).
+
 ## Origin
 
 The approach for biome-based terrain generation is inspired by the mapgen4 project:
