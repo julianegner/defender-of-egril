@@ -53,6 +53,46 @@ class TileZoneEditingTest {
     }
 
     @Test
+    fun addingTileKeepsItsBaseTypeSoTheZoneDoesNotChangeTerrain() {
+        val position = Position(3, 3)
+
+        val updated = addTileToZone(TileZone(id = "zone"), position, baseType = TileType.PATH, baseRiver = null)
+
+        assertEquals(mapOf(position to TileType.PATH), updated.tiles)
+        assertEquals(emptyMap(), updated.riverTiles)
+    }
+
+    @Test
+    fun addingRiverTileKeepsItsBaseFlow() {
+        val position = Position(4, 4)
+        val baseRiver = RiverTile(Position(0, 0), RiverFlow.SOUTH_WEST, flowSpeed = 2)
+
+        val updated = addTileToZone(TileZone(id = "zone"), position, baseType = TileType.RIVER, baseRiver = baseRiver)
+
+        assertEquals(TileType.RIVER, updated.tiles[position])
+        assertEquals(RiverTile(position, RiverFlow.SOUTH_WEST, flowSpeed = 2), updated.riverTiles[position])
+    }
+
+    @Test
+    fun addingTileWithoutBaseTypeUsesNoPlay() {
+        val position = Position(0, 1)
+
+        val updated = addTileToZone(TileZone(id = "zone"), position, baseType = null, baseRiver = null)
+
+        assertEquals(TileType.NO_PLAY, updated.tiles[position])
+    }
+
+    @Test
+    fun addingTileAlreadyInZoneKeepsPaintedType() {
+        val position = Position(2, 2)
+        val zone = TileZone(id = "zone", tiles = mapOf(position to TileType.BUILD_AREA))
+
+        val updated = addTileToZone(zone, position, baseType = TileType.PATH, baseRiver = null)
+
+        assertEquals(zone, updated)
+    }
+
+    @Test
     fun copiedZoneGetsANewIdAndKeepsItsTileAndRiverData() {
         val position = Position(1, 2)
         val riverTile = RiverTile(position, RiverFlow.NORTH_EAST, flowSpeed = 2)

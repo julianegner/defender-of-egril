@@ -36,6 +36,9 @@ import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.map_background_storage_info
 import defender_of_egril.composeapp.generated.resources.tile_zone_add
+import defender_of_egril.composeapp.generated.resources.tile_zone_brush_add
+import defender_of_egril.composeapp.generated.resources.tile_zone_brush_add_help
+import defender_of_egril.composeapp.generated.resources.tile_zone_brush_paint
 import defender_of_egril.composeapp.generated.resources.tile_zone_copy
 import defender_of_egril.composeapp.generated.resources.tile_zone_custom_background_warning
 import defender_of_egril.composeapp.generated.resources.tile_zone_delete
@@ -124,6 +127,40 @@ internal fun paintTileZone(
     return zone.copy(tiles = tiles, riverTiles = rivers)
 }
 
+/** What a click on the map does while a zone is being drawn. */
+internal enum class ZoneBrush {
+    /** Paints the selected tile type into the zone. */
+    PAINT_TYPE,
+
+    /** Removes the tile from the zone. */
+    ERASE,
+
+    /** Adds the tile to the zone with its current base type, so the terrain does not change. */
+    ADD_KEEP_TYPE,
+}
+
+/**
+ * Add [position] to [zone] while keeping the tile's current terrain: it takes [baseType] (and [baseRiver]
+ * for river tiles). Used for zones that only mark tiles for movement or rotation.
+ * Tiles already in the zone are left unchanged, so their painted type is kept.
+ */
+internal fun addTileToZone(
+    zone: TileZone,
+    position: Position,
+    baseType: TileType?,
+    baseRiver: RiverTile?,
+): TileZone {
+    if (position in zone.tiles) return zone
+    val type = baseType ?: TileType.NO_PLAY
+    val rivers =
+        if (type == TileType.RIVER && baseRiver != null) {
+            zone.riverTiles + (position to baseRiver.copy(position = position))
+        } else {
+            zone.riverTiles
+        }
+    return zone.copy(tiles = zone.tiles + (position to type), riverTiles = rivers)
+}
+
 /** Shift all zone tiles after a map resize; tiles that fall outside the new bounds are dropped. */
 internal fun shiftTileZones(
     zones: List<TileZone>,
@@ -175,13 +212,13 @@ internal fun TileZonePanel(
     selectedZoneId: String?,
     showOtherZones: Boolean,
     isZoneDrawingMode: Boolean,
-    isErasingZoneTiles: Boolean,
+    zoneBrush: ZoneBrush,
     onZonesChange: (List<TileZone>) -> Unit,
     onSelectZone: (String?) -> Unit,
     onCopyZone: (TileZone) -> Unit,
     onShowOtherZonesChange: (Boolean) -> Unit,
     onToggleZoneDrawingMode: () -> Unit,
-    onToggleEraseZoneTiles: () -> Unit,
+    onZoneBrushChange: (ZoneBrush) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier = modifier.width(300.dp)) {
@@ -295,11 +332,20 @@ internal fun TileZonePanel(
                     )
                 }
                 if (isZoneDrawingMode) {
-                    PaintTypeOption(
-                        stringResource(Res.string.tile_zone_paint_erase),
-                        isErasingZoneTiles,
-                        onToggleEraseZoneTiles,
+                    PaintTypeOption(stringResource(Res.string.tile_zone_brush_paint), zoneBrush == ZoneBrush.PAINT_TYPE) {
+                        onZoneBrushChange(ZoneBrush.PAINT_TYPE)
+                    }
+                    PaintTypeOption(stringResource(Res.string.tile_zone_brush_add), zoneBrush == ZoneBrush.ADD_KEEP_TYPE) {
+                        onZoneBrushChange(ZoneBrush.ADD_KEEP_TYPE)
+                    }
+                    Text(
+                        text = stringResource(Res.string.tile_zone_brush_add_help),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    PaintTypeOption(stringResource(Res.string.tile_zone_paint_erase), zoneBrush == ZoneBrush.ERASE) {
+                        onZoneBrushChange(ZoneBrush.ERASE)
+                    }
                 }
                 Text(
                     text = stringResource(Res.string.tile_zone_river_flow_hint),

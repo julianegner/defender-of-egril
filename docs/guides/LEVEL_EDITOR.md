@@ -123,7 +123,9 @@ bed*. Level events switch them on and off at runtime (see the Events tab below a
 - **Add zone** creates a zone; click a zone to select it (click again to deselect) and rename it.
 - Select a zone and click **Start zone drawing** to switch from normal map drawing to zone drawing.
   While this mode is active, both clicks and drags edit only the selected zone; the regular tile
-  type selector chooses what to paint. Use **Remove tiles from zone** to erase zone overrides and
+  type selector chooses what to paint. **Add tiles to zone (keep tile type)** adds tiles with their
+  current terrain, so a zone can mark a region (e.g. to move or rotate it) without changing the map.
+  Use **Remove tiles from zone** to erase zone overrides and
   **Finish zone drawing** to return to normal map editing. River tiles use the selected flow
   direction and speed.
 - Every base tile type, including implicit NO_PLAY tiles, can belong to a zone and change to any

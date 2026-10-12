@@ -2597,6 +2597,9 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="map_background_storage_info">Lo sfondo della mappa viene salvato come PNG (%1$s); i dati della mappa, comprese le zone di caselle, vengono salvati separatamente come JSON (%2$s). Al salvataggio viene creato anche un PNG trasparente prerenderizzato per ogni zona accanto all\'immagine della mappa. I file sono nella memoria dell\'app (su desktop in ~/.defender-of-egril/); durante il gioco vengono solo caricati.</string>
     <string name="tile_zone_name_label">Nome della zona</string>
     <string name="tile_zone_paint_erase">Rimuovi caselle dalla zona</string>
+    <string name="tile_zone_brush_paint">Dipingi caselle con il tipo selezionato</string>
+    <string name="tile_zone_brush_add">Aggiungi caselle alla zona (mantieni il tipo)</string>
+    <string name="tile_zone_brush_add_help">Aggiunge caselle con il loro terreno attuale. Serve a marcare una regione da spostare o ruotare senza modificare la mappa.</string>
     <string name="tile_zone_start_drawing">Avvia disegno zona</string>
     <string name="tile_zone_finish_drawing">Termina disegno zona</string>
     <string name="tile_zone_river_flow_hint">Le caselle di fiume usano la direzione e la velocità della corrente selezionate nell'editor della mappa.</string>

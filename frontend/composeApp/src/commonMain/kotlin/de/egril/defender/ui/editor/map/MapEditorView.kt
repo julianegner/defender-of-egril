@@ -561,7 +561,7 @@ fun MapEditorView(
     var showOtherZones by remember { mutableStateOf(false) }
     var selectedZoneId by remember { mutableStateOf<String?>(null) }
     var isZoneDrawingMode by remember { mutableStateOf(false) }
-    var isErasingZoneTiles by remember { mutableStateOf(false) }
+    var zoneBrush by remember { mutableStateOf(ZoneBrush.PAINT_TYPE) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var showSaveTemplateDialog by remember { mutableStateOf(false) }
     var showTileReplacementDialog by remember { mutableStateOf(false) }
@@ -829,14 +829,19 @@ fun MapEditorView(
         val updated =
             tileZones.map { zone ->
                 if (zone.id == zoneId) {
-                    paintTileZone(
-                        zone,
-                        position,
-                        baseType,
-                        if (isErasingZoneTiles) null else selectedTileType,
-                        selectedRiverFlow,
-                        selectedRiverSpeed,
-                    )
+                    when (zoneBrush) {
+                        ZoneBrush.ADD_KEEP_TYPE ->
+                            addTileToZone(zone, position, baseType, riverTiles["${position.x},${position.y}"])
+                        ZoneBrush.PAINT_TYPE, ZoneBrush.ERASE ->
+                            paintTileZone(
+                                zone,
+                                position,
+                                baseType,
+                                if (zoneBrush == ZoneBrush.ERASE) null else selectedTileType,
+                                selectedRiverFlow,
+                                selectedRiverSpeed,
+                            )
+                    }
                 } else {
                     zone
                 }
@@ -1247,7 +1252,7 @@ fun MapEditorView(
                         selectedZoneId = selectedZoneId,
                         showOtherZones = showOtherZones,
                         isZoneDrawingMode = isZoneDrawingMode,
-                        isErasingZoneTiles = isErasingZoneTiles,
+                        zoneBrush = zoneBrush,
                         onZonesChange = {
                             rememberForUndo()
                             tileZones = it
@@ -1256,7 +1261,7 @@ fun MapEditorView(
                             selectedZoneId = it
                             if (it == null) {
                                 isZoneDrawingMode = false
-                                isErasingZoneTiles = false
+                                zoneBrush = ZoneBrush.PAINT_TYPE
                             }
                         },
                         onCopyZone = { source ->
@@ -1268,9 +1273,9 @@ fun MapEditorView(
                         onShowOtherZonesChange = { showOtherZones = it },
                         onToggleZoneDrawingMode = {
                             isZoneDrawingMode = !isZoneDrawingMode
-                            isErasingZoneTiles = false
+                            zoneBrush = ZoneBrush.PAINT_TYPE
                         },
-                        onToggleEraseZoneTiles = { isErasingZoneTiles = !isErasingZoneTiles },
+                        onZoneBrushChange = { zoneBrush = it },
                         modifier =
                             Modifier
                                 .align(Alignment.TopEnd)
@@ -1640,7 +1645,7 @@ fun MapEditorView(
             selectedTileType = selectedTileType,
             onTileTypeChange = {
                 selectedTileType = it
-                isErasingZoneTiles = false
+                zoneBrush = ZoneBrush.PAINT_TYPE
             },
             selectedRiverFlow = selectedRiverFlow,
             onRiverFlowChange = { selectedRiverFlow = it },
@@ -1716,7 +1721,7 @@ fun MapEditorView(
             onToggleTileZones = {
                 if (showTileZonePanel) {
                     isZoneDrawingMode = false
-                    isErasingZoneTiles = false
+                    zoneBrush = ZoneBrush.PAINT_TYPE
                 }
                 showTileZonePanel = !showTileZonePanel
             },

@@ -2596,6 +2596,9 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="map_background_storage_info">Le fond de carte est enregistré en PNG (%1$s) ; les données de la carte, y compris les zones de cases, sont enregistrées séparément en JSON (%2$s). Lors de l\'enregistrement, un PNG transparent pré-rendu est aussi créé pour chaque zone à côté de l\'image de la carte. Ces fichiers sont dans le stockage de l\'application (sur ordinateur, sous ~/.defender-of-egril/) ; le jeu ne fait que les charger.</string>
     <string name="tile_zone_name_label">Nom de la zone</string>
     <string name="tile_zone_paint_erase">Retirer des cases de la zone</string>
+    <string name="tile_zone_brush_paint">Peindre des cases avec le type sélectionné</string>
+    <string name="tile_zone_brush_add">Ajouter des cases à la zone (garder le type)</string>
+    <string name="tile_zone_brush_add_help">Ajoute des cases avec leur terrain actuel. Permet de marquer une région à déplacer ou pivoter sans modifier la carte.</string>
     <string name="tile_zone_start_drawing">Démarrer le dessin de zone</string>
     <string name="tile_zone_finish_drawing">Terminer le dessin de zone</string>
     <string name="tile_zone_river_flow_hint">Les cases de rivière utilisent la direction et la vitesse du courant sélectionnées dans l'éditeur de carte.</string>
