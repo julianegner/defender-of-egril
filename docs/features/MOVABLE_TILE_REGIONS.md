@@ -17,7 +17,9 @@ move together, for example to make a floating island drift.
 
 ## Runtime rules
 
-- Rotation happens around the region's centre. The shift is applied to the region's anchor (its top-most,
+- Rotation happens around the region's pivot. The pivot is the rounded centre of the home tiles, stored
+  per zone and moved with the region on every shift, so repeated rotations stay exact.
+  The shift is applied to the region's anchor (its top-most,
   then left-most tile after rotation).
 - Vacated tiles revert to the base map. Destination tiles take the region's terrain.
 - Objects on destination tiles are destroyed without reward, as for flooding.
@@ -33,7 +35,6 @@ move together, for example to make a floating island drift.
 
 ## Known limitations
 
-- Rotation pivots on the rounded centre of the current tiles. Regions with an exact centre (such as a
-  seven-hex flower) return to their start after six spins. Smaller regions are not allowed to rotate
-  because they drift when spun repeatedly. Irregular regions of seven or more tiles may still drift;
-  a fixed stored pivot would remove this.
+- The pivot is a whole hex, so a region whose exact centre lies between hexes is turned around a
+  neighbouring hex. This is still an exact rigid motion.
+- Rotation is limited to regions of at least 7 tiles (see above).

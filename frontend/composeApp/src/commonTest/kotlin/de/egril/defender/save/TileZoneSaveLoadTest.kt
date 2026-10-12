@@ -92,6 +92,16 @@ class TileZoneSaveLoadTest {
     }
 
     @Test
+    fun movedTileRegionPivotsRoundTrip() {
+        val original = savedGame().copy(movedTileRegionPivots = mapOf("island" to Position(-1, 3)))
+
+        val loaded = SaveJsonSerializer.deserializeSavedGame(SaveJsonSerializer.serializeSavedGame(original))
+
+        assertNotNull(loaded)
+        assertEquals(original.movedTileRegionPivots, loaded.movedTileRegionPivots)
+    }
+
+    @Test
     fun oldSavesLoadWithDefaults() {
         val json =
             SaveJsonSerializer

@@ -105,7 +105,8 @@ class TileZoneSystem(
         if (region.isEmpty()) return false
 
         val oldPositions = region.keys
-        val mapper = move.mapperFor(oldPositions)
+        val pivot = state.movedTileRegionPivots[zoneId] ?: RegionMove.centreOf(oldPositions)
+        val mapper = move.mapperFor(oldPositions, pivot)
         val moved = oldPositions.associateWith(mapper)
         val destination = moved.values.toSet()
         val rejection =
@@ -128,6 +129,7 @@ class TileZoneSystem(
         moveObjects(oldPositions, mapper)
 
         state.movedTileRegions[zoneId] = moved.entries.associate { (from, to) -> to to region.getValue(from) }
+        state.movedTileRegionPivots[zoneId] = mapper(pivot)
         val changes = state.refreshZoneTiles(oldPositions + destination)
         relocateLevelData(moved)
         GameLogBuffer.log("EVENT", "Tile zone '$zoneId' moved (${zone.tiles.size} tiles, ${move.rotationSteps * 60} deg, dx=${move.dx}, dy=${move.dy})")

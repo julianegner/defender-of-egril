@@ -94,6 +94,8 @@ data class SavedGame(
     val activeTileZoneIds: List<String> = emptyList(), // Tile zones switched on by scripted events, in activation order
     // Movable tile regions moved away from their home tiles: zone id -> current tiles with their terrain.
     val movedTileRegions: Map<String, Map<Position, de.egril.defender.model.RegionTile>> = emptyMap(),
+    // Rotation pivot of each moved region (see GameState.movedTileRegionPivots).
+    val movedTileRegionPivots: Map<String, Position> = emptyMap(),
     val activeEventLoops: List<ActiveEventLoop> = emptyList(), // Running scripted-event loops with their progress
     val activeEventMapImages: List<EventMapImage> = emptyList(),
     val activeAltarLinks: List<AltarLink> = emptyList(), // Lines between activated altars shown by events

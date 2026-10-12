@@ -421,6 +421,9 @@ data class GameState(
     // Movable tile regions (see [TileZone.movable]) that have been moved away from their home tiles:
     // zone id -> current positions of the region with the terrain it carries. Persisted in saves.
     val movedTileRegions: SnapshotStateMap<String, Map<Position, RegionTile>> = mutableStateMapOf(),
+    // Rotation pivot of each moved region (zone id -> position). It moves with the region, so repeated
+    // rotations stay exact. A region without an entry uses the centre of its home tiles.
+    val movedTileRegionPivots: SnapshotStateMap<String, Position> = mutableStateMapOf(),
     // Units that sank to the river bed when their tile was flooded (see [AttackerType.survivesSubmersion]).
     // They are kept out of [attackers] so they can neither act nor be targeted, and do not count
     // towards winning the level. They re-surface once their tile is dry again.

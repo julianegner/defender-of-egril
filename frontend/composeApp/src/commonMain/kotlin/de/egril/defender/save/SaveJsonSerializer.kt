@@ -295,6 +295,10 @@ object SaveJsonSerializer {
             }
 
         val activeTileZoneIdsJson = savedGame.activeTileZoneIds.joinToString(", ") { "\"$it\"" }
+        val movedTileRegionPivotsJson =
+            savedGame.movedTileRegionPivots.entries.joinToString(", ") { (zoneId, pivot) ->
+                "{\"zoneId\": \"$zoneId\", \"position\": {\"x\": ${pivot.x}, \"y\": ${pivot.y}}}"
+            }
         val movedTileRegionsJson =
             savedGame.movedTileRegions.entries.joinToString(",\n    ") { (zoneId, tiles) ->
                 val tilesJson =
@@ -419,6 +423,7 @@ object SaveJsonSerializer {
   "movedTileRegions": [
     $movedTileRegionsJson
   ],
+  "movedTileRegionPivots": [$movedTileRegionPivotsJson],
   "activeEventLoops": [$activeEventLoopsJson],
   "activeEventMapImages": [$activeEventMapImagesJson],
   "activeAltarLinks": [$activeAltarLinksJson],
@@ -862,6 +867,12 @@ object SaveJsonSerializer {
                     .splitJsonArray(JsonUtils.extractJsonArrayForKey(dataJson, "movedTileRegions"))
                     .mapNotNull { regionJson -> runCatching { parseMovedTileRegion(regionJson) }.getOrNull() }
                     .toMap()
+            val movedTileRegionPivots =
+                JsonUtils
+                    .splitJsonArray(JsonUtils.extractJsonArrayForKey(dataJson, "movedTileRegionPivots"))
+                    .mapNotNull { pivotJson ->
+                        runCatching { JsonUtils.extractStringValue(pivotJson, "zoneId") to parsePosition(pivotJson) }.getOrNull()
+                    }.toMap()
             val activeEventLoops = parseActiveEventLoops(dataJson)
             val activeEventMapImages =
                 EventMapImageJson
@@ -946,6 +957,7 @@ object SaveJsonSerializer {
                 takenTargets = takenTargets,
                 activeTileZoneIds = activeTileZoneIds,
                 movedTileRegions = movedTileRegions,
+                movedTileRegionPivots = movedTileRegionPivots,
                 activeEventLoops = activeEventLoops,
                 activeEventMapImages = activeEventMapImages,
                 activeAltarLinks = activeAltarLinks,

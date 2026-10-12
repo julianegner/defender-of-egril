@@ -27,14 +27,18 @@ data class RegionMove(
 
     /**
      * The function that maps every tile position to its new position for a region covering
-     * [region]. The mapping is a bijection of the hex grid, so tiles and objects that do not belong
-     * to the region are never mapped onto each other.
+     * [region], rotating around [pivot] (by default the centre of [region]). The mapping is a
+     * bijection of the hex grid, so tiles and objects that do not belong to the region are never
+     * mapped onto each other.
      */
-    fun mapperFor(region: Collection<Position>): (Position) -> Position {
+    fun mapperFor(
+        region: Collection<Position>,
+        pivot: Position = centreOf(region),
+    ): (Position) -> Position {
         if (region.isEmpty()) return { it }
-        val pivot = centreOf(region)
+        val pivotCube = pivot.toCube()
         val steps = rotationSteps.mod(6)
-        val rotate: (CubeCoord) -> CubeCoord = { c -> (c - pivot).rotated60(steps) + pivot }
+        val rotate: (CubeCoord) -> CubeCoord = { c -> (c - pivotCube).rotated60(steps) + pivotCube }
         val rotatedAnchor =
             region
                 .map { rotate(it.toCube()).toPosition() }
@@ -48,9 +52,12 @@ data class RegionMove(
         return { position -> (rotate(position.toCube()) + shift).toPosition() }
     }
 
-    private companion object {
-        /** Rounded centre of [region] as a hex, so that a rotation around it maps hexes onto hexes. */
-        fun centreOf(region: Collection<Position>): CubeCoord {
+    companion object {
+        /**
+         * Rounded centre of [region] as a hex, so that a rotation around it maps hexes onto hexes.
+         * A moved region keeps its pivot (see [TileZoneSystem]), so this is only computed once.
+         */
+        internal fun centreOf(region: Collection<Position>): Position {
             val cubes = region.map { it.toCube() }
             val n = cubes.size.toDouble()
             val q = cubes.sumOf { it.q } / n
@@ -70,7 +77,7 @@ data class RegionMove(
             } else {
                 rs = -rq - rr
             }
-            return CubeCoord(rq, rr, rs)
+            return CubeCoord(rq, rr, rs).toPosition()
         }
     }
 }

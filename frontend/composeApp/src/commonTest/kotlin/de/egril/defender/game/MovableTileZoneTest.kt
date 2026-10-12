@@ -155,6 +155,47 @@ class MovableTileZoneTest {
         assertFalse(TileZoneSystem(state).moveZone("island", RegionMove(0, 4, 0)))
     }
 
+    /** Seven tiles with no symmetry, so its rounded centre is not the centre of the shape. */
+    private fun irregularSevenTiles() =
+        setOf(Position(5, 4), Position(6, 4), Position(4, 4), Position(5, 3), Position(5, 5), Position(6, 5), Position(7, 4))
+
+    /** A larger map so that the irregular region can turn without touching the border or the spawn. */
+    private fun irregularLevel(): Level =
+        flowerLevel(irregularSevenTiles()).copy(gridWidth = 12, gridHeight = 9)
+
+    @Test
+    fun irregularRegionReturnsToStartAfterFullTurn() {
+        val region = irregularSevenTiles()
+        val state = GameState(irregularLevel())
+        val system = TileZoneSystem(state)
+
+        repeat(6) { assertTrue(system.moveZone("island", RegionMove(1, 0, 0))) }
+        assertEquals(region, state.movedTileRegions["island"]?.keys, "Six rotations are a full turn")
+    }
+
+    @Test
+    fun rotationKeepsPivotFixed() {
+        val region = irregularSevenTiles()
+        val state = GameState(irregularLevel())
+        val system = TileZoneSystem(state)
+        val pivot = RegionMove.centreOf(region)
+
+        assertTrue(system.moveZone("island", RegionMove(1, 0, 0)))
+        assertEquals(pivot, state.movedTileRegionPivots["island"], "A rotation does not move the pivot")
+        assertTrue(system.moveZone("island", RegionMove(2, 0, 0)))
+        assertEquals(pivot, state.movedTileRegionPivots["island"])
+    }
+
+    @Test
+    fun shiftMovesPivotWithRegion() {
+        val state = GameState(irregularLevel())
+        val system = TileZoneSystem(state)
+        val pivot = RegionMove.centreOf(irregularSevenTiles())
+
+        assertTrue(system.moveZone("island", RegionMove(0, 1, 0)))
+        assertEquals(Position(pivot.x + 1, pivot.y), state.movedTileRegionPivots["island"])
+    }
+
     @Test
     fun movedRegionIsRestoredFromSaveData() {
         val original = GameState(createLevel())
