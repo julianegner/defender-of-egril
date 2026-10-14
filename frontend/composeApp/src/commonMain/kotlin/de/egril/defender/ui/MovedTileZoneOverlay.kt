@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.painter.Painter
 import de.egril.defender.mapgen.core.MapImageRenderer
 import de.egril.defender.model.Position
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.max
@@ -70,8 +71,9 @@ internal fun movedZoneImageTransform(tiles: List<Pair<Position, Position>>): Mov
     var best: MovedZoneImageTransform? = null
     for (step in 0 until 6) {
         val degrees = step * 60.0
-        val c = cos(Math.toRadians(degrees))
-        val s = sin(Math.toRadians(degrees))
+        val radians = degrees * PI / 180.0
+        val c = cos(radians)
+        val s = sin(radians)
         val rotated =
             homes.map { (x, y) ->
                 val dx = x - sourceX
