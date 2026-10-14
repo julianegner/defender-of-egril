@@ -1,0 +1,177 @@
+name: Memory Leak Scan
+
+on:
+  schedule:
+    - cron: '0 6 1 * *'  # First day of every month at 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      stale_days:
+        description: 'Branches without a commit in this many days are stale and skipped'
+        required: false
+        default: '90'
+      max_branches:
+        description: 'Maximum number of non-stale branches to scan'
+        required: false
+        default: '30'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: memory-leak-scan
+  cancel-in-progress: false
+
+env:
+  STALE_DAYS: ${{ inputs.stale_days || '90' }}
+  MAX_BRANCHES: ${{ inputs.max_branches || '30' }}
+
+jobs:
+  discover-branches:
+    runs-on: ubuntu-latest
+    outputs:
+      branches: ${{ steps.list.outputs.branches }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: List non-stale remote branches
+        id: list
+        run: |
+          cutoff=$(( $(date +%s) - STALE_DAYS * 86400 ))
+          branches=$(git for-each-ref --sort=-committerdate \
+            --format='%(refname:lstrip=3) %(committerdate:unix)' refs/remotes/origin \
+            | awk -v cutoff="$cutoff" '$2 >= cutoff && $1 != "HEAD" {print $1}' \
+            | head -n "$MAX_BRANCHES")
+          json=$(printf '%s\n' "$branches" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "branches=$json" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Non-stale branches (last commit within $STALE_DAYS days, max $MAX_BRANCHES)"
+            echo ""
+            echo "$json" | jq -r '.[] | "- `\(.)`"'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  scan-branch:
+    needs: discover-branches
+    if: needs.discover-branches.outputs.branches != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        branch: ${{ fromJSON(needs.discover-branches.outputs.branches) }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ matrix.branch }}
+          persist-credentials: false
+
+      # Older branches may predate the memory leak test. Use the default branch's
+      # test in that case; if it does not compile against the branch, the result is ERROR.
+      - name: Checkout default branch test harness
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: harness-source
+          sparse-checkout: frontend/composeApp/src/desktopTest/kotlin/de/egril/defender/memory
+          persist-credentials: false
+
+      - name: Install memory leak test if missing
+        run: |
+          src=harness-source/frontend/composeApp/src/desktopTest/kotlin/de/egril/defender/memory
+          dst=frontend/composeApp/src/desktopTest/kotlin/de/egril/defender/memory
+          if [ ! -f "$dst/MemoryLeakTest.kt" ]; then
+            mkdir -p "$dst"
+            cp "$src"/*.kt "$dst"/
+            echo "Using memory leak test from default branch"
+          fi
+
+      - name: Set up JDK 24
+        uses: actions/setup-java@v6
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Run memory leak scan
+        id: scan
+        continue-on-error: true
+        env:
+          MEMORY_LEAK_TEST: 'true'
+          MEMORY_LEAK_BRANCH: ${{ matrix.branch }}
+        run: ./gradlew :composeApp:desktopTest --tests "de.egril.defender.memory.MemoryLeakTest"
+
+      - name: Prepare result file
+        if: always()
+        run: |
+          mkdir -p scan-results
+          report=frontend/composeApp/build/memory-leak-report/result.txt
+          if [ -f "$report" ]; then
+            cp "$report" scan-results/result.txt
+          else
+            {
+              echo "STATUS: ERROR"
+              echo "BRANCH: ${{ matrix.branch }}"
+              echo "INFO: The scan did not produce a report (build or test setup failed). See the job log."
+            } > scan-results/result.txt
+          fi
+
+      - name: Upload scan result
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: memory-leak-result-${{ strategy.job-index }}
+          path: scan-results/result.txt
+          retention-days: 30
+
+  report:
+    needs: [discover-branches, scan-branch]
+    if: always() && needs.discover-branches.result == 'success' && needs.discover-branches.outputs.branches != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Download scan results
+        uses: actions/download-artifact@v8
+        with:
+          pattern: memory-leak-result-*
+          path: results
+
+      - name: Build report and coding agent prompts
+        id: build
+        run: python3 .github/scripts/memory_leak_report.py results issue-body.md summary.md
+
+      - name: Add summary
+        if: always()
+        run: cat summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload prompts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: memory-leak-prompts
+          path: issue-body.md
+          if-no-files-found: ignore
+          retention-days: 90
+
+      - name: Create issue with coding agent prompts
+        if: steps.build.outputs.has_leaks == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          today=$(date -u +%Y-%m-%d)
+          url=$(gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "Memory leaks found in non-stale branches – $today" \
+            --body-file issue-body.md)
+          echo "Created $url"
+          echo "::notice::Memory leak issue created: $url"
