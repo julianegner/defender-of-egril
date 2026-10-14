@@ -153,7 +153,7 @@ enum class EventActionType {
  * @param altarTo           Tile of the second altar connected by [EventActionType.SHOW_ALTAR_LINK].
  * @param moveDx            Horizontal shift in grid cells for [EventActionType.MOVE_TILE_ZONE].
  * @param moveDy            Vertical shift in grid cells for [EventActionType.MOVE_TILE_ZONE].
- * @param rotationSteps     Rotation in 60 degree steps (0..5) for [EventActionType.MOVE_TILE_ZONE].
+ * @param rotationSteps     Rotation in 60 degree steps (any integer, taken mod 6; negative turns rotate the other way) for [EventActionType.MOVE_TILE_ZONE].
  */
 data class EventAction(
     val type: EventActionType,

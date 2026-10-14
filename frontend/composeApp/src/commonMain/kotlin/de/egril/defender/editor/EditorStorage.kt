@@ -362,7 +362,7 @@ object EditorStorage {
     fun generateTileZonePixels(
         map: EditorMap,
         index: Int,
-    ): Triple<IntArray, Int, Int> = TileZoneImageGenerator.generateOverlayPixels(map, map.tileZones[index])
+    ): Triple<IntArray, Int, Int> = TileZoneImageGenerator.generateZonePixels(map, map.tileZones[index])
 
     fun compressAndSaveTileZoneImage(
         map: EditorMap,

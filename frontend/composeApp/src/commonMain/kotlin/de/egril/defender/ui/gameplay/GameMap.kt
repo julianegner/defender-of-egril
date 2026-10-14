@@ -1545,15 +1545,24 @@ fun GameGrid(
     //   once (inside remember(position)) and read at call-time without becoming stale.
     val onCellClickState = rememberUpdatedState(onCellClick)
     val activeZoneIds = gameState.activeTileZoneIds.toList()
+    val movedRegionsSnapshot = gameState.movedTileRegions.toMap()
     val visibleZoneIdsByPosition =
-        remember(gameState.level.tileZones, activeZoneIds) {
+        remember(gameState.level.tileZones, activeZoneIds, movedRegionsSnapshot) {
             buildMap {
                 activeZoneIds.forEach { id ->
                     gameState.level.tileZones.firstOrNull { it.id == id }?.tiles?.keys?.forEach { position ->
                         put(position, id)
                     }
                 }
+                // Moved movable regions are never activated, but their tiles still show their zone image.
+                movedRegionsSnapshot.forEach { (id, tiles) ->
+                    tiles.keys.forEach { position -> put(position, id) }
+                }
             }
+        }
+    val movedZoneTiles =
+        remember(movedRegionsSnapshot) {
+            movedRegionsSnapshot.mapValues { (_, tiles) -> tiles.map { (current, tile) -> current to tile.homePosition } }
         }
 
     Box(
@@ -1615,6 +1624,15 @@ fun GameGrid(
                                                 contentDescription = null,
                                                 modifier = Modifier.matchParentSize(),
                                                 contentScale = androidx.compose.ui.layout.ContentScale.FillBounds,
+                                            )
+                                        }
+                                    }
+                                    movedZoneTiles.forEach { (zoneId, tiles) ->
+                                        tileZoneImageState.painters[zoneId]?.let { painter ->
+                                            MovedTileZoneOverlay(
+                                                painter = painter,
+                                                tiles = tiles,
+                                                modifier = Modifier.matchParentSize(),
                                             )
                                         }
                                     }

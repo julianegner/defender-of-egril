@@ -35,6 +35,16 @@ class TileZoneImageGeneratorTest {
     }
 
     @Test
+    fun movableZoneImageHasNoFadeOutsideItsTiles() {
+        val zone = TileZone(id = "flood", tiles = mapOf(Position(4, 4) to TileType.RIVER), movable = true)
+        val (pixels, width, _) = TileZoneImageGenerator.generateZonePixels(map(zone), zone)
+        val (cx, cy) = MapImageGenerator.hexCenter(4, 4)
+        val center = cy.toInt() * width + cx.toInt()
+        assertEquals(255, pixels[center] ushr 24, "Zone interior must be fully opaque")
+        assertEquals(0, pixels[center + 90] ushr 24, "Pixels outside the zone tile must stay transparent")
+    }
+
+    @Test
     fun baseTypeZoneCoversEarlierOverlappingZone() {
         val zone = TileZone(id = "ebb", tiles = mapOf(Position(4, 4) to TileType.PATH))
         val (pixels, width, _) = TileZoneImageGenerator.generateOverlayPixels(map(zone), zone)

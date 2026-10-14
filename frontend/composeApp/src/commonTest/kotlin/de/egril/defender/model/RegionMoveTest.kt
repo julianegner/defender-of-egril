@@ -66,4 +66,11 @@ class RegionMoveTest {
         val mapper = RegionMove(0, 1, 0).mapperFor(region)
         assertEquals(Position(5, 3), mapper(Position(4, 3)))
     }
+
+    @Test
+    fun negativeRotationStepsEqualTheirPositiveCounterpart() {
+        val negative = RegionMove(-1, 0, 0).mapperFor(region)
+        val positive = RegionMove(5, 0, 0).mapperFor(region)
+        region.forEach { assertEquals(positive(it), negative(it)) }
+    }
 }

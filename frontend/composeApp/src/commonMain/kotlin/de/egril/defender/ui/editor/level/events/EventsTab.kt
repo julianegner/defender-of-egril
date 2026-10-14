@@ -725,9 +725,10 @@ internal fun ActionEditor(
                 NumberField(
                     label = stringResource(Res.string.event_move_rotation_label),
                     value = action.rotationSteps,
-                    onValueChange = { onActionChange(action.copy(rotationSteps = ((it % 6) + 6) % 6)) },
+                    onValueChange = { onActionChange(action.copy(rotationSteps = it)) },
+                    allowNegative = true,
                 )
-                if (action.rotationSteps != 0 && (movableZones.firstOrNull { it.id == action.zoneId }?.tiles?.size ?: 0) < MIN_ROTATABLE_REGION_TILES) {
+                if (action.rotationSteps.mod(6) != 0 && (movableZones.firstOrNull { it.id == action.zoneId }?.tiles?.size ?: 0) < MIN_ROTATABLE_REGION_TILES) {
                     Text(
                         text = stringResource(Res.string.event_move_rotation_min_size_warning, MIN_ROTATABLE_REGION_TILES),
                         style = MaterialTheme.typography.bodySmall,
@@ -738,11 +739,13 @@ internal fun ActionEditor(
                     label = stringResource(Res.string.event_move_dx_label),
                     value = action.moveDx,
                     onValueChange = { onActionChange(action.copy(moveDx = it)) },
+                    allowNegative = true,
                 )
                 NumberField(
                     label = stringResource(Res.string.event_move_dy_label),
                     value = action.moveDy,
                     onValueChange = { onActionChange(action.copy(moveDy = it)) },
+                    allowNegative = true,
                 )
             }
 
@@ -1096,11 +1099,17 @@ internal fun NumberField(
     label: String,
     value: Int,
     onValueChange: (Int) -> Unit,
+    allowNegative: Boolean = false,
 ) {
+    // Keep the typed text so intermediate states such as "-" survive: they parse to 0 and would
+    // otherwise be overwritten by the controlled value before the digits are typed.
+    var text by remember { mutableStateOf(value.toString()) }
+    if ((text.toIntOrNull() ?: 0) != value) text = value.toString()
     OutlinedTextField(
-        value = value.toString(),
-        onValueChange = { text ->
-            val filtered = text.filter { it.isDigit() }
+        value = text,
+        onValueChange = { typed ->
+            val filtered = typed.filterIndexed { index, c -> c.isDigit() || (allowNegative && index == 0 && c == '-') }
+            text = filtered
             onValueChange(filtered.toIntOrNull() ?: 0)
         },
         label = { Text(label) },
