@@ -2353,7 +2353,7 @@
     <string name="vaelen_name">Gran Maestro de Runas Vaelen</string>
     <string name="villain_vaelen_title">El Gran Maestro de Runas Vaelen entra al campo de batalla</string>
     <string name="villain_vaelen_backstory">Ewhad no teje las líneas ley oscuras; deja esa tarea a Vaelen. Mientras Vaelen respire, la corrupción nunca dejará de fluir.</string>
-    <string name="villain_vaelen_description">Vaelen es inmune a las trampas mágicas y recibe un 50 % menos de daño de las Torres de Mago. Cada 3 turnos, Oleada Rúnica silencia hasta 2 torres cercanas durante 1 turno. Los enemigos a 2 casillas obtienen +2 de armadura y no pueden ralentizarse.</string>
+    <string name="villain_vaelen_description">Vaelen es inmune a las trampas mágicas y recibe bastante menos daño de las Torres de Mago. De vez en cuando, Oleada Rúnica silencia las torres cercanas durante un breve momento. Los enemigos que están cerca de él se vuelven mucho más resistentes y no pueden ralentizarse.</string>
     <string name="villain_zythar_portal_short">Portales de Rift: los demonínes se sacrifican para abrir portales de entrada azul / salida naranja que teletransportan a cualquier enemigo a la salida</string>
 
     <!-- Descripciones de Unidades Enemigas -->
