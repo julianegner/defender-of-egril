@@ -1,25 +1,40 @@
 package de.egril.defender.ui.editor.map
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.ui.MapImageProvider
 import de.egril.defender.ui.icon.CheckmarkIcon
+import de.egril.defender.ui.icon.LeftArrowIcon
+import de.egril.defender.ui.icon.RightArrowIcon
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.map_image_generate_step
+import defender_of_egril.composeapp.generated.resources.map_image_next
 import defender_of_egril.composeapp.generated.resources.map_image_optimize_step
+import defender_of_egril.composeapp.generated.resources.map_image_previous
 import defender_of_egril.composeapp.generated.resources.map_image_step_skipped
+import defender_of_egril.composeapp.generated.resources.map_preview
+import defender_of_egril.composeapp.generated.resources.movable_zone_image_hint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -31,11 +46,77 @@ internal data class ImageGenerationProgress(
     val optimization: ImageStep = ImageStep.WAITING,
 )
 
+internal fun mapImageFileNames(map: EditorMap): List<String> =
+    listOf("${map.id}.png") + map.tileZones.indices.map { index -> MapImageProvider.tileZoneImageFileName(map.id, index) }
+
 internal fun initialImageProgress(result: EditorStorage.MapSaveResult): List<ImageGenerationProgress> =
-    listOf(ImageGenerationProgress("${result.validatedMap.id}.png")) +
-        result.validatedMap.tileZones.indices.map { index ->
-            ImageGenerationProgress(MapImageProvider.tileZoneImageFileName(result.validatedMap.id, index))
+    mapImageFileNames(result.validatedMap).map { ImageGenerationProgress(it) }
+
+/** A generated background image shown in the preview carousel, identified by its file name. */
+internal class MapImagePreview(
+    val fileName: String,
+    val painter: Painter,
+)
+
+internal suspend fun loadMapImagePreviews(fileNames: List<String>): List<MapImagePreview> =
+    withContext(Dispatchers.Default) {
+        fileNames.mapNotNull { fileName ->
+            MapImageProvider.loadMapImageFileBytes(fileName)?.let { bytes ->
+                MapImageProvider.decodeImageBitmap(bytes)?.let { MapImagePreview(fileName, BitmapPainter(it)) }
+            }
         }
+    }
+
+/** Shows one image at a time with previous/next arrows and the file name below it. */
+@Composable
+internal fun MapImageCarousel(
+    previews: List<MapImagePreview>,
+    index: Int,
+    onIndexChange: (Int) -> Unit,
+) {
+    val current = previews[index]
+    val previousLabel = stringResource(Res.string.map_image_previous)
+    val nextLabel = stringResource(Res.string.map_image_next)
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            IconButton(
+                onClick = { onIndexChange((index - 1 + previews.size) % previews.size) },
+                enabled = previews.size > 1,
+                modifier = Modifier.semantics { contentDescription = previousLabel },
+            ) {
+                LeftArrowIcon(size = 20.dp)
+            }
+            Image(
+                painter = current.painter,
+                contentDescription = stringResource(Res.string.map_preview),
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.weight(1f).heightIn(min = 180.dp, max = 420.dp),
+            )
+            IconButton(
+                onClick = { onIndexChange((index + 1) % previews.size) },
+                enabled = previews.size > 1,
+                modifier = Modifier.semantics { contentDescription = nextLabel },
+            ) {
+                RightArrowIcon(size = 20.dp)
+            }
+        }
+        Text(
+            text = "${current.fileName} (${index + 1}/${previews.size})",
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+@Composable
+internal fun MovableZoneImageHint() {
+    Text(
+        text = stringResource(Res.string.movable_zone_image_hint),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.primary,
+    )
+}
 
 /**
  * Runs and reports both stages for each image independently. Files whose source has not changed

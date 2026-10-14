@@ -418,6 +418,12 @@ data class GameState(
     val zonePaintedTiles: SnapshotStateMap<Position, de.egril.defender.editor.TileType> = mutableStateMapOf(),
     // River flow of zone-painted river tiles (only populated for positions currently RIVER due to a zone).
     val zonePaintedRiverTiles: SnapshotStateMap<Position, RiverTile> = mutableStateMapOf(),
+    // Movable tile regions (see [TileZone.movable]) that have been moved away from their home tiles:
+    // zone id -> current positions of the region with the terrain it carries. Persisted in saves.
+    val movedTileRegions: SnapshotStateMap<String, Map<Position, RegionTile>> = mutableStateMapOf(),
+    // Rotation pivot of each moved region (zone id -> position). It moves with the region, so repeated
+    // rotations stay exact. A region without an entry uses the centre of its home tiles.
+    val movedTileRegionPivots: SnapshotStateMap<String, Position> = mutableStateMapOf(),
     // Units that sank to the river bed when their tile was flooded (see [AttackerType.survivesSubmersion]).
     // They are kept out of [attackers] so they can neither act nor be targeted, and do not count
     // towards winning the level. They re-surface once their tile is dry again.
@@ -585,6 +591,19 @@ data class GameState(
     fun paintedRiverTileAt(position: Position): RiverTile? = (if (level.isSandbox) sandboxPaintedRiverTiles[position] else null) ?: zonePaintedRiverTiles[position]
 
     /**
+     * The current tiles of the movable region [zone] with the terrain they carry. Until the region
+     * is moved these are its home tiles with their current terrain.
+     */
+    fun regionTilesOf(zone: TileZone): Map<Position, RegionTile> =
+        movedTileRegions[zone.id] ?: zone.tiles.mapValues { (position, zoneType) ->
+            RegionTile(
+                zoneType,
+                (zone.riverTiles[position] ?: level.riverTiles[position])?.takeIf { zoneType == de.egril.defender.editor.TileType.RIVER },
+                position,
+            )
+        }
+
+    /**
      * Recompute the tile types resulting from the currently active tile zones for [positions] and
      * write them into the level. Later-activated zones take precedence over earlier ones; tiles not
      * covered by any active zone return to the original map. Updates [zonePaintedTiles] /
@@ -596,14 +615,16 @@ data class GameState(
         positions: Collection<Position>,
     ): Map<Position, Pair<de.egril.defender.editor.TileType, de.egril.defender.editor.TileType>> {
         val activeZones = activeTileZoneIds.mapNotNull { id -> level.tileZones.firstOrNull { it.id == id } }
+        val carriedTiles = movedTileRegions.values.flatMap { it.entries }.associate { it.key to it.value }
         val changes = mutableMapOf<Position, Pair<de.egril.defender.editor.TileType, RiverTile?>>()
         val typeChanges = mutableMapOf<Position, Pair<de.egril.defender.editor.TileType, de.egril.defender.editor.TileType>>()
         for (position in positions.toSet()) {
+            val carried = carriedTiles[position]
             val zone = activeZones.lastOrNull { it.tiles.containsKey(position) }
-            val newType = zone?.tiles?.get(position) ?: originalTileTypeAt(position)
+            val newType = carried?.type ?: zone?.tiles?.get(position) ?: originalTileTypeAt(position)
             val newRiver =
                 if (newType == de.egril.defender.editor.TileType.RIVER) {
-                    zone?.riverTiles?.get(position) ?: originalRiverTileAt(position) ?: RiverTile(position = position)
+                    carried?.riverTile ?: zone?.riverTiles?.get(position) ?: originalRiverTileAt(position) ?: RiverTile(position = position)
                 } else {
                     null
                 }
@@ -615,7 +636,7 @@ data class GameState(
             if (oldType != newType) {
                 typeChanges[position] = oldType to newType
             }
-            if (zone != null && (newType != originalTileTypeAt(position) || newRiver != originalRiverTileAt(position))) {
+            if ((carried != null || zone != null) && (newType != originalTileTypeAt(position) || newRiver != originalRiverTileAt(position))) {
                 zonePaintedTiles[position] = newType
                 if (newRiver != null) zonePaintedRiverTiles[position] = newRiver.copy(position = position) else zonePaintedRiverTiles.remove(position)
             } else {

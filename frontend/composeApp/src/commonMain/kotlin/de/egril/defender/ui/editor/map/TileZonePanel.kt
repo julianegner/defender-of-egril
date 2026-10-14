@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.model.MIN_ROTATABLE_REGION_TILES
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.Position
@@ -35,6 +36,9 @@ import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.map_background_storage_info
 import defender_of_egril.composeapp.generated.resources.tile_zone_add
+import defender_of_egril.composeapp.generated.resources.tile_zone_brush_add
+import defender_of_egril.composeapp.generated.resources.tile_zone_brush_add_help
+import defender_of_egril.composeapp.generated.resources.tile_zone_brush_paint
 import defender_of_egril.composeapp.generated.resources.tile_zone_copy
 import defender_of_egril.composeapp.generated.resources.tile_zone_custom_background_warning
 import defender_of_egril.composeapp.generated.resources.tile_zone_delete
@@ -42,6 +46,13 @@ import defender_of_egril.composeapp.generated.resources.tile_zone_finish_drawing
 import defender_of_egril.composeapp.generated.resources.tile_zone_help
 import defender_of_egril.composeapp.generated.resources.tile_zone_name_label
 import defender_of_egril.composeapp.generated.resources.tile_zone_paint_erase
+import defender_of_egril.composeapp.generated.resources.tile_zone_movable
+import defender_of_egril.composeapp.generated.resources.tile_zone_movable_help
+import defender_of_egril.composeapp.generated.resources.tile_zone_overlap_warning
+import defender_of_egril.composeapp.generated.resources.tile_zone_rotatable
+import defender_of_egril.composeapp.generated.resources.tile_zone_rotatable_help
+import defender_of_egril.composeapp.generated.resources.tile_zone_rotatable_size_warning
+import defender_of_egril.composeapp.generated.resources.tile_zone_movable_spawn_warning
 import defender_of_egril.composeapp.generated.resources.tile_zone_river_flow_hint
 import defender_of_egril.composeapp.generated.resources.tile_zone_start_drawing
 import defender_of_egril.composeapp.generated.resources.tile_zone_tile_count
@@ -83,7 +94,7 @@ internal fun copyTileZone(
     source: TileZone,
 ): TileZone {
     val newZone = createTileZone(existing)
-    return newZone.copy(tiles = source.tiles.toMap(), riverTiles = source.riverTiles.toMap())
+    return newZone.copy(tiles = source.tiles.toMap(), riverTiles = source.riverTiles.toMap(), movable = source.movable, rotatable = source.rotatable)
 }
 
 /**
@@ -116,6 +127,40 @@ internal fun paintTileZone(
     return zone.copy(tiles = tiles, riverTiles = rivers)
 }
 
+/** What a click on the map does while a zone is being drawn. */
+internal enum class ZoneBrush {
+    /** Paints the selected tile type into the zone. */
+    PAINT_TYPE,
+
+    /** Removes the tile from the zone. */
+    ERASE,
+
+    /** Adds the tile to the zone with its current base type, so the terrain does not change. */
+    ADD_KEEP_TYPE,
+}
+
+/**
+ * Add [position] to [zone] while keeping the tile's current terrain: it takes [baseType] (and [baseRiver]
+ * for river tiles). Used for zones that only mark tiles for movement or rotation.
+ * Tiles already in the zone are left unchanged, so their painted type is kept.
+ */
+internal fun addTileToZone(
+    zone: TileZone,
+    position: Position,
+    baseType: TileType?,
+    baseRiver: RiverTile?,
+): TileZone {
+    if (position in zone.tiles) return zone
+    val type = baseType ?: TileType.NO_PLAY
+    val rivers =
+        if (type == TileType.RIVER && baseRiver != null) {
+            zone.riverTiles + (position to baseRiver.copy(position = position))
+        } else {
+            zone.riverTiles
+        }
+    return zone.copy(tiles = zone.tiles + (position to type), riverTiles = rivers)
+}
+
 /** Shift all zone tiles after a map resize; tiles that fall outside the new bounds are dropped. */
 internal fun shiftTileZones(
     zones: List<TileZone>,
@@ -136,6 +181,26 @@ internal fun shiftTileZones(
     }
 }
 
+/** True when [zone] is movable and shares a tile with another movable zone in [zones]. */
+internal fun overlapsOtherMovableZone(
+    zones: List<TileZone>,
+    zone: TileZone,
+): Boolean =
+    zone.movable &&
+        zones.any { other -> other.id != zone.id && other.movable && other.tiles.keys.any { it in zone.tiles } }
+
+/**
+ * True when [zone] cannot be movable because one of its tiles is, or would overwrite, a spawn point.
+ * Spawn points are fixed on the map; a movable region carrying one would leave it behind or lose it.
+ */
+internal fun zoneCoversSpawnPoint(
+    map: EditorMap,
+    zone: TileZone,
+): Boolean =
+    zone.tiles.any { (position, type) ->
+        type == TileType.SPAWN_POINT || map.tiles["${position.x},${position.y}"] == TileType.SPAWN_POINT
+    }
+
 /**
  * Floating panel for managing the map's tile zones: create, rename, select and delete zones and
  * switch between drawing on the map and drawing into the selected zone.
@@ -147,13 +212,13 @@ internal fun TileZonePanel(
     selectedZoneId: String?,
     showOtherZones: Boolean,
     isZoneDrawingMode: Boolean,
-    isErasingZoneTiles: Boolean,
+    zoneBrush: ZoneBrush,
     onZonesChange: (List<TileZone>) -> Unit,
     onSelectZone: (String?) -> Unit,
     onCopyZone: (TileZone) -> Unit,
     onShowOtherZonesChange: (Boolean) -> Unit,
     onToggleZoneDrawingMode: () -> Unit,
-    onToggleEraseZoneTiles: () -> Unit,
+    onZoneBrushChange: (ZoneBrush) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier = modifier.width(300.dp)) {
@@ -267,17 +332,90 @@ internal fun TileZonePanel(
                     )
                 }
                 if (isZoneDrawingMode) {
-                    PaintTypeOption(
-                        stringResource(Res.string.tile_zone_paint_erase),
-                        isErasingZoneTiles,
-                        onToggleEraseZoneTiles,
+                    PaintTypeOption(stringResource(Res.string.tile_zone_brush_paint), zoneBrush == ZoneBrush.PAINT_TYPE) {
+                        onZoneBrushChange(ZoneBrush.PAINT_TYPE)
+                    }
+                    PaintTypeOption(stringResource(Res.string.tile_zone_brush_add), zoneBrush == ZoneBrush.ADD_KEEP_TYPE) {
+                        onZoneBrushChange(ZoneBrush.ADD_KEEP_TYPE)
+                    }
+                    Text(
+                        text = stringResource(Res.string.tile_zone_brush_add_help),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    PaintTypeOption(stringResource(Res.string.tile_zone_paint_erase), zoneBrush == ZoneBrush.ERASE) {
+                        onZoneBrushChange(ZoneBrush.ERASE)
+                    }
                 }
                 Text(
                     text = stringResource(Res.string.tile_zone_river_flow_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                val spawnConflict = zoneCoversSpawnPoint(map, selectedZone)
+                Row(
+                    modifier =
+                        Modifier.fillMaxWidth().clickable(enabled = selectedZone.movable || !spawnConflict) {
+                            onZonesChange(zones.map { if (it.id == selectedZone.id) it.copy(movable = !it.movable) else it })
+                        },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = selectedZone.movable,
+                        onCheckedChange = null,
+                        enabled = selectedZone.movable || !spawnConflict,
+                    )
+                    Text(stringResource(Res.string.tile_zone_movable))
+                }
+                Text(
+                    text = stringResource(Res.string.tile_zone_movable_help),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (selectedZone.movable) {
+                    MovableZoneImageHint()
+                }
+                val rotatableEnabled = selectedZone.movable
+                Row(
+                    modifier =
+                        Modifier.fillMaxWidth().clickable(enabled = rotatableEnabled) {
+                            onZonesChange(zones.map { if (it.id == selectedZone.id) it.copy(rotatable = !it.rotatable) else it })
+                        },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = selectedZone.movable && selectedZone.rotatable,
+                        onCheckedChange = null,
+                        enabled = rotatableEnabled,
+                    )
+                    Text(stringResource(Res.string.tile_zone_rotatable, MIN_ROTATABLE_REGION_TILES))
+                }
+                Text(
+                    text = stringResource(Res.string.tile_zone_rotatable_help, MIN_ROTATABLE_REGION_TILES),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (selectedZone.movable && selectedZone.rotatable && selectedZone.tiles.size < MIN_ROTATABLE_REGION_TILES) {
+                    Text(
+                        text = stringResource(Res.string.tile_zone_rotatable_size_warning, MIN_ROTATABLE_REGION_TILES),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                if (overlapsOtherMovableZone(zones, selectedZone)) {
+                    Text(
+                        text = stringResource(Res.string.tile_zone_overlap_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                if (spawnConflict && !selectedZone.movable) {
+                    Text(
+                        text = stringResource(Res.string.tile_zone_movable_spawn_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
             }
         }
     }

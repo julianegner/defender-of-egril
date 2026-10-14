@@ -13,7 +13,9 @@ kotlin {
         }
     }
     jvm()
-    wasmJs()
+    wasmJs {
+        browser()
+    }
     iosArm64()
 
     sourceSets {

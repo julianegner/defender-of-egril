@@ -123,7 +123,9 @@ bed*. Level events switch them on and off at runtime (see the Events tab below a
 - **Add zone** creates a zone; click a zone to select it (click again to deselect) and rename it.
 - Select a zone and click **Start zone drawing** to switch from normal map drawing to zone drawing.
   While this mode is active, both clicks and drags edit only the selected zone; the regular tile
-  type selector chooses what to paint. Use **Remove tiles from zone** to erase zone overrides and
+  type selector chooses what to paint. **Add tiles to zone (keep tile type)** adds tiles with their
+  current terrain, so a zone can mark a region (e.g. to move or rotate it) without changing the map.
+  Use **Remove tiles from zone** to erase zone overrides and
   **Finish zone drawing** to return to normal map editing. River tiles use the selected flow
   direction and speed.
 - Every base tile type, including implicit NO_PLAY tiles, can belong to a zone and change to any
@@ -211,6 +213,12 @@ threshold-based events fire as soon as their condition is met rather than waitin
 For a Rune Network objective, choose the activated-Altars condition, set its threshold, add the
 win-level action, and select the Rune Network victory message. Altars must be activated in the same
 player turn; their channeling resets at the start of the next player turn.
+
+**Move tile zone**: moves a movable tile zone (set in the map editor) with all its terrain, units and
+objects. Set a shift in grid cells (*dx*, *dy*) and a rotation (0-5 steps of 60 degrees). Rotation
+needs at least 7 tiles in the zone; the editor warns when a smaller zone is set to rotate. In the map editor, zones marked "Rotatable" with fewer than 7 tiles make the map invalid (red dot on the tab). Moves that
+leave the map, land on a spawn point or overlap another moved region are skipped. See
+`docs/features/MOVABLE_TILE_REGIONS.md`.
 
 Each event is shown as a collapsible card. Collapsed cards display a short summary (the condition and
 the number of actions) and a delete button; click the card header to expand it and edit its details.

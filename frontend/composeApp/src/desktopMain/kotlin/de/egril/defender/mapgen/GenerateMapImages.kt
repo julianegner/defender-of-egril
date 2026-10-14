@@ -96,7 +96,7 @@ object GenerateMapImages {
 
             pngFile.writeBytes(pngBytes)
             map.tileZones.forEachIndexed { index, zone ->
-                val (zonePixels, zoneWidth, zoneHeight) = TileZoneImageGenerator.generateOverlayPixels(map, zone)
+                val (zonePixels, zoneWidth, zoneHeight) = TileZoneImageGenerator.generateZonePixels(map, zone)
                 val zonePng =
                     MapImageEncoder.encodeToPng(zonePixels, zoneWidth, zoneHeight)
                         ?: error("Could not encode zone ${zone.id}")

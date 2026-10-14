@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
@@ -21,10 +22,12 @@ import java.sql.Connection
  *
  * @property base Input for the map background image
  * @property zoneTiles Tile overrides per tile zone, in the order the zones appear in the map
+ * @property zoneMovable Whether each tile zone is movable, indexed like [zoneTiles]
  */
 class CommunityMapImageSource(
     val base: MapImageInput,
     val zoneTiles: List<Map<Pair<Int, Int>, MapImageTileKind>>,
+    val zoneMovable: List<Boolean>,
 )
 
 /** PNG files generated for a community map. [zones] is indexed like the map's tile zones. */
@@ -51,10 +54,9 @@ fun parseCommunityMapImageSource(json: String): CommunityMapImageSource? =
                 ?.mapNotNull(::parseGridKey)
                 ?.toSet()
                 .orEmpty()
-        val zoneTiles =
-            root["tileZones"]?.jsonArray?.map { zone ->
-                parseTileKinds(zone.jsonObject["zoneTiles"], typeField = "type")
-            }.orEmpty()
+        val tileZones = root["tileZones"]?.jsonArray.orEmpty().map { it.jsonObject }
+        val zoneTiles = tileZones.map { zone -> parseTileKinds(zone["zoneTiles"], typeField = "type") }
+        val zoneMovable = tileZones.map { zone -> zone["movable"]?.jsonPrimitive?.booleanOrNull ?: false }
         CommunityMapImageSource(
             base =
                 MapImageInput(
@@ -65,6 +67,7 @@ fun parseCommunityMapImageSource(json: String): CommunityMapImageSource? =
                     waterSpawnPoints = waterSpawnPoints,
                 ),
             zoneTiles = zoneTiles,
+            zoneMovable = zoneMovable,
         )
     } catch (_: Exception) {
         null
@@ -77,8 +80,8 @@ fun parseCommunityMapImageSource(json: String): CommunityMapImageSource? =
 fun renderCommunityMapImages(source: CommunityMapImageSource): CommunityMapImages {
     val map = encodePng(MapImageRenderer.generatePixels(source.base))
     val zones =
-        source.zoneTiles.map { zone ->
-            encodePng(TileZoneOverlayRenderer.generateOverlayPixels(source.base, zone))
+        source.zoneTiles.mapIndexed { index, zone ->
+            encodePng(TileZoneOverlayRenderer.generateZonePixels(source.base, zone, source.zoneMovable[index]))
         }
     return CommunityMapImages(map = map, zones = zones)
 }

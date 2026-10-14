@@ -475,6 +475,8 @@ object SaveFileStorage {
             nextPortalId = gameState.nextPortalId.value,
             takenTargets = gameState.takenTargets.toList(),
             activeTileZoneIds = gameState.activeTileZoneIds.toList(),
+            movedTileRegions = gameState.movedTileRegions.toMap(),
+            movedTileRegionPivots = gameState.movedTileRegionPivots.toMap(),
             activeEventLoops = gameState.activeEventLoops.toList(),
             activeEventMapImages = gameState.activeEventMapImages.toList(),
             activeAltarLinks = gameState.activeAltarLinks.toList(),
@@ -525,6 +527,14 @@ object SaveFileStorage {
         val knownZoneIds = level.tileZones.map { it.id }.toSet()
         gameState.activeTileZoneIds.clear()
         gameState.activeTileZoneIds.addAll(savedGame.activeTileZoneIds.filter { it in knownZoneIds })
+        gameState.movedTileRegions.clear()
+        savedGame.movedTileRegions.filterKeys { it in knownZoneIds }.forEach { (zoneId, tiles) ->
+            gameState.movedTileRegions[zoneId] = tiles
+        }
+        gameState.movedTileRegionPivots.clear()
+        savedGame.movedTileRegionPivots.filterKeys { it in knownZoneIds }.forEach { (zoneId, pivot) ->
+            gameState.movedTileRegionPivots[zoneId] = pivot
+        }
         de.egril.defender.game
             .TileZoneSystem(gameState)
             .restoreActiveZones()

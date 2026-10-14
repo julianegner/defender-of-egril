@@ -141,7 +141,9 @@ object EditorJsonSerializer {
                                         }
                                     "\"${pos.x},${pos.y}\": {\"type\": \"${type.name}\"$riverPart}"
                                 }
-                        "{\n      \"id\": \"${zone.id}\",\n      \"name\": \"${zone.name}\",\n      \"zoneTiles\": {\n        $zoneTilesData\n      }\n    }"
+                        val movableJson = if (zone.movable) ",\n      \"movable\": true" else ""
+                        val rotatableJson = if (zone.movable && zone.rotatable) ",\n      \"rotatable\": true" else ""
+                        "{\n      \"id\": \"${zone.id}\",\n      \"name\": \"${zone.name}\"$movableJson$rotatableJson,\n      \"zoneTiles\": {\n        $zoneTilesData\n      }\n    }"
                     }
                 ",\n  \"tileZones\": [\n    $zonesData\n  ]"
             } else {
@@ -468,6 +470,8 @@ object EditorJsonSerializer {
             val id = JsonUtils.extractStringValue(zoneJson, "id")
             if (id.isBlank()) continue
             val name = JsonUtils.extractStringValue(zoneJson, "name")
+            val movable = JsonUtils.extractBooleanValue(zoneJson, "movable")
+            val rotatable = JsonUtils.extractBooleanValue(zoneJson, "rotatable")
             val tilesSection = JsonUtils.extractJsonObjectForKey(zoneJson, "zoneTiles")
             val tiles = mutableMapOf<Position, TileType>()
             val riverTiles = mutableMapOf<Position, de.egril.defender.model.RiverTile>()
@@ -491,7 +495,7 @@ object EditorJsonSerializer {
             }
             zones.add(
                 de.egril.defender.model
-                    .TileZone(id = id, name = name, tiles = tiles, riverTiles = riverTiles),
+                    .TileZone(id = id, name = name, tiles = tiles, riverTiles = riverTiles, movable = movable, rotatable = rotatable),
             )
         }
         return zones
@@ -2736,6 +2740,9 @@ object EditorJsonSerializer {
             if (action.linkId != null) parts.add("\"linkId\": ${EventMapImageJson.quote(action.linkId)}")
             if (action.altarFrom != null) parts.add("\"altarFrom\": {\"x\": ${action.altarFrom.x}, \"y\": ${action.altarFrom.y}}")
             if (action.altarTo != null) parts.add("\"altarTo\": {\"x\": ${action.altarTo.x}, \"y\": ${action.altarTo.y}}")
+            if (action.moveDx != 0) parts.add("\"moveDx\": ${action.moveDx}")
+            if (action.moveDy != 0) parts.add("\"moveDy\": ${action.moveDy}")
+            if (action.rotationSteps != 0) parts.add("\"rotationSteps\": ${action.rotationSteps}")
             "{${parts.joinToString(", ")}}"
         }
 
@@ -2789,6 +2796,9 @@ object EditorJsonSerializer {
                     linkId = EventMapImageJson.stringValue(actionEntry, "linkId")?.takeIf { it.isNotBlank() },
                     altarFrom = parsePositionField(actionEntry, "altarFrom"),
                     altarTo = parsePositionField(actionEntry, "altarTo"),
+                    moveDx = JsonUtils.extractNumericValue(actionEntry, "moveDx").toIntOrNull() ?: 0,
+                    moveDy = JsonUtils.extractNumericValue(actionEntry, "moveDy").toIntOrNull() ?: 0,
+                    rotationSteps = JsonUtils.extractNumericValue(actionEntry, "rotationSteps").toIntOrNull() ?: 0,
                 ),
             )
         }

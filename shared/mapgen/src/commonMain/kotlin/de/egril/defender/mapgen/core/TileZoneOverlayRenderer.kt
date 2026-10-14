@@ -1,6 +1,7 @@
 package de.egril.defender.mapgen.core
 
 import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -14,6 +15,17 @@ import kotlin.math.sqrt
 object TileZoneOverlayRenderer {
     private const val SOLID_RADIUS = 48.0
     private const val FADE_RADIUS = 150.0
+
+    /**
+     * Renders the image of one tile zone. Frontend and backend both use this so that community maps
+     * and locally generated maps produce identical zone images.
+     */
+    fun generateZonePixels(
+        input: MapImageInput,
+        zoneTiles: Map<Pair<Int, Int>, MapImageTileKind>,
+        movable: Boolean,
+    ): Triple<IntArray, Int, Int> =
+        if (movable) generateZoneOnlyPixels(input, zoneTiles) else generateOverlayPixels(input, zoneTiles)
 
     /**
      * Renders the overlay for a zone that replaces the tile kinds in [zoneTiles] on top of [input].
@@ -63,6 +75,69 @@ object TileZoneOverlayRenderer {
         }
         for (index in rendered.indices) {
             rendered[index] = ((alpha[index].toInt() and 0xFF) shl 24) or (rendered[index] and 0xFFFFFF)
+        }
+        return Triple(rendered, renderedWidth, renderedHeight)
+    }
+
+    /**
+     * Renders only the tiles of a zone, with hard edges: a pixel is opaque when the hex centre nearest to
+     * it belongs to [zoneTiles]. Used for movable zones, which are drawn at a rotated/shifted position
+     * at runtime and must not carry the soft surrounding fade of [generateOverlayPixels].
+     *
+     * @return ARGB pixels (row-major) with the zone tiles opaque and everything else transparent, image width and height
+     */
+    fun generateZoneOnlyPixels(
+        input: MapImageInput,
+        zoneTiles: Map<Pair<Int, Int>, MapImageTileKind>,
+    ): Triple<IntArray, Int, Int> {
+        val zoneTilesInGrid =
+            zoneTiles.filterKeys { (x, y) -> x in 0 until input.width && y in 0 until input.height }
+        val (width, height) = MapImageRenderer.imageSize(input.width, input.height)
+        if (zoneTilesInGrid.isEmpty()) return Triple(IntArray(width * height), width, height)
+
+        val tiles = input.tiles.toMutableMap()
+        tiles.putAll(zoneTilesInGrid)
+        val (rendered, renderedWidth, renderedHeight) =
+            MapImageRenderer.generatePixels(
+                MapImageInput(input.seed, input.width, input.height, tiles, input.waterSpawnPoints),
+            )
+        val (origin0X, origin0Y) = MapImageRenderer.hexCenter(0, 0)
+        val (columnX, _) = MapImageRenderer.hexCenter(1, 0)
+        val (_, rowY) = MapImageRenderer.hexCenter(0, 1)
+        val columnStep = columnX - origin0X
+        val rowStep = rowY - origin0Y
+
+        val centres = zoneTilesInGrid.keys.map { MapImageRenderer.hexCenter(it.first, it.second) }
+        val left = max(0, floor(centres.minOf { it.first } - columnStep).toInt())
+        val right = min(renderedWidth - 1, ceil(centres.maxOf { it.first } + columnStep).toInt())
+        val top = max(0, floor(centres.minOf { it.second } - rowStep).toInt())
+        val bottom = min(renderedHeight - 1, ceil(centres.maxOf { it.second } + rowStep).toInt())
+
+        for (index in rendered.indices) rendered[index] = rendered[index] and 0xFFFFFF
+        for (y in top..bottom) {
+            val baseRow = floor((y - origin0Y) / rowStep).toInt()
+            for (x in left..right) {
+                var nearest: Pair<Int, Int>? = null
+                var nearestDistance = Double.MAX_VALUE
+                for (row in baseRow - 2..baseRow + 2) {
+                    val rowOriginX = MapImageRenderer.hexCenter(0, row).first
+                    val baseColumn = floor((x - rowOriginX) / columnStep).toInt()
+                    for (column in baseColumn - 2..baseColumn + 2) {
+                        val (cx, cy) = MapImageRenderer.hexCenter(column, row)
+                        val dx = x - cx
+                        val dy = y - cy
+                        val distance = dx * dx + dy * dy
+                        if (distance < nearestDistance) {
+                            nearestDistance = distance
+                            nearest = column to row
+                        }
+                    }
+                }
+                if (nearest != null && nearest in zoneTilesInGrid) {
+                    val index = y * renderedWidth + x
+                    rendered[index] = (0xFF shl 24) or (rendered[index] and 0xFFFFFF)
+                }
+            }
         }
         return Triple(rendered, renderedWidth, renderedHeight)
     }

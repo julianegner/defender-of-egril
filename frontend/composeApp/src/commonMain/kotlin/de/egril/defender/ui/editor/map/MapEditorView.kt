@@ -561,7 +561,7 @@ fun MapEditorView(
     var showOtherZones by remember { mutableStateOf(false) }
     var selectedZoneId by remember { mutableStateOf<String?>(null) }
     var isZoneDrawingMode by remember { mutableStateOf(false) }
-    var isErasingZoneTiles by remember { mutableStateOf(false) }
+    var zoneBrush by remember { mutableStateOf(ZoneBrush.PAINT_TYPE) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var showSaveTemplateDialog by remember { mutableStateOf(false) }
     var showTileReplacementDialog by remember { mutableStateOf(false) }
@@ -603,6 +603,8 @@ fun MapEditorView(
     var mapImageGenerationSuccess by remember { mutableStateOf<Boolean?>(null) }
     var mapImageGenerationError by remember { mutableStateOf<String?>(null) }
     var mapImageProgress by remember { mutableStateOf<List<ImageGenerationProgress>>(emptyList()) }
+    var mapImagePreviews by remember { mutableStateOf<List<MapImagePreview>>(emptyList()) }
+    var mapImagePreviewIndex by remember { mutableStateOf(0) }
     var mapOverlayAlpha by remember { mutableStateOf(0.7f) }
     var resizeLeft by remember { mutableStateOf("0") }
     var resizeRight by remember { mutableStateOf("0") }
@@ -724,6 +726,8 @@ fun MapEditorView(
             try {
                 val saveResult = withContext(Dispatchers.Default) { EditorStorage.saveMapData(currentMap) }
                 processMapImages(saveResult) { mapImageProgress = it }
+                mapImagePreviews = loadMapImagePreviews(mapImageFileNames(currentMap))
+                mapImagePreviewIndex = 0
                 val refreshedPainter = loadMapPreviewFromDisk()
                 mapPreviewPainter = refreshedPainter
                 mapImageGenerationSuccess = refreshedPainter != null
@@ -829,14 +833,19 @@ fun MapEditorView(
         val updated =
             tileZones.map { zone ->
                 if (zone.id == zoneId) {
-                    paintTileZone(
-                        zone,
-                        position,
-                        baseType,
-                        if (isErasingZoneTiles) null else selectedTileType,
-                        selectedRiverFlow,
-                        selectedRiverSpeed,
-                    )
+                    when (zoneBrush) {
+                        ZoneBrush.ADD_KEEP_TYPE ->
+                            addTileToZone(zone, position, baseType, riverTiles["${position.x},${position.y}"])
+                        ZoneBrush.PAINT_TYPE, ZoneBrush.ERASE ->
+                            paintTileZone(
+                                zone,
+                                position,
+                                baseType,
+                                if (zoneBrush == ZoneBrush.ERASE) null else selectedTileType,
+                                selectedRiverFlow,
+                                selectedRiverSpeed,
+                            )
+                    }
                 } else {
                     zone
                 }
@@ -1247,7 +1256,7 @@ fun MapEditorView(
                         selectedZoneId = selectedZoneId,
                         showOtherZones = showOtherZones,
                         isZoneDrawingMode = isZoneDrawingMode,
-                        isErasingZoneTiles = isErasingZoneTiles,
+                        zoneBrush = zoneBrush,
                         onZonesChange = {
                             rememberForUndo()
                             tileZones = it
@@ -1256,7 +1265,7 @@ fun MapEditorView(
                             selectedZoneId = it
                             if (it == null) {
                                 isZoneDrawingMode = false
-                                isErasingZoneTiles = false
+                                zoneBrush = ZoneBrush.PAINT_TYPE
                             }
                         },
                         onCopyZone = { source ->
@@ -1268,9 +1277,9 @@ fun MapEditorView(
                         onShowOtherZonesChange = { showOtherZones = it },
                         onToggleZoneDrawingMode = {
                             isZoneDrawingMode = !isZoneDrawingMode
-                            isErasingZoneTiles = false
+                            zoneBrush = ZoneBrush.PAINT_TYPE
                         },
-                        onToggleEraseZoneTiles = { isErasingZoneTiles = !isErasingZoneTiles },
+                        onZoneBrushChange = { zoneBrush = it },
                         modifier =
                             Modifier
                                 .align(Alignment.TopEnd)
@@ -1640,7 +1649,7 @@ fun MapEditorView(
             selectedTileType = selectedTileType,
             onTileTypeChange = {
                 selectedTileType = it
-                isErasingZoneTiles = false
+                zoneBrush = ZoneBrush.PAINT_TYPE
             },
             selectedRiverFlow = selectedRiverFlow,
             onRiverFlowChange = { selectedRiverFlow = it },
@@ -1716,7 +1725,7 @@ fun MapEditorView(
             onToggleTileZones = {
                 if (showTileZonePanel) {
                     isZoneDrawingMode = false
-                    isErasingZoneTiles = false
+                    zoneBrush = ZoneBrush.PAINT_TYPE
                 }
                 showTileZonePanel = !showTileZonePanel
             },
@@ -1744,6 +1753,10 @@ fun MapEditorView(
         if (showMapImageGenerationDialog && shouldLoadMapPreviewFromDisk(mapPreviewPainter != null)) {
             mapPreviewPainter = loadMapPreviewFromDisk()
         }
+        if (showMapImageGenerationDialog) {
+            mapImagePreviews = loadMapImagePreviews(mapImageFileNames(currentMap))
+            mapImagePreviewIndex = 0
+        }
     }
 
     if (showMapImageGenerationDialog) {
@@ -1759,16 +1772,18 @@ fun MapEditorView(
                     if (mapImageGenerationSuccess == false) {
                         Text(stringResource(Res.string.map_image_generation_error, mapImageGenerationError ?: ""))
                     }
-                    if (mapPreviewPainter != null) {
+                    if (mapImagePreviews.isNotEmpty()) {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(stringResource(Res.string.map_image_generation_preview_label))
-                            androidx.compose.foundation.Image(
-                                painter = mapPreviewPainter!!,
-                                contentDescription = stringResource(Res.string.map_preview),
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 180.dp, max = 420.dp),
+                            MapImageCarousel(
+                                previews = mapImagePreviews,
+                                index = mapImagePreviewIndex.coerceIn(0, mapImagePreviews.lastIndex),
+                                onIndexChange = { mapImagePreviewIndex = it },
                             )
                         }
+                    }
+                    if (currentMap.tileZones.any { it.movable }) {
+                        MovableZoneImageHint()
                     }
                 }
             },
