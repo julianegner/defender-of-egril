@@ -97,6 +97,7 @@ import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.icon.BombIcon
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.ExplosionIcon
+import de.egril.defender.ui.icon.FisherBoatIcon
 import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.MushroomIcon
 import de.egril.defender.ui.icon.PentagramIcon
@@ -3485,6 +3486,8 @@ private fun BoxScope.GridCellContent(
                     when (fief.type) {
                         de.egril.defender.model.FiefType.FISHER ->
                             stringResource(Res.string.fief_type_fisher)
+                        de.egril.defender.model.FiefType.FISHER_BOAT ->
+                            stringResource(Res.string.fief_type_fisher_boat)
                         de.egril.defender.model.FiefType.WOODCUTTER ->
                             stringResource(Res.string.fief_type_woodcutter)
                         de.egril.defender.model.FiefType.QUARRY ->
@@ -3494,6 +3497,14 @@ private fun BoxScope.GridCellContent(
                     }
 
                 when (fief.type) {
+                    de.egril.defender.model.FiefType.FISHER_BOAT -> {
+                        Box(
+                            modifier = Modifier.size(GamePlayConstants.TileIconSizes.Fief),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            FisherBoatIcon(modifier = Modifier.fillMaxSize())
+                        }
+                    }
                     de.egril.defender.model.FiefType.FISHER -> {
                         val rodRotation = getFisherRodRotationDegrees(position, gameState.level)
                         Box(

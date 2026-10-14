@@ -2379,6 +2379,8 @@
     <string name="undead_dragon_description">Un dragón reanimado maldito al servicio eterno. Posee el mismo poder formidable que el dragón viviente pero carga con la maldición de la no-muerte.</string>
 
     <string name="fief_type_fisher">Pescador</string>
+
+    <string name="fief_type_fisher_boat">Barco pesquero</string>
     <string name="fief_type_woodcutter">Leñador</string>
     <string name="fief_type_quarry">Cantera</string>
     <string name="fief_type_marketplace">Mercado</string>

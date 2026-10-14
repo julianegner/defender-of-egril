@@ -94,6 +94,31 @@ fun isValidPlacement(
     }
 }
 
+/**
+ * Terrain rule for placing a fief of [fiefType] in the editor. Fisher boats float on river tiles
+ * (not water spawn points); fishers need a path tile next to water; all other fiefs need a path tile.
+ */
+fun isValidFiefPlacement(
+    position: Position,
+    fiefType: FiefType,
+    map: EditorMap,
+): Boolean {
+    val tileType = map.getTileType(position.x, position.y)
+    return when (fiefType) {
+        FiefType.FISHER_BOAT -> isBoatWaterTile(position, map) && tileType != TileType.SPAWN_POINT
+        FiefType.FISHER -> tileType == TileType.PATH && hasAdjacentWaterTile(position, map)
+        else -> tileType == TileType.PATH
+    }
+}
+
+/** Maelstrom tiles swallow boats, so they are not valid boat positions. */
+fun isBoatWaterTile(
+    position: Position,
+    map: EditorMap,
+): Boolean =
+    isWaterTile(position, map) &&
+        map.getRiverTile(position.x, position.y)?.flowDirection != RiverFlow.MAELSTROM
+
 private fun isWaterTile(
     position: Position,
     map: EditorMap,
@@ -297,15 +322,7 @@ fun InitialSetupMinimap(
                                 selectedDefenderType = selectedDefenderType,
                             ) ||
                                 (isTowerBase && !hasDefender && selectedDefenderType != DefenderType.DWARVEN_MINE)
-                        PlacementMode.FIEF -> {
-                            val isPath = isValidPlacement(pos, placementMode, map)
-                            val isFisher = selectedFiefType == FiefType.FISHER
-                            if (isPath && isFisher) {
-                                hasAdjacentWaterTile(pos, map)
-                            } else {
-                                isPath
-                            }
-                        }
+                        PlacementMode.FIEF -> selectedFiefType?.let { isValidFiefPlacement(pos, it, map) } == true
                         else ->
                             placementMode?.let {
                                 isValidPlacement(

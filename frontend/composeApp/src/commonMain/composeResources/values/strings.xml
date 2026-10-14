@@ -2409,6 +2409,8 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="undead_dragon_description">A reanimated dragon cursed to eternal servitude. It possesses the same fearsome power as the living dragon but carries the curse of undeath.</string>
 
     <string name="fief_type_fisher">Fisher</string>
+
+    <string name="fief_type_fisher_boat">Fisher Boat</string>
     <string name="fief_type_woodcutter">Woodcutter</string>
     <string name="fief_type_quarry">Quarry</string>
     <string name="fief_type_marketplace">Marketplace</string>

@@ -2381,6 +2381,8 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="undead_dragon_description">Un drago rianimato maledetto al servizio eterno. Possiede lo stesso potere terrificante del drago vivente ma porta la maledizione della non-morte.</string>
 
     <string name="fief_type_fisher">Pescatore</string>
+
+    <string name="fief_type_fisher_boat">Barca da pesca</string>
     <string name="fief_type_woodcutter">Taglialegna</string>
     <string name="fief_type_quarry">Cava</string>
     <string name="fief_type_marketplace">Mercato</string>

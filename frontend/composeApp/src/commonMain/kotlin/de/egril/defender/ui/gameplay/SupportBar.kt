@@ -48,6 +48,7 @@ import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.hexagon.HexagonShape
 import de.egril.defender.ui.icon.ExplosionIcon
+import de.egril.defender.ui.icon.FisherBoatIcon
 import de.egril.defender.ui.icon.HammerIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.PentagramIcon
@@ -259,7 +260,7 @@ fun supportObjectPlacementTiles(
 /**
  * The ordered list of tiles on which a fief support token may currently be placed. Fiefs require
  * an empty path tile (no attacker, trap, barricade, or existing fief). Fisher fiefs additionally
- * require at least one adjacent water tile. Ordered top-to-bottom, left-to-right so keyboard
+ * require at least one adjacent water tile; fisher boats require a river tile. Ordered top-to-bottom, left-to-right so keyboard
  * placement moves predictably.
  */
 fun supportFiefPlacementTiles(
@@ -274,14 +275,15 @@ fun supportFiefPlacementTiles(
     val trapPositions = gameState.traps.map { it.position }.toHashSet()
     val barricadePositions = gameState.barricades.map { it.position }.toHashSet()
     val fiefPositions = gameState.fiefs.map { it.position }.toHashSet()
+    val bridgePositions = gameState.bridges.flatMap { it.positions }.toHashSet()
 
     val tiles = mutableListOf<Position>()
     for (y in 0 until gameState.level.gridHeight) {
         for (x in 0 until gameState.level.gridWidth) {
             val pos = Position(x, y)
-            if (!gameState.level.isOnPath(pos)) continue
+            if (!gameState.level.canPlaceFief(pos, type)) continue
             if (pos in attackerPositions || pos in trapPositions || pos in barricadePositions || pos in fiefPositions) continue
-            if (type == FiefType.FISHER && !gameState.level.hasAdjacentWaterTile(pos)) continue
+            if (type == FiefType.FISHER_BOAT && pos in bridgePositions) continue
             tiles.add(pos)
         }
     }
@@ -922,6 +924,7 @@ private fun FiefSupportBox(
                                 contentScale = ContentScale.Fit,
                                 modifier = Modifier.size(iconSize),
                             )
+                        FiefType.FISHER_BOAT -> FisherBoatIcon(modifier = Modifier.size(iconSize))
                         FiefType.WOODCUTTER ->
                             Image(
                                 painter = painterResource(Res.drawable.fief_woodcutter),

@@ -7,9 +7,11 @@ import de.egril.defender.model.Attacker
 import de.egril.defender.model.Barricade
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.EnemyDeathEffect
+import de.egril.defender.model.FiefType
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Position
 import de.egril.defender.model.Raft
+import de.egril.defender.model.RiverFlow
 import de.egril.defender.model.MIN_ROTATABLE_REGION_TILES
 import de.egril.defender.model.RegionMove
 import de.egril.defender.model.Bridge
@@ -55,7 +57,7 @@ class TileZoneSystem(
         if (zone.movable || isZoneActive(zoneId)) return false
         state.activeTileZoneIds.add(zoneId)
         GameLogBuffer.log("EVENT", "Tile zone '$zoneId' applied (${zone.tiles.size} tiles)")
-        resolveChanges(state.refreshZoneTiles(zone.tiles.keys))
+        refreshAndResolve(zone.tiles.keys)
         return true
     }
 
@@ -65,7 +67,7 @@ class TileZoneSystem(
         if (!isZoneActive(zoneId)) return false
         state.activeTileZoneIds.remove(zoneId)
         GameLogBuffer.log("EVENT", "Tile zone '$zoneId' reverted (${zone.tiles.size} tiles)")
-        resolveChanges(state.refreshZoneTiles(zone.tiles.keys))
+        refreshAndResolve(zone.tiles.keys)
         return true
     }
 
@@ -130,10 +132,10 @@ class TileZoneSystem(
 
         state.movedTileRegions[zoneId] = moved.entries.associate { (from, to) -> to to region.getValue(from) }
         state.movedTileRegionPivots[zoneId] = mapper(pivot)
-        val changes = state.refreshZoneTiles(oldPositions + destination)
+        val (changes, maelstroms) = refreshTiles(oldPositions + destination)
         relocateLevelData(moved)
         GameLogBuffer.log("EVENT", "Tile zone '$zoneId' moved (${zone.tiles.size} tiles, ${move.rotationSteps * 60} deg, dx=${move.dx}, dy=${move.dy})")
-        resolveChanges(changes)
+        resolveChanges(changes, maelstroms)
         return true
     }
 
@@ -214,7 +216,32 @@ class TileZoneSystem(
         }
     }
 
-    private fun resolveChanges(changes: Map<Position, Pair<TileType, TileType>>) {
+    private fun refreshAndResolve(positions: Collection<Position>) {
+        val (changes, maelstroms) = refreshTiles(positions)
+        resolveChanges(changes, maelstroms)
+    }
+
+    /**
+     * Refresh [positions] from the active zones. Also reports river tiles whose flow newly became
+     * [RiverFlow.MAELSTROM], since such a change is not a tile-type change and is missing from the returned map.
+     */
+    private fun refreshTiles(positions: Collection<Position>): Pair<Map<Position, Pair<TileType, TileType>>, Set<Position>> {
+        val flowsBefore = positions.associateWith { state.level.riverTiles[it]?.flowDirection }
+        val changes = state.refreshZoneTiles(positions)
+        val newMaelstroms =
+            positions
+                .filter { position ->
+                    state.level.riverTiles[position]?.flowDirection == RiverFlow.MAELSTROM &&
+                        flowsBefore[position] != RiverFlow.MAELSTROM
+                }.toSet()
+        return changes to newMaelstroms
+    }
+
+    private fun resolveChanges(
+        changes: Map<Position, Pair<TileType, TileType>>,
+        maelstroms: Set<Position> = emptySet(),
+    ) {
+        state.fiefs.removeAll { it.position in maelstroms && it.type == FiefType.FISHER_BOAT }
         if (changes.isEmpty()) return
         val noPlay =
             changes
@@ -332,6 +359,7 @@ class TileZoneSystem(
         }
 
         state.bridges.removeAll { bridge -> bridge.positions.any { it in positions } }
+        state.fiefs.removeAll { it.position in positions && it.type == FiefType.FISHER_BOAT }
 
         for (raft in state.rafts.toList()) {
             if (!raft.isActive) continue

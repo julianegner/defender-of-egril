@@ -169,4 +169,89 @@ class SupportPlacementTest {
         assertEquals(fisherPosition, gameState.fiefs.single().position)
         assertEquals(FiefType.FISHER, gameState.fiefs.single().type)
     }
+
+    @Test
+    fun testPlaceSupportFisherBoatAcceptedOnRiverTile() {
+        val boatPosition = Position(3, 2)
+        val gameState =
+            GameState(
+                createLevel(
+                    supports = LevelSupports(),
+                    riverTiles =
+                        mapOf(
+                            boatPosition to RiverTile(position = boatPosition, flowDirection = RiverFlow.EAST, flowSpeed = 1),
+                        ),
+                ),
+            )
+        val engine = GameEngine(gameState)
+
+        val placed = engine.placeSupportFief(boatPosition, FiefType.FISHER_BOAT)
+
+        assertTrue(placed, "Fisher boat should be placeable on a river tile")
+        assertEquals(FiefType.FISHER_BOAT, gameState.fiefs.single().type)
+    }
+
+    @Test
+    fun testPlaceSupportFisherBoatRejectedOnPathTile() {
+        val boatPosition = Position(3, 2)
+        val gameState =
+            GameState(
+                createLevel(
+                    supports = LevelSupports(),
+                    extraPathCells = setOf(boatPosition),
+                ),
+            )
+        val engine = GameEngine(gameState)
+
+        val placed = engine.placeSupportFief(boatPosition, FiefType.FISHER_BOAT)
+
+        assertFalse(placed, "Fisher boat should not be placeable on land")
+        assertTrue(gameState.fiefs.isEmpty())
+    }
+
+    @Test
+    fun testFisherBoatDestroyedByDestroyFiefAt() {
+        val boatPosition = Position(3, 2)
+        val gameState =
+            GameState(
+                createLevel(
+                    supports = LevelSupports(),
+                    riverTiles =
+                        mapOf(
+                            boatPosition to RiverTile(position = boatPosition, flowDirection = RiverFlow.EAST, flowSpeed = 1),
+                        ),
+                ),
+            )
+        GameEngine(gameState).placeSupportFief(boatPosition, FiefType.FISHER_BOAT)
+
+        SupportLogic(gameState).destroyFiefAt(boatPosition)
+
+        assertTrue(gameState.fiefs.isEmpty(), "Enemy contact should destroy the fisher boat")
+    }
+
+    @Test
+    fun testFisherBoatYieldsMoreIncomeThanFisher() {
+        assertTrue(FiefType.FISHER_BOAT.incomePerTurn > FiefType.FISHER.incomePerTurn)
+    }
+
+    @Test
+    fun testPlaceSupportFisherBoatRejectedOnMaelstrom() {
+        val maelstromPosition = Position(3, 2)
+        val gameState =
+            GameState(
+                createLevel(
+                    supports = LevelSupports(),
+                    riverTiles =
+                        mapOf(
+                            maelstromPosition to
+                                RiverTile(position = maelstromPosition, flowDirection = RiverFlow.MAELSTROM, flowSpeed = 1),
+                        ),
+                ),
+            )
+
+        val placed = GameEngine(gameState).placeSupportFief(maelstromPosition, FiefType.FISHER_BOAT)
+
+        assertFalse(placed, "Fisher boat should not be placeable on a maelstrom")
+        assertTrue(gameState.fiefs.isEmpty())
+    }
 }

@@ -40,6 +40,7 @@ import de.egril.defender.ui.gameplay.localizedFiefName
 import de.egril.defender.ui.gameplay.localizedSupportName
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.ExplosionIcon
+import de.egril.defender.ui.icon.FisherBoatIcon
 import de.egril.defender.ui.icon.HammerIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.PentagramIcon
@@ -489,6 +490,7 @@ private fun SupportFiefRow(
                         contentDescription = type.localizedFiefName(),
                         modifier = Modifier.size(24.dp),
                     )
+                FiefType.FISHER_BOAT -> FisherBoatIcon(modifier = Modifier.size(24.dp))
                 FiefType.WOODCUTTER ->
                     Image(
                         painter = painterResource(Res.drawable.fief_woodcutter),

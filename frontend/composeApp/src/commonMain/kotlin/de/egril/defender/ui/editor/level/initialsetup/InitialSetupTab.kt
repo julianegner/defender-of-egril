@@ -13,8 +13,6 @@ import de.egril.defender.model.BridgeType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.FiefType
 import de.egril.defender.model.Position
-import de.egril.defender.model.SpawnPointType
-import de.egril.defender.model.getHexNeighbors
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -41,6 +39,17 @@ fun InitialSetupTab(
             )
         }
         return
+    }
+
+    // Boats whose water tile was changed to land or to a maelstrom are destroyed
+    LaunchedEffect(map, initialData.fiefs) {
+        val destroyed =
+            initialData.fiefs.filter {
+                it.type == FiefType.FISHER_BOAT && !isValidFiefPlacement(it.position, it.type, map)
+            }
+        if (destroyed.isNotEmpty()) {
+            onInitialDataChange(initialData.copy(fiefs = initialData.fiefs - destroyed.toSet()))
+        }
     }
 
     var placementMode by remember { mutableStateOf<PlacementMode?>(null) }
@@ -566,11 +575,10 @@ private fun canPlaceFief(
     initialData: InitialData,
     map: EditorMap,
 ): Boolean {
-    // Must be valid tile type for fiefs (PATH only)
-    if (!isValidPlacement(position, PlacementMode.FIEF, map)) {
+    if (!isValidFiefPlacement(position, fiefType, map)) {
         return false
     }
-    if (fiefType == FiefType.FISHER && !hasAdjacentWaterTile(position, map)) {
+    if (fiefType == FiefType.FISHER_BOAT && initialData.bridges.any { it.position == position }) {
         return false
     }
     // Must not be occupied by any element
@@ -589,21 +597,6 @@ private fun canPlaceMushroom(
     // Must not be occupied by any element
     return !isPositionOccupied(position, initialData)
 }
-
-private fun hasAdjacentWaterTile(
-    position: Position,
-    map: EditorMap,
-): Boolean =
-    position
-        .getHexNeighbors()
-        .any { neighbor ->
-            if (neighbor.x !in 0 until map.width || neighbor.y !in 0 until map.height) {
-                return@any false
-            }
-            val neighborTileType = map.getTileType(neighbor.x, neighbor.y)
-            neighborTileType == TileType.RIVER ||
-                (neighborTileType == TileType.SPAWN_POINT && map.getSpawnPointType(neighbor) == SpawnPointType.WATER)
-        }
 
 /**
  * Represents a selected element on the map

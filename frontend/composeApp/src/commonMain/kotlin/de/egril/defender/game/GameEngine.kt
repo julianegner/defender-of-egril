@@ -220,6 +220,7 @@ class GameEngine(
      * Place a fief from a player-granted support token.
      * The position must be a path tile with no attacker, trap, barricade, or existing fief.
      * Fisher fiefs additionally require at least one adjacent water tile.
+     * Fisher boats instead require a river tile (without a bridge).
      * Returns true if the fief was placed successfully.
      */
     fun placeSupportFief(

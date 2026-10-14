@@ -187,6 +187,23 @@ data class Level(
                     isRiverTile(neighbor)
             }
 
+    /**
+     * Terrain rule for placing a fief of [type] on [position]. Bridges and other occupants are checked by the caller.
+     * Fisher boats float on river tiles (water spawn points are excluded, since enemies appear there).
+     */
+    fun canPlaceFief(
+        position: Position,
+        type: FiefType,
+    ): Boolean =
+        when (type) {
+            FiefType.FISHER_BOAT ->
+                isRiverTile(position) &&
+                    !isWaterSpawnPoint(position) &&
+                    riverTiles[position]?.flowDirection != RiverFlow.MAELSTROM
+            FiefType.FISHER -> isOnPath(position) && hasAdjacentWaterTile(position)
+            else -> isOnPath(position)
+        }
+
     fun getRiverTile(position: Position): RiverTile? = riverTiles[position]
 
     fun toLevelInfoEnemiesLevelData(): LevelInfoEnemiesLevelData {

@@ -78,6 +78,7 @@ class TowerManager(
         showWarnings: Boolean,
     ): Boolean {
         if (!state.canPlaceDefender(type)) return false
+        if (state.fiefs.any { it.position == position }) return false
 
         // Check if position is on a barricade with at least 100 HP (tower base)
         val barricadeAtPosition = state.barricades.find { it.position == position }

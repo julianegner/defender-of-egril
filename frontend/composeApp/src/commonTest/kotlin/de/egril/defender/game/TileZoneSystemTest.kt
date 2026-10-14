@@ -376,4 +376,36 @@ class TileZoneSystemTest {
         assertTrue(state.level.isRiverTile(floodA), "Tile falls back to the still active earlier zone")
         assertNotNull(state.paintedTileTypeAt(floodA))
     }
+
+    @Test
+    fun driedRiverTileRemovesFisherBoatButKeepsBoatOnRemainingWater() {
+        val level = createLevel()
+        val drought = TileZone(id = "single_drought", tiles = mapOf(riverA to TileType.PATH))
+        val state = GameState(level.copy(tileZones = level.tileZones + drought))
+        state.fiefs.add(Fief(position = riverA, type = FiefType.FISHER_BOAT))
+        state.fiefs.add(Fief(position = riverB, type = FiefType.FISHER_BOAT))
+
+        TileZoneSystem(state).applyZone("single_drought")
+
+        assertEquals(listOf(Fief(position = riverB, type = FiefType.FISHER_BOAT)), state.fiefs.toList())
+    }
+
+    @Test
+    fun maelstromZoneRemovesFisherBoatOnThatRiverTileOnly() {
+        val level = createLevel()
+        val whirlpool =
+            TileZone(
+                id = "whirlpool",
+                tiles = mapOf(riverA to TileType.RIVER),
+                riverTiles = mapOf(riverA to RiverTile(position = riverA, flowDirection = RiverFlow.MAELSTROM, flowSpeed = 1)),
+            )
+        val state = GameState(level.copy(tileZones = level.tileZones + whirlpool))
+        state.fiefs.add(Fief(position = riverA, type = FiefType.FISHER_BOAT))
+        state.fiefs.add(Fief(position = riverB, type = FiefType.FISHER_BOAT))
+
+        TileZoneSystem(state).applyZone("whirlpool")
+
+        assertEquals(RiverFlow.MAELSTROM, state.level.riverTiles[riverA]?.flowDirection)
+        assertEquals(listOf(Fief(position = riverB, type = FiefType.FISHER_BOAT)), state.fiefs.toList())
+    }
 }

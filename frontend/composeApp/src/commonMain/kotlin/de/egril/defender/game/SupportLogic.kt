@@ -23,8 +23,8 @@ class SupportLogic(
         position: Position,
         type: FiefType,
     ): Boolean {
-        if (!state.level.isOnPath(position)) return false
-        if (type == FiefType.FISHER && !state.level.hasAdjacentWaterTile(position)) return false
+        if (!state.level.canPlaceFief(position, type)) return false
+        if (type == FiefType.FISHER_BOAT && state.isBridgeAt(position)) return false
         val hasEnemy = state.attackers.any { !it.isDefeated.value && it.position.value == position }
         val hasTrap = state.traps.any { it.position == position }
         val hasBarricade = state.barricades.any { it.position == position }

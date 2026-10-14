@@ -1216,6 +1216,7 @@ fun PlacedElementsSummary(
 private fun FiefType.getLocalizedName(): String =
     when (this) {
         FiefType.FISHER -> stringResource(Res.string.fief_type_fisher)
+        FiefType.FISHER_BOAT -> stringResource(Res.string.fief_type_fisher_boat)
         FiefType.WOODCUTTER -> stringResource(Res.string.fief_type_woodcutter)
         FiefType.QUARRY -> stringResource(Res.string.fief_type_quarry)
         FiefType.MARKETPLACE -> stringResource(Res.string.fief_type_marketplace)
