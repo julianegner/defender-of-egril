@@ -470,10 +470,11 @@
     <string name="map_image_generation_done">Immagine mappa completata.</string>
     <string name="map_image_already_existed">L'immagine della mappa esisteva già.</string>
     <string name="map_image_generation_path">Destinazione: %1$s</string>
-    <string name="map_image_generation_show_image">Mostra immagine</string>
     <string name="map_image_generation_close">Chiudi</string>
     <string name="map_image_generation_error">Generazione non riuscita: %1$s</string>
     <string name="map_image_generation_preview_label">Anteprima immagine mappa</string>
+    <string name="map_image_previous">Immagine precedente</string>
+    <string name="map_image_next">Immagine successiva</string>
     <string name="map_image_compressing">Compressione immagine mappa…</string>
     <string name="map_image_compressed_size">Dimensione compressa: %1$s KB</string>
     <string name="creating_map_title">Creazione della mappa…</string>
@@ -2605,6 +2606,7 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="tile_zone_river_flow_hint">Le caselle di fiume usano la direzione e la velocità della corrente selezionate nell'editor della mappa.</string>
     <string name="tile_zone_movable">Regione mobile</string>
     <string name="tile_zone_movable_help">Può essere spostata o ruotata dagli eventi del livello insieme a tutte le unità e gli edifici presenti. Le regioni non possono contenere punti di comparsa. La rotazione richiede almeno 7 caselle.</string>
+    <string name="movable_zone_image_hint">Suggerimento: le zone spostabili usano immagini generate. Per un risultato migliore, sostituiscile con immagini adatte.</string>
     <string name="tile_zone_movable_spawn_warning">I punti di comparsa non possono far parte di una regione mobile.</string>
     <string name="tile_zone_rotatable">Ruotabile (almeno %1$d caselle)</string>
     <string name="tile_zone_rotatable_help">Le zone ruotabili richiedono almeno %1$d caselle, altrimenti la mappa non è valida.</string>

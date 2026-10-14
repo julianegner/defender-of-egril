@@ -49,6 +49,21 @@ class CommunityMapImageTest {
     }
 
     @Test
+    fun `parser reads the movable flag of each tile zone`() {
+        val json =
+            """
+            {"id": "m", "width": 2, "height": 2, "tiles": {},
+             "tileZones": [
+               {"id": "a", "zoneTiles": {}, "movable": true},
+               {"id": "b", "zoneTiles": {}}
+             ]}
+            """.trimIndent()
+        val source = assertNotNull(parseCommunityMapImageSource(json))
+
+        assertEquals(listOf(true, false), source.zoneMovable)
+    }
+
+    @Test
     fun `parser returns null for invalid or dimensionless JSON`() {
         assertNull(parseCommunityMapImageSource("not json"))
         assertNull(parseCommunityMapImageSource("""{"id":"x","tiles":{}}"""))

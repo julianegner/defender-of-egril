@@ -603,6 +603,8 @@ fun MapEditorView(
     var mapImageGenerationSuccess by remember { mutableStateOf<Boolean?>(null) }
     var mapImageGenerationError by remember { mutableStateOf<String?>(null) }
     var mapImageProgress by remember { mutableStateOf<List<ImageGenerationProgress>>(emptyList()) }
+    var mapImagePreviews by remember { mutableStateOf<List<MapImagePreview>>(emptyList()) }
+    var mapImagePreviewIndex by remember { mutableStateOf(0) }
     var mapOverlayAlpha by remember { mutableStateOf(0.7f) }
     var resizeLeft by remember { mutableStateOf("0") }
     var resizeRight by remember { mutableStateOf("0") }
@@ -724,6 +726,8 @@ fun MapEditorView(
             try {
                 val saveResult = withContext(Dispatchers.Default) { EditorStorage.saveMapData(currentMap) }
                 processMapImages(saveResult) { mapImageProgress = it }
+                mapImagePreviews = loadMapImagePreviews(mapImageFileNames(currentMap))
+                mapImagePreviewIndex = 0
                 val refreshedPainter = loadMapPreviewFromDisk()
                 mapPreviewPainter = refreshedPainter
                 mapImageGenerationSuccess = refreshedPainter != null
@@ -1749,6 +1753,10 @@ fun MapEditorView(
         if (showMapImageGenerationDialog && shouldLoadMapPreviewFromDisk(mapPreviewPainter != null)) {
             mapPreviewPainter = loadMapPreviewFromDisk()
         }
+        if (showMapImageGenerationDialog) {
+            mapImagePreviews = loadMapImagePreviews(mapImageFileNames(currentMap))
+            mapImagePreviewIndex = 0
+        }
     }
 
     if (showMapImageGenerationDialog) {
@@ -1764,16 +1772,18 @@ fun MapEditorView(
                     if (mapImageGenerationSuccess == false) {
                         Text(stringResource(Res.string.map_image_generation_error, mapImageGenerationError ?: ""))
                     }
-                    if (mapPreviewPainter != null) {
+                    if (mapImagePreviews.isNotEmpty()) {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(stringResource(Res.string.map_image_generation_preview_label))
-                            androidx.compose.foundation.Image(
-                                painter = mapPreviewPainter!!,
-                                contentDescription = stringResource(Res.string.map_preview),
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 180.dp, max = 420.dp),
+                            MapImageCarousel(
+                                previews = mapImagePreviews,
+                                index = mapImagePreviewIndex.coerceIn(0, mapImagePreviews.lastIndex),
+                                onIndexChange = { mapImagePreviewIndex = it },
                             )
                         }
+                    }
+                    if (currentMap.tileZones.any { it.movable }) {
+                        MovableZoneImageHint()
                     }
                 }
             },

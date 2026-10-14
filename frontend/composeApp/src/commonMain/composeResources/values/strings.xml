@@ -476,10 +476,11 @@
     <string name="map_image_generation_done">Map image generation completed.</string>
     <string name="map_image_already_existed">Map image already existed.</string>
     <string name="map_image_generation_path">Target: %1$s</string>
-    <string name="map_image_generation_show_image">Show image</string>
     <string name="map_image_generation_close">Close</string>
     <string name="map_image_generation_error">Generation failed: %1$s</string>
     <string name="map_image_generation_preview_label">Map image preview</string>
+    <string name="map_image_previous">Previous image</string>
+    <string name="map_image_next">Next image</string>
     <string name="map_image_compressing">Compressing map image…</string>
     <string name="map_image_compressed_size">Compressed size: %1$s KB</string>
     <string name="creating_map_title">Creating Map…</string>
@@ -2612,6 +2613,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="tile_zone_river_flow_hint">River tiles use the flow direction and speed selected in the map editor.</string>
     <string name="tile_zone_movable">Movable region</string>
     <string name="tile_zone_movable_help">Can be moved or rotated by level events together with all units and buildings on it. Regions cannot contain spawn points. Rotation needs at least 7 tiles.</string>
+    <string name="movable_zone_image_hint">Tip: movable zones use generated images. For the best result, replace them with suitable images of your own.</string>
     <string name="tile_zone_movable_spawn_warning">Spawn points cannot be part of a movable region.</string>
     <string name="tile_zone_rotatable">Rotatable (at least %1$d tiles)</string>
     <string name="tile_zone_rotatable_help">Rotatable zones need at least %1$d tiles, otherwise the map is invalid.</string>

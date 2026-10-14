@@ -19,9 +19,5 @@ object TileZoneImageGenerator {
         map: EditorMap,
         zone: TileZone,
     ): Triple<IntArray, Int, Int> =
-        if (zone.movable) {
-            TileZoneOverlayRenderer.generateZoneOnlyPixels(map.toMapImageInput(), zone.toMapImageTiles())
-        } else {
-            generateOverlayPixels(map, zone)
-        }
+        TileZoneOverlayRenderer.generateZonePixels(map.toMapImageInput(), zone.toMapImageTiles(), zone.movable)
 }

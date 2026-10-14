@@ -17,6 +17,17 @@ object TileZoneOverlayRenderer {
     private const val FADE_RADIUS = 150.0
 
     /**
+     * Renders the image of one tile zone. Frontend and backend both use this so that community maps
+     * and locally generated maps produce identical zone images.
+     */
+    fun generateZonePixels(
+        input: MapImageInput,
+        zoneTiles: Map<Pair<Int, Int>, MapImageTileKind>,
+        movable: Boolean,
+    ): Triple<IntArray, Int, Int> =
+        if (movable) generateZoneOnlyPixels(input, zoneTiles) else generateOverlayPixels(input, zoneTiles)
+
+    /**
      * Renders the overlay for a zone that replaces the tile kinds in [zoneTiles] on top of [input].
      * Zone positions outside the map grid are ignored.
      *

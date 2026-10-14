@@ -372,6 +372,9 @@ internal fun TileZonePanel(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                if (selectedZone.movable) {
+                    MovableZoneImageHint()
+                }
                 val rotatableEnabled = selectedZone.movable
                 Row(
                     modifier =

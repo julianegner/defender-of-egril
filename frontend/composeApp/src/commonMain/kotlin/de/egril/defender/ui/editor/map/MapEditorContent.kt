@@ -11,8 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
@@ -118,8 +116,8 @@ fun MapEditorContent(
     var generationRunning by remember { mutableStateOf(false) }
     var generationSuccess by remember { mutableStateOf<Boolean?>(null) }
     var generationError by remember { mutableStateOf<String?>(null) }
-    var generatedPainter by remember { mutableStateOf<Painter?>(null) }
-    var showPreview by remember { mutableStateOf(false) }
+    var imagePreviews by remember { mutableStateOf<List<MapImagePreview>>(emptyList()) }
+    var imagePreviewIndex by remember { mutableStateOf(0) }
     var lastGeneratedMap by remember { mutableStateOf<EditorMap?>(null) }
     var generatorMapName by remember { mutableStateOf("") }
     var imageProgress by remember { mutableStateOf<List<ImageGenerationProgress>>(emptyList()) }
@@ -148,31 +146,17 @@ fun MapEditorContent(
         }
     }
 
-    suspend fun loadGeneratedPreviewPainter(targetMap: EditorMap): Painter? =
-        withContext(Dispatchers.Default) {
-            val preferredIds = listOf(targetMap.id).filter { it.isNotBlank() }
-            var bytes =
-                preferredIds.firstNotNullOfOrNull { id ->
-                    MapImageProvider.loadMapImageBytes(id)
-                }
-
-            if (bytes == null) {
+    /** Loads every generated background image of [targetMap] so they can be browsed, even if they were not regenerated. */
+    suspend fun loadImagePreviews(targetMap: EditorMap): List<MapImagePreview> {
+        if (MapImageProvider.loadMapImageBytes(targetMap.id) == null) {
+            withContext(Dispatchers.Default) {
                 val saveResult = EditorStorage.saveMapData(targetMap)
                 val (pixels, width, height) = EditorStorage.generateMapPixels(saveResult.validatedMap)
                 EditorStorage.compressAndSaveMapImage(saveResult.validatedMap, pixels, width, height)
-                bytes =
-                    preferredIds.firstNotNullOfOrNull { id ->
-                        MapImageProvider.loadMapImageBytes(id)
-                    }
             }
-
-            val bitmap = bytes?.let { MapImageProvider.decodeImageBitmap(it) }
-            val painter = bitmap?.let { BitmapPainter(it) }
-            if (painter != null) {
-                generatedPainter = painter
-            }
-            painter
         }
+        return loadMapImagePreviews(mapImageFileNames(targetMap))
+    }
 
     fun handleSave(
         mapToSave: EditorMap,
@@ -182,11 +166,10 @@ fun MapEditorContent(
         lastGeneratedMap = mapToSave
         generatorMapName = mapToSave.name
         showGenerationDialog = true
-        showPreview = false
         generationRunning = true
         generationSuccess = null
         generationError = null
-        generatedPainter = null
+        imagePreviews = emptyList()
         imageProgress = emptyList()
 
         coroutineScope.launch {
@@ -201,8 +184,8 @@ fun MapEditorContent(
                 generationSuccess = true
                 maps.value = allMapsForEditor()
                 editingMap = null
-                generatedPainter = loadGeneratedPreviewPainter(mapToSave)
-                showPreview = generatedPainter != null
+                imagePreviews = loadImagePreviews(mapToSave)
+                imagePreviewIndex = 0
             } catch (e: Exception) {
                 generationSuccess = false
                 generationError = e.message
@@ -523,45 +506,24 @@ fun MapEditorContent(
                         Text(stringResource(Res.string.map_image_generation_error, generationError ?: ""))
                     }
 
-                    if (generatedPainter != null) {
-                        val shouldDisplayPreview = showPreview || generationSuccess == true
-                        if (shouldDisplayPreview) {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text(stringResource(Res.string.map_image_generation_preview_label))
-                                androidx.compose.foundation.Image(
-                                    painter = generatedPainter!!,
-                                    contentDescription = null,
-                                    modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .heightIn(max = 240.dp),
-                                )
-                            }
+                    if (imagePreviews.isNotEmpty()) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(stringResource(Res.string.map_image_generation_preview_label))
+                            MapImageCarousel(
+                                previews = imagePreviews,
+                                index = imagePreviewIndex.coerceIn(0, imagePreviews.lastIndex),
+                                onIndexChange = { imagePreviewIndex = it },
+                            )
                         }
+                    }
+                    if (lastGeneratedMap?.tileZones?.any { it.movable } == true) {
+                        MovableZoneImageHint()
                     }
                 }
             },
             confirmButton = {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    val canShowImage = lastGeneratedMap != null && !generationRunning && generationSuccess == true
-                    TextButton(
-                        onClick = {
-                            val targetMap = lastGeneratedMap ?: editingMap ?: return@TextButton
-                            coroutineScope.launch {
-                                val loadedPainter = loadGeneratedPreviewPainter(targetMap)
-                                if (loadedPainter != null) {
-                                    generatedPainter = loadedPainter
-                                    showPreview = true
-                                }
-                            }
-                        },
-                        enabled = canShowImage,
-                    ) {
-                        Text(stringResource(Res.string.map_image_generation_show_image))
-                    }
-                    TextButton(onClick = { showGenerationDialog = false }, enabled = !generationRunning) {
-                        Text(stringResource(Res.string.map_image_generation_close))
-                    }
+                TextButton(onClick = { showGenerationDialog = false }, enabled = !generationRunning) {
+                    Text(stringResource(Res.string.map_image_generation_close))
                 }
             },
         )

@@ -35,6 +35,9 @@ object MapImageProvider {
      */
     suspend fun loadMapImageBytes(mapId: String): ByteArray? = loadImageBytes("$mapId.png")
 
+    /** Load a map or zone background by its stored file name, e.g. "mapid.zone-0.png". */
+    suspend fun loadMapImageFileBytes(fileName: String): ByteArray? = loadImageBytes(fileName)
+
     suspend fun loadTileZoneImageBytes(
         mapId: String,
         zoneIndex: Int,

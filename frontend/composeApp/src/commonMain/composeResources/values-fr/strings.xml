@@ -470,10 +470,11 @@
     <string name="map_image_generation_done">Image de carte générée.</string>
     <string name="map_image_already_existed">L'image de la carte existait déjà.</string>
     <string name="map_image_generation_path">Cible : %1$s</string>
-    <string name="map_image_generation_show_image">Afficher l'image</string>
     <string name="map_image_generation_close">Fermer</string>
     <string name="map_image_generation_error">Échec de génération : %1$s</string>
     <string name="map_image_generation_preview_label">Aperçu de l'image de carte</string>
+    <string name="map_image_previous">Image précédente</string>
+    <string name="map_image_next">Image suivante</string>
     <string name="map_image_compressing">Compression de l'image de carte…</string>
     <string name="map_image_compressed_size">Taille compressée : %1$s Ko</string>
     <string name="creating_map_title">Création de la carte…</string>
@@ -2604,6 +2605,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="tile_zone_river_flow_hint">Les cases de rivière utilisent la direction et la vitesse du courant sélectionnées dans l'éditeur de carte.</string>
     <string name="tile_zone_movable">Région mobile</string>
     <string name="tile_zone_movable_help">Peut être déplacée ou pivotée par les événements du niveau avec toutes les unités et bâtiments dessus. Les régions ne peuvent pas contenir de points d\'apparition. La rotation nécessite au moins 7 cases.</string>
+    <string name="movable_zone_image_hint">Conseil : les zones déplaçables utilisent des images générées. Pour un meilleur résultat, remplacez-les par des images adaptées.</string>
     <string name="tile_zone_movable_spawn_warning">Les points d\'apparition ne peuvent pas faire partie d\'une région mobile.</string>
     <string name="tile_zone_rotatable">Rotative (au moins %1$d cases)</string>
     <string name="tile_zone_rotatable_help">Les zones rotatives ont besoin d\'au moins %1$d cases, sinon la carte est invalide.</string>

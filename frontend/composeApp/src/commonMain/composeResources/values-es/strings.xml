@@ -470,10 +470,11 @@
     <string name="map_image_generation_done">Generación de imagen completada.</string>
     <string name="map_image_already_existed">La imagen del mapa ya existía.</string>
     <string name="map_image_generation_path">Destino: %1$s</string>
-    <string name="map_image_generation_show_image">Mostrar imagen</string>
     <string name="map_image_generation_close">Cerrar</string>
     <string name="map_image_generation_error">Generación fallida: %1$s</string>
     <string name="map_image_generation_preview_label">Vista previa de imagen del mapa</string>
+    <string name="map_image_previous">Imagen anterior</string>
+    <string name="map_image_next">Imagen siguiente</string>
     <string name="map_image_compressing">Comprimiendo imagen del mapa…</string>
     <string name="map_image_compressed_size">Tamaño comprimido: %1$s KB</string>
     <string name="creating_map_title">Creando mapa…</string>
@@ -2603,6 +2604,7 @@
     <string name="tile_zone_river_flow_hint">Las casillas de río usan la dirección y velocidad de corriente seleccionadas en el editor del mapa.</string>
     <string name="tile_zone_movable">Región móvil</string>
     <string name="tile_zone_movable_help">Puede ser movida o rotada por eventos del nivel junto con todas las unidades y edificios que hay en ella. Las regiones no pueden contener puntos de aparición. Girar requiere al menos 7 casillas.</string>
+    <string name="movable_zone_image_hint">Consejo: las zonas movibles usan imágenes generadas. Para mejores resultados, reemplázalas por imágenes adecuadas propias.</string>
     <string name="tile_zone_movable_spawn_warning">Los puntos de aparición no pueden formar parte de una región móvil.</string>
     <string name="tile_zone_rotatable">Giratoria (al menos %1$d casillas)</string>
     <string name="tile_zone_rotatable_help">Las zonas giratorias necesitan al menos %1$d casillas, si no el mapa no es válido.</string>

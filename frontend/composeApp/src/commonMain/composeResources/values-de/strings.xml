@@ -470,10 +470,11 @@
     <string name="map_image_generation_done">Kartenbild fertiggestellt.</string>
     <string name="map_image_already_existed">Kartenbild war bereits vorhanden.</string>
     <string name="map_image_generation_path">Ziel: %1$s</string>
-    <string name="map_image_generation_show_image">Bild anzeigen</string>
     <string name="map_image_generation_close">Schließen</string>
     <string name="map_image_generation_error">Generierung fehlgeschlagen: %1$s</string>
     <string name="map_image_generation_preview_label">Kartenbild-Vorschau</string>
+    <string name="map_image_previous">Vorheriges Bild</string>
+    <string name="map_image_next">Nächstes Bild</string>
     <string name="map_image_compressing">Kartenbild wird komprimiert…</string>
     <string name="map_image_compressed_size">Komprimierte Größe: %1$s KB</string>
     <string name="creating_map_title">Karte wird erstellt…</string>
@@ -2602,6 +2603,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="tile_zone_river_flow_hint">Flusskacheln verwenden die im Karteneditor gewählte Fließrichtung und -geschwindigkeit.</string>
     <string name="tile_zone_movable">Bewegliche Region</string>
     <string name="tile_zone_movable_help">Kann durch Level-Ereignisse zusammen mit allen Einheiten und Gebäuden darauf verschoben oder gedreht werden. Regionen dürfen keine Spawn-Punkte enthalten. Drehen braucht mindestens 7 Felder.</string>
+    <string name="movable_zone_image_hint">Hinweis: Verschiebbare Zonen verwenden generierte Bilder. Für das beste Ergebnis solltest du sie durch passende eigene Bilder ersetzen.</string>
     <string name="tile_zone_movable_spawn_warning">Spawn-Punkte können nicht Teil einer beweglichen Region sein.</string>
     <string name="tile_zone_rotatable">Drehbar (mindestens %1$d Felder)</string>
     <string name="tile_zone_rotatable_help">Drehbare Zonen brauchen mindestens %1$d Felder, sonst ist die Karte ungültig.</string>
