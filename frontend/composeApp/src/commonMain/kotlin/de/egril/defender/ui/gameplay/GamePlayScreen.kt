@@ -2281,6 +2281,11 @@ private fun GamePlayScreenContent(
                                 // Enemy List - show if mode includes enemy list OR during ENEMY_LIST_INFO tutorial step
                                 val showEnemyPanel = (showOverlay && overlayMode != 1) || shouldShowEnemyListForTutorial
                                 if (showEnemyPanel) {
+                                    UpcomingEventsPanel(
+                                        gameState = gameState,
+                                        modifier = Modifier.fillMaxWidth(),
+                                    )
+
                                     EnemyListPanel(
                                         gameState = gameState,
                                         modifier = Modifier.fillMaxWidth().weight(1f),

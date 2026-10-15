@@ -327,6 +327,7 @@
     <string name="game_saved_successfully">Your game has been saved successfully!</string>
     <string name="on_map">On Map</string>
     <string name="planned_spawns">Planned Spawns</string>
+    <string name="upcoming_events">Upcoming Events</string>
     <string name="building_label">Building</string>
     <string name="position_label">Position</string>
     <string name="reward_label">Reward</string>
@@ -907,6 +908,11 @@
     <string name="event_message_none">No message</string>
     <string name="event_repeatable_label">Repeatable</string>
     <string name="event_repeatable_help">When enabled, the event fires every time its condition is met. When disabled, it fires only once.</string>
+    <string name="event_upcoming_label">Show in upcoming list</string>
+    <string name="event_upcoming_help">Lists the event with its symbol and name in the upcoming enemies list for all future rounds, until it has fired. Repeatable events stay listed.</string>
+    <string name="event_upcoming_symbol_label">Symbol</string>
+    <string name="event_upcoming_symbol_none">No symbol</string>
+    <string name="event_upcoming_name_label">Name</string>
     <string name="event_summary_label">Event</string>
     <string name="event_no_actions">No actions</string>
     <string name="event_actions_count">%d actions</string>

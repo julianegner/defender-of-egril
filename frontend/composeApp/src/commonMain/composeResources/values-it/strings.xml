@@ -321,6 +321,7 @@
     <string name="game_saved_successfully">Il tuo gioco è stato salvato con successo!</string>
     <string name="on_map">Sulla mappa</string>
     <string name="planned_spawns">Apparizioni pianificate</string>
+    <string name="upcoming_events">Prossimi eventi</string>
     <string name="position_label">Posizione</string>
     <string name="reward_label">Ricompensa</string>
     <string name="info_label">Info</string>
@@ -902,6 +903,11 @@
     <string name="event_message_none">Nessun messaggio</string>
     <string name="event_repeatable_label">Ripetibile</string>
     <string name="event_repeatable_help">Se attivato, l'evento si attiva ogni volta che la sua condizione è soddisfatta. Se disattivato, si attiva una sola volta.</string>
+    <string name="event_upcoming_label">Mostra nella lista dei prossimi nemici</string>
+    <string name="event_upcoming_help">Mostra l\'evento con simbolo e nome nella lista dei prossimi nemici per tutti i turni futuri, finché non è stato attivato. Gli eventi ripetibili restano sempre visibili.</string>
+    <string name="event_upcoming_symbol_label">Simbolo</string>
+    <string name="event_upcoming_symbol_none">Nessun simbolo</string>
+    <string name="event_upcoming_name_label">Nome</string>
     <string name="event_summary_label">Evento</string>
     <string name="event_no_actions">Nessuna azione</string>
     <string name="event_actions_count">%d azioni</string>

@@ -1,5 +1,6 @@
 package de.egril.defender.ui.editor.level.events
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -55,10 +57,17 @@ import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.TileZone
 import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.gameplay.EventMessageFrames
+import de.egril.defender.ui.gameplay.EventUpcomingSymbols
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleUpIcon
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.event_upcoming_help
+import defender_of_egril.composeapp.generated.resources.event_upcoming_label
+import defender_of_egril.composeapp.generated.resources.event_upcoming_name_label
+import defender_of_egril.composeapp.generated.resources.event_upcoming_symbol_label
+import defender_of_egril.composeapp.generated.resources.event_upcoming_symbol_none
+import org.jetbrains.compose.resources.painterResource
 import defender_of_egril.composeapp.generated.resources.add_action
 import defender_of_egril.composeapp.generated.resources.add_event
 import defender_of_egril.composeapp.generated.resources.delete_action
@@ -359,6 +368,46 @@ private fun EventCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+
+            HorizontalDivider()
+
+            // Upcoming list toggle: the event is listed with its symbol and name while it is still to come
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Checkbox(
+                    checked = event.showInUpcomingList,
+                    onCheckedChange = { onEventChange(event.copy(showInUpcomingList = it)) },
+                )
+                Text(stringResource(Res.string.event_upcoming_label))
+            }
+            Text(
+                text = stringResource(Res.string.event_upcoming_help),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (event.showInUpcomingList) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    UpcomingSymbolDropdown(
+                        selectedSymbol = event.upcomingSymbol,
+                        onSymbolChange = { onEventChange(event.copy(upcomingSymbol = it)) },
+                        modifier = Modifier.weight(1f),
+                    )
+                    OutlinedTextField(
+                        value = event.upcomingName.orEmpty(),
+                        // Quotes and backslashes are not escaped in level files, so they are not accepted.
+                        onValueChange = { onEventChange(event.copy(upcomingName = it.filterNot { c -> c == '"' || c == '\\' })) },
+                        label = { Text(stringResource(Res.string.event_upcoming_name_label)) },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
 
             HorizontalDivider()
 
@@ -957,6 +1006,60 @@ private fun MessageFrameDropdown(
                     onClick = {
                         // The standard frame is stored as "no frame" so level files stay unchanged.
                         onFrameChange(frameId.takeUnless { EventMessageFrames.isStandard(it) })
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun UpcomingSymbolDropdown(
+    selectedSymbol: String?,
+    onSymbolChange: (String?) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val noSymbolLabel = stringResource(Res.string.event_upcoming_symbol_none)
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        modifier = modifier,
+    ) {
+        OutlinedTextField(
+            value = selectedSymbol?.takeIf { EventUpcomingSymbols.resource(it) != null } ?: noSymbolLabel,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(Res.string.event_upcoming_symbol_label)) },
+            leadingIcon = {
+                EventUpcomingSymbols.resource(selectedSymbol)?.let { symbol ->
+                    Image(painter = painterResource(symbol), contentDescription = null, modifier = Modifier.size(24.dp))
+                }
+            },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(
+                text = { Text(noSymbolLabel) },
+                onClick = {
+                    onSymbolChange(null)
+                    expanded = false
+                },
+            )
+            EventUpcomingSymbols.symbolIds.forEach { symbolId ->
+                DropdownMenuItem(
+                    text = { Text(symbolId) },
+                    leadingIcon = {
+                        EventUpcomingSymbols.resource(symbolId)?.let { symbol ->
+                            Image(painter = painterResource(symbol), contentDescription = null, modifier = Modifier.size(24.dp))
+                        }
+                    },
+                    onClick = {
+                        onSymbolChange(symbolId)
                         expanded = false
                     },
                 )

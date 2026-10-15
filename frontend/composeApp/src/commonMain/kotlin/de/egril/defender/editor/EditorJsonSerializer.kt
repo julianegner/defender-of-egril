@@ -2426,8 +2426,17 @@ object EditorJsonSerializer {
             if (event.messageFrame != null) ", \"messageFrame\": \"${event.messageFrame}\"" else ""
         // The loop is written last so the event's own fields can be parsed from the text before it.
         val loopJson = event.loop?.let { ", \"loop\": ${serializeLoop(it)}" } ?: ""
+        // Upcoming-list fields are only written when enabled so existing level files stay unchanged.
+        val upcomingJson =
+            if (event.showInUpcomingList) {
+                val symbolJson = event.upcomingSymbol?.let { ", \"upcomingSymbol\": \"$it\"" } ?: ""
+                val nameJson = event.upcomingName?.let { ", \"upcomingName\": \"$it\"" } ?: ""
+                ", \"showInUpcomingList\": true$symbolJson$nameJson"
+            } else {
+                ""
+            }
         return "{\"id\": \"${event.id}\", \"condition\": $conditionJson, " +
-            "\"actions\": [$actionsJson]$messageJson$messageFrameJson, \"repeatable\": ${event.repeatable}$loopJson}"
+            "\"actions\": [$actionsJson]$messageJson$messageFrameJson, \"repeatable\": ${event.repeatable}$upcomingJson$loopJson}"
     }
 
     // --- Spawn groups (issue #694) ---------------------------------------------------------------
@@ -2900,6 +2909,10 @@ object EditorJsonSerializer {
             // Absent frame (levels authored before frames were selectable) means the standard frame.
             val messageFrame = JsonUtils.extractStringValue(entry, "messageFrame").takeIf { it.isNotBlank() }
             val repeatable = runCatching { JsonUtils.extractValue(entry, "repeatable").toBoolean() }.getOrDefault(false)
+            val showInUpcomingList =
+                runCatching { JsonUtils.extractValue(entry, "showInUpcomingList").toBoolean() }.getOrDefault(false)
+            val upcomingSymbol = JsonUtils.extractStringValue(entry, "upcomingSymbol").takeIf { it.isNotBlank() }
+            val upcomingName = JsonUtils.extractStringValue(entry, "upcomingName").takeIf { it.isNotBlank() }
             val loop =
                 if (fullEntry.contains("\"loop\"")) {
                     runCatching { parseLoop(JsonUtils.extractJsonObjectForKey(fullEntry, "loop")) }.getOrNull()
@@ -2916,6 +2929,9 @@ object EditorJsonSerializer {
                     messageFrame = messageFrame,
                     repeatable = repeatable,
                     loop = loop,
+                    showInUpcomingList = showInUpcomingList,
+                    upcomingSymbol = upcomingSymbol,
+                    upcomingName = upcomingName,
                 ),
             )
         }

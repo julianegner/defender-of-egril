@@ -295,6 +295,10 @@ data class EventLoop(
  * @param repeatable  When true the event can fire again on every future evaluation; when false
  *                   (default) it fires only once.
  * @param loop        Optional loop started when the event fires (e.g. alternating tides).
+ * @param showInUpcomingList When true the event is listed in the upcoming enemies list while it is
+ *                    still to come (see [isListedAsUpcoming]).
+ * @param upcomingSymbol Drawable id starting with `event_` shown in the upcoming list, or null for none.
+ * @param upcomingName Label shown next to the symbol in the upcoming list (e.g. "Tide").
  */
 data class LevelEvent(
     val id: String,
@@ -304,9 +308,32 @@ data class LevelEvent(
     val messageFrame: EventMessageFrameId? = null,
     val repeatable: Boolean = false,
     val loop: EventLoop? = null,
+    val showInUpcomingList: Boolean = false,
+    val upcomingSymbol: String? = null,
+    val upcomingName: String? = null,
 ) {
     /** All actions of this event, including those inside its loop. */
     fun allActions(): List<EventAction> = actions + (loop?.allActions() ?: emptyList())
+
+    /**
+     * True when the event should be listed in the upcoming list: it is flagged for it and it has not
+     * fired yet. Repeatable events stay listed because they can still fire in every future round.
+     * An event that fired in the current round is no longer upcoming and disappears from the list.
+     */
+    fun isListedAsUpcoming(triggeredEventIds: Collection<String>): Boolean =
+        showInUpcomingList && (repeatable || !triggeredEventIds.contains(id))
+
+    /**
+     * The round in which this event fires next, or null when it depends on game state (kills, health,
+     * mana, coins, altars, unit positions) and therefore cannot be predicted. Turn-start events fire
+     * from [EventCondition.fromTurn] onwards, and turns start at 1.
+     */
+    fun scheduledTurn(currentTurn: Int): Int? {
+        val isTurnBased =
+            condition.type == EventConditionType.TURN_START || condition.type == EventConditionType.ENEMY_TURN_START
+        if (!isTurnBased) return null
+        return maxOf(condition.fromTurn, 1, currentTurn)
+    }
 }
 
 /**

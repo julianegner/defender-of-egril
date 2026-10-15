@@ -321,6 +321,7 @@
     <string name="game_saved_successfully">Votre jeu a été sauvegardé avec succès !</string>
     <string name="on_map">Sur la carte</string>
     <string name="planned_spawns">Apparitions prévues</string>
+    <string name="upcoming_events">Événements à venir</string>
     <string name="position_label">Position</string>
     <string name="reward_label">Récompense</string>
     <string name="info_label">Info</string>
@@ -902,6 +903,11 @@
     <string name="event_message_none">Aucun message</string>
     <string name="event_repeatable_label">Répétable</string>
     <string name="event_repeatable_help">Lorsqu'il est activé, l'événement se déclenche chaque fois que sa condition est remplie. Lorsqu'il est désactivé, il ne se déclenche qu'une seule fois.</string>
+    <string name="event_upcoming_label">Afficher dans la liste des prochains ennemis</string>
+    <string name="event_upcoming_help">Affiche l\'événement avec son symbole et son nom dans la liste des prochains ennemis pour tous les tours à venir, jusqu\'à son déclenchement. Les événements répétables restent affichés.</string>
+    <string name="event_upcoming_symbol_label">Symbole</string>
+    <string name="event_upcoming_symbol_none">Aucun symbole</string>
+    <string name="event_upcoming_name_label">Nom</string>
     <string name="event_summary_label">Événement</string>
     <string name="event_no_actions">Aucune action</string>
     <string name="event_actions_count">%d actions</string>

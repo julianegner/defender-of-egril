@@ -199,6 +199,11 @@ more *actions* and an optional predefined story message:
   amounts so the player knows what they gained.
 - **Repeatable**: by default an event fires only once; enable *repeatable* to let it fire on every
   future evaluation whenever its condition is met.
+- **Show in upcoming list**: lists the event in its own collapsible *Upcoming Events* panel during gameplay,
+  with a symbol (chosen from the `event_*` drawables), a name, and the round in which it fires (with the
+  number of rounds until then). Events are listed until they have fired; repeatable events stay listed.
+  Only turn-based conditions (turn start / enemy turn start) show a round; other conditions are listed
+  without one.
 - **Loop**: optionally start a loop when the event fires. A loop is a list of steps; each step waits
   a number of player turns and then applies its actions (and optionally shows a message). A loop
   repeats a given number of times or endlessly, and a step can contain a nested loop that runs

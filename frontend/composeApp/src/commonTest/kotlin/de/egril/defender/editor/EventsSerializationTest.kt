@@ -396,4 +396,52 @@ class EventsSerializationTest {
         assertNull(event.messageFrame)
         assertNull(assertNotNull(event.loop).steps.first().messageFrame)
     }
+
+    @Test
+    fun testUpcomingListOptionRoundTrips() {
+        val events =
+            LevelEvents(
+                listOf(
+                    LevelEvent(
+                        id = "rockfall",
+                        condition = EventCondition(type = EventConditionType.TURN_START, fromTurn = 4),
+                        messageKey = "event_msg_reinforcements",
+                        showInUpcomingList = true,
+                        upcomingSymbol = "event_rockfall",
+                        upcomingName = "Steinschlag",
+                    ),
+                ),
+            )
+
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(events))
+        assertTrue(json.contains("\"showInUpcomingList\": true"))
+        assertTrue(json.contains("\"upcomingSymbol\": \"event_rockfall\""))
+        assertTrue(json.contains("\"upcomingName\": \"Steinschlag\""))
+
+        val level = assertNotNull(EditorJsonSerializer.deserializeLevel(json))
+        assertEquals(events, level.events)
+    }
+
+    @Test
+    fun testUpcomingListFieldsAreOmittedWhenDisabled() {
+        val events =
+            LevelEvents(
+                listOf(
+                    LevelEvent(
+                        id = "silent",
+                        condition = EventCondition(type = EventConditionType.TURN_START),
+                        messageKey = "event_msg_reinforcements",
+                    ),
+                ),
+            )
+
+        val json = EditorJsonSerializer.serializeLevel(baseLevel(events))
+        assertTrue(!json.contains("showInUpcomingList"), "Disabled option should not be written")
+        assertTrue(!json.contains("upcomingName"), "Unset name should not be written")
+
+        val event = assertNotNull(EditorJsonSerializer.deserializeLevel(json)).events.events.first()
+        assertEquals(false, event.showInUpcomingList)
+        assertNull(event.upcomingSymbol)
+        assertNull(event.upcomingName)
+    }
 }
