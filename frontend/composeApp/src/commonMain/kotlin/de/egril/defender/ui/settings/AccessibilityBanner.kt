@@ -14,7 +14,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.ui.a11y.FontSizeMaximum
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import defender_of_egril.composeapp.generated.resources.*
-import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 
 /**
@@ -70,7 +70,7 @@ fun AccessibilityBanner(
                                 .semantics { contentDescription = closeDescription },
                     ) {
                         Box(modifier = Modifier.clearAndSetSemantics { }) {
-                            FilledSymbol(
+                            MaterialSymbol.Filled(
                                 icon = MaterialSymbols.CLOSE,
                                 tint = MaterialTheme.colorScheme.inverseOnSurface,
                             )

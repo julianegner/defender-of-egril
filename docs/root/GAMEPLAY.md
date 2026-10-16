@@ -169,6 +169,14 @@ The Spike Tower has unique upgrade characteristics:
 
 ---
 
+### Runes and Altars
+
+- Sacrifice a level 10 or higher Wizard Tower to create an Altar, spending one rune.
+- The tower must stand on a real build tile, not on a raft or barge.
+- Altars cannot attack, but retain the Wizard Tower's magical trap ability.
+- Activating an Altar consumes its action and channels it for the current turn. Channeling resets at the start of the next player turn.
+- Scripted levels can require several Altars to be active simultaneously to take over the Rune Network and win the level.
+
 ## Enemy Types
 
 | Enemy | HP | Speed | Base Reward |
@@ -181,6 +189,10 @@ The Spike Tower has unique upgrade characteristics:
 | **Ogre** | 80 | 1 | 20 coins × level |
 
 **Note:** Enemy rewards are multiplied by their level. For example, a level 3 Goblin gives 15 coins (5 × 3), and a level 2 Ork gives 20 coins (10 × 2).
+
+### Neutral Units: Gargoyles
+
+Gargoyles are pre-placed stone guardians that are not controlled by the player. They attack enemies twice per turn (range 2, 50 damage × level) and can be destroyed by the player's towers. An evil wizard or evil mage coming within 2 tiles turns a gargoyle active for 3 turns, and it then walks the enemy path. An active gargoyle that reaches the target costs the player HP equal to its level. Destroying a gargoyle grants XP but no coins. See [GARGOYLE.md](../features/GARGOYLE.md) for details.
 
 ---
 
@@ -203,6 +215,7 @@ The Spike Tower has unique upgrade characteristics:
 
 - Defeat all enemies in all waves
 - At least 1 health point remaining
+- A scripted event can also grant victory, for example by activating the required number of Altars in one turn.
 
 ### Defeat Conditions
 

@@ -20,7 +20,7 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.a11y.a11ySemantics
 import de.egril.defender.ui.animations.SpellDoubleLevelColor
 import de.egril.defender.ui.animations.SpellDoubleReachColor
-import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.gameplay.defenderButtons.TowerStats
 import de.egril.defender.ui.icon.HammerIcon
 import de.egril.defender.ui.icon.InfoIcon
@@ -54,6 +54,8 @@ fun DefenderInfo(
     onDefenderAttackPosition: ((Int, Position) -> Boolean)? = null,
     isPlayerTurn: Boolean = false,
     hasUnlockedSpells: Boolean = false, // Whether player has unlocked any spells
+    onSanctifyDefender: ((Int) -> Boolean)? = null,
+    onActivateAltar: ((Int) -> Boolean)? = null,
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
     val buttonHeight = if (isMobile) 100.dp else 60.dp
@@ -214,6 +216,24 @@ fun DefenderInfo(
                             )
                         }
                     }
+                    // Show raft health: a raft that strands becomes a barricade with this health
+                    // minus the stranding damage, and needs 100 health left to keep carrying the tower.
+                    val raft = defender.raftId.value?.let { raftId -> gameState.rafts.find { it.id == raftId } }
+                    if (raft != null) {
+                        val strandedHealth = raft.healthPoints.value - de.egril.defender.model.Raft.STRANDING_DAMAGE
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(top = 4.dp),
+                        ) {
+                            WoodIcon(size = 12.dp)
+                            Text(
+                                stringResource(Res.string.raft_hp_label, raft.healthPoints.value),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (strandedHealth < 100) GamePlayColors.Warning else GamePlayColors.Success,
+                            )
+                        }
+                    }
                     Row {
                         DefenderActionsInfo(defender)
                         dwarvenMineInfoButtonArea(defender)
@@ -267,6 +287,21 @@ fun DefenderInfo(
                     }
                 }
 
+                if (defender.isGrippedByKraken.value) {
+                    Spacer(modifier = Modifier.width(horizontalSpacing))
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            stringResource(Res.string.villain_kraken_barge_grip_short),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = GamePlayColors.ErrorDark,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+
                 if (defender.isReady) {
                     if (defender.type == DefenderType.DRAGONS_LAIR) {
                         // Dragon's lair - no actions, can't be sold
@@ -292,6 +327,36 @@ fun DefenderInfo(
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray,
                             fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                        )
+                    } else if (defender.type == DefenderType.ALTAR) {
+                        if (defender.isChanneling.value) {
+                            SelectableText(stringResource(Res.string.altar_channeling))
+                        }
+                        if (isPlayerTurn && onActivateAltar != null) {
+                            Button(
+                                onClick = { onActivateAltar(defender.id) },
+                                enabled = gameState.canActivateAltar(defender),
+                                modifier = Modifier.width(220.dp).height(buttonHeight),
+                            ) {
+                                Text(stringResource(Res.string.activate_altar))
+                            }
+                        }
+                        if (isPlayerTurn && onWizardAction != null) {
+                            Spacer(modifier = Modifier.width(horizontalSpacing))
+                            MagicalTrapButton(
+                                defender = defender,
+                                onWizardAction = onWizardAction,
+                                selectedWizardAction = selectedWizardAction,
+                                modifier = Modifier.width(220.dp).height(buttonHeight),
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(horizontalSpacing))
+                        UndoOrSellButton(
+                            defender = defender,
+                            gameState = gameState,
+                            onUndoTower = onUndoTower,
+                            onSellTower = onSellTower,
+                            modifier = Modifier.width(220.dp).height(buttonHeight),
                         )
                     } else {
                         // Normal tower stats and buttons
@@ -367,7 +432,30 @@ fun DefenderInfo(
                             hasAttackColumn ||
                                 hasManaColumn ||
                                 hasTrapColumn ||
-                                hasBarricadeColumn
+                                hasBarricadeColumn ||
+                                (defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 && onSanctifyDefender != null)
+
+                        if (defender.type == DefenderType.WIZARD_TOWER &&
+                            defender.level.value >= 10 &&
+                            onSanctifyDefender != null
+                        ) {
+                            TooltipWrapper(text = stringResource(Res.string.altar_conversion_info)) {
+                                Button(
+                                    onClick = { onSanctifyDefender(defender.id) },
+                                    enabled = gameState.canSanctifyDefender(defender),
+                                    modifier = Modifier.height(buttonHeight),
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    ) {
+                                        RuneCountIcon(size = 20.dp, color = LocalContentColor.current)
+                                        Text(stringResource(Res.string.sanctify))
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(horizontalSpacing))
+                        }
 
                         // Current stats column
                         Column(modifier = Modifier.weight(0.5f)) {
@@ -801,7 +889,7 @@ fun MagicalTrapButton(
         // Button to enter magical trap placement mode - enabled when trap is ready and has actions
         Button(
             onClick = { onWizardAction(defender.id, WizardAction.PLACE_MAGICAL_TRAP) },
-            enabled = !isOnCooldown && defender.actionsRemaining.value > 0,
+            enabled = !isOnCooldown && defender.isReady && !defender.isDisabled.value && defender.actionsRemaining.value > 0,
             modifier = modifier,
             colors =
                 ButtonDefaults.buttonColors(
@@ -820,21 +908,23 @@ fun MagicalTrapButton(
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 de.egril.defender.ui.icon
                     .PentagramIcon(size = 24.dp)
                 Spacer(modifier = Modifier.width(8.dp))
-                Column(modifier = Modifier.weight(3f)) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         stringResource(Res.string.magical_trap),
                         fontSize = if (isOnCooldown) 14.sp else 16.sp,
                         fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     ShortcutKeyChip(text = "2")
                 }
                 if (isOnCooldown) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Spacer(modifier = Modifier.width(2.dp))
+                    Column {
                         Text(
                             defender.trapCooldownRemaining.value.toString(),
                             fontSize = 14.sp,
@@ -1023,6 +1113,21 @@ private fun getTowerInfoMessages(
 
     // Add first-use info message for the tower type
     when (defender.type) {
+        DefenderType.ALTAR -> {
+            messages.add(
+                TowerInfoMessage(
+                    title = stringResource(Res.string.tower_altar),
+                    message = stringResource(Res.string.altar_conversion_info),
+                    icon = {
+                        de.egril.defender.ui.TowerTypeIcon(
+                            defenderType = DefenderType.ALTAR,
+                            modifier = Modifier.size(56.dp),
+                        )
+                    },
+                    color = Color(0xFFFFD700),
+                ),
+            )
+        }
         DefenderType.WIZARD_TOWER -> {
             messages.add(
                 TowerInfoMessage(
@@ -1202,7 +1307,7 @@ private fun getTowerInfoMessages(
     }
 
     // Magical trap info (wizard tower level 10+)
-    if (defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10) {
+    if (defender.hasMagicalTraps && defender.level.value >= 10) {
         messages.add(
             TowerInfoMessage(
                 title = stringResource(Res.string.magical_trap_tutorial_title),

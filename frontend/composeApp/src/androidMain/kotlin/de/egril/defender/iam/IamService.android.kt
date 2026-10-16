@@ -1,5 +1,6 @@
 package de.egril.defender.iam
 
+import androidx.core.net.toUri
 import de.egril.defender.BuildConfig
 import de.egril.defender.utils.getPlatform
 import kotlinx.coroutines.CoroutineScope
@@ -425,7 +426,7 @@ internal actual fun openPlatformAccountConsole() {
         val intent =
             android.content.Intent(
                 android.content.Intent.ACTION_VIEW,
-                android.net.Uri.parse(IamConfig.accountUrl),
+                IamConfig.accountUrl.toUri(),
             )
         intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)

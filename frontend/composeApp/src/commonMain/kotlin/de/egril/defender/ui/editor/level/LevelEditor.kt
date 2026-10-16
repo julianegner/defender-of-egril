@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.config.LogConfig
@@ -25,14 +26,29 @@ import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.EditorWaypoint
+import de.egril.defender.editor.EditorSpawnLoop
+import de.egril.defender.editor.EditorSpawnTimeline
+import de.egril.defender.editor.spawnTimeline
+import de.egril.defender.editor.invalidSpawnLoopStopCount
+import de.egril.defender.editor.spawnTimelineIssues
+import de.egril.defender.ui.editor.level.enemies.loopSummary
+import de.egril.defender.ui.editor.level.enemies.spawnIssueTexts
+import de.egril.defender.editor.withSpawnTimeline
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnRepeatMode
+import de.egril.defender.model.isRealVillain
 import de.egril.defender.ui.*
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.editor.CreateLevelDialog
 import de.egril.defender.ui.editor.SaveAsDialog
 import de.egril.defender.ui.editor.getDefaultAuthorName
 import de.egril.defender.ui.editor.level.enemies.EnemySpawnsTab
+import de.egril.defender.ui.editor.level.generator.LevelGenerator
+import de.egril.defender.ui.editor.level.generator.LevelGeneratorConfig
+import de.egril.defender.ui.editor.level.generator.LevelGeneratorDialog
 import de.egril.defender.ui.editor.level.tower.TowersTab
 import de.egril.defender.ui.editor.level.waypoint.WaypointsTab
 import de.egril.defender.ui.icon.*
@@ -41,11 +57,13 @@ import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_message
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_title
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 internal data class LevelEditorTabIndices(
     val levelInfo: Int,
+    val designPreview: Int,
     val enemySpawns: Int?,
     val towers: Int,
     val waypoints: Int,
@@ -57,6 +75,7 @@ internal data class LevelEditorTabIndices(
 internal fun levelEditorTabIndices(isSandbox: Boolean): LevelEditorTabIndices {
     var nextIndex = 0
     val levelInfo = nextIndex++
+    val designPreview = nextIndex++
     val enemySpawns = if (isSandbox) null else nextIndex++
     val towers = nextIndex++
     val waypoints = nextIndex++
@@ -66,6 +85,7 @@ internal fun levelEditorTabIndices(isSandbox: Boolean): LevelEditorTabIndices {
 
     return LevelEditorTabIndices(
         levelInfo = levelInfo,
+        designPreview = designPreview,
         enemySpawns = enemySpawns,
         towers = towers,
         waypoints = waypoints,
@@ -75,17 +95,39 @@ internal fun levelEditorTabIndices(isSandbox: Boolean): LevelEditorTabIndices {
     )
 }
 
+private data class EnemySpawnEditorSnapshot(
+    val enemySpawns: MutableList<EditorEnemySpawn>,
+    val maxTurnNumber: Int,
+    val spawnLoops: List<EditorSpawnLoop>,
+)
+
 /**
  * Main content for the Level Editor tab
  */
 @Composable
-fun LevelEditorContent() {
+internal fun LevelEditorContent(
+    initialEditingLevelId: String? = null,
+    onStartPlaytest: ((EditorLevel, FocusedPlaytestType) -> Unit)? = null,
+) {
     val levels = remember { mutableStateOf(EditorStorage.getAllLevels()) }
     var selectedLevelId by remember { mutableStateOf<String?>(null) }
     var editingLevel by remember { mutableStateOf<EditorLevel?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
+    var showGeneratorDialog by remember { mutableStateOf(false) }
+    var generatorConfig by remember { mutableStateOf<LevelGeneratorConfig?>(null) }
+    var showVillainUsage by remember { mutableStateOf(false) }
     var levelToDelete by remember { mutableStateOf<EditorLevel?>(null) }
     val iamState by de.egril.defender.iam.IamService.state
+
+    LaunchedEffect(initialEditingLevelId, levels.value) {
+        if (initialEditingLevelId != null) {
+            val levelToOpen = levels.value.find { it.id == initialEditingLevelId }
+            if (levelToOpen != null) {
+                selectedLevelId = levelToOpen.id
+                editingLevel = levelToOpen
+            }
+        }
+    }
 
     if (editingLevel != null) {
         // Level editing view
@@ -98,6 +140,12 @@ fun LevelEditorContent() {
                 editingLevel = EditorStorage.getLevel(updatedLevel.id)
             },
             onCancel = { editingLevel = null },
+            onStartPlaytest = { playtestLevel, type -> onStartPlaytest?.invoke(playtestLevel, type) },
+        )
+    } else if (showVillainUsage) {
+        VillainUsagePage(
+            levels = levels.value,
+            onBack = { showVillainUsage = false },
         )
     } else {
         // Level list view
@@ -115,8 +163,19 @@ fun LevelEditorContent() {
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
 
-                Button(onClick = { showCreateDialog = true }) {
-                    Text(stringResource(Res.string.create_new_level))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Button(onClick = { showVillainUsage = true }) {
+                        Text(stringResource(Res.string.villain_usage))
+                    }
+                    Button(onClick = { showGeneratorDialog = true }) {
+                        Text(stringResource(Res.string.level_generator))
+                    }
+                    Button(onClick = { showCreateDialog = true }) {
+                        Text(stringResource(Res.string.create_new_level))
+                    }
                 }
             }
 
@@ -186,12 +245,48 @@ fun LevelEditorContent() {
         )
     }
 
+    if (showGeneratorDialog) {
+        val defaultAuthor = getDefaultAuthorName(iamState)
+        LevelGeneratorDialog(
+            availableMaps = EditorStorage.getAllMaps().filter { it.readyToUse },
+            defaultAuthor = defaultAuthor,
+            isGenerating = generatorConfig != null,
+            onDismiss = {
+                showGeneratorDialog = false
+                generatorConfig = null
+            },
+            onGenerate = { config -> generatorConfig = config },
+        )
+    }
+
+    // Generating a big map takes a moment, so the generation runs after the dialog had a chance to
+    // render its loading indicator. Always clear the generation state in a finally block so the
+    // spinner can't get stuck if generation fails or the dialog is dismissed mid-flight.
+    LaunchedEffect(generatorConfig) {
+        val config = generatorConfig ?: return@LaunchedEffect
+        try {
+            // Keep the heavy map generation off the UI thread so the spinner can animate while the
+            // editor is working.
+            delay(50)
+            val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { LevelGenerator.generate(config) }
+            result.generatedMap?.let { EditorStorage.saveMap(it) }
+            EditorStorage.saveLevel(result.level)
+            levels.value = EditorStorage.getAllLevels()
+            showGeneratorDialog = false
+            editingLevel = result.level
+        } finally {
+            if (generatorConfig == config) {
+                generatorConfig = null
+            }
+        }
+    }
+
     if (showCreateDialog) {
         val defaultAuthor = getDefaultAuthorName(iamState)
         CreateLevelDialog(
             onDismiss = { showCreateDialog = false },
             defaultAuthor = defaultAuthor,
-            onCreate = { title, author ->
+            onCreate = { title, author, template ->
                 // Generate ID from title with underscores (lowercase, no "level_" prefix)
                 val sanitizedTitle =
                     title
@@ -208,7 +303,7 @@ fun LevelEditorContent() {
                     }
                 // Get first ready-to-use map
                 val firstReadyMap = EditorStorage.getAllMaps().filter { it.readyToUse }.firstOrNull()
-                val newLevel =
+                val baseLevel =
                     EditorLevel(
                         id = newId,
                         mapId = firstReadyMap?.id ?: "map_30x8",
@@ -220,10 +315,11 @@ fun LevelEditorContent() {
                         availableTowers =
                             DefenderType.entries
                                 .filter {
-                                    it != DefenderType.DRAGONS_LAIR
+                                    it != DefenderType.DRAGONS_LAIR && it != DefenderType.ALTAR
                                 }.toSet(),
                         author = author,
                     )
+                val newLevel = applyLevelTemplate(baseLevel, firstReadyMap, template)
                 EditorStorage.saveLevel(newLevel)
                 levels.value = EditorStorage.getAllLevels()
                 showCreateDialog = false
@@ -243,10 +339,13 @@ private fun LevelCard(
 ) {
     // Check if any enemies are spawned outside valid spawn points
     val map = remember(level.mapId) { EditorStorage.getMap(level.mapId) }
+    val spawnEntries = remember(level.enemySpawns, level.spawnGroups) { level.configuredSpawnEntries() }
+    val villainTypes = remember(spawnEntries) { spawnEntries.presentVillainTypes() }
+    val villainSummary = remember(spawnEntries) { spawnEntries.presentVillainSummary { it.villainName ?: it.displayName } }
     val hasEnemiesOutsideSpawnPoints =
-        remember(level.enemySpawns, map) {
+        remember(spawnEntries, map) {
             val mapSpawnPoints = map?.getSpawnPoints()?.toSet() ?: emptySet()
-            level.enemySpawns.any { spawn ->
+            spawnEntries.any { spawn ->
                 spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
             }
         }
@@ -310,9 +409,16 @@ private fun LevelCard(
                         style = MaterialTheme.typography.bodySmall,
                     )
                     Text(
-                        text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
+                        text = "${stringResource(Res.string.enemies)}: ${level.configuredSpawnCount()}",
                         style = MaterialTheme.typography.bodySmall,
                     )
+                    if (villainSummary.isNotEmpty()) {
+                        Text(
+                            text = "${stringResource(if (villainTypes.size > 1) Res.string.villains else Res.string.villain)}: $villainSummary",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Red,
+                        )
+                    }
                     Text(
                         text =
                             if (EditorStorage.isLevelReadyToPlay(
@@ -422,10 +528,11 @@ private fun LevelCard(
  * View for editing a level
  */
 @Composable
-fun LevelEditorView(
+internal fun LevelEditorView(
     level: EditorLevel,
     onSave: (EditorLevel) -> Unit,
     onCancel: () -> Unit,
+    onStartPlaytest: (EditorLevel, FocusedPlaytestType) -> Unit,
 ) {
     var title by remember { mutableStateOf(level.title) }
     var subtitle by remember { mutableStateOf(level.subtitle) }
@@ -434,15 +541,19 @@ fun LevelEditorView(
     var startCoins by remember { mutableStateOf(level.startCoins.toString()) }
     var startHP by remember { mutableStateOf(level.startHealthPoints.toString()) }
     var selectedMapId by remember { mutableStateOf(level.mapId) }
-    var enemySpawns by remember { mutableStateOf(level.enemySpawns.toMutableList()) }
+    // The spawn plan is edited as one timeline of turns; loops wrap turn ranges and may be nested.
+    val initialSpawnTimeline = remember { level.spawnTimeline() }
+    var enemySpawns by remember { mutableStateOf(initialSpawnTimeline.spawns.toMutableList()) }
+    var spawnLoops by remember { mutableStateOf(initialSpawnTimeline.loops) }
     var availableTowersState by remember { mutableStateOf(level.availableTowers.toSet()) }
     var waypointsState by remember { mutableStateOf(level.waypoints.toMutableList()) }
+    var singleHitTargetOrder by remember { mutableStateOf(level.singleHitTargetOrder) }
     var initialDataState by remember { mutableStateOf(level.getEffectiveInitialData()) }
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
     var connectedToPreviousLevel by remember { mutableStateOf(level.connectedToPreviousLevel) }
-    var splitBuildTowerButton by remember { mutableStateOf(level.splitBuildTowerButton) }
     var isSandbox by remember { mutableStateOf(level.isSandbox) }
+    var waaghEnabled by remember { mutableStateOf(level.waaghEnabled) }
     var supportsState by remember { mutableStateOf(level.supports) }
     var eventsState by remember { mutableStateOf(level.events) }
 
@@ -463,18 +574,26 @@ fun LevelEditorView(
         }
 
         initialDataState = level.getEffectiveInitialData()
+        singleHitTargetOrder = level.singleHitTargetOrder
     }
     var showEnemyDialog by remember { mutableStateOf(false) }
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
+    var lastEnemyDialogType by remember { mutableStateOf(AttackerType.GOBLIN) }
+    var lastEnemyDialogLevel by remember { mutableStateOf("1") }
+    var lastEnemyDialogAmount by remember { mutableStateOf("1") }
+    var lastEnemyDialogSpawnPoint by remember { mutableStateOf<Position?>(null) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var showOfficialLevelSavedWarning by remember { mutableStateOf(false) }
     var pendingLevelToSave by remember { mutableStateOf<EditorLevel?>(null) }
     var selectedTabIndex by remember { mutableStateOf(0) }
+    var requestedEnemySpawnTurn by remember { mutableStateOf<Int?>(null) }
+    var enemySpawnTurnRequestNonce by remember { mutableStateOf(0) }
     val tabIndices = remember(isSandbox) { levelEditorTabIndices(isSandbox) }
     LaunchedEffect(isSandbox) {
         val visibleTabIndices =
             listOfNotNull(
                 tabIndices.levelInfo,
+                tabIndices.designPreview,
                 tabIndices.enemySpawns,
                 tabIndices.towers,
                 tabIndices.waypoints,
@@ -492,9 +611,9 @@ fun LevelEditorView(
     val coroutineScope = rememberCoroutineScope()
     var showRemoveAllTurnsDialog by remember { mutableStateOf(false) }
     // Track the maximum turn number explicitly to support empty turns
-    var maxTurnNumber by remember {
-        mutableStateOf(level.enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0)
-    }
+    var maxTurnNumber by remember { mutableStateOf(initialSpawnTimeline.maxTurn) }
+    var enemySpawnUndoHistory by remember { mutableStateOf(listOf<EnemySpawnEditorSnapshot>()) }
+    var enemySpawnRedoHistory by remember { mutableStateOf(listOf<EnemySpawnEditorSnapshot>()) }
 
     // Get only ready-to-use maps for selection
     val maps = remember { EditorStorage.getAllMaps().filter { it.readyToUse } }
@@ -517,14 +636,61 @@ fun LevelEditorView(
     // Get current map to access waypoint tiles and target
     val currentMap = remember(selectedMapId) { EditorStorage.getMap(selectedMapId) }
 
-    // Check if Ewhad is already in spawn list
-    val ewhadCount = enemySpawns.count { it.attackerType == AttackerType.EWHAD }
+    fun currentEnemySpawnSnapshot(): EnemySpawnEditorSnapshot =
+        EnemySpawnEditorSnapshot(
+            enemySpawns = enemySpawns.toMutableList(),
+            maxTurnNumber = maxTurnNumber,
+            spawnLoops = spawnLoops,
+        )
+
+    fun applyEnemySpawnSnapshot(snapshot: EnemySpawnEditorSnapshot) {
+        enemySpawns = snapshot.enemySpawns.toMutableList()
+        maxTurnNumber = snapshot.maxTurnNumber
+        spawnLoops = snapshot.spawnLoops
+    }
+
+    fun updateEnemySpawnState(
+        newEnemySpawns: MutableList<EditorEnemySpawn> = enemySpawns.toMutableList(),
+        newMaxTurnNumber: Int = maxTurnNumber,
+        newSpawnLoops: List<EditorSpawnLoop> = spawnLoops,
+    ) {
+        if (newEnemySpawns == enemySpawns && newMaxTurnNumber == maxTurnNumber && newSpawnLoops == spawnLoops) return
+        enemySpawnUndoHistory = (enemySpawnUndoHistory + currentEnemySpawnSnapshot()).takeLast(40)
+        enemySpawnRedoHistory = emptyList()
+        enemySpawns = newEnemySpawns
+        maxTurnNumber = newMaxTurnNumber
+        spawnLoops = newSpawnLoops
+    }
+
+    fun updateSpawnTimeline(timeline: EditorSpawnTimeline) =
+        updateEnemySpawnState(timeline.spawns.toMutableList(), timeline.maxTurn, timeline.loops)
+
+    val spawnTimeline = EditorSpawnTimeline(enemySpawns, maxTurnNumber, spawnLoops)
+
+    fun undoEnemySpawns() {
+        val snapshot = enemySpawnUndoHistory.lastOrNull() ?: return
+        enemySpawnUndoHistory = enemySpawnUndoHistory.dropLast(1)
+        enemySpawnRedoHistory = (enemySpawnRedoHistory + currentEnemySpawnSnapshot()).takeLast(40)
+        applyEnemySpawnSnapshot(snapshot)
+    }
+
+    fun redoEnemySpawns() {
+        val snapshot = enemySpawnRedoHistory.lastOrNull() ?: return
+        enemySpawnRedoHistory = enemySpawnRedoHistory.dropLast(1)
+        enemySpawnUndoHistory = (enemySpawnUndoHistory + currentEnemySpawnSnapshot()).takeLast(40)
+        applyEnemySpawnSnapshot(snapshot)
+    }
+
+    // Villains are unique enemy heroes: only one of each type may be placed in a level.
+    val presentVillainTypes = enemySpawns.filter { it.attackerType.isRealVillain }.map { it.attackerType }.toSet()
 
     // Check if any enemies are spawned outside valid spawn points
     val mapSpawnPoints = remember(currentMap) { currentMap?.getSpawnPoints()?.toSet() ?: emptySet() }
+    val configuredSpawnEntries =
+        remember(enemySpawns) { enemySpawns.toList() }
     val hasEnemiesOutsideSpawnPoints =
         remember(enemySpawns, mapSpawnPoints) {
-            enemySpawns.any { spawn ->
+            configuredSpawnEntries.any { spawn ->
                 spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
             }
         }
@@ -533,10 +699,96 @@ fun LevelEditorView(
     val coinsInt = startCoins.toIntOrNull() ?: 0
     val hpInt = startHP.toIntOrNull() ?: 0
     val isLevelInfoReady = coinsInt > 0 && hpInt > 0
-    val isEnemySpawnsReady = isSandbox || enemySpawns.isNotEmpty()
-    val isTowersReady = availableTowersState.isNotEmpty()
+    val stoppedSpawnLoopIds = remember(eventsState) { eventsState.stoppedSpawnLoopIds() }
+    val spawnIssues =
+        remember(enemySpawns, maxTurnNumber, spawnLoops, currentMap, stoppedSpawnLoopIds) {
+            spawnTimelineIssues(spawnTimeline, currentMap, stoppedSpawnLoopIds)
+        }
+    // Infinite spawn loops must be ended by a "Stop spawn loop" event action (shown in both tabs).
+    val unstoppedInfiniteLoopIds =
+        if (isSandbox) {
+            emptyList()
+        } else {
+            spawnLoops.filter { it.repeatMode == SpawnRepeatMode.INFINITE && it.id !in stoppedSpawnLoopIds }.map { it.id }
+        }
+    val invalidSpawnLoopStops = if (isSandbox) 0 else invalidSpawnLoopStopCount(eventsState, spawnLoops.map { it.id }.toSet())
+    val spawnLoopEventIssues =
+        listOfNotNull(
+            unstoppedInfiniteLoopIds.takeIf { it.isNotEmpty() }?.let {
+                stringResource(Res.string.events_infinite_loops_not_stopped, it.joinToString(", "))
+            },
+            invalidSpawnLoopStops.takeIf { it > 0 }?.let { stringResource(Res.string.events_invalid_spawn_loop_stops, it) },
+        )
+    val spawnPlanValid = isSandbox || spawnIssues.isEmpty()
+    val isEnemySpawnsReady = isSandbox || spawnPlanValid && enemySpawns.isNotEmpty()
+    val hasInitialSetupTowerSupport = supportsState.isNotEmpty() || initialDataState.defenders.isNotEmpty()
+    val hasInitialTowerBases = initialDataState.barricades.any { it.supportsTower }
+    val mapNeedsNoBuildFallback = currentMap?.allowNoBuildableTiles == true && !currentMap.hasBuildablePlacementTiles()
+    val hasNoBuildFallback = supportsState.isNotEmpty() || hasInitialTowerBases
+    val hasNoBuildFallbackIssue = mapNeedsNoBuildFallback && !hasNoBuildFallback
+    val isTowersReady = availableTowersState.isNotEmpty() || hasInitialSetupTowerSupport
+    val showNoTowersWarning = availableTowersState.isEmpty() && hasInitialSetupTowerSupport
     // Waypoints are optional, but if present they should be valid
     val isWaypointsValid = areWaypointsValid(waypointsState, currentMap, level)
+    val draftLevel =
+        remember(
+            title,
+            subtitle,
+            author,
+            communityDescription,
+            selectedMapId,
+            startCoins,
+            startHP,
+            enemySpawns,
+            maxTurnNumber,
+            spawnLoops,
+            availableTowersState,
+            waypointsState,
+            singleHitTargetOrder,
+            testingOnly,
+            allowAutoAttack,
+            connectedToPreviousLevel,
+            isSandbox,
+            supportsState,
+            eventsState,
+            initialDataState,
+        ) {
+            level.copy(
+                title = title,
+                subtitle = subtitle,
+                author = author,
+                communityDescription = communityDescription,
+                mapId = selectedMapId,
+                startCoins = startCoins.toIntOrNull() ?: 100,
+                startHealthPoints = startHP.toIntOrNull() ?: 10,
+                enemySpawns = emptyList(),
+                spawnGroups = null,
+                availableTowers = availableTowersState,
+                waypoints = waypointsState.toList(),
+                singleHitTargetOrder = singleHitTargetOrder,
+                testingOnly = testingOnly,
+                allowAutoAttack = allowAutoAttack,
+                connectedToPreviousLevel = connectedToPreviousLevel,
+                isSandbox = isSandbox,
+                waaghEnabled = waaghEnabled,
+                supports = supportsState,
+                events = eventsState,
+                initialData = initialDataState,
+            ).let { if (isSandbox) it else it.withSpawnTimeline(spawnTimeline) }
+        }
+    val levelDesignSummary = remember(draftLevel, currentMap) { analyzeLevelDesign(draftLevel, currentMap) }
+    val waveArrivals = remember(draftLevel, currentMap) { buildWaveArrivalBuckets(draftLevel, currentMap) }
+    val levelConsistencySummary = remember(draftLevel, currentMap) { analyzeLevelMapConsistency(draftLevel, currentMap) }
+    val initialSetupIssueCount = levelConsistencySummary.invalidInitialPlacementCount
+    val eventIssueCount = levelConsistencySummary.invalidEventPositionCount
+    val hasPortalPathIssue =
+        remember(draftLevel, currentMap) {
+            currentMap?.allowNoDirectPath == true &&
+                !currentMap.validateReadyToUseWithPortals(
+                    portals = draftLevel.getEffectiveInitialData().portals,
+                    includeRiversAsWalkable = true,
+                )
+        }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -608,7 +860,21 @@ fun LevelEditorView(
                         Text(stringResource(Res.string.level_info_tab))
                         if (!isLevelInfoReady) {
                             RedDotBadge()
+                        } else if (hasNoBuildFallbackIssue) {
+                            WarningBadge()
                         }
+                    }
+                },
+            )
+            Tab(
+                selected = selectedTabIndex == tabIndices.designPreview,
+                onClick = { selectedTabIndex = tabIndices.designPreview },
+                text = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(stringResource(Res.string.design_preview))
                     }
                 },
             )
@@ -623,7 +889,7 @@ fun LevelEditorView(
                         ) {
                             Text(stringResource(Res.string.enemy_spawns_tab))
                             if (!isEnemySpawnsReady) {
-                                RedDotBadge()
+                                RedDotBadge(spawnIssueTexts(spawnIssues), testTag = "enemy_spawns_tab_issue_dot")
                             } else if (hasEnemiesOutsideSpawnPoints) {
                                 WarningBadge()
                             }
@@ -642,6 +908,8 @@ fun LevelEditorView(
                         Text(stringResource(Res.string.towers_tab))
                         if (!isTowersReady) {
                             RedDotBadge()
+                        } else if (showNoTowersWarning) {
+                            WarningBadge()
                         }
                     }
                 },
@@ -670,6 +938,9 @@ fun LevelEditorView(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(stringResource(Res.string.initial_setup))
+                        if (initialSetupIssueCount > 0 || hasPortalPathIssue) {
+                            RedDotBadge()
+                        }
                     }
                 },
             )
@@ -695,6 +966,16 @@ fun LevelEditorView(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             Text(stringResource(Res.string.events_tab))
+                            if (eventIssueCount > 0 || spawnLoopEventIssues.isNotEmpty()) {
+                                RedDotBadge(
+                                    listOfNotNull(
+                                        eventIssueCount.takeIf { it > 0 }?.let {
+                                            stringResource(Res.string.events_invalid_positions_explainer, it)
+                                        },
+                                    ) + spawnLoopEventIssues,
+                                    testTag = "events_tab_issue_dot",
+                                )
+                            }
                         }
                     },
                 )
@@ -715,7 +996,12 @@ fun LevelEditorView(
                         communityDescription = communityDescription,
                         onCommunityDescriptionChange = { communityDescription = it },
                         selectedMapId = selectedMapId,
-                        onMapChange = { selectedMapId = it },
+                        onMapChange = {
+                            if (selectedMapId != it) {
+                                selectedMapId = it
+                                singleHitTargetOrder = emptyList()
+                            }
+                        },
                         maps = maps,
                         startCoins = startCoins,
                         onStartCoinsChange = { startCoins = it },
@@ -727,26 +1013,68 @@ fun LevelEditorView(
                         onAllowAutoAttackChange = { allowAutoAttack = it },
                         connectedToPreviousLevel = connectedToPreviousLevel,
                         onConnectedToPreviousLevelChange = { connectedToPreviousLevel = it },
-                        splitBuildTowerButton = splitBuildTowerButton,
-                        onSplitBuildTowerButtonChange = { splitBuildTowerButton = it },
                         isSandbox = isSandbox,
                         onIsSandboxChange = { isSandbox = it },
+                        waaghEnabled = waaghEnabled,
+                        onWaaghEnabledChange = { waaghEnabled = it },
                         isOfficial = level.isOfficial,
                         canEnableConnectedToPreviousLevel = hasOtherLevelsOnSameMap,
                     )
+                tabIndices.designPreview ->
+                    Column(Modifier.fillMaxSize()) {
+                        if (spawnLoops.isNotEmpty()) {
+                            SelectableText(stringResource(Res.string.spawn_preview_help))
+                        }
+                        LevelDesignOverview(
+                            summary = levelDesignSummary,
+                            arrivals = waveArrivals,
+                            consistency = levelConsistencySummary,
+                            onApplyTemplate = { template ->
+                                val templated = applyLevelTemplate(draftLevel, currentMap, template)
+                                startCoins = templated.startCoins.toString()
+                                startHP = templated.startHealthPoints.toString()
+                                // A level template creates a new linear plan, so existing loops are removed.
+                                updateEnemySpawnState(
+                                    newEnemySpawns = templated.enemySpawns.toMutableList(),
+                                    newMaxTurnNumber = templated.enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0,
+                                    newSpawnLoops = emptyList(),
+                                )
+                                availableTowersState = templated.availableTowers
+                            },
+                            onStartPlaytest = { type ->
+                                onSave(draftLevel)
+                                onStartPlaytest(createFocusedPlaytestLevel(draftLevel, levelDesignSummary, type), type)
+                            },
+                            playtestEnabled = currentMap != null && spawnPlanValid && (isSandbox || draftLevel.hasConfiguredSpawns()),
+                            onOpenEnemySpawnTurn = { turn ->
+                                requestedEnemySpawnTurn = turn
+                                enemySpawnTurnRequestNonce++
+                                tabIndices.enemySpawns?.let { selectedTabIndex = it }
+                            },
+                        )
+                    }
                 tabIndices.enemySpawns ->
                     EnemySpawnsTab(
-                        enemySpawns = enemySpawns,
-                        maxTurnNumber = maxTurnNumber,
-                        onMaxTurnNumberChange = { maxTurnNumber = it },
-                        onEnemySpawnsChange = { enemySpawns = it },
-                        ewhadCount = ewhadCount,
+                        timeline = spawnTimeline,
+                        issues = spawnIssues,
+                        onTimelineChange = { updateSpawnTimeline(it) },
                         onShowEnemyDialog = { turn ->
                             showEnemyDialog = true
                             showEnemyDialogForTurn = turn
                         },
                         onShowRemoveAllTurnsDialog = { showRemoveAllTurnsDialog = true },
                         map = currentMap,
+                        onApplyTemplate = { template, enemyKind, baseLevel ->
+                            val (newSpawns, newMaxTurn) =
+                                applySpawnTurnTemplate(enemySpawns, maxTurnNumber, currentMap, template, enemyKind, baseLevel)
+                            updateEnemySpawnState(newEnemySpawns = newSpawns, newMaxTurnNumber = newMaxTurn)
+                        },
+                        onUndo = { undoEnemySpawns() },
+                        onRedo = { redoEnemySpawns() },
+                        canUndo = enemySpawnUndoHistory.isNotEmpty(),
+                        canRedo = enemySpawnRedoHistory.isNotEmpty(),
+                        requestedTurnToOpen = requestedEnemySpawnTurn,
+                        turnOpenRequestNonce = enemySpawnTurnRequestNonce,
                     )
                 tabIndices.towers ->
                     TowersTab(
@@ -757,6 +1085,8 @@ fun LevelEditorView(
                     WaypointsTab(
                         waypoints = waypointsState.toList(),
                         onWaypointsChange = { waypointsState = it.toMutableList() },
+                        singleHitTargetOrder = singleHitTargetOrder,
+                        onSingleHitTargetOrderChange = { singleHitTargetOrder = it },
                         map = currentMap,
                         isValid = isWaypointsValid,
                     )
@@ -766,6 +1096,14 @@ fun LevelEditorView(
                         onInitialDataChange = { initialDataState = it },
                         map = currentMap,
                         availableTowers = availableTowersState,
+                        issueDescription =
+                            when {
+                                initialSetupIssueCount > 0 ->
+                                    stringResource(Res.string.initial_setup_invalid_positions_explainer, initialSetupIssueCount)
+                                hasPortalPathIssue ->
+                                    stringResource(Res.string.initial_setup_portal_validation_failed)
+                                else -> null
+                            },
                     )
                 tabIndices.supports ->
                     de.egril.defender.ui.editor.level.supports.SupportsTab(
@@ -781,6 +1119,15 @@ fun LevelEditorView(
                                 .filter { it.type == DefenderType.DWARVEN_MINE }
                                 .map { it.position }
                                 .toSet(),
+                        issueDescription =
+                            if (eventIssueCount > 0) {
+                                stringResource(Res.string.events_invalid_positions_explainer, eventIssueCount)
+                            } else {
+                                null
+                            },
+                        tileZones = currentMap?.tileZones ?: emptyList(),
+                        spawnLoops = spawnLoops.map { it.id to "${it.id} (${loopSummary(it)})" },
+                        issues = spawnLoopEventIssues,
                     )
             }
         }
@@ -790,6 +1137,9 @@ fun LevelEditorView(
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            if (!spawnPlanValid) {
+                SelectableText(stringResource(Res.string.spawn_fix_errors), color = MaterialTheme.colorScheme.error)
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -806,18 +1156,20 @@ fun LevelEditorView(
                                 startCoins = startCoins.toIntOrNull() ?: 100,
                                 startHealthPoints = startHP.toIntOrNull() ?: 10,
                                 // Sandbox levels have no scripted enemy waves; the player spawns test enemies while playing.
-                                enemySpawns = if (isSandbox) emptyList() else enemySpawns.toList(),
+                                enemySpawns = emptyList(),
+                                spawnGroups = null,
                                 availableTowers = availableTowersState,
                                 waypoints = waypointsState.toList(),
+                                singleHitTargetOrder = singleHitTargetOrder,
                                 testingOnly = testingOnly,
                                 allowAutoAttack = allowAutoAttack,
                                 connectedToPreviousLevel = connectedToPreviousLevel,
-                                splitBuildTowerButton = splitBuildTowerButton,
                                 isSandbox = isSandbox,
+                                waaghEnabled = waaghEnabled,
                                 supports = supportsState,
                                 events = eventsState,
                                 initialData = initialDataState,
-                            )
+                            ).let { if (isSandbox) it else it.withSpawnTimeline(spawnTimeline) }
 
                         // Show warning dialog for official levels before saving
                         if (level.isOfficial && de.egril.defender.OfficialEditMode.enabled) {
@@ -828,7 +1180,7 @@ fun LevelEditorView(
                             onSave(updatedLevel)
                         }
                     },
-                    enabled = !level.isOfficial || de.egril.defender.OfficialEditMode.enabled,
+                    enabled = spawnPlanValid && (!level.isOfficial || de.egril.defender.OfficialEditMode.enabled),
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(Res.string.save_level))
@@ -836,6 +1188,7 @@ fun LevelEditorView(
 
                 Button(
                     onClick = { showSaveAsDialog = true },
+                    enabled = spawnPlanValid,
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(Res.string.save_as_new))
@@ -858,9 +1211,9 @@ fun LevelEditorView(
                             .getStoredCommunityLevelJson(level.id)
                     }
                 val currentLevelJson =
-                    remember(level.id, level.hashCode()) {
+                    remember(draftLevel) {
                         de.egril.defender.editor.EditorJsonSerializer
-                            .serializeLevel(level)
+                            .serializeLevel(draftLevel)
                     }
                 val storedCommunityLevel =
                     remember(level.id) {
@@ -872,16 +1225,16 @@ fun LevelEditorView(
 
                 // Check if the map is a user map that needs auto-uploading
                 val levelMap =
-                    remember(level.mapId) {
+                    remember(draftLevel.mapId) {
                         de.egril.defender.editor.EditorStorage
-                            .getMap(level.mapId)
+                            .getMap(draftLevel.mapId)
                     }
                 val mapAlsoUploaded =
                     levelMap != null &&
                         !levelMap.isOfficial &&
                         !levelMap.isCommunity &&
                         de.egril.defender.editor.EditorStorage
-                            .getCommunityMap(level.mapId) == null
+                            .getCommunityMap(draftLevel.mapId) == null
 
                 fun doUpload(token: String) {
                     isUploadingToCommunity = true
@@ -892,7 +1245,7 @@ fun LevelEditorView(
                                 .uploadCommunityFile("LEVEL", level.id, currentLevelJson, token)
                         if (success) {
                             de.egril.defender.editor.EditorStorage.saveCommunityLevel(
-                                level.copy(
+                                draftLevel.copy(
                                     isCommunity = true,
                                     communityAuthorUsername = iamState.username ?: "",
                                 ),
@@ -901,14 +1254,14 @@ fun LevelEditorView(
                             if (mapAlsoUploaded) {
                                 val map =
                                     de.egril.defender.editor.EditorStorage
-                                        .getMap(level.mapId)
+                                        .getMap(draftLevel.mapId)
                                 if (map != null) {
                                     val mapJson =
                                         de.egril.defender.editor.EditorJsonSerializer
                                             .serializeMap(map)
                                     val mapSuccess =
                                         de.egril.defender.save.BackendCommunityService
-                                            .uploadCommunityFile("MAP", level.mapId, mapJson, token)
+                                            .uploadCommunityFile("MAP", draftLevel.mapId, mapJson, token)
                                     if (mapSuccess) {
                                         de.egril.defender.editor.EditorStorage.saveCommunityMap(
                                             map,
@@ -929,7 +1282,7 @@ fun LevelEditorView(
                     // Level not yet in community - show upload button
                     Button(
                         onClick = { showCommunityUploadConfirm = true },
-                        enabled = !isUploadingToCommunity,
+                        enabled = spawnPlanValid && !isUploadingToCommunity,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(
@@ -949,7 +1302,7 @@ fun LevelEditorView(
                                     .getToken() ?: return@Button
                             doUpload(token)
                         },
-                        enabled = !isUploadingToCommunity,
+                        enabled = spawnPlanValid && !isUploadingToCommunity,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(
@@ -993,6 +1346,11 @@ fun LevelEditorView(
                     de.egril.defender.ui.editor.ConfirmationDialog(
                         title = stringResource(Res.string.upload_community_confirm_title),
                         message = confirmMessage,
+                        extraContent = {
+                            de.egril.defender.ui.editor
+                                .CommunityUploadLicenseNotice()
+                        },
+                        requireLicenseAgreement = true,
                         onDismiss = { showCommunityUploadConfirm = false },
                         onConfirm = {
                             showCommunityUploadConfirm = false
@@ -1009,18 +1367,27 @@ fun LevelEditorView(
 
     if (showEnemyDialog) {
         AddEnemyDialog(
-            ewhadCount = ewhadCount,
+            presentVillainTypes = presentVillainTypes,
             turn = showEnemyDialogForTurn,
             map = currentMap,
+            initialType = lastEnemyDialogType,
+            initialLevel = lastEnemyDialogLevel,
+            initialAmount = lastEnemyDialogAmount,
+            initialSpawnPoint = lastEnemyDialogSpawnPoint,
             onDismiss = { showEnemyDialog = false },
             onAdd = { enemyType, level, amount, spawnPoint ->
-                enemySpawns =
-                    enemySpawns.toMutableList().apply {
-                        // Add multiple enemies based on amount
-                        repeat(amount) {
-                            add(EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn, spawnPoint))
-                        }
-                    }
+                lastEnemyDialogType = enemyType
+                lastEnemyDialogLevel = level.toString()
+                lastEnemyDialogAmount = amount.toString()
+                lastEnemyDialogSpawnPoint = spawnPoint
+                updateEnemySpawnState(
+                    newEnemySpawns =
+                        enemySpawns.toMutableList().apply {
+                            repeat(amount) {
+                                add(EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn, spawnPoint))
+                            }
+                        },
+                )
                 showEnemyDialog = false
             },
         )
@@ -1032,8 +1399,7 @@ fun LevelEditorView(
             message = stringResource(Res.string.confirm_remove_all_turns),
             onDismiss = { showRemoveAllTurnsDialog = false },
             onConfirm = {
-                enemySpawns = mutableListOf()
-                maxTurnNumber = 0
+                updateEnemySpawnState(mutableListOf(), 0, emptyList())
                 showRemoveAllTurnsDialog = false
             },
         )
@@ -1063,18 +1429,20 @@ fun LevelEditorView(
                         mapId = selectedMapId,
                         startCoins = startCoins.toIntOrNull() ?: 100,
                         startHealthPoints = startHP.toIntOrNull() ?: 10,
-                        enemySpawns = if (isSandbox) emptyList() else enemySpawns.toList(),
+                        enemySpawns = emptyList(),
+                        spawnGroups = null,
                         availableTowers = availableTowersState,
                         waypoints = waypointsState.toList(),
+                        singleHitTargetOrder = singleHitTargetOrder,
                         testingOnly = testingOnly,
                         allowAutoAttack = allowAutoAttack,
                         connectedToPreviousLevel = connectedToPreviousLevel,
-                        splitBuildTowerButton = splitBuildTowerButton,
                         isSandbox = isSandbox,
+                        waaghEnabled = waaghEnabled,
                         supports = supportsState,
                         events = eventsState,
                         initialData = initialDataState,
-                    )
+                    ).let { if (isSandbox) it else it.withSpawnTimeline(spawnTimeline) }
                 onSave(newLevel)
                 showSaveAsDialog = false
             },
@@ -1123,17 +1491,35 @@ private fun areWaypointsValid(
 }
 
 /**
- * Red dot badge to indicate incomplete data
+ * Red dot badge to indicate incomplete data. When [messages] are given, clicking the dot shows them.
  */
 @Composable
-private fun RedDotBadge() {
-    Box(
-        modifier =
-            Modifier
-                .size(8.dp)
-                .clip(CircleShape)
-                .background(Color.Red),
-    )
+private fun RedDotBadge(
+    messages: List<String> = emptyList(),
+    testTag: String? = null,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        Box(
+            modifier =
+                Modifier
+                    .then(if (testTag != null) Modifier.testTag(testTag) else Modifier)
+                    .size(if (messages.isEmpty()) 8.dp else 12.dp)
+                    .clip(CircleShape)
+                    .background(Color.Red)
+                    .then(if (messages.isNotEmpty()) Modifier.clickable { expanded = true } else Modifier),
+        )
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            Column(
+                modifier = Modifier.widthIn(max = 360.dp).padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                messages.forEach { message ->
+                    SelectableText(message, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
+                }
+            }
+        }
+    }
 }
 
 /**

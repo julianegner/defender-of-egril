@@ -17,15 +17,15 @@ JAR_DIR="$THEME_DIR/dist_keycloak"
 
 # Build the theme JAR if it is missing or the source is newer.
 if [ ! -d "$JAR_DIR" ] || [ -z "$(ls "$JAR_DIR"/*.jar 2>/dev/null)" ]; then
-  echo ">>> Building Keycloak theme..."
-  cd "$THEME_DIR"
-  npm install
-  npm run build
-  cd "$REPO_ROOT"
-  echo ">>> Theme built."
+	echo ">>> Building Keycloak theme..."
+	cd "$THEME_DIR"
+	npm install
+	npm run build
+	cd "$REPO_ROOT"
+	echo ">>> Theme built."
 else
-  echo ">>> Theme JARs already present, skipping build."
-  echo "    (Delete $JAR_DIR to force a rebuild.)"
+	echo ">>> Theme JARs already present, skipping build."
+	echo "    (Delete $JAR_DIR to force a rebuild.)"
 fi
 
 echo ">>> Starting Keycloak..."

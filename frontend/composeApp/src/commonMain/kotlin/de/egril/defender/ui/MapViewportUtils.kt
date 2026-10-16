@@ -2,7 +2,6 @@ package de.egril.defender.ui
 
 import androidx.compose.ui.unit.IntSize
 import de.egril.defender.ui.hexagon.HexagonalGridConstants
-import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**

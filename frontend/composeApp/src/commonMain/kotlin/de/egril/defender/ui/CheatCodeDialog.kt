@@ -26,6 +26,7 @@ import defender_of_egril.composeapp.generated.resources.cheat_codes_title
 import defender_of_egril.composeapp.generated.resources.cheat_crash_dialog_desc
 import defender_of_egril.composeapp.generated.resources.cheat_credits_desc
 import defender_of_egril.composeapp.generated.resources.cheat_demo_desc
+import defender_of_egril.composeapp.generated.resources.cheat_demodemo_desc
 import defender_of_egril.composeapp.generated.resources.cheat_dig_dragon_desc
 import defender_of_egril.composeapp.generated.resources.cheat_dig_gems_desc
 import defender_of_egril.composeapp.generated.resources.cheat_dig_nothing_desc
@@ -223,6 +224,7 @@ fun CheatCodeHelpScreen(
                     CheatCodeItem("sleepreminder / sleep", stringResource(Res.string.cheat_sleepreminder_desc))
                 } else {
                     CheatCodeItem("demo", stringResource(Res.string.cheat_demo_desc))
+                    CheatCodeItem("demodemo", stringResource(Res.string.cheat_demodemo_desc))
                     CheatCodeItem("sticker", stringResource(Res.string.cheat_sticker_desc))
                     CheatCodeItem("spinner", stringResource(Res.string.cheat_spinner_desc))
                     CheatCodeItem("credits", stringResource(Res.string.cheat_credits_desc))

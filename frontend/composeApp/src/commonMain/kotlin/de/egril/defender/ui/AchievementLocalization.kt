@@ -40,6 +40,9 @@ fun AchievementId.getLocalizedName(): String =
         AchievementId.KILL_DEMON -> stringResource(Res.string.achievement_kill_demon_name)
         AchievementId.KILL_EWHAD -> stringResource(Res.string.achievement_kill_ewhad_name)
         AchievementId.KILL_WITCH -> stringResource(Res.string.achievement_kill_witch_name)
+        AchievementId.HEADSHOT -> stringResource(Res.string.achievement_headshot_name)
+        AchievementId.WITH_HELP_FROM_A_FRIEND -> stringResource(Res.string.achievement_with_help_from_a_friend_name)
+        AchievementId.KILL_VILLAIN -> stringResource(Res.string.achievement_kill_villain_name)
 
         // Mining achievements
         AchievementId.DIG_FIRST_TIME -> stringResource(Res.string.achievement_dig_first_time_name)
@@ -105,6 +108,9 @@ fun AchievementId.getLocalizedDescription(): String =
         AchievementId.KILL_DEMON -> stringResource(Res.string.achievement_kill_demon_desc)
         AchievementId.KILL_EWHAD -> stringResource(Res.string.achievement_kill_ewhad_desc)
         AchievementId.KILL_WITCH -> stringResource(Res.string.achievement_kill_witch_desc)
+        AchievementId.HEADSHOT -> stringResource(Res.string.achievement_headshot_desc)
+        AchievementId.WITH_HELP_FROM_A_FRIEND -> stringResource(Res.string.achievement_with_help_from_a_friend_desc)
+        AchievementId.KILL_VILLAIN -> stringResource(Res.string.achievement_kill_villain_desc)
 
         // Mining achievements
         AchievementId.DIG_FIRST_TIME -> stringResource(Res.string.achievement_dig_first_time_desc)

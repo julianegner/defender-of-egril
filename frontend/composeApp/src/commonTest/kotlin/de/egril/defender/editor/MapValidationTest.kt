@@ -1,6 +1,7 @@
 package de.egril.defender.editor
 
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.getHexNeighbors
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -61,6 +62,7 @@ class MapValidationTest {
                 height = 10,
                 tiles = tiles,
                 readyToUse = false,
+                allowNoBuildableTiles = true,
             )
 
         assertTrue(map.validateReadyToUse(), "Map with all spawn points connected should be valid")
@@ -99,6 +101,30 @@ class MapValidationTest {
             )
 
         assertFalse(map.validateReadyToUse(), "Map with disconnected spawn point should be invalid")
+    }
+
+    @Test
+    fun testDisconnectedWaterSpawnPointIsAllowed() {
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT // LAND spawn (connected)
+        tiles["4,4"] = TileType.SPAWN_POINT // WATER spawn (disconnected)
+        tiles["1,0"] = TileType.PATH
+        tiles["2,0"] = TileType.PATH
+        tiles["3,0"] = TileType.TARGET
+        tiles["1,1"] = TileType.BUILD_AREA
+
+        val map =
+            EditorMap(
+                id = "test_disconnected_water_spawn",
+                name = "Test Disconnected Water Spawn",
+                width = 5,
+                height = 5,
+                tiles = tiles,
+                spawnPointInfoMap = mapOf("0,0" to SpawnPointType.LAND, "4,4" to SpawnPointType.WATER),
+                readyToUse = false,
+            )
+
+        assertTrue(map.validateReadyToUse(), "Disconnected water spawns should not invalidate a map")
     }
 
     @Test
@@ -156,6 +182,68 @@ class MapValidationTest {
             )
 
         assertFalse(map.validateReadyToUse(), "Map with no target should be invalid")
+    }
+
+    @Test
+    fun testMapWithoutBuildAreasCanBeAllowed() {
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["1,0"] = TileType.PATH
+        tiles["2,0"] = TileType.TARGET
+
+        val map =
+            EditorMap(
+                id = "test_no_build_areas_allowed",
+                name = "Test No Build Areas Allowed",
+                width = 3,
+                height = 1,
+                tiles = tiles,
+                allowNoBuildableTiles = true,
+                readyToUse = false,
+            )
+
+        assertTrue(map.validateReadyToUse(), "Map without build areas should be valid when the flag is enabled")
+    }
+
+    @Test
+    fun testMapWithoutBuildAreasIsInvalidWithoutFlag() {
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["1,0"] = TileType.PATH
+        tiles["2,0"] = TileType.TARGET
+
+        val map =
+            EditorMap(
+                id = "test_no_build_areas_blocked",
+                name = "Test No Build Areas Blocked",
+                width = 3,
+                height = 1,
+                tiles = tiles,
+                readyToUse = false,
+            )
+
+        assertFalse(map.validateReadyToUse(), "Map without build areas should be invalid by default")
+    }
+
+    @Test
+    fun testMapWithoutBuildAreasButWithRiverTilesIsValid() {
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["1,0"] = TileType.PATH
+        tiles["2,0"] = TileType.TARGET
+        tiles["1,1"] = TileType.RIVER
+
+        val map =
+            EditorMap(
+                id = "test_river_tiles_count_as_buildable",
+                name = "Test River Tiles Count As Buildable",
+                width = 3,
+                height = 2,
+                tiles = tiles,
+                readyToUse = false,
+            )
+
+        assertTrue(map.validateReadyToUse(), "Map with river tiles used for water placements should be valid even without build areas")
     }
 
     @Test

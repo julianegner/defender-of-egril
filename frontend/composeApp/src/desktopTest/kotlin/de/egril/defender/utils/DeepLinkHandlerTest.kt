@@ -230,6 +230,13 @@ class DeepLinkHandlerTest {
     }
 
     @Test
+    fun `parseDeepLink info streamer-info`() {
+        val result = parseDeepLink("/info/streamer-info")
+        assertIs<DeepLink.InfoPage>(result)
+        assertEquals(InfoTab.STREAMER_INFO, result.tab)
+    }
+
+    @Test
     fun `parseDeepLink direct download route`() {
         val result = parseDeepLink("/download")
         assertIs<DeepLink.InfoPage>(result)
@@ -339,6 +346,11 @@ class DeepLinkHandlerTest {
     @Test
     fun `toUrlSlug DOWNLOAD`() {
         assertEquals("download", InfoTab.DOWNLOAD.toUrlSlug())
+    }
+
+    @Test
+    fun `toUrlSlug STREAMER_INFO`() {
+        assertEquals("streamer-info", InfoTab.STREAMER_INFO.toUrlSlug())
     }
 
     @Test

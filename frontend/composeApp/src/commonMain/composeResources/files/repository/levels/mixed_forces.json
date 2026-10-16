@@ -48,6 +48,7 @@
     {"attackerType": "SKELETON", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 1}},
     {"attackerType": "SKELETON", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 4}},
     {"attackerType": "SKELETON", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 7}},
+    {"attackerType": "SNOTLING_BOSS", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 4}},
     {"attackerType": "SKELETON", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 1}},
     {"attackerType": "SKELETON", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 4}},
     {"attackerType": "SKELETON", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 7}},

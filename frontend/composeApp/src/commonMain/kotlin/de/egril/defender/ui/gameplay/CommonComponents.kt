@@ -34,6 +34,7 @@ import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.coins
 import defender_of_egril.composeapp.generated.resources.health
+import defender_of_egril.composeapp.generated.resources.runes_label
 import defender_of_egril.composeapp.generated.resources.spells
 import defender_of_egril.composeapp.generated.resources.tooltip_enemies_on_map_and_planned
 import defender_of_egril.composeapp.generated.resources.turn
@@ -161,6 +162,7 @@ fun GameStatsDisplay(
     onCoinsClick: (() -> Unit)? = null,
     onEnemyCountClick: (() -> Unit)? = null,
     onManaClick: (() -> Unit)? = null, // Optional callback when mana is clicked
+    runes: Int = 0,
 ) {
     // Coins (clickable if callback provided)
     TooltipWrapper(text = stringResource(Res.string.coins)) {
@@ -259,6 +261,16 @@ fun GameStatsDisplay(
             }
         }
     }
+
+    if (runes > 0) {
+        TooltipWrapper(text = stringResource(Res.string.runes_label)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RuneCountIcon(size = iconSize, color = LocalContentColor.current)
+                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+                Text("$runes", style = textStyle)
+            }
+        }
+    }
 }
 
 /**
@@ -325,7 +337,7 @@ private fun ArrowChipContent(
         for (char in text) {
             val arrowIcon = charToArrowIcon(char)
             if (arrowIcon != null) {
-                dev.vicart.compose.material.symbols.FilledSymbol(
+                dev.vicart.compose.material.symbols.MaterialSymbol.Filled(
                     icon = arrowIcon,
                     size = iconSize,
                     tint = color,

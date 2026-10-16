@@ -12,6 +12,7 @@
   "readyToUse": true,
   "isOfficial": true,
   "author": "Julian Egner",
+  "allowNoBuildableTiles": true,
   "tiles": {
     "0,0": "SPAWN_POINT",
     "0,1": "PATH",

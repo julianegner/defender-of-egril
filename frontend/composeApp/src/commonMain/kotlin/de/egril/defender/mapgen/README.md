@@ -2,6 +2,11 @@
 
 This package generates background map images for Defender of Egril game maps.
 
+The rendering code lives in the shared module `shared/mapgen` (`de.egril.defender.mapgen.core`),
+which is used by both the frontend and the backend (community map uploads generate the map image
+and one overlay per tile zone on the server). The classes in this package are thin facades that
+convert `EditorMap`/`TileZone` into the shared input model (`MapImageInputs.kt`).
+
 ## Origin
 
 The approach for biome-based terrain generation is inspired by the mapgen4 project:
@@ -37,8 +42,8 @@ tile-based maps used in Defender of Egril.
 The generated image dimensions match the exact hexagonal grid layout:
 
 - Based on `hexSize=40dp` (same as the game's rendering)
-- Uses the same coordinate formulas as `HexUtils.kt`
-- Pixel coordinates match the tile center positions from the game engine
+- Uses the same effective grid geometry as `HexagonalMapView.kt` / `GameMap.kt`
+- Pixel coordinates match the in-game tile center positions (including row-step adjustment)
 
 ## Gradle Tasks
 
