@@ -293,6 +293,7 @@ data class GameState(
     val attackers: SnapshotStateList<Attacker> = mutableStateListOf(),
     val nextDefenderId: MutableState<Int> = mutableStateOf(1),
     val nextAttackerId: MutableState<Int> = mutableStateOf(1),
+    val nextGargoyleId: MutableState<Int> = mutableStateOf(1),
     val nextRaftId: MutableState<Int> = mutableStateOf(1),
     val nextBarricadeId: MutableState<Int> = mutableStateOf(1),
     val nextBridgeId: MutableState<Int> = mutableStateOf(1),
@@ -319,6 +320,7 @@ data class GameState(
     val barricades: SnapshotStateList<Barricade> = mutableStateListOf(), // Track active barricades
     val fiefs: SnapshotStateList<Fief> = mutableStateListOf(), // Track active fiefs (income-generating path objects)
     val mushrooms: SnapshotStateList<Mushroom> = mutableStateListOf(), // Track active mushrooms
+    val gargoyles: SnapshotStateList<Gargoyle> = mutableStateListOf(), // Pre-placed guardians (inactive or active)
     val bridges: SnapshotStateList<Bridge> = mutableStateListOf(), // Track active bridges
     val rafts: SnapshotStateList<Raft> = mutableStateListOf(), // Track active rafts (towers on rivers)
     val bombExplosionEffects: SnapshotStateList<BombExplosionEffect> = mutableStateListOf(), // Track bomb explosion visual effects
@@ -804,6 +806,13 @@ data class GameState(
     }
 
     /**
+     * Returns true if an inactive gargoyle stands on [position]. Inactive gargoyles are not in
+     * [attackers], so units must check this separately: no unit may step onto their tile.
+     */
+    fun isInactiveGargoyleAt(position: Position): Boolean =
+        gargoyles.any { !it.isActive.value && it.position.value == position }
+
+    /**
      * Returns true if [position] is a target that can still be reached by enemies.
      * Taken SINGLE_HIT targets are excluded.
      */
@@ -1252,6 +1261,7 @@ data class GameState(
         if (!level.isOnPath(trapPosition)) return false
         if (traps.any { it.position == trapPosition }) return false
         if (attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
+        if (isInactiveGargoyleAt(trapPosition)) return false
         if (fieldEffects.any { it.position == trapPosition }) return false
         if (fiefs.any { it.position == trapPosition }) return false
 
@@ -1398,6 +1408,19 @@ data class GameState(
         // Place initial mushrooms
         for (initialMushroom in initialData.mushrooms) {
             mushrooms.add(Mushroom(position = initialMushroom.position))
+        }
+
+        // Place initial gargoyles (inactive guardians at full health for their level)
+        for (initialGargoyle in initialData.gargoyles) {
+            val level = initialGargoyle.level.coerceAtLeast(1)
+            gargoyles.add(
+                Gargoyle(
+                    id = nextGargoyleId.value++,
+                    position = mutableStateOf(initialGargoyle.position),
+                    level = mutableStateOf(level),
+                    currentHealth = mutableStateOf(GargoyleRules.HEALTH_PER_LEVEL * level),
+                ),
+            )
         }
 
         // Place initial portals (level-designer-placed portal pairs, villainId = 0)

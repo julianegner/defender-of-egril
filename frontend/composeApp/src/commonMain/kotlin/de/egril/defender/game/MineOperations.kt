@@ -120,6 +120,7 @@ class MineOperations(
 
         // Check if there's an enemy unit at this position
         if (state.attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
+        if (state.isInactiveGargoyleAt(trapPosition)) return false
 
         // Check if there's a field effect at this position
         if (state.fieldEffects.any { it.position == trapPosition }) return false
@@ -169,6 +170,7 @@ class MineOperations(
 
         // Check if there's an enemy unit at this position
         if (state.attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
+        if (state.isInactiveGargoyleAt(trapPosition)) return false
 
         // Check if there's a field effect at this position
         if (state.fieldEffects.any { it.position == trapPosition }) return false
@@ -411,9 +413,10 @@ class MineOperations(
 
         // Check if spawn point is occupied
         val isOccupied =
-            state.attackers.any {
-                it.position.value == targetSpawnPoint && !it.isDefeated.value && it.id != enemy.id
-            }
+            state.isInactiveGargoyleAt(targetSpawnPoint) ||
+                state.attackers.any {
+                    it.position.value == targetSpawnPoint && !it.isDefeated.value && it.id != enemy.id
+                }
 
         if (!isOccupied) {
             return targetSpawnPoint
@@ -424,9 +427,10 @@ class MineOperations(
 
         for (pathPos in pathPositions) {
             val isPathOccupied =
-                state.attackers.any {
-                    it.position.value == pathPos && !it.isDefeated.value && it.id != enemy.id
-                }
+                state.isInactiveGargoyleAt(pathPos) ||
+                    state.attackers.any {
+                        it.position.value == pathPos && !it.isDefeated.value && it.id != enemy.id
+                    }
             if (!isPathOccupied) {
                 return pathPos
             }

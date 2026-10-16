@@ -764,6 +764,7 @@ object EditorJsonSerializer {
                 initialData.bridges.isNotEmpty() ||
                 initialData.fiefs.isNotEmpty() ||
                 initialData.mushrooms.isNotEmpty() ||
+                initialData.gargoyles.isNotEmpty() ||
                 initialData.portals.isNotEmpty()
             ) {
                 val parts = mutableListOf<String>()
@@ -908,6 +909,21 @@ object EditorJsonSerializer {
                     parts.add(
                         """"mushrooms": [
       $mushroomsData
+    ]""",
+                    )
+                }
+
+                // Gargoyles
+                if (initialData.gargoyles.isNotEmpty()) {
+                    val gargoylesData =
+                        initialData.gargoyles.joinToString(",\n      ") { gargoyle ->
+                            val x = gargoyle.position.x
+                            val y = gargoyle.position.y
+                            """{"position": {"x": $x, "y": $y}, "level": ${gargoyle.level}}"""
+                        }
+                    parts.add(
+                        """"gargoyles": [
+      $gargoylesData
     ]""",
                     )
                 }
@@ -1265,6 +1281,7 @@ object EditorJsonSerializer {
             var initialBridges = mutableListOf<InitialBridge>()
             var initialFiefs = mutableListOf<InitialFief>()
             var initialMushrooms = mutableListOf<InitialMushroom>()
+            var initialGargoyles = mutableListOf<InitialGargoyle>()
             var initialPortals = mutableListOf<InitialPortal>()
 
             if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING && id == "t3") {
@@ -1668,6 +1685,32 @@ object EditorJsonSerializer {
                             }
                         }
                     }
+                    // Parse gargoyles
+                    if (initialDataSection.contains("\"gargoyles\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"gargoyles\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val afterBracket = afterKey.substring(openBracketIndex + 1)
+                            val gargoylesSection =
+                                if (afterBracket.contains("],")) {
+                                    afterBracket.substringBefore("],")
+                                } else {
+                                    afterBracket.substringBefore("]")
+                                }
+                            if (gargoylesSection.isNotBlank()) {
+                                for (entry in splitJsonArrayObjects(gargoylesSection)) {
+                                    if (!entry.contains("position")) continue
+                                    val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                    val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                    val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                    val level =
+                                        entry.substringAfter("\"level\":", "").trim().takeWhile { it.isDigit() }.toIntOrNull()
+                                            ?: 1
+                                    initialGargoyles.add(InitialGargoyle(Position(x, y), level))
+                                }
+                            }
+                        }
+                    }
                     // Parse mushrooms from new format
                     if (initialDataSection.contains("\"mushrooms\"")) {
                         val afterKey = initialDataSection.substringAfter("\"mushrooms\"")
@@ -1916,6 +1959,7 @@ object EditorJsonSerializer {
                     initialBridges.isNotEmpty() ||
                     initialFiefs.isNotEmpty() ||
                     initialMushrooms.isNotEmpty() ||
+                    initialGargoyles.isNotEmpty() ||
                     initialPortals.isNotEmpty()
                 ) {
                     InitialData(
@@ -1926,6 +1970,7 @@ object EditorJsonSerializer {
                         bridges = initialBridges,
                         fiefs = initialFiefs,
                         mushrooms = initialMushrooms,
+                        gargoyles = initialGargoyles,
                         portals = initialPortals,
                     )
                 } else {

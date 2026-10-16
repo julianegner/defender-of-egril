@@ -738,6 +738,8 @@
     <string name="initial_setup_barricades">Barrikaden</string>
     <string name="initial_setup_fiefs">Lehen</string>
     <string name="initial_setup_mushrooms">Pilze</string>
+    <string name="initial_setup_neutral_units">Neutrale Einheiten</string>
+    <string name="initial_setup_gargoyle_configuration">Wasserspeier-Konfiguration</string>
     <string name="initial_setup_portals">Portale</string>
     <string name="initial_setup_portal_entry">Eingang</string>
     <string name="initial_setup_portal_exit">Ausgang</string>
@@ -2370,6 +2372,10 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="skeleton_description">Untot und schnell beweglich, Skelette sind flinke Krieger, die schnell die Distanz überbrücken. Ihre untote Natur macht sie resistent gegen bestimmte Angriffe.</string>
     <string name="zombie_description">Schlurfende Untote, die durch dunkle Magie wiederbelebt wurden. Langsamer als Skelette, aber immer noch gefährlich in Gruppen, besonders wenn sie von Grünen Hexen geheilt werden.</string>
     <string name="evil_wizard_description">Ein Magier, der destruktive Zauber von oben kanalisiert. Besiege ihn schnell, bevor er Feuer auf deine Verteidigungen regnen lässt.</string>
+    <string name="gargoyle_name">Wasserspeier</string>
+    <string name="gargoyle_description">Ein steinerner Wächter auf dem Schlachtfeld. Er greift nahe Gegner zweimal pro Runde an und erwacht, um böse Zauberer zu jagen.</string>
+    <string name="gargoyle_active_description">Der steinerne Wächter ist zum Leben erwacht. Mit roten Augen und ausgebreiteten Flügeln jagt er entlang des Feindeswegs, bis seine Zeit abgelaufen ist.</string>
+    <string name="gargoyle_mighty_info">Mächtige Einheit! Das Erreichen des Ziels kostet den Spieler LP in Höhe seiner Stufe.</string>
     <string name="runemaster_description">Ein Elite-Zauberer, der Dämonen beschwört und nahe Barrikaden und Türme mit arkaner Magie angreift. Besiege ihn, um die uralte Rune zu sichern, bevor er sie zu Ewhad zurückbringt.</string>
     <string name="blue_demon_description">Ein schneller Dämon, der in saurer Umgebung gedeiht — er ist gegen Säureschaden immun. Beseitige ihn mit Feuer, physischen Angriffen oder magischen Zaubersprüchen.</string>
     <string name="red_demon_description">Ein mächtiger Dämon, der von Flammen umhüllt ist und Feuerball- und Flächenattacken abwehrt. Verwende Säure, durchbohrende Angriffe oder körperliche Kraft, um seine Resistenz zu überwinden.</string>

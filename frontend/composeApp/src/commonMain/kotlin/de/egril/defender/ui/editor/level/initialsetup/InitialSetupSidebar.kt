@@ -63,6 +63,8 @@ fun InitialSetupSidebar(
     onBridgeIsIndestructibleChange: (Boolean) -> Unit,
     selectedFiefType: FiefType,
     onSelectedFiefTypeChange: (FiefType) -> Unit,
+    selectedGargoyleLevel: Int,
+    onSelectedGargoyleLevelChange: (Int) -> Unit,
     availableTowers: Set<DefenderType>,
     initialData: InitialData,
     onRemoveDefender: (Int) -> Unit,
@@ -72,6 +74,7 @@ fun InitialSetupSidebar(
     onRemoveBridge: (Int) -> Unit,
     onRemoveFief: (Int) -> Unit,
     onRemoveMushroom: (Int) -> Unit,
+    onRemoveGargoyle: (Int) -> Unit,
     onRemovePortal: (Int) -> Unit,
     selectedElement: SelectedElement?,
     onSelectedElementChange: (SelectedElement?) -> Unit,
@@ -270,6 +273,37 @@ fun InitialSetupSidebar(
                 }
             }
 
+            // Neutral units: creatures that belong to no side and are not controlled by the player
+            item {
+                Text(
+                    text = stringResource(Res.string.initial_setup_neutral_units),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Button(
+                        onClick = { onPlacementModeChange(PlacementMode.GARGOYLE) },
+                        modifier = Modifier.weight(1f),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor =
+                                    if (placementMode == PlacementMode.GARGOYLE) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.secondary
+                                    },
+                            ),
+                    ) {
+                        Text(stringResource(Res.string.gargoyle_name))
+                    }
+                }
+            }
+
             // Clear mode button
             item {
                 Button(
@@ -369,6 +403,14 @@ fun InitialSetupSidebar(
                 PlacementMode.MUSHROOM -> {
                     // No configuration needed for mushrooms - they are simply placed on path tiles
                 }
+                PlacementMode.GARGOYLE -> {
+                    item {
+                        GargoyleConfigPanel(
+                            level = selectedGargoyleLevel,
+                            onLevelChange = onSelectedGargoyleLevelChange,
+                        )
+                    }
+                }
                 PlacementMode.PORTAL -> {
                     item {
                         Card(
@@ -400,6 +442,7 @@ fun InitialSetupSidebar(
                                         is SelectedElement.Bridge -> onRemoveBridge(selectedElement.index)
                                         is SelectedElement.Fief -> onRemoveFief(selectedElement.index)
                                         is SelectedElement.Mushroom -> onRemoveMushroom(selectedElement.index)
+                                        is SelectedElement.Gargoyle -> onRemoveGargoyle(selectedElement.index)
                                         is SelectedElement.Portal -> onRemovePortal(selectedElement.index)
                                     }
                                 },
@@ -446,9 +489,38 @@ fun InitialSetupSidebar(
                     bridges = initialData.bridges,
                     fiefs = initialData.fiefs,
                     portals = initialData.portals,
+                    gargoyles = initialData.gargoyles,
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GargoyleConfigPanel(
+    level: Int,
+    onLevelChange: (Int) -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = stringResource(Res.string.initial_setup_gargoyle_configuration),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        OutlinedTextField(
+            value = level.toString(),
+            onValueChange = {
+                val newLevel = it.toIntOrNull()
+                if (newLevel != null && newLevel > 0 && newLevel <= 100) {
+                    onLevelChange(newLevel)
+                }
+            },
+            label = { Text(stringResource(Res.string.level_label)) },
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 
@@ -1123,6 +1195,26 @@ fun SelectedElementPanel(
                         )
                     }
                 }
+                is SelectedElement.Gargoyle -> {
+                    Column {
+                        Text(
+                            text = stringResource(Res.string.gargoyle_name),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            text = "${stringResource(
+                                Res.string.level_label,
+                            )}: ${selectedElement.gargoyle.level}",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Text(
+                            text = "${stringResource(
+                                Res.string.position_label,
+                            )}: (${selectedElement.gargoyle.position.x}, ${selectedElement.gargoyle.position.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
                 is SelectedElement.Portal -> {
                     Column {
                         Text(
@@ -1175,6 +1267,7 @@ fun PlacedElementsSummary(
     bridges: List<InitialBridge>,
     fiefs: List<InitialFief>,
     portals: List<InitialPortal> = emptyList(),
+    gargoyles: List<InitialGargoyle> = emptyList(),
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -1203,6 +1296,12 @@ fun PlacedElementsSummary(
             text = "${stringResource(Res.string.initial_setup_fiefs)}: ${fiefs.size}",
             style = MaterialTheme.typography.bodySmall,
         )
+        if (gargoyles.isNotEmpty()) {
+            Text(
+                text = "${stringResource(Res.string.gargoyle_name)}: ${gargoyles.size}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
         if (portals.isNotEmpty()) {
             Text(
                 text = "${stringResource(Res.string.initial_setup_portals)}: ${portals.size}",

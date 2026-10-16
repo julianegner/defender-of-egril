@@ -159,6 +159,9 @@ object GamePlayConstants {
         /** Icon size for mushrooms on tiles */
         val Mushroom = 48.dp
 
+        /** Icon size for inactive stone gargoyles on tiles */
+        val Gargoyle = 48.dp
+
         /** Icon size for trap preview when hovering during placement mode */
         val TrapPreview = 48.dp
 

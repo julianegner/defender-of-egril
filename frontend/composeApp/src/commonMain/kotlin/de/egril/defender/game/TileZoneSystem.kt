@@ -446,7 +446,8 @@ class TileZoneSystem(
             state.level.isEnemyTraversable(position) &&
             state.attackers.none { !it.isDefeated.value && it.position.value == position } &&
             state.defenders.none { it.position.value == position } &&
-            state.barricades.none { it.position == position }
+            state.barricades.none { it.position == position } &&
+            !state.isInactiveGargoyleAt(position)
 
     private fun removeWithoutReward(
         attacker: Attacker,

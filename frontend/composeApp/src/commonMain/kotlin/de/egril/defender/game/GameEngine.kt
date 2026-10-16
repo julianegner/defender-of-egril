@@ -98,6 +98,12 @@ class GameEngine(
             consumeMushroomAt = supportLogic::consumeMushroomAt,
             recordDragonLevelChange = dragonLogic::recordDragonLevelChange,
         )
+    private val gargoyleLogic =
+        GargoyleLogic(
+            state = state,
+            getInitialTarget = enemyMovement::getInitialTarget,
+            getEnemyDamage = barricadeLogic::getBarricadeDamageForEnemyUnit,
+        )
     private val turnLifecycleLogic =
         TurnLifecycleLogic(
             state = state,
@@ -113,6 +119,7 @@ class GameEngine(
             checkAndActivateTraps = ::checkAndActivateTraps,
             startTurnTracking = ::startTurnTracking,
             recordDragonLevelChange = dragonLogic::recordDragonLevelChange,
+            gargoyleLogic = gargoyleLogic,
         )
 
     // Tower Management - delegated to TowerManager

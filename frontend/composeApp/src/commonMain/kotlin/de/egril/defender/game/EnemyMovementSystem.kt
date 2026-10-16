@@ -248,6 +248,7 @@ class EnemyMovementSystem(
         // Try each spawn point to find a free one
         for (spawnPos in state.level.startPositions) {
             if (!state.attackers.any { it.position.value == spawnPos && !it.isDefeated.value } &&
+                !state.isInactiveGargoyleAt(spawnPos) &&
                 !state.isPortalTile(spawnPos)
             ) {
                 return spawnPos
@@ -271,6 +272,7 @@ class EnemyMovementSystem(
                     pos.y < state.level.gridHeight &&
                     state.level.isOnPath(pos) &&
                     !state.attackers.any { it.position.value == pos && !it.isDefeated.value } &&
+                    !state.isInactiveGargoyleAt(pos) &&
                     !state.isPortalTile(pos)
                 ) {
                     return pos
@@ -312,14 +314,17 @@ class EnemyMovementSystem(
                         pos.y < state.level.gridHeight &&
                         isValidSpawnTile(pos) &&
                         !state.isPortalTile(pos) &&
-                        !state.attackers.any { it.position.value == pos && !it.isDefeated.value }
+                        !state.attackers.any { it.position.value == pos && !it.isDefeated.value } &&
+                        !state.isInactiveGargoyleAt(pos)
                 }.minByOrNull { pos ->
                     state.getActiveTargetPositions().minOfOrNull { target -> pos.hexDistanceTo(target) } ?: Int.MAX_VALUE
                 }
         }
 
         // First, check if the preferred spawn point is free
-        if (!state.attackers.any { it.position.value == preferredSpawnPoint && !it.isDefeated.value }) {
+        if (!state.attackers.any { it.position.value == preferredSpawnPoint && !it.isDefeated.value } &&
+            !state.isInactiveGargoyleAt(preferredSpawnPoint)
+        ) {
             if (state.isPortalEntry(preferredSpawnPoint)) {
                 val redirected = findPortalRedirectDestination(preferredSpawnPoint)
                 if (redirected != null) return redirected
@@ -359,9 +364,10 @@ class EnemyMovementSystem(
 
                 // Check if position is free
                 val isOccupied =
-                    state.attackers.any {
-                        it.position.value == neighbor && !it.isDefeated.value
-                    }
+                    state.isInactiveGargoyleAt(neighbor) ||
+                        state.attackers.any {
+                            it.position.value == neighbor && !it.isDefeated.value
+                        }
 
                 if (!isOccupied) {
                     if (state.isPortalEntry(neighbor)) {
@@ -732,9 +738,10 @@ class EnemyMovementSystem(
 
                 // Check if new position is occupied by another alive attacker
                 val isOccupied =
-                    state.attackers.any {
-                        it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
-                    }
+                    state.isInactiveGargoyleAt(newPos) ||
+                        state.attackers.any {
+                            it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
+                        }
 
                 if (isOccupied) {
                     // Can't move further, stop trying

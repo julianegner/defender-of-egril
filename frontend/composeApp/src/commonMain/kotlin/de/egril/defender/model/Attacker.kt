@@ -86,6 +86,8 @@ enum class AttackerType(
     // Mirror images reuse villain presentation (hidden HP, same icon/name) but must not count as
     // the unique "real" villain for spawn limits, defeat messages, or instant-loss target breaches.
     val isMirrorImage: Boolean = false,
+    // Gargoyle form used while a gargoyle is active. Not a real kill, no reward; destroying it grants nothing.
+    val isGargoyle: Boolean = false,
     val mirrorImageCount: Int? = null,
     val mirrorImageRange: Int? = null,
     val mirrorImageCooldown: Int? = null,
@@ -364,6 +366,14 @@ enum class AttackerType(
         villainName = "Silas",
         useLightNarrativeText = true,
         isMirrorImage = true,
+    ),
+    GARGOYLE(
+        "Gargoyle",
+        health = 500,
+        speed = 2,
+        reward = 0,
+        xp = 50,
+        isGargoyle = true,
     ),
     FALLEN_SHIELDMAIDEN_FREYA(
         "Fallen Shieldmaiden Freya",
@@ -875,6 +885,7 @@ fun attackerTargetDamage(
         AttackerType.UNDEAD_DRAGON,
         -> level
         AttackerType.EWHAD -> Int.MAX_VALUE // Special marker for "all HP" - caller must handle
+        AttackerType.GARGOYLE -> level // Mighty unit: arriving at the target costs the player HP equal to its level
         AttackerType.GAROKK -> level // Boss villain: 1 HP per level, like other mighty enemies
         AttackerType.MORGUK_BONEWHISPER -> level // Goblin Shaman villain: 1 HP per level
         AttackerType.ARAXXA -> level // Giant spider villain: 1 HP per level
@@ -976,6 +987,7 @@ fun AttackerType.getSoulCallResurrectionType(): AttackerType? =
  */
 fun Attacker.isImmuneToAttackFrom(defenderType: DefenderType): Boolean =
     when {
+        type.isGargoyle && defenderType in GargoyleRules.NO_DAMAGE_DEFENDERS -> true
         type.immuneToNonMagicTowerDamage && defenderType.attackType != AttackType.AREA -> true
         type.immuneToBladeAttacks && (defenderType.attackType == AttackType.MELEE || defenderType.attackType == AttackType.RANGED) -> true
         else ->

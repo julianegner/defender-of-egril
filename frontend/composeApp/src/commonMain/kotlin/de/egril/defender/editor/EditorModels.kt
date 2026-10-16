@@ -497,6 +497,15 @@ data class InitialMushroom(
 )
 
 /**
+ * Pre-placed gargoyle guardian. Stands on a path or buildable tile and is not controlled by the player.
+ * Its health and damage scale with [level] (see GargoyleRules).
+ */
+data class InitialGargoyle(
+    val position: Position,
+    val level: Int = 1,
+)
+
+/**
  * Pre-placed portal pair for level start.
  * Any enemy that steps onto [entryPosition] is instantly teleported to the best free tile
  * adjacent to [exitPosition].  Portals persist for the whole level and are reset between turns.
@@ -518,6 +527,7 @@ data class InitialData(
     val bridges: List<InitialBridge> = emptyList(),
     val fiefs: List<InitialFief> = emptyList(),
     val mushrooms: List<InitialMushroom> = emptyList(),
+    val gargoyles: List<InitialGargoyle> = emptyList(),
     val portals: List<InitialPortal> = emptyList(),
 ) {
     companion object {

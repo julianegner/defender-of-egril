@@ -1370,6 +1370,7 @@ class EnemyAbilitySystem(
                     candidate != silasPosition &&
                         state.level.isEnemyTraversable(candidate) &&
                         !isTileOccupiedByStaticObject(candidate) &&
+                        !state.isInactiveGargoyleAt(candidate) &&
                         state.attackers.none { !it.isDefeated.value && it.position.value == candidate }
                 }.sortedWith(
                     compareBy<Position> { silasPosition.hexDistanceTo(it) }
@@ -1491,7 +1492,8 @@ class EnemyAbilitySystem(
         state.defenders.any { it.position.value == position } ||
             state.barricades.any { it.position == position && !it.isDestroyed() } ||
             state.traps.any { it.position == position } ||
-            state.fiefs.any { it.position == position }
+            state.fiefs.any { it.position == position } ||
+            state.isInactiveGargoyleAt(position)
 
     private fun refreshSpiderWebAt(position: Position) {
         val existingEffect =

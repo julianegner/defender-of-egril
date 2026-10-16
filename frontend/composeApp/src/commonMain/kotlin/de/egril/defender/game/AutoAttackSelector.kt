@@ -5,6 +5,7 @@ import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.Defender
 import de.egril.defender.model.GameState
+import de.egril.defender.model.GargoyleRules
 import de.egril.defender.model.Position
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.model.getHexNeighborsWithinRadius
@@ -145,7 +146,8 @@ class AutoAttackSelector(
     ): Boolean =
         when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> {
-                !attacker.type.immuneToNonMagicTowerDamage &&
+                !(attacker.type.isGargoyle && defender.type in GargoyleRules.NO_DAMAGE_DEFENDERS) &&
+                    !attacker.type.immuneToNonMagicTowerDamage &&
                     !attacker.type.immuneToNonMagical &&
                     !(
                         attacker.type.immuneToBladeAttacks &&

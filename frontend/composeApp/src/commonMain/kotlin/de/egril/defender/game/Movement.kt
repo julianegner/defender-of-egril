@@ -313,8 +313,11 @@ class Movement(
                     currentPositions.remove(trampledByAttacker.id)
                 }
 
+                // Active gargoyles still occupy their tile against other units even on a target tile.
                 val isOccupied =
-                    if (state.isActiveTargetPosition(newPos)) {
+                    if (state.isInactiveGargoyleAt(newPos)) {
+                        true
+                    } else if (state.isActiveTargetPosition(newPos) && attacker.type != AttackerType.GARGOYLE) {
                         false
                     } else if (attacker.type.isSwarmUnit()) {
                         currentPositions.any { (id, pos) ->
@@ -357,7 +360,8 @@ class Movement(
                                     neighbor.y < state.level.gridHeight &&
                                     (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor) || state.isBridgeAt(neighbor)) &&
                                     !currentPositions.any { (id, pos) -> id != attacker.id && pos == neighbor } &&
-                                    !positionsToOccupy.contains(neighbor)
+                                    !positionsToOccupy.contains(neighbor) &&
+                                    !state.isInactiveGargoyleAt(neighbor)
                             }
                         val exitAdjacent =
                             exitNeighbors.minByOrNull { neighbor ->
@@ -550,7 +554,9 @@ class Movement(
         }
 
         val isOccupied =
-            if (state.isActiveTargetPosition(newPosition)) {
+            if (state.isInactiveGargoyleAt(newPosition)) {
+                true
+            } else if (state.isActiveTargetPosition(newPosition) && attacker.type != AttackerType.GARGOYLE) {
                 false
             } else {
                 state.attackers.any {
@@ -605,6 +611,7 @@ class Movement(
                 .filter { neighbor ->
                     (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor)) &&
                         !state.isPortalTile(neighbor) &&
+                        !state.isInactiveGargoyleAt(neighbor) &&
                         !state.attackers.any { it.id != attacker.id && !it.isDefeated.value && it.position.value == neighbor }
                 }
         val destination =
@@ -842,6 +849,8 @@ class Movement(
         attacker: Attacker,
         newPosition: Position,
     ) {
+        if (state.isInactiveGargoyleAt(newPosition)) return
+
         val unitAtPosition =
             state.attackers.find {
                 it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
@@ -872,7 +881,8 @@ class Movement(
                     .getHexNeighbors()
                     .filter { pos ->
                         (state.level.isOnPath(pos) || state.isBridgeAt(pos)) &&
-                            state.attackers.none { it.position.value == pos && !it.isDefeated.value }
+                            state.attackers.none { it.position.value == pos && !it.isDefeated.value } &&
+                            !state.isInactiveGargoyleAt(pos)
                     }.minByOrNull {
                         it.distanceTo(
                             state.getActiveTargetPositions().minByOrNull { t -> newPosition.distanceTo(t) }
@@ -1016,7 +1026,8 @@ class Movement(
                         currentPositions.any { (id, pos) ->
                             id != attackerId && pos == neighbor
                         } ||
-                        positionsToOccupy.contains(neighbor)
+                        positionsToOccupy.contains(neighbor) ||
+                        state.isInactiveGargoyleAt(neighbor)
                 !isOccupied
             }
 

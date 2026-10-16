@@ -328,14 +328,15 @@ class CombatSystem(
 
         // For AOE and DOT attacks, target position must be on the path, a river tile, or a spawn point
         if (defender.type.attackType == AttackType.AREA || defender.type.attackType == AttackType.LASTING) {
-            if (!state.level.isEnemyOccupiable(targetPosition)) return false
+            if (!state.level.isEnemyOccupiable(targetPosition) && findInactiveGargoyle(targetPosition) == null) return false
         } else {
             // For single-target attacks, prioritize enemy over bridge at the same position;
             // shadow fog tiles are always valid targets even if the enemy is not visible.
             val target = state.attackers.find { it.position.value == targetPosition && !it.isDefeated.value }
             val bridge = state.getBridgeAt(targetPosition)
             val hasShadowFog = state.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == targetPosition }
-            if (target == null && (bridge == null || !bridge.isActive) && !hasShadowFog) return false
+            val inactiveGargoyle = findInactiveGargoyle(targetPosition)
+            if (target == null && inactiveGargoyle == null && (bridge == null || !bridge.isActive) && !hasShadowFog) return false
         }
 
         // Play attack sound based on attack type
@@ -364,9 +365,12 @@ class CombatSystem(
                 // Single target attack - prioritize enemy over bridge
                 val target = state.attackers.find { it.position.value == targetPosition && !it.isDefeated.value }
 
+                val inactiveGargoyle = findInactiveGargoyle(targetPosition)
                 if (target != null) {
                     // Attack enemy (takes priority)
                     singleTargetAttack(defender, target)
+                } else if (inactiveGargoyle != null) {
+                    attackInactiveGargoyle(defender, inactiveGargoyle)
                 } else {
                     // No enemy, attack bridge if present (deferred until after attack visuals are queued)
                     val bridge = state.getBridgeAt(targetPosition)
@@ -491,6 +495,72 @@ class CombatSystem(
         return true
     }
 
+    private fun findInactiveGargoyle(position: Position): Gargoyle? =
+        state.gargoyles.find { it.position.value == position && !it.isActive.value }
+
+    /**
+     * Manual attacks hit a stone gargoyle for its full damage. Pike, spear and bow towers
+     * consume their action but cannot harm gargoyles. A destroyed gargoyle grants XP only
+     * (no coins, no kill counts).
+     */
+    private fun attackInactiveGargoyle(defender: Defender, gargoyle: Gargoyle) {
+        val damage =
+            if (defender.type in GargoyleRules.NO_DAMAGE_DEFENDERS) 0 else getEffectiveDamage(defender)
+        damageInactiveGargoyle(gargoyle, damage, defender.type.name)
+    }
+
+    /**
+     * Applies damage to a stone gargoyle (manual hits, area/acid splash, acid puddles).
+     * Destruction grants XP only, never coins or kill counts.
+     */
+    private fun damageInactiveGargoyle(gargoyle: Gargoyle, damage: Int, sourceName: String) {
+        if (damage <= 0) return
+        gargoyle.currentHealth.value = (gargoyle.currentHealth.value - damage).coerceAtLeast(0)
+        if (gargoyle.currentHealth.value > 0) return
+
+        state.gargoyles.remove(gargoyle)
+        state.defeatedEnemyEffects.add(
+            EnemyDeathEffect(
+                position = gargoyle.position.value,
+                turnNumber = state.turnNumber.value,
+                attackerType = AttackerType.GARGOYLE,
+                attackerLevel = gargoyle.level.value,
+            ),
+        )
+        state.xpEarnedThisLevel.value += AttackerType.GARGOYLE.xp * gargoyle.level.value
+        GameLogBuffer.log("COMBAT", "Stone gargoyle destroyed by $sourceName")
+    }
+
+    /**
+     * Inactive gargoyles inside the blast of an AREA/LASTING attack, excluding positions
+     * blocked by shield walls or obsidian protectors. Unlike enemies, a gargoyle may stand on a
+     * build-area tile, so the tile-validity filter used for enemies is not applied here.
+     */
+    private fun inactiveGargoylesInBlast(
+        targetPosition: Position,
+        radius: Int,
+        blockedPositions: Set<Position>,
+    ): List<Gargoyle> {
+        val blastPositions = mutableSetOf(targetPosition)
+        if (radius == 1) {
+            blastPositions.addAll(
+                targetPosition.getHexNeighbors().filter { neighbor ->
+                    neighbor.x >= 0 &&
+                        neighbor.x < state.level.gridWidth &&
+                        neighbor.y >= 0 &&
+                        neighbor.y < state.level.gridHeight
+                },
+            )
+        } else {
+            blastPositions.addAll(
+                targetPosition.getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight),
+            )
+        }
+        return state.gargoyles.filter {
+            !it.isActive.value && it.position.value in blastPositions && it.position.value !in blockedPositions
+        }
+    }
+
     private fun singleTargetAttack(
         defender: Defender,
         target: Attacker,
@@ -500,6 +570,9 @@ class CombatSystem(
         }
         if (target.type.isMirrorImage) {
             removeHitMirrorImages(defender, listOf(target))
+            return
+        }
+        if (target.type.isGargoyle && defender.type in GargoyleRules.NO_DAMAGE_DEFENDERS) {
             return
         }
         if (target.type.immuneToNonMagicTowerDamage && defender.type.attackType != AttackType.AREA) {
@@ -607,6 +680,11 @@ class CombatSystem(
                     recordDirectKill(defender, target, targetWasUninjured)
                 }
             }
+        }
+
+        // Stone gargoyles in the blast take full fireball damage, regardless of tile type.
+        for (gargoyle in inactiveGargoylesInBlast(targetPosition, radius, blockedPositions)) {
+            damageInactiveGargoyle(gargoyle, getEffectiveDamage(defender), defender.type.name)
         }
 
         // Clear existing fireball effects from this defender
@@ -742,6 +820,12 @@ class CombatSystem(
             }
         }
 
+        // Stone gargoyles in the acid take the same initial hit as enemies; their acid puddle ticks
+        // continue through applyLastingEffects.
+        for (gargoyle in inactiveGargoylesInBlast(targetPosition, radius, blockedPositions)) {
+            damageInactiveGargoyle(gargoyle, getEffectiveDamage(defender) / LASTING_DAMAGE_DIVISOR, defender.type.name)
+        }
+
         // Create field effects for acid DOT on all affected positions
         // Don't remove existing acid effects - they should persist until they expire
 
@@ -846,6 +930,11 @@ class CombatSystem(
                     }
                 }
             }
+
+            val gargoylesInAcid = state.gargoyles.filter { !it.isActive.value && it.position.value == effect.position }
+            for (gargoyle in gargoylesInAcid) {
+                damageInactiveGargoyle(gargoyle, effect.damage, "acid")
+            }
         }
     }
 
@@ -854,7 +943,21 @@ class CombatSystem(
 
         // Non-reward defeats (e.g. merged swarm units or enemy-on-enemy trampling) are not real kills.
         val nonRewardDefeats = defeated.filter { it.wasMerged.value }
-        val actualKills = defeated.filter { !it.wasMerged.value && !it.type.isMirrorImage }
+        // Gargoyles grant no kills or coins, whether destroyed by the player or by enemies.
+        val actualKills = defeated.filter { !it.wasMerged.value && !it.type.isMirrorImage && !it.type.isGargoyle }
+        // Destroyed gargoyles still grant XP at the end of the level, but no coins or kill counts.
+        val destroyedGargoyles = defeated.filter { !it.wasMerged.value && it.type.isGargoyle }
+        for (gargoyle in destroyedGargoyles) {
+            state.xpEarnedThisLevel.value += gargoyle.type.xp * gargoyle.level.value
+            state.defeatedEnemyEffects.add(
+                EnemyDeathEffect(
+                    position = gargoyle.position.value,
+                    turnNumber = state.turnNumber.value,
+                    attackerType = gargoyle.type,
+                    attackerLevel = gargoyle.level.value,
+                ),
+            )
+        }
 
         // Track kills for this attack
         val killsThisAttack = actualKills.size

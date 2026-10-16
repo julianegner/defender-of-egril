@@ -73,6 +73,7 @@ fun InitialSetupTab(
     var bridgeHealthPoints by remember { mutableStateOf(InitialBridge.DEFAULT_WOODEN_HEALTH) }
     var bridgeIsIndestructible by remember { mutableStateOf(false) }
     var selectedFiefType by remember { mutableStateOf(FiefType.FISHER) }
+    var selectedGargoyleLevel by remember { mutableStateOf(1) }
 
     var editBarricadeIndex by remember { mutableStateOf<Int?>(null) } // Index of barricade being edited
 
@@ -243,6 +244,16 @@ fun InitialSetupTab(
                                         onInitialDataChange(initialData.copy(mushrooms = initialData.mushrooms + newMushroom))
                                     }
                                 }
+                                PlacementMode.GARGOYLE -> {
+                                    if (canPlaceGargoyle(position, initialData, map)) {
+                                        val newGargoyle =
+                                            InitialGargoyle(
+                                                position = position,
+                                                level = selectedGargoyleLevel,
+                                            )
+                                        onInitialDataChange(initialData.copy(gargoyles = initialData.gargoyles + newGargoyle))
+                                    }
+                                }
                                 PlacementMode.PORTAL -> {
                                     if (isValidPlacement(position, PlacementMode.PORTAL, map)) {
                                         val entry = pendingPortalEntry
@@ -324,6 +335,8 @@ fun InitialSetupTab(
             onBridgeIsIndestructibleChange = { bridgeIsIndestructible = it },
             selectedFiefType = selectedFiefType,
             onSelectedFiefTypeChange = { selectedFiefType = it },
+            selectedGargoyleLevel = selectedGargoyleLevel,
+            onSelectedGargoyleLevelChange = { selectedGargoyleLevel = it },
             availableTowers = availableTowers,
             initialData = initialData,
             onRemoveDefender = { index ->
@@ -366,6 +379,12 @@ fun InitialSetupTab(
                 val newList = initialData.mushrooms.toMutableList()
                 newList.removeAt(index)
                 onInitialDataChange(initialData.copy(mushrooms = newList))
+                selectedElement = null
+            },
+            onRemoveGargoyle = { index ->
+                val newList = initialData.gargoyles.toMutableList()
+                newList.removeAt(index)
+                onInitialDataChange(initialData.copy(gargoyles = newList))
                 selectedElement = null
             },
             onRemovePortal = { index ->
@@ -482,7 +501,8 @@ private fun isPositionOccupied(
         initialData.barricades.any { it.position == position } ||
         initialData.bridges.any { it.position == position } ||
         initialData.fiefs.any { it.position == position } ||
-        initialData.mushrooms.any { it.position == position }
+        initialData.mushrooms.any { it.position == position } ||
+        initialData.gargoyles.any { it.position == position }
 
 private fun canPlaceDefender(
     position: Position,
@@ -599,6 +619,20 @@ private fun canPlaceMushroom(
 }
 
 /**
+ * Gargoyles stand on path or buildable tiles and never share a tile with another element.
+ */
+private fun canPlaceGargoyle(
+    position: Position,
+    initialData: InitialData,
+    map: EditorMap,
+): Boolean {
+    if (!isValidPlacement(position, PlacementMode.GARGOYLE, map)) {
+        return false
+    }
+    return !isPositionOccupied(position, initialData)
+}
+
+/**
  * Represents a selected element on the map
  */
 sealed class SelectedElement {
@@ -635,6 +669,11 @@ sealed class SelectedElement {
     data class Mushroom(
         val index: Int,
         val mushroom: InitialMushroom,
+    ) : SelectedElement()
+
+    data class Gargoyle(
+        val index: Int,
+        val gargoyle: InitialGargoyle,
     ) : SelectedElement()
 
     data class Portal(
@@ -680,6 +719,11 @@ private fun findElementAtPosition(
     initialData.mushrooms.forEachIndexed { index, mushroom ->
         if (mushroom.position == position) {
             return SelectedElement.Mushroom(index, mushroom)
+        }
+    }
+    initialData.gargoyles.forEachIndexed { index, gargoyle ->
+        if (gargoyle.position == position) {
+            return SelectedElement.Gargoyle(index, gargoyle)
         }
     }
     initialData.portals.forEachIndexed { index, portal ->

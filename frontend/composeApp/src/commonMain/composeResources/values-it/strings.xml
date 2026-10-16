@@ -738,6 +738,8 @@
     <string name="initial_setup_barricades">Barricate</string>
     <string name="initial_setup_fiefs">Feudi</string>
     <string name="initial_setup_mushrooms">Funghi</string>
+    <string name="initial_setup_neutral_units">Unità neutrali</string>
+    <string name="initial_setup_gargoyle_configuration">Configurazione del gargoyle</string>
     <string name="initial_setup_portals">Portali</string>
     <string name="initial_setup_portal_entry">Ingresso</string>
     <string name="initial_setup_portal_exit">Uscita</string>
@@ -2373,6 +2375,10 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="skeleton_description">Non-morti veloci, gli scheletri sono guerrieri agili che riducono rapidamente la distanza. La loro natura di non-morte li rende resistenti a certi attacchi.</string>
     <string name="zombie_description">Non-morti che si trascinano rianimati dalla magia oscura. Più lenti degli scheletri ma ancora pericolosi in numero, soprattutto quando guariti dalle Streghe Verdi.</string>
     <string name="evil_wizard_description">Un utilizzatore di magia che canalizza incantesimi distruttivi dall\'aria. Sconfiggilo rapidamente prima che facciano piovere fuoco sulle tue difese.</string>
+    <string name="gargoyle_name">Gargoyle</string>
+    <string name="gargoyle_description">Un guardiano di pietra posto sul campo di battaglia. Attacca due volte per turno i nemici vicini e si risveglia per dare la caccia ai maghi malvagi.</string>
+    <string name="gargoyle_active_description">Il guardiano di pietra si è risvegliato. Con gli occhi rossi e le ali spiegate, dà la caccia ai nemici lungo il sentiero finché il suo tempo non scade.</string>
+    <string name="gargoyle_mighty_info">Unità potente! Raggiungere il bersaglio costa al giocatore PS pari al suo livello.</string>
     <string name="runemaster_description">Un Mago malvagio d’élite che evoca demoni e colpisce da lontano barricate e torri vicine con magia arcana. Sconfiggilo per recuperare la runa primordiale prima che possa riportarla a Ewhad.</string>
     <string name="blue_demon_description">Un demone veloce che prospera negli ambienti acidi — è immune ai danni acidi. Eliminalo con fuoco, attacchi fisici o incantesimi magici.</string>
     <string name="red_demon_description">Un demone potente avvolto dalle fiamme che resiste alle palle di fuoco e agli attacchi di area. Usa acido, attacchi perforanti o forza fisica per superare la sua resistenza.</string>

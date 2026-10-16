@@ -153,6 +153,7 @@ fun EnemyIcon(
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
                 AttackerType.GHOST -> drawGhostSymbol(centerX, centerY, iconSize * 0.72f, contrastOutlineColor)
                 AttackerType.PIRATE -> drawPirateSymbol(centerX, pirateCenterY, pirateIconSize, pirateClassOutlineColor, headScale, showSeafaringPirateBarge)
+                AttackerType.GARGOYLE -> drawGargoyleSymbol(centerX, centerY, iconSize * 0.75f, active = true, headScale = headScale)
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING,
@@ -334,6 +335,7 @@ fun EnemyTypeIcon(
                 AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, contrastOutlineColor, headScale)
                 AttackerType.GHOST -> drawGhostSymbol(centerX, centerY, iconSize * 0.72f, contrastOutlineColor)
                 AttackerType.PIRATE -> drawPirateSymbol(centerX, pirateCenterY, pirateIconSize, pirateClassOutlineColor, headScale)
+                AttackerType.GARGOYLE -> drawGargoyleSymbol(centerX, centerY, iconSize * 0.75f, active = true, headScale = headScale)
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
                 AttackerType.SNOTLING,

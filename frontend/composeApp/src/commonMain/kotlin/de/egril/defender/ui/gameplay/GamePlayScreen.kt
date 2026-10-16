@@ -286,6 +286,7 @@ private fun GamePlayScreenContent(
     var showRemoveBarricadeDialog by remember { mutableStateOf(false) }
     var barricadeToRemove by remember { mutableStateOf<Position?>(null) }
     var selectedBarricadePosition by remember { mutableStateOf<Position?>(null) } // For barricade info panel
+    var selectedGargoyleId by remember { mutableStateOf<Int?>(null) } // For inactive gargoyle info panel
     var showRemoveTrapDialog by remember { mutableStateOf(false) }
     var trapToRemove by remember { mutableStateOf<Position?>(null) }
 
@@ -1985,6 +1986,7 @@ private fun GamePlayScreenContent(
                                         selectedTargetId = null
                                         selectedTargetPosition = null
                                         selectedBarricadePosition = null
+                                        selectedGargoyleId = null
                                         // Clear trap modes when selecting a different defender
                                         selectedMineAction = null
                                         selectedWizardAction = null
@@ -2008,11 +2010,28 @@ private fun GamePlayScreenContent(
                                         // Select this attacker, deselect any selected defender
                                         selectedAttackerId = attacker.id
                                         selectedDefenderId = null
+                                        selectedGargoyleId = null
                                         selectedTargetId = null
                                         selectedTargetPosition = null
                                         selectedBarricadePosition = null
                                         return@GameGrid
                                     }
+                                }
+
+                                // Inactive gargoyles are stone statues, not attackers; tapping one shows its info panel
+                                val inactiveGargoyle = gameState.gargoyles.find { it.position.value == position && !it.isActive.value }
+                                if (inactiveGargoyle != null &&
+                                    attacker == null &&
+                                    selectedDefenderId == null &&
+                                    !positionInShadowFog
+                                ) {
+                                    selectedGargoyleId =
+                                        if (selectedGargoyleId == inactiveGargoyle.id) null else inactiveGargoyle.id
+                                    selectedAttackerId = null
+                                    selectedTargetId = null
+                                    selectedTargetPosition = null
+                                    selectedBarricadePosition = null
+                                    return@GameGrid
                                 }
 
                                 // Toggle magic panel when the Target tile is clicked
@@ -2154,6 +2173,8 @@ private fun GamePlayScreenContent(
                                             val attackerForTargeting =
                                                 gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                             val bridgeAtPosition = gameState.getBridgeAt(position)
+                                            val inactiveGargoyleAtPosition =
+                                                gameState.gargoyles.find { it.position.value == position && !it.isActive.value }
                                             val hasShadowFog =
                                                 gameState.fieldEffects.any { it.type == FieldEffectType.SHADOW_FOG && it.position == position }
 
@@ -2167,6 +2188,10 @@ private fun GamePlayScreenContent(
                                                 } else if (bridgeAtPosition != null && bridgeAtPosition.isActive) {
                                                     // Allow targeting bridge tiles
                                                     selectedTargetId = null // Bridges don't have attacker IDs
+                                                    selectedTargetPosition = position
+                                                } else if (inactiveGargoyleAtPosition != null && !hasShadowFog) {
+                                                    // Inactive gargoyles are not attackers; they can only be hit by manual targeting
+                                                    selectedTargetId = null
                                                     selectedTargetPosition = position
                                                 } else if (hasShadowFog) {
                                                     // Allow targeting shadow fog tiles blind (enemy may be hidden there)
@@ -2859,6 +2884,7 @@ private fun GamePlayScreenContent(
                                             selectedTargetId = null,
                                             selectedTargetPosition = null,
                                             selectedBarricadePosition = selectedBarricadePosition,
+                                            selectedGargoyleId = selectedGargoyleId,
                                             onSelectDefenderType = {
                                                 selectedDefenderType = it
                                                 selectedSupportObject = null
@@ -2934,6 +2960,7 @@ private fun GamePlayScreenContent(
                                             selectedTargetId = selectedTargetId,
                                             selectedTargetPosition = selectedTargetPosition,
                                             selectedBarricadePosition = selectedBarricadePosition,
+                                            selectedGargoyleId = selectedGargoyleId,
                                             onSelectDefenderType = {
                                                 selectedDefenderType = it
                                                 selectedSupportObject = null

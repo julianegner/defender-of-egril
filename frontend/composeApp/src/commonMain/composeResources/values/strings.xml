@@ -743,6 +743,8 @@
     <string name="initial_setup_barricades">Barricades</string>
     <string name="initial_setup_fiefs">Fiefs</string>
     <string name="initial_setup_mushrooms">Mushrooms</string>
+    <string name="initial_setup_neutral_units">Neutral units</string>
+    <string name="initial_setup_gargoyle_configuration">Gargoyle configuration</string>
     <string name="initial_setup_portals">Portals</string>
     <string name="initial_setup_portal_entry">Entry</string>
     <string name="initial_setup_portal_exit">Exit</string>
@@ -2401,6 +2403,10 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="mouse_pointer_info">The standard pointer uses a pointing hand. Text editing and text selection continue to use a text-marking pointer style when supported by the platform.</string>
     <string name="zombie_description">Shambling undead reanimated by dark magic. Slower than skeletons but still dangerous in numbers, especially when healed by Green Witches.</string>
     <string name="evil_wizard_description">A magic user who channels destructive spells from the air. Defeat them quickly before they rain fire upon your defenses.</string>
+    <string name="gargoyle_name">Gargoyle</string>
+    <string name="gargoyle_description">A stone guardian placed on the battlefield. It strikes nearby enemies twice per turn and comes alive to hunt down evil wizards.</string>
+    <string name="gargoyle_active_description">The stone guardian has come to life. With red eyes and spread wings, it hunts along the enemy path until its time runs out.</string>
+    <string name="gargoyle_mighty_info">Mighty unit! Arriving at the target costs the player HP equal to its level.</string>
     <string name="runemaster_description">An elite Evil Wizard who summons demons and blasts nearby barricades and towers with arcane magic. Defeat them to claim the primordial rune before it can be carried back to Ewhad.</string>
     <string name="blue_demon_description">A fast demon that thrives in acidic environments — it is immune to acid damage. Dispose of it with fire, physical attacks, or magical spells.</string>
     <string name="red_demon_description">A powerful demon wreathed in flames that shrugs off fireballs and area attacks. Use acid, piercing attacks, or physical force to overcome its resistance.</string>

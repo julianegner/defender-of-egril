@@ -30,6 +30,7 @@ class TurnLifecycleLogic(
     private val checkAndActivateTraps: () -> Unit,
     private val startTurnTracking: () -> Unit,
     private val recordDragonLevelChange: (Attacker, Int) -> Unit,
+    private val gargoyleLogic: GargoyleLogic,
 ) {
     fun startFirstPlayerTurn() {
         if (state.phase.value != GamePhase.INITIAL_BUILDING) return
@@ -63,6 +64,9 @@ class TurnLifecycleLogic(
         state.turnNumber.value++
         processSoulCallResurrections()
         state.phase.value = GamePhase.ENEMY_TURN
+        // Gargoyles strike at the end of the player turn, after auto-attacks and even when none were made
+        gargoyleLogic.performInactiveAttacks()
+        combatSystem.processDefeatedAttackers()
         waaghLogic.updateWaaghFrenzyAtEnemyTurnStart()
         enemyAbilities.processSnotlingGrowth()
         state.enemyTurnStartPositions.clear()
@@ -147,6 +151,7 @@ class TurnLifecycleLogic(
         updateSpellBuffs()
         enemyAbilities.processEnemyAbilities()
         bridgeSystem.processBridges()
+        gargoyleLogic.processEnemyTurnEnd()
         combatSystem.processDefeatedAttackers()
 
         if (state.attackersToSpawn.isEmpty() && state.attackers.isEmpty()) {
