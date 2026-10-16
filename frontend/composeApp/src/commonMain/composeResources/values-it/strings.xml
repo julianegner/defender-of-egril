@@ -1673,6 +1673,7 @@
 
     <!-- Level Loading -->
     <string name="loading_level">Caricamento livello…</string>
+    <string name="world_map_loading">Caricamento della mappa del mondo…</string>
 
     <!-- Map Image and Debug Options -->
     <string name="level_map_image">Immagine mappa</string>

@@ -1676,6 +1676,7 @@
 
     <!-- Level Loading -->
     <string name="loading_level">Loading level…</string>
+    <string name="world_map_loading">World map loading…</string>
 
     <!-- Map Image and Debug Options -->
     <string name="level_map_image">Level Map Image</string>
