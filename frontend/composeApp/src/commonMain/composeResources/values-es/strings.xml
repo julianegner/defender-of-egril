@@ -738,6 +738,8 @@
     <string name="initial_setup_barricades">Barricadas</string>
     <string name="initial_setup_fiefs">Feudos</string>
     <string name="initial_setup_mushrooms">Hongos</string>
+    <string name="initial_setup_neutral_units">Unidades neutrales</string>
+    <string name="initial_setup_gargoyle_configuration">Configuración de gárgola</string>
     <string name="initial_setup_portals">Portales</string>
     <string name="initial_setup_portal_entry">Entrada</string>
     <string name="initial_setup_portal_exit">Salida</string>
@@ -2371,6 +2373,10 @@
     <string name="skeleton_description">Muerto viviente y rápido, los esqueletos son guerreros ágiles que cierran rápidamente la distancia. Su naturaleza muerta viviente los hace resistentes a ciertos ataques.</string>
     <string name="zombie_description">Muertos vivientes arrastrándose reanimados por magia oscura. Más lentos que los esqueletos pero aún peligrosos en números, especialmente cuando son curados por Brujas Verdes.</string>
     <string name="evil_wizard_description">Un usuario de magia que canaliza hechizos destructivos desde el aire. Derrótalo rápidamente antes de que llueva fuego sobre tus defensas.</string>
+    <string name="gargoyle_name">Gárgola</string>
+    <string name="gargoyle_description">Un guardián de piedra colocado en el campo de batalla. Ataca a los enemigos cercanos dos veces por turno y cobra vida para cazar a los magos malvados.</string>
+    <string name="gargoyle_active_description">El guardián de piedra ha cobrado vida. Con ojos rojos y alas extendidas, persigue a los enemigos por el camino hasta que se acaba su tiempo.</string>
+    <string name="gargoyle_mighty_info">¡Unidad poderosa! Llegar al objetivo cuesta al jugador PV igual a su nivel.</string>
     <string name="runemaster_description">Un Mago malvado de élite que invoca demonios y ataca barricadas y torres cercanas con magia arcana. Derrótalo para reclamar la runa primordial antes de que pueda llevársela a Ewhad.</string>
     <string name="blue_demon_description">Un demonio rápido que prospera en ambientes ácidos — es inmune al daño ácido. Deshazte de él con fuego, ataques físicos o hechizos mágicos.</string>
     <string name="red_demon_description">Un demonio poderoso envuelto en llamas que se burla de bolas de fuego y ataques de área. Usa ácido, ataques penetrantes o fuerza física para superar su resistencia.</string>

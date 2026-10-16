@@ -99,7 +99,9 @@ class BarricadeSystem(
 
         // Check if position is empty (no attacker, no existing barricade without reinforcement)
         // Allow defenders on tower bases (barricades with towers on them)
-        val hasAttacker = state.attackers.any { !it.isDefeated.value && it.position.value == barricadePosition }
+        val hasAttacker =
+            state.attackers.any { !it.isDefeated.value && it.position.value == barricadePosition } ||
+                state.isInactiveGargoyleAt(barricadePosition)
         val existingBarricade = state.barricades.find { it.position == barricadePosition }
         val hasDefenderNotOnTowerBase =
             state.defenders.any { defender ->
@@ -154,7 +156,9 @@ class BarricadeSystem(
         if (!state.level.isOnPath(barricadePosition)) return false
 
         // Check if position is empty (no attacker, no trap, no defender not on a tower base)
-        val hasAttacker = state.attackers.any { !it.isDefeated.value && it.position.value == barricadePosition }
+        val hasAttacker =
+            state.attackers.any { !it.isDefeated.value && it.position.value == barricadePosition } ||
+                state.isInactiveGargoyleAt(barricadePosition)
         val hasTrap = state.traps.any { it.position == barricadePosition }
         val hasDefenderNotOnTowerBase =
             state.defenders.any { defender ->

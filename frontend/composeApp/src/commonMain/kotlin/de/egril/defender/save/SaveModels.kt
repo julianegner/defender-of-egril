@@ -58,6 +58,8 @@ data class SavedGame(
     val barricades: List<SavedBarricade> = emptyList(), // Barricades placed by spike/spear towers
     val fiefs: List<SavedFief> = emptyList(), // Active fiefs (income-generating path objects)
     val mushrooms: List<SavedMushroom> = emptyList(), // Active mushrooms placed during level preparation
+    val gargoyles: List<SavedGargoyle> = emptyList(), // Inactive stone guardians and gargoyles currently active as attackers
+    val nextGargoyleId: Int = 1, // Next gargoyle ID to use
     val worldMapSave: WorldMapSave? = null, // World map progress at the time of saving (for conflict detection on load)
     val playerProfileData: PlayerProfileData? = null, // Player profile data (achievements, XP, stats) when game data transfer is ON
     val currentMana: Int = 0, // Current mana at the time of saving
@@ -197,6 +199,17 @@ data class SavedFief(
 
 data class SavedMushroom(
     val position: Position,
+)
+
+/** Persisted form of [de.egril.defender.model.Gargoyle]. An active gargoyle's attacker is saved separately in [SavedGame.attackers]. */
+data class SavedGargoyle(
+    val id: Int,
+    val position: Position,
+    val level: Int,
+    val currentHealth: Int,
+    val isActive: Boolean = false,
+    val activeTurnsRemaining: Int = 0,
+    val activeAttackerId: Int? = null,
 )
 
 data class SavedRaft(

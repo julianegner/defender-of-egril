@@ -169,6 +169,12 @@ object SaveJsonSerializer {
                 """{"position": {"x": ${mushroom.position.x}, "y": ${mushroom.position.y}}}"""
             }
 
+        val gargoylesJson =
+            savedGame.gargoyles.joinToString(",\n    ") { gargoyle ->
+                val activeAttackerIdStr = gargoyle.activeAttackerId?.toString() ?: "null"
+                """{"id": ${gargoyle.id}, "position": {"x": ${gargoyle.position.x}, "y": ${gargoyle.position.y}}, "level": ${gargoyle.level}, "currentHealth": ${gargoyle.currentHealth}, "isActive": ${gargoyle.isActive}, "activeTurnsRemaining": ${gargoyle.activeTurnsRemaining}, "activeAttackerId": $activeAttackerIdStr}"""
+            }
+
         val spellEffectsJson =
             savedGame.spellEffects.joinToString(",\n    ") { effect ->
                 val posStr = effect.position?.let { """{"x": ${it.x}, "y": ${it.y}}""" } ?: "null"
@@ -385,6 +391,10 @@ object SaveJsonSerializer {
   "mushrooms": [
     $mushroomsJson
   ],
+  "gargoyles": [
+    $gargoylesJson
+  ],
+  "nextGargoyleId": ${savedGame.nextGargoyleId},
   "spellEffects": [
     $spellEffectsJson
   ],
@@ -615,6 +625,23 @@ object SaveJsonSerializer {
                     }
                 }
             }
+
+            // Parse gargoyles (optional field for backward compatibility with old saves)
+            val gargoyles = mutableListOf<SavedGargoyle>()
+            if (dataJson.contains("\"gargoyles\":")) {
+                val gargoylesSection = dataJson.substringAfter("\"gargoyles\": [").substringBefore("],")
+                if (gargoylesSection.isNotBlank()) {
+                    for (entry in JsonUtils.splitJsonArray(gargoylesSection)) {
+                        gargoyles.add(parseSavedGargoyle(entry))
+                    }
+                }
+            }
+            val nextGargoyleId =
+                try {
+                    JsonUtils.extractValue(dataJson, "nextGargoyleId").toInt()
+                } catch (e: Exception) {
+                    1
+                }
 
             // Parse spell effects (optional field for backward compatibility with old saves)
             val spellEffects = mutableListOf<SavedSpellEffect>()
@@ -914,6 +941,8 @@ object SaveJsonSerializer {
                 barricades = barricades,
                 fiefs = fiefs,
                 mushrooms = mushrooms,
+                gargoyles = gargoyles,
+                nextGargoyleId = nextGargoyleId,
                 worldMapSave = worldMapSave,
                 currentMana =
                     try {
@@ -1252,6 +1281,20 @@ object SaveJsonSerializer {
             villainId = villainId,
             runeIndex = runeIndex,
             usedThisTurn = usedThisTurn,
+        )
+    }
+
+    private fun parseSavedGargoyle(json: String): SavedGargoyle {
+        val activeAttackerId =
+            JsonUtils.extractValue(json, "activeAttackerId").let { it.toIntOrNull() }
+        return SavedGargoyle(
+            id = JsonUtils.extractValue(json, "id").toInt(),
+            position = parsePosition(json),
+            level = JsonUtils.extractValue(json, "level").toInt(),
+            currentHealth = JsonUtils.extractValue(json, "currentHealth").toInt(),
+            isActive = JsonUtils.extractBooleanValue(json, "isActive"),
+            activeTurnsRemaining = JsonUtils.extractValue(json, "activeTurnsRemaining").toIntOrNull() ?: 0,
+            activeAttackerId = activeAttackerId,
         )
     }
 

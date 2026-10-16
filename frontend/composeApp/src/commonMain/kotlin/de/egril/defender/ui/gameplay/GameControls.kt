@@ -144,6 +144,7 @@ fun GameControlsPanel(
     selectedTargetId: Int?,
     selectedTargetPosition: Position?,
     selectedBarricadePosition: Position? = null, // Selected barricade for info panel
+    selectedGargoyleId: Int? = null, // Selected inactive gargoyle for info panel
     onSelectDefenderType: (DefenderType?) -> Unit,
     onUpgradeDefender: (Int) -> Unit,
     onUndoTower: (Int) -> Unit,
@@ -168,7 +169,8 @@ fun GameControlsPanel(
 ) {
     de.egril.defender.ui.a11y.FontSizeUnscaled {
         // Automatically fold buy panel when a defender, attacker, or barricade is selected
-        val compactBuyPanel = selectedDefenderId != null || selectedAttackerId != null || selectedBarricadePosition != null
+        val compactBuyPanel =
+            selectedDefenderId != null || selectedAttackerId != null || selectedBarricadePosition != null || selectedGargoyleId != null
 
         // Determine phase-specific properties
         val isPlayerTurn = phase == GamePhase.PLAYER_TURN
@@ -288,6 +290,17 @@ fun GameControlsPanel(
                                             onShowDragonInfo = onShowDragonInfo,
                                             waaghActive = gameState.waaghFrenzyActive.value,
                                         )
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                }
+                            }
+
+                            // Selected inactive gargoyle info panel (when no defender or attacker is selected)
+                            selectedGargoyleId?.let { gargoyleId ->
+                                val gargoyle = gameState.gargoyles.find { it.id == gargoyleId && !it.isActive.value }
+                                if (gargoyle != null && selectedDefenderId == null && selectedAttackerId == null) {
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        GargoyleInfoPanel(gargoyle = gargoyle, isMobile = uiScale < 1f)
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
                                 }

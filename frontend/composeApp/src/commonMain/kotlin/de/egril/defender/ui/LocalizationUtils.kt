@@ -104,6 +104,7 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
             AttackerType.RED_DEMON -> "red_demon_name"
             AttackerType.GHOST -> "ghost_name"
             AttackerType.PIRATE -> "pirate_name"
+            AttackerType.GARGOYLE -> "gargoyle_name"
             AttackerType.RED_WITCH -> "red_witch_name"
             AttackerType.GREEN_WITCH -> "green_witch_name"
             AttackerType.SNOTLING -> "snotling_name"

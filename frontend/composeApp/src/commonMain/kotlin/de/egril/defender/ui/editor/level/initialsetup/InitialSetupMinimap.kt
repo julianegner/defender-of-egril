@@ -48,6 +48,7 @@ enum class PlacementMode {
     BRIDGE, // Bridges: RIVER
     FIEF, // Fiefs: PATH
     MUSHROOM, // Mushrooms: PATH
+    GARGOYLE, // Gargoyles: PATH or BUILD_AREA
     PORTAL, // Portals: any PATH/SPAWN_POINT/TARGET tile
 }
 
@@ -90,6 +91,7 @@ fun isValidPlacement(
         PlacementMode.BRIDGE -> tileType == TileType.RIVER || map.getRiverTile(position.x, position.y) != null
         PlacementMode.FIEF -> tileType == TileType.PATH
         PlacementMode.MUSHROOM -> tileType == TileType.PATH
+        PlacementMode.GARGOYLE -> tileType == TileType.PATH || tileType == TileType.BUILD_AREA
         PlacementMode.PORTAL -> tileType == TileType.PATH || tileType == TileType.SPAWN_POINT || tileType == TileType.TARGET
     }
 }
@@ -309,6 +311,7 @@ fun InitialSetupMinimap(
                 val hasBridge = initialData.bridges.any { it.position == pos }
                 val hasFief = initialData.fiefs.any { it.position == pos }
                 val hasMushroom = initialData.mushrooms.any { it.position == pos }
+                val hasGargoyle = initialData.gargoyles.any { it.position == pos }
                 val barricadeAtPos = initialData.barricades.find { it.position == pos }
                 val isTowerBase = barricadeAtPos?.canSupportTower() == true
 
@@ -353,6 +356,8 @@ fun InitialSetupMinimap(
                             selectedElement.fief.position == pos
                         is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Mushroom ->
                             selectedElement.mushroom.position == pos
+                        is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Gargoyle ->
+                            selectedElement.gargoyle.position == pos
                         is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Portal ->
                             selectedElement.portal.entryPosition == pos ||
                                 selectedElement.portal.exitPosition == pos
@@ -362,7 +367,7 @@ fun InitialSetupMinimap(
                 // Validation checks for placement conflicts
                 // Rule: Only one element (tower, trap, barricade, OR unit) is possible on a tile,
                 //       except towers can be placed on top of barricades that support towers (HP >= 100)
-                val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade || hasBridge || hasFief || hasMushroom
+                val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade || hasBridge || hasFief || hasMushroom || hasGargoyle
                 val hasConflict =
                     when (placementMode) {
                         PlacementMode.DEFENDER ->
@@ -370,6 +375,7 @@ fun InitialSetupMinimap(
                             if (isTowerBase && !hasDefender && selectedDefenderType != DefenderType.DWARVEN_MINE) false else hasAnyElement
                         PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE,
                         PlacementMode.BRIDGE, PlacementMode.FIEF, PlacementMode.MUSHROOM,
+                        PlacementMode.GARGOYLE,
                         -> hasAnyElement
                         else -> false
                     }
@@ -521,6 +527,33 @@ fun InitialSetupMinimap(
                 radius = iconSize / 2,
                 center = Offset(centerX, centerY),
             )
+        }
+
+        // Draw gargoyles: grey stone circle, outlined in gold when selected
+        initialData.gargoyles.forEach { gargoyle ->
+            val offsetXHex = if (gargoyle.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+            val centerX =
+                geometry.offsetXCanvas + gargoyle.position.x * geometry.hexWidth +
+                    offsetXHex + geometry.hexWidth / 2
+            val centerY =
+                geometry.offsetYCanvas + gargoyle.position.y * geometry.verticalSpacing +
+                    geometry.hexHeight / 2
+
+            drawCircle(
+                color = Color(0xFF7A7A7A), // Grey stone for gargoyles
+                radius = iconSize / 2,
+                center = Offset(centerX, centerY),
+            )
+            val isGargoyleSelected =
+                (selectedElement as? SelectedElement.Gargoyle)?.gargoyle?.position == gargoyle.position
+            if (isGargoyleSelected) {
+                drawCircle(
+                    color = Color(0xFFFFD700),
+                    radius = iconSize / 2,
+                    center = Offset(centerX, centerY),
+                    style = Stroke(width = 3f),
+                )
+            }
         }
 
         // Draw portals: blue circle for entry, orange circle for exit, connected by a line

@@ -738,6 +738,8 @@
     <string name="initial_setup_barricades">Barricades</string>
     <string name="initial_setup_fiefs">Fiefs</string>
     <string name="initial_setup_mushrooms">Champignons</string>
+    <string name="initial_setup_neutral_units">Unités neutres</string>
+    <string name="initial_setup_gargoyle_configuration">Configuration de la gargouille</string>
     <string name="initial_setup_portals">Portails</string>
     <string name="initial_setup_portal_entry">Entrée</string>
     <string name="initial_setup_portal_exit">Sortie</string>
@@ -2372,6 +2374,10 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="skeleton_description">Morts-vivants rapides, les squelettes sont des guerriers agiles qui ferment rapidement la distance. Leur nature de mort-vivant les rend résistants à certaines attaques.</string>
     <string name="zombie_description">Des morts-vivants traînants réanimés par la magie noire. Plus lents que les squelettes mais toujours dangereux en nombre, surtout lorsqu\'ils sont guéris par les Sorcières Vertes.</string>
     <string name="evil_wizard_description">Un utilisateur de magie qui canalise des sortilèges destructeurs depuis les airs. Vaincue-le rapidement avant qu\'il ne pleuve du feu sur tes défenses.</string>
+    <string name="gargoyle_name">Gargouille</string>
+    <string name="gargoyle_description">Un gardien de pierre placé sur le champ de bataille. Il frappe deux fois par tour les ennemis proches et s'éveille pour traquer les mages maléfiques.</string>
+    <string name="gargoyle_active_description">Le gardien de pierre s'est éveillé. Les yeux rouges et les ailes déployées, il traque l'ennemi le long du chemin jusqu'à la fin de son temps.</string>
+    <string name="gargoyle_mighty_info">Unité puissante ! Atteindre la cible coûte au joueur des PV égaux à son niveau.</string>
     <string name="runemaster_description">Un sorcier maléfique d’élite qui invoque des démons et attaque à distance les barricades et les tours proches par magie arcanique. Vainquez-le pour récupérer la rune primordiale avant qu’il ne la rapporte à Ewhad.</string>
     <string name="blue_demon_description">Un démon rapide qui prospère dans les environnements acides — il est immunisé aux dégâts d\'acide. Éliminez-le avec du feu, des attaques physiques ou des sortilèges magiques.</string>
     <string name="red_demon_description">Un démon puissant enveloppé de flammes qui résiste aux boules de feu et aux attaques de zone. Utilisez l\'acide, les attaques perçantes ou la force physique pour surmonter sa résistance.</string>

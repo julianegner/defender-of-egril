@@ -108,6 +108,7 @@ import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.icon.wunjoRunePath
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreview
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
+import de.egril.defender.ui.icon.enemy.GargoyleIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.icon.enemy.enemyAttackPreview
@@ -1462,6 +1463,10 @@ fun GameGrid(
     val mushroomsByPositionMap by remember {
         derivedStateOf { gameState.mushrooms.associateBy { it.position } }
     }
+    // Only inactive (stone) gargoyles are drawn as tile content; active ones are attackers.
+    val inactiveGargoylesByPositionMap by remember {
+        derivedStateOf { gameState.gargoyles.filter { !it.isActive.value }.associateBy { it.position.value } }
+    }
     // Attack target position sets for O(1) membership checks
     val arrowAttackTargetPositions by remember {
         derivedStateOf { gameState.arrowAttackEffects.mapTo(mutableSetOf()) { it.targetPosition } }
@@ -1947,6 +1952,7 @@ fun GameGrid(
                     barricade = barricadesByPositionMap[position],
                     fief = fiefsByPositionMap[position],
                     mushroom = mushroomsByPositionMap[position],
+                    gargoyle = inactiveGargoylesByPositionMap[position],
                     constructionCompleteEffect = constructionCompleteEffectsByPosition[position],
                     enemySpawnEffect = enemySpawnEffectsByPosition[position],
                     trapTriggerEffect = trapTriggerEffectsByPosition[position],
@@ -2162,6 +2168,7 @@ fun GridCell(
     barricade: Barricade? = null,
     fief: de.egril.defender.model.Fief? = null,
     mushroom: de.egril.defender.model.Mushroom? = null,
+    gargoyle: de.egril.defender.model.Gargoyle? = null,
     constructionCompleteEffect: TowerConstructionEffect? = null,
     enemySpawnEffect: EnemySpawnEffect? = null,
     trapTriggerEffect: TrapTriggerEffect? = null,
@@ -2371,6 +2378,21 @@ fun GridCell(
     val attackPreview: EnemyAttackPreview? =
         run {
             val sel = selectedDefender
+            // Stone gargoyles show the immunity shield against tower types that deal no damage to them
+            if (gargoyle != null && sel != null) {
+                val distance = sel.position.value.distanceTo(position)
+                if (sel.type in GargoyleRules.NO_DAMAGE_DEFENDERS &&
+                    distance >= sel.type.minRange &&
+                    distance <= sel.range &&
+                    sel.isReady &&
+                    sel.actionsRemaining.value > 0 &&
+                    selectedMineAction == null &&
+                    selectedWizardAction == null &&
+                    selectedBarricadeAction == null
+                ) {
+                    return@run EnemyAttackPreview(damage = 0, isLethal = false, isImmune = true)
+                }
+            }
             if (attacker == null ||
                 sel == null ||
                 sel.type.attackType == AttackType.NONE ||
@@ -2888,6 +2910,7 @@ fun GridCell(
                 barricade = barricade,
                 fief = fief,
                 mushroom = mushroom,
+                gargoyle = gargoyle,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -2960,6 +2983,7 @@ fun GridCell(
                 barricade = barricade,
                 fief = fief,
                 mushroom = mushroom,
+                gargoyle = gargoyle,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -3030,6 +3054,7 @@ private fun BoxScope.GridCellContent(
     barricade: Barricade?,
     fief: de.egril.defender.model.Fief? = null,
     mushroom: de.egril.defender.model.Mushroom? = null,
+    gargoyle: de.egril.defender.model.Gargoyle? = null,
     isSpawnPoint: Boolean,
     isTarget: Boolean,
     isRiverTile: Boolean,
@@ -3566,6 +3591,30 @@ private fun BoxScope.GridCellContent(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.offset(y = (-3).dp),
                 )
+            }
+        }
+
+        gargoyle != null -> {
+            // Inactive stone gargoyle guarding its tile
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    GargoyleIcon(active = false, size = GamePlayConstants.TileIconSizes.Gargoyle)
+                }
+                if (attackPreview != null) {
+                    EnemyAttackPreviewIcon(
+                        damage = attackPreview.damage,
+                        isLethal = attackPreview.isLethal,
+                        isImmune = attackPreview.isImmune,
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterStart)
+                                .offset(x = 10.dp),
+                    )
+                }
             }
         }
 

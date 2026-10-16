@@ -190,6 +190,10 @@ The Spike Tower has unique upgrade characteristics:
 
 **Note:** Enemy rewards are multiplied by their level. For example, a level 3 Goblin gives 15 coins (5 × 3), and a level 2 Ork gives 20 coins (10 × 2).
 
+### Neutral Units: Gargoyles
+
+Gargoyles are pre-placed stone guardians that are not controlled by the player. They attack enemies twice per turn (range 2, 50 damage × level) and can be destroyed by the player's towers. An evil wizard or evil mage coming within 2 tiles turns a gargoyle active for 3 turns, and it then walks the enemy path. An active gargoyle that reaches the target costs the player HP equal to its level. Destroying a gargoyle grants XP but no coins. See [GARGOYLE.md](../features/GARGOYLE.md) for details.
+
 ---
 
 ## Grid Legend

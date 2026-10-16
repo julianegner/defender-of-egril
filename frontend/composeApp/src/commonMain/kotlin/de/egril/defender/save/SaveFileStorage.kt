@@ -375,6 +375,19 @@ object SaveFileStorage {
                 )
             }
 
+        val gargoyles =
+            gameState.gargoyles.map { gargoyle ->
+                SavedGargoyle(
+                    id = gargoyle.id,
+                    position = gargoyle.position.value,
+                    level = gargoyle.level.value,
+                    currentHealth = gargoyle.currentHealth.value,
+                    isActive = gargoyle.isActive.value,
+                    activeTurnsRemaining = gargoyle.activeTurnsRemaining.value,
+                    activeAttackerId = gargoyle.activeAttackerId.value,
+                )
+            }
+
         val spellEffects =
             gameState.activeSpellEffects.map { effect ->
                 SavedSpellEffect(
@@ -438,6 +451,8 @@ object SaveFileStorage {
             barricades = barricades,
             fiefs = fiefs,
             mushrooms = mushrooms,
+            gargoyles = gargoyles,
+            nextGargoyleId = gameState.nextGargoyleId.value,
             worldMapSave = null, // Don't automatically include world map - only on explicit export
             currentMana = gameState.currentMana.value,
             maxMana = gameState.maxMana.value,
@@ -556,6 +571,7 @@ object SaveFileStorage {
         gameState.turnNumber.value = savedGame.turnNumber
         gameState.nextRaftId.value = savedGame.nextRaftId
         gameState.nextBridgeId.value = savedGame.nextBridgeId
+        gameState.nextGargoyleId.value = savedGame.nextGargoyleId
         gameState.nextPortalId.value = savedGame.nextPortalId
         gameState.takenTargets.clear()
         gameState.takenTargets.addAll(savedGame.takenTargets)
@@ -805,6 +821,22 @@ object SaveFileStorage {
         gameState.mushrooms.addAll(
             savedGame.mushrooms.map { savedMushroom ->
                 Mushroom(position = savedMushroom.position)
+            },
+        )
+
+        // Restore gargoyles (replaces the level's initial placement; active ones reference restored attackers)
+        gameState.gargoyles.clear()
+        gameState.gargoyles.addAll(
+            savedGame.gargoyles.map { savedGargoyle ->
+                Gargoyle(
+                    id = savedGargoyle.id,
+                    position = mutableStateOf(savedGargoyle.position),
+                    level = mutableStateOf(savedGargoyle.level),
+                    currentHealth = mutableStateOf(savedGargoyle.currentHealth),
+                    isActive = mutableStateOf(savedGargoyle.isActive),
+                    activeTurnsRemaining = mutableStateOf(savedGargoyle.activeTurnsRemaining),
+                    activeAttackerId = mutableStateOf(savedGargoyle.activeAttackerId),
+                )
             },
         )
 

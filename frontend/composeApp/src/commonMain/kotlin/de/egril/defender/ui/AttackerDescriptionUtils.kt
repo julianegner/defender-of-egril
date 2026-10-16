@@ -14,6 +14,7 @@ import defender_of_egril.composeapp.generated.resources.goblin_runner_descriptio
 import defender_of_egril.composeapp.generated.resources.green_witch_description
 import defender_of_egril.composeapp.generated.resources.ogre_description
 import defender_of_egril.composeapp.generated.resources.ork_description
+import defender_of_egril.composeapp.generated.resources.gargoyle_description
 import defender_of_egril.composeapp.generated.resources.pirate_description
 import defender_of_egril.composeapp.generated.resources.red_demon_description
 import defender_of_egril.composeapp.generated.resources.red_witch_description
@@ -65,6 +66,7 @@ fun AttackerType.getLocalizedDescription(): String {
             AttackerType.RED_DEMON -> Res.string.red_demon_description
             AttackerType.GHOST -> Res.string.ghost_description
             AttackerType.PIRATE -> Res.string.pirate_description
+            AttackerType.GARGOYLE -> Res.string.gargoyle_description
             AttackerType.RED_WITCH -> Res.string.red_witch_description
             AttackerType.GREEN_WITCH -> Res.string.green_witch_description
             AttackerType.SNOTLING -> Res.string.snotling_description

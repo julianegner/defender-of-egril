@@ -216,7 +216,7 @@ fun AttackerInfo(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                         )
-                        if (displayedLevel > 1) {
+                        if (displayedLevel > 1 || attacker.type == AttackerType.GARGOYLE) {
                             Text(
                                 if (attacker.hasMushroomBuff) {
                                     "Lvl $displayedLevel (x2)"
@@ -737,6 +737,17 @@ fun AttackerInfo(
                         )
                     }
 
+                    if (attacker.type == AttackerType.GARGOYLE) {
+                        infoEntries.add(
+                            AttackerInfoEntry(
+                                icon = AttackerInfoEntryIcon.WARNING,
+                                text = stringResource(Res.string.gargoyle_mighty_info),
+                                color = GamePlayColors.ErrorDark,
+                                isBold = true,
+                            ),
+                        )
+                    }
+
                     if (attacker.type.isVillain && !isMobile && infoEntries.size > VILLAIN_INFO_FIRST_COLUMN_MAX_ENTRIES) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -766,7 +777,12 @@ fun AttackerInfo(
                 // Description column (desktop only – right of the stats column)
                 // Displays descriptive text for all enemy types
                 if (!isMobile) {
-                    val description = getAttackerDescription(attacker.type)
+                    val description =
+                        if (attacker.type.isGargoyle) {
+                            stringResource(Res.string.gargoyle_active_description)
+                        } else {
+                            getAttackerDescription(attacker.type)
+                        }
                     if (description.isNotEmpty()) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Column(
