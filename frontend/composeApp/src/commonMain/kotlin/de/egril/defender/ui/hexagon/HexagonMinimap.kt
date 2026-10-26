@@ -7,7 +7,9 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -389,115 +391,145 @@ private fun HexagonMinimapContent(
         }
 
         // Viewport indicator (shows current view) - only if all viewport params are provided
-        if (config.showViewport && scale != null && offsetX != null && offsetY != null && containerSize != null && contentSize != null) {
-            if (containerSize.width > 0 && containerSize.height > 0 && contentSize.width > 0 && contentSize.height > 0) {
-                // Calculate what portion of the map is actually visible
-                // scaledContentSize is the size of the map at the current zoom level
-                val scaledContentWidth = contentSize.width * scale
-                val scaledContentHeight = contentSize.height * scale
+        val viewport =
+            if (config.showViewport && scale != null && offsetX != null && offsetY != null && containerSize != null && contentSize != null) {
+                computeMinimapViewport(scale, offsetX, offsetY, containerSize, contentSize)
+            } else {
+                null
+            }
+        // The drag gesture is created once and lives across recompositions, so it reads the latest values
+        val latestViewport by rememberUpdatedState(viewport)
+        val latestOnViewportDrag by rememberUpdatedState(onViewportDrag)
 
-                // Calculate viewport ratio - what fraction of the map is visible
-                // When zoomed in, less of the map is visible (smaller ratio)
-                // When zoomed out, more of the map is visible (larger ratio, but clamped to 1.0)
-                val viewportWidthRatio = (containerSize.width.toFloat() / scaledContentWidth).coerceAtMost(1f)
-                val viewportHeightRatio = (containerSize.height.toFloat() / scaledContentHeight).coerceAtMost(1f)
+        if (viewport != null) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            clip = true
+                        }.then(
+                            if (onViewportDrag != null && (viewport.widthRatio < 1.0f || viewport.heightRatio < 1.0f)) {
+                                Modifier.pointerInput(Unit) {
+                                    var dragStartOffsetX = 0f
+                                    var dragStartOffsetY = 0f
 
-                // Calculate viewport position
-                // The viewport can be panned within the bounds of (scaledContentSize - containerSize)
-                // maxOffset is how far we can pan in each direction from center
-                val maxOffsetX = ((scaledContentWidth - containerSize.width) / 2).coerceAtLeast(0.01f)
-                val maxOffsetY = ((scaledContentHeight - containerSize.height) / 2).coerceAtLeast(0.01f)
+                                    detectDragGestures(
+                                        onDragStart = {
+                                            // Capture the current offset when drag starts
+                                            val current = latestViewport ?: return@detectDragGestures
+                                            dragStartOffsetX = current.offsetX
+                                            dragStartOffsetY = current.offsetY
+                                        },
+                                        onDrag = { change, dragAmount ->
+                                            change.consume()
+                                            val current = latestViewport ?: return@detectDragGestures
 
-                // Normalize the current offset to 0-1 range (0 = left/top edge, 1 = right/bottom edge)
-                // offsetX is positive when panned left (showing right side), negative when panned right (showing left side)
-                // So we negate it to get the correct direction
-                val normalizedOffsetX = (-offsetX / maxOffsetX).coerceIn(-1f, 1f)
-                val normalizedOffsetY = (-offsetY / maxOffsetY).coerceIn(-1f, 1f)
+                                            // Convert drag in minimap coordinates to viewport offsets
+                                            // The viewport can move within (1.0 - viewportRatio) of the minimap
+                                            val movableX = (1f - current.widthRatio).coerceAtLeast(0.001f) // Prevent division by zero
+                                            val movableY = (1f - current.heightRatio).coerceAtLeast(0.001f) // Prevent division by zero
+                                            val dragXFraction = dragAmount.x / (config.minimapSizeDp * movableX)
+                                            val dragYFraction = dragAmount.y / (config.minimapSizeDp * movableY)
 
-                // Calculate viewport position in minimap
-                // The viewport box can move within the area: (1.0 - viewportRatio)
-                // normalizedOffset ranges from -1 (left/top) to 1 (right/bottom)
-                // We map this to 0 (left/top of minimap) to (1 - viewportRatio) (right/bottom of minimap)
-                val viewportX = ((normalizedOffsetX + 1f) / 2f) * (1f - viewportWidthRatio)
-                val viewportY = ((normalizedOffsetY + 1f) / 2f) * (1f - viewportHeightRatio)
+                                            // A full minimap-width drag corresponds to a normalized offset change of 2 (-1 to 1)
+                                            val deltaNormalizedX = dragXFraction * 2f
+                                            val deltaNormalizedY = dragYFraction * 2f
 
+                                            // normalizedOffset = -offset / maxOffset, so delta_offset = -delta_normalizedOffset * maxOffset
+                                            val deltaOffsetX = -deltaNormalizedX * current.maxOffsetX
+                                            val deltaOffsetY = -deltaNormalizedY * current.maxOffsetY
+
+                                            // Apply the offset change incrementally from drag start
+                                            val newOffsetX = dragStartOffsetX + deltaOffsetX
+                                            val newOffsetY = dragStartOffsetY + deltaOffsetY
+
+                                            // Update drag start for next delta
+                                            dragStartOffsetX = newOffsetX
+                                            dragStartOffsetY = newOffsetY
+
+                                            // Constrain to valid range
+                                            val constrainedX = newOffsetX.coerceIn(-current.maxOffsetX, current.maxOffsetX)
+                                            val constrainedY = newOffsetY.coerceIn(-current.maxOffsetY, current.maxOffsetY)
+
+                                            latestOnViewportDrag?.invoke(constrainedX, constrainedY)
+                                        },
+                                    )
+                                }
+                            } else {
+                                Modifier
+                            },
+                        ),
+            ) {
                 Box(
                     modifier =
                         Modifier
-                            .fillMaxSize()
-                            .graphicsLayer {
-                                clip = true
-                            }.then(
-                                if (onViewportDrag != null && (viewportWidthRatio < 1.0f || viewportHeightRatio < 1.0f)) {
-                                    Modifier.pointerInput(Unit) {
-                                        var dragStartOffsetX = 0f
-                                        var dragStartOffsetY = 0f
-
-                                        detectDragGestures(
-                                            onDragStart = {
-                                                // Capture the current offset when drag starts
-                                                dragStartOffsetX = offsetX
-                                                dragStartOffsetY = offsetY
-                                            },
-                                            onDrag = { change, dragAmount ->
-                                                change.consume()
-
-                                                // Convert drag in minimap coordinates to viewport offsets
-                                                // The minimap size is config.minimapSizeDp.dp, and the viewport can move within (1.0 - viewportRatio)
-                                                // Calculate the drag amount as a fraction of the movable area
-                                                val movableX = (1f - viewportWidthRatio).coerceAtLeast(0.001f) // Prevent division by zero
-                                                val movableY = (1f - viewportHeightRatio).coerceAtLeast(0.001f) // Prevent division by zero
-                                                val dragXFraction = dragAmount.x / (config.minimapSizeDp * movableX)
-                                                val dragYFraction = dragAmount.y / (config.minimapSizeDp * movableY)
-
-                                                // Convert drag fraction to normalized offset change (-1 to 1 range)
-                                                // dragXFraction = 1.0 means moving from left to right of minimap
-                                                // This should map to normalizedOffset changing from -1 to 1 (a change of 2)
-                                                val deltaNormalizedX = dragXFraction * 2f
-                                                val deltaNormalizedY = dragYFraction * 2f
-
-                                                // Convert normalized offset change to actual offset change
-                                                // normalizedOffset = -offset / maxOffset, so offset = -normalizedOffset * maxOffset
-                                                // delta_offset = -delta_normalizedOffset * maxOffset
-                                                val deltaOffsetX = -deltaNormalizedX * maxOffsetX
-                                                val deltaOffsetY = -deltaNormalizedY * maxOffsetY
-
-                                                // Apply the offset change incrementally from drag start
-                                                val newOffsetX = dragStartOffsetX + deltaOffsetX
-                                                val newOffsetY = dragStartOffsetY + deltaOffsetY
-
-                                                // Update drag start for next delta
-                                                dragStartOffsetX = newOffsetX
-                                                dragStartOffsetY = newOffsetY
-
-                                                // Constrain to valid range
-                                                val constrainedX = newOffsetX.coerceIn(-maxOffsetX, maxOffsetX)
-                                                val constrainedY = newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
-
-                                                onViewportDrag(constrainedX, constrainedY)
-                                            },
-                                        )
-                                    }
-                                } else {
-                                    Modifier
-                                },
-                            ),
-                ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth(viewportWidthRatio)
-                                .fillMaxHeight(viewportHeightRatio)
-                                .align(Alignment.TopStart)
-                                .offset(
-                                    x = config.minimapSizeDp.dp * viewportX,
-                                    y = config.minimapSizeDp.dp * viewportY,
-                                ).border(2.dp, Color.Yellow), // Yellow border for viewport
-                    )
-                }
+                            .fillMaxWidth(viewport.widthRatio)
+                            .fillMaxHeight(viewport.heightRatio)
+                            .align(Alignment.TopStart)
+                            .offset(
+                                x = config.minimapSizeDp.dp * viewport.viewportX,
+                                y = config.minimapSizeDp.dp * viewport.viewportY,
+                            ).border(2.dp, Color.Yellow), // Yellow border for viewport
+                )
             }
         }
     }
+}
+
+/** Viewport rectangle of the minimap indicator plus the offset limits used to map drags back to map offsets. */
+private data class MinimapViewport(
+    val offsetX: Float,
+    val offsetY: Float,
+    val widthRatio: Float,
+    val heightRatio: Float,
+    val maxOffsetX: Float,
+    val maxOffsetY: Float,
+    val viewportX: Float,
+    val viewportY: Float,
+)
+
+/** Returns null until the container and content have both been measured. */
+private fun computeMinimapViewport(
+    scale: Float,
+    offsetX: Float,
+    offsetY: Float,
+    containerSize: IntSize,
+    contentSize: IntSize,
+): MinimapViewport? {
+    if (containerSize.width <= 0 || containerSize.height <= 0 || contentSize.width <= 0 || contentSize.height <= 0) {
+        return null
+    }
+    // scaledContentSize is the size of the map at the current zoom level
+    val scaledContentWidth = contentSize.width * scale
+    val scaledContentHeight = contentSize.height * scale
+
+    // Fraction of the map that is visible (clamped to 1.0 when zoomed out)
+    val widthRatio = (containerSize.width.toFloat() / scaledContentWidth).coerceAtMost(1f)
+    val heightRatio = (containerSize.height.toFloat() / scaledContentHeight).coerceAtMost(1f)
+
+    // maxOffset is how far the map can be panned from center in each direction
+    val maxOffsetX = ((scaledContentWidth - containerSize.width) / 2).coerceAtLeast(0.01f)
+    val maxOffsetY = ((scaledContentHeight - containerSize.height) / 2).coerceAtLeast(0.01f)
+
+    // Normalized to -1 (right/bottom edge of map visible) .. 1 (left/top edge visible), negated because offsets are inverted
+    val normalizedOffsetX = (-offsetX / maxOffsetX).coerceIn(-1f, 1f)
+    val normalizedOffsetY = (-offsetY / maxOffsetY).coerceIn(-1f, 1f)
+
+    // Map the normalized offset to the position of the indicator within the minimap
+    val viewportX = ((normalizedOffsetX + 1f) / 2f) * (1f - widthRatio)
+    val viewportY = ((normalizedOffsetY + 1f) / 2f) * (1f - heightRatio)
+
+    return MinimapViewport(
+        offsetX = offsetX,
+        offsetY = offsetY,
+        widthRatio = widthRatio,
+        heightRatio = heightRatio,
+        maxOffsetX = maxOffsetX,
+        maxOffsetY = maxOffsetY,
+        viewportX = viewportX,
+        viewportY = viewportY,
+    )
 }
 
 /**

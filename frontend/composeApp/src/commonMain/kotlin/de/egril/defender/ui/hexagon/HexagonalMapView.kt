@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.Position
+import de.egril.defender.ui.MAP_KEYBOARD_PAN_STEP
 import de.egril.defender.ui.computeVisibleTileRange
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.mouseWheelZoom
@@ -49,7 +50,7 @@ data class HexagonalMapConfig(
     val enablePanNavigation: Boolean = true, // Enable mouse drag panning
     val enableBrushMode: Boolean = false, // Enable brush painting mode (for editor)
     val enableZoomMode: Boolean = true,
-    val keyboardPanSpeed: Float = 30f, // Pixels to pan per key press
+    val keyboardPanSpeed: Float = MAP_KEYBOARD_PAN_STEP, // Pixels to pan per key press
     val panUpBinding: String = "W",
     val panDownBinding: String = "S",
     val panLeftBinding: String = "A",
@@ -292,7 +293,7 @@ fun HexagonalMapView(
                                     dragStartOffsetY = newOffsetY
 
                                     // Constrain pan to keep content visible
-                                    val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
+                                    val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, currentScale)
                                     onOffsetChange(constrainedX, constrainedY)
                                 },
                             )
@@ -305,10 +306,10 @@ fun HexagonalMapView(
                         Modifier.pointerInput(Unit) {
                             detectTransformGestures { _, _, zoom, _ ->
                                 if (zoom != 1f) {
-                                    val newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
+                                    val newScale = (currentScale * zoom).coerceIn(config.minScale, config.maxScale)
                                     onScaleChange(newScale)
                                     // Re-constrain offsets after zoom
-                                    val (constrainedX, constrainedY) = constrainOffsets(offsetX, offsetY, newScale)
+                                    val (constrainedX, constrainedY) = constrainOffsets(currentOffsetX, currentOffsetY, newScale)
                                     onOffsetChange(constrainedX, constrainedY)
                                 }
                             }

@@ -830,6 +830,7 @@ fun GameGrid(
     selectedSupportObject: SupportObjectType? = null, // support object currently selected for placement (barricade/trap/magical trap)
     selectedSupportFief: de.egril.defender.model.FiefType? = null, // fief type currently selected for placement
     extraFocusTrigger: Int = 0,
+    mapPanController: MapPanController? = null, // lets screen-level keys pan the map regardless of focus
 ) {
     // Establish a snapshot dependency on runtime map edits (sandbox tile painting) so the entire
     // grid recomposes and re-derives its tile sets from the updated level when a tile is repainted.
@@ -910,6 +911,15 @@ fun GameGrid(
             offsetY = targetOffsetY
             onScrollToPositionConsumed?.invoke()
         }
+    }
+
+    DisposableEffect(mapPanController) {
+        mapPanController?.handler = { dx, dy ->
+            val (constrainedX, constrainedY) = constrainMapOffsets(offsetX + dx, offsetY + dy, scale, containerSize, contentSize)
+            offsetX = constrainedX
+            offsetY = constrainedY
+        }
+        onDispose { mapPanController?.handler = null }
     }
 
     // Calculate target circle info for each tile

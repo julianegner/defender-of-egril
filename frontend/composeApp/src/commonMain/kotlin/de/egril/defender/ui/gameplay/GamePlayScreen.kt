@@ -26,6 +26,8 @@ import de.egril.defender.audio.SoundEvent
 import de.egril.defender.game.canManuallyTargetAttacker
 import de.egril.defender.model.*
 import de.egril.defender.ui.CheatCodeDialog
+import de.egril.defender.ui.MAP_KEYBOARD_PAN_STEP
+import de.egril.defender.ui.MapPanController
 import de.egril.defender.ui.ReminderMessage
 import de.egril.defender.ui.a11y.accessibilityVisualFilter
 import de.egril.defender.ui.animations.CoinFlightOverlay
@@ -360,7 +362,13 @@ private fun GamePlayScreenContent(
 
     // Counter to trigger map focus requests after dialogs close (ensures ESC works after UI interactions)
     var mapRefocusTrigger by remember { mutableStateOf(0) }
-    LaunchedEffect(showUnsavedChangesDialog, showEndTurnConfirmation, keyboardUndoOrSellConfirmation) {
+    // Info boxes (e.g. special towers) are dialogs too; their dismissal must also hand focus back to the map
+    LaunchedEffect(
+        showUnsavedChangesDialog,
+        showEndTurnConfirmation,
+        keyboardUndoOrSellConfirmation,
+        gameState.infoState.value.currentInfo,
+    ) {
         if (!showUnsavedChangesDialog && !showEndTurnConfirmation && keyboardUndoOrSellConfirmation == null) {
             mapRefocusTrigger++
         }
@@ -846,6 +854,26 @@ private fun GamePlayScreenContent(
                 }
                 // The user will now click on the map to place the barricade
             }
+        }
+    }
+
+    // Map panning via keys works from any focus. Bubble phase: only keys that no focused element consumed reach this
+    // (e.g. text fields keep their letters and arrows; the map itself consumes pan keys when focused).
+    val mapPanController = remember { MapPanController() }
+    val mapPanKeyHandler: (KeyEvent) -> Boolean = { event ->
+        val noModifiers = !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed && !event.isMetaPressed
+        val up = isShortcutBindingPressed(event, AppSettings.shortcutPanUp.value) || (noModifiers && event.key == Key.DirectionUp)
+        val down = isShortcutBindingPressed(event, AppSettings.shortcutPanDown.value) || (noModifiers && event.key == Key.DirectionDown)
+        val left = isShortcutBindingPressed(event, AppSettings.shortcutPanLeft.value) || (noModifiers && event.key == Key.DirectionLeft)
+        val right = isShortcutBindingPressed(event, AppSettings.shortcutPanRight.value) || (noModifiers && event.key == Key.DirectionRight)
+        val isPanKey = up || down || left || right
+        if (isDemoMode || event.type != KeyEventType.KeyDown || !isPanKey) {
+            false
+        } else {
+            val dx = if (left) MAP_KEYBOARD_PAN_STEP else if (right) -MAP_KEYBOARD_PAN_STEP else 0f
+            val dy = if (up) MAP_KEYBOARD_PAN_STEP else if (down) -MAP_KEYBOARD_PAN_STEP else 0f
+            mapPanController.pan(dx, dy)
+            true
         }
     }
 
@@ -1765,6 +1793,7 @@ private fun GamePlayScreenContent(
                     .focusRequester(screenFocusRequester)
                     .focusTarget()
                     .onPreviewKeyEvent(keyboardHandler)
+                    .onKeyEvent(mapPanKeyHandler)
                     // In demo mode, intercept any click/tap to show "stop demo?" dialog
                     .then(
                         if (isDemoMode) {
@@ -1887,6 +1916,7 @@ private fun GamePlayScreenContent(
                             selectedWizardAction = selectedWizardAction,
                             selectedBarricadeAction = selectedBarricadeAction,
                             extraFocusTrigger = mapRefocusTrigger,
+                            mapPanController = mapPanController,
                             onCellClick = { position ->
                                 // Sandbox: map tile painting takes precedence over all other interactions.
                                 val paintType = sandboxPaintTileType

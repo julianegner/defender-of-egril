@@ -4,6 +4,21 @@ import androidx.compose.ui.unit.IntSize
 import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import kotlin.math.sqrt
 
+/** Pixels the map moves per pan key press. */
+const val MAP_KEYBOARD_PAN_STEP = 30f
+
+/**
+ * Lets screen-level key handling pan the map even when another element has focus.
+ * The map registers [handler] while it is composed; [pan] is a no-op otherwise.
+ */
+class MapPanController {
+    var handler: ((dx: Float, dy: Float) -> Unit)? = null
+
+    fun pan(dx: Float, dy: Float) {
+        handler?.invoke(dx, dy)
+    }
+}
+
 /**
  * Constrains pan offsets to keep content visible within the viewport.
  * This ensures that the user can't pan beyond the edges of the content.
