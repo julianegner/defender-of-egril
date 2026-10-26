@@ -10,6 +10,7 @@ import de.egril.defender.model.*
  */
 class MineOperations(
     private val state: GameState,
+    private val onSupportTrapKill: ((AttackerType, Boolean) -> Unit)? = null,
 ) {
     fun performMineDig(mineId: Int): DigOutcome? {
         val mine = state.defenders.find { it.id == mineId && it.type == DefenderType.DWARVEN_MINE } ?: return null
@@ -119,9 +120,13 @@ class MineOperations(
 
         // Check if there's an enemy unit at this position
         if (state.attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
+        if (state.isInactiveGargoyleAt(trapPosition)) return false
 
         // Check if there's a field effect at this position
         if (state.fieldEffects.any { it.position == trapPosition }) return false
+
+        // Check if there's a fief at this position
+        if (state.fiefs.any { it.position == trapPosition }) return false
 
         // Create trap with current mine damage
         val trap =
@@ -165,9 +170,13 @@ class MineOperations(
 
         // Check if there's an enemy unit at this position
         if (state.attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
+        if (state.isInactiveGargoyleAt(trapPosition)) return false
 
         // Check if there's a field effect at this position
         if (state.fieldEffects.any { it.position == trapPosition }) return false
+
+        // Check if there's a fief at this position
+        if (state.fiefs.any { it.position == trapPosition }) return false
 
         val trap =
             Trap(
@@ -303,7 +312,11 @@ class MineOperations(
                 when (trap.type) {
                     TrapType.DWARVEN -> {
                         // Deal damage to enemy
-                        enemyAtPosition.currentHealth.value -= trap.damage
+                        if (!enemyAtPosition.type.isMirrorImage && !state.isProtectedByObsidianProtector(enemyAtPosition)) {
+                            val damage = (trap.damage - state.runeGlyphWardArmor(enemyAtPosition)).coerceAtLeast(0)
+                            enemyAtPosition.recordDamageTaken(minOf(enemyAtPosition.currentHealth.value, damage))
+                            enemyAtPosition.currentHealth.value -= damage
+                        }
 
                         // Check if defeated
                         if (enemyAtPosition.currentHealth.value <= 0) {
@@ -312,9 +325,11 @@ class MineOperations(
                     }
                     TrapType.MAGICAL -> {
                         // Teleport enemy back to spawn point
-                        val spawnPoint = findSpawnPointForEnemy(enemyAtPosition)
-                        if (spawnPoint != null) {
-                            enemyAtPosition.position.value = spawnPoint
+                        if (!enemyAtPosition.type.immuneToMagicalTraps) {
+                            val spawnPoint = findSpawnPointForEnemy(enemyAtPosition)
+                            if (spawnPoint != null) {
+                                enemyAtPosition.position.value = spawnPoint
+                            }
                         }
                     }
                 }
@@ -338,32 +353,9 @@ class MineOperations(
         wizardId: Int,
         trapPosition: Position,
     ): Boolean {
-        val wizard = state.defenders.find { it.id == wizardId && it.type == DefenderType.WIZARD_TOWER } ?: return false
+        val wizard = state.defenders.find { it.id == wizardId && it.hasMagicalTraps } ?: return false
 
-        // Must be level 10 or higher
-        if (wizard.level.value < 10) return false
-
-        // Must be ready and have actions remaining
-        if (!wizard.isReady || wizard.actionsRemaining.value <= 0) return false
-
-        // Must not be on cooldown
-        if (wizard.trapCooldownRemaining.value > 0) return false
-
-        // Check if position is within range
-        val distance = wizard.position.value.distanceTo(trapPosition)
-        if (distance > wizard.range) return false
-
-        // Check if position is on the path
-        if (!state.level.isOnPath(trapPosition)) return false
-
-        // Check if there's already a trap at this position
-        if (state.traps.any { it.position == trapPosition }) return false
-
-        // Check if there's an enemy unit at this position
-        if (state.attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
-
-        // Check if there's a field effect at this position
-        if (state.fieldEffects.any { it.position == trapPosition }) return false
+        if (!state.canWizardPlaceMagicalTrapAt(wizard, trapPosition)) return false
 
         // Create magical trap (no damage, just teleports)
         val trap =
@@ -400,9 +392,17 @@ class MineOperations(
                 it.attackerType == enemy.type &&
                     it.spawnPoint != null
             }
+        // Spawn-loop levels (issue #694) drive spawning from spawnGroups rather than the flat
+        // spawnPlan, so fall back to the groups to honor any per-spawn custom spawn point.
+        val groupSpawnPoint =
+            spawnEntry?.spawnPoint
+                ?: state.spawnGroups
+                    ?.allSpawnEntries()
+                    ?.firstOrNull { it.attackerType == enemy.type && it.spawnPoint != null }
+                    ?.spawnPoint
 
         val targetSpawnPoint =
-            spawnEntry?.spawnPoint ?: run {
+            groupSpawnPoint ?: run {
                 // If no specific spawn point in plan, use first available spawn point from level
                 if (state.level.startPositions.isNotEmpty()) {
                     state.level.startPositions.first()
@@ -413,9 +413,10 @@ class MineOperations(
 
         // Check if spawn point is occupied
         val isOccupied =
-            state.attackers.any {
-                it.position.value == targetSpawnPoint && !it.isDefeated.value && it.id != enemy.id
-            }
+            state.isInactiveGargoyleAt(targetSpawnPoint) ||
+                state.attackers.any {
+                    it.position.value == targetSpawnPoint && !it.isDefeated.value && it.id != enemy.id
+                }
 
         if (!isOccupied) {
             return targetSpawnPoint
@@ -426,9 +427,10 @@ class MineOperations(
 
         for (pathPos in pathPositions) {
             val isPathOccupied =
-                state.attackers.any {
-                    it.position.value == pathPos && !it.isDefeated.value && it.id != enemy.id
-                }
+                state.isInactiveGargoyleAt(pathPos) ||
+                    state.attackers.any {
+                        it.position.value == pathPos && !it.isDefeated.value && it.id != enemy.id
+                    }
             if (!isPathOccupied) {
                 return pathPos
             }
@@ -461,12 +463,19 @@ class MineOperations(
 
             when (trapAtPosition.type) {
                 TrapType.DWARVEN -> {
+                    val attackerWasUninjured = attacker.currentHealth.value == attacker.maxHealth
                     // Deal damage to enemy
-                    attacker.currentHealth.value -= trapAtPosition.damage
+                    if (!attacker.type.isMirrorImage && !state.isProtectedByObsidianProtector(attacker)) {
+                        attacker.recordDamageTaken(minOf(attacker.currentHealth.value, trapAtPosition.damage))
+                        attacker.currentHealth.value -= trapAtPosition.damage
+                    }
 
                     // Check if defeated
                     if (attacker.currentHealth.value <= 0) {
                         attacker.isDefeated.value = true
+                        if (trapAtPosition.defenderId < 0 && !attacker.type.isMirrorImage) {
+                            onSupportTrapKill?.invoke(attacker.type, attackerWasUninjured)
+                        }
                     }
                 }
                 TrapType.MAGICAL -> {

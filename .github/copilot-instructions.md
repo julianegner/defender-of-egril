@@ -257,6 +257,13 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Tracking Flags**: Tutorial tracking flags (hasShownMagicalTrapTutorial, etc.) are still set when abilities unlock, but info is not shown automatically
 - **Implementation**: See `getTowerInfoMessages()` and `TowerInfoButtonArea()` in DefenderInfo.kt
 
+### Villain Story Messages
+
+- **Vague Wording**: Villain story message texts (`villain_*_title`, `villain_*_backstory`, `villain_*_description`) must stay vague and NEVER state exact numbers (no percentages, durations, tile ranges, armor values, HP, or turn/round counts)
+- **Describe Effects Qualitatively**: Use phrases like "takes less damage", "silences nearby towers for a while", "empowers nearby allies" instead of "50% less damage", "2 towers for 1 turn", "+2 armor"
+- **Exact Numbers Belong Elsewhere**: Precise values belong in the `*_short` ability lines or the game's mechanics docs, not in the story messages
+- **Apply to All Languages**: Keep the same vague wording in every `values-*/strings.xml` file
+
 ### Grid System
 
 - **Hexagonal Grid**: Uses offset coordinate system (even-q vertical layout)

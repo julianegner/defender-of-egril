@@ -1,0 +1,54 @@
+{
+  "metadata": {"program": "Defender of Egril", "type": "spawn-turn-template"},
+  "data": {
+    "id": "support_wave",
+    "name": "Support wave",
+    "description": "Support enemies arrive behind a short frontline.",
+    "variants": [
+      {
+        "kind": "MIXED",
+        "entries": [
+          {"attackerType": "ORK", "turnOffset": 0, "amount": 2},
+          {"attackerType": "GREEN_WITCH", "turnOffset": 1, "amount": 1},
+          {"attackerType": "RED_WITCH", "turnOffset": 1, "amount": 1}
+        ]
+      },
+      {
+        "kind": "HORDE",
+        "entries": [
+          {"attackerType": "ORK", "turnOffset": 0, "amount": 2},
+          {"attackerType": "OGRE", "turnOffset": 1, "amount": 1}
+        ]
+      },
+      {
+        "kind": "UNDEAD",
+        "entries": [
+          {"attackerType": "ZOMBIE", "turnOffset": 0, "amount": 2},
+          {"attackerType": "SKELETON", "turnOffset": 1, "amount": 2}
+        ]
+      },
+      {
+        "kind": "DARK_MAGIC",
+        "entries": [
+          {"attackerType": "EVIL_WIZARD", "turnOffset": 0, "amount": 1},
+          {"attackerType": "GREEN_WITCH", "turnOffset": 1, "amount": 1},
+          {"attackerType": "RED_WITCH", "turnOffset": 1, "amount": 1}
+        ]
+      },
+      {
+        "kind": "DEMONIC",
+        "entries": [
+          {"attackerType": "RED_DEMON", "turnOffset": 0, "amount": 1},
+          {"attackerType": "BLUE_DEMON", "turnOffset": 1, "amount": 2}
+        ]
+      },
+      {
+        "kind": "PIRATES",
+        "entries": [
+          {"attackerType": "PIRATE", "turnOffset": 0, "amount": 2},
+          {"attackerType": "CAPTAIN_RODERICH", "turnOffset": 1, "amount": 1, "levelOffset": 1}
+        ]
+      }
+    ]
+  }
+}

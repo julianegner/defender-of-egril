@@ -10,7 +10,7 @@ import de.egril.defender.model.*
  * Bridge building rules:
  * - Ork → Wooden bridge (1 river tile, HP = ork HP)
  * - Ogre → Stone bridge (1-2 river tiles, HP = ogre HP)
- * - Evil Wizard/Ewhad → Magical bridge (1 river tile, no HP, 3 turns duration, costs 1 level, must have level 2+)
+ * - Wizards → Magical bridge (1 river tile, no HP, 3 turns duration, costs 1 level, must have level 2+)
  *
  * Bridge-building units are destroyed (or lose level) when creating bridge.
  * Bridges don't count toward enemy count for winning.
@@ -19,7 +19,9 @@ import de.egril.defender.model.*
 class BridgeSystem(
     private val state: GameState,
 ) {
-    private var nextBridgeId = 1
+    companion object {
+        const val BRIDGE_TILE_INCOME = 3
+    }
 
     /**
      * Check if an attacker should build a bridge based on strategic considerations.
@@ -30,15 +32,13 @@ class BridgeSystem(
         if (!attacker.type.canBuildBridge) return false
         if (attacker.isDefeated.value || attacker.isBuildingBridge.value) return false
 
-        // For Evil Wizard/Ewhad, must have level 2+
-        if ((attacker.type == AttackerType.EVIL_WIZARD || attacker.type == AttackerType.EWHAD) &&
-            attacker.level.value < 2
-        ) {
+        // Wizards must have level 2+
+        if (attacker.type.isWizard() && attacker.level.value < 2) {
             return false
         }
 
         // Wizards always build bridges when at a river
-        if (attacker.type == AttackerType.EVIL_WIZARD || attacker.type == AttackerType.EWHAD) {
+        if (attacker.type.isWizard()) {
             return canBuildBridge(attacker).isNotEmpty()
         }
 
@@ -130,10 +130,8 @@ class BridgeSystem(
         if (!attacker.type.canBuildBridge) return emptyList()
         if (attacker.isDefeated.value || attacker.isBuildingBridge.value) return emptyList()
 
-        // For Evil Wizard/Ewhad, must have level 2+ to sacrifice a level
-        if ((attacker.type == AttackerType.EVIL_WIZARD || attacker.type == AttackerType.EWHAD) &&
-            attacker.level.value < 2
-        ) {
+        // Wizards must have level 2+ to sacrifice a level
+        if (attacker.type.isWizard() && attacker.level.value < 2) {
             return emptyList()
         }
 
@@ -148,7 +146,7 @@ class BridgeSystem(
         if (adjacentRivers.isEmpty()) return emptyList()
 
         // For Wizards, select best river if multiple adjacent
-        if (attacker.type == AttackerType.EVIL_WIZARD || attacker.type == AttackerType.EWHAD) {
+        if (attacker.type.isWizard()) {
             return selectBestRiverForWizard(attacker, adjacentRivers)
         }
 
@@ -221,14 +219,14 @@ class BridgeSystem(
         }
 
         // Determine bridge type and create bridge
-        when (attacker.type) {
-            AttackerType.ORK -> {
+        when {
+            attacker.type == AttackerType.ORK -> {
                 // Wooden bridge: 1 tile, HP = ork HP
                 if (positions.size != 1) return false
 
                 val bridge =
                     Bridge(
-                        id = nextBridgeId++,
+                        id = state.nextBridgeId.value++,
                         type = BridgeType.WOODEN,
                         positions = positions,
                         currentHealth = mutableStateOf(attacker.currentHealth.value),
@@ -239,6 +237,7 @@ class BridgeSystem(
 
                 // Destroy the ork
                 attacker.isBuildingBridge.value = true
+                attacker.wasMerged.value = true
                 attacker.isDefeated.value = true
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("Ork ${attacker.id} built wooden bridge at ${positions[0]} with ${bridge.currentHealth.value} HP")
@@ -246,13 +245,13 @@ class BridgeSystem(
                 return true
             }
 
-            AttackerType.OGRE -> {
+            attacker.type == AttackerType.OGRE -> {
                 // Stone bridge: 1-2 tiles, HP = ogre HP
                 if (positions.size !in 1..2) return false
 
                 val bridge =
                     Bridge(
-                        id = nextBridgeId++,
+                        id = state.nextBridgeId.value++,
                         type = BridgeType.STONE,
                         positions = positions,
                         currentHealth = mutableStateOf(attacker.currentHealth.value),
@@ -263,6 +262,7 @@ class BridgeSystem(
 
                 // Destroy the ogre
                 attacker.isBuildingBridge.value = true
+                attacker.wasMerged.value = true
                 attacker.isDefeated.value = true
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("Ogre ${attacker.id} built stone bridge at $positions with ${bridge.currentHealth.value} HP")
@@ -270,14 +270,14 @@ class BridgeSystem(
                 return true
             }
 
-            AttackerType.EVIL_WIZARD, AttackerType.EWHAD -> {
+            attacker.type.isWizard() -> {
                 // Magical bridge: 1 tile, no HP, 3 turns, costs 1 level
                 if (positions.size != 1) return false
                 if (attacker.level.value < 2) return false // Must have level 2+ to sacrifice
 
                 val bridge =
                     Bridge(
-                        id = nextBridgeId++,
+                        id = state.nextBridgeId.value++,
                         type = BridgeType.MAGICAL,
                         positions = positions,
                         currentHealth = mutableStateOf(0), // No HP
@@ -348,7 +348,7 @@ class BridgeSystem(
             }
 
             // Check if bridge is destroyed by damage
-            if (bridge.currentHealth.value <= 0 && bridge.type != BridgeType.MAGICAL) {
+            if (bridge.currentHealth.value <= 0 && bridge.type != BridgeType.MAGICAL && !bridge.isIndestructible) {
                 bridge.isDestroyed.value = true
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("${bridge.type} bridge ${bridge.id} destroyed at ${bridge.positions}")
@@ -417,4 +417,92 @@ class BridgeSystem(
 
         return buildBridge(attacker, bridgeablePositions)
     }
+
+    /**
+     * Returns the passive coin income generated by a bridge.
+     * Only bridges that span from one riverbank to another provide income.
+     */
+    fun getBridgeIncomePerTurn(bridge: Bridge): Int = bridge.positions.size * getBridgeIncomePerTile(bridge)
+
+    fun getBridgeIncomePerTile(bridge: Bridge): Int {
+        if (!bridge.isActive || !crossesToOtherRiverbank(bridge)) return 0
+        return BRIDGE_TILE_INCOME
+    }
+
+    private fun crossesToOtherRiverbank(bridge: Bridge): Boolean {
+        val bridgePositions = getConnectedBridgePositions(bridge)
+        if (bridgePositions.isEmpty()) return false
+
+        val landingTiles =
+            bridgePositions
+                .flatMap { position -> position.getHexNeighbors() }
+                .filter { neighbor -> isBridgeLandingTile(neighbor, bridgePositions) }
+                .toSet()
+
+        return countLandingRegions(landingTiles) >= 2
+    }
+
+    private fun getConnectedBridgePositions(bridge: Bridge): Set<Position> {
+        val allActiveBridgePositions =
+            state.bridges
+                .asSequence()
+                .filter { it.isActive }
+                .flatMap { it.positions.asSequence() }
+                .toSet()
+
+        val connected = mutableSetOf<Position>()
+        val frontier = ArrayDeque<Position>()
+        bridge.positions
+            .filter { it in allActiveBridgePositions }
+            .forEach { position ->
+                connected.add(position)
+                frontier.add(position)
+            }
+
+        while (frontier.isNotEmpty()) {
+            val current = frontier.removeFirst()
+            current
+                .getHexNeighbors()
+                .filter { it in allActiveBridgePositions && connected.add(it) }
+                .forEach { frontier.add(it) }
+        }
+
+        return connected
+    }
+
+    private fun countLandingRegions(landingTiles: Set<Position>): Int {
+        val remaining = landingTiles.toMutableSet()
+        var regions = 0
+
+        while (remaining.isNotEmpty()) {
+            regions++
+            val start = remaining.first()
+            val frontier = ArrayDeque<Position>()
+            frontier.add(start)
+            remaining.remove(start)
+
+            while (frontier.isNotEmpty()) {
+                val current = frontier.removeFirst()
+                current
+                    .getHexNeighbors()
+                    .filter { it in remaining }
+                    .forEach { neighbor ->
+                        remaining.remove(neighbor)
+                        frontier.add(neighbor)
+                    }
+            }
+        }
+
+        return regions
+    }
+
+    private fun isBridgeLandingTile(
+        position: Position,
+        bridgePositions: Set<Position>,
+    ): Boolean =
+        position.x in 0 until state.level.gridWidth &&
+            position.y in 0 until state.level.gridHeight &&
+            position !in bridgePositions &&
+            !state.level.isRiverTile(position) &&
+            (state.level.isEnemyTraversable(position) || state.level.isBuildArea(position) || state.level.isTargetPosition(position))
 }

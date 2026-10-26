@@ -321,6 +321,50 @@ class AchievementSystemTest {
         )
     }
 
+    @Test
+    fun testHeadshotAchievement() {
+        achievementManager.startTurn()
+        achievementManager.onEnemyKilled(AttackerType.GOBLIN, 1, wasUninjured = true)
+
+        assertTrue(
+            awardedAchievements.any { it.id == AchievementId.HEADSHOT },
+            "Should award HEADSHOT achievement",
+        )
+    }
+
+    @Test
+    fun testHeadshotNotAwardedForAlreadyInjuredEnemy() {
+        achievementManager.startTurn()
+        achievementManager.onEnemyKilled(AttackerType.GOBLIN, 1, wasUninjured = false)
+
+        assertFalse(
+            awardedAchievements.any { it.id == AchievementId.HEADSHOT },
+            "Should not award HEADSHOT for injured enemies",
+        )
+    }
+
+    @Test
+    fun testSupportKillAchievement() {
+        achievementManager.startTurn()
+        achievementManager.onEnemyKilled(AttackerType.GOBLIN, 1, usedSupportElement = true)
+
+        assertTrue(
+            awardedAchievements.any { it.id == AchievementId.WITH_HELP_FROM_A_FRIEND },
+            "Should award WITH_HELP_FROM_A_FRIEND achievement",
+        )
+    }
+
+    @Test
+    fun testKillVillainAchievement() {
+        achievementManager.startTurn()
+        achievementManager.onEnemyKilled(AttackerType.GAROKK, 1)
+
+        assertTrue(
+            awardedAchievements.any { it.id == AchievementId.KILL_VILLAIN },
+            "Should award KILL_VILLAIN achievement",
+        )
+    }
+
     // Mining Achievement Tests
 
     @Test

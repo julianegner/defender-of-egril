@@ -30,6 +30,7 @@ class RiverTileTest {
                 width = 3,
                 height = 1,
                 tiles = tiles,
+                allowNoBuildableTiles = true,
             )
 
         // Without bridge-building enemies, the map should be invalid
@@ -57,6 +58,7 @@ class RiverTileTest {
                 width = 3,
                 height = 1,
                 tiles = tiles,
+                allowNoBuildableTiles = true,
             )
 
         // Should be valid regardless of river walkability setting
@@ -82,6 +84,7 @@ class RiverTileTest {
                 width = 3,
                 height = 1,
                 tiles = tiles,
+                allowNoBuildableTiles = true,
             )
 
         // Without bridge-building enemies, the map should be invalid
@@ -105,6 +108,7 @@ class RiverTileTest {
                 width = 3,
                 height = 1,
                 tiles = tiles,
+                allowNoBuildableTiles = true,
             )
 
         val pathCells = map.getPathCells()
@@ -143,6 +147,7 @@ class RiverTileTest {
                 width = 3,
                 height = 2,
                 tiles = tiles,
+                allowNoBuildableTiles = true,
             )
 
         // Should be valid even without rivers being walkable, because alternate path exists
@@ -171,6 +176,7 @@ class RiverTileTest {
                 width = 4,
                 height = 1,
                 tiles = tiles,
+                allowNoBuildableTiles = true,
             )
 
         // Without river walkability, no path exists

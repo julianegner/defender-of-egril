@@ -5,7 +5,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.AppBuildInfo
-import de.egril.defender.ui.ScreenshotTestUtils
 import de.egril.defender.ui.settings.AppSettings
 import org.junit.After
 import org.junit.Before
@@ -133,6 +132,37 @@ class MainMenuScreenTest {
 
         // Verify callback was invoked
         assertTrue(showRulesClicked, "Rules button should trigger callback")
+    }
+
+    @Test
+    fun testMainMenuShowsLevelEditorButtonWhenAvailable() {
+        if (!isEditorAvailable()) {
+            return
+        }
+
+        var editorClicked = false
+        composeTestRule.setContent {
+            MainMenuScreen(
+                onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,
+                onShowRules = {},
+                onOpenEditor = { editorClicked = true },
+                onShowInstallationInfo = {},
+                onEditPlayerName = {},
+                currentPlayerName = null,
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithText("Level Editor", substring = true, ignoreCase = true)
+            .assertExists()
+            .assertHasClickAction()
+            .performClick()
+
+        assertTrue(editorClicked, "Level Editor button should trigger callback")
     }
 
     @Test

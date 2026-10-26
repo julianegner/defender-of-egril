@@ -1,0 +1,46 @@
+{
+  "metadata": {"program": "Defender of Egril", "type": "spawn-turn-template"},
+  "data": {
+    "id": "scouting",
+    "name": "Scouting",
+    "description": "A small probing wave.",
+    "variants": [
+      {
+        "kind": "MIXED",
+        "entries": [
+          {"attackerType": "GOBLIN", "turnOffset": 0, "amount": 3}
+        ]
+      },
+      {
+        "kind": "HORDE",
+        "entries": [
+          {"attackerType": "GOBLIN", "turnOffset": 0, "amount": 3}
+        ]
+      },
+      {
+        "kind": "UNDEAD",
+        "entries": [
+          {"attackerType": "SKELETON", "turnOffset": 0, "amount": 3}
+        ]
+      },
+      {
+        "kind": "DARK_MAGIC",
+        "entries": [
+          {"attackerType": "EVIL_WIZARD", "turnOffset": 0, "amount": 2}
+        ]
+      },
+      {
+        "kind": "DEMONIC",
+        "entries": [
+          {"attackerType": "BLUE_DEMON", "turnOffset": 0, "amount": 3}
+        ]
+      },
+      {
+        "kind": "PIRATES",
+        "entries": [
+          {"attackerType": "PIRATE", "turnOffset": 0, "amount": 3}
+        ]
+      }
+    ]
+  }
+}

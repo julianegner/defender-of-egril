@@ -26,7 +26,7 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.close
 import defender_of_egril.composeapp.generated.resources.feedback_form_title
 import defender_of_egril.composeapp.generated.resources.tooltip_feedback
-import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import kotlinx.coroutines.launch
 
@@ -62,7 +62,7 @@ fun FeedbackButton(
                 onClick = { showFeedback = true },
                 modifier = modifier.semantics { contentDescription = feedbackLabel },
             ) {
-                FilledSymbol(
+                MaterialSymbol.Filled(
                     icon = MaterialSymbols.RATE_REVIEW,
                     size = 32.dp,
                     tint = MaterialTheme.colorScheme.onSurface,
@@ -169,7 +169,7 @@ private fun FeedbackDialog(
                             onClick = onDismiss,
                             modifier = Modifier.semantics { contentDescription = closeLabel },
                         ) {
-                            FilledSymbol(
+                            MaterialSymbol.Filled(
                                 icon = MaterialSymbols.CLOSE,
                                 tint = MaterialTheme.colorScheme.onSurface,
                             )

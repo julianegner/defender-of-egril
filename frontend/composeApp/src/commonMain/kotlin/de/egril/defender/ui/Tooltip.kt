@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
-import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.utils.isPlatformMobile
 
 /**

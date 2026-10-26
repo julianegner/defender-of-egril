@@ -90,6 +90,8 @@ fun WaypointMinimap(
     onTileClick: (Position) -> Unit = {},
     onHoverChange: (Position?) -> Unit = {},
 ) {
+    if (!map.canRenderMinimap()) return
+
     val isDarkMode = AppSettings.isDarkMode.value
 
     // Get all target positions from the map

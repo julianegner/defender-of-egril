@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,6 +38,7 @@ import de.egril.defender.editor.EditorWaypoint
 import de.egril.defender.editor.TileType
 import de.egril.defender.editor.WaypointValidationResult
 import de.egril.defender.model.Position
+import de.egril.defender.model.TargetType
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.icon.RightArrowIcon
 import de.egril.defender.ui.icon.WarningIcon
@@ -44,8 +46,14 @@ import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.circular_dependency_detected
 import defender_of_egril.composeapp.generated.resources.confirm_remove_all_waypoints
+import defender_of_egril.composeapp.generated.resources.enforce_single_hit_target_order
+import defender_of_egril.composeapp.generated.resources.move_down
+import defender_of_egril.composeapp.generated.resources.move_up
 import defender_of_egril.composeapp.generated.resources.no_waypoints_configured
 import defender_of_egril.composeapp.generated.resources.remove_all_waypoints
+import defender_of_egril.composeapp.generated.resources.single_hit_target_order
+import defender_of_egril.composeapp.generated.resources.single_hit_target_order_hint
+import defender_of_egril.composeapp.generated.resources.target
 import defender_of_egril.composeapp.generated.resources.unconnected_waypoint_warning
 import defender_of_egril.composeapp.generated.resources.waypoint_list_view
 import defender_of_egril.composeapp.generated.resources.waypoint_tree_view
@@ -61,6 +69,8 @@ import defender_of_egril.composeapp.generated.resources.waypoints_description
 fun WaypointsTab(
     waypoints: List<EditorWaypoint>,
     onWaypointsChange: (List<EditorWaypoint>) -> Unit,
+    singleHitTargetOrder: List<Position>,
+    onSingleHitTargetOrderChange: (List<Position>) -> Unit,
     map: EditorMap?,
     isValid: Boolean,
 ) {
@@ -79,6 +89,21 @@ fun WaypointsTab(
     val pathTiles = remember(map) { map?.getPathCells()?.toList() ?: emptyList() }
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
     val targets = remember(map) { map?.getTargets() ?: emptyList() }
+    val singleHitTargets =
+        remember(map) {
+            map
+                ?.tiles
+                ?.filter { (key, tileType) ->
+                    tileType == TileType.TARGET && map.targetInfoMap[key]?.type == TargetType.SINGLE_HIT
+                }?.keys
+                ?.mapNotNull { key ->
+                    val coordinates = key.split(",", limit = 2)
+                    if (coordinates.size != 2) return@mapNotNull null
+                    val x = coordinates[0].toIntOrNull() ?: return@mapNotNull null
+                    val y = coordinates[1].toIntOrNull() ?: return@mapNotNull null
+                    Position(x, y)
+                } ?: emptyList()
+        }
 
     // Extract existing waypoint positions from the waypoints list
     val existingWaypointPositions =
@@ -304,6 +329,91 @@ fun WaypointsTab(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                    }
+                }
+            }
+        }
+
+        if (singleHitTargets.isNotEmpty()) {
+            item {
+                val orderedTargets =
+                    singleHitTargetOrder
+                        .filter { it in singleHitTargets }
+                        .plus(singleHitTargets.filterNot { it in singleHitTargetOrder })
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.small)
+                            .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Text(
+                        text = stringResource(Res.string.single_hit_target_order),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    Text(
+                        text = stringResource(Res.string.single_hit_target_order_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Switch(
+                            checked = singleHitTargetOrder.isNotEmpty(),
+                            onCheckedChange = { enabled ->
+                                onSingleHitTargetOrderChange(if (enabled) orderedTargets else emptyList())
+                            },
+                        )
+                        Text(stringResource(Res.string.enforce_single_hit_target_order))
+                    }
+                    if (singleHitTargetOrder.isNotEmpty()) {
+                        orderedTargets.forEachIndexed { index, position ->
+                            val targetKey = "${position.x},${position.y}"
+                            val targetName =
+                                map
+                                    ?.targetInfoMap
+                                    ?.get(targetKey)
+                                    ?.name
+                                    ?.takeIf { it.isNotBlank() }
+                                    ?: stringResource(Res.string.target)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    "${index + 1}. $targetName (${position.x}, ${position.y})",
+                                    modifier = Modifier.weight(1f),
+                                )
+                                Button(
+                                    onClick = {
+                                        if (index > 0) {
+                                            onSingleHitTargetOrderChange(
+                                                orderedTargets.toMutableList().apply {
+                                                    add(index - 1, removeAt(index))
+                                                },
+                                            )
+                                        }
+                                    },
+                                    enabled = index > 0,
+                                ) {
+                                    Text(stringResource(Res.string.move_up))
+                                }
+                                Button(
+                                    onClick = {
+                                        if (index < orderedTargets.lastIndex) {
+                                            onSingleHitTargetOrderChange(
+                                                orderedTargets.toMutableList().apply {
+                                                    add(index + 1, removeAt(index))
+                                                },
+                                            )
+                                        }
+                                    },
+                                    enabled = index < orderedTargets.lastIndex,
+                                ) {
+                                    Text(stringResource(Res.string.move_down))
+                                }
+                            }
+                        }
                     }
                 }
             }
