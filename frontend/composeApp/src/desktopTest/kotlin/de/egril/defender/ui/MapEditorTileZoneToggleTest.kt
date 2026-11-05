@@ -20,7 +20,7 @@ class MapEditorTileZoneToggleTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun collapsedHeaderOpensAndClosesTileZonePanel() {
+    fun sidePanelSectionOpensAndClosesTileZonePanel() {
         val map =
             EditorMap(
                 id = "zone_toggle_map",
@@ -33,8 +33,7 @@ class MapEditorTileZoneToggleTest {
             MapEditorView(map = map, onSave = { _, _, _ -> }, onCancel = {})
         }
 
-        val toggle = composeTestRule.onNode(hasText("Tile zones") and hasClickAction())
-        toggle.assertExists().performClick()
+        expandSidePanel()
         composeTestRule.onNodeWithText("Add zone").assertExists()
         composeTestRule.onNodeWithText("With an uploaded map background", substring = true).assertDoesNotExist()
         composeTestRule.onNodeWithText("Add zone").performClick()
@@ -42,13 +41,12 @@ class MapEditorTileZoneToggleTest {
         composeTestRule.onNodeWithText("With an uploaded map background", substring = true).assertExists()
         composeTestRule.onNodeWithText("gamedata/user/maps/zone_toggle_map.png", substring = true).assertExists()
         composeTestRule.onNodeWithText("gamedata/user/maps/zone_toggle_map.json", substring = true).assertExists()
-        composeTestRule.onNodeWithText("Start zone drawing").performClick()
+        composeTestRule.onNodeWithText("Start zone drawing").performScrollTo().performClick()
         composeTestRule.onNodeWithText("Finish zone drawing").assertExists()
-        toggle.performClick()
-        toggle.performClick()
-        composeTestRule.onNodeWithText("Start zone drawing").assertExists()
-        toggle.performClick()
-        composeTestRule.onNodeWithText("Add zone").assertDoesNotExist()
+        composeTestRule.onNodeWithText("Finish zone drawing").performScrollTo().performClick()
+        composeTestRule.onNode(hasText("Tile zones") and hasClickAction()).performScrollTo().performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onAllNodes(hasText("Add zone")).assertCountEquals(0)
     }
 
     @Test
@@ -66,15 +64,16 @@ class MapEditorTileZoneToggleTest {
             MapEditorView(map = map, onSave = { updatedMap, _, _ -> savedMap = updatedMap }, onCancel = {})
         }
 
-        composeTestRule.onNode(hasText("Tile zones") and hasClickAction()).performClick()
+        expandSidePanel()
         composeTestRule.onNodeWithText("Add zone").performClick()
-        composeTestRule.onNodeWithText("Start zone drawing").performClick()
+        composeTestRule.onNodeWithText("Start zone drawing").performScrollTo().performClick()
 
-        composeTestRule.onNode(hasText("PATH") and hasClickAction()).performClick()
+        composeTestRule.onNode(hasText("PATH") and hasClickAction()).performScrollTo().performClick()
+        composeTestRule.waitForIdle()
         TileType.entries.forEach { tileType ->
             assertTrue(composeTestRule.onAllNodesWithText(tileType.name).fetchSemanticsNodes().isNotEmpty())
         }
-        composeTestRule.onNodeWithText(TileType.BUILD_AREA.name).performClick()
+        composeTestRule.onNodeWithText(TileType.BUILD_AREA.name).performScrollTo().performClick()
         composeTestRule.onNodeWithText("Finish zone drawing").assertExists()
         composeTestRule.onNodeWithText("0,2").performTouchInput {
             down(center)
@@ -115,9 +114,9 @@ class MapEditorTileZoneToggleTest {
             MapEditorView(map = map, onSave = { updatedMap, _, _ -> savedMap = updatedMap }, onCancel = {})
         }
 
-        composeTestRule.onNode(hasText("Tile zones") and hasClickAction()).performClick()
-        composeTestRule.onNodeWithText("Copy").performClick()
-        composeTestRule.onNodeWithText("Show other zones").assertExists().performClick()
+        expandSidePanel()
+        composeTestRule.onNodeWithText("Copy").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("Show other zones").performScrollTo().assertExists().performClick()
         composeTestRule.onNodeWithText("Save Map").performClick()
 
         composeTestRule.runOnIdle {
@@ -128,4 +127,18 @@ class MapEditorTileZoneToggleTest {
             assertEquals(sourceZone.riverTiles, zones[1].riverTiles)
         }
     }
+
+    /** Opens the tile zones section of the side panel if it is currently collapsed. */
+    private fun expandSidePanel() {
+        val sectionOpen =
+            composeTestRule
+                .onAllNodes(hasText("Add zone"))
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        if (!sectionOpen) {
+            composeTestRule.onNode(hasText("Tile zones") and hasClickAction()).performClick()
+            composeTestRule.waitForIdle()
+        }
+    }
 }
+

@@ -43,25 +43,26 @@ class MapEditorCrosshairToggleTest {
 
         composeTestRule.waitForIdle()
 
+        // The side panel starts open; the overlay toggles are reached via the header.
         // Expand the header to reveal the overlay toggle buttons.
         composeTestRule
             .onNodeWithContentDescription("Expand", substring = true, ignoreCase = true)
             .performClick()
         composeTestRule.waitForIdle()
 
-        // The crosshair toggle button should be present and clickable.
-        composeTestRule
-            .onNodeWithText("Crosshair", substring = true, ignoreCase = true)
-            .assertExists()
-            .performClick()
+        // The icon's content description sits on the inner Canvas; the click action is on the parent Button.
+        // Clicking the Canvas still reaches the Button. The hover tooltip has no content description, so it is not matched.
+        val crosshairIcon = hasContentDescription("Crosshair", substring = true, ignoreCase = true)
+        composeTestRule.onNode(crosshairIcon).assertExists().performClick()
         composeTestRule.waitForIdle()
 
         // Toggle it off again to verify it doesn't leave the screen in a broken state.
-        composeTestRule
-            .onNodeWithText("Crosshair", substring = true, ignoreCase = true)
-            .performClick()
+        composeTestRule.onNode(crosshairIcon).performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onRoot().assertExists()
+        // Check the toggle itself: onRoot() is ambiguous while the hover tooltip popup is open.
+        composeTestRule
+            .onNode(crosshairIcon)
+            .assertExists()
     }
 }

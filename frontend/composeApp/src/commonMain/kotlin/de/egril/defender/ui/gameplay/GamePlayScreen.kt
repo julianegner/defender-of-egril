@@ -2405,6 +2405,11 @@ private fun GamePlayScreenContent(
                             ) {
                                 // Special case for SPECIAL_TOWERS_INFO - show as a separate dialog
                                 if (gameState.infoState.value.currentInfo == InfoType.SPECIAL_TOWERS_INFO) {
+                                    // Refocus after the dialog leaves composition; a refocus issued while it is
+                                    // still shown can be lost when the dialog removes its focus target.
+                                    DisposableEffect(Unit) {
+                                        onDispose { mapRefocusTrigger++ }
+                                    }
                                     val specialTowers =
                                         gameState.level.availableTowers.filter {
                                             it in

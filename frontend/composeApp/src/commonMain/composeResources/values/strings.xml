@@ -2523,6 +2523,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="region_copied_size">Copied region: %1$d x %2$d</string>
     <string name="map_path_preview">Map path preview</string>
     <string name="map_crosshair">Crosshair</string>
+    <string name="map_tools_panel">Tools &amp; overlays</string>
     <string name="path_preview_summary">Reachable: %1$d, unreachable: %2$d, ambiguous: %3$d</string>
     <string name="used_level_checks">Used level checks</string>
     <string name="wave_simulator">Wave simulator</string>

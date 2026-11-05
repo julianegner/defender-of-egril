@@ -221,18 +221,12 @@ internal fun TileZonePanel(
     onZoneBrushChange: (ZoneBrush) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier = modifier.width(300.dp)) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(
-                text = stringResource(Res.string.tile_zones),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = stringResource(Res.string.tile_zone_help),
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        SelectableText(
+            text = stringResource(Res.string.tile_zone_help),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -418,7 +412,6 @@ internal fun TileZonePanel(
                 }
             }
         }
-    }
 }
 
 @Composable

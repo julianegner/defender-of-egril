@@ -13,6 +13,7 @@ kotlin {
         }
     }
     jvm()
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
     wasmJs {
         browser()
     }
@@ -25,7 +26,7 @@ kotlin {
     }
 }
 
-android {
+extensions.configure<com.android.build.api.dsl.LibraryExtension> {
     namespace = "de.egril.defender.mapgen"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {

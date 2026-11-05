@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.DigOutcome
@@ -995,6 +997,63 @@ fun TowerIcon(
 
         // Draw tower base using the same function as in-game towers
         drawTowerBase(centerX, centerY, iconSize * 0.8f, lineColor)
+    }
+}
+
+/**
+ * Displays a crosshair (ring with a centre cross) drawn with Canvas.
+ * The [contentDescription] is the localized label, since the icon replaces visible text.
+ */
+@Composable
+fun CrosshairIcon(
+    contentDescription: String,
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color = LocalContentColor.current,
+) {
+    Canvas(
+        modifier =
+            modifier
+                .size(size)
+                .semantics { this.contentDescription = contentDescription },
+    ) {
+        val s = this.size.minDimension
+        val center = Offset(s / 2f, s / 2f)
+        val strokeWidth = s * 0.1f
+        drawCircle(
+            color = tint,
+            radius = s * 0.36f,
+            center = center,
+            style = Stroke(width = strokeWidth),
+        )
+        drawLine(
+            color = tint,
+            start = Offset(center.x, 0f),
+            end = Offset(center.x, s * 0.3f),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
+        drawLine(
+            color = tint,
+            start = Offset(center.x, s),
+            end = Offset(center.x, s * 0.7f),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
+        drawLine(
+            color = tint,
+            start = Offset(0f, center.y),
+            end = Offset(s * 0.3f, center.y),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
+        drawLine(
+            color = tint,
+            start = Offset(s, center.y),
+            end = Offset(s * 0.7f, center.y),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
     }
 }
 
