@@ -2680,4 +2680,7 @@
     <string name="altar_conversion_info">Consagra una Torre de Mago de nivel 10 o superior en una casilla de construcción gastando una runa. Los altares no pueden atacar ni mejorarse, pero conservan las trampas mágicas.\n\nActiva un altar una vez por turno para canalizar su poder durante el turno actual. La activación consume una acción y la canalización termina al inicio del siguiente turno del jugador. Activa simultáneamente el número requerido de altares para tomar el control de la Red de Runas en los niveles con eventos programados.</string>
     <string name="event_act_win_level">Ganar el nivel</string>
     <string name="event_msg_rune_network_taken_over">¡Se han activado %1$d altares! Su poder unido ha tomado el control de la Red de Runas. El enemigo ya no puede dominar su magia. ¡La victoria es nuestra!</string>
+    <string name="pick_position_on_map">Elegir en el mapa</string>
+    <string name="pick_position_stop">Terminar selección</string>
+    <string name="pick_position_hint">Haz clic en una casilla del mapa para fijar la posición.</string>
 </resources>

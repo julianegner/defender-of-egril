@@ -630,6 +630,7 @@ fun MapEditorView(
     var copyToY by remember { mutableStateOf((map.height - 1).coerceAtLeast(0).toString()) }
     var pasteAtX by remember { mutableStateOf("0") }
     var pasteAtY by remember { mutableStateOf("0") }
+    var pickTarget by remember { mutableStateOf<PositionPickTarget?>(null) }
     val backgroundImagePainter =
         remember(backgroundImageBytes) {
             backgroundImageBytes?.let { bytes ->
@@ -754,6 +755,26 @@ fun MapEditorView(
     val mapFlowSummary = remember(currentMap) { analyzeMapFlow(currentMap) }
     val pathPreviews = remember(currentMap) { currentMap.previewPaths() }
     val previewCells = remember(pathPreviews) { pathPreviews.flatMap { it.path }.toSet() }
+    val replacementHighlightCells =
+        if (showTileReplacementDialog && replacementLimitToArea) {
+            rectangleTiles(
+                parsePosition(replacementFromX, replacementFromY),
+                parsePosition(replacementToX, replacementToY),
+            )
+        } else {
+            emptySet()
+        }
+    val copyHighlightCells =
+        if (showAreaClipboardDialog) {
+            rectangleTiles(
+                parsePosition(copyFromX, copyFromY),
+                parsePosition(copyToX, copyToY),
+            )
+        } else {
+            emptySet()
+        }
+    val pasteHighlightCell = if (showAreaClipboardDialog) parsePosition(pasteAtX, pasteAtY) else null
+    val ringStartHighlightCell = if (showFillRiverRingDialog) parsePosition(ringStartX, ringStartY) else null
     val ambiguousPreviewCells = remember(pathPreviews) { pathPreviews.filter { it.isAmbiguous }.flatMap { it.path }.toSet() }
     val unreachableSpawns = remember(pathPreviews) { pathPreviews.filter { !it.isReachable }.map { it.spawn }.toSet() }
     val levelsUsingMap =
@@ -860,8 +881,43 @@ fun MapEditorView(
         }
     }
 
+    // Writes a clicked tile into the coordinate fields chosen via a pick button
+    fun applyPickedPosition(position: Position) {
+        val target = pickTarget ?: return
+        when (target) {
+            PositionPickTarget.REPLACE_FROM -> {
+                replacementFromX = position.x.toString()
+                replacementFromY = position.y.toString()
+            }
+            PositionPickTarget.REPLACE_TO -> {
+                replacementToX = position.x.toString()
+                replacementToY = position.y.toString()
+            }
+            PositionPickTarget.COPY_FROM -> {
+                copyFromX = position.x.toString()
+                copyFromY = position.y.toString()
+            }
+            PositionPickTarget.COPY_TO -> {
+                copyToX = position.x.toString()
+                copyToY = position.y.toString()
+            }
+            PositionPickTarget.PASTE_AT -> {
+                pasteAtX = position.x.toString()
+                pasteAtY = position.y.toString()
+            }
+            PositionPickTarget.RING_START -> {
+                ringStartX = position.x.toString()
+                ringStartY = position.y.toString()
+            }
+        }
+        // A "from" corner is usually followed by its "to" corner
+        pickTarget = target.nextPickTarget()
+    }
+
     // Brush paint callback - called when user drags in brush mode
-    val onBrushPaint: (position: Position) -> Unit = { position ->
+    val onBrushPaint: (position: Position) -> Unit = fn@{ position ->
+        // While picking a coordinate on the map, dragging must not paint tiles
+        if (pickTarget != null) return@fn
 
         if (isZoneDrawingMode) {
             if (lastPaintedPos != position) {
@@ -1046,6 +1102,10 @@ fun MapEditorView(
                                 when {
                                     zoneTileType != null -> TILE_ZONE_HIGHLIGHT_COLOR
                                     otherZoneIndex >= 0 -> tileZoneColor(otherZoneIndex)
+                                    position == pasteHighlightCell -> PASTE_HIGHLIGHT_COLOR
+                                    position == ringStartHighlightCell -> RING_START_HIGHLIGHT_COLOR
+                                    position in copyHighlightCells -> COPY_HIGHLIGHT_COLOR
+                                    position in replacementHighlightCells -> REPLACE_HIGHLIGHT_COLOR
                                     position in unreachableSpawns -> Color.Red
                                     position in ambiguousPreviewCells -> Color(0xFFFFC107)
                                     position in previewCells -> Color(0xFF00BCD4)
@@ -1055,11 +1115,17 @@ fun MapEditorView(
                                 when {
                                     zoneTileType != null -> 3.dp
                                     otherZoneIndex >= 0 -> 3.dp
+                                    position == pasteHighlightCell ||
+                                        position == ringStartHighlightCell ||
+                                        position in copyHighlightCells ||
+                                        position in replacementHighlightCells -> 3.dp
                                     position in previewCells || position in unreachableSpawns -> 2.5.dp
                                     else -> 1.5.dp
                                 },
                             onClick = {
-                                if (isZoneDrawingMode) {
+                                if (pickTarget != null) {
+                                    applyPickedPosition(position)
+                                } else if (isZoneDrawingMode) {
                                     if (activeZoneId != null) paintZoneTile(position)
                                 } else if (selectedTileType == TileType.TARGET && tileType == TileType.TARGET) {
                                     // Clicking an already-TARGET tile while in TARGET mode opens edit dialog
@@ -1384,14 +1450,19 @@ fun MapEditorView(
                         ) {
                             Checkbox(
                                 checked = replacementLimitToArea,
-                                onCheckedChange = { replacementLimitToArea = it },
+                                onCheckedChange = {
+                                    replacementLimitToArea = it
+                                    pickTarget = if (it) PositionPickTarget.REPLACE_FROM else null
+                                },
                             )
                             Text(stringResource(Res.string.replace_tiles_limit_to_area))
                         }
 
                         if (replacementLimitToArea) {
-                            Text(stringResource(Res.string.replace_tiles_area_from))
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.pickTargetBorder(pickTarget == PositionPickTarget.REPLACE_FROM, REPLACE_HIGHLIGHT_COLOR),
+                            ) {
                                 OutlinedTextField(
                                     value = replacementFromX,
                                     onValueChange = { replacementFromX = it },
@@ -1407,9 +1478,15 @@ fun MapEditorView(
                                     singleLine = true,
                                 )
                             }
+                            PositionPickButton(
+                                active = pickTarget == PositionPickTarget.REPLACE_FROM,
+                                onClick = { pickTarget = togglePickTarget(pickTarget, PositionPickTarget.REPLACE_FROM) },
+                            )
 
-                            Text(stringResource(Res.string.replace_tiles_area_to))
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.pickTargetBorder(pickTarget == PositionPickTarget.REPLACE_TO, REPLACE_HIGHLIGHT_COLOR),
+                            ) {
                                 OutlinedTextField(
                                     value = replacementToX,
                                     onValueChange = { replacementToX = it },
@@ -1425,6 +1502,10 @@ fun MapEditorView(
                                     singleLine = true,
                                 )
                             }
+                            PositionPickButton(
+                                active = pickTarget == PositionPickTarget.REPLACE_TO,
+                                onClick = { pickTarget = togglePickTarget(pickTarget, PositionPickTarget.REPLACE_TO) },
+                            )
                         }
 
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1470,14 +1551,28 @@ fun MapEditorView(
                 val areaClipboardContent: @Composable () -> Unit = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(stringResource(Res.string.copy_region))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.pickTargetBorder(pickTarget == PositionPickTarget.COPY_FROM, COPY_HIGHLIGHT_COLOR),
+                        ) {
                             OutlinedTextField(copyFromX, { copyFromX = it }, label = { Text(stringResource(Res.string.x_coordinate)) }, modifier = Modifier.weight(1f), singleLine = true)
                             OutlinedTextField(copyFromY, { copyFromY = it }, label = { Text(stringResource(Res.string.y_coordinate)) }, modifier = Modifier.weight(1f), singleLine = true)
                         }
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        PositionPickButton(
+                            active = pickTarget == PositionPickTarget.COPY_FROM,
+                            onClick = { pickTarget = togglePickTarget(pickTarget, PositionPickTarget.COPY_FROM) },
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.pickTargetBorder(pickTarget == PositionPickTarget.COPY_TO, COPY_HIGHLIGHT_COLOR),
+                        ) {
                             OutlinedTextField(copyToX, { copyToX = it }, label = { Text(stringResource(Res.string.to_x)) }, modifier = Modifier.weight(1f), singleLine = true)
                             OutlinedTextField(copyToY, { copyToY = it }, label = { Text(stringResource(Res.string.to_y)) }, modifier = Modifier.weight(1f), singleLine = true)
                         }
+                        PositionPickButton(
+                            active = pickTarget == PositionPickTarget.COPY_TO,
+                            onClick = { pickTarget = togglePickTarget(pickTarget, PositionPickTarget.COPY_TO) },
+                        )
                         Button(
                             onClick = {
                                 if (parsedCopyFromX == null || parsedCopyFromY == null || parsedCopyToX == null || parsedCopyToY == null) return@Button
@@ -1500,9 +1595,19 @@ fun MapEditorView(
                             )
                         }
                         Text(stringResource(Res.string.paste_region))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.pickTargetBorder(pickTarget == PositionPickTarget.PASTE_AT, PASTE_HIGHLIGHT_COLOR),
+                        ) {
                             OutlinedTextField(pasteAtX, { pasteAtX = it }, label = { Text(stringResource(Res.string.x_coordinate)) }, modifier = Modifier.weight(1f), singleLine = true)
                             OutlinedTextField(pasteAtY, { pasteAtY = it }, label = { Text(stringResource(Res.string.y_coordinate)) }, modifier = Modifier.weight(1f), singleLine = true)
+                        }
+                        PositionPickButton(
+                            active = pickTarget == PositionPickTarget.PASTE_AT,
+                            onClick = { pickTarget = togglePickTarget(pickTarget, PositionPickTarget.PASTE_AT) },
+                        )
+                        if (pickTarget != null) {
+                            Text(stringResource(Res.string.pick_position_hint))
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Button(onClick = { showAreaClipboardDialog = false }) {
@@ -1701,6 +1806,7 @@ fun MapEditorView(
                                 replacementToY = (mapHeight - 1).coerceAtLeast(0).toString()
                             }
                             showTileReplacementDialog = !showTileReplacementDialog
+                            pickTarget = null
                         },
                         icon = { ToolsIcon(size = 16.dp) },
                     ) {
@@ -1709,7 +1815,10 @@ fun MapEditorView(
                     CollapsibleSidePanelSection(
                         title = stringResource(Res.string.area_clipboard),
                         expanded = showAreaClipboardDialog,
-                        onToggleExpanded = { showAreaClipboardDialog = !showAreaClipboardDialog },
+                        onToggleExpanded = {
+                            showAreaClipboardDialog = !showAreaClipboardDialog
+                            pickTarget = if (showAreaClipboardDialog) PositionPickTarget.COPY_FROM else null
+                        },
                         icon = { PencilIcon(size = 16.dp) },
                     ) {
                         areaClipboardContent()
@@ -2052,9 +2161,13 @@ fun MapEditorView(
         )
     }
 
-    if (showFillRiverRingDialog) {
+    // The modal dialog would swallow map clicks, so it is hidden while the start tile is being picked
+    if (showFillRiverRingDialog && pickTarget != PositionPickTarget.RING_START) {
         AlertDialog(
-            onDismissRequest = { showFillRiverRingDialog = false },
+            onDismissRequest = {
+                if (pickTarget == PositionPickTarget.RING_START) pickTarget = null
+                showFillRiverRingDialog = false
+            },
             title = { Text(stringResource(Res.string.fill_river_ring_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -2069,6 +2182,10 @@ fun MapEditorView(
                         onValueChange = { if (it.isEmpty() || it.matches(Regex("-?[0-9]+"))) ringStartY = it },
                         label = { Text(stringResource(Res.string.ring_start_y)) },
                         singleLine = true,
+                    )
+                    PositionPickButton(
+                        active = false,
+                        onClick = { pickTarget = PositionPickTarget.RING_START },
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = ringClockwise, onClick = { ringClockwise = true }, label = { Text(stringResource(Res.string.clockwise)) })
@@ -2117,12 +2234,14 @@ fun MapEditorView(
                         tiles = updated.first
                         riverTiles = updated.second
                     }
+                    if (pickTarget == PositionPickTarget.RING_START) pickTarget = null
                     showFillRiverRingDialog = false
                 }) { Text(stringResource(Res.string.apply)) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     fillRiverRingError = false
+                    if (pickTarget == PositionPickTarget.RING_START) pickTarget = null
                     showFillRiverRingDialog = false
                 }) { Text(stringResource(Res.string.cancel)) }
             },

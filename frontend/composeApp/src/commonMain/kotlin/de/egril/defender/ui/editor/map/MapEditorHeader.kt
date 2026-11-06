@@ -201,7 +201,8 @@ private fun ExpandedMapEditorHeader(
             Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = null,
     ) {
         Column(
             modifier =
@@ -496,7 +497,8 @@ private fun CollapsedMapEditorHeader(
             Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = null,
     ) {
         FlowRow(
             modifier =
@@ -552,10 +554,6 @@ private fun CollapsedMapEditorHeader(
             MapEditorToolToggles(
                 showCrosshair = showCrosshair,
                 onToggleCrosshair = onToggleCrosshair,
-                onUndo = onUndo,
-                canUndo = canUndo,
-                onRedo = onRedo,
-                canRedo = canRedo,
             )
             if (validationIssues.isNotEmpty()) {
                 val notReadyLabel = stringResource(Res.string.map_not_ready_indicator)
@@ -568,6 +566,22 @@ private fun CollapsedMapEditorHeader(
                     }
                 }
             }
+        }
+        Row(
+            modifier =
+                Modifier
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                    .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            MapEditorUndoRedoRow(
+                onUndo = onUndo,
+                canUndo = canUndo,
+                onRedo = onRedo,
+                canRedo = canRedo,
+            )
         }
     }
 
@@ -616,10 +630,6 @@ private fun CollapsedMapEditorHeader(
 internal fun MapEditorToolToggles(
     showCrosshair: Boolean,
     onToggleCrosshair: () -> Unit,
-    onUndo: () -> Unit,
-    canUndo: Boolean,
-    onRedo: () -> Unit,
-    canRedo: Boolean,
 ) {
     val mapCrosshairLabel = stringResource(Res.string.map_crosshair)
     TooltipWrapper(text = mapCrosshairLabel) {
@@ -639,6 +649,15 @@ internal fun MapEditorToolToggles(
             CrosshairIcon(contentDescription = mapCrosshairLabel, size = 20.dp)
         }
     }
+}
+
+@Composable
+internal fun MapEditorUndoRedoRow(
+    onUndo: () -> Unit,
+    canUndo: Boolean,
+    onRedo: () -> Unit,
+    canRedo: Boolean,
+) {
     val undoLabel = stringResource(Res.string.undo)
     TooltipWrapper(text = undoLabel) {
         AssistChip(
