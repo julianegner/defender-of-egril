@@ -1,6 +1,7 @@
 package de.egril.defender.ui.infopage
 
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -57,5 +58,19 @@ class InfoPageLayoutDecisionTest {
             )
 
         assertTrue(InfoTab.INSTALLATION in tabs)
+    }
+
+    @Test
+    fun streamerInfoTabIsAlwaysLast() {
+        val tabConfigurations =
+            listOf(
+                buildVisibleInfoTabs(showDownloadTab = true, showInstallationTab = true, showEditorHowToTab = true),
+                buildVisibleInfoTabs(showDownloadTab = true, showInstallationTab = false, showEditorHowToTab = false),
+                buildVisibleInfoTabs(showDownloadTab = false, showInstallationTab = true, showEditorHowToTab = false),
+            )
+
+        tabConfigurations.forEach { tabs ->
+            assertEquals(InfoTab.STREAMER_INFO, tabs.last())
+        }
     }
 }

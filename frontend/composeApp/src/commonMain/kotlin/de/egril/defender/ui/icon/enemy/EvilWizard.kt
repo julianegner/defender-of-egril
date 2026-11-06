@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
+import de.egril.defender.ui.icon.wunjoRunePath
 
 /**
  * Draw evil wizard symbol (pointed hat with mystical energy)
@@ -111,4 +112,21 @@ fun DrawScope.drawEvilWizardSymbol(
         strokeWidth = 3f,
     )
     drawCircle(color = Color(0xFF9400D3), radius = size * 0.08f, center = Offset(centerX + size * 0.35f, centerY + size * 0.05f))
+}
+
+fun DrawScope.drawRunemasterSymbol(
+    centerX: Float,
+    centerY: Float,
+    size: Float,
+    headScale: Float = 1.0f,
+) {
+    drawEvilWizardSymbol(centerX, centerY, size, headScale = headScale)
+
+    withTransform({ scale(headScale, headScale, Offset(centerX, centerY + size * 0.15f)) }) {
+        drawPath(
+            path = wunjoRunePath(centerX - size * 0.03f, centerY - size * 0.18f, size * 0.085f),
+            color = Color(0xFFFFB52E),
+            style = Stroke(width = size * 0.025f, cap = StrokeCap.Round),
+        )
+    }
 }

@@ -1,6 +1,7 @@
 package de.egril.defender.editor
 
 import de.egril.defender.config.LogConfig
+import de.egril.defender.game.DemoMode
 import de.egril.defender.utils.JsonUtils
 import defender_of_egril.composeapp.generated.resources.Res
 
@@ -9,6 +10,10 @@ import defender_of_egril.composeapp.generated.resources.Res
  * Repository files are stored in composeResources/files/repository/
  */
 object RepositoryLoader {
+    private val EXTRA_REPOSITORY_LEVEL_IDS = listOf(DemoMode.DEMO_DEMO_LEVEL_ID)
+
+    private fun getRepositoryLevelIds(sequence: LevelSequence): List<String> = (sequence.sequence + EXTRA_REPOSITORY_LEVEL_IDS).distinct()
+
     private const val STORED_FINGERPRINT_FILE = "gamedata/repository_fingerprint.txt"
     private const val FNV1A_64_OFFSET_BASIS = 1469598103934665603UL
     private const val FNV1A_64_PRIME = 1099511628211UL
@@ -34,6 +39,61 @@ object RepositoryLoader {
         } catch (_: Exception) {
             null
         }
+
+    private suspend fun copyBundledTileZoneImages(
+        storage: FileStorage,
+        map: EditorMap,
+    ) {
+        map.tileZones.indices.forEach { index ->
+            val name =
+                de.egril.defender.ui.MapImageProvider
+                    .tileZoneImageFileName(map.id, index)
+            readRepositoryBytesOrNull("maps/$name")?.let { image ->
+                storage.writeBinaryFile("gamedata/official/maps/$name", image)
+            }
+        }
+    }
+
+    private suspend fun loadRepositoryTemplateIds(path: String): List<String> {
+        val bytes = readRepositoryBytesOrNull(path) ?: return emptyList()
+        return EditorTemplateJsonSerializer.deserializeTemplateIndex(bytes.decodeToString())
+    }
+
+    private suspend fun syncRepositoryTemplatesToStorage(storage: FileStorage) {
+        syncTemplateDirectory(
+            storage = storage,
+            indexPath = "editor/map_templates_index.json",
+            repositoryDirectory = "editor/map-templates",
+            storageDirectory = "gamedata/official/editor/map-templates",
+        )
+        syncTemplateDirectory(
+            storage = storage,
+            indexPath = "editor/spawn_templates_index.json",
+            repositoryDirectory = "editor/spawn-templates",
+            storageDirectory = "gamedata/official/editor/spawn-templates",
+        )
+    }
+
+    private suspend fun syncTemplateDirectory(
+        storage: FileStorage,
+        indexPath: String,
+        repositoryDirectory: String,
+        storageDirectory: String,
+    ) {
+        val templateIds = loadRepositoryTemplateIds(indexPath)
+        storage.createDirectory(storageDirectory)
+        val expectedFiles = templateIds.map { "$it.json" }.toSet()
+        storage
+            .listFiles(storageDirectory)
+            .filter { it.endsWith(".json") && it !in expectedFiles }
+            .forEach { staleFile ->
+                storage.deleteFile("$storageDirectory/$staleFile")
+            }
+        for (templateId in templateIds) {
+            val json = readRepositoryBytes("$repositoryDirectory/$templateId.json").decodeToString()
+            storage.writeFile("$storageDirectory/$templateId.json", json)
+        }
+    }
 
     /**
      * Builds a stable repository fingerprint using FNV-1a over each file path and file payload.
@@ -83,9 +143,13 @@ object RepositoryLoader {
             readRepositoryBytesOrNull("version.txt")?.let { builder.addFile("version.txt", it) }
             readRepositoryBytesOrNull("dragon_names.json")?.let { builder.addFile("dragon_names.json", it) }
             readRepositoryBytesOrNull("worldmap.json")?.let { builder.addFile("worldmap.json", it) }
+            readRepositoryBytesOrNull("editor/map_templates_index.json")?.let { builder.addFile("editor/map_templates_index.json", it) }
+            readRepositoryBytesOrNull("editor/spawn_templates_index.json")?.let { builder.addFile("editor/spawn_templates_index.json", it) }
 
+            val levelIds = getRepositoryLevelIds(sequence)
             val mapIds = linkedSetOf<String>()
-            for (levelId in sequence.sequence) {
+            val eventImageFiles = linkedSetOf<String>()
+            for (levelId in levelIds) {
                 val levelPath = "levels/$levelId.json"
                 val levelBytes = readRepositoryBytes(levelPath)
                 builder.addFile(levelPath, levelBytes)
@@ -97,13 +161,38 @@ object RepositoryLoader {
                         return null
                     }
                 mapIds.add(level.mapId)
+                level.events.events
+                    .flatMap { it.allActions() }
+                    .filter { it.type == de.egril.defender.model.EventActionType.SHOW_MAP_IMAGE }
+                    .mapNotNull { it.mapImage }
+                    .filter { it.isValid() }
+                    .forEach { eventImageFiles.add(it.fileName) }
             }
 
+            for (fileName in eventImageFiles.sorted()) {
+                readRepositoryBytesOrNull("levels/$fileName")?.let { builder.addFile("levels/$fileName", it) }
+            }
             for (mapId in mapIds.sorted()) { // Sorting keeps the fingerprint stable across launches.
                 val mapPath = "maps/$mapId.json"
                 val mapBytes = readRepositoryBytes(mapPath)
                 builder.addFile(mapPath, mapBytes)
                 readRepositoryBytesOrNull("maps/$mapId.png")?.let { builder.addFile("maps/$mapId.png", it) }
+                val bundledMap = EditorJsonSerializer.deserializeMap(mapBytes.decodeToString())
+                bundledMap?.tileZones?.indices?.forEach { index ->
+                    val file =
+                        de.egril.defender.ui.MapImageProvider
+                            .tileZoneImageFileName(mapId, index)
+                    readRepositoryBytesOrNull("maps/$file")?.let { builder.addFile("maps/$file", it) }
+                }
+            }
+
+            for (templateId in loadRepositoryTemplateIds("editor/map_templates_index.json").sorted()) {
+                val path = "editor/map-templates/$templateId.json"
+                readRepositoryBytesOrNull(path)?.let { builder.addFile(path, it) }
+            }
+            for (templateId in loadRepositoryTemplateIds("editor/spawn_templates_index.json").sorted()) {
+                val path = "editor/spawn-templates/$templateId.json"
+                readRepositoryBytesOrNull(path)?.let { builder.addFile(path, it) }
             }
 
             builder.build()
@@ -332,6 +421,7 @@ object RepositoryLoader {
                     // via the Level Editor, so we overwrite it here regardless of the fast path.
                     refreshWorldMapInStorage(storage)
                     refreshOfficialMapToolingInfoInStorage(storage)
+                    syncRepositoryTemplatesToStorage(storage)
                     return true
                 }
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -359,8 +449,12 @@ object RepositoryLoader {
                 println("Found ${sequence.sequence.size} levels in repository sequence")
             }
 
+            val mapTemplateIds = loadRepositoryTemplateIds("editor/map_templates_index.json")
+            val spawnTemplateIds = loadRepositoryTemplateIds("editor/spawn_templates_index.json")
+
             // Estimated total: levels (N) + maps upper-bound (N, since each level may need a unique map) + 1 worldmap file
-            val estimatedTotal = sequence.sequence.size * 2 + 1 // N levels + N maps (max) + 1 worldmap
+            val levelIds = getRepositoryLevelIds(sequence)
+            val estimatedTotal = levelIds.size * 2 + 1 + mapTemplateIds.size + spawnTemplateIds.size
             var loaded = 0
 
             // Track which maps we need to load
@@ -368,7 +462,7 @@ object RepositoryLoader {
 
             // Load all levels in the sequence
             var successCount = 0
-            for (levelId in sequence.sequence) {
+            for (levelId in levelIds) {
                 val level = loadLevel(levelId)
                 if (level != null) {
                     // Mark level as official and save to official directory
@@ -393,7 +487,8 @@ object RepositoryLoader {
 
             // Now that we know the actual number of unique maps, compute the real total:
             // N levels + M unique maps + 1 worldmap file (M ≤ N since maps are shared across levels)
-            val actualTotal = sequence.sequence.size + mapsToLoad.size + 1 // N levels + M maps + 1 worldmap
+            val actualTotal =
+                levelIds.size + mapsToLoad.size + 1 + mapTemplateIds.size + spawnTemplateIds.size
 
             // Load all required maps
             var mapCount = 0
@@ -417,6 +512,7 @@ object RepositoryLoader {
                     } catch (e: Exception) {
                         // PNG might not exist, that's OK
                     }
+                    copyBundledTileZoneImages(storage, officialMap)
                     mapCount++
                 } else {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -449,6 +545,22 @@ object RepositoryLoader {
             }
             loaded++
             onProgress?.invoke(loaded, actualTotal, "worldmap.json")
+
+            storage.createDirectory("gamedata/official/editor/map-templates")
+            for (templateId in mapTemplateIds) {
+                val json = readRepositoryBytes("editor/map-templates/$templateId.json").decodeToString()
+                storage.writeFile("gamedata/official/editor/map-templates/$templateId.json", json)
+                loaded++
+                onProgress?.invoke(loaded, actualTotal, "$templateId.json")
+            }
+
+            storage.createDirectory("gamedata/official/editor/spawn-templates")
+            for (templateId in spawnTemplateIds) {
+                val json = readRepositoryBytes("editor/spawn-templates/$templateId.json").decodeToString()
+                storage.writeFile("gamedata/official/editor/spawn-templates/$templateId.json", json)
+                loaded++
+                onProgress?.invoke(loaded, actualTotal, "$templateId.json")
+            }
 
             // Save version file (use bundledVersion if available, otherwise fall back to hardcoded)
             storage.writeFile("gamedata/version.txt", bundledVersion ?: "10")
@@ -516,6 +628,7 @@ object RepositoryLoader {
                     // via the Level Editor, so we overwrite it here regardless of the fast path.
                     refreshWorldMapInStorage(storage)
                     refreshOfficialMapToolingInfoInStorage(storage)
+                    syncRepositoryTemplatesToStorage(storage)
                     onFirstLevelReady()
                     return true
                 }
@@ -543,6 +656,8 @@ object RepositoryLoader {
                 println("Found ${sequence.sequence.size} levels in repository sequence (priority mode)")
             }
 
+            val levelIds = getRepositoryLevelIds(sequence)
+
             // Save sequence and worldmap first so they are available after onFirstLevelReady().
             val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
             storage.writeFile("gamedata/official/sequence.json", sequenceJson)
@@ -557,7 +672,7 @@ object RepositoryLoader {
             }
 
             // Estimated total: levels (N) + maps upper-bound (N) + 1 worldmap
-            val estimatedTotal = sequence.sequence.size * 2 + 1
+            val estimatedTotal = levelIds.size * 2 + 1
             var loaded = 0
 
             // --- Priority phase: load the first level and its map ---
@@ -587,6 +702,7 @@ object RepositoryLoader {
                     } catch (_: Exception) {
                         // PNG might not exist, that's OK
                     }
+                    copyBundledTileZoneImages(storage, officialMap)
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Loaded and saved priority map: $priorityMapId")
                     }
@@ -603,7 +719,8 @@ object RepositoryLoader {
             if (priorityMapId != null) mapsToLoad.add(priorityMapId)
 
             var successCount = if (priorityLevel != null) 1 else 0
-            for (levelId in sequence.sequence.drop(1)) {
+            val extraLevelIds = EXTRA_REPOSITORY_LEVEL_IDS.filter { it !in sequence.sequence }
+            for (levelId in sequence.sequence.drop(1) + extraLevelIds) {
                 val level = loadLevel(levelId)
                 if (level != null) {
                     val officialLevel = level.copy(isOfficial = true)
@@ -625,7 +742,7 @@ object RepositoryLoader {
                 onProgress?.invoke(loaded, estimatedTotal, "$levelId.json")
             }
 
-            val actualTotal = sequence.sequence.size + mapsToLoad.size + 1
+            val actualTotal = levelIds.size + mapsToLoad.size + 1
             var mapCount = if (priorityMapId != null) 1 else 0
             for (mapId in mapsToLoad) {
                 if (mapId == priorityMapId) {
@@ -650,6 +767,7 @@ object RepositoryLoader {
                     } catch (_: Exception) {
                         // PNG might not exist, that's OK
                     }
+                    copyBundledTileZoneImages(storage, officialMap)
                     mapCount++
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Loaded and saved official map: $mapId")
@@ -668,6 +786,7 @@ object RepositoryLoader {
             if (bundledFingerprint != null) {
                 storage.writeFile(STORED_FINGERPRINT_FILE, bundledFingerprint)
             }
+            syncRepositoryTemplatesToStorage(storage)
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("Repository files loaded successfully (priority mode): $successCount levels, $mapCount maps")

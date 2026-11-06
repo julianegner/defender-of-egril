@@ -43,6 +43,7 @@ object LocationIconUtils {
             "plains",
             "winding_path",
             "start",
+            "sandbox"
         )
 
     /**
@@ -77,6 +78,8 @@ object LocationIconUtils {
             "location_island" -> Res.drawable.location_island
             "location_plains" -> Res.drawable.location_plains
             "location_winding_path" -> Res.drawable.location_winding_path
+            "location_start" -> Res.drawable.location_start
+            "location_sandbox" -> Res.drawable.location_sandbox
             "fortress" -> Res.drawable.location_fortress
             "city" -> Res.drawable.location_city
             "creek" -> Res.drawable.location_creek
@@ -99,6 +102,7 @@ object LocationIconUtils {
             "plains" -> Res.drawable.location_plains
             "winding_path" -> Res.drawable.location_winding_path
             "start" -> Res.drawable.location_start
+            "sandbox" -> Res.drawable.location_sandbox
             else -> null // Icon doesn't exist or not in allowed list
         }
     }

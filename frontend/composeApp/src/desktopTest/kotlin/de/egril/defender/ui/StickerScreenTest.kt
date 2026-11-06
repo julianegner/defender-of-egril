@@ -2,7 +2,6 @@ package de.egril.defender.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import de.egril.defender.ui.ScreenshotTestUtils
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertTrue

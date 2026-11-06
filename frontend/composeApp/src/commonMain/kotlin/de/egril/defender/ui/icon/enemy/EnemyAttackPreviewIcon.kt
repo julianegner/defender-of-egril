@@ -25,8 +25,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.egril.defender.game.isProtectedByObsidianProtector
+import de.egril.defender.game.isShieldWallAttackBlocked
+import de.egril.defender.game.runeGlyphWardArmor
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.Defender
+import de.egril.defender.model.DefenderType
+import de.egril.defender.model.GameState
 import de.egril.defender.model.isImmuneToAttackFrom
 import de.egril.defender.model.previewAttackDamage
 
@@ -52,9 +57,17 @@ fun enemyAttackPreview(
     attacker: Attacker,
     defender: Defender,
     hasDoubleLevelBuff: Boolean,
+    gameState: GameState? = null,
 ): EnemyAttackPreview {
-    val isImmune = attacker.isImmuneToAttackFrom(defender.type)
-    val damage = defender.previewAttackDamage(hasDoubleLevelBuff)
+    val isImmune =
+        attacker.isImmuneToAttackFrom(defender.type) ||
+            (gameState?.isShieldWallAttackBlocked(defender, attacker) == true) ||
+            (gameState?.isProtectedByObsidianProtector(attacker) == true)
+    var damage = defender.previewAttackDamage(hasDoubleLevelBuff)
+    if (defender.type == DefenderType.WIZARD_TOWER && attacker.type.wizardTowerDamageReduction > 0f) {
+        damage = (damage * (1f - attacker.type.wizardTowerDamageReduction)).toInt().coerceAtLeast(1)
+    }
+    damage = (damage - (gameState?.runeGlyphWardArmor(attacker) ?: 0)).coerceAtLeast(0)
     return EnemyAttackPreview(
         damage = damage,
         isLethal = !isImmune && damage >= attacker.currentHealth.value,

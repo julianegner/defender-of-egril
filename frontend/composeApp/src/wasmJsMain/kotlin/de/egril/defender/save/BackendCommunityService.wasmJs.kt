@@ -89,4 +89,9 @@ actual object BackendCommunityService {
         // The caller falls back to locally-generated map images, so returning null is safe.
         return null
     }
+
+    actual suspend fun fetchCommunityMapZoneImage(
+        mapId: String,
+        zoneIndex: Int,
+    ): ByteArray? = null
 }
