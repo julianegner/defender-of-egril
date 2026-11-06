@@ -65,12 +65,17 @@ private external fun getCurrentUrl(): String?
 
 private const val PLATFORM = "WEB"
 
+/** Set `globalThis.DEFENDER_ANALYTICS_DISABLED = true` in the test page to suppress analytics. */
+@JsFun("() => globalThis.DEFENDER_ANALYTICS_DISABLED === true")
+private external fun isAnalyticsDisabled(): Boolean
+
 actual fun reportEvent(
     eventType: GameEventType,
     levelName: String?,
     turnNumber: Int?,
     difficulty: String?,
 ) {
+    if (isAnalyticsDisabled()) return
     val url = if (eventType == GameEventType.APP_STARTED || eventType == GameEventType.APP_CLOSED) getCurrentUrl() else null
     val json = buildEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty, url, getOrCreateInstallUuid())
     if (eventType == GameEventType.APP_CLOSED) {

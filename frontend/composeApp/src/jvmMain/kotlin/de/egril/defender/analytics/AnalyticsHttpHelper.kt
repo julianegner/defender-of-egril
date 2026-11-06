@@ -4,6 +4,9 @@ import de.egril.defender.iam.IamService
 import java.net.HttpURLConnection
 import java.net.URI
 
+/** Set to "true" by the Gradle test tasks so test runs never send analytics events. */
+internal const val ANALYTICS_DISABLED_PROPERTY = "defender.analytics.disabled"
+
 /**
  * Fire-and-forget HTTP POST to the analytics backend.
  * Runs on a daemon thread so it never blocks the game.
@@ -18,6 +21,7 @@ internal fun postEventJson(
     difficulty: String? = null,
     installUuid: String,
 ) {
+    if (System.getProperty(ANALYTICS_DISABLED_PROPERTY) == "true") return
     val json = buildEventJson(eventType, levelName, platform, turnNumber, difficulty, installUuid = installUuid)
     val targetUrl = "$backendUrl/api/events"
     val token = IamService.getToken()

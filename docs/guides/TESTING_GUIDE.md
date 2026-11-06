@@ -110,6 +110,16 @@ Start a game and observe enemies as they spawn and move.
    - [ ] Complete a level or lose
    - [ ] Ensure icons still render correctly in end-game state
 
+## Analytics During Tests
+
+Automated tests must not send analytics events to the production backend. Each platform has a guard:
+
+- **JVM / Desktop / Android**: the Gradle `Test` tasks set the system property `defender.analytics.disabled=true` (`frontend/composeApp/build.gradle.kts`). `postEventJson` in `AnalyticsHttpHelper.kt` returns early when it is set.
+- **wasmJs**: the Karma config in `frontend/composeApp/karma.config.d/` sets `globalThis.DEFENDER_ANALYTICS_DISABLED = true` before the test bundle loads. `AnalyticsService.wasmJs.kt` checks it.
+- **iOS**: set the environment variable `DEFENDER_ANALYTICS_DISABLED=true` in the Xcode test scheme or CI. `AnalyticsService.ios.kt` checks it. Not set automatically.
+
+To add a new test platform, add the same guard to its `reportEvent` actual.
+
 ## Known Limitations
 
 The icons are drawn programmatically, not from image files, which means:

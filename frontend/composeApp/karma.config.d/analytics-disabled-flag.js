@@ -1,0 +1,1 @@
+globalThis.DEFENDER_ANALYTICS_DISABLED = true;
