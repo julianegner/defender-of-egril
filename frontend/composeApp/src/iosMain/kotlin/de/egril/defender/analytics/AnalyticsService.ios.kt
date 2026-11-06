@@ -13,6 +13,9 @@ import platform.Foundation.dataUsingEncoding
 
 private const val PLATFORM = "IOS"
 
+/** Set to "true" in the Xcode test scheme or CI environment to suppress analytics. */
+private const val ANALYTICS_DISABLED_ENV = "DEFENDER_ANALYTICS_DISABLED"
+
 private val backendUrl: String
     get() =
         NSProcessInfo.processInfo.environment["ANALYTICS_BACKEND_URL"] as? String
@@ -29,6 +32,7 @@ actual fun reportEvent(
     turnNumber: Int?,
     difficulty: String?,
 ) {
+    if ((NSProcessInfo.processInfo.environment[ANALYTICS_DISABLED_ENV] as? String) == "true") return
     val json = buildEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty, installUuid = getOrCreateInstallUuid())
     val url = NSURL.URLWithString("$backendUrl/api/events") ?: return
     val request = NSMutableURLRequest.requestWithURL(url)

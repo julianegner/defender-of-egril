@@ -413,6 +413,11 @@ kotlin {
     }
 }
 
+// Prevent test runs from sending analytics events to the production backend (see AnalyticsHttpHelper.kt)
+tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
+    systemProperty("defender.analytics.disabled", "true")
+}
+
 // Make all Kotlin compilation tasks depend on generateBuildConfig, generateWithImpressumConstant, and generateOfficialEditModeConstant
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
     dependsOn(generateBuildConfig)
