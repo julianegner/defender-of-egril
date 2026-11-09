@@ -53,6 +53,10 @@ class SpecialInfoFocusTest {
         composeTestRule.onNodeWithText("Got it!").performClick()
         composeTestRule.waitForIdle()
 
+        // Refocusing runs in a LaunchedEffect after the info card leaves composition, so waitForIdle() alone can return too early
+        composeTestRule.waitUntil(timeoutMillis = 5_000) {
+            composeTestRule.onAllNodes(isFocused()).fetchSemanticsNodes().isNotEmpty()
+        }
         // Arrow keys are only handled by the focused element, so something must hold focus after the info box closes
         composeTestRule.onNode(isFocused()).assertExists("No element has focus after dismissing the info box")
         composeTestRule.onRoot().performKeyInput { pressKey(Key.DirectionDown) }

@@ -329,18 +329,15 @@ private class HexMapGenerator(
             return findValidExtremePosition(tiles, preferLeft = false, excluded = existingTargets)
         }
 
+        // One flood fill per spawn anchor instead of one BFS per candidate target.
+        val spawnDistances =
+            spawnAnchors.map { spawn ->
+                val spawnType = spawnPointInfoMap[key(spawn)] ?: SpawnPointType.LAND
+                distancesFrom(spawn, tiles, allowRiverTiles = spawnType == SpawnPointType.WATER)
+            }
         val candidateScores =
             candidates.map { target ->
-                val pathLengths =
-                    spawnAnchors.mapNotNull { spawn ->
-                        val spawnType = spawnPointInfoMap[key(spawn)] ?: SpawnPointType.LAND
-                        shortestPathLength(
-                            start = spawn,
-                            end = target,
-                            tiles = tiles,
-                            allowRiverTiles = spawnType == SpawnPointType.WATER,
-                        )
-                    }
+                val pathLengths = spawnDistances.mapNotNull { it[target] }
                 val minPathLength = pathLengths.minOrNull() ?: -1
                 target to minPathLength
             }
@@ -367,39 +364,33 @@ private class HexMapGenerator(
         spawnType: SpawnPointType,
         tiles: Map<String, TileType>,
         salt: Int,
-    ): Position =
-        targets.maxByOrNull { target ->
-            val shortestPath =
-                shortestPathLength(
-                    start = spawn,
-                    end = target,
-                    tiles = tiles,
-                    allowRiverTiles = spawnType == SpawnPointType.WATER,
-                ) ?: spawn.hexDistanceTo(target)
+    ): Position {
+        val distances = distancesFrom(spawn, tiles, allowRiverTiles = spawnType == SpawnPointType.WATER)
+        return targets.maxByOrNull { target ->
+            val shortestPath = distances[target] ?: spawn.hexDistanceTo(target)
             shortestPath * 100 + random.nextInt(0, 3) + salt
         } ?: targets.first()
+    }
 
-    private fun shortestPathLength(
+    /** Breadth-first distances from [start] to every reachable tile, using the same traversal rules as path generation. */
+    private fun distancesFrom(
         start: Position,
-        end: Position,
         tiles: Map<String, TileType>,
         allowRiverTiles: Boolean,
-    ): Int? {
-        val queue = ArrayDeque<Pair<Position, Int>>()
-        val visited = mutableSetOf(start)
-        queue.add(start to 0)
+    ): Map<Position, Int> {
+        val distances = hashMapOf(start to 0)
+        val queue = ArrayDeque<Position>()
+        queue.add(start)
 
         while (queue.isNotEmpty()) {
-            val (current, distance) = queue.removeFirst()
-            if (current == end) return distance
-
+            val current = queue.removeFirst()
+            val distance = distances.getValue(current)
             current
                 .getHexNeighbors()
-                .filter { it in validGridPositions && it !in visited }
+                .filter { it in validGridPositions && it !in distances }
                 .forEach { neighbor ->
-                    val neighborType = tileType(tiles, neighbor)
                     val traversable =
-                        when (neighborType) {
+                        when (tileType(tiles, neighbor)) {
                             TileType.NO_PLAY,
                             TileType.BUILD_AREA,
                             -> false
@@ -407,12 +398,12 @@ private class HexMapGenerator(
                             else -> true
                         }
                     if (traversable) {
-                        visited += neighbor
-                        queue.add(neighbor to distance + 1)
+                        distances[neighbor] = distance + 1
+                        queue.add(neighbor)
                     }
                 }
         }
-        return null
+        return distances
     }
 
     private fun findWindingPath(
