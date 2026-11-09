@@ -72,6 +72,8 @@
     <string name="restore_game_data_failure_message">Impossible de restaurer les données du jeu. Veuillez réessayer.</string>
     <string name="game_data">Données du Jeu</string>
     <string name="close">Fermer</string>
+    <string name="story_logbook_title">Journal de l'histoire</string>
+    <string name="story_logbook_empty">Aucun message de l'histoire pour le moment.</string>
     <string name="settings_hint_title">Paramètres Disponibles</string>
     <string name="settings_hint_message">Cliquez sur l'icône des paramètres pour personnaliser votre expérience. Les paramètres disponibles incluent :</string>
     <string name="settings_hint_dismiss">Compris !</string>
@@ -2114,6 +2116,7 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="tooltip_return_to_worldmap">Retour à la carte du monde</string>
     <string name="tooltip_shortcuts">Raccourcis</string>
     <string name="tooltip_feedback">Envoyer un retour</string>
+    <string name="tooltip_win_level_now">Le niveau peut être gagné maintenant - cliquez pour les détails</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Télécharger</string>

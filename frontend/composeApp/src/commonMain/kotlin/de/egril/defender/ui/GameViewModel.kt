@@ -1246,11 +1246,12 @@ class GameViewModel {
             // Show story intro message if this level has one (all levels except the tutorial)
             val editorLevelId = level.editorLevelId
             if (editorLevelId != null && editorLevelId != "welcome_to_defender_of_egril") {
-                _pendingGameMessage.value =
+                presentGameMessage(
                     de.egril.defender.model.GameMessage(
                         type = de.egril.defender.model.GameMessageType.STORY_INTRO,
                         name = editorLevelId,
                     )
+                )
             }
 
             // Capture initial state snapshot
@@ -1451,11 +1452,12 @@ class GameViewModel {
 
             val editorLevelId = level.editorLevelId
             if (editorLevelId != null && editorLevelId != "welcome_to_defender_of_egril") {
-                _pendingGameMessage.value =
+                presentGameMessage(
                     de.egril.defender.model.GameMessage(
                         type = de.egril.defender.model.GameMessageType.STORY_INTRO,
                         name = editorLevelId,
                     )
+                )
             }
 
             initialGameStateSnapshot = createGameStateSnapshot(newGameState)
@@ -4093,13 +4095,25 @@ class GameViewModel {
     }
 
     /**
+     * Show [message] as the current game message and record it in the story logbook
+     * together with the round in which it is shown.
+     */
+    private fun presentGameMessage(message: de.egril.defender.model.GameMessage) {
+        val state = _gameState.value
+        if (state != null) {
+            state.storyLog.add(de.egril.defender.model.StoryLogEntry(state.turnNumber.value, message))
+        }
+        _pendingGameMessage.value = message
+    }
+
+    /**
      * Dismiss the current game message and surface the next one (if any).
      */
     fun dismissGameMessage() {
         val state = _gameState.value
         if (state != null && state.pendingMessages.isNotEmpty()) {
             val next = state.pendingMessages.removeAt(0)
-            _pendingGameMessage.value = next
+            presentGameMessage(next)
         } else {
             _pendingGameMessage.value = null
             if (_currentScreen.value is Screen.GamePlay &&
@@ -4133,7 +4147,7 @@ class GameViewModel {
         val state = _gameState.value ?: return
         if (state.pendingMessages.isNotEmpty() && _pendingGameMessage.value == null) {
             val nextMessage = state.pendingMessages.removeAt(0)
-            _pendingGameMessage.value = nextMessage
+            presentGameMessage(nextMessage)
         }
         if (state.scriptedVictory.value && !state.isLevelLost() && state.isLevelWon()) {
             completeLevel(state.level.id, won = true)

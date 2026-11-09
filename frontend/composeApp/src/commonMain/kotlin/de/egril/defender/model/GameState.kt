@@ -232,6 +232,11 @@ data class GameMessage(
     val eventMessageAmount: Int? = null, // Numeric story argument captured when the event fired
 )
 
+/**
+ * A story message that was shown to the player, together with the round in which it was shown.
+ */
+data class StoryLogEntry(val turn: Int, val message: GameMessage)
+
 data class PendingSoulCall(
     val position: Position,
     val attackerType: AttackerType,
@@ -378,6 +383,7 @@ data class GameState(
     // SINGLE_HIT target tracking
     val takenTargets: SnapshotStateList<Position> = mutableStateListOf(), // Positions of taken SINGLE_HIT targets
     val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf(), // Messages queued for display
+    val storyLog: SnapshotStateList<StoryLogEntry> = mutableStateListOf(), // Messages already shown, oldest first
     val waaghPoints: MutableState<Int> = mutableStateOf(0), // Current Waaagh! meter (0-100)
     val waaghFrenzyActive: MutableState<Boolean> = mutableStateOf(false), // True while Waaagh! frenzy is active
     val waaghFrenzyRoundsLeft: MutableState<Int> = mutableStateOf(0), // Enemy turns remaining in the current frenzy

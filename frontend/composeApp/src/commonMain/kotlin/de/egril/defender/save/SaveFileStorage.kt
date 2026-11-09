@@ -466,6 +466,15 @@ object SaveFileStorage {
             coinSurgeActive = gameState.coinSurgeActive.value,
             playedTileAnimationKeys = gameState.playedTileAnimationKeys.keys.toList(),
             triggeredEventIds = gameState.triggeredEventIds.toList(),
+            storyLog =
+                gameState.storyLog.map { entry ->
+                    SavedStoryLogEntry(
+                        turn = entry.turn,
+                        type = entry.message.type.name,
+                        name = entry.message.name,
+                        amount = entry.message.eventMessageAmount,
+                    )
+                },
             enemiesKilledTotal = gameState.enemiesKilledTotal.value,
             enemiesKilledByType = gameState.enemiesKilledByType.toMap(),
             waaghPoints = gameState.waaghPoints.value,
@@ -670,6 +679,20 @@ object SaveFileStorage {
         // Restore scripted-event tracking so already-fired events don't re-trigger after load.
         gameState.triggeredEventIds.clear()
         gameState.triggeredEventIds.addAll(savedGame.triggeredEventIds)
+        gameState.storyLog.clear()
+        gameState.storyLog.addAll(
+            savedGame.storyLog.map { saved ->
+                StoryLogEntry(
+                    turn = saved.turn,
+                    message =
+                        GameMessage(
+                            type = GameMessageType.valueOf(saved.type),
+                            name = saved.name,
+                            eventMessageAmount = saved.amount,
+                        ),
+                )
+            },
+        )
         gameState.enemiesKilledTotal.value = savedGame.enemiesKilledTotal
         gameState.enemiesKilledByType.clear()
         gameState.enemiesKilledByType.putAll(savedGame.enemiesKilledByType)

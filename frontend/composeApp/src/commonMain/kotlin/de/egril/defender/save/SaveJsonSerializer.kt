@@ -239,6 +239,12 @@ object SaveJsonSerializer {
         // Scripted-event tracking
         val triggeredEventIdsJson =
             savedGame.triggeredEventIds.joinToString(", ") { "\"$it\"" }
+        val storyLogJson =
+            savedGame.storyLog.joinToString(",\n    ") { entry ->
+                val nameStr = entry.name?.let { "\"$it\"" } ?: "null"
+                val amountStr = entry.amount?.toString() ?: "null"
+                """{"turn": ${entry.turn}, "type": "${entry.type}", "name": $nameStr, "amount": $amountStr}"""
+            }
         val enemiesKilledByTypeJson =
             savedGame.enemiesKilledByType.entries.joinToString(", ") { (type, count) ->
                 "\"${type.name}\": $count"
@@ -412,6 +418,9 @@ object SaveJsonSerializer {
   "coinSurgeActive": ${savedGame.coinSurgeActive},
   "playedTileAnimationKeys": [$playedTileAnimationKeysJson],
   "triggeredEventIds": [$triggeredEventIdsJson],
+  "storyLog": [
+    $storyLogJson
+  ],
   "enemiesKilledTotal": ${savedGame.enemiesKilledTotal},
   "enemiesKilledByType": {$enemiesKilledByTypeJson},
   "waaghPoints": ${savedGame.waaghPoints},
@@ -731,6 +740,19 @@ object SaveJsonSerializer {
 
             // Parse scripted-event tracking (optional for backward compatibility)
             val triggeredEventIds = parseStringArray(dataJson, "triggeredEventIds")
+            val storyLog =
+                JsonUtils
+                    .splitJsonArray(JsonUtils.extractJsonArrayForKey(dataJson, "storyLog"))
+                    .filter { it.isNotBlank() }
+                    .map { entry ->
+                        val nameRaw = JsonUtils.extractValue(entry, "name")
+                        SavedStoryLogEntry(
+                            turn = JsonUtils.extractValue(entry, "turn").toInt(),
+                            type = JsonUtils.extractValue(entry, "type"),
+                            name = nameRaw.takeUnless { it == "null" || it.isEmpty() },
+                            amount = JsonUtils.extractValue(entry, "amount").toIntOrNull(),
+                        )
+                    }
             val enemiesKilledTotal =
                 try {
                     JsonUtils.extractValue(dataJson, "enemiesKilledTotal").toInt()
@@ -971,6 +993,7 @@ object SaveJsonSerializer {
                 coinSurgeActive = coinSurgeActive,
                 playedTileAnimationKeys = playedTileAnimationKeys,
                 triggeredEventIds = triggeredEventIds,
+                storyLog = storyLog,
                 enemiesKilledTotal = enemiesKilledTotal,
                 enemiesKilledByType = enemiesKilledByType,
                 waaghPoints = waaghPoints,

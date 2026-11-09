@@ -3476,69 +3476,7 @@ private fun GamePlayScreenContent(
                                 )
                             GameMessageType.VILLAIN_ENTERS -> {
                                 val villainType = attackerTypeFromMessageName(msg.name)
-                                val (villainTitle, villainText) =
-                                    when (msg.name) {
-                                        AttackerType.GAROKK.name ->
-                                            stringResource(Res.string.villain_garokk_title) to
-                                                (stringResource(Res.string.villain_garokk_backstory) + "\n" + stringResource(Res.string.villain_garokk_description))
-                                        AttackerType.SNOTLING_BOSS.name ->
-                                            stringResource(Res.string.villain_gribnak_title) to
-                                                (stringResource(Res.string.villain_gribnak_backstory) + "\n" + stringResource(Res.string.villain_gribnak_description))
-                                        AttackerType.MORGUK_BONEWHISPER.name ->
-                                            stringResource(Res.string.villain_morguk_title) to
-                                                (stringResource(Res.string.villain_morguk_backstory) + "\n" + stringResource(Res.string.villain_morguk_description))
-                                        AttackerType.ARAXXA.name ->
-                                            stringResource(Res.string.villain_araxxa_title) to
-                                                (stringResource(Res.string.villain_araxxa_backstory) + "\n" + stringResource(Res.string.villain_araxxa_description))
-                                        AttackerType.BARON_RATTERZAHN.name ->
-                                            stringResource(Res.string.villain_ratterzahn_title) to
-                                                (stringResource(Res.string.villain_ratterzahn_backstory) + "\n" + stringResource(Res.string.villain_ratterzahn_description))
-                                        AttackerType.FALLEN_SHIELDMAIDEN_FREYA.name ->
-                                            stringResource(Res.string.villain_freya_title) to
-                                                (stringResource(Res.string.villain_freya_backstory) + "\n" + stringResource(Res.string.villain_freya_description))
-                                        AttackerType.OBSIDIAN_PROTECTOR.name ->
-                                            stringResource(Res.string.villain_obsidian_protector_title) to
-                                                (stringResource(Res.string.villain_obsidian_protector_backstory) + "\n" + stringResource(Res.string.villain_obsidian_protector_description))
-                                        AttackerType.PRINCE_VALERIUS_THE_SOULREAPER.name ->
-                                            stringResource(Res.string.villain_valerius_title) to
-                                                (stringResource(Res.string.villain_valerius_backstory) + "\n" + stringResource(Res.string.villain_valerius_description))
-                                        AttackerType.SILAS_THE_MASKMASTER.name ->
-                                            stringResource(Res.string.villain_silas_title) to
-                                                (stringResource(Res.string.villain_silas_backstory) + "\n" + stringResource(Res.string.villain_silas_description))
-                                        AttackerType.GRAND_COVEN_MOTHER_SYBILLA.name ->
-                                            stringResource(Res.string.villain_sybilla_title) to
-                                                (stringResource(Res.string.villain_sybilla_backstory) + "\n" + stringResource(Res.string.villain_sybilla_description))
-                                        AttackerType.SYLVANAS_THE_MOLDING.name ->
-                                            stringResource(Res.string.villain_sylvanas_title) to
-                                                (stringResource(Res.string.villain_sylvanas_backstory) + "\n" + stringResource(Res.string.villain_sylvanas_description))
-                                        AttackerType.ARCHMAGE_MALAKOR_THE_RENEGADE.name ->
-                                            stringResource(Res.string.villain_malakor_title) to
-                                                (stringResource(Res.string.villain_malakor_backstory) + "\n" + stringResource(Res.string.villain_malakor_description))
-                                        AttackerType.IGNIS_VA_THE_DRAGONVOICE.name ->
-                                            stringResource(Res.string.villain_ignis_va_title) to
-                                                (stringResource(Res.string.villain_ignis_va_backstory) + "\n" + stringResource(Res.string.villain_ignis_va_description))
-                                        AttackerType.MORVATH_THE_SHADOWMASTER.name ->
-                                            stringResource(Res.string.villain_morvath_title) to
-                                                (stringResource(Res.string.villain_morvath_backstory) + "\n" + stringResource(Res.string.villain_morvath_description))
-                                        AttackerType.XARITHON_THE_SHADOW_DRAGON.name ->
-                                            stringResource(Res.string.villain_xarithon_title) to
-                                                (stringResource(Res.string.villain_xarithon_backstory) + "\n" + stringResource(Res.string.villain_xarithon_description))
-                                        AttackerType.CAPTAIN_RODERICH.name ->
-                                            stringResource(Res.string.villain_roderich_title) to
-                                                (stringResource(Res.string.villain_roderich_backstory) + "\n" + stringResource(Res.string.villain_roderich_description))
-                                        AttackerType.THE_KRAKEN.name ->
-                                            stringResource(Res.string.villain_kraken_title) to
-                                                (stringResource(Res.string.villain_kraken_backstory) + "\n" + stringResource(Res.string.villain_kraken_description))
-                                        AttackerType.ZYTHAR_THE_RIFTCALLER.name ->
-                                            stringResource(Res.string.villain_zythar_title) to
-                                                (stringResource(Res.string.villain_zythar_backstory) + "\n" + stringResource(Res.string.villain_zythar_description))
-                                        AttackerType.GRAND_RUNEMASTER_VAELEN.name ->
-                                            stringResource(Res.string.villain_vaelen_title) to
-                                                (stringResource(Res.string.villain_vaelen_backstory) + "\n" + stringResource(Res.string.villain_vaelen_description))
-                                        else ->
-                                            stringResource(Res.string.villain_enters_title) to
-                                                stringResource(Res.string.villain_enters_text)
-                                    }
+                                val (villainTitle, villainText) = villainEnterContent(msg.name)
                                 NarrativeMessageDialog(
                                     type = NarrativeMessageType.EWHAD,
                                     title = villainTitle,
@@ -4074,4 +4012,4 @@ internal fun villainMessageButtonColor(name: String?): Color? {
  * Villain narrative messages carry the attacker type as a string in [GameMessage.name],
  * so this helper prevents crashes from invalid payloads and keeps message rendering resilient.
  */
-private fun attackerTypeFromMessageName(name: String?): AttackerType? = name?.let { runCatching { AttackerType.valueOf(it) }.getOrNull() }
+internal fun attackerTypeFromMessageName(name: String?): AttackerType? = name?.let { runCatching { AttackerType.valueOf(it) }.getOrNull() }

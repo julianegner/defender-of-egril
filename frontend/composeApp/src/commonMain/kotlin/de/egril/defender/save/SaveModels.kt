@@ -76,6 +76,7 @@ data class SavedGame(
     val playedTileAnimationKeys: List<String> = emptyList(), // One-shot tile animations already shown and not to replay after culling/save-load
     // Scripted-event tracking, persisted so events don't re-fire after save/load.
     val triggeredEventIds: List<String> = emptyList(), // IDs of scripted events that have already fired
+    val storyLog: List<SavedStoryLogEntry> = emptyList(), // Story messages already shown, oldest first (drives the logbook icon)
     val enemiesKilledTotal: Int = 0, // Total enemies killed (for event conditions)
     val enemiesKilledByType: Map<AttackerType, Int> = emptyMap(), // Kills per enemy type (for event conditions)
     val waaghPoints: Int = 0, // Current Waaagh! meter
@@ -199,6 +200,14 @@ data class SavedFief(
 
 data class SavedMushroom(
     val position: Position,
+)
+
+/** Persisted form of a [de.egril.defender.model.StoryLogEntry]; only the fields needed to show the message again. */
+data class SavedStoryLogEntry(
+    val turn: Int,
+    val type: String,
+    val name: String?,
+    val amount: Int?,
 )
 
 /** Persisted form of [de.egril.defender.model.Gargoyle]. An active gargoyle's attacker is saved separately in [SavedGame.attackers]. */

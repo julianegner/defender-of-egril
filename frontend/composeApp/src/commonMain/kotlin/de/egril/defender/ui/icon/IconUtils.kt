@@ -955,6 +955,23 @@ fun TrophyIcon(
 }
 
 /**
+ * Displays an open book icon (used for the story logbook)
+ */
+@Composable
+fun BookIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color? = null,
+) {
+    MaterialSymbol.Filled(
+        icon = MaterialSymbols.BOOK_2,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier,
+    )
+}
+
+/**
  * Displays a chevron right icon (simple arrow)
  */
 @Composable

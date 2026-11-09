@@ -72,6 +72,8 @@
     <string name="restore_game_data_failure_message">Failed to restore game data. Please try again.</string>
     <string name="game_data">Game Data</string>
     <string name="close">Close</string>
+    <string name="story_logbook_title">Story Logbook</string>
+    <string name="story_logbook_empty">No story messages yet.</string>
     <string name="settings_hint_title">Settings Available</string>
     <string name="settings_hint_message">Click the settings icon to customize your experience. Available settings include:</string>
     <string name="settings_hint_dismiss">Got it!</string>
@@ -2120,6 +2122,7 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="tooltip_return_to_worldmap">Return to the worldmap</string>
     <string name="tooltip_shortcuts">Shortcuts</string>
     <string name="tooltip_feedback">Send feedback</string>
+    <string name="tooltip_win_level_now">Level can be won now - click for details</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Download</string>

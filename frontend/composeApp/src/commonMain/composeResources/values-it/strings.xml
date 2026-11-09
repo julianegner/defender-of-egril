@@ -72,6 +72,8 @@
     <string name="restore_game_data_failure_message">Impossibile ripristinare i dati di gioco. Riprova.</string>
     <string name="game_data">Dati di Gioco</string>
     <string name="close">Chiudi</string>
+    <string name="story_logbook_title">Diario della storia</string>
+    <string name="story_logbook_empty">Nessun messaggio della storia finora.</string>
     <string name="settings_hint_title">Impostazioni Disponibili</string>
     <string name="settings_hint_message">Clicca sull'icona delle impostazioni per personalizzare la tua esperienza. Le impostazioni disponibili includono:</string>
     <string name="settings_hint_dismiss">Capito!</string>
@@ -2115,6 +2117,7 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="tooltip_return_to_worldmap">Torna alla mappa del mondo</string>
     <string name="tooltip_shortcuts">Scorciatoie</string>
     <string name="tooltip_feedback">Invia feedback</string>
+    <string name="tooltip_win_level_now">Il livello può essere vinto ora - clicca per i dettagli</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Scarica</string>

@@ -72,6 +72,8 @@
     <string name="restore_game_data_failure_message">Spieldaten konnten nicht wiederhergestellt werden. Bitte versuchen Sie es erneut.</string>
     <string name="game_data">Spieldaten</string>
     <string name="close">Schließen</string>
+    <string name="story_logbook_title">Geschichtenbuch</string>
+    <string name="story_logbook_empty">Noch keine Story-Meldungen.</string>
     <string name="settings_hint_title">Einstellungen verfügbar</string>
     <string name="settings_hint_message">Klicken Sie auf das Einstellungssymbol, um Ihre Erfahrung anzupassen. Verfügbare Einstellungen umfassen:</string>
     <string name="settings_hint_dismiss">Verstanden!</string>
@@ -2112,6 +2114,7 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="tooltip_return_to_worldmap">Zur Weltkarte zurückkehren</string>
     <string name="tooltip_shortcuts">Tastenkürzel</string>
     <string name="tooltip_feedback">Feedback senden</string>
+    <string name="tooltip_win_level_now">Level kann jetzt gewonnen werden - klicken für Details</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Herunterladen</string>

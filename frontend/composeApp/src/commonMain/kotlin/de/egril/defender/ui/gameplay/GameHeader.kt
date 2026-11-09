@@ -808,17 +808,20 @@ private fun LevelHeaderIcons(
             it in listOf(DefenderType.WIZARD_TOWER, DefenderType.ALCHEMY_TOWER, DefenderType.BALLISTA_TOWER, DefenderType.DWARVEN_MINE)
         }
     val hasSpecialTowers = specialTowers.isNotEmpty()
+    var showStoryLogbook by rememberSaveable { mutableStateOf(false) }
 
     // Win-level info icon with a speech bubble pointing at it (only shown when the level is
     // guaranteed to be won). Clicking the badge opens the full win-level popup.
     if (onWinLevelInfoClick != null && gameState.canWinLevelNow()) {
         var bubbleDismissed by rememberSaveable { mutableStateOf(false) }
         Box {
-            TrophyIcon(
-                size = iconSize,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable { onWinLevelInfoClick() },
-            )
+            TooltipWrapper(text = stringResource(Res.string.tooltip_win_level_now)) {
+                TrophyIcon(
+                    size = iconSize,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable { onWinLevelInfoClick() },
+                )
+            }
             if (!bubbleDismissed) {
                 WinLevelSpeechBubble(
                     text = stringResource(Res.string.win_level_now_description),
@@ -831,42 +834,63 @@ private fun LevelHeaderIcons(
 
     // Water icon (if level has river) - blue color
     if (hasRiver) {
-        de.egril.defender.ui.icon.WaterIcon(
-            size = iconSize,
-            tint = Color(0xFF2196F3), // Blue color
-            modifier =
-                Modifier.clickable {
-                    val infoState = gameState.infoState.value
-                    // Toggle behavior: if already showing, close it; otherwise show it
-                    if (infoState.currentInfo == InfoType.RIVER_INFO) {
-                        // Close the dialog
-                        gameState.infoState.value = infoState.dismissInfo()
-                    } else {
-                        // Show the info dialog
-                        gameState.infoState.value = infoState.showInfo(InfoType.RIVER_INFO)
-                    }
-                },
+        TooltipWrapper(text = stringResource(Res.string.river_info_title)) {
+            de.egril.defender.ui.icon.WaterIcon(
+                size = iconSize,
+                tint = Color(0xFF2196F3), // Blue color
+                modifier =
+                    Modifier.clickable {
+                        val infoState = gameState.infoState.value
+                        // Toggle behavior: if already showing, close it; otherwise show it
+                        if (infoState.currentInfo == InfoType.RIVER_INFO) {
+                            // Close the dialog
+                            gameState.infoState.value = infoState.dismissInfo()
+                        } else {
+                            // Show the info dialog
+                            gameState.infoState.value = infoState.showInfo(InfoType.RIVER_INFO)
+                        }
+                    },
+            )
+        }
+    }
+
+    // Story logbook: lists the story messages of this level, newest first. Only offered once a displayable story message has been shown.
+    if (storyLogHasDisplayableEntries(gameState.storyLog)) {
+        TooltipWrapper(text = stringResource(Res.string.story_logbook_title)) {
+            de.egril.defender.ui.icon.BookIcon(
+                size = iconSize,
+                tint = Color(0xFF616161), // Dark grey, softer than the default black header icons
+                modifier = Modifier.clickable { showStoryLogbook = true },
+            )
+        }
+    }
+    if (showStoryLogbook) {
+        StoryLogbookDialog(
+            gameState = gameState,
+            onDismiss = { showStoryLogbook = false },
         )
     }
 
     // Tower icon (if level has special towers)
     if (hasSpecialTowers) {
-        de.egril.defender.ui.icon.TowerIcon(
-            size = iconSize,
-            lineColor = MaterialTheme.colorScheme.onSurface, // Use header text color
-            modifier =
-                Modifier.clickable {
-                    val infoState = gameState.infoState.value
-                    // Toggle behavior: if already showing, close it; otherwise show it
-                    if (infoState.currentInfo == InfoType.SPECIAL_TOWERS_INFO) {
-                        // Close the dialog
-                        gameState.infoState.value = infoState.dismissInfo()
-                    } else {
-                        // Show the info dialog
-                        gameState.infoState.value = infoState.showInfo(InfoType.SPECIAL_TOWERS_INFO)
-                    }
-                },
-        )
+        TooltipWrapper(text = stringResource(Res.string.special_towers_info_title)) {
+            de.egril.defender.ui.icon.TowerIcon(
+                size = iconSize,
+                lineColor = MaterialTheme.colorScheme.onSurface, // Use header text color
+                modifier =
+                    Modifier.clickable {
+                        val infoState = gameState.infoState.value
+                        // Toggle behavior: if already showing, close it; otherwise show it
+                        if (infoState.currentInfo == InfoType.SPECIAL_TOWERS_INFO) {
+                            // Close the dialog
+                            gameState.infoState.value = infoState.dismissInfo()
+                        } else {
+                            // Show the info dialog
+                            gameState.infoState.value = infoState.showInfo(InfoType.SPECIAL_TOWERS_INFO)
+                        }
+                    },
+            )
+        }
     }
 }
 

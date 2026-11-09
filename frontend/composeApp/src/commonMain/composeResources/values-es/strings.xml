@@ -72,6 +72,8 @@
     <string name="restore_game_data_failure_message">No se pudieron restaurar los datos del juego. Por favor, inténtelo de nuevo.</string>
     <string name="game_data">Datos del Juego</string>
     <string name="close">Cerrar</string>
+    <string name="story_logbook_title">Diario de la historia</string>
+    <string name="story_logbook_empty">Aún no hay mensajes de la historia.</string>
     <string name="settings_hint_title">Configuración Disponible</string>
     <string name="settings_hint_message">Haga clic en el icono de configuración para personalizar su experiencia. La configuración disponible incluye:</string>
     <string name="settings_hint_dismiss">¡Entendido!</string>
@@ -2113,6 +2115,7 @@
     <string name="tooltip_return_to_worldmap">Volver al mapa del mundo</string>
     <string name="tooltip_shortcuts">Atajos de teclado</string>
     <string name="tooltip_feedback">Enviar comentarios</string>
+    <string name="tooltip_win_level_now">El nivel se puede ganar ahora: haz clic para más detalles</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Descargar</string>
