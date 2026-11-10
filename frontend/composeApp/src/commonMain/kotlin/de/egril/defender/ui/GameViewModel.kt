@@ -1250,7 +1250,7 @@ class GameViewModel {
                     de.egril.defender.model.GameMessage(
                         type = de.egril.defender.model.GameMessageType.STORY_INTRO,
                         name = editorLevelId,
-                    )
+                    ),
                 )
             }
 
@@ -1456,7 +1456,7 @@ class GameViewModel {
                     de.egril.defender.model.GameMessage(
                         type = de.egril.defender.model.GameMessageType.STORY_INTRO,
                         name = editorLevelId,
-                    )
+                    ),
                 )
             }
 
@@ -2575,25 +2575,23 @@ class GameViewModel {
 
                             // Try to place a new tower if coins allow and a free build area or tower base exists
                             val placementTargets = getDemoPlacementTargets(currentState)
-                            if (placementTargets.buildAreas.isNotEmpty() || placementTargets.towerBases.isNotEmpty()) {
-                                for (type in currentState.level.availableTowers.sortedByDescending { it.baseCost }) {
-                                    if (currentState.canPlaceDefender(type)) {
-                                        val targetPos = findDemoPlacementPosition(type, placementTargets) ?: continue
-                                        // Show preview, then place
-                                        _demoSelectedDefenderType.value = type
-                                        _demoHoveredPosition.value = targetPos
-                                        delay(de.egril.defender.game.DemoMode.TOWER_PLACE_DELAY_MS)
-                                        _demoSelectedDefenderType.value = null
-                                        _demoHoveredPosition.value = null
-                                        val stateNow = _gameState.value
-                                        // Re-check that position is still free after the delay
-                                        val stillFree = stateNow?.defenders?.none { it.position.value == targetPos } == true
-                                        if (_isDemoMode.value && stateNow?.phase?.value == GamePhase.PLAYER_TURN && stillFree) {
-                                            gameEngine?.placeDefender(type, targetPos)
-                                            delay(de.egril.defender.game.DemoMode.TOWER_AFTER_PLACE_MS)
-                                        }
-                                        break
+                            for (type in currentState.level.availableTowers.sortedByDescending { it.baseCost }) {
+                                if (currentState.canAffordTowerButton(type)) {
+                                    val targetPos = findDemoPlacementPosition(currentState, type, placementTargets) ?: continue
+                                    // Show preview, then place
+                                    _demoSelectedDefenderType.value = type
+                                    _demoHoveredPosition.value = targetPos
+                                    delay(de.egril.defender.game.DemoMode.TOWER_PLACE_DELAY_MS)
+                                    _demoSelectedDefenderType.value = null
+                                    _demoHoveredPosition.value = null
+                                    val stateNow = _gameState.value
+                                    // Re-check that position is still free after the delay
+                                    val stillFree = stateNow?.defenders?.none { it.position.value == targetPos } == true
+                                    if (_isDemoMode.value && stateNow?.phase?.value == GamePhase.PLAYER_TURN && stillFree) {
+                                        gameEngine?.placeDefender(type, targetPos)
+                                        delay(de.egril.defender.game.DemoMode.TOWER_AFTER_PLACE_MS)
                                     }
+                                    break
                                 }
                             }
 
@@ -2657,7 +2655,12 @@ class GameViewModel {
         )
     }
 
+    /**
+     * Buildable targets first; PATH tiles only as a fallback when the auto tower base option
+     * is enabled. The engine check applies the surcharge for PATH tiles.
+     */
     private fun findDemoPlacementPosition(
+        state: GameState,
         type: DefenderType,
         placementTargets: DemoPlacementTargets,
     ): Position? {
@@ -2667,7 +2670,11 @@ class GameViewModel {
             } else {
                 placementTargets.towerBases + placementTargets.buildAreas
             }
-        return candidatePositions.firstOrNull { position ->
+        val buildable =
+            candidatePositions.firstOrNull { position ->
+                gameEngine?.canPlaceDefenderAt(type, position) == true
+            }
+        return buildable ?: state.keyboardPlacementCandidates(type).firstOrNull { position ->
             gameEngine?.canPlaceDefenderAt(type, position) == true
         }
     }
@@ -4101,7 +4108,10 @@ class GameViewModel {
     private fun presentGameMessage(message: de.egril.defender.model.GameMessage) {
         val state = _gameState.value
         if (state != null) {
-            state.storyLog.add(de.egril.defender.model.StoryLogEntry(state.turnNumber.value, message))
+            state.storyLog.add(
+                de.egril.defender.model
+                    .StoryLogEntry(state.turnNumber.value, message),
+            )
         }
         _pendingGameMessage.value = message
     }
@@ -4117,8 +4127,10 @@ class GameViewModel {
         } else {
             _pendingGameMessage.value = null
             if (_currentScreen.value is Screen.GamePlay &&
-                state != null && state.scriptedVictory.value &&
-                !state.isLevelLost() && state.isLevelWon()
+                state != null &&
+                state.scriptedVictory.value &&
+                !state.isLevelLost() &&
+                state.isLevelWon()
             ) {
                 completeLevel(state.level.id, won = true)
             }

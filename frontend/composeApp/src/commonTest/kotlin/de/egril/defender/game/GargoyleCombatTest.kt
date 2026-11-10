@@ -35,7 +35,11 @@ class GargoyleCombatTest {
         return GameState(level = level)
     }
 
-    private fun addDefender(state: GameState, type: DefenderType, position: Position): Defender {
+    private fun addDefender(
+        state: GameState,
+        type: DefenderType,
+        position: Position,
+    ): Defender {
         val defender =
             Defender(
                 id = state.nextDefenderId.value++,
@@ -48,7 +52,11 @@ class GargoyleCombatTest {
         return defender
     }
 
-    private fun addGargoyle(state: GameState, position: Position, health: Int = GargoyleRules.HEALTH_PER_LEVEL): Gargoyle {
+    private fun addGargoyle(
+        state: GameState,
+        position: Position,
+        health: Int = GargoyleRules.HEALTH_PER_LEVEL,
+    ): Gargoyle {
         val gargoyle =
             Gargoyle(
                 id = state.nextGargoyleId.value++,

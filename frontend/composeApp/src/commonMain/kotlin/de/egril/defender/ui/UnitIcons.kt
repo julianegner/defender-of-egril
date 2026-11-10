@@ -10,21 +10,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import defender_of_egril.composeapp.generated.resources.Res
-import defender_of_egril.composeapp.generated.resources.altar_active
-import defender_of_egril.composeapp.generated.resources.altar_inactive
 import de.egril.defender.model.*
 import de.egril.defender.ui.animations.SpellDoubleLevelColor
 import de.egril.defender.ui.gameplay.GamePlayColors
@@ -32,6 +29,9 @@ import de.egril.defender.ui.gameplay.GamePlayConstants
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.icon.defender.*
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.altar_active
+import defender_of_egril.composeapp.generated.resources.altar_inactive
 import org.jetbrains.compose.resources.painterResource
 
 /**

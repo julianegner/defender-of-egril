@@ -361,11 +361,12 @@ fun WorldMapScreen(
                             // Tab: Cycle through map locations
                             event.key == Key.Tab && !event.isShiftPressed && imageMapActiveTab == null -> {
                                 val locationCount =
-                                    (de.egril.defender.editor.EditorStorage
-                                        .getWorldMapData()
-                                        .locations.size +
-                                        if (visibleWorldLevels.any { it.level.isSandbox }) 1 else 0)
-                                        .coerceAtLeast(visibleWorldLevels.size)
+                                    (
+                                        de.egril.defender.editor.EditorStorage
+                                            .getWorldMapData()
+                                            .locations.size +
+                                            if (visibleWorldLevels.any { it.level.isSandbox }) 1 else 0
+                                    ).coerceAtLeast(visibleWorldLevels.size)
                                 if (locationCount > 0) {
                                     keyboardFocusedLocationIndex = (keyboardFocusedLocationIndex + 1) % locationCount
                                 }
@@ -374,11 +375,12 @@ fun WorldMapScreen(
                             // Shift+Tab: Cycle backwards through map locations
                             event.key == Key.Tab && event.isShiftPressed && imageMapActiveTab == null -> {
                                 val locationCount =
-                                    (de.egril.defender.editor.EditorStorage
-                                        .getWorldMapData()
-                                        .locations.size +
-                                        if (visibleWorldLevels.any { it.level.isSandbox }) 1 else 0)
-                                        .coerceAtLeast(visibleWorldLevels.size)
+                                    (
+                                        de.egril.defender.editor.EditorStorage
+                                            .getWorldMapData()
+                                            .locations.size +
+                                            if (visibleWorldLevels.any { it.level.isSandbox }) 1 else 0
+                                    ).coerceAtLeast(visibleWorldLevels.size)
                                 if (locationCount > 0) {
                                     keyboardFocusedLocationIndex =
                                         if (keyboardFocusedLocationIndex <= 0) {

@@ -1,8 +1,8 @@
 package de.egril.defender.ui
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.geometry.Offset
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.Position
@@ -85,7 +85,12 @@ class MapEditorTileZoneToggleTest {
         composeTestRule.runOnIdle {
             val saved = requireNotNull(savedMap)
             assertEquals(map.tiles, saved.tiles)
-            assertTrue(saved.tileZones.single().tiles.values.contains(TileType.BUILD_AREA))
+            assertTrue(
+                saved.tileZones
+                    .single()
+                    .tiles.values
+                    .contains(TileType.BUILD_AREA),
+            )
         }
     }
 
@@ -116,7 +121,11 @@ class MapEditorTileZoneToggleTest {
 
         expandSidePanel()
         composeTestRule.onNodeWithText("Copy").performScrollTo().performClick()
-        composeTestRule.onNodeWithText("Show other zones").performScrollTo().assertExists().performClick()
+        composeTestRule
+            .onNodeWithText("Show other zones")
+            .performScrollTo()
+            .assertExists()
+            .performClick()
         composeTestRule.onNodeWithText("Save Map").performClick()
 
         composeTestRule.runOnIdle {
@@ -141,4 +150,3 @@ class MapEditorTileZoneToggleTest {
         }
     }
 }
-

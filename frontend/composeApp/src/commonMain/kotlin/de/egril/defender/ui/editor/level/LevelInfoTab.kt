@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -35,6 +36,8 @@ import defender_of_egril.composeapp.generated.resources.allow_auto_attack
 import defender_of_egril.composeapp.generated.resources.author_optional
 import defender_of_egril.composeapp.generated.resources.auto_attack_info_message
 import defender_of_egril.composeapp.generated.resources.auto_attack_info_title
+import defender_of_egril.composeapp.generated.resources.auto_tower_base
+import defender_of_egril.composeapp.generated.resources.auto_tower_base_extra_cost
 import defender_of_egril.composeapp.generated.resources.community_description_optional
 import defender_of_egril.composeapp.generated.resources.connected_to_previous_level
 import defender_of_egril.composeapp.generated.resources.level_title
@@ -78,6 +81,10 @@ fun LevelInfoTab(
     onAllowAutoAttackChange: (Boolean) -> Unit,
     connectedToPreviousLevel: Boolean,
     onConnectedToPreviousLevelChange: (Boolean) -> Unit,
+    autoTowerBase: Boolean = false,
+    onAutoTowerBaseChange: (Boolean) -> Unit = {},
+    autoTowerBaseExtraCost: String = "",
+    onAutoTowerBaseExtraCostChange: (String) -> Unit = {},
     isSandbox: Boolean = false,
     onIsSandboxChange: (Boolean) -> Unit = {},
     waaghEnabled: Boolean = false,
@@ -145,6 +152,8 @@ fun LevelInfoTab(
                     modifier =
                         Modifier
                             .padding(top = 8.dp)
+                            // Fixed width gives the text fields a bounded width; otherwise the title column is squeezed
+                            .width(280.dp)
                             .border(
                                 width = 1.dp,
                                 color = MaterialTheme.colorScheme.outline,
@@ -207,6 +216,31 @@ fun LevelInfoTab(
                             checked = connectedToPreviousLevel,
                             onCheckedChange = onConnectedToPreviousLevelChange,
                             enabled = canEnableConnectedToPreviousLevel,
+                        )
+                    }
+
+                    // Auto tower base toggle: towers may be placed on PATH tiles with a base barricade
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.auto_tower_base),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Switch(
+                            checked = autoTowerBase,
+                            onCheckedChange = onAutoTowerBaseChange,
+                        )
+                    }
+
+                    if (autoTowerBase) {
+                        OutlinedTextField(
+                            value = autoTowerBaseExtraCost,
+                            onValueChange = onAutoTowerBaseExtraCostChange,
+                            label = { Text(stringResource(Res.string.auto_tower_base_extra_cost)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     }
 

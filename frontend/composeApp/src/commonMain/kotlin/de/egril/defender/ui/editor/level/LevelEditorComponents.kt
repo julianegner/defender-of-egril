@@ -58,7 +58,9 @@ fun AddEnemyDialog(
         mutableStateOf(
             initialType.takeIf { map?.getCompatibleSpawnPoints(it)?.isNotEmpty() == true }
                 ?: AttackerType.entries.firstOrNull {
-                    !it.isMirrorImage && !it.isRealVillain && !it.isSpecialEnemy() &&
+                    !it.isMirrorImage &&
+                        !it.isRealVillain &&
+                        !it.isSpecialEnemy() &&
                         map?.getCompatibleSpawnPoints(it)?.isNotEmpty() == true
                 } ?: initialType,
         )

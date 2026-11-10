@@ -32,5 +32,4 @@ internal fun villainUsageEntries(
                 villainType = villainType,
                 levels = levels.levelsUsingVillain(villainType),
             )
-        }
-        .filter { entry -> !onlyUnusedVillains || entry.levels.isEmpty() }
+        }.filter { entry -> !onlyUnusedVillains || entry.levels.isEmpty() }

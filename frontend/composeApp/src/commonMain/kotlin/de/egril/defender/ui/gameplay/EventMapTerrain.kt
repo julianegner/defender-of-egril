@@ -44,10 +44,11 @@ internal fun EventMapTerrain(
     zoneImageIds: Set<String>,
 ) {
     fun needsTerrain(position: Position): Boolean =
-        !hasMapImage || (
-            state.paintedTileTypeAt(position) != null &&
-                visibleZoneIdsByPosition[position] !in zoneImageIds
-        )
+        !hasMapImage ||
+            (
+                state.paintedTileTypeAt(position) != null &&
+                    visibleZoneIdsByPosition[position] !in zoneImageIds
+            )
 
     fun tileType(position: Position): TileType =
         state.paintedTileTypeAt(position) ?: when {

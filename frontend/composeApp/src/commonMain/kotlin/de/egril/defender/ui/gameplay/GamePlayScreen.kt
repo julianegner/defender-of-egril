@@ -680,7 +680,7 @@ private fun GamePlayScreenContent(
 
     val cycleTowerBuySelection: (Boolean) -> Unit = cycleTowerBuySelection@{ reversed ->
         // Filter to only affordable towers when cycling
-        val affordableTowers = keyboardSelectableTowers.filter { gameState.coins.value >= it.baseCost }
+        val affordableTowers = keyboardSelectableTowers.filter { gameState.canAffordTowerButton(it) }
         if (affordableTowers.isEmpty()) {
             return@cycleTowerBuySelection
         }
@@ -870,8 +870,22 @@ private fun GamePlayScreenContent(
         if (isDemoMode || event.type != KeyEventType.KeyDown || !isPanKey) {
             false
         } else {
-            val dx = if (left) MAP_KEYBOARD_PAN_STEP else if (right) -MAP_KEYBOARD_PAN_STEP else 0f
-            val dy = if (up) MAP_KEYBOARD_PAN_STEP else if (down) -MAP_KEYBOARD_PAN_STEP else 0f
+            val dx =
+                if (left) {
+                    MAP_KEYBOARD_PAN_STEP
+                } else if (right) {
+                    -MAP_KEYBOARD_PAN_STEP
+                } else {
+                    0f
+                }
+            val dy =
+                if (up) {
+                    MAP_KEYBOARD_PAN_STEP
+                } else if (down) {
+                    -MAP_KEYBOARD_PAN_STEP
+                } else {
+                    0f
+                }
             mapPanController.pan(dx, dy)
             true
         }
@@ -1191,9 +1205,7 @@ private fun GamePlayScreenContent(
                         selectedDefenderType != null &&
                         !showMagicPanel &&
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
-                        val buildTiles =
-                            gameState.level.buildAreas
-                                .filter { pos -> gameState.defenders.none { it.position.value == pos } }
+                        val buildTiles = selectedDefenderType?.let { gameState.keyboardPlacementCandidates(it) }.orEmpty()
                         if (buildTiles.isNotEmpty()) {
                             val currentIdx = keyboardSelectedBuildTile?.let { buildTiles.indexOf(it).takeIf { i -> i != -1 } }
                             val nextIdx = if (currentIdx == null || currentIdx >= buildTiles.lastIndex) 0 else currentIdx + 1
@@ -1210,9 +1222,7 @@ private fun GamePlayScreenContent(
                         selectedDefenderType != null &&
                         !showMagicPanel &&
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
-                        val buildTiles =
-                            gameState.level.buildAreas
-                                .filter { pos -> gameState.defenders.none { it.position.value == pos } }
+                        val buildTiles = selectedDefenderType?.let { gameState.keyboardPlacementCandidates(it) }.orEmpty()
                         if (buildTiles.isNotEmpty()) {
                             val currentIdx = keyboardSelectedBuildTile?.let { buildTiles.indexOf(it).takeIf { i -> i != -1 } }
                             val prevIdx = if (currentIdx == null || currentIdx <= 0) buildTiles.lastIndex else currentIdx - 1
@@ -1703,16 +1713,13 @@ private fun GamePlayScreenContent(
                                 // In build phase, Enter confirms placement on keyboard-selected build tile (or first available)
                                 val defType = selectedDefenderType
                                 if (defType != null) {
-                                    val buildTile =
-                                        keyboardSelectedBuildTile?.takeIf { pos ->
-                                            gameState.defenders.none { it.position.value == pos } &&
-                                                gameState.canPlaceDefender(defType)
-                                        } ?: gameState.level.buildAreas
-                                            .firstOrNull { pos ->
-                                                gameState.defenders.none { it.position.value == pos } &&
-                                                    gameState.canPlaceDefender(defType)
-                                            }
-                                    if (buildTile != null && onPlaceDefender(defType, buildTile)) {
+                                    // Same order as the mouse: buildable tiles first, then PATH tiles with the surcharge.
+                                    // The selected tile is tried first; each candidate goes through the normal placement check.
+                                    val candidates =
+                                        gameState
+                                            .keyboardPlacementCandidates(defType)
+                                            .sortedByDescending { it == keyboardSelectedBuildTile }
+                                    if (candidates.any { pos -> onPlaceDefender(defType, pos) }) {
                                         if (!gameState.canPlaceDefender(defType)) {
                                             selectedDefenderType = null
                                         }
@@ -1728,16 +1735,12 @@ private fun GamePlayScreenContent(
                                     selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel -> {
                                         val defType = selectedDefenderType
                                         if (defType != null) {
-                                            val buildTile =
-                                                keyboardSelectedBuildTile?.takeIf { pos ->
-                                                    gameState.defenders.none { it.position.value == pos } &&
-                                                        gameState.canPlaceDefender(defType)
-                                                } ?: gameState.level.buildAreas
-                                                    .firstOrNull { pos ->
-                                                        gameState.defenders.none { it.position.value == pos } &&
-                                                            gameState.canPlaceDefender(defType)
-                                                    }
-                                            if (buildTile != null && onPlaceDefender(defType, buildTile)) {
+                                            // Buildable tiles first, then PATH tiles with the surcharge (see INITIAL_BUILDING above)
+                                            val candidates =
+                                                gameState
+                                                    .keyboardPlacementCandidates(defType)
+                                                    .sortedByDescending { it == keyboardSelectedBuildTile }
+                                            if (candidates.any { pos -> onPlaceDefender(defType, pos) }) {
                                                 if (!gameState.canPlaceDefender(defType)) {
                                                     selectedDefenderType = null
                                                 }

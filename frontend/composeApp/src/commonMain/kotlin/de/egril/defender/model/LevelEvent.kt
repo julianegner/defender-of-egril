@@ -192,14 +192,18 @@ data class EventMapImage(
     fun isValid(): Boolean =
         id.isNotBlank() &&
             isValidFileName(fileName) &&
-            x.isFinite() && y.isFinite() &&
-            width.isFinite() && height.isFinite() &&
-            width > 0f && height > 0f
+            x.isFinite() &&
+            y.isFinite() &&
+            width.isFinite() &&
+            height.isFinite() &&
+            width > 0f &&
+            height > 0f
 
     companion object {
         fun isValidFileName(fileName: String): Boolean =
             fileName.isNotBlank() &&
-                '/' !in fileName && '\\' !in fileName &&
+                '/' !in fileName &&
+                '\\' !in fileName &&
                 fileName.substringAfterLast('.').lowercase() in setOf("png", "jpg", "jpeg", "webp")
     }
 }
@@ -216,7 +220,10 @@ data class AltarLink(
     val to: Position,
 ) {
     /** True if this line connects the two given altar tiles, in either order. */
-    fun connects(a: Position, b: Position): Boolean = (from == a && to == b) || (from == b && to == a)
+    fun connects(
+        a: Position,
+        b: Position,
+    ): Boolean = (from == a && to == b) || (from == b && to == a)
 }
 
 /**
@@ -320,8 +327,7 @@ data class LevelEvent(
      * fired yet. Repeatable events stay listed because they can still fire in every future round.
      * An event that fired in the current round is no longer upcoming and disappears from the list.
      */
-    fun isListedAsUpcoming(triggeredEventIds: Collection<String>): Boolean =
-        showInUpcomingList && (repeatable || !triggeredEventIds.contains(id))
+    fun isListedAsUpcoming(triggeredEventIds: Collection<String>): Boolean = showInUpcomingList && (repeatable || !triggeredEventIds.contains(id))
 
     /**
      * The round in which this event fires next, or null when it depends on game state (kills, health,

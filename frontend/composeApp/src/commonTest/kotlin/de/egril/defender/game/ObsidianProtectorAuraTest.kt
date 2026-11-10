@@ -30,8 +30,11 @@ class ObsidianProtectorAuraTest {
         )
     }
 
-    private fun attacker(id: Int, type: AttackerType, position: Position) =
-        Attacker(id, type, mutableStateOf(position), mutableStateOf(1))
+    private fun attacker(
+        id: Int,
+        type: AttackerType,
+        position: Position,
+    ) = Attacker(id, type, mutableStateOf(position), mutableStateOf(1))
 
     private fun defender(position: Position) =
         Defender(

@@ -41,7 +41,10 @@ enum class PositionPickTarget {
 }
 
 /** Frames a coordinate row in the area's map color while it is the active pick target. */
-internal fun Modifier.pickTargetBorder(active: Boolean, color: Color): Modifier =
+internal fun Modifier.pickTargetBorder(
+    active: Boolean,
+    color: Color,
+): Modifier =
     if (active) {
         this.border(2.dp, color, RoundedCornerShape(6.dp)).padding(4.dp)
     } else {
@@ -50,7 +53,10 @@ internal fun Modifier.pickTargetBorder(active: Boolean, color: Color): Modifier 
 
 /** Button that arms (or disarms) map picking for one coordinate pair. */
 @Composable
-internal fun PositionPickButton(active: Boolean, onClick: () -> Unit) {
+internal fun PositionPickButton(
+    active: Boolean,
+    onClick: () -> Unit,
+) {
     OutlinedButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Text(
             stringResource(
@@ -61,17 +67,25 @@ internal fun PositionPickButton(active: Boolean, onClick: () -> Unit) {
 }
 
 /** Arms [clicked], or disarms it when it is already the active target. */
-fun togglePickTarget(current: PositionPickTarget?, clicked: PositionPickTarget): PositionPickTarget? =
-    if (current == clicked) null else clicked
+fun togglePickTarget(
+    current: PositionPickTarget?,
+    clicked: PositionPickTarget,
+): PositionPickTarget? = if (current == clicked) null else clicked
 
-fun parsePosition(xText: String, yText: String): Position? {
+fun parsePosition(
+    xText: String,
+    yText: String,
+): Position? {
     val x = xText.toIntOrNull() ?: return null
     val y = yText.toIntOrNull() ?: return null
     return Position(x, y)
 }
 
 /** All tiles of the axis-aligned rectangle spanned by two corners, regardless of their order. */
-fun rectangleTiles(from: Position?, to: Position?): Set<Position> {
+fun rectangleTiles(
+    from: Position?,
+    to: Position?,
+): Set<Position> {
     if (from == null || to == null) return emptySet()
     val minX = minOf(from.x, to.x)
     val maxX = maxOf(from.x, to.x)

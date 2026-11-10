@@ -268,7 +268,14 @@ class SpawnGroupSerializationTest {
         val group = restored.spawnGroups?.single() as SpawnGroup
         assertEquals("legacy", group.groupId)
         assertEquals(2, group.repeatCount)
-        assertEquals(AttackerType.GOBLIN, group.directTurns.single().spawns.single().attackerType)
+        assertEquals(
+            AttackerType.GOBLIN,
+            group.directTurns
+                .single()
+                .spawns
+                .single()
+                .attackerType,
+        )
     }
 
     @Test

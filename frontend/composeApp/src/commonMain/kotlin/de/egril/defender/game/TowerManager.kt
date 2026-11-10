@@ -25,6 +25,8 @@ class TowerManager(
         val barricadeAtPosition = state.barricades.find { it.position == position }
         val isOnTowerBase = barricadeAtPosition != null && barricadeAtPosition.canSupportTower()
         val isRiverPlacement = state.level.isRiverTile(position)
+        val isAutoTowerBase = !isOnTowerBase && isAutoTowerBaseTile(type, position)
+        val extraCost = if (isAutoTowerBase) state.level.autoTowerBaseExtraCost else 0
         val buildTime = if (state.phase.value == GamePhase.INITIAL_BUILDING || instantDeploy || state.level.isSandbox) 0 else type.buildTime
 
         // Get initial tower level based on difficulty
@@ -40,6 +42,21 @@ class TowerManager(
                 placedOnTurn = state.turnNumber.value,
             )
 
+        // Auto tower base: a PATH tile gets a 150 HP barricade underneath the new tower
+        if (isAutoTowerBase) {
+            defender.autoTowerBaseSurcharge.value = extraCost
+            val towerBase =
+                Barricade(
+                    id = state.nextBarricadeId.value++,
+                    position = position,
+                    healthPoints = mutableStateOf(AUTO_TOWER_BASE_HEALTH),
+                    defenderId = defender.id,
+                )
+            state.barricades.add(towerBase)
+            defender.towerBaseBarricadeId.value = towerBase.id
+            towerBase.supportedTowerId.value = defender.id
+        }
+
         // If placed on tower base, link the tower and barricade
         if (isOnTowerBase) {
             defender.towerBaseBarricadeId.value = barricadeAtPosition.id
@@ -49,9 +66,9 @@ class TowerManager(
         state.defenders.add(defender)
         // Sandbox levels have free building.
         if (!state.level.isSandbox) {
-            state.coins.value -= type.baseCost
+            state.coins.value -= type.baseCost + extraCost
         }
-        GameLogBuffer.log("TOWER", "Placed ${type.name} at $position (cost: ${type.baseCost}, coins left: ${state.coins.value})")
+        GameLogBuffer.log("TOWER", "Placed ${type.name} at $position (cost: ${type.baseCost + extraCost}, coins left: ${state.coins.value})")
 
         // Create a raft if placed on river tile (and not on tower base)
         if (isRiverPlacement && !isOnTowerBase) {
@@ -77,13 +94,14 @@ class TowerManager(
         position: Position,
         showWarnings: Boolean,
     ): Boolean {
-        if (!state.canPlaceDefender(type)) return false
+        if (!state.canPlaceDefender(type, if (isAutoTowerBaseTile(type, position)) state.level.autoTowerBaseExtraCost else 0)) return false
         if (state.fiefs.any { it.position == position }) return false
         if (state.isInactiveGargoyleAt(position)) return false
 
         // Check if position is on a barricade with at least 100 HP (tower base)
         val barricadeAtPosition = state.barricades.find { it.position == position }
         val isOnTowerBase = barricadeAtPosition != null && barricadeAtPosition.canSupportTower()
+        val isAutoTowerBase = !isOnTowerBase && isAutoTowerBaseTile(type, position)
 
         // If placing on a tower base, allow placement even if position would normally be occupied
         if (!isOnTowerBase) {
@@ -107,7 +125,7 @@ class TowerManager(
             return false
         }
         // Dwarven Mines cannot be placed on tower bases (barricades), only on build areas.
-        if (type == DefenderType.DWARVEN_MINE && isOnTowerBase) {
+        if (type == DefenderType.DWARVEN_MINE && (isOnTowerBase || isAutoTowerBase)) {
             return false
         }
 
@@ -122,11 +140,20 @@ class TowerManager(
             }
         }
 
-        // Can place in build areas OR on river tiles (for rafts, except mines) OR on tower bases
-        if (!state.level.isBuildArea(position) && !isRiverPlacement && !isOnTowerBase) return false
+        // Can place in build areas OR on river tiles (for rafts, except mines) OR on tower bases OR on PATH with auto tower base
+        if (!state.level.isBuildArea(position) && !isRiverPlacement && !isOnTowerBase && !isAutoTowerBase) return false
 
         return true
     }
+
+    /**
+     * Auto tower base option: a free PATH tile (no barricade, not spawn/target/river) can take a tower
+     * when the level enables it. The tower then gets a [AUTO_TOWER_BASE_HEALTH] barricade underneath.
+     */
+    private fun isAutoTowerBaseTile(
+        type: DefenderType,
+        position: Position,
+    ): Boolean = state.isAutoTowerBasePathSpot(type, position)
 
     fun upgradeDefender(defenderId: Int): Boolean {
         val defender = state.defenders.find { it.id == defenderId } ?: return false

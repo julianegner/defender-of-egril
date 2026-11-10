@@ -495,15 +495,17 @@ class CombatSystem(
         return true
     }
 
-    private fun findInactiveGargoyle(position: Position): Gargoyle? =
-        state.gargoyles.find { it.position.value == position && !it.isActive.value }
+    private fun findInactiveGargoyle(position: Position): Gargoyle? = state.gargoyles.find { it.position.value == position && !it.isActive.value }
 
     /**
      * Manual attacks hit a stone gargoyle for its full damage. Pike, spear and bow towers
      * consume their action but cannot harm gargoyles. A destroyed gargoyle grants XP only
      * (no coins, no kill counts).
      */
-    private fun attackInactiveGargoyle(defender: Defender, gargoyle: Gargoyle) {
+    private fun attackInactiveGargoyle(
+        defender: Defender,
+        gargoyle: Gargoyle,
+    ) {
         val damage =
             if (defender.type in GargoyleRules.NO_DAMAGE_DEFENDERS) 0 else getEffectiveDamage(defender)
         damageInactiveGargoyle(gargoyle, damage, defender.type.name)
@@ -513,7 +515,11 @@ class CombatSystem(
      * Applies damage to a stone gargoyle (manual hits, area/acid splash, acid puddles).
      * Destruction grants XP only, never coins or kill counts.
      */
-    private fun damageInactiveGargoyle(gargoyle: Gargoyle, damage: Int, sourceName: String) {
+    private fun damageInactiveGargoyle(
+        gargoyle: Gargoyle,
+        damage: Int,
+        sourceName: String,
+    ) {
         if (damage <= 0) return
         gargoyle.currentHealth.value = (gargoyle.currentHealth.value - damage).coerceAtLeast(0)
         if (gargoyle.currentHealth.value > 0) return

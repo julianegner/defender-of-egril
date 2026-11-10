@@ -29,13 +29,13 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorSpawnTimeline
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.SpawnGroupIssue
-import de.egril.defender.editor.createLoop
-import de.egril.defender.editor.deleteTurn
-import de.egril.defender.editor.resolveLoopNesting
 import de.egril.defender.editor.SpawnPointUtils
 import de.egril.defender.editor.SpawnTurnTemplateDefinition
 import de.egril.defender.editor.SpawnTurnTemplateEntry
 import de.egril.defender.editor.SpawnTurnTemplateVariant
+import de.egril.defender.editor.createLoop
+import de.egril.defender.editor.deleteTurn
+import de.egril.defender.editor.resolveLoopNesting
 import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.editor.level.ChangeAllSpawnPointsDialog

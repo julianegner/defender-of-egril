@@ -2,16 +2,17 @@ package de.egril.defender.editor
 
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.BridgeType
+import de.egril.defender.model.DEFAULT_AUTO_TOWER_BASE_EXTRA_COST
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
+import de.egril.defender.model.SpawnPointType
 import de.egril.defender.model.SpawnSequenceEntry
+import de.egril.defender.model.TargetType
 import de.egril.defender.model.allSpawnEntries
 import de.egril.defender.model.enemyCounts
 import de.egril.defender.model.isRealVillain
-import de.egril.defender.model.SpawnPointType
-import de.egril.defender.model.TargetType
 import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 
 const val DEFAULT_MAP_TOOLING_INFO = "procedural generation"
@@ -79,8 +80,7 @@ data class EditorMap(
     fun hasSupportedSize(): Boolean = MapSizeLimits.isWithinLimits(width, height)
 
     /** Movable zones flagged rotatable that are too small to rotate without drifting. */
-    fun rotatableZonesTooSmall(): List<de.egril.defender.model.TileZone> =
-        tileZones.filter { it.movable && it.rotatable && it.tiles.size < de.egril.defender.model.MIN_ROTATABLE_REGION_TILES }
+    fun rotatableZonesTooSmall(): List<de.egril.defender.model.TileZone> = tileZones.filter { it.movable && it.rotatable && it.tiles.size < de.egril.defender.model.MIN_ROTATABLE_REGION_TILES }
 
     fun canRenderMinimap(): Boolean = isValid && hasSupportedSize()
 
@@ -584,6 +584,8 @@ data class EditorLevel(
     val testingOnly: Boolean = false, // If true, level is only shown when "show testing levels" setting is enabled
     val allowAutoAttack: Boolean = true, // If true, shows auto-attack button in end turn confirmation dialog
     val connectedToPreviousLevel: Boolean = false, // If true, player can carry over towers/coins from the previous level (must be on the same map)
+    val autoTowerBase: Boolean = false, // If true, towers can be built on PATH tiles; a 150 HP tower base barricade is placed underneath
+    val autoTowerBaseExtraCost: Int = DEFAULT_AUTO_TOWER_BASE_EXTRA_COST, // Extra coins charged for a tower built on a PATH tile
     val isSandbox: Boolean = false, // If true, level is a Sandbox: free building/spawning, no scripted events, cannot be won, no XP
     val waaghEnabled: Boolean = false, // If true, Waaagh! horde mechanics are active for this level
     val isOfficial: Boolean = false, // True if level is from official repository (read-only in editor)

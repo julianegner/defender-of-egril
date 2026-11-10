@@ -27,8 +27,8 @@ class AutoAttackSelector(
                 !attacker.isDefeated.value &&
                     defender.canAttack(attacker, getEffectiveRange(defender)) &&
                     !state.isShieldWallAttackBlocked(defender, attacker) &&
-                !state.isProtectedByObsidianProtector(attacker) &&
-                canAutoAttackDamage(defender, attacker)
+                    !state.isProtectedByObsidianProtector(attacker) &&
+                    canAutoAttackDamage(defender, attacker)
             }
         if (attackable.isEmpty()) return null
 

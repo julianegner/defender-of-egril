@@ -70,10 +70,20 @@ class MapKeyboardPanTest {
         }
         composeTestRule.waitForIdle()
 
-        val before = composeTestRule.onAllNodesWithText("PATH").fetchSemanticsNodes().first().boundsInRoot
+        val before =
+            composeTestRule
+                .onAllNodesWithText("PATH")
+                .fetchSemanticsNodes()
+                .first()
+                .boundsInRoot
         composeTestRule.onRoot().performKeyInput { pressKey(Key.DirectionDown) }
         composeTestRule.waitForIdle()
-        val after = composeTestRule.onAllNodesWithText("PATH").fetchSemanticsNodes().first().boundsInRoot
+        val after =
+            composeTestRule
+                .onAllNodesWithText("PATH")
+                .fetchSemanticsNodes()
+                .first()
+                .boundsInRoot
 
         assertNotEquals(before.top, after.top, "Arrow key did not move the map")
     }
@@ -97,10 +107,20 @@ class MapKeyboardPanTest {
         }
         composeTestRule.waitForIdle()
 
-        val before = composeTestRule.onAllNodesWithText("PATH").fetchSemanticsNodes().first().boundsInRoot
+        val before =
+            composeTestRule
+                .onAllNodesWithText("PATH")
+                .fetchSemanticsNodes()
+                .first()
+                .boundsInRoot
         composeTestRule.runOnIdle { controller.pan(0f, -200f) }
         composeTestRule.waitForIdle()
-        val after = composeTestRule.onAllNodesWithText("PATH").fetchSemanticsNodes().first().boundsInRoot
+        val after =
+            composeTestRule
+                .onAllNodesWithText("PATH")
+                .fetchSemanticsNodes()
+                .first()
+                .boundsInRoot
 
         assertTrue(before.top != after.top, "MapPanController did not move the map")
     }

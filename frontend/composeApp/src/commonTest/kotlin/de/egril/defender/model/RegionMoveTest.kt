@@ -8,8 +8,13 @@ class RegionMoveTest {
     /** A small irregular blob spanning both even and odd rows. */
     private val region: Set<Position> =
         setOf(
-            Position(4, 3), Position(5, 3), Position(3, 4), Position(4, 4),
-            Position(5, 4), Position(4, 5), Position(6, 5),
+            Position(4, 3),
+            Position(5, 3),
+            Position(3, 4),
+            Position(4, 4),
+            Position(5, 4),
+            Position(4, 5),
+            Position(6, 5),
         )
 
     private fun hexDistance(
@@ -42,8 +47,10 @@ class RegionMoveTest {
     fun rotationKeepsDistancesBetweenTiles() {
         val mapper = RegionMove(2, 0, 0).mapperFor(region)
         val mapped = region.map(mapper)
-        for (a in region) for (b in region) {
-            assertEquals(hexDistance(a, b), hexDistance(mapper(a), mapper(b)))
+        for (a in region) {
+            for (b in region) {
+                assertEquals(hexDistance(a, b), hexDistance(mapper(a), mapper(b)))
+            }
         }
         assertEquals(region.size, mapped.toSet().size, "Mapping is injective")
     }
@@ -53,8 +60,10 @@ class RegionMoveTest {
         for ((dx, dy) in listOf(1 to 0, 3 to -2, -2 to 1, 0 to 3)) {
             val mapper = RegionMove(0, dx, dy).mapperFor(region)
             val mapped = region.map(mapper)
-            for (a in region) for (b in region) {
-                assertEquals(hexDistance(a, b), hexDistance(mapper(a), mapper(b)), "dx=$dx dy=$dy")
+            for (a in region) {
+                for (b in region) {
+                    assertEquals(hexDistance(a, b), hexDistance(mapper(a), mapper(b)), "dx=$dx dy=$dy")
+                }
             }
             assertEquals(region.size, mapped.toSet().size)
         }

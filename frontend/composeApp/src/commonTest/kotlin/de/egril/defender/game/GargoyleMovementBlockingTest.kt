@@ -31,7 +31,10 @@ class GargoyleMovementBlockingTest {
         return GameState(level = level)
     }
 
-    private fun addInactiveGargoyle(state: GameState, position: Position): Gargoyle {
+    private fun addInactiveGargoyle(
+        state: GameState,
+        position: Position,
+    ): Gargoyle {
         val gargoyle =
             Gargoyle(
                 id = state.nextGargoyleId.value++,
@@ -43,7 +46,11 @@ class GargoyleMovementBlockingTest {
         return gargoyle
     }
 
-    private fun addAttacker(state: GameState, type: AttackerType, position: Position): Attacker {
+    private fun addAttacker(
+        state: GameState,
+        type: AttackerType,
+        position: Position,
+    ): Attacker {
         val attacker =
             Attacker(
                 id = state.nextAttackerId.value++,
@@ -91,7 +98,8 @@ class GargoyleMovementBlockingTest {
 
         val movements = engine.calculateEnemyTurnMovements()
         val firstStepOfGargoyle =
-            movements.allMovementSteps.firstOrNull()
+            movements.allMovementSteps
+                .firstOrNull()
                 ?.firstOrNull { (id, _) -> id == gargoyleAttacker.id }
         assertFalse(firstStepOfGargoyle?.second == goblin.position.value)
     }

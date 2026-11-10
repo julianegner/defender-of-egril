@@ -2,9 +2,9 @@ package de.egril.defender.ui.editor.level.enemies
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -54,9 +54,9 @@ import de.egril.defender.editor.unwrapLoop
 import de.egril.defender.model.SpawnCondition
 import de.egril.defender.model.SpawnRepeatMode
 import de.egril.defender.model.isRealVillain
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.editor.level.events.IdDropdown
 import de.egril.defender.ui.getLocalizedName
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleRightIcon
 import defender_of_egril.composeapp.generated.resources.*

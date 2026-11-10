@@ -1,7 +1,7 @@
 package de.egril.defender.ui
 
-import androidx.compose.ui.test.*
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
@@ -75,7 +75,14 @@ class SpawnLoopEditorTest {
         assertEquals(SpawnGroupTurn(1), sequence[0])
         val loop = sequence[1] as SpawnGroup
         assertEquals(3, loop.repeatCount)
-        assertEquals(AttackerType.GOBLIN, loop.directTurns.single().spawns.single().attackerType)
+        assertEquals(
+            AttackerType.GOBLIN,
+            loop.directTurns
+                .single()
+                .spawns
+                .single()
+                .attackerType,
+        )
 
         rule.onNodeWithText("Undo").performClick()
         rule.onNodeWithText("Copy loop").performClick()
@@ -154,7 +161,14 @@ class SpawnLoopEditorTest {
         assertEquals(SpawnRepeatMode.CONDITION, condition.repeatMode)
         assertEquals(SpawnCondition.UNIT_ALIVE, condition.condition)
         assertEquals("Ewhad", condition.targetUnitId)
-        assertEquals("Ewhad", condition.directTurns.single().spawns.single().unitId)
+        assertEquals(
+            "Ewhad",
+            condition.directTurns
+                .single()
+                .spawns
+                .single()
+                .unitId,
+        )
         rule.onNodeWithText("Infinite").performClick()
         // An infinite loop without a "Stop spawn loop" event makes the level invalid.
         rule.onNodeWithText("Save Level").assertIsNotEnabled()

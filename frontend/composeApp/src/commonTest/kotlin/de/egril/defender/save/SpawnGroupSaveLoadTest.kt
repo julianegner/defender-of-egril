@@ -107,9 +107,19 @@ class SpawnGroupSaveLoadTest {
         // subturn (spawns the goblin); turn 5 then makes the deferred decision and loops again
         // (boss still alive → repetition 2).
         assertEquals(listOf(AttackerType.GOBLIN), simulateTurn(restored, 4).map { it.attackerType })
-        assertEquals(1, restored.spawnGroupCursor.value.frames.last().repetition)
+        assertEquals(
+            1,
+            restored.spawnGroupCursor.value.frames
+                .last()
+                .repetition,
+        )
         assertTrue(simulateTurn(restored, 5).isEmpty())
-        assertEquals(2, restored.spawnGroupCursor.value.frames.last().repetition)
+        assertEquals(
+            2,
+            restored.spawnGroupCursor.value.frames
+                .last()
+                .repetition,
+        )
         assertFalse(restored.spawnGroupCursor.value.finished)
     }
 
@@ -142,8 +152,18 @@ class SpawnGroupSaveLoadTest {
         val restored = SaveFileStorage.convertSavedGameToGameState(reloaded, level)
 
         // No cursor persisted → fresh cursor, and the loop runs from the beginning.
-        assertEquals(0, restored.spawnGroupCursor.value.frames.first().entryIndex)
-        assertEquals(0, restored.spawnGroupCursor.value.frames.last().repetition)
+        assertEquals(
+            0,
+            restored.spawnGroupCursor.value.frames
+                .first()
+                .entryIndex,
+        )
+        assertEquals(
+            0,
+            restored.spawnGroupCursor.value.frames
+                .last()
+                .repetition,
+        )
         assertFalse(restored.spawnGroupCursor.value.finished)
         assertTrue(restored.spawnGroupBindings.isEmpty())
         assertEquals(listOf(AttackerType.EWHAD), simulateTurn(restored, 1).map { it.attackerType })
@@ -178,7 +198,12 @@ class SpawnGroupSaveLoadTest {
         assertEquals(state.spawnGroupCursor.value.frames, restored.spawnGroupCursor.value.frames)
         assertEquals(listOf(AttackerType.GOBLIN), simulateTurn(restored, 4).map { it.attackerType })
         assertTrue(simulateTurn(restored, 5).isEmpty())
-        assertEquals(2, restored.spawnGroupCursor.value.frames.last().repetition)
+        assertEquals(
+            2,
+            restored.spawnGroupCursor.value.frames
+                .last()
+                .repetition,
+        )
     }
 
     @Test

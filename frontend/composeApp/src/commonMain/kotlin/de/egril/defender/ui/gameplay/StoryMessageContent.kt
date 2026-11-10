@@ -64,8 +64,7 @@ fun storyMessageTitleAndText(msg: GameMessage): Pair<String, String>? =
  * without narrative text (e.g. levels without a predefined story) must not offer the logbook.
  */
 @Composable
-fun storyLogHasDisplayableEntries(storyLog: List<StoryLogEntry>): Boolean =
-    storyLog.any { storyMessageTitleAndText(it.message) != null }
+fun storyLogHasDisplayableEntries(storyLog: List<StoryLogEntry>): Boolean = storyLog.any { storyMessageTitleAndText(it.message) != null }
 
 /** Title and text for a villain's arrival, falling back to a generic arrival text. */
 @Composable

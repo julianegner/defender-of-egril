@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.AlertDialog
@@ -39,7 +40,6 @@ import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.ui.editor.getTileColor
 import de.egril.defender.ui.icon.PencilIcon
 import de.egril.defender.ui.icon.TriangleDownIcon
-import androidx.compose.foundation.layout.height
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.cancel
 import defender_of_egril.composeapp.generated.resources.edit

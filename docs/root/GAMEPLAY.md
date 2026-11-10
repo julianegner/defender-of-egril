@@ -169,6 +169,12 @@ The Spike Tower has unique upgrade characteristics:
 
 ---
 
+### Auto Tower Base
+
+Some levels enable the **Auto Tower Base** option. Towers may then also be built on PATH tiles, at an
+extra cost. The tower sits on a 150 HP tower base barricade, which enemies must destroy before they can cross the tile. Undo and sell refunds include the extra cost. While placing a tower, hovering a valid tile shows its total cost (including the surcharge) centered on the tile.
+A PATH tile is only valid if it is empty: no barricade, pit, enemy, or trap on it. Towers on PATH tiles also cannot be placed within 2 tiles of a spawn point.
+
 ### Runes and Altars
 
 - Sacrifice a level 10 or higher Wizard Tower to create an Altar, spending one rune.
@@ -285,11 +291,20 @@ Gargoyles are pre-placed stone guardians that are not controlled by the player. 
 
 ## Keyboard Shortcuts
 
-Currently all controls are mouse/touch based:
+Mouse and touch work for all controls. The keyboard covers the main actions:
 
 - **Click** to select towers/enemies
 - **Click** tower buttons to build
 - **Click** "End Turn" to finish
+- **Tab** / **Shift+Tab** select the next / previous affordable tower type (default bindings, remappable in Settings)
+- **Enter** places the selected tower on the keyboard-focused tile
+- **Arrow keys** pan the map; **Left** / **Right** move the focus across the support bar
+
+Tile order for placement with the keyboard matches the mouse:
+
+- Buildable tiles (free build areas and empty tower bases) come first.
+- If the Auto Tower Base option is on and the surcharge is affordable, empty PATH tiles follow.
+- The affordability check includes the surcharge for PATH tiles.
 
 ---
 

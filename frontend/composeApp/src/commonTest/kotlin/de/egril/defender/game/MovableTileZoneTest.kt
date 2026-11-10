@@ -8,11 +8,11 @@ import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
 import de.egril.defender.model.EventCondition
 import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.GameState
+import de.egril.defender.model.Level
 import de.egril.defender.model.LevelEvent
 import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.MIN_ROTATABLE_REGION_TILES
-import de.egril.defender.model.GameState
-import de.egril.defender.model.Level
 import de.egril.defender.model.Position
 import de.egril.defender.model.RegionMove
 import de.egril.defender.model.TileZone
@@ -81,7 +81,12 @@ class MovableTileZoneTest {
         assertEquals(setOf(Position(5, 2), Position(6, 2)), state.movedTileRegions["island"]?.keys)
         assertEquals(TileType.PATH, state.paintedTileTypeAt(Position(6, 2)))
         assertNull(state.paintedTileTypeAt(islandA), "The vacated tile reverts to the base map")
-        assertEquals(Position(6, 2), state.attackers.single().position.value)
+        assertEquals(
+            Position(6, 2),
+            state.attackers
+                .single()
+                .position.value,
+        )
     }
 
     @Test
@@ -156,12 +161,10 @@ class MovableTileZoneTest {
     }
 
     /** Seven tiles with no symmetry, so its rounded centre is not the centre of the shape. */
-    private fun irregularSevenTiles() =
-        setOf(Position(5, 4), Position(6, 4), Position(4, 4), Position(5, 3), Position(5, 5), Position(6, 5), Position(7, 4))
+    private fun irregularSevenTiles() = setOf(Position(5, 4), Position(6, 4), Position(4, 4), Position(5, 3), Position(5, 5), Position(6, 5), Position(7, 4))
 
     /** A larger map so that the irregular region can turn without touching the border or the spawn. */
-    private fun irregularLevel(): Level =
-        flowerLevel(irregularSevenTiles()).copy(gridWidth = 12, gridHeight = 9)
+    private fun irregularLevel(): Level = flowerLevel(irregularSevenTiles()).copy(gridWidth = 12, gridHeight = 9)
 
     @Test
     fun irregularRegionReturnsToStartAfterFullTurn() {

@@ -5,6 +5,7 @@ import de.egril.defender.model.AttackerType
 import de.egril.defender.model.BridgeType
 import de.egril.defender.model.CooldownPower
 import de.egril.defender.model.CooldownPowerType
+import de.egril.defender.model.DEFAULT_AUTO_TOWER_BASE_EXTRA_COST
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
@@ -646,6 +647,18 @@ object EditorJsonSerializer {
                 ""
             }
 
+        val autoTowerBaseJson =
+            if (level.autoTowerBase) {
+                ",\n  \"autoTowerBase\": true" +
+                    if (level.autoTowerBaseExtraCost != DEFAULT_AUTO_TOWER_BASE_EXTRA_COST) {
+                        ",\n  \"autoTowerBaseExtraCost\": ${level.autoTowerBaseExtraCost}"
+                    } else {
+                        ""
+                    }
+            } else {
+                ""
+            }
+
         val isSandboxJson =
             if (level.isSandbox) {
                 ",\n  \"isSandbox\": true"
@@ -973,7 +986,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$singleHitTargetOrderJson$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isSandboxJson$waaghEnabledJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson$spawnGroupsJson
+  "prerequisites": [$prerequisitesJson]$singleHitTargetOrderJson$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$autoTowerBaseJson$isSandboxJson$waaghEnabledJson$isOfficialJson$authorJson$communityDescriptionJson$supportsJson$eventsJson$initialDataJson$spawnGroupsJson
 }"""
         return """{
   "metadata": {
@@ -1223,6 +1236,28 @@ object EditorJsonSerializer {
                     }
                 } else {
                     false
+                }
+
+            // Parse autoTowerBase options (optional, default off with extra cost 20)
+            val autoTowerBase =
+                if (dataJson.contains("\"autoTowerBase\"")) {
+                    try {
+                        JsonUtils.extractValue(dataJson, "autoTowerBase").toBoolean()
+                    } catch (e: Exception) {
+                        false
+                    }
+                } else {
+                    false
+                }
+            val autoTowerBaseExtraCost =
+                if (dataJson.contains("\"autoTowerBaseExtraCost\"")) {
+                    try {
+                        JsonUtils.extractValue(dataJson, "autoTowerBaseExtraCost").toInt()
+                    } catch (e: Exception) {
+                        DEFAULT_AUTO_TOWER_BASE_EXTRA_COST
+                    }
+                } else {
+                    DEFAULT_AUTO_TOWER_BASE_EXTRA_COST
                 }
 
             // Parse isSandbox (optional, defaults to false)
@@ -1704,7 +1739,11 @@ object EditorJsonSerializer {
                                     val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
                                     val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
                                     val level =
-                                        entry.substringAfter("\"level\":", "").trim().takeWhile { it.isDigit() }.toIntOrNull()
+                                        entry
+                                            .substringAfter("\"level\":", "")
+                                            .trim()
+                                            .takeWhile { it.isDigit() }
+                                            .toIntOrNull()
                                             ?: 1
                                     initialGargoyles.add(InitialGargoyle(Position(x, y), level))
                                 }
@@ -2004,6 +2043,8 @@ object EditorJsonSerializer {
                 testingOnly = testingOnly,
                 allowAutoAttack = allowAutoAttack,
                 connectedToPreviousLevel = connectedToPreviousLevel,
+                autoTowerBase = autoTowerBase,
+                autoTowerBaseExtraCost = autoTowerBaseExtraCost,
                 isSandbox = isSandbox,
                 waaghEnabled = waaghEnabled,
                 isOfficial = isOfficial,

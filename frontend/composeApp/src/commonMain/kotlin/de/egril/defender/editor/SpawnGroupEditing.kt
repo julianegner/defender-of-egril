@@ -1,6 +1,8 @@
 package de.egril.defender.editor
 
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.EventActionType
+import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.Position
 import de.egril.defender.model.SpawnCondition
 import de.egril.defender.model.SpawnGroup
@@ -8,8 +10,6 @@ import de.egril.defender.model.SpawnGroupSpawn
 import de.egril.defender.model.SpawnGroupTurn
 import de.egril.defender.model.SpawnRepeatMode
 import de.egril.defender.model.SpawnSequenceEntry
-import de.egril.defender.model.EventActionType
-import de.egril.defender.model.LevelEvents
 import de.egril.defender.model.allSpawnGroups
 import de.egril.defender.model.isRealVillain
 import de.egril.defender.model.mapSpawnEntries
@@ -290,7 +290,12 @@ fun spawnTimelineIssues(
     if (timeline.loops.isEmpty()) return emptySet()
     if (!spawnTimelineStructureValid(timeline)) return setOf(SpawnGroupIssue.STRUCTURE)
     val issues = mutableSetOf<SpawnGroupIssue>()
-    if (timeline.loops.any { it.id.isBlank() } || timeline.loops.map { it.id }.distinct().size != timeline.loops.size) {
+    if (timeline.loops.any { it.id.isBlank() } ||
+        timeline.loops
+            .map { it.id }
+            .distinct()
+            .size != timeline.loops.size
+    ) {
         issues.add(SpawnGroupIssue.GROUP_ID)
     }
     val sequence = buildSpawnSequence(timeline) ?: return issues + SpawnGroupIssue.STRUCTURE
@@ -380,8 +385,7 @@ fun spawnGroupIssues(
 
     fun SpawnGroup.repeats(): Boolean = repeatMode != SpawnRepeatMode.COUNT || repeatCount > 1
 
-    fun hasTurns(sequence: List<SpawnSequenceEntry>): Boolean =
-        sequence.any { it is SpawnGroupTurn || it is SpawnGroup && hasTurns(it.entries) }
+    fun hasTurns(sequence: List<SpawnSequenceEntry>): Boolean = sequence.any { it is SpawnGroupTurn || it is SpawnGroup && hasTurns(it.entries) }
 
     // [enclosing] lists the groups around [sequence], innermost last.
     fun check(
@@ -401,7 +405,9 @@ fun spawnGroupIssues(
                         if (spawn.attackerType.isRealVillain) {
                             val innermost = enclosing.lastOrNull()
                             val respawns =
-                                innermost != null && innermost.repeats() && !spawn.spawnsInFirstIterationOnly ||
+                                innermost != null &&
+                                    innermost.repeats() &&
+                                    !spawn.spawnsInFirstIterationOnly ||
                                     enclosing.dropLast(1).any { it.repeats() }
                             if (spawn.count != 1 || !seenVillains.add(spawn.attackerType) || respawns) issues.add(SpawnGroupIssue.VILLAIN)
                         }
@@ -425,7 +431,8 @@ fun spawnGroupIssues(
                     // The target unit must be spawned before the end of this loop's first iteration.
                     if (entry.repeatMode == SpawnRepeatMode.CONDITION &&
                         (
-                            entry.condition != SpawnCondition.UNIT_ALIVE || entry.targetUnitId.isNullOrBlank() ||
+                            entry.condition != SpawnCondition.UNIT_ALIVE ||
+                                entry.targetUnitId.isNullOrBlank() ||
                                 entry.targetUnitId !in seenUnitIds
                         )
                     ) {
@@ -446,7 +453,11 @@ fun unstoppedInfiniteSpawnLoops(
     events: LevelEvents,
 ): List<String> {
     val stopped = events.stoppedSpawnLoopIds()
-    return entries.orEmpty().allSpawnGroups().filter { it.repeatMode == SpawnRepeatMode.INFINITE && it.groupId !in stopped }.map { it.groupId }
+    return entries
+        .orEmpty()
+        .allSpawnGroups()
+        .filter { it.repeatMode == SpawnRepeatMode.INFINITE && it.groupId !in stopped }
+        .map { it.groupId }
 }
 
 /** Number of "Stop spawn loop" actions in [events] whose target loop is missing or unknown. */

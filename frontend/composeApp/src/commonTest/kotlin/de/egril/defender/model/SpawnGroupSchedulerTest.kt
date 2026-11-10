@@ -152,11 +152,21 @@ class SpawnGroupSchedulerTest {
         assertEquals(listOf(AttackerType.SKELETON), simulateTurn(state, 4).map { it.attackerType })
         // Decision is deferred: iteration 1's end is only evaluated on turn 5, so the cursor is
         // still on the first group right after turn 4.
-        assertEquals(0, state.spawnGroupCursor.value.frames.first().entryIndex)
+        assertEquals(
+            0,
+            state.spawnGroupCursor.value.frames
+                .first()
+                .entryIndex,
+        )
 
         // Boss dead at end of iteration 1 → turn 5 advances to the next group and spawns its ork.
         assertEquals(listOf(AttackerType.ORK), simulateTurn(state, 5).map { it.attackerType })
-        assertEquals(1, state.spawnGroupCursor.value.frames.first().entryIndex)
+        assertEquals(
+            1,
+            state.spawnGroupCursor.value.frames
+                .first()
+                .entryIndex,
+        )
         assertFalse(state.spawnGroupCursor.value.finished)
         assertTrue(simulateTurn(state, 6).isEmpty())
         assertTrue(state.spawnGroupCursor.value.finished)
@@ -477,7 +487,9 @@ class SpawnGroupSchedulerTest {
                 actions = listOf(EventAction(type = EventActionType.STOP_SPAWN_LOOP, spawnLoopId = "endless")),
             )
         val state = GameState(buildLevel(sequence).copy(events = LevelEvents(listOf(stopper))))
-        val events = de.egril.defender.game.EventScriptSystem(state)
+        val events =
+            de.egril.defender.game
+                .EventScriptSystem(state)
         val goblins =
             (1..6).map { turn ->
                 state.turnNumber.value = turn

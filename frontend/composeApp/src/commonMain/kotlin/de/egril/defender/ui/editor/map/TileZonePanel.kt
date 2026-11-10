@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -25,9 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
-import de.egril.defender.model.MIN_ROTATABLE_REGION_TILES
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.TileType
+import de.egril.defender.model.MIN_ROTATABLE_REGION_TILES
 import de.egril.defender.model.Position
 import de.egril.defender.model.RiverFlow
 import de.egril.defender.model.RiverTile
@@ -44,20 +43,19 @@ import defender_of_egril.composeapp.generated.resources.tile_zone_custom_backgro
 import defender_of_egril.composeapp.generated.resources.tile_zone_delete
 import defender_of_egril.composeapp.generated.resources.tile_zone_finish_drawing
 import defender_of_egril.composeapp.generated.resources.tile_zone_help
-import defender_of_egril.composeapp.generated.resources.tile_zone_name_label
-import defender_of_egril.composeapp.generated.resources.tile_zone_paint_erase
 import defender_of_egril.composeapp.generated.resources.tile_zone_movable
 import defender_of_egril.composeapp.generated.resources.tile_zone_movable_help
+import defender_of_egril.composeapp.generated.resources.tile_zone_movable_spawn_warning
+import defender_of_egril.composeapp.generated.resources.tile_zone_name_label
 import defender_of_egril.composeapp.generated.resources.tile_zone_overlap_warning
+import defender_of_egril.composeapp.generated.resources.tile_zone_paint_erase
+import defender_of_egril.composeapp.generated.resources.tile_zone_river_flow_hint
 import defender_of_egril.composeapp.generated.resources.tile_zone_rotatable
 import defender_of_egril.composeapp.generated.resources.tile_zone_rotatable_help
 import defender_of_egril.composeapp.generated.resources.tile_zone_rotatable_size_warning
-import defender_of_egril.composeapp.generated.resources.tile_zone_movable_spawn_warning
-import defender_of_egril.composeapp.generated.resources.tile_zone_river_flow_hint
+import defender_of_egril.composeapp.generated.resources.tile_zone_show_other
 import defender_of_egril.composeapp.generated.resources.tile_zone_start_drawing
 import defender_of_egril.composeapp.generated.resources.tile_zone_tile_count
-import defender_of_egril.composeapp.generated.resources.tile_zone_show_other
-import defender_of_egril.composeapp.generated.resources.tile_zones
 
 /** Border color that marks tiles belonging to the selected tile zone in the map editor. */
 internal val TILE_ZONE_HIGHLIGHT_COLOR = Color(0xFFE040FB)
@@ -227,191 +225,191 @@ internal fun TileZonePanel(
     ) {
         SelectableText(
             text = stringResource(Res.string.tile_zone_help),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (zones.any { it.id == selectedZoneId }) {
+            SelectableText(
+                text = stringResource(Res.string.tile_zone_custom_background_warning),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            if (zones.any { it.id == selectedZoneId }) {
-                SelectableText(
-                    text = stringResource(Res.string.tile_zone_custom_background_warning),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                val (imagePath, dataPath) = mapBackgroundPaths(map)
-                SelectableText(
-                    text = stringResource(Res.string.map_background_storage_info, imagePath, dataPath),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            val (imagePath, dataPath) = mapBackgroundPaths(map)
+            SelectableText(
+                text = stringResource(Res.string.map_background_storage_info, imagePath, dataPath),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
 
-            if (zones.size > 1) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().clickable { onShowOtherZonesChange(!showOtherZones) },
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(checked = showOtherZones, onCheckedChange = null)
-                    Text(stringResource(Res.string.tile_zone_show_other))
-                }
-            }
-
-            zones.forEachIndexed { index, zone ->
-                val isSelected = zone.id == selectedZoneId
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .border(
-                                width = if (isSelected) 2.dp else 1.dp,
-                                color = if (isSelected) TILE_ZONE_HIGHLIGHT_COLOR else tileZoneColor(index),
-                                shape = RoundedCornerShape(6.dp),
-                            ).background(
-                                if (isSelected) TILE_ZONE_HIGHLIGHT_COLOR.copy(alpha = 0.12f) else Color.Transparent,
-                                RoundedCornerShape(6.dp),
-                            ).clickable { onSelectZone(if (isSelected) null else zone.id) }
-                            .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(zone.displayName, fontWeight = FontWeight.Bold)
-                        Text(
-                            text = stringResource(Res.string.tile_zone_tile_count, zone.tiles.size),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                    Row {
-                        OutlinedButton(onClick = { onCopyZone(zone) }) {
-                            Text(stringResource(Res.string.tile_zone_copy))
-                        }
-                        OutlinedButton(
-                            onClick = {
-                                onZonesChange(zones.filterNot { it.id == zone.id })
-                                if (isSelected) onSelectZone(null)
-                            },
-                        ) {
-                            Text(stringResource(Res.string.tile_zone_delete))
-                        }
-                    }
-                }
-            }
-
-            Button(
-                onClick = {
-                    val zone = createTileZone(zones)
-                    onZonesChange(zones + zone)
-                    onSelectZone(zone.id)
-                },
+        if (zones.size > 1) {
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable { onShowOtherZonesChange(!showOtherZones) },
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(stringResource(Res.string.tile_zone_add))
+                Checkbox(checked = showOtherZones, onCheckedChange = null)
+                Text(stringResource(Res.string.tile_zone_show_other))
             }
+        }
 
-            val selectedZone = zones.firstOrNull { it.id == selectedZoneId }
-            if (selectedZone != null) {
-                OutlinedTextField(
-                    value = selectedZone.name,
-                    onValueChange = { input ->
-                        // The manual JSON serializer does not escape strings, so keep names JSON-safe.
-                        val newName = input.filter { it != '"' && it != '\\' }
-                        onZonesChange(zones.map { if (it.id == selectedZone.id) it.copy(name = newName) else it })
-                    },
-                    label = { Text(stringResource(Res.string.tile_zone_name_label)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                Button(onClick = onToggleZoneDrawingMode) {
+        zones.forEachIndexed { index, zone ->
+            val isSelected = zone.id == selectedZoneId
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .border(
+                            width = if (isSelected) 2.dp else 1.dp,
+                            color = if (isSelected) TILE_ZONE_HIGHLIGHT_COLOR else tileZoneColor(index),
+                            shape = RoundedCornerShape(6.dp),
+                        ).background(
+                            if (isSelected) TILE_ZONE_HIGHLIGHT_COLOR.copy(alpha = 0.12f) else Color.Transparent,
+                            RoundedCornerShape(6.dp),
+                        ).clickable { onSelectZone(if (isSelected) null else zone.id) }
+                        .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(zone.displayName, fontWeight = FontWeight.Bold)
                     Text(
-                        stringResource(
-                            if (isZoneDrawingMode) Res.string.tile_zone_finish_drawing else Res.string.tile_zone_start_drawing,
-                        ),
-                    )
-                }
-                if (isZoneDrawingMode) {
-                    PaintTypeOption(stringResource(Res.string.tile_zone_brush_paint), zoneBrush == ZoneBrush.PAINT_TYPE) {
-                        onZoneBrushChange(ZoneBrush.PAINT_TYPE)
-                    }
-                    PaintTypeOption(stringResource(Res.string.tile_zone_brush_add), zoneBrush == ZoneBrush.ADD_KEEP_TYPE) {
-                        onZoneBrushChange(ZoneBrush.ADD_KEEP_TYPE)
-                    }
-                    Text(
-                        text = stringResource(Res.string.tile_zone_brush_add_help),
+                        text = stringResource(Res.string.tile_zone_tile_count, zone.tiles.size),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    PaintTypeOption(stringResource(Res.string.tile_zone_paint_erase), zoneBrush == ZoneBrush.ERASE) {
-                        onZoneBrushChange(ZoneBrush.ERASE)
-                    }
                 }
-                Text(
-                    text = stringResource(Res.string.tile_zone_river_flow_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                val spawnConflict = zoneCoversSpawnPoint(map, selectedZone)
-                Row(
-                    modifier =
-                        Modifier.fillMaxWidth().clickable(enabled = selectedZone.movable || !spawnConflict) {
-                            onZonesChange(zones.map { if (it.id == selectedZone.id) it.copy(movable = !it.movable) else it })
+                Row {
+                    OutlinedButton(onClick = { onCopyZone(zone) }) {
+                        Text(stringResource(Res.string.tile_zone_copy))
+                    }
+                    OutlinedButton(
+                        onClick = {
+                            onZonesChange(zones.filterNot { it.id == zone.id })
+                            if (isSelected) onSelectZone(null)
                         },
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(
-                        checked = selectedZone.movable,
-                        onCheckedChange = null,
-                        enabled = selectedZone.movable || !spawnConflict,
-                    )
-                    Text(stringResource(Res.string.tile_zone_movable))
-                }
-                Text(
-                    text = stringResource(Res.string.tile_zone_movable_help),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                if (selectedZone.movable) {
-                    MovableZoneImageHint()
-                }
-                val rotatableEnabled = selectedZone.movable
-                Row(
-                    modifier =
-                        Modifier.fillMaxWidth().clickable(enabled = rotatableEnabled) {
-                            onZonesChange(zones.map { if (it.id == selectedZone.id) it.copy(rotatable = !it.rotatable) else it })
-                        },
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(
-                        checked = selectedZone.movable && selectedZone.rotatable,
-                        onCheckedChange = null,
-                        enabled = rotatableEnabled,
-                    )
-                    Text(stringResource(Res.string.tile_zone_rotatable, MIN_ROTATABLE_REGION_TILES))
-                }
-                Text(
-                    text = stringResource(Res.string.tile_zone_rotatable_help, MIN_ROTATABLE_REGION_TILES),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                if (selectedZone.movable && selectedZone.rotatable && selectedZone.tiles.size < MIN_ROTATABLE_REGION_TILES) {
-                    Text(
-                        text = stringResource(Res.string.tile_zone_rotatable_size_warning, MIN_ROTATABLE_REGION_TILES),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-                if (overlapsOtherMovableZone(zones, selectedZone)) {
-                    Text(
-                        text = stringResource(Res.string.tile_zone_overlap_warning),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-                if (spawnConflict && !selectedZone.movable) {
-                    Text(
-                        text = stringResource(Res.string.tile_zone_movable_spawn_warning),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
+                    ) {
+                        Text(stringResource(Res.string.tile_zone_delete))
+                    }
                 }
             }
         }
+
+        Button(
+            onClick = {
+                val zone = createTileZone(zones)
+                onZonesChange(zones + zone)
+                onSelectZone(zone.id)
+            },
+        ) {
+            Text(stringResource(Res.string.tile_zone_add))
+        }
+
+        val selectedZone = zones.firstOrNull { it.id == selectedZoneId }
+        if (selectedZone != null) {
+            OutlinedTextField(
+                value = selectedZone.name,
+                onValueChange = { input ->
+                    // The manual JSON serializer does not escape strings, so keep names JSON-safe.
+                    val newName = input.filter { it != '"' && it != '\\' }
+                    onZonesChange(zones.map { if (it.id == selectedZone.id) it.copy(name = newName) else it })
+                },
+                label = { Text(stringResource(Res.string.tile_zone_name_label)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Button(onClick = onToggleZoneDrawingMode) {
+                Text(
+                    stringResource(
+                        if (isZoneDrawingMode) Res.string.tile_zone_finish_drawing else Res.string.tile_zone_start_drawing,
+                    ),
+                )
+            }
+            if (isZoneDrawingMode) {
+                PaintTypeOption(stringResource(Res.string.tile_zone_brush_paint), zoneBrush == ZoneBrush.PAINT_TYPE) {
+                    onZoneBrushChange(ZoneBrush.PAINT_TYPE)
+                }
+                PaintTypeOption(stringResource(Res.string.tile_zone_brush_add), zoneBrush == ZoneBrush.ADD_KEEP_TYPE) {
+                    onZoneBrushChange(ZoneBrush.ADD_KEEP_TYPE)
+                }
+                Text(
+                    text = stringResource(Res.string.tile_zone_brush_add_help),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                PaintTypeOption(stringResource(Res.string.tile_zone_paint_erase), zoneBrush == ZoneBrush.ERASE) {
+                    onZoneBrushChange(ZoneBrush.ERASE)
+                }
+            }
+            Text(
+                text = stringResource(Res.string.tile_zone_river_flow_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            val spawnConflict = zoneCoversSpawnPoint(map, selectedZone)
+            Row(
+                modifier =
+                    Modifier.fillMaxWidth().clickable(enabled = selectedZone.movable || !spawnConflict) {
+                        onZonesChange(zones.map { if (it.id == selectedZone.id) it.copy(movable = !it.movable) else it })
+                    },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Checkbox(
+                    checked = selectedZone.movable,
+                    onCheckedChange = null,
+                    enabled = selectedZone.movable || !spawnConflict,
+                )
+                Text(stringResource(Res.string.tile_zone_movable))
+            }
+            Text(
+                text = stringResource(Res.string.tile_zone_movable_help),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (selectedZone.movable) {
+                MovableZoneImageHint()
+            }
+            val rotatableEnabled = selectedZone.movable
+            Row(
+                modifier =
+                    Modifier.fillMaxWidth().clickable(enabled = rotatableEnabled) {
+                        onZonesChange(zones.map { if (it.id == selectedZone.id) it.copy(rotatable = !it.rotatable) else it })
+                    },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Checkbox(
+                    checked = selectedZone.movable && selectedZone.rotatable,
+                    onCheckedChange = null,
+                    enabled = rotatableEnabled,
+                )
+                Text(stringResource(Res.string.tile_zone_rotatable, MIN_ROTATABLE_REGION_TILES))
+            }
+            Text(
+                text = stringResource(Res.string.tile_zone_rotatable_help, MIN_ROTATABLE_REGION_TILES),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (selectedZone.movable && selectedZone.rotatable && selectedZone.tiles.size < MIN_ROTATABLE_REGION_TILES) {
+                Text(
+                    text = stringResource(Res.string.tile_zone_rotatable_size_warning, MIN_ROTATABLE_REGION_TILES),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            if (overlapsOtherMovableZone(zones, selectedZone)) {
+                Text(
+                    text = stringResource(Res.string.tile_zone_overlap_warning),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            if (spawnConflict && !selectedZone.movable) {
+                Text(
+                    text = stringResource(Res.string.tile_zone_movable_spawn_warning),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+        }
+    }
 }
 
 @Composable

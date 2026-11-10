@@ -144,6 +144,7 @@ data class Defender(
     val raftId: MutableState<Int?> = mutableStateOf(null), // ID of the raft this tower is on (null if not on raft)
     // Tower base properties
     val towerBaseBarricadeId: MutableState<Int?> = mutableStateOf(null), // ID of barricade this tower is on (null if not on tower base)
+    val autoTowerBaseSurcharge: MutableState<Int> = mutableStateOf(0), // Extra coins paid for placing on a PATH tile (refunded with the tower)
     // Sylvanas Root Grip animation state
     val hasRootGripAnimation: MutableState<Boolean> = mutableStateOf(false), // Tower is being engulfed by Sylvanas vines (for animation)
     // Xarithon Shadow Spew animation state
@@ -192,7 +193,7 @@ data class Defender(
     // Level 2: baseCost + upgradeCost for level 2 = baseCost + baseCost * 1 = baseCost * 2 (cost 50 + 50)
     // Level 3: above + upgradeCost for level 3 = baseCost * 2 + baseCost * 2 = baseCost * 4 (cost 50 + 50 + 100)
     val totalCost: Int get() {
-        var total = type.baseCost
+        var total = type.baseCost + autoTowerBaseSurcharge.value
         for (lvl in 2..level.value) {
             total += type.baseCost * (lvl - 1)
         }

@@ -147,6 +147,14 @@ bed*. Level events switch them on and off at runtime (see the Events tab below a
   - Starting coins and health points
   - Available tower types
   - Level title and subtitle
+- **Auto Tower Base** (level option, off by default): when enabled, towers can also be placed on
+  PATH tiles. Each such tower costs an extra amount (default 20 coins, configurable in the Level Info
+  tab) and gets a 150 HP tower base barricade placed underneath it. PATH tiles are highlighted as valid
+  build spots when the player can afford the surcharge. The option is stored as `"autoTowerBase": true`
+  and the cost as `"autoTowerBaseExtraCost"` (omitted when it is the default of 20). Keyboard placement
+  follows the same order as the mouse: buildable tiles first, then PATH tiles when the surcharge is affordable.
+  A PATH tile is only offered when it is empty (no barricade, pit, enemy, or trap) and at least 3 tiles
+  away from every spawn point (tiles within 2 of a spawn point are excluded).
 
 #### Level Generator
 

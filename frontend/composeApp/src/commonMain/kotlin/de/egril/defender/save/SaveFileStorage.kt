@@ -594,7 +594,8 @@ object SaveFileStorage {
                     de.egril.defender.model.SpawnGroupCursor(
                         frames =
                             saved.frames.map {
-                                de.egril.defender.model.SpawnGroupFrame(it.entryIndex, it.repetition, it.iterationStartTurn)
+                                de.egril.defender.model
+                                    .SpawnGroupFrame(it.entryIndex, it.repetition, it.iterationStartTurn)
                             },
                         segmentStartTurn = saved.segmentStartTurn,
                         finished = saved.finished,

@@ -31,6 +31,7 @@ fun FisherBoatIcon(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
         val w = size.width
         val h = size.height
+
         fun p(
             x: Float,
             y: Float,

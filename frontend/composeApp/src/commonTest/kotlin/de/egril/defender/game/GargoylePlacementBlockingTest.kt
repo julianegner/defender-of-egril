@@ -36,7 +36,10 @@ class GargoylePlacementBlockingTest {
         return GameState(level = level)
     }
 
-    private fun addInactiveGargoyle(state: GameState, position: Position) {
+    private fun addInactiveGargoyle(
+        state: GameState,
+        position: Position,
+    ) {
         state.gargoyles.add(
             Gargoyle(
                 id = state.nextGargoyleId.value++,

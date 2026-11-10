@@ -9,8 +9,14 @@ import kotlin.test.assertTrue
 class MovedTileZoneOverlayTest {
     private val asymmetricRegion =
         listOf(
-            Position(4, 4), Position(5, 4), Position(4, 5), Position(3, 5),
-            Position(5, 3), Position(6, 3), Position(7, 4), Position(6, 5),
+            Position(4, 4),
+            Position(5, 4),
+            Position(4, 5),
+            Position(3, 5),
+            Position(5, 3),
+            Position(6, 3),
+            Position(7, 4),
+            Position(6, 5),
         )
 
     private fun movedPairs(move: RegionMove): List<Pair<Position, Position>> {

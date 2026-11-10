@@ -99,20 +99,21 @@ import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.FisherBoatIcon
 import de.egril.defender.ui.icon.GateIcon
+import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.MushroomIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WebIcon
 import de.egril.defender.ui.icon.WoodIcon
-import de.egril.defender.ui.icon.wunjoRunePath
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreview
 import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
-import de.egril.defender.ui.icon.enemy.GargoyleIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
+import de.egril.defender.ui.icon.enemy.GargoyleIcon
 import de.egril.defender.ui.icon.enemy.enemyAttackPreview
 import de.egril.defender.ui.icon.enemy.shouldShowSeafaringPirateBarge
+import de.egril.defender.ui.icon.wunjoRunePath
 import de.egril.defender.ui.rememberMapImageState
 import de.egril.defender.ui.rememberMapTileZoneImageState
 import de.egril.defender.ui.settings.AppSettings
@@ -709,7 +710,13 @@ private fun RiftPortalOverlay(
                         .Stroke(width = 3f),
             )
             drawPath(
-                runePathFor(de.egril.defender.model.Portal.runeGlyphIndex(portal.runeIndex), ec.x, ec.y, runeR),
+                runePathFor(
+                    de.egril.defender.model.Portal
+                        .runeGlyphIndex(portal.runeIndex),
+                    ec.x,
+                    ec.y,
+                    runeR,
+                ),
                 color = entryColor,
                 style = runeStroke,
             )
@@ -726,7 +733,13 @@ private fun RiftPortalOverlay(
                         .Stroke(width = 3f),
             )
             drawPath(
-                runePathFor(de.egril.defender.model.Portal.runeGlyphIndex(portal.runeIndex), xc.x, xc.y, runeR),
+                runePathFor(
+                    de.egril.defender.model.Portal
+                        .runeGlyphIndex(portal.runeIndex),
+                    xc.x,
+                    xc.y,
+                    runeR,
+                ),
                 color = exitColor,
                 style = runeStroke,
             )
@@ -1383,14 +1396,29 @@ fun GameGrid(
         }
     }
 
-    val placementPreviewPositions: Set<Position> by remember(selectedDefenderType, gameState.level) {
+    // Auto tower base levels: free PATH tiles are valid tower spots when the surcharge is affordable.
+    // The occupancy and spawn-distance rules live in GameState.isAutoTowerBasePathSpot.
+    val autoTowerBasePathPositions: Set<Position> by remember(selectedDefenderType, gameState.level) {
+        derivedStateOf<Set<Position>> {
+            val selectedType = selectedDefenderType
+            if (selectedType == null || !gameState.canPlaceDefender(selectedType, gameState.level.autoTowerBaseExtraCost)) {
+                emptySet<Position>()
+            } else {
+                gameState.level.pathCells.filterTo(mutableSetOf()) { pos ->
+                    gameState.isAutoTowerBasePathSpot(selectedType, pos)
+                }
+            }
+        }
+    }
+
+    val placementPreviewPositions: Set<Position> by remember(selectedDefenderType, gameState.level, autoTowerBasePathPositions) {
         derivedStateOf<Set<Position>> {
             if (selectedDefenderType == null) {
                 emptySet<Position>()
             } else if (selectedDefenderType == DefenderType.DWARVEN_MINE) {
                 buildableEmptyPositions
             } else {
-                buildableEmptyPositions + barricadeTowerBasePositions
+                buildableEmptyPositions + barricadeTowerBasePositions + autoTowerBasePathPositions
             }
         }
     }
@@ -1920,6 +1948,7 @@ fun GameGrid(
                     attacker = activeAttackersByPosition[position],
                     isDangerous = dangerousAttackerPositions.contains(position),
                     selectedDefender = selectedDefenderForGrid,
+                    mapZoom = { scale },
                     isHovering = isHovering,
                     isInPreviewRange = isInPreviewRange,
                     showPlacementPreview = showPlacementPreview,
@@ -1980,13 +2009,14 @@ fun GameGrid(
                     isInWizardAttackArea = wizardAttackAreaPositions.contains(position),
                     isInAlchemyAttackArea = alchemyAttackAreaPositions.contains(position),
                     useTransparentBackground =
-                        hasEventMapImages || (
-                            hasMapImage &&
-                                (
-                                    sandboxPaintedType == null ||
-                                        (zoneImageCoversTile && !(gameState.level.isSandbox && position in gameState.sandboxPaintedTiles))
-                                )
-                        ),
+                        hasEventMapImages ||
+                            (
+                                hasMapImage &&
+                                    (
+                                        sandboxPaintedType == null ||
+                                            (zoneImageCoversTile && !(gameState.level.isSandbox && position in gameState.sandboxPaintedTiles))
+                                    )
+                            ),
                     terrainIsSeparateLayer = hasEventMapImages,
                     sandboxPaintedType = sandboxPaintedType,
                     sandboxPaintedRiverTile = sandboxPaintedRiverTile,
@@ -2110,6 +2140,8 @@ fun GridCell(
     attacker: Attacker?,
     isDangerous: Boolean = false,
     selectedDefender: Defender?,
+    // Read lazily in the draw phase so zoom changes do not recompose every cell.
+    mapZoom: () -> Float,
     // isHovering and isInPreviewRange replace the old hoveredPosition: Position? and
     // hoveredPositionIsBuildable: Boolean parameters.  Passing per-cell Booleans means only
     // the 1-2 cells whose hover state actually changed receive a different value and need to
@@ -2968,6 +3000,7 @@ fun GridCell(
                 attackPreview = attackPreview,
                 isDangerous = isDangerous,
                 isInSelectedEnemyPath = isInSelectedEnemyPath,
+                mapZoom = mapZoom,
             )
         }
     } else {
@@ -3041,6 +3074,7 @@ fun GridCell(
                 attackPreview = attackPreview,
                 isDangerous = isDangerous,
                 isInSelectedEnemyPath = isInSelectedEnemyPath,
+                mapZoom = mapZoom,
             )
         }
     }
@@ -3076,6 +3110,8 @@ private fun BoxScope.GridCellContent(
     // previewDefenderType replaces selectedDefenderType: non-null only for the 1 cell showing
     // the placement preview icon, so buy-button clicks don't cascade to all GridCellContent instances.
     previewDefenderType: DefenderType?,
+    // Current map zoom; the hover cost label is counter-scaled by it so it keeps its button size on screen.
+    mapZoom: () -> Float,
     targetCircleInfo: TargetCircleInfo?,
     useDashedBorder: Boolean,
     borderColor: Color,
@@ -3946,6 +3982,39 @@ private fun BoxScope.GridCellContent(
                 defenderType = previewDefenderType,
                 modifier = Modifier.fillMaxSize(),
             )
+        }
+
+        // Cost of the previewed tower in the same color as the buy button, centered on the tile.
+        // Auto tower base tiles on PATH include the surcharge.
+        val previewCost =
+            previewDefenderType.baseCost +
+                if (gameState.isAutoTowerBasePathSpot(previewDefenderType, position)) {
+                    gameState.level.autoTowerBaseExtraCost
+                } else {
+                    0
+                }
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        scaleX = 1f / mapZoom()
+                        scaleY = 1f / mapZoom()
+                    },
+            contentAlignment = Alignment.Center,
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                MoneyIcon(size = 18.dp)
+                Text(
+                    text = "$previewCost",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
         }
     }
 

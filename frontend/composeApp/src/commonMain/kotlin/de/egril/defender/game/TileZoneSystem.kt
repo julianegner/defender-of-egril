@@ -5,17 +5,17 @@ import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.Barricade
+import de.egril.defender.model.Bridge
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.EnemyDeathEffect
 import de.egril.defender.model.FiefType
 import de.egril.defender.model.GameState
+import de.egril.defender.model.MIN_ROTATABLE_REGION_TILES
+import de.egril.defender.model.Portal
 import de.egril.defender.model.Position
 import de.egril.defender.model.Raft
-import de.egril.defender.model.RiverFlow
-import de.egril.defender.model.MIN_ROTATABLE_REGION_TILES
 import de.egril.defender.model.RegionMove
-import de.egril.defender.model.Bridge
-import de.egril.defender.model.Portal
+import de.egril.defender.model.RiverFlow
 import de.egril.defender.model.Waypoint
 import de.egril.defender.model.getHexNeighbors
 
@@ -139,8 +139,7 @@ class TileZoneSystem(
         return true
     }
 
-    private fun isOnMap(position: Position): Boolean =
-        position.x in 0 until state.level.gridWidth && position.y in 0 until state.level.gridHeight
+    private fun isOnMap(position: Position): Boolean = position.x in 0 until state.level.gridWidth && position.y in 0 until state.level.gridHeight
 
     /**
      * Re-map the level data that refers to tile positions — waypoints, the SINGLE_HIT order and target
@@ -149,6 +148,7 @@ class TileZoneSystem(
      */
     private fun relocateLevelData(relocation: Map<Position, Position>) {
         if (relocation.isEmpty()) return
+
         fun Position.relocated(): Position = relocation[this] ?: this
 
         val targetInfo =
@@ -173,6 +173,7 @@ class TileZoneSystem(
         mapper: (Position) -> Position,
     ) {
         fun Position.moved(): Position = if (this in region) mapper(this) else this
+
         fun Position?.isInRegion(): Boolean = this != null && this in region
 
         for (attacker in state.attackers + state.submergedAttackers) {

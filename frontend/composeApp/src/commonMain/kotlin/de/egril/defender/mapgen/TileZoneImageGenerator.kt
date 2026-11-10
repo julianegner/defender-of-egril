@@ -1,8 +1,8 @@
 package de.egril.defender.mapgen
 
 import de.egril.defender.editor.EditorMap
-import de.egril.defender.model.TileZone
 import de.egril.defender.mapgen.core.TileZoneOverlayRenderer
+import de.egril.defender.model.TileZone
 
 /** Generates the zone image for an editor map. The rendering itself lives in the shared `:mapgen` module. */
 object TileZoneImageGenerator {
@@ -18,6 +18,5 @@ object TileZoneImageGenerator {
     fun generateZonePixels(
         map: EditorMap,
         zone: TileZone,
-    ): Triple<IntArray, Int, Int> =
-        TileZoneOverlayRenderer.generateZonePixels(map.toMapImageInput(), zone.toMapImageTiles(), zone.movable)
+    ): Triple<IntArray, Int, Int> = TileZoneOverlayRenderer.generateZonePixels(map.toMapImageInput(), zone.toMapImageTiles(), zone.movable)
 }

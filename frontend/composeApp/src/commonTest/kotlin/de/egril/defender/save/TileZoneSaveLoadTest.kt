@@ -6,8 +6,8 @@ import de.egril.defender.model.AttackerType
 import de.egril.defender.model.EventLoopFrame
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.Position
-import de.egril.defender.model.RegionTile
 import de.egril.defender.model.Raft
+import de.egril.defender.model.RegionTile
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

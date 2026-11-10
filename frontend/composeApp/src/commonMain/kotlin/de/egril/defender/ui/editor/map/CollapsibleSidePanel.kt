@@ -1,9 +1,11 @@
 package de.egril.defender.ui.editor.map
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,8 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Spacer
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.TriangleRightIcon
@@ -77,9 +77,9 @@ fun CollapsibleSidePanel(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 IconButton(
-                        onClick = onToggleExpanded,
-                        modifier = Modifier.semantics { contentDescription = title },
-                    ) {
+                    onClick = onToggleExpanded,
+                    modifier = Modifier.semantics { contentDescription = title },
+                ) {
                     TriangleLeftIcon(size = 16.dp)
                 }
             }

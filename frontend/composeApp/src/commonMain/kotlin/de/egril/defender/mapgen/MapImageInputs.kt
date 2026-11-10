@@ -14,9 +14,10 @@ internal fun EditorMap.toMapImageInput(): MapImageInput =
         width = width,
         height = height,
         tiles =
-            tiles.mapNotNull { (key, type) ->
-                parseGridKey(key)?.let { it to type.toMapImageTileKind() }
-            }.toMap(),
+            tiles
+                .mapNotNull { (key, type) ->
+                    parseGridKey(key)?.let { it to type.toMapImageTileKind() }
+                }.toMap(),
         waterSpawnPoints =
             spawnPointInfoMap
                 .filterValues { it == SpawnPointType.WATER }

@@ -68,12 +68,14 @@ class GargoyleLogicTest {
         return attacker
     }
 
-    private fun logic(state: GameState, enemyDamage: Int = 1) =
-        GargoyleLogic(
-            state = state,
-            getInitialTarget = { Position(10, 0) },
-            getEnemyDamage = { enemyDamage },
-        )
+    private fun logic(
+        state: GameState,
+        enemyDamage: Int = 1,
+    ) = GargoyleLogic(
+        state = state,
+        getInitialTarget = { Position(10, 0) },
+        getEnemyDamage = { enemyDamage },
+    )
 
     @Test
     fun inactiveGargoyleAttacksTwoNearestEnemiesInRangeForFiftyPerLevel() {

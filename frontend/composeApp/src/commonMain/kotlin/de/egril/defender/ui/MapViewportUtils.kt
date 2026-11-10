@@ -14,7 +14,10 @@ const val MAP_KEYBOARD_PAN_STEP = 30f
 class MapPanController {
     var handler: ((dx: Float, dy: Float) -> Unit)? = null
 
-    fun pan(dx: Float, dy: Float) {
+    fun pan(
+        dx: Float,
+        dy: Float,
+    ) {
         handler?.invoke(dx, dy)
     }
 }

@@ -24,8 +24,7 @@ class InitialLanguageChooserDialogTest {
      * The dialog preselects the system language in a LaunchedEffect, so the active language
      * may differ from the default. Expected labels are resolved from the active language.
      */
-    private fun localizedText(key: String): String =
-        LocalizedStrings.get(key, currentLanguage.value)
+    private fun localizedText(key: String): String = LocalizedStrings.get(key, currentLanguage.value)
 
     @Test
     fun testInitialLanguageChooserDialogRendersCorrectly() {

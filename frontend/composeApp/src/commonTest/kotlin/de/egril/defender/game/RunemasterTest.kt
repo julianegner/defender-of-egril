@@ -24,9 +24,9 @@ class RunemasterTest {
         val combatSystem = CombatSystem(state, BridgeSystem(state))
         val runemaster =
             Attacker(
-                    id = 1,
-                    type = AttackerType.RUNEMASTER,
-                    position = mutableStateOf(Position(1, 1)),
+                id = 1,
+                type = AttackerType.RUNEMASTER,
+                position = mutableStateOf(Position(1, 1)),
             )
         state.attackers.add(runemaster)
 
@@ -97,9 +97,9 @@ class RunemasterTest {
     private fun addRunemaster(state: GameState): Attacker {
         val runemaster =
             Attacker(
-            id = 1,
-            type = AttackerType.RUNEMASTER,
-            position = mutableStateOf(Position(1, 1)),
+                id = 1,
+                type = AttackerType.RUNEMASTER,
+                position = mutableStateOf(Position(1, 1)),
             )
         state.attackers.add(runemaster)
         return runemaster

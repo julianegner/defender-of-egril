@@ -15,9 +15,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
+import de.egril.defender.game.canManuallyTargetAttacker
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
-import de.egril.defender.game.canManuallyTargetAttacker
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.SellTowerIcon
 import de.egril.defender.ui.icon.SwordIcon

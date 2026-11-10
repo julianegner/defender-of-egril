@@ -59,9 +59,10 @@ internal fun VillainUsagePage(
                 levels.filterNot { it.testingOnly }
             }
         }
-    val usageEntries = remember(visibleLevels, onlyUnusedVillains) {
-        villainUsageEntries(visibleLevels, onlyUnusedVillains)
-    }
+    val usageEntries =
+        remember(visibleLevels, onlyUnusedVillains) {
+            villainUsageEntries(visibleLevels, onlyUnusedVillains)
+        }
     val locale = currentLanguage.value
 
     Column(

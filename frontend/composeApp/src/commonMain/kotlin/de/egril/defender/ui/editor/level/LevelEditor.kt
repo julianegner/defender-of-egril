@@ -15,8 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.config.LogConfig
@@ -24,17 +24,16 @@ import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorJsonSerializer
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
-import de.egril.defender.editor.EditorStorage
-import de.egril.defender.editor.EditorWaypoint
 import de.egril.defender.editor.EditorSpawnLoop
 import de.egril.defender.editor.EditorSpawnTimeline
-import de.egril.defender.editor.spawnTimeline
+import de.egril.defender.editor.EditorStorage
+import de.egril.defender.editor.EditorWaypoint
 import de.egril.defender.editor.invalidSpawnLoopStopCount
+import de.egril.defender.editor.spawnTimeline
 import de.egril.defender.editor.spawnTimelineIssues
-import de.egril.defender.ui.editor.level.enemies.loopSummary
-import de.egril.defender.ui.editor.level.enemies.spawnIssueTexts
 import de.egril.defender.editor.withSpawnTimeline
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.DEFAULT_AUTO_TOWER_BASE_EXTRA_COST
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.Position
 import de.egril.defender.model.SpawnRepeatMode
@@ -46,6 +45,8 @@ import de.egril.defender.ui.editor.CreateLevelDialog
 import de.egril.defender.ui.editor.SaveAsDialog
 import de.egril.defender.ui.editor.getDefaultAuthorName
 import de.egril.defender.ui.editor.level.enemies.EnemySpawnsTab
+import de.egril.defender.ui.editor.level.enemies.loopSummary
+import de.egril.defender.ui.editor.level.enemies.spawnIssueTexts
 import de.egril.defender.ui.editor.level.generator.LevelGenerator
 import de.egril.defender.ui.editor.level.generator.LevelGeneratorConfig
 import de.egril.defender.ui.editor.level.generator.LevelGeneratorDialog
@@ -552,6 +553,8 @@ internal fun LevelEditorView(
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
     var connectedToPreviousLevel by remember { mutableStateOf(level.connectedToPreviousLevel) }
+    var autoTowerBase by remember { mutableStateOf(level.autoTowerBase) }
+    var autoTowerBaseExtraCost by remember { mutableStateOf(level.autoTowerBaseExtraCost.toString()) }
     var isSandbox by remember { mutableStateOf(level.isSandbox) }
     var waaghEnabled by remember { mutableStateOf(level.waaghEnabled) }
     var supportsState by remember { mutableStateOf(level.supports) }
@@ -662,8 +665,7 @@ internal fun LevelEditorView(
         spawnLoops = newSpawnLoops
     }
 
-    fun updateSpawnTimeline(timeline: EditorSpawnTimeline) =
-        updateEnemySpawnState(timeline.spawns.toMutableList(), timeline.maxTurn, timeline.loops)
+    fun updateSpawnTimeline(timeline: EditorSpawnTimeline) = updateEnemySpawnState(timeline.spawns.toMutableList(), timeline.maxTurn, timeline.loops)
 
     val spawnTimeline = EditorSpawnTimeline(enemySpawns, maxTurnNumber, spawnLoops)
 
@@ -748,33 +750,39 @@ internal fun LevelEditorView(
             testingOnly,
             allowAutoAttack,
             connectedToPreviousLevel,
+            autoTowerBase,
+            autoTowerBaseExtraCost,
             isSandbox,
             supportsState,
             eventsState,
             initialDataState,
         ) {
-            level.copy(
-                title = title,
-                subtitle = subtitle,
-                author = author,
-                communityDescription = communityDescription,
-                mapId = selectedMapId,
-                startCoins = startCoins.toIntOrNull() ?: 100,
-                startHealthPoints = startHP.toIntOrNull() ?: 10,
-                enemySpawns = emptyList(),
-                spawnGroups = null,
-                availableTowers = availableTowersState,
-                waypoints = waypointsState.toList(),
-                singleHitTargetOrder = singleHitTargetOrder,
-                testingOnly = testingOnly,
-                allowAutoAttack = allowAutoAttack,
-                connectedToPreviousLevel = connectedToPreviousLevel,
-                isSandbox = isSandbox,
-                waaghEnabled = waaghEnabled,
-                supports = supportsState,
-                events = eventsState,
-                initialData = initialDataState,
-            ).let { if (isSandbox) it else it.withSpawnTimeline(spawnTimeline) }
+            level
+                .copy(
+                    title = title,
+                    subtitle = subtitle,
+                    author = author,
+                    communityDescription = communityDescription,
+                    mapId = selectedMapId,
+                    startCoins = startCoins.toIntOrNull() ?: 100,
+                    startHealthPoints = startHP.toIntOrNull() ?: 10,
+                    enemySpawns = emptyList(),
+                    spawnGroups = null,
+                    availableTowers = availableTowersState,
+                    waypoints = waypointsState.toList(),
+                    singleHitTargetOrder = singleHitTargetOrder,
+                    testingOnly = testingOnly,
+                    allowAutoAttack = allowAutoAttack,
+                    connectedToPreviousLevel = connectedToPreviousLevel,
+                    autoTowerBase = autoTowerBase,
+                    autoTowerBaseExtraCost =
+                        autoTowerBaseExtraCost.toIntOrNull() ?: DEFAULT_AUTO_TOWER_BASE_EXTRA_COST,
+                    isSandbox = isSandbox,
+                    waaghEnabled = waaghEnabled,
+                    supports = supportsState,
+                    events = eventsState,
+                    initialData = initialDataState,
+                ).let { if (isSandbox) it else it.withSpawnTimeline(spawnTimeline) }
         }
     val levelDesignSummary = remember(draftLevel, currentMap) { analyzeLevelDesign(draftLevel, currentMap) }
     val waveArrivals = remember(draftLevel, currentMap) { buildWaveArrivalBuckets(draftLevel, currentMap) }
@@ -1013,6 +1021,12 @@ internal fun LevelEditorView(
                         onAllowAutoAttackChange = { allowAutoAttack = it },
                         connectedToPreviousLevel = connectedToPreviousLevel,
                         onConnectedToPreviousLevelChange = { connectedToPreviousLevel = it },
+                        autoTowerBase = autoTowerBase,
+                        onAutoTowerBaseChange = { autoTowerBase = it },
+                        autoTowerBaseExtraCost = autoTowerBaseExtraCost,
+                        onAutoTowerBaseExtraCostChange = { value ->
+                            autoTowerBaseExtraCost = value.filter { it.isDigit() }
+                        },
                         isSandbox = isSandbox,
                         onIsSandboxChange = { isSandbox = it },
                         waaghEnabled = waaghEnabled,
@@ -1147,29 +1161,34 @@ internal fun LevelEditorView(
                 Button(
                     onClick = {
                         val updatedLevel =
-                            level.copy(
-                                title = title,
-                                subtitle = subtitle,
-                                author = author,
-                                communityDescription = communityDescription,
-                                mapId = selectedMapId,
-                                startCoins = startCoins.toIntOrNull() ?: 100,
-                                startHealthPoints = startHP.toIntOrNull() ?: 10,
-                                // Sandbox levels have no scripted enemy waves; the player spawns test enemies while playing.
-                                enemySpawns = emptyList(),
-                                spawnGroups = null,
-                                availableTowers = availableTowersState,
-                                waypoints = waypointsState.toList(),
-                                singleHitTargetOrder = singleHitTargetOrder,
-                                testingOnly = testingOnly,
-                                allowAutoAttack = allowAutoAttack,
-                                connectedToPreviousLevel = connectedToPreviousLevel,
-                                isSandbox = isSandbox,
-                                waaghEnabled = waaghEnabled,
-                                supports = supportsState,
-                                events = eventsState,
-                                initialData = initialDataState,
-                            ).let { if (isSandbox) it else it.withSpawnTimeline(spawnTimeline) }
+                            level
+                                .copy(
+                                    title = title,
+                                    subtitle = subtitle,
+                                    author = author,
+                                    communityDescription = communityDescription,
+                                    mapId = selectedMapId,
+                                    startCoins = startCoins.toIntOrNull() ?: 100,
+                                    startHealthPoints = startHP.toIntOrNull() ?: 10,
+                                    // Sandbox levels have no scripted enemy waves; the player spawns test enemies while playing.
+                                    enemySpawns = emptyList(),
+                                    spawnGroups = null,
+                                    availableTowers = availableTowersState,
+                                    waypoints = waypointsState.toList(),
+                                    singleHitTargetOrder = singleHitTargetOrder,
+                                    testingOnly = testingOnly,
+                                    allowAutoAttack = allowAutoAttack,
+                                    connectedToPreviousLevel = connectedToPreviousLevel,
+                                    autoTowerBase = autoTowerBase,
+                                    autoTowerBaseExtraCost =
+                                        autoTowerBaseExtraCost.toIntOrNull()
+                                            ?: DEFAULT_AUTO_TOWER_BASE_EXTRA_COST,
+                                    isSandbox = isSandbox,
+                                    waaghEnabled = waaghEnabled,
+                                    supports = supportsState,
+                                    events = eventsState,
+                                    initialData = initialDataState,
+                                ).let { if (isSandbox) it else it.withSpawnTimeline(spawnTimeline) }
 
                         // Show warning dialog for official levels before saving
                         if (level.isOfficial && de.egril.defender.OfficialEditMode.enabled) {
@@ -1421,28 +1440,33 @@ internal fun LevelEditorView(
                         "level_copy_${Random.nextInt(10000, 99999)}"
                     }
                 val newLevel =
-                    level.copy(
-                        id = newId,
-                        title = newTitle,
-                        subtitle = subtitle,
-                        author = author,
-                        mapId = selectedMapId,
-                        startCoins = startCoins.toIntOrNull() ?: 100,
-                        startHealthPoints = startHP.toIntOrNull() ?: 10,
-                        enemySpawns = emptyList(),
-                        spawnGroups = null,
-                        availableTowers = availableTowersState,
-                        waypoints = waypointsState.toList(),
-                        singleHitTargetOrder = singleHitTargetOrder,
-                        testingOnly = testingOnly,
-                        allowAutoAttack = allowAutoAttack,
-                        connectedToPreviousLevel = connectedToPreviousLevel,
-                        isSandbox = isSandbox,
-                        waaghEnabled = waaghEnabled,
-                        supports = supportsState,
-                        events = eventsState,
-                        initialData = initialDataState,
-                    ).let { if (isSandbox) it else it.withSpawnTimeline(spawnTimeline) }
+                    level
+                        .copy(
+                            id = newId,
+                            title = newTitle,
+                            subtitle = subtitle,
+                            author = author,
+                            mapId = selectedMapId,
+                            startCoins = startCoins.toIntOrNull() ?: 100,
+                            startHealthPoints = startHP.toIntOrNull() ?: 10,
+                            enemySpawns = emptyList(),
+                            spawnGroups = null,
+                            availableTowers = availableTowersState,
+                            waypoints = waypointsState.toList(),
+                            singleHitTargetOrder = singleHitTargetOrder,
+                            testingOnly = testingOnly,
+                            allowAutoAttack = allowAutoAttack,
+                            connectedToPreviousLevel = connectedToPreviousLevel,
+                            autoTowerBase = autoTowerBase,
+                            autoTowerBaseExtraCost =
+                                autoTowerBaseExtraCost.toIntOrNull()
+                                    ?: DEFAULT_AUTO_TOWER_BASE_EXTRA_COST,
+                            isSandbox = isSandbox,
+                            waaghEnabled = waaghEnabled,
+                            supports = supportsState,
+                            events = eventsState,
+                            initialData = initialDataState,
+                        ).let { if (isSandbox) it else it.withSpawnTimeline(spawnTimeline) }
                 onSave(newLevel)
                 showSaveAsDialog = false
             },

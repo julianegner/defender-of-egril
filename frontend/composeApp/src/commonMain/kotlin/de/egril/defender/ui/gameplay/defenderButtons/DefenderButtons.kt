@@ -66,7 +66,7 @@ fun DefenderButton(
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
     val locale = com.hyperether.resources.currentLanguage.value
-    val actuallyCanAfford = coinsState.value >= type.baseCost
+    val actuallyCanAfford = canAfford
 
     val towerName = type.getLocalizedName(locale)
     val attackTypeName = type.attackType.getLocalizedName(locale)

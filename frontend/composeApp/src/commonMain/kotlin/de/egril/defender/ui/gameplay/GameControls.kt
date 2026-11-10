@@ -350,6 +350,7 @@ fun GameControlsPanel(
                                         availableTypes = types,
                                         selectedDefenderType = selectedDefenderType,
                                         coinsState = coinsState,
+                                        canAffordType = gameState::canAffordTowerButton,
                                         instantTowerActive = gameState.instantTowerSpellActive.value,
                                         onSelectDefenderType = onSelectDefenderType,
                                         isPlayerTurn = isPlayerTurn,
@@ -385,7 +386,7 @@ fun GameControlsPanel(
                                             CompactDefenderButton(
                                                 type = type,
                                                 isSelected = selectedDefenderType == type,
-                                                canAfford = coinsState.value >= type.baseCost,
+                                                canAfford = gameState.canAffordTowerButton(type),
                                                 instantTowerActive = gameState.instantTowerSpellActive.value,
                                                 shortcutIndex = if (type != DefenderType.DRAGONS_LAIR) index else null,
                                                 modifier = compactDefenderButtonModifier,
@@ -427,7 +428,7 @@ fun GameControlsPanel(
                             ) {
                                 types.forEachIndexed { index, type ->
                                     if (index > 0) Spacer(modifier = Modifier.width(4.dp))
-                                    val canAfford = coinsState.value >= type.baseCost
+                                    val canAfford = gameState.canAffordTowerButton(type)
                                     if (LogConfig.ENABLE_UI_LOGGING) {
                                         println(
                                             "DEBUG: ${phase.name} Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford",

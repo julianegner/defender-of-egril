@@ -86,8 +86,18 @@ internal object EventMapImageJson {
         key: String,
     ): Position? {
         val section = Regex("\"$key\"\\s*:\\s*\\{([^}]*)\\}").find(json)?.groupValues?.get(1) ?: return null
-        val x = Regex("\"x\"\\s*:\\s*(-?\\d+)").find(section)?.groupValues?.get(1)?.toIntOrNull() ?: return null
-        val y = Regex("\"y\"\\s*:\\s*(-?\\d+)").find(section)?.groupValues?.get(1)?.toIntOrNull() ?: return null
+        val x =
+            Regex("\"x\"\\s*:\\s*(-?\\d+)")
+                .find(section)
+                ?.groupValues
+                ?.get(1)
+                ?.toIntOrNull() ?: return null
+        val y =
+            Regex("\"y\"\\s*:\\s*(-?\\d+)")
+                .find(section)
+                ?.groupValues
+                ?.get(1)
+                ?.toIntOrNull() ?: return null
         return Position(x, y)
     }
 

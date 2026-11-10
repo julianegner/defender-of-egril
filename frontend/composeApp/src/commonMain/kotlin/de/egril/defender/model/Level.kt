@@ -75,6 +75,8 @@ data class Level(
     val riverTiles: Map<Position, RiverTile> = emptyMap(), // River tiles with flow direction and speed (not walkable in gameplay, but treated as walkable during map validation for levels with ORK, EVIL_WIZARD, or EWHAD enemies)
     val allowAutoAttack: Boolean = true, // If true, shows auto-attack button in end turn confirmation dialog
     val connectedToPreviousLevel: Boolean = false, // If true, player can carry over towers/coins from the previous level
+    val autoTowerBase: Boolean = false, // If true, towers can be built on PATH tiles; a 150 HP tower base barricade is placed underneath
+    val autoTowerBaseExtraCost: Int = DEFAULT_AUTO_TOWER_BASE_EXTRA_COST, // Extra coins charged for a tower built on a PATH tile
     val isSandbox: Boolean = false, // If true, level is a Sandbox: free building/spawning, no scripted events, cannot be won, no XP
     val waaghEnabled: Boolean = false, // If true, Waaagh! horde mechanics are active for this level
     val targetInfoMap: Map<Position, TargetInfo> = emptyMap(), // Optional metadata (name, type) per target position
@@ -330,3 +332,12 @@ fun Level.getEnemyTypeCounts(): Map<AttackerType, Int> {
 
     return enemyCounts
 }
+
+/** Hit points of the barricade placed under a tower built on a PATH tile (auto tower base). */
+const val AUTO_TOWER_BASE_HEALTH = 150
+
+/** Towers with an auto tower base may not be placed within this many tiles of a spawn point. */
+const val AUTO_TOWER_BASE_SPAWN_DISTANCE = 2
+
+/** Default extra coins for a tower built on a PATH tile when the auto tower base option is active. */
+const val DEFAULT_AUTO_TOWER_BASE_EXTRA_COST = 20

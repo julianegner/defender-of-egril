@@ -6,11 +6,11 @@ import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorSpawnLoop
 import de.egril.defender.editor.EditorSpawnTimeline
-import de.egril.defender.editor.withSpawnTimeline
 import de.egril.defender.editor.SpawnTurnTemplateDefinition
 import de.egril.defender.editor.SpawnTurnTemplateEntry
 import de.egril.defender.editor.SpawnTurnTemplateVariant
 import de.egril.defender.editor.TileType
+import de.egril.defender.editor.withSpawnTimeline
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.EventAction

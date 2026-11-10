@@ -5,9 +5,7 @@ import de.egril.defender.audio.SoundEvent
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.Attacker
-import de.egril.defender.model.AttackerType
 import de.egril.defender.model.BombExplosionEffect
-import de.egril.defender.model.DefenderType
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Position

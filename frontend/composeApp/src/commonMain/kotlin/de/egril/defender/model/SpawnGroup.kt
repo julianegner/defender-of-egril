@@ -112,8 +112,7 @@ data class SpawnGroup(
 const val SPAWN_SEQUENCE_ROOT_ID = "__root__"
 
 /** Wraps a level's top-level spawn sequence in the implicit root group used by the runner. */
-fun spawnSequenceRoot(entries: List<SpawnSequenceEntry>): SpawnGroup =
-    SpawnGroup(SPAWN_SEQUENCE_ROOT_ID, SpawnRepeatMode.COUNT, repeatCount = 1, entries = entries)
+fun spawnSequenceRoot(entries: List<SpawnSequenceEntry>): SpawnGroup = SpawnGroup(SPAWN_SEQUENCE_ROOT_ID, SpawnRepeatMode.COUNT, repeatCount = 1, entries = entries)
 
 /** All spawn entries anywhere in this sequence (static view, ignoring repetitions). */
 fun List<SpawnSequenceEntry>.allSpawnEntries(): List<SpawnGroupSpawn> =
@@ -143,8 +142,7 @@ fun List<SpawnSequenceEntry>.flatMapSpawnEntries(transform: (SpawnGroupSpawn) ->
     }
 
 /** Maps every spawn entry (recursively), keeping the structure. */
-fun List<SpawnSequenceEntry>.mapSpawnEntries(transform: (SpawnGroupSpawn) -> SpawnGroupSpawn): List<SpawnSequenceEntry> =
-    flatMapSpawnEntries { listOf(transform(it)) }
+fun List<SpawnSequenceEntry>.mapSpawnEntries(transform: (SpawnGroupSpawn) -> SpawnGroupSpawn): List<SpawnSequenceEntry> = flatMapSpawnEntries { listOf(transform(it)) }
 
 /**
  * Number of enemies per type spawned by a spawn sequence.

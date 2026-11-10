@@ -1495,21 +1495,26 @@ object SaveJsonSerializer {
                         return Position(JsonUtils.extractValue(section, "x").toInt(), JsonUtils.extractValue(section, "y").toInt())
                     }
                     val position = pointIn("position")
-                    val type = de.egril.defender.editor.TileType.valueOf(JsonUtils.extractStringValue(tileJson, "type"))
+                    val type =
+                        de.egril.defender.editor.TileType
+                            .valueOf(JsonUtils.extractStringValue(tileJson, "type"))
                     val river =
                         if (type == de.egril.defender.editor.TileType.RIVER) {
                             de.egril.defender.model.RiverTile(
                                 position = position,
                                 flowDirection =
                                     runCatching {
-                                        de.egril.defender.model.RiverFlow.valueOf(JsonUtils.extractStringValue(tileJson, "flowDirection"))
+                                        de.egril.defender.model.RiverFlow
+                                            .valueOf(JsonUtils.extractStringValue(tileJson, "flowDirection"))
                                     }.getOrDefault(de.egril.defender.model.RiverFlow.NONE),
                                 flowSpeed = JsonUtils.extractNumericValue(tileJson, "flowSpeed").toIntOrNull()?.coerceIn(1, 2) ?: 1,
                             )
                         } else {
                             null
                         }
-                    position to de.egril.defender.model.RegionTile(type, river, pointIn("home"))
+                    position to
+                        de.egril.defender.model
+                            .RegionTile(type, river, pointIn("home"))
                 }
         return zoneId to tiles
     }

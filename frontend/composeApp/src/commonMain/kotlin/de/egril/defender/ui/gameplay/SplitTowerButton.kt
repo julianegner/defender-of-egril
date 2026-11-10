@@ -74,6 +74,7 @@ fun ColumnScope.SplitTowerBuildControls(
     availableTypes: List<DefenderType>,
     selectedDefenderType: DefenderType?,
     coinsState: State<Int>,
+    canAffordType: (DefenderType) -> Boolean,
     instantTowerActive: Boolean,
     onSelectDefenderType: (DefenderType?) -> Unit,
     isPlayerTurn: Boolean,
@@ -118,7 +119,7 @@ fun ColumnScope.SplitTowerBuildControls(
 
     val selectedType = if (availableTypes.contains(preferredType)) preferredType else availableTypes.first()
     val selectedIndex = availableTypes.indexOf(selectedType)
-    val selectedCanAfford = coinsState.value >= selectedType.baseCost
+    val selectedCanAfford = canAffordType(selectedType)
     val splitButtonHeight = if (isPlatformMobile || isMobileWebBrowser()) 80.dp else 70.dp
     val locale = com.hyperether.resources.currentLanguage.value
 
@@ -181,7 +182,7 @@ fun ColumnScope.SplitTowerBuildControls(
                             type = type,
                             index = index,
                             selected = selectedType == type,
-                            affordable = coinsState.value >= type.baseCost,
+                            affordable = canAffordType(type),
                             locale = locale,
                             shortcutIndex = index,
                             onClick = {

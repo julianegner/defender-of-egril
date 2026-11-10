@@ -50,24 +50,23 @@ import de.egril.defender.ui.editor.level.MapLaneShape
 import de.egril.defender.ui.editor.level.TravelBand
 import de.egril.defender.ui.editor.level.analyzeLevelMapConsistency
 import de.egril.defender.ui.editor.level.analyzeMapFlow
-import de.egril.defender.ui.icon.CheckmarkIcon
-import de.egril.defender.ui.icon.PencilIcon
-import de.egril.defender.ui.icon.PushpinIcon
-import de.egril.defender.ui.icon.ResizeIcon
-import de.egril.defender.ui.icon.RightArrowIcon
-import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.ui.hexagon.BaseGridCell
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import de.egril.defender.ui.hexagon.HexagonalMapConfig
 import de.egril.defender.ui.hexagon.HexagonalMapView
 import de.egril.defender.ui.hexagon.MinimapConfig
+import de.egril.defender.ui.icon.CheckmarkIcon
+import de.egril.defender.ui.icon.PencilIcon
+import de.egril.defender.ui.icon.PushpinIcon
+import de.egril.defender.ui.icon.ResizeIcon
+import de.egril.defender.ui.icon.RightArrowIcon
+import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.utils.screenToHexGridPosition
 import defender_of_egril.composeapp.generated.resources.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.abs
 
 /**
  * Converts a human-readable map name into a stable map ID component, e.g. "My Map" → "my_map".
@@ -1265,7 +1264,6 @@ fun MapEditorView(
                             },
                         )
                     }
-
                 }
 
                 val parsedFromX = replacementFromX.toIntOrNull()
@@ -2105,7 +2103,7 @@ fun MapEditorView(
                 }
             }
         }
-        }
+    }
 
     LaunchedEffect(showMapImageGenerationDialog) {
         if (showMapImageGenerationDialog && shouldLoadMapPreviewFromDisk(mapPreviewPainter != null)) {
@@ -2381,7 +2379,6 @@ fun MapEditorView(
             },
         )
     }
-
 }
 
 @Composable

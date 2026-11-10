@@ -17,13 +17,16 @@ class RotatableZoneValidationTest {
             tileZones = listOf(zone),
         )
 
-    private fun zoneWithTiles(count: Int, rotatable: Boolean, movable: Boolean = true) =
-        TileZone(
-            id = "zone",
-            tiles = (0 until count).associate { Position(it, 3) to TileType.PATH },
-            movable = movable,
-            rotatable = rotatable,
-        )
+    private fun zoneWithTiles(
+        count: Int,
+        rotatable: Boolean,
+        movable: Boolean = true,
+    ) = TileZone(
+        id = "zone",
+        tiles = (0 until count).associate { Position(it, 3) to TileType.PATH },
+        movable = movable,
+        rotatable = rotatable,
+    )
 
     @Test
     fun smallRotatableZoneMakesMapInvalid() {

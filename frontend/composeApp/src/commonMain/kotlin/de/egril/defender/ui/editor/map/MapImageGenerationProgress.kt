@@ -13,9 +13,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -46,11 +46,9 @@ internal data class ImageGenerationProgress(
     val optimization: ImageStep = ImageStep.WAITING,
 )
 
-internal fun mapImageFileNames(map: EditorMap): List<String> =
-    listOf("${map.id}.png") + map.tileZones.indices.map { index -> MapImageProvider.tileZoneImageFileName(map.id, index) }
+internal fun mapImageFileNames(map: EditorMap): List<String> = listOf("${map.id}.png") + map.tileZones.indices.map { index -> MapImageProvider.tileZoneImageFileName(map.id, index) }
 
-internal fun initialImageProgress(result: EditorStorage.MapSaveResult): List<ImageGenerationProgress> =
-    mapImageFileNames(result.validatedMap).map { ImageGenerationProgress(it) }
+internal fun initialImageProgress(result: EditorStorage.MapSaveResult): List<ImageGenerationProgress> = mapImageFileNames(result.validatedMap).map { ImageGenerationProgress(it) }
 
 /** A generated background image shown in the preview carousel, identified by its file name. */
 internal class MapImagePreview(

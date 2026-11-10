@@ -281,7 +281,13 @@ class SpawnGroupEditingTest {
                     ),
             ).copy(repeatMode = SpawnRepeatMode.CONDITION, condition = SpawnCondition.UNIT_ALIVE, targetUnitId = "boss")
         val remapped = remapSpawnGroupPoints(listOf(original), mapOf(a to b, b to a)).single() as SpawnGroup
-        assertEquals(listOf(b, a, null), remapped.directTurns.single().spawns.map { it.spawnPoint })
+        assertEquals(
+            listOf(b, a, null),
+            remapped.directTurns
+                .single()
+                .spawns
+                .map { it.spawnPoint },
+        )
         assertEquals(original, remapSpawnGroupPoints(listOf(remapped), mapOf(a to b, b to a)).single())
     }
 
@@ -317,7 +323,14 @@ class SpawnGroupEditingTest {
         assertTrue(forcedOff.spawnsInFirstIterationOnly)
         val timeline = EditorSpawnTimeline(listOf(forcedOff), 1).createLoop(1)
         val sequence = assertNotNull(buildSpawnSequence(timeline))
-        assertTrue((sequence.single() as SpawnGroup).directTurns.single().spawns.single().firstIterationOnly)
+        assertTrue(
+            (sequence.single() as SpawnGroup)
+                .directTurns
+                .single()
+                .spawns
+                .single()
+                .firstIterationOnly,
+        )
         assertTrue(spawnTimelineIssues(timeline).isEmpty())
         assertTrue(SpawnGroupSpawn(AttackerType.EWHAD, firstIterationOnly = false).spawnsInFirstIterationOnly)
     }
@@ -348,7 +361,14 @@ class SpawnGroupEditingTest {
         assertTrue(spawnTimelineIssues(timeline).isEmpty())
         val rebuilt = assertNotNull(buildSpawnSequence(timeline)).single() as SpawnGroup
         assertEquals("Ewhad", rebuilt.targetUnitId)
-        assertEquals("Ewhad", rebuilt.directTurns.single().spawns.single().unitId)
+        assertEquals(
+            "Ewhad",
+            rebuilt.directTurns
+                .single()
+                .spawns
+                .single()
+                .unitId,
+        )
     }
 
     @Test

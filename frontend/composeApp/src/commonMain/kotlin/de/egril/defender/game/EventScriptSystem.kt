@@ -2,7 +2,6 @@ package de.egril.defender.game
 
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.model.ActiveEventLoop
-import de.egril.defender.model.RegionMove
 import de.egril.defender.model.AltarLink
 import de.egril.defender.model.Defender
 import de.egril.defender.model.DefenderType
@@ -17,6 +16,7 @@ import de.egril.defender.model.GameMessage
 import de.egril.defender.model.GameMessageType
 import de.egril.defender.model.GameState
 import de.egril.defender.model.LevelEvent
+import de.egril.defender.model.RegionMove
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.combineSupportCounts

@@ -235,7 +235,10 @@ data class GameMessage(
 /**
  * A story message that was shown to the player, together with the round in which it was shown.
  */
-data class StoryLogEntry(val turn: Int, val message: GameMessage)
+data class StoryLogEntry(
+    val turn: Int,
+    val message: GameMessage,
+)
 
 data class PendingSoulCall(
     val position: Position,
@@ -815,8 +818,7 @@ data class GameState(
      * Returns true if an inactive gargoyle stands on [position]. Inactive gargoyles are not in
      * [attackers], so units must check this separately: no unit may step onto their tile.
      */
-    fun isInactiveGargoyleAt(position: Position): Boolean =
-        gargoyles.any { !it.isActive.value && it.position.value == position }
+    fun isInactiveGargoyleAt(position: Position): Boolean = gargoyles.any { !it.isActive.value && it.position.value == position }
 
     /**
      * Returns true if [position] is a target that can still be reached by enemies.
@@ -891,7 +893,71 @@ data class GameState(
         }
     }
 
-    fun canPlaceDefender(type: DefenderType): Boolean = type != DefenderType.ALTAR && (level.isSandbox || coins.value >= type.baseCost) && level.availableTowers.contains(type)
+    fun canPlaceDefender(
+        type: DefenderType,
+        extraCost: Int = 0,
+    ): Boolean = type != DefenderType.ALTAR && (level.isSandbox || coins.value >= type.baseCost + extraCost) && level.availableTowers.contains(type)
+
+    /**
+     * Whether a tower buy button should be enabled. With auto tower bases, a tower on a PATH tile
+     * costs the surcharge extra, so the button stays active only while an empty buildable tile
+     * exists or the surcharge is also affordable.
+     */
+    fun canAffordTowerButton(type: DefenderType): Boolean {
+        if (!canPlaceDefender(type)) return false
+        if (!level.autoTowerBase || type == DefenderType.DWARVEN_MINE) return true
+        val canAffordWithBase = level.isSandbox || coins.value >= type.baseCost + level.autoTowerBaseExtraCost
+        return canAffordWithBase || hasEmptyBuildableTile()
+    }
+
+    /**
+     * Positions offered for keyboard placement, in priority order: empty build areas and tower bases
+     * first, then empty PATH tiles when the auto tower base option is enabled. Only positions the
+     * player can afford are returned. The caller still validates each one through the normal
+     * placement path, which also covers rules like spawn points, fiefs and gargoyles.
+     */
+    fun keyboardPlacementCandidates(type: DefenderType): List<Position> {
+        val isFree: (Position) -> Boolean = { pos -> defenders.none { it.position.value == pos } }
+        val buildable =
+            (level.buildAreas + barricades.filter { it.canSupportTower() && !it.hasTower() }.map { it.position })
+                .filter(isFree)
+                .distinct()
+                .filter { canPlaceDefender(type) }
+        if (!level.autoTowerBase || type == DefenderType.DWARVEN_MINE || type == DefenderType.ALTAR) return buildable
+        val path =
+            level.pathCells
+                .filter { isAutoTowerBasePathSpot(type, it) }
+                .sortedWith(compareBy({ it.y }, { it.x }))
+                .filter { canPlaceDefender(type, level.autoTowerBaseExtraCost) }
+        return buildable + path
+    }
+
+    /**
+     * Auto tower base: whether a PATH tile can take a tower (with a tower base barricade underneath).
+     * The tile must be free of any occupant (barricade, fief, enemy, trap, tower, inactive gargoyle)
+     * and must not lie within [AUTO_TOWER_BASE_SPAWN_DISTANCE] of a spawn point.
+     */
+    fun isAutoTowerBasePathSpot(
+        type: DefenderType,
+        position: Position,
+    ): Boolean {
+        if (!level.autoTowerBase || type == DefenderType.ALTAR || type == DefenderType.DWARVEN_MINE) return false
+        if (!level.isOnPath(position)) return false
+        if (level.isSpawnPoint(position) || level.isTargetPosition(position) || level.isRiverTile(position)) return false
+        if (level.startPositions.any { it.distanceTo(position) <= AUTO_TOWER_BASE_SPAWN_DISTANCE }) return false
+        if (barricades.any { it.position == position }) return false
+        if (fiefs.any { it.position == position }) return false
+        if (traps.any { it.position == position }) return false
+        if (defenders.any { it.position.value == position }) return false
+        if (attackers.any { it.position.value == position }) return false
+        if (submergedAttackers.any { it.position.value == position }) return false
+        if (isInactiveGargoyleAt(position)) return false
+        return true
+    }
+
+    private fun hasEmptyBuildableTile(): Boolean =
+        level.buildAreas.any { pos -> defenders.none { it.position.value == pos } } ||
+            barricades.any { it.canSupportTower() && !it.hasTower() }
 
     fun canUpgradeDefender(defender: Defender): Boolean = defender.type != DefenderType.ALTAR && (level.isSandbox || coins.value >= defender.upgradeCost) && !defender.isGrippedByKraken.value
 

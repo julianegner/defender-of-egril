@@ -24,12 +24,13 @@ class UpcomingEventListTest {
 
     @Test
     fun repeatableEventStaysListedAfterTriggering() {
-        val event = LevelEvent(
-            id = "tide",
-            condition = condition,
-            showInUpcomingList = true,
-            repeatable = true,
-        )
+        val event =
+            LevelEvent(
+                id = "tide",
+                condition = condition,
+                showInUpcomingList = true,
+                repeatable = true,
+            )
         assertTrue(event.isListedAsUpcoming(listOf("tide")))
     }
 
@@ -42,21 +43,23 @@ class UpcomingEventListTest {
 
     @Test
     fun eventWithoutStartTurnFiresInFirstRound() {
-        val event = LevelEvent(
-            id = "start",
-            condition = EventCondition(type = EventConditionType.ENEMY_TURN_START),
-            showInUpcomingList = true,
-        )
+        val event =
+            LevelEvent(
+                id = "start",
+                condition = EventCondition(type = EventConditionType.ENEMY_TURN_START),
+                showInUpcomingList = true,
+            )
         assertEquals(1, event.scheduledTurn(currentTurn = 1))
     }
 
     @Test
     fun stateDependentEventHasNoPredictableRound() {
-        val event = LevelEvent(
-            id = "kills",
-            condition = EventCondition(type = EventConditionType.ENEMIES_KILLED, threshold = 5),
-            showInUpcomingList = true,
-        )
+        val event =
+            LevelEvent(
+                id = "kills",
+                condition = EventCondition(type = EventConditionType.ENEMIES_KILLED, threshold = 5),
+                showInUpcomingList = true,
+            )
         assertNull(event.scheduledTurn(currentTurn = 1))
     }
 }

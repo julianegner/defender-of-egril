@@ -43,7 +43,7 @@ object LocationIconUtils {
             "plains",
             "winding_path",
             "start",
-            "sandbox"
+            "sandbox",
         )
 
     /**
