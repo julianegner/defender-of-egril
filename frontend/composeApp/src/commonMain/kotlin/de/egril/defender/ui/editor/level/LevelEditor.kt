@@ -120,6 +120,7 @@ internal fun LevelEditorContent(
     var showGeneratorDialog by remember { mutableStateOf(false) }
     var generatorConfig by remember { mutableStateOf<LevelGeneratorConfig?>(null) }
     var showVillainUsage by remember { mutableStateOf(false) }
+    var showUnusedPairing by remember { mutableStateOf(false) }
     var levelToDelete by remember { mutableStateOf<EditorLevel?>(null) }
     val iamState by de.egril.defender.iam.IamService.state
 
@@ -151,6 +152,19 @@ internal fun LevelEditorContent(
             levels = levels.value,
             onBack = { showVillainUsage = false },
         )
+    } else if (showUnusedPairing) {
+        UnusedMapsVillainsPage(
+            levels = levels.value,
+            maps = EditorStorage.getAllMaps().filter { it.readyToUse },
+            onBack = { showUnusedPairing = false },
+            onCreateLevel = { map, villain, name ->
+                val newLevel = createPairedLevel(map, villain, name, getDefaultAuthorName(iamState))
+                EditorStorage.saveLevel(newLevel)
+                levels.value = EditorStorage.getAllLevels()
+                showUnusedPairing = false
+                editingLevel = newLevel
+            },
+        )
     } else {
         // Level list view
         Column(
@@ -173,6 +187,9 @@ internal fun LevelEditorContent(
                 ) {
                     Button(onClick = { showVillainUsage = true }) {
                         Text(stringResource(Res.string.villain_usage))
+                    }
+                    Button(onClick = { showUnusedPairing = true }) {
+                        Text(stringResource(Res.string.unused_maps_villains))
                     }
                     Button(onClick = { showGeneratorDialog = true }) {
                         Text(stringResource(Res.string.level_generator))

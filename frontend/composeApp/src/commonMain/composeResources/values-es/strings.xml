@@ -1004,6 +1004,13 @@
     <string name="requires">Requiere</string>
     <string name="entry_point">Punto de Entrada</string>
     <string name="villain_usage">Uso de villanos</string>
+    <string name="unused_maps_villains">Mapas y villanos sin usar</string>
+    <string name="unused_maps">Mapas sin usar</string>
+    <string name="unused_villains">Villanos sin usar</string>
+    <string name="pair_selection_hint">Selecciona un mapa y un villano para crear un nuevo nivel. El villano aparece en el primer turno de aparición.</string>
+    <string name="pair_incompatible_hint">Este villano no puede colocarse en el mapa seleccionado (no hay punto de aparición compatible).</string>
+    <string name="pair_level_title">Título del nuevo nivel</string>
+    <string name="level_name_required">Introduce un nombre para el nivel.</string>
     <string name="short_description">Descripción corta</string>
     <string name="used_in_levels">Usado en niveles</string>
     <string name="back_to_levels">Volver a niveles</string>

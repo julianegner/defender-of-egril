@@ -1004,6 +1004,13 @@
     <string name="requires">Richiede</string>
     <string name="entry_point">Punto di Ingresso</string>
     <string name="villain_usage">Uso dei cattivi</string>
+    <string name="unused_maps_villains">Mappe e cattivi non usati</string>
+    <string name="unused_maps">Mappe non usate</string>
+    <string name="unused_villains">Cattivi non usati</string>
+    <string name="pair_selection_hint">Seleziona una mappa e un cattivo per creare un nuovo livello. Il cattivo appare nel primo turno di comparsa.</string>
+    <string name="pair_incompatible_hint">Questo cattivo non può essere posizionato sulla mappa selezionata (nessun punto di comparsa compatibile).</string>
+    <string name="pair_level_title">Titolo del nuovo livello</string>
+    <string name="level_name_required">Inserisci un nome per il livello.</string>
     <string name="short_description">Descrizione breve</string>
     <string name="used_in_levels">Usato nei livelli</string>
     <string name="back_to_levels">Torna ai livelli</string>

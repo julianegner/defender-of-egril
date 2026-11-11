@@ -1004,6 +1004,13 @@
     <string name="requires">Erfordert</string>
     <string name="entry_point">Einstiegspunkt</string>
     <string name="villain_usage">Schurkenverwendung</string>
+    <string name="unused_maps_villains">Ungenutzte Karten &amp; Schurken</string>
+    <string name="unused_maps">Ungenutzte Karten</string>
+    <string name="unused_villains">Ungenutzte Schurken</string>
+    <string name="pair_selection_hint">Wähle eine Karte und einen Schurken, um ein neues Level zu erstellen. Der Schurke erscheint im ersten Spawn-Zug.</string>
+    <string name="pair_incompatible_hint">Dieser Schurke kann auf der gewählten Karte nicht platziert werden (kein passender Spawn-Punkt).</string>
+    <string name="pair_level_title">Titel des neuen Levels</string>
+    <string name="level_name_required">Bitte gib einen Level-Namen ein.</string>
     <string name="short_description">Kurzbeschreibung</string>
     <string name="used_in_levels">Verwendet in Leveln</string>
     <string name="back_to_levels">Zurück zu den Leveln</string>

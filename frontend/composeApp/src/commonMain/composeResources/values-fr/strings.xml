@@ -1004,6 +1004,13 @@
     <string name="requires">Nécessite</string>
     <string name="entry_point">Point d'Entrée</string>
     <string name="villain_usage">Utilisation des méchants</string>
+    <string name="unused_maps_villains">Cartes et méchants inutilisés</string>
+    <string name="unused_maps">Cartes inutilisées</string>
+    <string name="unused_villains">Méchants inutilisés</string>
+    <string name="pair_selection_hint">Sélectionne une carte et un méchant pour créer un nouveau niveau. Le méchant apparaît au premier tour d\'apparition.</string>
+    <string name="pair_incompatible_hint">Ce méchant ne peut pas être placé sur la carte sélectionnée (aucun point d\'apparition compatible).</string>
+    <string name="pair_level_title">Titre du nouveau niveau</string>
+    <string name="level_name_required">Veuillez saisir un nom de niveau.</string>
     <string name="short_description">Description courte</string>
     <string name="used_in_levels">Utilisé dans les niveaux</string>
     <string name="back_to_levels">Retour aux niveaux</string>

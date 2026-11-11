@@ -1006,6 +1006,13 @@
     <string name="requires">Requires</string>
     <string name="entry_point">Entry Point</string>
     <string name="villain_usage">Villain Usage</string>
+    <string name="unused_maps_villains">Unused Maps &amp; Villains</string>
+    <string name="unused_maps">Unused Maps</string>
+    <string name="unused_villains">Unused Villains</string>
+    <string name="pair_selection_hint">Select one map and one villain to create a new level. The villain appears in the first spawn turn.</string>
+    <string name="pair_incompatible_hint">This villain cannot be placed on the selected map (no compatible spawn point).</string>
+    <string name="pair_level_title">New level title</string>
+    <string name="level_name_required">Please enter a level name.</string>
     <string name="short_description">Short Description</string>
     <string name="used_in_levels">Used in Levels</string>
     <string name="back_to_levels">Back to Levels</string>
