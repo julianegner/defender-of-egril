@@ -2422,8 +2422,6 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="focused_playtests">Gezielte Testspiele</string>
     <string name="apply_level_template">Levelvorlage</string>
     <string name="spawn_turn_templates">Spawnrunden-Vorlagen</string>
-    <string name="all_enemy_kinds">Alle Gegnertypen</string>
-    <string name="enemy_kind">Gegnerart</string>
     <string name="dark_magic">Dunkle Magie</string>
     <string name="demonic">Dämonisch</string>
     <string name="horde">Horde</string>

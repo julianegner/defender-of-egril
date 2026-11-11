@@ -2453,8 +2453,6 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="focused_playtests">Focused playtests</string>
     <string name="apply_level_template">Level template</string>
     <string name="spawn_turn_templates">Spawn turn templates</string>
-    <string name="all_enemy_kinds">All enemy kinds</string>
-    <string name="enemy_kind">Enemy kind</string>
     <string name="dark_magic">Dark magic</string>
     <string name="demonic">Demonic</string>
     <string name="horde">Horde</string>

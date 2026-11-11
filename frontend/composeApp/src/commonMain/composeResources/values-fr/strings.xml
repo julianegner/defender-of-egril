@@ -2424,8 +2424,6 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="focused_playtests">Tests cibles</string>
     <string name="apply_level_template">Modele de niveau</string>
     <string name="spawn_turn_templates">Modeles de tours d'apparition</string>
-    <string name="all_enemy_kinds">Tous les types d'ennemis</string>
-    <string name="enemy_kind">Type d'ennemi</string>
     <string name="dark_magic">Magie noire</string>
     <string name="demonic">Démoniaque</string>
     <string name="horde">Horde</string>

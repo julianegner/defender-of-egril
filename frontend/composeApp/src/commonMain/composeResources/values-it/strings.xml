@@ -2425,8 +2425,6 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="focused_playtests">Playtest mirati</string>
     <string name="apply_level_template">Modello di livello</string>
     <string name="spawn_turn_templates">Modelli di turni di spawn</string>
-    <string name="all_enemy_kinds">Tutti i tipi di nemici</string>
-    <string name="enemy_kind">Tipo di nemico</string>
     <string name="dark_magic">Magia oscura</string>
     <string name="demonic">Demoniaco</string>
     <string name="horde">Orda</string>

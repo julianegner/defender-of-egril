@@ -2423,8 +2423,6 @@
     <string name="focused_playtests">Pruebas dirigidas</string>
     <string name="apply_level_template">Plantilla de nivel</string>
     <string name="spawn_turn_templates">Plantillas de turnos</string>
-    <string name="all_enemy_kinds">Todos los tipos de enemigos</string>
-    <string name="enemy_kind">Tipo de enemigo</string>
     <string name="dark_magic">Magia oscura</string>
     <string name="demonic">Demoníaco</string>
     <string name="horde">Horda</string>

@@ -1215,7 +1215,8 @@ internal fun LevelEditorView(
                         }
                     },
                     enabled = spawnPlanValid && (!level.isOfficial || de.egril.defender.OfficialEditMode.enabled),
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(56.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp),
                 ) {
                     Text(stringResource(Res.string.save_level))
                 }
@@ -1223,23 +1224,24 @@ internal fun LevelEditorView(
                 Button(
                     onClick = { showSaveAsDialog = true },
                     enabled = spawnPlanValid,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(56.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp),
                 ) {
                     Text(stringResource(Res.string.save_as_new))
                 }
-            }
 
-            Button(
-                onClick = onCancel,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(stringResource(Res.string.cancel))
-            }
+                Button(
+                    onClick = onCancel,
+                    modifier = Modifier.weight(1f).height(56.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp),
+                ) {
+                    Text(stringResource(Res.string.cancel))
+                }
 
-            // Community upload button - only shown for non-official levels when user is authenticated
-            val iamState by de.egril.defender.iam.IamService.state
-            if (!level.isOfficial && iamState.isAuthenticated) {
-                val storedCommunityJson =
+                // Community upload button - only shown for non-official levels when user is authenticated
+                val iamState by de.egril.defender.iam.IamService.state
+                if (!level.isOfficial && iamState.isAuthenticated) {
+                    val storedCommunityJson =
                     remember(level.id) {
                         de.egril.defender.editor.EditorStorage
                             .getStoredCommunityLevelJson(level.id)
@@ -1317,7 +1319,8 @@ internal fun LevelEditorView(
                     Button(
                         onClick = { showCommunityUploadConfirm = true },
                         enabled = spawnPlanValid && !isUploadingToCommunity,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.weight(1f).height(56.dp),
+                        contentPadding = PaddingValues(horizontal = 4.dp),
                     ) {
                         Text(
                             if (isUploadingToCommunity) {
@@ -1337,7 +1340,8 @@ internal fun LevelEditorView(
                             doUpload(token)
                         },
                         enabled = spawnPlanValid && !isUploadingToCommunity,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.weight(1f).height(56.dp),
+                        contentPadding = PaddingValues(horizontal = 4.dp),
                     ) {
                         Text(
                             if (isUploadingToCommunity) {
@@ -1348,25 +1352,6 @@ internal fun LevelEditorView(
                         )
                     }
                 }
-                communityUploadStatus?.let { status ->
-                    Text(
-                        text =
-                            if (status == "success") {
-                                stringResource(Res.string.community_upload_success)
-                            } else {
-                                stringResource(Res.string.community_upload_failed)
-                            },
-                        color =
-                            if (status == "success") {
-                                androidx.compose.ui.graphics
-                                    .Color(0xFF2E7D32)
-                            } else {
-                                MaterialTheme.colorScheme.error
-                            },
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-
                 // Confirmation dialog before first community upload
                 if (showCommunityUploadConfirm) {
                     val username = iamState.username ?: ""
@@ -1395,6 +1380,25 @@ internal fun LevelEditorView(
                         },
                     )
                 }
+            }
+            }
+            communityUploadStatus?.let { status ->
+                Text(
+                    text =
+                        if (status == "success") {
+                            stringResource(Res.string.community_upload_success)
+                        } else {
+                            stringResource(Res.string.community_upload_failed)
+                        },
+                    color =
+                        if (status == "success") {
+                            androidx.compose.ui.graphics
+                                .Color(0xFF2E7D32)
+                        } else {
+                            MaterialTheme.colorScheme.error
+                        },
+                    style = MaterialTheme.typography.bodySmall,
+                )
             }
         }
     }
