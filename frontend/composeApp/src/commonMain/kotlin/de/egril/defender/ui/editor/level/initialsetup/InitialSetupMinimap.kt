@@ -121,7 +121,7 @@ fun isBoatWaterTile(
     isWaterTile(position, map) &&
         map.getRiverTile(position.x, position.y)?.flowDirection != RiverFlow.MAELSTROM
 
-private fun isWaterTile(
+internal fun isWaterTile(
     position: Position,
     map: EditorMap,
 ): Boolean {
@@ -156,7 +156,7 @@ private fun hasAdjacentWaterTile(
 /**
  * Data class to hold hexagon geometry calculations
  */
-private data class HexGeometry(
+internal data class HexGeometry(
     val hexSize: Float,
     val hexWidth: Float,
     val hexHeight: Float,
@@ -168,7 +168,7 @@ private data class HexGeometry(
 /**
  * Calculate hexagon geometry for the minimap
  */
-private fun calculateHexGeometry(
+internal fun calculateHexGeometry(
     mapWidth: Int,
     mapHeight: Int,
     canvasWidth: Float,
@@ -293,6 +293,7 @@ fun InitialSetupMinimap(
                 },
     ) {
         val geometry = calculateHexGeometry(map.width, map.height, size.width, size.height)
+        val placementAreaSet = initialData.placementAreas.toSet()
 
         // Draw tiles
         for (row in 0 until map.height) {
@@ -394,210 +395,14 @@ fun InitialSetupMinimap(
                     }
 
                 drawHexagon(centerX, centerY, geometry.hexSize, color)
+                if (pos in placementAreaSet) {
+                    // Translucent overlay marks tiles where the player may place towers, traps and barricades
+                    drawHexagon(centerX, centerY, geometry.hexSize, Color(0x66FFD700))
+                }
             }
         }
 
-        // Draw existing placements on top
-        val iconSize = geometry.hexSize * 1.2f
-
-        // Draw defenders (towers)
-        initialData.defenders.forEach { defender ->
-            val offsetXHex = if (defender.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX = geometry.offsetXCanvas + defender.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
-            val centerY = geometry.offsetYCanvas + defender.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
-
-            // Draw blue circle for tower
-            drawCircle(
-                color = Color(0xFF2196F3),
-                radius = iconSize / 2,
-                center = Offset(centerX, centerY),
-            )
-        }
-
-        // Draw attackers (enemies)
-        initialData.attackers.forEach { attacker ->
-            val offsetXHex = if (attacker.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX = geometry.offsetXCanvas + attacker.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
-            val centerY = geometry.offsetYCanvas + attacker.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
-
-            // Draw red circle for enemy
-            drawCircle(
-                color = Color(0xFFFF0000),
-                radius = iconSize / 2,
-                center = Offset(centerX, centerY),
-            )
-        }
-
-        // Draw traps
-        initialData.traps.forEach { trap ->
-            val offsetXHex = if (trap.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX = geometry.offsetXCanvas + trap.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
-            val centerY = geometry.offsetYCanvas + trap.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
-
-            // Draw triangle for trap
-            val path =
-                Path().apply {
-                    moveTo(centerX, centerY - iconSize / 2)
-                    lineTo(centerX + iconSize / 2, centerY + iconSize / 2)
-                    lineTo(centerX - iconSize / 2, centerY + iconSize / 2)
-                    close()
-                }
-            drawPath(
-                path = path,
-                color = if (trap.type == "MAGICAL") Color(0xFF9C27B0) else Color(0xFF795548),
-            )
-        }
-
-        // Draw barricades
-        initialData.barricades.forEach { barricade ->
-            val offsetXHex = if (barricade.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX = geometry.offsetXCanvas + barricade.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
-            val centerY = geometry.offsetYCanvas + barricade.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
-
-            // Draw square for barricade
-            drawRect(
-                color = Color(0xFF8D6E63),
-                topLeft = Offset(centerX - iconSize / 2, centerY - iconSize / 2),
-                size = Size(iconSize, iconSize),
-            )
-        }
-
-        // Draw bridges
-        initialData.bridges.forEach { bridge ->
-            val offsetXHex = if (bridge.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX = geometry.offsetXCanvas + bridge.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
-            val centerY = geometry.offsetYCanvas + bridge.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
-            val color =
-                when (bridge.type) {
-                    BridgeType.WOODEN -> Color(0xFF8B4513)
-                    BridgeType.STONE -> Color(0xFF808080)
-                    BridgeType.MAGICAL -> Color(0xFFFF00FF)
-                }
-            val arcWidth = iconSize
-            val arcHeight = iconSize * 0.6f
-            drawArc(
-                color = color,
-                startAngle = 180f,
-                sweepAngle = 180f,
-                useCenter = false,
-                topLeft = Offset(centerX - arcWidth / 2, centerY - arcHeight / 2 - iconSize * 0.15f),
-                size = Size(arcWidth, arcHeight),
-                style = Stroke(width = 1.6f),
-            )
-            drawArc(
-                color = color,
-                startAngle = 180f,
-                sweepAngle = 180f,
-                useCenter = false,
-                topLeft = Offset(centerX - arcWidth / 2, centerY - arcHeight / 2 + iconSize * 0.15f),
-                size = Size(arcWidth, arcHeight),
-                style = Stroke(width = 1.6f),
-            )
-        }
-
-        // Draw fiefs
-        initialData.fiefs.forEach { fief ->
-            val offsetXHex = if (fief.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX =
-                geometry.offsetXCanvas + fief.position.x * geometry.hexWidth +
-                    offsetXHex + geometry.hexWidth / 2
-            val centerY =
-                geometry.offsetYCanvas + fief.position.y * geometry.verticalSpacing +
-                    geometry.hexHeight / 2
-
-            drawCircle(
-                color = Color(0xFF4CAF50),
-                radius = iconSize / 2,
-                center = Offset(centerX, centerY),
-            )
-        }
-
-        // Draw mushrooms
-        initialData.mushrooms.forEach { mushroom ->
-            val offsetXHex = if (mushroom.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX =
-                geometry.offsetXCanvas + mushroom.position.x * geometry.hexWidth +
-                    offsetXHex + geometry.hexWidth / 2
-            val centerY =
-                geometry.offsetYCanvas + mushroom.position.y * geometry.verticalSpacing +
-                    geometry.hexHeight / 2
-
-            drawCircle(
-                color = Color(0xFFFF8C00), // Orange for mushrooms
-                radius = iconSize / 2,
-                center = Offset(centerX, centerY),
-            )
-        }
-
-        // Draw gargoyles: grey stone circle, outlined in gold when selected
-        initialData.gargoyles.forEach { gargoyle ->
-            val offsetXHex = if (gargoyle.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX =
-                geometry.offsetXCanvas + gargoyle.position.x * geometry.hexWidth +
-                    offsetXHex + geometry.hexWidth / 2
-            val centerY =
-                geometry.offsetYCanvas + gargoyle.position.y * geometry.verticalSpacing +
-                    geometry.hexHeight / 2
-
-            drawCircle(
-                color = Color(0xFF7A7A7A), // Grey stone for gargoyles
-                radius = iconSize / 2,
-                center = Offset(centerX, centerY),
-            )
-            val isGargoyleSelected =
-                (selectedElement as? SelectedElement.Gargoyle)?.gargoyle?.position == gargoyle.position
-            if (isGargoyleSelected) {
-                drawCircle(
-                    color = Color(0xFFFFD700),
-                    radius = iconSize / 2,
-                    center = Offset(centerX, centerY),
-                    style = Stroke(width = 3f),
-                )
-            }
-        }
-
-        // Draw portals: blue circle for entry, orange circle for exit, connected by a line
-        initialData.portals.forEach { portal ->
-            val entryOffsetX = if (portal.entryPosition.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val entryX = geometry.offsetXCanvas + portal.entryPosition.x * geometry.hexWidth + entryOffsetX + geometry.hexWidth / 2
-            val entryY = geometry.offsetYCanvas + portal.entryPosition.y * geometry.verticalSpacing + geometry.hexHeight / 2
-
-            val exitOffsetX = if (portal.exitPosition.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val exitX = geometry.offsetXCanvas + portal.exitPosition.x * geometry.hexWidth + exitOffsetX + geometry.hexWidth / 2
-            val exitY = geometry.offsetYCanvas + portal.exitPosition.y * geometry.verticalSpacing + geometry.hexHeight / 2
-
-            // Line connecting entry and exit
-            drawLine(
-                color = Color(0xFF8888FF),
-                start = Offset(entryX, entryY),
-                end = Offset(exitX, exitY),
-                strokeWidth = 1.5f,
-            )
-            // Blue entry circle
-            drawCircle(
-                color = Color(0xFF3366FF),
-                radius = iconSize / 2,
-                center = Offset(entryX, entryY),
-            )
-            // Orange exit circle
-            drawCircle(
-                color = Color(0xFFFF6600),
-                radius = iconSize / 2,
-                center = Offset(exitX, exitY),
-            )
-        }
-
-        // Draw pending portal entry (first click while in PORTAL mode)
-        if (pendingPortalEntry != null) {
-            val offsetXHex = if (pendingPortalEntry.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX = geometry.offsetXCanvas + pendingPortalEntry.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
-            val centerY = geometry.offsetYCanvas + pendingPortalEntry.y * geometry.verticalSpacing + geometry.hexHeight / 2
-            drawCircle(
-                color = Color(0x883366FF), // Semi-transparent blue for pending entry
-                radius = iconSize / 2,
-                center = Offset(centerX, centerY),
-            )
-        }
+        drawInitialSetupElements(geometry, initialData, selectedElement, pendingPortalEntry)
     }
 
     LaunchedEffect(hoveredPosition) {
@@ -606,9 +411,121 @@ fun InitialSetupMinimap(
 }
 
 /**
+ * Draws the initial setup elements (towers, enemies, traps, barricades, bridges, fiefs,
+ * mushrooms, gargoyles and portals) on top of the already drawn tiles.
+ */
+internal fun DrawScope.drawInitialSetupElements(
+    geometry: HexGeometry,
+    initialData: InitialData,
+    selectedElement: SelectedElement?,
+    pendingPortalEntry: Position?,
+) {
+    fun centerOf(pos: Position): Offset {
+        val offsetXHex = if (pos.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+        return Offset(
+            geometry.offsetXCanvas + pos.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2,
+            geometry.offsetYCanvas + pos.y * geometry.verticalSpacing + geometry.hexHeight / 2,
+        )
+    }
+
+    val iconSize = geometry.hexSize * 1.2f
+
+    initialData.defenders.forEach { defender ->
+        drawCircle(color = Color(0xFF2196F3), radius = iconSize / 2, center = centerOf(defender.position))
+    }
+
+    initialData.attackers.forEach { attacker ->
+        drawCircle(color = Color(0xFFFF0000), radius = iconSize / 2, center = centerOf(attacker.position))
+    }
+
+    initialData.traps.forEach { trap ->
+        val center = centerOf(trap.position)
+        val path =
+            Path().apply {
+                moveTo(center.x, center.y - iconSize / 2)
+                lineTo(center.x + iconSize / 2, center.y + iconSize / 2)
+                lineTo(center.x - iconSize / 2, center.y + iconSize / 2)
+                close()
+            }
+        drawPath(
+            path = path,
+            color = if (trap.type == "MAGICAL") Color(0xFF9C27B0) else Color(0xFF795548),
+        )
+    }
+
+    initialData.barricades.forEach { barricade ->
+        val center = centerOf(barricade.position)
+        drawRect(
+            color = Color(0xFF8D6E63),
+            topLeft = Offset(center.x - iconSize / 2, center.y - iconSize / 2),
+            size = Size(iconSize, iconSize),
+        )
+    }
+
+    initialData.bridges.forEach { bridge ->
+        val center = centerOf(bridge.position)
+        val color =
+            when (bridge.type) {
+                BridgeType.WOODEN -> Color(0xFF8B4513)
+                BridgeType.STONE -> Color(0xFF808080)
+                BridgeType.MAGICAL -> Color(0xFFFF00FF)
+            }
+        val arcWidth = iconSize
+        val arcHeight = iconSize * 0.6f
+        drawArc(
+            color = color,
+            startAngle = 180f,
+            sweepAngle = 180f,
+            useCenter = false,
+            topLeft = Offset(center.x - arcWidth / 2, center.y - arcHeight / 2 - iconSize * 0.15f),
+            size = Size(arcWidth, arcHeight),
+            style = Stroke(width = 1.6f),
+        )
+        drawArc(
+            color = color,
+            startAngle = 180f,
+            sweepAngle = 180f,
+            useCenter = false,
+            topLeft = Offset(center.x - arcWidth / 2, center.y - arcHeight / 2 + iconSize * 0.15f),
+            size = Size(arcWidth, arcHeight),
+            style = Stroke(width = 1.6f),
+        )
+    }
+
+    initialData.fiefs.forEach { fief ->
+        drawCircle(color = Color(0xFF4CAF50), radius = iconSize / 2, center = centerOf(fief.position))
+    }
+
+    initialData.mushrooms.forEach { mushroom ->
+        drawCircle(color = Color(0xFFFF8C00), radius = iconSize / 2, center = centerOf(mushroom.position))
+    }
+
+    initialData.gargoyles.forEach { gargoyle ->
+        val center = centerOf(gargoyle.position)
+        drawCircle(color = Color(0xFF7A7A7A), radius = iconSize / 2, center = center)
+        val isGargoyleSelected = (selectedElement as? SelectedElement.Gargoyle)?.gargoyle?.position == gargoyle.position
+        if (isGargoyleSelected) {
+            drawCircle(color = Color(0xFFFFD700), radius = iconSize / 2, center = center, style = Stroke(width = 3f))
+        }
+    }
+
+    initialData.portals.forEach { portal ->
+        val entry = centerOf(portal.entryPosition)
+        val exit = centerOf(portal.exitPosition)
+        drawLine(color = Color(0xFF8888FF), start = entry, end = exit, strokeWidth = 1.5f)
+        drawCircle(color = Color(0xFF3366FF), radius = iconSize / 2, center = entry)
+        drawCircle(color = Color(0xFFFF6600), radius = iconSize / 2, center = exit)
+    }
+
+    pendingPortalEntry?.let { pending ->
+        drawCircle(color = Color(0x883366FF), radius = iconSize / 2, center = centerOf(pending))
+    }
+}
+
+/**
  * Helper function to draw a hexagon (pointy-top orientation)
  */
-private fun DrawScope.drawHexagon(
+internal fun DrawScope.drawHexagon(
     centerX: Float,
     centerY: Float,
     radius: Float,

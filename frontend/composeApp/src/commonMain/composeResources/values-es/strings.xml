@@ -747,6 +747,15 @@
     <string name="initial_setup_portal_exit">Salida</string>
     <string name="initial_setup_portal_place_entry">Haz clic en el mapa para colocar la posición de entrada del portal</string>
     <string name="initial_setup_portal_place_exit">Haz clic en el mapa para colocar la posición de salida del portal</string>
+    <string name="initial_setup_placement_area">Área de colocación</string>
+    <string name="placement_area_hint">Arrastra para añadir casillas al área de colocación. Mantén Mayús y arrastra para quitarlas. El modo rectángulo marca un bloque completo de una vez. Si no hay casillas definidas, las torres, trampas y barricadas se pueden colocar en cualquier lugar.</string>
+    <string name="placement_area_mode_erase">Borrar</string>
+    <string name="placement_area_mode_rectangle">Rectángulo</string>
+    <string name="placement_area_clear">Vaciar</string>
+    <string name="placement_area_no_map">Selecciona primero un mapa en la pestaña Mapa para definir un área de colocación.</string>
+    <string name="placement_area_tooltips_toggle">Información emergente</string>
+    <string name="placement_area_add_buildable">Añadir casillas construibles</string>
+    <string name="magical_bridge">Puente mágico</string>
     <string name="initial_setup_portal_hint">Añade un par de portales: los enemigos que entren por el mosaico azul serán teletransportados al mosaico naranja.</string>
     <string name="initial_setup_portal_validation_failed">Los portales deben crear una ruta válida desde todos los puntos de aparición hasta al menos un objetivo.</string>
     <string name="mushroom">Hongo</string>

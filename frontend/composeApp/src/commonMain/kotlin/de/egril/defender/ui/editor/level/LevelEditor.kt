@@ -69,6 +69,7 @@ internal data class LevelEditorTabIndices(
     val towers: Int,
     val waypoints: Int,
     val initialSetup: Int,
+    val placementArea: Int,
     val supports: Int,
     val events: Int?,
 )
@@ -81,6 +82,7 @@ internal fun levelEditorTabIndices(isSandbox: Boolean): LevelEditorTabIndices {
     val towers = nextIndex++
     val waypoints = nextIndex++
     val initialSetup = nextIndex++
+    val placementArea = nextIndex++
     val supports = nextIndex++
     val events = if (isSandbox) null else nextIndex++
 
@@ -91,6 +93,7 @@ internal fun levelEditorTabIndices(isSandbox: Boolean): LevelEditorTabIndices {
         towers = towers,
         waypoints = waypoints,
         initialSetup = initialSetup,
+        placementArea = placementArea,
         supports = supports,
         events = events,
     )
@@ -601,6 +604,7 @@ internal fun LevelEditorView(
                 tabIndices.towers,
                 tabIndices.waypoints,
                 tabIndices.initialSetup,
+                tabIndices.placementArea,
                 tabIndices.supports,
                 tabIndices.events,
             )
@@ -953,6 +957,11 @@ internal fun LevelEditorView(
                 },
             )
             Tab(
+                selected = selectedTabIndex == tabIndices.placementArea,
+                onClick = { selectedTabIndex = tabIndices.placementArea },
+                text = { Text(stringResource(Res.string.initial_setup_placement_area)) },
+            )
+            Tab(
                 selected = selectedTabIndex == tabIndices.supports,
                 onClick = { selectedTabIndex = tabIndices.supports },
                 text = {
@@ -1118,6 +1127,12 @@ internal fun LevelEditorView(
                                     stringResource(Res.string.initial_setup_portal_validation_failed)
                                 else -> null
                             },
+                    )
+                tabIndices.placementArea ->
+                    de.egril.defender.ui.editor.level.placement.PlacementAreaTab(
+                        initialData = initialDataState,
+                        onInitialDataChange = { initialDataState = it },
+                        map = currentMap,
                     )
                 tabIndices.supports ->
                     de.egril.defender.ui.editor.level.supports.SupportsTab(

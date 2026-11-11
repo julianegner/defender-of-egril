@@ -1373,6 +1373,7 @@ fun GameGrid(
                 if (gameState.level.isSpawnPoint(pos) || gameState.level.isTargetPosition(pos)) {
                     return@filterTo false
                 }
+                if (!gameState.level.isPlacementAllowed(pos)) return@filterTo false
                 val isRiverPlacement = gameState.level.isRiverTile(pos)
                 if (isRiverPlacement) {
                     if (selectedType == DefenderType.DWARVEN_MINE) return@filterTo false
@@ -1391,7 +1392,7 @@ fun GameGrid(
     val barricadeTowerBasePositions by remember(gameState.level) {
         derivedStateOf {
             gameState.barricades
-                .filter { b -> b.canSupportTower() && !b.hasTower() }
+                .filter { b -> b.canSupportTower() && !b.hasTower() && gameState.level.isPlacementAllowed(b.position) }
                 .mapTo(mutableSetOf()) { it.position }
         }
     }
@@ -1405,7 +1406,7 @@ fun GameGrid(
                 emptySet<Position>()
             } else {
                 gameState.level.pathCells.filterTo(mutableSetOf()) { pos ->
-                    gameState.isAutoTowerBasePathSpot(selectedType, pos)
+                    gameState.level.isPlacementAllowed(pos) && gameState.isAutoTowerBasePathSpot(selectedType, pos)
                 }
             }
         }
@@ -1436,7 +1437,7 @@ fun GameGrid(
     val supportObjectPlacementPositions: Set<Position> by remember(gameState.level, selectedSupportObject) {
         derivedStateOf {
             selectedSupportObject
-                ?.let { supportObjectPlacementTiles(gameState, it).toHashSet() }
+                ?.let { supportObjectPlacementTiles(gameState, it).filterTo(HashSet()) { pos -> gameState.level.isPlacementAllowed(pos) } }
                 ?: emptySet()
         }
     }

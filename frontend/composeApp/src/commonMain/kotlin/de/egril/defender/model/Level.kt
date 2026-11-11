@@ -138,6 +138,15 @@ data class Level(
 
     fun isTargetPosition(position: Position): Boolean = targetPositions.contains(position)
 
+    /**
+     * Returns true if the player may place towers, traps or barricades on [position].
+     * An empty placement area set means the level is unrestricted.
+     */
+    fun isPlacementAllowed(position: Position): Boolean {
+        val areas = getEffectiveInitialData().placementAreas
+        return areas.isEmpty() || areas.contains(position)
+    }
+
     fun isSpawnPoint(position: Position): Boolean = startPositions.contains(position)
 
     /**

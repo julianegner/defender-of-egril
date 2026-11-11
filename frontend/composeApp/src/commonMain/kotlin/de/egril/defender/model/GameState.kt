@@ -1331,7 +1331,8 @@ data class GameState(
         val distance = wizard.position.value.distanceTo(trapPosition)
         if (distance > effectiveRange(wizard)) return false
         if (!level.isOnPath(trapPosition)) return false
-        if (traps.any { it.position == trapPosition }) return false
+        if (!level.isPlacementAllowed(trapPosition)) return false
+
         if (attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
         if (isInactiveGargoyleAt(trapPosition)) return false
         if (fieldEffects.any { it.position == trapPosition }) return false

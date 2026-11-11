@@ -169,6 +169,10 @@ The Spike Tower has unique upgrade characteristics:
 
 ---
 
+### Placement Areas
+
+Some levels restrict where you may build. When a level defines a **placement area**, towers, barricades and traps can only be placed on the highlighted tiles. Tiles outside the area are not valid targets, and the game map only highlights buildable tiles inside it. Levels without a placement area have no restriction.
+
 ### Auto Tower Base
 
 Some levels enable the **Auto Tower Base** option. Towers may then also be built on PATH tiles, at an

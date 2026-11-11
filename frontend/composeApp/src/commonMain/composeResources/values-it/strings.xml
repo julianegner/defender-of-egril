@@ -747,6 +747,15 @@
     <string name="initial_setup_portal_exit">Uscita</string>
     <string name="initial_setup_portal_place_entry">Clicca sulla mappa per posizionare l'ingresso del portale</string>
     <string name="initial_setup_portal_place_exit">Clicca sulla mappa per posizionare l'uscita del portale</string>
+    <string name="initial_setup_placement_area">Area di posizionamento</string>
+    <string name="placement_area_hint">Trascina per aggiungere riquadri all'area di posizionamento. Tieni premuto Maiusc e trascina per rimuoverli. La modalità rettangolo marca un intero blocco in una volta. Se non ci sono riquadri impostati, torri, trappole e barricate possono essere posizionate ovunque.</string>
+    <string name="placement_area_mode_erase">Rimuovi</string>
+    <string name="placement_area_mode_rectangle">Rettangolo</string>
+    <string name="placement_area_clear">Svuota</string>
+    <string name="placement_area_no_map">Seleziona prima una mappa nella scheda Mappa per definire un'area di posizionamento.</string>
+    <string name="placement_area_tooltips_toggle">Suggerimenti</string>
+    <string name="placement_area_add_buildable">Aggiungi caselle edificabili</string>
+    <string name="magical_bridge">Ponte magico</string>
     <string name="initial_setup_portal_hint">Aggiungi una coppia di portali: i nemici che entrano nel riquadro blu vengono teletrasportati al riquadro arancione.</string>
     <string name="initial_setup_portal_validation_failed">I portali devono creare un percorso valido da tutti i punti di partenza verso almeno un bersaglio.</string>
     <string name="mushroom">Fungo</string>

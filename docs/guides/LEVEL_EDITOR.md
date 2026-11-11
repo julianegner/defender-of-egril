@@ -236,6 +236,26 @@ leave the map, land on a spawn point or overlap another moved region are skipped
 Each event is shown as a collapsible card. Collapsed cards display a short summary (the condition and
 the number of actions) and a delete button; click the card header to expand it and edit its details.
 
+### Placement Areas
+
+The **Placement Area** tab lets you mark the tiles where the player may place towers, barricades and traps.
+It uses the same map view and drag gestures as the Map Editor:
+
+- **Drag** to paint tiles. Non-playable tiles (`NO_PLAY`) are skipped.
+- **Erase** mode removes tiles from the area instead of adding them.
+- **Rectangle** mode marks all tiles inside a dragged rectangle at once.
+- **Shift + Drag** removes tiles from the area, regardless of the current mode.
+- **Clear** removes all marked tiles.
+- **Add buildable tiles** adds all build-area tiles of the map to the placement area in one step (shown in a separate tertiary color).
+- **Tooltips** appear when hovering over a tile with spawn points, targets, towers, enemies, traps,
+  barricades, bridges, fiefs, mushrooms, gargoyles or portals from the Initial Setup. The toggle in the
+  toolbar shows or hides them (default: ON). This setting is not saved.
+
+If no tile is marked, the whole level is unrestricted. Once any tile is marked, all player placements
+(towers, barricades, the dwarven mine trap and the wizard's magical trap) must be inside the area.
+Scripted supports (scripted traps and barricades) are not restricted. Stored as `"placementAreas"` in the
+level JSON as a list of positions.
+
 ### Level Sequence Tab
 
 - Arrange the order in which levels appear in the game

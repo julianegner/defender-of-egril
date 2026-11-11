@@ -1312,7 +1312,7 @@ fun PlacedElementsSummary(
 }
 
 @Composable
-private fun FiefType.getLocalizedName(): String =
+internal fun FiefType.getLocalizedName(): String =
     when (this) {
         FiefType.FISHER -> stringResource(Res.string.fief_type_fisher)
         FiefType.FISHER_BOAT -> stringResource(Res.string.fief_type_fisher_boat)

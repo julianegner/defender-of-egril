@@ -529,6 +529,8 @@ data class InitialData(
     val mushrooms: List<InitialMushroom> = emptyList(),
     val gargoyles: List<InitialGargoyle> = emptyList(),
     val portals: List<InitialPortal> = emptyList(),
+    /** Tiles where the player may place towers, traps and barricades. Empty means unrestricted. */
+    val placementAreas: List<Position> = emptyList(),
 ) {
     companion object {
         val EMPTY = InitialData()

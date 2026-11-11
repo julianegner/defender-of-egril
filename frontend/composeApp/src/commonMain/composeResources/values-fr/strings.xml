@@ -747,6 +747,15 @@
     <string name="initial_setup_portal_exit">Sortie</string>
     <string name="initial_setup_portal_place_entry">Cliquez sur la carte pour placer l'entrée du portail</string>
     <string name="initial_setup_portal_place_exit">Cliquez sur la carte pour placer la sortie du portail</string>
+    <string name="initial_setup_placement_area">Zone de placement</string>
+    <string name="placement_area_hint">Faites glisser pour ajouter des cases à la zone de placement. Maintenez Maj et faites glisser pour les retirer. Le mode rectangle marque un bloc entier d'un coup. Si aucune case n'est définie, les tours, pièges et barricades peuvent être placés partout.</string>
+    <string name="placement_area_mode_erase">Effacer</string>
+    <string name="placement_area_mode_rectangle">Rectangle</string>
+    <string name="placement_area_clear">Vider</string>
+    <string name="placement_area_no_map">Sélectionnez d'abord une carte dans l'onglet Carte pour définir une zone de placement.</string>
+    <string name="placement_area_tooltips_toggle">Info-bulles</string>
+    <string name="placement_area_add_buildable">Ajouter les cases constructibles</string>
+    <string name="magical_bridge">Pont magique</string>
     <string name="initial_setup_portal_hint">Ajoutez une paire de portails : les ennemis entrant sur la case bleue seront téléportés vers la case orange.</string>
     <string name="initial_setup_portal_validation_failed">Les portails doivent créer un chemin valide depuis tous les points d'apparition vers au moins une cible.</string>
     <string name="mushroom">Champignon</string>

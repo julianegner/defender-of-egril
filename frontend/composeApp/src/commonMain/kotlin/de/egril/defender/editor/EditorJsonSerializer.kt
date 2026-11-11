@@ -778,7 +778,8 @@ object EditorJsonSerializer {
                 initialData.fiefs.isNotEmpty() ||
                 initialData.mushrooms.isNotEmpty() ||
                 initialData.gargoyles.isNotEmpty() ||
-                initialData.portals.isNotEmpty()
+                initialData.portals.isNotEmpty() ||
+                initialData.placementAreas.isNotEmpty()
             ) {
                 val parts = mutableListOf<String>()
 
@@ -952,6 +953,15 @@ object EditorJsonSerializer {
       $portalsData
     ]""",
                     )
+                }
+
+                // Placement areas (single-line position objects)
+                if (initialData.placementAreas.isNotEmpty()) {
+                    val areaData =
+                        initialData.placementAreas.joinToString(", ") { pos ->
+                            """{"x": ${pos.x}, "y": ${pos.y}}"""
+                        }
+                    parts.add(""""placementAreas": [$areaData]""")
                 }
 
                 val allParts = parts.joinToString(",\n    ")
@@ -1318,6 +1328,7 @@ object EditorJsonSerializer {
             var initialMushrooms = mutableListOf<InitialMushroom>()
             var initialGargoyles = mutableListOf<InitialGargoyle>()
             var initialPortals = mutableListOf<InitialPortal>()
+            val initialPlacementAreas = mutableListOf<Position>()
 
             if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING && id == "t3") {
                 println("")
@@ -1801,6 +1812,19 @@ object EditorJsonSerializer {
                             }
                         }
                     }
+                    // Parse placement areas (optional; absent means unrestricted)
+                    if (initialDataSection.contains("\"placementAreas\"")) {
+                        val afterKey = initialDataSection.substringAfter("\"placementAreas\"")
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex != -1) {
+                            val areaSection = afterKey.substring(openBracketIndex + 1).substringBefore("]")
+                            for (entry in splitJsonArrayObjects(areaSection)) {
+                                val x = JsonUtils.extractValue(entry, "x").toInt()
+                                val y = JsonUtils.extractValue(entry, "y").toInt()
+                                initialPlacementAreas.add(Position(x, y))
+                            }
+                        }
+                    }
                 } catch (e: Exception) {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Error parsing initial data (new format): ${e.message}")
@@ -1999,7 +2023,8 @@ object EditorJsonSerializer {
                     initialFiefs.isNotEmpty() ||
                     initialMushrooms.isNotEmpty() ||
                     initialGargoyles.isNotEmpty() ||
-                    initialPortals.isNotEmpty()
+                    initialPortals.isNotEmpty() ||
+                    initialPlacementAreas.isNotEmpty()
                 ) {
                     InitialData(
                         defenders = initialDefenders,
@@ -2011,6 +2036,7 @@ object EditorJsonSerializer {
                         mushrooms = initialMushrooms,
                         gargoyles = initialGargoyles,
                         portals = initialPortals,
+                        placementAreas = initialPlacementAreas,
                     )
                 } else {
                     null

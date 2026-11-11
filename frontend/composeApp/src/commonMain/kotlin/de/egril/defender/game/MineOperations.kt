@@ -114,6 +114,7 @@ class MineOperations(
 
         // Check if position is on the path
         if (!state.level.isOnPath(trapPosition)) return false
+        if (!state.level.isPlacementAllowed(trapPosition)) return false
 
         // Check if there's already a trap at this position
         if (state.traps.any { it.position == trapPosition }) return false
@@ -162,6 +163,7 @@ class MineOperations(
         // Check if position is on the path
         if (!state.level.isOnPath(trapPosition)) return false
 
+        // Check if there's already a trap at this position
         // Check if there's already a trap at this position
         if (state.traps.any { it.position == trapPosition }) return false
 

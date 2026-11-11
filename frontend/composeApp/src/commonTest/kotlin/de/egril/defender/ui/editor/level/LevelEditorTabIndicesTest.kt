@@ -15,7 +15,8 @@ class LevelEditorTabIndicesTest {
         assertEquals(2, indices.towers)
         assertEquals(3, indices.waypoints)
         assertEquals(4, indices.initialSetup)
-        assertEquals(5, indices.supports)
+        assertEquals(5, indices.placementArea)
+        assertEquals(6, indices.supports)
     }
 
     @Test
@@ -28,7 +29,8 @@ class LevelEditorTabIndicesTest {
         assertEquals(3, indices.towers)
         assertEquals(4, indices.waypoints)
         assertEquals(5, indices.initialSetup)
-        assertEquals(6, indices.supports)
-        assertEquals(7, indices.events)
+        assertEquals(6, indices.placementArea)
+        assertEquals(7, indices.supports)
+        assertEquals(8, indices.events)
     }
 }

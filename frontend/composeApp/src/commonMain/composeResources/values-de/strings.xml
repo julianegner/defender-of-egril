@@ -747,6 +747,15 @@
     <string name="initial_setup_portal_exit">Ausgang</string>
     <string name="initial_setup_portal_place_entry">Klicke auf die Karte, um den Portal-Eingang zu platzieren</string>
     <string name="initial_setup_portal_place_exit">Klicke auf die Karte, um den Portal-Ausgang zu platzieren</string>
+    <string name="initial_setup_placement_area">Platzierungsbereich</string>
+    <string name="placement_area_hint">Ziehe, um Felder zum Platzierungsbereich hinzuzufügen. Halte Umschalt gedrückt und ziehe, um Felder zu entfernen. Der Rechteck-Modus markiert einen ganzen Block auf einmal. Sind keine Felder gesetzt, können Türme, Fallen und Barrikaden überall platziert werden.</string>
+    <string name="placement_area_mode_erase">Entfernen</string>
+    <string name="placement_area_mode_rectangle">Rechteck</string>
+    <string name="placement_area_clear">Leeren</string>
+    <string name="placement_area_no_map">Wähle zuerst eine Karte im Karten-Tab aus, um einen Platzierungsbereich festzulegen.</string>
+    <string name="placement_area_tooltips_toggle">Tooltips</string>
+    <string name="placement_area_add_buildable">Bebaubare Felder hinzufügen</string>
+    <string name="magical_bridge">Magische Brücke</string>
     <string name="initial_setup_portal_hint">Portalpaar hinzufügen: Feinde, die das blaue Eingangsfeld betreten, werden zum orangen Ausgangsfeld teleportiert.</string>
     <string name="initial_setup_portal_validation_failed">Portale müssen einen gültigen Weg von allen Startpunkten zu mindestens einem Ziel schaffen.</string>
     <string name="mushroom">Pilz</string>

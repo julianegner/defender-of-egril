@@ -113,6 +113,7 @@ class TowerManager(
 
         // Cannot place on spawn points or any target
         if (state.level.isSpawnPoint(position) || state.level.isTargetPosition(position)) return false
+        if (!state.level.isPlacementAllowed(position)) return false
 
         // Check if position is on a river tile (for raft placement)
         val isRiverPlacement = state.level.isRiverTile(position)

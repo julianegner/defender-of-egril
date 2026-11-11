@@ -752,6 +752,15 @@
     <string name="initial_setup_portal_exit">Exit</string>
     <string name="initial_setup_portal_place_entry">Click on the map to place the portal entry position</string>
     <string name="initial_setup_portal_place_exit">Click on the map to place the portal exit position</string>
+    <string name="initial_setup_placement_area">Placement area</string>
+    <string name="placement_area_hint">Drag to paint tiles into the placement area. Hold Shift and drag to remove tiles. Rectangle mode marks a whole block at once. If no tiles are set, towers, traps and barricades can be placed anywhere.</string>
+    <string name="placement_area_mode_erase">Erase</string>
+    <string name="placement_area_mode_rectangle">Rectangle</string>
+    <string name="placement_area_clear">Clear</string>
+    <string name="placement_area_no_map">Select a map in the Map tab first to define a placement area.</string>
+    <string name="placement_area_tooltips_toggle">Tooltips</string>
+    <string name="placement_area_add_buildable">Add buildable tiles</string>
+    <string name="magical_bridge">Magical Bridge</string>
     <string name="initial_setup_portal_hint">Add a portal pair: enemies entering the blue entry tile are teleported to the orange exit tile.</string>
     <string name="initial_setup_portal_validation_failed">Portals must create a valid path from all spawn points to at least one target.</string>
     <string name="mushroom">Mushroom</string>

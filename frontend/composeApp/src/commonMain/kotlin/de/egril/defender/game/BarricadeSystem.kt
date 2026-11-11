@@ -92,6 +92,7 @@ class BarricadeSystem(
 
         // Check if position is valid (empty path tile within range)
         if (!state.level.isOnPath(barricadePosition)) return false
+        if (!state.level.isPlacementAllowed(barricadePosition)) return false
 
         // Check if position is within 3 tiles range
         val distance = tower.position.value.distanceTo(barricadePosition)
