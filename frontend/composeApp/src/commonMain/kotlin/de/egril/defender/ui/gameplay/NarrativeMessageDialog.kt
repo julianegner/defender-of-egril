@@ -405,12 +405,12 @@ internal fun narrativeTextFramePaddingFractions(
                 bottom = 0.40f,
             )
 
-        // Text area is 60% of the default height: default leaves 0.46 of the frame, so 0.276 is kept
-        // and the remaining 0.724 is split evenly between top and bottom.
+        // Text area is 60% of the default height (0.276 of the frame) with its top edge kept at the
+        // default position, so the bottom padding absorbs the reduction.
         attackerType == AttackerType.RAZZIK_THE_ROCKETEER ->
             NarrativeTextFramePaddingFractions(
-                top = 0.362f,
-                bottom = 0.362f,
+                top = NARRATIVE_DEFAULT_VERTICAL_PADDING_RATIO,
+                bottom = 0.454f,
             )
 
         else ->
