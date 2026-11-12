@@ -2380,6 +2380,10 @@
     <string name="villain_zythar_title">Zythar el Convocador de Rifts entra al campo de batalla</string>
     <string name="villain_zythar_backstory">Zythar el Convocador de Rifts rasga agujeros en la realidad misma.</string>
     <string name="villain_zythar_description">Invoca demonios y demonines, que envía por delante como exploradores para abrir portales de rift.</string>
+    <string name="razzik_name">Razzik el Cohetero</string>
+    <string name="villain_razzik_title">Razzik el Cohetero abre fuego sobre el campo de batalla</string>
+    <string name="villain_razzik_backstory">Razzik el Cohetero construye armas que rara vez fallan, al menos no durante mucho tiempo.</string>
+    <string name="villain_razzik_description">Lanza andanadas de cohetes contra las torres, y no todos los cohetes llegan a su objetivo.</string>
     <string name="vaelen_name">Gran Maestro de Runas Vaelen</string>
     <string name="villain_vaelen_title">El Gran Maestro de Runas Vaelen entra al campo de batalla</string>
     <string name="villain_vaelen_backstory">Ewhad no teje las líneas ley oscuras; deja esa tarea a Vaelen. Mientras Vaelen respire, la corrupción nunca dejará de fluir.</string>

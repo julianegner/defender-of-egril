@@ -223,6 +223,7 @@ fun EnemyIcon(
                 AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, pirateCenterY, pirateIconSize, outlineColor = pirateClassOutlineColor, headScale = headScale, showBarge = showSeafaringPirateBarge)
                 AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
                 AttackerType.ZYTHAR_THE_RIFTCALLER -> drawZytharTheRiftcallerSymbol(centerX, centerY, iconSize * 0.80f, headScale = headScale)
+                AttackerType.RAZZIK_THE_ROCKETEER -> drawRazzikTheRocketeerSymbol(centerX, centerY, iconSize * 0.80f, headScale = headScale)
             }
         }
         if (protectedByObsidianAura) {
@@ -416,6 +417,7 @@ fun EnemyTypeIcon(
                 AttackerType.CAPTAIN_RODERICH -> drawCaptainRoderichSymbol(centerX, pirateCenterY, pirateIconSize, outlineColor = pirateClassOutlineColor, headScale = headScale)
                 AttackerType.THE_KRAKEN -> drawKrakenSymbol(centerX, centerY, iconSize * 0.85f, headScale = headScale)
                 AttackerType.ZYTHAR_THE_RIFTCALLER -> drawZytharTheRiftcallerSymbol(centerX, centerY, iconSize * 0.80f, headScale = headScale)
+                AttackerType.RAZZIK_THE_ROCKETEER -> drawRazzikTheRocketeerSymbol(centerX, centerY, iconSize * 0.80f, headScale = headScale)
             }
         }
     }

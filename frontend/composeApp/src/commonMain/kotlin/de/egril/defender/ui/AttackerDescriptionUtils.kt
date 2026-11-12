@@ -46,6 +46,7 @@ import defender_of_egril.composeapp.generated.resources.villain_vaelen_descripti
 import defender_of_egril.composeapp.generated.resources.villain_valerius_description
 import defender_of_egril.composeapp.generated.resources.villain_xarithon_description
 import defender_of_egril.composeapp.generated.resources.villain_zussa_description
+import defender_of_egril.composeapp.generated.resources.villain_razzik_description
 import defender_of_egril.composeapp.generated.resources.villain_zythar_description
 import defender_of_egril.composeapp.generated.resources.zombie_description
 
@@ -100,6 +101,7 @@ fun AttackerType.getLocalizedDescription(): String {
             AttackerType.THE_KRAKEN -> Res.string.villain_kraken_description
             AttackerType.DEMONLING -> Res.string.demonling_description
             AttackerType.ZYTHAR_THE_RIFTCALLER -> Res.string.villain_zythar_description
+            AttackerType.RAZZIK_THE_ROCKETEER -> Res.string.villain_razzik_description
         }
     return stringResource(stringRes)
 }

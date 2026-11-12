@@ -677,6 +677,20 @@ enum class AttackerType(
         villainName = "Zythar",
         useLightNarrativeText = true,
     ),
+
+    // Razzik the Rocketeer: a goblin-engineer boss who fires a volley of rockets at barricades and
+    // bridges every enemy turn. Some rockets crash mid-flight and damage every unit on the crash tile.
+    RAZZIK_THE_ROCKETEER(
+        "Razzik the Rocketeer",
+        health = 150,
+        speed = 1,
+        reward = 150,
+        xp = 75,
+        isBoss = true,
+        isVillain = true,
+        villainName = "Razzik",
+        useLightNarrativeText = true,
+    ),
 }
 
 /**
@@ -905,6 +919,7 @@ fun attackerTargetDamage(
         AttackerType.XARITHON_THE_SHADOW_DRAGON -> level // Shadow dragon finale boss: level damage on reach
         AttackerType.ZYTHAR_THE_RIFTCALLER -> level // Riftcaller villain: 1 HP per level
         AttackerType.GRAND_RUNEMASTER_VAELEN -> level // Runemaster villain: 1 HP per level
+        AttackerType.RAZZIK_THE_ROCKETEER -> level // Rocketeer villain: 1 HP per level
         else -> 1 // Goblin, Ork, Ogre, Skeleton
     }
 

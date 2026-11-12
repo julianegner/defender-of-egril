@@ -124,6 +124,9 @@ fun villainEnterContent(name: String?): Pair<String, String> =
         AttackerType.ZYTHAR_THE_RIFTCALLER.name ->
             stringResource(Res.string.villain_zythar_title) to
                 (stringResource(Res.string.villain_zythar_backstory) + "\n" + stringResource(Res.string.villain_zythar_description))
+        AttackerType.RAZZIK_THE_ROCKETEER.name ->
+            stringResource(Res.string.villain_razzik_title) to
+                (stringResource(Res.string.villain_razzik_backstory) + "\n" + stringResource(Res.string.villain_razzik_description))
         AttackerType.GRAND_RUNEMASTER_VAELEN.name ->
             stringResource(Res.string.villain_vaelen_title) to
                 (stringResource(Res.string.villain_vaelen_backstory) + "\n" + stringResource(Res.string.villain_vaelen_description))

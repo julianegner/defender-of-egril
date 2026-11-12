@@ -86,6 +86,7 @@ internal fun AttackerType.generatorRoster(): GeneratorEnemyRoster =
         AttackerType.MORGUK_BONEWHISPER,
         AttackerType.BARON_RATTERZAHN,
         AttackerType.EWHAD,
+        AttackerType.RAZZIK_THE_ROCKETEER,
         -> GeneratorEnemyRoster.HORDE
         AttackerType.FALLEN_SHIELDMAIDEN_FREYA,
         AttackerType.PRINCE_VALERIUS_THE_SOULREAPER,

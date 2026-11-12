@@ -2379,6 +2379,10 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="villain_zythar_title">Zythar der Riftrufer betritt das Schlachtfeld</string>
     <string name="villain_zythar_backstory">Zythar der Riftrufer reißt Löcher in die Realität selbst.</string>
     <string name="villain_zythar_description">Er beschwört Dämonen und Dämonlinge, die er als Späher vorausschickt, um Rift-Portale zu öffnen.</string>
+    <string name="razzik_name">Razzik der Raketenmann</string>
+    <string name="villain_razzik_title">Razzik der Raketenmann eröffnet das Feuer auf dem Schlachtfeld</string>
+    <string name="villain_razzik_backstory">Razzik der Raketenmann baut Waffen, die selten daneben treffen, zumindest nicht lange.</string>
+    <string name="villain_razzik_description">Er feuert Raketensalven auf die Türme ab, und nicht jede Rakete erreicht ihr Ziel.</string>
     <string name="vaelen_name">Großrunenmeister Vaelen</string>
     <string name="villain_vaelen_title">Großrunenmeister Vaelen betritt das Schlachtfeld</string>
     <string name="villain_vaelen_backstory">Ewhad webt die dunklen Leylinien nicht selbst – das überlässt er Vaelen. Solange Vaelen atmet, wird die Verderbnis unaufhörlich weiterfließen.</string>

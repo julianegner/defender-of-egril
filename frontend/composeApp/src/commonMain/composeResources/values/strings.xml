@@ -2389,6 +2389,10 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="villain_zythar_title">Zythar the Riftcaller enters the battlefield</string>
     <string name="villain_zythar_backstory">Zythar the Riftcaller tears holes in reality itself.</string>
     <string name="villain_zythar_description">He summons demons and demonlings, which he sends ahead as scouts to open rift portals.</string>
+    <string name="razzik_name">Razzik the Rocketeer</string>
+    <string name="villain_razzik_title">Razzik the Rocketeer opens fire on the battlefield</string>
+    <string name="villain_razzik_backstory">Razzik the Rocketeer builds weapons that never miss their mark, at least not for long.</string>
+    <string name="villain_razzik_description">He launches volleys of rockets at the towers, and not every rocket reaches its target.</string>
     <string name="vaelen_name">Grand Runemaster Vaelen</string>
     <string name="villain_vaelen_title">Grand Runemaster Vaelen enters the battlefield</string>
     <string name="villain_vaelen_backstory">Ewhad does not weave the dark ley-lines himself—he leaves that to Vaelen. As long as Vaelen draws breath, the corruption will never cease to flow.</string>

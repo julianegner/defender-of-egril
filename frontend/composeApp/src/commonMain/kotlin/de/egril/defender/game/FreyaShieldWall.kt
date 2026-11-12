@@ -236,7 +236,7 @@ private fun cubeRound(
  * Returns all hex tiles on the straight line from [from] to [to], inclusive of both endpoints,
  * using the cube-coordinate lerp algorithm from Red Blob Games.
  */
-private fun hexLine(
+internal fun hexLine(
     from: Position,
     to: Position,
 ): List<Position> {

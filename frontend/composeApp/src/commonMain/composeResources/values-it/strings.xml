@@ -2382,6 +2382,10 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="villain_zythar_title">Zythar il Chiamatore di Varchi entra nel campo di battaglia</string>
     <string name="villain_zythar_backstory">Zythar il Chiamatore di Varchi strappa buchi nella realtà stessa.</string>
     <string name="villain_zythar_description">Evoca demoni e demonetti, che invia avanti come esploratori per aprire portali di varco.</string>
+    <string name="razzik_name">Razzik il Missilista</string>
+    <string name="villain_razzik_title">Razzik il Missilista apre il fuoco sul campo di battaglia</string>
+    <string name="villain_razzik_backstory">Razzik il Missilista costruisce armi che raramente sbagliano il bersaglio, almeno non per molto.</string>
+    <string name="villain_razzik_description">Lancia raffiche di razzi contro le torri, e non tutti i razzi raggiungono il bersaglio.</string>
     <string name="vaelen_name">Gran Runomante Vaelen</string>
     <string name="villain_vaelen_title">Il Gran Runomante Vaelen entra nel campo di battaglia</string>
     <string name="villain_vaelen_backstory">Ewhad non tesse personalmente le linee oscure: lascia questo compito a Vaelen. Finché Vaelen respira, la corruzione non smetterà mai di fluire.</string>

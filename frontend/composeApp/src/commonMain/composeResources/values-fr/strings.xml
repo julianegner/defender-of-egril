@@ -2381,6 +2381,10 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="villain_zythar_title">Zythar le Convocateur de Failles entre sur le champ de bataille</string>
     <string name="villain_zythar_backstory">Zythar le Convocateur de Failles déchire des trous dans la réalité elle-même.</string>
     <string name="villain_zythar_description">Il invoque des démons et des démonelings, qu&apos;il envoie en éclaireurs pour ouvrir des portails de faille.</string>
+    <string name="razzik_name">Razzik le Lanceur de Fusées</string>
+    <string name="villain_razzik_title">Razzik le Lanceur de Fusées ouvre le feu sur le champ de bataille</string>
+    <string name="villain_razzik_backstory">Razzik le Fusée fabrique des armes qui manquent rarement leur cible, du moins pas longtemps.</string>
+    <string name="villain_razzik_description">Il tire des salves de roquettes sur les tours, et toutes ne parviennent pas à leur cible.</string>
     <string name="vaelen_name">Grand Maître des Runes Vaelen</string>
     <string name="villain_vaelen_title">Le Grand Maître des Runes Vaelen entre sur le champ de bataille</string>
     <string name="villain_vaelen_backstory">Ewhad ne tisse pas lui-même les lignes telluriques obscures : il laisse cette tâche à Vaelen. Tant que Vaelen respire, la corruption ne cessera jamais de se répandre.</string>

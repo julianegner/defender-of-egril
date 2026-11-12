@@ -4002,6 +4002,8 @@ internal fun villainMessageButtonColor(name: String?): Color? {
         AttackerType.THE_KRAKEN -> Color(0xFF0A3D4A)
         // Riftcaller dark sorcerer – deep void indigo
         AttackerType.ZYTHAR_THE_RIFTCALLER -> Color(0xFF0A001E)
+        // Rocketeer's launch bay: dark steel with a hot exhaust tint
+        AttackerType.RAZZIK_THE_ROCKETEER -> Color(0xFF1C1A22)
         AttackerType.GRAND_RUNEMASTER_VAELEN -> Color(0xFF74152B)
         // Default for EWHAD and other villains (if any added in future)
         else -> null

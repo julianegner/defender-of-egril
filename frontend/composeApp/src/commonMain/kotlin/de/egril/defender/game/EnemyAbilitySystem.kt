@@ -6,6 +6,22 @@ import de.egril.defender.model.*
 import kotlin.math.min
 import kotlin.random.Random
 
+private const val RAZZIK_ROCKETS_PER_ROUND = 5
+private const val RAZZIK_ROCKET_RANGE = 8
+
+/** A rocket crashes with probability 1/RAZZIK_CRASH_ODDS. */
+private const val RAZZIK_CRASH_ODDS = 3
+
+private sealed class RazzikRocketTarget {
+    abstract val position: Position
+
+    class BarricadeTarget(val barricade: Barricade) : RazzikRocketTarget() {
+        override val position: Position get() = barricade.position
+    }
+
+    class BridgeTarget(override val position: Position) : RazzikRocketTarget()
+}
+
 /**
  * Handles special enemy abilities like summoning demons, healing, disabling towers, and building bridges.
  */
@@ -303,6 +319,9 @@ class EnemyAbilitySystem(
                 AttackerType.ZYTHAR_THE_RIFTCALLER -> {
                     // Summon: every 3 turns spawn blue/red demons and demonling scouts
                     handleZytharSummon(attacker)
+                }
+                AttackerType.RAZZIK_THE_ROCKETEER -> {
+                    handleRazzikRockets(attacker)
                 }
                 else -> {
                     // Check if this unit should build a bridge
@@ -734,6 +753,92 @@ class EnemyAbilitySystem(
         }
 
         baron.villainCooldown.value = cooldown
+    }
+
+    /**
+     * Razzik fires [RAZZIK_ROCKETS_PER_ROUND] rockets every enemy turn. Each rocket picks a random
+     * barricade or bridge within [RAZZIK_ROCKET_RANGE] tiles. A rocket that crashes mid-flight
+     * explodes on a tile along its path instead, damaging every attacker standing there.
+     */
+    private fun handleRazzikRockets(razzik: Attacker) {
+        repeat(RAZZIK_ROCKETS_PER_ROUND) {
+            fireRazzikRocket(razzik)
+        }
+    }
+
+    private fun fireRazzikRocket(razzik: Attacker) {
+        val origin = razzik.position.value
+        val target = razzikRocketTargets(origin).randomOrNull() ?: return
+        val path = hexLine(origin, target.position)
+        val damage = Random.nextInt(1, 7) * 10
+
+        if (Random.nextInt(RAZZIK_CRASH_ODDS) == 0) {
+            // Rocket crashes somewhere after leaving the launcher; the tile it lands on is the explosion.
+            val crashPosition = path.drop(1).randomOrNull() ?: return
+            state.rocketAttackEffects.add(
+                RocketAttackEffect(
+                    sourcePosition = origin,
+                    targetPosition = crashPosition,
+                    turnNumber = state.turnNumber.value,
+                ),
+            )
+            damageAttackersAt(crashPosition, damage, exclude = razzik)
+        } else {
+            state.rocketAttackEffects.add(
+                RocketAttackEffect(
+                    sourcePosition = origin,
+                    targetPosition = target.position,
+                    turnNumber = state.turnNumber.value,
+                ),
+            )
+            when (target) {
+                is RazzikRocketTarget.BarricadeTarget -> barricadeSystem.handleEnemyAttackBarricade(razzik, target.barricade, damage)
+                is RazzikRocketTarget.BridgeTarget -> bridgeSystem.damageBridge(target.position, damage)
+            }
+        }
+    }
+
+    /**
+     * Barricades with HP and destructible bridges within rocket range. Each bridge is represented by
+     * its covered tile closest to Razzik, so multi-tile bridges are not favoured as targets.
+     */
+    private fun razzikRocketTargets(origin: Position): List<RazzikRocketTarget> {
+        val barricades =
+            state.barricades
+                .filter { it.healthPoints.value > 0 && origin.hexDistanceTo(it.position) <= RAZZIK_ROCKET_RANGE }
+                .map { RazzikRocketTarget.BarricadeTarget(it) }
+        val bridges =
+            state.bridges
+                .filter { it.isActive && it.type != BridgeType.MAGICAL && !it.isIndestructible }
+                .mapNotNull { bridge ->
+                    bridge.positions
+                        .filter { origin.hexDistanceTo(it) <= RAZZIK_ROCKET_RANGE }
+                        .minByOrNull { origin.hexDistanceTo(it) }
+                        ?.let { RazzikRocketTarget.BridgeTarget(it) }
+                }
+        return barricades + bridges
+    }
+
+    /**
+     * Crash explosions hit every unit with HP on the tile, friend or foe. Obsidian protector and
+     * rune glyph ward are honoured the same way as for direct attacks.
+     */
+    private fun damageAttackersAt(
+        position: Position,
+        damage: Int,
+        exclude: Attacker,
+    ) {
+        state.attackers
+            .filter { it.id != exclude.id && !it.isDefeated.value && it.position.value == position }
+            .forEach { attacker ->
+                if (state.isProtectedByObsidianProtector(attacker)) return@forEach
+                val effectiveDamage = (damage - state.runeGlyphWardArmor(attacker)).coerceAtLeast(0)
+                attacker.recordDamageTaken(minOf(attacker.currentHealth.value, effectiveDamage))
+                attacker.currentHealth.value = (attacker.currentHealth.value - effectiveDamage).coerceAtLeast(0)
+                if (attacker.currentHealth.value <= 0) {
+                    attacker.isDefeated.value = true
+                }
+            }
     }
 
     /**
