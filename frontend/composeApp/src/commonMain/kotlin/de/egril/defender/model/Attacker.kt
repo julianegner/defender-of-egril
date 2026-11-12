@@ -683,7 +683,7 @@ enum class AttackerType(
     RAZZIK_THE_ROCKETEER(
         "Razzik the Rocketeer",
         health = 150,
-        speed = 1,
+        speed = 4,
         reward = 150,
         xp = 75,
         isBoss = true,
