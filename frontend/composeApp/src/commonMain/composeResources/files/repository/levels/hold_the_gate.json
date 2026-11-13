@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "level"
+  },
+  "data": {
+  "id": "hold_the_gate",
+  "mapId": "map_the_watch_gate",
+  "title": "Hold the Gate",
+  "titleKey": "level_hold_the_gate_title",
+  "subtitle": "The Waaagh! rolls in",
+  "subtitleKey": "level_hold_the_gate_subtitle",
+  "startCoins": 150,
+  "startHealthPoints": 10,
+  "enemySpawns": [
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "MORGUK_BONEWHISPER", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "OGRE", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 15}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 2}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 15}}
+  ],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
+  "waypoints": [
+    
+  ],
+  "prerequisites": ["welcome_to_defender_of_egril"],
+  "waaghEnabled": true,
+  "isOfficial": true,
+  "author": "Julian Egner",
+  "supports": {
+    "objects": [
+      {"type": "BARRICADE", "count": 2, "damage": 10, "healthPoints": 60}
+    ],
+    "cooldownPowers": [
+      {"type": "CONSTRUCTION_REPAIRS", "cooldownTurns": 4, "startActive": true}
+    ]
+  },
+  "events": [
+    {"id": "gate_reinforcements", "condition": {"type": "ENEMIES_KILLED", "fromTurn": 0, "threshold": 12}, "actions": [{"type": "GIVE_COINS", "amount": 60}, {"type": "GIVE_SUPPORT_OBJECT", "amount": 1, "supportObjectType": "BARRICADE"}], "messageKey": "event_msg_reinforcements", "repeatable": false},
+    {"id": "gate_hold_the_line", "condition": {"type": "TURN_START", "fromTurn": 7, "threshold": 0}, "actions": [], "messageKey": "event_msg_hold_the_line", "repeatable": false},
+    {"id": "gate_healing_hand", "condition": {"type": "HEALTH_AT_OR_BELOW", "fromTurn": 0, "threshold": 3}, "actions": [{"type": "GIVE_SUPPORT_SPELL", "amount": 1, "spellType": "HEAL"}], "messageKey": "event_msg_low_health_warning", "repeatable": false}
+  ],
+  "initialData": {
+    "defenders": [
+      {"type": "SPEAR_TOWER", "position": {"x": 18, "y": 7}, "level": 2},
+      {"type": "SPEAR_TOWER", "position": {"x": 18, "y": 10}, "level": 2}
+    ],
+    "barricades": [
+      {"position": {"x": 18, "y": 8}, "healthPoints": 60, "name": "The Watch Gate", "isGate": true},
+      {"position": {"x": 18, "y": 9}, "healthPoints": 60, "name": "The Watch Gate", "isGate": true}
+    ]
+  }
+}
+}
