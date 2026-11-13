@@ -169,6 +169,24 @@ The Spike Tower has unique upgrade characteristics:
 
 ---
 
+### Placement Areas
+
+Some levels restrict where you may build. When a level defines a **placement area**, towers, barricades and traps can only be placed on the highlighted tiles. Tiles outside the area are not valid targets, and the game map only highlights buildable tiles inside it. Levels without a placement area have no restriction.
+
+### Auto Tower Base
+
+Some levels enable the **Auto Tower Base** option. Towers may then also be built on PATH tiles, at an
+extra cost. The tower sits on a 150 HP tower base barricade, which enemies must destroy before they can cross the tile. Undo and sell refunds include the extra cost. While placing a tower, hovering a valid tile shows its total cost (including the surcharge) centered on the tile.
+A PATH tile is only valid if it is empty: no barricade, pit, enemy, or trap on it. Towers on PATH tiles also cannot be placed within 2 tiles of a spawn point.
+
+### Runes and Altars
+
+- Sacrifice a level 10 or higher Wizard Tower to create an Altar, spending one rune.
+- The tower must stand on a real build tile, not on a raft or barge.
+- Altars cannot attack, but retain the Wizard Tower's magical trap ability.
+- Activating an Altar consumes its action and channels it for the current turn. Channeling resets at the start of the next player turn.
+- Scripted levels can require several Altars to be active simultaneously to take over the Rune Network and win the level.
+
 ## Enemy Types
 
 | Enemy | HP | Speed | Base Reward |
@@ -181,6 +199,10 @@ The Spike Tower has unique upgrade characteristics:
 | **Ogre** | 80 | 1 | 20 coins × level |
 
 **Note:** Enemy rewards are multiplied by their level. For example, a level 3 Goblin gives 15 coins (5 × 3), and a level 2 Ork gives 20 coins (10 × 2).
+
+### Neutral Units: Gargoyles
+
+Gargoyles are pre-placed stone guardians that are not controlled by the player. They attack enemies twice per turn (range 2, 50 damage × level) and can be destroyed by the player's towers. An evil wizard or evil mage coming within 2 tiles turns a gargoyle active for 3 turns, and it then walks the enemy path. An active gargoyle that reaches the target costs the player HP equal to its level. Destroying a gargoyle grants XP but no coins. See [GARGOYLE.md](../features/GARGOYLE.md) for details.
 
 ---
 
@@ -203,6 +225,7 @@ The Spike Tower has unique upgrade characteristics:
 
 - Defeat all enemies in all waves
 - At least 1 health point remaining
+- A scripted event can also grant victory, for example by activating the required number of Altars in one turn.
 
 ### Defeat Conditions
 
@@ -272,11 +295,20 @@ The Spike Tower has unique upgrade characteristics:
 
 ## Keyboard Shortcuts
 
-Currently all controls are mouse/touch based:
+Mouse and touch work for all controls. The keyboard covers the main actions:
 
 - **Click** to select towers/enemies
 - **Click** tower buttons to build
 - **Click** "End Turn" to finish
+- **Tab** / **Shift+Tab** select the next / previous affordable tower type (default bindings, remappable in Settings)
+- **Enter** places the selected tower on the keyboard-focused tile
+- **Arrow keys** pan the map; **Left** / **Right** move the focus across the support bar
+
+Tile order for placement with the keyboard matches the mouse:
+
+- Buildable tiles (free build areas and empty tower bases) come first.
+- If the Auto Tower Base option is on and the surcharge is affordable, empty PATH tiles follow.
+- The affordability check includes the surcharge for PATH tiles.
 
 ---
 

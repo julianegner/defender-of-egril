@@ -1,0 +1,43 @@
+{
+  "id" : "a4d9e55c-96b6-41a9-9a02-ee739ec3dc6b",
+  "title" : "kann ich direkt code ändern lassen?",
+  "createdAt" : 1791543437145,
+  "updatedAt" : 1791557502104,
+  "messages" : [ {
+    "role" : "USER",
+    "content" : "kann ich direkt code ändern lassen?",
+    "timestamp" : 1791543566043
+  }, {
+    "role" : "ASSISTANT",
+    "content" : "Hi, I'm OllamAssist, how can I help you?\nMy capabilities include:\n- Code Analysis/Explanation\n- Implementation Writing\n- File Creation in Workspace\n- Technical Documentation\n- Test Case Generation",
+    "timestamp" : 1791543724255
+  }, {
+    "role" : "USER",
+    "content" : "[Agent] please list the available villains",
+    "timestamp" : 1791544111623
+  }, {
+    "role" : "ASSISTANT",
+    "content" : "Discovering relevant files...\nGenerating plan...\nI'm sorry, but I don't have access to any information about villains in the provided source roots.",
+    "timestamp" : 1791544155872
+  }, {
+    "role" : "USER",
+    "content" : "[Agent] ich möchte die möglichkeit haben, im leveldesigner ein event auszulösen, wenn zwei altare aktiviert sind.\nich möchte als event dann eine linie zwischen den grünen köpfen der altare anzeigen können. Es soll aslo einmal der auslöser und einmal das ausgelöste event hinzugefügt werden",
+    "timestamp" : 1791555781740
+  }, {
+    "role" : "USER",
+    "content" : "[Agent] fahre fort",
+    "timestamp" : 1791556498266
+  }, {
+    "role" : "ASSISTANT",
+    "content" : "Discovering relevant files...\nGenerating plan...\nI'm sorry, but I don't understand the command 'fahre fort'. Could you please provide more context or clarify your request?",
+    "timestamp" : 1791556547286
+  }, {
+    "role" : "USER",
+    "content" : "[Agent] ich möchte die möglichkeit haben, im leveldesigner ein event auszulösen, wenn zwei altare aktiviert sind.\nich möchte als event dann eine linie zwischen den grünen köpfen der altare anzeigen können. Es soll aslo einmal der auslöser und einmal das ausgelöste event hinzugefügt werden",
+    "timestamp" : 1791557332864
+  }, {
+    "role" : "ASSISTANT",
+    "content" : "Discovering relevant files...\nGenerating plan...\n\nPlan: writeFile EventTrigger.kt, writeFile Alternar.kt\nWaiting for your approval (see below)...\nDone.",
+    "timestamp" : 1791557502104
+  } ]
+}

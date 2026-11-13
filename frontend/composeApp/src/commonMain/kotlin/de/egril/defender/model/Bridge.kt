@@ -35,6 +35,7 @@ data class Bridge(
     val turnsRemaining: MutableState<Int> = mutableStateOf(0), // For magical bridges (3 turns), 0 for others
     val createdByAttackerId: Int, // ID of the attacker that created this bridge
     val createdOnTurn: Int, // Turn number when bridge was created
+    val isIndestructible: Boolean = false,
 ) {
     val maxHealth: Int = currentHealth.value
 
@@ -67,8 +68,8 @@ data class Bridge(
      * Take damage and return true if bridge is destroyed
      */
     fun takeDamage(damage: Int): Boolean {
-        if (type == BridgeType.MAGICAL) {
-            // Magical bridges can't be damaged
+        if (type == BridgeType.MAGICAL || isIndestructible) {
+            // Magical and indestructible bridges can't be damaged
             return false
         }
 

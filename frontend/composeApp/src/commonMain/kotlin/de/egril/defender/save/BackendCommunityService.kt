@@ -73,6 +73,17 @@ expect object BackendCommunityService {
      * @return PNG bytes or null if not found or on error
      */
     suspend fun fetchCommunityMapImage(mapId: String): ByteArray?
+
+    /**
+     * Download the server-generated PNG overlay for one tile zone of a community map.
+     * @param mapId The unique ID of the map
+     * @param zoneIndex Zero-based index of the zone in the map's tile zone list
+     * @return PNG bytes or null if not found or on error
+     */
+    suspend fun fetchCommunityMapZoneImage(
+        mapId: String,
+        zoneIndex: Int,
+    ): ByteArray?
 }
 
 // ---------------------------------------------------------------------------

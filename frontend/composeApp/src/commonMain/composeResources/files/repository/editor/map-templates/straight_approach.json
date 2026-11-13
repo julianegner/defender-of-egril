@@ -1,0 +1,8 @@
+{
+  "metadata": {"program": "Defender of Egril", "type": "map-template"},
+  "data": {
+    "id": "straight_approach",
+    "name": "Straight approach",
+    "layoutKind": "STRAIGHT_APPROACH"
+  }
+}

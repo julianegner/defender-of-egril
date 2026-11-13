@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.DigOutcome
@@ -56,7 +58,7 @@ import defender_of_egril.composeapp.generated.resources.emoji_unlock
 import defender_of_egril.composeapp.generated.resources.emoji_warning
 import defender_of_egril.composeapp.generated.resources.gate
 import defender_of_egril.composeapp.generated.resources.trap
-import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.PI
@@ -120,7 +122,7 @@ fun HeartIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.FAVORITE,
         size = size,
         tint = Color.Red,
@@ -312,7 +314,7 @@ fun TriangleUpIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_DROP_UP,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -329,7 +331,7 @@ fun TriangleRightIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_RIGHT,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -346,7 +348,7 @@ fun TriangleLeftIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_LEFT,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -363,7 +365,7 @@ fun TriangleDownIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_DROP_DOWN,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -379,7 +381,7 @@ fun TrashIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.DELETE,
         size = size,
         modifier = modifier,
@@ -427,7 +429,7 @@ fun LeftArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_BACK,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -444,7 +446,7 @@ fun UpArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_UPWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -461,7 +463,7 @@ fun DownArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_DOWNWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -478,8 +480,25 @@ fun CheckmarkIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.CHECK,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier,
+    )
+}
+
+/**
+ * Displays a resize icon using Material Symbols for cross-platform compatibility
+ */
+@Composable
+fun ResizeIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color? = null,
+) {
+    MaterialSymbol.Filled(
+        icon = MaterialSymbols.RESIZE,
         size = size,
         tint = tint ?: LocalContentColor.current,
         modifier = modifier,
@@ -543,7 +562,7 @@ fun MagnifyingGlassIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.SEARCH,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -627,6 +646,61 @@ fun WarningIcon(
 }
 
 /**
+ * Displays a stylized spider web icon using Canvas.
+ */
+@Composable
+fun WebIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    color: Color = Color(0xFFE6E0F8),
+) {
+    Canvas(
+        modifier = modifier.size(size),
+    ) {
+        val radius = minOf(this.size.width, this.size.height) * 0.42f
+        val center = Offset(this.size.width / 2f, this.size.height / 2f)
+        val spokeAngles = List(8) { it * (PI / 4.0) }
+        val stroke = radius * 0.12f
+
+        spokeAngles.forEach { angle ->
+            val end =
+                Offset(
+                    x = center.x + (radius * cos(angle)).toFloat(),
+                    y = center.y + (radius * sin(angle)).toFloat(),
+                )
+            drawLine(
+                color = color,
+                start = center,
+                end = end,
+                strokeWidth = stroke,
+                cap = StrokeCap.Round,
+            )
+        }
+
+        listOf(0.35f, 0.62f, 0.88f).forEach { scale ->
+            val points =
+                spokeAngles.map { angle ->
+                    Offset(
+                        x = center.x + (radius * scale * cos(angle)).toFloat(),
+                        y = center.y + (radius * scale * sin(angle)).toFloat(),
+                    )
+                }
+            for (i in points.indices) {
+                val start = points[i]
+                val end = points[(i + 1) % points.size]
+                drawLine(
+                    color = color,
+                    start = start,
+                    end = end,
+                    strokeWidth = stroke * 0.75f,
+                    cap = StrokeCap.Round,
+                )
+            }
+        }
+    }
+}
+
+/**
  * Displays a right arrow icon
  */
 @Composable
@@ -635,7 +709,7 @@ fun RightArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_FORWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -651,7 +725,7 @@ fun RedCircleIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 12.dp,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.CIRCLE,
         size = size,
         tint = Color.Red,
@@ -727,7 +801,7 @@ fun DownloadIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_DOWNWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -744,7 +818,7 @@ fun UploadIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ARROW_UPWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -760,7 +834,7 @@ fun SpeakerLowIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.VOLUME_DOWN,
         size = size,
         modifier = modifier,
@@ -775,7 +849,7 @@ fun SpeakerHighIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.VOLUME_UP,
         size = size,
         modifier = modifier,
@@ -823,7 +897,7 @@ fun PlusIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.ADD,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -840,7 +914,7 @@ fun CrossIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.CLOSE,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -856,7 +930,7 @@ fun PencilIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.EDIT,
         size = size,
         modifier = modifier,
@@ -872,8 +946,25 @@ fun TrophyIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.WORKSPACE_PREMIUM,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier,
+    )
+}
+
+/**
+ * Displays an open book icon (used for the story logbook)
+ */
+@Composable
+fun BookIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color? = null,
+) {
+    MaterialSymbol.Filled(
+        icon = MaterialSymbols.BOOK_2,
         size = size,
         tint = tint ?: LocalContentColor.current,
         modifier = modifier,
@@ -923,6 +1014,63 @@ fun TowerIcon(
 
         // Draw tower base using the same function as in-game towers
         drawTowerBase(centerX, centerY, iconSize * 0.8f, lineColor)
+    }
+}
+
+/**
+ * Displays a crosshair (ring with a centre cross) drawn with Canvas.
+ * The [contentDescription] is the localized label, since the icon replaces visible text.
+ */
+@Composable
+fun CrosshairIcon(
+    contentDescription: String,
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color = LocalContentColor.current,
+) {
+    Canvas(
+        modifier =
+            modifier
+                .size(size)
+                .semantics { this.contentDescription = contentDescription },
+    ) {
+        val s = this.size.minDimension
+        val center = Offset(s / 2f, s / 2f)
+        val strokeWidth = s * 0.1f
+        drawCircle(
+            color = tint,
+            radius = s * 0.36f,
+            center = center,
+            style = Stroke(width = strokeWidth),
+        )
+        drawLine(
+            color = tint,
+            start = Offset(center.x, 0f),
+            end = Offset(center.x, s * 0.3f),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
+        drawLine(
+            color = tint,
+            start = Offset(center.x, s),
+            end = Offset(center.x, s * 0.7f),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
+        drawLine(
+            color = tint,
+            start = Offset(0f, center.y),
+            end = Offset(s * 0.3f, center.y),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
+        drawLine(
+            color = tint,
+            start = Offset(s, center.y),
+            end = Offset(s * 0.7f, center.y),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
     }
 }
 
@@ -1309,7 +1457,7 @@ fun HelpIcon(
     size: Dp = 16.dp,
     tint: Color? = null,
 ) {
-    FilledSymbol(
+    MaterialSymbol.Filled(
         icon = MaterialSymbols.HELP,
         size = size,
         tint = tint ?: LocalContentColor.current,
@@ -1514,5 +1662,83 @@ fun UpgradeTowerIcon(
                 close()
             }
         drawPath(head, Color.Red)
+    }
+}
+
+/**
+ * Displays a mushroom icon drawn on a canvas.
+ * Mushrooms boost horde units and witches: 2x speed and 2x level for 2 turns.
+ */
+@Composable
+fun MushroomIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp,
+    capColor: Color = Color(0xFFFF6D00), // Orange-red cap
+    spotColor: Color = Color(0xFFFFFFFF), // White spots
+    stemColor: Color = Color(0xFFFFF9C4), // Pale yellow stem
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val minDimension = minOf(this.size.width, this.size.height)
+        val capColors =
+            listOf(
+                capColor,
+                Color(0xFFE53935),
+                Color(0xFF8E24AA),
+            )
+
+        fun drawTinyMushroom(
+            centerX: Float,
+            baseY: Float,
+            mushroomHeight: Float,
+            mushroomCapColor: Color,
+        ) {
+            val stemHeight = mushroomHeight * 0.58f
+            val stemWidth = mushroomHeight * 0.18f
+            val stemLeft = centerX - stemWidth / 2f
+            val stemTop = baseY - stemHeight
+            drawRoundRect(
+                color = stemColor,
+                topLeft = Offset(stemLeft, stemTop),
+                size = Size(stemWidth, stemHeight),
+                cornerRadius =
+                    androidx.compose.ui.geometry
+                        .CornerRadius(stemWidth * 0.45f),
+            )
+
+            val capWidth = mushroomHeight * 0.58f
+            val capHeight = mushroomHeight * 0.26f
+            val capTop = stemTop - capHeight * 0.7f
+            drawOval(
+                color = mushroomCapColor,
+                topLeft = Offset(centerX - capWidth / 2f, capTop),
+                size = Size(capWidth, capHeight),
+            )
+
+            drawCircle(
+                color = spotColor,
+                radius = capWidth * 0.08f,
+                center = Offset(centerX - capWidth * 0.12f, capTop + capHeight * 0.42f),
+            )
+        }
+
+        val mushroomHeight = minDimension * 0.22f
+        drawTinyMushroom(
+            centerX = minDimension * 0.28f,
+            baseY = minDimension * 0.78f,
+            mushroomHeight = mushroomHeight,
+            mushroomCapColor = capColors[0],
+        )
+        drawTinyMushroom(
+            centerX = minDimension * 0.50f,
+            baseY = minDimension * 0.60f,
+            mushroomHeight = mushroomHeight,
+            mushroomCapColor = capColors[1],
+        )
+        drawTinyMushroom(
+            centerX = minDimension * 0.72f,
+            baseY = minDimension * 0.78f,
+            mushroomHeight = mushroomHeight,
+            mushroomCapColor = capColors[2],
+        )
     }
 }

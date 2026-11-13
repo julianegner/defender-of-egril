@@ -439,28 +439,54 @@ class OPFSFileStorage : FileStorage {
     ): Boolean {
         val sourcePrefix = "$sourcePath/"
         val targetPrefix = "$targetPath/"
-        var copied = false
         val allKeys = (textCache.keys.toList() + binaryCache.keys.toList()).distinct()
-        for (src in allKeys.filter { it.startsWith(sourcePrefix) }) {
+        val sourceKeys = allKeys.filter { it.startsWith(sourcePrefix) }
+
+        // Never overwrite an existing target; a failed copy must leave the source untouched.
+        if (sourceKeys.isEmpty() || allKeys.any { it.startsWith(targetPrefix) }) {
+            return false
+        }
+
+        val copiedKeys = mutableListOf<String>()
+        for (src in sourceKeys) {
             val dst = src.replaceFirst(sourcePrefix, targetPrefix)
-            val text = textCache[src]
-            val binary = binaryCache[src]
-            if (text != null) {
+            textCache[src]?.let { text ->
                 textCache[dst] = text
                 persistAsync(dst, text)
-                copied = true
+                copiedKeys += dst
             }
-            if (binary != null) {
+            binaryCache[src]?.let { binary ->
                 binaryCache[dst] = binary
                 persistAsync(dst, binary)
-                copied = true
+                copiedKeys += dst
             }
         }
-        return copied
+
+        // Verify in memory that every source entry has a matching copy; roll back our own entries on mismatch.
+        val complete = sourceKeys.all { src ->
+            val dst = src.replaceFirst(sourcePrefix, targetPrefix)
+            val textOk = textCache[src] == null || textCache[dst] == textCache[src]
+            val binaryOk = binaryCache[src] == null || binaryCache[dst] == binaryCache[src]
+            textOk && binaryOk
+        }
+        if (!complete) {
+            println("Verification failed copying $sourcePath to $targetPath; removing partial copy")
+            deleteDirectoryEntries(targetPrefix)
+            return false
+        }
+        return copiedKeys.isNotEmpty()
     }
 
     override fun deleteDirectory(path: String): Boolean {
-        val prefix = "$path/"
+        if (FileStorageSafety.isProtectedDirectory(path)) {
+            println("Refusing to delete protected directory: $path")
+            return false
+        }
+        deleteDirectoryEntries("$path/")
+        return true
+    }
+
+    private fun deleteDirectoryEntries(prefix: String) {
         val allKeys =
             (textCache.keys.toList() + binaryCache.keys.toList())
                 .filter { it.startsWith(prefix) }
@@ -468,8 +494,7 @@ class OPFSFileStorage : FileStorage {
             textCache.remove(it)
             binaryCache.remove(it)
         }
-        deleteDirAsync(path)
-        return true
+        deleteDirAsync(prefix.removeSuffix("/"))
     }
 
     override fun getAbsolutePath(path: String): String = "OPFS: $OPFS_APP_DIR/$path"

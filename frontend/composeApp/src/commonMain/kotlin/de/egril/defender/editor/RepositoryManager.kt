@@ -7,7 +7,8 @@ import de.egril.defender.utils.runBlockingCompat
  * Manages repository data operations, including detection and restoration.
  */
 object RepositoryManager {
-    private val fileStorage = getFileStorage()
+    // Internal so tests can point the restore flow at a temporary directory instead of the real game data.
+    internal var fileStorage: FileStorage = getFileStorage()
     private const val GAMEDATA_DIR = "gamedata"
     private const val GAMEDATA_BACKUP_PREFIX = "gamedata-"
 
@@ -58,18 +59,17 @@ object RepositoryManager {
 
             if (!success) {
                 println("Failed to load repository files")
-                // Try to restore backup if loading failed
-                if (fileStorage.fileExists(backupFolderName)) {
-                    fileStorage.deleteDirectory(GAMEDATA_DIR)
-                    fileStorage.renameDirectory(backupFolderName, GAMEDATA_DIR)
-                }
+                rollbackFromBackup(backupFolderName)
                 return null
             }
 
             // Copy user and community data from backup back to new gamedata so that
             // player-created and downloaded content is preserved after the update.
-            if (fileStorage.fileExists(backupFolderName)) {
-                copyUserDataFromBackup(backupFolderName)
+            // A failed copy must not look like success: roll back so the original data stays intact.
+            if (fileStorage.fileExists(backupFolderName) && !copyUserDataFromBackup(backupFolderName)) {
+                println("Failed to copy user data from backup; rolling back")
+                rollbackFromBackup(backupFolderName)
+                return null
             }
 
             // Return the absolute path to the backup folder
@@ -82,6 +82,25 @@ object RepositoryManager {
             return null
         }
     }
+
+    /**
+     * Restores the original gamedata from [backupFolderName]. The backup is only renamed, never deleted,
+     * and the freshly created gamedata folder is removed only when the backup is confirmed to exist.
+     */
+    private fun rollbackFromBackup(backupFolderName: String) {
+        if (!fileStorage.fileExists(backupFolderName)) {
+            println("No backup '$backupFolderName' found; leaving gamedata untouched")
+            return
+        }
+        if (!fileStorage.deleteDirectory(GAMEDATA_DIR)) {
+            println("Could not remove new gamedata; backup '$backupFolderName' kept as is")
+            return
+        }
+        if (!fileStorage.renameDirectory(backupFolderName, GAMEDATA_DIR)) {
+            println("Could not restore '$backupFolderName' to gamedata; backup kept as is")
+        }
+    }
+
 
     /**
      * Restore game data from repository synchronously.
@@ -97,7 +116,7 @@ object RepositoryManager {
      * directory. This preserves player-created maps/levels and community-downloaded content
      * after a repository restore replaces the official content.
      */
-    private fun copyUserDataFromBackup(backupFolderName: String) {
+    private fun copyUserDataFromBackup(backupFolderName: String): Boolean {
         for (subDir in listOf("community", "user")) {
             val sourceDir = "$backupFolderName/$subDir"
             val targetDir = "$GAMEDATA_DIR/$subDir"
@@ -110,8 +129,10 @@ object RepositoryManager {
                         println("Failed to copy $subDir data from $backupFolderName to $targetDir")
                     }
                 }
+                if (!copied) return false
             }
         }
+        return true
     }
 
     /**

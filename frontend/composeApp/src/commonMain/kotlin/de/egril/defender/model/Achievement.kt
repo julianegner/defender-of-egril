@@ -34,6 +34,9 @@ enum class AchievementId {
     KILL_DEMON,
     KILL_EWHAD,
     KILL_WITCH,
+    HEADSHOT,
+    WITH_HELP_FROM_A_FRIEND,
+    KILL_VILLAIN,
 
     // Mining achievements
     DIG_FIRST_TIME,
@@ -130,6 +133,13 @@ object AchievementDefinitions {
             AchievementInfo(AchievementId.KILL_DEMON, "achievement_kill_demon_name", "achievement_kill_demon_desc"),
             AchievementInfo(AchievementId.KILL_EWHAD, "achievement_kill_ewhad_name", "achievement_kill_ewhad_desc"),
             AchievementInfo(AchievementId.KILL_WITCH, "achievement_kill_witch_name", "achievement_kill_witch_desc"),
+            AchievementInfo(AchievementId.HEADSHOT, "achievement_headshot_name", "achievement_headshot_desc"),
+            AchievementInfo(
+                AchievementId.WITH_HELP_FROM_A_FRIEND,
+                "achievement_with_help_from_a_friend_name",
+                "achievement_with_help_from_a_friend_desc",
+            ),
+            AchievementInfo(AchievementId.KILL_VILLAIN, "achievement_kill_villain_name", "achievement_kill_villain_desc"),
             // Mining achievements
             AchievementInfo(AchievementId.DIG_FIRST_TIME, "achievement_dig_first_time_name", "achievement_dig_first_time_desc"),
             AchievementInfo(AchievementId.FIND_GOLD, "achievement_find_gold_name", "achievement_find_gold_desc"),

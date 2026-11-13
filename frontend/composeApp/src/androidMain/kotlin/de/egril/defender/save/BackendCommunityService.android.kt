@@ -48,4 +48,12 @@ actual object BackendCommunityService {
         withContext(Dispatchers.IO) {
             jvmHttpGetBytes("/api/community/files/MAP/$mapId/image", token = null)
         }
+
+    actual suspend fun fetchCommunityMapZoneImage(
+        mapId: String,
+        zoneIndex: Int,
+    ): ByteArray? =
+        withContext(Dispatchers.IO) {
+            jvmHttpGetBytes("/api/community/files/MAP/$mapId/zones/$zoneIndex/image", token = null)
+        }
 }

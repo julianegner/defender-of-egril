@@ -55,6 +55,16 @@ enum class DefenderType(
         buildTime = 2,
         maxRange = 15,
     ),
+    ALTAR(
+        "Altar",
+        baseCost = 50,
+        baseDamage = 0,
+        baseRange = 3,
+        attackType = AttackType.NONE,
+        actionsPerTurn = 1,
+        buildTime = 2,
+        maxRange = 15,
+    ),
     ALCHEMY_TOWER(
         "Alchemy Tower",
         baseCost = 40,
@@ -134,8 +144,17 @@ data class Defender(
     val raftId: MutableState<Int?> = mutableStateOf(null), // ID of the raft this tower is on (null if not on raft)
     // Tower base properties
     val towerBaseBarricadeId: MutableState<Int?> = mutableStateOf(null), // ID of barricade this tower is on (null if not on tower base)
+    val autoTowerBaseSurcharge: MutableState<Int> = mutableStateOf(0), // Extra coins paid for placing on a PATH tile (refunded with the tower)
+    // Sylvanas Root Grip animation state
+    val hasRootGripAnimation: MutableState<Boolean> = mutableStateOf(false), // Tower is being engulfed by Sylvanas vines (for animation)
+    // Xarithon Shadow Spew animation state
+    val hasShadowSpewAnimation: MutableState<Boolean> = mutableStateOf(false), // Tower is engulfed by Xarithon's shadow cloud (for animation)
+    // Kraken Barge Grip: true while this tower's barge is held by the Kraken (cannot be sold).
+    val isGrippedByKraken: MutableState<Boolean> = mutableStateOf(false),
+    val isChanneling: MutableState<Boolean> = mutableStateOf(false),
 ) {
-    val damage: Int get() = type.baseDamage + (level.value - 1) * 5
+    val damage: Int get() = if (type == DefenderType.ALTAR) 0 else type.baseDamage + (level.value - 1) * 5
+    val hasMagicalTraps: Boolean get() = type == DefenderType.WIZARD_TOWER || type == DefenderType.ALTAR
     val range: Int get() {
         val baseCalculatedRange =
             if (type == DefenderType.DWARVEN_MINE) {
@@ -174,7 +193,7 @@ data class Defender(
     // Level 2: baseCost + upgradeCost for level 2 = baseCost + baseCost * 1 = baseCost * 2 (cost 50 + 50)
     // Level 3: above + upgradeCost for level 3 = baseCost * 2 + baseCost * 2 = baseCost * 4 (cost 50 + 50 + 100)
     val totalCost: Int get() {
-        var total = type.baseCost
+        var total = type.baseCost + autoTowerBaseSurcharge.value
         for (lvl in 2..level.value) {
             total += type.baseCost * (lvl - 1)
         }
@@ -230,13 +249,14 @@ data class Defender(
         attacker: Attacker,
         effectiveRange: Int = range,
     ): Boolean {
-        if (!isReady || actionsRemaining.value <= 0 || isDisabled.value) return false
+        if (type.attackType == AttackType.NONE || !isReady || actionsRemaining.value <= 0 || isDisabled.value) return false
         val distance = position.value.distanceTo(attacker.position.value)
         // Check both minimum and maximum range
         return distance >= type.minRange && distance <= effectiveRange
     }
 
     fun resetActions() {
+        isChanneling.value = false
         if (isReady) {
             // Disabled towers get 0 actions (grey appearance)
             actionsRemaining.value = if (isDisabled.value) 0 else actionsPerTurnCalculated

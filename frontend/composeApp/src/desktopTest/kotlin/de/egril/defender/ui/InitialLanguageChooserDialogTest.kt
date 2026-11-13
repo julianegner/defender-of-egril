@@ -2,7 +2,7 @@ package de.egril.defender.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import com.hyperether.resources.AppLocale
+import com.hyperether.resources.LocalizedStrings
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.InitialLanguageChooserDialog
@@ -20,26 +20,28 @@ class InitialLanguageChooserDialogTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    /**
+     * The dialog preselects the system language in a LaunchedEffect, so the active language
+     * may differ from the default. Expected labels are resolved from the active language.
+     */
+    private fun localizedText(key: String): String = LocalizedStrings.get(key, currentLanguage.value)
+
     @Test
     fun testInitialLanguageChooserDialogRendersCorrectly() {
-        var languageSelected = false
-
         composeTestRule.setContent {
             InitialLanguageChooserDialog(
-                onLanguageSelected = { languageSelected = true },
+                onLanguageSelected = {},
             )
         }
 
         composeTestRule.waitForIdle()
 
-        // Verify the dialog title is displayed
         composeTestRule
-            .onNodeWithText("Choose Your Language", substring = true, ignoreCase = true)
+            .onNodeWithText(localizedText("initial_language_title"), substring = true, ignoreCase = true)
             .assertExists()
 
-        // Verify continue button is displayed
         composeTestRule
-            .onNodeWithText("Continue", substring = true, ignoreCase = true)
+            .onNodeWithText(localizedText("initial_language_continue"), substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
     }
@@ -47,9 +49,6 @@ class InitialLanguageChooserDialogTest {
     @Test
     fun testInitialLanguageChooserDialogContinueButton() {
         var languageSelected = false
-
-        // Reset language to default before test
-        currentLanguage.value = AppLocale.DEFAULT
 
         composeTestRule.setContent {
             InitialLanguageChooserDialog(
@@ -61,7 +60,7 @@ class InitialLanguageChooserDialogTest {
 
         // Click continue button
         composeTestRule
-            .onNodeWithText("Continue", substring = true, ignoreCase = true)
+            .onNodeWithText(localizedText("initial_language_continue"), substring = true, ignoreCase = true)
             .performClick()
 
         composeTestRule.waitForIdle()

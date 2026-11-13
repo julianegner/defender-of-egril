@@ -53,6 +53,7 @@ enum class AnimationType {
     ALCHEMY_ATTACK,
     WORLD_MAP_WAVES,
     WORLD_MAP_RIVERS,
+    SYLVANAS_ROOT_GRIP,
 }
 
 /**
@@ -109,6 +110,7 @@ fun LottieAnimation(
             AnimationType.ALCHEMY_ATTACK -> "files/animations/tower_attack_impact.json"
             AnimationType.WORLD_MAP_WAVES -> "files/animations/world_map_waves.json"
             AnimationType.WORLD_MAP_RIVERS -> "files/animations/world_map_rivers.json"
+            AnimationType.SYLVANAS_ROOT_GRIP -> "files/animations/sylvanas_root_grip.json"
         }
 
     // Load the animation JSON asynchronously
@@ -188,6 +190,7 @@ fun LottieAnimation(
                         AnimationType.ALCHEMY_ATTACK -> "Alchemy acid vial animation"
                         AnimationType.WORLD_MAP_WAVES -> "World map sea wave animation"
                         AnimationType.WORLD_MAP_RIVERS -> "World map river flow animation"
+                        AnimationType.SYLVANAS_ROOT_GRIP -> "Sylvanas root grip vine animation"
                     },
                 contentScale = contentScale,
                 modifier = Modifier.fillMaxSize(),

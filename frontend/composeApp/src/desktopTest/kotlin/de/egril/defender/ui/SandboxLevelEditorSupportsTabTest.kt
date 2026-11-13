@@ -37,6 +37,7 @@ class SandboxLevelEditorSupportsTabTest {
                     ),
                 onSave = {},
                 onCancel = {},
+                onStartPlaytest = { _, _ -> },
             )
         }
 

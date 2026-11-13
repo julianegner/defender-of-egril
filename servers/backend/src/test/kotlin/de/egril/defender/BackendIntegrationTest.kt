@@ -1142,6 +1142,88 @@ class BackendIntegrationTest {
             }
         }
 
+    /** Map JSON with the given number of tile zones, each zone covering one tile. */
+    private fun mapJsonWithZones(
+        id: String,
+        zoneCount: Int,
+    ): String {
+        val zones =
+            (0 until zoneCount).joinToString(",") { i ->
+                """{"id":"zone-$i","name":"Zone $i","zoneTiles":{"${i + 1},1":{"type":"PATH"}}}"""
+            }
+        return """
+            {"id":"$id","name":"Zone Map","width":6,"height":6,"tiles":{"0,0":"PATH","1,0":"BUILD_AREA"},"tileZones":[$zones]}
+            """.trimIndent()
+    }
+
+    @Test
+    fun `POST community MAP generates one zone image per tile zone and GET zone image returns PNG`() =
+        withRealDatabase {
+            val token = fakeToken("user-zone-img-1", "zonemapper")
+            val mapData = mapJsonWithZones("zone-img-map-1", zoneCount = 2)
+
+            client
+                .post("/api/community/files") {
+                    contentType(ContentType.Application.Json)
+                    header(HttpHeaders.Authorization, "Bearer " + token)
+                    setBody("""{"fileType":"MAP","fileId":"zone-img-map-1","data":${jsonString(mapData)}}""")
+                }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+            for (zoneIndex in 0..1) {
+                client.get("/api/community/files/MAP/zone-img-map-1/zones/$zoneIndex/image").apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    assertEquals("image/png", contentType()?.toString()?.substringBefore(";")?.trim())
+                    val bytes = readBytes()
+                    assertEquals(0x89.toByte(), bytes[0])
+                    assertEquals(0x50.toByte(), bytes[1]) // 'P'
+                }
+            }
+            client.get("/api/community/files/MAP/zone-img-map-1/zones/2/image").apply {
+                assertEquals(HttpStatusCode.NotFound, status)
+            }
+        }
+
+    @Test
+    fun `re-uploading community MAP replaces zone images and removes stale zones`() =
+        withRealDatabase {
+            val token = fakeToken("user-zone-img-2", "zonemapper2")
+
+            client
+                .post("/api/community/files") {
+                    contentType(ContentType.Application.Json)
+                    header(HttpHeaders.Authorization, "Bearer " + token)
+                    setBody("""{"fileType":"MAP","fileId":"zone-img-reupload","data":${jsonString(mapJsonWithZones("zone-img-reupload", 2))}}""")
+                }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+            client
+                .post("/api/community/files") {
+                    contentType(ContentType.Application.Json)
+                    header(HttpHeaders.Authorization, "Bearer " + token)
+                    setBody("""{"fileType":"MAP","fileId":"zone-img-reupload","data":${jsonString(mapJsonWithZones("zone-img-reupload", 1))}}""")
+                }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+            client.get("/api/community/files/MAP/zone-img-reupload/zones/0/image").apply {
+                assertEquals(HttpStatusCode.OK, status)
+            }
+            client.get("/api/community/files/MAP/zone-img-reupload/zones/1/image").apply {
+                assertEquals(HttpStatusCode.NotFound, status)
+            }
+        }
+
+    @Test
+    fun `GET zone image returns 400 for invalid zone index and 404 for unknown map`() =
+        withRealDatabase {
+            client.get("/api/community/files/MAP/any-map/zones/abc/image").apply {
+                assertEquals(HttpStatusCode.BadRequest, status)
+            }
+            client.get("/api/community/files/MAP/any-map/zones/-1/image").apply {
+                assertEquals(HttpStatusCode.BadRequest, status)
+            }
+            client.get("/api/community/files/MAP/does-not-exist-zone/zones/0/image").apply {
+                assertEquals(HttpStatusCode.NotFound, status)
+            }
+        }
+
     // -------------------------------------------------------------------------
     // DELETE /api/community/files/{fileType}/{fileId} – admin delete endpoint
     // -------------------------------------------------------------------------

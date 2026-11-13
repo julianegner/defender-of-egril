@@ -69,6 +69,7 @@ class RiverTileTest {
                 height = 10,
                 tiles = tiles,
                 riverTiles = riverTiles,
+                allowNoBuildableTiles = true,
             )
 
         assertEquals(2, map.riverTiles.size)
@@ -104,6 +105,7 @@ class RiverTileTest {
                 height = 1,
                 tiles = tiles,
                 readyToUse = false,
+                allowNoBuildableTiles = true,
             )
 
         // River tiles should be traversable, so validation should pass
@@ -134,6 +136,7 @@ class RiverTileTest {
                 height = 10,
                 tiles = tiles,
                 riverTiles = riverTiles,
+                allowNoBuildableTiles = true,
             )
 
         // Serialize
@@ -188,6 +191,7 @@ class RiverTileTest {
                 height = 10,
                 tiles = tiles,
                 riverTiles = riverTiles,
+                allowNoBuildableTiles = true,
             )
 
         // Serialize
@@ -225,6 +229,7 @@ class RiverTileTest {
                 height = 5,
                 tiles = mapOf("0,0" to TileType.SPAWN_POINT, "4,4" to TileType.TARGET),
                 mapToolingInfo = "procedural generation, enhanced with Canvas of Kings",
+                allowNoBuildableTiles = true,
             )
 
         val json = EditorJsonSerializer.serializeMap(map)
