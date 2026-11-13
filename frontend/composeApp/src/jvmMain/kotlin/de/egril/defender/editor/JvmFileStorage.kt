@@ -80,25 +80,47 @@ abstract class JvmFileStorage : FileStorage {
         if (!sourceDir.exists() || !sourceDir.isDirectory) {
             return false
         }
-
-        // Check if target already exists
+        // Never clean up a pre-existing target: only a partial copy made by this call may be removed.
         if (targetDir.exists()) {
-            println("Target directory already exists: $targetPath")
             return false
         }
 
+        // The target did not exist before this call, so anything left in it after a failure is our own partial copy.
         return try {
             sourceDir.copyRecursively(targetDir, overwrite = false)
-            true
+            if (fileManifest(sourceDir) == fileManifest(targetDir)) {
+                true
+            } else {
+                println("Verification failed copying $sourcePath to $targetPath; removing partial copy")
+                targetDir.deleteRecursively()
+                false
+            }
         } catch (e: Exception) {
             println("Error copying directory: ${e.message}")
+            targetDir.deleteRecursively()
             false
         }
     }
 
+    /** Maps each file's relative path to its size, used to verify that a copy is complete. */
+    private fun fileManifest(root: File): Map<String, Long> =
+        root
+            .walkTopDown()
+            .filter { it.isFile }
+            .associate { it.relativeTo(root).invariantSeparatorsPath to it.length() }
+
+    /**
+     * Refuses to delete user or community content and repository backups. Those must only be
+     * removed by explicit user action on individual files, never as a side effect of a directory delete.
+     */
     override fun deleteDirectory(path: String): Boolean {
         val dir = baseDir ?: return false
         val targetDir = File(dir, path)
+
+        if (FileStorageSafety.isProtectedDirectory(path)) {
+            println("Refusing to delete protected directory: $path")
+            return false
+        }
 
         if (!targetDir.exists()) {
             return true // Already doesn't exist
