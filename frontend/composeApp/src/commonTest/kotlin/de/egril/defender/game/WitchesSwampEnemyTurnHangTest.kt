@@ -20,7 +20,6 @@ class WitchesSwampEnemyTurnHangTest {
         engine.startFirstPlayerTurn()
         repeat(6) { round ->
             val turn = round + 1
-            val startNs = System.nanoTime()
             engine.startEnemyTurn()
             val movements = engine.calculateEnemyTurnMovements()
             for (step in movements.allMovementSteps) {
@@ -32,8 +31,6 @@ class WitchesSwampEnemyTurnHangTest {
                 for ((id, pos) in step) engine.applyMovement(id, pos)
             }
             engine.completeEnemyTurn()
-            val ms = (System.nanoTime() - startNs) / 1_000_000
-            println("WITCHES_SWAMP turn=$turn took=${ms}ms phase=${state.phase.value} attackers=${state.attackers.size}")
             assertEquals(GamePhase.PLAYER_TURN, state.phase.value, "enemy turn $turn did not complete")
         }
     }

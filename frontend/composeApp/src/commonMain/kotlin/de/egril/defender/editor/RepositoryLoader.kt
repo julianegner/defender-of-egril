@@ -10,7 +10,9 @@ import defender_of_egril.composeapp.generated.resources.Res
  * Repository files are stored in composeResources/files/repository/
  */
 object RepositoryLoader {
-    private val EXTRA_REPOSITORY_LEVEL_IDS = listOf(DemoMode.DEMO_DEMO_LEVEL_ID)
+    // Official levels that are not part of the sequence (e.g. the_witches_swamp) must still be loaded
+    private val EXTRA_REPOSITORY_LEVEL_IDS =
+        (listOf(DemoMode.DEMO_DEMO_LEVEL_ID) + OfficialContent.OFFICIAL_LEVEL_IDS.sorted()).distinct()
 
     private fun getRepositoryLevelIds(sequence: LevelSequence): List<String> = (sequence.sequence + EXTRA_REPOSITORY_LEVEL_IDS).distinct()
 
