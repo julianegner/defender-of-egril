@@ -20,6 +20,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -57,11 +58,21 @@ internal fun UnusedMapsVillainsPage(
     onCreateLevel: (map: EditorMap, villain: AttackerType, name: String) -> Unit,
 ) {
     val locale = currentLanguage.value
-    val usedMapIds = remember(levels) { levels.map { it.mapId }.toSet() }
+    // Villains ignore test levels by default; maps count them by default. Both are switchable.
+    var countTestLevelsForVillains by remember { mutableStateOf(false) }
+    var countTestLevelsForMaps by remember { mutableStateOf(true) }
+    val usedMapIds =
+        remember(levels, countTestLevelsForMaps) {
+            levels
+                .filter { countTestLevelsForMaps || !it.testingOnly }
+                .map { it.mapId }
+                .toSet()
+        }
     val unusedMaps = remember(maps, usedMapIds) { maps.filter { it.readyToUse && it.id !in usedMapIds } }
     val unusedVillains =
-        remember(levels) {
-            villainUsageEntries(levels, onlyUnusedVillains = true).map { it.villainType }
+        remember(levels, countTestLevelsForVillains) {
+            val villainLevels = levels.filter { countTestLevelsForVillains || !it.testingOnly }
+            villainUsageEntries(villainLevels, onlyUnusedVillains = true).map { it.villainType }
         }
     var selectedMap by remember { mutableStateOf<EditorMap?>(null) }
     var selectedVillain by remember { mutableStateOf<AttackerType?>(null) }
@@ -84,8 +95,29 @@ internal fun UnusedMapsVillainsPage(
                 text = stringResource(Res.string.unused_maps_villains),
                 style = MaterialTheme.typography.titleMedium,
             )
-            Button(onClick = onBack) {
-                Text(stringResource(Res.string.back_to_levels))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = stringResource(Res.string.count_testing_levels_for_maps),
+                    style = MaterialTheme.typography.labelMedium,
+                )
+                Switch(
+                    checked = countTestLevelsForMaps,
+                    onCheckedChange = { countTestLevelsForMaps = it },
+                )
+                Text(
+                    text = stringResource(Res.string.count_testing_levels_for_villains),
+                    style = MaterialTheme.typography.labelMedium,
+                )
+                Switch(
+                    checked = countTestLevelsForVillains,
+                    onCheckedChange = { countTestLevelsForVillains = it },
+                )
+                Button(onClick = onBack) {
+                    Text(stringResource(Res.string.back_to_levels))
+                }
             }
         }
 

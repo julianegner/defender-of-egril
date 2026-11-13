@@ -1018,6 +1018,8 @@
     <string name="back_to_levels">Back to Levels</string>
     <string name="not_used_in_any_level">Not used in any level</string>
     <string name="only_show_unused_villains">Only show unused villains</string>
+    <string name="count_testing_levels_for_maps">Count test levels for maps</string>
+    <string name="count_testing_levels_for_villains">Count test levels for villains</string>
 
     <!-- World Map Locations -->
     <string name="levels_at_location">%s level(s) at this location</string>

@@ -1016,6 +1016,8 @@
     <string name="back_to_levels">Retour aux niveaux</string>
     <string name="not_used_in_any_level">Utilisé dans aucun niveau</string>
     <string name="only_show_unused_villains">Afficher uniquement les méchants inutilisés</string>
+    <string name="count_testing_levels_for_maps">Compter les niveaux de test pour les cartes</string>
+    <string name="count_testing_levels_for_villains">Compter les niveaux de test pour les méchants</string>
 
     <!-- World Map Locations -->
     <string name="levels_at_location">%s niveau(x) à cet emplacement</string>
