@@ -28,8 +28,14 @@ kotlin {
 
 extensions.configure<com.android.build.api.dsl.LibraryExtension> {
     namespace = "de.egril.defender.mapgen"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.android.compileSdk
+            .get()
+            .toInt()
     defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
     }
 }

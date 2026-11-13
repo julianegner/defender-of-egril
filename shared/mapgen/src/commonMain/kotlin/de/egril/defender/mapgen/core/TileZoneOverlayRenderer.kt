@@ -24,8 +24,7 @@ object TileZoneOverlayRenderer {
         input: MapImageInput,
         zoneTiles: Map<Pair<Int, Int>, MapImageTileKind>,
         movable: Boolean,
-    ): Triple<IntArray, Int, Int> =
-        if (movable) generateZoneOnlyPixels(input, zoneTiles) else generateOverlayPixels(input, zoneTiles)
+    ): Triple<IntArray, Int, Int> = if (movable) generateZoneOnlyPixels(input, zoneTiles) else generateOverlayPixels(input, zoneTiles)
 
     /**
      * Renders the overlay for a zone that replaces the tile kinds in [zoneTiles] on top of [input].

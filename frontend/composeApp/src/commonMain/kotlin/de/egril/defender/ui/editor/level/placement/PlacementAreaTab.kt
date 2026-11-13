@@ -37,14 +37,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
-import defender_of_egril.composeapp.generated.resources.Res
-import defender_of_egril.composeapp.generated.resources.placement_area_add_buildable
-import defender_of_egril.composeapp.generated.resources.placement_area_clear
-import defender_of_egril.composeapp.generated.resources.placement_area_hint
-import defender_of_egril.composeapp.generated.resources.placement_area_mode_erase
-import defender_of_egril.composeapp.generated.resources.placement_area_mode_rectangle
-import defender_of_egril.composeapp.generated.resources.placement_area_no_map
-import defender_of_egril.composeapp.generated.resources.placement_area_tooltips_toggle
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.InitialData
 import de.egril.defender.editor.TileType
@@ -56,11 +48,21 @@ import de.egril.defender.ui.editor.level.initialsetup.drawInitialSetupElements
 import de.egril.defender.ui.editor.level.initialsetup.isWaterTile
 import de.egril.defender.ui.editor.map.rectangleTiles
 import de.egril.defender.ui.settings.AppSettings
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.placement_area_add_buildable
+import defender_of_egril.composeapp.generated.resources.placement_area_clear
+import defender_of_egril.composeapp.generated.resources.placement_area_hint
+import defender_of_egril.composeapp.generated.resources.placement_area_mode_erase
+import defender_of_egril.composeapp.generated.resources.placement_area_mode_rectangle
+import defender_of_egril.composeapp.generated.resources.placement_area_no_map
+import defender_of_egril.composeapp.generated.resources.placement_area_tooltips_toggle
 import kotlin.math.floor
 
 /** Only NO_PLAY tiles are excluded; towers, traps and barricades all sit on playable tiles. */
-private fun isMarkable(map: EditorMap, position: Position): Boolean =
-    map.getTileType(position.x, position.y) != TileType.NO_PLAY
+private fun isMarkable(
+    map: EditorMap,
+    position: Position,
+): Boolean = map.getTileType(position.x, position.y) != TileType.NO_PLAY
 
 /** All BUILD_AREA tiles of the map, where towers can be placed. */
 private fun buildableTiles(map: EditorMap): List<Position> =
@@ -72,17 +74,27 @@ private fun buildableTiles(map: EditorMap): List<Position> =
         }
     }
 
-private fun rowOffsetX(geometry: HexGeometry, row: Int): Float =
-    if (row % 2 == 1) geometry.hexWidth / 2 else 0f
+private fun rowOffsetX(
+    geometry: HexGeometry,
+    row: Int,
+): Float = if (row % 2 == 1) geometry.hexWidth / 2 else 0f
 
-private fun hexCenter(geometry: HexGeometry, col: Int, row: Int): Offset =
+private fun hexCenter(
+    geometry: HexGeometry,
+    col: Int,
+    row: Int,
+): Offset =
     Offset(
         geometry.offsetXCanvas + col * geometry.hexWidth + rowOffsetX(geometry, row) + geometry.hexWidth / 2,
         geometry.offsetYCanvas + row * geometry.verticalSpacing + geometry.hexHeight / 2,
     )
 
 /** Nearest hex to a canvas point, searched among the neighbouring rows and columns. */
-private fun hexAt(geometry: HexGeometry, map: EditorMap, point: Offset): Position? {
+private fun hexAt(
+    geometry: HexGeometry,
+    map: EditorMap,
+    point: Offset,
+): Position? {
     val approxRow = floor((point.y - geometry.offsetYCanvas) / geometry.verticalSpacing).toInt()
     var best: Position? = null
     var bestDistance = Float.MAX_VALUE
@@ -105,7 +117,12 @@ private fun hexAt(geometry: HexGeometry, map: EditorMap, point: Offset): Positio
 }
 
 /** Hexes touched by a straight drag segment, so fast drags do not skip tiles. */
-private fun hexesAlongSegment(geometry: HexGeometry, map: EditorMap, from: Offset, to: Offset): Set<Position> {
+private fun hexesAlongSegment(
+    geometry: HexGeometry,
+    map: EditorMap,
+    from: Offset,
+    to: Offset,
+): Set<Position> {
     val length = (to - from).getDistance()
     val steps = maxOf(1, (length / (geometry.hexWidth / 2f)).toInt())
     return buildSet {
@@ -177,10 +194,11 @@ fun PlacementAreaTab(
                     onInitialDataChange(initialData.copy(placementAreas = (areaSet + buildable).toList()))
                 },
                 enabled = buildable.any { it !in areaSet },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary,
-                    contentColor = MaterialTheme.colorScheme.onTertiary,
-                ),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.tertiary,
+                        contentColor = MaterialTheme.colorScheme.onTertiary,
+                    ),
             ) {
                 Text(stringResource(Res.string.placement_area_add_buildable))
             }
@@ -192,93 +210,97 @@ fun PlacementAreaTab(
 
         Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
             Canvas(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(map) {
-                        awaitPointerEventScope {
-                            while (true) {
-                                val event = awaitPointerEvent()
-                                val change = event.changes.first()
-                                when (event.type) {
-                                    PointerEventType.Move, PointerEventType.Enter -> {
-                                        hoverPoint = change.position
-                                        hoveredHex = hexAt(
-                                            calculateHexGeometry(map.width, map.height, size.width.toFloat(), size.height.toFloat()),
-                                            map,
-                                            change.position,
-                                        )
-                                    }
-                                    PointerEventType.Exit -> {
-                                        hoverPoint = null
-                                        hoveredHex = null
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .pointerInput(map) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent()
+                                    val change = event.changes.first()
+                                    when (event.type) {
+                                        PointerEventType.Move, PointerEventType.Enter -> {
+                                            hoverPoint = change.position
+                                            hoveredHex =
+                                                hexAt(
+                                                    calculateHexGeometry(map.width, map.height, size.width.toFloat(), size.height.toFloat()),
+                                                    map,
+                                                    change.position,
+                                                )
+                                        }
+                                        PointerEventType.Exit -> {
+                                            hoverPoint = null
+                                            hoveredHex = null
+                                        }
                                     }
                                 }
                             }
-                        }
-                    }
-                    .pointerInput(map, initialData, eraseMode, rectangleMode) {
-                        awaitEachGesture {
-                            // Hover moves arrive without a button press; only a primary-button down starts a gesture.
-                            var firstEvent: PointerEvent
-                            do {
-                                firstEvent = awaitPointerEvent()
-                            } while (!(firstEvent.buttons.isPrimaryPressed && firstEvent.changes.first().changedToDown()))
-                            val down = firstEvent.changes.first()
-                            val geometry = calculateHexGeometry(map.width, map.height, size.width.toFloat(), size.height.toFloat())
-                            val erase = eraseMode || firstEvent.keyboardModifiers.isShiftPressed
-                            val startHex = hexAt(geometry, map, down.position)
-                            var lastPoint = down.position
-                            val gestureTiles = linkedSetOf<Position>()
-                            startHex?.let { gestureTiles.add(it) }
+                        }.pointerInput(map, initialData, eraseMode, rectangleMode) {
+                            awaitEachGesture {
+                                // Hover moves arrive without a button press; only a primary-button down starts a gesture.
+                                var firstEvent: PointerEvent
+                                do {
+                                    firstEvent = awaitPointerEvent()
+                                } while (!(firstEvent.buttons.isPrimaryPressed && firstEvent.changes.first().changedToDown()))
+                                val down = firstEvent.changes.first()
+                                val geometry = calculateHexGeometry(map.width, map.height, size.width.toFloat(), size.height.toFloat())
+                                val erase = eraseMode || firstEvent.keyboardModifiers.isShiftPressed
+                                val startHex = hexAt(geometry, map, down.position)
+                                var lastPoint = down.position
+                                val gestureTiles = linkedSetOf<Position>()
+                                startHex?.let { gestureTiles.add(it) }
 
-                            while (true) {
-                                val event = awaitPointerEvent()
-                                val change = event.changes.firstOrNull() ?: break
-                                if (!change.pressed) break
-                                change.consume()
-                                if (rectangleMode) {
-                                    val endHex = hexAt(geometry, map, change.position)
-                                    previewTiles = rectangleTiles(startHex, endHex).filter { isMarkable(map, it) }.toSet()
-                                } else {
-                                    gestureTiles.addAll(hexesAlongSegment(geometry, map, lastPoint, change.position))
-                                    previewTiles = gestureTiles.toSet()
+                                while (true) {
+                                    val event = awaitPointerEvent()
+                                    val change = event.changes.firstOrNull() ?: break
+                                    if (!change.pressed) break
+                                    change.consume()
+                                    if (rectangleMode) {
+                                        val endHex = hexAt(geometry, map, change.position)
+                                        previewTiles = rectangleTiles(startHex, endHex).filter { isMarkable(map, it) }.toSet()
+                                    } else {
+                                        gestureTiles.addAll(hexesAlongSegment(geometry, map, lastPoint, change.position))
+                                        previewTiles = gestureTiles.toSet()
+                                    }
+                                    lastPoint = change.position
                                 }
-                                lastPoint = change.position
-                            }
 
-                            val finalTiles = if (rectangleMode) {
-                                rectangleTiles(startHex, hexAt(geometry, map, lastPoint))
-                            } else {
-                                gestureTiles
+                                val finalTiles =
+                                    if (rectangleMode) {
+                                        rectangleTiles(startHex, hexAt(geometry, map, lastPoint))
+                                    } else {
+                                        gestureTiles
+                                    }
+                                val valid = finalTiles.filter { isMarkable(map, it) }.toSet()
+                                if (valid.isNotEmpty()) {
+                                    val updated = if (erase) areaSet - valid else areaSet + valid
+                                    onInitialDataChange(initialData.copy(placementAreas = updated.toList()))
+                                }
+                                previewTiles = emptySet()
                             }
-                            val valid = finalTiles.filter { isMarkable(map, it) }.toSet()
-                            if (valid.isNotEmpty()) {
-                                val updated = if (erase) areaSet - valid else areaSet + valid
-                                onInitialDataChange(initialData.copy(placementAreas = updated.toList()))
-                            }
-                            previewTiles = emptySet()
-                        }
-                    },
+                        },
             ) {
                 val geometry = calculateHexGeometry(map.width, map.height, size.width, size.height)
                 for (row in 0 until map.height) {
                     for (col in 0 until map.width) {
                         val pos = Position(col, row)
                         val center = hexCenter(geometry, col, row)
-                        val base = when (map.getTileType(col, row)) {
-                            TileType.NO_PLAY -> Color(0xFF2B2B2B)
-                            TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90)
-                            else -> when {
-                                isWaterTile(pos, map) -> if (isDarkMode) Color(0xFF0D47A1) else Color(0xFF42A5F5)
-                                map.getTileType(col, row) == TileType.SPAWN_POINT ->
-                                    if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
-                                map.getTileType(col, row) == TileType.TARGET ->
-                                    if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
-                                map.getTileType(col, row) == TileType.PATH ->
-                                    if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
-                                else -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
+                        val base =
+                            when (map.getTileType(col, row)) {
+                                TileType.NO_PLAY -> Color(0xFF2B2B2B)
+                                TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90)
+                                else ->
+                                    when {
+                                        isWaterTile(pos, map) -> if (isDarkMode) Color(0xFF0D47A1) else Color(0xFF42A5F5)
+                                        map.getTileType(col, row) == TileType.SPAWN_POINT ->
+                                            if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
+                                        map.getTileType(col, row) == TileType.TARGET ->
+                                            if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
+                                        map.getTileType(col, row) == TileType.PATH ->
+                                            if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
+                                        else -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
+                                    }
                             }
-                        }
                         drawHexagon(center.x, center.y, geometry.hexSize, base)
                         if (pos in areaSet) {
                             drawHexagon(center.x, center.y, geometry.hexSize, Color(0x66FFD700))
@@ -300,11 +322,12 @@ fun PlacementAreaTab(
                         text = tooltipText,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.inverseOnSurface,
-                        modifier = Modifier
-                            .onSizeChanged { tooltipHeight = it.height }
-                            .offset { IntOffset(point.x.toInt() + 16, point.y.toInt() - tooltipHeight - 16) }
-                            .background(MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(4.dp))
-                            .padding(6.dp),
+                        modifier =
+                            Modifier
+                                .onSizeChanged { tooltipHeight = it.height }
+                                .offset { IntOffset(point.x.toInt() + 16, point.y.toInt() - tooltipHeight - 16) }
+                                .background(MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(4.dp))
+                                .padding(6.dp),
                     )
                 }
             }
@@ -313,7 +336,11 @@ fun PlacementAreaTab(
 }
 
 @Composable
-private fun ToggleButton(label: String, selected: Boolean, onClick: () -> Unit) {
+private fun ToggleButton(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
     if (selected) {
         Button(onClick = onClick) { Text(label) }
     } else {

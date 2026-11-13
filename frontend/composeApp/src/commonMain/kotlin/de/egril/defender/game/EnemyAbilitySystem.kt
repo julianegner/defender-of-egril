@@ -15,11 +15,15 @@ private const val RAZZIK_CRASH_ODDS = 3
 private sealed class RazzikRocketTarget {
     abstract val position: Position
 
-    class BarricadeTarget(val barricade: Barricade) : RazzikRocketTarget() {
+    class BarricadeTarget(
+        val barricade: Barricade,
+    ) : RazzikRocketTarget() {
         override val position: Position get() = barricade.position
     }
 
-    class BridgeTarget(override val position: Position) : RazzikRocketTarget()
+    class BridgeTarget(
+        override val position: Position,
+    ) : RazzikRocketTarget()
 }
 
 /**

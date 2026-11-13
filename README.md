@@ -24,11 +24,13 @@ Prerequisites: JDK 11+.
 ### Desktop
 
 Linux/macOS
+
 ```bash
 ./gradlew :composeApp:run
 ```
 
 Windows
+
 ```cmd
 gradlew.bat :composeApp:run
 ```
@@ -38,9 +40,11 @@ gradlew.bat :composeApp:run
 ```bash
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
 ```
-Then open http://localhost:8080.
 
-Build flag: Run webapp with impressum 
+Then open <http://localhost:8080>.
+
+Build flag: Run webapp with impressum
+
 ```bash
 # Run development server with impressum
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun -PwithImpressum=true
@@ -48,8 +52,6 @@ Build flag: Run webapp with impressum
 # Build production distribution with impressum
 ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
 ```
-
-
 
 ### Android
 
@@ -68,6 +70,7 @@ Open the project in Xcode on macOS and run the iOS target.
 ./gradlew :composeApp:assembleDebug
 ./gradlew :composeApp:wasmJsBrowserDevelopmentWebpack
 ```
+
 ## run tests
 
 ```bash
@@ -78,6 +81,7 @@ Open the project in Xcode on macOS and run the iOS target.
 ./gradlew :composeApp:wasmJsBrowserTest
 
 ### UI Tests
+
 End-to-end UI tests using Playwright test the game in a real browser, simulating actual user interactions.
 
 **Running UI Tests Locally:**

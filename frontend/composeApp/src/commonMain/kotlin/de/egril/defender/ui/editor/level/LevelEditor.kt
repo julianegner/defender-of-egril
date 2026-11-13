@@ -1259,145 +1259,145 @@ internal fun LevelEditorView(
                 val iamState by de.egril.defender.iam.IamService.state
                 if (!level.isOfficial && iamState.isAuthenticated) {
                     val storedCommunityJson =
-                    remember(level.id) {
-                        de.egril.defender.editor.EditorStorage
-                            .getStoredCommunityLevelJson(level.id)
-                    }
-                val currentLevelJson =
-                    remember(draftLevel) {
-                        de.egril.defender.editor.EditorJsonSerializer
-                            .serializeLevel(draftLevel)
-                    }
-                val storedCommunityLevel =
-                    remember(level.id) {
-                        de.egril.defender.editor.EditorStorage
-                            .getCommunityLevel(level.id)
-                    }
-                val isMyUpload = storedCommunityLevel?.communityAuthorUsername == iamState.username
-                val isChanged = storedCommunityJson != null && storedCommunityJson != currentLevelJson
+                        remember(level.id) {
+                            de.egril.defender.editor.EditorStorage
+                                .getStoredCommunityLevelJson(level.id)
+                        }
+                    val currentLevelJson =
+                        remember(draftLevel) {
+                            de.egril.defender.editor.EditorJsonSerializer
+                                .serializeLevel(draftLevel)
+                        }
+                    val storedCommunityLevel =
+                        remember(level.id) {
+                            de.egril.defender.editor.EditorStorage
+                                .getCommunityLevel(level.id)
+                        }
+                    val isMyUpload = storedCommunityLevel?.communityAuthorUsername == iamState.username
+                    val isChanged = storedCommunityJson != null && storedCommunityJson != currentLevelJson
 
-                // Check if the map is a user map that needs auto-uploading
-                val levelMap =
-                    remember(draftLevel.mapId) {
-                        de.egril.defender.editor.EditorStorage
-                            .getMap(draftLevel.mapId)
-                    }
-                val mapAlsoUploaded =
-                    levelMap != null &&
-                        !levelMap.isOfficial &&
-                        !levelMap.isCommunity &&
-                        de.egril.defender.editor.EditorStorage
-                            .getCommunityMap(draftLevel.mapId) == null
+                    // Check if the map is a user map that needs auto-uploading
+                    val levelMap =
+                        remember(draftLevel.mapId) {
+                            de.egril.defender.editor.EditorStorage
+                                .getMap(draftLevel.mapId)
+                        }
+                    val mapAlsoUploaded =
+                        levelMap != null &&
+                            !levelMap.isOfficial &&
+                            !levelMap.isCommunity &&
+                            de.egril.defender.editor.EditorStorage
+                                .getCommunityMap(draftLevel.mapId) == null
 
-                fun doUpload(token: String) {
-                    isUploadingToCommunity = true
-                    communityUploadStatus = null
-                    coroutineScope.launch {
-                        val success =
-                            de.egril.defender.save.BackendCommunityService
-                                .uploadCommunityFile("LEVEL", level.id, currentLevelJson, token)
-                        if (success) {
-                            de.egril.defender.editor.EditorStorage.saveCommunityLevel(
-                                draftLevel.copy(
-                                    isCommunity = true,
-                                    communityAuthorUsername = iamState.username ?: "",
-                                ),
-                            )
-                            // Auto-upload the map if it hasn't been uploaded yet
-                            if (mapAlsoUploaded) {
-                                val map =
-                                    de.egril.defender.editor.EditorStorage
-                                        .getMap(draftLevel.mapId)
-                                if (map != null) {
-                                    val mapJson =
-                                        de.egril.defender.editor.EditorJsonSerializer
-                                            .serializeMap(map)
-                                    val mapSuccess =
-                                        de.egril.defender.save.BackendCommunityService
-                                            .uploadCommunityFile("MAP", draftLevel.mapId, mapJson, token)
-                                    if (mapSuccess) {
-                                        de.egril.defender.editor.EditorStorage.saveCommunityMap(
-                                            map,
-                                            iamState.username ?: "",
-                                        )
+                    fun doUpload(token: String) {
+                        isUploadingToCommunity = true
+                        communityUploadStatus = null
+                        coroutineScope.launch {
+                            val success =
+                                de.egril.defender.save.BackendCommunityService
+                                    .uploadCommunityFile("LEVEL", level.id, currentLevelJson, token)
+                            if (success) {
+                                de.egril.defender.editor.EditorStorage.saveCommunityLevel(
+                                    draftLevel.copy(
+                                        isCommunity = true,
+                                        communityAuthorUsername = iamState.username ?: "",
+                                    ),
+                                )
+                                // Auto-upload the map if it hasn't been uploaded yet
+                                if (mapAlsoUploaded) {
+                                    val map =
+                                        de.egril.defender.editor.EditorStorage
+                                            .getMap(draftLevel.mapId)
+                                    if (map != null) {
+                                        val mapJson =
+                                            de.egril.defender.editor.EditorJsonSerializer
+                                                .serializeMap(map)
+                                        val mapSuccess =
+                                            de.egril.defender.save.BackendCommunityService
+                                                .uploadCommunityFile("MAP", draftLevel.mapId, mapJson, token)
+                                        if (mapSuccess) {
+                                            de.egril.defender.editor.EditorStorage.saveCommunityMap(
+                                                map,
+                                                iamState.username ?: "",
+                                            )
+                                        }
                                     }
                                 }
+                                communityUploadStatus = "success"
+                            } else {
+                                communityUploadStatus = "error"
                             }
-                            communityUploadStatus = "success"
-                        } else {
-                            communityUploadStatus = "error"
+                            isUploadingToCommunity = false
                         }
-                        isUploadingToCommunity = false
                     }
-                }
 
-                if (storedCommunityJson == null) {
-                    // Level not yet in community - show upload button
-                    Button(
-                        onClick = { showCommunityUploadConfirm = true },
-                        enabled = spawnPlanValid && !isUploadingToCommunity,
-                        modifier = Modifier.weight(1f).height(56.dp),
-                        contentPadding = PaddingValues(horizontal = 4.dp),
-                    ) {
-                        Text(
-                            if (isUploadingToCommunity) {
-                                stringResource(Res.string.community_uploading)
-                            } else {
-                                stringResource(Res.string.upload_as_community_level)
-                            },
-                        )
-                    }
-                } else if (isMyUpload && isChanged) {
-                    // Level exists in community and belongs to this user and has been changed - show update button
-                    Button(
-                        onClick = {
-                            val token =
-                                de.egril.defender.iam.IamService
-                                    .getToken() ?: return@Button
-                            doUpload(token)
-                        },
-                        enabled = spawnPlanValid && !isUploadingToCommunity,
-                        modifier = Modifier.weight(1f).height(56.dp),
-                        contentPadding = PaddingValues(horizontal = 4.dp),
-                    ) {
-                        Text(
-                            if (isUploadingToCommunity) {
-                                stringResource(Res.string.community_uploading)
-                            } else {
-                                stringResource(Res.string.update_community_level)
-                            },
-                        )
-                    }
-                }
-                // Confirmation dialog before first community upload
-                if (showCommunityUploadConfirm) {
-                    val username = iamState.username ?: ""
-                    val confirmMessage =
-                        if (mapAlsoUploaded) {
-                            stringResource(Res.string.upload_community_level_confirm_message, username) +
-                                "\n\n" + stringResource(Res.string.upload_community_also_uploads_map)
-                        } else {
-                            stringResource(Res.string.upload_community_level_confirm_message, username)
+                    if (storedCommunityJson == null) {
+                        // Level not yet in community - show upload button
+                        Button(
+                            onClick = { showCommunityUploadConfirm = true },
+                            enabled = spawnPlanValid && !isUploadingToCommunity,
+                            modifier = Modifier.weight(1f).height(56.dp),
+                            contentPadding = PaddingValues(horizontal = 4.dp),
+                        ) {
+                            Text(
+                                if (isUploadingToCommunity) {
+                                    stringResource(Res.string.community_uploading)
+                                } else {
+                                    stringResource(Res.string.upload_as_community_level)
+                                },
+                            )
                         }
-                    de.egril.defender.ui.editor.ConfirmationDialog(
-                        title = stringResource(Res.string.upload_community_confirm_title),
-                        message = confirmMessage,
-                        extraContent = {
-                            de.egril.defender.ui.editor
-                                .CommunityUploadLicenseNotice()
-                        },
-                        requireLicenseAgreement = true,
-                        onDismiss = { showCommunityUploadConfirm = false },
-                        onConfirm = {
-                            showCommunityUploadConfirm = false
-                            val token =
-                                de.egril.defender.iam.IamService
-                                    .getToken() ?: return@ConfirmationDialog
-                            doUpload(token)
-                        },
-                    )
+                    } else if (isMyUpload && isChanged) {
+                        // Level exists in community and belongs to this user and has been changed - show update button
+                        Button(
+                            onClick = {
+                                val token =
+                                    de.egril.defender.iam.IamService
+                                        .getToken() ?: return@Button
+                                doUpload(token)
+                            },
+                            enabled = spawnPlanValid && !isUploadingToCommunity,
+                            modifier = Modifier.weight(1f).height(56.dp),
+                            contentPadding = PaddingValues(horizontal = 4.dp),
+                        ) {
+                            Text(
+                                if (isUploadingToCommunity) {
+                                    stringResource(Res.string.community_uploading)
+                                } else {
+                                    stringResource(Res.string.update_community_level)
+                                },
+                            )
+                        }
+                    }
+                    // Confirmation dialog before first community upload
+                    if (showCommunityUploadConfirm) {
+                        val username = iamState.username ?: ""
+                        val confirmMessage =
+                            if (mapAlsoUploaded) {
+                                stringResource(Res.string.upload_community_level_confirm_message, username) +
+                                    "\n\n" + stringResource(Res.string.upload_community_also_uploads_map)
+                            } else {
+                                stringResource(Res.string.upload_community_level_confirm_message, username)
+                            }
+                        de.egril.defender.ui.editor.ConfirmationDialog(
+                            title = stringResource(Res.string.upload_community_confirm_title),
+                            message = confirmMessage,
+                            extraContent = {
+                                de.egril.defender.ui.editor
+                                    .CommunityUploadLicenseNotice()
+                            },
+                            requireLicenseAgreement = true,
+                            onDismiss = { showCommunityUploadConfirm = false },
+                            onConfirm = {
+                                showCommunityUploadConfirm = false
+                                val token =
+                                    de.egril.defender.iam.IamService
+                                        .getToken() ?: return@ConfirmationDialog
+                                doUpload(token)
+                            },
+                        )
+                    }
                 }
-            }
             }
             communityUploadStatus?.let { status ->
                 Text(

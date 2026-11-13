@@ -29,7 +29,10 @@ class RazzikRocketTest {
         )
     }
 
-    private fun createRazzik(state: GameState, at: Position): Attacker =
+    private fun createRazzik(
+        state: GameState,
+        at: Position,
+    ): Attacker =
         Attacker(
             id = state.nextAttackerId.value++,
             type = AttackerType.RAZZIK_THE_ROCKETEER,

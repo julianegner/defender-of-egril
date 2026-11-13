@@ -165,5 +165,4 @@ private fun parseGridKey(key: String): Pair<Int, Int>? {
     return x to y
 }
 
-private fun encodePng(rendered: Triple<IntArray, Int, Int>): ByteArray =
-    OptimalPngEncoder.encode(rendered.first, rendered.second, rendered.third)
+private fun encodePng(rendered: Triple<IntArray, Int, Int>): ByteArray = OptimalPngEncoder.encode(rendered.first, rendered.second, rendered.third)
