@@ -463,12 +463,13 @@ class OPFSFileStorage : FileStorage {
         }
 
         // Verify in memory that every source entry has a matching copy; roll back our own entries on mismatch.
-        val complete = sourceKeys.all { src ->
-            val dst = src.replaceFirst(sourcePrefix, targetPrefix)
-            val textOk = textCache[src] == null || textCache[dst] == textCache[src]
-            val binaryOk = binaryCache[src] == null || binaryCache[dst] == binaryCache[src]
-            textOk && binaryOk
-        }
+        val complete =
+            sourceKeys.all { src ->
+                val dst = src.replaceFirst(sourcePrefix, targetPrefix)
+                val textOk = textCache[src] == null || textCache[dst] == textCache[src]
+                val binaryOk = binaryCache[src] == null || binaryCache[dst] == binaryCache[src]
+                textOk && binaryOk
+            }
         if (!complete) {
             println("Verification failed copying $sourcePath to $targetPath; removing partial copy")
             deleteDirectoryEntries(targetPrefix)

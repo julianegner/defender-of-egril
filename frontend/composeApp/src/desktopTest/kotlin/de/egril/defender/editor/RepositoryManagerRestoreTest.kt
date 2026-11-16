@@ -1,8 +1,8 @@
 package de.egril.defender.editor
 
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.nio.file.Files
-import kotlinx.coroutines.runBlocking
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -39,7 +39,10 @@ class RepositoryManagerRestoreTest {
         }
     }
 
-    private fun writeFixture(path: String, content: String) {
+    private fun writeFixture(
+        path: String,
+        content: String,
+    ) {
         File(root, path).apply {
             parentFile.mkdirs()
             writeText(content)
@@ -76,7 +79,10 @@ class RepositoryManagerRestoreTest {
             object : JvmFileStorage() {
                 override val baseDir: File? = root
 
-                override fun copyDirectory(sourcePath: String, targetPath: String): Boolean {
+                override fun copyDirectory(
+                    sourcePath: String,
+                    targetPath: String,
+                ): Boolean {
                     if (sourcePath.endsWith("/user")) return false
                     return super.copyDirectory(sourcePath, targetPath)
                 }

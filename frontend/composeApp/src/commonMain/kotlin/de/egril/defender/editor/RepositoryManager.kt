@@ -101,7 +101,6 @@ object RepositoryManager {
         }
     }
 
-
     /**
      * Restore game data from repository synchronously.
      * This is a blocking wrapper around the suspending function.

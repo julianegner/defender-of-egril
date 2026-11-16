@@ -32,7 +32,10 @@ class JvmFileStorageSafetyTest {
         root.deleteRecursively()
     }
 
-    private fun writeFixture(path: String, content: String) {
+    private fun writeFixture(
+        path: String,
+        content: String,
+    ) {
         File(root, path).apply {
             parentFile.mkdirs()
             writeText(content)
