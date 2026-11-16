@@ -1,18 +1,22 @@
 package de.egril.defender.game
 
 import de.egril.defender.editor.EditorStorage
+import de.egril.defender.editor.RepositoryLoader
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.GameState
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class WitchesSwampEnemyTurnHangTest {
+    // Loads the level and map straight from repository resources. On WASM the root-level
+    // sequence.json is not readable in the test browser, so the sequence-based init cannot be used.
     @Test
-    fun `witches swamp enemy turns complete through turn 6`() {
-        EditorStorage.ensureInitialized()
-        val editorLevel = assertNotNull(EditorStorage.getLevel("the_witches_swamp"))
-        val gameLevel = assertNotNull(EditorStorage.convertToGameLevel(editorLevel, 9100))
+    fun `witches swamp enemy turns complete through turn 6`() = runTest {
+        val editorLevel = assertNotNull(RepositoryLoader.loadLevel("the_witches_swamp"))
+        val editorMap = assertNotNull(RepositoryLoader.loadMap(editorLevel.mapId))
+        val gameLevel = assertNotNull(EditorStorage.convertToGameLevel(editorLevel, 9100, editorMap))
         val state = GameState(level = gameLevel)
         state.initializePrePlacedElements()
         val engine = GameEngine(state)

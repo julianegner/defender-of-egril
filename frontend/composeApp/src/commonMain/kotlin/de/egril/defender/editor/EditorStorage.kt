@@ -1701,12 +1701,13 @@ object EditorStorage {
     fun convertToGameLevel(
         editorLevel: EditorLevel,
         numericId: Int,
+        preloadedMap: EditorMap? = null,
     ): Level? {
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Converting EditorLevel ${editorLevel.id} to game Level with numeric ID $numericId")
         }
-        // Force reload the map from disk to get latest changes
-        val map = reloadMap(editorLevel.mapId) ?: getMap(editorLevel.mapId) ?: return null
+        // Use the caller-supplied map when given; otherwise force reload from disk to get latest changes
+        val map = preloadedMap ?: reloadMap(editorLevel.mapId) ?: getMap(editorLevel.mapId) ?: return null
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Using map: ${map.id} (${map.width}x${map.height})")
             // Convert enemy spawns directly to PlannedEnemySpawn
