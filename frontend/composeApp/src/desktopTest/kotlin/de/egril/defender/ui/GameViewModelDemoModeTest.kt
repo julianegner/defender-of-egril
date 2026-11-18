@@ -118,8 +118,9 @@ class GameViewModelDemoModeTest {
                         name = AttackerType.SNOTLING_BOSS.name,
                     ),
                 )
-                GameViewModel::class.java
-                    .getDeclaredMethod("surfaceNextPendingMessageIfIdle")
+                // internal members get a mangled JVM name, so match by prefix
+                GameViewModel::class.java.declaredMethods
+                    .first { it.name.startsWith("surfaceNextPendingMessageIfIdle") }
                     .apply { isAccessible = true }
                     .invoke(viewModel)
 
