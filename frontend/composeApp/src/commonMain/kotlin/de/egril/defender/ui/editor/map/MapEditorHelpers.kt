@@ -304,7 +304,13 @@ internal fun EditorMap.previewPaths(): List<MapPathPreview> {
             path.size > 1 &&
                 path.dropLast(1).anyIndexed { index, current ->
                     val previous = path.getOrNull(index - 1)
-                    0 > 1
+                    current
+                        .getHexNeighbors()
+                        .count { neighbor ->
+                            neighbor != previous &&
+                                neighbor in traversableCells &&
+                                neighbor.isInside(width, height)
+                        } > 1
                 }
         MapPathPreview(
             spawn = spawn,
