@@ -1,0 +1,24 @@
+# Production Kotlin files above 1000 lines (line count at time of listing).
+# Shrink these files; each entry must be removed once the file is 1000 lines or fewer.
+3810 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/gameplay/GamePlayScreen.kt
+3308 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/gameplay/GameMap.kt
+2187 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/worldmap/WorldMapPositionEditor.kt
+1936 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/editor/EditorStorage.kt
+1917 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/map/MapEditorView.kt
+1744 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/icon/IconUtils.kt
+1620 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/settings/AppSettings.kt
+1597 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/level/LevelEditor.kt
+1544 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/MenuScreens.kt
+1436 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/gameplay/DefenderInfo.kt
+1378 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/infopage/PlayerProfileScreen.kt
+1322 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/level/initialsetup/InitialSetupSidebar.kt
+1295 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/level/events/EventsTab.kt
+1245 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/level/LevelEditorComponents.kt
+1222 servers/backend/src/main/kotlin/de/egril/defender/Routing.kt
+1189 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/gameplay/GameHeader.kt
+1164 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/GameViewModel.kt
+1140 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/game/CombatSystem.kt
+1101 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/editor/json/EditorLevelJsonDeserializer.kt
+1051 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/game/Movement.kt
+1041 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/model/Attacker.kt
+1038 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/worldmap/ImageWorldMapView.kt
