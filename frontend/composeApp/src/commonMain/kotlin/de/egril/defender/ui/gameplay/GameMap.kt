@@ -84,7 +84,6 @@ import de.egril.defender.ui.animations.WizardIdleAnimation
 import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.ui.editor.map.MapControlState
 import de.egril.defender.ui.editor.map.MapControls
-import de.egril.defender.ui.hexagon.BaseGridCell
 import de.egril.defender.ui.hexagon.HexagonMinimap
 import de.egril.defender.ui.hexagon.HexagonShape
 import de.egril.defender.ui.hexagon.HexagonalGridConstants
@@ -107,7 +106,6 @@ import de.egril.defender.ui.icon.enemy.EnemyAttackPreviewIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.icon.enemy.GargoyleIcon
-import de.egril.defender.ui.icon.enemy.enemyAttackPreview
 import de.egril.defender.ui.icon.enemy.shouldShowSeafaringPirateBarge
 import de.egril.defender.ui.rememberMapImageState
 import de.egril.defender.ui.rememberMapTileZoneImageState
@@ -1624,208 +1622,49 @@ fun GridCell(
     // gameplay logic (trap placement detection etc.) so the game state stays accurate.
     val effectiveFieldEffect: FieldEffect? = if (showFieldEffect) fieldEffect else null
 
-    // Check if this tile is in a cooling spell area (show snowflake on affected path tiles)
-    val isInCoolingArea =
-        isEnemyTraversable &&
-            gameState.activeSpellEffects.any { effect ->
-                effect.spell == SpellType.COOLING_SPELL &&
-                    effect.position != null &&
-                    position.hexDistanceTo(effect.position) <= 2
-            }
+    val gridCellState =
+        GridCellState(
+            position = position,
+            gameState = gameState,
+            defender = defender,
+            attacker = attacker,
+            selectedDefender = selectedDefender,
+            selectedDefenderId = selectedDefenderId,
+            isHovering = isHovering,
+            isEnemyTraversable = isEnemyTraversable,
+            isOnPath = isOnPath,
+            fieldEffect = fieldEffect,
+            trap = trap,
+            fief = fief,
+            mushroom = mushroom,
+            gargoyle = gargoyle,
+            targetCircleInfo = targetCircleInfo,
+            selectedMineAction = selectedMineAction,
+            selectedWizardAction = selectedWizardAction,
+            selectedBarricadeAction = selectedBarricadeAction,
+            isSelectedAttackTarget = isSelectedAttackTarget,
+        )
+    val isInCoolingArea = gridCellState.isInCoolingArea
+    val coolingAreaTurnsRemaining = gridCellState.coolingAreaTurnsRemaining
+    val isCoolingSpellPreview = gridCellState.isCoolingSpellPreview
+    val bombEffect = gridCellState.bombEffect
+    val bombExplosion = gridCellState.bombExplosion
+    val spellTargeting = gridCellState.spellTargeting
+    val isValidSpellTarget = gridCellState.isValidSpellTarget
+    val cellIsInRange = gridCellState.cellIsInRange
+    val cellIsInDoubleReachOnlyRange = gridCellState.cellIsInDoubleReachOnlyRange
 
-    // Cooling area turns remaining (for active cooling effects on this tile)
-    val coolingAreaTurnsRemaining: Int? =
-        if (isInCoolingArea) {
-            gameState.activeSpellEffects
-                .filter { effect ->
-                    effect.spell == SpellType.COOLING_SPELL &&
-                        effect.position != null &&
-                        position.hexDistanceTo(effect.position) <= 2
-                }.minOfOrNull { it.turnsRemaining }
-        } else {
-            null
-        }
+    val attackPreview = gridCellState.attackPreview
 
-    // Is this tile part of a cooling spell placement preview?
-    val isCoolingSpellPreview =
-        targetCircleInfo != null &&
-            gameState.spellTargeting.value?.activeSpell == SpellType.COOLING_SPELL
-
-    // Check for active bomb spell effect at this position
-    val bombEffect =
-        gameState.activeSpellEffects.find {
-            it.spell == SpellType.BOMB && it.position == position
-        }
-
-    // Check for bomb explosion visual effect at this position
-    val bombExplosion =
-        gameState.bombExplosionEffects.find { explosion ->
-            explosion.center == position || explosion.affectedPositions.contains(position)
-        }
-    // Check if this tile is a valid spell target
-    val spellTargeting = gameState.spellTargeting.value
-    val isValidSpellTarget =
-        if (spellTargeting != null) {
-            when (spellTargeting.activeSpell.targetType) {
-                de.egril.defender.model.SpellTargetType.ENEMY -> {
-                    val enemyHere = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
-                    enemyHere != null && spellTargeting.validTargets.contains(enemyHere)
-                }
-                de.egril.defender.model.SpellTargetType.TOWER -> {
-                    val towerHere = gameState.defenders.find { it.position.value == position }
-                    towerHere != null && spellTargeting.validTargets.contains(towerHere)
-                }
-                de.egril.defender.model.SpellTargetType.POSITION -> {
-                    spellTargeting.validTargets.contains(position)
-                }
-                else -> false
-            }
-        } else {
-            false
-        }
-    val selectedDefenderForRange = selectedDefender
-    val hasDoubleReachBuff =
-        selectedDefenderForRange?.let { sel ->
-            gameState.activeSpellEffects.any { it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == sel.id }
-        } ?: false
-    val cellIsInRange =
-        selectedDefenderForRange?.let { sel ->
-            if (sel.position.value == position) {
-                false // Don't highlight the defender's own cell
-            } else {
-                val distance = sel.position.value.distanceTo(position)
-                val effectiveRange = gameState.effectiveRange(sel)
-                distance >= sel.type.minRange && distance <= effectiveRange
-            }
-        } ?: false
-    // Tiles that are in range ONLY because of the double-reach spell (beyond normal range)
-    val cellIsInDoubleReachOnlyRange =
-        if (hasDoubleReachBuff) {
-            val sel = selectedDefenderForRange
-            if (sel.position.value == position) {
-                false
-            } else {
-                val distance = sel.position.value.distanceTo(position)
-                distance >= sel.type.minRange && distance > sel.range && distance <= sel.range * 2
-            }
-        } else {
-            false
-        }
-
-    // Attack damage / lethality / immunity preview shown at the left border of an enemy that is
-    // affected by the currently selected tower attack: the selected target for single-target
-    // attacks, or any enemy within the blast area for AREA/LASTING attacks. Only shown when no
-    // build/trap/barricade placement mode is active (issue #591). Computed here (where
-    // selectedDefender is known) and passed into GridCellContent for rendering.
-    val attackPreview: EnemyAttackPreview? =
-        run {
-            val sel = selectedDefender
-            // Stone gargoyles show the immunity shield against tower types that deal no damage to them
-            if (gargoyle != null && sel != null) {
-                val distance = sel.position.value.distanceTo(position)
-                if (sel.type in GargoyleRules.NO_DAMAGE_DEFENDERS &&
-                    distance >= sel.type.minRange &&
-                    distance <= sel.range &&
-                    sel.isReady &&
-                    sel.actionsRemaining.value > 0 &&
-                    selectedMineAction == null &&
-                    selectedWizardAction == null &&
-                    selectedBarricadeAction == null
-                ) {
-                    return@run EnemyAttackPreview(damage = 0, isLethal = false, isImmune = true)
-                }
-            }
-            if (attacker == null ||
-                sel == null ||
-                sel.type.attackType == AttackType.NONE ||
-                !sel.isReady ||
-                sel.actionsRemaining.value <= 0 ||
-                !isSelectedAttackTarget ||
-                selectedMineAction != null ||
-                selectedWizardAction != null ||
-                selectedBarricadeAction != null
-            ) {
-                null
-            } else {
-                val hasDoubleLevelBuff =
-                    gameState.activeSpellEffects.any {
-                        it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == sel.id
-                    }
-                enemyAttackPreview(attacker, sel, hasDoubleLevelBuff, gameState)
-            }
-        }
-
-    // Calculate hover preview for trap placement
-    val isHoveringForTrapPreview = isHovering
-    val isTrapPlacementMode = selectedMineAction == MineAction.BUILD_TRAP || selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
-
-    // Check if this tile is valid for trap placement (on path, in range, no enemy, no existing trap, no field effects)
-    val isValidTrapPlacement =
-        if (isTrapPlacementMode && isHoveringForTrapPreview && selectedDefenderId != null) {
-            selectedDefender?.let { sel ->
-                val distance = sel.position.value.distanceTo(position)
-                val hasEnemy = attacker != null
-                val hasTrap = trap != null
-                val hasFieldEffect = fieldEffect != null
-                val hasFief = fief != null
-                val hasMushroom = mushroom != null
-                isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect && !hasFief && !hasMushroom
-            } ?: false
-        } else {
-            false
-        }
-
-    val showTrapPreview = isValidTrapPlacement
+    val showTrapPreview = gridCellState.showTrapPreview
 
     // showPlacementPreview, isBuildableAndEmpty, and canBeUsedAsTowerBase are pre-computed
     // in GameGrid's content lambda and passed as parameters (see GameGrid { position -> } block).
 
-    // Barricade placement range detection (3 tiles, yellow borders for empty path tiles)
-    val isBarricadePlacement = selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE
-    val cellIsInBarricadeRange =
-        if (isBarricadePlacement && selectedDefenderId != null) {
-            selectedDefender?.let { sel ->
-                // Check if within 3 tiles range
-                val distance = sel.position.value.distanceTo(position)
-                val isInRange = distance > 0 && distance <= 3
-                // Check if empty path tile (no defender, no attacker, can have existing barricade for reinforcement)
-                val isEmptyPath = isOnPath && defender == null && attacker == null && fief == null && mushroom == null
-                isInRange && isEmptyPath
-            } ?: false
-        } else {
-            false
-        }
-
-    // Show barricade preview when hovering over valid barricade placement tile
-    val showBarricadePreview = isBarricadePlacement && isHovering && cellIsInBarricadeRange
-
-    // Mine trap placement range detection (path tiles within range of selected mine)
-    val isMineTrapPlacement = selectedMineAction == MineAction.BUILD_TRAP
-    val cellIsValidForMineTrapPlacement =
-        if (isMineTrapPlacement && selectedDefenderId != null) {
-            selectedDefender?.let { sel ->
-                val distance = sel.position.value.distanceTo(position)
-                val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null && mushroom == null
-                isInRange && isEmptyPath
-            } ?: false
-        } else {
-            false
-        }
-
-    // Magical trap placement range detection (path tiles within range of selected wizard)
-    val isMagicalTrapPlacement = selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
-    val cellIsValidForMagicalTrapPlacement =
-        if (isMagicalTrapPlacement && selectedDefenderId != null) {
-            selectedDefender?.let { sel ->
-                val distance = sel.position.value.distanceTo(position)
-                val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null && fief == null && mushroom == null
-                isInRange && isEmptyPath
-            } ?: false
-        } else {
-            false
-        }
+    val cellIsInBarricadeRange = gridCellState.cellIsInBarricadeRange
+    val showBarricadePreview = gridCellState.showBarricadePreview
+    val cellIsValidForMineTrapPlacement = gridCellState.cellIsValidForMineTrapPlacement
+    val cellIsValidForMagicalTrapPlacement = gridCellState.cellIsValidForMagicalTrapPlacement
 
     // Support-object placement highlight (barricade / dwarven trap / magical trap placed from the
     // support bar). Mirrors the tower-placement range highlight above, but the set of valid tiles
@@ -2225,158 +2064,84 @@ fun GridCell(
             }
         }
 
-    if (shouldUseGradientBlending) {
-        GradientBlendedTileCell(
-            hexSize = hexSize,
+    GridCellFrame(
+        hexSize = hexSize,
+        position = position,
+        tileType = tileType,
+        backgroundColor = finalBackgroundColor,
+        borderColor = borderColor,
+        borderWidth = borderWidth,
+        useDashedBorder = useDashedBorder,
+        backgroundPainter = tilePainter,
+        onClick = onClick,
+        onHover = onHoverChange,
+        shouldUseGradientBlending = shouldUseGradientBlending,
+        getNeighborTileType = getNeighborTileType,
+        neighborPainters = neighborPainters,
+    ) {
+        GridCellContent(
             position = position,
-            tileType = tileType,
-            backgroundColor = finalBackgroundColor,
-            borderColor = if (useDashedBorder) Color.Transparent else borderColor,
-            borderWidth = if (useDashedBorder) 0.dp else borderWidth,
-            backgroundPainter = tilePainter,
-            onClick = onClick,
-            onHover = onHoverChange,
-            getNeighborTileType = getNeighborTileType,
-            getNeighborTilePainter = { pos, _ -> neighborPainters[pos] },
-        ) {
-            GridCellContent(
-                position = position,
-                gameState = gameState,
-                attacker = attacker,
-                healingEffect = healingEffect,
-                damageEffect = damageEffect,
-                defender = defender,
-                riverTile = riverTile,
-                fieldEffect = effectiveFieldEffect,
-                trap = trap,
-                barricade = barricade,
-                fief = fief,
-                mushroom = mushroom,
-                gargoyle = gargoyle,
-                isSpawnPoint = isSpawnPoint,
-                isTarget = isTarget,
-                isRiverTile = isRiverTile,
-                showPlacementPreview = showPlacementPreview,
-                showBarricadePreview = showBarricadePreview,
-                supportObjectPreviewType = supportObjectPreviewType,
-                previewDefenderType = previewDefenderType,
-                targetCircleInfo = targetCircleInfo,
-                useDashedBorder = useDashedBorder,
-                borderColor = borderColor,
-                borderWidth = borderWidth,
-                hexSize = hexSize,
-                showTrapPreview = showTrapPreview,
-                selectedMineAction = selectedMineAction,
-                selectedWizardAction = selectedWizardAction,
-                isBuildableAndEmpty = isBuildableAndEmpty,
-                canBeUsedAsTowerBase = canBeUsedAsTowerBase,
-                showDiagonalStripes = showDiagonalStripes,
-                isInCoolingArea = isInCoolingArea,
-                coolingAreaTurnsRemaining = coolingAreaTurnsRemaining,
-                isCoolingSpellPreview = isCoolingSpellPreview,
-                bombEffect = bombEffect,
-                bombExplosion = bombExplosion,
-                deathEffect = deathEffect,
-                coinGainEffect = coinGainEffect,
-                towerAttackEffect = towerAttackEffect,
-                constructionCompleteEffect = constructionCompleteEffect,
-                enemySpawnEffect = enemySpawnEffect,
-                trapTriggerEffect = trapTriggerEffect,
-                enemyMoveEffect = enemyMoveEffect,
-                dragonLevelChangeEffect = dragonLevelChangeEffect,
-                mineDigEffect = mineDigEffect,
-                arrowAttackEffect = arrowAttackEffect,
-                isArrowTargetTile = isArrowTargetTile,
-                isBallistaTargetTile = isBallistaTargetTile,
-                isBowTargetTile = isBowTargetTile,
-                isSpearTargetTile = isSpearTargetTile,
-                isPikeTargetTile = isPikeTargetTile,
-                isWizardTargetTile = isWizardTargetTile,
-                isAlchemyTargetTile = isAlchemyTargetTile,
-                isInWizardAttackArea = isInWizardAttackArea,
-                isInAlchemyAttackArea = isInAlchemyAttackArea,
-                dragonIsTargetingMine = dragonIsTargetingMine,
-                suppressEnemyBackground = suppressEnemyBackground,
-                attackPreview = attackPreview,
-                isDangerous = isDangerous,
-                isInSelectedEnemyPath = isInSelectedEnemyPath,
-                mapZoom = mapZoom,
-            )
-        }
-    } else {
-        BaseGridCell(
+            gameState = gameState,
+            attacker = attacker,
+            healingEffect = healingEffect,
+            damageEffect = damageEffect,
+            defender = defender,
+            riverTile = riverTile,
+            fieldEffect = effectiveFieldEffect,
+            trap = trap,
+            barricade = barricade,
+            fief = fief,
+            mushroom = mushroom,
+            gargoyle = gargoyle,
+            isSpawnPoint = isSpawnPoint,
+            isTarget = isTarget,
+            isRiverTile = isRiverTile,
+            showPlacementPreview = showPlacementPreview,
+            showBarricadePreview = showBarricadePreview,
+            supportObjectPreviewType = supportObjectPreviewType,
+            previewDefenderType = previewDefenderType,
+            targetCircleInfo = targetCircleInfo,
+            useDashedBorder = useDashedBorder,
+            borderColor = borderColor,
+            borderWidth = borderWidth,
             hexSize = hexSize,
-            backgroundColor = finalBackgroundColor,
-            borderColor = if (useDashedBorder) Color.Transparent else borderColor,
-            borderWidth = if (useDashedBorder) 0.dp else borderWidth,
-            backgroundPainter = tilePainter,
-            onClick = onClick,
-            onHover = onHoverChange,
-        ) {
-            GridCellContent(
-                position = position,
-                gameState = gameState,
-                attacker = attacker,
-                healingEffect = healingEffect,
-                damageEffect = damageEffect,
-                defender = defender,
-                riverTile = riverTile,
-                fieldEffect = effectiveFieldEffect,
-                trap = trap,
-                barricade = barricade,
-                fief = fief,
-                mushroom = mushroom,
-                gargoyle = gargoyle,
-                isSpawnPoint = isSpawnPoint,
-                isTarget = isTarget,
-                isRiverTile = isRiverTile,
-                showPlacementPreview = showPlacementPreview,
-                showBarricadePreview = showBarricadePreview,
-                supportObjectPreviewType = supportObjectPreviewType,
-                previewDefenderType = previewDefenderType,
-                targetCircleInfo = targetCircleInfo,
-                useDashedBorder = useDashedBorder,
-                borderColor = borderColor,
-                borderWidth = borderWidth,
-                hexSize = hexSize,
-                showTrapPreview = showTrapPreview,
-                selectedMineAction = selectedMineAction,
-                selectedWizardAction = selectedWizardAction,
-                isBuildableAndEmpty = isBuildableAndEmpty,
-                canBeUsedAsTowerBase = canBeUsedAsTowerBase,
-                showDiagonalStripes = showDiagonalStripes,
-                isInCoolingArea = isInCoolingArea,
-                coolingAreaTurnsRemaining = coolingAreaTurnsRemaining,
-                isCoolingSpellPreview = isCoolingSpellPreview,
-                bombEffect = bombEffect,
-                bombExplosion = bombExplosion,
-                deathEffect = deathEffect,
-                coinGainEffect = coinGainEffect,
-                towerAttackEffect = towerAttackEffect,
-                constructionCompleteEffect = constructionCompleteEffect,
-                enemySpawnEffect = enemySpawnEffect,
-                trapTriggerEffect = trapTriggerEffect,
-                enemyMoveEffect = enemyMoveEffect,
-                dragonLevelChangeEffect = dragonLevelChangeEffect,
-                mineDigEffect = mineDigEffect,
-                arrowAttackEffect = arrowAttackEffect,
-                isArrowTargetTile = isArrowTargetTile,
-                isBallistaTargetTile = isBallistaTargetTile,
-                isBowTargetTile = isBowTargetTile,
-                isSpearTargetTile = isSpearTargetTile,
-                isPikeTargetTile = isPikeTargetTile,
-                isWizardTargetTile = isWizardTargetTile,
-                isAlchemyTargetTile = isAlchemyTargetTile,
-                isInWizardAttackArea = isInWizardAttackArea,
-                isInAlchemyAttackArea = isInAlchemyAttackArea,
-                dragonIsTargetingMine = dragonIsTargetingMine,
-                suppressEnemyBackground = suppressEnemyBackground,
-                attackPreview = attackPreview,
-                isDangerous = isDangerous,
-                isInSelectedEnemyPath = isInSelectedEnemyPath,
-                mapZoom = mapZoom,
-            )
-        }
+            showTrapPreview = showTrapPreview,
+            selectedMineAction = selectedMineAction,
+            selectedWizardAction = selectedWizardAction,
+            isBuildableAndEmpty = isBuildableAndEmpty,
+            canBeUsedAsTowerBase = canBeUsedAsTowerBase,
+            showDiagonalStripes = showDiagonalStripes,
+            isInCoolingArea = isInCoolingArea,
+            coolingAreaTurnsRemaining = coolingAreaTurnsRemaining,
+            isCoolingSpellPreview = isCoolingSpellPreview,
+            bombEffect = bombEffect,
+            bombExplosion = bombExplosion,
+            deathEffect = deathEffect,
+            coinGainEffect = coinGainEffect,
+            towerAttackEffect = towerAttackEffect,
+            constructionCompleteEffect = constructionCompleteEffect,
+            enemySpawnEffect = enemySpawnEffect,
+            trapTriggerEffect = trapTriggerEffect,
+            enemyMoveEffect = enemyMoveEffect,
+            dragonLevelChangeEffect = dragonLevelChangeEffect,
+            mineDigEffect = mineDigEffect,
+            arrowAttackEffect = arrowAttackEffect,
+            isArrowTargetTile = isArrowTargetTile,
+            isBallistaTargetTile = isBallistaTargetTile,
+            isBowTargetTile = isBowTargetTile,
+            isSpearTargetTile = isSpearTargetTile,
+            isPikeTargetTile = isPikeTargetTile,
+            isWizardTargetTile = isWizardTargetTile,
+            isAlchemyTargetTile = isAlchemyTargetTile,
+            isInWizardAttackArea = isInWizardAttackArea,
+            isInAlchemyAttackArea = isInAlchemyAttackArea,
+            dragonIsTargetingMine = dragonIsTargetingMine,
+            suppressEnemyBackground = suppressEnemyBackground,
+            attackPreview = attackPreview,
+            isDangerous = isDangerous,
+            isInSelectedEnemyPath = isInSelectedEnemyPath,
+            mapZoom = mapZoom,
+        )
     }
 }
 
