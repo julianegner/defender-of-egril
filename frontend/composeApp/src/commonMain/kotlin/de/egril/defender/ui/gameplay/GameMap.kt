@@ -56,7 +56,6 @@ import de.egril.defender.ui.animations.BombExplosionAnimation
 import de.egril.defender.ui.animations.BowAttackOverlay
 import de.egril.defender.ui.animations.CoinFlightController
 import de.egril.defender.ui.animations.CoinGainAnimation
-import de.egril.defender.ui.animations.CoolingAreaAnimation
 import de.egril.defender.ui.animations.DragonLevelChangeAnimation
 import de.egril.defender.ui.animations.DragonTargetAnimation
 import de.egril.defender.ui.animations.EnemyDeathAnimation
@@ -97,7 +96,6 @@ import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.FisherBoatIcon
 import de.egril.defender.ui.icon.GateIcon
-import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.MushroomIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TestTubeIcon
@@ -3243,111 +3241,19 @@ private fun BoxScope.GridCellContent(
         }
     }
 
-    // Show cooling spell snowflake animation on affected tiles
-    if (isInCoolingArea) {
-        CoolingAreaAnimation(
-            animate = AppSettings.enableAnimations.value,
-            modifier = Modifier.fillMaxSize(),
-        )
-    }
-
-    // Show turns count for cooling spell (placement preview: 3, active effect: actual remaining)
-    val coolingTurns = coolingAreaTurnsRemaining ?: if (isCoolingSpellPreview) 3 else null
-    if (coolingTurns != null) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.BottomCenter,
-        ) {
-            Text(
-                "${coolingTurns}T",
-                style = MaterialTheme.typography.labelSmall,
-                color = TargetCircleConstants.COOLING_SPELL_COLOR,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp),
-            )
-        }
-    }
-
-    // Show half-transparent tower icon on hovered build tile.
-    // previewDefenderType is non-null only for the 1 cell showing the placement preview
-    // (pre-computed in GameGrid to avoid passing selectedDefenderType to all cells).
-    if (previewDefenderType != null) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .graphicsLayer(alpha = 0.5f),
-            // 50% transparency
-            contentAlignment = Alignment.Center,
-        ) {
-            TowerTypeIcon(
-                defenderType = previewDefenderType,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
-
-        // Cost of the previewed tower in the same color as the buy button, centered on the tile.
-        // Auto tower base tiles on PATH include the surcharge.
-        val previewCost =
-            previewDefenderType.baseCost +
-                if (gameState.isAutoTowerBasePathSpot(previewDefenderType, position)) {
-                    gameState.level.autoTowerBaseExtraCost
-                } else {
-                    0
-                }
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        scaleX = 1f / mapZoom()
-                        scaleY = 1f / mapZoom()
-                    },
-            contentAlignment = Alignment.Center,
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                MoneyIcon(size = 18.dp)
-                Text(
-                    text = "$previewCost",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-        }
-    }
-
-    // Show half-transparent trap icon on hovered path tile (when in trap placement mode)
-    if (showTrapPreview ||
-        supportObjectPreviewType == SupportObjectType.DWARVEN_TRAP ||
-        supportObjectPreviewType == SupportObjectType.MAGICAL_TRAP
-    ) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .graphicsLayer(alpha = 0.5f),
-            // 50% transparency
-            contentAlignment = Alignment.Center,
-        ) {
-            // Show different icon based on trap type
-            when {
-                selectedMineAction == MineAction.BUILD_TRAP ||
-                    supportObjectPreviewType == SupportObjectType.DWARVEN_TRAP -> {
-                    // Dwarven trap - show trap icon
-                    TrapIcon(size = GamePlayConstants.TileIconSizes.TrapPreview)
-                }
-                selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP ||
-                    supportObjectPreviewType == SupportObjectType.MAGICAL_TRAP -> {
-                    // Magical trap - show pentagram icon
-                    PentagramIcon(size = GamePlayConstants.TileIconSizes.TrapPreview)
-                }
-            }
-        }
-    }
+    TileStatusOverlays(
+        gameState = gameState,
+        position = position,
+        isInCoolingArea = isInCoolingArea,
+        coolingAreaTurnsRemaining = coolingAreaTurnsRemaining,
+        isCoolingSpellPreview = isCoolingSpellPreview,
+        previewDefenderType = previewDefenderType,
+        mapZoom = mapZoom,
+        showTrapPreview = showTrapPreview,
+        supportObjectPreviewType = supportObjectPreviewType,
+        selectedMineAction = selectedMineAction,
+        selectedWizardAction = selectedWizardAction,
+    )
 
     // Show bomb explosion animation overlay on affected tiles (highest priority, above everything)
     val shouldPlayBombExplosionAnimation =
