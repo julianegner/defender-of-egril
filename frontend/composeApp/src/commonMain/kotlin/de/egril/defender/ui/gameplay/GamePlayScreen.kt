@@ -3104,379 +3104,77 @@ private fun GamePlayScreenContent(
                         }
                     } // end Box(height-locked controls panel)
 
-                    // Dig outcome dialog
-                    if (showDigOutcomeDialog && currentDigOutcome != null) {
-                        DigOutcomeDialog(
-                            outcome = currentDigOutcome!!,
-                            onDismiss = { showDigOutcomeDialog = false },
-                            onResetSelections = {
-                                selectedDefenderType = null
-                                selectedDefenderId = null
-                            },
-                            dragonName = currentDragonName,
-                        )
-                    }
-
-                    // Abort Instant Tower spell dialog
-                    if (showAbortInstantTowerDialog) {
-                        AbortInstantTowerSpellDialog(
-                            onAbort = {
-                                showAbortInstantTowerDialog = false
-                                onCancelInstantTowerSpell?.invoke()
-                                onOpenMagicPanel?.invoke()
-                            },
-                            onContinue = { showAbortInstantTowerDialog = false },
-                        )
-                    }
-
-                    // Save game dialog (with optional comment input)
-                    if (showSaveDialog && onSaveGame != null) {
-                        SaveGameDialog(
-                            saveCommentInput = saveCommentInput,
-                            onSaveCommentChange = { saveCommentInput = it },
-                            onSave = { comment ->
-                                onSaveGame(comment)
-                                showSaveDialog = false
-                                saveCommentInput = ""
-                                showSaveConfirmation = true
-                            },
-                            onDismiss = {
-                                showSaveDialog = false
-                                saveCommentInput = ""
-                            },
-                        )
-                    }
-
-                    // Save confirmation dialog
-                    if (showSaveConfirmation) {
-                        SaveConfirmationDialog(
-                            onDismiss = { showSaveConfirmation = false },
-                        )
-                    }
-
-                    // Cheat code dialog
-                    if (showCheatDialog && onCheatCode != null) {
-                        CheatCodeDialog(
-                            onDismiss = {
-                                showCheatDialog = false
-                                cheatCodeInput = ""
-                            },
-                            onApplyCheatCode = onCheatCode,
-                            showHints = true,
-                            initialInput = cheatCodeInput,
-                            onInputChange = { cheatCodeInput = it },
-                        )
-                    }
-
-                    if (showSandboxTools && onSandboxSpawnEnemy != null) {
-                        SandboxToolsDialog(
-                            spawnPoints = gameState.level.startPositions,
-                            onSpawnEnemy = { type, level, spawnPoint -> onSandboxSpawnEnemy(type, level, spawnPoint) },
-                            onAddCoins = { onSandboxAddCoins?.invoke() },
-                            onDismiss = { showSandboxTools = false },
-                        )
-                    }
-
-                    // Platform info dialog (from platform cheat code)
-                    if (showPlatformInfo && onClearPlatformInfo != null) {
-                        de.egril.defender.ui.PlatformInfoDialog(
-                            platformInfo =
-                                de.egril.defender.utils
-                                    .getPlatform()
-                                    .name,
-                            windowSize = windowSize,
-                            onDismiss = onClearPlatformInfo,
-                        )
-                    }
-
-                    // Cheat code help screen (from cheat/cheats/help cheat code)
-                    if (showCheatHelp && onClearCheatHelp != null) {
-                        de.egril.defender.ui.CheatCodeHelpScreen(
-                            onDismiss = onClearCheatHelp,
-                            isInGameplay = true,
-                        )
-                    }
-
-                    // Remove barricade confirmation dialog
-                    // Note: This dialog only shows for barricades without towers
-                    if (showRemoveBarricadeDialog && barricadeToRemove != null) {
-                        ConfirmationDialog(
-                            title = stringResource(Res.string.remove_barricade_title),
-                            message = stringResource(Res.string.remove_barricade_message),
-                            onConfirm = {
-                                val actualRefund = onRemoveBarricade?.invoke(barricadeToRemove!!) ?: 0
-                                if (actualRefund > 0) {
-                                    // Add coins back to player (should be 0 for barricades without towers)
-                                    gameState.coins.value += actualRefund
-                                }
-                                showRemoveBarricadeDialog = false
-                                barricadeToRemove = null
-                            },
-                            onDismiss = {
-                                showRemoveBarricadeDialog = false
-                                barricadeToRemove = null
-                            },
-                        )
-                    }
-
-                    // Remove trap confirmation dialog
-                    if (showRemoveTrapDialog && trapToRemove != null) {
-                        ConfirmationDialog(
-                            title = stringResource(Res.string.remove_trap_title),
-                            message = stringResource(Res.string.remove_trap_message),
-                            onConfirm = {
-                                // Remove trap from game state
-                                gameState.traps.removeAll { it.position == trapToRemove }
-                                showRemoveTrapDialog = false
-                                trapToRemove = null
-                            },
-                            onDismiss = {
-                                showRemoveTrapDialog = false
-                                trapToRemove = null
-                            },
-                        )
-                    }
-
-                    val keyboardConfirmation = keyboardUndoOrSellConfirmation
-                    if (keyboardConfirmation != null) {
-                        val (confirmDefenderId, isUndo) = keyboardConfirmation
-                        val defender = gameState.defenders.find { it.id == confirmDefenderId }
-                        if (defender != null) {
-                            val locale = com.hyperether.resources.currentLanguage.value
-                            val towerName = defender.type.getLocalizedName(locale)
-                            val coinsLabel = stringResource(Res.string.coins_label)
-                            val refundAmount = if (isUndo) defender.totalCost else (defender.totalCost * 0.75).toInt()
-                            val titleStr =
-                                if (isUndo) {
-                                    stringResource(
-                                        Res.string.undo_tower_title,
-                                    )
-                                } else {
-                                    stringResource(Res.string.sell_tower_title)
-                                }
-                            val messageStr =
-                                if (isUndo) {
-                                    stringResource(Res.string.undo_tower_message, towerName, refundAmount.toString(), coinsLabel)
-                                } else {
-                                    stringResource(Res.string.sell_tower_message, towerName, refundAmount.toString(), coinsLabel)
-                                }
-                            val confirmLabel = if (isUndo) stringResource(Res.string.undo) else stringResource(Res.string.sell)
-                            val confirmColor = if (isUndo) GamePlayColors.Success else GamePlayColors.Warning
-                            AlertDialog(
-                                onDismissRequest = { keyboardUndoOrSellConfirmation = null },
-                                title = { Text(titleStr) },
-                                text = { Text(messageStr) },
-                                confirmButton = {
-                                    Button(
-                                        onClick = {
-                                            if (isUndo) {
-                                                onUndoTower(defender.id)
-                                            } else if (onSellTower(defender.id)) {
-                                                selectedDefenderType = null
-                                                selectedDefenderId = null
-                                            }
-                                            keyboardUndoOrSellConfirmation = null
-                                        },
-                                        colors = ButtonDefaults.buttonColors(containerColor = confirmColor),
-                                    ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        ) {
-                                            Text(confirmLabel)
-                                            ShortcutKeyChip(
-                                                text = formatShortcutBindingForDisplay(AppSettings.shortcutUndoOrSellSelectedTower.value),
-                                            )
-                                        }
-                                    }
-                                },
-                                dismissButton = {
-                                    OutlinedButton(
-                                        onClick = { keyboardUndoOrSellConfirmation = null },
-                                    ) {
-                                        Text(stringResource(Res.string.cancel))
-                                    }
-                                },
-                            )
-                        } else {
-                            keyboardUndoOrSellConfirmation = null
-                        }
-                    }
-
-                    // Unsaved changes dialog
-                    if (showUnsavedChangesDialog && unsavedChangesEnabled) {
-                        UnsavedChangesDialog(
-                            onSaveAndExit = {
-                                // Save the game first
-                                onSaveGame(null)
-                                showUnsavedChangesDialog = false
-                                // Then navigate back to map
-                                onBackToMap()
-                            },
-                            onDiscardChanges = {
-                                showUnsavedChangesDialog = false
-                                // Navigate back without saving
-                                onBackToMap()
-                            },
-                            onCancel = {
-                                // Just close the dialog and stay in the game
-                                showUnsavedChangesDialog = false
-                            },
-                        )
-                    }
-
-                    // End turn confirmation dialog
-                    if (showEndTurnConfirmation) {
-                        val canWinLevelNow = gameState.canWinLevelNow()
-                        val autoAttackAvailability =
-                            if (gameState.level.allowAutoAttack) {
-                                gameState.getAutoAttackAvailability()
-                            } else {
-                                AutoAttackAvailability.NONE
-                            }
-                        val autoAttackButtonText =
-                            if (autoAttackAvailability == AutoAttackAvailability.MANA_ONLY) {
-                                stringResource(Res.string.generate_mana_and_end_turn)
-                            } else {
-                                stringResource(Res.string.auto_attack_and_end_turn)
-                            }
-                        EndTurnConfirmationDialog(
-                            onConfirm = {
-                                showEndTurnConfirmation = false
-                                endPlayerTurnAction()
-                                // Track tutorial progress
-                                if (gameState.tutorialState.value.isActive &&
-                                    !gameState.tutorialState.value.hasStartedFirstTurn
-                                ) {
-                                    gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
-                                }
-                            },
-                            onAutoAttackAndConfirm = {
-                                showEndTurnConfirmation = false
-                                autoAttackAndEndTurnAction()
-                                // Track tutorial progress
-                                if (gameState.tutorialState.value.isActive &&
-                                    !gameState.tutorialState.value.hasStartedFirstTurn
-                                ) {
-                                    gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
-                                }
-                            },
-                            onCancel = {
-                                showEndTurnConfirmation = false
-                            },
-                            showAutoAttackButton = autoAttackAvailability != AutoAttackAvailability.NONE,
-                            autoAttackButtonText = autoAttackButtonText,
-                            showEndTurnWarning = gameState.hasDefendersWithUnusedActions(),
-                            showWinLevelNow = canWinLevelNow && onWinLevelNow != null,
-                            onWinLevelNow = {
-                                showEndTurnConfirmation = false
-                                onWinLevelNow?.invoke()
-                            },
-                        )
-                    }
-
-                    // Special actions remaining dialog
-                    if (specialActionsRemaining.isNotEmpty()) {
-                        SpecialActionsRemainingDialog(
-                            remainingTypes = specialActionsRemaining,
-                            onContinueTurn = {
-                                onClearSpecialActionsWarning?.invoke()
-                            },
-                        )
-                    }
-
-                    // Time reminder dialog
-                    reminderMessage?.let { reminder ->
-                        val elapsedTime =
-                            reminder.elapsedMs?.let { elapsedMs ->
-                                val hours = elapsedMs / (60 * 60 * 1000)
-                                val minutes = (elapsedMs % (60 * 60 * 1000)) / (60 * 1000)
-                                buildString {
-                                    if (hours > 0) {
-                                        val hourStr =
-                                            if (hours == 1L) {
-                                                stringResource(Res.string.hour, hours.toInt())
-                                            } else {
-                                                stringResource(Res.string.hours, hours.toInt())
-                                            }
-                                        append(hourStr)
-                                    }
-                                    if (minutes > 0) {
-                                        if (hours > 0) append(" ")
-                                        val minuteStr =
-                                            if (minutes == 1L) {
-                                                stringResource(Res.string.minute, minutes.toInt())
-                                            } else {
-                                                stringResource(Res.string.minutes, minutes.toInt())
-                                            }
-                                        append(minuteStr)
-                                    }
-                                    if (hours == 0L && minutes == 0L) {
-                                        append(stringResource(Res.string.minutes, 0))
-                                    }
-                                }
-                            }
-                        ReminderDialog(
-                            type = reminder.type,
-                            elapsedTime = elapsedTime,
-                            timeDescription =
-                                when (reminder.timeDescription) {
-                                    "close_to_midnight" -> stringResource(Res.string.time_for_sleep_close_to_midnight)
-                                    "midnight" -> stringResource(Res.string.time_for_sleep_midnight)
-                                    "after_midnight" -> stringResource(Res.string.time_for_sleep_after_midnight)
-                                    else -> null
-                                },
-                            onDismiss = {
-                                onClearReminderMessage?.invoke()
-                            },
-                        )
-                    }
-
-                    // Post-target spell confirmation dialog (shows after target is selected)
-                    if (showSpellTargetConfirmation != null && onConfirmTargetSpell != null && onDismissTargetConfirmation != null) {
-                        val (spell, target) = showSpellTargetConfirmation
-                        SpellTargetConfirmationDialog(
-                            spell = spell,
-                            target = target,
-                            currentMana = gameState.currentMana.value,
-                            onConfirm = { onConfirmTargetSpell.invoke() },
-                            onDismiss = { onDismissTargetConfirmation.invoke() },
-                            isTokenCast = activeSpellToken == spell,
-                        )
-                    }
-
-                    // Freeze immune warning dialog
-                    if (showFreezeImmuneWarning != null && onDismissFreezeWarning != null) {
-                        FreezeImmuneWarningDialog(
-                            enemy = showFreezeImmuneWarning,
-                            onDismiss = { onDismissFreezeWarning.invoke() },
-                        )
-                    }
-
-                    // In-game event message dialog (target captured, gate destroyed, or Ewhad narrative events)
-                    GameMessageDialogs(pendingGameMessage = pendingGameMessage, onDismissGameMessage = onDismissGameMessage, supports = gameState.level.supports)
-
-                    // Stop demo mode confirmation dialog
-                    if (showStopDemoDialog && onStopDemoMode != null) {
-                        AlertDialog(
-                            onDismissRequest = { showStopDemoDialog = false },
-                            title = { Text(stringResource(Res.string.stop_demo_title)) },
-                            text = { Text(stringResource(Res.string.stop_demo_message)) },
-                            confirmButton = {
-                                Button(onClick = {
-                                    showStopDemoDialog = false
-                                    onStopDemoMode.invoke()
-                                }) {
-                                    Text(stringResource(Res.string.yes))
-                                }
-                            },
-                            dismissButton = {
-                                OutlinedButton(onClick = { showStopDemoDialog = false }) {
-                                    Text(stringResource(Res.string.no))
-                                }
-                            },
-                        )
-                    }
+                    GamePlayDialogs(
+                        gameState = gameState,
+                        windowSize = windowSize,
+                        hasUnsavedChanges = hasUnsavedChanges,
+                        onSaveGame = onSaveGame,
+                        onCheatCode = onCheatCode,
+                        onSandboxSpawnEnemy = onSandboxSpawnEnemy,
+                        onSandboxAddCoins = onSandboxAddCoins,
+                        onUndoTower = onUndoTower,
+                        onSellTower = onSellTower,
+                        onRemoveBarricade = onRemoveBarricade,
+                        onBackToMap = onBackToMap,
+                        onWinLevelNow = onWinLevelNow,
+                        onOpenMagicPanel = onOpenMagicPanel,
+                        onCancelInstantTowerSpell = onCancelInstantTowerSpell,
+                        onClearPlatformInfo = onClearPlatformInfo,
+                        onClearCheatHelp = onClearCheatHelp,
+                        onClearSpecialActionsWarning = onClearSpecialActionsWarning,
+                        onClearReminderMessage = onClearReminderMessage,
+                        onConfirmTargetSpell = onConfirmTargetSpell,
+                        onDismissTargetConfirmation = onDismissTargetConfirmation,
+                        onDismissFreezeWarning = onDismissFreezeWarning,
+                        onDismissGameMessage = onDismissGameMessage,
+                        onStopDemoMode = onStopDemoMode,
+                        endPlayerTurnAction = endPlayerTurnAction,
+                        autoAttackAndEndTurnAction = autoAttackAndEndTurnAction,
+                        showPlatformInfo = showPlatformInfo,
+                        showCheatHelp = showCheatHelp,
+                        specialActionsRemaining = specialActionsRemaining,
+                        reminderMessage = reminderMessage,
+                        showSpellTargetConfirmation = showSpellTargetConfirmation,
+                        showFreezeImmuneWarning = showFreezeImmuneWarning,
+                        pendingGameMessage = pendingGameMessage,
+                        activeSpellToken = activeSpellToken,
+                        currentDigOutcome = currentDigOutcome,
+                        currentDragonName = currentDragonName,
+                        showDigOutcomeDialog = showDigOutcomeDialog,
+                        onShowDigOutcomeDialogChange = { showDigOutcomeDialog = it },
+                        onSelectedDefenderTypeChange = { selectedDefenderType = it },
+                        onSelectedDefenderIdChange = { selectedDefenderId = it },
+                        showAbortInstantTowerDialog = showAbortInstantTowerDialog,
+                        onShowAbortInstantTowerDialogChange = { showAbortInstantTowerDialog = it },
+                        showSaveDialog = showSaveDialog,
+                        onShowSaveDialogChange = { showSaveDialog = it },
+                        saveCommentInput = saveCommentInput,
+                        onSaveCommentInputChange = { saveCommentInput = it },
+                        showSaveConfirmation = showSaveConfirmation,
+                        onShowSaveConfirmationChange = { showSaveConfirmation = it },
+                        showCheatDialog = showCheatDialog,
+                        onShowCheatDialogChange = { showCheatDialog = it },
+                        cheatCodeInput = cheatCodeInput,
+                        onCheatCodeInputChange = { cheatCodeInput = it },
+                        showSandboxTools = showSandboxTools,
+                        onShowSandboxToolsChange = { showSandboxTools = it },
+                        showRemoveBarricadeDialog = showRemoveBarricadeDialog,
+                        onShowRemoveBarricadeDialogChange = { showRemoveBarricadeDialog = it },
+                        barricadeToRemove = barricadeToRemove,
+                        onBarricadeToRemoveChange = { barricadeToRemove = it },
+                        showRemoveTrapDialog = showRemoveTrapDialog,
+                        onShowRemoveTrapDialogChange = { showRemoveTrapDialog = it },
+                        trapToRemove = trapToRemove,
+                        onTrapToRemoveChange = { trapToRemove = it },
+                        keyboardUndoOrSellConfirmation = keyboardUndoOrSellConfirmation,
+                        onKeyboardUndoOrSellConfirmationChange = { keyboardUndoOrSellConfirmation = it },
+                        showUnsavedChangesDialog = showUnsavedChangesDialog,
+                        onShowUnsavedChangesDialogChange = { showUnsavedChangesDialog = it },
+                        showEndTurnConfirmation = showEndTurnConfirmation,
+                        onShowEndTurnConfirmationChange = { showEndTurnConfirmation = it },
+                        showStopDemoDialog = showStopDemoDialog,
+                        onShowStopDemoDialogChange = { showStopDemoDialog = it },
+                    )
                 }
             }
 
