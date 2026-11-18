@@ -274,11 +274,11 @@ class GameViewModel {
     val newVersionAvailable: StateFlow<List<NewVersionInfo>> = _newVersionAvailable.asStateFlow()
 
     // Remote community level metadata (levels available on the server, may or may not be downloaded locally)
-    private val _remoteCommunityLevelsMeta = MutableStateFlow<List<de.egril.defender.save.CommunityFileInfo>>(emptyList())
+    internal val _remoteCommunityLevelsMeta = MutableStateFlow<List<de.egril.defender.save.CommunityFileInfo>>(emptyList())
     val remoteCommunityLevelsMeta: StateFlow<List<de.egril.defender.save.CommunityFileInfo>> = _remoteCommunityLevelsMeta.asStateFlow()
 
     // Remote community map metadata (maps available on the server, may or may not be downloaded locally)
-    private val _remoteCommunityMapsMeta = MutableStateFlow<List<de.egril.defender.save.CommunityFileInfo>>(emptyList())
+    internal val _remoteCommunityMapsMeta = MutableStateFlow<List<de.egril.defender.save.CommunityFileInfo>>(emptyList())
     val remoteCommunityMapsMeta: StateFlow<List<de.egril.defender.save.CommunityFileInfo>> = _remoteCommunityMapsMeta.asStateFlow()
 
     init {
@@ -592,456 +592,6 @@ class GameViewModel {
      * Does NOT download the actual level or map files – those are downloaded on demand.
      * Locally-already-downloaded community content is reloaded from disk so the world map reflects it immediately.
      */
-    fun downloadCommunityContent() {
-        viewModelScope.launch {
-            try {
-                val communityLevelMeta =
-                    de.egril.defender.save.BackendCommunityService
-                        .fetchCommunityFileList("LEVEL")
-                if (communityLevelMeta != null) {
-                    _remoteCommunityLevelsMeta.value = communityLevelMeta
-                }
-                val communityMapMeta =
-                    de.egril.defender.save.BackendCommunityService
-                        .fetchCommunityFileList("MAP")
-                if (communityMapMeta != null) {
-                    _remoteCommunityMapsMeta.value = communityMapMeta
-                }
-            } catch (e: Exception) {
-                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                    println("Failed to fetch community content metadata: ${e.message}")
-                }
-            } finally {
-                // Always reload locally-downloaded community levels so they appear in the world map,
-                // even when the network is unavailable or the metadata fetch fails.
-                de.egril.defender.editor.EditorStorage
-                    .clearCommunityCache()
-                initializeWorldMap()
-            }
-        }
-    }
-
-    /**
-     * Downloads a single community level (and its map if needed) on demand and then
-     * reloads the world map via [initializeWorldMap] so the level becomes playable immediately.
-     *
-     * @param fileInfo Metadata of the community level to download
-     * @param onComplete Called when the operation finishes; receives true on success, false on failure.
-     *   Note: on success, [initializeWorldMap] has already been called and [worldLevels] will be
-     *   updated before [onComplete] is invoked.
-     */
-    fun downloadCommunityLevelOnDemand(
-        fileInfo: de.egril.defender.save.CommunityFileInfo,
-        onComplete: (Boolean) -> Unit,
-    ) {
-        viewModelScope.launch {
-            try {
-                val fileData =
-                    de.egril.defender.save.BackendCommunityService
-                        .fetchCommunityFile("LEVEL", fileInfo.fileId)
-                if (fileData == null) {
-                    onComplete(false)
-                    return@launch
-                }
-                val level =
-                    de.egril.defender.editor.EditorJsonSerializer
-                        .deserializeLevel(fileData.data)
-                if (level == null) {
-                    onComplete(false)
-                    return@launch
-                }
-                de.egril.defender.editor.EditorStorage.saveCommunityLevel(
-                    level.copy(isCommunity = true, communityAuthorUsername = fileInfo.authorUsername),
-                )
-                // Also download the map used by this level if not already present locally.
-                val mapNeededDownload =
-                    de.egril.defender.editor.EditorStorage
-                        .getMap(level.mapId) == null
-                if (mapNeededDownload) {
-                    downloadCommunityMap(level.mapId)
-                }
-                // Remove this level from the remote-only list now that it has been downloaded
-                // locally, so that the level cards view immediately shows it as a local level
-                // instead of keeping it in the "download" state.
-                _remoteCommunityLevelsMeta.value =
-                    _remoteCommunityLevelsMeta.value
-                        .filter { it.fileId != fileInfo.fileId }
-                // If the community map was also freshly downloaded, remove it from the remote
-                // maps list so the map editor list also reflects the local copy.
-                if (mapNeededDownload) {
-                    _remoteCommunityMapsMeta.value =
-                        _remoteCommunityMapsMeta.value
-                            .filter { it.fileId != level.mapId }
-                }
-                initializeWorldMap()
-                onComplete(true)
-            } catch (e: Exception) {
-                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                    println("Failed to download community level ${fileInfo.fileId}: ${e.message}")
-                }
-                // If the download failed but the level (and its map) are already stored locally,
-                // still reload the world map so the level is surfaced as playable rather than
-                // staying in the "remote" card state.
-                val alreadyLocal =
-                    de.egril.defender.editor.EditorStorage
-                        .getCommunityLevel(fileInfo.fileId) != null
-                if (alreadyLocal) {
-                    _remoteCommunityLevelsMeta.value =
-                        _remoteCommunityLevelsMeta.value
-                            .filter { it.fileId != fileInfo.fileId }
-                    initializeWorldMap()
-                    onComplete(true)
-                } else {
-                    onComplete(false)
-                }
-            }
-        }
-    }
-
-    /** Downloads a single community map (JSON + server-generated image) and stores it locally. */
-    private suspend fun downloadCommunityMap(mapId: String) {
-        try {
-            val mapData =
-                de.egril.defender.save.BackendCommunityService
-                    .fetchCommunityFile("MAP", mapId)
-            if (mapData != null) {
-                val map =
-                    de.egril.defender.editor.EditorJsonSerializer
-                        .deserializeMap(mapData.data)
-                if (map != null) {
-                    // Pass the requested mapId so saveCommunityMap can also store the map under
-                    // that ID when the map's internal JSON id differs (edge case guard).
-                    if (map.id != mapId) {
-                        if (LogConfig.isEnabled { LogConfig.ENABLE_COMMUNITY_DEBUG_LOGGING }) {
-                            println(
-                                "COMMUNITY-DEBUG: Map id mismatch for download: requested='$mapId', json id='${map.id}'. Saving under both IDs.",
-                            )
-                        }
-                    }
-                    de.egril.defender.editor.EditorStorage.saveCommunityMap(
-                        map,
-                        mapData.authorUsername,
-                        requestedId = mapId,
-                    )
-                    // Try to fetch the server-generated image and overwrite the locally-generated one
-                    val imageBytes =
-                        de.egril.defender.save.BackendCommunityService
-                            .fetchCommunityMapImage(mapId)
-                    if (imageBytes != null) {
-                        de.egril.defender.editor.getFileStorage().writeBinaryFile(
-                            "gamedata/community/maps/$mapId.png",
-                            imageBytes,
-                        )
-                    }
-                    // Zone overlays are generated by the backend too; overwrite the local copies
-                    map.tileZones.indices.forEach { zoneIndex ->
-                        val zoneBytes =
-                            de.egril.defender.save.BackendCommunityService
-                                .fetchCommunityMapZoneImage(mapId, zoneIndex)
-                        if (zoneBytes != null) {
-                            de.egril.defender.editor.getFileStorage().writeBinaryFile(
-                                "gamedata/community/maps/${de.egril.defender.ui.MapImageProvider.tileZoneImageFileName(map.id, zoneIndex)}",
-                                zoneBytes,
-                            )
-                        }
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                println("Failed to download community map $mapId: ${e.message}")
-            }
-        }
-    }
-
-    /**
-     * Downloads a single community map (JSON + server-generated image) on demand from the map editor.
-     * Clears the community cache after saving so the editor list refreshes.
-     *
-     * @param fileInfo Metadata of the community map to download
-     * @param onComplete Called when the operation finishes; receives true on success, false on failure
-     */
-    fun downloadCommunityMapOnDemand(
-        fileInfo: de.egril.defender.save.CommunityFileInfo,
-        onComplete: (Boolean) -> Unit,
-    ) {
-        viewModelScope.launch {
-            try {
-                downloadCommunityMap(fileInfo.fileId)
-                de.egril.defender.editor.EditorStorage
-                    .clearCommunityCache()
-                onComplete(true)
-            } catch (e: Exception) {
-                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                    println("Failed to download community map on demand ${fileInfo.fileId}: ${e.message}")
-                }
-                onComplete(false)
-            }
-        }
-    }
-
-    /**
-     * Uploads a user level to the community backend.
-     * If the level's map is a user map that has not yet been uploaded to the community,
-     * the map is uploaded first so that other players can download it together with the level.
-     * @param levelId The ID of the level to upload
-     * @param token Bearer token for authentication
-     * @return true on success, false on failure
-     */
-    suspend fun uploadCommunityLevel(
-        levelId: String,
-        token: String,
-    ): Boolean {
-        val level =
-            de.egril.defender.editor.EditorStorage
-                .getLevel(levelId) ?: return false
-        val username = de.egril.defender.iam.IamService.state.value.username ?: ""
-
-        // Auto-upload the associated map if it is a user map not yet in the community
-        val map =
-            de.egril.defender.editor.EditorStorage
-                .getMap(level.mapId)
-        if (map != null && !map.isOfficial && !map.isCommunity) {
-            val communityMap =
-                de.egril.defender.editor.EditorStorage
-                    .getCommunityMap(level.mapId)
-            if (communityMap == null) {
-                // Map not yet uploaded – upload it now
-                val mapJson =
-                    de.egril.defender.editor.EditorJsonSerializer
-                        .serializeMap(map)
-                val mapSuccess =
-                    de.egril.defender.save.BackendCommunityService
-                        .uploadCommunityFile("MAP", level.mapId, mapJson, token)
-                if (mapSuccess) {
-                    de.egril.defender.editor.EditorStorage
-                        .saveCommunityMap(map, username)
-                }
-                // Proceed with the level upload even if the map upload failed; callers
-                // can inspect the level-upload result and show an appropriate message.
-            }
-        }
-
-        val json =
-            de.egril.defender.editor.EditorJsonSerializer
-                .serializeLevel(level)
-        val success =
-            de.egril.defender.save.BackendCommunityService
-                .uploadCommunityFile("LEVEL", levelId, json, token, level.communityDescription)
-        if (success) {
-            // Store the uploaded version locally in the community directory so we can detect changes
-            de.egril.defender.editor.EditorStorage.saveCommunityLevel(
-                level.copy(
-                    isCommunity = true,
-                    communityAuthorUsername = username,
-                ),
-            )
-        }
-        return success
-    }
-
-    /**
-     * Uploads a user map to the community backend.
-     * @param mapId The ID of the map to upload
-     * @param token Bearer token for authentication
-     * @return true on success, false on failure
-     */
-    suspend fun uploadCommunityMap(
-        mapId: String,
-        token: String,
-    ): Boolean {
-        val map =
-            de.egril.defender.editor.EditorStorage
-                .getMap(mapId) ?: return false
-        val json =
-            de.egril.defender.editor.EditorJsonSerializer
-                .serializeMap(map)
-        val success =
-            de.egril.defender.save.BackendCommunityService
-                .uploadCommunityFile("MAP", mapId, json, token)
-        if (success) {
-            val username = de.egril.defender.iam.IamService.state.value.username ?: ""
-            de.egril.defender.editor.EditorStorage
-                .saveCommunityMap(map, username)
-        }
-        return success
-    }
-
-    fun navigateToMainMenu() {
-        stopTimeTracking()
-        _currentScreen.value = Screen.MainMenu
-    }
-
-    fun reportAppClosed() {
-        val isGameplayScreen = _currentScreen.value is Screen.GamePlay
-        val currentState = _gameState.value
-        val levelName: String?
-        val turnNumber: Int?
-        val difficulty: String?
-        if (isGameplayScreen) {
-            levelName = currentState?.level?.name
-            turnNumber = currentState?.turnNumber?.value
-            difficulty = currentState?.difficulty?.name
-        } else {
-            levelName = null
-            turnNumber = null
-            difficulty = null
-        }
-
-        de.egril.defender.analytics.reportEvent(
-            de.egril.defender.analytics.GameEventType.APP_CLOSED,
-            levelName,
-            turnNumber,
-            difficulty,
-        )
-    }
-
-    fun navigateToWorldMap() {
-        if (_currentScreen.value is Screen.GamePlay) {
-            val levelName = _gameState.value?.level?.name ?: "unknown"
-            val turnNumber = _gameState.value?.turnNumber?.value
-            de.egril.defender.analytics.reportEvent(
-                de.egril.defender.analytics.GameEventType.LEVEL_LEFT,
-                levelName,
-                turnNumber,
-                _gameState.value?.difficulty?.name ?: AppSettings.difficulty.value.name,
-            )
-        }
-        stopTimeTracking()
-        // Player explicitly left gameplay – remove any background save so it is not
-        // restored on the next cold start.
-        deleteBackgroundSave()
-        editorPlaytestSession = null
-        // Reload levels from disk to ensure latest changes are visible
-        reloadWorldMap()
-        _currentScreen.value = Screen.WorldMap
-    }
-
-    fun navigateToRules() {
-        _currentScreen.value = Screen.Rules
-    }
-
-    fun navigateToInstallationInfo() {
-        _currentScreen.value = Screen.InstallationInfo
-    }
-
-    fun navigateToBackendInfo() {
-        _currentScreen.value = Screen.InstallationInfoAtTab(de.egril.defender.ui.infopage.InfoTab.BACKEND)
-    }
-
-    fun navigateToDownloadInfo() {
-        _currentScreen.value = Screen.InstallationInfoAtTab(de.egril.defender.ui.infopage.InfoTab.DOWNLOAD)
-    }
-
-    fun navigateToVillainsAnnouncement() {
-        _currentScreen.value = Screen.VillainsAnnouncement
-    }
-
-    fun navigateToLevelEditor(openLevelId: String? = null) {
-        stopTimeTracking()
-        deleteBackgroundSave()
-        editorPlaytestSession = null
-        _currentScreen.value = Screen.LevelEditor(openLevelId)
-    }
-
-    fun navigateBackFromGameplay() {
-        val playtestSession = editorPlaytestSession
-        if (playtestSession != null) {
-            stopTimeTracking()
-            deleteBackgroundSave()
-            editorPlaytestSession = null
-            _currentScreen.value = Screen.LevelEditor(playtestSession.editorLevel.id)
-            return
-        }
-        navigateToWorldMap()
-    }
-
-    fun startEditorPlaytest(editorLevel: EditorLevel) {
-        val numericId =
-            -editorLevel.id
-                .hashCode()
-                .absoluteValue
-                .coerceAtLeast(1)
-        val gameLevel =
-            de.egril.defender.editor.EditorStorage
-                .convertToGameLevel(editorLevel, numericId) ?: return
-        editorPlaytestSession = EditorPlaytestSession(editorLevel)
-        startEditorPlaytestInternal(gameLevel)
-    }
-
-    private fun startEditorPlaytestInternal(level: Level) {
-        _pendingGameMessage.value = null
-        val difficulty = AppSettings.difficulty.value
-        val playerStats = PlayerAbilities()
-        val modifiedSpawnPlan =
-            if (level.directSpawnPlan != null) {
-                DifficultyModifiers.applySpawnPlanModifier(level.directSpawnPlan, difficulty)
-            } else {
-                val basePlan = generateSpawnPlan(level.attackerWaves)
-                DifficultyModifiers.applySpawnPlanModifier(basePlan, difficulty)
-            }
-        val totalCoins = DifficultyModifiers.applyCoinsModifier(level.initialCoins, difficulty) + playerStats.getBonusStartCoins()
-        val totalHealth = DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty) + playerStats.getBonusHealth()
-        val maxMana = playerStats.getMaxMana()
-        val newGameState =
-            GameState(
-                level = level,
-                difficulty = difficulty,
-                coins = mutableStateOf(totalCoins),
-                healthPoints = mutableStateOf(totalHealth),
-                spawnPlan = modifiedSpawnPlan,
-                spawnGroups = level.spawnGroups?.let { DifficultyModifiers.applySpawnGroupsModifier(it, difficulty) },
-                maxMana = mutableStateOf(maxMana),
-                currentMana = mutableStateOf(maxMana),
-                incomeMultiplier = playerStats.getIncomeMultiplier(),
-                constructionLevel = playerStats.constructionAbility,
-            )
-        newGameState.initializePrePlacedElements()
-        _gameState.value = newGameState
-        gameEngine = GameEngine(newGameState)
-        _currentScreen.value = Screen.GamePlay(level.id)
-        initialGameStateSnapshot = createGameStateSnapshot(newGameState)
-        lastSaveSnapshot = initialGameStateSnapshot
-        achievementManager = null
-        startTimeTracking()
-    }
-
-    fun navigateToSticker() {
-        _currentScreen.value = Screen.Sticker
-    }
-
-    fun navigateToLoadingSpinnerDemo() {
-        _currentScreen.value = Screen.LoadingSpinnerDemo
-    }
-
-    fun navigateToPlayerProfile() {
-        _currentScreen.value = Screen.PlayerProfile
-    }
-
-    fun navigateToStatsUpgrade() {
-        _currentScreen.value = Screen.StatsUpgrade
-    }
-
-    fun navigateToNextLevel(
-        nextLevelId: Int,
-        nextLevelName: String,
-    ) {
-        val availableAbilityPoints = _currentPlayer.value?.abilities?.availableAbilityPoints ?: 0
-        if (availableAbilityPoints > 0) {
-            _currentScreen.value = Screen.StatsUpgradeWithNextLevel(nextLevelId, nextLevelName)
-        } else {
-            startLevel(nextLevelId)
-        }
-    }
-
-    fun navigateToFinalCredits() {
-        _currentScreen.value = Screen.FinalCredits
-    }
-
-    fun navigateToAnimationTest() {
-        _currentScreen.value = Screen.AnimationTest
-    }
-
     fun upgradeAbility(statType: de.egril.defender.model.AbilityType) {
         val currentPlayer = _currentPlayer.value ?: return
         val oldStats = currentPlayer.abilities
@@ -1160,5 +710,55 @@ class GameViewModel {
             } else {
                 rawXpEarned / LOST_LEVEL_XP_DIVISOR
             }
+    }
+
+    private fun startEditorPlaytestInternal(level: Level) {
+        _pendingGameMessage.value = null
+        val difficulty = AppSettings.difficulty.value
+        val playerStats = PlayerAbilities()
+        val modifiedSpawnPlan =
+            if (level.directSpawnPlan != null) {
+                DifficultyModifiers.applySpawnPlanModifier(level.directSpawnPlan, difficulty)
+            } else {
+                val basePlan = generateSpawnPlan(level.attackerWaves)
+                DifficultyModifiers.applySpawnPlanModifier(basePlan, difficulty)
+            }
+        val totalCoins = DifficultyModifiers.applyCoinsModifier(level.initialCoins, difficulty) + playerStats.getBonusStartCoins()
+        val totalHealth = DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty) + playerStats.getBonusHealth()
+        val maxMana = playerStats.getMaxMana()
+        val newGameState =
+            GameState(
+                level = level,
+                difficulty = difficulty,
+                coins = mutableStateOf(totalCoins),
+                healthPoints = mutableStateOf(totalHealth),
+                spawnPlan = modifiedSpawnPlan,
+                spawnGroups = level.spawnGroups?.let { DifficultyModifiers.applySpawnGroupsModifier(it, difficulty) },
+                maxMana = mutableStateOf(maxMana),
+                currentMana = mutableStateOf(maxMana),
+                incomeMultiplier = playerStats.getIncomeMultiplier(),
+                constructionLevel = playerStats.constructionAbility,
+            )
+        newGameState.initializePrePlacedElements()
+        _gameState.value = newGameState
+        gameEngine = GameEngine(newGameState)
+        _currentScreen.value = Screen.GamePlay(level.id)
+        initialGameStateSnapshot = createGameStateSnapshot(newGameState)
+        lastSaveSnapshot = initialGameStateSnapshot
+        achievementManager = null
+        startTimeTracking()
+    }
+
+    fun startEditorPlaytest(editorLevel: EditorLevel) {
+        val numericId =
+            -editorLevel.id
+                .hashCode()
+                .absoluteValue
+                .coerceAtLeast(1)
+        val gameLevel =
+            de.egril.defender.editor.EditorStorage
+                .convertToGameLevel(editorLevel, numericId) ?: return
+        editorPlaytestSession = EditorPlaytestSession(editorLevel)
+        startEditorPlaytestInternal(gameLevel)
     }
 }
