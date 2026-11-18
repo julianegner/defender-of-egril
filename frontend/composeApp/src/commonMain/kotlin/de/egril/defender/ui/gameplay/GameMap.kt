@@ -3270,265 +3270,30 @@ private fun BoxScope.GridCellContent(
         )
     }
 
-    // Show enemy death animation overlay when an enemy was just defeated here.
-    // The `attacker == null` guard avoids overlapping the death animation with a live enemy
-    // that may have moved to this tile in the same turn.
-    // When a tower attack was also recorded for this tile, delay the death animation until
-    // after the impact animation plays (~670ms, plus ~900ms arrow flight for ranged attacks),
-    // so the sequence is: pre-death icon with red bg → attack → impact → ghost → death anim.
-    //
-    // Ghost rendering: while the death effect is present (and before the death animation
-    // finishes), show the enemy unit icon without a health bar so the player can see which
-    // unit was killed.  The ghost disappears once the death animation has completed so that
-    // the coin-gain animation plays on a clean tile.
-    //
-    val deathAnimationKey =
-        deathEffect?.let {
-            oneShotTileAnimationKey("enemy_death", it.position, it.turnNumber)
-        }
     val towerImpactAnimationKey =
         towerAttackEffect?.let {
             oneShotTileAnimationKey("tower_attack_impact", it.targetPosition, it.turnNumber)
         }
-    val shouldPlayDeathAnimation = rememberShouldPlayOneShotTileAnimation(gameState, deathAnimationKey)
-    var showGhost by remember(deathAnimationKey, towerImpactAnimationKey, shouldPlayDeathAnimation) {
-        mutableStateOf(isDeathEffectActive && shouldPlayDeathAnimation)
-    }
-    if (deathEffect != null) {
-        LaunchedEffect(deathAnimationKey, towerImpactAnimationKey, shouldPlayDeathAnimation) {
-            if (isDeathEffectActive && shouldPlayDeathAnimation) {
-                showGhost = true
-                val arrowDelay =
-                    when {
-                        towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                        towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
-                        towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                        towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                        towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
-                        towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                        towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                        // AoE secondary targets: delay matches the fireball/acid flight time
-                        isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                        isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                        else -> 0L
-                    }
-                val impactDelay =
-                    if (towerAttackEffect != null ||
-                        isInWizardAttackArea ||
-                        isInAlchemyAttackArea
-                    ) {
-                        GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
-                    } else {
-                        0L
-                    }
-                kotlinx.coroutines.delay(arrowDelay + impactDelay + GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS)
-                showGhost = false
-            } else {
-                showGhost = false
-            }
-        }
-    } else {
-        SideEffect { showGhost = false }
-    }
-    if (showGhost && isDeathEffectActive) {
-        EnemyTypeIcon(
-            attackerType = deathEffect.attackerType,
-            swarmHealthOverride = ghostSwarmCount(deathEffect.attackerType, displayedHealth),
-            modifier = Modifier.fillMaxSize().zIndex(15f),
-        )
-        // Show level badge on top of the ghost icon when level > 1
-        if (deathEffect.attackerLevel > 1) {
-            Box(
-                modifier = Modifier.fillMaxSize().zIndex(15f),
-                contentAlignment = Alignment.TopCenter,
-            ) {
-                Text(
-                    text = "${deathEffect.attackerLevel}",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontSize = 12.sp,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-            }
-        }
-    }
-
-    var showDeathAnimation by remember(deathAnimationKey, towerImpactAnimationKey) {
-        mutableStateOf(false)
-    }
-    if (deathEffect != null) {
-        LaunchedEffect(deathAnimationKey, towerImpactAnimationKey, shouldPlayDeathAnimation) {
-            if (isDeathEffectActive && shouldPlayDeathAnimation) {
-                // Wait for both the projectile flight and the impact flash to finish before
-                // starting the death animation.  Also handles AoE secondary targets where
-                // towerAttackEffect is null but the tile is in the fireball/acid blast area.
-                val flightDelay =
-                    when {
-                        towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                        towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
-                        towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                        towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                        towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
-                        towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                        towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                        isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                        isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                        else -> 0L
-                    }
-                val impactDelay =
-                    if (towerAttackEffect != null ||
-                        isInWizardAttackArea ||
-                        isInAlchemyAttackArea
-                    ) {
-                        GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
-                    } else {
-                        0L
-                    }
-                if (flightDelay > 0L || impactDelay > 0L) {
-                    kotlinx.coroutines.delay(flightDelay + impactDelay)
-                }
-                showDeathAnimation = true
-                GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)
-            } else {
-                showDeathAnimation = false
-            }
-        }
-    } else {
-        SideEffect { showDeathAnimation = false }
-    }
-    if (showDeathAnimation && isDeathEffectActive) {
-        EnemyDeathAnimation(
-            animate = AppSettings.enableAnimations.value,
-            modifier = Modifier.fillMaxSize().zIndex(18f),
-        )
-    }
-
-    // Show coin gain animation overlay after the full death-animation sequence has finished:
-    // arrowDelay + impactDelay + deathDuration + post-death pause.
-    val coinAnimationKey =
-        coinGainEffect?.let {
-            oneShotTileAnimationKey("coin_gain", it.position, it.turnNumber)
-        }
-    val shouldPlayCoinAnimation = rememberShouldPlayOneShotTileAnimation(gameState, coinAnimationKey)
-    var showCoinAnimation by remember(coinAnimationKey, towerImpactAnimationKey) {
-        mutableStateOf(false)
-    }
-    // Track where this tile's coin-gain "bubbling" animation ends, in root coordinates, so a
-    // coin-flight animation can start from there. The rising coins finish near the top of the tile
-    // (see COIN_BUBBLE_END_HEIGHT_FRACTION), horizontally centered.
-    // Keyed on the (stable) tile grid position so it is captured once and not reset to null when
-    // a new coin-gain effect appears on the same tile.
-    var coinFlightStartPosition by remember(position) {
-        mutableStateOf<Offset?>(null)
-    }
-    // Diameter (px) of the coin-gain "bubbling" coins on this tile, so the fly-to-counter coins can
-    // be launched at the same visible size. The Lottie (coin_gain.json) is a 100x100 viewport with
-    // 14-unit coins, fitted (ContentScale.Fit) to the tile box, so the coin diameter on screen is
-    // COIN_BUBBLE_COIN_SIZE_FRACTION of the tile's smaller dimension.
-    var flyingCoinSizePx by remember(position) {
-        mutableStateOf(CoinFlightController.DEFAULT_COIN_SIZE_PX)
-    }
-    if (coinGainEffect != null) {
-        Box(
-            modifier =
-                Modifier.matchParentSize().onGloballyPositioned { coords ->
-                    // Captured fresh whenever a coin-gain effect is present on this tile (this Box
-                    // only exists then) and re-fired while the map pans/zooms, so the value used at
-                    // launch time reflects the tile's current on-screen position.
-                    val topLeft = coords.positionInRoot()
-                    coinFlightStartPosition =
-                        Offset(
-                            x = topLeft.x + coords.size.width / 2f,
-                            y = topLeft.y + coords.size.height * COIN_BUBBLE_END_HEIGHT_FRACTION,
-                        )
-                    flyingCoinSizePx =
-                        minOf(coords.size.width, coords.size.height) * COIN_BUBBLE_COIN_SIZE_FRACTION
-                },
-        )
-    }
-    if (coinGainEffect != null) {
-        LaunchedEffect(coinAnimationKey, towerImpactAnimationKey, shouldPlayCoinAnimation) {
-            if (!shouldPlayCoinAnimation) {
-                showCoinAnimation = false
-                return@LaunchedEffect
-            }
-            val arrowDelay =
-                when {
-                    towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
-                    towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                    towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                    // AoE secondary targets have no direct towerAttackEffect but are in the blast area
-                    isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                    isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                    else -> 0L
-                }
-            val impactDelay =
-                if (towerAttackEffect != null ||
-                    isInWizardAttackArea ||
-                    isInAlchemyAttackArea
-                ) {
-                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
-                } else {
-                    0L
-                }
-            kotlinx.coroutines.delay(
-                arrowDelay + impactDelay +
-                    GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS +
-                    GamePlayConstants.AnimationTimings.COIN_GAIN_DELAY_AFTER_DEATH_MS,
-            )
-            // Add coins to the player's total in sync with the animation so the counter
-            // visually increases when the coin animation plays, not before the attack runs.
-            showCoinAnimation = true
-            // Launch the "coin fly-to-counter" animation only after the coin-gain (coins bubbling
-            // up) animation has played, so the flying coins appear to peel off the end of that
-            // animation. The counter is then updated as those coins reach it (via the launch
-            // callback), so the number and the arriving coins stay in step.
-            if (AppSettings.enableAnimations.value) {
-                kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.COIN_GAIN_ANIMATION_DURATION_MS)
-            }
-            // Credit the coins that are still pending for this reward (guard against the safety
-            // flush in completeEnemyTurn() having already credited them). Reserve them out of
-            // pending immediately before launching so the flush can't also credit them; the flying
-            // coins then add them to the visible total as they land.
-            val toAdd = minOf(coinGainEffect.amount, gameState.pendingCoinGains.value)
-            if (toAdd > 0) {
-                gameState.pendingCoinGains.value -= toAdd
-                val source = coinFlightStartPosition
-                val launched =
-                    if (AppSettings.enableAnimations.value && source != null) {
-                        CoinFlightController.launch(
-                            source = source,
-                            amount = coinGainEffect.amount,
-                            coinSizePx = flyingCoinSizePx,
-                            creditAmount = toAdd,
-                        ) { arrived ->
-                            gameState.coins.value += arrived
-                        }
-                    } else {
-                        0
-                    }
-                // No flying coins launched (animations off, no source position, or the queue is
-                // full): credit the reserved coins immediately so the reward is never lost.
-                if (launched == 0) {
-                    gameState.coins.value += toAdd
-                }
-            }
-        }
-    } else {
-        SideEffect { showCoinAnimation = false }
-    }
-    if (showCoinAnimation && coinGainEffect != null) {
-        CoinGainAnimation(
-            amount = coinGainEffect.amount,
-            animate = AppSettings.enableAnimations.value,
-            modifier = Modifier.fillMaxSize().zIndex(19f),
-        )
-    }
+    TileDeathAndCoinAnimations(
+        position = position,
+        gameState = gameState,
+        attacker = attacker,
+        deathEffect = deathEffect,
+        coinGainEffect = coinGainEffect,
+        towerAttackEffect = towerAttackEffect,
+        isArrowTargetTile = isArrowTargetTile,
+        isBallistaTargetTile = isBallistaTargetTile,
+        isBowTargetTile = isBowTargetTile,
+        isSpearTargetTile = isSpearTargetTile,
+        isPikeTargetTile = isPikeTargetTile,
+        isWizardTargetTile = isWizardTargetTile,
+        isAlchemyTargetTile = isAlchemyTargetTile,
+        isInWizardAttackArea = isInWizardAttackArea,
+        isInAlchemyAttackArea = isInAlchemyAttackArea,
+        displayedHealth = displayedHealth,
+        isDeathEffectActive = isDeathEffectActive,
+        towerImpactAnimationKey = towerImpactAnimationKey,
+    )
 
     // Show tower attack impact overlay when this tile was attacked.
     // When a projectile is targeting this tile the hit animation is delayed
