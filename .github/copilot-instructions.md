@@ -13,7 +13,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
     - `model/`: Domain models (Position, Attacker, Defender, Level, GameState, HexUtils, Trap, MineAction)
     - `game/`: Game engine and systems (GameEngine, CombatSystem, PathfindingSystem, EnemyMovementSystem, EnemyAbilitySystem, TowerManager, MineOperations, LevelData)
     - `ui/`: UI components
-      - `gameplay/`: Gameplay screen components (GameMap, GameControls, GameHeader, GameLegend, DefenderButtons, DefenderInfo, ActionButtons, GameDialogs)
+      - `gameplay/`: Gameplay screen components (GameMap, GameGridDerivedState, GridCellContent, GridCellAnimations, GameControls, GameHeader, GameLegend, DefenderButtons, DefenderInfo, ActionButtons, GameDialogs)
       - `editor/`: Level editor components (MapEditor, LevelEditor, LevelSequence, EditorDialogs, TileUtils)
       - `icon/`: Icon components (defender/, enemy/, IconUtils)
       - `loadgame/`: Save/load UI components
