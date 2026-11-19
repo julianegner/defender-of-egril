@@ -13,4 +13,3 @@
 1222 servers/backend/src/main/kotlin/de/egril/defender/Routing.kt
 1189 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/gameplay/GameHeader.kt
 1140 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/game/CombatSystem.kt
-1101 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/editor/json/EditorLevelJsonDeserializer.kt
