@@ -6,4 +6,3 @@
 1597 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/level/LevelEditor.kt
 1544 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/MenuScreens.kt
 1222 servers/backend/src/main/kotlin/de/egril/defender/Routing.kt
-1140 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/game/CombatSystem.kt
