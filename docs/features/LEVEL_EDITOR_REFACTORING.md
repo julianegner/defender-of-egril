@@ -33,10 +33,20 @@ Shared utilities for tile manipulation:
 All map editor components:
 
 - `MapEditorContent` - Main content for Map Editor tab
-- `MapEditorView` - View for editing a specific map
+- `MapEditorView` - View for editing a specific map (split, see below)
 - `MapEditorHeader` - Header with controls for map editing
 - `MapListCard` - Card displaying map in the list
 - `MapSelectionCard` - Card for selecting maps in level editor
+
+The map editing view is split across these files in `ui/editor/map/`, each below 1000 lines:
+
+- `MapEditorView.kt` - `MapEditorView`, derived map values and the layout skeleton (state accessed via `with(state)`)
+- `MapEditorViewState.kt` - `MapEditorViewState`, the mutable editor state and undo snapshots
+- `MapEditorViewGrid.kt` - Hex grid, tile painting, cell rendering (`MapEditorViewGrid`)
+- `MapEditorViewSidePanel.kt` - Tools side panel: resize, tile replacement, area clipboard, zones, validators
+- `MapEditorViewFooter.kt` - Save, Save As, Template, Cancel buttons and community upload
+- `MapEditorViewDialogs.kt` - Map image generation, river ring, save-as, save-template and target dialogs
+- `MapEditorViewActions.kt` - Map preview loading and regeneration
 
 #### 5. **LevelEditor.kt** (311 lines)
 
