@@ -5,6 +5,7 @@ import androidx.compose.ui.input.key.*
 import de.egril.defender.model.*
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.isShortcutBindingPressed
+import de.egril.defender.ui.settings.saveSoundEnabled
 
 // Keyboard event handler for shortcuts
 // Using onPreviewKeyEvent to intercept before HexagonalMapView handles it

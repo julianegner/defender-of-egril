@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.ui.animations.AnimationType
 import de.egril.defender.ui.animations.LottieAnimation
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.saveEnableAnimations
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

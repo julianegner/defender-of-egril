@@ -1,5 +1,7 @@
 package de.egril.defender.ui
 
+import de.egril.defender.ui.settings.applyFromSettingsMap
+import de.egril.defender.ui.settings.toSettingsMap
 import kotlinx.coroutines.launch
 
 // Download/Upload functionality

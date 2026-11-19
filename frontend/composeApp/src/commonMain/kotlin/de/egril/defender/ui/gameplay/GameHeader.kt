@@ -42,6 +42,7 @@ import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.DifficultyDisplay
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
+import de.egril.defender.ui.settings.saveShowButtonShortcutHints
 import de.egril.defender.utils.isLimitedInputDevice
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*

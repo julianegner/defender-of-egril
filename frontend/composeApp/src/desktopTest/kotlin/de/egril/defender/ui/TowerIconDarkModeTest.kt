@@ -12,6 +12,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.saveDarkMode
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test

@@ -40,12 +40,8 @@ import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.icon.UnlockIcon
 import de.egril.defender.ui.infopage.ImpressumWrapper
-import de.egril.defender.ui.settings.AccessibilityBanner
-import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.*
 import de.egril.defender.ui.settings.AppSettings.isDarkMode
-import de.egril.defender.ui.settings.SettingsButton
-import de.egril.defender.ui.settings.SettingsHintBox
-import de.egril.defender.ui.settings.SettingsTab
 import de.egril.defender.ui.worldmap.EditorButtonCard
 import de.egril.defender.utils.isPlatformDesktop
 import de.egril.defender.utils.isPlatformIos

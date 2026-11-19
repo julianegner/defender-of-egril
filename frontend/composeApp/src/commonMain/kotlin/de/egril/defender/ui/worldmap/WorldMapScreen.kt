@@ -34,6 +34,8 @@ import de.egril.defender.ui.settings.DifficultyDisplay
 import de.egril.defender.ui.settings.DifficultyLevel
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.isShortcutBindingPressed
+import de.egril.defender.ui.settings.markDailyHintShown
+import de.egril.defender.ui.settings.saveDifficulty
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.utils.isPlatformWasm
 import defender_of_egril.composeapp.generated.resources.*
