@@ -14,4 +14,3 @@
 1189 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/gameplay/GameHeader.kt
 1140 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/game/CombatSystem.kt
 1101 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/editor/json/EditorLevelJsonDeserializer.kt
-1051 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/game/Movement.kt
