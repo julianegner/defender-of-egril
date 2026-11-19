@@ -38,12 +38,21 @@ All map editor components:
 - `MapListCard` - Card displaying map in the list
 - `MapSelectionCard` - Card for selecting maps in level editor
 
-#### 5. **LevelEditor.kt** (477 lines)
+#### 5. **LevelEditor.kt** (311 lines)
 
-All level editor components:
+Level list and tab index mapping:
 
 - `LevelEditorContent` - Main content for Level Editor tab
-- `LevelEditorView` - View for editing a specific level
+- `LevelEditorTabIndices` / `levelEditorTabIndices` - Tab index mapping
+
+The level editing view is split across these files, each below 1000 lines:
+
+- `LevelEditorCard.kt` - `LevelCard`, the level list item
+- `LevelEditorBadges.kt` - `RedDotBadge`, `WarningBadge`, `areWaypointsValid`
+- `LevelEditorView.kt` - `LevelEditorView`, derived values and tab layout (state accessed via `with(state)`)
+- `LevelEditorViewState.kt` - `LevelEditorViewState`, the mutable editor state and enemy spawn undo/redo
+- `LevelEditorViewActions.kt` - Save, Save As, Cancel buttons and community upload
+- `LevelEditorViewDialogs.kt` - Add enemy, remove-all-turns, save-as and official-save warning dialogs
 
 #### 6. **LevelEditorComponents.kt** (241 lines)
 
