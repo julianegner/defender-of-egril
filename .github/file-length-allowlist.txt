@@ -9,6 +9,5 @@
 1378 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/infopage/PlayerProfileScreen.kt
 1322 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/level/initialsetup/InitialSetupSidebar.kt
 1295 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/level/events/EventsTab.kt
-1245 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/level/LevelEditorComponents.kt
 1222 servers/backend/src/main/kotlin/de/egril/defender/Routing.kt
 1140 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/game/CombatSystem.kt

@@ -50,7 +50,11 @@ All level editor components:
 Shared components used by level editor:
 
 - `AddEnemyDialog` - Dialog for adding enemies to turns
-- `SpawnTurnSection` - Collapsible section showing enemies in a turn
+
+Spawn-related components were moved out to keep each file under 1000 lines:
+
+- `LevelEditorSpawnDialogs.kt` - Spawn point and spawn level dialogs (`SpawnPointSelectionDialog`, `SelectSpawnPointDialog`, `ChangeSpawnPointDialog`, `ChangeLevelDialog`, `ChangeTurnLevelDialog`)
+- `LevelEditorSpawnSections.kt` - `SpawnTurnSection`, `EnemySpawnRow`, and `ChangeAllSpawnPointsDialog`
 
 #### 7. **LevelSequence.kt** (93 lines)
 
@@ -103,7 +107,9 @@ The original file at `ui/LevelEditorScreen.kt` now contains a simple wrapper fun
 | TileUtils.kt | 65 | Tile utilities |
 | MapEditor.kt | 618 | Map editing |
 | LevelEditor.kt | 477 | Level editing |
-| LevelEditorComponents.kt | 241 | Shared level components |
+| LevelEditorComponents.kt | 288 | Shared level components (AddEnemyDialog) |
+| LevelEditorSpawnDialogs.kt | 428 | Spawn point and spawn level dialogs |
+| LevelEditorSpawnSections.kt | 569 | Spawn turn section and bulk spawn point dialog |
 | LevelSequence.kt | 93 | Sequence management |
 | LevelEditorScreen.kt | 119 | Main orchestrator |
 | **Total** | **1765** | |
