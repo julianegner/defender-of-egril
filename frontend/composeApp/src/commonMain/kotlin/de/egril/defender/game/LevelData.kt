@@ -2,6 +2,11 @@ package de.egril.defender.game
 
 import de.egril.defender.config.LogConfig
 import de.egril.defender.editor.EditorStorage
+import de.egril.defender.editor.convertToGameLevel
+import de.egril.defender.editor.getLevelSequence
+import de.egril.defender.editor.getMap
+import de.egril.defender.editor.isLevelReadyToPlay
+import de.egril.defender.editor.reloadLevel
 import de.egril.defender.model.*
 
 object LevelData {

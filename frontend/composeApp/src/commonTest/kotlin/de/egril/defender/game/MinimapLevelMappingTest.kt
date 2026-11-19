@@ -5,6 +5,9 @@ import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.TileType
+import de.egril.defender.editor.convertToGameLevel
+import de.egril.defender.editor.deleteMap
+import de.egril.defender.editor.saveMap
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import kotlin.test.Test

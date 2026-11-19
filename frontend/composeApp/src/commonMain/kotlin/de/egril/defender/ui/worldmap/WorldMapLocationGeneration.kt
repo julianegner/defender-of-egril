@@ -4,6 +4,10 @@ import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.WorldMapData
 import de.egril.defender.editor.WorldMapLocationData
 import de.egril.defender.editor.WorldMapPoint
+import de.egril.defender.editor.getAllLevels
+import de.egril.defender.editor.getAllMaps
+import de.egril.defender.editor.getWorldMapData
+import de.egril.defender.editor.isLevelReadyToPlay
 import de.egril.defender.model.WorldLevel
 import de.egril.defender.ui.settings.AppSettings
 

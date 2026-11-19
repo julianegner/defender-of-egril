@@ -7,6 +7,16 @@ import de.egril.defender.config.LogConfig
 import de.egril.defender.editor.EditorJsonSerializer
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.InitialDefender
+import de.egril.defender.editor.convertToGameLevel
+import de.egril.defender.editor.getAllCommunityLevels
+import de.egril.defender.editor.getAllCommunityMaps
+import de.egril.defender.editor.getCommunityLevel
+import de.egril.defender.editor.getLevel
+import de.egril.defender.editor.getMap
+import de.egril.defender.editor.getUserLevelSequence
+import de.egril.defender.editor.isLevelReadyToPlay
+import de.egril.defender.editor.isLevelUnlocked
+import de.egril.defender.editor.reloadLevel
 import de.egril.defender.game.GameEngine
 import de.egril.defender.game.LevelData
 import de.egril.defender.game.isProtectedByObsidianProtector

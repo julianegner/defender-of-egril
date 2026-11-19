@@ -1,6 +1,8 @@
 package de.egril.defender.ui
 
 import de.egril.defender.editor.EditorStorage
+import de.egril.defender.editor.convertToGameLevel
+import de.egril.defender.editor.getLevel
 import de.egril.defender.game.DemoMode
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.GameMessage

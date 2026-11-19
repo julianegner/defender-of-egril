@@ -3,6 +3,9 @@ package de.egril.defender.ui
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
 import de.egril.defender.editor.OfficialContent
+import de.egril.defender.editor.getLevel
+import de.egril.defender.editor.getWorldMapData
+import de.egril.defender.editor.isLevelUnlocked
 import de.egril.defender.model.*
 import de.egril.defender.ui.gameplay.GamePlayConstants
 import de.egril.defender.ui.settings.AppSettings

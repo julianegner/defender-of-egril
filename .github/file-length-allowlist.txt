@@ -1,6 +1,5 @@
 # Production Kotlin files above 1000 lines (line count at time of listing).
 # Shrink these files; each entry must be removed once the file is 1000 lines or fewer.
-1936 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/editor/EditorStorage.kt
 1917 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/map/MapEditorView.kt
 1620 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/settings/AppSettings.kt
 1597 frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/editor/level/LevelEditor.kt

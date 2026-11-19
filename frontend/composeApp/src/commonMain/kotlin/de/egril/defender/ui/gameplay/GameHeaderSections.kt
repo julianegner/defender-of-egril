@@ -21,6 +21,8 @@ import androidx.compose.ui.zIndex
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.DEFAULT_MAP_TOOLING_INFO
 import de.egril.defender.editor.EditorStorage
+import de.egril.defender.editor.getCommunityMap
+import de.egril.defender.editor.getMap
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.TooltipWrapper

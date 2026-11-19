@@ -23,6 +23,11 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
+import de.egril.defender.editor.compressAndSaveMapImage
+import de.egril.defender.editor.compressAndSaveTileZoneImage
+import de.egril.defender.editor.generateMapPixels
+import de.egril.defender.editor.generateTileZonePixels
+import de.egril.defender.editor.saveProvidedMapImage
 import de.egril.defender.ui.MapImageProvider
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.LeftArrowIcon

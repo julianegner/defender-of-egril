@@ -2,6 +2,7 @@ package de.egril.defender.ui
 
 import androidx.compose.runtime.mutableStateOf
 import com.hyperether.resources.currentLanguage
+import de.egril.defender.editor.getLevel
 import de.egril.defender.game.GameEngine
 import de.egril.defender.model.*
 import de.egril.defender.ui.settings.AppSettings

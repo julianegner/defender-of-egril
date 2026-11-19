@@ -21,16 +21,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
-import de.egril.defender.editor.EditorJsonSerializer
-import de.egril.defender.editor.EditorMap
-import de.egril.defender.editor.EditorStorage
-import de.egril.defender.editor.EditorTargetInfo
-import de.egril.defender.editor.MapSizeLimits
-import de.egril.defender.editor.MapTemplateDefinition
-import de.egril.defender.editor.TileReplacementArea
-import de.egril.defender.editor.TileType
-import de.egril.defender.editor.pickBackgroundImageBytes
-import de.egril.defender.editor.replaceTilesByType
+import de.egril.defender.editor.*
 import de.egril.defender.model.Position
 import de.egril.defender.model.RiverFlow
 import de.egril.defender.model.RiverTile

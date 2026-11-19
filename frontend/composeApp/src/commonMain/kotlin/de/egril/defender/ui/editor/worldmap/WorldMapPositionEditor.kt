@@ -19,6 +19,9 @@ import de.egril.defender.editor.WorldMapData
 import de.egril.defender.editor.WorldMapLocationData
 import de.egril.defender.editor.WorldMapPathData
 import de.egril.defender.editor.WorldMapPoint
+import de.egril.defender.editor.getAllLevels
+import de.egril.defender.editor.getWorldMapData
+import de.egril.defender.editor.saveWorldMapData
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*

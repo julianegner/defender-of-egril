@@ -17,6 +17,9 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.config.LogConfig
 import de.egril.defender.editor.RepositoryManager
+import de.egril.defender.editor.getCommunityLevel
+import de.egril.defender.editor.getLevel
+import de.egril.defender.editor.getWorldMapData
 import de.egril.defender.iam.IamState
 import de.egril.defender.model.WorldLevel
 import de.egril.defender.ui.CheatCodeDialog

@@ -22,6 +22,7 @@ import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.WorldMapData
 import de.egril.defender.editor.WorldMapPathData
 import de.egril.defender.editor.WorldMapPoint
+import de.egril.defender.editor.isLevelReadyToPlay
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import org.jetbrains.compose.resources.painterResource
