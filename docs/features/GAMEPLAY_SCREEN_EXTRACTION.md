@@ -8,6 +8,7 @@ The following components have been successfully extracted from GamePlayScreen.kt
 
 - `GameGrid` - Main game grid with pan/zoom functionality
 - `GridCell` - Individual hexagonal grid cell
+- Derived grid state (`rememberGameGridDerivedState`) lives in `GameGridDerivedState.kt`; the cell content (`GridCellContent`) and its tile animation overlays (`GridCellAnimations`) are in their own files
 
 ### GameControls.kt
 
@@ -79,7 +80,10 @@ ui/gameplay/
 ├── GameDialogs.kt        - All dialog components ✨ NEW
 ├── GameHeader.kt         - Header components (expanded/compact) ✨ NEW
 ├── GameLegend.kt         - Legend and enemy list panels
-└── GameMap.kt            - Game grid and cells
+├── GameGridDerivedState.kt - Derived state for the game grid
+├── GameMap.kt            - Game grid and cells
+├── GridCellAnimations.kt - Tile animation and overlay layers
+└── GridCellContent.kt    - Grid cell content (enemies, towers, tile icons)
 ```
 
 ## Suggestions for Further Extraction
@@ -157,7 +161,10 @@ ui/
 │   ├── GameDialogs.kt        - Dialog components ✨
 │   ├── GameHeader.kt         - Header components (expanded/compact) ✨
 │   ├── GameLegend.kt         - Legend and enemy list panels
-│   └── GameMap.kt            - Game grid and cells
+│   ├── GameGridDerivedState.kt - Derived state for the game grid
+│   ├── GameMap.kt            - Game grid and cells
+│   ├── GridCellAnimations.kt - Tile animation and overlay layers
+│   └── GridCellContent.kt    - Grid cell content (enemies, towers, tile icons)
 └── GamePlayScreen.kt         - Main screen orchestration (428 lines, was 2,835)
 ```
 

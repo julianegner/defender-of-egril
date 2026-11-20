@@ -2,6 +2,9 @@ package de.egril.defender.game
 
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.InitialDefender
+import de.egril.defender.editor.convertToGameLevel
+import de.egril.defender.editor.getLevel
+import de.egril.defender.editor.getMap
 import de.egril.defender.model.*
 
 /**

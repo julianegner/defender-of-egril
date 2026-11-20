@@ -1,6 +1,8 @@
 package de.egril.defender.ui
 
 import de.egril.defender.editor.EditorStorage
+import de.egril.defender.editor.convertToGameLevel
+import de.egril.defender.editor.getLevel
 import de.egril.defender.game.DemoMode
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.GameMessage
@@ -118,10 +120,13 @@ class GameViewModelDemoModeTest {
                         name = AttackerType.SNOTLING_BOSS.name,
                     ),
                 )
-                GameViewModel::class.java
-                    .getDeclaredMethod("surfaceNextPendingMessageIfIdle")
+                // internal members get a mangled JVM name, so match by prefix
+                Class
+                    .forName("de.egril.defender.ui.GameViewModelProfilesKt")
+                    .declaredMethods
+                    .first { it.name.startsWith("surfaceNextPendingMessageIfIdle") }
                     .apply { isAccessible = true }
-                    .invoke(viewModel)
+                    .invoke(null, viewModel)
 
                 assertEquals(GameMessageType.VILLAIN_ENTERS, viewModel.pendingGameMessage.first()?.type)
 

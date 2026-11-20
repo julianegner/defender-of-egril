@@ -10,6 +10,8 @@ import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.MousePointerDirection
 import de.egril.defender.ui.settings.MousePointerSize
 import de.egril.defender.ui.settings.SettingsDialog
+import de.egril.defender.ui.settings.resetToDefaults
+import de.egril.defender.ui.settings.saveShowButtonShortcutHints
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals

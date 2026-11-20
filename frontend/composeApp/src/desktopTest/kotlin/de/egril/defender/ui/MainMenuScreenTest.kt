@@ -6,6 +6,9 @@ import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.AppBuildInfo
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.markAccessibilityBannerShown
+import de.egril.defender.ui.settings.markSettingsHintShown
+import de.egril.defender.ui.settings.resetToDefaults
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

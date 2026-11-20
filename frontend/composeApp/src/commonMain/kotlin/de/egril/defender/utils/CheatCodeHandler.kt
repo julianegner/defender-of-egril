@@ -1,5 +1,7 @@
 package de.egril.defender.utils
 
+import de.egril.defender.editor.getAllLevels
+import de.egril.defender.editor.getLevel
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DigOutcome
 import de.egril.defender.model.LevelStatus

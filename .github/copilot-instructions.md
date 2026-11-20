@@ -13,7 +13,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
     - `model/`: Domain models (Position, Attacker, Defender, Level, GameState, HexUtils, Trap, MineAction)
     - `game/`: Game engine and systems (GameEngine, CombatSystem, PathfindingSystem, EnemyMovementSystem, EnemyAbilitySystem, TowerManager, MineOperations, LevelData)
     - `ui/`: UI components
-      - `gameplay/`: Gameplay screen components (GameMap, GameControls, GameHeader, GameLegend, DefenderButtons, DefenderInfo, ActionButtons, GameDialogs)
+      - `gameplay/`: Gameplay screen components (GameMap, GameGridDerivedState, GridCellContent, GridCellAnimations, GameControls, GameHeader, GameLegend, DefenderButtons, DefenderInfo, ActionButtons, GameDialogs)
       - `editor/`: Level editor components (MapEditor, LevelEditor, LevelSequence, EditorDialogs, TileUtils)
       - `icon/`: Icon components (defender/, enemy/, IconUtils)
       - `loadgame/`: Save/load UI components
@@ -574,7 +574,7 @@ Add to `LevelData.createLevels()` with:
 6. **JSON serialization**: Use manual serialization (not kotlinx.serialization) to match existing patterns in EditorJsonSerializer and SaveJsonSerializer
 7. **Level Editor**: Desktop and web/wasm only - not available on mobile platforms
 8. **File storage paths**: Use FileStorage interface for platform-specific paths
-9. **Large file refactoring**: Keep UI component files under 500 lines; extract into modular structure (see `ui/gameplay/` pattern)
+9. **Large file refactoring**: Keep UI component files under 500 lines; keep all production Kotlin files under 1000 lines. Extract into modular structure (see `ui/gameplay/` pattern). CI runs `.github/scripts/check-file-length.sh`, which fails on new files over 1000 lines. Files already over the limit are listed in `.github/file-length-allowlist.txt`; they may not grow, and their entries must be removed once they drop to 1000 lines or fewer.
 10. **Hardcoded strings**: NEVER use hardcoded strings in UI (e.g., `Text("Hello")`). Always use `stringResource(Res.string.key_name)`. Add new strings to ALL language files (values/, values-de/, values-es/, values-fr/, values-it/). Run `TranslationCoverageTest` to verify.
 
 ## Dependencies

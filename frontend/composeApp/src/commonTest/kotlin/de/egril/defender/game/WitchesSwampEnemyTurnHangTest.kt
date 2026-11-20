@@ -2,6 +2,7 @@ package de.egril.defender.game
 
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.RepositoryLoader
+import de.egril.defender.editor.convertToGameLevel
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.GameState
 import kotlinx.coroutines.test.runTest

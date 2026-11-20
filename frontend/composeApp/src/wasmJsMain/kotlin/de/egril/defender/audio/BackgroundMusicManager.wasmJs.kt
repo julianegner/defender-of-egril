@@ -3,6 +3,8 @@
 package de.egril.defender.audio
 
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.saveMusicEnabled
+import de.egril.defender.ui.settings.saveMusicVolume
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.*
 

@@ -16,6 +16,16 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.MapSizeLimits
+import de.egril.defender.editor.compressAndSaveMapImage
+import de.egril.defender.editor.copyMap
+import de.egril.defender.editor.deleteMap
+import de.egril.defender.editor.generateMapPixels
+import de.egril.defender.editor.getAllCommunityMaps
+import de.egril.defender.editor.getAllLevels
+import de.egril.defender.editor.getAllMaps
+import de.egril.defender.editor.getMapTemplates
+import de.egril.defender.editor.saveMap
+import de.egril.defender.editor.saveMapData
 import de.egril.defender.iam.IamService
 import de.egril.defender.save.CommunityFileInfo
 import de.egril.defender.ui.MapImageProvider

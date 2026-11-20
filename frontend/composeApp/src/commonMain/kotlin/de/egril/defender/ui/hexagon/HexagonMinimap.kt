@@ -25,6 +25,10 @@ import com.hyperether.resources.currentLanguage
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.TileType
+import de.egril.defender.editor.getCommunityLevel
+import de.egril.defender.editor.getLevel
+import de.egril.defender.editor.getLevelSequence
+import de.egril.defender.editor.getMap
 import de.egril.defender.model.*
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.settings.AppSettings

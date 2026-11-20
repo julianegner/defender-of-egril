@@ -15,6 +15,7 @@ import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.gameplay.defenderButtons.CompactDefenderButton
 import de.egril.defender.ui.gameplay.defenderButtons.DefenderButton
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.saveDarkMode
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test

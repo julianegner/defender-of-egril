@@ -7,9 +7,12 @@ import de.egril.defender.model.Barricade
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Level
 import de.egril.defender.model.Position
+import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+
+private const val RAZZIK_TEST_SEED = 42
 
 class RazzikRocketTest {
     private fun createLevel(): Level {
@@ -63,7 +66,7 @@ class RazzikRocketTest {
             )
         state.barricades.add(base)
 
-        val abilities = EnemyAbilitySystem(state, PathfindingSystem(state))
+        val abilities = EnemyAbilitySystem(state, PathfindingSystem(state), Random(RAZZIK_TEST_SEED))
         abilities.processEnemyAbilities()
 
         assertTrue(state.rocketAttackEffects.isNotEmpty(), "Razzik should launch rockets")

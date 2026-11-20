@@ -3,6 +3,7 @@ package de.egril.defender.ui.gameplay
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.saveHoldToConfirmEnabled
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
